@@ -155,7 +155,6 @@ extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport
 extImport = evaluation' . withCtx $ \ctx -> \case
   TypedAST.ExtImport name extImportPath ->
     -- NOTE(martin): This parsing here could instead be done in Parser.
-    -- NOTE(martin): This parsing here could instead be done in Parser.
     --   I don't have a very good reason for doing it here instead of Parser, except
     --   for being somewhat simpler to implement.
     --   So we might want to move it to Parser at some point in the future, if we

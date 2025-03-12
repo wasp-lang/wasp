@@ -34,7 +34,7 @@ Setting up a backbone for the project is the most frustrating part of building a
 
 We are installing dependencies, tying up the back-end and front-end, setting up a database, managing connection strings, and so on. Avoiding this part will save us a ton of time and effort. So let’s find ourselves an excuse to skip the initial project setup.
 
-Ideally – use a framework that will create a project infrastructure quickly with the best defaults so that we’ll focus on the business logic. A perfect candidate is [Wasp](https://wasp-lang.dev/). It’s an open-source, declarative DSL for building web apps in React and Node.js with no boilerplate
+Ideally – use a framework that will create a project infrastructure quickly with the best defaults so that we’ll focus on the business logic. A perfect candidate is [Wasp](https://wasp.sh/). It’s an open-source, declarative DSL for building web apps in React and Node.js with no boilerplate
 
 How it works: developer starts from a single config file that specifies the app architecture. Routes, CRUD API, auth, and so on. Then adds React/Node.js code for the specific business logic. Behind the scenes, Wasp compiler will produce the entire source code of the app - back-end, front-end, deployment template, database migrations and everything else you’ve used to have in any other full-stack app. 
 
@@ -45,11 +45,11 @@ So let’s jump right in.
 
 ## Maybe something's wrong with the environment.
 
-Wasp intentionally works with the LTS Node.js version since it guarantees stability and active maintenance. As for now, it’s Node 16 and NPM 8. If you need another Node version for some other project – there’s a possibility to [use NVM](https://wasp-lang.dev/docs#1-requirements) to manage multiple Node versions on your computer at the same time.
+Wasp intentionally works with the LTS Node.js version since it guarantees stability and active maintenance. As for now, it’s Node 16 and NPM 8. If you need another Node version for some other project – there’s a possibility to [use NVM](https://wasp.sh/docs#1-requirements) to manage multiple Node versions on your computer at the same time.
 
-Installing Wasp on Linux (for Mac/Windows, please [check the docs](https://wasp-lang.dev/docs#2-installation)):
+Installing Wasp on Linux (for Mac/Windows, please [check the docs](https://wasp.sh/docs#2-installation)):
 ```
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 Now let’s create a new web app named ItWaspsOnMyMachine.

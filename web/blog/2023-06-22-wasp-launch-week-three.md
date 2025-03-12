@@ -123,7 +123,7 @@ Us at Wasp, we are pretty much the same as Gimli - we take our tools seriously. 
 
 **When**: Thursday, June 29 2023
 
-**Read more about it**: [A blog post introing Wasp LSP 2.0](https://wasp-lang.dev/blog/2023/06/29/new-wasp-lsp)
+**Read more about it**: [A blog post introing Wasp LSP 2.0](https://wasp.sh/blog/2023/06/29/new-wasp-lsp)
 
 ## GPT Web App Generator | Friday: Waspularity 🤖 + Tutorial-o-thon!
 
@@ -140,7 +140,7 @@ To wrap the week up, we'll also start another hackathon, but this time in a bit 
 
 **Read more about it**:
 - [Intro Twitter thread](https://twitter.com/WaspLang/status/1674814873312608257)
-- [Try GPT Web App Generator!](https://magic-app-generator.wasp-lang.dev/)
+- [Try GPT Web App Generator!](https://magic-app-generator.wasp.sh/)
 - [Join our Tutorial Jam #1 and win prizes!](http://localhost:3002/blog/2023/06/30/tutorial-jam)
 
 ## Recap

@@ -75,7 +75,6 @@ genServer spec =
     <++> genSrcDir spec
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genEnvValidationScript
     <++> genApis spec
     <++> genCrud spec
   where
@@ -167,7 +166,8 @@ npmDepsForWasp spec =
             ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             ("@types/cors", "^2.8.5"),
             ("rollup", "^4.9.6"),
-            ("rollup-plugin-esbuild", "^6.1.1")
+            ("rollup-plugin-esbuild", "^6.1.1"),
+            ("@rollup/plugin-node-resolve", "^16.0.0")
           ]
     }
   where
@@ -251,12 +251,6 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
-
-genEnvValidationScript :: Generator [FileDraft]
-genEnvValidationScript =
-  return
-    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|]
-    ]
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =

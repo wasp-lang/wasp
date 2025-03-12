@@ -133,7 +133,7 @@ We launched [Wasp on PH on Dec 6, 2020](https://www.producthunt.com/products/was
 
 ## 570-1000 ⭐️ : Wasp joins YC + “Official” HN launch (2.5 months)
 
-Soon after Product Hunt, Wasp joined Y Combinator for their W21 batch. We had applied two times before and always made it to the interviews, but did not get in. This time, the traction tipped the scales in our favour. (You can read more about our journey to YC [here](https://wasp-lang.dev/blog/2021/02/23/journey-to-ycombinator).)
+Soon after Product Hunt, Wasp joined Y Combinator for their W21 batch. We had applied two times before and always made it to the interviews, but did not get in. This time, the traction tipped the scales in our favour. (You can read more about our journey to YC [here](https://wasp.sh/blog/2021/02/23/journey-to-ycombinator).)
 
 For the first month of YC, there was a lot of admin and setup work to deal with alongside the regular program. That added a third dimension to our existing two areas of effort. Once we went past that, we could again put more focus on product and community development. 
 
@@ -141,7 +141,7 @@ Our next milestone was to launch Wasp on Hacker News, but this time “officiall
 
 We went through the several iterations of the text, sweated over how it’s gonna go, and when the day finally came — we launched! It went beyond all our expectations. With 222 points and 79 comments, **our HN launch was one of the most successful launches (#9) out of 300+ companies in the W21 batch.** Many developers and VCs that checked our launch afterwards were surprised how much positive feedback Wasp received, especially given how honest and direct HN audience can be.
 
-**HN launch brought us about 200 stars right away**, and the rest came in the following weeks. As it was February and the YC program was nearing its end, we  needed to shift gears again and focus on fundraising. This put all the other efforts on the back burner. (You can read about our fundraising learnings from 250+ meetings in 98 days [here](https://wasp-lang.dev/blog/2021/11/22/fundraising-learnings).) But the interest of the community remained and even without much activity from our side they kept coming and trying Wasp out.
+**HN launch brought us about 200 stars right away**, and the rest came in the following weeks. As it was February and the YC program was nearing its end, we  needed to shift gears again and focus on fundraising. This put all the other efforts on the back burner. (You can read about our fundraising learnings from 250+ meetings in 98 days [here](https://wasp.sh/blog/2021/11/22/fundraising-learnings).) But the interest of the community remained and even without much activity from our side they kept coming and trying Wasp out.
 
 <ImgWithCaption
     alt="YC HN launch"

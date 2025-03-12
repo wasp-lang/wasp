@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import addWaspLangauge from "./prism/wasp";
@@ -11,22 +11,25 @@ import "./Main.css";
 addPrismaLanguage(Prism);
 addWaspLangauge(Prism);
 
-export function RootComponent({ children }) {
+export function RootComponent() {
   function recordAndDeleteReferrer() {
     const urlParams = new URLSearchParams(window.location.search);
     saveReferrerToLocalStorage(urlParams);
-    history.replace({
-      search: "",
-    });
+    navigate(
+      {
+        search: "",
+      },
+      { replace: true }
+    );
   }
 
   // const { isAlreadyShown } = useWelcomeDialog();
   // const [isDialogOpen, setIsDialogOpen] = useState(!isAlreadyShown);
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const shouldDisplayTopBanner = useMemo(() => {
-    return !(location.pathname.startsWith("/result/"));
+    return !location.pathname.startsWith("/result/");
   }, [location]);
 
   useEffect(() => {
@@ -44,7 +47,7 @@ export function RootComponent({ children }) {
 
   return (
     <>
-      { shouldDisplayTopBanner && (
+      {shouldDisplayTopBanner && (
         <div
           className="overflow-hidden
             cursor-pointer flex-row
@@ -87,12 +90,12 @@ export function RootComponent({ children }) {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
+        <Outlet />
         <footer className="mt-8">
           <p className="text-center text-slate-800">
             This is an experiment by{" "}
             <a
-              href="https://wasp-lang.dev/"
+              href="https://wasp.sh/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sky-500 hover:text-sky-600"

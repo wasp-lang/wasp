@@ -99,6 +99,30 @@ module.exports = {
     },
     {
       type: 'category',
+      label: 'Deployment',
+      collapsed: false,
+      collapsible: true,
+      items: [
+        'deployment/intro',
+        'deployment/env-vars',
+        'deployment/database',
+        {
+          type: 'category',
+          label: 'Deployment Methods',
+          collapsed: true,
+          items: [
+            'deployment/deployment-methods/overview',
+            'deployment/deployment-methods/cli',
+            'deployment/deployment-methods/paas',
+            'deployment/deployment-methods/self-hosted',
+          ],
+        },
+        'deployment/ci-cd',
+        'deployment/extras',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Wasp AI',
       collapsed: false,
       collapsible: true,
@@ -121,17 +145,6 @@ module.exports = {
     },
     {
       type: 'category',
-      label: 'Deployment',
-      collapsed: false,
-      collapsible: true,
-      items: [
-        'advanced/deployment/overview',
-        'advanced/deployment/cli',
-        'advanced/deployment/manually',
-      ],
-    },
-    {
-      type: 'category',
       label: 'General',
       collapsed: false,
       collapsible: true,
@@ -139,7 +152,7 @@ module.exports = {
         'general/language',
         'general/cli',
         'general/typescript',
-        'general/wasp-ts-config'
+        'general/wasp-ts-config',
       ],
     },
     {
@@ -148,6 +161,7 @@ module.exports = {
       collapsed: true,
       collapsible: true,
       items: [
+        'migration-guides/migrate-from-0-15-to-0-16',
         'migration-guides/migrate-from-0-14-to-0-15',
         'migration-guides/migrate-from-0-13-to-0-14',
         'migration-guides/migrate-from-0-12-to-0-13',

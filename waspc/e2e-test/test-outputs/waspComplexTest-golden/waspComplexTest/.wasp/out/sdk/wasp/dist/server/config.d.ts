@@ -1,19 +1,16 @@
-type BaseConfig = {
-    allowedCORSOrigins: string | string[];
-    auth: {
-        jwtSecret: string | undefined;
-    };
-};
-type CommonConfig = BaseConfig & {
-    env: string;
+import { env } from './env.js';
+type NodeEnv = typeof env.NODE_ENV;
+type Config = {
+    env: NodeEnv;
     isDevelopment: boolean;
     port: number;
-    databaseUrl: string | undefined;
-};
-type EnvConfig = BaseConfig & {
+    databaseUrl: string;
     frontendUrl: string;
     serverUrl: string;
+    allowedCORSOrigins: string | string[];
+    auth: {
+        jwtSecret: string;
+    };
 };
-type Config = CommonConfig & EnvConfig;
-declare const resolvedConfig: Config;
-export default resolvedConfig;
+declare const config: Config;
+export default config;

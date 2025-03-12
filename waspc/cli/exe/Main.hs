@@ -193,9 +193,9 @@ printUsage =
               "  wasp start",
               "  wasp db migrate-dev",
               "",
-        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp-lang.dev/docs",
+        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp.sh/docs",
         Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
-        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp-lang.dev/#signup"
+        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
       ]
 {- ORMOLU_ENABLE -}
 
@@ -206,10 +206,10 @@ printVersion = do
       [ show waspVersion,
         "",
         "If you wish to install/switch to the latest version of Wasp, do:",
-        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
+        "  curl -sSL https://get.wasp.sh/installer.sh | sh -s",
         "",
         "If you want specific x.y.z version of Wasp, do:",
-        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+        "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]

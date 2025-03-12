@@ -1,6 +1,6 @@
 app TodoTypescript {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.16.0"
   },
   title: "ToDo TypeScript",
 
@@ -27,7 +27,7 @@ app TodoTypescript {
       //   passwordReset: {
       //     clientRoute: PasswordResetRoute,
       //   }
-      // } // https://wasp-lang.dev/docs/guides/email-auth
+      // } // https://wasp.sh/docs/guides/email-auth
     },
     onAuthFailedRedirectTo: "/login",
   },

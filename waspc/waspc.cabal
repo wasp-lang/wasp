@@ -6,11 +6,12 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.15.2
+version:        0.16.2
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
 author:         Wasp Team
+-- TODO: update the email once we setup @wasp.sh email.
 maintainer:     team@wasp-lang.dev
 copyright:      Wasp, Inc.
 license:        MIT
@@ -41,7 +42,6 @@ data-files:
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
-  Generator/templates/**/*.mjs
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.css
@@ -72,6 +72,11 @@ data-files:
   packages/studio/dist/**/*.css
   packages/studio/package.json
   packages/studio/package-lock.json
+  packages/wasp-config/dist/**/*.js
+  packages/wasp-config/dist/**/*.d.ts
+  packages/wasp-config/dist/**/*.map
+  packages/wasp-config/package.json
+  packages/wasp-config/package-lock.json
 data-dir: data/
 
 source-repository head
@@ -281,6 +286,7 @@ library
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
     Wasp.Generator.DockerGenerator
+    Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
     Wasp.Generator.ExternalConfig.Common
     Wasp.Generator.ExternalConfig.PackageJson
@@ -293,11 +299,6 @@ library
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
-    Wasp.Generator.Job
-    Wasp.Generator.Job.Common
-    Wasp.Generator.Job.IO
-    Wasp.Generator.Job.IO.PrefixedWriter
-    Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies
@@ -317,6 +318,7 @@ library
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
+    Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.CrudG
@@ -354,9 +356,16 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
+    Wasp.Generator.WebAppGenerator.Vite
+    Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
+    Wasp.Job
+    Wasp.Job.Common
+    Wasp.Job.IO
+    Wasp.Job.IO.PrefixedWriter
+    Wasp.Job.Process
     Wasp.Message
     Wasp.Node.Version
     Wasp.NpmDependency
@@ -365,10 +374,10 @@ library
     Wasp.Project.Analyze
     Wasp.Project.Common
     Wasp.Project.Db
-    Wasp.Project.Db.Migrations
     Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
+    Wasp.Project.Db.Migrations
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
@@ -377,6 +386,9 @@ library
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.Vite
+    Wasp.Project.WaspFile
+    Wasp.Project.WaspFile.TypeScript
+    Wasp.Project.WaspFile.WaspLang
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common

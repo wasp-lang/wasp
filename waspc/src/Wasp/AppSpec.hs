@@ -28,7 +28,7 @@ where
 import Data.List (find)
 import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
-import StrongPath (Abs, Dir, File', Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
@@ -49,7 +49,7 @@ import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.PackageJson (PackageJson)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.SemanticVersion as SV
@@ -58,6 +58,10 @@ import qualified Wasp.SemanticVersion as SV
 -- describing the web app specification with all the details needed to generate it.
 -- It is standalone and de-coupled from other parts of the compiler and knows nothing about them,
 -- instead other parts are using it: Analyzer produces AppSpec while Generator consumes it.
+--
+-- IMPORTANT: Do not change this data structure without updating the AppSpec in
+-- packages/wasp-config/src/appSpec.ts. That module is a TypeScript mirror
+-- implementation of AppSpec's FromJSON.
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
@@ -85,7 +89,8 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File')
+    customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File'),
+    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
   }
 
 -- TODO: Make this return "Named" declarations?

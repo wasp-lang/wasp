@@ -16,7 +16,7 @@ I tried out a bunch, but found that most of them produced codebases that were to
 
 But through the process of trying out different tools and methods, I stumbled across a hack that helped me create comprehensive, functional codebases for full-stack apps with Auth, API routes, Tailwind CSS, DB management, and other more complex features.
 
-**The trick?** Ask [ChatGPT](https://chat.openai.com) to write you a detailed Product Requirement Doc for the app you’d like to create, and then pass this to Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/).
+**The trick?** Ask [ChatGPT](https://chat.openai.com) to write you a detailed Product Requirement Doc for the app you’d like to create, and then pass this to Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp.sh/).
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/92bf5pjvdpfkdppcer0j.png)
 
@@ -81,11 +81,11 @@ In short, we need a tool that doesn't just 'do its task' but 'understands the pr
 
 # The Best Tool for the Job: GPT Web App Generator.
 
-Remember, I’m focusing on generating comprehensive full-stack codebases here, and for that Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/) gets the job done surprisingly well.
+Remember, I’m focusing on generating comprehensive full-stack codebases here, and for that Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp.sh/) gets the job done surprisingly well.
 
-How does it do this? Well, the full answer lies in how [Wasp](https://wasp-lang.dev/) as a framework is able to help you build full-stack React/NodeJS web apps.
+How does it do this? Well, the full answer lies in how [Wasp](https://wasp.sh/) as a framework is able to help you build full-stack React/NodeJS web apps.
 
-It’s beyond the scope of this article to [explain it in full detail](https://wasp-lang.dev/docs), but the TL;DR is that Wasp has a compiler that helps build your app based on a config file. The config file is like a set of **instructions** that its compiler understands and uses to piece together the different parts of the full-stack app for you.
+It’s beyond the scope of this article to [explain it in full detail](https://wasp.sh/docs), but the TL;DR is that Wasp has a compiler that helps build your app based on a config file. The config file is like a set of **instructions** that its compiler understands and uses to piece together the different parts of the full-stack app for you.
 
 ![https://media1.giphy.com/media/heVoZxS2qAGk4Ay5E5/giphy.gif?cid=7941fdc6x2abm5omkgd1d79rz6dt5kzaead3mxu8xt4xuwc2&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media1.giphy.com/media/heVoZxS2qAGk4Ay5E5/giphy.gif?cid=7941fdc6x2abm5omkgd1d79rz6dt5kzaead3mxu8xt4xuwc2&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
@@ -114,7 +114,7 @@ Ok, but if you’re like me, you don’t really know how to write a good PRD. Pl
 
 Thanks, ChatGPT 🙏
 
-So to get really great results out of Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/), I first ask [ChatGPT](https://chat.openai.com) (using GPT-4) to write a detailed product requirement doc for me, like this:
+So to get really great results out of Wasp’s [GPT Web App Generator](https://magic-app-generator.wasp.sh/), I first ask [ChatGPT](https://chat.openai.com) (using GPT-4) to write a detailed product requirement doc for me, like this:
 
 ```plaintext
 Write a Product Requirement Document for the following full-stack app:
@@ -156,7 +156,7 @@ The GreenLush app is designed to help users manage their house plants and keep t
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/cdyywqox4zq00lmqjdw2.png)
 
-[GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/) will start generating a plan for your app, execute that plan file by file, and even do some error-checking and fixing.
+[GPT Web App Generator](https://magic-app-generator.wasp.sh/) will start generating a plan for your app, execute that plan file by file, and even do some error-checking and fixing.
 
 Pretty neat!
 
@@ -168,13 +168,13 @@ Best of all, the process is free. You don’t even need to use your own API key!
 
 The picture above is the actual generated, working full-stack app I got out-of-the-box from the example prompt above. All I had to do was initialize the database, register/log in, and BOOM, the app was up and running!
 
-🤩 BTW, If you want to check out the code that GPT Web App Generator created based on the above PRD, go here: [https://magic-app-generator.wasp-lang.dev/result/1f28b518-0cca-4352-84e4-69a4ac04d0fa](https://magic-app-generator.wasp-lang.dev/result/1f28b518-0cca-4352-84e4-69a4ac04d0fa)
+🤩 BTW, If you want to check out the code that GPT Web App Generator created based on the above PRD, go here: [https://magic-app-generator.wasp.sh/result/1f28b518-0cca-4352-84e4-69a4ac04d0fa](https://magic-app-generator.wasp.sh/result/1f28b518-0cca-4352-84e4-69a4ac04d0fa)
 
 There are more examples of types of apps you can build with this tool, [written about here](https://dev.to/wasp/gpt-web-app-generator-let-ai-create-a-full-stack-react-nodejs-codebase-based-on-your-description-2g39), but it’s probably best to just play around with it yourself and see what you can get!
 
 # Conclusion
 
-There are several really cool AI-assisted coding tools out there, but for kickstarting a full-stack React/NodeJS app, I’ve found [GPT Web App Generator](https://magic-app-generator.wasp-lang.dev/) to be the best performing one.
+There are several really cool AI-assisted coding tools out there, but for kickstarting a full-stack React/NodeJS app, I’ve found [GPT Web App Generator](https://magic-app-generator.wasp.sh/) to be the best performing one.
 
 It consistently generates functional, comprehensive full-stack starter codebases that need little to no error-fixing, depending on the complexity of the app.
 

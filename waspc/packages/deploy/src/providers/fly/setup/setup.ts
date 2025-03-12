@@ -22,6 +22,10 @@ import {
 } from '../helpers/helpers.js';
 import { createFlyDbCommand } from '../index.js';
 
+const internalPortOptionRegex = /internal_port = \d+/g;
+const serverAppPort = 8080;
+const clientAppPort = 8043;
+
 export async function setup(
 	baseName: string,
 	region: string,
@@ -109,6 +113,23 @@ Press any key to continue or Ctrl+C to cancel.`);
 		replaceLineInLocalToml(minMachinesOptionRegex, 'min_machines_running = 1');
 	}
 
+	if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
+		await question(`\n⚠️  There was an issue setting up your server app.
+We tried modifying your server fly.toml to set ${boldText(
+		`internal_port = ${serverAppPort}`,
+	)}, but couldn't find the option ${boldText(
+	'internal_port',
+)} in the fly.toml.
+
+This means your server app might not be accessible.
+
+Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX
+
+Press any key to continue or Ctrl+C to cancel.`);
+	} else {
+		replaceLineInLocalToml(internalPortOptionRegex, `internal_port = ${serverAppPort}`);
+	}
+
 	copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
 
 	const randomString = crypto.randomBytes(32).toString('hex');
@@ -117,7 +138,7 @@ Press any key to continue or Ctrl+C to cancel.`);
 		`JWT_SECRET=${randomString}`,
 		// NOTE: Normally these would just be envars, but flyctl
 		// doesn't provide a way to set envars that persist to fly.toml.
-		'PORT=8080',
+		`PORT=${serverAppPort}`,
 		`WASP_WEB_CLIENT_URL=${deploymentInfo.clientUrl}`,
 		`WASP_SERVER_URL=${deploymentInfo.serverUrl}`,
 	];
@@ -154,12 +175,10 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
 	// This creates the fly.toml file, but does not attempt to deploy.
 	await $`flyctl launch --no-deploy  ${launchArgs}`;
 
-	const internalPortOptionRegex = /internal_port = \d+/g;
-
 	if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
 		await question(`\n⚠️  There was an issue setting up your client app.
 We tried modifying your client fly.toml to set ${boldText(
-		'internal_port = 8043',
+		`internal_port = ${clientAppPort}`,
 	)}, but couldn't find the option ${boldText(
 	'internal_port',
 )} in the fly.toml.
@@ -172,7 +191,7 @@ Press any key to continue or Ctrl+C to cancel.`);
 	} else {
 		// goStatic listens on port 8043 by default, but the default fly.toml
 		// assumes port 8080 (or 3000, depending on flyctl version).
-		replaceLineInLocalToml(internalPortOptionRegex, 'internal_port = 8043');
+		replaceLineInLocalToml(internalPortOptionRegex, `internal_port = ${clientAppPort}`);
 	}
 
 	copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);

@@ -2,6 +2,7 @@ const lightCodeTheme = require('prism-react-renderer/themes/github')
 
 const autoImportTabs = require('./src/remark/auto-import-tabs')
 const fileExtSwitcher = require('./src/remark/file-ext-switcher')
+const searchAndReplace = require('./src/remark/search-and-replace')
 
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === 'true'
@@ -14,7 +15,7 @@ module.exports = {
     'A simple language for developing full-stack web apps with less code.',
   // url, baseUrl, organizationName, projectName and trailingSlash are set according to the
   // instructions in https://docusaurus.io/docs/deployment#deploying-to-github-pages .
-  url: 'https://wasp-lang.dev',
+  url: 'https://wasp.sh',
   baseUrl: '/', // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
   organizationName: 'wasp-lang', // Should be GitHub org/user name if hosted on Github Pages.
   projectName: 'wasp', // Should be repo name if hosted on Github Pages.
@@ -29,7 +30,7 @@ module.exports = {
     announcementBar: {
       id: 'LW7',
       content:
-        '<b>Wasp v0.15 is here!</b> 🐝 <a href="/blog/2024/09/30/wasp-launch-week-7">See what\'s new ⚙️</a>',
+        '<b>Wasp v0.16 is here!</b> 🐝 <a href="/blog/2025/01/09/wasp-launch-week-8">See what\'s new ⚙️</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,
@@ -55,7 +56,7 @@ module.exports = {
       logo: {
         alt: 'Wasp logo',
         src: 'img/wasp-logo-eqpar-circle.png',
-        href: 'https://wasp-lang.dev/',
+        href: 'https://wasp.sh/',
         target: '_self',
       },
       items: [
@@ -161,7 +162,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           sidebarCollapsible: true,
           editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
-          remarkPlugins: [autoImportTabs, fileExtSwitcher],
+          remarkPlugins: [autoImportTabs, fileExtSwitcher, searchAndReplace],
 
           // ------ Configuration for multiple docs versions ------ //
 
@@ -241,7 +242,11 @@ module.exports = {
           },
           {
             from: '/docs/deploying',
-            to: '/docs/advanced/deployment/overview',
+            to: '/docs/deployment/intro',
+          },
+          {
+            from: '/docs/advanced/deployment/overview',
+            to: '/docs/deployment/intro',
           },
           {
             from: '/docs/guides/username-password',
@@ -312,7 +317,7 @@ function getScripts() {
     scripts.push({
       src: '/waspara/wasp/script.js',
       defer: true,
-      'data-domain': 'wasp-lang.dev',
+      'data-domain': 'wasp.sh',
       'data-api': '/waspara/wasp/event',
     })
   }

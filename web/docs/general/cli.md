@@ -49,9 +49,9 @@ EXAMPLES
   wasp start
   wasp db migrate-dev
 
-Docs: https://wasp-lang.dev/docs
+Docs: https://wasp.sh/docs
 Discord (chat): https://discord.gg/rzdnErX
-Newsletter: https://wasp-lang.dev/#signup
+Newsletter: https://wasp.sh/#signup
 ```
 
 ## Commands
@@ -114,15 +114,15 @@ Newsletter: https://wasp-lang.dev/#signup
     ✅ --- Deleted the node_modules/ directory. ---------------------------------------
     ```
 
- - `wasp build` generates the complete web app code, which is ready for [deployment](../advanced/deployment/overview). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
+ - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
 
  - `wasp deploy` makes it easy to get your app hosted on the web.
  
   Currently, Wasp offers support for [Fly.io](https://fly.io). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
   
-  Read more about automatic deployment [here](../advanced/deployment/cli).
+  Read more about automatic deployment [here](../deployment/deployment-methods/cli.md).
 
- - `wasp telemetry` displays the status of [telemetry](https://wasp-lang.dev/docs/telemetry).
+ - `wasp telemetry` displays the status of [telemetry](../telemetry.md).
 
    ```
    $ wasp telemetry
@@ -130,7 +130,7 @@ Newsletter: https://wasp-lang.dev/#signup
    Telemetry is currently: ENABLED
    Telemetry cache directory: /home/user/.cache/wasp/telemetry/
    Last time telemetry data was sent for this project: 2021-05-27 09:21:16.79537226 UTC
-   Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details.
+   Our telemetry is anonymized and very limited in its scope: check https://wasp.sh/docs/telemetry for more details.
 
    ```
  - `wasp deps` lists the dependencies that Wasp uses in your project.
@@ -167,10 +167,10 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
     0.14.0
 
     If you wish to install/switch to the latest version of Wasp, do:
-    curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s
+    curl -sSL https://get.wasp.sh/installer.sh | sh -s
 
     If you want specific x.y.z version of Wasp, do:
-    curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z
+    curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z
 
     Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
     ```

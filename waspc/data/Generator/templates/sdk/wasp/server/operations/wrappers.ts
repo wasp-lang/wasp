@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { IfAny, _Awaited, _ReturnType } from '../../universal/types'
+import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
@@ -113,7 +113,7 @@ export function createAuthenticatedOperation<
       throw new Error(`
         You called the operation without arguments, which is a mistake.
         Check your definition and read the docs to understand what you need to send:
-        https://wasp-lang.dev/docs/data-model/operations/overview
+        https://wasp.sh/docs/data-model/operations/overview
         `
       )
     } else if (includesPayload(args)) {
@@ -239,4 +239,4 @@ type GenericUnauthenticatedOperationDefinition = UnauthenticatedOperationDefinit
  * @template OperationDefinition The type of the operation's definition.
  */
 type EntityMapFor<OperationDefinition extends GenericUnauthenticatedOperationDefinition> =
-  Parameters<OperationDefinition>[1]["entities"]
+  _Parameters<OperationDefinition>[1]["entities"]

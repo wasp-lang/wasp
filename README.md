@@ -14,7 +14,7 @@
 ---
 
 <p align="center">
-  <a href="https://wasp-lang.dev">Web page</a> | <a href="https://wasp-lang.dev/docs">Docs</a>
+  <a href="https://wasp.sh">Web page</a> | <a href="https://wasp.sh/docs">Docs</a> | <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">Deployed? Get swag! 👕</a>
 </p>
 
 <br>
@@ -79,19 +79,23 @@ Given a simple .wasp configuration file that describes the high-level details of
 
 This unique approach is what makes Wasp "smart" and gives it its superpowers!
 
-For more information about Wasp, check [**docs**](https://wasp-lang.dev/docs).
+For more information about Wasp, check [**docs**](https://wasp.sh/docs).
+
+# Have a Wasp app deployed? - we will send you swag!
+
+If you have a Wasp application running in production, we'd love to send some swag your way! Fill out [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi), and we'll make it happen.
 
 # Get started
 
 Run
 
 ```
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 to install Wasp on OSX/Linux/WSL(Win). From there, just follow the instructions to run your first app in less than a minute!
 
-For more details, check out [the docs](https://wasp-lang.dev/docs).
+For more details, check out [the docs](https://wasp.sh/docs).
 
 # Wasp AI / Mage
 
@@ -103,7 +107,7 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 
 # Project status
 
-Currently, Wasp is in beta, with most features flushed out and working well.
+Currently, Wasp is in beta, with most features fleshed out and working well.
 However, there are still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
 
 While the idea is to support multiple web tech stacks in the future, right now, we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, and Prisma.
@@ -121,7 +125,7 @@ Even if you don't plan to submit any code, just joining the discussion on discor
 You can also:
 
 - :star: Star this repo to show your interest/support.
-- :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
+- :mailbox: Stay updated by subscribing to our [email list](https://wasp.sh#signup).
 - :speech_balloon: Join the discussion at https://github.com/wasp-lang/wasp/discussions .
 
 # Careers

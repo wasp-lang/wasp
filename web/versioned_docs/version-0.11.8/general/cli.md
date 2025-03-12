@@ -43,9 +43,9 @@ EXAMPLES
   wasp start
   wasp db migrate-dev
 
-Docs: https://wasp-lang.dev/docs
+Docs: https://wasp.sh/docs
 Discord (chat): https://discord.gg/rzdnErX
-Newsletter: https://wasp-lang.dev/#signup
+Newsletter: https://wasp.sh/#signup
 ```
 
 ## Commands
@@ -104,7 +104,7 @@ Newsletter: https://wasp-lang.dev/#signup
   
   Read more about automatic deployment [here](../advanced/deployment/cli).
 
- - `wasp telemetry` displays the status of [telemetry](https://wasp-lang.dev/docs/telemetry).
+ - `wasp telemetry` displays the status of [telemetry](../telemetry).
 
    ```
    $ wasp telemetry
@@ -112,7 +112,7 @@ Newsletter: https://wasp-lang.dev/#signup
    Telemetry is currently: ENABLED
    Telemetry cache directory: /home/user/.cache/wasp/telemetry/
    Last time telemetry data was sent for this project: 2021-05-27 09:21:16.79537226 UTC
-   Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details.
+   Our telemetry is anonymized and very limited in its scope: check https://wasp.sh/docs/telemetry for more details.
 
    ```
  - `wasp deps` lists the dependencies that Wasp uses in your project.

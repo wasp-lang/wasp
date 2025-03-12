@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RadioGroup } from "@headlessui/react";
 import {
   PiCopyDuotone,
@@ -57,7 +57,7 @@ export const ResultPage = () => {
     message: "Waiting",
   });
   const [currentFiles, setCurrentFiles] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isMobileFileBrowserOpen, setIsMobileFileBrowserOpen] = useState(false);
 
   useEffect(() => {
@@ -206,7 +206,7 @@ export const ResultPage = () => {
         appCreativityLevel: project.creativityLevel,
       });
       alert("Okay, redirecting to the new attempt");
-      history.push(`/result/${appId}`);
+      navigate(`/result/${appId}`);
     } catch (e) {
       alert(e.message);
     }
@@ -478,7 +478,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
           the costs 😇
         </p>
         {numTokensSpent > 0 && (
-          <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full text-base leading-relaxed text-gray-500 text-sm">
+          <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full leading-relaxed text-gray-500 text-sm">
             <tbody>
               <tr>
                 <td className="p-2 text-gray-600"> Number of tokens your app used: </td>
@@ -491,9 +491,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 <td className="p-2 text-gray-600"> Cost to generate your app: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{`~$${calcCostForGpt_4o(
-                    Number(numTokensSpent)
-                  )}`}</FormattedText>{" "}
+                  <FormattedText>{`~$${calcCostForGpt_4o(Number(numTokensSpent))}`}</FormattedText>{" "}
                 </td>
               </tr>
               {numTotalProjects && (
@@ -558,7 +556,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             <br />
             App is implemented in{" "}
             <a
-              href="https://wasp-lang.dev"
+              href="https://wasp.sh"
               target="_blank"
               rel="noopener noreferrer"
               className="underline"
@@ -577,7 +575,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             <h2 className="font-bold flex items-center space-x-1">
               <span>1. Install Wasp CLI (Linux / Mac / Win+WSL)</span>
               <a
-                href="https://wasp-lang.dev/docs/quick-start#installation-1"
+                href="https://wasp.sh/docs/quick-start#installation-1"
                 target="blank"
                 rel="noopener noreferrer"
               >
@@ -587,7 +585,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               :
             </h2>
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
-              curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+              curl -sSL https://get.wasp.sh/installer.sh | sh
             </pre>
 
             <h2 className="font-bold mt-4">
@@ -643,7 +641,7 @@ function WarningAboutAI() {
               Since this is a GPT generated app, it might contain some mistakes, proportional to how
               complex the app is. If there are some in your app, check out{" "}
               <a
-                href="https://wasp-lang.dev/docs"
+                href="https://wasp.sh/docs"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"

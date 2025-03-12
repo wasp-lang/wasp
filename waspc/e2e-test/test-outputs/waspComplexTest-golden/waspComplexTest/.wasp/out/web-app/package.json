@@ -13,15 +13,12 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^4.29.0",
-    "axios": "^1.4.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.26.2"
+    "axios": "^1.4.0"
   },
   "devDependencies": {
     "@tsconfig/vite-react": "^2.0.0",
     "@types/react-dom": "^18.0.11",
-    "@vitejs/plugin-react": "^4.2.1",
-    "dotenv": "^16.0.3"
+    "@vitejs/plugin-react": "^4.2.1"
   },
   "engineStrict": true,
   "engines": {
@@ -30,9 +27,8 @@
   "name": "waspComplexTest",
   "private": true,
   "scripts": {
-    "build": "npm run validate-env && tsc && vite build",
-    "start": "npm run validate-env && vite",
-    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
+    "build": "tsc && vite build",
+    "start": "vite"
   },
   "type": "module",
   "version": "0.0.0"

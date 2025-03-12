@@ -2,7 +2,7 @@ import { App, ExtImport } from 'wasp-config'
 
 const app = new App('Thoughts', {
   title: 'Thoughts',
-  wasp: { version: '^0.15.0' }
+  wasp: { version: '^0.16.0' }
 });
 
 app.db({
