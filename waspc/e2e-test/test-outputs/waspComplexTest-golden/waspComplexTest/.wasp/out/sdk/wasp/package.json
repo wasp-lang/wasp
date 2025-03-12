@@ -88,6 +88,7 @@
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
     "./src/*": "./dist/src/*.js",
+    "./universal/ansiColors": "./dist/universal/ansiColors.js",
     "./universal/types": "./dist/universal/types.js",
     "./universal/url": "./dist/universal/url.js",
     "./universal/validators": "./dist/universal/validators.js"

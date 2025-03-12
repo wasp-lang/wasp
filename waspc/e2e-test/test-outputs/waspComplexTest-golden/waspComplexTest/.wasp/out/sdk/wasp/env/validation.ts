@@ -1,6 +1,8 @@
 import * as z from 'zod'
 
-const redColor = '\x1b[31m'
+import { getConsoleLogColorTemplate } from 'wasp/universal/ansiColors'
+
+const redColorTemplate = getConsoleLogColorTemplate('red');
 
 // PRIVATE API (SDK)
 export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
@@ -11,7 +13,7 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   if (result.success) {
     return result.data
   } else {
-    console.error(`${redColor}${formatZodEnvErrors(result.error.issues)}`)
+    console.error(`${redColorTemplate}${formatZodEnvErrors(result.error.issues)}`)
     throw new Error('Error parsing environment variables')
   }
 }
