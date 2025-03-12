@@ -23,16 +23,30 @@ import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (extImportToJsImpo
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
+import Wasp.Util ((<++>))
 
 genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
+  genSharedEnvFiles
+    <++> genServerEnvFiles spec
+    <++> genClientEnvFiles spec
+
+genSharedEnvFiles :: Generator [FileDraft]
+genSharedEnvFiles =
   sequence
     [ genFileCopy [relfile|env/index.ts|],
-      genFileCopy [relfile|env/validation.ts|],
-      -- Server env
-      genServerEnv spec,
-      -- Client env
-      genClientEnvSchema spec,
+      genFileCopy [relfile|env/validation.ts|]
+    ]
+  where
+    genFileCopy = return . C.mkTmplFd
+
+genServerEnvFiles :: AppSpec -> Generator [FileDraft]
+genServerEnvFiles spec = sequence [genServerEnv spec]
+
+genClientEnvFiles :: AppSpec -> Generator [FileDraft]
+genClientEnvFiles spec =
+  sequence
+    [ genClientEnvSchema spec,
       genFileCopy [relfile|client/env.ts|]
     ]
   where
