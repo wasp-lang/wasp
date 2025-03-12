@@ -259,17 +259,6 @@ const List = ({ list, index, cards }) => {
     )
   }
 
-  const getListClassName = (snapshot) => {
-    const classes = ['list']
-    if (snapshot.isDragging) {
-      classes.push('list--dragging')
-    }
-    if (snapshot.isDropAnimating) {
-      classes.push('list--drop-animating')
-    }
-    return classes.join(' ')
-  }
-
   return (
     <Draggable
       key={list.id}
@@ -283,7 +272,12 @@ const List = ({ list, index, cards }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <div className={getListClassName(snapshot)}>
+          <div
+            className={classnames('list', {
+              'list--dragging': snapshot.isDragging,
+              'list--drop-animating': snapshot.isDropAnimating,
+            })}
+          >
             <div className='list-header'>
               {isHeaderTargetShown ? (
                 <div
@@ -361,17 +355,6 @@ const Cards = ({ cards }) => {
 }
 
 const Card = ({ card, index }) => {
-  const getListCardClassName = (snapshot) => {
-    const classes = ['list-card']
-    if (snapshot.isDragging) {
-      classes.push('list-card--dragging')
-    }
-    if (snapshot.isDropAnimating) {
-      classes.push('list-card--drop-animating')
-    }
-    return classes.join(' ')
-  }
-
   return (
     <Draggable key={card.id} draggableId={`${card.id}`} index={index}>
       {(provided, snapshot) => (
@@ -380,7 +363,12 @@ const Card = ({ card, index }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <div className={getListCardClassName(snapshot)}>
+          <div
+            className={classnames('list-card', {
+              'list-card--dragging': snapshot.isDragging,
+              'list-card--drop-animating': snapshot.isDropAnimating,
+            })}
+          >
             <span className='list-card-title'>{card.title}</span>
           </div>
         </div>
