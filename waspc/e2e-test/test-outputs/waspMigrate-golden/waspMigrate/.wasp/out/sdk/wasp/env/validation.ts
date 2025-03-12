@@ -1,7 +1,9 @@
 import * as z from 'zod'
 import type { Result } from '../universal/types'
 
-const redColor = '\x1b[31m'
+import { getConsoleLogColorTemplate } from 'wasp/universal/ansiColors'
+
+const redColorTemplate = getConsoleLogColorTemplate('red');
 
 // PRIVATE API (SDK, Vite config)
 export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
@@ -11,7 +13,7 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   const result = getValidatedEnvOrError(data, schema)
   switch (result.type) {
     case 'error':
-      console.error(`${redColor}${result.message}`)
+      console.error(redColorTemplate, result.message)
       throw new Error('Error parsing environment variables')
     case 'success':
       return result.data

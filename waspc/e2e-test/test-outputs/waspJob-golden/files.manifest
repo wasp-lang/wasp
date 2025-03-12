@@ -200,6 +200,9 @@ waspJob/.wasp/out/sdk/wasp/dist/src/MainPage.jsx.map
 waspJob/.wasp/out/sdk/wasp/dist/src/server/jobs/bar.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/src/server/jobs/bar.js
 waspJob/.wasp/out/sdk/wasp/dist/src/server/jobs/bar.js.map
+waspJob/.wasp/out/sdk/wasp/dist/universal/ansiColors.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/universal/ansiColors.js
+waspJob/.wasp/out/sdk/wasp/dist/universal/ansiColors.js.map
 waspJob/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/universal/predicates.js
 waspJob/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
@@ -250,6 +253,7 @@ waspJob/.wasp/out/sdk/wasp/src/server/jobs/bar.js
 waspJob/.wasp/out/sdk/wasp/src/vite-env.d.ts
 waspJob/.wasp/out/sdk/wasp/src/waspLogo.png
 waspJob/.wasp/out/sdk/wasp/tsconfig.json
+waspJob/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspJob/.wasp/out/sdk/wasp/universal/predicates.ts
 waspJob/.wasp/out/sdk/wasp/universal/types.ts
 waspJob/.wasp/out/sdk/wasp/universal/url.ts

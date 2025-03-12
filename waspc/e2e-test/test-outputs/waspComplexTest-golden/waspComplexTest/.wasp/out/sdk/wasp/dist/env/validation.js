@@ -1,11 +1,12 @@
 import * as z from 'zod';
-const redColor = '\x1b[31m';
+import { getConsoleLogColorTemplate } from 'wasp/universal/ansiColors';
+const redColorTemplate = getConsoleLogColorTemplate('red');
 // PRIVATE API (SDK, Vite config)
 export function ensureEnvSchema(data, schema) {
     const result = getValidatedEnvOrError(data, schema);
     switch (result.type) {
         case 'error':
-            console.error(`${redColor}${result.message}`);
+            console.error(redColorTemplate, result.message);
             throw new Error('Error parsing environment variables');
         case 'success':
             return result.data;
