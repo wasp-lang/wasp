@@ -49,7 +49,7 @@ type ErrorMessage = String
 getAndCheckUserNodeVersion :: IO VersionCheckResult
 getAndCheckUserNodeVersion = checkVersion "node" oldestWaspSupportedNodeVersion parseVersionOutput
 
--- | Gets the user's installed npm version, if any is installed, and checks that it
+-- | Gets the user's installed NPM version, if any is installed, and checks that it
 -- meets Wasp's version requirement.
 getAndCheckUserNPMVersion :: IO VersionCheckResult
 getAndCheckUserNPMVersion = checkVersion "npm" oldestWaspSupportedNPMVersion parseVersionOutput
