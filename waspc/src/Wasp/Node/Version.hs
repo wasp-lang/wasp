@@ -30,7 +30,7 @@ oldestWaspSupportedNodeVersion :: SV.Version
 oldestWaspSupportedNodeVersion = SV.Version 20 0 0
 
 oldestWaspSupportedNPMVersion :: SV.Version
-oldestWaspSupportedNPMVersion = SV.Version 9 5 0
+oldestWaspSupportedNPMVersion = SV.Version 9 6 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =
