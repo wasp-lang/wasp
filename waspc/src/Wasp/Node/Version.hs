@@ -1,5 +1,8 @@
 module Wasp.Node.Version
   ( getAndCheckUserNodeVersion,
+    getAndCheckUserNPMVersion,
+    oldestWaspSupportedNPMVersion,
+    parseNPMVersionOutput,
     VersionCheckResult (..),
     oldestWaspSupportedNodeVersion,
     parseNodeVersionOutput,
@@ -26,6 +29,9 @@ import Wasp.Util (indent)
 --   - /web/docs/introduction/getting-started.md -> "Requirements" section.
 oldestWaspSupportedNodeVersion :: SV.Version
 oldestWaspSupportedNodeVersion = SV.Version 20 0 0
+
+oldestWaspSupportedNPMVersion :: SV.Version
+oldestWaspSupportedNPMVersion = SV.Version 9 5 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =
@@ -113,5 +119,79 @@ makeNodeUnknownErrorMessage :: IOError -> String
 makeNodeUnknownErrorMessage err =
   unlines
     [ "An unknown error occured while trying to run `node --version`:",
+      indent 2 $ show err
+    ]
+
+-- | Gets the user's installed npm version, if any is installed, and checks that it
+-- meets Wasp's version requirement.
+getAndCheckUserNPMVersion :: IO VersionCheckResult
+getAndCheckUserNPMVersion =
+  getUserNPMVersion >>= \case
+    Left errorMsg -> return $ VersionCheckFail errorMsg
+    Right userNPMVersion ->
+      return $
+        if SV.isVersionInRange userNPMVersion $ SV.Range [SV.gte oldestWaspSupportedNPMVersion]
+          then VersionCheckSuccess
+          else VersionCheckFail $ makeNPMVersionMismatchMessage userNPMVersion
+
+makeNPMVersionMismatchMessage :: SV.Version -> String
+makeNPMVersionMismatchMessage npmVersion =
+  unlines
+    [ "Your NPM version does not meet Wasp's requirements! You are running NPM " <> show npmVersion <> ".",
+      "Wasp requires NPM version " <> show oldestWaspSupportedNPMVersion <> " or higher."
+    ]
+
+-- | Gets the installed NPM version, if any is installed, and returns it.
+--
+-- Returns a string representing the error condition if NPM's version could
+-- not be found.
+getUserNPMVersion :: IO (Either ErrorMessage SV.Version)
+getUserNPMVersion = do
+  npmResult <-
+    (Right <$> P.readProcessWithExitCode "npm" ["--version"] "")
+      `catchIOError` ( \e ->
+                         if isDoesNotExistError e
+                           then return $ Left npmNotFoundMessage
+                           else return $ Left $ makeNPMUnknownErrorMessage e
+                     )
+  return $ case npmResult of
+    Left procErr ->
+      Left
+        ( unlines
+            [ "Running `npm --version` failed.",
+              indent 2 procErr,
+              "Make sure you have `npm` installed and in your PATH."
+            ]
+        )
+    Right (ExitFailure code, _, stderr) ->
+      Left
+        ( unlines
+            [ "Running `npm --version` failed (exit code " ++ show code ++ "):",
+              indent 2 stderr
+            ]
+        )
+    Right (ExitSuccess, stdout, _) ->
+      parseNPMVersionOutput stdout
+        & left
+          ( \e ->
+              "Wasp failed to the parse `npm` version provided by `npm --version`.\n"
+                <> (show e <> "\n")
+                <> "This is most likely a bug in Wasp, please file an issue."
+          )
+
+-- | Extracts NPM version from the output of `NPM --version`.
+parseNPMVersionOutput :: String -> Either P.ParseError SV.Version
+parseNPMVersionOutput = P.parse npmVersionParser ""
+  where
+    npmVersionParser = skipAnyCharTillMatch SV.versionParser
+    skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
+
+npmNotFoundMessage :: String
+npmNotFoundMessage = "`npm` command not found!"
+
+makeNPMUnknownErrorMessage :: IOError -> String
+makeNPMUnknownErrorMessage err =
+  unlines
+    [ "An unknown error occured while trying to run `npm --version`:",
       indent 2 $ show err
     ]
