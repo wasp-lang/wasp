@@ -56,6 +56,7 @@ import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
     reactQueryVersion,
@@ -278,7 +279,7 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
-  if AS.isTailwindUsed spec
+  if TCF.isTailwindUsed spec
     then
       AS.Dependency.fromList
         [ ("tailwindcss", show tailwindCssVersion),

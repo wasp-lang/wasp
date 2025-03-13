@@ -37,7 +37,6 @@ import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
-import Wasp.Project.ExternalConfig (readExternalConfigs)
 import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.Vite (findCustomViteConfigPath)
@@ -69,7 +68,7 @@ analyzeWaspProject waspDir compileOptions = do
             Left errors -> return (Left errors, [])
             Right declarations -> do
               let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
-              readExternalConfigs waspDir srcTsConfigPath >>= \case
+              EC.readExternalConfigs waspDir srcTsConfigPath >>= \case
                 Left errors -> return (Left errors, [])
                 Right externalConfigs ->
                   constructAppSpec
@@ -119,8 +118,7 @@ constructAppSpec waspDir compileOptions tailwindConfigFilesRelocators parsedPris
             AS.packageJson = EC._packageJson externalConfigs,
             AS.srcTsConfigPath = srcTsConfigPath,
             AS.srcTsConfig = EC._srcTsConfig externalConfigs,
-            AS.tailwindConfigFilesRelocators = tailwindConfigFilesRelocators,
-            AS.isTailwindUsed = TCF.isTailwindUsed tailwindConfigFilesRelocators
+            AS.tailwindConfigFilesRelocators = tailwindConfigFilesRelocators
           }
 
   return $ runValidation ASV.validateAppSpec appSpec

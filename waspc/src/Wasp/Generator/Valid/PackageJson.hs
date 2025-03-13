@@ -10,6 +10,7 @@ import qualified Wasp.ExternalConfig.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
+import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactVersion)
 
 validatePackageJson :: AppSpec -> [GeneratorError]
@@ -32,7 +33,7 @@ validatePackageJson spec =
       [ validate ("tailwindcss", show tailwindCssVersion) IsListedWithExactVersion | isTailwindUsed
       ]
 
-    isTailwindUsed = AS.isTailwindUsed spec
+    isTailwindUsed = TCF.isTailwindUsed spec
 
 data PackageValidationType = IsListedWithExactVersion | IsListedAsDevWithExactVersion | HasExactVersionIfListed
 

@@ -86,7 +86,6 @@ data AppSpec = AppSpec
     userDockerfileContents :: Maybe Text,
     -- | A list of paths to Tailwind specific config files and where to copy them.
     tailwindConfigFilesRelocators :: [ConfigFileRelocator],
-    isTailwindUsed :: Bool,
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
