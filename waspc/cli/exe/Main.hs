@@ -100,9 +100,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectName
             appDescription
             projectConfigJson
-      _unknownCommand -> do
-        printWaspNewAiUsage
-        exitFailure
+      _unknownCommand -> printWaspNewAiUsage >> exitFailure
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -123,9 +121,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
     Command.Call.Test testArgs -> runCommand $ test testArgs
-    Command.Call.Unknown _ -> do
-      printUsage
-      exitFailure
+    Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
   void $ Async.race (threadDelaySeconds 1) (Async.waitCatch telemetryThread)
@@ -228,9 +224,7 @@ dbCli args = case args of
   ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
   ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
   ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
-  _unknownDbCommand -> do
-    printDbUsage
-    exitFailure
+  _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
 printDbUsage :: IO ()
