@@ -5,6 +5,7 @@
 ### 🎉 New Features and improvements
 
 - Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
+- Increased the minimum Node version to 20.0.0 ( [#2537](https://github.com/wasp-lang/wasp/pull/2537) )
 
 ### Bug fixes
 
@@ -107,7 +108,7 @@ Read more about breaking changes in the migration guide: https://wasp.sh/docs/mi
 
 Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka @genyus
 
-- Improved the error message when the user has a top level *.wasp* file.
+- Improved the error message when the user has a top level _.wasp_ file.
 
 ## 0.15.2
 
