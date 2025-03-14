@@ -21,7 +21,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (extImportToJsImport)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
 
 genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =

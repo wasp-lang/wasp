@@ -2,6 +2,7 @@ module Generator.WebAppGeneratorTest where
 
 import qualified Data.Map as M
 import Fixtures
+import StrongPath (relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
@@ -64,7 +65,8 @@ spec_WebAppGenerator = do
             AS.userDockerfileContents = Nothing,
             AS.configFiles = [],
             AS.devDatabaseUrl = Nothing,
-            AS.customViteConfigPath = Nothing
+            AS.customViteConfigPath = Nothing,
+            AS.srcTsConfigPath = [relfile|tsconfig.json|]
           }
 
   describe "genWebApp" $ do
