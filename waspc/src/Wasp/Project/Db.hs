@@ -51,8 +51,8 @@ getDbSystemFromPrismaSchema :: Psl.Schema.Schema -> Either DbSystemParseError AS
 getDbSystemFromPrismaSchema prismaSchema =
   case getDbProviderFromPrismaSchema prismaSchema of
     Just (Psl.Argument.StringExpr provider)
-      | provider == Psl.Db.pslPostgresqlKeyword -> Right AS.Db.PostgreSQL
-      | provider == Psl.Db.pslSqliteKeyword -> Right AS.Db.SQLite
+      | provider == Psl.Db.dbProviderPostgresqlStringLiteral -> Right AS.Db.PostgreSQL
+      | provider == Psl.Db.dbProviderSqliteStringLiteral -> Right AS.Db.SQLite
     Just anyOtherExpression -> Left $ UnsupportedDbSystem $ generateExpression anyOtherExpression
     Nothing -> Left MissingDbSystem
 

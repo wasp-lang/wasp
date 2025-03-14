@@ -64,11 +64,11 @@ genPrismaSchema ::
   Generator FileDraft
 genPrismaSchema spec = do
   (datasourceProvider :: String) <- case dbSystem of
-    AS.Db.PostgreSQL -> return Pls.Db.pslPostgresqlKeyword
+    AS.Db.PostgreSQL -> return Pls.Db.dbProviderPostgresqlStringLiteral
     AS.Db.SQLite ->
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
-        else return Pls.Db.pslSqliteKeyword
+        else return Pls.Db.dbProviderSqliteStringLiteral
 
   entities <- getEntitiesForPrismaSchema spec
 

@@ -1,11 +1,11 @@
 module Wasp.Psl.Db
-  ( pslPostgresqlKeyword,
-    pslSqliteKeyword,
+  ( dbProviderPostgresqlStringLiteral,
+    dbProviderSqliteStringLiteral,
   )
 where
 
-pslPostgresqlKeyword :: String
-pslPostgresqlKeyword = "postgresql"
+dbProviderPostgresqlStringLiteral :: String
+dbProviderPostgresqlStringLiteral = "postgresql"
 
-pslSqliteKeyword :: String
-pslSqliteKeyword = "sqlite"
+dbProviderSqliteStringLiteral :: String
+dbProviderSqliteStringLiteral = "sqlite"

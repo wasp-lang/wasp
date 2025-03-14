@@ -166,7 +166,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
-      ("The database provider in the schema.prisma file must be \"" ++ Psl.Db.pslPostgresqlKeyword ++ "\" since there are jobs with executor set to PgBoss.")
+      ("The database provider in the schema.prisma file must be \"" ++ Psl.Db.dbProviderPostgresqlStringLiteral ++ "\" since there are jobs with executor set to PgBoss.")
     | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
 
