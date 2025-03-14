@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.ExternalConfig.PackageJson
+module Wasp.AppSpec.PackageJson
   ( PackageJson (..),
     DependenciesMap,
     PackageName,

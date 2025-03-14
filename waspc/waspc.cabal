@@ -256,6 +256,7 @@ library
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
     Wasp.AppSpec.Operation
+    Wasp.AppSpec.PackageJson
     Wasp.AppSpec.Page
     Wasp.AppSpec.Query
     Wasp.AppSpec.Route
@@ -267,7 +268,6 @@ library
     Wasp.Db.Postgres
     Wasp.Error
     Wasp.Env
-    Wasp.ExternalConfig.PackageJson
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
