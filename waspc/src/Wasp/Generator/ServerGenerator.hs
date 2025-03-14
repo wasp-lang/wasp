@@ -36,12 +36,9 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.Common
-  ( ServerRootDir,
-    superjsonVersion,
-    typescriptVersion,
-  )
+import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
+import Wasp.Generator.DepVersions (superjsonVersion, typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N

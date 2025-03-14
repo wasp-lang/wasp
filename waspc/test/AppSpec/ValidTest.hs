@@ -487,7 +487,8 @@ spec_AppSpecValid = do
           AS.devEnvVarsClient = [],
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
-          AS.configFiles = [],
+          AS.tailwindConfigFilesRelocators = [],
+          AS.srcTsConfigPath = fromJust $ SP.parseRelFile "tsconfig.json",
           AS.devDatabaseUrl = Nothing,
           AS.customViteConfigPath = Nothing
         }
