@@ -4,12 +4,15 @@ const readline = require('linebyline');
 function spawn(name, cmd, args, done) {
   const spawnOptions = {
     detached: true,
+    // MacOS: uncomment the next line
+    // stdio: ["ignore", "pipe", "pipe"],
   };
   const proc = cp.spawn(cmd, args, spawnOptions);
 
   // We close stdin stream on the new process because otherwise the start-app
   // process hangs.
   // See https://github.com/wasp-lang/wasp/pull/1218#issuecomment-1599098272.
+  // MacOS: comment out the next line
   proc.stdin.destroy();
 
   readline(proc.stdout).on('line', data => {

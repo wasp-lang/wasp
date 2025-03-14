@@ -17,7 +17,7 @@ const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
 router.get('/', middleware, function (_req, res, _next) {
-  res.json('Hello world')
+  res.status(200).send();
 })
 
 {=# isAuthEnabled =}
