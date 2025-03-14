@@ -417,6 +417,7 @@ library
     Wasp.Psl.Parser.View
     Wasp.Psl.Util
     Wasp.Psl.Valid
+    Wasp.Psl.Db
     Wasp.SemanticVersion
     Wasp.SemanticVersion.VersionBound
     Wasp.SemanticVersion.Version
