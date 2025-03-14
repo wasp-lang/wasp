@@ -11,7 +11,7 @@ import {
   calcNewPosOfDndItemInsertedInAnotherList,
   calcNewPosOfDndItemMovedWithinList,
   PositionContext,
-  PositionProvider
+  PositionProvider,
 } from './PositionContext'
 
 import {
@@ -23,27 +23,34 @@ import {
   updateCard,
   useQuery,
   getListsAndCards,
-} from "wasp/client/operations";
+} from 'wasp/client/operations'
 
 const createListIdToSortedCardsMap = (listsAndCards) => {
   const listIdToSortedCardsMap = {}
 
-  listsAndCards.forEach(list => {
-    listIdToSortedCardsMap[list.id] = [...list.cards].sort((a, b) => a.pos - b.pos)
+  listsAndCards.forEach((list) => {
+    listIdToSortedCardsMap[list.id] = [...list.cards].sort(
+      (a, b) => a.pos - b.pos
+    )
   })
 
   return listIdToSortedCardsMap
 }
 
 const MainPage = ({ user }) => {
-  const { data: listsAndCards, isFetchingListsAndCards, errorListsAndCards }
-    = useQuery(getListsAndCards)
+  const {
+    data: listsAndCards,
+    isFetchingListsAndCards,
+    errorListsAndCards,
+  } = useQuery(getListsAndCards)
 
   // NOTE(matija): this is only a shallow copy.
-  const listsSortedByPos = listsAndCards && [...listsAndCards].sort((a, b) => a.pos - b.pos)
+  const listsSortedByPos =
+    listsAndCards && [...listsAndCards].sort((a, b) => a.pos - b.pos)
 
   // Create a map with listId -> cards sorted by pos.
-  const listIdToSortedCardsMap = listsAndCards && createListIdToSortedCardsMap(listsAndCards)
+  const listIdToSortedCardsMap =
+    listsAndCards && createListIdToSortedCardsMap(listsAndCards)
 
   const onDragEnd = async (result) => {
     // Item was dropped outside of the droppable area.
@@ -53,10 +60,11 @@ const MainPage = ({ user }) => {
 
     // TODO(matija): make an enum for type strings (BOARD, CARD).
     if (result.type === 'BOARD') {
-      const newPos =
-        calcNewPosOfDndItemMovedWithinList(
-          listsSortedByPos, result.source.index, result.destination.index
-        )
+      const newPos = calcNewPosOfDndItemMovedWithinList(
+        listsSortedByPos,
+        result.source.index,
+        result.destination.index
+      )
 
       try {
         const movedListId = listsSortedByPos[result.source.index].id
@@ -80,18 +88,26 @@ const MainPage = ({ user }) => {
       const destListCardsSortedByPos = listIdToSortedCardsMap[destListId]
 
       let newPos = undefined
-      if (sourceListId === destListId) { // Card got moved within the same list.
+      if (sourceListId === destListId) {
+        // Card got moved within the same list.
         newPos = calcNewPosOfDndItemMovedWithinList(
-          destListCardsSortedByPos, result.source.index, result.destination.index
+          destListCardsSortedByPos,
+          result.source.index,
+          result.destination.index
         )
-      } else { // Card got inserted from another list.
+      } else {
+        // Card got inserted from another list.
         newPos = calcNewPosOfDndItemInsertedInAnotherList(
-          destListCardsSortedByPos, result.destination.index
+          destListCardsSortedByPos,
+          result.destination.index
         )
       }
 
       try {
-        await updateCard({ cardId: movedCardId, data: { pos: newPos, listId: destListId } })
+        await updateCard({
+          cardId: movedCardId,
+          data: { pos: newPos, listId: destListId },
+        })
       } catch (err) {
         window.alert('Error while updating card position: ' + err.message)
       }
@@ -109,19 +125,21 @@ const MainPage = ({ user }) => {
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="board" direction="horizontal" type="BOARD" >
+        <Droppable droppableId='board' direction='horizontal' type='BOARD'>
           {(provided, snapshot) => (
             <PositionProvider items={listsSortedByPos}>
-              <div id='board' className='u-fancy-scrollbar'
+              <div
+                id='board'
+                className='u-fancy-scrollbar'
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {listsSortedByPos && listIdToSortedCardsMap &&
+                {listsSortedByPos && listIdToSortedCardsMap && (
                   <Lists
                     lists={listsSortedByPos}
                     listIdToCardsMap={listIdToSortedCardsMap}
                   />
-                }
+                )}
                 {provided.placeholder}
                 <AddList />
               </div>
@@ -129,7 +147,6 @@ const MainPage = ({ user }) => {
           )}
         </Droppable>
       </DragDropContext>
-
     </UserPageLayout>
   )
 }
@@ -140,7 +157,10 @@ const Lists = ({ lists, listIdToCardsMap }) => {
 
   return lists.map((list, index) => {
     return (
-      <List list={list} key={list.id} index={index}
+      <List
+        list={list}
+        key={list.id}
+        index={index}
         cards={listIdToCardsMap[list.id]}
       />
     )
@@ -149,11 +169,11 @@ const Lists = ({ lists, listIdToCardsMap }) => {
 
 const List = ({ list, index, cards }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true);
-  const [isInEditMode, setIsInEditMode] = useState(false);
-  const { getPosOfItemInsertedInAnotherListAfter } = useContext(PositionContext);
+  const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true)
+  const [isInEditMode, setIsInEditMode] = useState(false)
+  const { getPosOfItemInsertedInAnotherListAfter } = useContext(PositionContext)
 
-  const textAreaRef = useRef(null);
+  const textAreaRef = useRef(null)
 
   const handleListNameUpdated = async (listId, newName) => {
     try {
@@ -166,18 +186,21 @@ const List = ({ list, index, cards }) => {
   }
 
   const handleAddCard = async () => {
-    setIsInEditMode(true);
-    setIsPopoverOpen(false);
+    setIsInEditMode(true)
+    setIsPopoverOpen(false)
   }
 
   const handleCopyList = async (listId, idx) => {
     try {
-      await createListCopy({ listId, pos: getPosOfItemInsertedInAnotherListAfter(idx) });
+      await createListCopy({
+        listId,
+        pos: getPosOfItemInsertedInAnotherListAfter(idx),
+      })
     } catch (err) {
       window.alert('Error while copying list: ' + err.message)
     }
 
-    setIsPopoverOpen(false);
+    setIsPopoverOpen(false)
   }
 
   const handleDeleteList = async (listId) => {
@@ -190,9 +213,9 @@ const List = ({ list, index, cards }) => {
   }
 
   const handleHeadingClicked = (e) => {
-    setIsHeaderTargetShown(false);
-    textAreaRef?.current?.focus();
-  };
+    setIsHeaderTargetShown(false)
+    textAreaRef?.current?.focus()
+  }
 
   const ListMenu = () => {
     return (
@@ -203,7 +226,9 @@ const List = ({ list, index, cards }) => {
               <X size={16} />
             </button>
           </div>
-          <span className='popover-header-title popover-header-item'>List&nbsp;actions</span>
+          <span className='popover-header-title popover-header-item'>
+            List&nbsp;actions
+          </span>
           <div className='popover-header-item'>
             <button
               className='popover-header-close-btn dark-hover'
@@ -216,9 +241,7 @@ const List = ({ list, index, cards }) => {
         <div className='popover-content'>
           <ul className='popover-content-list'>
             <li>
-              <button onClick={() => handleAddCard()}>
-                Add card...
-              </button>
+              <button onClick={() => handleAddCard()}>Add card...</button>
             </li>
             <li>
               <button onClick={() => handleCopyList(list.id, index)}>
@@ -243,16 +266,22 @@ const List = ({ list, index, cards }) => {
       index={index}
     >
       {(provided, snapshot) => (
-        <div className='list-wrapper'
+        <div
+          className='list-wrapper'
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <div className='list'>
+          <div
+            className={classnames('list', {
+              'list--dragging': snapshot.isDragging,
+              'list--drop-animating': snapshot.isDropAnimating,
+            })}
+          >
             <div className='list-header'>
               {isHeaderTargetShown ? (
                 <div
-                  className="list-header-target"
+                  className='list-header-target'
                   onClick={(e) => handleHeadingClicked(e)}
                 ></div>
               ) : (
@@ -281,15 +310,16 @@ const List = ({ list, index, cards }) => {
                   </div>
                 </Popover>
               </div>
-            </div> {/* eof list-header */}
-
+            </div>{' '}
+            {/* eof list-header */}
             <Droppable
               droppableId={`${list.id}`}
-              direction="vertical"
-              type="CARD"
+              direction='vertical'
+              type='CARD'
             >
               {(provided, snapshot) => (
-                <div className='cards'
+                <div
+                  className='cards'
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
@@ -298,7 +328,6 @@ const List = ({ list, index, cards }) => {
                 </div>
               )}
             </Droppable>
-
             <div className='card-composer-container'>
               <PositionProvider items={cards}>
                 <AddCard
@@ -318,25 +347,30 @@ const List = ({ list, index, cards }) => {
 const Cards = ({ cards }) => {
   return (
     <div className='list-cards'>
-      {cards.map((card, index) => <Card card={card} key={card.id} index={index} />)}
+      {cards.map((card, index) => (
+        <Card card={card} key={card.id} index={index} />
+      ))}
     </div>
   )
 }
 
 const Card = ({ card, index }) => {
   return (
-    <Draggable
-      key={card.id}
-      draggableId={`${card.id}`}
-      index={index}
-    >
+    <Draggable key={card.id} draggableId={`${card.id}`} index={index}>
       {(provided, snapshot) => (
-        <div className='list-card'
+        <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <span className='list-card-title'>{card.title}</span>
+          <div
+            className={classnames('list-card', {
+              'list-card--dragging': snapshot.isDragging,
+              'list-card--drop-animating': snapshot.isDropAnimating,
+            })}
+          >
+            <span className='list-card-title'>{card.title}</span>
+          </div>
         </div>
       )}
     </Draggable>
@@ -349,10 +383,7 @@ const AddList = () => {
 
   const AddListButton = () => {
     return (
-      <button
-        className='open-add-list'
-        onClick={() => setIsInEditMode(true)}
-      >
+      <button className='open-add-list' onClick={() => setIsInEditMode(true)}>
         <div className='add-icon'>
           <Plus size={16} strokeWidth={2} />
         </div>
@@ -398,9 +429,9 @@ const AddList = () => {
 
   return (
     <div
-      className={classnames(
-        'add-list', 'list-wrapper', 'mod-add', { 'is-idle': !isInEditMode }
-      )}
+      className={classnames('add-list', 'list-wrapper', 'mod-add', {
+        'is-idle': !isInEditMode,
+      })}
     >
       {isInEditMode ? <AddListInput /> : <AddListButton />}
     </div>
@@ -408,7 +439,6 @@ const AddList = () => {
 }
 
 const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
-
   const AddCardButton = () => {
     return (
       <button
@@ -425,7 +455,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
 
   const AddCardInput = ({ listId }) => {
     const formRef = useRef(null)
-    const { getPosOfNewItem } = useContext(PositionContext);
+    const { getPosOfNewItem } = useContext(PositionContext)
 
     const submitOnEnter = (e) => {
       if (e.keyCode === 13 /* && e.shiftKey == false */) {
@@ -449,7 +479,11 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
     }
 
     return (
-      <form className='card-composer' ref={formRef} onSubmit={(e) => handleAddCard(e, listId)}>
+      <form
+        className='card-composer'
+        ref={formRef}
+        onSubmit={(e) => handleAddCard(e, listId)}
+      >
         <div className='list-card'>
           <textarea
             className='card-composer-textarea'
