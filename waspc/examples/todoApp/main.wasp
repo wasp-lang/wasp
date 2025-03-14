@@ -9,6 +9,7 @@ app todoApp {
     // autoConnect: false
   },
   auth: {
+    cookieEnabled: true,
     userEntity: User,
     methods: {
       // usernameAndPassword: {

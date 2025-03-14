@@ -10,6 +10,7 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
@@ -50,7 +51,12 @@ genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocke
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
-    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+    tmplData =
+      object
+        [ "autoConnect" .= map toLower (show shouldAutoConnect),
+          "isCookieAuthEnabled" .= maybe False AS.Auth.isCookieAuthEnabled maybeAuth
+        ]
 
 depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByWebSockets spec =

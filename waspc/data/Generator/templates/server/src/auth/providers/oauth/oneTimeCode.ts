@@ -27,7 +27,7 @@ export function setupOneTimeCodeRoute(router: Router) {
         throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
       }
 
-      const session = await createSession(auth.id);
+      const session = await createSession(auth.id, res);
 
       tokenStore.markUsed(code);
 

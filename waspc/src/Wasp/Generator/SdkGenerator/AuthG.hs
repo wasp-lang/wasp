@@ -35,9 +35,9 @@ genAuth spec =
         ]
         -- client stuff
         <++> sequence
-          [ genFileCopy [relfile|auth/helpers/user.ts|],
+          [ genHelpersUserTs auth,
             genFileCopy [relfile|auth/types.ts|],
-            genFileCopy [relfile|auth/logout.ts|],
+            genLogoutTs auth,
             genUseAuth auth
           ]
         <++> genAuthForms auth
@@ -46,7 +46,7 @@ genAuth spec =
         <++> genEmailAuth auth
         -- server stuff
         <++> sequence
-          [ genFileCopy [relfile|core/auth.ts|],
+          [ genCoreAuthTs auth,
             genFileCopy [relfile|auth/validation.ts|],
             genFileCopy [relfile|auth/password.ts|],
             genFileCopy [relfile|auth/jwt.ts|],
@@ -67,7 +67,12 @@ genAuth spec =
 genUseAuth :: AS.Auth.Auth -> Generator FileDraft
 genUseAuth auth = return $ C.mkTmplFdWithData [relfile|auth/useAuth.ts|] tmplData
   where
-    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
+    tmplData =
+      object
+        [ "entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName],
+          "isCookieAuthEnabled" .= AS.Auth.isCookieAuthEnabled auth
+        ]
+
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
@@ -77,7 +82,8 @@ genLuciaTs auth = return $ C.mkTmplFdWithData [relfile|auth/lucia.ts|] tmplData
       object
         [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
           "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userEntityUpper" .= (userEntityName :: String)
+          "userEntityUpper" .= (userEntityName :: String),
+          "isCookieAuthEnabled" .= AS.Auth.isCookieAuthEnabled auth
         ]
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
@@ -90,7 +96,8 @@ genSessionTs auth = return $ C.mkTmplFdWithData [relfile|auth/session.ts|] tmplD
         [ "userEntityUpper" .= userEntityName,
           "userEntityLower" .= Util.toLowerFirst userEntityName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
-          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+          "isCookieAuthEnabled" .= AS.Auth.isCookieAuthEnabled auth
         ]
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
@@ -133,5 +140,20 @@ genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/types.ts|] tmplData
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
+    
     tmplData = object ["userEntityUpper" .= (userEntityName :: String)]
+
+genHelpersUserTs :: AS.Auth.Auth -> Generator FileDraft
+genHelpersUserTs auth = return $ C.mkTmplFdWithData [relfile|auth/helpers/user.ts|] tmplData
+  where
+    tmplData = object ["isCookieAuthEnabled" .= AS.Auth.isCookieAuthEnabled auth]
+
+genLogoutTs :: AS.Auth.Auth -> Generator FileDraft
+genLogoutTs auth = return $ C.mkTmplFdWithData [relfile|auth/logout.ts|] tmplData
+  where
+    tmplData = object ["isCookieAuthEnabled" .= AS.Auth.isCookieAuthEnabled auth]
+
+genCoreAuthTs :: AS.Auth.Auth -> Generator FileDraft
+genCoreAuthTs auth = return $ C.mkTmplFdWithData [relfile|core/auth.ts|] tmplData
+  where
+    tmplData = object ["isCookieAuthEnabled" .= AS.Auth.isCookieAuthEnabled auth]
