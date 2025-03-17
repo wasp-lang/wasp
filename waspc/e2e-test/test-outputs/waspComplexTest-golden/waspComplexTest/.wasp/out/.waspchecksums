@@ -410,7 +410,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "f786076d7a2c644095311597e18dd2b0a444bc661ce3b230127db01f4b4cd953"
+        "ee11044e63767a64e4479310e11ad46b9e4d7d8e781fe39ec793adf32d45ba48"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "../out/sdk/wasp/server/crud/tasks.ts"
         ],
-        "f7f842a5d84e29fc897288adc80760c2c3f4a2e24c365a64cfe0b4a33f852b8c"
+        "d636a406237ecc06ac6d9225af503f11ee2617d556b662b4629c266f70c2c4d2"
     ],
     [
         [
@@ -816,7 +816,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
+        "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
     ],
     [
         [
@@ -865,7 +865,7 @@
             "file",
             "Dockerfile"
         ],
-        "a4b36610850c08382feef47bcddfc6280e7c34b64459497d0f81227751525156"
+        "f9f1ca52eb9e344f4c9f6ddd151a31c17c355cc875fec44dc3bd537fdac504a6"
     ],
     [
         [
@@ -914,7 +914,7 @@
             "file",
             "server/package.json"
         ],
-        "4d72e95d0a9dc099f58fe6a5e80c677aabadac7c498c5a03b510db57126386c5"
+        "95d620f46b2d4e55da471e64552297c345572c8516299614534163ed273266e0"
     ],
     [
         [
@@ -1152,7 +1152,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "622813a50faf658cd240456ce60406209b8f2c2d15669fcf83ad9566750d67e1"
+        "a440cd7a6506c9571ace5fc919777c81ad31e826d75b26e70647a7a72debd7a3"
     ],
     [
         [
@@ -1187,7 +1187,7 @@
             "file",
             "web-app/index.html"
         ],
-        "f1ca90861003c568c2670b0064f15431cfc45a68b23ffd890b1187af588a76d9"
+        "04e67239005c3ec39463778c9d0d4abc2addd8a30b295390619e494a84f96103"
     ],
     [
         [
@@ -1201,7 +1201,7 @@
             "file",
             "web-app/package.json"
         ],
-        "c424e09513b200091c5b0c6e73de89a4987657060c796e203f474bfda83dadd7"
+        "d731a8ba93924d97e8039252b22d635385e515197f26fc23f2373e578a1bb830"
     ],
     [
         [

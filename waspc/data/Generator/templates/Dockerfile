@@ -50,7 +50,7 @@ RUN cd .wasp/build/server && npm run bundle
 FROM base AS server-production
 # In case they want to use python3 in their app.
 RUN apk add --no-cache python3
-ENV NODE_ENV production
+ENV NODE_ENV=production
 WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages
 # necessary for migrating the database.
