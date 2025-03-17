@@ -7,6 +7,7 @@
 - Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
 - Increased the minimum Node version to 20.0.0 ( [#2537](https://github.com/wasp-lang/wasp/pull/2537) )
 - Invalid CLI commands now properly return non-zero exit code ( [#2522](https://github.com/wasp-lang/wasp/pull/2552) )
+- Prisma's datasource database provider string literals are now variablized ( [#2548](https://github.com/wasp-lang/wasp/pull/2548) )
 
 ### Bug fixes
 
