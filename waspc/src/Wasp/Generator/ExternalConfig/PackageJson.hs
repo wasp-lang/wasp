@@ -10,33 +10,33 @@ import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 import Wasp.Generator.ServerGenerator.Common (expressTypesVersion)
 import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
-data PackageValidationDependecyType = RuntimeDependency | DevelopmentDependency
+data PackageDependecyType = Runtime | Development
 
-data PackageValidationOptionality = Required | Optional
+data PackageRequirement = Required | Optional
 
-type PackageValidationType = (PackageValidationDependecyType, PackageValidationOptionality)
+type PackageValidation = (PackageDependecyType, PackageRequirement)
 
 validatePackageJson :: P.PackageJson -> [ErrorMsg]
 validatePackageJson packageJson =
   concat
     [ -- dependencies
-      validate ("wasp", "file:.wasp/out/sdk/wasp") (RuntimeDependency, Required),
-      validate ("react-router-dom", show reactRouterVersion) (RuntimeDependency, Required),
+      validate ("wasp", "file:.wasp/out/sdk/wasp") (Runtime, Required),
+      validate ("react-router-dom", show reactRouterVersion) (Runtime, Required),
       -- Installing the wrong version of "react-router-dom" can make users believe that they
       -- can use features that are not available in the version that Wasp supports.
-      validate ("react", show reactVersion) (RuntimeDependency, Required),
-      validate ("react-dom", show reactVersion) (RuntimeDependency, Required),
+      validate ("react", show reactVersion) (Runtime, Required),
+      validate ("react-dom", show reactVersion) (Runtime, Required),
       -- devDependencies
-      validate ("typescript", show typescriptVersion) (DevelopmentDependency, Optional),
-      validate ("vite", show viteVersion) (DevelopmentDependency, Required),
-      validate ("prisma", show prismaVersion) (DevelopmentDependency, Required),
-      validate ("@types/react", show reactTypesVersion) (DevelopmentDependency, Optional),
-      validate ("@types/express", show expressTypesVersion) (DevelopmentDependency, Optional)
+      validate ("typescript", show typescriptVersion) (Development, Optional),
+      validate ("vite", show viteVersion) (Development, Required),
+      validate ("prisma", show prismaVersion) (Development, Required),
+      validate ("@types/react", show reactTypesVersion) (Development, Optional),
+      validate ("@types/express", show expressTypesVersion) (Development, Optional)
     ]
   where
     validate = validatePackageJsonDependency packageJson
 
-validatePackageJsonDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> PackageValidationType -> [ErrorMsg]
+validatePackageJsonDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> PackageValidation -> [ErrorMsg]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) (dependencyType, optionality) =
   case M.lookup packageName packageJsonDependencesMap of
     Just actualPackageVersion ->
@@ -49,13 +49,13 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
   where
     packageJsonDependencesMap :: P.DependenciesMap
     packageJsonDependencesMap = case dependencyType of
-      RuntimeDependency -> P.dependencies packageJson
-      DevelopmentDependency -> P.devDependencies packageJson
+      Runtime -> P.dependencies packageJson
+      Development -> P.devDependencies packageJson
 
     packageJsonDependencyKey :: String
     packageJsonDependencyKey = case dependencyType of
-      RuntimeDependency -> "dependencies"
-      DevelopmentDependency -> "devDependencies"
+      Runtime -> "dependencies"
+      Development -> "devDependencies"
 
     incorrectPackageVersionErrorMessage :: ErrorMsg
     incorrectPackageVersionErrorMessage =
