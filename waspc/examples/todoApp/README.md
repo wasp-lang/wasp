@@ -11,14 +11,17 @@ This app should always be "up to date", in the sense that we keep updating it to
 ### Env vars
 
 To do the minimum to get the app running, do:
+
 ```sh
 cp .env.server.example .env.server
 ```
+
 This will create a `.env.server` file with some basic env vars set to dummy values. This will allow your app to run and work, but not all features will work, e.g. Google Auth won't work because it needs you to provide real API keys via env vars.
 
 To obtain all the API keys to get all the features of the app working, if you do need that, you will have to obtain them on your own, normally from the corresponding third-party services. Check Wasp docs for instructions on how to do this for Google Auth, GitHub Auth, and so on.
 
 #### Obtaining API keys as a Wasp Team member
+
 If you are a member of the Wasp Team, you don't have to obtain all the API keys on your own.
 
 Instead, you can run `npm run env:pull`: this will obtain `.env.server` file that we share on the team level.  
@@ -28,16 +31,19 @@ If you modify `.env.server` and want to persist the changes (for yourself and fo
 ## Running
 
 Start the database in a separate terminal session:
+
 ```
 cabal run wasp-cli start db
 ```
 
 Migrate the database if needed:
+
 ```
 cabal run wasp-cli db migrate-dev
 ```
 
 Run the app!
+
 ```
 cabal run wasp-cli start
 ```
@@ -53,6 +59,36 @@ Run `./ensure_app_compiles_and_builds.sh` to verify the app correctly compiles (
 
 This is also run in CI.
 
-### E2E tests
+### Headless Tests
 
-We don't have any yet, but there is `headless-test/examples/todoApp` that is a fork from this app but with Playwright tests. We plan to merge these two into one app, to get the best of both worlds.
+#### How to run
+
+Running headless tests:
+
+```
+$ cd headless-tests
+$ npm install
+$ npx playwright install --with-deps
+$ DEBUG=pw:webserver npx playwright test
+```
+
+For debugging it's useful to pass the `ui` flag:
+
+```
+$ DEBUG=pw:webserver npx playwright test --ui
+```
+
+If something breaks, maybe the example app won't run. Try running it and see if there are any errors:
+
+```
+npm run headless:start
+```
+
+#### MacOS Compatibility
+
+MacOS currently has problems with running the playwright test.
+Search for "MacOS:" in `start.js` for more details.
+
+#### How to run in CI
+
+We set up a GitHub Action to run the tests in CI. See `.github/workflows/waspc-ci.yaml` for details.
