@@ -19,7 +19,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@tsconfig/node18": "latest",
+    "@tsconfig/node20": "latest",
     "@types/express-serve-static-core": "^4.17.13"
   },
   "exports": {

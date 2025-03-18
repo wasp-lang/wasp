@@ -200,7 +200,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "3d70642f938bb064626cfbca85888f724694f93f5d0ed64405d68c323fbc09b6"
+        "d712f7bf25306ad48b628e7b035e05b06eaf92bcf72e47d8bfb33aaabf999c25"
     ],
     [
         [
@@ -368,7 +368,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
+        "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "Dockerfile"
         ],
-        "7ce6a077005efa9ce351dff7fe4ca77252ebad497f65c93ea905b0723924a528"
+        "0a244b8e1f4a86228b613cfc6c370142759297c1cbfa7f71f5c6ccd4bb05db55"
     ],
     [
         [
@@ -466,7 +466,7 @@
             "file",
             "server/package.json"
         ],
-        "4e00a2e103620cbc4a96f62181d6cb86fe4ec0703ad9d7534e57ff4462ade748"
+        "ae6d36c69a9a51addea31296c10660c039a47a0769848f8ea91db2c874480ebe"
     ],
     [
         [
@@ -536,7 +536,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "622813a50faf658cd240456ce60406209b8f2c2d15669fcf83ad9566750d67e1"
+        "a440cd7a6506c9571ace5fc919777c81ad31e826d75b26e70647a7a72debd7a3"
     ],
     [
         [
@@ -571,7 +571,7 @@
             "file",
             "web-app/index.html"
         ],
-        "f38792224e7db1569c41ec117a2cb211dec4620b8b4302c47ff7fc8f58ce3647"
+        "e87f539b3de57d569c5984c8edca0026a939634312b5b1f0163bd34f426846e5"
     ],
     [
         [
@@ -585,7 +585,7 @@
             "file",
             "web-app/package.json"
         ],
-        "adf7fab02235a92502d9fa0e25b76ef5b5096216baef4e89f8573a876446ae74"
+        "5360acd3cb13fb205eec043fd3d10d42615b0b1e7385e0430a2efa589800ed6a"
     ],
     [
         [
