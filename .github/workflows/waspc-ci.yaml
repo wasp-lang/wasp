@@ -3,18 +3,18 @@ name: WASPC-CI
 on:
   push:
     paths:
-      - 'waspc/**'
+      - "waspc/**"
     branches:
       - main
       - release
   pull_request:
     paths:
-      - 'waspc/**'
+      - "waspc/**"
   create: { tags: [v*] }
   schedule:
     # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
     # (GH deletes it after 7 days of not using it).
-    - cron: '0 0 * * 0'
+    - cron: "0 0 * * 0"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -51,11 +51,11 @@ jobs:
           - macos-latest
           - windows-latest
         node-version:
-          - 'latest'
+          - "latest"
         ghc:
-          - '8.10.7'
+          - "8.10.7"
         cabal:
-          - '3.6.2.0'
+          - "3.6.2.0"
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
@@ -63,12 +63,12 @@ jobs:
         include:
           - os: ubuntu-20.04
             node-version: 20
-            ghc: '8.10.7'
-            cabal: '3.6.2.0'
+            ghc: "8.10.7"
+            cabal: "3.6.2.0"
           - os: ubuntu-20.04
             node-version: 22
-            ghc: '8.10.7'
-            cabal: '3.6.2.0'
+            ghc: "8.10.7"
+            cabal: "3.6.2.0"
 
     steps:
       - name: Configure git
@@ -80,7 +80,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: 'actions/checkout@v3'
+      - uses: "actions/checkout@v3"
         with:
           # Workaround for a Github Checkout action bug
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
@@ -174,14 +174,14 @@ jobs:
         id: headless-install-dependencies
         if: matrix.os == 'ubuntu-20.04'
         run: |
-          cd headless-test
+          cd examples/todoApp
           npm ci
 
       - name: Headless - Store Playwright's Version
         id: headless-store-playwright-version
         if: matrix.os == 'ubuntu-20.04'
         run: |
-          cd headless-test
+          cd examples/todoApp
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
@@ -198,18 +198,17 @@ jobs:
         id: headless-setup-playwright
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-20.04'
         run: |
-          cd headless-test
+          cd examples/todoApp
           npx playwright install --with-deps
 
       - name: Headless - Run Playwright Tests
         id: headless-run-playwright-tests
         if: matrix.os == 'ubuntu-20.04'
         run: |
-          cd headless-test
-          npm ci
+          cd examples/todoApp
           # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver npx playwright test
-      
+          DEBUG=pw:webserver npx playwright test --config headless-tests/
+
       - name: Run e2e tests
         run: cabal test e2e-test
 
@@ -226,7 +225,7 @@ jobs:
         with:
           draft: true
           allowUpdates: true
-          artifacts: 'waspc/artifacts/*'
+          artifacts: "waspc/artifacts/*"
           artifactErrorsFailBuild: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}

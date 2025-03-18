@@ -2,7 +2,7 @@ import { type Task } from 'wasp/entities'
 import { HttpError } from 'wasp/server'
 import type { GetNumTasks, GetTask, GetTasks } from 'wasp/server/operations'
 
-export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
+export const getTasks = (async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -13,9 +13,25 @@ export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
   const tasks = await Task.findMany({
     where: { user: { id: context.user.id } },
     orderBy: { id: 'asc' },
+    include: {
+      user: {
+        include: {
+          auth: {
+            include: {
+              identities: {
+                select: {
+                  providerName: true,
+                  providerUserId: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   })
   return tasks
-}
+}) satisfies GetTasks<void>
 
 export const getNumTasks: GetNumTasks<void, number> = async (
   _args,
