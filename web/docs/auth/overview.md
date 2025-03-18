@@ -1170,9 +1170,12 @@ The extra fields can be either **objects** or **render functions** (you can comb
 
    The render function has the following signature:
 
-   ```
-   (form: UseFormReturn, state: FormState) => React.ReactNode
-   ```
+   ```ts
+   type AdditionalSignupFieldRenderFn = (
+      hookForm: UseFormReturn,
+      formState: FormState
+    ) => React.ReactNode
+   `  ``
 
    - `form` <Required />
 
