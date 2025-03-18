@@ -158,7 +158,6 @@ async function waitForPostgresReady(options: Options) {
 
     if (exitCode === 0) {
       log("postgres", "success", "PostgreSQL is ready");
-
       return;
     }
     await wait(healthCheckDelay);
