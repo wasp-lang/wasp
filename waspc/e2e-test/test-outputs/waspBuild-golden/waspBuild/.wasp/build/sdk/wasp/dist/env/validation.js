@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import { getConsoleLogColorTemplate } from 'wasp/universal/ansiColors';
 const redColorTemplate = getConsoleLogColorTemplate('red');
-// PRIVATE API (SDK, Vite config)
+// PRIVATE API (SDK)
 export function ensureEnvSchema(data, schema) {
     const result = getValidatedEnvOrError(data, schema);
     switch (result.type) {
