@@ -173,6 +173,9 @@ waspMigrate/.wasp/out/sdk/wasp/dist/server/utils.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/src/MainPage.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/src/MainPage.jsx
 waspMigrate/.wasp/out/sdk/wasp/dist/src/MainPage.jsx.map
+waspMigrate/.wasp/out/sdk/wasp/dist/universal/ansiColors.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/universal/ansiColors.js
+waspMigrate/.wasp/out/sdk/wasp/dist/universal/ansiColors.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/predicates.js
 waspMigrate/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
@@ -213,6 +216,7 @@ waspMigrate/.wasp/out/sdk/wasp/src/MainPage.jsx
 waspMigrate/.wasp/out/sdk/wasp/src/vite-env.d.ts
 waspMigrate/.wasp/out/sdk/wasp/src/waspLogo.png
 waspMigrate/.wasp/out/sdk/wasp/tsconfig.json
+waspMigrate/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspMigrate/.wasp/out/sdk/wasp/universal/predicates.ts
 waspMigrate/.wasp/out/sdk/wasp/universal/types.ts
 waspMigrate/.wasp/out/sdk/wasp/universal/url.ts

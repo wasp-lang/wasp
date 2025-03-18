@@ -5,8 +5,9 @@ import {
   type EnvValidationResult,
 } from 'wasp/env/validation'
 import { clientEnvSchema } from 'wasp/client/env/schema'
+import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
 
-const redColor = '\x1b[31m'
+const redColorFormatString = getColorizedConsoleFormatString('red');
 
 export function validateEnv(): Plugin {
   let validationResult: EnvValidationResult<unknown> | null = null
@@ -25,7 +26,7 @@ export function validateEnv(): Plugin {
         return
       }
 
-      console.error(`${redColor}${validationResult.message}`)
+      console.error(redColorFormatString, validationResult.message)
       // Exit early if we are in build mode, because we can't show the error in the browser.
       process.exit(1)
     },

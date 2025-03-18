@@ -1,11 +1,12 @@
 import * as z from 'zod';
-const redColor = '\x1b[31m';
+import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors';
+const redColorFormatString = getColorizedConsoleFormatString('red');
 // PRIVATE API (SDK)
 export function ensureEnvSchema(data, schema) {
     const result = getValidatedEnvOrError(data, schema);
     switch (result.type) {
         case 'error':
-            console.error(`${redColor}${result.message}`);
+            console.error(redColorFormatString, result.message);
             throw new Error('Error parsing environment variables');
         case 'success':
             return result.data;

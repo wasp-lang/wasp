@@ -397,6 +397,9 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/src/server/myServerSetupCode.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/src/server/queries/bar.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/src/server/queries/bar.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/src/server/queries/bar.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/universal/ansiColors.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/universal/ansiColors.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/universal/ansiColors.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/predicates.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
@@ -471,6 +474,7 @@ waspComplexTest/.wasp/out/sdk/wasp/src/server/queries/bar.js
 waspComplexTest/.wasp/out/sdk/wasp/src/vite-env.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/src/waspLogo.png
 waspComplexTest/.wasp/out/sdk/wasp/tsconfig.json
+waspComplexTest/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspComplexTest/.wasp/out/sdk/wasp/universal/predicates.ts
 waspComplexTest/.wasp/out/sdk/wasp/universal/types.ts
 waspComplexTest/.wasp/out/sdk/wasp/universal/url.ts
