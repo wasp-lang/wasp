@@ -1,5 +1,5 @@
-import { getConsoleLogColorTemplate } from 'wasp/universal/ansiColors';
-const redColorTemplate = getConsoleLogColorTemplate('red');
+import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors';
+const redColorFormatString = getColorizedConsoleFormatString('red');
 // PRIVATE API (SDK)
 export function ensureEnvSchema(data, schema) {
     const result = getValidatedEnvOrError(data, schema);
@@ -7,7 +7,7 @@ export function ensureEnvSchema(data, schema) {
         return result.data;
     }
     else {
-        console.error(`${redColorTemplate}${formatZodEnvErrors(result.error.issues)}`);
+        console.error(`${redColorFormatString}${formatZodEnvErrors(result.error.issues)}`);
         throw new Error('Error parsing environment variables');
     }
 }

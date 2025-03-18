@@ -1,9 +1,9 @@
 import { DummyEmailProvider, EmailSender } from "../types";
 import { getDefaultFromField } from "../helpers.js";
 
-import { getConsoleLogColorTemplate } from 'wasp/universal/ansiColors'
+import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
 
-const yellowColorTemplate = getConsoleLogColorTemplate('yellow');
+const yellowColorFormatString = getColorizedConsoleFormatString('yellow');
 
 // PRIVATE API
 export function initDummyEmailSender(
@@ -14,17 +14,17 @@ export function initDummyEmailSender(
         send: async (email) => {
             const fromField = email.from || defaultFromField;
 
-            console.log(yellowColorTemplate, '╔═══════════════════════╗');
-            console.log(yellowColorTemplate, '║ Dummy email sender ✉️  ║');
-            console.log(yellowColorTemplate, '╚═══════════════════════╝');
+            console.log(yellowColorFormatString, '╔═══════════════════════╗');
+            console.log(yellowColorFormatString, '║ Dummy email sender ✉️  ║');
+            console.log(yellowColorFormatString, '╚═══════════════════════╝');
             console.log(`From:    ${fromField.name} <${fromField.email}>`);
             console.log(`To:      ${email.to}`);
             console.log(`Subject: ${email.subject}`);
-            console.log(yellowColorTemplate, '═════════ Text ═════════');
+            console.log(yellowColorFormatString, '═════════ Text ═════════');
             console.log(email.text);
-            console.log(yellowColorTemplate, '═════════ HTML ═════════');
+            console.log(yellowColorFormatString, '═════════ HTML ═════════');
             console.log(email.html);
-            console.log(yellowColorTemplate, '════════════════════════');
+            console.log(yellowColorFormatString, '════════════════════════');
 
             return {
                 success: true,

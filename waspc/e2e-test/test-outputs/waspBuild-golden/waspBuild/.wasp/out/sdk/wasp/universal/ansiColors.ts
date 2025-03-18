@@ -5,9 +5,10 @@ export const colors = {
 
 export const resetColor = "\x1b[0m";
 
+// PRIVATE API (SDK, client)
 // Used with console.log() to colorize the output
-// Example: console.log(getConsoleLogColorTemplate('red'), 'This is red text');
-export function getConsoleLogColorTemplate(colorKey: keyof typeof colors): string {
+// Example: console.log(getColorizedConsoleFormatString('red'), 'This is red text');
+export function getColorizedConsoleFormatString(colorKey: keyof typeof colors): string {
   const color = colors[colorKey];
   return `${color}%s${resetColor}`;
 }

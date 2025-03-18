@@ -5,9 +5,9 @@ import {
   formatZodEnvErrors,
 } from 'wasp/env/validation'
 import { clientEnvSchema } from 'wasp/client/env/schema'
-import { getConsoleLogColorTemplate } from 'wasp/universal/ansiColors'
+import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
 
-const redColorTemplate = getConsoleLogColorTemplate('red');
+const redColorFormatString = getColorizedConsoleFormatString('red');
 
 export function validateEnv(): Plugin {
   let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null
@@ -20,7 +20,7 @@ export function validateEnv(): Plugin {
       // Exit if we are in build mode, because we can't show the error in the browser.
       if (config.command === 'build' && !validationResult.success) {
         const message = formatZodEnvErrors(validationResult.error.issues)
-        console.error(`${redColorTemplate}${message}`)
+        console.error(`${redColorFormatString}${message}`)
         process.exit(1)
       }
     },

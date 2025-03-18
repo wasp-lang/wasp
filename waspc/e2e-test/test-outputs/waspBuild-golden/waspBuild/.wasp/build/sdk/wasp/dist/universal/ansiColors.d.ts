@@ -3,4 +3,4 @@ export declare const colors: {
     readonly yellow: "\u001B[33m";
 };
 export declare const resetColor = "\u001B[0m";
-export declare function getConsoleLogColorTemplate(colorKey: keyof typeof colors): string;
+export declare function getColorizedConsoleFormatString(colorKey: keyof typeof colors): string;
