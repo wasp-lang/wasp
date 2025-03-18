@@ -3,7 +3,7 @@ import type { Result } from '../universal/types'
 
 const redColor = '\x1b[31m'
 
-// PRIVATE API (SDK, Vite config)
+// PRIVATE API (SDK)
 export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   data: unknown,
   schema: Schema
