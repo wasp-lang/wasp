@@ -84,11 +84,6 @@ If something breaks, maybe the example app won't run. Try running it and see if 
 npm run headless:start
 ```
 
-#### MacOS Compatibility
-
-MacOS currently has problems with running the playwright test.
-Search for "MacOS:" in `start.js` for more details.
-
 #### How to run in CI
 
 We set up a GitHub Action to run the tests in CI. See `.github/workflows/waspc-ci.yaml` for details.
