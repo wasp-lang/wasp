@@ -9,7 +9,8 @@
     "react-feather": "2.0.10",
     "react-router-dom": "^6.26.2",
     "react-tiny-popover": "7.1.0",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "wasp": "file:.wasp/out/sdk/wasp",
+    "tailwindcss": "^3.2.7"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",

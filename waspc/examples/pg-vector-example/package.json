@@ -12,7 +12,8 @@
     "react-hook-form": "^7.45.4",
     "react-markdown": "^8.0.7",
     "react-router-dom": "^6.26.2",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "wasp": "file:.wasp/out/sdk/wasp",
+    "tailwindcss": "^3.2.7"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",
