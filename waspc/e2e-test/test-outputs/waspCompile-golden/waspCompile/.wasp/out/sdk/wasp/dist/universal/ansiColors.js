@@ -3,9 +3,10 @@ export const colors = {
     yellow: '\x1b[33m',
 };
 export const resetColor = "\x1b[0m";
+// PRIVATE API (SDK, client)
 // Used with console.log() to colorize the output
-// Example: console.log(getConsoleLogColorTemplate('red'), 'This is red text');
-export function getConsoleLogColorTemplate(colorKey) {
+// Example: console.log(getColorizedConsoleFormatString('red'), 'This is red text');
+export function getColorizedConsoleFormatString(colorKey) {
     const color = colors[colorKey];
     return `${color}%s${resetColor}`;
 }
