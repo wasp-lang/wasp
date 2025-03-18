@@ -8,11 +8,6 @@ function spawn(name, cmd, args, done) {
   }
   const proc = cp.spawn(cmd, args, spawnOptions)
 
-  // We close stdin stream on the new process because otherwise the start-app
-  // process hangs.
-  // See https://github.com/wasp-lang/wasp/pull/1218#issuecomment-1599098272.
-  // proc.stdin.destroy()
-
   readline(proc.stdout).on('line', (data) => {
     console.log(`\x1b[0m\x1b[33m[${name}][out]\x1b[0m ${data}`)
   })
