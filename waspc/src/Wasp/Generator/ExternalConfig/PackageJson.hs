@@ -56,7 +56,7 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
         else [incorrectPackageVersionErrorMessage]
     _notListed ->
       if isInWrongDependencyType
-        then [wrongDependencyKeyErrorMessage]
+        then [wrongDependencyTypeErrorMessage]
         else case optionality of
           Required -> [missingRequiredPackageErrorMessage]
           Optional -> []
@@ -103,8 +103,8 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
           "in package.json."
         ]
 
-    wrongDependencyKeyErrorMessage :: ErrorMsg
-    wrongDependencyKeyErrorMessage =
+    wrongDependencyKeTyperorMessage :: ErrorMsg
+    wrongDependencyKTyperrorMessage =
       unwords
         [ "Wasp requires package",
           show packageName,
