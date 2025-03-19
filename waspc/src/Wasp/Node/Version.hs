@@ -102,7 +102,7 @@ parseVersionFromCommandOutput commandName args = do
     commandWithArgs = unwords $ commandName : args
 
     commandNotFoundErrorMessage :: ErrorMessage
-    commandNotFoundErrorMessage = "`" ++ commandWithArgs ++ "` commandName not found!"
+    commandNotFoundErrorMessage = "`" ++ commandWithArgs ++ "` command not found!"
 
     unkownErrorErrorMessage :: IOError -> ErrorMessage
     unkownErrorErrorMessage err =
