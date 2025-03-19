@@ -8,6 +8,7 @@ type SpawnOptions = {
   name: string;
   cmd: string;
   args: string[];
+  cwd?: string;
 };
 
 function setupProcessManager() {
@@ -44,7 +45,6 @@ function setupProcessManager() {
     cwd,
     extraEnv = {},
   }: SpawnOptions & {
-    cwd?: string;
     extraEnv?: Record<string, string>;
   }): Promise<number | null> {
     return new Promise((resolve, reject) => {
@@ -90,13 +90,15 @@ function setupProcessManager() {
     });
   }
 
-  function spawnAndCollectStdout({ cmd, args }: SpawnOptions): Promise<{
+  function spawnAndCollectStdout({ cmd, args, cwd }: SpawnOptions): Promise<{
     exitCode: number | null;
     stdoutData: string;
   }> {
     let stdoutData = "";
     return new Promise((resolve, reject) => {
-      const proc = spawn(cmd, args);
+      const proc = spawn(cmd, args, {
+        cwd,
+      });
       addChild(proc);
 
       proc.stdout.on("data", (data) => (stdoutData += data));
