@@ -5,20 +5,18 @@ A robust script to run your Wasp application with PostgreSQL, including automate
 ## Usage
 
 ```
-npx wasp-app-runner --app-path <path-to-app> --app-name <app-name> [--db-type <db-type>] [--skip-cli-install <true/false>]
+npx wasp-app-runner [--app-path <path-to-app> --skip-cli-install <true/false> --wasp-cli-cmd <wasp-cli-cmd>]
 ```
 
 This runs the package without installing it globally.
 
 ### Arguments Table
 
-| Argument             | Description                                        | Example         |
-| -------------------- | -------------------------------------------------- | --------------- |
-| `--app-path`         | Path to your Wasp application directory            | `./my-wasp-app` |
-| `--app-name`         | Unique name for your application                   | `myapp`         |
-| `--db-type`          | Choices: `postgres`, `sqlite`, default: `postgres` | `postgres`      |
-| `--skip-cli-install` | Skip installing Wasp CLI                           | `true`          |
-| `--wasp-cli-cmd`     | Wasp CLI command, default: `wasp-cli`              | `wasp`          |
+| Argument             | Description                                            | Example         |
+| -------------------- | ------------------------------------------------------ | --------------- |
+| `--app-path`         | Path to your Wasp application directory (default: ".") | `./my-wasp-app` |
+| `--skip-cli-install` | Skip installing Wasp CLI (default: false)              | `true`          |
+| `--wasp-cli-cmd`     | Wasp CLI command (default: `wasp-cli`)                 | `wasp`          |
 
 ## Environment File Handling
 
@@ -31,12 +29,7 @@ This allows you to commit template files with default values while keeping actua
 
 ## Postgres Configuration
 
-- Port: 5432
-- Password: `devpass`
-- Docker image: `postgres:16`
-- Container name template: `<app-name>-postgres`
-- Health check retries: 10
-- Health check delay: 2000ms
+Check the `./db/postgres.ts` file to see the Postgres configuration used.
 
 If Postgres is used, the script automatically sets the `DATABASE_URL` env variable for the `wasp start` command:
 
@@ -55,5 +48,5 @@ npm install -g
 You can also run the script directly:
 
 ```bash
-node ./src/index.js --app-path <path-to-app> --app-name <app-name> [--db-type <db-type>] [--skip-cli-install <true/false>] [--]
+node ./src/index.js [--app-path <path-to-app> --skip-cli-install <true/false> --wasp-cli-cmd <wasp-cli-cmd>]
 ```
