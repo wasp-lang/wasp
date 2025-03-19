@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.16.3
+
+### 🎉 New Features and improvements
+
+- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
+- Increased the minimum Node version to 20.0.0 ( [#2537](https://github.com/wasp-lang/wasp/pull/2537) )
+- Invalid CLI commands now properly return non-zero exit code ( [#2522](https://github.com/wasp-lang/wasp/pull/2552) )
+- Prisma's datasource database provider string literals are now variablized ( [#2548](https://github.com/wasp-lang/wasp/pull/2548) )
+
+### Bug fixes
+
+- CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
+
 ## 0.16.2
 
 ### 🎉 New Features and improvements
@@ -18,7 +31,7 @@
 - Session ID is no longer removed when the user logs out from a different tab ([#2075](https://github.com/wasp-lang/wasp/issues/2075)).
 - Using operations on the server no longer breaks relative extensionless imports ([#2492](https://github.com/wasp-lang/wasp/issues/2492)).
 
-## 1.16.0
+## 0.16.0
 
 ### 🎉 New Features and improvements
 
@@ -97,7 +110,7 @@ Read more about breaking changes in the migration guide: https://wasp.sh/docs/mi
 
 Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka @genyus
 
-- Improved the error message when the user has a top level *.wasp* file.
+- Improved the error message when the user has a top level _.wasp_ file.
 
 ## 0.15.2
 

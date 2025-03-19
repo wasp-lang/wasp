@@ -9,8 +9,8 @@ import { rootCrudRouter } from './crud/index.js'
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
-router.get('/', middleware, function (_req, res, _next) {
-  res.json('Hello world')
+router.get('/', middleware, function (_req, res) {
+  res.status(200).send();
 })
 
 router.use('/auth', middleware, auth)

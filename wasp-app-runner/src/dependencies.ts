@@ -1,9 +1,17 @@
 import { exec } from "child_process";
 
 import { log } from "./logging.js";
+import { installWaspCli } from "./waspCli.js";
 
-export async function checkDependencies() {
-  const requiredCommands = ["docker", "cabal"];
+export async function checkAndSetupDependencies({
+  isWaspCliBuiltFromSource,
+}: {
+  isWaspCliBuiltFromSource: boolean;
+}) {
+  const requiredCommands = ["docker"];
+  if (isWaspCliBuiltFromSource) {
+    requiredCommands.push("cabal");
+  }
 
   for (const cmd of requiredCommands) {
     if (!(await commandExists(cmd))) {
@@ -14,6 +22,10 @@ export async function checkDependencies() {
       );
       process.exit(1);
     }
+  }
+
+  if (isWaspCliBuiltFromSource) {
+    await installWaspCli();
   }
 }
 

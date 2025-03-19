@@ -91,6 +91,7 @@ getTelemetryContext = do
       ]
   where
     -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
+    -- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo).
     checkIfOnCi :: IO Bool
     checkIfOnCi =
       any checkIfEnvValueIsTruthy

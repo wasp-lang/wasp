@@ -1,17 +1,16 @@
-import { join } from "path";
-import type { Options } from "./cli.js";
+import * as path from "path";
 import { copyFileSync, existsSync } from "fs";
 import { log } from "./logging.js";
 
-export async function setupEnvFiles(options: Options) {
+export function setupEnvFiles({ pathToApp }: { pathToApp: string }) {
   const envFiles = [
     { headless: ".env.client.headless", target: ".env.client" },
     { headless: ".env.server.headless", target: ".env.server" },
   ];
 
-  envFiles.forEach(({ headless, target }) => {
-    const headlessPath = join(options.pathToApp, headless);
-    const targetPath = join(options.pathToApp, target);
+  for (const { headless, target } of envFiles) {
+    const headlessPath = path.join(pathToApp, headless);
+    const targetPath = path.join(pathToApp, target);
 
     if (existsSync(headlessPath)) {
       log("setup", "info", `Copying ${headless} to ${target}`);
@@ -19,5 +18,5 @@ export async function setupEnvFiles(options: Options) {
     } else {
       log("setup", "warn", `Headless env file not found: ${headless}`);
     }
-  });
+  }
 }

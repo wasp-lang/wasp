@@ -1,24 +1,28 @@
-import { Options } from "../cli.js";
 import { runAppWithPostgres } from "./postgres.js";
 import { runAppWithSqlite } from "./sqlite.js";
+import { RunAppFn } from "./types.js";
 
-type RunAppFn = (context: {
-  extraEnv: Record<string, string>;
-}) => Promise<void>;
+export enum DbType {
+  Sqlite = "sqlite",
+  Postgres = "postgres",
+}
+export const dbTypes = Object.values(DbType);
 
-export type RunAppWithDbFn = (
-  options: Options,
-  runApp: RunAppFn
-) => Promise<void>;
-
-export const dbTypes = ["sqlite", "postgres"] as const;
-export type DbType = (typeof dbTypes)[number];
-
-const dbTypeToRunAppFn: Record<DbType, RunAppWithDbFn> = {
-  sqlite: runAppWithSqlite,
-  postgres: runAppWithPostgres,
-};
-
-export function executeWithDb(options: Options, fn: RunAppFn): Promise<void> {
-  return dbTypeToRunAppFn[options.dbType](options, fn);
+export function executeWithDb(
+  {
+    appName,
+    dbType,
+    pathToApp,
+  }: { dbType: DbType; appName: string; pathToApp: string },
+  fn: RunAppFn
+): Promise<void> {
+  switch (dbType) {
+    case DbType.Sqlite:
+      return runAppWithSqlite({ appName, pathToApp }, fn);
+    case DbType.Postgres:
+      return runAppWithPostgres({ appName, pathToApp }, fn);
+    default:
+      dbType satisfies never;
+      throw new Error(`Unknown database type: ${dbType}`);
+  }
 }

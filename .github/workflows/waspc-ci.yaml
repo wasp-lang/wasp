@@ -62,11 +62,11 @@ jobs:
         # Ubuntu 20.04.
         include:
           - os: ubuntu-20.04
-            node-version: 18
+            node-version: 20
             ghc: "8.10.7"
             cabal: "3.6.2.0"
           - os: ubuntu-20.04
-            node-version: 20
+            node-version: 22
             ghc: "8.10.7"
             cabal: "3.6.2.0"
 
@@ -170,8 +170,6 @@ jobs:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
-      # TODO: remove this once we start publishing the wasp-app-runner
-      # as a npm package
       - name: Headless - Setup the Wasp app runner
         id: headless-setup-wasp-app-runner
         if: matrix.os == 'ubuntu-20.04'

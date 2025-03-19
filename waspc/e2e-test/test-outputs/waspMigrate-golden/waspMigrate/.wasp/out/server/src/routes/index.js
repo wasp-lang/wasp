@@ -6,8 +6,8 @@ import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
-router.get('/', middleware, function (_req, res, _next) {
-  res.json('Hello world')
+router.get('/', middleware, function (_req, res) {
+  res.status(200).send();
 })
 
 router.use('/operations', middleware, operations)
