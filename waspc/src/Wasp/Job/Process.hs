@@ -96,12 +96,9 @@ runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan = do
-  nodeCheck <- NodeVersion.getAndCheckUserNodeVersion
-  npmCheck <- NodeVersion.getAndCheckUserNPMVersion
-  case (nodeCheck, npmCheck) of
-    (NodeVersion.VersionCheckFail errorMsg, _) -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    (_, NodeVersion.VersionCheckFail errorMsg) -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    (NodeVersion.VersionCheckSuccess, NodeVersion.VersionCheckSuccess) -> do
+  NodeVersion.getAndCheckNodeAndNpmVersion >>= \case
+    NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
+    NodeVersion.VersionCheckSuccess -> do
       envVars <- getAllEnvVars
       let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
       runProcessAsJob nodeCommandProcess jobType chan

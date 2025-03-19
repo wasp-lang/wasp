@@ -76,16 +76,11 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- the dependencies.
 getPackageProcessOptions :: RunnablePackage -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
-  nodeCheck <- NodeVersion.getAndCheckUserNodeVersion
-  npmCheck <- NodeVersion.getAndCheckUserNPMVersion
-  case (nodeCheck, npmCheck) of
-    (NodeVersion.VersionCheckSuccess, NodeVersion.VersionCheckSuccess) -> pure ()
-    (NodeVersion.VersionCheckFail errorMsg, _) -> do
+  NodeVersion.getAndCheckNodeAndNpmVersion >>= \case
+    NodeVersion.VersionCheckFail errorMsg -> do
       hPutStrLn stderr errorMsg
       exitFailure
-    (_, NodeVersion.VersionCheckFail errorMsg) -> do
-      hPutStrLn stderr errorMsg
-      exitFailure
+    NodeVersion.VersionCheckSuccess -> pure ()
 
   packageDir <- getRunnablePackageDir package
   let scriptFile = packageDir </> scriptInPackageDir
