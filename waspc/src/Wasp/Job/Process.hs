@@ -95,7 +95,7 @@ runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan = do
+runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
   NodeVersion.getAndCheckNodeAndNpmVersion >>= \case
     NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     NodeVersion.VersionCheckSuccess -> do

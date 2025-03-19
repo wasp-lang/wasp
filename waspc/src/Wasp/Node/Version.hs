@@ -63,7 +63,7 @@ getAndCheckUserNPMVersion = checkNPMVersion getNPMVersion
     getNPMVersion = parseVersionFromCommandOutput "npm" ["--version"]
 
 checkInstalledVersionNewerThanOldestSupported :: String -> SV.Version -> IO (Either ErrorMessage SV.Version) -> IO VersionCheckResult
-checkInstalledVersionNewerThanOldestSupported command oldestSupportedVersion getInstalledVersion = do
+checkInstalledVersionNewerThanOldestSupported commandName oldestSupportedVersion getInstalledVersion = do
   result <- getInstalledVersion
   return $ case result of
     Left errorMsg -> VersionCheckFail errorMsg
@@ -75,15 +75,15 @@ checkInstalledVersionNewerThanOldestSupported command oldestSupportedVersion get
     versionMismatchErrorMessage :: SV.Version -> ErrorMessage
     versionMismatchErrorMessage userVersion =
       unlines
-        [ "Your " ++ command ++ " version does not meet Wasp's requirements! You are running " ++ command ++ " " <> show userVersion <> ".",
-          "Wasp requires " ++ command ++ " version " <> show oldestSupportedVersion <> " or higher."
+        [ "Your " ++ commandName ++ " version does not meet Wasp's requirements! You are running " ++ commandName ++ " " <> show userVersion <> ".",
+          "Wasp requires " ++ commandName ++ " version " <> show oldestSupportedVersion <> " or higher."
         ]
 
 parseVersionFromCommandOutput :: String -> [String] -> IO (Either ErrorMessage SV.Version)
-parseVersionFromCommandOutput command args = do
+parseVersionFromCommandOutput commandName args = do
   result <-
     catchIOError
-      (Right <$> P.readProcessWithExitCode command args "")
+      (Right <$> P.readProcessWithExitCode commandName args "")
       ( \e ->
           if isDoesNotExistError e
             then return $ Left commandNotFoundErrorMessage
@@ -99,10 +99,10 @@ parseVersionFromCommandOutput command args = do
         Left parseError -> Left $ parseVersionFailedErrorMessage parseError
         Right version -> Right version
   where
-    commandWithArgs = unwords $ command : args
+    commandWithArgs = unwords $ commandName : args
 
     commandNotFoundErrorMessage :: ErrorMessage
-    commandNotFoundErrorMessage = "`" ++ commandWithArgs ++ "` command not found!"
+    commandNotFoundErrorMessage = "`" ++ commandWithArgs ++ "` commandName not found!"
 
     unkownErrorErrorMessage :: IOError -> ErrorMessage
     unkownErrorErrorMessage err =
@@ -116,7 +116,7 @@ parseVersionFromCommandOutput command args = do
       unlines
         [ "Running `" ++ commandWithArgs ++ "` failed.",
           indent 2 processError,
-          "Make sure you have `" ++ command ++ "` installed and in your PATH."
+          "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
         ]
 
     commandFailedErrorMessage :: Int -> String -> ErrorMessage
@@ -135,7 +135,7 @@ parseVersionFromCommandOutput command args = do
     parseVersionFailedErrorMessage :: P.ParseError -> ErrorMessage
     parseVersionFailedErrorMessage parseError =
       unlines
-        [ "Wasp failed to parse `" ++ command ++ "` version provided by `" ++ commandWithArgs ++ ".",
+        [ "Wasp failed to parse `" ++ commandName ++ "` version provided by `" ++ commandWithArgs ++ ".",
           show parseError,
           "This is most likely a bug in Wasp, please file an issue."
         ]
