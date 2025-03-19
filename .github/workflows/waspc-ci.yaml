@@ -170,8 +170,6 @@ jobs:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
-      # TODO: remove this once we start publishing the wasp-app-runner
-      # as a npm package
       - name: Headless - Setup the Wasp app runner
         id: headless-setup-wasp-app-runner
         if: matrix.os == 'ubuntu-20.04'
