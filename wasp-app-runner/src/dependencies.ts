@@ -1,4 +1,4 @@
-import { execFile } from "child_process";
+import { exec } from "child_process";
 
 import { log } from "./logging.js";
 import { installWaspCli } from "./waspCli.js";
@@ -31,7 +31,7 @@ export async function checkAndSetupDependencies({
 
 function commandExists(command: string): Promise<boolean> {
   return new Promise((resolve) => {
-    execFile("command", ["-v", command], (error) => {
+    exec(`command -v ${command}`, (error) => {
       resolve(!error);
     });
   });
