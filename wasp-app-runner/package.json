@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node ./dist/index.js",
+    "start": "npm run build && node ./bin/index.js",
     "install:global": "npm run build && npm install -g",
     "prepublishOnly": "npm ci && npm run build"
   },

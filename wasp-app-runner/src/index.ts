@@ -4,7 +4,7 @@ import { log } from "./logging.js";
 import { checkAndSetupDependencies } from "./dependencies.js";
 import { setupEnvFiles } from "./env.js";
 import { executeWithDb } from "./db/index.js";
-import { getAppInfo, installWaspCli, migrateDb, startApp } from "./waspCli.js";
+import { getAppInfo, migrateDb, startApp } from "./waspCli.js";
 
 const argv = yargs(hideBin(process.argv))
   .options({
@@ -26,7 +26,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-async function main() {
+export async function main() {
   try {
     await checkAndSetupDependencies({
       isWaspCliBuiltFromSource: !argv.skipCliInstall,
@@ -72,5 +72,3 @@ async function main() {
     process.exit(1);
   }
 }
-
-main();
