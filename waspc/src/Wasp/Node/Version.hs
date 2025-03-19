@@ -126,6 +126,12 @@ parseVersionFromCommandOutput command args = do
           indent 2 commandError
         ]
 
+    parseVersionFromOutput :: String -> Either P.ParseError SV.Version
+    parseVersionFromOutput = P.parse versionParser ""
+      where
+        versionParser = skipAnyCharTillMatch SV.versionParser
+        skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
+
     parseVersionFailedErrorMessage :: P.ParseError -> ErrorMessage
     parseVersionFailedErrorMessage parseError =
       unlines
@@ -133,9 +139,3 @@ parseVersionFromCommandOutput command args = do
           show parseError,
           "This is most likely a bug in Wasp, please file an issue."
         ]
-
-parseVersionFromOutput :: String -> Either P.ParseError SV.Version
-parseVersionFromOutput = P.parse versionParser ""
-  where
-    versionParser = skipAnyCharTillMatch SV.versionParser
-    skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
