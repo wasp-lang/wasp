@@ -50,6 +50,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
+          "projectDir" .= SP.fromAbsDir (AS.waspProjectDir spec),
           "defaultClientPort" .= C.defaultClientPort,
           "vitest"
             .= object
