@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-overlapping-patterns #-}
-
 module Wasp.Generator.ExternalConfig.PackageJson
   ( validatePackageJson,
   )
