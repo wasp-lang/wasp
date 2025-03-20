@@ -57,44 +57,36 @@ validateOptionalDependencies packageJson =
     validateOptional spec = validatePackageJsonDependency packageJson spec Optional
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [ErrorMsg]
-validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) constraint =
-  case getPackageJsonDependency of
+validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
+  case maybePackageJsonDepedency of
     Just actualPackageVersion ->
       if actualPackageVersion == expectedPackageVersion
         then []
         else [incorrectPackageVersionErrorMessage]
-    _notListed ->
-      if isInWrongDependencyType
+    Nothing ->
+      if isInWrongLocation requirement
         then [wrongDependencyTypeErrorMessage]
-        else case constraint of
-          RequiredRuntime -> [missingRequiredPackageErrorMessage]
-          RequiredDevelopment -> [missingRequiredPackageErrorMessage]
-          Optional -> []
+        else getMissingPackageError requirement
   where
-    getPackageJsonDependency :: Maybe P.PackageVersion
-    getPackageJsonDependency = case constraint of
+    maybePackageJsonDepedency :: Maybe P.PackageVersion
+    maybePackageJsonDepedency = case requirement of
       RequiredRuntime -> M.lookup packageName $ P.dependencies packageJson
       RequiredDevelopment -> M.lookup packageName $ P.devDependencies packageJson
       Optional ->
         M.lookup packageName (P.dependencies packageJson)
           <|> M.lookup packageName (P.devDependencies packageJson)
 
-    isInWrongDependencyType :: Bool
-    isInWrongDependencyType = case constraint of
+    isInWrongLocation :: PackageRequirement -> Bool
+    isInWrongLocation = \case
       RequiredRuntime -> M.member packageName (P.devDependencies packageJson)
       RequiredDevelopment -> M.member packageName (P.dependencies packageJson)
       Optional -> False
 
-    packageJsonDependencyKey :: String
-    packageJsonDependencyKey = case constraint of
-      RequiredRuntime -> "dependencies"
-      RequiredDevelopment -> "devDependencies"
-      Optional -> "dependencies or devDependencies"
-
-    oppositePackageJsonDependencyKey :: String -> String
-    oppositePackageJsonDependencyKey "dependencies" = "devDependencies"
-    oppositePackageJsonDependencyKey "devDependencies" = "dependencies"
-    oppositePackageJsonDependencyKey _ = error "Unknown dependency key"
+    getMissingPackageError :: PackageRequirement -> [ErrorMsg]
+    getMissingPackageError = \case
+      RequiredRuntime -> [missingRequiredPackageErrorMessage]
+      RequiredDevelopment -> [missingRequiredPackageErrorMessage]
+      Optional -> []
 
     incorrectPackageVersionErrorMessage :: ErrorMsg
     incorrectPackageVersionErrorMessage =
@@ -114,18 +106,32 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
           "with version",
           show expectedPackageVersion,
           "to be in",
-          packageJsonDependencyKey,
+          show $ getExpectedPackageJsonDependencyKey requirement,
           "in package.json."
         ]
 
     wrongDependencyTypeErrorMessage :: ErrorMsg
     wrongDependencyTypeErrorMessage =
-      unwords
+      unwords $
         [ "Wasp requires package",
           show packageName,
           "to be in",
-          packageJsonDependencyKey,
-          "instead of",
-          oppositePackageJsonDependencyKey packageJsonDependencyKey,
-          "in package.json."
+          show $ getExpectedPackageJsonDependencyKey requirement
         ]
+          ++ ( case getOppositePackageJsonDepedencyKey requirement of
+                 Just oppositeKey -> ["and not in", show oppositeKey]
+                 Nothing -> []
+             )
+          ++ ["in package.json."]
+
+getExpectedPackageJsonDependencyKey :: PackageRequirement -> String
+getExpectedPackageJsonDependencyKey = \case
+  RequiredRuntime -> "dependencies"
+  RequiredDevelopment -> "devDependencies"
+  Optional -> "dependencies or devDependencies"
+
+getOppositePackageJsonDepedencyKey :: PackageRequirement -> Maybe String
+getOppositePackageJsonDepedencyKey = \case
+  RequiredRuntime -> Just "devDependencies"
+  RequiredDevelopment -> Just "dependencies"
+  Optional -> Nothing
