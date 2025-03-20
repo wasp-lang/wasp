@@ -35,7 +35,7 @@ A Prisma `model` declaration in the `schema.prisma` file represents a Wasp Entit
 Entity vs Model
 </summary>
 
-You might wonder why we distinguish between a **Wasp Entity** and a **Prisma model** if they're essentially the same thing right now. 
+You might wonder why we distinguish between a **Wasp Entity** and a **Prisma model** if they're essentially the same thing right now.
 
 While defining a Prisma model is currently the only way to create an Entity in Wasp, the Entity concept is a higher-level abstraction. We plan to expand on Entities in the future, both in terms of how you can define them and what you can do with them.
 
@@ -160,6 +160,16 @@ prisma.task.create({
 
 </TabItem>
 </Tabs>
+
+:::note Available Prisma features in the client
+
+While the Prisma Client is not available in your client routes, you can still import Prisma there, for accessing
+type definitions (notably, `enum`s).
+
+You can see more information in the overview of [supported Prisma Schema features](./prisma-file.md#the-enum-blocks).
+
+:::
+
 
 ### Next steps
 
