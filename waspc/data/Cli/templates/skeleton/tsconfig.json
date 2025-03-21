@@ -40,6 +40,9 @@
       // Source 2: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
       "node_modules/@types"
     ],
+    // Wasp internally uses TypeScript's project references to compile the
+    // code. Referenced projects may not disable emit, so we must specify an
+    // outDir.
     "outDir": ".wasp/out/user"
   },
   "include": [
