@@ -46,7 +46,6 @@ getAndCheckNodeAndNpmVersion = do
   npmVersion <- getAndCheckUserNPMVersion
   return $ case (nodeVersion, npmVersion) of
     (VersionCheckSuccess, VersionCheckSuccess) -> VersionCheckSuccess
-    (VersionCheckFail nodeError, VersionCheckFail npmError) -> VersionCheckFail $ nodeError ++ "\n" ++ npmError
     (VersionCheckFail nodeError, _) -> VersionCheckFail nodeError
     (_, VersionCheckFail npmError) -> VersionCheckFail npmError
 
