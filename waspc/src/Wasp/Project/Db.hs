@@ -11,7 +11,6 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
@@ -19,6 +18,7 @@ import qualified Wasp.Project.Db.Dev.Sqlite as DevSqlite
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Db as Psl.Db
 import Wasp.Psl.Generator.Argument (generateExpression)
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
 
@@ -30,8 +30,8 @@ makeDevDatabaseUrl ::
 makeDevDatabaseUrl waspProjectDir dbSystem decls = do
   (appName, _) <- AS.getApp decls
   case dbSystem of
-    AS.App.Db.PostgreSQL -> Just $ DevPostgres.makeDevConnectionUrl waspProjectDir appName
-    AS.App.Db.SQLite -> Just DevSqlite.defaultDevDbFile
+    AS.Db.PostgreSQL -> Just $ DevPostgres.makeDevConnectionUrl waspProjectDir appName
+    AS.Db.SQLite -> Just DevSqlite.defaultDevDbFile
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"
@@ -50,8 +50,9 @@ data DbSystemParseError = UnsupportedDbSystem String | MissingDbSystem
 getDbSystemFromPrismaSchema :: Psl.Schema.Schema -> Either DbSystemParseError AS.Db.DbSystem
 getDbSystemFromPrismaSchema prismaSchema =
   case getDbProviderFromPrismaSchema prismaSchema of
-    Just (Psl.Argument.StringExpr "postgresql") -> Right AS.App.Db.PostgreSQL
-    Just (Psl.Argument.StringExpr "sqlite") -> Right AS.App.Db.SQLite
+    Just (Psl.Argument.StringExpr provider)
+      | provider == Psl.Db.dbProviderPostgresqlStringLiteral -> Right AS.Db.PostgreSQL
+      | provider == Psl.Db.dbProviderSqliteStringLiteral -> Right AS.Db.SQLite
     Just anyOtherExpression -> Left $ UnsupportedDbSystem $ generateExpression anyOtherExpression
     Nothing -> Left MissingDbSystem
 
