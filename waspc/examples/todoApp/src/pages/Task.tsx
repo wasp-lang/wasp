@@ -9,6 +9,7 @@ import {
   getTask,
   getTasks,
 } from 'wasp/client/operations'
+import { TaskVisibility } from '@prisma/client'
 
 import React from 'react'
 import { useParams } from 'react-router-dom'
@@ -65,6 +66,11 @@ const Todo = () => {
           <h2>Task</h2>
           <div> id: {task.id} </div>
           <div> description: {task.description} </div>
+          <div>
+            {' '}
+            is private:{' '}
+            {task.visibility === TaskVisibility.PRIVATE ? 'yes' : 'no'}{' '}
+          </div>
           <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
           <button onClick={() => toggleIsDone(task)}>
             Mark as {task.isDone ? 'undone' : 'done'}
