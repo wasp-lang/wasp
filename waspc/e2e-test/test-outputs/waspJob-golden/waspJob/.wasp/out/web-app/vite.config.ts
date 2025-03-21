@@ -38,7 +38,7 @@ const defaultViteConfig = {
         // folder. We kindly point it in the right direction here.
         find: /^\.prisma\/(.+)$/,
         replacement: pathUtils.join(
-          "/Users/carlos/Developer/Wasp/wasp/waspc/e2e-test/test-outputs/waspJob-current/waspJob/",
+          "../../../",
           "node_modules/.prisma/$1"
         ),
       },
