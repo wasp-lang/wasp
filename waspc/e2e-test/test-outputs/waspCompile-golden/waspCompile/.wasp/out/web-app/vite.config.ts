@@ -5,6 +5,7 @@ import { defaultExclude } from "vitest/config"
 import { detectServerImports } from "./vite/detectServerImports"
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
+// @ts-ignore
 import customViteConfig from '../../../vite.config'
 const _waspUserProvidedConfig = customViteConfig
 
