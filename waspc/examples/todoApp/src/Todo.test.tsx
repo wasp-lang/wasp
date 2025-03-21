@@ -3,6 +3,7 @@ import { mockServer, renderInContext } from 'wasp/client/test'
 import { getTasks, getDate } from 'wasp/client/operations'
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
+import type { TaskVisibility } from '@prisma/client'
 
 import Todo, { areThereAnyTasks } from './Todo'
 import { App } from './App'
@@ -22,6 +23,7 @@ const mockTasks = [
     description: 'test todo 1',
     isDone: true,
     userId: 1,
+    visibility: 'PRIVATE' as TaskVisibility,
     user: {
       id: 1,
       isOnAfterSignupHookCalled: true,

@@ -156,6 +156,112 @@ model Task {
 
 You can define your models in any way you like, if it's valid Prisma schema code, it will work with Wasp.
 
+### The `enum` blocks
+
+When our application grows in functionality, we might want to migrate from a boolean `Task.isDone` property to a more expressive one
+backed by a [Prisma enum](https://www.prisma.io/docs/orm/prisma-schema/data-model/models#defining-enums).
+
+```prisma title="schema.prisma"
+enum TaskStatus {
+  NotStarted
+  Doing
+  Done
+}
+
+model Task {
+  ...
+  state TaskStatus @default(NotStarted)
+}
+```
+
+Make sure to check [Prisma's enum compatibility with your database](https://www.prisma.io/docs/orm/reference/database-features#misc).
+If Prisma is happy with it, Wasp will be too.
+
+#### How to use `enum`s in your code
+
+If you need to access your `enum` cases and their values from your server, you can import them directly from `@prisma/client`:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/queries.js"
+import { TaskState } from "@prisma/client";
+import { Task } from "wasp/entities";
+
+export const getOpenTasks  = async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: "asc" },
+    where: { NOT: { state: TaskState.Done } },
+  });
+};
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/queries.ts"
+import { TaskState } from "@prisma/client";
+import { Task } from "wasp/entities";
+import { type GetTasks } from "wasp/server/operations";
+
+export const getOpenTasks: GetTasks<void, Task[]> = async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: "asc" },
+    where: { NOT: { state: TaskState.Done } },
+  });
+};
+```
+
+</TabItem>
+</Tabs>
+
+You can also access them from your client code:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/views/TaskList.jsx"
+import { TaskState } from "@prisma/client";
+
+const TaskRow = ({ task }) => {
+  return (
+    <div>
+      <input
+        type="checkbox"
+        id={String(task.id)}
+        checked={task.state === TaskState.Done}
+      />
+      {task.description}
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/views/TaskList.tsx"
+import { TaskState } from "@prisma/client";
+import { Task } from "wasp/entities";
+
+const TaskRow = ({ task }: { task: Task }) => {
+  return (
+    <div>
+      <input
+        type="checkbox"
+        id={String(task.id)}
+        checked={task.state === TaskState.Done}
+      />
+      {task.description}
+    </div>
+  );
+};
+```
+
+</TabItem>
+</Tabs>
+
+
 :::note Triple slash comments
 Wasp doesn't yet fully support `/// comment` syntax in the `schema.prisma` file. We are tracking it [here](https://github.com/wasp-lang/wasp/issues/2132), let us know if this is something you need.
 

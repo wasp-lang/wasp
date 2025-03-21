@@ -67,5 +67,9 @@ test.describe('signup and login', () => {
     await page.locator(`text=${fullTaskText}`).click()
     const taskPageText = `description: ${randomTask}`
     await page.waitForSelector(`text=${taskPageText}`)
+
+    // Check visibility is set
+    const taskVisibilityText = `is private: yes`
+    await expect(page.locator('body')).toContainText(taskVisibilityText)
   })
 })
