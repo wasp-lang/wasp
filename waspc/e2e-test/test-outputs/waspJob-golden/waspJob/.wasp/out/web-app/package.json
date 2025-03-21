@@ -27,7 +27,7 @@
   "name": "waspJob",
   "private": true,
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "tsc --build && vite build",
     "start": "vite"
   },
   "type": "module",
