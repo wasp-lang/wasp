@@ -28,7 +28,7 @@ TEST_E2E_DELETE_GOLDENS="rm -rf $PROJECT_ROOT/e2e-test/test-outputs/*-golden"
 TEST_E2E_ACCEPT_ALL_CMD="$TEST_E2E_DELETE_GOLDENS && $TEST_E2E_CMD"
 TEST_HEADLESS_CMD="cd examples/todoApp && npm install && npx playwright test --config headless-tests"
 TEST_CMD="cabal test && echo 'Running headless tests' && $TEST_HEADLESS_CMD && echo 'ALL TESTS PASSED' || { echo 'SOME TESTS FAILED'; exit 1; }"
-RUN_CMD="cabal run wasp-cli ${ARGS[@]}"
+RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
 GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0"
 
@@ -80,7 +80,7 @@ print_usage () {
     print_usage_cmd "test:headless" \
                     "Executes headless tests, where example wasp apps are e2e tested using Playwright."
     print_usage_cmd "wasp-cli <args>" \
-                    "Runs the wasp executable while forwarding arguments. Builds the project first if needed."
+                    "Runs the wasp executable while forwarding arguments. Builds the project first if needed. Doesn't require you to be in the waspc project to run it."
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
     print_usage_cmd "ghcid-test" \

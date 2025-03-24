@@ -7,7 +7,8 @@ import { detectServerImports } from "./vite/detectServerImports"
 import pathUtils from "node:path"
 
 {=# customViteConfig.isDefined =}
-// @ts-ignore because we are importing a file outside of TS root dir.
+// Ignoring the TS error because we are importing a file outside of TS root dir.
+// @ts-ignore
 {=& customViteConfig.importStatement =}
 const _waspUserProvidedConfig = {=& customViteConfig.importIdentifier =}
 {=/ customViteConfig.isDefined =}
