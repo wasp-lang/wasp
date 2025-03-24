@@ -1,5 +1,5 @@
 # For Mage we are using the Debian Node.js image
-FROM node:18 AS node
+FROM node:20 AS node
 
 
 # We split Dockerfile into base, server-builder and server-production.
@@ -38,7 +38,7 @@ RUN cd .wasp/build/server && npm run bundle
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0
+RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.2
 ENV PATH "$PATH:/root/.local/bin"
 ENV NODE_ENV production
 WORKDIR /app
