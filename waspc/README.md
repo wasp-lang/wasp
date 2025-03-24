@@ -94,7 +94,7 @@ It should print "Usage" information.
 
 You can pass more arguments by just adding them to the command, e.g.: `cabal run wasp-cli new MyProject`.
 
-### Run example app
+### Running the example app
 
 Position yourself in `waspc/examples/todoApp/` and run
 
@@ -116,6 +116,15 @@ If you are doing this for the very first time, it might take a minutes or so to 
 
 When done, new tab in your browser should open and you will see a Todo App!
 NOTE: Reload page if blank.
+
+#### Creating example apps for testing
+If you want to create apps to quickly test stuff, place them into
+`waspc/examples/ignored`. Doing so gives you access to `cabal run wasp-cli`
+without including it in Git:
+```bash
+cd waspc/examples/ignored`
+wasp new someApp
+```
 
 ## Typical development workflow
 

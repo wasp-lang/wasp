@@ -17,5 +17,3 @@ module-graph.png
 # macOS related
 .DS_Store
 
-# apps for testing
-examples/ignored
