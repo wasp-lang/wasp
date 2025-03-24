@@ -13,7 +13,6 @@ import Wasp.Generator.Common (dropExtensionFromImportPath)
 import qualified Wasp.Generator.JsImport as GJI
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (JsImport (..), JsImportPath (..))
-import qualified Wasp.JsImport as JI
 
 extImportToJsImport :: EI.ExtImport -> JsImport
 extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
@@ -31,8 +30,4 @@ extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
 extOperationImportToImportJson =
   GJI.jsImportToImportJson
     . Just
-    . applyExtImportAlias
     . extImportToJsImport
-  where
-    applyExtImportAlias jsImport =
-      jsImport {_importAlias = Just $ JI.getImportIdentifier jsImport ++ "_ext"}
