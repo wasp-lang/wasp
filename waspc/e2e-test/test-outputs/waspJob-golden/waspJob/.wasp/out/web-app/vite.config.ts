@@ -3,7 +3,7 @@ import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
 import { detectServerImports } from "./vite/detectServerImports"
-import pathUtils from "node:path"
+import pathUtils from "path"
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
 // @ts-ignore
@@ -36,7 +36,7 @@ const defaultViteConfig = {
     alias: [
       {
         // Vite doesn't look for `.prisma/client` imports in the `node_modules`
-        // folder. We kindly point it in the right direction here.
+        // folder. We point it to the correct place here.
         find: /^\.prisma\/(.+)$/,
         replacement: pathUtils.join(
           "../../../",
