@@ -68,8 +68,8 @@ test.describe('signup and login', () => {
     const taskPageText = `description: ${randomTask}`
     await page.waitForSelector(`text=${taskPageText}`)
 
-    // Check visibility is set
-    const taskVisibilityText = `is private: yes`
+    // Checking if Prisma enums work on the client
+    const taskVisibilityText = `who can see this task: only you`
     await expect(page.locator('body')).toContainText(taskVisibilityText)
   })
 })

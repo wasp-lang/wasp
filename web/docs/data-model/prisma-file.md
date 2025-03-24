@@ -158,8 +158,7 @@ You can define your models in any way you like, if it's valid Prisma schema code
 
 ### The `enum` blocks
 
-When our application grows in functionality, we might want to migrate from a boolean `Task.isDone` property to a more expressive one
-backed by a [Prisma enum](https://www.prisma.io/docs/orm/prisma-schema/data-model/models#defining-enums).
+As our applications grow in complexity, we might want to use [Prisma `enum`s](https://www.prisma.io/docs/orm/prisma-schema/data-model/models#defining-enums) to closely define our app's domain. For example, if we had a `Task` model with a boolean `isDone`, and we wanted to start to track whether it is in progress, we could migrate the field to a more expressive type:
 
 ```prisma title="schema.prisma"
 enum TaskStatus {
@@ -175,7 +174,7 @@ model Task {
 ```
 
 Make sure to check [Prisma's enum compatibility with your database](https://www.prisma.io/docs/orm/reference/database-features#misc).
-If Prisma is happy with it, Wasp will be too.
+If it works with Prisma, it will work with Wasp.
 
 #### How to use `enum`s in your code
 

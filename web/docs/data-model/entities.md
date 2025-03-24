@@ -163,7 +163,7 @@ prisma.task.create({
 
 :::note Available Prisma features in the client
 
-While the Prisma Client is not available in your client routes, you can still import Prisma there, for accessing
+While the Prisma Client is not available in your client code, you can still import Prisma there, for accessing
 type definitions (notably, `enum`s).
 
 You can see more information in the overview of [supported Prisma Schema features](./prisma-file.md#the-enum-blocks).

@@ -16,6 +16,12 @@ import { useParams } from 'react-router-dom'
 
 type TaskPayload = Pick<Task, 'id' | 'isDone'>
 
+const VISIBILITY_EXPLANATION = {
+  [TaskVisibility.PRIVATE]: 'only you',
+  [TaskVisibility.LINK_ONLY]: 'people with a link',
+  [TaskVisibility.PUBLIC]: 'everyone',
+} as const satisfies Record<TaskVisibility, string>
+
 const Todo = () => {
   const { id } = useParams()
   const taskId = parseInt(id!)
@@ -68,8 +74,9 @@ const Todo = () => {
           <div> description: {task.description} </div>
           <div>
             {' '}
-            is private:{' '}
-            {task.visibility === TaskVisibility.PRIVATE ? 'yes' : 'no'}{' '}
+            who can see this task: {
+              VISIBILITY_EXPLANATION[task.visibility]
+            }{' '}
           </div>
           <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
           <button onClick={() => toggleIsDone(task)}>
