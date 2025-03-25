@@ -41,6 +41,8 @@ is a convenient way of installing and selecting versions of `cabal`, `hls` and
 
 :warning: On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
 
+Make sure to use `cabal` CLI version >=3.12, since we use some of the newer cabal functionalities.
+
 In [cabal.project](cabal.project) we're explicitly saying what compiler version
 to build Wasp with.
 

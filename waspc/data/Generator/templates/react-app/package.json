@@ -8,7 +8,7 @@
   {=& devDepsChunk =},
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc --build && vite build"
   },
   "engineStrict": true,
   "engines": {
