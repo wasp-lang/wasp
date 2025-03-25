@@ -13,5 +13,5 @@ type RequestWithExtraFields = Request & {
  */
 export declare const handleRejection: (middleware: (req: RequestWithExtraFields, res: Response, next: NextFunction) => any) => (req: RequestWithExtraFields, res: Response, next: NextFunction) => Promise<void>;
 export declare const sleep: (ms: number) => Promise<unknown>;
-export declare function redirect(res: Response, redirectUri: string): any;
+export declare function redirect(res: Response, redirectUri: string): Response<any, Record<string, any>>;
 export {};
