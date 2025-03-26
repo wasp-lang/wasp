@@ -8,13 +8,18 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
-import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName(..))
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
 import Wasp.Project.Analyze (WaspFilePath (..))
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
+import Data.Char (toLower)
 import qualified Wasp.Util.IO as IOUtil
+
+
+toLowercaseProjectName :: NewProjectName -> String
+toLowercaseProjectName (NewProjectName name) = map toLower name
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
@@ -51,7 +56,8 @@ replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
         [ ("__waspConfigPath__", waspConfigPackagePath),
           ("__waspAppName__", show appName),
           ("__waspProjectName__", show projectName),
-          ("__waspVersion__", defaultWaspVersionBounds)
+          ("__waspVersion__", defaultWaspVersionBounds),
+          ("__waspProjectNameLowercase__",toLowercaseProjectName projectName)
         ]
   updateFileContentWith (replacePlaceholders waspTemplateReplacements) file
   where

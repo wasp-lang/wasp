@@ -1,5 +1,5 @@
 {
-  "name": "__waspAppName__",
+  "name": "__waspProjectNameLowercase__",
   "type": "module",
   "dependencies": {
     "wasp": "file:.wasp/out/sdk/wasp",
