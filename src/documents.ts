@@ -135,6 +135,7 @@ type AskDocumentsInput = {
 };
 type AskDocumentsOutput = {
   answer: string;
+  sources: Array<{ part_of_text: string; url: string }>;
 };
 
 export const askDocuments: AskDocuments<
@@ -144,7 +145,7 @@ export const askDocuments: AskDocuments<
   const { query } = args;
   const queryEmbedding = await createEmbedding(query);
 
-  const result = (await prisma.$queryRaw`
+  const documents = (await prisma.$queryRaw`
     SELECT "content", "embedding" <-> ${toSql(
       queryEmbedding
     )}::vector AS "score", "url"
@@ -157,37 +158,100 @@ export const askDocuments: AskDocuments<
     url: string;
   }[];
 
-  const prompt = `Provide an aswer to the following: ${query}
-  
-  You can use the following documents delimited by triple quotes:
-  ${result
-    .map((r) => `"""${r.content}"""\nSource URL: ${r.url}`)
-    .join("\n\n")}`;
+  const tools = [
+    {
+      type: "function" as const,
+      function: {
+        name: "answer_with_sources",
+        description:
+          "Answer the question using the provided documents and cite sources.",
+        parameters: {
+          type: "object",
+          properties: {
+            answer: {
+              type: "string",
+              description: "The answer to the question.",
+            },
+            sources: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  part_of_text: {
+                    type: "string",
+                    description:
+                      "The relevant part of the document used for the answer.",
+                  },
+                  url: {
+                    type: "string",
+                    description: "URL of the source document.",
+                  },
+                },
+                required: ["part_of_text", "url"],
+              },
+              description: "List of sources used to generate the answer.",
+            },
+          },
+          required: ["answer", "sources"],
+        },
+      },
+    },
+  ];
 
   const completion = await api.chat.completions.create({
     messages: [
       {
         role: "system",
         content:
-          "You are a Q&A system. Respond concisiely. Do not make it conversational. Mention the source URL. Respond in Markdown. Respond only with content from the documents provided. If the answer is not clear from the documents, respond with 'I don't know'.",
+          "You are a Q&A system. Respond concisely. Extract relevant parts from the documents to use as sources. If the answer is not clear from the documents, respond with 'I don't know'. Don't include links in the final answer.",
       },
-      { role: "user", content: prompt.slice(0, 4000) },
+      {
+        role: "user",
+        content: query,
+      },
+      {
+        role: "system",
+        content: `Source documents:
+        ${documents
+          .map((r) => `"""${r.content}"""\nSource URL: ${r.url}`)
+          .join("\n\n")}`,
+      },
     ],
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o",
+    tools,
+    tool_choice: {
+      type: "function",
+      function: { name: "answer_with_sources" },
+    },
   });
 
-  const content = completion.choices[0].message.content;
+  const toolCall = completion.choices[0].message?.tool_calls?.[0];
 
-  if (!content) {
-    return { answer: "Sorry, I don't know the answer to that." };
+  if (toolCall && toolCall.type === "function" && toolCall.function.arguments) {
+    try {
+      const response = JSON.parse(toolCall.function.arguments);
+      return {
+        answer: response.answer,
+        sources: response.sources,
+      };
+    } catch (e) {
+      console.error("Failed to parse tool call response:", e);
+      return {
+        answer: "Sorry, I couldn't process the response.",
+        sources: [],
+      };
+    }
   }
 
-  return { answer: content };
+  return {
+    answer: "Sorry, I don't know the answer to that.",
+    sources: [],
+  };
 };
 
 async function createEmbedding(text: string): Promise<number[]> {
   const apiResult = await api.embeddings.create({
-    model: "text-embedding-ada-002",
+    model: "text-embedding-3-small",
     input: text,
   });
   const embedding = apiResult.data[0].embedding;

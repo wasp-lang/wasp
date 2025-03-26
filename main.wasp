@@ -7,14 +7,14 @@ app askTheDocuments {
     userEntity: User,
     methods: {
       google: {
-        userSignupFields: import { fields } from "@src/auth/google.js",
-        configFn: import { getConfig } from "@src/auth/google.js",
+        userSignupFields: import { fields } from "@src/auth/google",
+        configFn: import { getConfig } from "@src/auth/google",
       }
     },
     onAuthFailedRedirectTo: "/"
   },
   client: {
-    rootComponent: import { Layout } from "@src/Layout.tsx",
+    rootComponent: import { Layout } from "@src/Layout",
   },
   server: {
     envValidationSchema: import { serverEnvValidation } from "@src/env"
@@ -23,35 +23,35 @@ app askTheDocuments {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import { Main } from "@src/pages/MainPage.tsx"
+  component: import { Main } from "@src/pages/MainPage"
 }
 
 action embedDocument {
-  fn: import { embedDocument } from "@src/documents.js",
+  fn: import { embedDocument } from "@src/documents",
   entities: [Document],
 }
 
 action getScrapeCandidates {
-  fn: import { getScrapeCandidates } from "@src/documents.js",
+  fn: import { getScrapeCandidates } from "@src/documents",
   entities: [Document],
 }
 
 query getDocuments {
-  fn: import { getDocuments } from "@src/documents.js",
+  fn: import { getDocuments } from "@src/documents",
   entities: [Document]
 }
 
 action searchDocuments {
-  fn: import { searchDocuments } from "@src/documents.js",
+  fn: import { searchDocuments } from "@src/documents",
   entities: [Document]
 }
 
 action askDocuments {
-  fn: import { askDocuments } from "@src/documents.js",
+  fn: import { askDocuments } from "@src/documents",
   entities: [Document]
 }
 
 action deleteDocument {
-  fn: import { deleteDocument } from "@src/documents.js",
+  fn: import { deleteDocument } from "@src/documents",
   entities: [Document]
 }

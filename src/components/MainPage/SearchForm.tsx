@@ -1,19 +1,9 @@
 import { searchDocuments } from "wasp/client/operations";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import ReactMarkdown from "react-markdown";
 
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Divider,
-  Input,
-  CardFooter,
-  ScrollShadow,
-} from "@nextui-org/react";
+import { Card, CardHeader, CardBody, Divider, Input } from "@nextui-org/react";
 import { SearchIcon } from "../SearchIcon";
-import { LinkIcon } from "../LinkIcons";
 import { DocumentCard } from "../DocumentCard";
 
 export function SearchForm() {

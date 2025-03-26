@@ -31,6 +31,8 @@
     // compilation, the following directory doesn't exist. We need to specify
     // it to prevent this error:
     // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
-    "outDir": ".wasp/out/user"
-  }
+    "outDir": ".wasp/out/user",
+    "skipLibCheck": true
+  },
+  "include": ["src"]
 }
