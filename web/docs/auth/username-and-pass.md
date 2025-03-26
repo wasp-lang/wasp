@@ -9,6 +9,7 @@ import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
 import UserFieldsExplainer from './\_user-fields.md';
 import UsernameData from './entities/\_username-data.md';
 import AccessingUserDataNote from './\_accessing-user-data-note.md';
+import Validators from './_validators.md';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client side.
 
@@ -586,23 +587,7 @@ export const signup: CustomSignup<
 </TabItem>
 </Tabs>
 
-We suggest using the built-in field validators for your authentication flow. You can import them from `wasp/server/auth`. These are the same validators that Wasp uses internally for the default authentication flow.
-
-#### Username
-
-- `ensureValidUsername(args)`
-
-  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
-
-#### Password
-
-- `ensurePasswordIsPresent(args)`
-
-  Checks if the password is present and throws an error if it's not.
-
-- `ensureValidPassword(args)`
-
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
+<Validators />
 
 ## Using Auth
 
