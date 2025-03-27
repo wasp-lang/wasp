@@ -94,7 +94,7 @@ It should print "Usage" information.
 
 You can pass more arguments by just adding them to the command, e.g.: `cabal run wasp-cli new MyProject`.
 
-### Run example app
+### Running the example app
 
 Position yourself in `waspc/examples/todoApp/` and run
 
