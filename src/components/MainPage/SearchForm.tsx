@@ -2,7 +2,7 @@ import { searchDocuments } from "wasp/client/operations";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { Card, CardHeader, CardBody, Divider, Input } from "@nextui-org/react";
+import { Card, CardHeader, CardBody, Divider, Input } from "@heroui/react";
 import { SearchIcon } from "../SearchIcon";
 import { DocumentCard } from "../DocumentCard";
 
@@ -41,7 +41,7 @@ export function SearchForm() {
             <DocumentCard
               key={result.document.id}
               document={result.document}
-              footerContent={`Distance to query: ${result.score}`}
+              footerContent={`Score: ${10 / result.score}`}
             />
           ))}
         </div>

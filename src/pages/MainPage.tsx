@@ -7,7 +7,7 @@ import {
   Divider,
   Tabs,
   Tab,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { AskTheDocumentsForm } from "../components/MainPage/AskTheDocumentsForm";
 import { UrlTreeForm } from "../components/MainPage/UrlTreeForm";
 import { SingleDocumentForm } from "../components/MainPage/SingleDocumentForm";

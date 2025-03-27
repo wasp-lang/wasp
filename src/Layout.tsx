@@ -4,14 +4,14 @@ import {
   googleSignInUrl as signInUrl,
 } from "wasp/client/auth";
 import {
-  NextUIProvider,
+  HeroUIProvider,
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
   Link,
   Button,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { Outlet } from "react-router-dom";
 import "./Main.css";
 
@@ -31,8 +31,8 @@ export function Layout() {
   );
 
   return (
-    <NextUIProvider>
-      <div className="dark text-foreground bg-background min-h-screen">
+    <HeroUIProvider>
+      <div className="text-foreground bg-background min-h-screen">
         <Navbar>
           <NavbarBrand>
             <p className="font-bold text-inherit">Ask The Documents</p>
@@ -43,6 +43,6 @@ export function Layout() {
         </Navbar>
         <Outlet />
       </div>
-    </NextUIProvider>
+    </HeroUIProvider>
   );
 }

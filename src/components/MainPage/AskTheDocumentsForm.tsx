@@ -9,7 +9,7 @@ import {
   Link,
   Accordion,
   AccordionItem,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 import ReactMarkdown from "react-markdown";
 import { SearchIcon } from "../SearchIcon";

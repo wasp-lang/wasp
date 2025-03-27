@@ -7,7 +7,7 @@ import {
   Divider,
   ScrollShadow,
   Button,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 import ReactMarkdown from "react-markdown";
 import { LinkIcon } from "./LinkIcons";

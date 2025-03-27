@@ -55,3 +55,8 @@ action deleteDocument {
   fn: import { deleteDocument } from "@src/documents",
   entities: [Document]
 }
+
+action deleteAllDocuments {
+  fn: import { deleteAllDocuments } from "@src/documents", 
+  entities: [Document]
+}

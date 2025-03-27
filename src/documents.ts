@@ -7,6 +7,7 @@ import {
   type DeleteDocument,
   type GetScrapeCandidates,
   type GetDocuments,
+  type DeleteAllDocuments,
 } from "wasp/server/operations";
 
 import { prisma, HttpError, env } from "wasp/server";
@@ -116,10 +117,27 @@ export const deleteDocument: DeleteDocument<
   DeleteDocumentInput,
   DeleteDocumentOutput
 > = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to delete documents");
+  }
   const { id } = args;
   await context.entities.Document.delete({
     where: { id },
   });
+};
+
+type DeleteAllDocumentsInput = void;
+type DeleteAllDocumentsOutput = void;
+
+export const deleteAllDocuments: DeleteAllDocuments<
+  DeleteAllDocumentsInput,
+  DeleteAllDocumentsOutput
+> = async (_args, context) => {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to delete documents");
+  }
+
+  await context.entities.Document.deleteMany();
 };
 
 type GetScrapeCandidatesInput = {
@@ -213,7 +231,10 @@ export const askDocuments: AskDocuments<
         role: "system",
         content: `Source documents:
         ${documents
-          .map((r) => `"""${r.content}"""\nSource URL: ${r.url}`)
+          .map(
+            (r) =>
+              `"""${r.content}"""\nScore: ${10 / r.score}\nSource URL: ${r.url}`
+          )
           .join("\n\n")}`,
       },
     ],
