@@ -3,6 +3,7 @@ title: Overview
 ---
 
 import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
+import { LinkGrid } from "@site/src/components/LinkGrid";
 import { Required } from '@site/src/components/Tag';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
@@ -84,6 +85,45 @@ We get an auth backend with signup and login endpoints. We also get the `user` o
 We would also get the [Auth UI](../auth/ui) generated for us. We can set up our login and signup pages where our users can **create their account** and **login**. We can then protect certain pages by setting `authRequired: true` for them. This will make sure that only logged-in users can access them.
 
 We will also have access to the `user` object in our frontend code, so we can show different UI to logged-in and logged-out users. For example, we can show the user's name in the header alongside a **logout button** or a login button if the user is not logged in.
+
+## Available auth UI
+
+When you have decided which auth method you want to support, you can also choose how you want to present it to your users.
+
+#### Generated components
+
+This is the fastest way to ship, with Wasp generating ready-made components for your app.
+They allow for some customization to make them consistent with your app.
+You don't need to implement any UI or logic, and they just work.
+
+<LinkGrid
+  links={[
+    { title: 'Email', link: '/docs/auth/email' },
+    { title: 'Username and password', link: '/docs/auth/username-and-pass' },
+    { title: 'Social Auth', link: '/docs/auth/social-auth/overview' },
+  ]}
+/>
+
+#### Make your own
+
+Wasp is flexible enough to let you completely customize your login and signup flows.
+We give you the login and signup functions, and you decide how and when to call them.
+This allows for total customization of the look and the flow, but needs a bit more work.
+
+<LinkGrid
+  links={[
+    { title: 'Email', link: '/docs/auth/email/create-your-own-ui' },
+    { title: 'Username and password', link: '/docs/auth/username-and-pass/create-your-own-ui' },
+    { title: 'Social Auth', link: '/docs/auth/social-auth/create-your-own-ui' },
+  ]}
+/>
+
+:::tip
+
+You don't have to choose one _or_ the other! Mix-and-match, and use what you need in each moment.
+For example, you can create a custom signup flow, but use Wasp's generated components for login.
+
+:::
 
 ## Protecting a page with `authRequired`
 
@@ -419,7 +459,7 @@ export const updatePassword = async (args, context) => {
   if (!authIdentity) {
       throw new HttpError(400, "Unknown user")
   }
-  
+
   const providerData = getProviderDataWithPassword(authIdentity.providerData)
 
   // Updates the password and hashes it automatically.
@@ -450,7 +490,7 @@ export const updatePassword: UpdatePassword<
   if (!authIdentity) {
       throw new HttpError(400, "Unknown user")
   }
-  
+
   const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData)
 
   // Updates the password and hashes it automatically.
@@ -482,7 +522,7 @@ Note that `username`s are stored in a **case-insensitive** manner.
 
 #### Email
 
-If you use [Email](./email) authentication, the default validations are:
+If you use [Email](./auth-ui) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -496,7 +536,7 @@ Sometimes you want to include **extra fields** in your signup process, like firs
 For this to happen:
 
 - you need to define the fields that you want saved in the database,
-- you need to customize the `SignupForm` (in the case of [Email](./email) or [Username & Password](./username-and-pass) auth)
+- you need to customize the `SignupForm` (in the case of [Email](./auth-ui) or [Username & Password](./username-and-pass) auth)
 
 
 Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
@@ -694,7 +734,7 @@ If you are not using Wasp's Auth UI, you can skip this section. Just make sure t
 
 Read more about using the signup actions for:
 
-- email auth [here](../auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
+- email auth [here](./auth-ui#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
 - username & password auth [here](../auth/username-and-pass#customizing-the-auth-flow)
 :::
 
@@ -931,7 +971,7 @@ app MyApp {
 
 #### `userEntity: entity` <Required />
 
-The entity representing the user connected to your business logic. 
+The entity representing the user connected to your business logic.
 
 <ReadMoreAboutAuthEntities />
 

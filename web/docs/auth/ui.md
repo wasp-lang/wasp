@@ -10,6 +10,12 @@ Below we cover all of the available UI components and how to use them.
 
 ![Auth UI](/img/authui/all_screens.gif)
 
+:::note
+
+Remember that if you need a more custom approach, you can always [create your own UI](./overview.md#available-auth-ui).
+
+:::
+
 ## Overview
 
 After Wasp generates the UI components for your auth, you can use it as is, or customize it to your liking.
