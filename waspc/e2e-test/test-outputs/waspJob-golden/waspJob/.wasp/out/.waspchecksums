@@ -193,7 +193,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "fbf49d6ff4f1bcc6ebfb6efb1eebc833d0f5cc91ecef0d99333dde26b74f6d66"
+        "05a448334246902483ce69e2b08eac9345fd10919d717cdc219cf803da22827a"
     ],
     [
         [
@@ -676,7 +676,7 @@
             "file",
             "web-app/package.json"
         ],
-        "4ae5b1dc8f3c80f9938e9bdf50f03720bc9996ce5fb5a0935d5b2f6005f090f0"
+        "b3031378d935d26f660108a5445d6679c34fccd124dbc6d900a20cb67ee88bc7"
     ],
     [
         [
@@ -802,7 +802,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "d4b4a5e870d8ec46b22ac1a5b66e5266f7983db43b3c9c1b6faeec80ae984662"
+        "ca02196d3283c818e7e27d608347d37eaba536eb2bb8fae0d61345e6f1003388"
     ],
     [
         [
