@@ -12,7 +12,7 @@
 ### Bug fixes
 
 - CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
-- Added documentation about npm package name requirements in README ([#2575] by @0xTaneja).
+
 
 ## 0.16.2
 
