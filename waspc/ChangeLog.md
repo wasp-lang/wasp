@@ -12,7 +12,6 @@
 ### Bug fixes
 
 - CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
-- Package names in package.json are now properly lowercase to comply with npm conventions ([#2572] by @cprecioso).
 - Added documentation about npm package name requirements in README ([#issue_number] by @0xTaneja).
 
 ## 0.16.2
