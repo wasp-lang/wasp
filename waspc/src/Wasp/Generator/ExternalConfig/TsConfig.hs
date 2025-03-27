@@ -59,10 +59,10 @@ validateCompilerOptions compilerOptions =
 
 validateRequiredField :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> a -> [String]
 validateRequiredField fullyQualifiedFieldName fieldValue expectedValue =
-  validateFieldValue fullyQualifiedFieldName fieldValue (Just expectedValue)
+  validateFieldValue fullyQualifiedFieldName (Just expectedValue) fieldValue
 
 validateFieldValue :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [String]
-validateFieldValue fullyQualifiedFieldName actualValue expectedValue =
+validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
   case (expectedValue, actualValue) of
     (Nothing, Nothing) -> []
     (Just expected, Just actual) -> [makeInvalidValueErrorMessage expected | actual /= expected]
