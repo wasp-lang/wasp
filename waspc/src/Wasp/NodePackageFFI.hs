@@ -76,7 +76,7 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- the dependencies.
 getPackageProcessOptions :: RunnablePackage -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
-  NodeVersion.getAndCheckNodeAndNpmVersion >>= \case
+  NodeVersion.getAndCheckUserNodeAndNpmVersion >>= \case
     NodeVersion.VersionCheckFail errorMsg -> do
       hPutStrLn stderr errorMsg
       exitFailure
