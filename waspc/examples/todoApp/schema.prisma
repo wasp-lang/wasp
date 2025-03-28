@@ -10,19 +10,30 @@ generator client {
 }
 
 model User {
-  id      Int        @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
+  isOnAfterSignupHookCalled Boolean @default(false)
+  isOnAfterLoginHookCalled  Boolean @default(false)
+
   tasks   Task[]
   address String?
   votes   TaskVote[]
 }
 
+enum TaskVisibility {
+  PRIVATE
+  LINK_ONLY
+  PUBLIC
+}
+
 model Task {
-  id          Int        @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   description String
-  isDone      Boolean    @default(false)
-  user        User       @relation(fields: [userId], references: [id])
+  isDone      Boolean        @default(false)
+  user        User           @relation(fields: [userId], references: [id])
   userId      Int
   votes       TaskVote[]
+  visibility  TaskVisibility @default(PRIVATE)
 }
 
 model TaskVote {

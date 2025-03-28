@@ -7,7 +7,7 @@ tags: [webdev, postgresql, database, os-maintainers]
 
 ![wasps interviewing Tim](/img/os-interviews/pg-boss-banner.jpeg)
 
-We’re launching a new series of posts where we'll sit down with the folks who help us run our projects without expecting anyting in return. Yes, we're talking about open-source maintainers and builders, the people who dedicate their free time to make tech better. This is our way to say "Thank you!" to all of those who help us build and improve [Wasp](https://wasp-lang.dev/), as well as shape the webdev ecosystem.
+We’re launching a new series of posts where we'll sit down with the folks who help us run our projects without expecting anyting in return. Yes, we're talking about open-source maintainers and builders, the people who dedicate their free time to make tech better. This is our way to say "Thank you!" to all of those who help us build and improve [Wasp](https://wasp.sh/), as well as shape the webdev ecosystem.
 
 In our first post, we had the chance to chat with Tim, the maintainer of [pg-boss](https://github.com/timgit/pg-boss), a library that makes managing job queues in PostgreSQL a breeze. We talked about what it’s like to maintain an open-source project, the ups and downs, and why Tim keeps coming back to make pg-boss better. If you’ve ever relied on open-source tools, this series is for you.
 
@@ -48,7 +48,7 @@ In terms of job storage, we’ve been able to store 2-3 million jobs in v9’s s
 Once record counts are under control, in terms of job throughput, the number of concurrent queries to Postgres can be very high, especially when using connection poolers and job batching. I have a speed test in the suite that can both fetch and then complete 10,000 jobs in 0.5 seconds, a metric you would not easily be able to achieve even in some dedicated queuing products. For job creation on the other hand, you have the full power of SQL available in Postgres via INSERT or even COPY.
 
 :::tip[Fun fact!]
-Did you know that Wasp uses pg-boss under the hood? We built Wasp Jobs on top of pg-boss, and [here's how we did it](https://wasp-lang.dev/blog/2022/06/15/jobs-feature-announcement).
+Did you know that Wasp uses pg-boss under the hood? We built Wasp Jobs on top of pg-boss, and [here's how we did it](https://wasp.sh/blog/2022/06/15/jobs-feature-announcement).
 :::
 
 - **While pg-boss has many production use cases, is there a scenario or limit where teams may need a traditional queue instead?**

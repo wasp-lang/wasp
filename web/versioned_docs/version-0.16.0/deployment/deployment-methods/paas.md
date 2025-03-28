@@ -594,7 +594,7 @@ jobs:
           node-version: '20'
 
       - name: Install Wasp
-        run: curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.15.0 # Change to your Wasp version
+        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
 
       - name: Wasp Build
         run: wasp build
@@ -699,7 +699,7 @@ jobs:
           node-version: '20'
 
       - name: Install Wasp
-        run: curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v 0.15.0 # Change to your Wasp version
+        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
 
       - name: Wasp Build
         run: cd ./app && wasp build

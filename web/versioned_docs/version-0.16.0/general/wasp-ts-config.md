@@ -138,7 +138,7 @@ import { App } from 'wasp-config'
 
 const app = new App('todoApp', {
   title: 'ToDo App',
-  wasp: { version: '^0.15.0' },
+  wasp: { version: '{latestWaspVersion}' },
   // head: []
 });
 

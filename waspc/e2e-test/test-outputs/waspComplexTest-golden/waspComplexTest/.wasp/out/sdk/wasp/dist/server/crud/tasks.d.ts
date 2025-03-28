@@ -8,9 +8,9 @@ type _WaspEntity = Task;
  * PUBLIC API
  */
 export declare namespace tasks {
-    type GetAllQuery<Input extends Payload, Output extends Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>;
-    type GetQuery<Input extends Payload, Output extends Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>;
-    type CreateAction<Input extends Payload, Output extends Payload> = AuthenticatedActionDefinition<[_WaspEntityTagged], Input, Output>;
+    type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>;
+    type GetQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>;
+    type CreateAction<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedActionDefinition<[_WaspEntityTagged], Input, Output>;
 }
 /**
  * PRIVATE API

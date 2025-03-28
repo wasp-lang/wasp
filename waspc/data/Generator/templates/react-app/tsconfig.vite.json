@@ -1,0 +1,16 @@
+{{={= =}=}}
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": [
+    {=# includePaths =}
+    "{= . =}",
+    {=/ includePaths =}
+  ]
+}

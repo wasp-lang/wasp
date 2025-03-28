@@ -63,7 +63,7 @@ With all the common web app features (setup, auth, CRUD API) being taken care of
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
 
-As such, we have updated our Deployment docs with new recommendations: https://wasp-lang.dev/docs/deploying
+As such, we have updated our Deployment docs with new recommendations: https://wasp.sh/docs/deploying
 :::
 
 Since Wasp compiler generates a full-stack React & Node.js app under the hood, there aren’t any technical limitations to scaling Julian’s app as it grows and gets more users in the future. By running `wasp build` inside a project folder, developers gets both frontend files and a Dockerfile for the backend, which can then be deployed as any regular web app to the platform of your choice.

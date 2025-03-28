@@ -66,7 +66,7 @@ Finally, Prisma models become Wasp Entities which can be then used in the `main.
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
-    version: "^0.15.0"
+    version: "{latestWaspVersion}"
   },
   title: "My App",
 }
@@ -155,6 +155,111 @@ model Task {
 ```
 
 You can define your models in any way you like, if it's valid Prisma schema code, it will work with Wasp.
+
+### The `enum` blocks
+
+As our applications grow in complexity, we might want to use [Prisma `enum`s](https://www.prisma.io/docs/orm/prisma-schema/data-model/models#defining-enums) to closely define our app's domain. For example, if we had a `Task` model with a boolean `isDone`, and we wanted to start to track whether it is in progress, we could migrate the field to a more expressive type:
+
+```prisma title="schema.prisma"
+enum TaskStatus {
+  NotStarted
+  Doing
+  Done
+}
+
+model Task {
+  ...
+  state TaskStatus @default(NotStarted)
+}
+```
+
+Make sure to check [Prisma's enum compatibility with your database](https://www.prisma.io/docs/orm/reference/database-features#misc).
+If it works with Prisma, it will work with Wasp.
+
+#### How to use `enum`s in your code
+
+If you need to access your `enum` cases and their values from your server, you can import them directly from `@prisma/client`:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/queries.js"
+import { TaskState } from "@prisma/client";
+import { Task } from "wasp/entities";
+
+export const getOpenTasks  = async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: "asc" },
+    where: { NOT: { state: TaskState.Done } },
+  });
+};
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/queries.ts"
+import { TaskState } from "@prisma/client";
+import { Task } from "wasp/entities";
+import { type GetTasks } from "wasp/server/operations";
+
+export const getOpenTasks: GetTasks<void, Task[]> = async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: "asc" },
+    where: { NOT: { state: TaskState.Done } },
+  });
+};
+```
+
+</TabItem>
+</Tabs>
+
+You can also access them from your client code:
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/views/TaskList.jsx"
+import { TaskState } from "@prisma/client";
+
+const TaskRow = ({ task }) => {
+  return (
+    <div>
+      <input
+        type="checkbox"
+        id={String(task.id)}
+        checked={task.state === TaskState.Done}
+      />
+      {task.description}
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/views/TaskList.tsx"
+import { TaskState } from "@prisma/client";
+import { Task } from "wasp/entities";
+
+const TaskRow = ({ task }: { task: Task }) => {
+  return (
+    <div>
+      <input
+        type="checkbox"
+        id={String(task.id)}
+        checked={task.state === TaskState.Done}
+      />
+      {task.description}
+    </div>
+  );
+};
+```
+
+</TabItem>
+</Tabs>
+
 
 :::note Triple slash comments
 Wasp doesn't yet fully support `/// comment` syntax in the `schema.prisma` file. We are tracking it [here](https://github.com/wasp-lang/wasp/issues/2132), let us know if this is something you need.

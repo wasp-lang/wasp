@@ -3,9 +3,12 @@
 import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
+import { detectServerImports } from "./vite/detectServerImports"
+import path from "node:path"
 
 {=# customViteConfig.isDefined =}
 // Ignoring the TS error because we are importing a file outside of TS root dir.
+// @ts-ignore
 {=& customViteConfig.importStatement =}
 const _waspUserProvidedConfig = {=& customViteConfig.importIdentifier =}
 {=/ customViteConfig.isDefined =}
@@ -15,7 +18,10 @@ const _waspUserProvidedConfig = {};
 
 const defaultViteConfig = {
   base: "{= baseDir =}",
-  plugins: [react()],
+  plugins: [
+    react(),
+    detectServerImports(),
+  ],
   optimizeDeps: {
     exclude: ['wasp']
   },
@@ -29,10 +35,21 @@ const defaultViteConfig = {
     outDir: "build",
   },
   resolve: {
-    // These packages rely on a single instance per page. Not dedpuing them
+    // These packages rely on a single instance per page. Not deduping them
     // causes runtime errors (e.g., hook rule violation in react, QueryClient
     // instance error in react-query, Invariant Error in react-router-dom).
-    dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router-dom"]
+    dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router-dom"],
+    alias: [
+      {
+        // Vite doesn't look for `.prisma/client` imports in the `node_modules`
+        // folder. We point it to the correct place here.
+        find: /^\.prisma\/(.+)$/,
+        replacement: path.join(
+          "{= projectDir =}",
+          "node_modules/.prisma/$1"
+        ),
+      },
+    ],
   },
   test: {
     globals: true,

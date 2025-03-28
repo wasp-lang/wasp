@@ -40,9 +40,9 @@ It allows attorneys and their clients to easily track the progress of the legal 
 
 ### Your time from initial idea to working MVP seemed fast. How long was it and how did you achieve it so quickly?
 
-From the initial discussions to the launch of the initial prototype was probably a week or so. This is even quicker than it sounds because I was working a full time job at the time. The speed [of execution] was fully enabled by [Wasp](https://wasp-lang.dev), a full-stack web app framework.
+From the initial discussions to the launch of the initial prototype was probably a week or so. This is even quicker than it sounds because I was working a full time job at the time. The speed [of execution] was fully enabled by [Wasp](https://wasp.sh), a full-stack web app framework.
 
-I was looking at other solutions, but none of them were full-stack and sounded like a lot of work just to stitch everything together and get started. I just wanted to get the job done and didn’t care about picking the stack specifics myself. [Wasp](https://wasp-lang.dev) was really helpful as it set me up with the best practices and I had everything running in just a few minutes!
+I was looking at other solutions, but none of them were full-stack and sounded like a lot of work just to stitch everything together and get started. I just wanted to get the job done and didn’t care about picking the stack specifics myself. [Wasp](https://wasp.sh) was really helpful as it set me up with the best practices and I had everything running in just a few minutes!
 
 ### How were you able to get these first customers so quickly?
 
@@ -60,7 +60,7 @@ MRR is low at the moment, around ~$90, and the first goal is to get to an MRR ar
 
 It’s funny because I have all of these harebrained ideas that I’m always kicking around, thinking about how to validate them: MVPs, setting up a landing page that gets emails or deposits, etc. 
 
-Meanwhile my brother was telling me about this pain of managing matters that no tool really helped with. Clients want to know where the process is, how many steps are left, how they need to be reminded of important dates like contract deadlines, etc. So I agreed to build something to see if it would help. [Wasp](https://wasp-lang.dev) was instrumental here because if these steps had taken too long I would have probably lost interest and gotten distracted by something else. It allowed me to abstract all the details of a full stack app and focus on the product itself.
+Meanwhile my brother was telling me about this pain of managing matters that no tool really helped with. Clients want to know where the process is, how many steps are left, how they need to be reminded of important dates like contract deadlines, etc. So I agreed to build something to see if it would help. [Wasp](https://wasp.sh) was instrumental here because if these steps had taken too long I would have probably lost interest and gotten distracted by something else. It allowed me to abstract all the details of a full stack app and focus on the product itself.
 
 I built the prototype and it was TERRIBLE, it hurts to think back on that first version. But it was being used, and terrible though it was, it was still providing utility. And that was the point where it clicked the idea would work - if my first crude attempt was useful, and it would only get better with each iteration, there is a space here to provide so much value that some of it can be captured.
 
@@ -72,7 +72,7 @@ I think one of the things I would do differently is spend a little more time at 
 
 ### What were your biggest concerns before getting started building Amicus? What problems did you know you wanted to avoid and how did you successfully achieve those goals?
 
-[My] biggest concern when getting started building [Amicus](https://amicus.work) was honestly that it would go to the unfinished project graveyard. Once again, [Wasp](https://wasp-lang.dev) was key to resolving this. Being able to remove most of the redundancy involved in making a full stack app really helped me. It allowed me to focus on the interesting problems.
+[My] biggest concern when getting started building [Amicus](https://amicus.work) was honestly that it would go to the unfinished project graveyard. Once again, [Wasp](https://wasp.sh) was key to resolving this. Being able to remove most of the redundancy involved in making a full stack app really helped me. It allowed me to focus on the interesting problems.
 
 One of the things I have been trying to be careful to avoid is building things that aren’t needed or solving problems that don’t exist. It is very easy to get into the trap of thinking ‘oh this would be cool’ or ‘oh this extra thing might need to be build incase…’. I have been trying to be rigorous about validating features before building them (by talking to users or through the surveys), and unless theres a good reason to believe something is a problem I don’t spend my time fixing it. This is very hard, but it has allowed me to focus.
 

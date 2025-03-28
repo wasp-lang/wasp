@@ -94,7 +94,7 @@ BTW, two quick tips:
 
 ## Configuration
 
-We’re going to make this a full-stack React/NodeJS web app so we need to get that set up first. But don’t worry, it won’t take long AT ALL, because we will be using [Wasp](https://wasp-lang.dev) as the framework.
+We’re going to make this a full-stack React/NodeJS web app so we need to get that set up first. But don’t worry, it won’t take long AT ALL, because we will be using [Wasp](https://wasp.sh) as the framework.
 
 Wasp does all the heavy lifting for us. You’ll see what I mean in a second.
 
@@ -105,7 +105,7 @@ Wasp does all the heavy lifting for us. You’ll see what I mean in a second.
 First, install Wasp by running this in your terminal:
 
 ```bash
-curl -sSL <https://get.wasp-lang.dev/installer.sh> | sh
+curl -sSL <https://get.wasp.sh/installer.sh> | sh
 ```
 
 Next, let’s clone the `start` branch of the [Memerator](http://damemerator.netlify.app) app that I’ve prepared for you:
@@ -392,7 +392,7 @@ action createMeme {
 }
 ```
 
-An [Action is a type of Wasp Operation](https://wasp-lang.dev/docs/data-model/operations/actions) that changes some state on the backend. It’s essentially a NodeJS function that gets called on the server, but Wasp takes care of setting it all up for you.
+An [Action is a type of Wasp Operation](https://wasp.sh/docs/data-model/operations/actions) that changes some state on the backend. It’s essentially a NodeJS function that gets called on the server, but Wasp takes care of setting it all up for you.
 
 This means you don't have to worry about building an HTTP API for the Action, managing server-side request handling, or even dealing with client-side response handling and caching. Instead, you just write the business logic!
 
@@ -878,7 +878,7 @@ Awesome!
 
 ### Defining our Daily Cron Job
 
-Now, to create an automatically [recurring cron job in Wasp](https://wasp-lang.dev/docs/advanced/jobs) is really easy. 
+Now, to create an automatically [recurring cron job in Wasp](https://wasp.sh/docs/advanced/jobs) is really easy. 
 
 First, go to your `main.wasp` file and add:
 
@@ -1267,7 +1267,7 @@ import { AiOutlineEdit } from 'react-icons/ai';
 )}
 ```
 
-What’s really cool about this, is that Wasp’s `Link` component will give you [type-safe routes](https://wasp-lang.dev/docs/advanced/links), by making sure you’re following the pattern you defined in your `main.wasp` file.
+What’s really cool about this, is that Wasp’s `Link` component will give you [type-safe routes](https://wasp.sh/docs/advanced/links), by making sure you’re following the pattern you defined in your `main.wasp` file.
 
 And with that, so long as the authenticated user was the creator of the meme (or is an admin), the `Edit Meme` button will show up and direct the user to the `EditMemePage`
 

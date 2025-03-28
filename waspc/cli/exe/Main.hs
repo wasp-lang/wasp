@@ -100,7 +100,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectName
             appDescription
             projectConfigJson
-      _unknownCommand -> printWaspNewAiUsage
+      _unknownCommand -> printWaspNewAiUsage >> exitFailure
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -118,11 +118,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
-    Command.Call.Unknown _ -> printUsage
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
     Command.Call.Test testArgs -> runCommand $ test testArgs
-
+    Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
   void $ Async.race (threadDelaySeconds 1) (Async.waitCatch telemetryThread)
@@ -193,9 +192,9 @@ printUsage =
               "  wasp start",
               "  wasp db migrate-dev",
               "",
-        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp-lang.dev/docs",
+        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp.sh/docs",
         Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
-        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp-lang.dev/#signup"
+        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
       ]
 {- ORMOLU_ENABLE -}
 
@@ -206,10 +205,10 @@ printVersion = do
       [ show waspVersion,
         "",
         "If you wish to install/switch to the latest version of Wasp, do:",
-        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
+        "  curl -sSL https://get.wasp.sh/installer.sh | sh -s",
         "",
         "If you want specific x.y.z version of Wasp, do:",
-        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+        "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
@@ -225,7 +224,7 @@ dbCli args = case args of
   ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
   ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
   ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
-  _unknownDbCommand -> printDbUsage
+  _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
 printDbUsage :: IO ()

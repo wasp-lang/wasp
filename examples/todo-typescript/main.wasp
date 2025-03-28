@@ -8,9 +8,9 @@ app TodoTypescript {
     userEntity: User,
     methods: {
       usernameAndPassword: {}, // this is a very naive implementation, use 'email' in production instead
-      //google: {}, //https://wasp-lang.dev/docs/integrations/google
-      //gitHub: {}, //https://wasp-lang.dev/docs/integrations/github
-      //email: {} //https://wasp-lang.dev/docs/guides/email-auth
+      //google: {}, //https://wasp.sh/docs/integrations/google
+      //gitHub: {}, //https://wasp.sh/docs/integrations/github
+      //email: {} //https://wasp.sh/docs/guides/email-auth
     },
     onAuthFailedRedirectTo: "/login",
   }
@@ -35,7 +35,7 @@ page SignupPage {
 query getTasks {
   // We specify the JS implementation of our query (which is an async JS function)
   // Even if you use TS and have a queries.ts file, you will still need to import it using the .js extension.
-  // see here for more info: https://wasp-lang.dev/docs/tutorials/todo-app/03-listing-tasks#wasp-declaration
+  // see here for more info: https://wasp.sh/docs/tutorials/todo-app/03-listing-tasks#wasp-declaration
   fn: import { getTasks } from "@src/queries.js",
   // We tell Wasp that this query is doing something with the `Task` entity. With that, Wasp will
   // automatically refresh the results of this query when tasks change.

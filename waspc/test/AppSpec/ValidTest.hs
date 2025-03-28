@@ -6,6 +6,7 @@ import qualified Data.Map as M
 import Data.Maybe (fromJust)
 import Fixtures (systemSPRoot)
 import NeatInterpolation (trimming)
+import StrongPath (relfile)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Util.Prisma as Util
@@ -93,7 +94,7 @@ spec_AppSpecValid = do
                                "You are running Wasp " ++ show WV.waspVersion ++ ".",
                                "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",
                                "To install specific version of Wasp, do:",
-                               "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+                               "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
                                "where x.y.z is your desired version.",
                                "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
                              ]
@@ -489,7 +490,8 @@ spec_AppSpecValid = do
           AS.userDockerfileContents = Nothing,
           AS.configFiles = [],
           AS.devDatabaseUrl = Nothing,
-          AS.customViteConfigPath = Nothing
+          AS.customViteConfigPath = Nothing,
+          AS.srcTsConfigPath = [relfile|tsconfig.json|]
         }
 
     getPrismaSchemaWithConfig restOfPrismaSource =

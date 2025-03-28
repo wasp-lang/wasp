@@ -27,7 +27,7 @@ There’s a lot of hype around ChatGPT at the moment, and for good reason. It’
     </a>
 </div>
 
-PG is totally right in his remark above, but what he doesn’t realize is that there are languages out there that attempt to overcome this very problem, and [Wasp](https://wasp-lang.dev) is one of them. 
+PG is totally right in his remark above, but what he doesn’t realize is that there are languages out there that attempt to overcome this very problem, and [Wasp](https://wasp.sh) is one of them. 
 
 What makes Wasp unique is that it’s a framework that uses a super simple **language** to help you build your web app: front-end, server, and deployment. But it’s not a complicated language like Java or Python, it’s more similar to SQL or JSON, so the learning curve is really quick (technically, it’s a *Domain Specific Langauge* or *DSL*). 
 
