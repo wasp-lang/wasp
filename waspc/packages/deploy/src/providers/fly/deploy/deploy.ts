@@ -1,14 +1,6 @@
 import { exit } from 'process';
 import { $, cd, fs } from 'zx';
 import {
-  cdToClientBuildDir,
-  cdToServerBuildDir,
-  displayWaspRocketImage,
-  makeIdempotent,
-  getCommandHelp,
-  waspSays,
-} from '../helpers/helpers.js';
-import {
   clientTomlExistsInProject,
   copyLocalClientTomlToProject,
   copyLocalServerTomlToProject,
@@ -23,6 +15,14 @@ import { DeployOptions } from './DeployOptions.js';
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
 import { flySetupCommand } from '../index.js';
 import { secretExists } from '../helpers/flyctlHelpers.js';
+import {
+  waspSays,
+  makeIdempotent,
+  getCommandHelp,
+  cdToServerBuildDir,
+  cdToClientBuildDir,
+  displayWaspRocketImage,
+} from '../../../helpers.js';
 
 export async function deploy(options: DeployOptions): Promise<void> {
   waspSays('Deploying your Wasp app to Fly.io!');
