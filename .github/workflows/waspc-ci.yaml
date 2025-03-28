@@ -170,6 +170,15 @@ jobs:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
+      - name: Headless - Setup the Wasp app runner
+        id: headless-setup-wasp-app-runner
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd ../wasp-app-runner
+          npm ci
+          # Installs the wasp-app-runner globally so that it can be used in the tests
+          npm run install:global
+
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
         if: matrix.os == 'ubuntu-20.04'
