@@ -19,11 +19,11 @@ If you would like to make your first contribution, here is a handy checklist we 
 
 The core of `waspc` is implemented in Haskell, but you will also see a lot of Javascript/TypeScript and other web technologies since Wasp generates web apps in those.
 
-You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
+You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with any parts that are not.
 
-Main result of building the project is `wasp` executable (also referred to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one tool for everything Wasp-related.
+Main result of building the project is `wasp` executable (also referred to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one main tool for everything Wasp-related.
 
-`wasp` executable takes Wasp project source files (`.wasp` files, `src/` dir with .js/ts/... files, config files, ...) as input and generates a full-stack JS/TS web app from them.
+`wasp` executable takes Wasp project source files (`.wasp` files, `src/` dir with `.js`/`.ts`/... files, config files, ...) as input and generates a full-stack JS/TS/... web app from them.
 
 ![Wasp compilation](images/wasp-diagram.png)
 
@@ -33,19 +33,21 @@ It can then also run that web app for you, deploy it, and manage it in other way
 
 ### Repo
 
-Fork this repo and clone the fork to your machine.
+Clone this repo (or its fork) to your machine.
 
 Position yourself in this directory (`waspc/`) and make sure that you are on the `main` branch.
 
 ### `run` script
 
-[./run](./run) script captures the most common commands / workflows for building and developing `waspc` as a contributor (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, `./run wasp-cli <args>`. You will see us mentioning it often in the rest of this README.
+[./run](run) script captures the most common commands / workflows for developoment of `waspc` (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, ... .
+
+It serves both as a convenient way to easily run common development tasks and also as a sort of a documentation of how we develop `waspc`. You will see us mentioning it often in the rest of this README.
 
 Running `./run` without any arguments will print help/usage, which is a good way to discover the typical `waspc` development workflows.
 
 > [!TIP]
-> To make it easy to run the `run` script from any place in your wasp codebase, you can create a bash alias that points to it:
-> ```
+> To make it easy to run the `./run` script from any place in your wasp codebase, you can create a bash alias that points to it:
+> ```sh
 > alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 > ```
 
@@ -59,17 +61,20 @@ Once you have `ghcup` installed, use it to install and select correct versions o
 
 To find out what correct versions of these tools are for the `waspc`: run `./run ghcup-set` to check which exact versions of `ghc` and `hls` you should use. As for `cabal`, just go with the latest one.
 
-:warning: On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
+> [!NOTE]
+> On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
 
 #### Javascript / TypeScript toolchain
 
 You need to have the correct version of `node` (and `npm`) installed and set.
 
-Check `.nvmrc` file to learn which version of `node` that should be.
+Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
 
 ### Build
 
-```
+TODO: Tell them to run build:full first time, probably?
+
+```sh
 ./run build
 ```
 
@@ -78,13 +83,20 @@ to build the `waspc` project.
 This might take a while (10 mins) if you are doing it for the very first time, since `cabal` will need to download the external dependencies.
 If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" :D.
 
-TODO: Oh here we use :warning: as a callout, but above I used quotes `>` and `[!INFO]`. So what should I use then? Figure this out.
+> [!NOTE]
+> You may need to run `cabal update` before attempting to build if it has been some time since your last `cabal update`.
 
-:warning: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
-
-:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars. If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
+> [!NOTE]
+> If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS).
+> The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
+>
+> If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
 
 ### Compiling TypeScript Packages
+
+TODO: I am looking at `install_packages_to_data_dir.sh` and I don't understand why we do that copying -> why aren't these packages just in `data_dir` from the start? Maybe because we want to make sure `node_modules` for each package are also not in there? But isn't there a better way to do this, maybe just by excluding `node_modules`? Then we don't have to do the whole building and copying and stuff, we actually don't have to do anything then.
+Right now `packages` are .gitignored in `data`, and only their dist/ dir and package(-lock).json are in the waspc.cabal's data-files stanza, meaning that `node_modules` shouldn't be an issue.
+So what I should try is moving `packages` from `waspc/` to `waspc/data`, removing them from `.gitignore` in `waspc/data`, removing script `install_packages...`, adjusting code that calls it, and that is it! They should work! Aha, but we will still need to run `npm install` for each of them when we want to build the project, in order to make sure they are up to date (imagine checking out new version of them with not everything installed).
 
 TODO: Should we mention this sooner? Should it be part of `./run build`? Or maybe we make another command, `./run build-full`? Also, we mention `wasp-cli` here for the first time and don't explain, should we explain it sooner?
 
@@ -99,7 +111,7 @@ For more details about TypeScript packages in Wasp, see [TypeScript Packages sec
 Run this once after cloning:
 
 ```bash
-./run wasp-packages:compile
+./run build:packages
 ```
 
 If you skip this step, commands like `wasp-cli compile`, running examples like `todoApp`, or even `cabal test` may fail with errors such as:
@@ -245,7 +257,7 @@ Wasp bundles some TypeScript packages into the installation artifact (eg: deploy
 
 `waspc`, while implemented in Haskell, for some of its functionality on TypeScript code (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
 
-To make these packages available to `waspc` in development, run `./run wasp-packages:compile`. When any changes are made to these packages, run the same command again.
+To make these packages available to `waspc` in development, run `./run build:packages`. When any changes are made to these packages, run the same command again.
 
 ## Tests
 
