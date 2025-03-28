@@ -1,6 +1,6 @@
 # Waspc
 
-This directory contains source code of the `wasp` compiler (aka `waspc`), and this README is aimed at the contributors to the project.
+This directory contains source code of the `wasp` CLI/compiler (aka `waspc`), and this README is aimed at the contributors to the project.
 
 If you are a Wasp user and not a contributor (yet :)), you might want to look into following resources instead ([**Project page**](https://wasp.sh), [**Docs**](https://wasp.sh/docs)).
 
@@ -17,67 +17,80 @@ If you would like to make your first contribution, here is a handy checklist we 
 
 ## Quick overview
 
-Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles it's own code into them.
+The core of `waspc` is implemented in Haskell, but you will also see a lot of Javascript/TypeScript and other web technologies since Wasp generates web apps in those.
 
 You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
 
 Main result of building the project is `wasp` executable (also referred to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one tool for everything Wasp-related.
 
-`wasp` executable takes `.wasp` files and `ext/` dir as input and generates a web app from them.
+`wasp` executable takes Wasp project source files (`.wasp` files, `src/` dir with .js/ts/... files, config files, ...) as input and generates a full-stack JS/TS web app from them.
 
 ![Wasp compilation](images/wasp-diagram.png)
 
-It can then also run that web app for you, deploy it (not yet but that is coming), and manage it in other ways.
+It can then also run that web app for you, deploy it, and manage it in other ways.
 
 ## Basics
 
+### Repo
+
+Fork this repo and clone the fork to your machine.
+
+Position yourself in this directory (`waspc/`) and make sure that you are on the `main` branch.
+
+### `run` script
+
+[./run](./run) script captures the most common commands / workflows for building and developing `waspc` as a contributor (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, `./run wasp-cli <args>`. You will see us mentioning it often in the rest of this README.
+
+Running `./run` without any arguments will print help/usage, which is a good way to discover the typical `waspc` development workflows.
+
+> [!TIP]
+> To make it easy to run the `run` script from any place in your wasp codebase, you can create a bash alias that points to it:
+> ```
+> alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
+> ```
+
 ### Setup
 
-We use the [`cabal`](https://cabal.readthedocs.io/) command line tool to build
-the project. The best way to install it is via
-[ghcup](https://www.haskell.org/ghcup/). The `ghcup tui` terminal user interface
-is a convenient way of installing and selecting versions of `cabal`, `hls` and
-`ghc`.
+#### Haskell toolchain
+
+The best way to install Haskell toolchain is via [ghcup](https://www.haskell.org/ghcup/).
+
+Once you have `ghcup` installed, use it to install and select correct versions of `cabal` (package manager), `hls` (language server) and `ghc` (compiler): the `ghcup tui` is the most convenient way to do so.
+
+To find out what correct versions of these tools are for the `waspc`: run `./run ghcup-set` to check which exact versions of `ghc` and `hls` you should use. As for `cabal`, just go with the latest one.
 
 :warning: On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
 
-Make sure to use `cabal` CLI version >=3.12, since we use some of the newer cabal functionalities.
+#### Javascript / TypeScript toolchain
 
-In [cabal.project](cabal.project) we're explicitly saying what compiler version
-to build Wasp with.
+You need to have the correct version of `node` (and `npm`) installed and set.
 
-```cabal
-with-compiler: ghc-x.y.z
-```
-
-Please ensure that you have this ghc version installed.
-
-### Repo
-
-Fork this repo and clone the fork to your machine (or clone this repo directly if you don't plan to contribute but just want to try it out).
-
-Position yourself in this directory (`waspc/`) and make sure that you are on the `main` branch.
+Check `.nvmrc` file to learn which version of `node` that should be.
 
 ### Build
 
 ```
-cabal build
+./run build
 ```
 
-to build the library and `wasp` executable.
+to build the `waspc` project.
 
 This might take a while (10 mins) if you are doing it for the very first time, since `cabal` will need to download the external dependencies.
 If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" :D.
 
+TODO: Oh here we use :warning: as a callout, but above I used quotes `>` and `[!INFO]`. So what should I use then? Figure this out.
+
 :warning: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
 
-:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
-
-:warning: If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
+:warning: If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS). The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars. If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
 
 ### Compiling TypeScript Packages
 
+TODO: Should we mention this sooner? Should it be part of `./run build`? Or maybe we make another command, `./run build-full`? Also, we mention `wasp-cli` here for the first time and don't explain, should we explain it sooner?
+
 Before running `wasp-cli`, examples, or tests locally, you must compile the bundled TypeScript packages used by the CLI.
+
+TODO: Should I also adjust the CI to use the `run` script more? Probably!
 
 Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
 
@@ -89,7 +102,7 @@ Run this once after cloning:
 ./run wasp-packages:compile
 ```
 
-If you skip this step, commands like `wasp-cli` compile, running examples like `todoApp`, or even `cabal test` may fail with errors such as:
+If you skip this step, commands like `wasp-cli compile`, running examples like `todoApp`, or even `cabal test` may fail with errors such as:
 
 ```bash
 wasp-cli: npm: readCreateProcessWithExitCode: chdir: invalid argument (Bad file descriptor)
@@ -100,46 +113,46 @@ You also need to re-run this if you make any changes to files inside the `packag
 ### Test
 
 ```
-cabal test
+./run test
 ```
 
-to ensure all the unit and end-to-end tests are passing (this will also build the project if needed).
+to ensure all the tests (unit, e2e, ...) are passing (this will also build the project first, if needed).
 
 ### Executable
 
+TODO: Should we rename `run wasp-cli` to `run wasp`? And should we in general rename `wasp-cli` to `wasp` or `wasp-dev`?
+
 ```
-cabal run wasp-cli
+./run wasp-cli [wasp-cli-args]
 ```
 
-to run the `wasp-cli` executable that you just built!
-It should print "Usage" information.
+to run the `wasp-cli` executable (that you previously built with `./run build`)!
 
-You can pass more arguments by just adding them to the command, e.g.: `cabal run wasp-cli new MyProject`.
+Tip: run `./run wasp-cli` to print the help/usage.
 
 ### Running the example app
 
-Position yourself in `waspc/examples/todoApp/` and run
+Position yourself in [waspc/examples/todoApp/](examples/todoApp/) and run
 
 ```
-cabal run wasp-cli db migrate-dev
+./run wasp-cli db migrate-dev
 ```
 
-to update database schema (this is done only on schema changes).
-
-Then,
+to update the database schema. Then,
 
 ```
-cabal run wasp-cli start
+./run wasp-cli start
 ```
 
-to run web app in development mode.
+to run the example app in the development mode.
 
-If you are doing this for the very first time, it might take a minutes or so to download and install npm dependencies.
+If you are doing this for the very first time, it might take a minute or so to download and install npm dependencies.
 
 When done, new tab in your browser should open and you will see a Todo App!
-NOTE: Reload page if blank.
 
 ## Typical development workflow
+
+TODO: I stopped here, I should continue from here.
 
 1. Create a new feature branch from `main`.
 2. If you don't have a good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project instead: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
@@ -225,29 +238,6 @@ Some useful cabal commands:
 - `cabal install` -> builds the project and places the binary so it is in PATH (so you can call it directly, from anywhere, with just `wasp`).
 
 For live compilation and error checking of your code we recommend using Haskell Language Server (hls) via your IDE, but if that is not working as it should, then safe fallback is always `ghcid`. You can install `ghcid` globally with `cabal install ghcid` and then just type `ghcid` when in the project -> it will watch for any file changes and report errors.
-
-### Run script
-
-For more convenient running of common build/dev commands, we created `run` script.
-It mostly runs cabal commands described above, reducing the number of characters you have to type to run certain commands.
-It also allows you to easily run some of the helper tools, for example tools for static analysis of our code.
-
-The idea is that you normally use this for development, and you use `cabal` directly when you need more control.
-It is up to you, using `cabal` directly is also perfectly fine and sometimes easier.
-
-You can run `./run help` to learn how to use it.
-
-Examples:
-
-- `./run ghcid-test` will run ghcid that watches tests, while passing correct arguments to ghcid.
-- `./run test:unit` will run only unit tests (skipping e2e tests, which is useful since they are relatively slow).
-- `./run ormolu:format` will format the Haskell code for you.
-
-Tip: to make it easy to run the `run` script from any place in your wasp codebase, you can create a bash alias that points to it:
-
-```
-alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
-```
 
 ### Typescript packages
 

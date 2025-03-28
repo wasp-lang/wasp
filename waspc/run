@@ -30,6 +30,7 @@ TEST_HEADLESS_CMD="cd examples/todoApp && npm install && npx playwright test --c
 TEST_CMD="cabal test && echo 'Running headless tests' && $TEST_HEADLESS_CMD && echo 'ALL TESTS PASSED' || { echo 'SOME TESTS FAILED'; exit 1; }"
 RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
+# ghc version below should be the one from `cabal.project` file, `with-compiler` field.
 GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0"
 
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
