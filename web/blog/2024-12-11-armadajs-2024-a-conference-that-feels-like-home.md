@@ -29,7 +29,7 @@ We’d like to take this opportunity to give a shoutout to the conference photog
 
 The name of Miho’s talk was “Crafting a full-stack framework's DX worth 15,000 GitHub stars”. Miho explained the design principles behind Wasp, which allowed us to create a full-stack framework with a great experience out-of-the-box, but still isn’t limiting and gives developers the freedom of doing this their own way when they want or need so.
 
-In other words, if you want simplicity, with Wasp you get it out of the box, but if you want to take over the reigns, you can also do that by going one level deeper. The feature he described in depth was our [auth system](https://wasp-lang.dev/docs/auth/overview). 
+In other words, if you want simplicity, with Wasp you get it out of the box, but if you want to take over the reigns, you can also do that by going one level deeper. The feature he described in depth was our [auth system](https://wasp.sh/docs/auth/overview). 
 
 ![Miho at the stage](/img/armadajs-2024/4.webp)
 

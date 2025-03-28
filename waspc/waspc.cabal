@@ -6,11 +6,12 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.16.0
+version:        0.16.3
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
 author:         Wasp Team
+-- TODO: update the email once we setup @wasp.sh email.
 maintainer:     team@wasp-lang.dev
 copyright:      Wasp, Inc.
 license:        MIT
@@ -318,6 +319,7 @@ library
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
+    Wasp.Generator.SdkGenerator.JsImport
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.CrudG
@@ -355,6 +357,8 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
+    Wasp.Generator.WebAppGenerator.Vite
+    Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
@@ -414,6 +418,7 @@ library
     Wasp.Psl.Parser.View
     Wasp.Psl.Util
     Wasp.Psl.Valid
+    Wasp.Psl.Db
     Wasp.SemanticVersion
     Wasp.SemanticVersion.VersionBound
     Wasp.SemanticVersion.Version

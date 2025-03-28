@@ -1,8 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( extImportToJsImport,
-    serverOperationsDirInSdkRootDir,
+  ( serverOperationsDirInSdkRootDir,
     genOperations,
   )
 where
@@ -10,25 +9,22 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromMaybe)
 import StrongPath (Dir, Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
-import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (dropExtensionFromImportPath, makeJsonWithEntityData)
+import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, getOperationTypeName, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.JsImport (JsImport (..), JsImportPath (..))
-import qualified Wasp.JsImport as JI
+import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
 
 data ServerOpsTemplatesDir
@@ -153,26 +149,3 @@ getOperationTmplData isAuthEnabledGlobally operation =
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
-
-extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
-extOperationImportToImportJson =
-  GJI.jsImportToImportJson
-    . Just
-    . applyExtImportAlias
-    . extImportToJsImport
-
-applyExtImportAlias :: JsImport -> JsImport
-applyExtImportAlias jsImport =
-  jsImport {_importAlias = Just $ JI.getImportIdentifier jsImport ++ "_ext"}
-
-extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
-  JsImport
-    { _path = ModuleImportPath importPath,
-      _name = importName,
-      _importAlias = Just $ EI.importIdentifier extImport ++ "_ext"
-    }
-  where
-    importPath = C.makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> SP.castRel extImportPath
-    extCodeDirP = fromJust $ SP.relDirToPosix C.extSrcDirInSdkRootDir
-    importName = GJI.extImportNameToJsImportName extImportName

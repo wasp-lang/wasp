@@ -29,8 +29,8 @@ job loadTime {
   schedule: {
     cron: "*/5 * * * *",
     args: {=json {
-      "url": "https://wasp-lang.dev",
-      "name": "wasp-lang.dev Load Time"
+      "url": "https://wasp.sh",
+      "name": "wasp.sh Load Time"
     } json=}
   },
   entities: [Datum]

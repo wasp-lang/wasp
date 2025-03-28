@@ -10,6 +10,8 @@ node_modules/
 # even though we don't need them. Remove them once dotenv-vault stops doing that.
 .env*
 .flaskenv*
+# Headless tests
+test-results/
 
 # Don't ignore example dotenv files.
 !.env.example
@@ -18,3 +20,5 @@ node_modules/
 # These are config files for dotenv-vault, so we don't want to ignore them.
 !.env.project
 !.env.vault
+# Headless tests example dotenv files
+!.env.*.headless

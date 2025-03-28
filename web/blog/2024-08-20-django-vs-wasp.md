@@ -12,7 +12,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 ## Wasp vs Django: Building a full stack application just got a lot easier
 
-Hey, I’m Sam, a backend engineer with a lot of experience with Django. I wanted to make the jump and learn some frontend for a full stack app. I quickly experienced the arduous nature of a React-with-Django project and thought the pain was just part of the development process. However, I came across a very cool new full stack framework called [Wasp](https://wasp-lang.dev/). 
+Hey, I’m Sam, a backend engineer with a lot of experience with Django. I wanted to make the jump and learn some frontend for a full stack app. I quickly experienced the arduous nature of a React-with-Django project and thought the pain was just part of the development process. However, I came across a very cool new full stack framework called [Wasp](https://wasp.sh/). 
 
 Wasp is an amazing dev tool for full stack applications. Combining things like React, Node.js and Prisma, Wasp allows for development to be expedited in ways never before seen.
 
@@ -39,7 +39,7 @@ This article is not intended as a how-to, but I do provide code snippets to give
 
 ### Let’s create some projects and set things up
 
-This part is about the only part where there is significant overlap between Django and Wasp. Both starting from the terminal, let’s make a simple task app (I am assuming you have Django and [Wasp installed](https://wasp-lang.dev/docs/quick-start) and in your path).
+This part is about the only part where there is significant overlap between Django and Wasp. Both starting from the terminal, let’s make a simple task app (I am assuming you have Django and [Wasp installed](https://wasp.sh/docs/quick-start) and in your path).
 
 
 <Tabs>
@@ -710,7 +710,7 @@ Let's check out what it takes to add a simple username and password auth impleme
 </TabItem>
 </Tabs>
 
-And that's all it takes to implement full-stack [Auth with Wasp](https://wasp-lang.dev/docs/auth/overview)! But that's just one example, you can also add other auth methods easily, like `google: {}`, `gitHub: {}` and `discord: {}` social auth, after configuring the apps and adding your environment variables. 
+And that's all it takes to implement full-stack [Auth with Wasp](https://wasp.sh/docs/auth/overview)! But that's just one example, you can also add other auth methods easily, like `google: {}`, `gitHub: {}` and `discord: {}` social auth, after configuring the apps and adding your environment variables. 
 
 Wasp allows you to get building without worrying about so many things. I don’t need to worry about password hashing, multiple projects and apps, CORS headers, etc. I just need to add a couple lines of code. 
 
@@ -746,7 +746,7 @@ Just throw a name, prompt, and select a few of your desired settings and boom, y
 
 ![https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
-Are you interested in more content like this? Sign up for [our newsletter](https://wasp-lang.dev/#signup) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
+Are you interested in more content like this? Sign up for [our newsletter](https://wasp.sh/#signup) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
 
 ### Conclusion
 

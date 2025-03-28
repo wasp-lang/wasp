@@ -10,18 +10,19 @@
     "superjson": "^2.2.1"
   },
   "devDependencies": {
-    "@tsconfig/node18": "latest",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@tsconfig/node20": "latest",
     "@types/cors": "^2.8.5",
     "@types/express": "^4.17.13",
     "@types/express-serve-static-core": "^4.17.13",
-    "@types/node": "^18.0.0",
+    "@types/node": "^20.0.0",
     "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1"
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=18.18.0"
+    "node": ">=20.0.0"
   },
   "name": "server",
   "nodemonConfig": {

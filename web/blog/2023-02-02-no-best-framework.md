@@ -49,7 +49,7 @@ Why? Because most of them are built around the same concepts, have proven themse
 
 React might be the most prominent in job descriptions, but if you’re looking for a new role and only have experience in Vue or Angular, I can’t imagine it would take you more than a week to build a side-project with React to display your ability to prospective employers.
 
-On the flip side, if you’re a beginner or Junior dev, once you have the basics of HTML, CSS, and JS under your belt, it doesn’t really matter what framework you learn. I personally started learning backend development with Node/ExpressJS, but landed my first role as a Frontend developer with Angular. In my second role I used NextJS, and now I work with [Wasp](https://wasp-lang.dev) (a full-stack framework built on top of React and ExpressJS). [Developers never stop learning](https://www.youtube.com/watch?v=gl5HvBpUbt8), so it’s kind of a non-argument to deride any specific framework — unless it really sucks, but then no one will continue to use it anyway.
+On the flip side, if you’re a beginner or Junior dev, once you have the basics of HTML, CSS, and JS under your belt, it doesn’t really matter what framework you learn. I personally started learning backend development with Node/ExpressJS, but landed my first role as a Frontend developer with Angular. In my second role I used NextJS, and now I work with [Wasp](https://wasp.sh) (a full-stack framework built on top of React and ExpressJS). [Developers never stop learning](https://www.youtube.com/watch?v=gl5HvBpUbt8), so it’s kind of a non-argument to deride any specific framework — unless it really sucks, but then no one will continue to use it anyway.
 
 <br/>
 <ImgWithCaption

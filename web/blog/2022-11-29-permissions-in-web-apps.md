@@ -331,7 +331,7 @@ A couple of popular solutions:
 
 ## Access control in Wasp
 
-In [Wasp](https://wasp-lang.dev), we don’t yet have special support for access control, although we are planning to add it in the future. As it seems at the moment, we will probably go for ABAC, and we would love to provide a way to define access rules both at the Operations level and at Entity (data model) level. Due to Wasp’s mission to provide a highly integrated full-stack experience, we are excited about the possibilities this offers to provide an access control solution that is integrated tightly with the whole web app, through the whole stack!
+In [Wasp](https://wasp.sh), we don’t yet have special support for access control, although we are planning to add it in the future. As it seems at the moment, we will probably go for ABAC, and we would love to provide a way to define access rules both at the Operations level and at Entity (data model) level. Due to Wasp’s mission to provide a highly integrated full-stack experience, we are excited about the possibilities this offers to provide an access control solution that is integrated tightly with the whole web app, through the whole stack!
 
 You can check out our discussion about this in our [“Support for Permissions” RFC](https://github.com/wasp-lang/wasp/issues/584).
 
