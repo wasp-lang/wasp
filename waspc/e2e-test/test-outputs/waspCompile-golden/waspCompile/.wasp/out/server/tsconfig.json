@@ -11,6 +11,10 @@
     // make project references work for the TS config), then I believe the
     // correct configuration is "rootDir": "." (the project reference should
     // take care of the user code), but we should double-check.
+    //
+    // Before changing this property, ensure you're aware of the implications:
+    //  - https://github.com/wasp-lang/wasp/pull/1584#discussion_r1404019301
+    //  - https://github.com/wasp-lang/wasp/pull/1713/files#diff-58191eecd9cc55f71c73de89420df8b1866dce38ad35f4ef0f6f8874616eda77R32
     "rootDir": ".",
     // Overriding this because we want to use top-level await
     "module": "esnext",

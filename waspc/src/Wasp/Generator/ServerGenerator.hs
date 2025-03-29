@@ -19,6 +19,7 @@ import Data.Maybe
   )
 import StrongPath
   ( Dir,
+    File,
     File',
     Path,
     Path',
@@ -28,6 +29,7 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -57,6 +59,7 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Project.Common (SrcTsConfigFile, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -67,7 +70,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|nodemon.json|],
       genRollupConfigJs spec,
-      genTsConfigJson,
+      genTsConfigJson spec,
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -101,17 +104,21 @@ genDotEnv spec =
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
-genTsConfigJson :: Generator FileDraft
-genTsConfigJson = do
+genTsConfigJson :: AppSpec -> Generator FileDraft
+genTsConfigJson spec = do
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|tsconfig.json|])
       (C.asServerFile [relfile|tsconfig.json|])
       ( Just $
           object
-            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
+              "srcTsConfigPath" .= SP.fromRelFile srcTsConfigPath
             ]
       )
+  where
+    srcTsConfigPath :: Path' (Rel C.ServerRootDir) (File SrcTsConfigFile) =
+      waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
