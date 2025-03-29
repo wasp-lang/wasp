@@ -1,4 +1,4 @@
-app waspBuild {
+app waspbuild {
   wasp: {
     version: "^0.16.3"
   },

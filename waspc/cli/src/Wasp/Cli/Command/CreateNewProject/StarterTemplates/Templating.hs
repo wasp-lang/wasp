@@ -51,8 +51,7 @@ replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
         [ ("__waspConfigPath__", waspConfigPackagePath),
           ("__waspAppName__", show appName),
           ("__waspProjectName__", show projectName),
-          ("__waspVersion__", defaultWaspVersionBounds),
-          ("__waspProjectNameLowercase__", show projectName)
+          ("__waspVersion__", defaultWaspVersionBounds)
         ]
   updateFileContentWith (replacePlaceholders waspTemplateReplacements) file
   where

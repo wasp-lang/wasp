@@ -161,7 +161,7 @@ mkNewProjectDescription projectName absWaspProjectDir template = do
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName
-  | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
+  | isValidWaspIdentifier appNameLowercase = Right $ NewProjectAppName appNameLowercase
   | otherwise =
       Left . intercalate "\n" $
         [ "The project's name is not in the valid format!",
@@ -171,3 +171,4 @@ parseWaspProjectNameIntoAppName projectName
         ]
   where
     appName = kebabToCamelCase projectName
+    appNameLowercase = toLowercase appName
