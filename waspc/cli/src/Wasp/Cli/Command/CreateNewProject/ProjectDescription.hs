@@ -5,14 +5,16 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
     NewProjectAppName (..),
     parseWaspProjectNameIntoAppName,
     obtainAvailableProjectDirPath,
+    containsUppercase,
+    toLowercase,
   )
 where
 
 import Control.Monad.IO.Class (liftIO)
+import Data.Char (isUpper, toLower)
 import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
-import Data.Char (isUpper,toLower)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path')
 import StrongPath.Path (toPathAbsDir)
@@ -88,24 +90,25 @@ obtainNewProjectDescriptionFromCliArgs projectName templateNameArg availableTemp
 obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
   projectNameInput <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
-  if containsUppercase projectNameInput 
+  if containsUppercase projectNameInput
     then do
       let lowercaseProjectName = toLowercase projectNameInput
       let question = "We only accept lowercase names, would you like to use '" ++ lowercaseProjectName ++ "' instead?"
       answer <- liftIO $ Interactive.askForInput (question ++ " (y/n)")
       let isYes = case map toLower answer of
-                    "y" -> True
-                    "yes" -> True
-                    _ -> False
-      projectName <- if isYes
-        then return lowercaseProjectName
-        else liftIO $ Interactive.askForRequiredInput "Enter a new lowercase project name"
+            "y" -> True
+            "yes" -> True
+            _ -> False
+      projectName <-
+        if isYes
+          then return lowercaseProjectName
+          else liftIO $ Interactive.askForRequiredInput "Enter a new lowercase project name"
       obtainNewProjectDescriptionFromProjectNameAndTemplateArg
         projectName
         templateNameArg
         availableTemplates
         (liftIO askForTemplateName)
-    else 
+    else
       obtainNewProjectDescriptionFromProjectNameAndTemplateArg
         projectNameInput
         templateNameArg
