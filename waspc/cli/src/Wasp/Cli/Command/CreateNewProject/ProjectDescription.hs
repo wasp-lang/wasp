@@ -5,10 +5,13 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
     NewProjectAppName (..),
     parseWaspProjectNameIntoAppName,
     obtainAvailableProjectDirPath,
+    containsUppercase,
+    toLowercase,
   )
 where
 
 import Control.Monad.IO.Class (liftIO)
+import Data.Char (isUpper, toLower)
 import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
@@ -64,6 +67,12 @@ instance Show NewProjectAppName where
     - Project name is required.
     - Template name is required, we ask the user to choose from available templates.
 -}
+containsUppercase :: String -> Bool
+containsUppercase = any isUpper
+
+toLowercase :: String -> String
+toLowercase = map toLower
+
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates =
   case projectNameArg of
@@ -80,12 +89,31 @@ obtainNewProjectDescriptionFromCliArgs projectName templateNameArg availableTemp
 
 obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
-  projectName <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
-  obtainNewProjectDescriptionFromProjectNameAndTemplateArg
-    projectName
-    templateNameArg
-    availableTemplates
-    (liftIO askForTemplateName)
+  projectNameInput <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
+  if containsUppercase projectNameInput
+    then do
+      let lowercaseProjectName = toLowercase projectNameInput
+      let question = "We only accept lowercase names, would you like to use '" ++ lowercaseProjectName ++ "' instead?"
+      answer <- liftIO $ Interactive.askForInput (question ++ " (y/n)")
+      let isYes = case map toLower answer of
+            "y" -> True
+            "yes" -> True
+            _ -> False
+      projectName <-
+        if isYes
+          then return lowercaseProjectName
+          else liftIO $ Interactive.askForRequiredInput "Enter a new lowercase project name"
+      obtainNewProjectDescriptionFromProjectNameAndTemplateArg
+        projectName
+        templateNameArg
+        availableTemplates
+        (liftIO askForTemplateName)
+    else
+      obtainNewProjectDescriptionFromProjectNameAndTemplateArg
+        projectNameInput
+        templateNameArg
+        availableTemplates
+        (liftIO askForTemplateName)
   where
     askForTemplateName = Interactive.askToChoose "Choose a starter template" $ fromList availableTemplates
 
@@ -136,7 +164,7 @@ mkNewProjectDescription projectName absWaspProjectDir template = do
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName
-  | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
+  | isValidWaspIdentifier appNameLowercase = Right $ NewProjectAppName appNameLowercase
   | otherwise =
       Left . intercalate "\n" $
         [ "The project's name is not in the valid format!",
@@ -146,3 +174,4 @@ parseWaspProjectNameIntoAppName projectName
         ]
   where
     appName = kebabToCamelCase projectName
+    appNameLowercase = toLowercase appName

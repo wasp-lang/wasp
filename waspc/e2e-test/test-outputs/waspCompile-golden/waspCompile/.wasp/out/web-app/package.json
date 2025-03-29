@@ -24,7 +24,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "name": "waspCompile",
+  "name": "waspcompile",
   "private": true,
   "scripts": {
     "build": "tsc --build && vite build",
