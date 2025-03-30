@@ -59,7 +59,7 @@ The best way to install Haskell toolchain is via [ghcup](https://www.haskell.org
 
 Once you have `ghcup` installed, use it to install and select correct versions of `cabal` (package manager), `hls` (language server) and `ghc` (compiler): the `ghcup tui` is the most convenient way to do so.
 
-To find out what correct versions of these tools are for the `waspc`: run `./run ghcup-set` to check which exact versions of `ghc` and `hls` you should use. As for `cabal`, just go with the latest one.
+To find out what the correct versions of these tools are for the `waspc`: run `./run ghcup-set` to check which exact versions of `ghc` and `hls` you should use. As for `cabal`, just go with the latest one.
 
 > [!NOTE]
 > On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
@@ -72,55 +72,23 @@ Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
 
 ### Build
 
-TODO: Tell them to run build:full first time, probably?
-
 ```sh
-./run build
+./run build:all
 ```
 
-to build the `waspc` project.
+to build the whole `waspc` project for the first time.
 
-This might take a while (10 mins) if you are doing it for the very first time, since `cabal` will need to download the external dependencies.
+This might take a while (10 mins) if you are doing it for the very first time, due to downloading dependencies for the first time.
 If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" :D.
 
 > [!NOTE]
-> You may need to run `cabal update` before attempting to build if it has been some time since your last `cabal update`.
+> You may need to run `cabal update` if it has been some time since your last `cabal update`.
 
 > [!NOTE]
 > If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS).
 > The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
 >
 > If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/Cellar/llvm@13/13.0.1_2/bin/:$PATH"`.
-
-### Compiling TypeScript Packages
-
-TODO: I am looking at `install_packages_to_data_dir.sh` and I don't understand why we do that copying -> why aren't these packages just in `data_dir` from the start? Maybe because we want to make sure `node_modules` for each package are also not in there? But isn't there a better way to do this, maybe just by excluding `node_modules`? Then we don't have to do the whole building and copying and stuff, we actually don't have to do anything then.
-Right now `packages` are .gitignored in `data`, and only their dist/ dir and package(-lock).json are in the waspc.cabal's data-files stanza, meaning that `node_modules` shouldn't be an issue.
-So what I should try is moving `packages` from `waspc/` to `waspc/data`, removing them from `.gitignore` in `waspc/data`, removing script `install_packages...`, adjusting code that calls it, and that is it! They should work! Aha, but we will still need to run `npm install` for each of them when we want to build the project, in order to make sure they are up to date (imagine checking out new version of them with not everything installed).
-
-TODO: Should we mention this sooner? Should it be part of `./run build`? Or maybe we make another command, `./run build-full`? Also, we mention `wasp-cli` here for the first time and don't explain, should we explain it sooner?
-
-Before running `wasp-cli`, examples, or tests locally, you must compile the bundled TypeScript packages used by the CLI.
-
-TODO: Should I also adjust the CI to use the `run` script more? Probably!
-
-Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
-
-For more details about TypeScript packages in Wasp, see [TypeScript Packages section](#typescript-packages).
-
-Run this once after cloning:
-
-```bash
-./run build:packages
-```
-
-If you skip this step, commands like `wasp-cli compile`, running examples like `todoApp`, or even `cabal test` may fail with errors such as:
-
-```bash
-wasp-cli: npm: readCreateProcessWithExitCode: chdir: invalid argument (Bad file descriptor)
-```
-
-You also need to re-run this if you make any changes to files inside the `packages/` directory.
 
 ### Test
 
@@ -132,13 +100,14 @@ to ensure all the tests (unit, e2e, ...) are passing (this will also build the p
 
 ### Executable
 
-TODO: Should we rename `run wasp-cli` to `run wasp`? And should we in general rename `wasp-cli` to `wasp` or `wasp-dev`?
+TODO: Should we rename `run wasp-cli` to `run wasp`? And should we in general rename `wasp-cli` to `wasp` or `wasp-dev`? Having a different name does help when installing dev version globally.
+TODO: Should I also adjust the CI to use the `run` script more? Probably!
 
 ```
 ./run wasp-cli [wasp-cli-args]
 ```
 
-to run the `wasp-cli` executable (that you previously built with `./run build`)!
+to run the `wasp-cli` executable (that you previously built with `./run build:all`)!
 
 Tip: run `./run wasp-cli` to print the help/usage.
 
@@ -172,7 +141,8 @@ TODO: I stopped here, I should continue from here.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. Run `cabal test` to confirm that the project's unit and integration tests are passing (both new and old).
+3. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details).
+4. Run `./run test` to confirm that the project's unit and integration tests are passing (both new and old).
 5. For easily testing the changes you did on a Wasp app, you have `examples/todoApp`, which we always keep updated. Also, if you added a new feature, add it to this app. Check its README for more details (including how to run it).
 6. There is also `headless-test/examples/todoApp`, that comes equipped with Playwright tests. This one is not so much for experimenting as `examples/todoApp` is, but more for running Playwright tests in the CI. Make sure this one is also passing, and add a new feature to it (+ tests) if needed. We will be merging this one with `examples/todoApp` in the future so it is a single app.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
@@ -253,11 +223,14 @@ For live compilation and error checking of your code we recommend using Haskell 
 
 ### Typescript packages
 
-Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
+TODO: I am looking at `install_packages_to_data_dir.sh` and I don't understand why we do that copying -> why aren't these packages just in `data_dir` from the start? Maybe because we want to make sure `node_modules` for each package are also not in there? But isn't there a better way to do this, maybe just by excluding `node_modules`? Then we don't have to do the whole building and copying and stuff, we actually don't have to do anything then.
+  Right now `packages` are .gitignored in `data`, and only their dist/ dir and package(-lock).json are in the waspc.cabal's data-files stanza, meaning that `node_modules` shouldn't be an issue.
+  So what I should try is moving `packages` from `waspc/` to `waspc/data`, removing them from `.gitignore` in `waspc/data`, removing script `install_packages...`, adjusting code that calls it, and that is it! They should work! Aha, but we will still need to run `npm install` for each of them when we want to build the project, in order to make sure they are up to date (imagine checking out new version of them with not everything installed).
 
-`waspc`, while implemented in Haskell, for some of its functionality on TypeScript code (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
+`waspc`, while implemented in Haskell, relies for some of its functionality on TypeScript code (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
 
-To make these packages available to `waspc` in development, run `./run build:packages`. When any changes are made to these packages, run the same command again.
+In order for `waspc`'s Haskell code to correctly use these TS packages (and to also have them correctly bundled when generating the release tarball), they need to be correctly installed/built in the `waspc_datadir` dir.
+To do so in development, run `./run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
 
 ## Tests
 

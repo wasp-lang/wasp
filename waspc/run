@@ -5,13 +5,11 @@
 
 SCRIPT_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
-THIS=$0
 COMMAND=${1:-watch}
 shift
 ARGS=("$@") # NOTE: This is a bash array!
 
 BOLD="\033[1m"
-UNDERLINED="\033[4m"
 RESET="\033[0m"
 LIGHT_CYAN="\033[96m"
 YELLOW="\033[33m"
@@ -19,10 +17,10 @@ GREEN="\033[32m"
 RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
-BUILD_CMD="cabal build all"
 WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
-BUILD_FULL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_CMD"
-BUILD_ALL_CMD="cabal build all --enable-tests --enable-benchmarks"
+BUILD_HS_CMD="cabal build all"
+BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
+BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
 
 INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 
@@ -47,7 +45,7 @@ function install_dev_tool () {
 function dev_tool_path () {
     echo "$DEV_TOOLS_BIN/$1"
 }
-STAN_CMD="$BUILD_ALL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
+STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
 PRUNE_JUICE_CMD="$(install_dev_tool prune-juice) && $(dev_tool_path prune-juice) ${ARGS[@]}"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
@@ -74,11 +72,11 @@ print_usage () {
     echo_bold       "COMMANDS"
 
     print_usage_cmd "build" \
-                    "Builds the haskell project."
-    print_usage_cmd "build:full" \
+                    "Builds the Haskell project."
+    print_usage_cmd "build:all" \
                     "Builds the whole (hs + ts) project."
     print_usage_cmd "build:packages" \
-                    "Builds the TS projects under packages/."
+                    "Builds the TypeScript projects under packages/."
 
     print_usage_cmd "install" \
                     "Installs as wasp-cli globally on the machine."
@@ -129,10 +127,10 @@ exitStatusToString () {
 
 case $COMMAND in
     build)
-        echo_and_eval "$BUILD_CMD"
+        echo_and_eval "$BUILD_HS_CMD"
         ;;
-    build:full)
-        echo_and_eval "$BUILD_FULL_CMD"
+    build:all)
+        echo_and_eval "$BUILD_ALL_CMD"
         ;;
     build:packages)
         echo_and_eval "$WASP_PACKAGES_COMPILE"
