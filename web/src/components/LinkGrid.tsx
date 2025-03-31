@@ -1,6 +1,6 @@
+import Link from '@docusaurus/Link'
 import React from 'react'
 import './LinkGrid.css'
-import Link from '@docusaurus/Link';
 
 export interface LinkInfo {
   title: string
@@ -10,10 +10,10 @@ export interface LinkInfo {
 
 export function LinkGrid({
   links,
-  caption = 'Click on each box for more details.',
+  caption,
 }: {
   links: LinkInfo[]
-  caption?: string | false
+  caption?: string
 }) {
   return (
     <>
@@ -22,11 +22,11 @@ export function LinkGrid({
           <LinkGridBox link={link} />
         ))}
       </div>
-      {caption ? (
+      {caption && (
         <p className="link-grid-info">
           <small>{caption}</small>
         </p>
-      ) : null}
+      )}
     </>
   )
 }
@@ -39,7 +39,7 @@ function LinkGridBox({
   return (
     <Link href={link} className="link-grid-box">
       <h3>{title} »</h3>
-      {description ? <p>{description}</p> : null}
+      {description && <p>{description}</p>}
     </Link>
   )
 }
