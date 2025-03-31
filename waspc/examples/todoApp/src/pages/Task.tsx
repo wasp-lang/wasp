@@ -9,11 +9,18 @@ import {
   getTask,
   getTasks,
 } from 'wasp/client/operations'
+import { TaskVisibility } from '@prisma/client'
 
 import React from 'react'
 import { useParams } from 'react-router-dom'
 
 type TaskPayload = Pick<Task, 'id' | 'isDone'>
+
+const VISIBILITY_EXPLANATION = {
+  [TaskVisibility.PRIVATE]: 'only you',
+  [TaskVisibility.LINK_ONLY]: 'people with a link',
+  [TaskVisibility.PUBLIC]: 'everyone',
+} as const satisfies Record<TaskVisibility, string>
 
 const Todo = () => {
   const { id } = useParams()
@@ -65,6 +72,12 @@ const Todo = () => {
           <h2>Task</h2>
           <div> id: {task.id} </div>
           <div> description: {task.description} </div>
+          <div>
+            {' '}
+            who can see this task: {
+              VISIBILITY_EXPLANATION[task.visibility]
+            }{' '}
+          </div>
           <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
           <button onClick={() => toggleIsDone(task)}>
             Mark as {task.isDone ? 'undone' : 'done'}

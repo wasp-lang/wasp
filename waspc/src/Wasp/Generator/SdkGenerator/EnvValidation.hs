@@ -19,7 +19,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (extImportToJsImport)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
