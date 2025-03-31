@@ -29,16 +29,17 @@ action customSignup {
 ```
 
 ```js title="src/auth/signup.js"
+import { HttpError } from 'wasp/server'
 import {
-  ensurePasswordIsPresent,
-  ensureValidPassword,
-  ensureValidEmail,
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  getProviderData,
-  findAuthIdentity,
-  createUser,
   createEmailVerificationLink,
+  createProviderId,
+  createUser,
+  ensurePasswordIsPresent,
+  ensureValidEmail,
+  ensureValidPassword,
+  findAuthIdentity,
+  getProviderData,
+  sanitizeAndSerializeProviderData,
   sendEmailVerificationEmail,
 } from 'wasp/server/auth'
 
@@ -56,41 +57,41 @@ export const signup = async (args, _context) => {
       // Your custom code here
     } else {
       // sanitizeAndSerializeProviderData will hash the user's password
-      const newUserProviderData = await sanitizeAndSerializeProviderData({
-          hashedPassword: args.password,
-          isEmailVerified: false,
-          emailVerificationSentAt: null,
-          passwordResetSentAt: null,
+      const providerData = await sanitizeAndSerializeProviderData({
+        hashedPassword: args.password,
+        isEmailVerified: false,
+        emailVerificationSentAt: null,
+        passwordResetSentAt: null,
       })
       await createUser(
         providerId,
         providerData,
         // Any additional data you want to store on the User entity
-        {},
+        {}
       )
 
       // Verification link links to a client route e.g. /email-verification
-      const verificationLink = await createEmailVerificationLink(args.email, '/email-verification');
+      const verificationLink = await createEmailVerificationLink(
+        args.email,
+        '/email-verification'
+      )
       try {
-          await sendEmailVerificationEmail(
-              args.email,
-              {
-                  from: {
-                    name: "My App Postman",
-                    email: "hello@itsme.com",
-                  },
-                  to: args.email,
-                  subject: "Verify your email",
-                  text: `Click the link below to verify your email: ${verificationLink}`,
-                  html: `
+        await sendEmailVerificationEmail(args.email, {
+          from: {
+            name: 'My App Postman',
+            email: 'hello@itsme.com',
+          },
+          to: args.email,
+          subject: 'Verify your email',
+          text: `Click the link below to verify your email: ${verificationLink}`,
+          html: `
                       <p>Click the link below to verify your email</p>
                       <a href="${verificationLink}">Verify email</a>
                   `,
-              }
-          );
-      } catch (e: unknown) {
-          console.error("Failed to send email verification email:", e);
-          throw new HttpError(500, "Failed to send email verification email.");
+        })
+      } catch (e) {
+        console.error('Failed to send email verification email:', e)
+        throw new HttpError(500, 'Failed to send email verification email.')
       }
     }
   } catch (e) {
@@ -122,16 +123,17 @@ action customSignup {
 ```
 
 ```ts title="src/auth/signup.ts"
+import { HttpError } from 'wasp/server'
 import {
-  ensurePasswordIsPresent,
-  ensureValidPassword,
-  ensureValidEmail,
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  getProviderData,
-  findAuthIdentity,
-  createUser,
   createEmailVerificationLink,
+  createProviderId,
+  createUser,
+  ensurePasswordIsPresent,
+  ensureValidEmail,
+  ensureValidPassword,
+  findAuthIdentity,
+  getProviderData,
+  sanitizeAndSerializeProviderData,
   sendEmailVerificationEmail,
 } from 'wasp/server/auth'
 import type { CustomSignup } from 'wasp/server/operations'
@@ -173,7 +175,7 @@ export const signup: CustomSignup<
         })
       await createUser(
         providerId,
-        providerData,
+        newUserProviderData,
         // Any additional data you want to store on the User entity
         {}
       )
@@ -202,7 +204,7 @@ export const signup: CustomSignup<
         throw new HttpError(500, 'Failed to send email verification email.')
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     return {
       success: false,
       message: e.message,
@@ -238,12 +240,12 @@ action customSignup {
 
 ```js title="src/auth/signup.js"
 import {
+  createProviderId,
+  createUser,
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidUsername,
-  createProviderId,
   sanitizeAndSerializeProviderData,
-  createUser,
 } from 'wasp/server/auth'
 
 export const signup = async (args, _context) => {
@@ -293,12 +295,12 @@ action customSignup {
 
 ```ts title="src/auth/signup.ts"
 import {
+  createProviderId,
+  createUser,
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidUsername,
-  createProviderId,
   sanitizeAndSerializeProviderData,
-  createUser,
 } from 'wasp/server/auth'
 import type { CustomSignup } from 'wasp/server/operations'
 
@@ -331,7 +333,7 @@ export const signup: CustomSignup<
       // Any additional data you want to store on the User entity
       {}
     )
-  } catch (e) {
+  } catch (e: any) {
     return {
       success: false,
       message: e.message,
