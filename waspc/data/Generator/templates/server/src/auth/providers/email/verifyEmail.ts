@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
+import { validateJWT } from 'wasp/auth/jwt';
 import {
-    createProviderId,
-    findAuthIdentity,
-    updateAuthIdentityProviderData,
-    getProviderDataWithPassword,
+  createProviderId,
+  findAuthIdentity,
+  getProviderDataWithPassword,
+  updateAuthIdentityProviderData,
 } from 'wasp/auth/utils';
-import { validateJWT } from 'wasp/auth/jwt'
 import { HttpError } from 'wasp/server';
+import { onAfterEmailVerifiedHook } from '../../hooks.js';
 
 
 export async function verifyEmail(
@@ -30,6 +31,7 @@ export async function verifyEmail(
     await updateAuthIdentityProviderData(providerId, providerData, {
         isEmailVerified: true,
     });
+    await onAfterEmailVerifiedHook({ req, email })
 
     return res.json({ success: true });
 };

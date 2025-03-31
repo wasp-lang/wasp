@@ -173,6 +173,7 @@ spec_AppSpecValid = do
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
                                     AS.Auth.onAfterSignup = Nothing,
+                                    AS.Auth.onAfterEmailVerified = Nothing,
                                     AS.Auth.onBeforeOAuthRedirect = Nothing,
                                     AS.Auth.onBeforeLogin = Nothing,
                                     AS.Auth.onAfterLogin = Nothing

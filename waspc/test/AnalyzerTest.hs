@@ -152,6 +152,7 @@ spec_Analyzer = do
                             Auth.onAuthSucceededRedirectTo = Nothing,
                             Auth.onBeforeSignup = Nothing,
                             Auth.onAfterSignup = Nothing,
+                            Auth.onAfterEmailVerified = Nothing,
                             Auth.onBeforeOAuthRedirect = Nothing,
                             Auth.onBeforeLogin = Nothing,
                             Auth.onAfterLogin = Nothing

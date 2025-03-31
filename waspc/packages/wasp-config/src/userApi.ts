@@ -1,7 +1,7 @@
 /** This module defines the user-facing API for defining a Wasp app.
  */
-import * as AppSpec from './appSpec.js'
-import { GET_USER_SPEC } from './_private.js'
+import { GET_USER_SPEC } from './_private.js';
+import * as AppSpec from './appSpec.js';
 
 export class App {
   #userSpec: UserSpec;
@@ -222,6 +222,7 @@ export type AuthConfig = {
   onAuthSucceededRedirectTo?: string
   onBeforeSignup?: ExtImport
   onAfterSignup?: ExtImport
+  onAfterEmailVerified?: ExtImport
   onBeforeOAuthRedirect?: ExtImport
   onBeforeLogin?: ExtImport
   onAfterLogin?: ExtImport
