@@ -14,16 +14,15 @@ const faqs = [
         <br />
         <br />
         The main difference between Wasp and the solutions listed above is that
-        Wasp is a trully full-stack framework, meaning it brings both back-end
-        and database next to front-end. You can think of it as Ruby on Rails,
-        but made for JS (React & Node.js) and full-stack.
+        Wasp is a truly full-stack framework, meaning it brings both back-end
+        and database next to the front-end. You can think of it as Ruby on
+        Rails, but made for JS (React & Node.js) and full-stack.
         <br />
         <br />
         Next.js, Gatsby and others started out as frontend frameworks for static
         sites. Although some of them now offer an option to use serverless
         functions, you still have to bring your own database and you'll also
-        need some kind of a server/backend if you'll need to run more complex
-        operations.
+        need some server/backend if you need to run more complex operations.
       </p>
     ),
   },
@@ -40,12 +39,12 @@ const faqs = [
         <br />
         Ruby on Rails and Django both fall in the category of full-stack web
         frameworks - they allow you to write backend/server code and also
-        generate html/css that gets sent to the client.
+        generate HTML/CSS that gets sent to the client.
         <br />
         <br />
         The main reason why they are often today not used as a standalone
         solution, but rather as an API server combined with frontend libraries
-        such as React & Vue, is to add support for the client side manipulation
+        such as React & Vue, is to add support for the client-side manipulation
         of DOM. That’s especially important for web applications with a lot of
         dynamic content (e.g. dashboards) where you want “smooth” experience of
         a desktop app. Imagine expanding a post on Twitter or moving a Trello
@@ -53,11 +52,11 @@ const faqs = [
         React or Vue.
         <br />
         <br />
-        Wasp supports this behaviour out-of-the-box, along with all the best
-        practices. One of the biggest time savers is automatic sharing of data
-        models between the database, frontend and the client - with RoR of
-        Django you’d typically have implement a custom API (e.g. rest or
-        graphql), while with Wasp you can skip that step in entirety.
+        Wasp supports this behavior out of the box, along with all the best
+        practices. One of the biggest time savers is the automatic sharing of
+        data models between the database, frontend and the client - with RoR of
+        Django you’d typically have to implement a custom API (e.g. REST or
+        GraphQL), while with Wasp you can skip that step in its entirety.
       </p>
     ),
   },
@@ -66,10 +65,10 @@ const faqs = [
     answer: (
       <p>
         We measured! <strong>It takes about 30 minutes to get going</strong>,
-        and most users find it pretty straight-forward. Since the majority of
-        your coding will still be done in the tools you're familiar with
-        (currently React & Node.js), it's really a marginal change to what
-        you're used to.
+        and most users find it pretty straightforward. Since the majority of
+        your coding will still be done with the tools you're familiar with
+        (currently React & Node.js), it's a marginal change to what you're used
+        to.
         <br />
         <br />
         The reason for that is that Wasp is a really simple configuration
