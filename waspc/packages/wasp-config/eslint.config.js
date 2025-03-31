@@ -1,5 +1,5 @@
-import globals from 'globals'
 import pluginJs from '@eslint/js'
+import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default [
@@ -16,7 +16,18 @@ export default [
   },
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
       '@typescript-eslint/no-empty-function': 'warn',
       'no-empty': 'warn',
       'no-constant-condition': 'warn',
