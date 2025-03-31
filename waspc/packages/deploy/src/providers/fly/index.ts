@@ -25,7 +25,7 @@ class FlyCommand extends Command {
     return this.option(
       '--build-locally',
       'build Docker containers locally instead of remotely',
-      false
+      false,
     );
   }
   addSecretsOptions(): this {
@@ -36,12 +36,12 @@ class FlyCommand extends Command {
       '--server-secret <serverSecret>',
       'secret to set on the server app (of form FOO=BAR)',
       collect,
-      []
+      [],
     ).option(
       '--client-secret <clientSecret>',
       'secret to set on the client app (of form FOO=BAR)',
       collect,
-      []
+      [],
     );
   }
 }
@@ -76,12 +76,12 @@ export function addFlyCommand(program: Command): void {
       .addOption(
         new Option('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)')
           .hideHelp()
-          .makeOptionMandatory()
+          .makeOptionMandatory(),
       )
       .addOption(
         new Option('--wasp-project-dir <dir>', 'absolute path to Wasp project dir')
           .hideHelp()
-          .makeOptionMandatory()
+          .makeOptionMandatory(),
       )
       .option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
       .option('--org <org>', 'Fly org to use (with commands that support it)')
@@ -92,13 +92,13 @@ export function addFlyCommand(program: Command): void {
 
   // Add command-specific hooks.
   flyLaunchCommand.hook('preAction', (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[1])
+    ensureRegionIsValid(actionCommand.args[1]),
   );
   flySetupCommand.hook('preAction', (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[1])
+    ensureRegionIsValid(actionCommand.args[1]),
   );
   createFlyDbCommand.hook('preAction', (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[0])
+    ensureRegionIsValid(actionCommand.args[0]),
   );
 }
 
@@ -139,7 +139,7 @@ function makeExecuteFlyCommand(): Command {
     .addOption(
       new Option('--context <context>', 'client or server context')
         .choices(Object.values(ContextOption))
-        .makeOptionMandatory()
+        .makeOptionMandatory(),
     )
     .action(cmdFn)
     .allowUnknownOption();

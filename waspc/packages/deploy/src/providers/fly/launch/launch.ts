@@ -15,14 +15,14 @@ import { waspSays, getCommandHelp } from '../../../helpers.js';
 export async function launch(
   basename: string,
   region: string,
-  options: LaunchOptions
+  options: LaunchOptions,
 ): Promise<void> {
   waspSays('Launching your Wasp app to Fly.io!');
 
   const tomlFilePaths = getTomlFilePaths(options);
   if (serverTomlExistsInProject(tomlFilePaths) || clientTomlExistsInProject(tomlFilePaths)) {
     waspSays(
-      'You already have Fly toml files. The launch command is intended to be run one time on a new Fly project. Please try a different command.'
+      'You already have Fly toml files. The launch command is intended to be run one time on a new Fly project. Please try a different command.',
     );
     exit(1);
   }
@@ -32,8 +32,8 @@ export async function launch(
   } catch (e) {
     waspSays(
       `There was an error running "${getCommandHelp(
-        flySetupCommand
-      )}". Please review the error and try again (if appropriate).`
+        flySetupCommand,
+      )}". Please review the error and try again (if appropriate).`,
     );
     exit(1);
   }
@@ -43,8 +43,8 @@ export async function launch(
   } catch (e) {
     waspSays(
       `There was an error running "${getCommandHelp(
-        createFlyDbCommand
-      )}". Please review the error and try again (if appropriate).`
+        createFlyDbCommand,
+      )}". Please review the error and try again (if appropriate).`,
     );
     exit(1);
   }
@@ -55,8 +55,8 @@ export async function launch(
   } catch (e) {
     waspSays(
       `There was an error running "${getCommandHelp(
-        flyDeployCommand
-      )}". Please review the error and try again (if appropriate).`
+        flyDeployCommand,
+      )}". Please review the error and try again (if appropriate).`,
     );
     exit(1);
   }

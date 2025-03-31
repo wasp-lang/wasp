@@ -46,8 +46,8 @@ export async function deploy(options: DeployOptions): Promise<void> {
       `${
         tomlFilePaths.serverTomlPath
       } missing. Skipping server deploy. Perhaps you need to run "${getCommandHelp(
-        flySetupCommand
-      )}" first?`
+        flySetupCommand,
+      )}" first?`,
     );
   } else if (options.skipServer) {
     waspSays('Skipping server deploy due to CLI option.');
@@ -57,7 +57,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
       inferredBaseName,
       undefined,
       options,
-      tomlFilePaths
+      tomlFilePaths,
     );
     await buildWasp();
     await deployServer(deploymentInfo, options);
@@ -68,8 +68,8 @@ export async function deploy(options: DeployOptions): Promise<void> {
       `${
         tomlFilePaths.clientTomlPath
       } missing. Skipping client deploy. Perhaps you need to run "${getCommandHelp(
-        flySetupCommand
-      )}" first?`
+        flySetupCommand,
+      )}" first?`,
     );
   } else if (options.skipClient) {
     waspSays('Skipping client deploy due to CLI option.');
@@ -79,7 +79,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
       inferredBaseName,
       undefined,
       options,
-      tomlFilePaths
+      tomlFilePaths,
     );
     await buildWasp();
     await deployClient(deploymentInfo, options);
@@ -88,7 +88,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 
 async function deployServer(
   deploymentInfo: DeploymentInfo<DeployOptions>,
-  { buildLocally }: DeployOptions
+  { buildLocally }: DeployOptions,
 ) {
   waspSays('Deploying your server now...');
 
@@ -100,7 +100,7 @@ async function deployServer(
     const databaseUrlSet = await secretExists('DATABASE_URL');
     if (!databaseUrlSet) {
       waspSays(
-        'Your server app does not have a DATABASE_URL secret set. Perhaps you need to create or attach your database?'
+        'Your server app does not have a DATABASE_URL secret set. Perhaps you need to create or attach your database?',
       );
       exit(1);
     }
@@ -122,7 +122,7 @@ async function deployServer(
 
 async function deployClient(
   deploymentInfo: DeploymentInfo<DeployOptions>,
-  { buildLocally }: DeployOptions
+  { buildLocally }: DeployOptions,
 ) {
   waspSays('Deploying your client now...');
 
@@ -131,7 +131,7 @@ async function deployClient(
 
   waspSays('Building web client for production...');
   waspSays(
-    'If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy fly deploy'
+    'If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy fly deploy',
   );
 
   const serverUrl = process.env.REACT_APP_API_URL

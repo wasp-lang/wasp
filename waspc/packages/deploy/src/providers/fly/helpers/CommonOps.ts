@@ -26,7 +26,7 @@ export enum ContextOption {
 export function getCommonOps(
   context: ContextOption,
   waspProjectDir: string,
-  paths: TomlFilePaths
+  paths: TomlFilePaths,
 ): CommonOps {
   const commonOps: Record<ContextOption, CommonOps> = {
     [ContextOption.Client]: createClientCommonOps(waspProjectDir, paths),

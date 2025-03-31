@@ -37,7 +37,7 @@ async function ensureUserLoggedIn(): Promise<void> {
     await $`flyctl auth login`;
   } catch {
     waspSays(
-      'It seems there was a problem logging in. Please run "flyctl auth login" and try again.'
+      'It seems there was a problem logging in. Please run "flyctl auth login" and try again.',
     );
     exit(1);
   }
@@ -58,13 +58,13 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
     const validRegion = await regionExists(region);
     if (!validRegion) {
       waspSays(
-        `Invalid region code ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`
+        `Invalid region code ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`,
       );
       waspSays(
         `You can also run "${getCommandHelp(executeFlyCommand).replace(
           '<cmd...>',
-          'platform regions --context server'
-        )}".`
+          'platform regions --context server',
+        )}".`,
       );
       exit(1);
     }

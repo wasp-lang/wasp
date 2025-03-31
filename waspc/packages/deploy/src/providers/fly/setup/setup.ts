@@ -29,7 +29,7 @@ const clientAppPort = 8043;
 export async function setup(
   baseName: string,
   region: string,
-  options: SetupOptions
+  options: SetupOptions,
 ): Promise<void> {
   waspSays('Setting up your Wasp app with Fly.io!');
 
@@ -57,7 +57,7 @@ export async function setup(
   }
 
   waspSays(
-    `Don't forget to create your database by running "${getCommandHelp(createFlyDbCommand)}".`
+    `Don't forget to create your database by running "${getCommandHelp(createFlyDbCommand)}".`,
   );
 }
 
@@ -81,7 +81,7 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
   if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
     await question(`\n⚠️  There was a possible issue setting up your server app.
 We tried modifying your server fly.toml to set ${boldText(
-      'min_machines_running = 1'
+      'min_machines_running = 1',
     )}, but couldn't find the option ${boldText('min_machines_running')} in the fly.toml.
 
 We advise that you additionaly check what is the value for "minimal number of machines running" on Fly
@@ -102,7 +102,7 @@ Press any key to continue or Ctrl+C to cancel.`);
   if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
     await question(`\n⚠️  There was an issue setting up your server app.
 We tried modifying your server fly.toml to set ${boldText(
-      `internal_port = ${serverAppPort}`
+      `internal_port = ${serverAppPort}`,
     )}, but couldn't find the option ${boldText('internal_port')} in the fly.toml.
 
 This means your server app might not be accessible.
@@ -157,7 +157,7 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
   if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
     await question(`\n⚠️  There was an issue setting up your client app.
 We tried modifying your client fly.toml to set ${boldText(
-      `internal_port = ${clientAppPort}`
+      `internal_port = ${clientAppPort}`,
     )}, but couldn't find the option ${boldText('internal_port')} in the fly.toml.
 
 This means your client app might not be accessible.

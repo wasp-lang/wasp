@@ -20,8 +20,8 @@ export async function createDb(region: string, options: CreateDbOptions): Promis
       `${
         tomlFilePaths.serverTomlPath
       } missing. Skipping DB creation. Perhaps you need to run "${getCommandHelp(
-        flySetupCommand
-      )}" first?`
+        flySetupCommand,
+      )}" first?`,
     );
     exit(1);
   }
@@ -52,7 +52,7 @@ export async function createDb(region: string, options: CreateDbOptions): Promis
   await $`flyctl postgres attach ${deploymentInfo.dbName} -a ${deploymentInfo.serverName}`;
 
   await question(
-    'Please take note of your database credentials above, as they will not be available in plaintext again. Press any key to continue.'
+    'Please take note of your database credentials above, as they will not be available in plaintext again. Press any key to continue.',
   );
 
   waspSays(`Don't forget to deploy your app by running "${getCommandHelp(flyDeployCommand)}".`);
