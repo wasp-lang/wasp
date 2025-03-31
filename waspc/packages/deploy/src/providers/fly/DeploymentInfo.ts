@@ -17,7 +17,7 @@ export function createDeploymentInfo<CommandOptions extends CommonOptions>(
   baseName: string,
   region: string | undefined,
   options: CommandOptions,
-  tomlFilePaths: TomlFilePaths
+  tomlFilePaths: TomlFilePaths,
 ): DeploymentInfo<CommandOptions> {
   return Object.freeze({
     baseName,

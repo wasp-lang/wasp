@@ -10,7 +10,7 @@ export function isYes(str: string): boolean {
 
 export function ensureWaspDirLooksRight(thisCommand: Command): void {
   const dirContainsWasproot = fs.existsSync(
-    path.join(thisCommand.opts().waspProjectDir, '.wasproot')
+    path.join(thisCommand.opts().waspProjectDir, '.wasproot'),
   );
   if (dirContainsWasproot) {
     return;
