@@ -68,9 +68,10 @@ checkInstalledVersionIsNewerThanOldestSupported commandName oldestSupportedVersi
   getInstalledVersion >>= \case
     Left errorMsg -> return $ VersionCheckFail errorMsg
     Right userVersion ->
-      if SV.isVersionInRange userVersion $ SV.Range [SV.gte oldestSupportedVersion]
-        then return VersionCheckSuccess
-        else return $ VersionCheckFail $ versionMismatchErrorMessage userVersion
+      return $
+        if SV.isVersionInRange userVersion $ SV.Range [SV.gte oldestSupportedVersion]
+          then VersionCheckSuccess
+          else VersionCheckFail $ versionMismatchErrorMessage userVersion
   where
     versionMismatchErrorMessage :: SV.Version -> ErrorMessage
     versionMismatchErrorMessage userVersion =
@@ -85,9 +86,10 @@ parseVersionFromCommandOutput commandName args = do
     catchIOError
       (Right <$> P.readProcessWithExitCode commandName args "")
       ( \e ->
-          if isDoesNotExistError e
-            then return $ Left commandNotFoundErrorMessage
-            else return $ Left $ unkownErrorErrorMessage e
+          return . Left $
+            if isDoesNotExistError e
+              then commandNotFoundErrorMessage
+              else unkownErrorErrorMessage e
       )
   return $ case result of
     Left processError ->
