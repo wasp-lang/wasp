@@ -76,13 +76,10 @@ Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
 ./run build:all
 ```
 
-to build the whole `waspc` project for the first time.
+to build the whole `waspc` project.
 
 This might take a while (10 mins) if you are doing it for the very first time, due to downloading dependencies for the first time.
 If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" :D.
-
-> [!NOTE]
-> You may need to run `cabal update` if it has been some time since your last `cabal update`.
 
 > [!NOTE]
 > If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS).
@@ -96,12 +93,9 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ./run test
 ```
 
-to ensure all the tests (unit, e2e, ...) are passing (this will also build the project first, if needed).
+to ensure all the tests (unit, e2e, ...) are passing.
 
 ### Executable
-
-TODO: Should we rename `run wasp-cli` to `run wasp`? And should we in general rename `wasp-cli` to `wasp` or `wasp-dev`? Having a different name does help when installing dev version globally.
-TODO: Should I also adjust the CI to use the `run` script more? Probably!
 
 ```
 ./run wasp-cli [wasp-cli-args]
@@ -109,7 +103,11 @@ TODO: Should I also adjust the CI to use the `run` script more? Probably!
 
 to run the `wasp-cli` executable (that you previously built with `./run build:all`)!
 
-Tip: run `./run wasp-cli` to print the help/usage.
+Run `./run wasp-cli` to print the help/usage.
+
+Note that the executable during development is named `wasp-cli`, unlike `wasp` which is how it is named when you install a public release of Wasp via official installation method.
+This is to make it easier to differentiate between the development version of wasp CLI and the released version.
+
 
 ### Running the example app
 
@@ -133,28 +131,22 @@ When done, new tab in your browser should open and you will see a Todo App!
 
 ## Typical development workflow
 
-TODO: I stopped here, I should continue from here.
-
 1. Create a new feature branch from `main`.
-2. If you don't have a good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project instead: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
+2. If you don't have a good/reliable working HLS (Haskell Language Server) connected to your IDE (which we strongly recommend), you will want to instead run `./run ghcid` from the root of the project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-3. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details).
-4. Run `./run test` to confirm that the project's unit and integration tests are passing (both new and old).
-5. For easily testing the changes you did on a Wasp app, you have `examples/todoApp`, which we always keep updated. Also, if you added a new feature, add it to this app. Check its README for more details (including how to run it).
-6. There is also `headless-test/examples/todoApp`, that comes equipped with Playwright tests. This one is not so much for experimenting as `examples/todoApp` is, but more for running Playwright tests in the CI. Make sure this one is also passing, and add a new feature to it (+ tests) if needed. We will be merging this one with `examples/todoApp` in the future so it is a single app.
-7. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
+4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, run `./run build:all` to at the same time build Haskell, TS and any other piece of the project in one command.
+5. Run `./run test` to confirm that all the tests (unit + integration + e2e) are passing. If needed, accept changes in the e2e golden/snapshot tests with `./run test:e2e:accept-all`. Check "Tests" for more info.
+6. For easily testing the changes you did on a Wasp app, you have `examples/todoApp`, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
+7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check instructions on it later in this file.
 8. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR.
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
 10. Work with reviewer(s) to get the PR approved.
     Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
 11. Reviewer will merge the branch into `main`. Yay!
-
-NOTE: Why don't we use a cabal freeze file to lock our dependencies?
-In order to better support a wider range of developer operating systems, we have decided against using a cabal freeze file and instead use cabal's `index-state` feature to get package version pinning from hackage. See this question for more: https://github.com/haskell/cabal/issues/8059
 
 ## Design docs (aka RFCs)
 
@@ -172,7 +164,7 @@ Wasp is implemented in Haskell.
 Codebase is split into library (`src/`) and CLI (which itself has a library `cli/src/` and thin executable wrapper `cli/exe/`).
 CLI is actually `wasp` executable, and it uses the library, where most of the logic is.
 
-Wasp compiler takes .wasp files + everything in the `ext/` dir (JS, HTML, ...) and generates a web app that consists of client, server and database.
+Wasp compiler takes .wasp files + everything in the `src/` dir (JS, HTML, ...) and generates a web app that consists of client, server and database.
 
 Wasp compiler code is split into 2 basic layers: Analyzer (frontend) and Generator (backend).
 
@@ -209,18 +201,6 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - data/Generator/templates/ -> mustache templates for the generated client/server.
 - examples/ -> example apps
 
-## Building / development (detailed)
-
-Some useful cabal commands:
-
-- `cabal update` to update your package information.
-- `cabal build` to build the project, including `wasp` binary which is both CLI and compiler in one.
-- `cabal run wasp-cli <arguments>` to run the `wasp` binary that was previously built.
-- `cabal test` to build the whole project + tests and then also run tests.
-- `cabal install` -> builds the project and places the binary so it is in PATH (so you can call it directly, from anywhere, with just `wasp`).
-
-For live compilation and error checking of your code we recommend using Haskell Language Server (hls) via your IDE, but if that is not working as it should, then safe fallback is always `ghcid`. You can install `ghcid` globally with `cabal install ghcid` and then just type `ghcid` when in the project -> it will watch for any file changes and report errors.
-
 ### Typescript packages
 
 TODO: I am looking at `install_packages_to_data_dir.sh` and I don't understand why we do that copying -> why aren't these packages just in `data_dir` from the start? Maybe because we want to make sure `node_modules` for each package are also not in there? But isn't there a better way to do this, maybe just by excluding `node_modules`? Then we don't have to do the whole building and copying and stuff, we actually don't have to do anything then.
@@ -234,7 +214,7 @@ To do so in development, run `./run build:packages` when any changes are made to
 
 ## Tests
 
-For tests we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
+For tests in Haskell we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
 
 In Tasty, there is a main test file that is run when test suite is run. In that file we need to manually compose test tree out of tests that we wrote. We organize tests in test groups, which are then recursively grouped resulting in a test tree.
 Cool thing is that we can organize tests this way however we want and also mix different type of tests (hspec, quickcheck, and whatever else we want).
@@ -263,14 +243,14 @@ All tests go into `test/` directory.
 This is convention for Haskell, opposite to mixing them with source code as in Javascript for example.
 Not only that, but Haskell build tools don't have a good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
 
-Tests are run with `cabal test`. They include both unit tests, and end-to-end tests of basic CLI commands.
+Tests are run with `./run test`. They include both unit tests, and end-to-end tests of basic CLI commands.
 
-To run unit tests only, you can do `cabal test waspc-test` (or `./run test:unit`).
-To run individual unit test, you can do `cabal test waspc-test --test-options "-p \"Some test description to match\""` (or just `./run test:unit "Some test description to match"`).
+To run unit tests only, you can do `./run test:unit`.
+To run individual unit test, you can do `./run test:unit "Some test description to match"`.
 
-To run cli tests only, you can do `cabal test cli-test` (or `./run test:cli`).
+To run cli tests only, you can do `./run test:cli`.
 
-To run end-to-end tests only, you can do `cabal test e2e-test` (or `/run test:e2e`).
+To run end-to-end tests only, you can do `/run test:e2e`.
 
 ### End-to-end (e2e) tests
 
@@ -289,7 +269,7 @@ Instead of doing this manually, you can also use convenient command from the `./
 
 ## Code analysis
 
-To run the code analysis, run:
+To run the Haskell code analysis, run:
 
 ```
 ./run code-check
@@ -298,6 +278,7 @@ To run the code analysis, run:
 This will check if code is correctly formatted, if it satisfies linter, and if it passes static analysis.
 
 These same checks are required to pass the CI, so make sure this is passing before making a PR.
+
 TODO: For now we check only the code formatting during the CI. In the future, once we make sure all the warnings are passing,
 we will also check linter and static analysis during the CI, but that is not happening yet.
 
@@ -354,9 +335,6 @@ This will build the codebase, run stan on it (while installing it first, if need
 NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
 The subsequent runs will be much faster.
 
-## Commit message conventions
-
-We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
 
 ## Branching and merging strategy
 
@@ -435,7 +413,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 
 #### Determining next version
 
-`waspc` follows typical SemVer versioning scheme, so ` major.minor.patch`.
+`waspc` follows typical SemVer versioning scheme, so `major.minor.patch`.
 There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
 So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
 
@@ -454,15 +432,24 @@ If doing this, steps are the following:
 
 External documentation, for users of Wasp, is hosted at https://wasp.sh/docs, and its source is available at [web/docs](/web/docs), next to the website and blog.
 
+
 ## Mage
 
 Wasp's magic GPT web app generator aka Wasp AI aka Mage is hosted at https://usemage.ai and its source is available at [mage](/mage).
 
 Make sure to update it when changes modify how Wasp works.
 
+
 ## Haskell
 
 We are documenting best practices related to Haskell in our [Haskell Handbook](https://github.com/wasp-lang/haskell-handbook).
+
+### Cabal dep freezing
+
+Why don't we use a cabal freeze file to lock our dependencies?
+
+In order to better support a wider range of developer operating systems, we have decided against using a cabal freeze file and instead use cabal's `index-state` feature to get package version pinning from hackage. See this question for more: https://github.com/haskell/cabal/issues/8059 .
+
 
 ## Code style guide
 
