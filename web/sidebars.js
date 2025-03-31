@@ -91,6 +91,12 @@ module.exports = {
         },
         'auth/entities/entities',
         'auth/auth-hooks',
+        {
+          type: 'category',
+          label: 'Advanced',
+          collapsed: true,
+          items: ['auth/advanced/custom-auth-actions'],
+        },
       ],
     },
     {

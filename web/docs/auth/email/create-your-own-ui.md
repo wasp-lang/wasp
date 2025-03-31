@@ -2,18 +2,149 @@
 title: Create your own UI
 ---
 
-The login and signup flows are pretty standard: they allow the user to sign up and then log in with their username and password. The signup flow validates the username and password and then creates a new user entity in the database.
+The login and signup flows are pretty standard: they allow the user to sign up and then log in with their email and password. The signup flow validates the email and password and sends a verification email. When the user confirms their email, it creates a new user entity in the database.
 
-Read more about the default username and password validation rules in the [auth overview docs](../../auth/overview.md#default-validations).
+Read more about the default email and password validation rules in the [auth overview docs](../overview.md#default-validations).
 
-If you require more control in your authentication flow, you can achieve that in the following ways:
+## Example code
 
-1. Create your UI and use `signup` and `login` actions.
-1. Create your custom sign-up action which uses the lower-level API, along with your custom code.
+### Sign-up
 
-### 1. Using the `signup` and `login` actions
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
-#### `login()`
+```jsx title="src/pages/auth.jsx"
+import { signup, login } from 'wasp/client/auth'
+
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+
+export function Signup() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+  const navigate = useNavigate()
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+    try {
+      await signup({
+        email,
+        password,
+      })
+      await login(email, password)
+      navigate('/')
+    } catch (error) {
+      setError(error)
+    }
+  }
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/pages/auth.tsx"
+import { signup, login } from 'wasp/client/auth'
+
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+
+export function Signup() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<Error | null>(null)
+  const navigate = useNavigate()
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    try {
+      await signup({
+        email,
+        password,
+      })
+      await login(email, password)
+      navigate('/')
+    } catch (error: unknown) {
+      setError(error as Error)
+    }
+  }
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Login
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```jsx title="src/pages/auth.jsx"
+import { login } from 'wasp/client/auth'
+
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+
+export function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+  const navigate = useNavigate()
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+    try {
+      await login(email, password)
+      navigate('/')
+    } catch (error) {
+      setError(error)
+    }
+  }
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```tsx title="src/pages/auth.tsx"
+import { login } from 'wasp/client/auth'
+
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+
+export function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<Error | null>(null)
+  const navigate = useNavigate()
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    try {
+      await login(email, password)
+      navigate('/')
+    } catch (error: unknown) {
+      setError(error as Error)
+    }
+  }
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Reference
+
+### `login()`
 
 An action for logging in the user.
 
@@ -27,74 +158,12 @@ Email of the user logging in.
 
 Password of the user logging in.
 
-You can use it like this:
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/pages/auth.jsx"
-import { login } from 'wasp/client/auth'
-
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-
-export function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event) {
-    event.preventDefault()
-    try {
-      await login(email, password)
-      navigate('/')
-    } catch (error) {
-      setError(error)
-    }
-  }
-
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/pages/auth.tsx"
-import { login } from 'wasp/client/auth'
-
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-
-export function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    try {
-      await login(email, password)
-      navigate('/')
-    } catch (error: unknown) {
-      setError(error as Error)
-    }
-  }
-
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
-
-</TabItem>
-</Tabs>
 
 :::note
 When using the exposed `login()` function, make sure to implement your redirect on success login logic (e.g. redirecting to home).
 :::
 
-#### `signup()`
+### `signup()`
 
 An action for signing up the user. This action does not log in the user, you still need to call `login()`.
 
@@ -108,226 +177,7 @@ It takes one argument:
 
   - `password: string` <Required />
 
-  :::info
-  By default, Wasp will only save the `email` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](../auth/overview#customizing-the-signup-process).
-  :::
-
-You can use it like this:
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/pages/auth.jsx"
-import { signup, login } from 'wasp/client/auth'
-
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-
-export function Signup() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event) {
-    event.preventDefault()
-    try {
-      await signup({
-        email,
-        password,
-      })
-      await login(email, password)
-      navigate('/')
-    } catch (error) {
-      setError(error)
-    }
-  }
-
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/pages/auth.tsx"
-import { signup, login } from 'wasp/client/auth'
-
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-
-export function Signup() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    try {
-      await signup({
-        email,
-        password,
-      })
-      await login(email, password)
-      navigate('/')
-    } catch (error: unknown) {
-      setError(error as Error)
-    }
-  }
-
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
-
-</TabItem>
-</Tabs>
-
-### 2. Creating your custom sign-up action
-
-The code of your custom sign-up action can look like this:
-
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title="main.wasp"
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup.js",
-}
-```
-
-```js title="src/auth/signup.js"
-import {
-  ensurePasswordIsPresent,
-  ensureValidPassword,
-  ensureValidEmail,
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  createUser,
-} from 'wasp/server/auth'
-
-export const signup = async (args, _context) => {
-  ensureValidEmail(args)
-  ensurePasswordIsPresent(args)
-  ensureValidPassword(args)
-
-  try {
-    const providerId = createProviderId('email', args.email)
-    const providerData = await sanitizeAndSerializeProviderData({
-      hashedPassword: args.password,
-    })
-
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
-  } catch (e) {
-    return {
-      success: false,
-      message: e.message,
-    }
-  }
-
-  // Your custom code after sign-up.
-  // ...
-
-  return {
-    success: true,
-    message: 'User created successfully',
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup",
-}
-```
-
-```ts title="src/auth/signup.ts"
-import {
-  ensurePasswordIsPresent,
-  ensureValidPassword,
-  ensureValidEmail,
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  createUser,
-} from 'wasp/server/auth'
-import type { CustomSignup } from 'wasp/server/operations'
-
-type CustomSignupInput = {
-  email: string
-  password: string
-}
-type CustomSignupOutput = {
-  success: boolean
-  message: string
-}
-
-export const signup: CustomSignup<
-  CustomSignupInput,
-  CustomSignupOutput
-> = async (args, _context) => {
-  ensureValidEmail(args)
-  ensurePasswordIsPresent(args)
-  ensureValidPassword(args)
-
-  try {
-    const providerId = createProviderId('email', args.email)
-    const providerData = await sanitizeAndSerializeProviderData<'email'>({
-      hashedPassword: args.password,
-    })
-
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
-  } catch (e) {
-    return {
-      success: false,
-      message: e.message,
-    }
-  }
-
-  // Your custom code after sign-up.
-  // ...
-
-  return {
-    success: true,
-    message: 'User created successfully',
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
-We suggest using the built-in field validators for your authentication flow. You can import them from `wasp/server/auth`. These are the same validators that Wasp uses internally for the default authentication flow.
-
-#### Email
-
-- `ensureValidEmail(args)`
-
-  Checks if the email is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
-
-#### Password
-
-- `ensurePasswordIsPresent(args)`
-
-  Checks if the password is present and throws an error if it's not.
-
-- `ensureValidPassword(args)`
-
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../auth/overview#default-validations).
+:::info
+By default, Wasp will only save the `email` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](../overview.md#customizing-the-signup-process).
+:::
 

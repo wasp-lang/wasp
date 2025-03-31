@@ -12,7 +12,7 @@ Below we cover all of the available UI components and how to use them.
 
 :::note
 
-Remember that if you need a more custom approach, you can always [create your own UI](./overview.md#available-auth-ui).
+Remember that if you need a more custom approach, you can always [create your own UI](./overview.md#custom-auth-ui).
 
 :::
 

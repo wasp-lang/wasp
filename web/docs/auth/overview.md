@@ -88,7 +88,7 @@ We will also have access to the `user` object in our frontend code, so we can sh
 
 ## Available auth UI
 
-When you have decided which auth method you want to support, you can also choose how you want to present it to your users.
+When you have decided which auth methods you want to support, you can also choose how you want to present the authorization flows to your users.
 
 #### Generated components
 
@@ -104,7 +104,7 @@ You don't need to implement any UI or logic, and they just work.
   ]}
 />
 
-#### Make your own
+#### Make your own {#custom-auth-ui}
 
 Wasp is flexible enough to let you completely customize your login and signup flows.
 We give you the login and signup functions, and you decide how and when to call them.
@@ -505,9 +505,9 @@ export const updatePassword: UpdatePassword<
 
 ### Default Validations
 
-When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](./ui) or if you use the provided auth actions.
+When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](./ui.md) or if you use the provided auth actions.
 
-If you decide to create your [custom auth actions](./username-and-pass#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
+If you decide to create your [custom auth actions](./username-and-pass.md#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
 
 Default validations depend on the auth method you use.
 
@@ -522,7 +522,7 @@ Note that `username`s are stored in a **case-insensitive** manner.
 
 #### Email
 
-If you use [Email](./auth-ui) authentication, the default validations are:
+If you use [Email](./email.md) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -536,7 +536,7 @@ Sometimes you want to include **extra fields** in your signup process, like firs
 For this to happen:
 
 - you need to define the fields that you want saved in the database,
-- you need to customize the `SignupForm` (in the case of [Email](./auth-ui) or [Username & Password](./username-and-pass) auth)
+- you need to customize the `SignupForm` (in the case of [Email](./email.md) or [Username & Password](./username-and-pass.md) auth)
 
 
 Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
@@ -734,8 +734,8 @@ If you are not using Wasp's Auth UI, you can skip this section. Just make sure t
 
 Read more about using the signup actions for:
 
-- email auth [here](./auth-ui#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
-- username & password auth [here](../auth/username-and-pass#customizing-the-auth-flow)
+- [Email auth](./email/create-your-own-ui.md)
+- [Username & password auth](./username-and-pass/create-your-own-ui.md)
 :::
 
 If you are using Wasp's Auth UI, you can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
