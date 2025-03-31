@@ -59,7 +59,7 @@ query getTasks {
 ```
 
 :::note
-If you're using TypeScript, don't forget to run `wasp start` to generate the types used in the next section.
+To generate the types used in the next section, make sure that `wasp start` is still running.
 :::
 
 </TabItem>
