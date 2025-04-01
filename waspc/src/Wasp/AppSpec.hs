@@ -56,7 +56,7 @@ import qualified Wasp.SemanticVersion as SV
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
--- It is standalone and de-coupled from other parts of the compiler and knows nothing about them,
+-- It is standalone and decoupled from other parts of the compiler and knows nothing about them,
 -- instead other parts are using it: Analyzer produces AppSpec while Generator consumes it.
 --
 -- IMPORTANT: Do not change this data structure without updating the AppSpec in
