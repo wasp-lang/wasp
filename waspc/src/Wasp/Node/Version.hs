@@ -1,6 +1,6 @@
 module Wasp.Node.Version
   ( VersionCheckResult (..),
-    oldestWaspSupportedNPMVersion,
+    oldestWaspSupportedNpmVersion,
     oldestWaspSupportedNodeVersion,
     isRangeInWaspSupportedRange,
     getAndCheckUserNodeAndNpmVersion,
@@ -25,8 +25,8 @@ import Wasp.Util (indent)
 oldestWaspSupportedNodeVersion :: SV.Version
 oldestWaspSupportedNodeVersion = SV.Version 20 0 0
 
-oldestWaspSupportedNPMVersion :: SV.Version
-oldestWaspSupportedNPMVersion = SV.Version 9 6 0
+oldestWaspSupportedNpmVersion :: SV.Version
+oldestWaspSupportedNpmVersion = SV.Version 9 6 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =
@@ -45,23 +45,23 @@ type ErrorMessage = String
 getAndCheckUserNodeAndNpmVersion :: IO VersionCheckResult
 getAndCheckUserNodeAndNpmVersion = do
   nodeVersion <- getAndCheckUserNodeVersion
-  npmVersion <- getAndCheckUserNPMVersion
+  npmVersion <- getAndCheckUserNpmVersion
   return $ case (nodeVersion, npmVersion) of
     (VersionCheckSuccess, VersionCheckSuccess) -> VersionCheckSuccess
     (VersionCheckFail nodeError, _) -> VersionCheckFail nodeError
     (_, VersionCheckFail npmError) -> VersionCheckFail npmError
 
 getAndCheckUserNodeVersion :: IO VersionCheckResult
-getAndCheckUserNodeVersion = checkNodeVersion getNodeVersion
-  where
-    checkNodeVersion = checkInstalledVersionIsNewerThanOldestSupported "node" oldestWaspSupportedNodeVersion
-    getNodeVersion = parseVersionFromCommandOutput "node" ["--version"]
+getAndCheckUserNodeVersion = getAndCheckUserToolVersion "node" oldestWaspSupportedNodeVersion
 
-getAndCheckUserNPMVersion :: IO VersionCheckResult
-getAndCheckUserNPMVersion = checkNPMVersion getNPMVersion
+getAndCheckUserNpmVersion :: IO VersionCheckResult
+getAndCheckUserNpmVersion = getAndCheckUserToolVersion "npm" oldestWaspSupportedNpmVersion
+
+getAndCheckUserToolVersion :: String -> SV.Version -> IO VersionCheckResult
+getAndCheckUserToolVersion commandName oldestSupportedToolVersion = checkToolVersion getToolVersion
   where
-    checkNPMVersion = checkInstalledVersionIsNewerThanOldestSupported "npm" oldestWaspSupportedNPMVersion
-    getNPMVersion = parseVersionFromCommandOutput "npm" ["--version"]
+    checkToolVersion = checkInstalledVersionIsNewerThanOldestSupported commandName oldestSupportedToolVersion
+    getToolVersion = parseVersionFromCommandOutput commandName <$> runCommandWithVersionFlag commandName
 
 checkInstalledVersionIsNewerThanOldestSupported :: String -> SV.Version -> IO (Either ErrorMessage SV.Version) -> IO VersionCheckResult
 checkInstalledVersionIsNewerThanOldestSupported commandName oldestSupportedVersion getInstalledVersion = do
@@ -80,27 +80,18 @@ checkInstalledVersionIsNewerThanOldestSupported commandName oldestSupportedVersi
           "Wasp requires " ++ commandName ++ " version " <> show oldestSupportedVersion <> " or higher."
         ]
 
-parseVersionFromCommandOutput :: String -> [String] -> IO (Either ErrorMessage SV.Version)
-parseVersionFromCommandOutput commandName args = do
-  result <-
-    catchIOError
-      (Right <$> P.readProcessWithExitCode commandName args "")
-      ( \e ->
-          return . Left $
-            if isDoesNotExistError e
-              then commandNotFoundErrorMessage
-              else unkownErrorErrorMessage e
-      )
-  return $ case result of
-    Left processError ->
-      Left $ failedToRunCommandErrorMessage processError
-    Right (ExitFailure exitCode, _, stderr) ->
-      Left $ commandFailedWithExitCodeErrorMessage exitCode stderr
-    Right (ExitSuccess, stdout, _) ->
-      case parseVersionFromOutput stdout of
-        Left parseError -> Left $ failedToParseVersionErrorMessage parseError
-        Right version -> Right version
+runCommandWithVersionFlag :: String -> IO (Either ErrorMessage (ExitCode, String, String))
+runCommandWithVersionFlag commandName = do
+  catchIOError
+    (Right <$> P.readProcessWithExitCode commandName args "")
+    ( \e ->
+        return . Left $
+          if isDoesNotExistError e
+            then commandNotFoundErrorMessage
+            else unkownErrorErrorMessage e
+    )
   where
+    args = ["--version"]
     commandWithArgs = unwords $ commandName : args
 
     commandNotFoundErrorMessage :: ErrorMessage
@@ -112,6 +103,21 @@ parseVersionFromCommandOutput commandName args = do
         [ "An error occurred while trying to run `" ++ commandWithArgs ++ ":",
           indent 2 $ show err
         ]
+
+parseVersionFromCommandOutput :: String -> Either ErrorMessage (ExitCode, String, String) -> Either ErrorMessage SV.Version
+parseVersionFromCommandOutput commandName result =
+  case result of
+    Left processError ->
+      Left $ failedToRunCommandErrorMessage processError
+    Right (ExitFailure exitCode, _, stderr) ->
+      Left $ commandFailedWithExitCodeErrorMessage exitCode stderr
+    Right (ExitSuccess, stdout, _) ->
+      case parseVersionFromOutput stdout of
+        Left parseError -> Left $ failedToParseVersionErrorMessage parseError
+        Right version -> Right version
+  where
+    args = ["--version"]
+    commandWithArgs = unwords $ commandName : args
 
     failedToRunCommandErrorMessage :: String -> ErrorMessage
     failedToRunCommandErrorMessage processError =
