@@ -52,16 +52,16 @@ getAndCheckUserNodeAndNpmVersion = do
     (_, VersionCheckFail npmError) -> VersionCheckFail npmError
 
 getAndCheckUserNodeVersion :: IO VersionCheckResult
-getAndCheckUserNodeVersion = getAndCheckUserToolVersion "node" oldestWaspSupportedNodeVersion
+getAndCheckUserNodeVersion = getAndCheckUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion
 
 getAndCheckUserNpmVersion :: IO VersionCheckResult
-getAndCheckUserNpmVersion = getAndCheckUserToolVersion "npm" oldestWaspSupportedNpmVersion
+getAndCheckUserNpmVersion = getAndCheckUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
 
-getAndCheckUserToolVersion :: String -> SV.Version -> IO VersionCheckResult
-getAndCheckUserToolVersion commandName oldestSupportedToolVersion = checkToolVersion getToolVersion
+getAndCheckUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
+getAndCheckUserToolVersion commandName commandArgs oldestSupportedToolVersion = checkToolVersion getToolVersion
   where
     checkToolVersion = checkInstalledVersionIsNewerThanOldestSupported commandName oldestSupportedToolVersion
-    getToolVersion = parseVersionFromCommandOutput commandName <$> runCommandWithVersionFlag commandName
+    getToolVersion = parseVersionFromCommandOutput commandName commandArgs <$> runCommand commandName commandArgs
 
 checkInstalledVersionIsNewerThanOldestSupported :: String -> SV.Version -> IO (Either ErrorMessage SV.Version) -> IO VersionCheckResult
 checkInstalledVersionIsNewerThanOldestSupported commandName oldestSupportedVersion getInstalledVersion = do
@@ -80,10 +80,10 @@ checkInstalledVersionIsNewerThanOldestSupported commandName oldestSupportedVersi
           "Wasp requires " ++ commandName ++ " version " <> show oldestSupportedVersion <> " or higher."
         ]
 
-runCommandWithVersionFlag :: String -> IO (Either ErrorMessage (ExitCode, String, String))
-runCommandWithVersionFlag commandName = do
+runCommand :: String -> [String] -> IO (Either ErrorMessage (ExitCode, String, String))
+runCommand commandName commandArgs = do
   catchIOError
-    (Right <$> P.readProcessWithExitCode commandName args "")
+    (Right <$> P.readProcessWithExitCode commandName commandArgs "")
     ( \e ->
         return . Left $
           if isDoesNotExistError e
@@ -91,8 +91,7 @@ runCommandWithVersionFlag commandName = do
             else unkownErrorErrorMessage e
     )
   where
-    args = ["--version"]
-    commandWithArgs = unwords $ commandName : args
+    commandWithArgs = unwords $ commandName : commandArgs
 
     commandNotFoundErrorMessage :: ErrorMessage
     commandNotFoundErrorMessage = "`" ++ commandWithArgs ++ "` command not found!"
@@ -104,20 +103,19 @@ runCommandWithVersionFlag commandName = do
           indent 2 $ show err
         ]
 
-parseVersionFromCommandOutput :: String -> Either ErrorMessage (ExitCode, String, String) -> Either ErrorMessage SV.Version
-parseVersionFromCommandOutput commandName result =
+parseVersionFromCommandOutput :: String -> [String] -> Either ErrorMessage (ExitCode, String, String) -> Either ErrorMessage SV.Version
+parseVersionFromCommandOutput commandName commandArgs result =
   case result of
     Left processError ->
       Left $ failedToRunCommandErrorMessage processError
     Right (ExitFailure exitCode, _, stderr) ->
       Left $ commandFailedWithExitCodeErrorMessage exitCode stderr
     Right (ExitSuccess, stdout, _) ->
-      case parseVersionFromOutput stdout of
+      case findAndParseVersion stdout of
         Left parseError -> Left $ failedToParseVersionErrorMessage parseError
         Right version -> Right version
   where
-    args = ["--version"]
-    commandWithArgs = unwords $ commandName : args
+    commandWithArgs = unwords $ commandName : commandArgs
 
     failedToRunCommandErrorMessage :: String -> ErrorMessage
     failedToRunCommandErrorMessage processError =
@@ -134,12 +132,6 @@ parseVersionFromCommandOutput commandName result =
           indent 2 commandError
         ]
 
-    parseVersionFromOutput :: String -> Either P.ParseError SV.Version
-    parseVersionFromOutput = P.parse versionParser ""
-      where
-        versionParser = skipAnyCharTillMatch SV.versionParser
-        skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
-
     failedToParseVersionErrorMessage :: P.ParseError -> ErrorMessage
     failedToParseVersionErrorMessage parseError =
       unlines
@@ -147,3 +139,9 @@ parseVersionFromCommandOutput commandName result =
           show parseError,
           "This is most likely a bug in Wasp, please file an issue."
         ]
+
+findAndParseVersion :: String -> Either P.ParseError SV.Version
+findAndParseVersion = P.parse versionParser ""
+  where
+    versionParser = skipAnyCharTillMatch SV.versionParser
+    skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
