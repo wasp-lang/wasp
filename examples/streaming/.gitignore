@@ -9,3 +9,6 @@ node_modules/
 # Don't ignore example dotenv files.
 !.env.example
 !.env.*.example
+
+# Headless tests
+test-results/
