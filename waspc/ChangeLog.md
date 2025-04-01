@@ -10,7 +10,7 @@
 - Prisma's datasource database provider string literals are now variablized ( [#2548](https://github.com/wasp-lang/wasp/pull/2548) )
 - Better validation of `package.json` ( [#2554](https://github.com/wasp-lang/wasp/pull/2554) )
 - Wasp properly checks NPM version now ( [#2549](https://github.com/wasp-lang/wasp/pull/2549) )
-- Typescript config now accept `HttpRoute` object insteada of an array ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
+- Typescript config now accepts `HttpRoute` object instead of an array ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
 
 ### Bug fixes
 
