@@ -41,13 +41,16 @@ jobs:
     strategy:
       matrix:
         os:
-          # Using Ubuntu 22.04 due to recent GLIBC version mismatch errors for
-          # users and other services. The strategy here is to pick a slightly older LTS
-          # version of Ubuntu to build on so glibc is not too new. glibc has great backward
-          # compatibility though, so older builds will run on new OSs (but not vice versa).
-          # We can return to `ubuntu-latest` when enough time has elapsed.
-          # Still looking into musl static binaries.
-          # Ref: https://github.com/wasp-lang/wasp/issues/650
+          # We are using a fixed Ubuntu version instead of 'ubuntu-latest' because we
+          # don't want the version to change on its own.
+          #
+          # We also fix the Ubuntu version to the oldest supported LTS version
+          # rather than the latest LTS version.This avoids GLIBC version
+          # mismatch errors (and possibly other similar issues).
+          #
+          # This becomes redundant if we start building with Alpine/Musl and
+          # statically link the binaries:
+          # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
           - macos-latest
           - windows-latest
