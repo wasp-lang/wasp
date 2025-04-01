@@ -41,7 +41,7 @@ jobs:
     strategy:
       matrix:
         os:
-          # Using Ubuntu 22.04 due to recent GLIBC_2.34 version mismatch errors for
+          # Using Ubuntu 22.04 due to recent GLIBC version mismatch errors for
           # users and other services. The strategy here is to pick a slightly older LTS
           # version of Ubuntu to build on so glibc is not too new. glibc has great backward
           # compatibility though, so older builds will run on new OSs (but not vice versa).
