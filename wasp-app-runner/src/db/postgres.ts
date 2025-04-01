@@ -3,17 +3,21 @@ import { createHash } from "crypto";
 import type { RunAppWithDbFn } from "./types.js";
 import { log } from "../logging.js";
 import { processManager } from "../process.js";
+import { Branded } from "../types.js";
+
+type ContainerName = Branded<string, "ContainerName">;
+type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
 export const runAppWithPostgres: RunAppWithDbFn = async (
   { appName, pathToApp },
   runApp
 ) => {
-  const DATABASE_URL = await ensurePostgresContainer({ appName, pathToApp });
+  const databaseUrl = await ensurePostgresContainer({ appName, pathToApp });
 
-  log("postgres", "info", `Using DATABASE_URL: ${DATABASE_URL}`);
+  log("postgres", "info", `Using DATABASE_URL: ${databaseUrl}`);
 
   return runApp({
-    extraEnv: { DATABASE_URL },
+    extraEnv: { DATABASE_URL: databaseUrl },
   });
 };
 
@@ -23,10 +27,7 @@ async function ensurePostgresContainer({
 }: {
   appName: string;
   pathToApp: string;
-}): Promise<string> {
-  const port = 5432;
-  const password = "devpass";
-  const image = "postgres:16";
+}): Promise<DatabaseConnectionUrl> {
   const containerName = createAppSpecificContainerName({
     appName,
     pathToApp,
@@ -52,12 +53,11 @@ async function ensurePostgresContainer({
       await deletePostgresContainer(containerName);
     }
 
-    // We don't block on this, as we want to start the container in the background
-    runPostgresContainer(containerName, port, password, image);
+    const databaseUrl = await runPostgresContainerAndWaitUntilReady(
+      containerName
+    );
 
-    await waitForPostgresReady(containerName);
-
-    return `postgresql://postgres:${password}@localhost:${port}/postgres`;
+    return databaseUrl;
   } catch (error: unknown) {
     if (error instanceof Error) {
       log("postgres", "error", error.message);
@@ -74,16 +74,16 @@ function createAppSpecificContainerName({
 }: {
   appName: string;
   pathToApp: string;
-}) {
+}): ContainerName {
   const appPathHash = createHash("md5")
     .update(pathToApp)
     .digest("hex")
     .slice(0, 16);
-  return `${appName}-${appPathHash}-db`;
+  return `${appName}-${appPathHash}-db` as ContainerName;
 }
 
 async function checkIfPostgresContainerExists(
-  containerName: string
+  containerName: ContainerName
 ): Promise<boolean> {
   const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "check-container-exists",
@@ -95,7 +95,7 @@ async function checkIfPostgresContainerExists(
 }
 
 async function checkIfPostgresContainerIsRunning(
-  containerName: string
+  containerName: ContainerName
 ): Promise<boolean> {
   const { exitCode, stdoutData } = await processManager.spawnAndCollectStdout({
     name: "check-container-running",
@@ -106,7 +106,9 @@ async function checkIfPostgresContainerIsRunning(
   return exitCode === 0 && stdoutData.trim() === "true";
 }
 
-async function stopPostgresContainer(containerName: string): Promise<void> {
+async function stopPostgresContainer(
+  containerName: ContainerName
+): Promise<void> {
   const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "stop-container",
     cmd: "docker",
@@ -118,7 +120,9 @@ async function stopPostgresContainer(containerName: string): Promise<void> {
   }
 }
 
-async function deletePostgresContainer(containerName: string): Promise<void> {
+async function deletePostgresContainer(
+  containerName: ContainerName
+): Promise<void> {
   const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "delete-container",
     cmd: "docker",
@@ -130,33 +134,45 @@ async function deletePostgresContainer(containerName: string): Promise<void> {
   }
 }
 
-async function runPostgresContainer(
-  containerName: string,
-  port: number,
-  password: string,
-  image: string
-): Promise<void> {
-  const { exitCode } = await processManager.spawnAndCollectStdout({
-    name: "create-postgres-container",
-    cmd: "docker",
-    args: [
-      "run",
-      "--name",
-      containerName,
-      "-p",
-      `${port}:5432`,
-      "-e",
-      `POSTGRES_PASSWORD=${password}`,
-      image,
-    ],
-  });
+async function runPostgresContainerAndWaitUntilReady(
+  containerName: ContainerName
+): Promise<DatabaseConnectionUrl> {
+  const port = 5432;
+  const password = "devpass";
+  const image = "postgres:16";
 
-  if (exitCode !== 0) {
-    throw new Error("Failed to run a PostgreSQL container");
-  }
+  log("postgres", "info", "Starting the PostgreSQL container...");
+
+  processManager
+    .spawnAndCollectStdout({
+      name: "create-postgres-container",
+      cmd: "docker",
+      args: [
+        "run",
+        "--name",
+        containerName,
+        "-p",
+        `${port}:5432`,
+        "-e",
+        `POSTGRES_PASSWORD=${password}`,
+        image,
+      ],
+    })
+    // If we awaited here, we would block the main thread indefinitely.
+    .then(({ exitCode }) => {
+      if (exitCode !== 0) {
+        throw new Error("Failed to create a PostgreSQL container");
+      }
+    });
+
+  await waitForPostgresReady(containerName);
+
+  return `postgresql://postgres:${password}@localhost:${port}/postgres` as DatabaseConnectionUrl;
 }
 
-async function waitForPostgresReady(containerName: string): Promise<void> {
+async function waitForPostgresReady(
+  containerName: ContainerName
+): Promise<void> {
   const healthCheckRetries = 10;
   const healthCheckDelay = 2000;
 
@@ -179,7 +195,9 @@ async function waitForPostgresReady(containerName: string): Promise<void> {
   throw new Error("PostgreSQL did not become ready in time");
 }
 
-async function checkIfPostgresIsReady(containerName: string): Promise<boolean> {
+async function checkIfPostgresIsReady(
+  containerName: ContainerName
+): Promise<boolean> {
   const { exitCode } = await processManager.spawnAndCollectStdout({
     name: "postgres-readiness-check",
     cmd: "docker",

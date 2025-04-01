@@ -73,12 +73,12 @@ export async function getAppInfo({
     /Database system: (.*)$/m
   );
 
-  if (!appNameMatch) {
+  if (appNameMatch === null) {
     log("get-app-info", "error", `Failed to get app name`);
     process.exit(1);
   }
 
-  if (!dbTypeMatch) {
+  if (dbTypeMatch === null) {
     log("get-app-info", "error", `Failed to get database type`);
     process.exit(1);
   }
