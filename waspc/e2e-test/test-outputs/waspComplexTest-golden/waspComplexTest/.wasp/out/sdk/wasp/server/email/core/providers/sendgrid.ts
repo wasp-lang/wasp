@@ -1,6 +1,6 @@
-import SendGrid from "@sendgrid/mail"
-import { getDefaultFromField } from "../helpers.js"
-import type { EmailSender, SendGridProvider } from "../types"
+import SendGrid from "@sendgrid/mail";
+import { getDefaultFromField } from "../helpers.js";
+import type { SendGridProvider, EmailSender } from "../types";
 
 // PRIVATE API
 export function initSendGridEmailSender(
@@ -24,7 +24,7 @@ export function initSendGridEmailSender(
         html: email.html,
       }).catch((error) => {
         // SendGrid can return an array of errors in its response,
-        // but the client doesn't surface them appropiately.
+        // but the client doesn't surface them appropriately.
         // If we find it, we will throw an AggregateError with all the errors
         // so that they are all printed. Otherwise, we will throw the
         // original error.

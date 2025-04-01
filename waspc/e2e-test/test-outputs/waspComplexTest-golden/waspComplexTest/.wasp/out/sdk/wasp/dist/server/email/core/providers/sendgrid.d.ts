@@ -1,2 +1,2 @@
-import type { EmailSender, SendGridProvider } from "../types";
+import type { SendGridProvider, EmailSender } from "../types";
 export declare function initSendGridEmailSender(provider: SendGridProvider): EmailSender;
