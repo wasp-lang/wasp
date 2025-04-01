@@ -18,6 +18,7 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
+  UBUNTU_VERSION: ubuntu-22.04
 
 defaults:
   run:
@@ -28,7 +29,7 @@ defaults:
 jobs:
   cancel:
     name: Cancel redundant actions already in progress
-    runs-on: ubuntu-22.04
+    runs-on: ${{ env.UBUNTU_VERSION }}
     steps:
       - name: Cancel actions in progress of same workflow and same branch
         uses: styfle/cancel-workflow-action@0.11.0
@@ -48,7 +49,7 @@ jobs:
           # We can return to `ubuntu-22.04` when enough time has elapsed.
           # Still looking into musl static binaries.
           # Ref: https://github.com/wasp-lang/wasp/issues/650
-          - ubuntu-22.04
+          - ${{ env.UBUNTU_VERSION }}
           - macos-latest
           - windows-latest
         node-version:
@@ -62,11 +63,11 @@ jobs:
         # To reduce the number of jobs, we only test the Node.js versions on
         # Ubuntu 20.04.
         include:
-          - os: ubuntu-22.04
+          - os: ${{ env.UBUNTU_VERSION }}
             node-version: 20
             ghc: "8.10.7"
             cabal: "3.6.2.0"
-          - os: ubuntu-22.04
+          - os: ${{ env.UBUNTU_VERSION }}
             node-version: 22
             ghc: "8.10.7"
             cabal: "3.6.2.0"
@@ -91,7 +92,7 @@ jobs:
       # The fix will be propagated in a few days, so we can remove this workaround then.
       # https://github.com/actions/runner-images/issues/7061
       - name: Workaround runner image issue
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == env.UBUNTU_VERSION
         run: sudo chown -R $USER /usr/local/.ghcup
 
       - name: Set up Haskell
@@ -132,18 +133,18 @@ jobs:
           restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
       - name: Check Haskell code formatting
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == env.UBUNTU_VERSION
         run: ./run ormolu:check
 
       - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == env.UBUNTU_VERSION || matrix.os == 'macos-latest'
         run: |
           cd packages/ts-inspect
           npm ci
           npm test
 
       - name: Compile TS packages and move it into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == env.UBUNTU_VERSION || matrix.os == 'macos-latest'
         run: ./tools/install_packages_to_data_dir.sh
 
       - name: Build external dependencies
@@ -160,27 +161,27 @@ jobs:
         run: cabal test cli-test waspc-test waspls-test
 
       - name: Ensure examples/todoApp compiles and builds
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == env.UBUNTU_VERSION || matrix.os == 'macos-latest'
         run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
 
       - name: Headless - Cache Node Modules
         id: headless-cache-node-modules
         uses: actions/cache@v3
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == env.UBUNTU_VERSION
         with:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == env.UBUNTU_VERSION
         run: |
           cd examples/todoApp
           npm ci
 
       - name: Headless - Store Playwright's Version
         id: headless-store-playwright-version
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == env.UBUNTU_VERSION
         run: |
           cd examples/todoApp
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
@@ -189,7 +190,7 @@ jobs:
 
       - name: Headless - Cache Playwright Browsers for Playwright's Version
         id: headless-cache-playwright-browsers
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == env.UBUNTU_VERSION
         uses: actions/cache@v3
         with:
           path: ~/.cache/ms-playwright
@@ -197,14 +198,14 @@ jobs:
 
       - name: Headless - Setup Playwright
         id: headless-setup-playwright
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == env.UBUNTU_VERSION
         run: |
           cd examples/todoApp
           npx playwright install --with-deps
 
       - name: Headless - Run Playwright Tests
         id: headless-run-playwright-tests
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == env.UBUNTU_VERSION
         run: |
           cd examples/todoApp
           # Runs the tests with the debug flag so that we can see Wasp output
@@ -214,7 +215,7 @@ jobs:
         run: cabal test e2e-test
 
       - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == env.UBUNTU_VERSION || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
@@ -222,7 +223,7 @@ jobs:
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == env.UBUNTU_VERSION || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
         with:
           draft: true
           allowUpdates: true
