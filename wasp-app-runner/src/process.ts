@@ -93,8 +93,10 @@ function setupProcessManager() {
   function spawnAndCollectStdout({ cmd, args, cwd }: SpawnOptions): Promise<{
     exitCode: number | null;
     stdoutData: string;
+    stderrData: string;
   }> {
     let stdoutData = "";
+    let stderrData = "";
     return new Promise((resolve, reject) => {
       const proc = spawn(cmd, args, {
         cwd,
@@ -102,11 +104,13 @@ function setupProcessManager() {
       addChild(proc);
 
       proc.stdout.on("data", (data) => (stdoutData += data));
+      proc.stderr.on("data", (data) => (stderrData += data));
       proc.on("close", (exitCode) => {
         removeChild(proc);
         resolve({
           exitCode,
           stdoutData,
+          stderrData,
         });
       });
     });
