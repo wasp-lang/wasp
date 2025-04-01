@@ -42,14 +42,14 @@ jobs:
       matrix:
         os:
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
-          # prevent the version changing on its own.
+          # prevent the version from changing on its own.
           #
-          # We also fix the Ubuntu version to the oldest supported LTS version
+          # We also set the Ubuntu version to the oldest supported LTS version
           # rather than the latest LTS version. Doing so avoids GLIBC version
           # mismatch errors (and possibly other similar issues).
           #
           # This might become redundant if we start building with Alpine/Musl
-          # and statically link the binaries:
+          # and link the binaries statically:
           # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
           - macos-latest
