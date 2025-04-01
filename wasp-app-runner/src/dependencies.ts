@@ -4,12 +4,12 @@ import { log } from "./logging.js";
 import { installWaspCli } from "./waspCli.js";
 
 export async function checkAndSetupDependencies({
-  isWaspCliBuiltFromSource,
+  buildWaspCli,
 }: {
-  isWaspCliBuiltFromSource: boolean;
+  buildWaspCli: boolean;
 }) {
   const requiredCommands = ["docker"];
-  if (isWaspCliBuiltFromSource) {
+  if (buildWaspCli) {
     requiredCommands.push("cabal");
   }
 
@@ -24,7 +24,7 @@ export async function checkAndSetupDependencies({
     }
   }
 
-  if (isWaspCliBuiltFromSource) {
+  if (buildWaspCli) {
     await installWaspCli();
   }
 }

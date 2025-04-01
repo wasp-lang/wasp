@@ -1,6 +1,6 @@
 # Wasp Application Runner
 
-A robust script to run your Wasp application with PostgreSQL, including automated database setup and migrations.
+A robust script to run your Wasp application, including automated database setup and migrations.
 
 ## Usage
 

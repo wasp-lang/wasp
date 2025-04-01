@@ -6,7 +6,6 @@ export enum DbType {
   Sqlite = "sqlite",
   Postgres = "postgres",
 }
-export const dbTypes = Object.values(DbType);
 
 export function executeWithDb(
   {

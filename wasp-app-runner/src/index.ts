@@ -6,59 +6,41 @@ import { setupEnvFiles } from "./env.js";
 import { executeWithDb } from "./db/index.js";
 import { getAppInfo, migrateDb, startApp } from "./waspCli.js";
 
-const argv = yargs(hideBin(process.argv))
-  .options({
-    "app-path": {
-      type: "string",
-      description: "Path to the application",
-      default: ".",
-    },
-    "skip-cli-install": {
-      type: "boolean",
-      default: false,
-      description: "Skip installing Wasp CLI from source",
-    },
-    "wasp-cli-cmd": {
-      type: "string",
-      description: "Command to use for Wasp CLI",
-      default: "wasp-cli",
-    },
-  })
-  .parseSync();
-
 export async function main() {
+  const { buildWaspCli, waspCliCmd, pathToApp } = parseArgs();
+
   try {
     await checkAndSetupDependencies({
-      isWaspCliBuiltFromSource: !argv.skipCliInstall,
+      buildWaspCli,
     });
 
     const { appName, dbType } = await getAppInfo({
-      waspCliCmd: argv.waspCliCmd,
-      pathToApp: argv.appPath,
+      waspCliCmd,
+      pathToApp,
     });
 
     log("setup", "info", `Starting application: ${appName}`);
 
     setupEnvFiles({
-      pathToApp: argv.appPath,
+      pathToApp,
     });
 
     await executeWithDb(
       {
         appName,
         dbType,
-        pathToApp: argv.appPath,
+        pathToApp,
       },
       async ({ extraEnv }) => {
         await migrateDb({
-          waspCliCmd: argv.waspCliCmd,
-          pathToApp: argv.appPath,
+          waspCliCmd,
+          pathToApp,
           extraEnv,
         });
 
         await startApp({
-          waspCliCmd: argv.waspCliCmd,
-          pathToApp: argv.appPath,
+          waspCliCmd,
+          pathToApp,
           extraEnv,
         });
       }
@@ -71,4 +53,41 @@ export async function main() {
     }
     process.exit(1);
   }
+}
+
+function parseArgs(): {
+  pathToApp: string;
+  buildWaspCli: boolean;
+  waspCliCmd: string;
+} {
+  const argv = yargs(hideBin(process.argv))
+    .options({
+      "path-to-app": {
+        type: "string",
+        description: "Path to the application",
+        default: ".",
+      },
+      "build-wasp-cli": {
+        type: "boolean",
+        default: true,
+        description: "Build Wasp CLI from source",
+      },
+      "wasp-cli-cmd": {
+        type: "string",
+        description:
+          "Command to use for Wasp CLI (only used when not building from source)",
+        default: "wasp-cli",
+      },
+    })
+    .strict()
+    .parseSync();
+
+  const buildWaspCli = argv["build-wasp-cli"];
+
+  return {
+    pathToApp: argv["path-to-app"],
+    buildWaspCli,
+    // When building from source, always use "wasp-cli", otherwise use the user-provided command
+    waspCliCmd: buildWaspCli ? "wasp-cli" : argv["wasp-cli-cmd"],
+  };
 }

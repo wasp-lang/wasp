@@ -27,7 +27,7 @@ async function ensurePostgresContainer({
   const port = 5432;
   const password = "devpass";
   const image = "postgres:16";
-  const containerName = getContainerName({
+  const containerName = createAppSpecificContainerName({
     appName,
     pathToApp,
   });
@@ -35,11 +35,11 @@ async function ensurePostgresContainer({
   try {
     log("postgres", "info", `Using DB container: ${containerName}`);
 
-    const doesPostgresContainerExit = await checkIfPostgresContainerExists(
+    const doesPostgresContainerExist = await checkIfPostgresContainerExists(
       containerName
     );
 
-    if (doesPostgresContainerExit) {
+    if (doesPostgresContainerExist) {
       const isPostgresContainerRunning =
         await checkIfPostgresContainerIsRunning(containerName);
 
@@ -68,7 +68,7 @@ async function ensurePostgresContainer({
   }
 }
 
-function getContainerName({
+function createAppSpecificContainerName({
   appName,
   pathToApp,
 }: {
