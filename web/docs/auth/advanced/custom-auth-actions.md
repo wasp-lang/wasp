@@ -15,6 +15,8 @@ You are not able to use Wasp UI with custom sign-up actions, so you're expected 
 
 ## Example code
 
+Below you will find a starting point for creating your own actions. The given implementation is similar to what Wasp does under the hood, and it is up to you to customize it.
+
 ### Email
 
 <Tabs groupId="js-ts">
@@ -52,12 +54,24 @@ export const signup = async (args, _context) => {
     const providerId = createProviderId('email', args.email)
     const existingAuthIdentity = await findAuthIdentity(providerId)
 
+    let providerData
+
     if (existingAuthIdentity) {
-      const providerData = getProviderData(existingAuthIdentity.providerData)
-      // Your custom code here
-    } else {
-      // sanitizeAndSerializeProviderData will hash the user's password
-      const providerData = await sanitizeAndSerializeProviderData({
+      // User already exists, handle accordingly
+
+      // For example, throw an error or return a message
+      throw new HttpError(400, 'Email already exists.')
+
+      // Or, another example, you can check if the user is already
+      // verified and re-send the verification email if not
+      providerData = getProviderData(existingAuthIdentity.providerData)
+      if (providerData.isEmailVerified)
+        throw new HttpError(400, 'Email already verified.')
+    }
+
+    if (!providerData) {
+      providerData = await sanitizeAndSerializeProviderData({
+        // The provider will hash the password for us, so we don't need to do it here.
         hashedPassword: args.password,
         isEmailVerified: false,
         emailVerificationSentAt: null,
@@ -69,30 +83,30 @@ export const signup = async (args, _context) => {
         // Any additional data you want to store on the User entity
         {}
       )
+    }
 
-      // Verification link links to a client route e.g. /email-verification
-      const verificationLink = await createEmailVerificationLink(
-        args.email,
-        '/email-verification'
-      )
-      try {
-        await sendEmailVerificationEmail(args.email, {
-          from: {
-            name: 'My App Postman',
-            email: 'hello@itsme.com',
-          },
-          to: args.email,
-          subject: 'Verify your email',
-          text: `Click the link below to verify your email: ${verificationLink}`,
-          html: `
+    // Verification link links to a client route e.g. /email-verification
+    const verificationLink = await createEmailVerificationLink(
+      args.email,
+      '/email-verification'
+    )
+    try {
+      await sendEmailVerificationEmail(args.email, {
+        from: {
+          name: 'My App Postman',
+          email: 'hello@itsme.com',
+        },
+        to: args.email,
+        subject: 'Verify your email',
+        text: `Click the link below to verify your email: ${verificationLink}`,
+        html: `
                       <p>Click the link below to verify your email</p>
                       <a href="${verificationLink}">Verify email</a>
                   `,
-        })
-      } catch (e) {
-        console.error('Failed to send email verification email:', e)
-        throw new HttpError(500, 'Failed to send email verification email.')
-      }
+      })
+    } catch (e) {
+      console.error('Failed to send email verification email:', e)
+      throw new HttpError(500, 'Failed to send email verification email.')
     }
   } catch (e) {
     return {
@@ -159,50 +173,59 @@ export const signup: CustomSignup<
     const providerId = createProviderId('email', args.email)
     const existingAuthIdentity = await findAuthIdentity(providerId)
 
+    let providerData
+
     if (existingAuthIdentity) {
-      const providerData = getProviderData<'email'>(
-        existingAuthIdentity.providerData
-      )
-      // Your custom code here
-    } else {
-      // sanitizeAndSerializeProviderData will hash the user's password
-      const newUserProviderData =
-        await sanitizeAndSerializeProviderData<'email'>({
-          hashedPassword: args.password,
-          isEmailVerified: false,
-          emailVerificationSentAt: null,
-          passwordResetSentAt: null,
-        })
+      // User already exists, handle accordingly
+
+      // For example, throw an error or return a message
+      throw new HttpError(400, 'Email already exists.')
+
+      // Or, another example, you can check if the user is already
+      // verified and re-send the verification email if not
+      providerData = getProviderData<'email'>(existingAuthIdentity.providerData)
+      if (providerData.isEmailVerified)
+        throw new HttpError(400, 'Email already verified.')
+    }
+
+    if (!providerData) {
+      providerData = await sanitizeAndSerializeProviderData<'email'>({
+        // The provider will hash the password for us, so we don't need to do it here.
+        hashedPassword: args.password,
+        isEmailVerified: false,
+        emailVerificationSentAt: null,
+        passwordResetSentAt: null,
+      })
       await createUser(
         providerId,
-        newUserProviderData,
+        providerData,
         // Any additional data you want to store on the User entity
         {}
       )
+    }
 
-      // Verification link links to a client route e.g. /email-verification
-      const verificationLink = await createEmailVerificationLink(
-        args.email,
-        '/email-verification'
-      )
-      try {
-        await sendEmailVerificationEmail(args.email, {
-          from: {
-            name: 'My App Postman',
-            email: 'hello@itsme.com',
-          },
-          to: args.email,
-          subject: 'Verify your email',
-          text: `Click the link below to verify your email: ${verificationLink}`,
-          html: `
+    // Verification link links to a client route e.g. /email-verification
+    const verificationLink = await createEmailVerificationLink(
+      args.email,
+      '/email-verification'
+    )
+    try {
+      await sendEmailVerificationEmail(args.email, {
+        from: {
+          name: 'My App Postman',
+          email: 'hello@itsme.com',
+        },
+        to: args.email,
+        subject: 'Verify your email',
+        text: `Click the link below to verify your email: ${verificationLink}`,
+        html: `
                       <p>Click the link below to verify your email</p>
                       <a href="${verificationLink}">Verify email</a>
                   `,
-        })
-      } catch (e: unknown) {
-        console.error('Failed to send email verification email:', e)
-        throw new HttpError(500, 'Failed to send email verification email.')
-      }
+      })
+    } catch (e: unknown) {
+      console.error('Failed to send email verification email:', e)
+      throw new HttpError(500, 'Failed to send email verification email.')
     }
   } catch (e: any) {
     return {
@@ -255,24 +278,18 @@ export const signup = async (args, _context) => {
   try {
     const providerId = createProviderId('username', args.username)
     const providerData = await sanitizeAndSerializeProviderData({
+      // The provider will hash the password for us, so we don't need to do it here.
       hashedPassword: args.password,
     })
 
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
+    await createUser(providerId, providerData, {})
   } catch (e) {
+    console.error('Error creating user:', e)
     return {
       success: false,
       message: e.message,
     }
   }
-
-  // Your custom code after sign-up.
-  // ...
 
   return {
     success: true,
@@ -323,24 +340,18 @@ export const signup: CustomSignup<
   try {
     const providerId = createProviderId('username', args.username)
     const providerData = await sanitizeAndSerializeProviderData<'username'>({
+      // The provider will hash the password for us, so we don't need to do it here.
       hashedPassword: args.password,
     })
 
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
+    await createUser(providerId, providerData, {})
   } catch (e: any) {
+    console.error('Error creating user:', e)
     return {
       success: false,
       message: e.message,
     }
   }
-
-  // Your custom code after sign-up.
-  // ...
 
   return {
     success: true,
@@ -352,7 +363,7 @@ export const signup: CustomSignup<
 </TabItem>
 </Tabs>
 
-## API Reference
+## Validators API Reference
 
 We suggest using the built-in field validators for your authentication flow. You can import them from `wasp/server/auth`. These are the same validators that Wasp uses internally for the default authentication flow.
 
