@@ -11,6 +11,7 @@ import { join as joinPaths } from 'path';
  * to be relative to the `web-app` directory i.e. `../../../projectDirPath`.
  */
 export function resolveProjectPath(path) {
-    return joinPaths('../../../', path);
+    const waspProjectDirFromWebAppDir = '../../../';
+    return joinPaths(waspProjectDirFromWebAppDir, path);
 }
 //# sourceMappingURL=index.js.map
