@@ -6,7 +6,7 @@ where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import StrongPath (Abs, Dir, File, Path', Rel)
-import Wasp.AppSpec.PackageJson (PackageJson)
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Project.Common
   ( CompileError,

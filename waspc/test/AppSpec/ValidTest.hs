@@ -26,11 +26,11 @@ import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Job as AS.Job
-import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
+import qualified Wasp.ExternalConfig.Npm.PackageJson as AS.PackageJson
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model

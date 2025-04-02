@@ -5,12 +5,14 @@ module Wasp.ExternalConfig.Npm.Dependency
   ( Dependency (..),
     fromList,
     make,
+    printDep,
   )
 where
 
 import Data.Aeson
 import Data.Data (Data)
 import GHC.Generics
+import qualified Wasp.Util.Terminal as Term
 
 data Dependency = Dependency
   { name :: String,
@@ -33,3 +35,9 @@ fromList = map make
 
 make :: (String, String) -> Dependency
 make (n, v) = Dependency {name = n, version = v}
+
+printDep :: Dependency -> String
+printDep dep =
+  Term.applyStyles [Term.Cyan] (name dep)
+    ++ "@"
+    ++ Term.applyStyles [Term.Yellow] (version dep)

@@ -43,11 +43,11 @@ import qualified Wasp.AppSpec.ExternalFiles as ExternalFiles
 import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Operation (Operation)
 import qualified Wasp.AppSpec.Operation as AS.Operation
-import Wasp.AppSpec.PackageJson (PackageJson)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)

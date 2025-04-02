@@ -8,7 +8,7 @@ import Control.Monad.Except (ExceptT (ExceptT), MonadError (throwError), runExce
 import qualified Data.Aeson as Aeson
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
-import Wasp.AppSpec.PackageJson (PackageJson)
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Generator.ExternalConfig.PackageJson (validatePackageJson)
 import Wasp.Project.Common
   ( PackageJsonFile,

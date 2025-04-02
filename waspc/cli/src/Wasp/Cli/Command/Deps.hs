@@ -6,16 +6,15 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Terminal (title)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import Wasp.Project (analyzeWaspProject)
-import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()
 deps = do
@@ -59,10 +58,4 @@ depsMessage appSpec =
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =
-  title dependenciesTitle : map printDep dependencies
-
-printDep :: Npm.Dependency.Dependency -> String
-printDep dep =
-  Term.applyStyles [Term.Cyan] (Npm.Dependency.name dep)
-    ++ "@"
-    ++ Term.applyStyles [Term.Yellow] (Npm.Dependency.version dep)
+  title dependenciesTitle : map Npm.Dependency.printDep dependencies

@@ -4,7 +4,7 @@ module Wasp.Generator.ExternalConfig.PackageJson
 where
 
 import qualified Data.Map as M
-import qualified Wasp.AppSpec.PackageJson as P
+import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Common (prismaVersion)
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, reactVersion)

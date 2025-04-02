@@ -25,7 +25,7 @@ import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
-import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
+import qualified Wasp.ExternalConfig.Npm.PackageJson as AS.PackageJson
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
 data NpmDepsForFramework = NpmDepsForFramework
