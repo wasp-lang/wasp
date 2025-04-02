@@ -24,7 +24,7 @@ const SignupPage = (props) => {
 
     try {
       await signup({ username: usernameFieldVal, password: passwordFieldVal })
-      await login(usernameFieldVal, passwordFieldVal)
+      await login({ username: usernameFieldVal, password: passwordFieldVal })
 
       setUsernameFieldVal('')
       setPasswordFieldVal('')

@@ -22,7 +22,7 @@ const LoginPage = (props) => {
     setErrorMessage('')
 
     try {
-      await login(usernameFieldVal, passwordFieldVal)
+      await login({ username: usernameFieldVal, password: passwordFieldVal })
 
       setUsernameFieldVal('')
       setPasswordFieldVal('')
