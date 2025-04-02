@@ -4,19 +4,22 @@ A robust script to run your Wasp application, including automated database setup
 
 ## Usage
 
-```
-npx wasp-app-runner [--app-path <path-to-app> --skip-cli-install <true/false> --wasp-cli-cmd <wasp-cli-cmd>]
-```
+```bash
+npm install
+# Installs wasp-app-runner globally from the local directory
+npm run install:global
 
-This runs the package without installing it globally.
+# Use the wasp-app-runner command to run your Wasp app
+wasp-app-runner [--path-to-app <path>] [--build-wasp-cli <true|false>] [--wasp-cli-cmd <command>]
+```
 
 ### Arguments Table
 
-| Argument             | Description                                            | Example         |
-| -------------------- | ------------------------------------------------------ | --------------- |
-| `--app-path`         | Path to your Wasp application directory (default: ".") | `./my-wasp-app` |
-| `--skip-cli-install` | Skip installing Wasp CLI (default: false)              | `true`          |
-| `--wasp-cli-cmd`     | Wasp CLI command (default: `wasp-cli`)                 | `wasp`          |
+| Argument           | Description                                            | Example         |
+| ------------------ | ------------------------------------------------------ | --------------- |
+| `--path-to-app`    | Path to your Wasp application directory (default: ".") | `./my-wasp-app` |
+| `--build-wasp-cli` | Build Wasp CLI from source (default: true)             | `false`         |
+| `--wasp-cli-cmd`   | Wasp CLI command (default: `wasp-cli`)                 | `wasp`          |
 
 ## Environment File Handling
 
@@ -37,16 +40,13 @@ If Postgres is used, the script automatically sets the `DATABASE_URL` env variab
 DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
 ```
 
-## Development
+### Development
 
-```bash
+When developing you can run the script directly from the local directory without installing it globally:
+
+```
 npm install
-# Installs wasp-app-runner globally from the local directory
-npm install -g
+npm run start -- [--path-to-app <path>] [--build-wasp-cli <true|false>] [--wasp-cli-cmd <command>]
 ```
 
-You can also run the script directly:
-
-```bash
-node ./src/index.js [--app-path <path-to-app> --skip-cli-install <true/false> --wasp-cli-cmd <wasp-cli-cmd>]
-```
+`npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.
