@@ -10,5 +10,8 @@
  *   - `req.sessionId` is the ID of the session that authenticated the request.
  * - If the request is not authenticated, it throws an error.
  */
-declare const auth: (req: any, res: Response, next: NextFunction) => Promise<void>;
+declare const auth: (req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> & {
+    user: import("../auth/user").AuthUserData | null;
+    sessionId: string | null;
+}, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
 export default auth;

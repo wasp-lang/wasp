@@ -39,23 +39,23 @@ type _WaspEntity = {= crud.entityUpper =}
  */
 export namespace {= crud.name =} {
   {=# crud.operations.GetAll =}
-  export type GetAllQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
+  export type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
   {=/ crud.operations.GetAll =}
 
   {=# crud.operations.Get =}
-  export type GetQuery<Input extends Payload, Output extends Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
+  export type GetQuery<Input extends Payload = never, Output extends Payload = Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
   {=/ crud.operations.Get =}
 
   {=# crud.operations.Create =}
-  export type CreateAction<Input extends Payload, Output extends Payload>= {= actionType =}<[_WaspEntityTagged], Input, Output>
+  export type CreateAction<Input extends Payload = never, Output extends Payload = Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
   {=/ crud.operations.Create =}
 
   {=# crud.operations.Update =}
-  export type UpdateAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
+  export type UpdateAction<Input extends Payload = never, Output extends Payload = Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
   {=/ crud.operations.Update =}
 
   {=# crud.operations.Delete =}
-  export type DeleteAction<Input extends Payload, Output extends Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
+  export type DeleteAction<Input extends Payload = never, Output extends Payload = Payload> = {= actionType =}<[_WaspEntityTagged], Input, Output>
   {=/ crud.operations.Delete =}
 }
 

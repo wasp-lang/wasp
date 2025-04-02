@@ -1,21 +1,21 @@
 export interface CommonOptions {
-	waspExe: string;
-	waspProjectDir: string;
-	flyTomlDir?: string;
-	org?: string;
+  waspExe: string;
+  waspProjectDir: string;
+  flyTomlDir?: string;
+  org?: string;
 }
 
 export interface DbOptions {
-	vmSize: string;
-	initialClusterSize: string;
-	volumeSize: string;
+  vmSize: string;
+  initialClusterSize: string;
+  volumeSize: string;
 }
 
 export interface LocalBuildOptions {
-	buildLocally: boolean;
+  buildLocally: boolean;
 }
 
 export interface SecretsOptions {
-	serverSecret: string[];
-	clientSecret: string[];
+  serverSecret: string[];
+  clientSecret: string[];
 }

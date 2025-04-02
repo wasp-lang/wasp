@@ -14,7 +14,7 @@
 ---
 
 <p align="center">
-  <a href="https://wasp.sh">Web page</a> | <a href="https://wasp.sh/docs">Docs</a>
+  <a href="https://wasp.sh">Web page</a> | <a href="https://wasp.sh/docs">Docs</a> | <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">Deployed? Get swag! 👕</a>
 </p>
 
 <br>
@@ -80,6 +80,10 @@ Given a simple .wasp configuration file that describes the high-level details of
 This unique approach is what makes Wasp "smart" and gives it its superpowers!
 
 For more information about Wasp, check [**docs**](https://wasp.sh/docs).
+
+# Have a Wasp app deployed? - we will send you swag!
+
+If you have a Wasp application running in production, we'd love to send some swag your way! Fill out [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi), and we'll make it happen.
 
 # Get started
 

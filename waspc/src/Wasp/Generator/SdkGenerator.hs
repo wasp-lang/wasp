@@ -223,6 +223,7 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             -- Should @types/* go into their package.json?
+            ("@types/express", show Server.expressTypesVersion),
             ("@types/express-serve-static-core", show Server.expressTypesVersion)
           ]
     }

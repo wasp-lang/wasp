@@ -58,7 +58,10 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
 ])
 
 // PUBLIC API
-export const env = ensureEnvSchema(process.env, serverEnvSchema)
+export const env = ensureEnvSchema(
+  { NODE_ENV: serverDevSchema.shape.NODE_ENV.value, ...process.env },
+  serverEnvSchema,
+)
 
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`

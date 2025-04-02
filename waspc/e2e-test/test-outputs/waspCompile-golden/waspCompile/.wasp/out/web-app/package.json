@@ -22,12 +22,12 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=18.18.0"
+    "node": ">=20.0.0"
   },
   "name": "waspCompile",
   "private": true,
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "tsc --build && vite build",
     "start": "vite"
   },
   "type": "module",
