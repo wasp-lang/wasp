@@ -4,6 +4,7 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
 where
 
 import Data.List (foldl')
+import Data.Char (isUpper,toLower)
 import Data.Text (Text)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
@@ -15,6 +16,15 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
 import qualified Wasp.Util.IO as IOUtil
+
+camelToKebabCase :: String -> String
+camelToKebabCase [] = []
+camelToKebabCase (c:cs) = toLower c : camelToRestKebabCase cs
+ where
+  camelToRestKebabCase [] = []
+  camelToRestKebabCase (c:cs)
+    | isUpper c = '-' : toLower c : camelToRestKebabCase cs 
+    | otherwise = c : camelToRestKebabCase cs
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
@@ -42,7 +52,24 @@ replaceTemplatePlaceholdersInPackageJsonFile ::
 replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
   findPackageJsonFile projectDir >>= \case
     Nothing -> return ()
-    Just absPackageJsonFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absPackageJsonFile
+    Just absPackageJsonFile -> do
+      waspConfigPackagePath <- getPackageInstallationPath WaspConfigPackage
+      let kebabCaseAppName = camelToKebabCase (show appName)
+      let waspTemplateReplacements =
+            [ ("__waspConfigPath__", waspConfigPackagePath),
+              ("__waspAppName__", kebabCaseAppName),
+              ("__waspProjectName__", show projectName),
+              ("__waspVersion__", defaultWaspVersionBounds)
+            ]
+      updateFileContentWith (replacePlaceholders waspTemplateReplacements) absPackageJsonFile
+  where
+    updateFileContentWith :: (Text -> Text) -> Path' Abs (File f) -> IO ()
+    updateFileContentWith updateFn absFilePath = IOUtil.readFileStrict absFilePath >>= IOUtil.writeFileFromText absFilePath . updateFn
+
+    replacePlaceholders :: [(String, String)] -> Text -> Text
+    replacePlaceholders replacements content = foldl' replacePlaceholder content replacements
+      where
+        replacePlaceholder content' (placeholder, value) = T.replace (T.pack placeholder) (T.pack value) content'
 
 replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
 replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do

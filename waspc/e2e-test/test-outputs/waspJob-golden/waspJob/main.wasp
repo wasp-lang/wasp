@@ -1,4 +1,4 @@
-app waspjob {
+app waspJob {
   wasp: {
     version: "^0.16.3"
   },

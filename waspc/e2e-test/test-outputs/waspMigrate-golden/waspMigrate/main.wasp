@@ -1,4 +1,4 @@
-app waspmigrate {
+app waspMigrate {
   wasp: {
     version: "^0.16.3"
   },
