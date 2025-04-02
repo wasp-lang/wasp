@@ -3,8 +3,8 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
   )
 where
 
+import Data.Char (isUpper, toLower)
 import Data.List (foldl')
-import Data.Char (isUpper,toLower)
 import Data.Text (Text)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
@@ -19,12 +19,12 @@ import qualified Wasp.Util.IO as IOUtil
 
 camelToKebabCase :: String -> String
 camelToKebabCase [] = []
-camelToKebabCase (c:cs) = toLower c : camelToRestKebabCase cs
- where
-  camelToRestKebabCase [] = []
-  camelToRestKebabCase (c:cs)
-    | isUpper c = '-' : toLower c : camelToRestKebabCase cs 
-    | otherwise = c : camelToRestKebabCase cs
+camelToKebabCase (c : cs) = toLower c : camelToRestKebabCase cs
+  where
+    camelToRestKebabCase [] = []
+    camelToRestKebabCase (c : cs)
+      | isUpper c = '-' : toLower c : camelToRestKebabCase cs
+      | otherwise = c : camelToRestKebabCase cs
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
