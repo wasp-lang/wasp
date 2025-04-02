@@ -11,10 +11,10 @@ module Wasp.ExternalConfig.Npm.PackageJson
   )
 where
 
-import Data.Aeson
+import Data.Aeson (FromJSON)
 import Data.Map (Map)
 import qualified Data.Map as M
-import GHC.Generics
+import GHC.Generics (Generic)
 import Wasp.ExternalConfig.Npm.Dependency (Dependency)
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 
