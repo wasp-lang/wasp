@@ -38,7 +38,7 @@ export function Signup() {
     setError(null)
     try {
       await signup({ username, password })
-      await login(username, password)
+      await login({ username, password })
       navigate('/')
     } catch (error) {
       setError(error)
@@ -88,7 +88,7 @@ export function Signup() {
     setError(null)
     try {
       await signup({ username, password })
-      await login(username, password)
+      await login({ username, password })
       navigate('/')
     } catch (error: unknown) {
       setError(error as Error)
@@ -142,7 +142,7 @@ export function Login() {
     event.preventDefault()
     setError(null)
     try {
-      await login(username, password)
+      await login({ username, password })
       navigate('/')
     } catch (error) {
       setError(error)
@@ -191,7 +191,7 @@ export function Login() {
     event.preventDefault()
     setError(null)
     try {
-      await login(username, password)
+      await login({ username, password })
       navigate('/')
     } catch (error: unknown) {
       setError(error as Error)
@@ -232,15 +232,15 @@ You can import the following functions from `wasp/client/auth`:
 
 An action for logging in the user.
 
-It takes two arguments:
+It takes one argument:
 
-- `username: string` <Required />
+- `userFields: object` <Required />
 
-  Username of the user logging in.
+  It has the following fields:
 
-- `password: string` <Required />
+  - `username: string` <Required />
 
-  Password of the user logging in.
+  - `password: string` <Required />
 
 :::note
 When using the exposed `login()` function, make sure to implement your redirect on success login logic (e.g. redirecting to home).
