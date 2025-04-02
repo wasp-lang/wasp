@@ -2,7 +2,7 @@
 import { prisma } from 'wasp/server'
 import type {
   OnAfterSignupHook,
-  OnAfterEmailVerifiedHook
+  OnAfterEmailVerifiedHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
   OnBeforeLoginHook,
