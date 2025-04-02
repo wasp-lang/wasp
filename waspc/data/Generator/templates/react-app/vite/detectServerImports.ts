@@ -1,8 +1,7 @@
 {{={= =}=}}
 import { type Plugin } from 'vite'
 import path from 'path'
-
-const waspProjectDirAbsPath = getWaspProjectDirAbsPathFromCwd()
+import { resolveProjectPath } from 'wasp/dev'
 
 export function detectServerImports(): Plugin {
   return {
@@ -37,10 +36,10 @@ function parsePathToUserCode(
   importerPath: string
 ): RelativePathToUserCode | null {
   const importerPathRelativeToWaspProjectDir = path.relative(
-    waspProjectDirAbsPath,
+    getWaspProjectDirAbsPathWhileInWebAppDir(),
     importerPath
   )
-  return importerPathRelativeToWaspProjectDir.startsWith('src/')
+  return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}')
     ? (importerPathRelativeToWaspProjectDir as RelativePathToUserCode)
     : null
 }
@@ -49,7 +48,6 @@ function parsePathToUserCode(
 // e.g. /Users/{username}/dev/wasp/waspc/examples/todoApp
 // which contains machine specific info like the username which is different in the CI and locally.
 // This breaks our e2e tests in the CI because the path is different.
-function getWaspProjectDirAbsPathFromCwd(): string {
-  const webAppDirAbsPath = process.cwd()
-  return path.join(webAppDirAbsPath, '{= waspProjectDirFromWebAppDir =}')
+function getWaspProjectDirAbsPathWhileInWebAppDir(): string {
+  return path.resolve(resolveProjectPath('./'))
 }

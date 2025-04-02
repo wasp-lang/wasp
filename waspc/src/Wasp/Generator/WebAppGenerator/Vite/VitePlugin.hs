@@ -12,11 +12,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (WebAppTemplatesDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Project.Common
-  ( WaspProjectDir,
-    srcDirInWaspProjectDir,
-    waspProjectDirFromAppComponentDir,
-  )
+import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 
 data VitePluginName = DetectServerImports | ValidateEnv
   deriving (Enum, Bounded)
