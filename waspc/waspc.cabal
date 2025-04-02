@@ -368,7 +368,6 @@ library
     Wasp.Job.Process
     Wasp.Message
     Wasp.Node.Version
-    Wasp.NpmDependency
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
