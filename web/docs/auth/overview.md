@@ -104,11 +104,11 @@ You don't need to implement any UI or logic, and they just work.
   ]}
 />
 
-#### Make your own {#custom-auth-ui}
+#### Make your own UI {#custom-auth-ui}
 
-Wasp is flexible enough to let you completely customize your login and signup flows.
+Wasp is flexible enough to let you completely customize your login and signup interface.
 We give you the login and signup functions, and you decide how and when to call them.
-This allows for total customization of the look and the flow, but needs a bit more work.
+This allows for total customization of the look-and-feel, and the interaction, but it needs a bit more work.
 
 <LinkGrid
   links={[
@@ -121,9 +121,16 @@ This allows for total customization of the look and the flow, but needs a bit mo
 :::tip
 
 You don't have to choose one _or_ the other! Mix-and-match, and use what you need in each moment.
-For example, you can create a custom signup flow, but use Wasp's generated components for login.
+For example, you can create a custom signup screen, but use Wasp's generated components for login.
 
 :::
+
+##### Custom login and signup actions (Not recommended)
+
+The previously discussed options should cover the vast majority of cases. But, for the few instances where it is not enough,
+you can [create your own signup flows](./advanced/custom-auth-actions.md), with completely custom logic.
+This is not recommended, and reserved for advanced use cases.
+Please check first if other Wasp features (mainly [auth hooks](../auth-hooks.md)) can handle your requirements.
 
 ## Protecting a page with `authRequired`
 
