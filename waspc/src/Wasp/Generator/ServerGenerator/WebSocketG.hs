@@ -39,9 +39,9 @@ depsRequiredByWebSockets spec
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
-    sequence
-      [ genWebSocketInitialization spec
-      ]
+      sequence
+        [ genWebSocketInitialization spec
+        ]
   | otherwise = return []
 
 genWebSocketInitialization :: AppSpec -> Generator FileDraft

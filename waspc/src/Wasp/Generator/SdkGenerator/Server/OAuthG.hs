@@ -32,16 +32,16 @@ import Wasp.Util ((<++>))
 genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
-    sequence
-      [ genIndexTs auth,
-        genRedirectHelper,
-        genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|oneTimeCode.ts|],
-        genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|provider.ts|]
-      ]
-      <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
-      <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
-      <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
-      <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
+      sequence
+        [ genIndexTs auth,
+          genRedirectHelper,
+          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|oneTimeCode.ts|],
+          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|provider.ts|]
+        ]
+        <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
+        <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
+        <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
+        <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
   where
     genFileCopy = return . C.mkTmplFd
