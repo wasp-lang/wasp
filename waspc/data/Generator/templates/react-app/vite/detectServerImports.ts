@@ -1,3 +1,4 @@
+{{={= =}=}}
 import { type Plugin } from 'vite'
 import path from 'path'
 import { resolveProjectPath } from 'wasp/dev'
@@ -38,7 +39,7 @@ function parsePathToUserCode(
     getWaspProjectDirAbsPathWhileInWebAppDir(),
     importerPath
   )
-  return importerPathRelativeToWaspProjectDir.startsWith('src/')
+  return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}')
     ? (importerPathRelativeToWaspProjectDir as RelativePathToUserCode)
     : null
 }
