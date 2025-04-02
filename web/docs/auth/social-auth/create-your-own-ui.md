@@ -61,5 +61,3 @@ export const LoginPage = () => {
 
 </TabItem>
 </Tabs>
-
-If you need even more customization, you can create your custom components using `signInUrl`s.
