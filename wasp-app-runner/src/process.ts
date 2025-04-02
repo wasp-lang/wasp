@@ -1,6 +1,7 @@
 import readline from "readline";
 import { ChildProcess, spawn } from "child_process";
 import { log } from "./logging.js";
+import type { EnvVars } from "./types.js";
 
 export const processManager = setupProcessManager();
 
@@ -45,7 +46,7 @@ function setupProcessManager() {
     cwd,
     extraEnv = {},
   }: SpawnOptions & {
-    extraEnv?: Record<string, string>;
+    extraEnv?: EnvVars;
   }): Promise<number | null> {
     return new Promise((resolve, reject) => {
       const proc = spawn(cmd, args, {

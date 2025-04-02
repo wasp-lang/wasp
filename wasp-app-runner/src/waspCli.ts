@@ -4,6 +4,7 @@ import { log } from "./logging.js";
 import { getWaspcDirAbsPath } from "./path.js";
 import { processManager } from "./process.js";
 import { DbType } from "./db/index.js";
+import type { EnvVars } from "./types.js";
 
 export function migrateDb({
   waspCliCmd,
@@ -12,7 +13,7 @@ export function migrateDb({
 }: {
   waspCliCmd: string;
   pathToApp: string;
-  extraEnv: Record<string, string>;
+  extraEnv: EnvVars;
 }): Promise<number | null> {
   return processManager.spawnWithLog({
     name: "migrate-db",
@@ -30,7 +31,7 @@ export function startApp({
 }: {
   waspCliCmd: string;
   pathToApp: string;
-  extraEnv: Record<string, string>;
+  extraEnv: EnvVars;
 }): Promise<number | null> {
   return processManager.spawnWithLog({
     name: "start-app",
