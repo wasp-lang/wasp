@@ -80,7 +80,11 @@ export async function setup(baseName: string, options: SetupOptions): Promise<vo
 async function setupProject({ baseName, options }: DeploymentInfo<SetupOptions>): Promise<void> {
   waspSays(`Setting up Railway project with name ${baseName}`);
 
-  await $`${options.railwayExe} init --name ${baseName}`;
+  await $({
+    // If there are multiple workspaces, the user needs to select interactively
+    // which one to use. There is no way to pass it as a command line argument.
+    stdio: 'inherit',
+  })`${options.railwayExe} init --name ${baseName}`;
 }
 
 async function setupDb({ options }: DeploymentInfo<SetupOptions>): Promise<void> {
