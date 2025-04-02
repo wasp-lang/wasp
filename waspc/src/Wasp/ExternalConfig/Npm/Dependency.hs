@@ -25,8 +25,6 @@ data Dependency = Dependency
 instance ToJSON Dependency where
   toEncoding = genericToEncoding defaultOptions
 
--- NOTE: AppSpec (and, by extension, the Wasp TS spec) rely on this
--- serialization. Check AppSpec.hs for more info.
 instance FromJSON Dependency
 
 instance Ord Dependency where
