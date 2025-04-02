@@ -30,7 +30,7 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import qualified Wasp.ExternalConfig.Npm.PackageJson as AS.PackageJson
+import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -477,10 +477,10 @@ spec_AppSpecValid = do
           AS.externalCodeFiles = [],
           AS.externalPublicFiles = [],
           AS.packageJson =
-            AS.PackageJson.PackageJson
-              { AS.PackageJson.name = "testApp",
-                AS.PackageJson.dependencies = M.empty,
-                AS.PackageJson.devDependencies = M.empty
+            Npm.PackageJson.PackageJson
+              { Npm.PackageJson.name = "testApp",
+                Npm.PackageJson.dependencies = M.empty,
+                Npm.PackageJson.devDependencies = M.empty
               },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
