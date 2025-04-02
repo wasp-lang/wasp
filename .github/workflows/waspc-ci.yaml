@@ -24,7 +24,6 @@ defaults:
     shell: bash
     working-directory: waspc
 
-
 jobs:
   cancel:
     name: Cancel redundant actions already in progress
@@ -176,7 +175,7 @@ jobs:
 
       - name: Headless - Setup the Wasp app runner
         id: headless-setup-wasp-app-runner
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           cd ../wasp-app-runner
           npm ci
