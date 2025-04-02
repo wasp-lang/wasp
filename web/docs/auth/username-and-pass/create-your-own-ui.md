@@ -130,7 +130,7 @@ import { login } from 'wasp/client/auth'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-export function LoginPage() {
+export function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -179,7 +179,7 @@ import { login } from 'wasp/client/auth'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-export function LoginPage() {
+export function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
