@@ -9,7 +9,7 @@
 - Invalid CLI commands now properly return non-zero exit code ( [#2522](https://github.com/wasp-lang/wasp/pull/2552) )
 - Prisma's datasource database provider string literals are now variablized ( [#2548](https://github.com/wasp-lang/wasp/pull/2548) )
 - Better validation of `package.json` ( [#2554](https://github.com/wasp-lang/wasp/pull/2554) )
-- Wasp properly checks NPM version now ( [#2549](https://github.com/wasp-lang/wasp/pull/2549) )
+- Wasp now validates your NPM version satisfies its requirement ( [#2549](https://github.com/wasp-lang/wasp/pull/2549) )
 - Typescript config now accepts `HttpRoute` object instead of an array ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
 
 ### Bug fixes
