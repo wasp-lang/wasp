@@ -1,7 +1,7 @@
 /** This module defines the user-facing API for defining a Wasp app.
  */
-import * as AppSpec from './appSpec.js'
 import { GET_USER_SPEC } from './_private.js'
+import * as AppSpec from './appSpec.js'
 
 export class App {
   #userSpec: UserSpec;
@@ -153,11 +153,16 @@ export type ApiNamespaceConfig = {
   path: string
 }
 
+export type HttpRoute = {
+  method: AppSpec.HttpMethod
+  route: string
+}
+
 export type ApiConfig = {
   fn: ExtImport
   middlewareConfigFn?: ExtImport
   entities?: string[]
-  httpRoute: AppSpec.HttpRoute
+  httpRoute: HttpRoute
   auth?: boolean
 }
 
