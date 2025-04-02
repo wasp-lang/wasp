@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.AppSpec.PackageJson
+module Wasp.ExternalConfig.Npm
   ( PackageJson (..),
     DependenciesMap,
     PackageName,
@@ -11,12 +11,35 @@ module Wasp.AppSpec.PackageJson
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson
+import Data.Data (Data)
 import Data.Map (Map)
 import qualified Data.Map as M
-import GHC.Generics (Generic)
-import Wasp.AppSpec.App.Dependency (Dependency)
-import qualified Wasp.AppSpec.App.Dependency as D
+import GHC.Generics
+import Wasp.ExternalConfig.Npm.Dependency (Dependency)
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
+
+data Dependency = Dependency
+  { name :: String,
+    -- | NOTE: By npm docs, this can be semver version range,
+    -- but it can also be a URL (tarball, git or Github), or a local file path.
+    version :: String
+  }
+  deriving (Show, Eq, Data, Generic)
+
+instance ToJSON Dependency where
+  toEncoding = genericToEncoding defaultOptions
+
+instance FromJSON Dependency
+
+instance Ord Dependency where
+  a <= b = name a <= name b
+
+fromList :: [(String, String)] -> [Dependency]
+fromList = map make
+
+make :: (String, String) -> Dependency
+make (n, v) = Dependency {name = n, version = v}
 
 data PackageJson = PackageJson
   { name :: !String,

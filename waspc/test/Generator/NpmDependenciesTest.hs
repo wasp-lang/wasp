@@ -1,7 +1,7 @@
 module Generator.NpmDependenciesTest where
 
 import Test.Tasty.Hspec
-import qualified Wasp.AppSpec.App.Dependency as D
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import Wasp.Generator.NpmDependencies
 
 spec_combineNpmDepsForPackage :: Spec

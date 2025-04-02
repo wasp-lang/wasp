@@ -24,7 +24,7 @@ import qualified Data.Maybe as Maybe
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App.Dependency as D
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.AppSpec.PackageJson as AS.PackageJson
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 

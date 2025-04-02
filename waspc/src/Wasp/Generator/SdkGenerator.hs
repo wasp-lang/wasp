@@ -22,10 +22,10 @@ import Wasp.AppSpec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
     makeJsonWithEntityData,
@@ -188,7 +188,7 @@ npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
     { N.dependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
             ("@tanstack/react-query", show reactQueryVersion),
@@ -220,7 +220,7 @@ npmDepsForSdk spec =
           ++ depsRequiredByTailwind spec
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             -- Should @types/* go into their package.json?
             ("@types/express-serve-static-core", show Server.expressTypesVersion)
@@ -229,9 +229,9 @@ npmDepsForSdk spec =
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
-  AS.Dependency.fromList
+  Npm.Dependency.fromList
     [ ("vitest", "^1.2.1"),
       ("@vitest/ui", "^1.2.1"),
       ("jsdom", "^21.1.1"),
@@ -264,12 +264,12 @@ genTsConfigJson = do
             ]
       )
 
-depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
     authDeps =
-      AS.Dependency.fromList
+      Npm.Dependency.fromList
         [ -- NOTE: If Stitches start being used outside of auth,
           -- we should include this dependency in the SDK deps.
           ("@stitches/react", "^1.2.8"),
@@ -277,11 +277,11 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
           ("@node-rs/argon2", "^1.8.3")
         ]
 
-depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByTailwind spec =
   if G.CF.isTailwindUsed spec
     then
-      AS.Dependency.fromList
+      Npm.Dependency.fromList
         [ ("tailwindcss", "^3.2.7"),
           ("postcss", "^8.4.21"),
           ("autoprefixer", "^10.4.13")

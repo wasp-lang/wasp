@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.AppSpec.App.Dependency
+module Wasp.ExternalConfig.Npm.Dependency
   ( Dependency (..),
     fromList,
     make,
