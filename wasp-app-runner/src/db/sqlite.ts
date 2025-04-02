@@ -1,8 +1,9 @@
-import type { RunAppWithDbFn } from "./types.js";
+import type { SetupDbFn } from "./types.js";
 
-export const runAppWithSqlite: RunAppWithDbFn = async (_options, runApp) => {
-  // No need to do anything special for SQLite, just run the app.
-  return runApp({
-    extraEnv: {},
-  });
+export const setupSqlite: SetupDbFn = async (_options) => {
+  // No need to do anything special for SQLite, just return
+  // an empty object for the env vars.
+  return {
+    dbEnvVars: {},
+  };
 };

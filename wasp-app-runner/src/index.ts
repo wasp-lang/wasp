@@ -3,7 +3,7 @@ import { hideBin } from "yargs/helpers";
 import { log } from "./logging.js";
 import { checkAndSetupDependencies } from "./dependencies.js";
 import { setupEnvFiles } from "./env.js";
-import { executeWithDb } from "./db/index.js";
+import { setupDb } from "./db/index.js";
 import { getAppInfo, migrateDb, startApp } from "./waspCli.js";
 
 export async function main() {
@@ -25,26 +25,23 @@ export async function main() {
       pathToApp,
     });
 
-    await executeWithDb(
-      {
-        appName,
-        dbType,
-        pathToApp,
-      },
-      async ({ extraEnv }) => {
-        await migrateDb({
-          waspCliCmd,
-          pathToApp,
-          extraEnv,
-        });
+    const { dbEnvVars } = await setupDb({
+      appName,
+      dbType,
+      pathToApp,
+    });
 
-        await startApp({
-          waspCliCmd,
-          pathToApp,
-          extraEnv,
-        });
-      }
-    );
+    await migrateDb({
+      waspCliCmd,
+      pathToApp,
+      extraEnv: dbEnvVars,
+    });
+
+    await startApp({
+      waspCliCmd,
+      pathToApp,
+      extraEnv: dbEnvVars,
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       log("main", "error", `Fatal error: ${error.message}`);

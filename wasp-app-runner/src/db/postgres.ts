@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 
-import type { RunAppWithDbFn } from "./types.js";
+import type { SetupDbFn } from "./types.js";
 import { log } from "../logging.js";
 import { processManager } from "../process.js";
 import { Branded } from "../types.js";
@@ -8,20 +8,22 @@ import { Branded } from "../types.js";
 type ContainerName = Branded<string, "ContainerName">;
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
-export const runAppWithPostgres: RunAppWithDbFn = async (
-  { appName, pathToApp },
-  runApp
-) => {
-  const databaseUrl = await ensurePostgresContainer({ appName, pathToApp });
+export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
+  await ensureDockerIsRunning();
+
+  const databaseUrl = await startPostgresContainerForApp({
+    appName,
+    pathToApp,
+  });
 
   log("postgres", "info", `Using DATABASE_URL: ${databaseUrl}`);
 
-  return runApp({
-    extraEnv: { DATABASE_URL: databaseUrl },
-  });
+  return {
+    dbEnvVars: { DATABASE_URL: databaseUrl },
+  };
 };
 
-async function ensurePostgresContainer({
+async function startPostgresContainerForApp({
   appName,
   pathToApp,
 }: {
@@ -33,22 +35,13 @@ async function ensurePostgresContainer({
     pathToApp,
   });
 
-  try {
-    log("postgres", "info", `Using DB container: ${containerName}`);
+  log("postgres", "info", `Using container name: ${containerName}`);
 
-    const databaseUrl = await runPostgresContainerAndWaitUntilReady(
-      containerName
-    );
+  const databaseUrl = await startPostgresContainerAndWaitUntilReady(
+    containerName
+  );
 
-    return databaseUrl;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      log("postgres", "error", error.message);
-    } else {
-      log("postgres", "error", `${error}`);
-    }
-    process.exit(1);
-  }
+  return databaseUrl;
 }
 
 function createAppSpecificContainerName({
@@ -65,7 +58,7 @@ function createAppSpecificContainerName({
   return `${appName}-${appPathHash}-db` as ContainerName;
 }
 
-async function runPostgresContainerAndWaitUntilReady(
+async function startPostgresContainerAndWaitUntilReady(
   containerName: ContainerName
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
@@ -130,7 +123,8 @@ async function waitForPostgresReady(
     await wait(healthCheckDelay);
   }
 
-  throw new Error("PostgreSQL did not become ready in time");
+  log("postgres", "error", "PostgreSQL did not become ready in time");
+  process.exit(1);
 }
 
 async function checkIfPostgresIsReady(
@@ -147,4 +141,29 @@ async function checkIfPostgresIsReady(
 
 async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function ensureDockerIsRunning(): Promise<void> {
+  const isDockerRunning = await checkIfDockerIsRunning();
+
+  if (isDockerRunning) {
+    return;
+  }
+
+  log(
+    "postgres",
+    "error",
+    "Docker is not running. Please start Docker and try again."
+  );
+  process.exit(1);
+}
+
+async function checkIfDockerIsRunning(): Promise<boolean> {
+  const { exitCode } = await processManager.spawnAndCollectStdout({
+    name: "docker-health-check",
+    cmd: "docker",
+    args: ["info"],
+  });
+
+  return exitCode === 0;
 }
