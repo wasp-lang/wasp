@@ -226,7 +226,6 @@ export const signup: CustomSignup<
 
 ### Username and password
 
-
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
 
@@ -353,7 +352,7 @@ export const signup: CustomSignup<
 </TabItem>
 </Tabs>
 
-## Reference
+## API Reference
 
 We suggest using the built-in field validators for your authentication flow. You can import them from `wasp/server/auth`. These are the same validators that Wasp uses internally for the default authentication flow.
 
@@ -378,4 +377,3 @@ We suggest using the built-in field validators for your authentication flow. You
 - `ensureValidPassword(args)`
 
   Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
-

@@ -2,11 +2,17 @@
 title: Create your own UI
 ---
 
-The login and signup flows are pretty standard: they allow the user to sign up and then log in with their email and password. The signup flow validates the email and password and sends a verification email. When the user confirms their email, it creates a new user entity in the database.
+In Email authentication, users log in with their email address and a password. On signup, Wasp validates the data and sends a verification email. The user record is not active until the link in the verification email is clicked. Moreover, the user can later reset their password through their email with a similar flow.
 
+:::tip
 Read more about the default email and password validation rules in the [auth overview docs](../overview.md#default-validations).
+:::
+
+Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times where you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions on your own code, similar to how Auth UI does it under the hood.
 
 ## Example code
+
+Below you can find a starting point for making your own UI in the client code. You can customize any of its look and behaviour, just make sure to call the `signup()` or `login()` functions.
 
 ### Sign-up
 
@@ -14,32 +20,56 @@ Read more about the default email and password validation rules in the [auth ove
 <TabItem value="js" label="JavaScript">
 
 ```jsx title="src/pages/auth.jsx"
-import { signup, login } from 'wasp/client/auth'
+import { signup } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
 
 export function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
-  const navigate = useNavigate()
+  const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
   async function handleSubmit(event) {
     event.preventDefault()
+    setError(null)
     try {
-      await signup({
-        email,
-        password,
-      })
-      await login(email, password)
-      navigate('/')
+      await signup({ email, password })
+      setNeedsConfirmation(true)
     } catch (error) {
+      console.error('Error during signup:', error)
       setError(error)
     }
   }
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+  if (needsConfirmation) {
+    return (
+      <p>
+        Check your email for the confirmation link. If you don't see it, check
+        spam/junk folder.
+      </p>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>Error: {error.message}</p>}
+
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  )
 }
 ```
 
@@ -47,32 +77,56 @@ export function Signup() {
 <TabItem value="ts" label="TypeScript">
 
 ```tsx title="src/pages/auth.tsx"
-import { signup, login } from 'wasp/client/auth'
+import { signup } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
 
 export function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
+  const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setError(null)
     try {
-      await signup({
-        email,
-        password,
-      })
-      await login(email, password)
-      navigate('/')
+      await signup({ email, password })
+      setNeedsConfirmation(true)
     } catch (error: unknown) {
+      console.error('Error during signup:', error)
       setError(error as Error)
     }
   }
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+  if (needsConfirmation) {
+    return (
+      <p>
+        Check your email for the confirmation link. If you don't see it, check
+        spam/junk folder.
+      </p>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>Error: {error.message}</p>}
+
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  )
 }
 ```
 
@@ -88,9 +142,9 @@ export function Signup() {
 import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-export function LoginPage() {
+export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -98,15 +152,34 @@ export function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+    setError(null)
     try {
-      await login(email, password)
+      await login({ email, password })
       navigate('/')
     } catch (error) {
       setError(error)
     }
   }
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>Error: {error.message}</p>}
+
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Log In</button>
+    </form>
+  )
 }
 ```
 
@@ -117,9 +190,9 @@ export function LoginPage() {
 import { login } from 'wasp/client/auth'
 
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-export function LoginPage() {
+export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<Error | null>(null)
@@ -127,37 +200,55 @@ export function LoginPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setError(null)
     try {
-      await login(email, password)
+      await login({ email, password })
       navigate('/')
     } catch (error: unknown) {
       setError(error as Error)
     }
   }
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>Error: {error.message}</p>}
+
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Log In</button>
+    </form>
+  )
 }
 ```
 
 </TabItem>
 </Tabs>
 
-## Reference
+## API Reference
 
 ### `login()`
 
 An action for logging in the user.
 
-It takes two arguments:
+It takes one argument:
 
-- `email: string` <Required />
+- `userFields: object` <Required />
 
-Email of the user logging in.
+  It has the following fields:
 
-- `password: string` <Required />
+  - `email: string` <Required />
 
-Password of the user logging in.
-
+  - `password: string` <Required />
 
 :::note
 When using the exposed `login()` function, make sure to implement your redirect on success login logic (e.g. redirecting to home).
@@ -165,7 +256,8 @@ When using the exposed `login()` function, make sure to implement your redirect 
 
 ### `signup()`
 
-An action for signing up the user. This action does not log in the user, you still need to call `login()`.
+An action for signing up the user and starting the email verification. The user will not be logged in after this, as they still need
+to verify their email.
 
 It takes one argument:
 
@@ -180,4 +272,3 @@ It takes one argument:
 :::info
 By default, Wasp will only save the `email` and `password` fields. If you want to add extra fields to your signup process, read about [defining extra signup fields](../overview.md#customizing-the-signup-process).
 :::
-
