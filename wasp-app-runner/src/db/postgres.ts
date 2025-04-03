@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 
 import type { SetupDbFn } from "./types.js";
 import { log } from "../logging.js";
-import { processManager } from "../process.js";
+import { spawnAndCollectOutput } from "../process.js";
 import { Branded } from "../types.js";
 
 type ContainerName = Branded<string, "ContainerName">;
@@ -67,22 +67,21 @@ async function startPostgresContainerAndWaitUntilReady(
 
   log("postgres", "info", "Starting the PostgreSQL container...");
 
-  processManager
-    .spawnAndCollectStdout({
-      name: "create-postgres-container",
-      cmd: "docker",
-      args: [
-        "run",
-        "--name",
-        containerName,
-        "-p",
-        `${port}:5432`,
-        "-e",
-        `POSTGRES_PASSWORD=${password}`,
-        `--rm`,
-        image,
-      ],
-    })
+  spawnAndCollectOutput({
+    name: "create-postgres-container",
+    cmd: "docker",
+    args: [
+      "run",
+      "--name",
+      containerName,
+      "-p",
+      `${port}:5432`,
+      "-e",
+      `POSTGRES_PASSWORD=${password}`,
+      `--rm`,
+      image,
+    ],
+  })
     // If we awaited here, we would block the main thread indefinitely.
     .then(({ exitCode, stderrData }) => {
       if (exitCode !== 0) {
@@ -130,7 +129,7 @@ async function waitForPostgresReady(
 async function checkIfPostgresIsReady(
   containerName: ContainerName
 ): Promise<boolean> {
-  const { exitCode } = await processManager.spawnAndCollectStdout({
+  const { exitCode } = await spawnAndCollectOutput({
     name: "postgres-readiness-check",
     cmd: "docker",
     args: ["exec", containerName, "pg_isready", "-U", "postgres"],
@@ -159,7 +158,7 @@ async function ensureDockerIsRunning(): Promise<void> {
 }
 
 async function checkIfDockerIsRunning(): Promise<boolean> {
-  const { exitCode } = await processManager.spawnAndCollectStdout({
+  const { exitCode } = await spawnAndCollectOutput({
     name: "docker-health-check",
     cmd: "docker",
     args: ["info"],

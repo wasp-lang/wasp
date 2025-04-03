@@ -2,7 +2,7 @@ import { stripVTControlCharacters } from "node:util";
 
 import { log } from "./logging.js";
 import { getWaspcDirAbsPath } from "./path.js";
-import { processManager } from "./process.js";
+import { spawnWithLog, spawnAndCollectOutput } from "./process.js";
 import { DbType } from "./db/index.js";
 import type { EnvVars } from "./types.js";
 
@@ -14,8 +14,8 @@ export function migrateDb({
   waspCliCmd: string;
   pathToApp: string;
   extraEnv: EnvVars;
-}): Promise<number | null> {
-  return processManager.spawnWithLog({
+}): Promise<{ exitCode: number | null }> {
+  return spawnWithLog({
     name: "migrate-db",
     cmd: waspCliCmd,
     args: ["db", "migrate-dev"],
@@ -32,8 +32,8 @@ export function startApp({
   waspCliCmd: string;
   pathToApp: string;
   extraEnv: EnvVars;
-}): Promise<number | null> {
-  return processManager.spawnWithLog({
+}): Promise<{ exitCode: number | null }> {
+  return spawnWithLog({
     name: "start-app",
     cmd: waspCliCmd,
     args: ["start"],
@@ -52,7 +52,7 @@ export async function getAppInfo({
   appName: string;
   dbType: DbType;
 }> {
-  const { stdoutData, exitCode } = await processManager.spawnAndCollectStdout({
+  const { stdoutData, exitCode } = await spawnAndCollectOutput({
     name: "get-app-info",
     cmd: waspCliCmd,
     args: ["info"],
@@ -93,10 +93,10 @@ export async function getAppInfo({
   };
 }
 
-export async function installWaspCli(): Promise<number | null> {
+export async function installWaspCli(): Promise<{ exitCode: number | null }> {
   log("install-wasp-cli", "info", "Installing Wasp CLI globally...");
 
-  return processManager.spawnWithLog({
+  return spawnWithLog({
     name: "install-wasp-cli",
     cmd: "cabal",
     args: ["install", "--overwrite-policy=always"],
