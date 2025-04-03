@@ -22,7 +22,7 @@ type EnvVarName = String
 
 type EnvVarValue = String
 
--- Reads specified dotenv file and returns its values.
+-- Reads the specified dotenv file and returns its values.
 -- Crashes if file doesn't exist or it can't parse it.
 parseDotEnvFile :: Path' Abs (File ()) -> IO [EnvVar]
 parseDotEnvFile envFile =

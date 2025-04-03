@@ -142,6 +142,10 @@ function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
   }
 }
 
+function mapHttpRoute(httpRoute: User.HttpRoute): AppSpec.HttpRoute {
+  return [httpRoute.method, httpRoute.route]
+}
+
 function mapApiConfig(
   config: User.ApiConfig,
   parseEntityRef: RefParser<'Entity'>
@@ -151,7 +155,7 @@ function mapApiConfig(
     fn: mapExtImport(fn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
     entities: entities && entities.map(parseEntityRef),
-    httpRoute,
+    httpRoute: mapHttpRoute(httpRoute),
     auth,
   }
 }
@@ -335,7 +339,8 @@ function mapServer(server: User.ServerConfig): AppSpec.Server {
   return {
     setupFn: setupFn && mapExtImport(setupFn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
-    envValidationSchema: envValidationSchema && mapExtImport(envValidationSchema),
+    envValidationSchema:
+      envValidationSchema && mapExtImport(envValidationSchema),
   }
 }
 
@@ -345,7 +350,8 @@ function mapClient(client: User.ClientConfig): AppSpec.Client {
     setupFn: setupFn && mapExtImport(setupFn),
     rootComponent: rootComponent && mapExtImport(rootComponent),
     baseDir,
-    envValidationSchema: envValidationSchema && mapExtImport(envValidationSchema),
+    envValidationSchema:
+      envValidationSchema && mapExtImport(envValidationSchema),
   }
 }
 
