@@ -11,6 +11,9 @@
 - Better validation of `package.json` ( [#2554](https://github.com/wasp-lang/wasp/pull/2554) )
 - Typescript config now accept `HttpRoute` object insteada of an array ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
 
+### ⚠️ Breaking Changes
+- Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
+
 ### Bug fixes
 
 - CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).

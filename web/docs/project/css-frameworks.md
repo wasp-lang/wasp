@@ -91,6 +91,9 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the plugins list in your `tailwind.config.cjs` file:
 
 ```shell
+# Since Wasp currently supports Tailwind ^3.2.7, you must
+# explicitly install a compatible version.
+npm install -D tailwindcss@^3.2.7
 npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
 ```
