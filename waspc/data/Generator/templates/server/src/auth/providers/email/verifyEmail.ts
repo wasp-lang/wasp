@@ -3,6 +3,7 @@ import { validateJWT } from 'wasp/auth/jwt';
 import {
   createProviderId,
   findAuthIdentity,
+  findAuthWithUserBy,
   getProviderDataWithPassword,
   updateAuthIdentityProviderData,
 } from 'wasp/auth/utils';
@@ -27,11 +28,12 @@ export async function verifyEmail(
     }
 
     const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
+    const auth = await findAuthWithUserBy({ id: authIdentity.authId })
 
     await updateAuthIdentityProviderData(providerId, providerData, {
         isEmailVerified: true,
     });
-    await onAfterEmailVerifiedHook({ req, email })
+    await onAfterEmailVerifiedHook({ req, email, user: auth.user })
 
     return res.json({ success: true });
 };

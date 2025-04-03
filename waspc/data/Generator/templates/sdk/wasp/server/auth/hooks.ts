@@ -88,6 +88,10 @@ type OnAfterEmailVerifiedHookParams = {
   */
   email: string
   /**
+   * User whose email was verified.
+  */
+  user: FindAuthWithUserResult['user']
+  /**
    * Request object that can be used to access the incoming request.
   */
   req: ExpressRequest
