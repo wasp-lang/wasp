@@ -65,8 +65,9 @@ export const signup = async (args, _context) => {
       // Or, another example, you can check if the user is already
       // verified and re-send the verification email if not
       providerData = getProviderData(existingAuthIdentity.providerData)
-      if (providerData.isEmailVerified)
+      if (providerData.isEmailVerified) {
         throw new HttpError(400, 'Email already verified.')
+      }
     }
 
     if (!providerData) {

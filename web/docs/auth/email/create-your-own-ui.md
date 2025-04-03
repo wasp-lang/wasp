@@ -2,13 +2,13 @@
 title: Create your own UI
 ---
 
-In Email authentication, users log in with their email address and a password. On signup, Wasp validates the data and sends a verification email. The user record is not active until the link in the verification email is clicked. Moreover, the user can later reset their password through their email with a similar flow.
+When using the email auth provider, users log in with their email address and a password. On signup, Wasp validates the data and sends a verification email. The user account is not active until the user clicks the link in the verification email. Also, the user can reset their password through a similar flow.
 
 :::tip
 Read more about the default email and password validation rules in the [auth overview docs](../overview.md#default-validations).
 :::
 
-Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times where you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions on your own code, similar to how Auth UI does it under the hood.
+Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times when you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions from your own code, similar to how Auth UI does it under the hood.
 
 ## Example code
 
