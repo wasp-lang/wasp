@@ -24,6 +24,25 @@ appAction('createThought', ['Thought', 'Tag'], '@src/server/actions.js');
 appQuery( 'getTags',       ['Tag'],            '@src/server/queries.js');
 appQuery( 'getThoughts',   ['Thought'],        '@src/server/queries.js');
 
+app.api('time', {
+  fn: {
+    from: '@src/server/apis.js',
+    import: 'getCurrentTime',
+  },
+  httpRoute: {
+    method: 'GET',
+    route: '/time',
+  },
+});
+
+app.apiNamespace('time', {
+  path: '/time',
+  middlewareConfigFn: {
+    from: '@src/server/apis.js',
+    import: 'apiMiddleware',
+  },
+});
+
 function appPageWithRoute(pageName: string, path: string, from: ExtImport['from'], config?: { auth: boolean }) {
   const page = app.page(pageName, {
     component: { importDefault: pageName, from },
