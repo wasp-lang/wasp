@@ -92,7 +92,7 @@ To add Tailwind plugins, install them as npm development [dependencies](../proje
 
 ```shell
 # Wasp requires you to have Tailwind ^3.2.7 written in your package.json, you
-must # explicitly install it.
+# must explicitly install it.
 npm install -D tailwindcss@3.2.7
 npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
