@@ -15,11 +15,11 @@ import StrongPath (File', Path, Posix, Rel, reldir, relfile, relfileP, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
@@ -139,8 +139,8 @@ genJobExecutors spec = case getJobs spec of
 pgBossVersionRange :: SV.Range
 pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 8 4 2)]
 
-pgBossDependency :: AS.Dependency.Dependency
-pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionRange)
+pgBossDependency :: Npm.Dependency.Dependency
+pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 
-depsRequiredByJobs :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]

@@ -9,10 +9,10 @@ import Data.Maybe (fromMaybe, isJust, maybeToList)
 import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.EmailSender (EmailSender)
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -91,7 +91,7 @@ genEmailSenderProviderSetupFn email =
 
     tmplPath = Providers.providersDirInSdkTemplatesDir </> Providers.setupFnFile provider
 
-depsRequiredByEmail :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
   where
     maybeProvider :: Maybe Providers.EmailSenderProvider

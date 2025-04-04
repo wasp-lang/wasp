@@ -9,12 +9,12 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
 where
 
 import StrongPath (Dir, File', Path', Rel, reldir, relfile)
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
-  { npmDependency :: Maybe AS.Dependency.Dependency,
+  { npmDependency :: Maybe Npm.Dependency.Dependency,
     setupFnFile :: Path' (Rel ProvidersDir) File'
   }
   deriving (Show, Eq)
@@ -34,8 +34,8 @@ smtp =
     nodeMailerVersionRange :: SV.Range
     nodeMailerVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 6 9 1)]
 
-    nodeMailerDependency :: AS.Dependency.Dependency
-    nodeMailerDependency = AS.Dependency.make ("nodemailer", show nodeMailerVersionRange)
+    nodeMailerDependency :: Npm.Dependency.Dependency
+    nodeMailerDependency = Npm.Dependency.make ("nodemailer", show nodeMailerVersionRange)
 
 sendGrid :: EmailSenderProvider
 sendGrid =
@@ -47,8 +47,8 @@ sendGrid =
     sendGridVersionRange :: SV.Range
     sendGridVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 7 7 0)]
 
-    sendGridDependency :: AS.Dependency.Dependency
-    sendGridDependency = AS.Dependency.make ("@sendgrid/mail", show sendGridVersionRange)
+    sendGridDependency :: Npm.Dependency.Dependency
+    sendGridDependency = Npm.Dependency.make ("@sendgrid/mail", show sendGridVersionRange)
 
 mailgun :: EmailSenderProvider
 mailgun =
@@ -60,8 +60,8 @@ mailgun =
     mailgunVersionRange :: SV.Range
     mailgunVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 10 2 3)]
 
-    mailgunDependency :: AS.Dependency.Dependency
-    mailgunDependency = AS.Dependency.make ("mailgun.js", show mailgunVersionRange)
+    mailgunDependency :: Npm.Dependency.Dependency
+    mailgunDependency = Npm.Dependency.make ("mailgun.js", show mailgunVersionRange)
 
 dummy :: EmailSenderProvider
 dummy =

@@ -10,9 +10,9 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
@@ -68,8 +68,8 @@ genClientEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
 
-depsRequiredByEnvValidation :: [AS.Dependency.Dependency]
+depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =
-  AS.Dependency.fromList
+  Npm.Dependency.fromList
     [ ("zod", "^3.23.8")
     ]

@@ -239,7 +239,6 @@ library
     Wasp.AppSpec.App.Client
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.EmailSender
-    Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
@@ -267,7 +266,8 @@ library
     Wasp.Db.Postgres
     Wasp.Error
     Wasp.Env
-    Wasp.ExternalConfig.PackageJson
+    Wasp.ExternalConfig.Npm.Dependency
+    Wasp.ExternalConfig.Npm.PackageJson
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -369,7 +369,6 @@ library
     Wasp.Job.Process
     Wasp.Message
     Wasp.Node.Version
-    Wasp.NpmDependency
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
