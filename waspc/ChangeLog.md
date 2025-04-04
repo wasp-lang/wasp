@@ -12,7 +12,11 @@
 - Prisma enums are now usable on the client ([#2565](https://github.com/wasp-lang/wasp/pull/2565))
 
 ### ⚠️ Breaking Changes
+
 - Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
+
+### 🐞 Bug fixes
+
 - CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
 - Adds a default value for `NODE_ENV` to prevent validation errors in rare cases ([#2507](https://github.com/wasp-lang/wasp/pull/2507))
 - Invalid CLI commands now properly return non-zero exit code ([#2522](https://github.com/wasp-lang/wasp/pull/2552))
