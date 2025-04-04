@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script defines common commands used during building / developing
+# This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
 
 SCRIPT_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
@@ -62,7 +62,7 @@ echo_bold () { echo -e $"${BOLD}${1}${RESET}"; }
 print_usage () {
     print_usage_cmd () {
         echo -e $"    ${YELLOW}${BOLD}${1}${RESET}"
-        echo -e  "        $2";
+        echo -e  "$2" | fold -s -w 80 | awk -v indent="        " '{print indent $0}'
     }
 
     echo_bold       "USAGE"
@@ -74,13 +74,16 @@ print_usage () {
     print_usage_cmd "build" \
                     "Builds the Haskell project."
     print_usage_cmd "build:all" \
-                    "Builds the whole (hs + ts) project."
+                    "Builds the Haskell project + all sub-projects (i.e. TS packages)."
     print_usage_cmd "build:packages" \
                     "Builds the TypeScript projects under packages/."
-
+    echo            ""
+    print_usage_cmd "wasp-cli <args>" \
+                    "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
+    echo            ""
     print_usage_cmd "install" \
-                    "Installs as wasp-cli globally on the machine."
-
+                    "Installs the wasp executable as 'wasp-cli' globally on the machine."
+    echo            ""
     print_usage_cmd "test" \
                     "Executes all tests (unit + e2e + headless). Builds the project first if needed."
     print_usage_cmd "test:unit [pattern]" \
@@ -93,15 +96,12 @@ print_usage () {
                     "Accepts any diffs in the generated code in e2e tests. Does so by deleting current golden output and re-running e2e tests to produce new golden output."
     print_usage_cmd "test:headless" \
                     "Executes headless tests, where example wasp apps are e2e tested using Playwright."
-
-    print_usage_cmd "wasp-cli <args>" \
-                    "Runs the wasp executable while forwarding arguments. Builds the project first if needed. Doesn't require you to be in the waspc project to run it."
-
+    echo            ""
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
     print_usage_cmd "ghcid-test" \
                     "Runs ghcid on both source and tests."
-
+    echo            ""
     print_usage_cmd "code-check" \
                     "Checks code by running it through formatter, linter and static analysis."
     print_usage_cmd "stan <args>" \
@@ -116,7 +116,7 @@ print_usage () {
                     "Runs the code formatter and formats the code in place."
     print_usage_cmd "module-graph" \
                     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
-
+    echo            ""
     print_usage_cmd "ghcup-set" \
                     "Sets the correct version of GHC and Cabal for this project (via GHCup)."
 }
