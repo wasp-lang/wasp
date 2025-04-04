@@ -161,20 +161,16 @@ genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec =
   return $
     extPublicFileDrafts
-      ++ ifUserDidntProvideFile genFaviconFd
       ++ ifUserDidntProvideFile genManifestFd
   where
     publicFiles = AS.externalPublicFiles spec
     extPublicFileDrafts = map C.mkPublicFileDraft publicFiles
-    genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genManifestFd = C.mkTmplFdWithData tmplFile tmplData
       where
         tmplData = object ["appName" .= (fst (getApp spec) :: String)]
         tmplFile = C.asTmplFile [relfile|public/manifest.json|]
 
-    ifUserDidntProvideFile fileDraft = [fileDraft | not (checkIfFileDraftExists fileDraft)]
-    checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
-    existingDstPaths = map FD.getDstPath extPublicFileDrafts
+    ifUserDidntProvideFile fileDraft = [fileDraft | not (checkIfFileDraftExists fileDraft extPublicFileDrafts)]
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =
@@ -185,11 +181,21 @@ genIndexHtml spec =
       (Just templateData)
   where
     targetPath = [relfile|index.html|]
+    faviconFd = C.mkTmplFd . C.asTmplFile $ [relfile|public/favicon.ico|]
+    extPublicFileDrafts = map C.mkPublicFileDraft $ AS.externalPublicFiles spec
     templateData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
-          "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
+          "head"
+            .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String),
+          "isFaviconPresent" .= checkIfFileDraftExists faviconFd extPublicFileDrafts
         ]
+
+checkIfFileDraftExists :: FileDraft -> [FileDraft] -> Bool
+checkIfFileDraftExists draftToCheck drafts = dstPathToCheck `elem` dstPaths
+  where
+    dstPaths = map FD.getDstPath drafts
+    dstPathToCheck = FD.getDstPath draftToCheck
 
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
 -- although they are not used anywhere outside.
