@@ -1,7 +1,7 @@
 ---
 title: "New React docs pretend SPAs don't exist anymore"
 authors: [matijasos]
-image: img/new-react-docs/evan-you-no-vite.png
+image: /img/new-react-docs/evan-you-no-vite.png
 tags: [webdev, react] 
 ---
 
@@ -14,7 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 <ImgWithCaption
     alt="Where is Vite"
-    source="img/new-react-docs/evan-you-no-vite.png"
+    source="/img/new-react-docs/evan-you-no-vite.png"
 />
 
 React just released their new docs at [https://react.dev/](https://react.dev/). While it looks great and packs a lot of improvements, one section that caught the community’s attention is “[Start a New React Project](https://react.dev/learn/start-a-new-react-project)”. The strongly recommended way to start a new React project is to use a framework such as Next.js, while the traditional route of using bundlers like Vite or CRA is fairly strongly discouraged.

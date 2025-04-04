@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
+import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { LinkGrid } from "@site/src/components/LinkGrid";
 import { Required } from '@site/src/components/Tag';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
@@ -98,9 +98,9 @@ You don't need to implement any UI or logic, and they just work.
 
 <LinkGrid
   links={[
-    { title: 'Email', link: '/docs/auth/email' },
-    { title: 'Username and password', link: '/docs/auth/username-and-pass' },
-    { title: 'Social Auth', link: '/docs/auth/social-auth/overview' },
+    { title: 'Email', linkTo: './email' },
+    { title: 'Username and password', linkTo: './username-and-pass' },
+    { title: 'Social Auth', linkTo: './social-auth/overview' },
   ]}
 />
 
@@ -112,9 +112,9 @@ This allows for total customization of the look-and-feel, and the interaction, b
 
 <LinkGrid
   links={[
-    { title: 'Email', link: '/docs/auth/email/create-your-own-ui' },
-    { title: 'Username and password', link: '/docs/auth/username-and-pass/create-your-own-ui' },
-    { title: 'Social Auth', link: '/docs/auth/social-auth/create-your-own-ui' },
+    { title: 'Email', linkTo: './email/create-your-own-ui' },
+    { title: 'Username and password', linkTo: './username-and-pass/create-your-own-ui' },
+    { title: 'Social Auth', linkTo: './social-auth/create-your-own-ui' },
   ]}
 />
 
@@ -205,15 +205,15 @@ The `user` object has all the fields that you defined in your `User` entity. In 
 ```ts
 const user = {
   // User data
-  id: "cluqsex9500017cn7i2hwsg17",
-  address: "Some address",
+  id: 'cluqsex9500017cn7i2hwsg17',
+  address: 'Some address',
 
   // Auth methods specific data
   identities: {
     email: {
-      id: "user@app.com",
+      id: 'user@app.com',
       isEmailVerified: true,
-      emailVerificationSentAt: "2024-04-08T10:06:02.204Z",
+      emailVerificationSentAt: '2024-04-08T10:06:02.204Z',
       passwordResetSentAt: null,
     },
   },
@@ -229,9 +229,9 @@ There are two ways to access the `user` object on the client:
 - the `user` prop
 - the `useAuth` hook
 
-#### Using the `user` prop
+#### Getting the `user` in authenticated routes
 
-If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop:
+If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -293,7 +293,7 @@ export default AccountPage
 </TabItem>
 </Tabs>
 
-#### Using the `useAuth` hook
+#### Getting the `user` in non-authenticated routes
 
 Wasp provides a React hook you can use in the client components - `useAuth`.
 
@@ -358,10 +358,6 @@ export function Main() {
 
 </TabItem>
 </Tabs>
-
-:::tip
-Since the `user` prop is only available in a page's React component: use the `user` prop in the page's React component and the `useAuth` hook in any other React component.
-:::
 
 ### On the server
 
@@ -458,20 +454,20 @@ import {
   findAuthIdentity,
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
-} from 'wasp/server/auth';
+} from 'wasp/server/auth'
 
 export const updatePassword = async (args, context) => {
   const providerId = createProviderId('email', args.email)
   const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
-      throw new HttpError(400, "Unknown user")
+    throw new HttpError(400, 'Unknown user')
   }
 
   const providerData = getProviderDataWithPassword(authIdentity.providerData)
 
   // Updates the password and hashes it automatically.
   await updateAuthIdentityProviderData(providerId, providerData, {
-      hashedPassword: args.password,
+    hashedPassword: args.password,
   })
 }
 ```
@@ -485,24 +481,26 @@ import {
   findAuthIdentity,
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
-} from 'wasp/server/auth';
+} from 'wasp/server/auth'
 import { type UpdatePassword } from 'wasp/server/operations'
 
 export const updatePassword: UpdatePassword<
   { email: string; password: string },
-  void,
+  void
 > = async (args, context) => {
   const providerId = createProviderId('email', args.email)
   const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
-      throw new HttpError(400, "Unknown user")
+    throw new HttpError(400, 'Unknown user')
   }
 
-  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData)
+  const providerData = getProviderDataWithPassword<'email'>(
+    authIdentity.providerData
+  )
 
   // Updates the password and hashes it automatically.
   await updateAuthIdentityProviderData(providerId, providerData, {
-      hashedPassword: args.password,
+    hashedPassword: args.password,
   })
 }
 ```
@@ -544,7 +542,6 @@ For this to happen:
 
 - you need to define the fields that you want saved in the database,
 - you need to customize the `SignupForm` (in the case of [Email](./email.md) or [Username & Password](./username-and-pass.md) auth)
-
 
 Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
 
@@ -1221,8 +1218,11 @@ The extra fields can be either **objects** or **render functions** (you can comb
    The render function has the following signature:
 
    ```ts
-   (form: UseFormReturn, state: FormState) => React.ReactNode
-   ```
+   type AdditionalSignupFieldRenderFn = (
+      hookForm: UseFormReturn,
+      formState: FormState
+    ) => React.ReactNode
+   `  ``
 
    - `form` <Required />
 
