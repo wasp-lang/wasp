@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ghcup set ghc 9.4.8 && ghcup set hls 2.9.0.1

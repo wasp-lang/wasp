@@ -1,0 +1,23 @@
+cabal-version:      3.0
+name:               docs-code-check
+version:            0.1.0.0
+license:            MIT
+license-file:       LICENSE
+author:             Martin Sosic
+maintainer:         martin@wasp-lang.dev
+-- copyright:
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+executable docs-code-check
+    import:           warnings
+    main-is:          Main.hs
+    -- other-modules:
+    -- other-extensions:
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   app
+    default-language: Haskell2010
