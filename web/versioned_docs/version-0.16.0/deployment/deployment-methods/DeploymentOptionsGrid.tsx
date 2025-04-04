@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from '@docusaurus/Link'
 import './DeploymentOptionsGrid.css'
 
 export function DeploymentOptionsGrid() {
@@ -6,17 +7,17 @@ export function DeploymentOptionsGrid() {
     {
       title: 'Wasp CLI',
       description: 'One command deployment & redeployment',
-      linkToDocs: '/docs/deployment/deployment-methods/cli',
+      linkToDocs: './cli',
     },
     {
       title: 'Platform as a Service (PaaS)',
       description: 'Deploy your app manually to the cloud',
-      linkToDocs: '/docs/deployment/deployment-methods/paas',
+      linkToDocs: './paas',
     },
     {
       title: 'Self-hosting',
       description: 'Use your own servers to host your app',
-      linkToDocs: '/docs/deployment/deployment-methods/self-hosted',
+      linkToDocs: './self-hosted',
     },
   ]
   return (
@@ -47,9 +48,9 @@ function DeploymentOptionBox({
   description: string
 }) {
   return (
-    <a href={linkToDocs} className="deployment-method-box">
+    <Link to={linkToDocs} className="deployment-method-box">
       <h3>{title} »</h3>
       <p>{description}</p>
-    </a>
+    </Link>
   )
 }

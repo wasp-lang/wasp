@@ -48,7 +48,7 @@ const GhIssueLink = ({ url, label }) => (
 const Section = ({ features }) => (
   <ul className="space-y-6">
     {features.map((f) => (
-      <li className="grid grid-cols-12">
+      <li className="grid grid-cols-12" key={f[0]}>
         <div className="col-span-8 col-start-3 flex items-center">
           <span>
             <span className="text-neutral-600">{f[0]}</span>

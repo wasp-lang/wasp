@@ -1,39 +1,37 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Prism from 'prismjs'
+import Highlight from 'prism-react-renderer'
+import lightCodeTheme from 'prism-react-renderer/themes/github'
 import '../css/prismjs-github-theme.css'
 
-export default function CodeHighlight(props = {}) {
-  const codeRef = React.createRef()
-  const {
-    prefixCls = 'code-highlight-wrapper',
-    className,
-    language,
-    source,
-    children,
-    ...others
-  } = props
-  const langCls = language ? `language-${language}` : ''
-  async function highlight() {
-    if (codeRef.current) {
-      Prism.highlightElement(codeRef.current)
-    }
-  }
-  useEffect(() => {
-    highlight()
-  }, [language, source])
+export default function CodeHighlight({ language, source }) {
   return (
-    <pre
-      className={`${prefixCls} ${className || ''} ${langCls}`}
-      {...others}
-      style={{
-        borderBottomLeftRadius: '10px',
-        borderBottomRightRadius: '10px',
-        paddingLeft: '15px',
-      }}
+    <Highlight
+      Prism={Prism}
+      theme={lightCodeTheme}
+      code={source}
+      language={language}
     >
-      <code className={langCls} ref={codeRef}>
-        {source || children}
-      </code>
-    </pre>
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <pre
+          className={className}
+          style={{
+            borderBottomLeftRadius: '10px',
+            borderBottomRightRadius: '10px',
+            paddingLeft: '15px',
+            ...style,
+          }}
+        >
+          {tokens.map((line, i) => (
+            <div key={i} {...getLineProps({ line })}>
+              {/* <span>{i + 1}</span> */}
+              {line.map((token, key) => (
+                <span key={key} {...getTokenProps({ token })} />
+              ))}
+            </div>
+          ))}
+        </pre>
+      )}
+    </Highlight>
   )
 }
