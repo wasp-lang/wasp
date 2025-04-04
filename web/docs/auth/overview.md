@@ -125,7 +125,7 @@ For example, you can create a custom signup screen, but use Wasp's generated com
 
 :::
 
-##### Custom login and signup actions (Not recommended)
+#### Custom login and signup actions
 
 The previously discussed options should cover the vast majority of cases. But, for the few instances where it is not enough,
 you can [create your own signup flows](./advanced/custom-auth-actions.md), with completely custom logic.
