@@ -12,15 +12,15 @@ import {
 } from '../helpers/tomlFileHelpers.js';
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
 import { SetupOptions } from './SetupOptions.js';
+import { createFlyDbCommand } from '../index.js';
 import {
-  cdToClientBuildDir,
-  cdToServerBuildDir,
+  waspSays,
   makeIdempotent,
   getCommandHelp,
-  waspSays,
+  cdToServerBuildDir,
   boldText,
-} from '../helpers/helpers.js';
-import { createFlyDbCommand } from '../index.js';
+  cdToClientBuildDir,
+} from '../../../helpers.js';
 
 const internalPortOptionRegex = /internal_port = \d+/g;
 const serverAppPort = 8080;
