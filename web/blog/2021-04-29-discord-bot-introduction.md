@@ -215,7 +215,7 @@ and if you assign yourself a `Guest` role on the Discord server and then type `!
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
 
-As such, we have updated our Deployment docs with new recommendations: https://wasp.sh/docs/deploying
+As such, we have updated our Deployment docs with new recommendations: https://wasp.sh/docs/deployment/intro
 :::
 
 While there are many ways to deploy the Discord bot, I will shortly describe how we did it via Heroku.

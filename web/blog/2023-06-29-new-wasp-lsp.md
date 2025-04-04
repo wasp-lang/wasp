@@ -16,7 +16,7 @@ import ImgWithCaption from './components/ImgWithCaption'
     source="img/new-lsp/new-lsp-banner.png"
 />
 
-It's the fourth day of our [Launch Week #3](blog/2023/06/22/wasp-launch-week-three) - today it's all about dev tooling and making sure that the time you spend looking at your IDE is as pleasurable as possible!
+It's the fourth day of our [Launch Week #3](/blog/2023/06/22/wasp-launch-week-three) - today it's all about dev tooling and making sure that the time you spend looking at your IDE is as pleasurable as possible!
 
 **We present the next generation of Wasp LSP (Language Server Protocol) implementation for [VS Code](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp)**! As you might already know, Wasp has its own simple configuration language (`.wasp`) that acts as a glue between your React & Node.js code.
 

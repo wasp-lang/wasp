@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
+import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { Required } from '@site/src/components/Tag';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
@@ -158,15 +158,15 @@ The `user` object has all the fields that you defined in your `User` entity. In 
 ```ts
 const user = {
   // User data
-  id: "cluqsex9500017cn7i2hwsg17",
-  address: "Some address",
+  id: 'cluqsex9500017cn7i2hwsg17',
+  address: 'Some address',
 
   // Auth methods specific data
   identities: {
     email: {
-      id: "user@app.com",
+      id: 'user@app.com',
       isEmailVerified: true,
-      emailVerificationSentAt: "2024-04-08T10:06:02.204Z",
+      emailVerificationSentAt: '2024-04-08T10:06:02.204Z',
       passwordResetSentAt: null,
     },
   },
@@ -182,9 +182,9 @@ There are two ways to access the `user` object on the client:
 - the `user` prop
 - the `useAuth` hook
 
-#### Using the `user` prop
+#### Getting the `user` in authenticated routes
 
-If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop:
+If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -246,7 +246,7 @@ export default AccountPage
 </TabItem>
 </Tabs>
 
-#### Using the `useAuth` hook
+#### Getting the `user` in non-authenticated routes
 
 Wasp provides a React hook you can use in the client components - `useAuth`.
 
@@ -311,10 +311,6 @@ export function Main() {
 
 </TabItem>
 </Tabs>
-
-:::tip
-Since the `user` prop is only available in a page's React component: use the `user` prop in the page's React component and the `useAuth` hook in any other React component.
-:::
 
 ### On the server
 
@@ -411,20 +407,20 @@ import {
   findAuthIdentity,
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
-} from 'wasp/server/auth';
+} from 'wasp/server/auth'
 
 export const updatePassword = async (args, context) => {
   const providerId = createProviderId('email', args.email)
   const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
-      throw new HttpError(400, "Unknown user")
+    throw new HttpError(400, 'Unknown user')
   }
-  
+
   const providerData = getProviderDataWithPassword(authIdentity.providerData)
 
   // Updates the password and hashes it automatically.
   await updateAuthIdentityProviderData(providerId, providerData, {
-      hashedPassword: args.password,
+    hashedPassword: args.password,
   })
 }
 ```
@@ -438,24 +434,26 @@ import {
   findAuthIdentity,
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
-} from 'wasp/server/auth';
+} from 'wasp/server/auth'
 import { type UpdatePassword } from 'wasp/server/operations'
 
 export const updatePassword: UpdatePassword<
   { email: string; password: string },
-  void,
+  void
 > = async (args, context) => {
   const providerId = createProviderId('email', args.email)
   const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
-      throw new HttpError(400, "Unknown user")
+    throw new HttpError(400, 'Unknown user')
   }
-  
-  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData)
+
+  const providerData = getProviderDataWithPassword<'email'>(
+    authIdentity.providerData
+  )
 
   // Updates the password and hashes it automatically.
   await updateAuthIdentityProviderData(providerId, providerData, {
-      hashedPassword: args.password,
+    hashedPassword: args.password,
   })
 }
 ```
@@ -497,7 +495,6 @@ For this to happen:
 
 - you need to define the fields that you want saved in the database,
 - you need to customize the `SignupForm` (in the case of [Email](./email) or [Username & Password](./username-and-pass) auth)
-
 
 Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
 
@@ -696,7 +693,7 @@ Read more about using the signup actions for:
 
 - email auth [here](../auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
 - username & password auth [here](../auth/username-and-pass#customizing-the-auth-flow)
-:::
+  :::
 
 If you are using Wasp's Auth UI, you can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
 
@@ -931,7 +928,7 @@ app MyApp {
 
 #### `userEntity: entity` <Required />
 
-The entity representing the user connected to your business logic. 
+The entity representing the user connected to your business logic.
 
 <ReadMoreAboutAuthEntities />
 
@@ -1174,8 +1171,11 @@ The extra fields can be either **objects** or **render functions** (you can comb
    The render function has the following signature:
 
    ```ts
-   (form: UseFormReturn, state: FormState) => React.ReactNode
-   ```
+   type AdditionalSignupFieldRenderFn = (
+      hookForm: UseFormReturn,
+      formState: FormState
+    ) => React.ReactNode
+   `  ``
 
    - `form` <Required />
 

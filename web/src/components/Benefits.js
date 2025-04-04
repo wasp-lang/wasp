@@ -68,7 +68,7 @@ const Benefits = () => {
           Icon={Code}
           title="Less boilerplate"
           description={`
-            The .wasp config file allows us to immensely improve developer experience.
+            The .wasp config file allows us to improve the developer experience immensely.
             E.g., full-stack auth takes only 5 lines of code.
           `}
         />

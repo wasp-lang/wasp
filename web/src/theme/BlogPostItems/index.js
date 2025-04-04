@@ -15,7 +15,7 @@ export default function BlogPostItems({
   // TODO(matija): what if there are no items (blog posts)?
   const featuredItem = items[0]
   const coverImgSrc =
-    featuredItem.content.frontMatter.image || 'img/blog-default-img.png'
+    featuredItem.content.frontMatter.image || '/img/blog-default-img.png'
 
   return (
     <>
@@ -101,7 +101,7 @@ export default function BlogPostItems({
           {items.slice(1).map((item) => {
             const BlogPostContent = item.content
             const coverImgSrc =
-              item.content.frontMatter.image || 'img/blog-default-img.png'
+              item.content.frontMatter.image || '/img/blog-default-img.png'
 
             return (
               <article
