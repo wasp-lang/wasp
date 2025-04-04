@@ -16,7 +16,7 @@ export function useUsernameAndPassword({
       if (!isLogin) {
         await signup(data)
       }
-      await login(data.username, data.password)
+      await login(data)
 
       onSuccess()
     } catch (err: unknown) {
