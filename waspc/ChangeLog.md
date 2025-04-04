@@ -10,7 +10,7 @@
 
 ### ⚠️ Breaking Changes
 
-- Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
+- Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ([#2580](https://github.com/wasp-lang/wasp/pull/2580))
 
 ### 🐞 Bug fixes
 
@@ -22,7 +22,7 @@
 ### 🔧 Small improvements
 
 - The root server route doesn't return "Hello World" ([#2538](https://github.com/wasp-lang/wasp/pull/2538))
-- Better surface SendGrid erorrs in the server logs ([##2596](https://github.com/wasp-lang/wasp/pull/2596))
+- Better surface SendGrid errors in the server logs ([##2596](https://github.com/wasp-lang/wasp/pull/2596))
 - Improved the error message when the user has a top level `.wasp` file ([#2418](https://github.com/wasp-lang/wasp/pull/2418) by @komyg)
 - Extra validation of dependencies in `package.json` ([#2554](https://github.com/wasp-lang/wasp/pull/2554))
 - Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
