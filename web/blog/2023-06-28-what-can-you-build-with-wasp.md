@@ -17,7 +17,7 @@ import ImgWithCaption from './components/ImgWithCaption'
     source="img/build-with-wasp/build-with-wasp-banner.png"
 />
 
-Welcome to the 3rd day of our [Launch Week #3](blog/2023/06/22/wasp-launch-week-three) - Community Day! Our community is the most important aspect of everything we do at Wasp, and we believe it's only right to have a day dedicated to it.
+Welcome to the 3rd day of our [Launch Week #3](/blog/2023/06/22/wasp-launch-week-three) - Community Day! Our community is the most important aspect of everything we do at Wasp, and we believe it's only right to have a day dedicated to it.
 
 We'll showcase some of the coolest project built with Wasp so far and through that explore together what kind of apps you can develop with it. Let's dive in!
 
@@ -59,7 +59,7 @@ Try it out and have fun or use it as an inspiration for your next project!
 
 **UI Framework**: [Material UI](https://mui.com/)
 
-This app really gives away those "enterprise SaaS" vibes - when you see it you know it means some serious business! The author describes it as "Asana for you lawyers" ([you can read how the author got first customers for it here](blog/2023/02/14/amicus-indiehacker-interview)), or as an easy way for lawyers to manage and collaborate on their workflows.
+This app really gives away those "enterprise SaaS" vibes - when you see it you know it means some serious business! The author describes it as "Asana for you lawyers" ([you can read how the author got first customers for it here](/blog/2023/02/14/amicus-indiehacker-interview)), or as an easy way for lawyers to manage and collaborate on their workflows.
 
 File upload, workflow creation, calendar integration, collaboration - this app has it all! Amicus might be the most advanced project made with Wasp so far. Erlis startedbuilding it even with Wasp still in Alpha, and it has withstood the test of time since then.
 
@@ -101,7 +101,7 @@ While the previously mentioned projects queried the GPT API directly, TweetBot m
 
 As you could see above, Wasp can be used to build pretty much any database-backed web application! It is especially well suited for so called "workflow-based" applications where you typically have a bunch of resources (e.g. your tasks, or tweets) that you want to manipulate in some way. 
 
-With our built-in deployment support (e.g. you can [deploy to Fly.io for free with a single CLI command](https://wasp.sh/docs/deploying)) the whole development process is extremely streamlined.
+With our built-in deployment support (e.g. you can [deploy to Fly.io for free with a single CLI command](https://wasp.sh/docs/deployment/deployment-methods/cli#flyio)) the whole development process is extremely streamlined.
 
 We can't wait to see what you build next!
 

@@ -9,17 +9,17 @@ export function SocialAuthGrid({
     {
       title: 'Google',
       description: 'Users sign in with their Google account.',
-      linkToDocs: '/docs/auth/social-auth/google' + pagePart,
+      linkToDocs: './google' + pagePart,
     },
     {
       title: 'Github',
       description: 'Users sign in with their Github account.',
-      linkToDocs: '/docs/auth/social-auth/github' + pagePart,
+      linkToDocs: './github' + pagePart,
     },
     {
       title: 'Keycloak',
       description: 'Users sign in with their Keycloak account.',
-      linkToDocs: '/docs/auth/social-auth/keycloak' + pagePart,
+      linkToDocs: './keycloak' + pagePart,
     },
   ]
   return (

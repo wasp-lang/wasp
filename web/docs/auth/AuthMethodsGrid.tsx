@@ -1,36 +1,36 @@
+import { LinkGrid } from '@site/src/components/LinkGrid'
 import React from 'react'
-import { LinkGrid } from './LinkGrid'
 
 const authMethods = [
   {
     title: 'Email',
     description: 'Email verification, password reset, etc.',
-    link: '/docs/auth/email',
+    linkTo: './email',
   },
   {
     title: 'Username & Password',
     description: 'The simplest way to get started',
-    link: '/docs/auth/username-and-pass',
+    linkTo: './username-and-pass',
   },
   {
     title: 'Google',
     description: 'Users sign in with their Google account',
-    link: '/docs/auth/social-auth/google',
+    linkTo: './social-auth/google',
   },
   {
     title: 'Github',
     description: 'Users sign in with their Github account',
-    link: '/docs/auth/social-auth/github',
+    linkTo: './social-auth/github',
   },
   {
     title: 'Keycloak',
     description: 'Users sign in with their Keycloak account',
-    link: '/docs/auth/social-auth/keycloak',
+    linkTo: './social-auth/keycloak',
   },
   {
     title: 'Discord',
     description: 'Users sign in with their Discord account',
-    link: '/docs/auth/social-auth/discord',
+    linkTo: './social-auth/discord',
   },
 ]
 

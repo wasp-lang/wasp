@@ -5,7 +5,7 @@ import './LinkGrid.css'
 export interface LinkInfo {
   title: string
   description?: string
-  link: string
+  linkTo: string
 }
 
 export function LinkGrid({
@@ -32,12 +32,12 @@ export function LinkGrid({
 }
 
 function LinkGridBox({
-  link: { title, description, link },
+  link: { title, description, linkTo },
 }: {
   link: LinkInfo
 }) {
   return (
-    <Link href={link} className="link-grid-box">
+    <Link to={linkTo} className="link-grid-box">
       <h3>{title} »</h3>
       {description && <p>{description}</p>}
     </Link>
