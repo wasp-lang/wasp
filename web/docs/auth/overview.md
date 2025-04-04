@@ -86,7 +86,7 @@ We would also get the [Auth UI](../auth/ui) generated for us. We can set up our 
 
 We will also have access to the `user` object in our frontend code, so we can show different UI to logged-in and logged-out users. For example, we can show the user's name in the header alongside a **logout button** or a login button if the user is not logged in.
 
-## Available auth UI
+## Different ways to use auth
 
 When you have decided which auth methods you want to support, you can also choose how you want to present the authorization flows to your users.
 
