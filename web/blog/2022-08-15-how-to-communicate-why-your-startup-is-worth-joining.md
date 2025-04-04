@@ -1,7 +1,7 @@
 ---
 title: How to communicate why your startup is worth joining
 authors: [flreln]
-image: /img/worth-joining/illustration-1-min-min.png
+image: /img/worth-joining/illustration-1-min.png
 tags: [startups, hiring, wasp]
 ---
 
@@ -22,7 +22,7 @@ Visually, this “Tinder profile problem” looks like this:
 
 <ImgWithCaption
     alt="Illustration of candidates not seeing why to join a startup"
-    source="img/worth-joining/illustration-1-min.png"
+    source="/img/worth-joining/illustration-1-min.png"
     caption=""
 />
 
@@ -30,7 +30,7 @@ Now, look what would happen if a startup communicated a bit better. Suddenly, ou
 
 <ImgWithCaption
     alt="Illustration of candidates seeing one reason to join a startup"
-    source="img/worth-joining/illustration-2-min.png"
+    source="/img/worth-joining/illustration-2-min.png"
     caption=""
 />
 
@@ -38,7 +38,7 @@ But most startups have *many* good reasons to join them. If only they communicat
 
 <ImgWithCaption
     alt="Illustration of candidates seeing many reasons to join; one candidate already running for it"
-    source="img/worth-joining/illustration-3-min.png"
+    source="/img/worth-joining/illustration-3-min.png"
     caption=""
 />
 

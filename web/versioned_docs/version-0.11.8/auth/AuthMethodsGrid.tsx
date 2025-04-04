@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from '@docusaurus/Link'
 import './AuthMethodsGrid.css'
 
 export function AuthMethodsGrid() {
@@ -6,32 +7,22 @@ export function AuthMethodsGrid() {
     {
       title: 'Email',
       description: 'Email verification, password reset, etc.',
-      linkToDocs: '/docs/auth/email',
+      linkToDocs: './email',
     },
     {
       title: 'Username & Password',
       description: 'The simplest way to get started',
-      linkToDocs: '/docs/auth/username-and-pass',
+      linkToDocs: './username-and-pass',
     },
     {
       title: 'Google',
       description: 'Users sign in with their Google account',
-      linkToDocs: '/docs/auth/social-auth/google',
+      linkToDocs: './social-auth/google',
     },
     {
       title: 'Github',
       description: 'Users sign in with their Github account',
-      linkToDocs: '/docs/auth/social-auth/github',
-    },
-    {
-      title: 'Keycloak',
-      description: 'Users sign in with their Keycloak account',
-      linkToDocs: '/docs/auth/social-auth/keycloak',
-    },
-    {
-      title: 'Discord',
-      description: 'Users sign in with their Discord account',
-      linkToDocs: '/docs/auth/social-auth/discord',
+      linkToDocs: './social-auth/github',
     },
   ]
   return (
@@ -62,9 +53,9 @@ function AuthMethodBox({
   description: string
 }) {
   return (
-    <a href={linkToDocs} className="auth-method-box">
+    <Link to={linkToDocs} className="auth-method-box">
       <h3>{title} »</h3>
       <p>{description}</p>
-    </a>
+    </Link>
   )
 }
