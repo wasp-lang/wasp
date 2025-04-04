@@ -12,6 +12,7 @@
     "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.4.1",
     "typescript": "^5.7.3",
     "yargs": "^17.7.2"
   },

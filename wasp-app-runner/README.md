@@ -10,25 +10,15 @@ npm install
 npm run install:global
 
 # Use the wasp-app-runner command to run your Wasp app
-wasp-app-runner [--path-to-app <path>] [--build-wasp-cli <true|false>] [--wasp-cli-cmd <command>]
+wasp-app-runner [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 ### Arguments Table
 
-| Argument           | Description                                            | Example         |
-| ------------------ | ------------------------------------------------------ | --------------- |
-| `--path-to-app`    | Path to your Wasp application directory (default: ".") | `./my-wasp-app` |
-| `--build-wasp-cli` | Build Wasp CLI from source (default: true)             | `false`         |
-| `--wasp-cli-cmd`   | Wasp CLI command (default: `wasp-cli`)                 | `wasp`          |
-
-## Environment File Handling
-
-The script automatically sets up environment files if headless versions exist:
-
-- If `.env.client.headless` exists ➔ copies to `.env.client`
-- If `.env.server.headless` exists ➔ copies to `.env.server`
-
-This allows you to commit template files with default values while keeping actual credentials out of source control. **Note:** it will override any locally modified `.env.client` or `.env.server` files.
+| Argument         | Description                                            | Example         |
+| ---------------- | ------------------------------------------------------ | --------------- |
+| `--path-to-app`  | Path to your Wasp application directory (default: ".") | `./my-wasp-app` |
+| `--wasp-cli-cmd` | Wasp CLI command (default: `wasp`)                     | `wasp-cli`      |
 
 ## Postgres Configuration
 
@@ -46,7 +36,7 @@ When developing you can run the script directly from the local directory without
 
 ```
 npm install
-npm run start -- [--path-to-app <path>] [--build-wasp-cli <true|false>] [--wasp-cli-cmd <command>]
+npm run start -- [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 `npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.

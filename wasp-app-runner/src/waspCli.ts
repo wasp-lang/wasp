@@ -1,7 +1,6 @@
 import { stripVTControlCharacters } from "node:util";
 
 import { log } from "./logging.js";
-import { getWaspcDirAbsPath } from "./path.js";
 import { spawnWithLog, spawnAndCollectOutput } from "./process.js";
 import { DbType } from "./db/index.js";
 import type { EnvVars } from "./types.js";
@@ -91,17 +90,6 @@ export async function getAppInfo({
         ? DbType.Postgres
         : DbType.Sqlite,
   };
-}
-
-export async function installWaspCli(): Promise<{ exitCode: number | null }> {
-  log("install-wasp-cli", "info", "Installing Wasp CLI globally...");
-
-  return spawnWithLog({
-    name: "install-wasp-cli",
-    cmd: "cabal",
-    args: ["install", "--overwrite-policy=always"],
-    cwd: getWaspcDirAbsPath(),
-  });
 }
 
 function ensureRegexMatch(

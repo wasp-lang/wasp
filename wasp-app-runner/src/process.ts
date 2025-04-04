@@ -16,6 +16,7 @@ class ChildProcessManager {
   constructor() {
     process.on("SIGINT", () => this.cleanExit("SIGINT"));
     process.on("SIGTERM", () => this.cleanExit("SIGTERM"));
+    process.on("exit", () => this.cleanExit("exit"));
   }
 
   addChild(child: ChildProcess) {
@@ -30,7 +31,7 @@ class ChildProcessManager {
   }
 
   private cleanExit(reason: string) {
-    log("shutdown", "info", `Received ${reason}. Cleaning up...`);
+    log("shutdown", "warn", `Received ${reason}. Cleaning up...`);
     this.children.forEach((child) => {
       if (!child.killed) {
         child.kill();

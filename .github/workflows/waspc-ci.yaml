@@ -218,6 +218,8 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
+          # Prepare the environment for the tests
+          cp .env.server.headless .env.server
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test --config headless-tests/
 
