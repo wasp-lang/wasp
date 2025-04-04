@@ -12,6 +12,7 @@
 ### ⚠️ Breaking Changes
 
 - Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ([#2580](https://github.com/wasp-lang/wasp/pull/2580))
+- Wasp will no longer generate `favicon.ico` on compile if there is none in `public` directory ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
 
 ### 🐞 Bug fixes
 
