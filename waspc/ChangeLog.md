@@ -4,12 +4,9 @@
 
 ### 🎉 New Features and improvements
 
-- Wasp now detects `wasp/server/*` imports on the client ([#2442](https://github.com/wasp-lang/wasp/pull/2442))
-- Increased the minimum Node version to 20.0.0 ([#2537](https://github.com/wasp-lang/wasp/pull/2537) )
-- Invalid CLI commands now properly return non-zero exit code ([#2522](https://github.com/wasp-lang/wasp/pull/2552))
-- Better validation of `package.json` ([#2554](https://github.com/wasp-lang/wasp/pull/2554) )
-- Bumped the minimum Node version to 20.0.0 ([#2537](https://github.com/wasp-lang/wasp/pull/2537))
 - Prisma enums are now usable on the client ([#2565](https://github.com/wasp-lang/wasp/pull/2565))
+- Wasp now detects `wasp/server/*` imports on the client ([#2442](https://github.com/wasp-lang/wasp/pull/2442))
+- Bumped the minimum Node version to 20.0.0 ([#2537](https://github.com/wasp-lang/wasp/pull/2537))
 
 ### ⚠️ Breaking Changes
 
@@ -25,7 +22,7 @@
 ### 🔧 Small improvements
 
 - The root server route doesn't return "Hello World" ([#2538](https://github.com/wasp-lang/wasp/pull/2538))
-- Better surface SendGrid errors in the server logs ([##2596](https://github.com/wasp-lang/wasp/pull/2596))
+- Better surface SendGrid erorrs in the server logs ([##2596](https://github.com/wasp-lang/wasp/pull/2596))
 - Improved the error message when the user has a top level `.wasp` file ([#2418](https://github.com/wasp-lang/wasp/pull/2418) by @komyg)
 - Extra validation of dependencies in `package.json` ([#2554](https://github.com/wasp-lang/wasp/pull/2554))
 - Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
