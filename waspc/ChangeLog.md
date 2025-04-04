@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.16.3
+
+### 🎉 New Features and improvements
+
+- Prisma enums are now usable on the client ([#2565](https://github.com/wasp-lang/wasp/pull/2565))
+- Wasp now detects `wasp/server/*` imports on the client ([#2442](https://github.com/wasp-lang/wasp/pull/2442))
+- Bumped the minimum Node version to 20.0.0 ([#2537](https://github.com/wasp-lang/wasp/pull/2537))
+
+### ⚠️ Breaking Changes
+
+- Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ([#2580](https://github.com/wasp-lang/wasp/pull/2580))
+
+### 🐞 Bug fixes
+
+- CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
+- Adds a default value for `NODE_ENV` to prevent validation errors in rare cases ([#2507](https://github.com/wasp-lang/wasp/pull/2507))
+- Invalid CLI commands now properly return non-zero exit code ([#2522](https://github.com/wasp-lang/wasp/pull/2552))
+- Custom API types have their `res` and `req` types properly defined ([#2569](https://github.com/wasp-lang/wasp/pull/2569))
+
+### 🔧 Small improvements
+
+- The root server route doesn't return "Hello World" ([#2538](https://github.com/wasp-lang/wasp/pull/2538))
+- Better surface SendGrid errors in the server logs ([##2596](https://github.com/wasp-lang/wasp/pull/2596))
+- Improved the error message when the user has a top level `.wasp` file ([#2418](https://github.com/wasp-lang/wasp/pull/2418) by @komyg)
+- Extra validation of dependencies in `package.json` ([#2554](https://github.com/wasp-lang/wasp/pull/2554))
+- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
+
 ## 0.16.2
 
 ### 🎉 New Features and improvements
@@ -18,7 +45,7 @@
 - Session ID is no longer removed when the user logs out from a different tab ([#2075](https://github.com/wasp-lang/wasp/issues/2075)).
 - Using operations on the server no longer breaks relative extensionless imports ([#2492](https://github.com/wasp-lang/wasp/issues/2492)).
 
-## 1.16.0
+## 0.16.0
 
 ### 🎉 New Features and improvements
 

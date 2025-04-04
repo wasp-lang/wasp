@@ -8,10 +8,10 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
-  
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -108,8 +108,8 @@ code {
 .gradient-text {
   background-image:
     linear-gradient(90deg, #bf9900 30%, #646464 100%);
-    background-clip: text; 
-    color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 :focus {

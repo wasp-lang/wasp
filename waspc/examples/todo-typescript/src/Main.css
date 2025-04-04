@@ -30,7 +30,8 @@ img {
   max-height: 100px;
 }
 
-.logout {
+.logout,
+.delete-tasks {
   margin-top: 1rem;
 }
 
