@@ -1,9 +1,10 @@
 import { HttpError } from 'wasp/server'
-import type {
-  OnAfterSignupHook,
-  OnBeforeSignupHook,
-  OnBeforeLoginHook,
-  OnAfterLoginHook,
+import {
+  type OnAfterEmailVerifiedHook,
+  type OnAfterLoginHook,
+  type OnAfterSignupHook,
+  type OnBeforeLoginHook,
+  type OnBeforeSignupHook,
 } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({ providerId }) => {
@@ -17,6 +18,18 @@ export const onAfterSignup: OnAfterSignupHook = async ({ prisma, user }) => {
     where: { id: user.id },
     data: {
       isOnAfterSignupHookCalled: true,
+    },
+  })
+}
+
+export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
+  prisma,
+  user,
+}) => {
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isOnAfterEmailVerifiedHookCalled: true,
     },
   })
 }

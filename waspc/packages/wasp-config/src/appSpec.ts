@@ -143,6 +143,7 @@ export type Auth = {
   onAuthSucceededRedirectTo: Optional<string>
   onBeforeSignup: Optional<ExtImport>
   onAfterSignup: Optional<ExtImport>
+  onAfterEmailVerified: Optional<ExtImport>
   onBeforeOAuthRedirect: Optional<ExtImport>
   onBeforeLogin: Optional<ExtImport>
   onAfterLogin: Optional<ExtImport>

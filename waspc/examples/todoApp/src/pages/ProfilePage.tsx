@@ -1,12 +1,12 @@
+import React, { useEffect, useRef, useState } from 'react'
 import { type AuthUser } from 'wasp/auth'
+import { api } from 'wasp/client/api'
+import { Link, routes } from 'wasp/client/router'
 import {
   type ServerToClientPayload,
   useSocket,
   useSocketListener,
 } from 'wasp/client/webSocket'
-import { Link, routes } from 'wasp/client/router'
-import { api } from 'wasp/client/api'
-import React, { useEffect, useRef, useState } from 'react'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -58,6 +58,15 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
         Value of <code>user.isOnAfterSignupHookCalled</code> is{' '}
         <strong>{user.isOnAfterSignupHookCalled ? 'true' : 'false'}</strong>.
       </div>
+      {user.identities.email !== null && (
+        <div>
+          Value of <code>user.isOnAfterEmailVerifiedHookCalled</code> is{' '}
+          <strong>
+            {user.isOnAfterEmailVerifiedHookCalled ? 'true' : 'false'}
+          </strong>
+          .
+        </div>
+      )}
       <div>
         Value of <code>user.isOnAfterLoginHookCalled</code> is{' '}
         <strong>{user.isOnAfterLoginHookCalled ? 'true' : 'false'}</strong>.

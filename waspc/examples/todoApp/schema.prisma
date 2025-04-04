@@ -12,8 +12,9 @@ generator client {
 model User {
   id Int @id @default(autoincrement())
 
-  isOnAfterSignupHookCalled Boolean @default(false)
-  isOnAfterLoginHookCalled  Boolean @default(false)
+  isOnAfterSignupHookCalled        Boolean @default(false)
+  isOnAfterLoginHookCalled         Boolean @default(false)
+  isOnAfterEmailVerifiedHookCalled Boolean @default(false)
 
   tasks   Task[]
   address String?
