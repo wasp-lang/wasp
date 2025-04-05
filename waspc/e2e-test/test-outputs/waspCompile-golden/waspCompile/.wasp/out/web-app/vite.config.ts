@@ -3,6 +3,7 @@ import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
 import { detectServerImports } from "./vite/detectServerImports"
+import { validateEnv } from "./vite/validateEnv.js";
 import path from "node:path"
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
@@ -13,6 +14,7 @@ const _waspUserProvidedConfig = customViteConfig
 const defaultViteConfig = {
   base: "/",
   plugins: [
+    validateEnv(),
     react(),
     detectServerImports(),
   ],

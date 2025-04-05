@@ -8,6 +8,7 @@ waspJob/.wasp/out/sdk/wasp/api/events.ts
 waspJob/.wasp/out/sdk/wasp/api/index.ts
 waspJob/.wasp/out/sdk/wasp/client/config.ts
 waspJob/.wasp/out/sdk/wasp/client/env.ts
+waspJob/.wasp/out/sdk/wasp/client/env/schema.ts
 waspJob/.wasp/out/sdk/wasp/client/index.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspJob/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -40,6 +41,9 @@ waspJob/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspJob/.wasp/out/sdk/wasp/dist/client/env.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/env.js
 waspJob/.wasp/out/sdk/wasp/dist/client/env.js.map
+waspJob/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/client/env/schema.js
+waspJob/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
 waspJob/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/index.js
 waspJob/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -295,6 +299,7 @@ waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasp/out/web-app/tsconfig.vite.json
 waspJob/.wasp/out/web-app/vite.config.ts
 waspJob/.wasp/out/web-app/vite/detectServerImports.ts
+waspJob/.wasp/out/web-app/vite/validateEnv.ts
 waspJob/.waspignore
 waspJob/.wasproot
 waspJob/main.wasp

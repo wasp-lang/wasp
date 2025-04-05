@@ -3,8 +3,8 @@ import { defineEnvValidationSchema } from 'wasp/env'
 
 export const serverEnvValidationSchema = defineEnvValidationSchema(
   z.object({
-    MY_ENV_VAR: z.string({
-      required_error: 'MY_ENV_VAR is required.',
+    TEST_ENV_VAR: z.string({
+      required_error: 'TEST_ENV_VAR is required.',
     }),
   })
 )
