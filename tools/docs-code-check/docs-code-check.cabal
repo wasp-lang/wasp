@@ -10,14 +10,30 @@ build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
-common warnings
-    ghc-options: -Wall
+common common-all
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -- -optP-Wno-nonportable-include-path avoids warning caused by .../autogen/cabal_macros.h. on OSX.
+    -optP-Wno-nonportable-include-path
+    -- -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
+    -- to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
+    -fwrite-ide-info -hiedir=.hie
+  default-extensions:
+    OverloadedStrings
+    LambdaCase
+    StrictData
+    DuplicateRecordFields
+    OverloadedRecordDot
+    OverloadedRecordUpdate
+    NoFieldSelectors
+
 
 executable docs-code-check
-    import:           warnings
+    import:           common-all
     main-is:          Main.hs
     -- other-modules:
     -- other-extensions:
     build-depends:    base ^>=4.17.2.1
+                    , text ^>= 2.1.2
     hs-source-dirs:   app
-    default-language: Haskell2010
