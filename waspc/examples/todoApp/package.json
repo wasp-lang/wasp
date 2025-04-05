@@ -3,13 +3,7 @@
   "type": "module",
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
-    "env:push": "npx dotenv-vault@latest push development .env.server",
-    "headless:start": "node ./headless-tests/start.cjs",
-    "headless:start-db": "npm run headless:cleanup-db && cabal run wasp-cli start db",
-    "headless:start-app": "npm run headless:wait-for-db && npm run headless:prepare-env && cabal run wasp-cli db migrate-dev && cabal run wasp-cli start",
-    "headless:wait-for-db": "sleep 5 && ./node_modules/.bin/wait-port 5432",
-    "headless:prepare-env": "cp ./.env.server.headless ./.env.server",
-    "headless:cleanup-db": "(docker container rm $(docker container ls -f name=^wasp-dev-db-todoApp- -q) -f || true) && docker volume rm $(docker volume ls -f name=^wasp-dev-db-todoApp- -q) -f || true"
+    "env:push": "npx dotenv-vault@latest push development .env.server"
   },
   "dependencies": {
     "@playwright/test": "^1.50.0",
