@@ -56,49 +56,55 @@ checkUserNpmVersion :: IO VersionCheckResult
 checkUserNpmVersion = checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
 
 checkUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
-checkUserToolVersion commandName commandArgs oldestSupportedToolVersion =
-  runToolCommand >>= \case
-    Left commandErr -> return $ VersionCheckFail $ failedToRunCommandErrorMessage commandErr
-    Right commandResult -> return $ case commandResult of
-      (ExitFailure exitCode, _, stderr) -> VersionCheckFail $ commandFailedWithExitCodeErrorMessage exitCode stderr
-      (ExitSuccess, stdout, _) -> case parseVersionFromToolCommandOutput stdout of
-        Left errorMsg -> VersionCheckFail errorMsg
-        Right version -> checkUserToolVersionIsSupported version
+checkUserToolVersion commandName commandArgs oldestSupportedToolVersion = do
+  runResult <- runToolCommand
+  return $ case runResult
+    >>= praseToolCommandOutput
+    >>= parseVersionFromToolCommandOutput
+    >>= checkUserToolVersionIsSupported of
+    Right _ -> VersionCheckSuccess
+    Left errorMsg -> VersionCheckFail errorMsg
   where
     runToolCommand = runCommand commandName commandArgs
+    praseToolCommandOutput = parseCommandResult commandName commandArgs
     parseVersionFromToolCommandOutput = parseVersionFromCommandOutput commandName commandArgs
     checkUserToolVersionIsSupported = checkUserVersionIsSupported commandName oldestSupportedToolVersion
-
-    failedToRunCommandErrorMessage processError =
-      unlines
-        [ "Running `" ++ prettyPrintCommand commandName commandArgs ++ "` failed.",
-          indent 2 processError,
-          "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
-        ]
-
-    commandFailedWithExitCodeErrorMessage exitCode commandError =
-      unlines
-        [ "Running `" ++ prettyPrintCommand commandName commandArgs ++ "` failed (exit code " ++ show exitCode ++ "):",
-          indent 2 commandError
-        ]
 
 runCommand :: String -> [String] -> IO (Either ErrorMessage (ExitCode, String, String))
 runCommand commandName commandArgs =
   catchIOError
     (Right <$> P.readProcessWithExitCode commandName commandArgs "")
     ( \e ->
-        return . Left $
+        return . Left . runCommandeErrorMessageWrapper $
           if isDoesNotExistError e
             then commandNotFoundErrorMessage
             else unkownErrorErrorMessage e
     )
   where
+    runCommandeErrorMessageWrapper processError =
+      unlines
+        [ "Running `" ++ prettyPrintCommand commandName commandArgs ++ "` failed.",
+          indent 2 processError,
+          "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
+        ]
+
     commandNotFoundErrorMessage = "`" ++ prettyPrintCommand commandName commandArgs ++ "` command not found!"
 
     unkownErrorErrorMessage err =
       unlines
         [ "An error occurred while trying to run `" ++ prettyPrintCommand commandName commandArgs ++ ":",
           indent 2 $ show err
+        ]
+
+parseCommandResult :: String -> [String] -> (ExitCode, String, String) -> Either ErrorMessage String
+parseCommandResult commandName commandArgs commandResult = case commandResult of
+  (ExitSuccess, stdout, _) -> Right stdout
+  (ExitFailure exitCode, _, stderr) -> Left $ commandFailedWithExitCodeErrorMessage exitCode stderr
+  where
+    commandFailedWithExitCodeErrorMessage exitCode commandError =
+      unlines
+        [ "Running `" ++ prettyPrintCommand commandName commandArgs ++ "` failed (exit code " ++ show exitCode ++ "):",
+          indent 2 commandError
         ]
 
 parseVersionFromCommandOutput :: String -> [String] -> String -> Either ErrorMessage SV.Version
@@ -120,11 +126,11 @@ findAndParseVersion = P.parse versionParser ""
     versionParser = skipAnyCharTillMatch SV.versionParser
     skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
 
-checkUserVersionIsSupported :: String -> SV.Version -> SV.Version -> VersionCheckResult
+checkUserVersionIsSupported :: String -> SV.Version -> SV.Version -> Either ErrorMessage ()
 checkUserVersionIsSupported commandName oldestSupportedVersion userVersion =
   if SV.isVersionInRange userVersion $ SV.Range [SV.gte oldestSupportedVersion]
-    then VersionCheckSuccess
-    else VersionCheckFail $ versionMismatchErrorMessage userVersion
+    then Right ()
+    else Left $ versionMismatchErrorMessage userVersion
   where
     versionMismatchErrorMessage version =
       unlines
