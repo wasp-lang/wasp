@@ -86,11 +86,14 @@ async function startPostgresContainerAndWaitUntilReady(
     .then(({ exitCode, stderrData }) => {
       if (exitCode !== 0) {
         log("postgres", "error", stderrData);
-        log(
-          "postgres",
-          "error",
-          `Maybe the cleanup failed, try running: "docker rm -f ${containerName}" and then try again.`
-        );
+        const extraInfo = getExtraInfoOnPostgresStartError({
+          originalErrorText: stderrData,
+          containerName,
+          port,
+        });
+        if (extraInfo) {
+          log("postgres", "info", extraInfo);
+        }
         process.exit(1);
       }
     });
@@ -98,6 +101,28 @@ async function startPostgresContainerAndWaitUntilReady(
   await waitForPostgresReady(containerName);
 
   return `postgresql://postgres:${password}@localhost:${port}/postgres` as DatabaseConnectionUrl;
+}
+
+function getExtraInfoOnPostgresStartError({
+  originalErrorText,
+  containerName,
+  port,
+}: {
+  originalErrorText: string;
+  containerName: ContainerName;
+  port: number;
+}): string | null {
+  const errorText = originalErrorText.toLowerCase();
+
+  if (errorText.includes("is already in use by container")) {
+    return `It looks like the cleanup failed, try running: "docker rm -f ${containerName}" and then try again.`;
+  }
+
+  if (errorText.includes("port is already allocated")) {
+    return `It seems the port ${port} is already in use. Stop any other process using this port and try again.`;
+  }
+
+  return null;
 }
 
 async function waitForPostgresReady(
