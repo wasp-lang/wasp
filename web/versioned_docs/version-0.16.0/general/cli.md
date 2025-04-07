@@ -122,7 +122,7 @@ Newsletter: https://wasp.sh/#signup
   
   Read more about automatic deployment [here](../deployment/deployment-methods/cli.md).
 
- - `wasp telemetry` displays the status of [telemetry](https://wasp.sh/docs/telemetry).
+ - `wasp telemetry` displays the status of [telemetry](../telemetry.md).
 
    ```
    $ wasp telemetry
