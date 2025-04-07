@@ -154,9 +154,6 @@ jobs:
       - name: Build wasp code
         run: cabal build all
 
-      - name: Install wasp-cli globally
-        run: cabal install
-
       - name: On MacOS, skip e2e tests with Docker since it is not installed
         if: matrix.os == 'macos-latest'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
@@ -175,6 +172,11 @@ jobs:
         with:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
+
+      - name: Headless - Install wasp-cli for testing
+        id: headless-install-wasp-cli
+        if: matrix.os == 'ubuntu-22.04'
+        run: cabal install
 
       - name: Headless - Setup the Wasp app runner
         id: headless-setup-wasp-app-runner
