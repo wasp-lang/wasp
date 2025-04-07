@@ -16,7 +16,7 @@ class ChildProcessManager {
   constructor() {
     process.on("SIGINT", () => this.cleanExit("SIGINT"));
     process.on("SIGTERM", () => this.cleanExit("SIGTERM"));
-    process.on("exit", () => this.cleanExit("exit"));
+    process.on("exit", (exitCode) => this.cleanExit(`exit code ${exitCode}`));
   }
 
   addChild(child: ChildProcess) {

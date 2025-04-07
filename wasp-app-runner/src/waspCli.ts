@@ -96,7 +96,7 @@ function ensureRegexMatch(
   match: RegExpMatchArray | null,
   name: string
 ): string {
-  if (!match) {
+  if (match === null) {
     log("ensure-one-match", "error", `Failed to get ${name}`);
     process.exit(1);
   }

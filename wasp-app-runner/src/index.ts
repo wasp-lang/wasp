@@ -5,39 +5,13 @@ import { checkDependencies } from "./dependencies.js";
 import { setupDb } from "./db/index.js";
 import { getAppInfo, migrateDb, startApp } from "./waspCli.js";
 
-export async function main() {
+export async function main(): Promise<void> {
   const { waspCliCmd, pathToApp } = parseArgs();
 
   try {
-    await checkDependencies();
-
-    const { appName, dbType } = await getAppInfo({
+    await runWaspApp({
       waspCliCmd,
       pathToApp,
-    });
-
-    log(
-      "setup",
-      "info",
-      `Starting "${appName}" app using "${waspCliCmd}" command`
-    );
-
-    const { dbEnvVars } = await setupDb({
-      appName,
-      dbType,
-      pathToApp,
-    });
-
-    await migrateDb({
-      waspCliCmd,
-      pathToApp,
-      extraEnv: dbEnvVars,
-    });
-
-    await startApp({
-      waspCliCmd,
-      pathToApp,
-      extraEnv: dbEnvVars,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -47,6 +21,45 @@ export async function main() {
     }
     process.exit(1);
   }
+}
+
+async function runWaspApp({
+  waspCliCmd,
+  pathToApp,
+}: {
+  waspCliCmd: string;
+  pathToApp: string;
+}): Promise<void> {
+  await checkDependencies();
+
+  const { appName, dbType } = await getAppInfo({
+    waspCliCmd,
+    pathToApp,
+  });
+
+  log(
+    "setup",
+    "info",
+    `Starting "${appName}" app using "${waspCliCmd}" command`
+  );
+
+  const { dbEnvVars } = await setupDb({
+    appName,
+    dbType,
+    pathToApp,
+  });
+
+  await migrateDb({
+    waspCliCmd,
+    pathToApp,
+    extraEnv: dbEnvVars,
+  });
+
+  await startApp({
+    waspCliCmd,
+    pathToApp,
+    extraEnv: dbEnvVars,
+  });
 }
 
 function parseArgs(): {
