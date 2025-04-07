@@ -77,7 +77,6 @@ In the past, when using alternative libraries, I often found myself asking, "Why
 
 The most important tools I’ve found lately have been [Raycast](https://www.raycast.com/), [OrbStack](https://orbstack.dev/), [`jj`](https://jj-vcs.github.io/jj/latest/), and [`mise`](https://mise.jdx.dev/). Specifically `jj` makes my work *so much faster.*
 
-
 ### Lastly, where can people find or connect with you online?
 
 On [Bluesky](https://bsky.app/profile/precioso.design), [Twitter](https://x.com/_cprecioso), [GitHub](https://github.com/cprecioso), and [LinkedIn](https://www.linkedin.com/in/cprecioso/). Also IRL in Barcelona, Spain.
