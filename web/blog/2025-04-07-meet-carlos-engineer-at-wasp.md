@@ -69,14 +69,7 @@ Just a MacBook, VS Code, and Apple Reminders! I used to get really carried away 
 
 ### What is your current favorite gem, library, tool, or anything else that helps you with your work? Why?
 
-I’d like to take this opportunity to give a shout-out to the [Tanstack team](https://tanstack.com/). Their libraries have significantly improved my web development experience ever since I first tried them out. 
-
-In the past, when using alternative libraries, I often found myself asking, "Why isn’t X done in Y way?" With Tanstack, that question has come up much less frequently. While it still happens occasionally, it's a vast improvement. I also love that their libraries are framework-agnostic, which adds a lot of flexibility.
-
-### One piece of advice you’d give to budding developers?
-
 The most important tools I’ve found lately have been [Raycast](https://www.raycast.com/), [OrbStack](https://orbstack.dev/), [`jj`](https://jj-vcs.github.io/jj/latest/), and [`mise`](https://mise.jdx.dev/). Specifically `jj` makes my work *so much faster.*
-
 
 ### Lastly, where can people find or connect with you online?
 
