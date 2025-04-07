@@ -51,6 +51,10 @@ But on the computer side, my current favorite (and for quite some years already)
 
 ### What are you most excited about in Wasp?
 
+The opportunity to really cut down on the time spent from having an idea, to writing code for it, and not configuration and boilerplate. We take care of all the boring stuff and people just need to care about the code that makes their app unique. And you can be sure that this is how a senior engineer would do it, with best practices and top library choices baked int.
+
+### What’s a feature or project you’re most proud of?
+
 A few years ago some friends had the idea for [vecinoscabrones.com](https://vecinoscabrones.com) and we made it together. It’s a search engine that can search for any sentence in a famous Spanish sitcom, and get you the exact moment they said it, links to that moment in streaming sites, and make a GIF out of it. And I’m very proud that I got the whole GIF subtitling and generation done on the client!
     
 ![[https://vecinoscabrones.com/3x06/34302](https://vecinoscabrones.com/3x06/34302)](/img/carlos/563c97b4-4043-44d0-b1c7-037d3c28c73d.gif)
