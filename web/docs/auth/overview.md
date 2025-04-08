@@ -631,7 +631,7 @@ model User {
 }
 ```
 
-Then we'll define the `userSignupFields` object in the `src/auth/signup.js` file:
+Then we'll define the `userSignupFields` object in the `src/auth/signup.ts` file:
 
 ```ts title="src/auth/signup.ts"
 import { defineUserSignupFields } from 'wasp/server/auth'
