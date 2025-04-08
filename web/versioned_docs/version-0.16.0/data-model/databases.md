@@ -225,7 +225,7 @@ async function createUser(prisma, data) {
             create: {
               providerName: 'username',
               providerUserId: data.username,
-              providerData: sanitizeAndSerializeProviderData({
+              providerData: await sanitizeAndSerializeProviderData({
                 hashedPassword: data.password
               }),
             },
@@ -273,7 +273,7 @@ async function createUser(
             create: {
               providerName: 'username',
               providerUserId: data.username,
-              providerData: sanitizeAndSerializeProviderData<'username'>({
+              providerData: await sanitizeAndSerializeProviderData<'username'>({
                 hashedPassword: data.password
               }),
             },

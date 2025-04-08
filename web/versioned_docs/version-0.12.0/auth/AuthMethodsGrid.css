@@ -1,10 +1,10 @@
-.deployment-methods-grid {
+.auth-methods-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   grid-gap: 0.5rem;
   margin-bottom: 1rem;
 }
-.deployment-method-box {
+.auth-method-box {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,17 +13,17 @@
   padding: 1.5rem;
   transition: all 0.1s ease-in-out;
 }
-.deployment-method-box:hover {
+.auth-method-box:hover {
   border-color: var(--ifm-pagination-nav-color-hover);
 }
-.deployment-method-box h3 {
+.auth-method-box h3 {
   margin: 0;
   color: var(--ifm-link-color);
 }
-.deployment-method-box p {
+.auth-method-box p {
   margin: 0;
   color: var(--ifm-color-secondary-contrast-foreground);
 }
-.deployment-methods-info {
+.auth-methods-info {
   color: var(--ifm-color-secondary-contrast-foreground);
 }

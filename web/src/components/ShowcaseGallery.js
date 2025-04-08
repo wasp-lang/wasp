@@ -63,7 +63,7 @@ const ShowcaseGallery = () => {
       >
         <ShowcaseItem
           url="/blog/2022/10/28/farnance-hackathon-winner"
-          thumb="img/lp/showcase/farnance-dashboard.png"
+          thumb="img/lp/showcase/farnance-dashboard.webp"
           title="Farnance: SaaS marketplace for farmers"
           description="See how Julian won HackLBS 2021 among 250 participants and why Wasp was instrumental for the team's victory."
         >
@@ -79,7 +79,7 @@ const ShowcaseGallery = () => {
 
         <ShowcaseItem
           url="/blog/2022/11/26/michael-curry-usecase"
-          thumb="img/lp/showcase/grabbit-hero.png"
+          thumb="img/lp/showcase/grabbit-hero.webp"
           title="Grabbit: Easily manage dev environments"
           description="See how Michael built and deployed an internal tool for managing dev resources at StudentBeans."
         >
@@ -91,7 +91,7 @@ const ShowcaseGallery = () => {
 
         <ShowcaseItem
           url="/blog/2022/11/26/erlis-amicus-usecase"
-          thumb="img/lp/showcase/amicus-landing.png"
+          thumb="img/lp/showcase/amicus-landing.webp"
           title="Amicus: Task and workflow management for legal teams"
           description="See how Erlis rolled out fully-fledged SaaS as a team of one in record time and got first paying customers."
         >

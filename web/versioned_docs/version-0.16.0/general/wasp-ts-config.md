@@ -233,7 +233,10 @@ app.api('barBaz', {
   fn: { import: 'barBaz', from: '@src/apis' },
   auth: false,
   entities: ['Task'],
-  httpRoute: ['GET', '/bar/baz']
+  httpRoute: {
+    method: 'GET',
+    route: '/bar/baz',
+  },
 });
 
 app.job('mySpecialJob', {

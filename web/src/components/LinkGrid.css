@@ -1,10 +1,10 @@
-.deployment-methods-grid {
+.link-grid-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   grid-gap: 0.5rem;
   margin-bottom: 1rem;
 }
-.deployment-method-box {
+.link-grid-box {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,17 +13,17 @@
   padding: 1.5rem;
   transition: all 0.1s ease-in-out;
 }
-.deployment-method-box:hover {
+.link-grid-box:hover {
   border-color: var(--ifm-pagination-nav-color-hover);
 }
-.deployment-method-box h3 {
+.link-grid-box h3 {
   margin: 0;
   color: var(--ifm-link-color);
 }
-.deployment-method-box p {
+.link-grid-box p {
   margin: 0;
   color: var(--ifm-color-secondary-contrast-foreground);
 }
-.deployment-methods-info {
+.link-grid-info {
   color: var(--ifm-color-secondary-contrast-foreground);
 }

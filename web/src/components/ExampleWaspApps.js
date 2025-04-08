@@ -10,13 +10,15 @@ const examples = [
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'todo-typescript',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript',
+    repoUrl:
+      'https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },
   {
     title: 'CoverLetterGPT 🤖',
-    description: 'Generate cover letters based on your CV and the job description. Powered by ChatGPT.',
+    description:
+      'Generate cover letters based on your CV and the job description. Powered by ChatGPT.',
     authorName: 'vincanger',
     authorImg: 'https://avatars.githubusercontent.com/u/70215737',
     repoName: 'coverlettergpt',
@@ -30,7 +32,8 @@ const examples = [
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'websockets-realtime-voting',
-    repoUrl: 'https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting',
+    repoUrl:
+      'https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting',
     demoUrl: 'https://websockets-voting-client.fly.dev/login',
   },
 ]
@@ -148,7 +151,7 @@ const ExampleWaspApps = () => {
 
       <div className="mt-16 grid grid-cols-12 gap-5">
         {examples.slice(0, 6).map((e, idx) => (
-          <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+          <div className="col-span-12 lg:col-span-6 xl:col-span-4" key={idx}>
             <ExampleCard {...e} />
           </div>
         ))}

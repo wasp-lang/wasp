@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe)
-import StrongPath
+import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
@@ -58,7 +58,8 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common
-  ( axiosVersion,
+  ( WebAppRootDir,
+    axiosVersion,
     reactQueryVersion,
     reactRouterVersion,
     reactVersion,
@@ -67,9 +68,11 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Db as Db
-import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.SemanticVersion.Version as SV
+  ( Version (major),
+  )
 import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
@@ -98,13 +101,13 @@ genSdk spec =
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
-      genFileCopy [relfile|dev/index.ts|],
       genFileCopy [relfile|client/config.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
       genPackageJson spec,
-      genDbClient spec
+      genDbClient spec,
+      genDevIndex
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -360,3 +363,13 @@ genDbClient spec = do
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
+
+genDevIndex :: Generator FileDraft
+genDevIndex =
+  return $
+    C.mkTmplFdWithData
+      [relfile|dev/index.ts|]
+      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+  where
+    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
+      waspProjectDirFromAppComponentDir
