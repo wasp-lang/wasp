@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🔧 Small improvements
+
+- Improved the error when there are no routes defined ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
+
 ## 0.16.3
 
 ### 🎉 New Features and improvements
