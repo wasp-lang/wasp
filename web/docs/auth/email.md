@@ -31,7 +31,8 @@ Structure of the `main.wasp` file we will end up with:
 ```wasp title="main.wasp"
 // Configuring e-mail authentication
 app myApp {
-  auth: { ... }
+  auth: { ... },
+  emailSender: { ... }
 }
 
 // Defining routes and pages
