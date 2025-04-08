@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.16.4
+
+### 🎉 New Features and improvements
+
+- New wasp projects start with a default `favicon.ico` in `public` folder ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
+
+### ⚠️ Breaking Changes
+
+- Wasp will no longer generate `favicon.ico` on compile if there is none in `public` directory ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
+
 ## 0.16.3
 
 ### 🎉 New Features and improvements
@@ -7,12 +17,10 @@
 - Prisma enums are now usable on the client ([#2565](https://github.com/wasp-lang/wasp/pull/2565))
 - Wasp now detects `wasp/server/*` imports on the client ([#2442](https://github.com/wasp-lang/wasp/pull/2442))
 - Bumped the minimum Node version to 20.0.0 ([#2537](https://github.com/wasp-lang/wasp/pull/2537))
-- New wasp projects start with a default `favicon.ico` in `public` folder ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
 
 ### ⚠️ Breaking Changes
 
 - Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ([#2580](https://github.com/wasp-lang/wasp/pull/2580))
-- Wasp will no longer generate `favicon.ico` on compile if there is none in `public` directory ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
 
 ### 🐞 Bug fixes
 
