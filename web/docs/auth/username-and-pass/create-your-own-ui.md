@@ -234,7 +234,7 @@ An action for logging in the user.
 
 It takes one argument:
 
-- `userFields: object` <Required />
+- `data: object` <Required />
 
   It has the following fields:
 
@@ -252,7 +252,7 @@ An action for signing up the user. This action does not log in the user, you sti
 
 It takes one argument:
 
-- `userFields: object` <Required />
+- `data: object` <Required />
 
   It has the following fields:
 
