@@ -30,7 +30,7 @@ export type ProviderConfig = {
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
-export type PossibleUserFields = Expand<Partial<Exclude<UserEntityCreateInput, 'auth'>>>
+export type PossibleUserFields = Expand<Partial<Omit<UserEntityCreateInput, 'auth'>>>
 
 // PRIVATE API
 export type UserSignupFields = {
