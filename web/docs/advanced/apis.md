@@ -136,10 +136,7 @@ For example, if your app is running at `https://example.com` then from the above
 
 To use the API from your client, including with auth support, you can import the Axios wrapper from `wasp/client/api` and invoke a call. For example:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/pages/SomePage.jsx"
+```tsx title="src/pages/SomePage.tsx" auto-js with-hole
 import React, { useEffect } from "react";
 import { api } from "wasp/client/api";
 
@@ -153,31 +150,9 @@ export const Foo = () => {
     fetchCustomRoute();
   }, []);
 
-  return <>// ...</>;
+  return <>{hole}</>;
 };
 ```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/pages/SomePage.tsx"
-import React, { useEffect } from "react";
-import { api } from "wasp/client/api";
-
-async function fetchCustomRoute() {
-  const res = await api.get("/foo/bar");
-  console.log(res.data);
-}
-
-export const Foo = () => {
-  useEffect(() => {
-    fetchCustomRoute();
-  }, []);
-
-  return <>// ...</>;
-};
-```
-</TabItem>
-</Tabs>
 
 #### Making Sure CORS Works
 
