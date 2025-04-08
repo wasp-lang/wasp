@@ -26,8 +26,10 @@
     "autoprefixer": "^10.4.13",
     "classnames": "^2.3.2",
     "clsx": "^1.2.1",
+    "escape-string-regexp": "^5.0.0",
     "plugin-image-zoom": "github:flexanalytics/plugin-image-zoom",
     "postcss": "^8.4.19",
+    "prettier": "^3.0.3",
     "prism-react-renderer": "^1.3.5",
     "prismjs": "^1.29.0",
     "react": "^17.0.2",
@@ -37,14 +39,17 @@
     "react-player": "^2.16.0",
     "react-tooltip": "^4.5.1",
     "react-transition-group": "^4.4.5",
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.2.4",
+    "ts-blank-space": "^0.6.1",
+    "unist-util-visit-parents": "^6.0.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.2.0",
-    "prettier": "^3.0.3",
+    "@types/mdast": "^4.0.4",
     "prettier-plugin-tailwindcss": "^0.5.6",
     "remark-cli": "^11.0.0",
-    "remark-validate-links": "^12.1.1"
+    "remark-validate-links": "^12.1.1",
+    "unified": "^11.0.5"
   },
   "engines": {
     "node": ">=18.12.0"
