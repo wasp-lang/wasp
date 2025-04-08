@@ -34,12 +34,16 @@ const transformExt = (
   return outPath
 }
 
+const wrapInWordBoundaries = (/** @type {string} */ reStr) => {
+  return String.raw`\b${reStr}\b`
+}
+
+const enabledMetaRegexp = new RegExp(
+  wrapInWordBoundaries(escapeStringRegexp(ENABLED_META_FLAG))
+)
+
 /** @type {import("unified").Plugin<[], import("mdast").Root>} */
 const autoJSCodePlugin = () => {
-  const enabledMetaRegexp = new RegExp(
-    String.raw`\b${escapeStringRegexp(ENABLED_META_FLAG)}\b`
-  )
-
   return async (tree) => {
     /** @type {Set<{ node: import("mdast").Code, ancestors: import("mdast").Parents[] }>} */
     const nodesToProcess = new Set()
@@ -58,8 +62,8 @@ const autoJSCodePlugin = () => {
 
     for (const { node, ancestors } of nodesToProcess) {
       const parent = ancestors.at(-1)
-      assert(parent)
-      assert(node.meta)
+      assert(parent) // It must have a parent because the root node is a fully formed tree
+      assert(node.meta && node.lang) // Already checked in the visitor
 
       // Remove our flag from the meta so other plugins don't trip up
       const newMeta = node.meta.replace(enabledMetaRegexp, '')
@@ -77,7 +81,7 @@ const autoJSCodePlugin = () => {
             transformExt(title, (ext) => ext.replace('ts', 'js'))
           )}`
       )
-      const jsLang = node.lang?.replace('ts', 'js')
+      const jsLang = node.lang.replace('ts', 'js')
       const jsCode = await format(tsBlankSpace(node.value), { parser: 'babel' })
 
       /** @type {import("mdast").RootContent[]} */
@@ -112,7 +116,7 @@ const autoJSCodePlugin = () => {
       ]
 
       const idx = parent.children.findIndex((someNode) => someNode === node)
-      assert(idx !== -1)
+      assert(idx !== -1, "Node not found in parent's children")
 
       // Replace input node for the new ones in the parent's children array
       parent.children.splice(idx, 1, ...newNodes)

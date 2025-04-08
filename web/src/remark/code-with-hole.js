@@ -18,16 +18,20 @@ const HOLE_REPLACEMENT = '/* ... */'
 
 const SUPPORTED_LANGS = new Set(['js', 'jsx', 'ts', 'tsx'])
 
+const wrapInWordBoundaries = (/** @type {string} */ reStr) => {
+  return String.raw`\b${reStr}\b`
+}
+
+const enabledMetaRegexp = new RegExp(
+  wrapInWordBoundaries(escapeStringRegexp(ENABLED_META_FLAG))
+)
+
+const holeIdentifierRegexp = new RegExp(
+  wrapInWordBoundaries(escapeStringRegexp(HOLE_IDENTIFIER))
+)
+
 /** @type {import("unified").Plugin<[], import("mdast").Root>} */
 const codeWithHolePlugin = () => {
-  const enabledMetaRegexp = new RegExp(
-    String.raw`\b${escapeStringRegexp(ENABLED_META_FLAG)}\b`
-  )
-
-  const holeIdentifierRegexp = new RegExp(
-    String.raw`\b${escapeStringRegexp(HOLE_IDENTIFIER)}\b`
-  )
-
   return (tree) => {
     visitParents(tree, 'code', (node) => {
       if (node.meta && enabledMetaRegexp.test(node.meta)) {
