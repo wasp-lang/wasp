@@ -1,4 +1,5 @@
 {{={= =}=}}
+import { Request, Response } from 'express'
 import { handleRejection } from 'wasp/server/utils'
 import {
   createProviderId,
@@ -12,7 +13,7 @@ import {
   ensureValidPassword,
 } from 'wasp/auth/validation'
 import { validateAndGetUserFields } from 'wasp/auth/utils'
-import { type UserSignupFields } from 'wasp/auth/providers/types'
+import type { UserSignupFields, UserSignupFieldsData } from 'wasp/auth/providers/types'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
 export function getSignupRoute({
@@ -20,7 +21,10 @@ export function getSignupRoute({
 }: {
   userSignupFields?: UserSignupFields;
 }) {
-  return handleRejection(async function signup(req, res) {
+  return handleRejection(async function signup(
+    req: Request<{ username: string; password: string } & UserSignupFieldsData>,
+    res: Response,
+  ) {
     const fields = req.body ?? {}
     ensureValidArgs(fields)
   

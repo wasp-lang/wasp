@@ -9,6 +9,11 @@ export function defineUserSignupFields(fields: UserSignupFields): UserSignupFiel
   return fields
 }
 
+// PUBLIC API
+export type UserSignupFieldsData = {
+  [key in keyof PossibleUserFields]: PossibleUserFields[key]
+}
+
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
 
 // PRIVATE API
@@ -25,7 +30,7 @@ export type ProviderConfig = {
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
-export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>
+export type PossibleUserFields = Expand<Partial<Exclude<UserEntityCreateInput, 'auth'>>>
 
 // PRIVATE API
 export type UserSignupFields = {
