@@ -1,5 +1,14 @@
 // @ts-check
 
+/*
+This file defines a plugin for the unified library that processes code blocks
+in Markdown documents. It looks for code blocks with a specific meta flag
+(`with-hole`) and replaces occurrences of the word "hole" in the code with
+a placeholder comment (`...`). This is useful for code examples where
+parts of the code are intentionally omitted for brevity or clarity, but
+it still needs to be syntactically correct.
+*/
+
 const { visitParents } = require('unist-util-visit-parents')
 const { default: escapeStringRegexp } = require('escape-string-regexp')
 

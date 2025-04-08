@@ -1,5 +1,14 @@
 // @ts-check
 
+/*
+This file defines a plugin for the unified library that processes code blocks
+in Markdown documents. It looks for code blocks with a specific meta flag
+(`auto-js`) and replaces them with a pair of code blocks: one for JavaScript
+and one for TypeScript, as well as a tabbed interface to switch between them.
+This way we can author code examples in TypeScript and have them automatically
+converted to JavaScript for the documentation.
+*/
+
 const assert = require('assert/strict')
 const { visitParents } = require('unist-util-visit-parents')
 const { default: tsBlankSpace } = require('ts-blank-space')
