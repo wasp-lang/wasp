@@ -17,10 +17,10 @@ import Wasp.Util ((<++>))
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genLocalAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
-    sequence
-      [ genIndex
-      ]
-      <++> genActions
+      sequence
+        [ genIndex
+        ]
+        <++> genActions
   | otherwise = return []
 
 genIndex :: Generator FileDraft
