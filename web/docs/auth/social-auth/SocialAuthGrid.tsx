@@ -1,6 +1,5 @@
+import { LinkGrid } from '@site/src/components/LinkGrid'
 import React from 'react'
-import Link from '@docusaurus/Link'
-import './SocialAuthGrid.css'
 
 export function SocialAuthGrid({
   pagePart = '', // e.g. #overrides
@@ -9,55 +8,29 @@ export function SocialAuthGrid({
     {
       title: 'Google',
       description: 'Users sign in with their Google account.',
-      linkToDocs: '/docs/auth/social-auth/google' + pagePart,
+      linkTo: './google' + pagePart,
     },
     {
       title: 'Github',
       description: 'Users sign in with their Github account.',
-      linkToDocs: '/docs/auth/social-auth/github' + pagePart,
+      linkTo: './github' + pagePart,
     },
     {
       title: 'Keycloak',
       description: 'Users sign in with their Keycloak account.',
-      linkToDocs: '/docs/auth/social-auth/keycloak' + pagePart,
+      linkTo: './keycloak' + pagePart,
     },
     {
       title: 'Discord',
       description: 'Users sign in with their Discord account.',
-      linkToDocs: '/docs/auth/social-auth/discord' + pagePart,
+      linkTo: './discord' + pagePart,
     },
   ]
-  return (
-    <>
-      <div className="social-auth-grid">
-        {authMethods.map((authMethod) => (
-          <AuthMethodBox
-            title={authMethod.title}
-            description={authMethod.description}
-            linkToDocs={authMethod.linkToDocs}
-          />
-        ))}
-      </div>
-      <p className="social-auth-info">
-        <small>Click on each provider for more details.</small>
-      </p>
-    </>
-  )
-}
 
-function AuthMethodBox({
-  linkToDocs,
-  title,
-  description,
-}: {
-  linkToDocs: string
-  title: string
-  description: string
-}) {
   return (
-    <Link to={linkToDocs} className="auth-method-box">
-      <h3>{title} »</h3>
-      <p>{description}</p>
-    </Link>
+    <LinkGrid
+      links={authMethods}
+      caption="Click on each provider for more details."
+    />
   )
 }

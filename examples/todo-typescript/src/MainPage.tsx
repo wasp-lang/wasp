@@ -1,7 +1,13 @@
 import { getUsername, type AuthUser as User } from "wasp/auth";
 import { type Task } from "wasp/entities";
 import { logout } from "wasp/client/auth";
-import { createTask, updateTask, deleteTasks, useQuery, getTasks } from "wasp/client/operations";
+import {
+  createTask,
+  updateTask,
+  deleteTasks,
+  useQuery,
+  getTasks,
+} from "wasp/client/operations";
 import React, { FormEventHandler, FormEvent } from "react";
 import waspLogo from "./waspLogo.png";
 
@@ -28,7 +34,7 @@ export const MainPage = ({ user }: { user: User }) => {
       {tasks && <TasksList tasks={tasks} />}
       <div className="buttons">
         <button
-          className="logout"
+          className="delete-tasks"
           onClick={() => void deleteTasks(completed ?? [])}
         >
           Delete completed

@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe)
-import StrongPath
+import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
@@ -22,10 +22,10 @@ import Wasp.AppSpec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
     makeJsonWithEntityData,
@@ -58,7 +58,8 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common
-  ( axiosVersion,
+  ( WebAppRootDir,
+    axiosVersion,
     reactQueryVersion,
     reactRouterVersion,
     reactVersion,
@@ -67,9 +68,11 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Db as Db
-import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.SemanticVersion.Version as SV
+  ( Version (major),
+  )
 import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
@@ -98,13 +101,13 @@ genSdk spec =
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
-      genFileCopy [relfile|dev/index.ts|],
       genFileCopy [relfile|client/config.ts|],
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
       genPackageJson spec,
-      genDbClient spec
+      genDbClient spec,
+      genDevIndex
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -188,7 +191,7 @@ npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
     { N.dependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
             ("@tanstack/react-query", show reactQueryVersion),
@@ -220,7 +223,7 @@ npmDepsForSdk spec =
           ++ depsRequiredByTailwind spec
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             -- Should @types/* go into their package.json?
             ("@types/express", show Server.expressTypesVersion),
@@ -230,9 +233,9 @@ npmDepsForSdk spec =
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
-  AS.Dependency.fromList
+  Npm.Dependency.fromList
     [ ("vitest", "^1.2.1"),
       ("@vitest/ui", "^1.2.1"),
       ("jsdom", "^21.1.1"),
@@ -265,12 +268,12 @@ genTsConfigJson = do
             ]
       )
 
-depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
     authDeps =
-      AS.Dependency.fromList
+      Npm.Dependency.fromList
         [ -- NOTE: If Stitches start being used outside of auth,
           -- we should include this dependency in the SDK deps.
           ("@stitches/react", "^1.2.8"),
@@ -278,11 +281,11 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
           ("@node-rs/argon2", "^1.8.3")
         ]
 
-depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByTailwind spec =
   if G.CF.isTailwindUsed spec
     then
-      AS.Dependency.fromList
+      Npm.Dependency.fromList
         [ ("tailwindcss", "^3.2.7"),
           ("postcss", "^8.4.21"),
           ("autoprefixer", "^10.4.13")
@@ -360,3 +363,13 @@ genDbClient spec = do
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
+
+genDevIndex :: Generator FileDraft
+genDevIndex =
+  return $
+    C.mkTmplFdWithData
+      [relfile|dev/index.ts|]
+      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+  where
+    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
+      waspProjectDirFromAppComponentDir

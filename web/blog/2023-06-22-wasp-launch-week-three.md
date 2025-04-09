@@ -77,7 +77,7 @@ That's what we are coming after - is it possible to avoid writing (or generating
 
 **Read more about it**:
 - [Twitter thread introing Auto CRUD](https://twitter.com/WaspLang/status/1673376102792806402)
-- [Docs Guide to Auto CRUD](/docs/guides/crud)
+- [Docs Guide to Auto CRUD](/docs/data-model/crud)
 
 ## WebSocket Support | Tuesday: Be real, time 🔌⏱
 
@@ -94,7 +94,7 @@ Another situation where you might want to keep things real is when chatting to s
 
 **Read more about it**:
 - [Intro Twitter thread](https://twitter.com/WaspLang/status/1673742264873500673)
-- [Docs Guide](/docs/guides/websockets)
+- [Docs Guide](/docs/advanced/web-sockets)
 
 ## Wednesday: Community Day 🤗
 
@@ -140,8 +140,8 @@ To wrap the week up, we'll also start another hackathon, but this time in a bit 
 
 **Read more about it**:
 - [Intro Twitter thread](https://twitter.com/WaspLang/status/1674814873312608257)
-- [Try GPT Web App Generator!](https://magic-app-generator.wasp.sh/)
-- [Join our Tutorial Jam #1 and win prizes!](http://localhost:3002/blog/2023/06/30/tutorial-jam)
+- [Try GPT Web App Generator!](https://usemage.ai/)
+- [Join our Tutorial Jam #1 and win prizes!](/blog/2023/06/30/tutorial-jam)
 
 ## Recap
 

@@ -382,7 +382,7 @@
             "file",
             "../out/sdk/wasp/dev/index.ts"
         ],
-        "1c15a2858ffe39f3ef83e53705cb25b00f09e895c04cf1a354210b5babdde895"
+        "12e6486b62e0aab2ea665775da66ee5d9783680bfe914f53a05a61efd60a5219"
     ],
     [
         [
@@ -557,7 +557,7 @@
             "file",
             "../out/sdk/wasp/server/email/core/providers/sendgrid.ts"
         ],
-        "81c0ab1719a98e24524d23a85c9a196f3c436934f9aa3aff7086e53eef74bf04"
+        "6c49ccaf2b536ffd0aa9e2e53a6137e8440b42bd53b05c9b84b87d48e0f10660"
     ],
     [
         [
@@ -1348,6 +1348,6 @@
             "file",
             "web-app/vite/detectServerImports.ts"
         ],
-        "9e8e2271fda2f769376b2c310987006c7b2f138e7749cdd608696f6a2982debd"
+        "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
     ]
 ]
