@@ -79,7 +79,7 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 Before running `wasp-cli`, examples, or tests locally, you must compile the bundled TypeScript packages used by the CLI.
 
-Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
+Wasp bundles some TypeScript packages into the installation artifact (e.g. deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
 
 For more details about TypeScript packages in Wasp, see [TypeScript Packages section](#typescript-packages).
 
