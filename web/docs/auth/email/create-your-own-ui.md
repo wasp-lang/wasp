@@ -459,7 +459,7 @@ An action for logging in the user. Make sure to do a redirect on success (e.g. t
 
 It takes one argument:
 
-- `userFields: object` <Required />
+- `data: object` <Required />
 
   It has the following fields:
 
@@ -474,7 +474,7 @@ to verify their email.
 
 It takes one argument:
 
-- `userFields: object` <Required />
+- `data: object` <Required />
 
   It has the following fields:
 
