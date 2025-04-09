@@ -18,10 +18,10 @@ import StrongPath
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket)
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
   )
@@ -31,7 +31,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
-depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec
   | AS.WS.areWebSocketsUsed spec = AS.WS.serverDepsRequiredForWebSockets
   | otherwise = []

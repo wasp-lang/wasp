@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.ExternalConfig.PackageJson
+module Wasp.ExternalConfig.Npm.PackageJson
   ( PackageJson (..),
     DependenciesMap,
     PackageName,
@@ -15,8 +15,8 @@ import Data.Aeson (FromJSON)
 import Data.Map (Map)
 import qualified Data.Map as M
 import GHC.Generics (Generic)
-import Wasp.AppSpec.App.Dependency (Dependency)
-import qualified Wasp.AppSpec.App.Dependency as D
+import Wasp.ExternalConfig.Npm.Dependency (Dependency)
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
 
 data PackageJson = PackageJson
   { name :: !String,
