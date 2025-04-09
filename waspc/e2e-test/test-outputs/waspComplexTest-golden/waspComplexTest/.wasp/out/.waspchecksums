@@ -410,7 +410,7 @@
             "file",
             "../out/sdk/wasp/env/validation.ts"
         ],
-        "51325f2f3d756cec8d9e09595b52e11c40d6e0933e3019028cf167baee189ef4"
+        "de79f253fa6e74741136cf9c9ac73f810921e08595da09f4184d87f193073e2c"
     ],
     [
         [
@@ -837,7 +837,7 @@
             "file",
             "../out/sdk/wasp/universal/types.ts"
         ],
-        "b2b5ee883e5d6320499b182fb7782d241b1990a77fc8046848a0d05ae3c6312a"
+        "a5c7a0300bf161b17e2cd8af4a7b51616b8c2dc7d469cd19fe2e8489ac572180"
     ],
     [
         [
@@ -1362,6 +1362,6 @@
             "file",
             "web-app/vite/validateEnv.ts"
         ],
-        "d54f5ebbae903b905a082f956899dcea884a6d2da12d6c234cca2cd850f51b37"
+        "f46cedc2facb958dc8f1ff33ce8a8598e2da9800740b6bcea2d3850894b54658"
     ]
 ]

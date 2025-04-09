@@ -1,5 +1,4 @@
 import * as z from 'zod'
-import type { Result } from '../universal/types'
 
 const redColor = '\x1b[31m'
 
@@ -9,14 +8,11 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   schema: Schema
 ): z.infer<Schema> {
   const result = getValidatedEnvOrError(data, schema)
-  switch (result.type) {
-    case 'error':
-      console.error(`${redColor}${result.message}`)
-      throw new Error('Error parsing environment variables')
-    case 'success':
-      return result.data
-    default:
-      result satisfies never;
+  if (result.success) {
+    return result.data
+  } else {
+    console.error(`${redColor}${formatZodEnvErrors(result.error.issues)}`)
+    throw new Error('Error parsing environment variables')
   }
 }
 
@@ -24,30 +20,17 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
 export function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(
   env: unknown,
   schema: Schema
-): Result<z.infer<Schema>> {
-  try {
-    const validatedEnv = schema.parse(env)
-    return {
-      type: 'success',
-      data: validatedEnv,
-    }
-  } catch (e) {
-    if (e instanceof z.ZodError) {
-      const errorOutput = ['', '══ Env vars validation failed ══', '']
-      for (const error of e.errors) {
-        errorOutput.push(` - ${error.message}`)
-      }
-      errorOutput.push('')
-      errorOutput.push('════════════════════════════════')
-      return {
-        type: 'error',
-        message: errorOutput.join('\n'),
-      }
-    } else {
-      return {
-        type: 'error',
-        message: e.message,
-      }
-    }
+): z.SafeParseReturnType<unknown, z.infer<Schema>> {
+  return schema.safeParse(env)
+}
+
+// PRIVATE API (SDK, Vite config)
+export function formatZodEnvErrors(issues: z.ZodIssue[]): string {
+  const errorOutput = ['', '══ Env vars validation failed ══', '']
+  for (const error of issues) {
+    errorOutput.push(` - ${error.message}`)
   }
+  errorOutput.push('')
+  errorOutput.push('════════════════════════════════')
+  return errorOutput.join('\n')
 }
