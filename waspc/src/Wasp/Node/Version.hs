@@ -9,7 +9,7 @@ where
 
 import Data.Conduit.Process.Typed (ExitCode (..))
 import System.IO.Error (catchIOError, isDoesNotExistError)
-import qualified System.Process as P
+import System.Process (readProcessWithExitCode)
 import qualified Text.Parsec as P
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.Version as SV
@@ -57,88 +57,68 @@ checkUserNpmVersion = checkUserToolVersion "npm" ["--version"] oldestWaspSupport
 
 checkUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
 checkUserToolVersion commandName commandArgs oldestSupportedToolVersion = do
-  runResult <- runToolCommand
-  return $ case runResult
-    >>= praseToolCommandOutput
-    >>= parseVersionFromToolCommandOutput
-    >>= checkUserToolVersionIsSupported of
-    Right _ -> VersionCheckSuccess
+  userVersion <- getToolVersionFromCommandOutput commandName commandArgs
+  return $ case userVersion of
     Left errorMsg -> VersionCheckFail errorMsg
+    Right version
+      | version >= oldestSupportedToolVersion -> VersionCheckSuccess
+      | otherwise -> VersionCheckFail $ makeVersionMismatchErrorMessage version
   where
-    runToolCommand = runCommand commandName commandArgs
-    praseToolCommandOutput = parseCommandResult commandName commandArgs
-    parseVersionFromToolCommandOutput = parseVersionFromCommandOutput commandName commandArgs
-    checkUserToolVersionIsSupported = checkUserVersionIsSupported commandName oldestSupportedToolVersion
-
-runCommand :: String -> [String] -> IO (Either ErrorMessage (ExitCode, String, String))
-runCommand commandName commandArgs =
-  catchIOError
-    (Right <$> P.readProcessWithExitCode commandName commandArgs "")
-    ( \e ->
-        return . Left . runCommandeErrorMessageWrapper $
-          if isDoesNotExistError e
-            then commandNotFoundErrorMessage
-            else unkownErrorErrorMessage e
-    )
-  where
-    runCommandeErrorMessageWrapper processError =
-      unlines
-        [ "Running `" ++ prettyPrintCommand commandName commandArgs ++ "` failed.",
-          indent 2 processError,
-          "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
-        ]
-
-    commandNotFoundErrorMessage = "`" ++ prettyPrintCommand commandName commandArgs ++ "` command not found!"
-
-    unkownErrorErrorMessage err =
-      unlines
-        [ "An error occurred while trying to run `" ++ prettyPrintCommand commandName commandArgs ++ ":",
-          indent 2 $ show err
-        ]
-
-parseCommandResult :: String -> [String] -> (ExitCode, String, String) -> Either ErrorMessage String
-parseCommandResult commandName commandArgs commandResult = case commandResult of
-  (ExitSuccess, stdout, _) -> Right stdout
-  (ExitFailure exitCode, _, stderr) -> Left $ commandFailedWithExitCodeErrorMessage exitCode stderr
-  where
-    commandFailedWithExitCodeErrorMessage exitCode commandError =
-      unlines
-        [ "Running `" ++ prettyPrintCommand commandName commandArgs ++ "` failed (exit code " ++ show exitCode ++ "):",
-          indent 2 commandError
-        ]
-
-parseVersionFromCommandOutput :: String -> [String] -> String -> Either ErrorMessage SV.Version
-parseVersionFromCommandOutput commandName commandArgs commandOutput =
-  case findAndParseVersion commandOutput of
-    Left parseError -> Left $ failedToParseVersionErrorMessage parseError
-    Right version -> Right version
-  where
-    failedToParseVersionErrorMessage parseError =
-      unlines
-        [ "Wasp failed to parse `" ++ commandName ++ "` version provided by `" ++ prettyPrintCommand commandName commandArgs ++ ".",
-          show parseError,
-          "This is most likely a bug in Wasp, please file an issue at https://github.com/wasp-lang/wasp/issues."
-        ]
-
-findAndParseVersion :: String -> Either P.ParseError SV.Version
-findAndParseVersion = P.parse versionParser ""
-  where
-    versionParser = skipAnyCharTillMatch SV.versionParser
-    skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
-
-checkUserVersionIsSupported :: String -> SV.Version -> SV.Version -> Either ErrorMessage ()
-checkUserVersionIsSupported commandName oldestSupportedVersion userVersion =
-  if SV.isVersionInRange userVersion $ SV.Range [SV.gte oldestSupportedVersion]
-    then Right ()
-    else Left $ versionMismatchErrorMessage userVersion
-  where
-    versionMismatchErrorMessage version =
+    makeVersionMismatchErrorMessage version =
       unlines
         [ "Your " ++ commandName ++ " version does not meet Wasp's requirements!",
           "You are running " ++ commandName ++ " " ++ show version ++ ".",
-          "Wasp requires " ++ commandName ++ " version " ++ show oldestSupportedVersion ++ " or higher."
+          "Wasp requires " ++ commandName ++ " version " ++ show oldestSupportedToolVersion ++ " or higher."
         ]
 
-prettyPrintCommand :: String -> [String] -> String
-prettyPrintCommand commandName commandArgs =
-  unwords $ commandName : commandArgs
+getToolVersionFromCommandOutput :: String -> [String] -> IO (Either ErrorMessage SV.Version)
+getToolVersionFromCommandOutput commandName commandArgs = do
+  commandOutput <- readCommandOutput commandName commandArgs
+  return $ commandOutput >>= parseVersionFromCommandOutput
+
+readCommandOutput :: String -> [String] -> IO (Either ErrorMessage String)
+readCommandOutput commandName commandArgs = do
+  commandResult <-
+    catchIOError
+      (Right <$> readProcessWithExitCode commandName commandArgs "")
+      (return . Left . wrapCommandIOErrorMessage . makeIOErrorMessage)
+  return $ case commandResult of
+    Left procErr -> Left procErr
+    Right (ExitFailure exitCode, _, stderr) -> Left $ wrapCommandExitCodeErrorMessage exitCode stderr
+    Right (ExitSuccess, stdout, _) -> Right stdout
+  where
+    makeIOErrorMessage ioErr
+      | isDoesNotExistError ioErr = "`" ++ fullCommand ++ "` command not found!"
+      | otherwise = show ioErr
+
+    wrapCommandIOErrorMessage innerErr =
+      unlines
+        [ "Running `" ++ fullCommand ++ "` failed.",
+          indent 2 innerErr,
+          "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
+        ]
+
+    wrapCommandExitCodeErrorMessage exitCode commandErr =
+      unlines
+        [ "Running `" ++ fullCommand ++ "` failed (exit code " ++ show exitCode ++ "):",
+          indent 2 commandErr
+        ]
+
+    fullCommand = unwords $ commandName : commandArgs
+
+parseVersionFromCommandOutput :: String -> Either ErrorMessage SV.Version
+parseVersionFromCommandOutput commandOutput =
+  case findAndParseVersion commandOutput of
+    Left parseError -> Left $ makeFailedToParseVersionErrorMessage parseError
+    Right version -> Right version
+  where
+    findAndParseVersion = P.parse versionParser ""
+    versionParser = skipAnyCharTillMatch SV.versionParser
+    skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
+
+    makeFailedToParseVersionErrorMessage parseError =
+      unlines
+        [ "Wasp failed to parse version from string '" ++ commandOutput ++ "'.",
+          show parseError,
+          "This is most likely a bug in Wasp, please file an issue at https://github.com/wasp-lang/wasp/issues."
+        ]
