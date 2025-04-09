@@ -34,12 +34,12 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ServerRootDir,
     superjsonVersion,
@@ -153,7 +153,7 @@ npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
             ("express", expressVersionStr),
@@ -164,7 +164,7 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
