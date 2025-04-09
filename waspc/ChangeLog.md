@@ -8,7 +8,7 @@
 
 ### 🔧 Small improvements
 
-- Improved the error when there are no routes defined ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
+- Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
 
 ## 0.16.3
 
