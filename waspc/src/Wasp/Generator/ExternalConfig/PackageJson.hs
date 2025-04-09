@@ -5,7 +5,7 @@ where
 
 import Control.Applicative ((<|>))
 import qualified Data.Map as M
-import qualified Wasp.ExternalConfig.PackageJson as P
+import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Common (prismaVersion, typescriptVersion)
 import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
 import Wasp.Generator.ServerGenerator.Common (expressTypesVersion)

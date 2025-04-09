@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from '@docusaurus/Link'
 import './DeploymentOptionsGrid.css'
 
 export function DeploymentOptionsGrid() {
@@ -6,12 +7,12 @@ export function DeploymentOptionsGrid() {
     {
       title: 'Using Wasp CLI',
       description: 'One command deployment & redeployment',
-      linkToDocs: '/docs/advanced/deployment/cli',
+      linkToDocs: './cli',
     },
     {
       title: 'Deploying Manually',
       description: 'Build the app and deploy it manually',
-      linkToDocs: '/docs/advanced/deployment/manually',
+      linkToDocs: './manually',
     },
   ]
   return (
@@ -42,9 +43,9 @@ function DeploymentOptionBox({
   description: string
 }) {
   return (
-    <a href={linkToDocs} className="deployment-method-box">
+    <Link to={linkToDocs} className="deployment-method-box">
       <h3>{title} »</h3>
       <p>{description}</p>
-    </a>
+    </Link>
   )
 }

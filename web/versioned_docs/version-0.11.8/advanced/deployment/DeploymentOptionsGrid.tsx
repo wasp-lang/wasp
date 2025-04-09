@@ -1,19 +1,20 @@
-import React from "react";
-import "./DeploymentOptionsGrid.css";
+import React from 'react'
+import Link from '@docusaurus/Link'
+import './DeploymentOptionsGrid.css'
 
 export function DeploymentOptionsGrid() {
   const deploymentMethods = [
     {
-      title: "Using Wasp CLI",
-      description: "One command deployment & redeployment",
-      linkToDocs: "/docs/advanced/deployment/cli",
+      title: 'Using Wasp CLI',
+      description: 'One command deployment & redeployment',
+      linkToDocs: './cli',
     },
     {
-      title: "Deploying Manually",
-      description: "Build the app and deploy it manually",
-      linkToDocs: "/docs/advanced/deployment/manually",
+      title: 'Deploying Manually',
+      description: 'Build the app and deploy it manually',
+      linkToDocs: './manually',
     },
-  ];
+  ]
   return (
     <>
       <div className="deployment-methods-grid">
@@ -29,7 +30,7 @@ export function DeploymentOptionsGrid() {
         <small>Click on each deployment method for more details.</small>
       </p>
     </>
-  );
+  )
 }
 
 function DeploymentOptionBox({
@@ -37,14 +38,14 @@ function DeploymentOptionBox({
   title,
   description,
 }: {
-  linkToDocs: string;
-  title: string;
-  description: string;
+  linkToDocs: string
+  title: string
+  description: string
 }) {
   return (
-    <a href={linkToDocs} className="deployment-method-box">
+    <Link to={linkToDocs} className="deployment-method-box">
       <h3>{title} »</h3>
       <p>{description}</p>
-    </a>
-  );
+    </Link>
+  )
 }
