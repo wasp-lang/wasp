@@ -23,14 +23,11 @@ module.exports = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  stylesheets: [
-    'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
-  ],
   themeConfig: {
     announcementBar: {
       id: 'LW7',
       content:
-        '<b>Wasp v0.16 is here!</b> 🐝 <a href="/blog/2025/01/09/wasp-launch-week-8">See what\'s new ⚙️</a>',
+        '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,
@@ -139,9 +136,9 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Wasp.`,
     },
     algolia: {
-      appId: 'RG0JSZOWH4',
-      apiKey: 'feaa2a25dc596d40418c82cd040e2cbe',
-      indexName: 'wasp-lang',
+      appId: '2EJBEYUJK0',
+      apiKey: 'b90c50ab126398470abd0efa5d397870',
+      indexName: 'wasp',
       // ContextualSearch is useful when you are doing versioning,
       // it searches only in v1 docs if you are searching from v1 docs.
       // Therefore we have it enabled, since we have multiple doc versions.
@@ -154,10 +151,6 @@ module.exports = {
     [
       '@docusaurus/preset-classic',
       {
-        gtag: {
-          trackingID: 'GTM-PQ4JFCK',
-          anonymizeIP: true,
-        },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           sidebarCollapsible: true,
@@ -230,79 +223,6 @@ module.exports = {
         },
       }
     },
-    // This plugin is always inactive in development and only active in
-    // production because it works on the build output.
-    [
-      '@docusaurus/plugin-client-redirects',
-      {
-        redirects: [
-          {
-            from: '/docs/guides/auth-ui',
-            to: '/docs/auth/ui',
-          },
-          {
-            from: '/docs/deploying',
-            to: '/docs/deployment/intro',
-          },
-          {
-            from: '/docs/advanced/deployment/overview',
-            to: '/docs/deployment/intro',
-          },
-          {
-            from: '/docs/guides/username-password',
-            to: '/docs/auth/username-and-pass',
-          },
-          {
-            from: '/docs/guides/websockets',
-            to: '/docs/advanced/web-sockets',
-          },
-          {
-            from: '/docs/guides/testing',
-            to: '/docs/project/testing',
-          },
-          {
-            from: '/docs/guides/middleware-customization',
-            to: '/docs/advanced/middleware-config',
-          },
-          {
-            from: '/docs/guides/email-auth',
-            to: '/docs/auth/email',
-          },
-          {
-            from: '/docs/guides/crud',
-            to: '/docs/data-model/crud',
-          },
-          {
-            from: '/docs/integrations/google',
-            to: '/docs/auth/social-auth/google',
-          },
-          {
-            from: '/docs/integrations/github',
-            to: '/docs/auth/social-auth/github',
-          },
-          {
-            from: '/docs/integrations/css-frameworks',
-            to: '/docs/project/css-frameworks',
-          },
-          {
-            from: '/docs/tutorials/todo-app',
-            to: '/docs/tutorial/create',
-          },
-          {
-            from: '/docs/migrate-from-0-11-to-0-12',
-            to: '/docs/migration-guides/migrate-from-0-11-to-0-12',
-          },
-          {
-            from: '/docs/migrate-from-0-12-to-0-13',
-            to: '/docs/migration-guides/migrate-from-0-12-to-0-13',
-          },
-          {
-            from: '/docs/migrate-from-0-13-to-0-14',
-            to: '/docs/migration-guides/migrate-from-0-13-to-0-14',
-          },
-        ],
-      },
-    ],
   ],
 }
 

@@ -22,7 +22,7 @@ const testimonials = [
     url: 'https://www.producthunt.com/posts/wasp-lang-beta?comment=2048094',
     name: 'Joan Reyero',
     handle: '@joanreyero',
-    img: 'img/lp/tm/reyero.jpg',
+    img: 'img/lp/tm/reyero.webp',
     source: PH,
   },
   {
@@ -30,7 +30,7 @@ const testimonials = [
     url: 'https://twitter.com/tskaggs/status/1602513968207101954',
     name: 'Tim ✌️',
     handle: '@tskaggs',
-    img: 'img/lp/tm/tskaggs.png',
+    img: 'img/lp/tm/tskaggs.webp',
     source: TWITTER,
   },
   {
@@ -38,7 +38,7 @@ const testimonials = [
     url: 'https://twitter.com/AttilaTheDev/status/1583530646047117317',
     name: 'Attila Vago',
     handle: '@AttilaTheDev',
-    img: 'img/lp/tm/attila.jpg',
+    img: 'img/lp/tm/attila.webp',
     source: TWITTER,
   },
   {
@@ -46,7 +46,7 @@ const testimonials = [
     url: 'https://www.producthunt.com/posts/wasp-lang-beta?comment=2048472',
     name: 'Erlis Kllogjri',
     handle: '@erlis_kllogjri',
-    img: 'img/lp/tm/erlis.jpg',
+    img: 'img/lp/tm/erlis.webp',
     source: PH,
   },
   {
@@ -54,7 +54,7 @@ const testimonials = [
     url: 'https://www.producthunt.com/posts/wasp-lang-beta?comment=2048168',
     name: 'Michael Curry',
     handle: '@michael_curry1',
-    img: 'img/lp/tm/cursorial.jpg',
+    img: 'img/lp/tm/cursorial.webp',
     source: PH,
   },
   {
@@ -62,7 +62,7 @@ const testimonials = [
     url: 'https://www.producthunt.com/posts/wasp-lang-beta?comment=2048039',
     name: 'Julian LaNeve',
     handle: '@julian_laneve',
-    img: 'img/lp/tm/jlaneve.jpg',
+    img: 'img/lp/tm/jlaneve.webp',
     source: PH,
   },
   {
@@ -70,7 +70,7 @@ const testimonials = [
     url: 'https://twitter.com/NeoLight1010/status/1595032349552566277',
     name: 'NeoLight1010',
     handle: '@NeoLight1010',
-    img: 'img/lp/tm/neolight.jpg',
+    img: 'img/lp/tm/neolight.webp',
     source: TWITTER,
   },
   {
@@ -78,7 +78,7 @@ const testimonials = [
     url: 'https://twitter.com/panphora/status/1547980602334294020',
     name: 'David Miranda',
     handle: '@panphora',
-    img: 'img/lp/tm/panphora.jpg',
+    img: 'img/lp/tm/panphora.webp',
     source: TWITTER,
   },
   {
@@ -86,7 +86,7 @@ const testimonials = [
     url: 'https://twitter.com/infiniteverma/status/1582027815570264065',
     name: 'Anant Verma',
     handle: '@infiniteverma',
-    img: 'img/lp/tm/infiniteverma.jpg',
+    img: 'img/lp/tm/infiniteverma.webp',
     source: TWITTER,
   },
 ]
@@ -111,12 +111,12 @@ const TestimonialCard = ({ url, text, name, handle, img, source }) => (
               {' '}
               {/* Twitter or PH icon */}
               {source === TWITTER && (
-                <img className="h-5 w-5" src="img/lp/twitter-logo.png" />
+                <img className="h-5 w-5" src="img/lp/twitter-logo.webp" />
               )}
               {source === PH && (
                 <img
                   className="h-5 w-5 rounded-full"
-                  src="img/lp/ph-logo.png"
+                  src="img/lp/ph-logo.webp"
                 />
               )}
             </div>

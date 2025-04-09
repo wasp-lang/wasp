@@ -58,6 +58,10 @@ query getTasks {
 }
 ```
 
+:::note
+To generate the types used in the next section, make sure that `wasp start` is still running.
+:::
+
 </TabItem>
 </Tabs>
 
