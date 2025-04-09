@@ -91,7 +91,7 @@ async function startPostgresContainerAndWaitUntilReady(
           containerName,
           port,
         });
-        if (extraInfo) {
+        if (extraInfo !== null) {
           log("postgres", "info", extraInfo);
         }
         process.exit(1);
