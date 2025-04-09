@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### ⚠️ Breaking Changes
+
+- In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
+
 ### 🔧 Small improvements
 
 - Improved the error when there are no routes defined ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
