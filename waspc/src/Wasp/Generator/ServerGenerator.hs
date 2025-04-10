@@ -19,23 +19,27 @@ import Data.Maybe
   )
 import StrongPath
   ( Dir,
+    File,
     File',
     Path,
     Path',
     Posix,
     Rel,
+    fromRelDir,
     reldirP,
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions (superjsonVersion, typescriptVersion)
@@ -54,6 +58,7 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -62,12 +67,12 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
-      genFileCopy [relfile|nodemon.json|],
       genRollupConfigJs spec,
-      genTsConfigJson,
+      genTsConfigJson spec,
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
-      genGitignore
+      genGitignore,
+      genNodemon
     ]
     <++> genSrcDir spec
     <++> genDotEnv spec
@@ -98,17 +103,21 @@ genDotEnv spec =
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
-genTsConfigJson :: Generator FileDraft
-genTsConfigJson = do
+genTsConfigJson :: AppSpec -> Generator FileDraft
+genTsConfigJson spec = do
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|tsconfig.json|])
       (C.asServerFile [relfile|tsconfig.json|])
       ( Just $
           object
-            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
+              "srcTsConfigPath" .= SP.fromRelFile srcTsConfigPath
             ]
       )
+  where
+    srcTsConfigPath :: Path' (Rel C.ServerRootDir) (File SrcTsConfigFile) =
+      waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -141,7 +150,7 @@ npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
             ("express", expressVersionStr),
@@ -152,7 +161,7 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
@@ -185,6 +194,16 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asServerFile [relfile|.gitignore|])
       Nothing
+
+genNodemon :: Generator FileDraft
+genNodemon =
+  return $
+    C.mkTmplFdWithData
+      [relfile|nodemon.json|]
+      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
+  where
+    relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
+      waspProjectDirFromAppComponentDir </> srcDirInWaspProjectDir
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =

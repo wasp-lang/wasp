@@ -3,6 +3,7 @@ module Generator.WebAppGeneratorTest where
 import qualified Data.Map as M
 import Data.Maybe (fromJust)
 import Fixtures
+import StrongPath (relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
@@ -10,7 +11,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
-import qualified Wasp.ExternalConfig.PackageJson as EC.PackageJson
+import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import Wasp.Generator.FileDraft
 import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
@@ -53,10 +54,10 @@ spec_WebAppGenerator = do
             AS.externalCodeFiles = [],
             AS.externalPublicFiles = [],
             AS.packageJson =
-              EC.PackageJson.PackageJson
-                { EC.PackageJson.name = "testApp",
-                  EC.PackageJson.dependencies = M.empty,
-                  EC.PackageJson.devDependencies = M.empty
+              Npm.PackageJson.PackageJson
+                { Npm.PackageJson.name = "testApp",
+                  Npm.PackageJson.dependencies = M.empty,
+                  Npm.PackageJson.devDependencies = M.empty
                 },
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
@@ -66,7 +67,8 @@ spec_WebAppGenerator = do
             AS.tailwindConfigFilesRelocators = [],
             AS.srcTsConfigPath = fromJust $ SP.parseRelFile "tsconfig.json",
             AS.devDatabaseUrl = Nothing,
-            AS.customViteConfigPath = Nothing
+            AS.customViteConfigPath = Nothing,
+            AS.srcTsConfigPath = [relfile|tsconfig.json|]
           }
 
   describe "genWebApp" $ do

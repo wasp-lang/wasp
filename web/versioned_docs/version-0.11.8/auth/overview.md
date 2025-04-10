@@ -2,7 +2,7 @@
 title: Using Auth
 ---
 
-import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
+import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { Required } from "@site/src/components/Tag";
 
 Auth is an essential piece of any serious application. Coincidentally, Wasp provides authentication and authorization support out of the box.

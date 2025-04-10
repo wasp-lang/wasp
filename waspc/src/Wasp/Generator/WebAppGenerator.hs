@@ -25,9 +25,9 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.DepVersions (typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
@@ -128,7 +128,7 @@ npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp _spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("axios", show axiosVersion),
             ("react", show reactVersion),
             -- React and ReactDOM versions should always match.
@@ -137,7 +137,7 @@ npmDepsForWasp _spec =
             ("react-router-dom", show reactRouterVersion)
           ],
       N.waspDevDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", show typescriptVersion),

@@ -6,8 +6,8 @@ where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import StrongPath (Abs, Dir, File, Path', Rel)
-import qualified Wasp.ExternalConfig.PackageJson as P
-import qualified Wasp.ExternalConfig.TsConfig as T
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
+import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Project.Common
   ( CompileError,
     SrcTsConfigFile,
@@ -17,8 +17,8 @@ import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
 import Wasp.Project.ExternalConfig.TsConfig (readSrcTsConfigFile)
 
 data ExternalConfigs = ExternalConfigs
-  { _packageJson :: P.PackageJson,
-    _srcTsConfig :: T.TsConfig
+  { _packageJson :: PackageJson,
+    _srcTsConfig :: TsConfig
   }
   deriving (Show)
 

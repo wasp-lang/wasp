@@ -2,7 +2,7 @@
 #   Because if not, we had situations where it would use the different version
 #   locally and on Github CI. This way we ensure exact version is used,
 #   and also have control over updating it (instead of update surprising us).
-FROM node:18.18.0-alpine3.17 AS node
+FROM node:20.0.0-alpine3.17 AS node
 
 
 # We split Dockerfile into base, server-builder and server-production.
@@ -45,7 +45,7 @@ RUN cd .wasp/build/server && npm run bundle
 FROM base AS server-production
 # In case they want to use python3 in their app.
 RUN apk add --no-cache python3
-ENV NODE_ENV production
+ENV NODE_ENV=production
 WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages
 # necessary for migrating the database.

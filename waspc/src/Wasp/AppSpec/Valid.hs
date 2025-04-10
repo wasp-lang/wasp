@@ -40,6 +40,7 @@ import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Db as Psl.Db
 import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
@@ -68,7 +69,8 @@ validateAppSpec spec =
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
-          validateUserNodeVersionRange spec
+          validateUserNodeVersionRange spec,
+          validateAtLeastOneRoute spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -165,7 +167,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
-      "The database provider in the schema.prisma file must be \"postgresql\" since there are jobs with executor set to PgBoss."
+      ("The database provider in the schema.prisma file must be \"" ++ Psl.Db.dbProviderPostgresqlStringLiteral ++ "\" since there are jobs with executor set to PgBoss.")
     | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
 
@@ -382,6 +384,17 @@ validateUserNodeVersionRange spec =
                 <> " we recommend you narrow down your Node version range to not allow breaking changes."
           ]
         else []
+
+validateAtLeastOneRoute :: AppSpec -> [ValidationError]
+validateAtLeastOneRoute spec =
+  if null routes
+    then
+      [ GenericValidationError
+          "You must have at least one route in your app. You can add it using the 'route' declaration."
+      ]
+    else []
+  where
+    routes = AS.getRoutes spec
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

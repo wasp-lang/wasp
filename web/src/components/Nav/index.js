@@ -13,7 +13,7 @@ const Nav = () => {
     <div className="flex flex-shrink-0 items-center">
       <Link to="/">
         <img
-          src="img/lp/wasp-logo.png"
+          src="img/lp/wasp-logo.webp"
           width={35}
           height={35}
           alt="Wasp Logo"

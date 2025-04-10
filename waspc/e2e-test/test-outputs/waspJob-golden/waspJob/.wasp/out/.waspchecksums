@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/dev/index.ts"
         ],
-        "1c15a2858ffe39f3ef83e53705cb25b00f09e895c04cf1a354210b5babdde895"
+        "12e6486b62e0aab2ea665775da66ee5d9783680bfe914f53a05a61efd60a5219"
     ],
     [
         [
@@ -193,7 +193,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "f1e7457e7dc2002d4e97b1228ce0dea10fb8ab6bed074e80a38854dec8f02460"
+        "05a448334246902483ce69e2b08eac9345fd10919d717cdc219cf803da22827a"
     ],
     [
         [
@@ -431,7 +431,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "3b09df60f6728880a953a746ef887e045de0b533cb383f89d6adf8ff906edac8"
+        "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "Dockerfile"
         ],
-        "7ce6a077005efa9ce351dff7fe4ca77252ebad497f65c93ea905b0723924a528"
+        "0a244b8e1f4a86228b613cfc6c370142759297c1cbfa7f71f5c6ccd4bb05db55"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "server/package.json"
         ],
-        "4e00a2e103620cbc4a96f62181d6cb86fe4ec0703ad9d7534e57ff4462ade748"
+        "ae6d36c69a9a51addea31296c10660c039a47a0769848f8ea91db2c874480ebe"
     ],
     [
         [
@@ -606,7 +606,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "c34f77a96150414957386f5645c9becb12725c9f231aaaa8db798e3564bd75ce"
+        "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
     ],
     [
         [
@@ -627,7 +627,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "622813a50faf658cd240456ce60406209b8f2c2d15669fcf83ad9566750d67e1"
+        "37091ead1cd4d4aed082857ee6ef2e2168eec9a37330c68e2ebe36c331c7c5c7"
     ],
     [
         [
@@ -662,7 +662,7 @@
             "file",
             "web-app/index.html"
         ],
-        "22a3affb86f8ca588469315523df9116dc9afb0265e2df8d861f2066c960a333"
+        "697e9b92b49353765357b3ec2607868096effc39c5de83ed11fe59fde47d9cf3"
     ],
     [
         [
@@ -676,7 +676,7 @@
             "file",
             "web-app/package.json"
         ],
-        "961707cbde48e25403472b7604ee342e7064b06447307efdedce1098147c14c1"
+        "b3031378d935d26f660108a5445d6679c34fccd124dbc6d900a20cb67ee88bc7"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "f5cc3ad419dd02d73079da1ec7fd282e09d9753594a2e08b8c4bb7a8c5b483d7"
+        "ca4390746683cd8fd3a73bdd761bab3cd22fc32b8c8edb1c3972de37f6eedf68"
     ],
     [
         [
@@ -802,13 +802,13 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "d4b4a5e870d8ec46b22ac1a5b66e5266f7983db43b3c9c1b6faeec80ae984662"
+        "ca02196d3283c818e7e27d608347d37eaba536eb2bb8fae0d61345e6f1003388"
     ],
     [
         [
             "file",
             "web-app/vite/detectServerImports.ts"
         ],
-        "9e8e2271fda2f769376b2c310987006c7b2f138e7749cdd608696f6a2982debd"
+        "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
     ]
 ]

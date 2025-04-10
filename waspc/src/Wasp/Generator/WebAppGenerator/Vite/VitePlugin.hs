@@ -12,11 +12,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (WebAppTemplatesDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Project.Common
-  ( WaspProjectDir,
-    srcDirInWaspProjectDir,
-    waspProjectDirFromAppComponentDir,
-  )
+import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 data VitePluginName = DetectServerImports
   deriving (Enum, Bounded)
@@ -49,15 +45,6 @@ getTmplFilePathForVitePlugin pluginName = C.asTmplFile $ vitePluginsDirInWebAppD
     pluginFilePathInPluginsDir DetectServerImports = [relfile|detectServerImports.ts|]
 
 genVitePlugin :: VitePlugin -> Generator FileDraft
-genVitePlugin (DetectServerImports, tmplFile) = genDetectServerImportsPlugin tmplFile
-
-genDetectServerImportsPlugin :: Path' (Rel WebAppTemplatesDir) File' -> Generator FileDraft
-genDetectServerImportsPlugin tmplFile = return $ C.mkTmplFdWithData tmplFile tmplData
+genVitePlugin (DetectServerImports, tmplFile) = return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    tmplData =
-      object
-        [ "waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir,
-          "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir
-        ]
-
-    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
+    tmplData = object ["srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir]

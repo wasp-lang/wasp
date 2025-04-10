@@ -16,11 +16,11 @@ type _WaspEntity = Task
  * PUBLIC API
  */
 export namespace tasks {
-  export type GetAllQuery<Input extends Payload, Output extends Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
+  export type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
 
-  export type GetQuery<Input extends Payload, Output extends Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
+  export type GetQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
 
-  export type CreateAction<Input extends Payload, Output extends Payload>= AuthenticatedActionDefinition<[_WaspEntityTagged], Input, Output>
+  export type CreateAction<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedActionDefinition<[_WaspEntityTagged], Input, Output>
 
 
 }

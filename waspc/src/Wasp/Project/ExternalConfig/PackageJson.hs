@@ -8,7 +8,7 @@ import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
-import qualified Wasp.ExternalConfig.PackageJson as P
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Project.Common
   ( PackageJsonFile,
     WaspProjectDir,
@@ -17,7 +17,7 @@ import Wasp.Project.Common
   )
 import qualified Wasp.Util.IO as IOUtil
 
-readPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] P.PackageJson)
+readPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either [String] PackageJson)
 readPackageJsonFile waspDir = runExceptT $ do
   packageJsonFile <- ExceptT findPackageJsonFileOrError
   ExceptT $ decodePackageJsonFromDisk packageJsonFile
@@ -28,7 +28,7 @@ readPackageJsonFile waspDir = runExceptT $ do
 findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File PackageJsonFile)))
 findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
 
-decodePackageJsonFromDisk :: Path' Abs (File PackageJsonFile) -> IO (Either [String] P.PackageJson)
+decodePackageJsonFromDisk :: Path' Abs (File PackageJsonFile) -> IO (Either [String] PackageJson)
 decodePackageJsonFromDisk packageJsonFile = do
   byteString <- IOUtil.readFileBytes packageJsonFile
   return $ maybeToEither ["Error parsing the package.json file"] $ Aeson.decode byteString

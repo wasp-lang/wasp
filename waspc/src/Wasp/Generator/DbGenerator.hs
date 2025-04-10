@@ -48,6 +48,7 @@ import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Db as Pls.Db
 import qualified Wasp.Psl.Format as Psl.Format
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
@@ -63,11 +64,11 @@ genPrismaSchema ::
   Generator FileDraft
 genPrismaSchema spec = do
   (datasourceProvider :: String) <- case dbSystem of
-    AS.Db.PostgreSQL -> return "postgresql"
+    AS.Db.PostgreSQL -> return Pls.Db.dbProviderPostgresqlStringLiteral
     AS.Db.SQLite ->
       if AS.isBuild spec
-        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/backends#migrating-from-sqlite-to-postgresql ."
-        else return "sqlite"
+        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/databases#migrating-from-sqlite-to-postgresql ."
+        else return Pls.Db.dbProviderSqliteStringLiteral
 
   entities <- getEntitiesForPrismaSchema spec
 
