@@ -122,160 +122,160 @@ You can see how we generate such a prompt in the code [here](https://github.com/
 
 <details>
   <summary> Also, here is an actual instance of this prompt for a TodoApp. </summary>
-  <div>
 
-    Wasp is a full-stack web app framework that uses React (for client), NodeJS and Prisma (for server).
-    High-level of the app is described in main.wasp file (which is written in special Wasp DSL), details in JS/JSX files.
-    Wasp DSL (used in main.wasp) reminds a bit of JSON, and doesn't use single quotes for strings, only double quotes. Examples will follow.
+~~~
+Wasp is a full-stack web app framework that uses React (for client), NodeJS and Prisma (for server).
+High-level of the app is described in main.wasp file (which is written in special Wasp DSL), details in JS/JSX files.
+Wasp DSL (used in main.wasp) reminds a bit of JSON, and doesn't use single quotes for strings, only double quotes. Examples will follow.
 
-    Important Wasp features:
-      - Routes and Pages: client side, Pages are written in React.
-      - Queries and Actions: RPC, called from client, execute on server (nodejs).
-        Queries are for fetching and should not do any mutations, Actions are for mutations.
-      - Entities: central data models, defined via PSL (Prisma schema language), manipulated via Prisma.
-    Typical flow: Routes point to Pages, Pages call Queries and Actions, Queries and Actions work with Entities.
+Important Wasp features:
+  - Routes and Pages: client side, Pages are written in React.
+  - Queries and Actions: RPC, called from client, execute on server (nodejs).
+    Queries are for fetching and should not do any mutations, Actions are for mutations.
+  - Entities: central data models, defined via PSL (Prisma schema language), manipulated via Prisma.
+Typical flow: Routes point to Pages, Pages call Queries and Actions, Queries and Actions work with Entities.
 
-    Example main.wasp (comments are explanation for you):
+Example main.wasp (comments are explanation for you):
 
-    ```wasp
-    app todoApp {
-      wasp: { version: "^0.11.1" },
-      title: "ToDo App",
-      auth: {
-        userEntity: User,
-        methods: { usernameAndPassword: {} },
-        onAuthFailedRedirectTo: "/login"
-      },
-      client: {
-        rootComponent: import { Layout } from "@client/Layout.jsx",
-      },
-      db: {
-        prisma: {
-          clientPreviewFeatures: ["extendedWhereUnique"]
-        }
-      },
+```wasp
+app todoApp {
+  wasp: { version: "^0.11.1" },
+  title: "ToDo App",
+  auth: {
+    userEntity: User,
+    methods: { usernameAndPassword: {} },
+    onAuthFailedRedirectTo: "/login"
+  },
+  client: {
+    rootComponent: import { Layout } from "@client/Layout.jsx",
+  },
+  db: {
+    prisma: {
+      clientPreviewFeatures: ["extendedWhereUnique"]
     }
+  },
+}
 
-    route SignupRoute { path: "/signup", to: SignupPage }
-    page SignupPage {
-      component: import Signup from "@client/pages/auth/Signup.jsx"
-    }
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import Signup from "@client/pages/auth/Signup.jsx"
+}
 
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import Login from "@client/pages/auth/Login.jsx"
-    }
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import Login from "@client/pages/auth/Login.jsx"
+}
 
-    route DashboardRoute { path: "/", to: Dashboard }
-    page DashboardPage {
-      authRequired: true,
-      component: import Dashboard from "@client/pages/Dashboard.jsx"
-    }
+route DashboardRoute { path: "/", to: Dashboard }
+page DashboardPage {
+  authRequired: true,
+  component: import Dashboard from "@client/pages/Dashboard.jsx"
+}
 
-    entity User {=psl
-        id          Int       @id @default(autoincrement())
-        username    String    @unique
-        password    String
-        tasks       Task[]
-    psl=}
+entity User {=psl
+    id          Int       @id @default(autoincrement())
+    username    String    @unique
+    password    String
+    tasks       Task[]
+psl=}
 
-    entity Task {=psl
-        id          Int       @id @default(autoincrement())
-        description String
-        isDone      Boolean   @default(false)
-        user        User      @relation(fields: [userId], references: [id])
-        userId      Int
-    psl=}
+entity Task {=psl
+    id          Int       @id @default(autoincrement())
+    description String
+    isDone      Boolean   @default(false)
+    user        User      @relation(fields: [userId], references: [id])
+    userId      Int
+psl=}
 
-    query getUser {
-      fn: import { getUser } from "@server/queries.js",
-      entities: [User] // Entities that this query operates on.
-    }
+query getUser {
+  fn: import { getUser } from "@server/queries.js",
+  entities: [User] // Entities that this query operates on.
+}
 
-    query getTasks {
-      fn: import { getTasks } from "@server/queries.js",
-      entities: [Task]
-    }
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  entities: [Task]
+}
 
-    action createTask {
-      fn: import { createTask } from "@server/actions.js",
-      entities: [Task]
-    }
+action createTask {
+  fn: import { createTask } from "@server/actions.js",
+  entities: [Task]
+}
 
-    action updateTask {
-      fn: import { updateTask } from "@server/actions.js",
-      entities: [Task]
-    }
-    ```
+action updateTask {
+  fn: import { updateTask } from "@server/actions.js",
+  entities: [Task]
+}
+```
 
-    We are looking for a plan to build a new Wasp app (description at the end of prompt).
+We are looking for a plan to build a new Wasp app (description at the end of prompt).
 
-    Instructions you must follow while generating plan:
-      - App uses username and password authentication.
-      - App MUST have a 'User' entity, with following fields required:
-      - `id Int @id @default(autoincrement())`
-      - `username String @unique`
-      - `password String`
-    It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
-      - One of the pages in the app must have a route path "/".
-      - Don't generate the Login or Signup pages and routes under any circumstances. They are already generated.
+Instructions you must follow while generating plan:
+  - App uses username and password authentication.
+  - App MUST have a 'User' entity, with following fields required:
+  - `id Int @id @default(autoincrement())`
+  - `username String @unique`
+  - `password String`
+It is also likely to have a field that refers to some other entity that user owns, e.g. `tasks Task[]`.
+  - One of the pages in the app must have a route path "/".
+  - Don't generate the Login or Signup pages and routes under any circumstances. They are already generated.
 
-    Plan is represented as JSON with the following schema:
+Plan is represented as JSON with the following schema:
 
-    {
-      "entities": [{ "entityName": string, "entityBodyPsl": string }],
-      "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-      "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
-      "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
-    }
+{
+  "entities": [{ "entityName": string, "entityBodyPsl": string }],
+  "actions": [{ "opName": string, "opFnPath": string, "opDesc": string }],
+  "queries": [{ "opName": string, "opFnPath": string, "opDesc": string }],
+  "pages": [{ "pageName": string, "componentPath": string, "routeName": string, "routePath": string, "pageDesc": string }]
+}
 
-    Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
+Here is an example of a plan (a bit simplified, as we didn't list all of the entities/actions/queries/pages):
 
-    {
-      "entities": [{
-        "entityName": "User",
-        "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
-      }],
-      "actions": [{
-        "opName": "createTask",
-        "opFnPath": "@server/actions.js",
-        "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
-      }],
-      "queries": [{
-        "opName": "getTask",
-        "opFnPath": "@server/queries.js",
-        "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
-      }],
-      "pages": [{
-        "pageName": "TaskPage",
-        "componentPath": "@client/pages/Task.jsx",
-        "routeName: "TaskRoute",
-        "routePath": "/task/:taskId",
-        "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task. Uses getTask query and createTask action.",
-      }]
-    }
+{
+  "entities": [{
+    "entityName": "User",
+    "entityBodyPsl": "  id Int @id @default(autoincrement())\n  username String @unique\n  password String\n  tasks Task[]"
+  }],
+  "actions": [{
+    "opName": "createTask",
+    "opFnPath": "@server/actions.js",
+    "opDesc": "Checks that user is authenticated and if so, creates new Task belonging to them. Takes description as an argument and by default sets isDone to false. Returns created Task."
+  }],
+  "queries": [{
+    "opName": "getTask",
+    "opFnPath": "@server/queries.js",
+    "opDesc": "Takes task id as an argument. Checks that user is authenticated, and if so, fetches and returns their task that has specified task id. Throws HttpError(400) if tasks exists but does not belong to them."
+  }],
+  "pages": [{
+    "pageName": "TaskPage",
+    "componentPath": "@client/pages/Task.jsx",
+    "routeName: "TaskRoute",
+    "routePath": "/task/:taskId",
+    "pageDesc": "Diplays a Task with the specified taskId. Allows editing of the Task. Uses getTask query and createTask action.",
+  }]
+}
 
-    We will later use this plan to write main.wasp file and all the other parts of Wasp app,
-    so make sure descriptions are detailed enough to guide implementing them.
-    Also, mention in the descriptions of actions/queries which entities they work with,
-    and in descriptions of pages mention which actions/queries they use.
+We will later use this plan to write main.wasp file and all the other parts of Wasp app,
+so make sure descriptions are detailed enough to guide implementing them.
+Also, mention in the descriptions of actions/queries which entities they work with,
+and in descriptions of pages mention which actions/queries they use.
 
-    Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
-    least two entities. It will very likely have more than one of each, though.
+Typically, plan will have AT LEAST one query, at least one action, at least one page, and at
+least two entities. It will very likely have more than one of each, though.
 
-    DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
+DO NOT create actions for login and logout under any circumstances. They are already included in Wasp.
 
-    Note that we are using SQLite as a database for Prisma, so don't use scalar arrays in PSL, like `String[]`,
-    as those are not supported in SQLite. You can of course normally use arrays of other models, like `Task[]`.
+Note that we are using SQLite as a database for Prisma, so don't use scalar arrays in PSL, like `String[]`,
+as those are not supported in SQLite. You can of course normally use arrays of other models, like `Task[]`.
 
-    Please, respond ONLY with a valid JSON that is a plan.
-    There should be no other text in the response.
+Please, respond ONLY with a valid JSON that is a plan.
+There should be no other text in the response.
 
-    ==== APP DESCRIPTION: ====
+==== APP DESCRIPTION: ====
 
-    App name: TodoApp
-    A simple todo app with one main page that lists all the tasks. User can create new tasks by providing their description, toggle existing ones, or edit their description. User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database.
-  </div>
+App name: TodoApp
+A simple todo app with one main page that lists all the tasks. User can create new tasks by providing their description, toggle existing ones, or edit their description. User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database.
+~~~
 
 </details>
     

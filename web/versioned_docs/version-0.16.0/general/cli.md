@@ -58,7 +58,7 @@ Newsletter: https://wasp.sh/#signup
 
 ### Creating a New Project
  - Use `wasp new` to start the interactive mode for setting up a new Wasp project.
- 
+
   This will prompt you to input the project name and to select a template. The chosen template will then be used to generate the project directory with the specified name.
 
   ```
@@ -117,9 +117,9 @@ Newsletter: https://wasp.sh/#signup
  - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
 
  - `wasp deploy` makes it easy to get your app hosted on the web.
- 
+
   Currently, Wasp offers support for [Fly.io](https://fly.io). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
-  
+
   Read more about automatic deployment [here](../deployment/deployment-methods/cli.md).
 
  - `wasp telemetry` displays the status of [telemetry](../telemetry.md).
@@ -158,7 +158,7 @@ Wasp adds some additional functionality on top of Prisma, and using `prisma` com
 To set up Bash completion, run the `wasp completion` command and follow the instructions.
 
 
-### Miscellaneous Commands 
+### Miscellaneous Commands
  - `wasp version` displays the current version of the CLI.
 
     ```
@@ -176,10 +176,10 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
     ```
  - `wasp uninstall` removes Wasp from your system.
 
-   ```
-   $ wasp uninstall
+    ~~~
+    $ wasp uninstall
 
-   🐝 --- Uninstalling Wasp ... ------------------------------------------------------
+    🐝 --- Uninstalling Wasp ... ------------------------------------------------------
 
     We will remove the following directories:
       {home}/.local/share/wasp-lang/
@@ -192,4 +192,4 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
     y
 
     ✅ --- Uninstalled Wasp -----------------------------------------------------------
-   ```
+    ~~~

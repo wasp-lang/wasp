@@ -176,10 +176,10 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
     ```
  - `wasp uninstall` removes Wasp from your system.
 
-   ```
-   $ wasp uninstall
+    ~~~
+    $ wasp uninstall
 
-   🐝 --- Uninstalling Wasp ... ------------------------------------------------------
+    🐝 --- Uninstalling Wasp ... ------------------------------------------------------
 
     We will remove the following directories:
       {home}/.local/share/wasp-lang/
@@ -192,4 +192,4 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
     y
 
     ✅ --- Uninstalled Wasp -----------------------------------------------------------
-   ```
+    ~~~

@@ -34,7 +34,7 @@ cd <my-project-name>
 wasp start
 ```
 
-That's it 🎉 You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
+That's it 🎉 You have successfully created and served a new web app at [http://localhost:3000](http://localhost:3000) and Wasp is serving both frontend and backend for you.
 
 :::note Something Unclear?
 Check [More Details](#more-details) section below if anything went wrong, or if you have additional questions.

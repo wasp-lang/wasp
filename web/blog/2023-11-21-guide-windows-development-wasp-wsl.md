@@ -66,7 +66,7 @@ From there, you can access and manage your Linux OS’s file system directly fro
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/iqjsd1oz5a4alu6q08re.png)
 
-Another very important thing, which we will use in our example is WSL2 virtual routes. As you now have OS inside your OS, they have a way of communicating. When you want to access your Linux OS’s network (for example, when you want to access your web app running locally in Linux), you can use _${PC-name}.local_. For me, since my PC name is Boris-PC, my network address is boris-pc.local. That way you don’t have to remember different IP addresses, which is really cool. If you want your address for whatever reason, you can go to your Linux distro’s terminal, and type ipconfig. Then, you can see your Windows IP and Linux’s IP address. With that, you can communicate with both operating systems without friction.
+Another very important thing, which we will use in our example is WSL2 virtual routes. As you now have OS inside your OS, they have a way of communicating. When you want to access your Linux OS’s network (for example, when you want to access your web app running locally in Linux), you can use _{"${PC-name}.local"}_. For me, since my PC name is Boris-PC, my network address is boris-pc.local. That way you don’t have to remember different IP addresses, which is really cool. If you want your address for whatever reason, you can go to your Linux distro’s terminal, and type ipconfig. Then, you can see your Windows IP and Linux’s IP address. With that, you can communicate with both operating systems without friction.
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/lkhcfiybnobuoziitwtm.png)
 
