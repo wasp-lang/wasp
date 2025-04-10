@@ -372,6 +372,7 @@ library
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.Message
+    Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Project
