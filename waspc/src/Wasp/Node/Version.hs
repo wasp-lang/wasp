@@ -48,21 +48,18 @@ checkUserNodeAndNpmMeetWaspRequirements = do
     (VersionCheckSuccess, VersionCheckSuccess) -> VersionCheckSuccess
     (VersionCheckFail nodeError, _) -> VersionCheckFail nodeError
     (_, VersionCheckFail npmError) -> VersionCheckFail npmError
-
-checkUserNodeVersion :: IO VersionCheckResult
-checkUserNodeVersion = checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion
-
-checkUserNpmVersion :: IO VersionCheckResult
-checkUserNpmVersion = checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
+  where
+    checkUserNodeVersion = checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion
+    checkUserNpmVersion = checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
 
 checkUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
 checkUserToolVersion commandName commandArgs oldestSupportedToolVersion = do
-  userVersion <- getToolVersionFromCommandOutput commandName commandArgs
-  return $ case userVersion of
+  userVersionOrError <- getToolVersionFromCommandOutput commandName commandArgs
+  return $ case userVersionOrError of
     Left errorMsg -> VersionCheckFail errorMsg
-    Right version
-      | version >= oldestSupportedToolVersion -> VersionCheckSuccess
-      | otherwise -> VersionCheckFail $ makeVersionMismatchErrorMessage version
+    Right userVersion
+      | userVersion >= oldestSupportedToolVersion -> VersionCheckSuccess
+      | otherwise -> VersionCheckFail $ makeVersionMismatchErrorMessage userVersion
   where
     makeVersionMismatchErrorMessage version =
       unlines
