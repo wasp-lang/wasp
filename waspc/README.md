@@ -2,7 +2,7 @@
 
 This directory contains source code of the `wasp` CLI/compiler (aka `waspc`), and this README is aimed at the contributors to the project.
 
-If you are a Wasp user and not a contributor (yet :)), you might want to look into the following resources instead ([**Project page**](https://wasp.sh), [**Docs**](https://wasp.sh/docs)).
+If you are a Wasp user and not a contributor (yet 😉), you might want to look into the following resources instead ([**Project page**](https://wasp.sh), [**Docs**](https://wasp.sh/docs)).
 
 ## First time contributor checklist
 
@@ -19,9 +19,9 @@ If you would like to make your first contribution, here is a handy checklist we 
 
 The core of `waspc` is implemented in Haskell, but you will also see a lot of Javascript/TypeScript and other web technologies since Wasp generates web apps in those.
 
-You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with any parts that are not.
+You don't have to be an expert in Haskell to contribute or understand the code since we don't use complicated Haskell features much. Most of the code is relatively simple and straight-forward, and we are happy to help with any parts that are not.
 
-Main result of building the project is `wasp` executable (also referred to as CLI), which is both Wasp compiler, CLI and Wasp project runner in one - one main tool for everything Wasp-related.
+The main result of building the project is `wasp` executable (also referred to as CLI), which is at the same time Wasp compiler, CLI, and Wasp project runner in one - one main tool for everything Wasp-related.
 
 Note that while `waspc` is the name of this Haskell project, the executable's name is `wasp` when released, and `wasp-cli` during development.
 
@@ -35,9 +35,9 @@ Position yourself in this directory (`waspc/`) and make sure that you are on the
 
 ### `run` script
 
-[./run](run) script captures the most common commands / workflows for developoment of `waspc` (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, ... .
+[./run](run) script captures the most common commands/workflows for the development of `waspc` (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, ... .
 
-It serves both as a convenient way to easily run common development tasks and also as a sort of a documentation on how we develop `waspc`. You will see us mentioning it often in the rest of this README.
+It serves both as a convenient way to easily run common development tasks and also as a sort of documentation on how we develop `waspc`. You will see us mentioning it often in the rest of this README.
 
 Running `./run` without any arguments will print help/usage, which is a good way to discover the typical `waspc` development workflows.
 
@@ -51,9 +51,9 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 #### Haskell toolchain
 
-The best way to install Haskell toolchain is via [ghcup](https://www.haskell.org/ghcup/).
+The best way to install the Haskell toolchain is via [ghcup](https://www.haskell.org/ghcup/).
 
-Once you have `ghcup` installed, run `ghcup tui` command to install and select correct versions of `cabal` (package manager), `hls` (language server) and `ghc` (compiler).
+Once you have `ghcup` installed, run the `ghcup tui` command to install and select the correct versions of `cabal` (package manager), `hls` (language server), and `ghc` (compiler).
 
 To find out what the correct versions of these tools are for the `waspc`:
  - Run `./run ghcup-set` to check which exact versions of `ghc` and `hls` you should use.
@@ -109,15 +109,25 @@ This is to make it easier to differentiate between the development version of wa
 
 ### Running the example app
 
-Position yourself in [waspc/examples/todoApp/](examples/todoApp/) and run
+First, position yourself in the [waspc/examples/todoApp/](examples/todoApp/) dir.
 
+Then, run the dev database:
+
+```sh
+./run wasp-cli db start
 ```
+
+Leave it running, open a new terminal (tab), and run
+
+```sh
 ./run wasp-cli db migrate-dev
 ```
 
-to update the database schema. Then,
+to update the database schema.
 
-```
+Finally, run
+
+```sh
 ./run wasp-cli start
 ```
 
@@ -135,7 +145,7 @@ When done, new tab in your browser should open and you will see a Todo App!
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (also update tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages and any other piece of the project in one command.
+4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easily manually testing the changes you did on a Wasp app, you have `examples/todoApp`, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `./run test` to confirm that all the tests (unit + integration + e2e) are passing. If needed, accept changes in the e2e golden/snapshot tests with `./run test:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check instructions on it later in this file.
@@ -162,7 +172,7 @@ Wasp is implemented in Haskell.
 Codebase is split into library (`src/`) and CLI (which itself has a library `cli/src/` and thin executable wrapper `cli/exe/`).
 CLI is actually `wasp` executable, and it uses the library, where most of the logic is.
 
-Wasp compiler takes .wasp files + everything in the `src/` dir (JS, HTML, ...) and generates a web app that consists of client, server and database.
+Wasp compiler takes .wasp files + everything in the `src/` dir (JS, HTML, ...) and generates a web app that consists of client, server, and the database.
 
 Wasp compiler code is split into 2 basic layers: Analyzer (frontend) and Generator (backend).
 
@@ -201,14 +211,14 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 ### Typescript packages
 
-`waspc`, while implemented in Haskell, relies for some of its functionality on TypeScript code (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
+`waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
 
 In order for `waspc`'s Haskell code to correctly use these TS packages (and to also have them correctly bundled when generating the release tarball), they need to be correctly installed/built in the `waspc_datadir` dir.
 To do so in development, run `./run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
 
 ## Tests
 
-For tests in Haskell we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
+For tests in Haskell we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty lets us combine different types of tests into a single test suite.
 
 In Tasty, there is a main test file that is run when test suite is run. In that file we need to manually compose test tree out of tests that we wrote. We organize tests in test groups, which are then recursively grouped resulting in a test tree.
 Cool thing is that we can organize tests this way however we want and also mix different type of tests (hspec, quickcheck, and whatever else we want).
