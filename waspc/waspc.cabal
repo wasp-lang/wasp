@@ -334,8 +334,9 @@ library
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
-    Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.Common
+    Wasp.Generator.ServerGenerator.Db.Seed
+    Wasp.Generator.ServerGenerator.DepVersions
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG

@@ -56,7 +56,10 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
-import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator.DepVersions
+  ( expressTypesVersion,
+    expressVersionStr,
+  )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
@@ -196,7 +199,7 @@ npmDepsForSdk spec =
             ("prisma", show prismaVersion),
             ("@tanstack/react-query", show reactQueryVersion),
             ("axios", show axiosVersion),
-            ("express", Server.expressVersionStr),
+            ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
             ("react-router-dom", show reactRouterVersion),
@@ -226,8 +229,8 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
             -- Should @types/* go into their package.json?
-            ("@types/express", show Server.expressTypesVersion),
-            ("@types/express-serve-static-core", show Server.expressTypesVersion)
+            ("@types/express", show expressTypesVersion),
+            ("@types/express-serve-static-core", show expressTypesVersion)
           ]
     }
   where

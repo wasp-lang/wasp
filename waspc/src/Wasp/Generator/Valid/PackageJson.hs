@@ -11,7 +11,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
-import Wasp.Generator.ServerGenerator.Common (expressTypesVersion)
+import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
