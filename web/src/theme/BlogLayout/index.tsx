@@ -1,3 +1,4 @@
+import type { Props } from '@theme/BlogLayout'
 import BlogSidebar from '@theme/BlogSidebar'
 import Layout from '@theme/Layout'
 import clsx from 'clsx'
@@ -20,7 +21,7 @@ import clsx from 'clsx'
 
 // NOTE(matija): this component is used both when listing all the posts (on /blog) and when rendering a
 // specific blog post.
-export default function BlogLayout(props) {
+export default function BlogLayout(props: Props) {
   const { sidebar, toc, children, ...layoutProps } = props
 
   // NOTE(matija): if false, then it is an individual blog post.
