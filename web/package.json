@@ -18,8 +18,8 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@docusaurus/core": "2.4.0",
-    "@docusaurus/preset-classic": "2.4.0",
+    "@docusaurus/core": "2.4.3",
+    "@docusaurus/preset-classic": "2.4.3",
     "@kodingdotninja/use-tailwind-breakpoint": "^0.0.5",
     "@mdx-js/react": "^1.6.22",
     "@svgr/webpack": "^6.5.1",
@@ -40,7 +40,7 @@
     "tailwindcss": "^3.2.4"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "2.2.0",
+    "@docusaurus/module-type-aliases": "2.4.3",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.6",
     "remark-cli": "^11.0.0",
