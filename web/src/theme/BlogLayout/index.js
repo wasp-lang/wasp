@@ -1,7 +1,6 @@
-import React from 'react'
-import clsx from 'clsx'
-import Layout from '@theme/Layout'
 import BlogSidebar from '@theme/BlogSidebar'
+import Layout from '@theme/Layout'
+import clsx from 'clsx'
 
 /*
 
@@ -26,9 +25,9 @@ export default function BlogLayout(props) {
 
   // NOTE(matija): if false, then it is an individual blog post.
   //
-  // NOTE(matija): I don't really like this way of determining if we're dealing with a blog post
-  // or a list, since we depend on Docusaurus' internal structure, but I haven't found another way so far.
-  const isListOfBlogPosts = props.children[0].props.items?.length > 0
+  // FIXME(carlos): a bit hacky, but this is the only way to check if
+  // the blog post is a list of blog posts.
+  const isListOfBlogPosts = !toc
 
   return (
     <Layout {...layoutProps}>
