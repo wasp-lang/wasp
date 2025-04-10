@@ -55,7 +55,6 @@ analyzeWaspProject ::
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 analyzeWaspProject waspDir compileOptions = do
   waspFilePathOrError <- left (: []) <$> findWaspFile waspDir
-  tailwindConfigFilesRelocators <- CF.discoverConfigFiles waspDir TCF.tailwindConfigRelocationMap
 
   case waspFilePathOrError of
     Left err -> return (Left err, [])
@@ -74,22 +73,20 @@ analyzeWaspProject waspDir compileOptions = do
                   constructAppSpec
                     waspDir
                     compileOptions
-                    tailwindConfigFilesRelocators
+                    externalConfigs
                     prismaSchemaAst
                     declarations
                     srcTsConfigPath
-                    externalConfigs
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  [CF.ConfigFileRelocator] ->
+  EC.ExternalConfigs ->
   Psl.Schema.Schema ->
   [AS.Decl] ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
-  EC.ExternalConfigs ->
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
-constructAppSpec waspDir compileOptions tailwindConfigFilesRelocators parsedPrismaSchema decls srcTsConfigPath externalConfigs = do
+constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls srcTsConfigPath = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
   customViteConfigPath <- findCustomViteConfigPath waspDir
@@ -100,6 +97,7 @@ constructAppSpec waspDir compileOptions tailwindConfigFilesRelocators parsedPris
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
+  tailwindConfigFilesRelocators <- CF.discoverConfigFiles waspDir TCF.tailwindConfigRelocationMap
 
   let appSpec =
         AS.AppSpec
