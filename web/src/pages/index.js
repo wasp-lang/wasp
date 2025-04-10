@@ -19,6 +19,8 @@ import styles from './styles.module.css'
 import './index.css'
 import './preflight.css'
 
+import '../prism/prismCustomization'
+
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 
 const Background = () => {

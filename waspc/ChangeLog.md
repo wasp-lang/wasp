@@ -2,13 +2,19 @@
 
 ## Unreleased
 
+### ⚠️ Breaking Changes
+
+- In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
+
+- Wasp will no longer generate `favicon.ico` on compile if there is none in `public` directory ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
+
 ### 🎉 New Features and improvements
 
 - New wasp projects start with a default `favicon.ico` in `public` folder ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
 
-### ⚠️ Breaking Changes
+### 🔧 Small improvements
 
-- Wasp will no longer generate `favicon.ico` on compile if there is none in `public` directory ([#1979](https://github.com/wasp-lang/wasp/pull/1979))
+- Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
 
 ## 0.16.3
 
