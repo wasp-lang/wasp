@@ -186,8 +186,7 @@ genIndexHtml spec =
     templateData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
-          "head"
-            .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
+          "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
         ]
 
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
