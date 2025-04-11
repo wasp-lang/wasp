@@ -209,6 +209,7 @@ function mapAuth(
     onAuthSucceededRedirectTo,
     onBeforeSignup,
     onAfterSignup,
+    onAfterEmailVerified,
     onBeforeOAuthRedirect,
     onBeforeLogin,
     onAfterLogin,
@@ -225,6 +226,7 @@ function mapAuth(
     onAuthSucceededRedirectTo,
     onBeforeSignup: onBeforeSignup && mapExtImport(onBeforeSignup),
     onAfterSignup: onAfterSignup && mapExtImport(onAfterSignup),
+    onAfterEmailVerified: onAfterEmailVerified && mapExtImport(onAfterEmailVerified),
     onBeforeOAuthRedirect:
       onBeforeOAuthRedirect && mapExtImport(onBeforeOAuthRedirect),
     onBeforeLogin: onBeforeLogin && mapExtImport(onBeforeLogin),

@@ -14,6 +14,7 @@ The following auth hooks are available in Wasp:
 
 - [`onBeforeSignup`](#executing-code-before-the-user-signs-up)
 - [`onAfterSignup`](#executing-code-after-the-user-signs-up)
+- [`onAfterEmailVerified`](#executing-code-after-a-user-verifies-the-email)
 - [`onBeforeOAuthRedirect`](#executing-code-before-the-oauth-redirect)
 - [`onBeforeLogin`](#executing-code-before-the-user-logs-in)
 - [`onAfterLogin`](#executing-code-after-the-user-logs-in)
@@ -36,6 +37,14 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
 
 \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
+
+If you are using the email provider, the flow include an extra verification flow:
+
+<ImgWithCaption
+  source="/img/auth-hooks/email_verification_flow_with_hooks.png"
+  alt="Email Verification Flow with Hooks"
+  caption="Email Verification Flow with Hooks"
+/>
 
 If you are using OAuth, the flow includes extra steps before the auth flow:
 
@@ -286,6 +295,86 @@ export const onAfterSignup: OnAfterSignupHook = async ({
 </Tabs>
 
 Read more about the data the `onAfterSignup` hook receives in the [API Reference](#the-onaftersignup-hook).
+
+### Executing code after a user verifies the email
+
+Wasp calls the `onAfterEmailVerified` hook once a user's email has been successfully verified.
+
+The `onAfterEmailVerified` hook is useful for triggering actions in response to the verification event — such as sending a welcome email or syncing user data with a third-party service.
+
+The `onAfterEmailVerified` hook receives a `ProviderId` object, which always contains the `"email"` provider along with the user ID (i.e., the verified email address). Combined with the `user` object, this makes it easy to perform personalized actions upon email verification.
+
+Works with <EmailPill />
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
+  },
+}
+```
+
+```js title="src/auth/hooks.js"
+import { emailSender } from 'wasp/server/email'
+
+export const onAfterEmailVerified = async ({ providerId }) => {
+  const info = await emailSender.send({
+    from: {
+      name: 'John Doe',
+      email: 'john@doe.com',
+    },
+    to: provider.providerUserId,
+    subject: 'Thank you for verifying your email!',
+    text: 'Your email has been successfully verified!',
+    html: 'Your email has been successfully verified!',
+  })
+  // Store that email was sent successfully, otherwise schedule it for later
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
+  },
+}
+```
+
+```ts title="src/auth/hooks.ts"
+import type { OnAfterEmailVerifiedHook } from 'wasp/server/auth'
+import { emailSender } from 'wasp/server/email'
+
+export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
+  providerId,
+}) => {
+  const info = await emailSender.send({
+    from: {
+      name: 'John Doe',
+      email: 'john@doe.com',
+    },
+    to: provider.providerUserId,
+    subject: 'Thank you for verifying your email!',
+    text: 'Your email has been successfully verified!',
+    html: 'Your email has been successfully verified!',
+  })
+  // Store that email was sent successfully, otherwise schedule it for later
+}
+```
+
+</TabItem>
+</Tabs>
+
+Read more about the data the `onAfterEmailVerified` hook receives in the [API Reference](#the-onafteremailverified-hook).
 
 ### Executing code before the OAuth redirect
 
@@ -713,6 +802,7 @@ export const onAfterSignup: OnAfterSignupHook = async ({
 The hook receives an object as **input** with the following properties:
 
 - [`providerId: ProviderId`](#providerid-fields)
+
 - `user: User`
 
   The user object that was created.
@@ -720,6 +810,48 @@ The hook receives an object as **input** with the following properties:
 - [`oauth?: OAuthFields`](#oauth-fields)
 
 - Plus the [common hook input](#common-hook-input)
+
+Wasp ignores this hook's **return value**.
+
+### The `onAfterEmailVerified` hook
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/auth/hooks.js"
+export const onAfterEmailVerified = async ({ email, user, prisma, req }) => {
+  // Hook code goes here
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/auth/hooks.ts"
+import type { OnAfterEmailVerifiedHook } from 'wasp/server/auth'
+
+export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
+  providerId,
+  user,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
+```
+
+</TabItem>
+</Tabs>
+
+The hook receives an object as **input** with the following properties:
+
+- [`providerId: ProviderId`](#providerid-fields)
+
+- `user: User`
+
+  The user whose email was verified.
+
+- [`oauth?: OAuthFields`](#oauth-fields)
 
 Wasp ignores this hook's **return value**.
 
@@ -872,7 +1004,7 @@ Wasp ignores this hook's **return value**.
 
 ### ProviderId fields
 
-The `providerId` object represents the user for the current authentication method. Wasp passes it to the `onBeforeSignup`, `onAfterSignup`, `onBeforeLogin`, and `onAfterLogin` hooks.
+The `providerId` object represents the user for the current authentication method. Wasp passes it to the `onBeforeSignup`, `onAfterSignup`, `onAfterEmailVerified`, `onBeforeLogin`, and `onAfterLogin` hooks.
 
 It has the following fields:
 
