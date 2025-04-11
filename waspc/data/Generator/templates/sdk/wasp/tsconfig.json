@@ -10,7 +10,7 @@
     ],
     "skipLibCheck": true,
     "allowJs": true,
-    "rootDir" : ".", // TODO: Test if this works
+    "rootDir": ".",
     "outDir": "dist", 
 
     // Strictness and type checking
