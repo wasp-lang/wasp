@@ -4,6 +4,24 @@ import type { Prisma } from '@prisma/client'
 import type { Expand } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
 
+
+{=# emailUserSignupFields.isDefined =}
+{=& emailUserSignupFields.importStatement =}
+const _waspEmailUserSignupFields = {= emailUserSignupFields.importIdentifier =}
+{=/ emailUserSignupFields.isDefined =}
+{=^ emailUserSignupFields.isDefined =}
+const _waspEmailUserSignupFields = undefined
+{=/ emailUserSignupFields.isDefined =}
+
+{=# usernameAndPasswordUserSignupFields.isDefined =}
+{=& usernameAndPasswordUserSignupFields.importStatement =}
+const _waspUsernameAndPasswordUserSignupFields = {= usernameAndPasswordUserSignupFields.importIdentifier =}
+{=/ usernameAndPasswordUserSignupFields.isDefined =}
+{=^ usernameAndPasswordUserSignupFields.isDefined =}
+const _waspUsernameAndPasswordUserSignupFields = undefined
+{=/ usernameAndPasswordUserSignupFields.isDefined =}
+
+
 // PUBLIC API
 export function defineUserSignupFields(fields: UserSignupFields): UserSignupFields {
   return fields
