@@ -23,6 +23,42 @@ $ npm start
 This command starts a local development server and opens up a browser window.
 Most changes are reflected live without having to restart the server.
 
+### Writing docs
+
+To write docs, you can use Markdown or MDX. The docs are located in the `docs` directory.
+Remember to refer to the [Writing Guide](https://wasp.sh/docs/writingguide) for an explanation
+of how we like to write docs. You can check
+[Docusaurus' documentation](https://docusaurus.io/docs/2.x/markdown-features) to see which special
+Markdown features available (e.g. line highlighting).
+
+
+#### Polyglot code blocks
+
+For examples that have a JavaScript and TypeScript version, add a `auto-js` meta attribute
+to the code block, like so:
+
+~~~md
+```ts title="src/apis.ts" auto-js
+export const validatePassword = (password: string) => password.length > 8;
+```
+~~~
+
+And it will automatically generate a JS and TS version with a selector to switch between them.
+
+> ![NOTE]
+> You can create a language switcher manually as described in
+> [Docusaurus docs](https://docusaurus.io/docs/2.x/markdown-features/code-blocks#multi-language-support-code-blocks).
+
+If you need to omit some part of the code in a code example, you can use the `with-hole` meta attribute
+which will add an ellipsis wherever you write the identifier `hole` in the code block, so you can keep
+it syntactically valid.
+
+~~~md
+```ts title="src/apis.ts" auto-js with-hole
+export const validatePassword = (password: string) => password.length > 8 && hole;
+```
+~~~
+
 ### Build
 
 ```
@@ -56,14 +92,14 @@ We deploy the website to Cloudflare Pages. When you want to deploy changes from 
    git checkout release
    ```
 
-The website should be live within a few minutes at https://wasp.sh. 
+The website should be live within a few minutes at https://wasp.sh.
 
 You can track the deployment progress on Cloudflare Pages (https://dash.cloudflare.com/). Credentials are in the 1Password vault.
 
 ### Preview docs from the `main` branch
 
 We set up automatic deployment of docs from the `main` branch on Cloudflare Pages. This means that every time you push to the `main` branch, the docs will be built and deployed to https://wasp-docs-on-main.pages.dev.
- 
+
 ### Multiple documentation versions
 
 We maintain docs for multiple versions of Wasp.
