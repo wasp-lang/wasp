@@ -1,7 +1,6 @@
 module Generator.WebAppGeneratorTest where
 
 import qualified Data.Map as M
-import Data.Maybe (fromJust)
 import Fixtures
 import StrongPath (relfile)
 import qualified StrongPath as SP
@@ -12,6 +11,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
+import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.FileDraft
 import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
@@ -65,10 +65,28 @@ spec_WebAppGenerator = do
             AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
             AS.tailwindConfigFilesRelocators = [],
-            AS.srcTsConfigPath = fromJust $ SP.parseRelFile "tsconfig.json",
             AS.devDatabaseUrl = Nothing,
             AS.customViteConfigPath = Nothing,
-            AS.srcTsConfigPath = [relfile|tsconfig.json|]
+            AS.srcTsConfigPath = [relfile|tsconfig.json|],
+            AS.srcTsConfig =
+              T.TsConfig
+                { T.compilerOptions =
+                    T.CompilerOptions
+                      { T._module = Just "esnext",
+                        T.composite = Just True,
+                        T.target = Just "esnext",
+                        T.moduleResolution = Just "bundler",
+                        T.jsx = Just "preserve",
+                        T.strict = Just True,
+                        T.esModuleInterop = Just True,
+                        T.lib = Just ["dom", "dom.iterable", "esnext"],
+                        T.skipLibCheck = Just True,
+                        T.allowJs = Just True,
+                        T.typeRoots = Just ["node_modules/@testing-library", "node_modules/@types"],
+                        T.outDir = Just ".wasp/out/user"
+                      },
+                  T.include = Just ["src"]
+                }
           }
 
   describe "genWebApp" $ do
