@@ -54,6 +54,8 @@
       "./universal/types": "./dist/universal/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./universal/ansiColors": "./dist/universal/ansiColors.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
