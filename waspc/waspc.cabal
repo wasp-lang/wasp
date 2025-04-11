@@ -666,6 +666,7 @@ test-suite waspc-test
     Generator.JsImportTest
     Generator.CrudTest
     Generator.CommonTest
+    Node.InternalTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
