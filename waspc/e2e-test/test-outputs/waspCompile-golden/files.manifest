@@ -7,6 +7,7 @@ waspCompile/.wasp/out/sdk/wasp/api/events.ts
 waspCompile/.wasp/out/sdk/wasp/api/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/config.ts
 waspCompile/.wasp/out/sdk/wasp/client/env.ts
+waspCompile/.wasp/out/sdk/wasp/client/env/schema.ts
 waspCompile/.wasp/out/sdk/wasp/client/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspCompile/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -39,6 +40,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/env.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/env.js
 waspCompile/.wasp/out/sdk/wasp/dist/client/env.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/client/env/schema.js
+waspCompile/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -250,6 +254,7 @@ waspCompile/.wasp/out/web-app/tsconfig.json
 waspCompile/.wasp/out/web-app/tsconfig.vite.json
 waspCompile/.wasp/out/web-app/vite.config.ts
 waspCompile/.wasp/out/web-app/vite/detectServerImports.ts
+waspCompile/.wasp/out/web-app/vite/validateEnv.ts
 waspCompile/.waspignore
 waspCompile/.wasproot
 waspCompile/main.wasp
