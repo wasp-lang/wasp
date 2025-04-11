@@ -16,7 +16,7 @@ After creating a new Wasp project, you'll get a file structure that looks like t
 ├── schema.prisma      # Your Prisma schema goes here.
 ├── package.json       # Your dependencies and project info go here.
 ├── public             # Your static files (e.g., images, favicon) go here.
-│   ├── favicon.ico
+│   └── favicon.ico
 ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
 │   ├── Main.css
 │   ├── MainPage.jsx
@@ -46,7 +46,7 @@ After creating a new Wasp project and renaming the `src/MainPage.jsx` file, your
 ├── schema.prisma      # Your Prisma schema goes here.
 ├── package.json       # Your dependencies and project info go here.
 ├── public             # Your static files (e.g., images, favicon) go here.
-│   ├── favicon.ico
+│   └── favicon.ico
 ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
 │   ├── Main.css
 // highlight-next-line
