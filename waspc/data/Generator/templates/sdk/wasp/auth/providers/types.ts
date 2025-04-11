@@ -30,10 +30,10 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 }
 
 // PUBLIC API
-export type EmailUserSignupFieldType = InferredUserSignupFields<typeof _waspEmailUserSignupFields>;
+export type UserEmailSignupFields = InferUserSignupFields<typeof _waspEmailUserSignupFields>;
 
 // PUBLIC API
-export type UsernameAndPasswordUserSignupFieldType = InferredUserSignupFields<typeof _waspUsernameAndPasswordUserSignupFields>;
+export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof _waspUsernameAndPasswordUserSignupFields>;
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
 
@@ -64,6 +64,6 @@ type FieldGetter<T> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined
 
-export type InferredUserSignupFields<T> = {
+export type InferUserSignupFields<T> = {
   [K in keyof T]: T[K] extends (data: any) => infer R ? R : never
 }
