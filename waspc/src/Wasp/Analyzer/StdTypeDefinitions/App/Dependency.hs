@@ -9,7 +9,7 @@ import qualified Wasp.Analyzer.Type as Type
 import Wasp.Analyzer.TypeChecker (WithCtx (..))
 import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 import Wasp.Analyzer.TypeDefinitions.Class.HasCustomEvaluation (HasCustomEvaluation (..))
-import qualified Wasp.AppSpec.App.Dependency as D
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
 
 instance HasCustomEvaluation D.Dependency where
   waspType = Type.TupleType (Type.StringType, Type.StringType, [])

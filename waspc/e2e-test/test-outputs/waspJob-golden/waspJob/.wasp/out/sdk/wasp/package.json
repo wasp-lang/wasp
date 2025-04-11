@@ -41,6 +41,7 @@
     "./client/api": "./dist/api/index.js",
     "./client/auth": "./dist/client/auth/index.js",
     "./client/crud": "./dist/client/crud/index.js",
+    "./client/env/schema": "./dist/client/env/schema.js",
     "./client/operations": "./dist/client/operations/index.js",
     "./client/operations/rpc": "./dist/client/operations/rpc.js",
     "./client/router": "./dist/client/router/index.js",
@@ -54,6 +55,7 @@
     "./dev": "./dist/dev/index.js",
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
+    "./env/validation": "./dist/env/validation.js",
     "./operations": "./dist/operations/index.js",
     "./operations/*": "./dist/operations/*",
     "./server": "./dist/server/index.js",
@@ -79,6 +81,7 @@
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
     "./src/*": "./dist/src/*.js",
+    "./universal/ansiColors": "./dist/universal/ansiColors.js",
     "./universal/types": "./dist/universal/types.js",
     "./universal/url": "./dist/universal/url.js",
     "./universal/validators": "./dist/universal/validators.js"

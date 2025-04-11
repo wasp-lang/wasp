@@ -25,7 +25,14 @@
             "file",
             "../out/sdk/wasp/client/env.ts"
         ],
-        "2a3602d40b299fbfa1a6275fe67828d5653d9f3265ba8204b75178aa41dcbae0"
+        "533337ff26b1df5f3c5c4eeb0b21830b97cbf2eabd5c76fc85d064893ecc2d86"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/env/schema.ts"
+        ],
+        "8f4b1c6093a651270e7bb6a9fbd9135c5bf46403643bca236dfc4e6194fc980b"
     ],
     [
         [
@@ -179,21 +186,21 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "d92b4832e9d4249ae5b1f00c0f9760d6841aa44bc199550414793a1d57a6845e"
+        "5d6193abc56eec5a8c98d2c95fa53dff6d2baabe6f5d8c2516b2d51e2a3727c6"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/env/validation.ts"
         ],
-        "e22b2fb8931275d3b1bd3176cbdbf753d22fc61887ded0e93cd8febf1b97d260"
+        "885deaa7f922a54cfd5c196ba96f2b53e10e084529687f24090bbf61ad4b4d48"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "05a448334246902483ce69e2b08eac9345fd10919d717cdc219cf803da22827a"
+        "69247e262b465aef43a2134d2d1976d4b95132c3699d98275cbb81876d887495"
     ],
     [
         [
@@ -432,6 +439,13 @@
             "../out/sdk/wasp/tsconfig.json"
         ],
         "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/universal/ansiColors.ts"
+        ],
+        "1b38c60fcd141712bc5a253467b46263af0ee1d64cd9d9c9a774f61dd4949a1c"
     ],
     [
         [
@@ -795,14 +809,14 @@
             "file",
             "web-app/tsconfig.vite.json"
         ],
-        "2eb9abbbd66ed061fae538b0c20f49301a8cb6d66c00d690f7b164078c5892e6"
+        "d73bf64453727c005983dea11c1b38ab9db2f6b4e7b5c266f731835d4bf8eb37"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "ca02196d3283c818e7e27d608347d37eaba536eb2bb8fae0d61345e6f1003388"
+        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
     ],
     [
         [
@@ -810,5 +824,12 @@
             "web-app/vite/detectServerImports.ts"
         ],
         "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite/validateEnv.ts"
+        ],
+        "956bb762df6ac7a2bb493dfa335c5fbd9c53be082e709eaa8a0873a75f143784"
     ]
 ]

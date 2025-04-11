@@ -79,7 +79,7 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 Before running `wasp-cli`, examples, or tests locally, you must compile the bundled TypeScript packages used by the CLI.
 
-Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
+Wasp bundles some TypeScript packages into the installation artifact (e.g. deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
 
 For more details about TypeScript packages in Wasp, see [TypeScript Packages section](#typescript-packages).
 
@@ -96,6 +96,28 @@ wasp-cli: npm: readCreateProcessWithExitCode: chdir: invalid argument (Bad file 
 ```
 
 You also need to re-run this if you make any changes to files inside the `packages/` directory.
+
+### Compiling TypeScript Packages (Required)
+
+Before running wasp-cli, examples, or tests locally, you must compile the bundled TypeScript packages used by the CLI.
+
+Wasp bundles some TypeScript packages into the installation artifact (e.g. deployment scripts), which end up in the installed version's waspc_datadir. To do so in CI, it runs ./tools/install_packages_to_data_dir.sh.
+
+For more details about TypeScript packages in Wasp, see [TypeScript Packages section](https://github.com/wasp-lang/wasp/blob/main/waspc/README.md#typescript-packages).
+
+Run this once after cloning:
+
+```bash
+./run wasp-packages:compile
+```
+
+If you skip this step, commands like wasp-cli compile, running examples like todoApp, or even cabal test may fail with errors such as:
+
+```bash
+wasp-cli: npm: readCreateProcessWithExitCode: chdir: invalid argument (Bad file descriptor)
+```
+
+You also need to re-run this if you make any changes to files inside the packages/ directory.
 
 ### Test
 
@@ -251,7 +273,7 @@ alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 
 ### Typescript packages
 
-Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
+Wasp bundles some TypeScript packages into the installation artifact (e.g. deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_packages_to_data_dir.sh`.
 
 `waspc`, while implemented in Haskell, for some of its functionality on TypeScript code (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
 
