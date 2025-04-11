@@ -23,6 +23,7 @@ export const submitProject: SubmitProject<z.infer<typeof submitProjectInputSchem
         country,
         website,
         image,
+        approved: process.env.HEADLESS_TESTING === 'true',
       },
     });
   } catch (e) {

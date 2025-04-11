@@ -1,13 +1,21 @@
-import { type ServerToClientPayload, useSocket, useSocketListener } from "wasp/client/webSocket";
+import {
+  type ServerToClientPayload,
+  useSocket,
+  useSocketListener,
+} from "wasp/client/webSocket";
 import { useAuth } from "wasp/client/auth";
 import { useState, useMemo, useEffect } from "react";
 import { Button, Card } from "flowbite-react";
 
 const MainPage = () => {
   const { data: user } = useAuth();
-  const [poll, setPoll] = useState<ServerToClientPayload<"updateState"> | null>(null);
+  const [poll, setPoll] = useState<ServerToClientPayload<"updateState"> | null>(
+    null
+  );
   const totalVotes = useMemo(() => {
-    return poll?.options.reduce((acc, option) => acc + option.votes.length, 0) ?? 0;
+    return (
+      poll?.options.reduce((acc, option) => acc + option.votes.length, 0) ?? 0
+    );
   }, [poll]);
 
   const { socket } = useSocket();
@@ -31,11 +39,18 @@ const MainPage = () => {
   return (
     <div className="w-full max-w-2xl mx-auto p-8">
       <h1 className="text-2xl font-bold">{poll?.question ?? "Loading..."}</h1>
-      {poll && <p className="leading-relaxed text-gray-500">Cast your vote for one of the options.</p>}
+      {poll && (
+        <p className="leading-relaxed text-gray-500">
+          Cast your vote for one of the options.
+        </p>
+      )}
       {poll && (
         <div className="mt-4 flex flex-col gap-4">
           {poll.options.map((option) => (
-            <Card key={option.id} className="relative transition-all duration-300 min-h-[130px]">
+            <Card
+              key={option.id}
+              className="relative transition-all duration-300 min-h-[130px] card"
+            >
               <div className="z-10">
                 <div className="mb-2">
                   <h2 className="text-xl font-semibold">{option.text}</h2>
@@ -58,30 +73,38 @@ const MainPage = () => {
                       return (
                         <div
                           key={username}
-                          className="py-1 px-3 bg-gray-100 rounded-lg flex items-center justify-center shadow text-sm"
+                          className="py-1 px-3 bg-gray-100 rounded-lg flex items-center justify-center shadow text-sm username"
                         >
                           <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                           <div className="text-gray-700">{username}</div>
                         </div>
                       );
                     })}
-                    {option.votes.length > TRUNCATE_SIZE + 2 && <div className="text-gray-700">{`...`}</div>}
+                    {option.votes.length > TRUNCATE_SIZE + 2 && (
+                      <div className="text-gray-700">{`...`}</div>
+                    )}
                     {option.votes.length > TRUNCATE_SIZE + 1 && (
                       <div className="py-1 px-3 bg-gray-100 rounded-lg flex items-center justify-center shadow text-sm">
                         <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                        <div className="text-gray-700">{option.votes[option.votes.length - 1]}</div>
+                        <div className="text-gray-700">
+                          {option.votes[option.votes.length - 1]}
+                        </div>
                       </div>
                     )}
                   </div>
                 )}
               </div>
-              <div className="absolute top-5 right-5 p-2 text-sm font-semibold bg-gray-100 rounded-lg z-10">
+              <div className="absolute top-5 right-5 p-2 text-sm font-semibold bg-gray-100 rounded-lg z-10 votes-count">
                 {option.votes.length} / {totalVotes}
               </div>
               <div
                 className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-75 rounded-lg transition-all duration-300"
                 style={{
-                  width: `${totalVotes > 0 ? (option.votes.length / totalVotes) * 100 : 0}%`,
+                  width: `${
+                    totalVotes > 0
+                      ? (option.votes.length / totalVotes) * 100
+                      : 0
+                  }%`,
                 }}
               ></div>
             </Card>
