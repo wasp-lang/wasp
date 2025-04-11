@@ -169,6 +169,9 @@ waspCompile/.wasp/out/sdk/wasp/dist/server/utils.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/src/MainPage.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/src/MainPage.jsx
 waspCompile/.wasp/out/sdk/wasp/dist/src/MainPage.jsx.map
+waspCompile/.wasp/out/sdk/wasp/dist/universal/ansiColors.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/universal/ansiColors.js
+waspCompile/.wasp/out/sdk/wasp/dist/universal/ansiColors.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/universal/predicates.js
 waspCompile/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
@@ -209,6 +212,7 @@ waspCompile/.wasp/out/sdk/wasp/src/MainPage.jsx
 waspCompile/.wasp/out/sdk/wasp/src/vite-env.d.ts
 waspCompile/.wasp/out/sdk/wasp/src/waspLogo.png
 waspCompile/.wasp/out/sdk/wasp/tsconfig.json
+waspCompile/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspCompile/.wasp/out/sdk/wasp/universal/predicates.ts
 waspCompile/.wasp/out/sdk/wasp/universal/types.ts
 waspCompile/.wasp/out/sdk/wasp/universal/url.ts
