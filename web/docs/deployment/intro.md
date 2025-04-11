@@ -13,6 +13,7 @@ In this section, we'll walk you through the steps to deploy your Wasp app.
 Before we start, let's understand what Wasp generates when it builds your app.
 
 What we call a "Wasp app" consists of three different parts:
+
 - **Client app**
   - It's a single-page application (SPA), built using [React](https://react.dev/). It's what the user sees and interacts with.
   - It's usually served by some static file server or you can host it on a CDN like Cloudflare or Netlify.
@@ -26,13 +27,7 @@ What we call a "Wasp app" consists of three different parts:
   - Wasp uses [PostgreSQL](https://www.postgresql.org/) as its production database.
   - You can host the database on your own server or use a cloud service.
 
-
-<ImgWithCaption
-  source="/img/deploying/wasp-app-flow.gif"
-  alt="Wasp app structure"
-  caption="Data flow in a typical deployed Wasp app where all three parts are deployed separately"
-/>
-
+<ImgWithCaption source="/img/deploying/wasp-app-flow.gif" alt="Wasp app structure" caption="Data flow in a typical deployed Wasp app where all three parts are deployed separately" />
 
 The thing to take away from this: the client app and server app are separate applications that communicate with each other over HTTP. This means you can deploy them on the same or different servers, depending on your needs.
 
@@ -49,6 +44,3 @@ In the following sections, we'll go through all the different things you need to
 - Different deployment methods (using [Wasp's CLI](./deployment-methods/cli.md), [cloud services](./deployment-methods/paas.md), [self-hosting](./deployment-methods/self-hosted.md), etc.)
 - How to [set up CI/CD](./ci-cd.md) for your app - automatically deploy your app when you push to your Git repository.
 - Some [extras](./extras.md) like custom domains, CDN, etc.
-
-
-

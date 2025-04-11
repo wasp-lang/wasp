@@ -10,10 +10,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    alt="WSL Guide Banner"
-    source="/img/wsl-guide/wsl-guide-banner.jpeg"
-/>
+<ImgWithCaption alt="WSL Guide Banner" source="/img/wsl-guide/wsl-guide-banner.jpeg" />
 
 If you are having a hard time with Wasp development on Windows, don't be afraid! We will go through all necessary steps to set up your dev environment and get you started with Wasp development in Windows in no time.
 
@@ -205,5 +202,4 @@ Through our journey here, we have learned what WSL is, how it can be useful for 
 - [https://code.visualstudio.com/docs/remote/wsl](https://code.visualstudio.com/docs/remote/wsl)
 
 ```
-
 ```

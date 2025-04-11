@@ -27,4 +27,3 @@ This means Wasp _dictates exact versions of certain packages_, so for example yo
 
 We are currently working on a restructuring that will solve this and some other quirks: check [issue #734](https://github.com/wasp-lang/wasp/issues/734) to follow our progress.
 :::
-
