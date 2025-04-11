@@ -13,7 +13,7 @@ import {
   ensureValidPassword,
 } from 'wasp/auth/validation'
 import { validateAndGetUserFields } from 'wasp/auth/utils'
-import type { UserSignupFields, UserSignupFieldsData } from 'wasp/auth/providers/types'
+import type { UserSignupFields, UsernameAndPasswordUserSignupFieldType } from 'wasp/auth/providers/types'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
 export function getSignupRoute({
@@ -22,7 +22,7 @@ export function getSignupRoute({
   userSignupFields?: UserSignupFields;
 }) {
   return handleRejection(async function signup(
-    req: Request<{ username: string; password: string } & UserSignupFieldsData>,
+    req: Request<{ username: string; password: string } & UsernameAndPasswordUserSignupFieldType>,
     res: Response,
   ) {
     const fields = req.body ?? {}
