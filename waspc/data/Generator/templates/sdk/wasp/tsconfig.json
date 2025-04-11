@@ -1,37 +1,73 @@
-{{={= =}=}}
 {
-  "extends": "@tsconfig/node{= majorNodeVersion =}/tsconfig.json",
   "compilerOptions": {
+    // Basic opitions
+    "target": "es2020",
     "jsx": "preserve",
     "lib": [
       "esnext",
       "dom",
       "DOM.Iterable"
     ],
-    "declaration": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "rootDir" : ".", // TODO: Test if this works
+    "outDir": "dist", 
+
+    // Strictness and type checking
     "strict": false,
     "strictBindCallApply": true,
     "alwaysStrict": true,
     "noImplicitThis": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
+    // "noUncheckedIndexedAccess": true, // TODO: test if this works with current code (keep user in mind)
+    // "noImplicitOverride": true, // TODO: test if this works with current code (keep user in mind)
     // See https://github.com/wasp-lang/wasp/issues/2056 before activating this:
     // "useUnknownInCatchVariables": true,
     // The following 2 stict options will require more work:
     // "noImplicitAny": true,
     // "strictPropertyInitialization": true,
-    // Overriding this because we want to use top-level await
-    "module": "esnext",
-    "target": "es2017",
-    // Enable source map for debugging and go-to-definition
-    "sourceMap": true,
+
+    // DX
+    "declaration": true, // Allows users to consume the SDK as a library, enables autocomplete
+    "declarationMap": true, // Makes go-to-defintion go to source instead of type
+    "sourceMap": true, // Needed for debugging
+
+    // Modules
+    "module": "esnext", // TODO: or preserve
+    "esModuleInterop": true,
+    // "resolveJsonModule": true, // TODO: test if users need this
+    // "isolatedModules": true, // TODO: test if we need this
+    // "verbatimModuleSyntax": true, // TODO: test if this works with current code
+    // "moduleDetection": "force", // TODO: test if this works with current code
     // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
     // them here to be explicit.
     // Enable default imports in TypeScript.
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "allowJs": true,
+    // The correct `moduleResolution` option is `bundler` because:
+    //
+    // - We want to allow our users to use extensionless and directory imports.
+    // - We want our users to import stuff from the SDK with `wasp/something`,
+    //   and we don't want to do extra processing on these imports (for now).
+    // 
+    // The above two points force us to bundle user code and, since user code
+    // is copied into the SDK code (into the `src` dir), they force us to bundle
+    // the SDK too.
+    //
+    // We currently bundle the SDK in a very hacky way (i.e., we do it indirectly
+    // while bundling the server and client): https://github.com/wasp-lang/wasp/issues/2150
+    // Regardless of how we do it, the SDK code is eventually bundled and this 
+    // `tsconfig.json` must reflect that.
+    //
+    // Unfortunatley, we can't set "moduleResolution": "bundler" thanks to an
+    // issue with stitches: https://github.com/stitchesjs/stitches/issues/1160.
+    //
+    // Node10 models the resolution of Node.js <= 12, but it's also a passable
+    // approximation of how most bundlers do module resolution. It all the
+    // bundler features we want to support.
+    // Source: https://www.typescriptlang.org/docs/handbook/modules/theory.html#module-resolution
+    //
+    // We should change this to "bundler" when we move away from stitches.
+    "moduleResolution": "node10",
     "types": [
       // This is needed to properly support Vitest testing with jest-dom matchers.
       // Types for jest-dom are not recognized automatically and Typescript complains
@@ -43,12 +79,6 @@
     // While this is great, we still want to dig deeper at some point to understand
     // better why Vite HMR misbehaves when the SDK is recompiled: https://github.com/wasp-lang/wasp/issues/1934 
     "incremental": true,
-    // todo(filip): Only works with common js, see https://www.typescriptlang.org/tsconfig#paths and daily-article.
-    // "paths": {
-    //   "@wasp/*": [
-    //     "./*.js"
-    //   ]
-    // }
   },
   "include": [
     "."
