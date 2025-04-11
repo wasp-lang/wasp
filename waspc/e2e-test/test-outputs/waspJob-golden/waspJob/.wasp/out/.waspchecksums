@@ -25,7 +25,14 @@
             "file",
             "../out/sdk/wasp/client/env.ts"
         ],
-        "2a3602d40b299fbfa1a6275fe67828d5653d9f3265ba8204b75178aa41dcbae0"
+        "533337ff26b1df5f3c5c4eeb0b21830b97cbf2eabd5c76fc85d064893ecc2d86"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/env/schema.ts"
+        ],
+        "8f4b1c6093a651270e7bb6a9fbd9135c5bf46403643bca236dfc4e6194fc980b"
     ],
     [
         [
@@ -179,21 +186,21 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "d92b4832e9d4249ae5b1f00c0f9760d6841aa44bc199550414793a1d57a6845e"
+        "5d6193abc56eec5a8c98d2c95fa53dff6d2baabe6f5d8c2516b2d51e2a3727c6"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/env/validation.ts"
         ],
-        "e22b2fb8931275d3b1bd3176cbdbf753d22fc61887ded0e93cd8febf1b97d260"
+        "de79f253fa6e74741136cf9c9ac73f810921e08595da09f4184d87f193073e2c"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "05a448334246902483ce69e2b08eac9345fd10919d717cdc219cf803da22827a"
+        "3a241863f4d9a6d74dcba26e5b8adab6f34e44d2d9c755a361c6468de3da19d3"
     ],
     [
         [
@@ -795,14 +802,14 @@
             "file",
             "web-app/tsconfig.vite.json"
         ],
-        "2eb9abbbd66ed061fae538b0c20f49301a8cb6d66c00d690f7b164078c5892e6"
+        "d73bf64453727c005983dea11c1b38ab9db2f6b4e7b5c266f731835d4bf8eb37"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "ca02196d3283c818e7e27d608347d37eaba536eb2bb8fae0d61345e6f1003388"
+        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
     ],
     [
         [
@@ -810,5 +817,12 @@
             "web-app/vite/detectServerImports.ts"
         ],
         "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite/validateEnv.ts"
+        ],
+        "f46cedc2facb958dc8f1ff33ce8a8598e2da9800740b6bcea2d3850894b54658"
     ]
 ]

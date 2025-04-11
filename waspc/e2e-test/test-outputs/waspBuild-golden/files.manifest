@@ -8,6 +8,7 @@ waspBuild/.wasp/build/sdk/wasp/api/events.ts
 waspBuild/.wasp/build/sdk/wasp/api/index.ts
 waspBuild/.wasp/build/sdk/wasp/client/config.ts
 waspBuild/.wasp/build/sdk/wasp/client/env.ts
+waspBuild/.wasp/build/sdk/wasp/client/env/schema.ts
 waspBuild/.wasp/build/sdk/wasp/client/index.ts
 waspBuild/.wasp/build/sdk/wasp/client/operations/actions/core.ts
 waspBuild/.wasp/build/sdk/wasp/client/operations/actions/index.ts
@@ -40,6 +41,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/client/config.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/client/env.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/client/env.js
 waspBuild/.wasp/build/sdk/wasp/dist/client/env.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/client/env/schema.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/client/env/schema.js
+waspBuild/.wasp/build/sdk/wasp/dist/client/env/schema.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/client/index.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/client/index.js
 waspBuild/.wasp/build/sdk/wasp/dist/client/index.js.map
@@ -253,10 +257,12 @@ waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.vite.json
 waspBuild/.wasp/build/web-app/vite.config.ts
 waspBuild/.wasp/build/web-app/vite/detectServerImports.ts
+waspBuild/.wasp/build/web-app/vite/validateEnv.ts
 waspBuild/.wasp/out/sdk/wasp/api/events.ts
 waspBuild/.wasp/out/sdk/wasp/api/index.ts
 waspBuild/.wasp/out/sdk/wasp/client/config.ts
 waspBuild/.wasp/out/sdk/wasp/client/env.ts
+waspBuild/.wasp/out/sdk/wasp/client/env/schema.ts
 waspBuild/.wasp/out/sdk/wasp/client/index.ts
 waspBuild/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspBuild/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -289,6 +295,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/client/env.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/client/env.js
 waspBuild/.wasp/out/sdk/wasp/dist/client/env.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/client/env/schema.js
+waspBuild/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/client/index.js
 waspBuild/.wasp/out/sdk/wasp/dist/client/index.js.map
