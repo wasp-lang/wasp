@@ -101,7 +101,7 @@ app TodoApp {
   wasp: {
     version: "{latestWaspVersion}" // Pins the version of Wasp to use.
   },
-  title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+  title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!,
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ]
@@ -124,7 +124,7 @@ app TodoApp {
   wasp: {
     version: "{latestWaspVersion}" // Pins the version of Wasp to use.
   },
-  title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+  title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!,
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ]
