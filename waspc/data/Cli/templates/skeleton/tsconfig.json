@@ -39,7 +39,8 @@
       // node_modules/@types folder so we had to list it explicitly.
       // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots 
       // Source 2: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
-      // Still a problem for other higher-up folders
+      // NOTE: Overriding `typeRoots` prevents TS from climbing up the file
+      // tree and including `node_modules/@types` from parent folders.
       "node_modules/@types"
     ],
     // Wasp internally uses TypeScript's project references to compile the

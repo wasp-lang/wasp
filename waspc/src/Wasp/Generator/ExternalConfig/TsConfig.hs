@@ -41,7 +41,7 @@ validateCompilerOptions :: T.CompilerOptions -> [ErrorMsg]
 validateCompilerOptions compilerOptions =
   concat
     [ validateRequiredFieldInCompilerOptions "module" T._module "preserve",
-      validateRequiredFieldInCompilerOptions "target" T.target "esnext",
+      validateRequiredFieldInCompilerOptions "target" T.target "es2022",
       validateRequiredFieldInCompilerOptions "moduleResolution" T.moduleResolution "bundler",
       validateRequiredFieldInCompilerOptions "moduleDetection" T.moduleDetection "force",
       validateRequiredFieldInCompilerOptions "isolatedModules" T.isolatedModules True,
