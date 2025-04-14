@@ -71,7 +71,7 @@
       the server and client): https://github.com/wasp-lang/wasp/issues/2150
       Regardless of how we do it, the SDK code is eventually bundled, so this 
       `tsconfig.json` file must reflect that (which means `moduleResolution:
-       bundler`)
+       bundler`).
 
       Unfortunately, setting `"moduleResolution": "bundler"` doesn't work due
       to an issue with stitches: https://github.com/stitchesjs/stitches/issues/1160.
