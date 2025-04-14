@@ -26,7 +26,6 @@
     "autoprefixer": "^10.4.13",
     "classnames": "^2.3.2",
     "clsx": "^1.2.1",
-    "escape-string-regexp": "^5.0.0",
     "plugin-image-zoom": "github:flexanalytics/plugin-image-zoom",
     "postcss": "^8.4.19",
     "prettier": "^3.0.3",

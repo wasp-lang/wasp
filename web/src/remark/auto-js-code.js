@@ -7,16 +7,44 @@ in Markdown documents. It looks for code blocks with a specific meta flag
 and one for TypeScript, as well as a tabbed interface to switch between them.
 This way we can author code examples in TypeScript and have them automatically
 converted to JavaScript for the documentation.
+
+Example:
+
+Input:
+
+    ```ts title="src/apis.ts" auto-js
+    export const validatePassword = (password: string) => password.length > 8;
+    ```
+
+Output:
+
+    <Tabs groupId="js-ts">
+    <TabItem value="js" label="JavaScript">
+
+    ```js title="src/apis.js"
+    export const validatePassword = (password) => password.length > 8;
+    ```
+
+    </TabItem>
+    <TabItem value="ts" label="TypeScript">
+
+    ```ts title="src/apis.ts"
+    export const validatePassword = (password: string) => password.length > 8;
+    ```
+
+    </TabItem>
+    </Tabs>
+
 */
 
 const assert = require('assert/strict')
 const { visitParents } = require('unist-util-visit-parents')
 const { default: tsBlankSpace } = require('ts-blank-space')
-const { default: escapeStringRegexp } = require('escape-string-regexp')
 const { format } = require('prettier')
 const path = require('path')
 
-const ENABLED_META_FLAG = 'auto-js'
+// Wrapped in \b to denote a word boundary
+const META_FLAG_REGEX = /\bauto-js\b/
 
 const SUPPORTED_LANGS = new Set(['ts', 'tsx'])
 
@@ -34,14 +62,6 @@ const transformExt = (
   return outPath
 }
 
-const wrapInWordBoundaries = (/** @type {string} */ reStr) => {
-  return String.raw`\b${reStr}\b`
-}
-
-const enabledMetaRegexp = new RegExp(
-  wrapInWordBoundaries(escapeStringRegexp(ENABLED_META_FLAG))
-)
-
 /** @type {import("unified").Plugin<[], import("mdast").Root>} */
 const autoJSCodePlugin = () => {
   return async (tree) => {
@@ -49,9 +69,10 @@ const autoJSCodePlugin = () => {
     const nodesToProcess = new Set()
 
     visitParents(tree, 'code', (node, ancestors) => {
-      if (node.meta && enabledMetaRegexp.test(node.meta)) {
-        if (!node.lang || !SUPPORTED_LANGS.has(node.lang))
+      if (node.meta && META_FLAG_REGEX.test(node.meta)) {
+        if (!node.lang || !SUPPORTED_LANGS.has(node.lang)) {
           throw new Error(`Unsupported language: ${node.lang}`)
+        }
 
         // We put these aside for processing later
         // because `visitParents` does not allow
@@ -66,7 +87,7 @@ const autoJSCodePlugin = () => {
       assert(node.meta && node.lang) // Already checked in the visitor
 
       // Remove our flag from the meta so other plugins don't trip up
-      const newMeta = node.meta.replace(enabledMetaRegexp, '')
+      const newMeta = node.meta.replace(META_FLAG_REGEX, '')
 
       const tsMeta = newMeta
       const tsLang = node.lang
