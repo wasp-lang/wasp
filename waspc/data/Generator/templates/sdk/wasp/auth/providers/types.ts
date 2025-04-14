@@ -24,16 +24,28 @@ const _waspUsernameAndPasswordUserSignupFields = undefined
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
-  fields: T
+  fields: T & ExcludeNonExtends<T>
 ): T {
   return fields
 }
+
+type ExcludeNonExtends<T> = Record<
+  Exclude<keyof T, keyof UserSignupFields>,
+  never
+>
 
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<typeof _waspEmailUserSignupFields>;
 
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof _waspUsernameAndPasswordUserSignupFields>;
+
+type InferUserSignupFields<T> = T extends UserSignupFields
+  ? {
+      [K in keyof T]: T[K] extends (data: any) => infer R ? R : never
+    }
+  : {}
+
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
 
@@ -51,7 +63,7 @@ export type ProviderConfig = {
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
-export type PossibleUserFields = Expand<Partial<Omit<UserEntityCreateInput, 'auth'>>>
+export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>
 
 // PRIVATE API
 export type UserSignupFields = {
@@ -64,8 +76,3 @@ type FieldGetter<T> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined
 
-export type InferUserSignupFields<T> = T extends UserSignupFields
-  ? {
-      [K in keyof T]: T[K] extends (data: any) => infer R ? R : never
-    }
-  : {}
