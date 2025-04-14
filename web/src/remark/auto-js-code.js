@@ -40,7 +40,7 @@ Output:
 const assert = require('assert/strict')
 const { visitParents } = require('unist-util-visit-parents')
 const { default: tsBlankSpace } = require('ts-blank-space')
-const { format } = require('prettier')
+const prettier = require('prettier')
 const path = require('path')
 
 // Wrapped in \b to denote a word boundary
@@ -62,9 +62,24 @@ const transformExt = (
   return outPath
 }
 
+const format = async (
+  /** @type {string} */ code,
+  /** @type {{ parser: prettier.Options["parser"], location: string }} */ {
+    parser,
+    location,
+  }
+) => {
+  const config = await prettier.resolveConfig(location, {
+    useCache: true,
+    editorconfig: true,
+  })
+
+  return await prettier.format(code, { ...config, parser })
+}
+
 /** @type {import("unified").Plugin<[], import("mdast").Root>} */
 const autoJSCodePlugin = () => {
-  return async (tree) => {
+  return async (tree, file) => {
     /** @type {Set<{ node: import("mdast").Code, ancestors: import("mdast").Parents[] }>} */
     const nodesToProcess = new Set()
 
@@ -91,7 +106,10 @@ const autoJSCodePlugin = () => {
 
       const tsMeta = newMeta
       const tsLang = node.lang
-      const tsCode = await format(node.value, { parser: 'babel-ts' })
+      const tsCode = await format(node.value, {
+        parser: 'babel-ts',
+        location: file.path,
+      })
 
       // Find the `title=` meta param and change the extension
       // from ts to js
@@ -103,7 +121,10 @@ const autoJSCodePlugin = () => {
           )}`
       )
       const jsLang = node.lang.replace('ts', 'js')
-      const jsCode = await format(tsBlankSpace(node.value), { parser: 'babel' })
+      const jsCode = await format(tsBlankSpace(node.value), {
+        parser: 'babel',
+        location: file.path,
+      })
 
       /** @type {import("mdast").RootContent[]} */
       const newNodes = [
