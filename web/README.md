@@ -43,7 +43,7 @@ export const validatePassword = (password: string) => password.length > 8;
 ```
 ~~~
 
-And it will automatically generate a JS and TS version with a selector to switch between them.
+And it will automatically generate a JS and TS version with a selector to switch between them:
 
 ~~~mdx
 <Tabs groupId="js-ts">
@@ -78,6 +78,7 @@ For example, the following input:
 ```ts title="src/apis.ts" auto-js with-hole
 export const validatePassword = (password: string) => password.length > 8 && hole;
 ```
+~~~
 
 Will be transformed to:
 
