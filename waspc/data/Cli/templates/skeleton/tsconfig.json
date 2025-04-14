@@ -10,10 +10,10 @@
 // Full TypeScript configurability is coming very soon :)
 {
   "compilerOptions": {
-    "module": "preserve",
+    "module": "esnext",
     // Needed because this is used as a project reference.
     "composite": true,
-    "target": "es2022",
+    "target": "esnext",
     // We're bundling all code in the end so this is the most appropriate option,
     // it's also important for autocomplete to work properly.
     "moduleResolution": "bundler",

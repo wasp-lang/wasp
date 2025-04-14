@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     /* Basic opitions */
-    "target": "es2022",
+    "target": "esnext",
     "jsx": "preserve",
     "lib": [
       "esnext",
@@ -38,7 +38,7 @@
     "sourceMap": true, // Needed for debugging
 
     /* Modules */
-    "module": "preserve",
+    "module": "esnext",
     "esModuleInterop": true,
     // TODO: Enable this once we enable it for users:
     // https://github.com/wasp-lang/wasp/issues/2654
