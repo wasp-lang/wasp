@@ -43,12 +43,12 @@
     // TODO: Enable this once we enable it for users: https://github.com/wasp-lang/wasp/issues/2654
     "resolveJsonModule": false,
     /*
-       The `isolatedModules` flag tells typescript to throw errors on
-       code that doesn't work with bundlers:
+       The `isolatedModules` flag tells typescript to throw errors on code that 
+       doesn't work with bundlers:
          - The user code must enable it because Wasp bundles server code and
         web app code, which import user code directly.
          - The SDK code must disable it because parts of it rely on such
-        features. Even though the SDK is eventually bunlded, it's first built
+        features. Even though the SDK is eventually bunlded, it is first built
         with TSC. These features therefore don't cause problems.
       More details in https://github.com/wasp-lang/wasp/issues/2150
     */
@@ -60,9 +60,9 @@
     /*
       The correct `moduleResolution` option is `bundler` because:
 
-      - We want to allow users to use extensionless and directory imports.
-      - We want users to import stuff from the SDK with `wasp/something`,
-        and we don't want to do extra processing on those imports (for now).
+        - We want to allow users to use extensionless and directory imports.
+        - We want users to import stuff from the SDK with `wasp/something`,
+          and we don't want to do extra processing on those imports (for now).
 
       The above two points force us to bundle user code and, since user code
       is copied into the SDK code (into the `src/` dir), they force us to bundle
