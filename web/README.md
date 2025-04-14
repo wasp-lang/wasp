@@ -37,7 +37,7 @@ Markdown features available (e.g. line highlighting).
 For examples that have a JavaScript and TypeScript version, add a `auto-js` meta attribute
 to the code block, like so:
 
-~~~md
+~~~mdx
 ```ts title="src/apis.ts" auto-js
 export const validatePassword = (password: string) => password.length > 8;
 ```
@@ -45,18 +45,61 @@ export const validatePassword = (password: string) => password.length > 8;
 
 And it will automatically generate a JS and TS version with a selector to switch between them.
 
+~~~mdx
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/apis.js"
+export const validatePassword = (password) => password.length > 8;
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/apis.ts"
+export const validatePassword = (password: string) => password.length > 8;
+```
+
+</TabItem>
+</Tabs>
+~~~
+
 > ![NOTE]
 > You can create a language switcher manually as described in
 > [Docusaurus docs](https://docusaurus.io/docs/2.x/markdown-features/code-blocks#multi-language-support-code-blocks).
 
 If you need to omit some part of the code in a code example, you can use the `with-hole` meta attribute
 which will add an ellipsis wherever you write the identifier `hole` in the code block, so you can keep
-it syntactically valid.
+it syntactically valid. You can combine it with the `auto-js` tag.
 
-~~~md
+For example, the following input:
+
+~~~mdx
 ```ts title="src/apis.ts" auto-js with-hole
 export const validatePassword = (password: string) => password.length > 8 && hole;
 ```
+
+Will be transformed to:
+
+~~~mdx
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/apis.js"
+export const validatePassword = (password) => password.length > 8 && ...;
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/apis.ts"
+export const validatePassword = (password: string) => password.length > 8 && ...;
+```
+
+</TabItem>
+</Tabs>
+~~~
+
 ~~~
 
 ### Build
