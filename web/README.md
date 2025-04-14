@@ -64,7 +64,7 @@ export const validatePassword = (password: string) => password.length > 8;
 </Tabs>
 ~~~
 
-> ![NOTE]
+> [!NOTE]
 > You can create a language switcher manually as described in
 > [Docusaurus docs](https://docusaurus.io/docs/2.x/markdown-features/code-blocks#multi-language-support-code-blocks).
 
