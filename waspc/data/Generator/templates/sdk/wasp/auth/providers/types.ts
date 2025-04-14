@@ -24,13 +24,13 @@ const _waspUsernameAndPasswordUserSignupFields = undefined
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
-  fields: T & ExcludeNonExtends<T>
+  fields: T & LimitTo<T, UserSignupFields>
 ): T {
   return fields
 }
 
-type ExcludeNonExtends<T> = Record<
-  Exclude<keyof T, keyof UserSignupFields>,
+type LimitTo<T, U> = Record<
+  Exclude<keyof T, keyof U>,
   never
 >
 
