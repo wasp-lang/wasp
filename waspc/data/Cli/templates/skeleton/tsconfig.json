@@ -10,18 +10,19 @@
 // Full TypeScript configurability is coming very soon :)
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "preserve",
     // Needed because this is used as a project reference.
     "composite": true,
     "target": "esnext",
     // We're bundling all code in the end so this is the most appropriate option,
     // it's also important for autocomplete to work properly.
     "moduleResolution": "bundler",
-    // JSX support
     "jsx": "preserve",
     "strict": true,
-    // Allow default imports.
     "esModuleInterop": true,
+    // Prevent features that don't work with transpilers (e.g., const enums)
+    "isolatedModules": true,
+    "moduleDetection": "force",
     "lib": [
       "dom",
       "dom.iterable",

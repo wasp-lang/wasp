@@ -40,9 +40,11 @@ validateSrcTsConfig tsConfig =
 validateCompilerOptions :: T.CompilerOptions -> [ErrorMsg]
 validateCompilerOptions compilerOptions =
   concat
-    [ validateRequiredFieldInCompilerOptions "module" T._module "esnext",
+    [ validateRequiredFieldInCompilerOptions "module" T._module "preserve",
       validateRequiredFieldInCompilerOptions "target" T.target "esnext",
       validateRequiredFieldInCompilerOptions "moduleResolution" T.moduleResolution "bundler",
+      validateRequiredFieldInCompilerOptions "moduleDetection" T.moduleDetection "force",
+      validateRequiredFieldInCompilerOptions "isolatedModules" T.isolatedModules True,
       validateRequiredFieldInCompilerOptions "jsx" T.jsx "preserve",
       validateRequiredFieldInCompilerOptions "strict" T.strict True,
       validateRequiredFieldInCompilerOptions "esModuleInterop" T.esModuleInterop True,
