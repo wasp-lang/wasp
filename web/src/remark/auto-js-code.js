@@ -45,37 +45,7 @@ const path = require('path')
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bauto-js\b/
-
 const SUPPORTED_LANGS = new Set(['ts', 'tsx'])
-
-// Taken from Docusaurus
-// https://github.com/facebook/docusaurus/blob/v2.4.3/packages/docusaurus-theme-common/src/utils/codeBlockUtils.ts
-const codeBlockTitleRegex = /title=(?<quote>["'])(?<title>.*?)\1/
-
-const transformExt = (
-  /** @type {string} */ inPath,
-  /** @type {(ext: string) => string} */ fn
-) => {
-  const inExt = path.extname(inPath)
-  const outExt = fn(inExt)
-  const outPath = inPath.slice(0, -inExt.length) + outExt
-  return outPath
-}
-
-const format = async (
-  /** @type {string} */ code,
-  /** @type {{ parser: prettier.Options["parser"], location: string }} */ {
-    parser,
-    location,
-  }
-) => {
-  const config = await prettier.resolveConfig(location, {
-    useCache: true,
-    editorconfig: true,
-  })
-
-  return await prettier.format(code, { ...config, parser })
-}
 
 /** @type {import("unified").Plugin<[], import("mdast").Root>} */
 const autoJSCodePlugin = () => {
@@ -104,25 +74,10 @@ const autoJSCodePlugin = () => {
       // Remove our flag from the meta so other plugins don't trip up
       const newMeta = node.meta.replace(META_FLAG_REGEX, '')
 
-      const tsMeta = newMeta
-      const tsLang = node.lang
-      const tsCode = await format(node.value, {
-        parser: 'babel-ts',
+      const jsCodeBlock = await makeJsCodeBlock(newMeta, node, {
         location: file.path,
       })
-
-      // Find the `title=` meta param and change the extension
-      // from ts to js
-      const jsMeta = newMeta.replace(
-        codeBlockTitleRegex,
-        (_fullMatch, _quote, title) =>
-          `title=${JSON.stringify(
-            transformExt(title, (ext) => ext.replace('ts', 'js'))
-          )}`
-      )
-      const jsLang = node.lang.replace('ts', 'js')
-      const jsCode = await format(tsBlankSpace(node.value), {
-        parser: 'babel',
+      const tsCodeBlock = await makeTsCodeBlock(newMeta, node, {
         location: file.path,
       })
 
@@ -133,23 +88,13 @@ const autoJSCodePlugin = () => {
           type: 'jsx',
           value: `<Tabs groupId="js-ts"><TabItem value="js" label="JavaScript">`,
         },
-        {
-          type: 'code',
-          value: jsCode,
-          lang: jsLang,
-          meta: jsMeta,
-        },
+        jsCodeBlock,
         {
           // @ts-expect-error This is an MDX extension
           type: 'jsx',
           value: `</TabItem><TabItem value="ts" label="TypeScript">`,
         },
-        {
-          type: 'code',
-          value: tsCode,
-          lang: tsLang,
-          meta: tsMeta,
-        },
+        tsCodeBlock,
         {
           // @ts-expect-error This is an MDX extension
           type: 'jsx',
@@ -167,3 +112,75 @@ const autoJSCodePlugin = () => {
 }
 
 module.exports = autoJSCodePlugin
+
+// Taken from Docusaurus
+// https://github.com/facebook/docusaurus/blob/v2.4.3/packages/docusaurus-theme-common/src/utils/codeBlockUtils.ts
+const CODE_BLOCK_TITLE_REGEX = /title=(?<quote>["'])(?<title>.*?)\1/
+
+async function makeJsCodeBlock(
+  /** @type {string} */ metaString,
+  /** @type {import('mdast').Code} */ node,
+  /** @type {{ location: string }} */ { location }
+) {
+  // Find the `title=` meta param and change the extension
+  const meta = metaString.replace(
+    CODE_BLOCK_TITLE_REGEX,
+    (_fullMatch, _quote, title) =>
+      `title=${JSON.stringify(
+        transformExt(title, (ext) => ext.replace('ts', 'js'))
+      )}`
+  )
+  const lang = node.lang?.replace('ts', 'js')
+  const code = await format(tsBlankSpace(node.value), {
+    parser: 'babel',
+    location,
+  })
+
+  return /** @type {import("mdast").RootContent} */ ({
+    type: 'code',
+    value: code,
+    lang: lang,
+    meta: meta,
+  })
+}
+
+async function makeTsCodeBlock(
+  /** @type {string} */ metaString,
+  /** @type {import('mdast').Code} */ node,
+  /** @type {{ location: string }} */ { location }
+) {
+  const lang = node.lang
+  const code = await format(node.value, { parser: 'babel-ts', location })
+
+  return /** @type {import("mdast").RootContent} */ ({
+    type: 'code',
+    value: code,
+    lang: lang,
+    meta: metaString,
+  })
+}
+
+async function format(
+  /** @type {string} */ code,
+  /** @type {{ parser: prettier.Options["parser"], location: string }} */ {
+    parser,
+    location,
+  }
+) {
+  const config = await prettier.resolveConfig(location, {
+    useCache: true,
+    editorconfig: true,
+  })
+
+  return await prettier.format(code, { ...config, parser })
+}
+
+function transformExt(
+  /** @type {string} */ inPath,
+  /** @type {(ext: string) => string} */ fn
+) {
+  const inExt = path.extname(inPath)
+  const outExt = fn(inExt)
+  const outPath = inPath.slice(0, -inExt.length) + outExt
+  return outPath
+}
