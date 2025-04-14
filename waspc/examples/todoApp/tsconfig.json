@@ -17,12 +17,17 @@
     // We're bundling all code in the end so this is the most appropriate option,
     // it's also important for autocomplete to work properly.
     "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "moduleDetection": "force",
     "jsx": "preserve",
     "strict": true,
     "esModuleInterop": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
+    // Prevent features that don't work with transpilers (e.g., const enums)
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "skipLibCheck": true,
     "allowJs": true,
     "typeRoots": [
@@ -32,11 +37,18 @@
       "node_modules/@testing-library",
       // Specifying type roots overrides the default behavior of looking at the
       // node_modules/@types folder so we had to list it explicitly.
-      // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots
+      // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots 
       // Source 2: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
+      // NOTE: Overriding `typeRoots` prevents TS from climbing up the file
+      // tree and including `node_modules/@types` from parent folders.
       "node_modules/@types"
     ],
+    // Wasp internally uses TypeScript's project references to compile the
+    // code. Referenced projects may not disable emit, so we must specify an
+    // outDir.
     "outDir": ".wasp/out/user"
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
