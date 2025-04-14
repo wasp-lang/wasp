@@ -15,11 +15,11 @@
 
     /* Strictness and type checking */
     /*
-      User code was compiled uses strict: true, so we know we can use it
-      here as well. We override some of strict's options because our code
-      doesn't work with them enabled. This only makes SDK ruleset more
-      permissive than the user's ruleset, so we can sefely include users's
-      code inside the SDK.
+      User code was compiled uses `"strict": true`, so we know we can use it
+      here as well. We override some of strict's options because parts of the SDK
+      code don't respec them. This only makes the SDK ruleset more permissive than
+      the user's ruleset. Therefore, we can sefely include users code inside the
+      SDK without casuing errors during the SDK build step.
       Reference: https://github.com/wasp-lang/wasp/issues/1938
     */
     "strict": true,
@@ -34,55 +34,55 @@
 
     /* DX */
     "declaration": true, // Allows users to consume the SDK as a library, enables autocomplete
-    "declarationMap": true, // Makes go-to-defintion go to source instead of type definition
+    "declarationMap": true, // Makes go-to-defintion go to source instead of type definitios
     "sourceMap": true, // Needed for debugging
 
     /* Modules */
     "module": "preserve",
     "esModuleInterop": true,
-    // TODO: Enable this once we enable it for users: https://github.com/wasp-lang/wasp/issues/2654
+    // TODO: Enable this once we enable it for users:
+    // https://github.com/wasp-lang/wasp/issues/2654
     "resolveJsonModule": false,
     /*
        The `isolatedModules` flag tells typescript to throw errors on code that 
        doesn't work with bundlers:
-         - The user code must enable it because Wasp bundles server code and
-        web app code, which import user code directly.
-         - The SDK code must disable it because parts of it rely on such
-        features. Even though the SDK is eventually bunlded, it is first built
-        with TSC. These features therefore don't cause problems.
+         - The user code must enable it because Wasp bundles user code when bundling
+        server code and web app code (which directly import the user code).
+         - The SDK code must disable it because parts of the SDK code rely on
+        such features. Since we build the SDK with TSC before bundling it,
+        these features don't cause problems.
       More details in https://github.com/wasp-lang/wasp/issues/2150
     */
     "isolatedModules": false,
     // `verbatimModuleSyntax` is disabled because we don't yet want to
     // force user code into using `type` imports.
     "verbatimModuleSyntax": false, 
-    "moduleDetection": "force",
+    "moduleDetection": "force", // Assume all files are modules
     /*
       The correct `moduleResolution` option is `bundler` because:
-
         - We want to allow users to use extensionless and directory imports.
         - We want users to import stuff from the SDK with `wasp/something`,
           and we don't want to do extra processing on those imports (for now).
 
-      The above two points force us to bundle user code and, since user code
-      is copied into the SDK code (into the `src/` dir), they force us to bundle
-      the SDK too.
+      These requirements force us to bundle user code and, because we copy user
+      code into the SDK code, they force us to bundle the SDK too.
 
-      We currently bundle the SDK in a very hacky way (i.e., we do it indirectly
-      while bundling the server and client): https://github.com/wasp-lang/wasp/issues/2150
-      Regardless of how we do it, the SDK code is eventually bundled and this 
-      `tsconfig.json` must reflect that.
+      We currently bundle the SDK in a very hacky way (indirectly while bundling
+      the server and client): https://github.com/wasp-lang/wasp/issues/2150
+      Regardless of how we do it, the SDK code is eventually bundled, so this 
+      `tsconfig.json` file must reflect that (which means `moduleResolution:
+       bundler`)
 
-      Unfortunatley, we can't set `"moduleResolution": "bundler"` due to an
-      issue with stitches: https://github.com/stitchesjs/stitches/issues/1160.
+      Unfortunately, setting `"moduleResolution": "bundler"` doesn't work due
+      to an issue with stitches: https://github.com/stitchesjs/stitches/issues/1160.
 
-      "Node10" models the resolution of Node.js <= 12, but it's also a passable
-      approximation of how most bundlers do module resolution. It allows all the
-      bundler features we want to support. Since we can't have "bundler",
-      "node10" is the next best thing.
+      "node10" models the resolution of Node.js <= 12, but also happens to be a
+      passable approximation of how most bundlers do module resolution (and allows
+      all the bundler features we want to support).
+      Since we can't have "bundler", "node10" is the next best thing.
       Source: https://www.typescriptlang.org/docs/handbook/modules/theory.html#module-resolution
 
-      We should change this to "bundler" when we move away from stitches.
+      TODO: Change "moduleResolution" to "bundler" when we move away from stitches.
     */
     "moduleResolution": "node10",
     "types": [
