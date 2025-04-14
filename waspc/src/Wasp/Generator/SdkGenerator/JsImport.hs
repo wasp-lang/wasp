@@ -1,6 +1,7 @@
 module Wasp.Generator.SdkGenerator.JsImport
   ( extImportToJsImport,
     extOperationImportToImportJson,
+    extImportToImportJson
   )
 where
 
@@ -25,6 +26,11 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
     importPath = C.makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> SP.castRel extImportPath
     extCodeDirP = fromJust $ SP.relDirToPosix C.extSrcDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName
+
+extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
+extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
+  where
+    jsImport = extImportToJsImport <$> maybeExtImport
 
 extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
 extOperationImportToImportJson =

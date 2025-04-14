@@ -64,6 +64,8 @@ type FieldGetter<T> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined
 
-export type InferUserSignupFields<T> = {
-  [K in keyof T]: T[K] extends (data: any) => infer R ? R : never
-}
+export type InferUserSignupFields<T> = T extends UserSignupFields
+  ? {
+      [K in keyof T]: T[K] extends (data: any) => infer R ? R : never
+    }
+  : {}
