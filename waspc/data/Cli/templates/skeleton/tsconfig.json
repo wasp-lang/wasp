@@ -30,19 +30,6 @@
     ],
     "skipLibCheck": true,
     "allowJs": true,
-    "typeRoots": [
-      // This is needed to properly support Vitest testing with jest-dom matchers.
-      // Types for jest-dom are not recognized automatically and Typescript complains
-      // about missing types e.g. when using `toBeInTheDocument` and other matchers.
-      "node_modules/@testing-library",
-      // Specifying type roots overrides the default behavior of looking at the
-      // node_modules/@types folder so we had to list it explicitly.
-      // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots
-      // Source 2: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
-      // NOTE: Overriding `typeRoots` prevents TS from climbing up the file
-      // tree and including `node_modules/@types` from parent folders.
-      "node_modules/@types"
-    ],
     // Wasp internally uses TypeScript's project references to compile the
     // code. Referenced projects may not disable emit, so we must specify an
     // outDir.

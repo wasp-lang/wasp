@@ -50,7 +50,6 @@ validateCompilerOptions compilerOptions =
       validateRequiredFieldInCompilerOptions "esModuleInterop" T.esModuleInterop True,
       validateRequiredFieldInCompilerOptions "lib" T.lib ["dom", "dom.iterable", "esnext"],
       validateRequiredFieldInCompilerOptions "allowJs" T.allowJs True,
-      validateRequiredFieldInCompilerOptions "typeRoots" T.typeRoots ["node_modules/@testing-library", "node_modules/@types"],
       validateRequiredFieldInCompilerOptions "outDir" T.outDir ".wasp/out/user",
       validateRequiredFieldInCompilerOptions "composite" T.composite True,
       validateRequiredFieldInCompilerOptions "skipLibCheck" T.skipLibCheck True
