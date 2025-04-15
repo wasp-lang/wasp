@@ -14,13 +14,16 @@ cd "$dir"
 cabal run wasp-cli build
 
 echo "Ensure the user's code has no TypeScript errors (shown in the IDE)."
-npx tsc --noEmit --skipLibCheck
+npx tsc --noEmit --skipLibCheck --project .
 
 # Make sure they build.
 echo "Ensure client builds"
 cd .wasp/build/web-app
 npm run build
+npx tsc --noEmit --skipLibCheck --project ./tsconfig.vite.json
+npx tsc --noEmit --skipLibCheck --project ./tsconfig.app.json
 
 echo "Ensure server bundles"
 cd ../server
 npm run bundle
+npx tsc --noEmit --skipLibCheck --project ./tsconfig.json
