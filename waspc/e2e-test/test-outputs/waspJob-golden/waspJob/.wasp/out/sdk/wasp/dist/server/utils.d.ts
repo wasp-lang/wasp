@@ -7,7 +7,7 @@ type RequestWithExtraFields = Request & {};
  *   if given middleware returns promise, reject of that promise will be correctly handled,
  *   meaning that error will be forwarded to next().
  */
-export declare const handleRejection: (middleware: (req: RequestWithExtraFields, res: Response, next: NextFunction) => any) => (req: RequestWithExtraFields, res: Response, next: NextFunction) => Promise<void>;
+export declare const handleRejection: <Req extends Request = RequestWithExtraFields, Res extends Response = Response>(middleware: (req: Req, res: Res, next: NextFunction) => any) => (req: Req, res: Res, next: NextFunction) => Promise<void>;
 export declare const sleep: (ms: number) => Promise<unknown>;
 export declare function redirect(res: Response, redirectUri: string): Response<any, Record<string, any>>;
 export {};

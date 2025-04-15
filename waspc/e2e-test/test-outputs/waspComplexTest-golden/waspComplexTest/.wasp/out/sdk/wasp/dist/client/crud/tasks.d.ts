@@ -17,14 +17,14 @@ export declare const tasks: {
         }[], Error>;
     };
     create: {
-        action: (args: (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput)) => Promise<{
+        action: (args: import("../../server/_types/serialization.js").Payload & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput))) => Promise<{
             id: number;
             description: string;
             isDone: boolean;
         }>;
         useAction: (actionOptions?: {
-            optimisticUpdates: import("../operations/hooks.js").OptimisticUpdateDefinition<(import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput), any>[];
-        } | undefined) => (args: (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput)) => Promise<{
+            optimisticUpdates: import("../operations/hooks.js").OptimisticUpdateDefinition<import("../../server/_types/serialization.js").Payload & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput)), any>[];
+        } | undefined) => (args: import("../../server/_types/serialization.js").Payload & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput))) => Promise<{
             id: number;
             description: string;
             isDone: boolean;

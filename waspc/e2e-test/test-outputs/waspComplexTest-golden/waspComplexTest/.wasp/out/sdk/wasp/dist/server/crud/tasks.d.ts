@@ -24,7 +24,7 @@ export type GetAllQueryResolved = tasks.GetAllQuery<GetAllInput, GetAllOutput>;
 type GetInput = Prisma.TaskWhereUniqueInput;
 type GetOutput = _WaspEntity | null;
 export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>;
-type CreateInput = Prisma.XOR<Prisma.TaskCreateInput, Prisma.TaskUncheckedCreateInput>;
+type CreateInput = Payload & Prisma.XOR<Prisma.TaskCreateInput, Prisma.TaskUncheckedCreateInput>;
 type CreateOutput = _WaspEntity;
 export type CreateActionResolved = tasks.CreateAction<CreateInput, CreateOutput>;
 export {};

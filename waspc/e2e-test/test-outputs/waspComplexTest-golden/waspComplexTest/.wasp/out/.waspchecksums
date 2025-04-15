@@ -494,7 +494,7 @@
             "file",
             "../out/sdk/wasp/server/auth/oauth/provider.ts"
         ],
-        "f286a5c5f04b197bc5cf21711722b6265887dae1782a26e41124606616c27122"
+        "5b913ae922e7a2b409c06e84687786ade16694522b85b36a1ca11d365414f6bc"
     ],
     [
         [
@@ -536,7 +536,7 @@
             "file",
             "../out/sdk/wasp/server/crud/tasks.ts"
         ],
-        "d636a406237ecc06ac6d9225af503f11ee2617d556b662b4629c266f70c2c4d2"
+        "9da1c95dbc5480ed543c6791fc47966ac172454d57105c9483cb4cfa24bd24a9"
     ],
     [
         [
@@ -718,7 +718,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "d2e322edb5e1e8bd922b64adb0d6e4a9a3112413224b4da4b1fa7cc50cc3cebb"
+        "58788b34886c327e7c92504284f3bc39ccc096fb48cd6744836f7f6a40be8011"
     ],
     [
         [

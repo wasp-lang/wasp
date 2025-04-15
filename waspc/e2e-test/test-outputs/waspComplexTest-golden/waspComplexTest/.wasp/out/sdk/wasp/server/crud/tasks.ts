@@ -15,7 +15,7 @@ type _WaspEntity = Task
 /**
  * PUBLIC API
  */
-export namespace tasks {
+export declare namespace tasks {
   export type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
 
   export type GetQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
@@ -39,7 +39,7 @@ type GetInput = Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
 export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>
 
-type CreateInput = Prisma.XOR<
+type CreateInput = Payload & Prisma.XOR<
   Prisma.TaskCreateInput,
   Prisma.TaskUncheckedCreateInput
 >
