@@ -6,7 +6,7 @@
 
 - In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598)).
 
-- Wasp will no longer generate `favicon.ico` on compile if there is none in `public` directory, instead new wasp projects will start with a default `favicon.ico` in the `public` folder. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
+- Wasp will no longer generate `favicon.ico` on compile if there isn't one in the `public` directory. New Wasp projects will start with a default `favicon.ico` in the `public` directory, instead. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 
 - Wasp will no longer automatically add a favicon `<link>` tag to the `index.html`, instead it will be provided by default in the `wasp.config`'s `head` property for the new projects. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 
