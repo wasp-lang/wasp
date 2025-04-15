@@ -8,7 +8,7 @@
 
 - Wasp will no longer generate `favicon.ico` on compile if there isn't one in the `public` directory. New Wasp projects will start with a default `favicon.ico` in the `public` directory, instead. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 
-- Wasp will no longer automatically add a favicon `<link>` tag to the `index.html`, instead it will be provided by default in the `wasp.config`'s `head` property for the new projects. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
+- Wasp will no longer automatically add a favicon `<link>` tag to the `index.html`. The `<link>` tag will be included by default in the `main.wasp` for new projects. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 
 ### 🔧 Small improvements
 
