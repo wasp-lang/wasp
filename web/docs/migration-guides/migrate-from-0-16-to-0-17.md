@@ -23,7 +23,7 @@ If you want to keep the default, you can [download it here](https://github.com/w
 ### 2. Add a `<link>` meta tag for `favicon.ico`
 
 This step is required for all of the project's which use `favicon.ico`.
-Add the `<link>` tag to the `head` property in the `main.wasp`
+Add the `<link>` meta tag to the `head` property in the `main.wasp`
 
 ```wasp title="main.wasp
 app MyApp {
