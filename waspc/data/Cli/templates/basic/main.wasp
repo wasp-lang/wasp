@@ -12,4 +12,3 @@ route RootRoute { path: "/", to: MainPage }
 page MainPage {
   component: import { MainPage } from "@src/MainPage"
 }
-  
