@@ -42,7 +42,7 @@ It is possible that you were not using this function in your code.
 If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
 this change is already handled for you.
 
-### 2. Add a default `favicon.ico` to the public folder
+### 2. Add a `favicon.ico` to the `public` directory
 
 This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
 You should add a `favicon.ico` to your `public` folder. If you want to keep the default, download it here: [link].
