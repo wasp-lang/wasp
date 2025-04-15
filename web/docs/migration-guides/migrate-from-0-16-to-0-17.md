@@ -17,7 +17,7 @@ the way of calling it:
 This is to make it consistent with the `login` and `signup` calls in other
 authentication methods, which were already using this convention.
 
-### Wasp will no longer generate `favicon.ico` and it's corresponding `<link>` tag on compile
+### Wasp no longer generates a default `favicon.ico` 
 
 Wasp will no longer generate `favicon.ico` if there is none in the `public` folder.
 Additionaly Wasp will no longer include `favicon.ico`'s `<link>` tag in `index.html` by default.
