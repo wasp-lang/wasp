@@ -22,7 +22,7 @@ authentication methods, which were already using this convention.
 Wasp will no longer generate `favicon.ico` if there isn't one in the `public` directory.
 Also, Wasp will no longer generate a `<link>` meta tag in `index.html`. You'll need to define it yourself explicitly. 
 
-Wasp will now instead provides a default `favicon.ico` in the project's `public` folder, along with a corresponding `<link>` tag in the `main.wasp`'s `head` property.
+New Wasp projects come with a default `favicon.ico` in the `public` directory and the `<link>` meta tag in the `main.wasp` file.
 
 ## How to migrate?
 
