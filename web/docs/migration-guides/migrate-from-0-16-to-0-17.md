@@ -16,10 +16,9 @@ To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
 ### 1. Add a `favicon.ico` to the `public` directory
 
 This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
-You should add a `favicon.ico` to your `public` folder. If you want to keep the default, download it here: [link].
+If so, you should add a `favicon.ico` to your `public` folder. 
 
-The default `favicon.ico` can be found in the output files of your Wasp project.
-You can find it by going to `.wasp/out/web-app/favicon.ico` from your Wasp project's root directory.
+If you want to keep the default, you can [download it here](https://github.com/wasp-lang/wasp/tree/main/waspc/data/Cli/templates/skeleton/public/favicon.ico).
 
 ### 2. Add a `<link>` meta tag for `favicon.ico`
 
