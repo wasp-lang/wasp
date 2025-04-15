@@ -1,26 +1,29 @@
 #!/usr/bin/env bash
 
-# This script defines common commands used during building / developing
+# This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
 
 SCRIPT_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
-THIS=$0
 COMMAND=${1:-watch}
 shift
 ARGS=("$@") # NOTE: This is a bash array!
 
 BOLD="\033[1m"
-UNDERLINED="\033[4m"
 RESET="\033[0m"
 LIGHT_CYAN="\033[96m"
+YELLOW="\033[33m"
 GREEN="\033[32m"
 RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
-BUILD_CMD="cabal build all"
-INSTALL_CMD="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh && cabal install --overwrite-policy=always"
-BUILD_ALL_CMD="cabal build all --enable-tests --enable-benchmarks"
+WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
+BUILD_HS_CMD="cabal build all"
+BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
+BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
+
+INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
+
 TEST_UNIT_CMD="cabal test waspc-test"
 TEST_CLI_CMD="cabal test cli-test"
 TEST_E2E_CMD="cabal test e2e-test"
@@ -28,9 +31,12 @@ TEST_E2E_DELETE_GOLDENS="rm -rf $PROJECT_ROOT/e2e-test/test-outputs/*-golden"
 TEST_E2E_ACCEPT_ALL_CMD="$TEST_E2E_DELETE_GOLDENS && $TEST_E2E_CMD"
 TEST_HEADLESS_CMD="cd examples/todoApp && npm install && npx playwright test --config headless-tests"
 TEST_CMD="cabal test && echo 'Running headless tests' && $TEST_HEADLESS_CMD && echo 'ALL TESTS PASSED' || { echo 'SOME TESTS FAILED'; exit 1; }"
+
 RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
-GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0"
+
+# ghc version below should be the one from `cabal.project` file, `with-compiler` field.
+GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0.0"
 
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool () {
@@ -39,13 +45,12 @@ function install_dev_tool () {
 function dev_tool_path () {
     echo "$DEV_TOOLS_BIN/$1"
 }
-STAN_CMD="$BUILD_ALL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
+STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
 PRUNE_JUICE_CMD="$(install_dev_tool prune-juice) && $(dev_tool_path prune-juice) ${ARGS[@]}"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
-WASP_PACKAGES_COMPILE="$SCRIPT_DIR/tools/install_packages_to_data_dir.sh"
 
 echo_and_eval () {
     echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
@@ -56,17 +61,29 @@ echo_bold () { echo -e $"${BOLD}${1}${RESET}"; }
 
 print_usage () {
     print_usage_cmd () {
-        echo -e $"    ${UNDERLINED}${1}${RESET}"
-        echo -e  "        $2";
+        echo -e $"    ${YELLOW}${BOLD}${1}${RESET}"
+        echo -e  "$2" | fold -s -w 80 | awk -v indent="        " '{print indent $0}'
     }
 
-    echo_bold       "Usage: run <command>"
-    echo            "Commands:"
-    print_usage_cmd "build" \
-                    "Builds the project."
+    echo_bold       "USAGE"
+    echo            "    run <command>"
+    echo            ""
 
+    echo_bold       "COMMANDS"
+
+    print_usage_cmd "build" \
+                    "Builds the Haskell project."
+    print_usage_cmd "build:all" \
+                    "Builds the Haskell project + all sub-projects (i.e. TS packages)."
+    print_usage_cmd "build:packages" \
+                    "Builds the TypeScript projects under packages/."
+    echo            ""
+    print_usage_cmd "wasp-cli <args>" \
+                    "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
+    echo            ""
     print_usage_cmd "install" \
-                    "Installs the project locally using cabal (runs '${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh' and 'cabal install')."
+                    "Installs the wasp executable as 'wasp-cli' globally on the machine."
+    echo            ""
     print_usage_cmd "test" \
                     "Executes all tests (unit + e2e + headless). Builds the project first if needed."
     print_usage_cmd "test:unit [pattern]" \
@@ -79,12 +96,12 @@ print_usage () {
                     "Accepts any diffs in the generated code in e2e tests. Does so by deleting current golden output and re-running e2e tests to produce new golden output."
     print_usage_cmd "test:headless" \
                     "Executes headless tests, where example wasp apps are e2e tested using Playwright."
-    print_usage_cmd "wasp-cli <args>" \
-                    "Runs the wasp executable while forwarding arguments. Builds the project first if needed. Doesn't require you to be in the waspc project to run it."
+    echo            ""
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
     print_usage_cmd "ghcid-test" \
                     "Runs ghcid on both source and tests."
+    echo            ""
     print_usage_cmd "code-check" \
                     "Checks code by running it through formatter, linter and static analysis."
     print_usage_cmd "stan <args>" \
@@ -99,8 +116,7 @@ print_usage () {
                     "Runs the code formatter and formats the code in place."
     print_usage_cmd "module-graph" \
                     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
-    print_usage_cmd "wasp-packages:compile" \
-                    "Compiles the TS projects under packages/."
+    echo            ""
     print_usage_cmd "ghcup-set" \
                     "Sets the correct version of GHC and Cabal for this project (via GHCup)."
 }
@@ -111,11 +127,19 @@ exitStatusToString () {
 
 case $COMMAND in
     build)
-        echo_and_eval "$BUILD_CMD"
+        echo_and_eval "$BUILD_HS_CMD"
         ;;
+    build:all)
+        echo_and_eval "$BUILD_ALL_CMD"
+        ;;
+    build:packages)
+        echo_and_eval "$WASP_PACKAGES_COMPILE"
+        ;;
+
     install)
         echo_and_eval "$INSTALL_CMD"
         ;;
+
     ghcid)
         echo_and_eval "$GHCID_CMD"
         ;;
@@ -125,6 +149,7 @@ case $COMMAND in
         #   around :main --color always that way and it was not working.
         ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
         ;;
+
     test)
         echo_and_eval "$TEST_CMD"
         ;;
@@ -150,9 +175,11 @@ case $COMMAND in
     test:headless)
         echo_and_eval "$TEST_HEADLESS_CMD"
         ;;
+
     wasp-cli)
         echo_and_eval "$RUN_CMD"
         ;;
+
     stan)
         echo_and_eval "$STAN_CMD"
         ;;
@@ -197,9 +224,7 @@ case $COMMAND in
     module-graph)
         echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
         ;;
-    wasp-packages:compile)
-        echo_and_eval "$WASP_PACKAGES_COMPILE"
-        ;;
+
     ghcup-set)
         echo_and_eval "$GHCUP_SET"
         ;;
