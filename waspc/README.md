@@ -35,7 +35,32 @@ It can then also run that web app for you, deploy it (not yet but that is coming
 
 We use the [`cabal`](https://cabal.readthedocs.io/) command line tool to build
 the project. The best way to install it is via
-[ghcup](https://www.haskell.org/ghcup/). The `ghcup tui` terminal user interface
+[ghcup](https://www.haskell.org/ghcup/) (if you're running an M1/M2 mac make sure to run it in rosetta).
+
+<details>
+<summary>M1/M2 rosetta setup</summary>
+
+1. Regular Shell: just run `arch -x86_64 zsh` in your terminal.
+2. IntelliJ: Preferences -> Tools -> Terminal -> Shell path -> `env /usr/bin/arch -x86_64 /bin/zsh --login`
+3. VSCode: add the following to your local `.vscode/settings.json` file
+
+```json
+{
+  "terminal.integrated.profiles.osx": {
+    "rosetta": {
+      "path": "/usr/bin/arch",
+      "args": ["-arch", "x86_64", "/bin/zsh"],
+      "overrideName": true
+    }
+  },
+  "terminal.integrated.defaultProfile.osx": "rosetta"
+}
+```
+
+To check you can run `sysctl sysctl.proc_translated` and it should print out `sysctl.proc_translated: 1`
+</details>
+
+The `ghcup tui` terminal user interface
 is a convenient way of installing and selecting versions of `cabal`, `hls` and
 `ghc`.
 
