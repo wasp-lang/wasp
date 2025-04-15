@@ -2,21 +2,6 @@
 
 ## What's new in 0.17.0?
 
-### The `login` function from `wasp/client/auth` has changed parameters
-
-:::note
-Only if you are using [username and password authentication](../auth/username-and-pass.md).
-:::
-
-The `login` function, as imported from `wasp/client/auth`, has changed
-the way of calling it:
-
-- ❌ **OLD**: `login(usernameValue, passwordValue)`
-- ✅ **NEW**: `login({ username: usernameValue, password: passwordValue })`
-
-This is to make it consistent with the `login` and `signup` calls in other
-authentication methods, which were already using this convention.
-
 ### Wasp no longer generates a default `favicon.ico` 
 
 Wasp will no longer generate `favicon.ico` if there isn't one in the `public` directory.
@@ -28,21 +13,7 @@ New Wasp projects come with a default `favicon.ico` in the `public` directory an
 
 To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
 
-### 1. Change the parameters to the `login` function
-
-:::note
-Only if you are using [username and password authentication](../auth/username-and-pass.md).
-:::
-
-If you were using the `login` function (imported from `wasp/client/auth`),
-change its parameters from `login(usernameValue, passwordValue)` to
-`login({ username: usernameValue, password: passwordValue })`.
-
-It is possible that you were not using this function in your code.
-If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
-this change is already handled for you.
-
-### 2. Add a `favicon.ico` to the `public` directory
+### 1. Add a `favicon.ico` to the `public` directory
 
 This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
 You should add a `favicon.ico` to your `public` folder. If you want to keep the default, download it here: [link].
@@ -50,7 +21,7 @@ You should add a `favicon.ico` to your `public` folder. If you want to keep the 
 The default `favicon.ico` can be found in the output files of your Wasp project.
 You can find it by going to `.wasp/out/web-app/favicon.ico` from your Wasp project's root directory.
 
-### 3. Add a `<link>` meta tag for `favicon.ico`
+### 2. Add a `<link>` meta tag for `favicon.ico`
 
 This step is required for all of the project's which use `favicon.ico`.
 Add the `<link>` tag to the `head` property in the `main.wasp`
@@ -64,7 +35,7 @@ app MyApp {
 }
 ```
 
-### 4. Enjoy your updated Wasp app
+### 3. Enjoy your updated Wasp app
 
 That's it!
 
