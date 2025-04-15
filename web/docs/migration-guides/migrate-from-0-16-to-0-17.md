@@ -44,7 +44,7 @@ this change is already handled for you.
 
 ### 2. Add a default `favicon.ico` to the public folder
 
-This step is necessary only if you have no `favicon.ico` in your `public` folder.
+This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
 In that case add a default `favicon.ico` to your `public` folder.
 
 The default `favicon.ico` can be found in the output files of your Wasp project.
