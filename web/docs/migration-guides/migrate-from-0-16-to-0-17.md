@@ -50,7 +50,7 @@ In that case add a default `favicon.ico` to your `public` folder.
 The default `favicon.ico` can be found in the output files of your Wasp project.
 You can find it by going to `.wasp/out/web-app/favicon.ico` from your Wasp project's root directory.
 
-### 3. Add a `<link>` tag for `favicon.ico` to `wasp.config`'s `head` property
+### 3. Add a `<link>` meta tag for `favicon.ico`
 
 This step is required for all of the project's which use `favicon.ico`, be it default or custom one.
 Add the `<link>` tag to the `app.head` propery of `wasp.config`
