@@ -20,8 +20,8 @@ type PrimitiveJSONValue = string | number | boolean | undefined | null
 
 export interface JSONArray extends Array<JSONValue> {}
 
-type SerializableJSONValue =
-  | Symbol
+export type SerializableJSONValue =
+  | symbol
   | Set<SuperJSONValue>
   | Map<SuperJSONValue, SuperJSONValue>
   | undefined
@@ -30,14 +30,14 @@ type SerializableJSONValue =
   | RegExp
 
 // Here's where we excluded `ClassInstance` (which was `any`) from the union.
-type SuperJSONValue =
+export type SuperJSONValue =
   | JSONValue
   | SerializableJSONValue
   | SuperJSONArray
   | SuperJSONObject
 
-interface SuperJSONArray extends Array<SuperJSONValue> {}
+export interface SuperJSONArray extends Array<SuperJSONValue> {}
 
-interface SuperJSONObject {
+export interface SuperJSONObject {
   [key: string]: SuperJSONValue
 }
