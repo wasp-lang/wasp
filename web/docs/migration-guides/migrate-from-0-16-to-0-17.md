@@ -52,7 +52,7 @@ You can find it by going to `.wasp/out/web-app/favicon.ico` from your Wasp proje
 
 ### 3. Add a `<link>` meta tag for `favicon.ico`
 
-This step is required for all of the project's which use `favicon.ico`, be it default or custom one.
+This step is required for all of the project's which use `favicon.ico`.
 Add the `<link>` tag to the `app.head` propery of `wasp.config`
 
 ```wasp title="main.wasp
