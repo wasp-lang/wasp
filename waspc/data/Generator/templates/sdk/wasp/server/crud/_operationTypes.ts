@@ -37,7 +37,7 @@ type _WaspEntity = {= crud.entityUpper =}
 /**
  * PUBLIC API
  */
-export namespace {= crud.name =} {
+export declare namespace {= crud.name =} {
   {=# crud.operations.GetAll =}
   export type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
   {=/ crud.operations.GetAll =}
@@ -91,7 +91,7 @@ export type GetQueryResolved = typeof _waspGetQuery
 
 {=# crud.operations.Create =}
 {=^ overrides.Create.isDefined =}
-type CreateInput = Prisma.XOR<
+type CreateInput = Payload & Prisma.XOR<
   Prisma.{= crud.entityUpper =}CreateInput,
   Prisma.{= crud.entityUpper =}UncheckedCreateInput
 >
@@ -106,7 +106,7 @@ export type CreateActionResolved = typeof _waspCreateAction
 
 {=# crud.operations.Update =}
 {=^ overrides.Update.isDefined =}
-type UpdateInput = Prisma.XOR<
+type UpdateInput = Payload & Prisma.XOR<
     Prisma.{= crud.entityUpper =}UpdateInput,
     Prisma.{= crud.entityUpper =}UncheckedUpdateInput
   >
@@ -123,7 +123,7 @@ export type UpdateActionResolved = typeof _waspUpdateAction
 
 {=# crud.operations.Delete =}
 {=^ overrides.Delete.isDefined =}
-type DeleteInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
+type DeleteInput = Payload & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
 export type DeleteActionResolved = {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>
 {=/ overrides.Delete.isDefined =}
