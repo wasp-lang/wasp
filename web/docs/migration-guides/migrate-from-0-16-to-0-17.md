@@ -19,7 +19,7 @@ authentication methods, which were already using this convention.
 
 ### Wasp no longer generates a default `favicon.ico` 
 
-Wasp will no longer generate `favicon.ico` if there is none in the `public` folder.
+Wasp will no longer generate `favicon.ico` if there isn't one in the `public` directory.
 Additionaly Wasp will no longer include `favicon.ico`'s `<link>` tag in `index.html` by default.
 
 Wasp will now instead provides a default `favicon.ico` in the project's `public` folder, along with a corresponding `<link>` tag in the `main.wasp`'s `head` property.
