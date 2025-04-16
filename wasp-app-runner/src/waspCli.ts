@@ -88,10 +88,10 @@ export async function getAppInfo({
 
   if (dbTypeMatchStr === "PostgreSQL") {
     dbType = DbType.Postgres;
-  } else if (dbTypeMatchStr === "LibSQL") {
-    dbType = DbType.Libsql;
   } else if (dbTypeMatchStr === "SQLite") {
     dbType = DbType.Sqlite;
+  } else if (dbTypeMatchStr === "SQLite" && process.env.DATABASE_URL?.startsWith('libsql://')) {
+    dbType = DbType.Libsql;
   } else {
     log("get-app-info", "error", `Unknown database type: ${dbTypeMatchStr}`);
     process.exit(1);
