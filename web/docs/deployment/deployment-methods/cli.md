@@ -43,8 +43,7 @@ If your account is a member of more than one organization on Fly.io, you will ne
 :::
 
 <small>
-
-Please do not CTRL-C or exit your terminal while the commands are running.
+  Please do not CTRL-C or exit your terminal while the commands are running.
 </small>
 
 Under the covers, this runs the equivalent of the following commands:
@@ -111,8 +110,7 @@ wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://myc
 ```
 
 <small>
-
-We need to do this to keep our CORS configuration up to date.
+  We need to do this to keep our CORS configuration up to date.
 </small>
 
 That's it, your app should be available at `https://mycoolapp.com`! 🎉
@@ -265,7 +263,7 @@ wasp deploy fly cmd secrets list --context server
 
 If your app requires any other server-side environment variables (like social auth secrets), you can set them:
 
-1. initially in the `launch` command with the [`--server-secret` option](#environment-variables),  
+1. initially in the `launch` command with the [`--server-secret` option](#environment-variables),\
    or
 2. after the app has already been deployed by using the `secrets set` command:
 
@@ -304,8 +302,7 @@ Then you can run `npm run deploy` to deploy your app.
 > Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
 
 <small>
-
-Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
+  Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
 </small>
 
 You can find the list of all available Fly regions by running:

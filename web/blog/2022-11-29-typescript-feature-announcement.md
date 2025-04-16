@@ -11,16 +11,14 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    alt="Wasp TS support"
-    source="img/wasp-ts-banner.png"
-/>
+<ImgWithCaption alt="Wasp TS support" source="img/wasp-ts-banner.png" />
 
 <!--truncate-->
 
 <InBlogCta />
 
 ## Prologue
+
 TypeScript doesn't need much introduction at this point, so we'll keep it short!
 Wasp finally allows you to write your code in TypeScript (i.e., the most popular web technology after JavaScript) on both the front-end and the back-end.
 
@@ -30,12 +28,15 @@ Exposing all Wasp functionalities through informative typed interfaces is one of
 Without further ado, let's see how we can use TypeScript with Wasp.
 
 ## Setting up a TypeScript project in Wasp
+
 Let's start by creating a fresh Wasp project:
 
 ```bash
 wasp new myApp
 ```
+
 This will generate a project skeleton in the folder `myApp`. The project structure is different than before, and there are now several additional generated files that help with IDE and TypeScript support. So let's explain it:
+
 ```
 .
 ├── .gitignore
@@ -55,8 +56,8 @@ This will generate a project skeleton in the folder `myApp`. The project structu
 └── .wasproot
 ```
 
-
 At this point, we can choose one of three options:
+
 1. We write our code exclusively in JavaScript.
 2. We write our code exclusively in TypeScript.
 3. We write some parts of our code in JavaScript, and other parts in TypeScript.
@@ -65,10 +66,12 @@ Since the third option is a superset of the first two, that's what Wasp currentl
 Simply use the appropriate extension (`.ts` and `.tsx` for TypeScript; `.js` and `.jsx` for JavaScript), and your IDE and Wasp will know what to do.
 
 To demonstrate this, let's start Wasp and change `MainPage.jsx` to `MainPage.tsx`:
+
 ```
 wasp start
 mv src/client/MainPage.jsx src/client/MainPage.tsx
 ```
+
 That's it! Wasp will notice the change and recompile, and your app will continue to work. The only difference is that you can now write TypeScript in `MainPage.tsx` and get helpful information from your IDE and the static type checker. Try removing an import and see what happens.
 
 The same applies to any file you may want to include in your project. Specify the language you wish to use via the extension, and Wasp will do the rest!
@@ -83,13 +86,15 @@ This does not apply to front-end files. Thanks to Webpack, you don't need to wri
 :::
 
 ## Moving existing projects to the new structure (and optionally TypeScript)
-If you wish to move an existing project to the new structure, the easiest approach comes down to creating a new project and moving all the files from your old project into appropriate locations. After doing this, you can choose which files you'd like to implement in TypeScript, change the extension and go for it.
 
+If you wish to move an existing project to the new structure, the easiest approach comes down to creating a new project and moving all the files from your old project into appropriate locations. After doing this, you can choose which files you'd like to implement in TypeScript, change the extension and go for it.
 
 To avoid digging too deep, this is all we'll say about migrating. For a more detailed migration guide, check [our changelog](https://github.com/wasp-lang/wasp/releases/tag/v0.7.0). It explains everything step-by-step.
 
 ## TypeScript in action
+
 Finally, let's demonstrate how TypeScript helps us by using it in a small Todo app. The part of our code in charge of rendering tasks looks something like this:
+
 ```jsx
 
 function MainPage() {
@@ -135,11 +140,13 @@ function Task({ id, isdone, description }) {
   )
 }
 ```
+
 Try to see if you can find any bugs. When you're confident you've got all of them, continue reading.
 
 Let's see what happens when we bring TypeScript into the picture. Remember, we only need to change the extension to `tsx`. After we do this, The IDE will warn us about missing type definitions, so let's fill these in. While we're at it, we can also tell `useQuery` what types it's working with by specifying its type arguments.
 
 Here's how our code looks after these changes:
+
 ```tsx
 // highlight-start
 type Task = {
@@ -195,19 +202,17 @@ function Task({ id, isdone, description }: Task) {
   )
 }
 ```
+
 As soon as we change our code, TypeScript detects three errors:
 
-<ImgWithCaption
-    alt="TypeScript erros"
-    source="img/typescript-errors.png"
-    caption="The errors are pretty simple (almost as if we've made them up for this example :)"
-/>
+<ImgWithCaption alt="TypeScript erros" source="img/typescript-errors.png" caption="The errors are pretty simple (almost as if we've made them up for this example :)" />
 
 1. The first error warns us that `tasks` might be `undefined` (e.g., on the first render), which `TaskList` does not expect
 2. The second error tells us that the property `len` does not exist on the array `tasks`. In other words, we misspelled `length`.
 3. Finally, the third error tells us that the type `Task` does not contain the field `isdone`. This is also a typo. The field's name should be `isDone`.
 
 Thanks to TypeScript, we can quickly fix all three errors, saving us a lot of time we'd probably lose by hunting them down manually or, even worse, during runtime.
+
 ```tsx
 
 type Task = {
@@ -266,9 +271,9 @@ function Task({ id, isDone, description }: Task) {
 And that's it! This is the joy of TypeScript. We've easily fixed all reported errors, and our code should now work correctly (well, at least less incorrectly).
 
 ## Future work
+
 You might have noticed that, if we want to use the `Task` type, we have to write most of its type definition twice - once when defining the `Task` entity in the `.wasp` file and then again in our code. While we can define the type in `src/shared` to avoid writing (almost) the same code on both the server and the client, we'll still have duplication between the code in `src/shared` and our `.wasp` file.
 
 The good news is that we know about this, also find it annoying, and are working to fix it as soon as possible! In the near future, Wasp will generate types from entities and allow you to access them using `@wasp` imports. Other improvements exist, too. For example, Wasp could read your query declarations and provide you with the correct type for the `context` object in their definitions. Another possible improvement is automatically typing queries on the front-end, and then relying on type inference to correctly type `useQuery` (instead of users specifying its type arguments explicitly).
 
 In short, there's a long and exciting path ahead of us, full of interesting possibilities. So stick with Wasp and see how far we can make it!
-

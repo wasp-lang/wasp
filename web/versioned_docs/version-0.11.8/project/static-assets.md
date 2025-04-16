@@ -9,26 +9,25 @@ import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
 Importing a static asset (e.g. an image) will return its URL. For example:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/client/App.jsx"
+    import imgUrl from './img.png'
 
-```jsx title="src/client/App.jsx"
-import imgUrl from './img.png'
+    function App() {
+      return <img src={imgUrl} alt="img" />
+    }
+    ```
+  </TabItem>
 
-function App() {
-  return <img src={imgUrl} alt="img" />
-}
-```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  <TabItem value="ts" label="TypeScript">
+    ```jsx title="src/client/App.tsx"
+    import imgUrl from './img.png'
 
-```jsx title="src/client/App.tsx"
-import imgUrl from './img.png'
-
-function App() {
-  return <img src={imgUrl} alt="img" />
-}
-```
-</TabItem>
+    function App() {
+      return <img src={imgUrl} alt="img" />
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 For example, `imgUrl` will be `/img.png` during development, and become `/assets/img.2d8efhg.png` in the production build.
@@ -65,4 +64,4 @@ Note that:
 
 - You should always reference public assets using root absolute path - for example, `src/client/public/icon.png` should be referenced in source code as `/icon.png`.
 - Assets in the `public` directory **cannot be imported** from <ShowForJs>JavaScript</ShowForJs><ShowForTs>TypeScript</ShowForTs>.
-:::
+  :::

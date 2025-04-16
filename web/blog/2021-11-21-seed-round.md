@@ -16,9 +16,11 @@ The best thing about it is that the majority of our investors are either experie
 <!--truncate-->
 
 <WaspIntro />
+
 <InBlogCta />
 
 Besides Lunar and HV Capital, we are thrilled to welcome on board:
+
 - 468 Capital (led by Florian Leibert, founder of Mesosphere and ex-Twitter and Airbnb eng.)
 - Charlie Songhurst
 - Tokyo Black
@@ -59,9 +61,8 @@ Martin and I have been working on Wasp for the last two years and together with 
 
 <p align="center">
   <figure>
-    <img alt="The team"
-        src={useBaseUrl('img/us-at-ycombinator.jpg')}
-    />
+    <img alt="The team" src={useBaseUrl('img/us-at-ycombinator.jpg')} />
+
     <figcaption>Martin and I during our first YC interview. Read <Link to={useBaseUrl('blog/2021/02/23/journey-to-ycombinator')}>here</Link> for more details on our journey to YC!</figcaption>
   </figure>
 </p>

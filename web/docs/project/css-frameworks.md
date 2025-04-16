@@ -40,51 +40,51 @@ Make sure to use the `.cjs` extension for these config files, if you name them w
 
 1. Add `./tailwind.config.cjs`.
 
-  ```js title="./tailwind.config.cjs"
-  const { resolveProjectPath } = require('wasp/dev')
+```js title="./tailwind.config.cjs"
+const { resolveProjectPath } = require('wasp/dev')
 
-  /** @type {import('tailwindcss').Config} */
-  module.exports = {
-    content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
-    theme: {
-      extend: {},
-    },
-    plugins: [],
-  }
-  ```
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
 
 2. Add `./postcss.config.cjs`.
 
-  ```js title="./postcss.config.cjs"
-  module.exports = {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  }
-  ```
+```js title="./postcss.config.cjs"
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
 
 3. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
 
-  ```css title="./src/Main.css" {1-3}
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+```css title="./src/Main.css" {1-3}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  /* ... */
-  ```
+/* ... */
+```
 
 4. Start using Tailwind 🥳
-  
-  ```jsx title="./src/MainPage.jsx"
-  // ...
 
-  <h1 className="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+```jsx title="./src/MainPage.jsx"
+// ...
 
-  // ...
-  ```
+<h1 className="text-3xl font-bold underline">
+  Hello world!
+</h1>
+
+// ...
+```
 
 ### Adding Tailwind Plugins
 

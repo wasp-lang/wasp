@@ -7,15 +7,15 @@ tags: [saas, boilerplate, react, nodejs]
 
 import ImgWithCaption from './components/ImgWithCaption'
 
-## Presenting Open SaaS 🎉 
+## Presenting Open SaaS 🎉
 
 We’re really excited to present [Open SaaS](https://opensaas.sh), the totally free, open-source, production-grade SaaS boilerplate for React, NodeJS, and Prisma.
 
 Check out the promo video here:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/rfO5SbLfyFE?si=IqTfhVk7DV5VsiaL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/rfO5SbLfyFE?si=IqTfhVk7DV5VsiaL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
-Open SaaS has got all the features of those paid SaaS starters you’ve been seeing lately, except its entirely **free** and **open-source**. 
+Open SaaS has got all the features of those paid SaaS starters you’ve been seeing lately, except its entirely **free** and **open-source**.
 
 We felt that paying $300-$2,000 for some boilerplate code that you need to manage yourself was crazy. On top of that, many of these boilerplates rely heavily on 3rd-party services. Add on hosting and other fees, and you’re looking at spending quite a bit of money just to get your idea out there into the world.
 
@@ -25,16 +25,18 @@ Also, the [Wasp framework](https://wasp.sh), which Open SaaS uses, does the job 
 
 ## Before we start...
 
-<a href="https://www.producthunt.com/posts/open-saas?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-open&#0045;saas" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=436467&theme=light" alt="Open&#0032;SaaS - Open&#0045;source&#0032;&#0038;&#0032;100&#0037;&#0032;free&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;SaaS&#0032;starter&#0033; | Product Hunt" /></a>
+<a href="https://www.producthunt.com/posts/open-saas?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-open-saas" target="_blank">
+  <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=436467&theme=light" alt="Open SaaS - Open-source & 100% free React & Node.js SaaS starter! | Product Hunt" />
+</a>
 
 Open SaaS is [live on Product Hunt](https://www.producthunt.com/posts/open-saas) right now! Come support our free, open-source initiative 🙏
 
 [![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/wppn8mlby0p7h1f8xl6w.png)](https://www.producthunt.com/posts/open-saas)
 
-
 ## Why we built it… and then gave it away for free
 
 The initial feedback in [our pre-release](https://devhunt.org/tool/open-saas) has been largely positive, but we’ve also gotten some questions like:
+
 - “Is it going to stay free?”
 - “What’s your motivation for open-sourcing this?”
 
@@ -44,9 +46,9 @@ So we thought we’d go ahead and answer these to start.
 
 First, yes it is 100% free and open-source and will stay that way.
 
-Second, we believe that the collective knowledge of a community of developers, indiehackers, and solopreneurs will produce a better boilerplate than an individual or small group. When you buy a SaaS starter from some developer, you’re already getting an opinionated stack, then on top of that you’re also getting an app built the way they think is best — and that may not always be the best *for you.* 
+Second, we believe that the collective knowledge of a community of developers, indiehackers, and solopreneurs will produce a better boilerplate than an individual or small group. When you buy a SaaS starter from some developer, you’re already getting an opinionated stack, then on top of that you’re also getting an app built the way they think is best — and that may not always be the best _for you._
 
-Third, [Open SaaS](https://opensaas.sh) is a project by [Wasp](https://wasp.sh), an open-source React + NodeJS + Prisma full-stack framework with superpowers. We, the Wasp team, believe that Wasp is very well suited for creating SaaS apps quickly and efficiently, and we want this template to prove it. Plus, as developers, we’ve learned so much from other open-source projects, and Wasp itself is an open-source project. 
+Third, [Open SaaS](https://opensaas.sh) is a project by [Wasp](https://wasp.sh), an open-source React + NodeJS + Prisma full-stack framework with superpowers. We, the Wasp team, believe that Wasp is very well suited for creating SaaS apps quickly and efficiently, and we want this template to prove it. Plus, as developers, we’ve learned so much from other open-source projects, and Wasp itself is an open-source project.
 
 Basically, we love the open-source philosophy and we want to pay it forward. 🙏
 
@@ -56,7 +58,7 @@ So it’s our hope that we can provide a seriously valuable asset to the develop
 
 We put a lot of hard work into Open SaaS, including the [documentation](https://docs.opensaas.sh), so that developers can get a SaaS app launched confidently and easily.
 
-We’ve also spent some time checking out other free, open-source SaaS starters, and wanted to make sure Open SaaS has all the right features of a production-ready starter, without the bloat. And we think we’ve accomplished that for the most part, although we will continue to add features and improve on it with time. 
+We’ve also spent some time checking out other free, open-source SaaS starters, and wanted to make sure Open SaaS has all the right features of a production-ready starter, without the bloat. And we think we’ve accomplished that for the most part, although we will continue to add features and improve on it with time.
 
 Here are the main features at the moment:
 
@@ -73,7 +75,6 @@ Here are the main features at the moment:
 It’s worth going into some detail about each of these features, so let’s do it.
 
 ### Auth
-
 
 [![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/wbistoghxrxft9zxxra1.png)](https://www.producthunt.com/posts/open-saas)
 
@@ -145,7 +146,7 @@ And even though Stripe is well known for having great documentation, the process
 - deal with recurring and failed payments
 - test it all correctly via the CLI before going live
 
-That’s why having Stripe subscription payments set up for you is such a win. 
+That’s why having Stripe subscription payments set up for you is such a win.
 
 But even more important than that, is having the whole process conveniently documented for you! Which is why Open SaaS offers you convenient [Stripe guides in our documentation](https://docs.opensaas.sh) 🙂
 
@@ -155,37 +156,37 @@ But even more important than that, is having the whole process conveniently docu
 
 Open SaaS was built with Typescript, and because it’s a full-stack app, type safety from the back-end to the front-end can be a real lifesaver. I mean, some [opinionated stacks](https://create.t3.gg/) have gotten hugely popular on this basis.
 
-Luckily, Wasp gives you end-to-end Typesafety out-of-the-box (nothing to configure!), so it was easy for Open SaaS to take advantage of it. 
+Luckily, Wasp gives you end-to-end Typesafety out-of-the-box (nothing to configure!), so it was easy for Open SaaS to take advantage of it.
 
 Here’s an example:
 
 1. Make Wasp aware of your server action:
-    
-    ```tsx
-    // main.wasp
-    
-    action getResponse {
-      fn: import { getResponse } from "@server/actions.js",
-      entities: [Response]
-    }
-    ```
-    
+
+   ```tsx
+   // main.wasp
+
+   action getResponse {
+     fn: import { getResponse } from "@server/actions.js",
+     entities: [Response]
+   }
+   ```
+
 2. Type and Implement your server action.
-    
-    ```tsx
-    // src/srever/actions.ts
-    
-    type RespArgs = {
-      hours: string;
-    };
-    
-    const getResponse: GetResponse<RespArgs, string> = async ({ hours }) => { }
-    ```
-    
+
+   ```tsx
+   // src/srever/actions.ts
+
+   type RespArgs = {
+     hours: string;
+   };
+
+   const getResponse: GetResponse<RespArgs, string> = async ({ hours }) => { }
+   ```
+
 3. Import it and call it on the client.
-![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0fah81r1g4bg3vdqapju.png)
-Client-side types will be inferred correctly!
-![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/7n04yh6de9slhhnjrgf3.png)
+   ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0fah81r1g4bg3vdqapju.png)
+   Client-side types will be inferred correctly!
+   ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/7n04yh6de9slhhnjrgf3.png)
 
 ### AI-powered Example App (w/ OpenAI API)
 
@@ -222,7 +223,9 @@ In the end, you own your code and are free to deploy it wherever, without vendor
 
 ## Help us, help you
 
-<a href="https://www.producthunt.com/posts/open-saas?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-open&#0045;saas" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=436467&theme=light" alt="Open&#0032;SaaS - Open&#0045;source&#0032;&#0038;&#0032;100&#0037;&#0032;free&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;SaaS&#0032;starter&#0033; | Product Hunt"/></a>
+<a href="https://www.producthunt.com/posts/open-saas?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-open-saas" target="_blank">
+  <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=436467&theme=light" alt="Open SaaS - Open-source & 100% free React & Node.js SaaS starter! | Product Hunt" />
+</a>
 
 Wanna support our free, open-source initiative? Then go show us some support [on Product Hunt](https://www.producthunt.com/posts/open-saas) right now! 🙏
 
@@ -230,11 +233,10 @@ Wanna support our free, open-source initiative? Then go show us some support [on
 
 ## Now Go Build your SaaS!
 
-We hope that Open SaaS empowers more developers to ship their ideas and side-projects. And we also hope to get some feedback and input from developers so we can make this the best SaaS boilerplate starter out there. 
+We hope that Open SaaS empowers more developers to ship their ideas and side-projects. And we also hope to get some feedback and input from developers so we can make this the best SaaS boilerplate starter out there.
 
 So, please, if you have any comments or catch any bugs, submit [an issue here](https://github.com/wasp-lang/open-saas/issues).
 
 And if you’re finding Open SaaS and/or Wasp useful, the easiest way to support is by throwing us a star:
 
 - Star the [Open SaaS repo](https://github.com/wasp-lang/open-saas)
-

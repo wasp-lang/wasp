@@ -5,25 +5,25 @@ image: /img/franjo/franjo.png
 tags: [meet-the-team, wasp]
 ---
 
-*Wasp team is on a mission to build the world's best full-stack web framework for JS. End-to-end solution and DX of Rails/Laravel, but with JS and your favorite tools. Future-proof and here to stay.*
+_Wasp team is on a mission to build the world's best full-stack web framework for JS. End-to-end solution and DX of Rails/Laravel, but with JS and your favorite tools. Future-proof and here to stay._
 
 As Wasp usage continues to grow, we're steadily expanding our team to better support our community. Today, we're introducing [Franjo](https://x.com/FranjoMindek), who recently joined us as a framework engineer. Through this interview, you'll get to know more about his background, his perspective on development, and what drew him to contribute to Wasp's mission of simplifying web development.
 
 ### Let’s start with two truths and a lie about yourself.
 
 1. I’ve tried to build a startup during my university days.
-2. I was highly competitive in a niche mod for an old RTS game. 
+2. I was highly competitive in a niche mod for an old RTS game.
 3. I’ve built a graphics engine in C++ with SDL2.
 
 ### Which statement was the lie above? Any interesting stories to share?
 
 The lie is that I never entirely built my graphics engine, only parts of it. Before diving into computer graphics, I never imagined that simply rendering a triangle could bring so much joy. I managed to implement textures, sprites, animations, and basic camera controls, but eventually, the university took over my life, and I never got around to finishing it.
 
-As for the game, it was the *Ultimate Apocalypse* mod for *Dawn of War: Soulstorm*. I realized it had completely taken over my life when Steam showed I had racked up **~38 hours in the past week,** right in the middle of my midterms.
+As for the game, it was the _Ultimate Apocalypse_ mod for _Dawn of War: Soulstorm_. I realized it had completely taken over my life when Steam showed I had racked up **~38 hours in the past week,** right in the middle of my midterms.
 
 ![franjo with team](/img/franjo/2.webp)
 
-I’ve tried to build a startup while I was a student, but failed miserably. 
+I’ve tried to build a startup while I was a student, but failed miserably.
 
 ### Why did you join Wasp? What did you do before?
 
@@ -31,7 +31,7 @@ I’ve tried to build a startup while I was a student, but failed miserably.
 
 Before joining Wasp, I had a student job at Neos, a medium-sized fintech company, and later moved to a smaller webdev agency, Pixion. At Pixion, I worked on a few smaller projects in **small full-stack teams**, which allowed me to make a significant impact early in my career. **I enjoyed building something from scratch, but it was frustrating to move on to the next project just as things were taking shape.** Over time, I realized that I wanted to fully transition to working on products, preferably in a startup.
 
-One day, I came across an open position at Wasp. Everything looked great—until I saw they were looking for senior software engineers**.** Still, **Wasp seemed like exactly the kind of company I wanted to be part of, so I applied anyway.** Beyond the chance to work on a product, I was excited about the opportunity to learn startup know-how and contribute to open source. Fast forward a few weeks, and I got the position!
+One day, I came across an open position at Wasp. Everything looked great—until I saw they were looking for senior software engineers\*\*.\*\* Still, **Wasp seemed like exactly the kind of company I wanted to be part of, so I applied anyway.** Beyond the chance to work on a product, I was excited about the opportunity to learn startup know-how and contribute to open source. Fast forward a few weeks, and I got the position!
 
 ![franjo booth](/img/franjo/1.webp)
 
@@ -55,7 +55,7 @@ Once Wasp reaches stability, **prototyping ideas will never be the same again.**
 
 Since I recently joined Wasp, I’ll talk about my time at Pixion. We had just three months to build a fully functional prototype from scratch so it could secure funding. It was an exciting but stressful period, especially since our team consisted of just two people, with the other coworker working only part-time.
 
-In the end, I managed to bring the project to completion just before my notice period ended. I’m proud of how much we accomplished in such a short time while still adhering to best practices like **Clean Architecture, DDD, Vertical Slice Architecture, and CQRS**. 
+In the end, I managed to bring the project to completion just before my notice period ended. I’m proud of how much we accomplished in such a short time while still adhering to best practices like **Clean Architecture, DDD, Vertical Slice Architecture, and CQRS**.
 
 Oh, and yes—it was a C# project. Why do you ask? 😏
 

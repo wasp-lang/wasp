@@ -12,38 +12,35 @@ import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 With Wasp's email sending feature, you can easily integrate email functionality into your web application.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: <provider>,
+        defaultFrom: {
+          name: "Example",
+          email: "hello@itsme.com"
+        },
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: <provider>,
-    defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com"
-    },
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: <provider>,
-    defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com"
-    },
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: <provider>,
+        defaultFrom: {
+          name: "Example",
+          email: "hello@itsme.com"
+        },
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Choose from one of the providers:
@@ -63,44 +60,41 @@ Before jumping into details about setting up various providers, let's see how ea
 You import the `emailSender` that is provided by the `@wasp/email` module and call the `send` method on it.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/actions/sendEmail.js"
+    import { emailSender } from "@wasp/email/index.js";
 
-```js title="src/actions/sendEmail.js"
-import { emailSender } from "@wasp/email/index.js";
+    // In some action handler...
+    const info = await emailSender.send({
+      from: {
+        name: "John Doe",
+        email: "john@doe.com",
+      },
+      to: "user@domain.com",
+      subject: "Saying hello",
+      text: "Hello world",
+      html: "Hello <strong>world</strong>",
+    });
+    ```
+  </TabItem>
 
-// In some action handler...
-const info = await emailSender.send({
-  from: {
-    name: "John Doe",
-    email: "john@doe.com",
-  },
-  to: "user@domain.com",
-  subject: "Saying hello",
-  text: "Hello world",
-  html: "Hello <strong>world</strong>",
-});
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/actions/sendEmail.ts"
+    import { emailSender } from "@wasp/email/index.js";
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/actions/sendEmail.ts"
-import { emailSender } from "@wasp/email/index.js";
-
-// In some action handler...
-const info = await emailSender.send({
-  from: {
-    name: "John Doe",
-    email: "john@doe.com",
-  },
-  to: "user@domain.com",
-  subject: "Saying hello",
-  text: "Hello world",
-  html: "Hello <strong>world</strong>",
-});
-```
-
-</TabItem>
+    // In some action handler...
+    const info = await emailSender.send({
+      from: {
+        name: "John Doe",
+        email: "john@doe.com",
+      },
+      to: "user@domain.com",
+      subject: "Saying hello",
+      text: "Hello world",
+      html: "Hello <strong>world</strong>",
+    });
+    ```
+  </TabItem>
 </Tabs>
 
 Read more about the `send` method in the [API Reference](#javascript-api).
@@ -116,30 +110,27 @@ For each provider, you'll need to set up env variables in the `.env.server` file
 First, set the provider to `SMTP` in your `main.wasp` file.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: SMTP,
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: SMTP,
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: SMTP,
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: SMTP,
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Then, add the following env variables to your `.env.server` file.
@@ -158,30 +149,27 @@ Many transactional email providers (e.g. Mailgun, SendGrid but also others) can 
 Set the provider to `Mailgun` in the `main.wasp` file.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: Mailgun,
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: Mailgun,
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: Mailgun,
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: Mailgun,
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Then, get the Mailgun API key and domain and add them to your `.env.server` file.
@@ -204,30 +192,27 @@ MAILGUN_DOMAIN=
 Set the provider field to `SendGrid` in your `main.wasp` file.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: SendGrid,
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: SendGrid,
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: SendGrid,
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: SendGrid,
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Then, get the SendGrid API key and add it to your `.env.server` file.
@@ -247,38 +232,35 @@ SENDGRID_API_KEY=
 ### `emailSender` dict
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: <provider>,
+        defaultFrom: {
+          name: "Example",
+          email: "hello@itsme.com"
+        },
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: <provider>,
-    defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com"
-    },
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app Example {
-  ...
-  emailSender: {
-    provider: <provider>,
-    defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com"
-    },
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app Example {
+      ...
+      emailSender: {
+        provider: <provider>,
+        defaultFrom: {
+          name: "Example",
+          email: "hello@itsme.com"
+        },
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 The `emailSender` dict has the following fields:
@@ -294,45 +276,43 @@ The `emailSender` dict has the following fields:
 ### JavaScript API
 
 Using the `emailSender` in <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs>:
+
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/actions/sendEmail.js"
+    import { emailSender } from "@wasp/email/index.js";
 
-```js title="src/actions/sendEmail.js"
-import { emailSender } from "@wasp/email/index.js";
+    // In some action handler...
+    const info = await emailSender.send({
+      from: {
+        name: "John Doe",
+        email: "john@doe.com",
+      },
+      to: "user@domain.com",
+      subject: "Saying hello",
+      text: "Hello world",
+      html: "Hello <strong>world</strong>",
+    });
+    ```
+  </TabItem>
 
-// In some action handler...
-const info = await emailSender.send({
-  from: {
-    name: "John Doe",
-    email: "john@doe.com",
-  },
-  to: "user@domain.com",
-  subject: "Saying hello",
-  text: "Hello world",
-  html: "Hello <strong>world</strong>",
-});
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/actions/sendEmail.ts"
+    import { emailSender } from "@wasp/email/index.js";
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/actions/sendEmail.ts"
-import { emailSender } from "@wasp/email/index.js";
-
-// In some action handler...
-const info = await emailSender.send({
-  from: {
-    name: "John Doe",
-    email: "john@doe.com",
-  },
-  to: "user@domain.com",
-  subject: "Saying hello",
-  text: "Hello world",
-  html: "Hello <strong>world</strong>",
-});
-```
-
-</TabItem>
+    // In some action handler...
+    const info = await emailSender.send({
+      from: {
+        name: "John Doe",
+        email: "john@doe.com",
+      },
+      to: "user@domain.com",
+      subject: "Saying hello",
+      text: "Hello world",
+      html: "Hello <strong>world</strong>",
+    });
+    ```
+  </TabItem>
 </Tabs>
 
 The `send` method accepts an object with the following fields:

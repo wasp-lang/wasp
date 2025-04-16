@@ -1,8 +1,8 @@
-import React from 'react'
+import { Highlight, themes } from 'prism-react-renderer'
 import Prism from 'prismjs'
-import Highlight from 'prism-react-renderer'
-import lightCodeTheme from 'prism-react-renderer/themes/github'
 import '../css/prismjs-github-theme.css'
+
+const lightCodeTheme = themes.github
 
 export default function CodeHighlight({ language, source }) {
   return (

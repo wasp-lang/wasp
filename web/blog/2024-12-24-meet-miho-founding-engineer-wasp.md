@@ -5,9 +5,9 @@ image: /img/miho-interview/miho-cover.png
 tags: [meet-the-team, wasp]
 ---
 
-*Wasp team is on a mission to build the world's best full-stack web framework for JS. End-to-end solution and DX of Rails/Laravel, but with JS and your favorite tools. Future-proof and here to stay.*
+_Wasp team is on a mission to build the world's best full-stack web framework for JS. End-to-end solution and DX of Rails/Laravel, but with JS and your favorite tools. Future-proof and here to stay._
 
-It’s been a while since we caught up with the people behind Wasp—the ones turning ideas into code and shaping the future of web development. As [we are actively growing the team](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672), we decided to catch up with people who already joined us. In this post, we've interviewed Miho who joined Wasp in 2023. 
+It’s been a while since we caught up with the people behind Wasp—the ones turning ideas into code and shaping the future of web development. As [we are actively growing the team](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672), we decided to catch up with people who already joined us. In this post, we've interviewed Miho who joined Wasp in 2023.
 
 ### Let’s start with two truths and a lie about yourself.
 
@@ -25,7 +25,7 @@ Also, I really became a one-star scuba diver recently!
 
 ### Why did you join Wasp? What did you do before?
 
-In my previous company, Superbet, I worked on the front end in Vue.js in the sports betting team. I started as an individual contributor, became a tech lead, and eventually started a team that worked on cross-platform tooling. That’s one of the things that prompted me to contribute to open source tools like [Directus](https://github.com/directus/directus), and I really enjoyed doing that. 
+In my previous company, Superbet, I worked on the front end in Vue.js in the sports betting team. I started as an individual contributor, became a tech lead, and eventually started a team that worked on cross-platform tooling. That’s one of the things that prompted me to contribute to open source tools like [Directus](https://github.com/directus/directus), and I really enjoyed doing that.
 
 I realized that I like working on dev tooling and helping other devs to do their job more easily. I liked the open-source community vibe and thought “It would be awesome to be a part of it!”. Being in web development for over 10 years and knowing the complexity behind it made Wasp stand out to me. Working on open source dev tooling that made web dev 10x easier? Nice! This made [Wasp](https://wasp.sh/) a perfect fit for me. Luckily, it turned out that guys at Wasp liked me back 🙂
 
@@ -46,7 +46,7 @@ I like the work that we did on moving away from Wasp’s custom entity syntax to
 When I was 11 years old, I started programming in a visual programming language called Logo. You write down commands and a small turtle draws things on the screen. I used to go to competitions in Logo. So you could say I was a competitive turtle user. By the time I was 14, blogs were a thing and I wanted to change some colors of my blog homepage, so I had to learn a bit of CSS. Or should I say, learn how to copy-paste some code and tweak it until it worked. I was always that kind of learner, playing around, messing things up, and then finally figuring it out.
 
 ![Miho at a conference](/img/miho-interview/miho.jpg "Miho at a conference")
-*Miho recently gave a talk at [ArmadaJS](https://wasp.sh/blog/2024/12/11/armadajs-2024-a-conference-that-feels-like-home).*
+_Miho recently gave a talk at [ArmadaJS](https://wasp.sh/blog/2024/12/11/armadajs-2024-a-conference-that-feels-like-home)._
 
 ### Your dev setup?
 
@@ -54,7 +54,7 @@ I’m used to doing everything on my MacBook Pro M2 and oftentimes without an ex
 
 ### What is your current favorite gem, library, tool, or anything else that helps you with your work? Why?
 
-I love using Zod for env variables validation, it makes me feel nice and cozy knowing they are validated and not just some `string | undefined` Wild West. 
+I love using Zod for env variables validation, it makes me feel nice and cozy knowing they are validated and not just some `string | undefined` Wild West.
 
 Another thing I love using these days is [bolt.new](http://bolt.new) which gives you superpowers to build a demo app for some idea you have and then you can start playing around with functioning code. It unlocks you as the dev from setting up the boring bits before you can start playing around.
 

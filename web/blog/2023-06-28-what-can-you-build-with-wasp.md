@@ -12,10 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    alt="Launch Week 3 is coming"
-    source="img/build-with-wasp/build-with-wasp-banner.png"
-/>
+<ImgWithCaption alt="Launch Week 3 is coming" source="img/build-with-wasp/build-with-wasp-banner.png" />
 
 Welcome to the 3rd day of our [Launch Week #3](/blog/2023/06/22/wasp-launch-week-three) - Community Day! Our community is the most important aspect of everything we do at Wasp, and we believe it's only right to have a day dedicated to it.
 
@@ -29,9 +26,7 @@ If you're looking for a quick way to start your project, check out our [Ultimate
 
 ## [CoverLetterGPT.xyz](https://coverlettergpt.xyz/) - GPT-powered cover letter generator
 
-<ImgWithCaption
-    source="img/build-with-wasp/cover-letter-gpt.png"
-/>
+<ImgWithCaption source="img/build-with-wasp/cover-letter-gpt.png" />
 
 **Try it out**: [coverlettergpt.xyz](https://coverlettergpt.xyz/)
 
@@ -49,9 +44,7 @@ Try it out and have fun or use it as an inspiration for your next project!
 
 ## [Amicus.work](https://www.amicus.work/) - most "enterprise SaaS" app 👔 💼
 
-<ImgWithCaption
-    source="img/build-with-wasp/amicus.png"
-/>
+<ImgWithCaption source="img/build-with-wasp/amicus.png" />
 
 **Try it out**: [amicus.work](https://www.amicus.work/)
 
@@ -65,9 +58,7 @@ File upload, workflow creation, calendar integration, collaboration - this app h
 
 ## Description Generator - GPT-powered product description generator - first acquired app made with Wasp! 💰💰
 
-<ImgWithCaption
-    source="img/build-with-wasp/description-generator.png"
-/>
+<ImgWithCaption source="img/build-with-wasp/description-generator.png" />
 
 **Try it out**: [description-generator.online](https://description-generator.online/)
 
@@ -81,9 +72,7 @@ What's special about Description Generator is that it was recently sold , making
 
 ## TweetBot - your personal Twitter intern! 🐦🤖
 
-<ImgWithCaption
-    source="img/build-with-wasp/tweet-bot.png"
-/>
+<ImgWithCaption source="img/build-with-wasp/tweet-bot.png" />
 
 **Try it out**: [banger-tweet-bot.netlify.app](https://banger-tweet-bot.netlify.app/)
 
@@ -99,9 +88,8 @@ While the previously mentioned projects queried the GPT API directly, TweetBot m
 
 ## Summary
 
-As you could see above, Wasp can be used to build pretty much any database-backed web application! It is especially well suited for so called "workflow-based" applications where you typically have a bunch of resources (e.g. your tasks, or tweets) that you want to manipulate in some way. 
+As you could see above, Wasp can be used to build pretty much any database-backed web application! It is especially well suited for so called "workflow-based" applications where you typically have a bunch of resources (e.g. your tasks, or tweets) that you want to manipulate in some way.
 
 With our built-in deployment support (e.g. you can [deploy to Fly.io for free with a single CLI command](https://wasp.sh/docs/deployment/deployment-methods/cli#flyio)) the whole development process is extremely streamlined.
 
 We can't wait to see what you build next!
-

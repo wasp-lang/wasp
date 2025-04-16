@@ -20,28 +20,25 @@ As mentioned, an `entity` declaration represents a database model.
 Each `Entity` declaration corresponds 1-to-1 to [Prisma's data model](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model). Here's how you could define an Entity that represents a Task:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp
+    entity Task {=psl
+        id          Int     @id @default(autoincrement())
+        description String
+        isDone      Boolean @default(false)
+    psl=}
+    ```
+  </TabItem>
 
-```wasp
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-psl=}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp
-entity Task {=psl
-    id          Int     @id @default(autoincrement())
-    description String
-    isDone      Boolean @default(false)
-psl=}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp
+    entity Task {=psl
+        id          Int     @id @default(autoincrement())
+        description String
+        isDone      Boolean @default(false)
+    psl=}
+    ```
+  </TabItem>
 </Tabs>
 
 Let's go through this declaration in detail:
@@ -73,31 +70,29 @@ Most of the time, you will be working with Entities within the context of [Opera
 If you need more control, you can directly interact with Entities by importing and using the [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud). We recommend sticking with conventional Wasp-provided mechanisms, only resorting to directly using the Prisma client only if you need a feature Wasp doesn't provide.
 
 You can only use the Prisma Client in your Wasp server code. You can import it like this:
+
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    import prismaClient from '@wasp/dbClient'`
 
-```js
-import prismaClient from '@wasp/dbClient'`
+    prismaClient.task.create({
+        description: "Read the Entities doc",
+        isDone: true // almost :)
+    })
+    ```
+  </TabItem>
 
-prismaClient.task.create({
-    description: "Read the Entities doc",
-    isDone: true // almost :)
-})
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import prismaClient from '@wasp/dbClient'`
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts
-import prismaClient from '@wasp/dbClient'`
-
-prismaClient.task.create({
-    description: "Read the Entities doc",
-    isDone: true // almost :)
-})
-```
-
-</TabItem>
+    prismaClient.task.create({
+        description: "Read the Entities doc",
+        isDone: true // almost :)
+    })
+    ```
+  </TabItem>
 </Tabs>
 
 ### Next steps

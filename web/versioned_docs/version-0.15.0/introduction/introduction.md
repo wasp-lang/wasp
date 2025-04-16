@@ -28,10 +28,7 @@ At the core is the Wasp compiler which takes the Wasp config and your Javascript
 
 <!-- ![Wasp compilation diagram](/img/lp/wasp-compilation-diagram.png) -->
 
-<ImgWithCaption
-    source="/img/lp/wasp-compilation-diagram.png"
-    caption="How the magic happens 🌈"
-/>
+<ImgWithCaption source="/img/lp/wasp-compilation-diagram.png" caption="How the magic happens 🌈" />
 
 The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 
@@ -204,10 +201,10 @@ You don't need to know what a DSL is to use Wasp, but if you are curious, you ca
 
 Wasp does not match typical expectations of a web app framework: it is not a set of libraries, it is instead a simple programming language that understands your code and can do a lot of things for you.
 
-Wasp is a programming language, but a specific kind: it is specialized for a single purpose: **building modern web applications**. We call such languages *DSL*s (Domain Specific Language).
+Wasp is a programming language, but a specific kind: it is specialized for a single purpose: **building modern web applications**. We call such languages _DS&#x4C;_&#x73; (Domain Specific Language).
 
-Other examples of *DSL*s that are often used today are e.g. _SQL_ for databases and _HTML_ for web page layouts.
-The main advantage and reason why *DSL*s exist is that they need to do only one task (e.g. database queries)
+Other examples of _DS&#x4C;_&#x73; that are often used today are e.g. _SQL_ for databases and _HTML_ for web page layouts.
+The main advantage and reason why _DS&#x4C;_&#x73; exist is that they need to do only one task (e.g. database queries)
 so they can do it well and provide the best possible experience for the developer.
 
 The same idea stands behind Wasp - a language that will allow developers to **build modern web applications with 10x less code and less stack-specific knowledge**.

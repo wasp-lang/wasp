@@ -12,7 +12,6 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 ![grabbit hero shot](../static/img/michael-curry-usecase/grabbit-hero-shot.png)
 
 [Michael Curry](https://github.com/cursorial) is a senior front-end engineer at [Improbable](https://www.improbable.io/), a metaverse and simulation company based in London. In his free time he enjoys learning about compilers.
@@ -25,7 +24,7 @@ Read on to learn why Michael chose Wasp to build and deploy an internal tool for
 
 ## The problem: the battle for the dev environment
 
-StudentBeans has a microservices-based architecture with multiple environments - test, staging, production, …. The team practices CI/CD and deploys multiple times a day. With such a rapid development speed, it would relatively often happen that multiple engineering teams attempt to claim the same dev environment at the same time. 
+StudentBeans has a microservices-based architecture with multiple environments - test, staging, production, …. The team practices CI/CD and deploys multiple times a day. With such a rapid development speed, it would relatively often happen that multiple engineering teams attempt to claim the same dev environment at the same time.
 
 There wasn't an easy way for teams to synchronize on who is using which environment and it would eventually lead to unexpected changes, confusion, and prolonged development times.
 

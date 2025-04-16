@@ -12,9 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    source="img/new-lsp/new-lsp-banner.png"
-/>
+<ImgWithCaption source="img/new-lsp/new-lsp-banner.png" />
 
 It's the fourth day of our [Launch Week #3](/blog/2023/06/22/wasp-launch-week-three) - today it's all about dev tooling and making sure that the time you spend looking at your IDE is as pleasurable as possible!
 
@@ -30,36 +28,24 @@ Without further ado, here's what's new:
 
 Until now, Wasp offered autocompletion only for the top-level declarations such as `page` or `app`. Now, it works for any (sub)-property (as one would expect 😅)!
 
-<ImgWithCaption
-    source="img/new-lsp/dict-completion.gif"
-    caption="Fill out your Wasp configuration faster and with less typos! 💻🚀"
-/>
+<ImgWithCaption source="img/new-lsp/dict-completion.gif" caption="Fill out your Wasp configuration faster and with less typos! 💻🚀" />
 
 ## 🔍 Type Hints
 
 Opening documentation takes you out of your editor and out of your flow. Stay in the zone with in-editor type hints! 💡
 
-<ImgWithCaption
-    source="img/new-lsp/type-hints.gif"
-/>
+<ImgWithCaption source="img/new-lsp/type-hints.gif" />
 
 ## 🚨 Import Diagnostics
 
 Keep tabs on what's left to implement with JS import diagnostics! There's nothing more satisfying than watching those errors vanish. 😌
 
-<ImgWithCaption
-    source="img/new-lsp/import-diagnostics.gif"
-    caption="Wasp now automatically detects if the function you referenced doesn't exist or is not exported."
-/>
+<ImgWithCaption source="img/new-lsp/import-diagnostics.gif" caption="Wasp now automatically detects if the function you referenced doesn't exist or is not exported." />
 
 ## 🔗 Goto Definition
 
 Your Wasp file is the central hub of your project. Easily navigate your code with goto definition and make changes in a snap! 💨
 
-<ImgWithCaption
-    source="img/new-lsp/goto-definition.gif"
-    caption="Cmd/Ctrl + click and Wasp LSP takes you straight to the function body!"
-/>
-
+<ImgWithCaption source="img/new-lsp/goto-definition.gif" caption="Cmd/Ctrl + click and Wasp LSP takes you straight to the function body!" />
 
 Don't forget to install [Wasp VS Code extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) and we wish you happy coding! You can get started right away and [try it out here](/docs/quick-start).

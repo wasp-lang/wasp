@@ -17,6 +17,7 @@ Find Filip on [GitHub](https://github.com/sodic).
 <!--truncate-->
 
 <WaspIntro />
+
 <InBlogCta />
 
 **We are immensely excited to welcome Filip, our latest Founding Software
@@ -76,6 +77,7 @@ After going through several cycles of falling in love with a
 language/framework/tool before becoming annoyed by its shortcomings and
 limitations, I made peace with the fact that everything’s a tradeoff. I’ll
 generally choose a language depending on:
+
 - the problem at hand
 - its current position in the aforementioned cycle :)
 
@@ -146,9 +148,8 @@ them done.
 
 I still occasionally need to give this advice to myself :).
 
-####  Lastly, where can people find or connect with you online?
+#### Lastly, where can people find or connect with you online?
 
 GitHub: [https://github.com/sodic](https://github.com/sodic)
 
 LinkedIn: [https://www.linkedin.com/in/filipsodic/](https://www.linkedin.com/in/filipsodic/)
-

@@ -158,6 +158,7 @@ Always use relative links (e.g. `../../overview.md`) to link to other pages, unl
 Never use absolute links starting with `/docs` because they break our versioned docs, instead use links "absolute to the file root".
 
 Writing a link "absolute to the file root":
+
 1. Write an absolute link, start from the file root (e.g. `/` represents the `docs` folder)
 2. Include the extension (e.g. `.md`)
 

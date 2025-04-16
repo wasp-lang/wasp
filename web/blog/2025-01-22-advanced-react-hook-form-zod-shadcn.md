@@ -17,7 +17,7 @@ If you're working on a simple contact form (e.g., email, subject, message), [che
 
 But what if your forms need advanced behaviors and validations? That's where this guide comes in. Whether you need conditional fields, custom validation logic, or dynamic form generation, this article will help you take your React forms to the next level.
 
-![image](https://media4.giphy.com/media/xXXhLy1M4RML6/giphy.gif?cid=7941fdc6u3noalhw3o2rc6z04i9g7a16dk21oh3wkpbiqxdk&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![image](https://media4.giphy.com/media/xXXhLy1M4RML6/giphy.gif?cid=7941fdc6u3noalhw3o2rc6z04i9g7a16dk21oh3wkpbiqxdk\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 ## What else is there to validate?
 
@@ -67,7 +67,7 @@ The final form should look similar to this:
 
 ![image.png](/img/forms/form-2.png)
 
-The most important part of the equation will be Zod's `refine` and `superRefine` refinement functions. We use them to implement custom validation logic, which cannot be represented with simple types. 
+The most important part of the equation will be Zod's `refine` and `superRefine` refinement functions. We use them to implement custom validation logic, which cannot be represented with simple types.
 
 ### Refine
 
@@ -88,7 +88,7 @@ The key difference with `superRefine` is that it allows you to add multiple vali
 
 Another significant distinction is that `superRefine` operates on the **entire schema** rather than a single field, making it ideal for scenarios where validation depends on relationships between multiple fields.
 
-![doggo](https://media1.giphy.com/media/1PstC8Jk5enGx3Gufw/giphy.gif?cid=7941fdc6xukyg2lvj7uap5dtac4x9w2bg0nvlbe1oyylfg28&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![doggo](https://media1.giphy.com/media/1PstC8Jk5enGx3Gufw/giphy.gif?cid=7941fdc6xukyg2lvj7uap5dtac4x9w2bg0nvlbe1oyylfg28\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 ### Finding this article useful?
 
@@ -216,7 +216,7 @@ username: z
         ),
 ```
 
-Finally, the entire Zod schema should look like this: 
+Finally, the entire Zod schema should look like this:
 
 ```tsx
   const formSchema = z
@@ -280,6 +280,6 @@ Finally, the entire Zod schema should look like this:
     });
 ```
 
-I hope this article has made working with forms easier and more understandable! If you want to see to see the complete source code of the application, check out the [GitHub repo here](https://github.com/martinovicdev/wasp-advanced-form-tutorial). 
+I hope this article has made working with forms easier and more understandable! If you want to see to see the complete source code of the application, check out the [GitHub repo here](https://github.com/martinovicdev/wasp-advanced-form-tutorial).
 
 Please consider starring [**Wasp**](https://github.com/wasp-lang/wasp) on GitHub if you liked this post! Your support helps us continue making web development easier and smoother for everyone. 🐝

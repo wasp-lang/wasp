@@ -12,7 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-Forms are something every developer encounters, whether as a user or on the developer side. They’re essential on most websites, but their complexity can vary wildly—from simple 3-field contact forms to giga-monster-t-rex, multi-page forms with 150 fields, dynamic validation, and asynchronous checks. 
+Forms are something every developer encounters, whether as a user or on the developer side. They’re essential on most websites, but their complexity can vary wildly—from simple 3-field contact forms to giga-monster-t-rex, multi-page forms with 150 fields, dynamic validation, and asynchronous checks.
 
 In this post, we’ll explore how React Hook Form, Zod, and Shadcn can be used to create an adaptable, developer-friendly solution that handles a wide range of form requirements with ease.
 
@@ -62,8 +62,7 @@ Here’s an example snippet showcasing a form field in Shadcn library:
       </FormControl>
       <FormMessage />
     </FormItem>
-  )}
-/>
+  )} />
 ```
 
 Even if you prefer using a different flavor of the stack, as long as you stick with React and RHF, this is still a valid example that will get you going.
@@ -111,8 +110,6 @@ To work with forms, we’ll start by defining a Zod validation schema. Our form 
 
 For additional validations, the date can’t be set to a future date, and the `premiumUser` field simply needs to be a boolean. Zod also provides default validation error messages, but these can be customized. For example, instead of `name: z.string().min(1)`, we could specify `name: z.string().min(1, 'Name is required')`.
 
- 
-
 ```tsx
   const formSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
@@ -149,13 +146,13 @@ The final step is to create the form itself and assemble it in the TSX file. As 
 ```tsx
 
 // Defining form schema
-const formSchema = z.object({   
+const formSchema = z.object({
     dateOfBirth: z.date().max(new Date(), {
       message: 'Date of birth cannot be today, or in the future',
-    }),    
+    }),
 });
 
-// Defining form  
+// Defining form
 const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
@@ -173,8 +170,7 @@ const form = useForm<FormData>({
       </FormControl>
       <FormMessage />
     </FormItem>
-  )}
-/>
+  )} />
 ```
 
 If you’re curious to see the complete application, check out the GitHub repository here: [GitHub Repo](https://github.com/martinovicdev/wasp-form-tutorial). I hope this article has made working with forms easier, and if you're interested in more form-related content, stay tuned for part two! In the next part, we'll dive into advanced patterns and validation techniques to enhance your applications.

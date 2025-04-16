@@ -23,12 +23,9 @@ In this post, I’ll give you a quick run-down of:
 
 What’s a hackathon without the participants!? Let’s get this post off to a proper start by congratulating our winners and showcasing their work. 🔍
 
-
 ### 🥇 Tim’s Job Board
-<ImgWithCaption
-    alt="Tim's Job Board"
-    source="img/betathon/tim.png"
-/>
+
+<ImgWithCaption alt="Tim's Job Board" source="img/betathon/tim.png" />
 
 Tim really went for it and created a feature-rich Job Board:
 
@@ -36,16 +33,11 @@ Tim really went for it and created a feature-rich Job Board:
 - Follow [Tim on Twitter](https://twitter.com/tskaggs)
 - 🎉 Prizes: Wasp-colored Mechanical Keyboard, Wasp swag, $200 [Railway.app](http://Railway.app) credits
 
-
-> “***Wasp is very awesome!*** *Easy setup and start-up especially if you're familiar with the Prisma ORM and Tailwind CSS. The stack is small but powerful... I'm going to use Wasp on a few MVP projects this year.”* - Tim
->
-
+> “_**Wasp is very awesome!**_ _Easy setup and start-up especially if you're familiar with the Prisma ORM and Tailwind CSS. The stack is small but powerful... I'm going to use Wasp on a few MVP projects this year.”_ - Tim
 
 ### 🥈Chris’s “Cook Wherever” Recipes App
-<ImgWithCaption
-    alt="Chris's Cook Wherever Recipes App"
-    source="img/betathon/chris.png"
-/>
+
+<ImgWithCaption alt="Chris's Cook Wherever Recipes App" source="img/betathon/chris.png" />
 
 Chris created an extensive database of recipes in a slick app:
 
@@ -53,60 +45,41 @@ Chris created an extensive database of recipes in a slick app:
 - Follow [Chris on Twitter](https://twitter.com/breadchris)
 - 🎉 Prizes: Wasp swag, $125 [Railway.app](http://Railway.app) credits
 
-> “***This was the best app dev experience I ever had!*** *…Walking through the docs, I immediately figured out how to use Wasp and was able to make a prototype in a couple of days.”* - Chris
-> 
-
+> “_**This was the best app dev experience I ever had!**_ _…Walking through the docs, I immediately figured out how to use Wasp and was able to make a prototype in a couple of days.”_ - Chris
 
 ### 🥉 Richard’s Roadmap & Feature Voting App
-<ImgWithCaption
-    alt="Richard’s Roadmap & Feature Voting App"
-    source="img/betathon/richard.png"
-/>
+
+<ImgWithCaption alt="Richard’s Roadmap & Feature Voting App" source="img/betathon/richard.png" />
 
 - View the [App](https://droad.netlify.app/) & [GitHub Repo](https://github.com/Fecony/droad)
 - Follow [Richard on Twitter](https://twitter.com/webrickony)
 - 🎉 Prizes: Wasp Shirt, $75 [Railway.app](http://Railway.app) credits
 
-> “***I liked how Wasp simplified writing query/actions*** *that are used to interact with the backend and frontend. How everything is defined and configured in wasp file and just works. Also […] login/signup was really easy to do since Wasp provides these two methods for use.”* -
->
-
+> “_**I liked how Wasp simplified writing query/actions**_ _that are used to interact with the backend and frontend. How everything is defined and configured in wasp file and just works. Also \[…] login/signup was really easy to do since Wasp provides these two methods for use.”_ -
 
 ### 🥉 Emmanuel’s Notes App
-<ImgWithCaption
-    alt="Emmanuel’s Notes App"
-    source="img/betathon/emmanuel.png"
-/>
+
+<ImgWithCaption alt="Emmanuel’s Notes App" source="img/betathon/emmanuel.png" />
 
 - View the [GitHub Repo](https://github.com/EmmanuelTheCoder/noteapp-with-wasp)
 - Follow [Emmanuel on Twitter](https://twitter.com/EmmanuelCoder)
 - 🎉 Prizes: Wasp Shirt, $75 [Railway.app](http://Railway.app) credits
 
-> *I joined the hackathon less than 48 hours before the submission deadline.* ***Wasp made it look easy because it handled the hard parts for me.*** *For example, username/password authentication took less than 7 lines of code to implement. -* excerpt from [Emmanuel’s Betathon Blog Post](https://dev.to/emmanuelthecoder/making-something-waspy-a-review-of-wasp-571j)
->
-
+> _I joined the hackathon less than 48 hours before the submission deadline._ _**Wasp made it look easy because it handled the hard parts for me.**_ _For example, username/password authentication took less than 7 lines of code to implement. -_ excerpt from [Emmanuel’s Betathon Blog Post](https://dev.to/emmanuelthecoder/making-something-waspy-a-review-of-wasp-571j)
 
 ## Hackathon How-to
 
 Personally, I’ve never organized a hackathon before, and this was Wasp’s first hackathon as well, so when you’re a complete newbie at something, you often look towards others for inspiration. Being admirers of the work and style of Supabase, we drew a lot of inspiration from their “[launch week](https://supabase.com/blog/launch-week-5-hackathon)” approach when preparing for our own Beta launch and hacakthon.
 
-<ImgWithCaption
-    alt="Wasp Betathon Homepage"
-    source="img/betathon/betathonpage.png"
-    caption="Our dedicated hackathon landing page w/ intro video & submission form"
-/>
+<ImgWithCaption alt="Wasp Betathon Homepage" source="img/betathon/betathonpage.png" caption="Our dedicated hackathon landing page w/ intro video & submission form" />
 
-With some good inspiration in hand, we set off to create a simple, easy-going Hackathon experience. We weren’t certain we’d get many participants, so we decided to make the process as open as possible: *two weeks to work on any project using Wasp, alone or in a team of up to 4 people, submitted on our [Betathon Homepage](https://betathon.wasp.sh/) before the deadline*. That was it.
+With some good inspiration in hand, we set off to create a simple, easy-going Hackathon experience. We weren’t certain we’d get many participants, so we decided to make the process as open as possible: _two weeks to work on any project using Wasp, alone or in a team of up to 4 people, submitted on our [Betathon Homepage](https://betathon.wasp.sh/) before the deadline_. That was it.
 
 When you’re an early-stage startup, you can’t offer big cash prizes, so we asked Railway if they’d be interested in sponsoring some prizes, as we’re big fans of their deployment and hosting platform. Luckily, they agreed (thanks, Railway 🙏🚂). It was also a great match, since we already had the documentation for deploying Wasp apps to Railway on our website, making it an obvious choice for the participants to deploy their Hackathon apps with.
 
-<ImgWithCaption
-    alt="Keyboard"
-    source="img/betathon/keyboard.png"
-    caption="Disclaimer: actual prize keyboard will be cooler and waspier 😎🐝"
-/>
+<ImgWithCaption alt="Keyboard" source="img/betathon/keyboard.png" caption="Disclaimer: actual prize keyboard will be cooler and waspier 😎🐝" />
 
-On top of that, we decided that a cool grand prize could be a Wasp-colored mechanical keyboard. Nothing fancy, but keyboards are an item a lot of programmers love. We also threw in some Wasp beanies and shirts, and stated that we’d spotlight the winner’s on our platforms and social media accounts. 
-
+On top of that, we decided that a cool grand prize could be a Wasp-colored mechanical keyboard. Nothing fancy, but keyboards are an item a lot of programmers love. We also threw in some Wasp beanies and shirts, and stated that we’d spotlight the winner’s on our platforms and social media accounts.
 
 ## Promotion
 
@@ -114,11 +87,7 @@ For the Wasp Beta Launch Week, we were active and publicising Wasp on many platf
 
 The homepage was nice to have as a central spot for all the rules and relevant info. We also added a fun intro video to give the hackathon a more personal touch. I also think the effort put into making an intro video gives participants the feeling that they’re entering into a serious contest and committing to something of substance.
 
-<ImgWithCaption
-    alt="Hackathon Wasp app repo"
-    source="img/betathon/github.png"
-    caption="Wanna host your own Hackathon? Use our template app!"
-/>
+<ImgWithCaption alt="Hackathon Wasp app repo" source="img/betathon/github.png" caption="Wanna host your own Hackathon? Use our template app!" />
 
 As an extra bonus, we wrote the Betathon Homepage with Wasp, and put the [source code up on our GitHub](https://github.com/wasp-lang/wasp/tree/main/examples/hackathon). We thought it might inspire people to build with Wasp, using it as a guide while creating their own projects for the hackathon, plus it could be used by others in the future if they want to host their own hackathon. 💻
 

@@ -7,13 +7,14 @@ With Wasp, we want to make developing web apps easy and enjoyable, for novices a
 Ideal we are striving for is that programming in Wasp feels like describing an app using a human language - like writing a specification document where you describe primarily your requirements and as little implementation details as possible.
 Creating a new production-ready web app should be easy and deploying it to production should be straightforward.
 
-That is why we believe Wasp needs to be a programming language (DSL) and not a library - we want to capture all parts of the web app into one integrated system that is perfectly tailored just for that purpose.  
+That is why we believe Wasp needs to be a programming language (DSL) and not a library - we want to capture all parts of the web app into one integrated system that is perfectly tailored just for that purpose.\
 On the other hand, we believe that trying to capture every single detail in one language would not be reasonable.
 There are solutions out there that work very well for the specific task they aim to solve (React for web components, CSS/HTML for design/markup, JS/TS for logic, ...) and we don't want to replace them with Wasp.
 Instead, we see Wasp as a declarative "glue" code uniting all these specific solutions and providing a higher-level notion of the web app above them.
 
 Wasp is still early in its development and therefore far from where we imagine it will be in the future.
 This is what we imagine:
+
 - **Declarative, static language** with simple basic rules and **that understands a lot of web app concepts** - "horizontal language". Supports multiple files/modules, libraries.
 - **Integrates seamlessly with the most popular technologies** for building specific, more complex parts of the web app (React, CSS, JS, ...).
   They can be used inline (mixed with Wasp code) or provided via external files.

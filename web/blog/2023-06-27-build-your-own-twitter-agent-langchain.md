@@ -4,6 +4,7 @@ authors: [vinny]
 image: /img/build-your-own-twitter-agent/twitter-agent-logo.png
 tags: [wasp, ai, gpt, langchain, fullstack, node, react, agent]
 ---
+
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
@@ -13,7 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 ## TL;DR
 
-[LangChain](https://js.langchain.com), ChatGPT, and other emerging technology have made it possible to build some really creative tools. 
+[LangChain](https://js.langchain.com), ChatGPT, and other emerging technology have made it possible to build some really creative tools.
 
 In this tutorial, we’ll build a full-stack web app that acts as our own personal Twitter Agent, or “intern”, as I like to call it. It keeps track of your notes and ideas, and uses them — along with tweets from trending-setting twitter users — to brainstorm new ideas and write tweet drafts for you! 💥
 
@@ -29,15 +30,15 @@ We’re working hard to help you build performant web apps as easily as possibly
 
 We would be super grateful if you could help us out by starring our repo on GitHub: [https://www.github.com/wasp-lang/wasp](https://www.github.com/wasp-lang/wasp) 🙏
 
-![https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
-…e*ven Ron would star [Wasp on GitHub](https://www.github.com/wasp-lang/wasp)* 🤩
+…&#x65;_&#x76;en Ron would star [Wasp on GitHub](https://www.github.com/wasp-lang/wasp)_ 🤩
 
 ## Background
 
 Twitter is a great marketing tool. It’s also a great way to explore ideas and refine your own. But it can be time-consuming and difficult to maintain a tweeting habit.
 
-![https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media0.giphy.com/media/WSrR5xkvljaFMe7UPo/giphy.gif?cid=7941fdc6g9o3drj567dbwyuo1c66x76eq8awc2r1oop8oypl\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 That’s why I decided to build my own personal twitter agent with [LangChain](https://js.langchain.com) on the basis of these assumptions:
 
@@ -59,13 +60,13 @@ In order to accomplish this, we need to take advantage of a few hot AI tools:
 - LLMs (Large Language Models), such as ChatGPT
 - LangChain and sequential “chains” of LLM calls
 
-Embeddings and Vector Databases give us a powerful way to perform similarity searches on our own notes and ideas. 
+Embeddings and Vector Databases give us a powerful way to perform similarity searches on our own notes and ideas.
 
 If you’re not familiar with [similarity search](https://www.pinecone.io/learn/what-is-similarity-search/), the simplest way to describe what similarity search is by comparing it to a normal google search. In a normal search, the phrase “a mouse eats cheese” will return results with a combination of **those** **words** **only**. But a vector-based similarity search, on the other hand, would return those words, as well as results with related words such as “dog”, “cat”, “bone”, and “fish”.
 
 You can see why that’s so powerful, because if we have non-exact but related notes, our similarity search will still return them!
 
-![https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/xUySTD7evBn33BMq3K/giphy.gif?cid=7941fdc6273if8qfk83gbnv8uabc4occ0tnyzk0g0gfh0qg5\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 For example, if our favorite trend-setting twitter user makes a post about the benefits of typescript, but we only have a note on “our favorite React hooks”, our similarity search would still likely return such a result. And that’s huge!
 
@@ -86,9 +87,10 @@ Ok. Enough background. Let’s start building your own personal twitter intern! 
 BTW, if you get stuck at all while following the tutorial, you can always reference this tutorial’s repo, which has the finished app: [Twitter Intern GitHub Repo](https://github.com/vincanger/twitter-intern)
 
 ## Configuration
+
 ### Set up your Wasp project
 
-We’re going to make this a full-stack React/NodeJS web app so we need to get that set up first. But don’t worry, it won’t take long AT ALL, because we will be using Wasp as the framework. 
+We’re going to make this a full-stack React/NodeJS web app so we need to get that set up first. But don’t worry, it won’t take long AT ALL, because we will be using Wasp as the framework.
 
 Wasp does all the heavy lifting for us. You’ll see what I mean in a second.
 
@@ -113,7 +115,6 @@ Great! When running `wasp start`, Wasp will install all the necessary npm packag
 :::tip Tip ℹ️
 you can install the [Wasp vscode extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) for the best developer experience.
 :::
-
 
 You’ll notice Wasp sets up your full-stack app with a file structure like so:
 
@@ -154,9 +155,7 @@ CT0=
 AUTH_TOKEN=
 ```
 
-We need a way for us to store all our great ideas. So let’s first head to [Pinecone.io](http://Pinecone.io) and set up a free trial account. 
-
- 
+We need a way for us to store all our great ideas. So let’s first head to [Pinecone.io](http://Pinecone.io) and set up a free trial account.
 
 ![Untitled](../static/img/build-your-own-twitter-agent/Untitled%202.png)
 
@@ -254,14 +253,16 @@ page MainPage {
 
 //...
 ```
-:::note 
+
+:::note
 You might have noticed this `{=psl psl=}` syntax in the entities above. This denotes that anything in between these `psl` brackets is actually a different language, in this case, [Prisma Schema Language](https://www.prisma.io/docs/concepts/components/prisma-schema). Wasp uses Prisma under the hood, so if you've used Prisma before, it should be straightforward.
 :::
 
 As you can see, our `main.wasp` config file has our:
-- dependencies, 
-- authentication method, 
-- database type, and 
+
+- dependencies,
+- authentication method,
+- database type, and
 - database models (”entities”)
 
 With this, our app structure is mostly defined and Wasp will take care of a ton of configuration for us.
@@ -276,7 +277,7 @@ wasp start db
 
 This will start and connect your app to a Postgres database for you. No need to do anything else! 🤯 Just leave this terminal tab, along with docker desktop, open and running in the background.
 
-In a different terminal tab, run: 
+In a different terminal tab, run:
 
 ```bash
 wasp db migrate-dev
@@ -289,6 +290,7 @@ If you stopped the wasp dev server to run this command, go ahead and start it ag
 At this point, our app will be navigating us to [localhost:3000/login](http://localhost:3000/login) but because we haven’t implemented a login screen/flow yet, we will be seeing a blank screen. Don’t worry, we’ll get to that.
 
 ## Embedding Ideas & Notes
+
 ### Server Action
 
 First though, in the `main.wasp` config file, let’s define a server action for saving notes and ideas. Go ahead and add the code below to the bottom of the file:
@@ -418,6 +420,7 @@ Well, Wasp internally uses `esnext` module resolution, which always requires s
 Great! Now we have a server action for adding notes and ideas to our vector database. And we didn’t even have to configure a server ourselves (thanks, Wasp 🙂).
 
 Let's take a step back and walk through the code we just wrote though:
+
 1. We create a new Pinecone client and initialize it with our API key and environment.
 2. We create a new OpenAIEmbeddings client and initialize it with our OpenAI API key.
 3. We create a new index in our Pinecone database to store our vector embeddings.
@@ -426,7 +429,7 @@ Let's take a step back and walk through the code we just wrote though:
 6. We add the document to the vector store along with its id.
 7. We also update the idea in our Postgres database to mark it as embedded.
 
-Now we want to create the client-side functionality for adding ideas, but you’ll remember we defined an `auth` object in our wasp config file. So we’ll need to add the ability to log in before we do anything on the frontend. 
+Now we want to create the client-side functionality for adding ideas, but you’ll remember we defined an `auth` object in our wasp config file. So we’ll need to add the ability to log in before we do anything on the frontend.
 
 ### Authentication
 
@@ -475,7 +478,7 @@ With authentication all set up, if we try to go to [localhost:3000](http://local
 
 You’ll see that Wasp creates Login and Signup forms for us because of the `auth` object we defined in the `main.wasp` file. Sweet! 🎉
 
-But even though we’ve added some style classes, we haven’t set up any css styling so it will probably be pretty ugly right about now. 
+But even though we’ve added some style classes, we haven’t set up any css styling so it will probably be pretty ugly right about now.
 
 🤢 Barf.
 
@@ -587,6 +590,7 @@ Here we’re using the `embedIdea` action we defined earlier to add our idea to 
 So now we have a way to add our own ideas and notes to our vector store. Pretty sweet!
 
 ## Generating New Ideas & Tweet Drafts
+
 ### Using LangChain's Sequential Chains
 
 Now we need to set up the sequential chain of LLM calls that LangChain is so great at.
@@ -594,11 +598,10 @@ Now we need to set up the sequential chain of LLM calls that LangChain is so gre
 Here are the steps we will take:
 
 1. define a function that uses LangChain to initiate a “chain” of API calls to OpenAI’s ChatGPT completions endpoint.
-    1. this function takes a tweet that we pulled from one of our favorite twitter users as an argument, searches our vector store for similar notes & ideas, and returns a list of new “brainstormed” based on the example tweet and our notes.
+   1. this function takes a tweet that we pulled from one of our favorite twitter users as an argument, searches our vector store for similar notes & ideas, and returns a list of new “brainstormed” based on the example tweet and our notes.
 2. define a new action that loops through our favorite users array, pulls their most recent tweets, and sends them to our LangChain function mentioned above
 
 So let’s start again by creating our LangChain function. Make a new `src/server/chain.ts` file:
-
 
 ```tsx
 import { ChatOpenAI } from 'langchain/chat_models/openai';
@@ -734,6 +737,7 @@ export const generateIdeas = async (exampleTweet: string, username: string) => {
 ```
 
 Great! Let's run through the above code real quick:
+
 1. Initialize the Pinecone client
 2. Find our pinecone index (i.e. table) that we created earlier and initialize a new PineconeStore with LangChain
 3. Search our vector store for notes similar to the example tweet, filtering out any results that have less than %70 similarity
@@ -741,9 +745,9 @@ Great! Let's run through the above code real quick:
 5. Create a new ChatGPT completion chain that takes the new tweet ideas as input and generates a new tweet draft
 6. Create a new SequentialChain and combine the above two chains together so that we can pass it our notes as input and it returns the new tweet ideas and the new tweet draft as output
 
-
 :::tip VECTOR COSINE SIMILARITY SCORES
 A good similarity threshold for cosine similarity search on text strings depends on the specific application and the desired level of strictness in matching. Cosine similarity scores range between 0 and 1, with 0 meaning no similarity and 1 meaning completely identical text strings.
+
 - 0.8-0.9 = strict
 - 0.6-0.8 = moderate
 - 0.5 = relaxed.
@@ -760,11 +764,10 @@ Before we can pass an `exampleTweet` as an argument to our newly created Sequent
 To do this, we're going to use the `Rettiwt-Api` (which is just Twitter written backwards). Because it's an unofficial API there are a few caveats:
 
 1. We have to use the rettiwt client to login to our twitter account once. We will output the tokens it returns via a script and save those in our `.env.server` file for later.
-    
-2. It's best to use an alternative account for this process. If you don't have an alternative account, go ahead and register a new one now.
-    
 
-:::warning ⚠️ 
+2. It's best to use an alternative account for this process. If you don't have an alternative account, go ahead and register a new one now.
+
+:::warning ⚠️
 The use of an unofficial Twitter client, Rettiwt, is for illustrative purposes only. It's crucial that you familiarize yourself with Twitter's policies and rules regarding scraping before implementing these methods. Any abuse or misuse of these scripts and techniques may lead to actions taken against your Twitter account. We hold no responsibility for any consequences arising from your personal use of this tutorial and/or the related scripts. It is intended purely for learning and educational purposes.
 :::
 
@@ -833,7 +836,6 @@ AUTH_TOKEN='...'
 ```
 
 Now with that, we should be able to access our favorite trend-setting users' recent tweets and use them to help us brainstorm new ideas!
-
 
 ### Server Action
 
@@ -1007,15 +1009,16 @@ Ok! Nice work. There’s a lot going on above, so let’s just recap:
 - We loop through the array of our favorite users, as defined on our user entity in `main.wasp`,
 - Pull that user’s most recent tweets
 - Send that tweet to our `generateIdeas` function, which
-    - searches our vector store for similar notes
-    - asks GPT to generate similar, new ideas
-    - sends those ideas in another prompt GPT to create a new, interesting tweet
-    - returns the new ideas and interesting tweet
+  - searches our vector store for similar notes
+  - asks GPT to generate similar, new ideas
+  - sends those ideas in another prompt GPT to create a new, interesting tweet
+  - returns the new ideas and interesting tweet
 - Create new `GeneratedIdeas` and a `TweetDraft` and saves them to our Postgres DB
 
 Phew! We’re doing it 💪 
 
-## Fetching & Displaying Ideas 
+## Fetching & Displaying Ideas
+
 ### Defining a Server-side Query
 
 Since we now have our chain of GPT prompts defined via LangChain and our server-side action, let’s go ahead and start implementing some front-end logic to fetch that data and display it to our users… which is basically only us at this point 🫂.
@@ -1093,11 +1096,11 @@ export const getTweetDraftsWithIdeas: GetTweetDraftsWithIdeas<unknown, TweetDraf
 };
 ```
 
-With this function we will be returning the tweet drafts we generate, along with our notes, the original tweet that inspired it, and the newly generated ideas. 
+With this function we will be returning the tweet drafts we generate, along with our notes, the original tweet that inspired it, and the newly generated ideas.
 
 Sweet!
 
-Ok, but what good is a function that fetches the data if we’ve got nowhere to display it!? 
+Ok, but what good is a function that fetches the data if we’ve got nowhere to display it!?
 
 ### Displaying Ideas Client-side
 
@@ -1127,7 +1130,7 @@ You’ll now be prompted with the login / register screen. Go ahead and click on
 
 Let’s go back to our `MainPage.tsx` file and add the magic!
 
-![https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media3.giphy.com/media/ekv45izCuyXkXoHRaL/giphy.gif?cid=7941fdc6c3dszwj4xaoxg2kyj6xxdubjxn69m4qruhomhkut\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 First, let’s create a buttons component so we don’t have to constantly style a new button. Create a new `src/client/Button.tsx` file:
 
@@ -1197,12 +1200,12 @@ export default function AddNote() {
 }
 ```
 
-Noice. 
+Noice.
 
 Next, we want our page to perform the following actions:
 
 1. create a button that runs our `generateNewIdeas` action when clicked
-2. define the query that fetches and caches the tweet drafts and ideas 
+2. define the query that fetches and caches the tweet drafts and ideas
 3. loop through the results and display them on the page
 
 That’s exactly what the below code will do. Go ahead and replace the `MainPage` with it and take a minute to review what’s going on:
@@ -1307,19 +1310,19 @@ In a new terminal tab, in the root of your project, run:
 wasp db studio
 ```
 
-Then, in a new browswer tab, at [localhost:5555](http://localhost:5555) you should see your database. 
+Then, in a new browswer tab, at [localhost:5555](http://localhost:5555) you should see your database.
 
-Go to `user`, and you should be the only user in there. Add the usernames of a couple of your favorite trend-setting twitter users. 
+Go to `user`, and you should be the only user in there. Add the usernames of a couple of your favorite trend-setting twitter users.
 
 ![Untitled](../static/img/build-your-own-twitter-agent/Untitled%206.png)
 
-Make sure the accounts have tweeted recently or your function won’t be able to scrape or generate anything! 
+Make sure the accounts have tweeted recently or your function won’t be able to scrape or generate anything!
 
 :::tip Hey ✋
-While you’re at it, if you’re liking this tutorial, give me a [follow @hot_town](https://twitter.com/hot_town) for more future content like this
+While you’re at it, if you’re liking this tutorial, give me a [follow @hot\_town](https://twitter.com/hot_town) for more future content like this
 :::
 
-After adding the twitter usernames, make sure you click `save 1 change`. 
+After adding the twitter usernames, make sure you click `save 1 change`.
 
 Go back to your client and click the `Generate New Ideas` button again. This might take a while depending on how many tweets it’s generating ideas for, so be patient — and watch the console output in your terminal if you’re curious ;)
 
@@ -1357,7 +1360,7 @@ Great. Now we should be sitting pretty 😻
 
 ![Untitled](../static/img/build-your-own-twitter-agent/Untitled%208.png)
 
-You might remember from the beginning of the tutorial when we defined the LLM calls, that if your vector store notes don’t turn back a cosine similarity of at least 0.7, your agent will generate its own ideas entirely without using your notes as a guide. 
+You might remember from the beginning of the tutorial when we defined the LLM calls, that if your vector store notes don’t turn back a cosine similarity of at least 0.7, your agent will generate its own ideas entirely without using your notes as a guide.
 
 And since we have NO notes in our vector store at the moment, that’s exactly what it is doing. Which is fine, because we can let it brainstorm for us, and we can select our favorite notes and edit and add them as we see fit.
 
@@ -1527,7 +1530,7 @@ const handleSubmit = async () => { // < --- add this function
   };
 ```
 
-Also, in your `AccountPage` make sure to replace the line `{JSON.stringify(user, null, 2)}` with the newly created component `<InputFields user={user} />`. 
+Also, in your `AccountPage` make sure to replace the line `{JSON.stringify(user, null, 2)}` with the newly created component `<InputFields user={user} />`.
 
 Here is what the entire `AccountPage.tsx` file should now look like in case you get stuck:
 
@@ -1724,7 +1727,7 @@ export default NotesPage;
 
 It would be nice if we had a simple Nav Bar to navigate back and forth between our two pages. It would also be cool if we had our `<AddNote />` input component on all pages, that way it’s easy for us to add an idea whenever inspiration strikes.
 
-Rather than copying the NavBar and AddNote code to both pages, let’s create a wrapper, or “root”, component for our entire app so that all of our pages have the same Nav Bar and layout. 
+Rather than copying the NavBar and AddNote code to both pages, let’s create a wrapper, or “root”, component for our entire app so that all of our pages have the same Nav Bar and layout.
 
 To do that, in our `main.wasp` file, let’s define our root component by adding a `client` property to our `app` configuration at the very top of the file. This is how the entire `app` object should look like now:
 
@@ -1974,6 +1977,7 @@ Cool! Now we should be fetching all our embedded notes and ideas, signified by t
 ![Untitled](../static/img/build-your-own-twitter-agent/Untitled%2011.png)
 
 ## You Did it! Your own Twitter Intern 🤖
+
 :::info Help me help you
 🌟 **If you haven’t yet, please** [star us on GitHub](https://www.github.com/wasp-lang/wasp), especially if you found this useful! If you do, it helps support us in creating more content like this. And if you don’t… well, we will deal with it, I guess.
 
@@ -1984,7 +1988,6 @@ And that’s it! You’ve now got yourself a semi-autonomous twitter brainstormi
 
 There’s way more you can do with these tools, but this is a great start.
 
-Remember, if you want to see a more advanced version of this app which utilizes the official Twitter API to send tweets, gives you the ability to edit and add generated notes on the fly, has manual similarity search for all your notes, and more, then you can check out the [💥 Banger Tweet Bot 🤖](https://github.com/vincanger/banger-tweet-bot). 
+Remember, if you want to see a more advanced version of this app which utilizes the official Twitter API to send tweets, gives you the ability to edit and add generated notes on the fly, has manual similarity search for all your notes, and more, then you can check out the [💥 Banger Tweet Bot 🤖](https://github.com/vincanger/banger-tweet-bot).
 
 And, once again, here's the repo for the finished app we built in this tutorial: [Personal Twitter Intern](https://github.com/vincanger/twitter-intern)
-

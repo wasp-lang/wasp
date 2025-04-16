@@ -9,6 +9,7 @@ For instance, _during development_, you may want your project to connect to a lo
 While some env vars are required by Wasp, such as the database connection or secrets for social auth, you can also define your env vars for any other useful purposes.
 
 In Wasp, you can use environment variables in both the client and the server code.
+
 ## Client Env Vars
 
 Client environment variables are embedded into the client code during the build and shipping process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
@@ -18,20 +19,18 @@ To enable Wasp to pick them up, client environment variables must be prefixed wi
 You can read them from the client code like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/App.js"
+    console.log(import.meta.env.REACT_APP_SOME_VAR_NAME)
+    ```
+  </TabItem>
 
-```js title="src/App.js"
-console.log(import.meta.env.REACT_APP_SOME_VAR_NAME)
-```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/App.ts"
-console.log(import.meta.env.REACT_APP_SOME_VAR_NAME)
-```
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/App.ts"
+    console.log(import.meta.env.REACT_APP_SOME_VAR_NAME)
+    ```
+  </TabItem>
 </Tabs>
-
 
 Check below on how to define them.
 
@@ -40,19 +39,19 @@ Check below on how to define them.
 In server environment variables, you can store secret values (e.g. secret API keys) since are not publicly readable. You can define them without any special prefix, such as `SOME_VAR_NAME=...`.
 
 You can read them in the server code like this:
+
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    console.log(process.env.SOME_VAR_NAME)
+    ```
+  </TabItem>
 
-```js
-console.log(process.env.SOME_VAR_NAME)
-```
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts
-console.log(process.env.SOME_VAR_NAME)
-```
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    console.log(process.env.SOME_VAR_NAME)
+    ```
+  </TabItem>
 </Tabs>
 
 Check below on how to define them.
@@ -60,6 +59,7 @@ Check below on how to define them.
 ## Defining Env Vars in Development
 
 During development, there are two ways to provide env vars to your Wasp project:
+
 1. Using `.env` files. **(recommended)**
 2. Using shell. (useful for overrides)
 
@@ -70,26 +70,30 @@ During development, there are two ways to provide env vars to your Wasp project:
 This is the recommended method for providing env vars to your Wasp project during development.
 
 In the root of your Wasp project you can create two distinct files:
- - `.env.server` for env vars that will be provided to the server.
+
+- `.env.server` for env vars that will be provided to the server.
+
+Variables are defined in these files in the form of `NAME=VALUE`, for example:
+
+```shell title=".env.server"
+DATABASE_URL=postgresql://localhost:5432
+SOME_VAR_NAME=somevalue
+```
+
+- `.env.client` for env vars that will be provided to the client.
 
   Variables are defined in these files in the form of `NAME=VALUE`, for example:
-  ```shell title=".env.server"
-  DATABASE_URL=postgresql://localhost:5432
-  SOME_VAR_NAME=somevalue
+
+  ```shell title=".env.client"
+  REACT_APP_SOME_VAR_NAME=somevalue
   ```
-
- - `.env.client` for env vars that will be provided to the client.
-
-    Variables are defined in these files in the form of `NAME=VALUE`, for example:
-    ```shell title=".env.client"
-    REACT_APP_SOME_VAR_NAME=somevalue
-    ```
 
 These files should not be committed to version control, and they are already ignored by default in the `.gitignore` file that comes with Wasp.
 
 <!-- `dotenv` files are a popular method for storing configuration: to learn more about them in general, check out the [README of the lib we use for them](https://github.com/stackbuilders/dotenv-hs). -->
 
 ### 2. Using Shell
+
 If you set environment variables in the shell where you run your Wasp commands (e.g., `wasp start`), Wasp will recognize them.
 
 You can set environment variables in the `.profile` or a similar file, or by defining them at the start of a command:
@@ -98,7 +102,7 @@ You can set environment variables in the `.profile` or a similar file, or by def
 SOME_VAR_NAME=SOMEVALUE wasp start
 ```
 
- This is not specific to Wasp and is simply how environment variables can be set in the shell.
+This is not specific to Wasp and is simply how environment variables can be set in the shell.
 
 Defining environment variables in this way can be cumbersome even for a single project and even more challenging to manage if you have multiple Wasp projects. Therefore, we do not recommend this as a default method for providing environment variables to Wasp projects. However, it can be useful for occasionally **overriding** specific environment variables because environment variables set this way **take precedence over those defined in `.env` files**.
 
@@ -113,6 +117,7 @@ While in development, we had the option of using `.env` files which made it easy
 Client env vars are embedded into the client code during the build and shipping process, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
 
 You should provide them to the build command, for example:
+
 ```shell
 REACT_APP_SOME_VAR_NAME=somevalue npm run build
 ```

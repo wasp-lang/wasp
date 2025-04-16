@@ -8,9 +8,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <p align="center">
   <figure>
-    <img alt="Guest introducing themselves and getting full-access."
-        src={useBaseUrl('img/discord-introduction-example.png')}
-    />
+    <img alt="Guest introducing themselves and getting full-access." src={useBaseUrl('img/discord-introduction-example.png')} />
+
     <figcaption>A Guest user getting access by introducing themselves in the "introductions" channel.</figcaption>
   </figure>
 </p>
@@ -35,22 +34,21 @@ Once they introduced themselves in the `introductions` channel, they would get a
 
 <p align="center">
   <figure>
-    <img alt="Channels user can see when Guest vs when full member."
-        src={useBaseUrl('img/wasp-guest-vs-waspeteer.png')}
-        height="400px"
-    />
+    <img alt="Channels user can see when Guest vs when full member." src={useBaseUrl('img/wasp-guest-vs-waspeteer.png')} height="400px" />
+
     <figcaption>Left: what Guest sees; Right: what Waspeteer sees.</figcaption>
   </figure>
 </p>
 
-
 In Discord, access control is performed via roles. There are two ways to accomplish what we need:
+
 1. **Adding a role that grants access**. When they join, they have no roles. Once they introduce themselves, they are granted a role (e.g. `Member` or `Waspeteer`) that is required to access the rest of the server.
 2. **Removing a role that forbids access**. When they join, they are automatically assigned a role `Guest`, for which we configured the non-public channels to deny access. Once they introduce themselves, the role `Guest` gets removed and they gain access to the rest of the server.
 
 We decided to go with the second approach since it means we don't have to assign all the existing members with a new role. From now on, we will be talking about how to get this second approach working.
 
 To get this going, we need to do the following:
+
 1. Create role `Guest`.
 2. Ensure that the `Guest` role has permissions to access only "public" channels.
    One convenient way to go about this is to disable "View Channels" permission for the role `Guest` at the level of Category, so it propagates to all the channels in it, instead of doing it for every single channel.
@@ -60,7 +58,7 @@ To get this going, we need to do the following:
 4. Automatically assign the `Guest` role to a new member when they join the server.
 5. Automatically remove the `Guest` role when a member introduces themselves in the public `introductions` channel.
 
-#1, #2 and #3 are relatively straight-forward.
+\#1, #2 and #3 are relatively straight-forward.
 
 For the #4 (automatic assignment of the role when a new member joins the server), since Discord doesn't support this directly, you will need a bot to do it.
 Luckily, many bots allow you to auto-assign roles when new members join, and I ended up using [MEE6](https://mee6.xyz/) for this.
@@ -98,6 +96,7 @@ We will need one important dependency, `discord.js`, to make it easy to work wit
 Add it with `npm install -S discord.js`.
 
 Now, create `bot.js` file next to `package.json` with following content:
+
 ```js title="bot.js"
 const Discord = require('discord.js')
 
@@ -112,9 +111,11 @@ bot.on('ready', function (evt) {
 ```
 
 This is it! Run
+
 ```
 DISCORD_BOT=<TOKEN_OF_YOUR_DISCORD_BOT> node bot.js
 ```
+
 and you should see output about successful login, in my case it was `Logged in as: WaspBot#1234`.
 
 ### Detecting a valid introduction from a member
@@ -126,6 +127,7 @@ So, let's say that the correct way for new members to introduce themselves is by
 `!intro` makes it easy for our bot to know when to act (in Discord, bot commands often start with `!<something>`).
 
 Let's add the needed code to `bot.js`:
+
 ```js title="bot.js"
 ...
 
@@ -205,9 +207,11 @@ Same as with the ID of the `introductions` channel, now you will also need to fi
 You can do it by finding it in the server settings, under the list of roles, right-clicking on it, and then "Copy ID".
 
 This is it! You can now run the bot with
+
 ```js
 DISCORD_BOT=<TOKEN_OF_YOUR_DISCORD_BOT> node bot.js
 ```
+
 and if you assign yourself a `Guest` role on the Discord server and then type `!intro Hi this is my introduction, I am happy to be here.` in the `introductions` channel, you should see yourself getting full access together with an appropriate message from your bot.
 
 ### Deploying the bot
@@ -225,6 +229,7 @@ We created a Heroku app `wasp-discord-bot` and set up the "Automatic deploys" fe
 On Heroku, we set the environment variable `DISCORD_BOT` to the token of our bot.
 
 Finally, we added `Procfile` to our project:
+
 ```yaml title="Procfile"
 worker: node bot.js
 ```

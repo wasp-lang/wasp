@@ -11,6 +11,7 @@ Wasp comes with its own AI: Wasp AI, aka Mage (**M**agic web **A**pp **GE**nerat
 Wasp AI allows you to create a new Wasp app **from only a title and a short description** (using GPT in the background)!
 
 There are two main ways to create a new Wasp app with Wasp AI:
+
 1. Free, open-source online app [usemage.ai](https://usemage.ai).
 2. Running `wasp new` on your machine and picking AI generation. For this you need to provide your own OpenAI API keys, but it allows for more flexibility (choosing GPT models).
 
@@ -22,10 +23,7 @@ Wasp AI is an experimental feature. Apps that Wasp AI generates can have mistake
 
 ## usemage.ai
 
-<ImgWithCaption
-    source="img/gpt-wasp/how-it-works.gif"
-    caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀"
-/>
+<ImgWithCaption source="img/gpt-wasp/how-it-works.gif" caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀" />
 
 [Mage](https://usemage.ai) is an open-source app with which you can create new Wasp apps from just a short title and description.
 

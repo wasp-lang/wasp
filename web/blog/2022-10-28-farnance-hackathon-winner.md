@@ -12,9 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 ![farnance hero shot](../static/img/farnance/farnance-hero-shot.png)
-
 
 [Julian LaNeve](https://jlaneve.github.io/) is an engineer and data scientist who currently works at [Astronomer.io](http://Astronomer.io) as a Product Manager. In his free time, he enjoys playing poker, chess and [winning](https://www.smudailycampus.com/news/smu-graduate-julian-laneve-wins-100k-grand-prize-from-data-science-competition) data science competitions.
 
@@ -34,10 +32,7 @@ Julian first learned about Wasp when it [launched on HN](https://news.ycombinato
 
 Except on the app setup, the team saved a ton of time by not needing to implement the authentication and a typical CRUD API, since it is covered by Wasp as well. They could also deploy everything for free on Heroku and Netlify in just a few steps, which was a perfect fit for a hackathon.
 
-<ImgWithCaption
-    alt="Julian's testimonial on Discord"
-    source="img/farnance/julian-discord-testimonial.png"
-/>
+<ImgWithCaption alt="Julian's testimonial on Discord" source="img/farnance/julian-discord-testimonial.png" />
 
 Farnance is still running and you can [try it out here](https://farnance.netlify.app/)! The source code is also [publicly available](https://github.com/jlaneve/Farnance), although note it is running on older version of Wasp so some things are a bit different.
 
@@ -51,12 +46,7 @@ With all the common web app features (setup, auth, CRUD API) being taken care of
 >
 > — Julian LaNeve - Farnance
 
-<ImgWithCaption
-    alt="Farnance's dashboard"
-    source="img/farnance/farnance-dashboard.png"
-    caption="Farnance dashboard in action!"
-/>
-
+<ImgWithCaption alt="Farnance's dashboard" source="img/farnance/farnance-dashboard.png" caption="Farnance dashboard in action!" />
 
 ## Start quickly, but also scale without worries
 

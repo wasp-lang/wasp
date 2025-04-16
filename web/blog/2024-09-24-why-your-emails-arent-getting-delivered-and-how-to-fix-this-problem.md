@@ -4,6 +4,7 @@ authors: [milica]
 image: /img/email/email-cover.jpg
 tags: [webdev, tips, emails]
 ---
+
 import ReactPlayer from 'react-player'
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -15,7 +16,7 @@ If you’ve just built your SaaS web app and deployed it on a production server,
 
 We have seen a lot of [Wasp](https://wasp.sh/) users facing similar challenges, thinking their toolkit was to blame. In our Discord community, we regularly help users who’ve just launched their first app with Wasp, and we've seen this issue pop up frequently. The bad news: your users and their email servers pulled a Gandalf move on you. The good news: no worries, this is something you can fix!
 
-![Gandalf saying you shall not pass](https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![Gandalf saying you shall not pass](https://media2.giphy.com/media/WpD30tFjzosDn7amXq/giphy.gif?cid=7941fdc68jh5kd0zboo37lcp48knhd8bewokjgz7kc9juwov\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 ## 1. **Build up your domain reputation**
 
@@ -35,9 +36,9 @@ Authentication adds a layer of security to your emails, proving to email provide
 - **DKIM**: This attaches a digital signature to your emails that enables email servers to confirm the email wasn’t tampered with in transit.
 - **DMARC**: this one helps you control how your email domain handles unauthenticated emails.
 
-Read more about these records and how to add them to your DNS servers [here](https://www.cloudflare.com/en-gb/learning/email-security/dmarc-dkim-spf/). 
+Read more about these records and how to add them to your DNS servers [here](https://www.cloudflare.com/en-gb/learning/email-security/dmarc-dkim-spf/).
 
-![A girl saying and you're going to fix it](https://media4.giphy.com/media/ZdrDsXfFz1ZRhZQpLZ/giphy.gif?cid=7941fdc6zjvsa5atns4qklo6odlg3zjir92fy34lvymyfmx1&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![A girl saying and you're going to fix it](https://media4.giphy.com/media/ZdrDsXfFz1ZRhZQpLZ/giphy.gif?cid=7941fdc6zjvsa5atns4qklo6odlg3zjir92fy34lvymyfmx1\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 ## 3. **Use professional email sending tools**
 
@@ -64,8 +65,8 @@ What you write matters too. Emails are poorly written are more likely to be mark
 
 ## Inbox access granted
 
-![you can do this gif](https://media1.giphy.com/media/ACJuukdjBl65FwUFzT/giphy.gif?cid=7941fdc6u3cbcux0bo255tvvoxfhq9cuep0g28vcdk1cbryt&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![you can do this gif](https://media1.giphy.com/media/ACJuukdjBl65FwUFzT/giphy.gif?cid=7941fdc6u3cbcux0bo255tvvoxfhq9cuep0g28vcdk1cbryt\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
-We know that email delivery issues are frustrating, but they are solvable. Start small - implement one or two changes. First, authenticate your domain and then [set up professional email sending tools](https://wasp.sh/docs/advanced/email#using-the-mailgun-provider), Wasp supports some out of the box. 
+We know that email delivery issues are frustrating, but they are solvable. Start small - implement one or two changes. First, authenticate your domain and then [set up professional email sending tools](https://wasp.sh/docs/advanced/email#using-the-mailgun-provider), Wasp supports some out of the box.
 
 You can monitor the performance over time, and improve your approach with every batch of emails. It’s not about getting everything perfect from the start, but about making the right decisions before you start onboarding your users.

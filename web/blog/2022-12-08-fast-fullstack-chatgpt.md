@@ -11,25 +11,27 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<br/>
+<br />
+
 <div style={{ textAlign: "center", width: "100%", display: "inline-block" }}>
-<iframe width="100%" height="400" src="https://www.youtube.com/embed/HjUpqfEonow" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
+  <iframe width="100%" height="400" src="https://www.youtube.com/embed/HjUpqfEonow" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true" />
 </div>
 
 <!--truncate-->
+
 ---
 
-There’s a lot of hype around ChatGPT at the moment, and for good reason. It’s amazing. But there’s also some very valid criticism: that it’s simply taking the grunt work out of programming by writing boilerplate for us, which we as developers have to maintain! 
+There’s a lot of hype around ChatGPT at the moment, and for good reason. It’s amazing. But there’s also some very valid criticism: that it’s simply taking the grunt work out of programming by writing boilerplate for us, which we as developers have to maintain!
 
 <div style={{ marginBottom: "1rem" }}>
-    <a href="https://twitter.com/paulg/status/1600447377248116736?ref_src=twsrc%5Etfw">
-        <img src='https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5rgubux630836d05mje5.png' alt="I expected technology to make programming less laborious, as it does to most things. But I have to admit I expected it to happen by programmers switching to more powerful languages, rather than continuing to write programs full of boilerplate, but having AIs generate most of it."/>
-    </a>
+  <a href="https://twitter.com/paulg/status/1600447377248116736?ref_src=twsrc%5Etfw">
+    <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5rgubux630836d05mje5.png" alt="I expected technology to make programming less laborious, as it does to most things. But I have to admit I expected it to happen by programmers switching to more powerful languages, rather than continuing to write programs full of boilerplate, but having AIs generate most of it." />
+  </a>
 </div>
 
-PG is totally right in his remark above, but what he doesn’t realize is that there are languages out there that attempt to overcome this very problem, and [Wasp](https://wasp.sh) is one of them. 
+PG is totally right in his remark above, but what he doesn’t realize is that there are languages out there that attempt to overcome this very problem, and [Wasp](https://wasp.sh) is one of them.
 
-What makes Wasp unique is that it’s a framework that uses a super simple **language** to help you build your web app: front-end, server, and deployment. But it’s not a complicated language like Java or Python, it’s more similar to SQL or JSON, so the learning curve is really quick (technically, it’s a *Domain Specific Langauge* or *DSL*). 
+What makes Wasp unique is that it’s a framework that uses a super simple **language** to help you build your web app: front-end, server, and deployment. But it’s not a complicated language like Java or Python, it’s more similar to SQL or JSON, so the learning curve is really quick (technically, it’s a _Domain Specific Langauge_ or _DSL_).
 
 Check it out for yourself:
 

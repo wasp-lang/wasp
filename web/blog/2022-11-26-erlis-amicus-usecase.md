@@ -12,9 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 ![amicus hero shot](../static/img/amicus-usecase/amicus-hero-shot.png)
-
 
 [Erlis Kllogjri](https://github.com/ErlisK) is an engineer based in San Francisco with broad experience ranging from mechanical engineering and C/C++ microcontroller programming to Python and web app development. In his free time, Erlis enjoys working on side projects, which is also how [Amicus](https://www.amicus.work/) started out.
 
@@ -40,11 +38,7 @@ The idea for Amicus came from his brother, who is employed at a law firm - talki
 
 Soon, the first version of Amicus was live! It was made in a true lean startup fashion, starting with the essential features and immediately being tested with users.
 
-<ImgWithCaption
-    alt="Amicus's dashboard"
-    source="img/amicus-usecase/amicus-dashboard.png"
-    caption="Amicus's dashboard, using Material-UI"
-/>
+<ImgWithCaption alt="Amicus's dashboard" source="img/amicus-usecase/amicus-dashboard.png" caption="Amicus's dashboard, using Material-UI" />
 
 Erlis used Material-UI as a UI library since it came with one of the example apps built in Wasp (Beta introduced Tailwind support!). Users could track their clients, active legal matters and there was even integrated billing with Stripe! Amicus also extensively used Wasp’s [Async Jobs](https://wasp.sh/blog/2022/06/15/jobs-feature-announcement) feature to regularly update invoices, send reminder emails and clear out old data from the database.
 
@@ -58,7 +52,7 @@ Erlis enjoyed the most how fast he could progress and ship features with Wasp on
 
 ## Beyond MVP with Wasp
 
-Although Erlis already has a product running in production, with first paying customers, he wants to see how far he can take it and has a lot of ideas (also requests) for the next features. *(Actually, Erlis had a big kanban board with post-its on a wall behind him as we were chatting, dedicated just to Amicus - that was impressive to see!)*. 
+Although Erlis already has a product running in production, with first paying customers, he wants to see how far he can take it and has a lot of ideas (also requests) for the next features. _(Actually, Erlis had a big kanban board with post-its on a wall behind him as we were chatting, dedicated just to Amicus - that was impressive to see!)_.
 
 Some of the most imminent ones are:
 

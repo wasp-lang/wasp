@@ -12,10 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
-<ImgWithCaption
-    source="img/tutorial-jam/tutorial-jam-banner.png"
-/>
+<ImgWithCaption source="img/tutorial-jam/tutorial-jam-banner.png" />
 
 ## Introduction
 
@@ -25,7 +22,7 @@ The Wasp Tutorial Jam is a contest where participants are required to create a t
 
 First of all, it’s sad that you’ve never heard of [Wasp](https://wasp.sh).
 
-![https://media0.giphy.com/media/kr5PszPQawIRq/giphy.gif?cid=7941fdc6gwgjf866b0akslgciedh53jf9narttadkglvvcp0&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media0.giphy.com/media/kr5PszPQawIRq/giphy.gif?cid=7941fdc6gwgjf866b0akslgciedh53jf9narttadkglvvcp0&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media0.giphy.com/media/kr5PszPQawIRq/giphy.gif?cid=7941fdc6gwgjf866b0akslgciedh53jf9narttadkglvvcp0\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media0.giphy.com/media/kr5PszPQawIRq/giphy.gif?cid=7941fdc6gwgjf866b0akslgciedh53jf9narttadkglvvcp0\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 Wasp is a unique fullstack framework for building React/NodeJS/Prisma/Tanstack Query apps.
 
@@ -36,17 +33,22 @@ Because it’s based on a compiler, you write a simple config file, and Wasp can
 The rules are simple. The tutorial must:
 
 - Use Wasp.
+
 - Be written in English.
+
 - Be original content and not copied from any existing sources.
+
 - Be a written tutorial posted to a social blogging platform like [dev.to](http://dev.to) or [hashnode.dev](http://hashnode.dev), or a YouTube video tutorial
+
 - Contain the hashtag `#buildwithwasp`
+
 - Submitted by pasting the link in the #tutorialjam channel on our [Discord Server](https://discord.gg/rzdnErX)
-    
-    AND
-    
+
+  AND
+
 - The tutorial can focus on any topic and be any length (short or long) just as long as it uses Wasp’s fullstack capabilities.
 
-![https://media1.giphy.com/media/iB4PoTVka0Xnul7UaC/giphy.gif?cid=7941fdc67jeepog7whrdmkbux0c6kxzb8eyhqwpjcd1tunvp&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media1.giphy.com/media/iB4PoTVka0Xnul7UaC/giphy.gif?cid=7941fdc67jeepog7whrdmkbux0c6kxzb8eyhqwpjcd1tunvp&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media1.giphy.com/media/iB4PoTVka0Xnul7UaC/giphy.gif?cid=7941fdc67jeepog7whrdmkbux0c6kxzb8eyhqwpjcd1tunvp\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media1.giphy.com/media/iB4PoTVka0Xnul7UaC/giphy.gif?cid=7941fdc67jeepog7whrdmkbux0c6kxzb8eyhqwpjcd1tunvp\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 ## Judging Criteria
 
@@ -76,13 +78,13 @@ We have a whole repo of starter templates that you can use with Wasp by [install
 In addition, here are some ideas to help you get inspired. You could build a simple fullstack app with Wasp in order to explain some key concepts:
 
 - **Wasp’s New AI-Generated App Feature:** build any fullstack app using Wasp’s new AI-generated App feature and explain the process.
-    - *What worked? What didn’t? What are some prompt engineering tips? What did you have to do to get the app in a desired final state?*
+  - _What worked? What didn’t? What are some prompt engineering tips? What did you have to do to get the app in a desired final state?_
 - **Full-Stack Type Safety:** Using Wasp’s low-on-boilerplate fullstack typesaftey, you could dive deep into types on both frontend and backend.
-    - *How does Wasp’s fullstack typesafety compare to tRPC and/or the T3 stack?*
+  - _How does Wasp’s fullstack typesafety compare to tRPC and/or the T3 stack?_
 - **Data Management:** With complete control and easy implementation of data models, you could explore the concepts of databases, data management and relational data in a simplified environment.
-    - *What are some tips and tricks for working with Prisma and relational DBs?*
+  - _What are some tips and tricks for working with Prisma and relational DBs?_
 - **Understanding Fullstack Web Development:** Wasp being a fullstack tool truly shines a light on how front-end and back-end connect in web development. It’s a great tool for understanding how queries, actions, and other operations in back-end can be utilized in front-end components.
-    - *How does the HTTP protocol work in detail?*
+  - _How does the HTTP protocol work in detail?_
 
 Or you could write a tutorial that explains how to build:
 
@@ -94,17 +96,15 @@ Or you could write a tutorial that explains how to build:
 
 The winners of the Wasp Tutorial Jam will receive the following prizes:
 
-- First Place: [Wasp-colored mechanical keyboard](https://www.caseking.de/ducky-one-3-yellow-mini-gaming-tastatur-rgb-led-mx-red-us-gata-1745.html?sPartner=999&gclid=Cj0KCQjw1_SkBhDwARIsANbGpFtYpC2-jFuJ94A6VF6oDFLEZQUya3Ky7P9Ih-nU_Zb9NsDjNhmITbIaAtBMEALw_wcB), and your tutorial and info featured on all our blogs (Wasp official website, dev.to, and hashnode)
+- First Place: [Wasp-colored mechanical keyboard](https://www.caseking.de/ducky-one-3-yellow-mini-gaming-tastatur-rgb-led-mx-red-us-gata-1745.html?sPartner=999\&gclid=Cj0KCQjw1_SkBhDwARIsANbGpFtYpC2-jFuJ94A6VF6oDFLEZQUya3Ky7P9Ih-nU_Zb9NsDjNhmITbIaAtBMEALw_wcB), and your tutorial and info featured on all our blogs (Wasp official website, dev.to, and hashnode)
 - Second Place: 3 months access to [PluralSight](https://www.pluralsight.com/) courses (tons of Software Development courses, tutorials and lessons!) or a $75 Amazon giftcard, and your tutorial featured on all our blogs
 - Third Place: Wasp Swag and a feature of your tutorial and info on our social media channels.
 
-<ImgWithCaption
-    source="img/tutorial-jam/keyboard.png"
-/>
+<ImgWithCaption source="img/tutorial-jam/keyboard.png" />
 
 ## Submission Deadline
 
-All submissions must be received by Sunday, July 16th 11:59 p.m. CET. 
+All submissions must be received by Sunday, July 16th 11:59 p.m. CET.
 Winners will be announced the following week.
 
 ## Questions?

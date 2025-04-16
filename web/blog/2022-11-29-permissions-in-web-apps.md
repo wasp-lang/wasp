@@ -12,10 +12,10 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-At Wasp, we are working on a config language / DSL for building web apps that integrates with React & Node.js.  
+At Wasp, we are working on a config language / DSL for building web apps that integrates with React & Node.js.
 This requires us to deeply understand different parts of what constitutes a web app, in order to be able to model them in our DSL.
 
-Recently our focus was on access control, and I decided to capture the learnings in this blog post, to help others quickly get up to speed on how to do access control in web apps.  
+Recently our focus was on access control, and I decided to capture the learnings in this blog post, to help others quickly get up to speed on how to do access control in web apps.
 So, if you are new to access control in web apps, or have been doing it for some time but want to get a better idea of standard practices, read along!
 
 #### Quick overview of what this blog post covers:
@@ -33,11 +33,7 @@ So, if you are new to access control in web apps, or have been doing it for some
 
 Unless your web app is mostly about static content or is a form of art, it will likely have a notion of users and user accounts.
 
-<ImgWithCaption
-    alt="Artistic dolphin painting with brush"
-    source="img/permissions-in-web-apps/dolphin_artist.webp"
-    caption="This dolphin doesn't need users"
-/>
+<ImgWithCaption alt="Artistic dolphin painting with brush" source="img/permissions-in-web-apps/dolphin_artist.webp" caption="This dolphin doesn't need users" />
 
 In such a case, you will need to know which user has permissions to do what -> who can access which resources, and who can execute which operations.
 
@@ -53,30 +49,24 @@ Some common examples of permissions in action:
 
 There are different terms out there (authentication, authorization, access control, permissions) that are often confused for each other, so let's quickly clarify what each one of them stands for.
 
-<ImgWithCaption
-    alt="Spidermen representing authN, authZ, AC and permissions pointing at each other"
-    source="img/permissions-in-web-apps/auth-spidermen.jpg"
-    caption="They all look the same!"
-    width="500px"
-/>
+<ImgWithCaption alt="Spidermen representing authN, authZ, AC and permissions pointing at each other" source="img/permissions-in-web-apps/auth-spidermen.jpg" caption="They all look the same!" width="500px" />
 
 ### 1) Authentication (or as cool kids would say: authN)
 
-Act of verifying the user's identity.  
+Act of verifying the user's identity.
 Answers the question "**Who are they?**"
 
-> A: Knock Knock  
-> B: Who is it?  
-> A: User!  
-> B: User who?  
+> A: Knock Knock
+> B: Who is it?
+> A: User!
+> B: User who?
 > A: Authorization: Basic myusername:mypassword
 >
 > -> yes, you noticed correctly, this is an example of common authentication method but HTTP header is called "Authorization"! Weird! But it all makes sense if you squint hard enough: ([https://stackoverflow.com/questions/30062024/why-is-the-http-header-for-authentication-called-authorization](https://stackoverflow.com/questions/30062024/why-is-the-http-header-for-authentication-called-authorization)).
-> 
 
 ### 2) Authorization (or as cool kids would say: authZ)
 
-Process of determining access rights that user has.  
+Process of determining access rights that user has.
 Answers the question "**Are they allowed to do this?**"
 
 Normally you will want the user to be authenticated at this point already, so you have information about them based on which you will decide if they are allowed to do something.
@@ -98,22 +88,17 @@ A more general/informal term, closest in meaning to "authorization" when used in
 
 ### All together
 
-<ImgWithCaption
-    alt="Diagram of authN, authZ, AC and permissions relationship"
-    source="img/permissions-in-web-apps/auth-terms-diagram.png"
-    width="350px"
-/>
+<ImgWithCaption alt="Diagram of authN, authZ, AC and permissions relationship" source="img/permissions-in-web-apps/auth-terms-diagram.png" width="350px" />
 
 Let’s see these terms used in a sentence by observing the following imagined pull request (PR):
 
-> Title: Added **access control** to the app.  
+> Title: Added **access control** to the app.
 >
-> Description:  
-> I implemented a way for users to **authenticate** via email and password or via Google.  
-> On the server-side, I added **permission checks** to most of our REST API handlers, to ensure an **authenticated** user is **authorized** to execute them.  
-> If the user is not **authorized**, we throw an HTTP error 403.  
+> Description:
+> I implemented a way for users to **authenticate** via email and password or via Google.
+> On the server-side, I added **permission checks** to most of our REST API handlers, to ensure an **authenticated** user is **authorized** to execute them.
+> If the user is not **authorized**, we throw an HTTP error 403.
 > There are also some public parts of REST API where the user doesn’t have to be **authenticated**.
-
 
 ## 2. Where do we check permissions in a web app: frontend vs backend vs database
 
@@ -123,12 +108,7 @@ In a typical web app, you will have a frontend, backend (server), and database.
 
 The frontend will be issuing commands to the server, which then executes operations and possibly modifies the database (on their behalf). Since **users don’t have direct access to the database**, and since the **frontend is inherently not secure**, that leaves the **server as the central place where all the crucial access control needs to happen**.
 
-<ImgWithCaption
-    alt="A real-life photo of frontend, server, and database performing access control."
-    source="img/permissions-in-web-apps/frontend-server-db-access-control.png"
-    caption="A real-life photo of frontend, server, and database performing access control."
-    width="600px"
-/>
+<ImgWithCaption alt="A real-life photo of frontend, server, and database performing access control." source="img/permissions-in-web-apps/frontend-server-db-access-control.png" caption="A real-life photo of frontend, server, and database performing access control." width="600px" />
 
 ### Frontend (browser)
 
@@ -138,22 +118,15 @@ The frontend is here to help users issue commands towards the server via which u
 
 Since users can manipulate the frontend code as they wish, we can't really do any permissions checks in the frontend code, we can't trust it!
 
-<ImgWithCaption
-    alt="Imposter of the vent warning that frontend can't be trusted"
-    source="img/permissions-in-web-apps/imposter-of-the-vent.png"
-    width="300px"
-/>
+<ImgWithCaption alt="Imposter of the vent warning that frontend can't be trusted" source="img/permissions-in-web-apps/imposter-of-the-vent.png" width="300px" />
 
-Any permission checks we do on the frontend, we will need to repeat on the server in any case.  
-If that is so, should we at all check permissions on the frontend, and what is the purpose of that?  
+Any permission checks we do on the frontend, we will need to repeat on the server in any case.
+If that is so, should we at all check permissions on the frontend, and what is the purpose of that?
 **The main reason for doing any permissions checks on the frontend is ergonomics/user experience** -> by having UI focus only on resources they can change, we make it easier for users to understand what they can do in our web app and make sure they don't waste time on trying to describe complex operations that server will then not be able to execute.
 
 So, for example, our frontend code can hide/omit certain fields in the UI form if the user shouldn't be able to access them, it can prevent opening certain pages, or hide/omit certain buttons if they trigger operations that the user is not allowed to perform.
 
-<ImgWithCaption alt="Example of using casl.js in React"
-    source="img/permissions-in-web-apps/casl-react-example.png"
-    caption="Example of using casl.js in React to show button only if the user has permission."
-/>
+<ImgWithCaption alt="Example of using casl.js in React" source="img/permissions-in-web-apps/casl-react-example.png" caption="Example of using casl.js in React to show button only if the user has permission." />
 
 **Takeaway: Permission checks on frontend are not there for security, but only for ergonomics / improving user experience.**
 
@@ -163,28 +136,19 @@ The server is **a crucial place to implement access control**. It exposes an API
 
 At its core, permissions checks on the server are here to **check for each API endpoint** if the caller is allowed to execute it. Often they are executed at the very start of the API endpoint logic, but often they are also intertwined with the rest of the endpoint handler logic.
 
-<ImgWithCaption alt="Example of permissions check in backend."
-    source="img/permissions-in-web-apps/backend-permissions-check-example.png"
-    caption="Example of doing permission check at the start of API endpoint (is user authenticated) and then also doing another check as part of the database query (is user owner of the article they are trying to delete)."
-/>
+<ImgWithCaption alt="Example of permissions check in backend." source="img/permissions-in-web-apps/backend-permissions-check-example.png" caption="Example of doing permission check at the start of API endpoint (is user authenticated) and then also doing another check as part of the database query (is user owner of the article they are trying to delete)." />
 
 Besides defining checks at API/operation level, they are also often defined at the **data/model level**. This means that they are tied to specific data models (normally from the database), as part of data access logic (ORM), and are defining who can access specific field(s), or even the whole data model.
 
-
 Example of attaching permission checks to the data model directly in the GraphQL schema ([from this blog post](https://www.prisma.io/blog/graphql-directive-permissions-authorization-made-easy-54c076b5368e)):
 
-<ImgWithCaption
-    alt="Example of attaching permission checks to the data model directly in the GraphQL schema"
-    source="img/permissions-in-web-apps/data-model-permissions-gql.png"
-/>
+<ImgWithCaption alt="Example of attaching permission checks to the data model directly in the GraphQL schema" source="img/permissions-in-web-apps/data-model-permissions-gql.png" />
 
 For a more sophisticated RBAC approach, with an additional layer of indirection (permissions), read on.
-
 
 ### Database
 
 Usually, users don’t have direct access to the database at all, instead, they affect it via the server. **In such a case, there is no need to do specific database access control** besides normal constraints that you will have in your DB to ensure data model integrity, like uniqueness, validations, and similar. That said, in some situations, you might want to do it, but we will not get into that in this article.
-
 
 ## 3. Common approaches (RBAC, ABAC, …)
 
@@ -198,10 +162,7 @@ Roles rule :D! In [RBAC](https://en.wikipedia.org/wiki/Role-based_access_control
 
 Pro advice (thanks Karan!): While we could be checking the user’s roles directly in the permission checks, it is even better (and recommended by OWASP) to add a layer of indirection → permissions. **So roles are attached to users, permissions are attached to roles, and permission checks check permissions** (who would expect that :)!?).
 
-<ImgWithCaption
-    alt="Users -> Roles -> Permissions"
-    source="img/permissions-in-web-apps/users-roles-permissions.png"
-/>
+<ImgWithCaption alt="Users -> Roles -> Permissions" source="img/permissions-in-web-apps/users-roles-permissions.png" />
 
 For example, a user might have role `admin`, and role `admin` has permissions `updateArticle` and `deleteArticle` attached to it. Then, when determining if a user can delete the article, we first fetch his role, then we fetch the permissions attached to that role, and finally check if `deleteArticle` is present among those → if so, they can continue with the deletion!
 
@@ -222,13 +183,10 @@ Rule attributes can be anything, but usually, they fall into 4 categories:
 3. **Object**: resources they want to operate on (i.e. an Article),
 4. **Environment/context:** i.e. current time of the day or number of previous requests that the user did in the last hour.
 
-<ImgWithCaption
-    alt="ABAC diagram"
-    source="img/permissions-in-web-apps/abac-diagram.png"
-/>
+<ImgWithCaption alt="ABAC diagram" source="img/permissions-in-web-apps/abac-diagram.png" />
 
-Let’s observe the example from before where we wanted to know if user is allowed to delete an article.  
-In ABAC, we could define an action “deleteArticle”, and then define a rule that takes user(subject), action, object, and additional context. That rule would check if action is “deleteArticle” → if so, it would evaluate if user is allowed to delete the article specified as an object, by checking some properties of user, maybe even role, or by checking if user is owner of that article.  
+Let’s observe the example from before where we wanted to know if user is allowed to delete an article.
+In ABAC, we could define an action “deleteArticle”, and then define a rule that takes user(subject), action, object, and additional context. That rule would check if action is “deleteArticle” → if so, it would evaluate if user is allowed to delete the article specified as an object, by checking some properties of user, maybe even role, or by checking if user is owner of that article.
 Then, when user actually issues a command to delete an article, we would ask our access control system to run it against all the rules it has, while giving it the (user, “deleteArticle”, article, context) tuple → most of the rules would say all is ok since they are not concerned with “deleteArticle” action, but the ones that are (like the one we defined above) must all pass in order to actually allow the access.
 
 **ABAC is very flexible and general as an approach**, and you could easily implement RBAC (and many other approaches) in ABAC (by checking the user’s role as one of the attributes) → therefore it is more general/expressive than RBAC.
@@ -260,31 +218,20 @@ From their materials I extracted a couple of main points that made the most sens
 - **Deny access by default.**
 - **Prefer ABAC over RBAC.**
 
-<ImgWithCaption
-    alt="You should centralize your access control logic - Nyehhh"
-    source="img/permissions-in-web-apps/comic-centralize-logic.png"
-/>
+<ImgWithCaption alt="You should centralize your access control logic - Nyehhh" source="img/permissions-in-web-apps/comic-centralize-logic.png" />
 
 ## 5. Implementing access control in practice
 
-<ImgWithCaption
-    alt="Poll on how do people implement access control"
-    source="img/permissions-in-web-apps/access-control-poll.png"
-    caption=""
-/>
+<ImgWithCaption alt="Poll on how do people implement access control" source="img/permissions-in-web-apps/access-control-poll.png" caption="" />
 
-Here’s a Reddit [poll I did on r/webdev](https://www.reddit.com/r/webdev/comments/vhaglx/what_do_you_use_for_access_control_permission/).  
-An interesting finding is that even though the sample is pretty small, it is clear that devs prefer RBAC over OWASP-recommended ABAC.  
-I believe this is due to 2 main reasons: RBAC is simpler + there are more libraries/frameworks out there supporting RBAC than ABAC (again, due to it being simpler).  
+Here’s a Reddit [poll I did on r/webdev](https://www.reddit.com/r/webdev/comments/vhaglx/what_do_you_use_for_access_control_permission/).
+An interesting finding is that even though the sample is pretty small, it is clear that devs prefer RBAC over OWASP-recommended ABAC.
+I believe this is due to 2 main reasons: RBAC is simpler + there are more libraries/frameworks out there supporting RBAC than ABAC (again, due to it being simpler).
 It does seem that ABAC is picking up recently though, so it would be interesting to repeat this poll in the future and see what changes.
 
 ### Organic development
 
-<ImgWithCaption
-    alt="Organic growth of my code (meme)"
-    source="img/permissions-in-web-apps/organic-code-meme.png"
-    caption=""
-/>
+<ImgWithCaption alt="Organic growth of my code (meme)" source="img/permissions-in-web-apps/organic-code-meme.png" caption="" />
 
 Often, we add permission checks to our web app one by one, as needed. For example, if we are using NodeJS with ExpressJS for our server and writing middleware that handles HTTP API requests, we will add a bit of logic into that middleware that does some checks to ensure a user can actually perform that action. Or maybe we will embed “checks” into our database queries so that we query only what the user is allowed to access. Often a combination.
 
@@ -301,23 +248,23 @@ We can roughly divide these solutions into frameworks and (external) providers, 
 A couple of popular solutions:
 
 1. [https://casbin.org/](https://casbin.org/) (multiple approaches, multiple languages, provider)
-    1. Open source authZ library that has support for many access control models (ACL, RBAC, ABAC, …) and many languages (Go, Java, Node.js, JS, Rust, …). While somewhat complex, it is also powerful and flexible. They also have their Casdoor platform, which is authN and authZ provider.
+   1. Open source authZ library that has support for many access control models (ACL, RBAC, ABAC, …) and many languages (Go, Java, Node.js, JS, Rust, …). While somewhat complex, it is also powerful and flexible. They also have their Casdoor platform, which is authN and authZ provider.
 2. [https://casl.js.org/v5/en/](https://casl.js.org/v5/en/) (ABAC, Javascript)
-    1. Open source JS/TS library for ABAC. CASL gives you a nice way to define the ABAC rules in your web / NodeJS code, and then also check them and call them. It has a bunch of integrations with popular solutions like React, Angular, Prisma, Mongoose, … .
+   1. Open source JS/TS library for ABAC. CASL gives you a nice way to define the ABAC rules in your web / NodeJS code, and then also check them and call them. It has a bunch of integrations with popular solutions like React, Angular, Prisma, Mongoose, … .
 3. https://github.com/CanCanCommunity/cancancan (Ruby on Rails ABAC)
-    1. Same like casl.js, but for Ruby on Rails! Casl.js was actually inspired and modeled by cancancan.
+   1. Same like casl.js, but for Ruby on Rails! Casl.js was actually inspired and modeled by cancancan.
 4. https://github.com/varvet/pundit
-    1. Popular open-source Ruby library focused around the notion of policies, giving you the freedom to implement your own approach based on that.
-5. [https://spring.io/projects/spring-security](https://spring.io/projects/spring-security) 
-    1. Open source authN and authZ framework for Spring (Java). 
+   1. Popular open-source Ruby library focused around the notion of policies, giving you the freedom to implement your own approach based on that.
+5. [https://spring.io/projects/spring-security](https://spring.io/projects/spring-security)
+   1. Open source authN and authZ framework for Spring (Java).
 6. https://github.com/dfunckt/django-rules
-    1. A generic, approachable open source framework for building rule-based systems in Django (Python).
+   1. A generic, approachable open source framework for building rule-based systems in Django (Python).
 7. [Auth0](https://auth0.com/) (provider)
-    1. Auth0 has been around for some time and is probably the most popular authN provider out there. While authN is their main offering (they give you SDKs for authentication + they store user profiles and let you manage them through their SaaS), they also allow you to define authZ to some degree, via RBAC and policies.
+   1. Auth0 has been around for some time and is probably the most popular authN provider out there. While authN is their main offering (they give you SDKs for authentication + they store user profiles and let you manage them through their SaaS), they also allow you to define authZ to some degree, via RBAC and policies.
 8. [https://www.osohq.com/](https://www.osohq.com/) (provider, DSL)
-    1. OSO is an authZ provider, unique in a way that they have a specialized language for authorization (DSL, called Polar) in which you define your authorization rules. They come with support for common approaches (e.g. RBAC, ABAC, ReBAC) but also support custom ones. Then, you can use their open source library embedded in your application, or use their managed cloud offering.
+   1. OSO is an authZ provider, unique in a way that they have a specialized language for authorization (DSL, called Polar) in which you define your authorization rules. They come with support for common approaches (e.g. RBAC, ABAC, ReBAC) but also support custom ones. Then, you can use their open source library embedded in your application, or use their managed cloud offering.
 9. [https://warrant.dev/](https://warrant.dev/) (Provider)
-    1. Relatively new authZ provider, they have a dashboard where you can manage your rules in a central location and then use them from multiple languages via their SDKs, even on the client to perform UI checks. Rules can also be managed programmatically via SDK.
+   1. Relatively new authZ provider, they have a dashboard where you can manage your rules in a central location and then use them from multiple languages via their SDKs, even on the client to perform UI checks. Rules can also be managed programmatically via SDK.
 10. [https://authzed.com/](https://authzed.com/) (Provider)
     1. AuthZed brings a specialized SpiceDB permissions database which they use as a centralized place for storing and managing rules. Then, you can use their SDKs to query, store, and validate application permissions.
 

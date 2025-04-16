@@ -1,15 +1,17 @@
-const lightCodeTheme = require('prism-react-renderer/themes/github')
+import type * as Preset from '@docusaurus/preset-classic'
+import type { Config, DocusaurusConfig } from '@docusaurus/types'
+import { themes } from 'prism-react-renderer'
+import autoImportTabs from './src/remark/auto-import-tabs'
+import fileExtSwitcher from './src/remark/file-ext-switcher'
+import searchAndReplace from './src/remark/search-and-replace'
 
-const autoImportTabs = require('./src/remark/auto-import-tabs')
-const fileExtSwitcher = require('./src/remark/file-ext-switcher')
-const searchAndReplace = require('./src/remark/search-and-replace')
+const lightCodeTheme = themes.github
 
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === 'true'
 const isProduction = process.env.NODE_ENV === 'production'
 
-/** @type {import('@docusaurus/types').DocusaurusConfig} */
-module.exports = {
+const config: Config = {
   title: 'Wasp',
   tagline:
     'A simple language for developing full-stack web apps with less code.',
@@ -146,13 +148,13 @@ module.exports = {
     },
     image: 'img/wasp_twitter_cover.png',
     metadata: [{ name: 'twitter:card', content: 'summary_large_image' }],
-  },
+  } as Preset.ThemeConfig,
   presets: [
     [
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: './sidebars.ts',
           sidebarCollapsible: true,
           editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
           remarkPlugins: [autoImportTabs, fileExtSwitcher, searchAndReplace],
@@ -202,11 +204,12 @@ module.exports = {
           blogSidebarTitle: 'All our posts',
           postsPerPage: 'ALL',
           editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
+          onUntruncatedBlogPosts: 'log',
         },
         theme: {
-          customCss: [require.resolve('./src/css/custom.css')],
+          customCss: ['./src/css/custom.css'],
         },
-      },
+      } as Preset.Options,
     ],
   ],
   scripts: getScripts(),
@@ -227,7 +230,7 @@ module.exports = {
 }
 
 function getScripts() {
-  const scripts = [
+  const scripts: DocusaurusConfig['scripts'] = [
     '/scripts/posthog.js',
     '/js/fix-multiple-trailing-slashes.js',
   ]
@@ -243,3 +246,5 @@ function getScripts() {
   }
   return scripts
 }
+
+export default config
