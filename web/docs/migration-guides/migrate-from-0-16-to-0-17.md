@@ -157,7 +157,7 @@ Here's the new version `tsconfig.json`:
 If you're using (or planning to use) Wasp's [client tests](../project/testing.md) with `jest-dom`,
 add this to your `src/vite-env.d.ts` file:
 
-```json
+```ts
 // This is needed to properly support Vitest testing with jest-dom matchers.
 // Types for jest-dom are not recognized automatically and Typescript complains
 // about missing types e.g. when using `toBeInTheDocument` and other matchers.
