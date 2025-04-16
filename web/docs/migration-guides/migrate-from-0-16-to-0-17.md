@@ -6,8 +6,8 @@ title: Migration from 0.16.X to 0.17.X
 
 ### The `login` function parameters changed (username & password only)
 
-:::note
-This change only affects you if you're using [username and password authentication](../auth/username-and-pass.md)
+:::info
+This change only affects you if you're using [username and password authentication](../auth/username-and-pass.md) with
 [custom auth UI](../auth/username-and-pass/create-your-own-ui.md). If you're using [email authentication](../auth/email.md),
 [social authentication](../auth/social-auth/overview.md), or our premade [Auth UI](../auth/ui.md) components,
 you don't need to take any action.
@@ -46,8 +46,8 @@ To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
 
 ### 1. Change the parameters to the `login` function (username & password only)
 
-:::note
-This change only affects you if you're using [username and password authentication](../auth/username-and-pass.md)
+:::info
+This change only affects you if you're using [username and password authentication](../auth/username-and-pass.md) with
 [custom auth UI](../auth/username-and-pass/create-your-own-ui.md). If you're using [email authentication](../auth/email.md),
 [social authentication](../auth/social-auth/overview.md), or our premade [Auth UI](../auth/ui.md) components,
 you don't need to take any action.
