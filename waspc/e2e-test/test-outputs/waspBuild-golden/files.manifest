@@ -8,6 +8,7 @@ waspBuild/.wasp/build/sdk/wasp/api/events.ts
 waspBuild/.wasp/build/sdk/wasp/api/index.ts
 waspBuild/.wasp/build/sdk/wasp/client/config.ts
 waspBuild/.wasp/build/sdk/wasp/client/env.ts
+waspBuild/.wasp/build/sdk/wasp/client/env/schema.ts
 waspBuild/.wasp/build/sdk/wasp/client/index.ts
 waspBuild/.wasp/build/sdk/wasp/client/operations/actions/core.ts
 waspBuild/.wasp/build/sdk/wasp/client/operations/actions/index.ts
@@ -40,6 +41,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/client/config.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/client/env.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/client/env.js
 waspBuild/.wasp/build/sdk/wasp/dist/client/env.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/client/env/schema.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/client/env/schema.js
+waspBuild/.wasp/build/sdk/wasp/dist/client/env/schema.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/client/index.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/client/index.js
 waspBuild/.wasp/build/sdk/wasp/dist/client/index.js.map
@@ -166,6 +170,9 @@ waspBuild/.wasp/build/sdk/wasp/dist/server/utils.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.jsx
 waspBuild/.wasp/build/sdk/wasp/dist/src/MainPage.jsx.map
+waspBuild/.wasp/build/sdk/wasp/dist/universal/ansiColors.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/universal/ansiColors.js
+waspBuild/.wasp/build/sdk/wasp/dist/universal/ansiColors.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js
 waspBuild/.wasp/build/sdk/wasp/dist/universal/predicates.js.map
@@ -206,6 +213,7 @@ waspBuild/.wasp/build/sdk/wasp/src/MainPage.jsx
 waspBuild/.wasp/build/sdk/wasp/src/vite-env.d.ts
 waspBuild/.wasp/build/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/build/sdk/wasp/tsconfig.json
+waspBuild/.wasp/build/sdk/wasp/universal/ansiColors.ts
 waspBuild/.wasp/build/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/build/sdk/wasp/universal/types.ts
 waspBuild/.wasp/build/sdk/wasp/universal/url.ts
@@ -253,10 +261,12 @@ waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.vite.json
 waspBuild/.wasp/build/web-app/vite.config.ts
 waspBuild/.wasp/build/web-app/vite/detectServerImports.ts
+waspBuild/.wasp/build/web-app/vite/validateEnv.ts
 waspBuild/.wasp/out/sdk/wasp/api/events.ts
 waspBuild/.wasp/out/sdk/wasp/api/index.ts
 waspBuild/.wasp/out/sdk/wasp/client/config.ts
 waspBuild/.wasp/out/sdk/wasp/client/env.ts
+waspBuild/.wasp/out/sdk/wasp/client/env/schema.ts
 waspBuild/.wasp/out/sdk/wasp/client/index.ts
 waspBuild/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 waspBuild/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -289,6 +299,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/client/config.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/client/env.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/client/env.js
 waspBuild/.wasp/out/sdk/wasp/dist/client/env.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/client/env/schema.js
+waspBuild/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/client/index.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/client/index.js
 waspBuild/.wasp/out/sdk/wasp/dist/client/index.js.map
@@ -415,6 +428,9 @@ waspBuild/.wasp/out/sdk/wasp/dist/server/utils.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.jsx
 waspBuild/.wasp/out/sdk/wasp/dist/src/MainPage.jsx.map
+waspBuild/.wasp/out/sdk/wasp/dist/universal/ansiColors.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/universal/ansiColors.js
+waspBuild/.wasp/out/sdk/wasp/dist/universal/ansiColors.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js
 waspBuild/.wasp/out/sdk/wasp/dist/universal/predicates.js.map
@@ -455,6 +471,7 @@ waspBuild/.wasp/out/sdk/wasp/src/MainPage.jsx
 waspBuild/.wasp/out/sdk/wasp/src/vite-env.d.ts
 waspBuild/.wasp/out/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/out/sdk/wasp/tsconfig.json
+waspBuild/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspBuild/.wasp/out/sdk/wasp/universal/predicates.ts
 waspBuild/.wasp/out/sdk/wasp/universal/types.ts
 waspBuild/.wasp/out/sdk/wasp/universal/url.ts

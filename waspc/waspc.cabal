@@ -368,6 +368,7 @@ library
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.Message
+    Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Project
@@ -665,6 +666,7 @@ test-suite waspc-test
     Generator.JsImportTest
     Generator.CrudTest
     Generator.CommonTest
+    Node.InternalTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
