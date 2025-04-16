@@ -15,6 +15,11 @@ export type OnAfterSignupHook = (
 ) => void | Promise<void>
 
 // PUBLIC API
+export type OnAfterEmailVerifiedHook = (
+  params: Expand<OnAfterEmailVerifiedHookParams>,
+) => void | Promise<void>
+
+// PUBLIC API
 /**
  * @returns Object with a URL that the OAuth flow should redirect to.
  */
@@ -71,6 +76,21 @@ type OnAfterSignupHookParams = {
    * available if the user signed up using OAuth.
   */
   oauth?: OAuthData
+  /**
+   * Request object that can be used to access the incoming request.
+  */
+  req: ExpressRequest
+} & InternalAuthHookParams
+
+type OnAfterEmailVerifiedHookParams = {
+  /**
+   * Provider ID object that contains the provider name and the provide user ID. In this case it's always "email" provider with user id of email that was verified.
+  */
+  providerId: ProviderId
+  /**
+   * The user whose email was verified.
+  */
+  user: FindAuthWithUserResult['user']
   /**
    * Request object that can be used to access the incoming request.
   */
