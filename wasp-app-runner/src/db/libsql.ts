@@ -3,19 +3,19 @@ import type { SetupDbFn } from "./types.js";
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      TURSO_DATABASE_URL?: string;
-      TURSO_AUTH_TOKEN?: string;
+      DATABASE_URL?: string;
+      DATABASE_AUTH_TOKEN?: string;
     }
   }
 }
 
 export const setupLibsql: SetupDbFn = async ({ appName, pathToApp }) => {
   const databaseUrl = process.env.DATABASE_URL;
-  const authToken = process.env.AUTH_TOKEN;
+  const authToken = process.env.DATABASE_AUTH_TOKEN;
 
   if (!databaseUrl || !authToken) {
     throw new Error(
-      "DATABASE_URL and AUTH_TOKEN environment variables must be set for Turso database"
+      "DATABASE_URL and DATABASE_AUTH_TOKEN environment variables must be set for Turso database"
     );
   }
 
@@ -27,7 +27,7 @@ export const setupLibsql: SetupDbFn = async ({ appName, pathToApp }) => {
   return {
     dbEnvVars: {
       DATABASE_URL: prismaUrl,
-      AUTH_TOKEN: authToken,
+      DATABASE_AUTH_TOKEN: authToken,
     },
   };
 }; 
