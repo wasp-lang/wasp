@@ -11,16 +11,12 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    // Needed because this is used as a project reference.
     "composite": true,
     "target": "esnext",
-    // We're bundling all code in the end so this is the most appropriate option,
-    // it's also important for autocomplete to work properly.
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "strict": true,
     "esModuleInterop": true,
-    // Prevent features that don't work with transpilers (e.g., const enums)
     "isolatedModules": true,
     "moduleDetection": "force",
     "lib": [
@@ -30,9 +26,6 @@
     ],
     "skipLibCheck": true,
     "allowJs": true,
-    // Wasp internally uses TypeScript's project references to compile the
-    // code. Referenced projects may not disable emit, so we must specify an
-    // outDir.
     "outDir": ".wasp/out/user"
   },
   "include": [
