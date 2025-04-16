@@ -83,12 +83,23 @@ export async function getAppInfo({
     process.exit(1);
   }
 
+  let dbType: DbType;
+  const dbTypeMatchStr = ensureRegexMatch(dbTypeMatch, "db type");
+
+  if (dbTypeMatchStr === "PostgreSQL") {
+    dbType = DbType.Postgres;
+  } else if (dbTypeMatchStr === "LibSQL") {
+    dbType = DbType.Libsql;
+  } else if (dbTypeMatchStr === "SQLite") {
+    dbType = DbType.Sqlite;
+  } else {
+    log("get-app-info", "error", `Unknown database type: ${dbTypeMatchStr}`);
+    process.exit(1);
+  }
+
   return {
     appName: ensureRegexMatch(appNameMatch, "app name"),
-    dbType:
-      ensureRegexMatch(dbTypeMatch, "db type") === "PostgreSQL"
-        ? DbType.Postgres
-        : DbType.Sqlite,
+    dbType,
   };
 }
 

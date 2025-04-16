@@ -44,10 +44,15 @@ start = do
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName
+    AS.App.Db.LibSQL -> noteLibSQLDoesntNeedStart
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
+    
+    noteLibSQLDoesntNeedStart =
+      cliSendMessageC . Msg.Info $
+        "Nothing to do! You are all good, you are using libSQL (Turso) which doesn't need to be started."
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
