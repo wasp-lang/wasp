@@ -161,13 +161,11 @@ genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec =
   return $
     extPublicFileDrafts
-      ++ ifUserDidntProvideFile genFaviconFd
-      ++ ifUserDidntProvideFile genManifestFd
+      ++ ifUserDidntProvideFile manifestFd
   where
     publicFiles = AS.externalPublicFiles spec
     extPublicFileDrafts = map C.mkPublicFileDraft publicFiles
-    genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
-    genManifestFd = C.mkTmplFdWithData tmplFile tmplData
+    manifestFd = C.mkTmplFdWithData tmplFile tmplData
       where
         tmplData = object ["appName" .= (fst (getApp spec) :: String)]
         tmplFile = C.asTmplFile [relfile|public/manifest.json|]
