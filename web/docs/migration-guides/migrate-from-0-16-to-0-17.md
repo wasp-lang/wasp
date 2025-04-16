@@ -153,7 +153,19 @@ Here's the new version `tsconfig.json`:
 }
 ```
 
-### 3. Enjoy your updated Wasp app
+### 3. Tell Wasp about `jest-dom` types
+If you're using (or planning to use) Wasp's [client tests](../project/testing.md) with `jest-dom`,
+add this to your `src/vite-env.d.ts` file:
+
+```json
+// This is needed to properly support Vitest testing with jest-dom matchers.
+// Types for jest-dom are not recognized automatically and Typescript complains
+// about missing types e.g. when using `toBeInTheDocument` and other matchers.
+// Reference: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
+import '@testing-library/jest-dom'
+```
+
+### 4. Enjoy your updated Wasp app
 
 That's it!
 

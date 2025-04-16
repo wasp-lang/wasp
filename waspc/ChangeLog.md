@@ -18,6 +18,7 @@ Address all breaking changes by following [the official migration guide](https:/
     },
   }
   ```
+- [The issue](https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843) with `jest-dom` types is now addressed in `src/vite-env.d.ts`.
 
 
 ### 🔧 Small improvements
