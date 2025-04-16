@@ -20,7 +20,7 @@ import qualified Wasp.Valid as Valid
 
 -- Wasp expects the Prisma schema to be written in certain way:
 
--- * The DB providers that Wasp supports are PostgreSQL and SQLite.
+-- * The DB providers that Wasp supports are PostgreSQL, SQLite, and libSQL.
 
 -- * The DB url must be provided via the DATABASE_URL environment variable.
 

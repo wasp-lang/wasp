@@ -18,5 +18,5 @@ data Db = Db
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 
-data DbSystem = PostgreSQL | SQLite
+data DbSystem = PostgreSQL | SQLite | LibSQL
   deriving (Show, Eq, Data, Generic, FromJSON)

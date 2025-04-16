@@ -69,6 +69,7 @@ genPrismaSchema spec = do
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/databases#migrating-from-sqlite-to-postgresql ."
         else return Pls.Db.dbProviderSqliteStringLiteral
+    AS.Db.LibSQL -> return Pls.Db.dbProviderLibsqlStringLiteral
 
   entities <- getEntitiesForPrismaSchema spec
 

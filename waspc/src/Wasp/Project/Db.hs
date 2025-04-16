@@ -53,6 +53,7 @@ getDbSystemFromPrismaSchema prismaSchema =
     Just (Psl.Argument.StringExpr provider)
       | provider == Psl.Db.dbProviderPostgresqlStringLiteral -> Right AS.Db.PostgreSQL
       | provider == Psl.Db.dbProviderSqliteStringLiteral -> Right AS.Db.SQLite
+      | provider == Psl.Db.dbProviderLibsqlStringLiteral -> Right AS.Db.LibSQL
     Just anyOtherExpression -> Left $ UnsupportedDbSystem $ generateExpression anyOtherExpression
     Nothing -> Left MissingDbSystem
 
