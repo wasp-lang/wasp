@@ -43,6 +43,7 @@ import Wasp.Util ((<++>))
 writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir sendMessage = do
   case validateAppSpec spec of
+    validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
       let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
 
@@ -53,7 +54,6 @@ writeWebAppCode spec dstDir sendMessage = do
           writeDotWaspInfo dstDir
           (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
-    appSpecValidationErrors -> return ([], appSpecValidationErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =

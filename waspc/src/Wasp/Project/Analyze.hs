@@ -68,7 +68,7 @@ analyzeWaspProject waspDir compileOptions = do
             Right declarations -> do
               let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
               EC.readExternalConfigs waspDir srcTsConfigPath >>= \case
-                Left errors -> return (Left errors, [])
+                Left externalConfigError -> return (Left [externalConfigError], [])
                 Right externalConfigs ->
                   constructAppSpec
                     waspDir

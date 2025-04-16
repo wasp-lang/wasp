@@ -5,14 +5,12 @@ where
 
 import Control.Applicative ((<|>))
 import qualified Data.Map as M
-import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import qualified Wasp.Generator.TailwindConfigFile as TCF
+import qualified Wasp.Generator.Valid.PackageJsonValidationContext as C
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
@@ -22,14 +20,17 @@ data PackageRequirement
 
 type PackageSpecification = (P.PackageName, P.PackageVersion)
 
-validatePackageJson :: AppSpec -> [GeneratorError]
-validatePackageJson spec =
-  validateRuntimeDependencies spec
-    ++ validateDevelopmentDependencies spec
-    ++ validateOptionalDependencies spec
+validatePackageJson ::
+  P.PackageJson ->
+  C.PackageJsonValidationContext ->
+  [GeneratorError]
+validatePackageJson packageJson context =
+  validateRuntimeDependencies packageJson
+    ++ validateDevelopmentDependencies packageJson context
+    ++ validateOptionalDependencies packageJson
 
-validateRuntimeDependencies :: AppSpec -> [GeneratorError]
-validateRuntimeDependencies spec =
+validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
+validateRuntimeDependencies packageJson =
   concat
     [ validateRuntime ("wasp", "file:.wasp/out/sdk/wasp"),
       validateRuntime ("react-router-dom", show reactRouterVersion),
@@ -40,10 +41,9 @@ validateRuntimeDependencies spec =
     ]
   where
     validateRuntime packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredRuntime
-    packageJson = AS.packageJson spec
 
-validateDevelopmentDependencies :: AppSpec -> [GeneratorError]
-validateDevelopmentDependencies spec =
+validateDevelopmentDependencies :: P.PackageJson -> C.PackageJsonValidationContext -> [GeneratorError]
+validateDevelopmentDependencies packageJson context =
   concat $
     [ validateDevelopment ("vite", show viteVersion),
       validateDevelopment ("prisma", show prismaVersion)
@@ -53,13 +53,11 @@ validateDevelopmentDependencies spec =
     validateDevelopment packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredDevelopment
 
     tailwindValidations =
-      [ validateDevelopment ("tailwindcss", show tailwindCssVersion) | TCF.isTailwindUsed spec
+      [ validateDevelopment ("tailwindcss", show tailwindCssVersion) | C.isTailwindUsed context
       ]
 
-    packageJson = AS.packageJson spec
-
-validateOptionalDependencies :: AppSpec -> [GeneratorError]
-validateOptionalDependencies spec =
+validateOptionalDependencies :: P.PackageJson -> [GeneratorError]
+validateOptionalDependencies packageJson =
   concat
     [ validateOptional ("typescript", show typescriptVersion),
       validateOptional ("@types/react", show reactTypesVersion),
@@ -67,8 +65,6 @@ validateOptionalDependencies spec =
     ]
   where
     validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
-
-    packageJson = AS.packageJson spec
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =

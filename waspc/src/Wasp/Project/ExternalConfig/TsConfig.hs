@@ -21,12 +21,12 @@ import Wasp.Util.Json (parseJsonWithComments)
 readSrcTsConfigFile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
-  IO (Either [String] T.TsConfig)
+  IO (Either String T.TsConfig)
 readSrcTsConfigFile waspDir srcTsConfigPath = runExceptT $ do
   tsConfigFileContents <- ExceptT findTsConfigOrError
-  ExceptT $ left (: []) <$> readTsConfigFile tsConfigFileContents
+  ExceptT $ readTsConfigFile tsConfigFileContents
   where
-    findTsConfigOrError = maybeToEither [fileNotFoundMessage] <$> findFileInWaspProjectDir waspDir srcTsConfigPath
+    findTsConfigOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir srcTsConfigPath
     fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
 
 readTsConfigFile :: Path' Abs (File SrcTsConfigFile) -> IO (Either String T.TsConfig)

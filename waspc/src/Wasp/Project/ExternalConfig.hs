@@ -25,7 +25,7 @@ data ExternalConfigs = ExternalConfigs
 readExternalConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
-  IO (Either [CompileError] ExternalConfigs)
+  IO (Either CompileError ExternalConfigs)
 readExternalConfigs waspDir srcTsConfigPath = runExceptT $ do
   packageJsonContent <- ExceptT $ readPackageJsonFile waspDir
   srcTsConfigContent <- ExceptT $ readSrcTsConfigFile waspDir srcTsConfigPath

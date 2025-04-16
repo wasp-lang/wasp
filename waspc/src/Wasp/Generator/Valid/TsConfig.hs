@@ -6,8 +6,6 @@ module Wasp.Generator.Valid.TsConfig
 where
 
 import Data.List (intercalate)
-import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 
@@ -34,12 +32,10 @@ type FieldPath = [String]
 instance Show FullyQualifiedFieldName where
   show (FieldName fieldPath) = intercalate "." fieldPath
 
-validateSrcTsConfig :: AppSpec -> [GeneratorError]
-validateSrcTsConfig spec =
+validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
+validateSrcTsConfig srcTsConfig =
   validateRequiredField (FieldName ["include"]) (T.include srcTsConfig) ["src"]
     ++ validateCompilerOptions (T.compilerOptions srcTsConfig)
-  where
-    srcTsConfig = AS.srcTsConfig spec
 
 validateCompilerOptions :: T.CompilerOptions -> [GeneratorError]
 validateCompilerOptions compilerOptions =
