@@ -4,7 +4,9 @@ import {
     serialize as superjsonSerialize,
 } from 'superjson'
 import { handleRejection } from 'wasp/server/utils'
+{=# isAuthEnabled =}
 import { makeAuthUserIfPossible } from 'wasp/auth/user'
+{=/ isAuthEnabled =}
 
 export function createOperation (handlerFn) {
     return handleRejection(async (req, res) => {
