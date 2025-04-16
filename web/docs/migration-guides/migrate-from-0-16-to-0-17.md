@@ -104,7 +104,56 @@ It is possible that you were not using this function in your code.
 If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
 this change is already handled for you.
 
-### 2. Enjoy your updated Wasp app
+### Update your `tsconfig.json`
+To ensure your project works correctly with Wasp 0.17.0, you must also update your
+`tsconfig.json` file.
+
+If you haven't changed anything in your project's `tsconfig.json` file (this is
+the case for most users), just replace its contents with the new version shown
+below.
+
+If you have made changes to your `tsconfig.json` file, we recommend taking the
+new version of the file and reapplying them.
+
+Here's the new version `tsconfig.json`:
+```tsconfig.json
+// =============================== IMPORTANT =================================
+// This file is mainly used for Wasp IDE support.
+//
+// Wasp will compile your code with slightly different (less strict) compilerOptions.
+// You can increase the configuration's strictness (e.g., by adding
+// "noUncheckedIndexedAccess": true), but you shouldn't reduce it (e.g., by
+// adding "strict": false). Just keep in mind that this will only affect your
+// IDE support, not the actual compilation.
+//
+// Full TypeScript configurability is coming very soon :)
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "composite": true,
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "outDir": ".wasp/out/user"
+  },
+  "include": [
+    "src"
+  ]
+}
+```
+
+### 3. Enjoy your updated Wasp app
 
 That's it!
 

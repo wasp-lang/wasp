@@ -3,12 +3,27 @@
 ## Unreleased
 
 ### ⚠️ Breaking Changes
+Address all breaking changes by following [the official migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-16-to-0-17). This is just a short overview:
 
 - In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
+- We've made some improvements to our TypeScript setup that require you to update the `tsconfig.json` file. The migration guide will lead you through them.
+  For posterity, here are all the non-cosmetic changes we've made:
+  ```json
+  {
+    "compilerOptions": {
+      // ...
+      "moduleDetection": "force",
+      "isolatedModules": true,
+      // Remove 'typeRoots'
+    },
+  }
+  ```
+
 
 ### 🔧 Small improvements
 
 - Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
+- Better TypeScript support ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 
 ## 0.16.3
 
