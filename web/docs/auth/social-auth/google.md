@@ -394,9 +394,6 @@ For an up to date info about the data received from Google, please refer to the 
 
 <OverrideExampleIntro />
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
@@ -428,54 +425,7 @@ model User {
 // ...
 ```
 
-```js title=src/auth/google.js
-export const userSignupFields = {
-  username: () => 'hardcoded-username',
-  displayName: (data) => data.profile.name,
-}
-
-export function getConfig() {
-  return {
-    scopes: ['profile', 'email'],
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-```prisma title="schema.prisma"
-model User {
-  id          Int    @id @default(autoincrement())
-  username    String @unique
-  displayName String
-}
-
-// ...
-```
-
-```ts title=src/auth/google.ts
+```ts title=src/auth/google.ts auto-js
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
@@ -491,9 +441,6 @@ export function getConfig() {
 ```
 
 <GetUserFieldsType />
-
-</TabItem>
-</Tabs>
 
 ## Using Auth
 
