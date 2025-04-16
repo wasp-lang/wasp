@@ -116,7 +116,7 @@ If you have made changes to your `tsconfig.json` file, we recommend taking the
 new version of the file and reapplying them.
 
 Here's the new version `tsconfig.json`:
-```tsconfig.json
+```json title=tsconfig.json
 // =============================== IMPORTANT =================================
 // This file is mainly used for Wasp IDE support.
 //
