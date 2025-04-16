@@ -193,6 +193,7 @@ npmDepsForSdk spec =
     { N.dependencies =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
+            ("@prisma/adapter-libsql", "6.6.0"),
             ("prisma", show prismaVersion),
             ("@tanstack/react-query", show reactQueryVersion),
             ("axios", show axiosVersion),

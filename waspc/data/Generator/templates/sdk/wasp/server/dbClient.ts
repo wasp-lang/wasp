@@ -1,8 +1,25 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
 import Prisma from '@prisma/client'
+import { PrismaLibSQL } from '@prisma/adapter-libsql'
 
 function createDbClient(): Prisma.PrismaClient {
+  const connectionString = `${process.env.DATABASE_URL}`
+  const authToken = `${process.env.DATABASE_AUTH_TOKEN}`
+
+  // Only use libSQL adapter if we're using Turso/libSQL
+  if (connectionString.startsWith('libsql://')) {
+    const adapter = new PrismaLibSQL({
+      url: connectionString,
+      authToken,
+    })
+
+    return new Prisma.PrismaClient({
+      adapter,
+    })
+  }
+
+  // Default to regular Prisma client for SQLite/PostgreSQL
   return new Prisma.PrismaClient()
 }
 {=/ areThereAnyEntitiesDefined =}
