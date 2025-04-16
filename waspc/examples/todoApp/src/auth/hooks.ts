@@ -1,9 +1,9 @@
 import { HttpError } from 'wasp/server'
 import type {
-  OnAfterSignupHook,
-  OnBeforeSignupHook,
-  OnBeforeLoginHook,
   OnAfterLoginHook,
+  OnAfterSignupHook,
+  OnBeforeLoginHook,
+  OnBeforeSignupHook,
 } from 'wasp/server/auth'
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({ providerId }) => {
