@@ -14,14 +14,14 @@ type RequestWithExtraFields = Request & {
  *   if given middleware returns promise, reject of that promise will be correctly handled,
  *   meaning that error will be forwarded to next().
  */
-export const handleRejection = (
+export const handleRejection = <Req extends Request = RequestWithExtraFields, Res extends Response = Response>(
   middleware: (
-    req: RequestWithExtraFields,
-    res: Response,
+    req: Req,
+    res: Res,
     next: NextFunction
   ) => any
 ) =>
-async (req: RequestWithExtraFields, res: Response, next: NextFunction) => {
+async (req: Req, res: Res, next: NextFunction) => {
   try {
     await middleware(req, res, next)
   } catch (error) {

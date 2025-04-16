@@ -1,6 +1,6 @@
 import { Google } from 'arctic';
 export declare const google: {
-    id: string;
+    id: "google";
     displayName: string;
     oAuthClient: Google;
 };

@@ -6,11 +6,11 @@ export interface JSONObject {
 type PrimitiveJSONValue = string | number | boolean | undefined | null;
 export interface JSONArray extends Array<JSONValue> {
 }
-type SerializableJSONValue = Symbol | Set<SuperJSONValue> | Map<SuperJSONValue, SuperJSONValue> | undefined | bigint | Date | RegExp;
-type SuperJSONValue = JSONValue | SerializableJSONValue | SuperJSONArray | SuperJSONObject;
-interface SuperJSONArray extends Array<SuperJSONValue> {
+export type SerializableJSONValue = symbol | Set<SuperJSONValue> | Map<SuperJSONValue, SuperJSONValue> | undefined | bigint | Date | RegExp;
+export type SuperJSONValue = JSONValue | SerializableJSONValue | SuperJSONArray | SuperJSONObject;
+export interface SuperJSONArray extends Array<SuperJSONValue> {
 }
-interface SuperJSONObject {
+export interface SuperJSONObject {
     [key: string]: SuperJSONValue;
 }
 export {};
