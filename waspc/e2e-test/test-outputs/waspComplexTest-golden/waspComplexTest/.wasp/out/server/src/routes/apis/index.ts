@@ -1,6 +1,6 @@
 import express from 'express'
 import { prisma } from 'wasp/server'
-import { handleRejection } from 'wasp/server/utils'
+import { defineHandler } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 import auth from 'wasp/core/auth'
 import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
@@ -23,7 +23,7 @@ const fooBarMiddleware = globalMiddlewareConfigForExpress(_waspfooBarmiddlewareC
 router.get(
   '/foo/bar',
   [auth, ...fooBarMiddleware],
-  handleRejection(
+  defineHandler(
     (
       req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUserData | null },
       res: Parameters<typeof _waspfooBarfn>[1],
@@ -41,7 +41,7 @@ const fooBazMiddleware = globalMiddlewareConfigForExpress(_waspfooBazmiddlewareC
 router.get(
   '/foo/baz',
   fooBazMiddleware,
-  handleRejection(
+  defineHandler(
     (
       req: Parameters<typeof _waspfooBazfn>[0],
       res: Parameters<typeof _waspfooBazfn>[1],

@@ -1,18 +1,9 @@
 /**
- * Decorator for async express middleware that handles promise rejections.
- * @param {Func} middleware - Express middleware function.
- * @returns Express middleware that is exactly the same as the given middleware but,
- *   if given middleware returns promise, reject of that promise will be correctly handled,
- *   meaning that error will be forwarded to next().
+ * Simple helper to give the correct types for Express handlers.
+ * We define it in the same file as our extension to Request
+ * so that it is picked up by TypeScript.
  */
-export const handleRejection = (middleware) => async (req, res, next) => {
-    try {
-        await middleware(req, res, next);
-    }
-    catch (error) {
-        next(error);
-    }
-};
+export const defineHandler = (middleware) => middleware;
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export function redirect(res, redirectUri) {
     return res

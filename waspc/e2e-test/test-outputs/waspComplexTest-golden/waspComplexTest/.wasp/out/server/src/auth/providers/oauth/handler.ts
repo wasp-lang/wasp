@@ -1,26 +1,26 @@
 import { Router } from 'express'
 
-import { handleRejection, redirect } from 'wasp/server/utils'
+import {
+    type ProviderConfig,
+    type UserSignupFields,
+} from 'wasp/auth/providers/types'
 import { rethrowPossibleAuthError } from 'wasp/auth/utils'
 import {
-  type UserSignupFields,
-  type ProviderConfig,
-} from 'wasp/auth/providers/types'
+    OAuthData,
+    callbackPath,
+    handleOAuthErrorAndGetRedirectUri,
+    loginPath,
+} from 'wasp/server/auth'
+import { defineHandler, redirect } from 'wasp/server/utils'
+import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 import {
-  type OAuthType,
-  type OAuthStateFor,
-  type OAuthStateWithCodeFor,
-  generateAndStoreOAuthState,
-  validateAndGetOAuthState,
+    type OAuthStateFor,
+    type OAuthStateWithCodeFor,
+    type OAuthType,
+    generateAndStoreOAuthState,
+    validateAndGetOAuthState,
 } from '../oauth/state.js'
 import { finishOAuthFlowAndGetRedirectUri } from '../oauth/user.js'
-import {
-  callbackPath,
-  loginPath,
-  handleOAuthErrorAndGetRedirectUri,
-} from 'wasp/server/auth'
-import { OAuthData } from 'wasp/server/auth'
-import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
 export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends OAuthData['tokens'] = never>({
   provider,
@@ -65,7 +65,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
 
   router.get(
     `/${loginPath}`,
-    handleRejection(async (req, res) => {
+    defineHandler(async (req, res) => {
       const oAuthState = generateAndStoreOAuthState({
         oAuthType,
         provider,
@@ -83,7 +83,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
 
   router.get(
     `/${callbackPath}`,
-    handleRejection(async (req, res) => {
+    defineHandler(async (req, res) => {
       try {
         const oAuthState = validateAndGetOAuthState({
           oAuthType,
@@ -91,7 +91,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
           req,
         })
         const tokens = await getProviderTokens(oAuthState)
-  
+
         const { providerProfile, providerUserId } = await getProviderInfo(tokens)
         try {
           const redirectUri = await finishOAuthFlowAndGetRedirectUri({
