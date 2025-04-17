@@ -200,7 +200,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "165e6625354026315f92c67a3935267a1e87541cc028efbc652c506ba3bdc374"
+        "f515896ddc3c01e22c20d3d41c1decc95cf17e922f804dea0a92214372b7582e"
     ],
     [
         [
@@ -333,7 +333,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "688fdd57d6a9e9ead90141c6f0ebea9d39713d5bd7a630d43f2c2cb5a7984108"
+        "258102c55c0e3cbea12f65e876715557053b3ebe06dd14ff67773d408abb999a"
     ],
     [
         [
@@ -473,7 +473,7 @@
             "file",
             "server/package.json"
         ],
-        "95d620f46b2d4e55da471e64552297c345572c8516299614534163ed273266e0"
+        "bcc70dc10dbec4f941c00f709bab7c574d13af1eb6c9bdd68d07bb8cbeb47009"
     ],
     [
         [
@@ -494,7 +494,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
+        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "c165909021613cb6e389b324632f199d392b093d18109f05ab33b720c429c187"
+        "089b4baf0e860121a2233bc309b39aa6a194ba79a12376ff489f200afde5a527"
     ],
     [
         [

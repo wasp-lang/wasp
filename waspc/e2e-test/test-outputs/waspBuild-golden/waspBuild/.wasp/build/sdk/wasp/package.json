@@ -6,7 +6,7 @@
     "@testing-library/react": "^14.1.2",
     "@vitest/ui": "^1.2.1",
     "axios": "^1.4.0",
-    "express": "~4.21.0",
+    "express": "~5.1.0",
     "jsdom": "^21.1.1",
     "mitt": "3.0.0",
     "msw": "^1.1.0",
@@ -20,8 +20,8 @@
   },
   "devDependencies": {
     "@tsconfig/node20": "latest",
-    "@types/express": "^4.17.13",
-    "@types/express-serve-static-core": "^4.17.13"
+    "@types/express": "^5.0.0",
+    "@types/express-serve-static-core": "^5.0.0"
   },
   "exports": {
     "./api/events": "./dist/api/events.js",
