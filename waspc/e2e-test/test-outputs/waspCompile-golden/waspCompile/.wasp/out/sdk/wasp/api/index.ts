@@ -38,12 +38,15 @@ api.interceptors.request.use((request) => {
   const sessionId = getSessionId()
   if (sessionId) {
     request.headers['Authorization'] = `Bearer ${sessionId}`
+    request.headers['X-Session-Id'] = sessionId
   }
   return request
 })
 
 api.interceptors.response.use(undefined, (error) => {
-  if (error.response?.status === 401) {
+  const failingSessionId = error.config.headers['X-Session-Id']
+  const currentSessionId = getSessionId()
+  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
     clearSessionId()
   }
   return Promise.reject(error)

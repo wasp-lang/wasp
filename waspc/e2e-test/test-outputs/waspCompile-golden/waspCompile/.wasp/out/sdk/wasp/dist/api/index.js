@@ -30,12 +30,15 @@ api.interceptors.request.use((request) => {
     const sessionId = getSessionId();
     if (sessionId) {
         request.headers['Authorization'] = `Bearer ${sessionId}`;
+        request.headers['X-Session-Id'] = sessionId;
     }
     return request;
 });
 api.interceptors.response.use(undefined, (error) => {
     var _a;
-    if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401) {
+    const failingSessionId = error.config.headers['X-Session-Id'];
+    const currentSessionId = getSessionId();
+    if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401 && failingSessionId === currentSessionId) {
         clearSessionId();
     }
     return Promise.reject(error);
