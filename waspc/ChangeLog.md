@@ -5,6 +5,7 @@
 ### ⚠️ Breaking Changes
 
 - In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
+- Wasp requires that projects have `tailwindcss@^3.2.7` dependency specified in their `devDependencies` in `package.json`. ([#2465](https://github.com/wasp-lang/wasp/pull/2465))
 
 ### 🔧 Small improvements
 
