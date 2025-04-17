@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "allowJs": true,
     "rootDir": ".",
-    "outDir": "dist", 
+    "outDir": "dist",
 
     /* Strictness and type checking */
     /*
@@ -23,7 +23,7 @@
        Reference: https://github.com/wasp-lang/wasp/issues/1938
     */
     "strict": true,
-    "useUnknownInCatchVariables": false, 
+    "useUnknownInCatchVariables": false,
     "noImplicitAny": false,
     "strictPropertyInitialization": false,
     /*
@@ -46,7 +46,7 @@
     // https://github.com/wasp-lang/wasp/issues/2654
     "resolveJsonModule": false,
     /*
-       The `isolatedModules` flag tells typescript to throw errors on code that 
+       The `isolatedModules` flag tells typescript to throw errors on code that
        doesn't work with bundlers:
          - The user code must enable it because Wasp bundles user code when bundling
         server code and web app code (which directly import the user code).
@@ -58,7 +58,7 @@
     "isolatedModules": false,
     // `verbatimModuleSyntax` is disabled because we don't yet want to
     // force user code into using `type` imports.
-    "verbatimModuleSyntax": false, 
+    "verbatimModuleSyntax": false,
     "moduleDetection": "force", // Assume all files are modules
     /*
        The correct `moduleResolution` option is `bundler` because:
@@ -71,7 +71,7 @@
 
        We currently bundle the SDK in a very hacky way (indirectly while bundling
        the server and client): https://github.com/wasp-lang/wasp/issues/2150
-       Regardless of how we do it, the SDK code is eventually bundled, so this 
+       Regardless of how we do it, the SDK code is eventually bundled, so this
        `tsconfig.json` file must reflect that (which means `moduleResolution:
         bundler`).
 
@@ -100,7 +100,7 @@
        messages and it prevent unnecessary full-page reloads when using Vite HMR.
        While this is great, we still want to dig deeper at some point to understand
        better why Vite HMR misbehaves when the SDK is recompiled:
-       https://github.com/wasp-lang/wasp/issues/1934 
+       https://github.com/wasp-lang/wasp/issues/1934
     */
     "incremental": true,
   },
