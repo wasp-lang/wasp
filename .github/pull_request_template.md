@@ -16,7 +16,7 @@ If you did a **bug fix, new feature, or breaking change**, that affects waspc, m
 1. [ ] I updated [ChangeLog.md](https://github.com/wasp-lang/wasp/blob/main/waspc/ChangeLog.md) with description of the change this PR introduces.
 2. [ ] I bumped waspc version in [waspc.cabal](https://github.com/wasp-lang/wasp/blob/main/waspc/waspc.cabal) to reflect changes I introduced, with regards to the version of the latest wasp release, if the bump was needed.
 
-### Add a regression test if fixing a bug
+### Add a regression test if needed
 
 If you did a **bug fix**, make sure you satisfy the following:
 
