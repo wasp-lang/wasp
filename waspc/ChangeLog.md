@@ -24,7 +24,8 @@ Address all breaking changes by following [the official migration guide](https:/
 ### 🔧 Small improvements
 
 - Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
-- Better TypeScript support ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+- Better TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+- Better DX when inspecting Wasp code ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 
 ## 0.16.3
 
