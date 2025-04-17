@@ -28,6 +28,8 @@ data CompilerOptions = CompilerOptions
     composite :: !(Maybe Bool),
     skipLibCheck :: !(Maybe Bool),
     moduleResolution :: !(Maybe String),
+    moduleDetection :: !(Maybe String),
+    isolatedModules :: !(Maybe Bool),
     jsx :: !(Maybe String),
     strict :: !(Maybe Bool),
     esModuleInterop :: !(Maybe Bool),
