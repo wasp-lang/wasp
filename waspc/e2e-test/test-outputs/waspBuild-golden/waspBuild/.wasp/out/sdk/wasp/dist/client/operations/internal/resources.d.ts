@@ -9,3 +9,4 @@ export function registerActionInProgress(optimisticUpdateTuples: any): void;
 export function registerActionDone(resources: any, optimisticUpdateTuples: any): Promise<void>;
 export function getActiveOptimisticUpdates(queryKey: any): any;
 export function invalidateAndRemoveQueries(): Promise<void>;
+//# sourceMappingURL=resources.d.ts.map

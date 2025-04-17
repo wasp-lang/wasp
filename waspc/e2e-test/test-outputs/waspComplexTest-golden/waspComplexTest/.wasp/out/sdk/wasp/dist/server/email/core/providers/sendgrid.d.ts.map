@@ -1,0 +1,1 @@
+{"version":3,"file":"sendgrid.d.ts","sourceRoot":"","sources":["../../../../../server/email/core/providers/sendgrid.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,gBAAgB,EAAE,WAAW,EAAE,MAAM,UAAU,CAAC;AAG9D,wBAAgB,uBAAuB,CACrC,QAAQ,EAAE,gBAAgB,GACzB,WAAW,CAoCb"}
