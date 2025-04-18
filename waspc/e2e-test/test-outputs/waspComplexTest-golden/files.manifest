@@ -5,6 +5,7 @@ waspComplexTest/.wasp/out/Dockerfile
 waspComplexTest/.wasp/out/db/schema.prisma
 waspComplexTest/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspComplexTest/.wasp/out/installedNpmDepsLog.json
+waspComplexTest/.wasp/out/sdk/wasp/api/axios.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/api/events.ts
 waspComplexTest/.wasp/out/sdk/wasp/api/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/forms/Auth.tsx

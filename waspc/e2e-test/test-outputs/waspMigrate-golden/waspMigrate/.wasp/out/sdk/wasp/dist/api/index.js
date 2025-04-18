@@ -26,16 +26,19 @@ export function removeLocalUserData() {
     storage.clear();
     apiEventsEmitter.emit('sessionId.clear');
 }
-api.interceptors.request.use((request) => {
+api.interceptors.request.use((config) => {
     const sessionId = getSessionId();
     if (sessionId) {
-        request.headers['Authorization'] = `Bearer ${sessionId}`;
+        config.headers['Authorization'] = `Bearer ${sessionId}`;
+        config._waspSessionId = sessionId;
     }
-    return request;
+    return config;
 });
 api.interceptors.response.use(undefined, (error) => {
     var _a;
-    if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401) {
+    const failingSessionId = error.config._waspSessionId;
+    const currentSessionId = getSessionId();
+    if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401 && failingSessionId === currentSessionId) {
         clearSessionId();
     }
     return Promise.reject(error);

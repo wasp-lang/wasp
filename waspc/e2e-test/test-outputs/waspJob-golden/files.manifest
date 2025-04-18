@@ -4,6 +4,7 @@ waspJob/.wasp/out/.waspchecksums
 waspJob/.wasp/out/Dockerfile
 waspJob/.wasp/out/db/schema.prisma
 waspJob/.wasp/out/installedNpmDepsLog.json
+waspJob/.wasp/out/sdk/wasp/api/axios.d.ts
 waspJob/.wasp/out/sdk/wasp/api/events.ts
 waspJob/.wasp/out/sdk/wasp/api/index.ts
 waspJob/.wasp/out/sdk/wasp/client/config.ts

@@ -7,6 +7,7 @@ waspMigrate/.wasp/out/db/schema.prisma
 waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspMigrate/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 waspMigrate/.wasp/out/installedNpmDepsLog.json
+waspMigrate/.wasp/out/sdk/wasp/api/axios.d.ts
 waspMigrate/.wasp/out/sdk/wasp/api/events.ts
 waspMigrate/.wasp/out/sdk/wasp/api/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/config.ts

@@ -3,6 +3,7 @@ waspCompile/.wasp/out/.waspchecksums
 waspCompile/.wasp/out/Dockerfile
 waspCompile/.wasp/out/db/schema.prisma
 waspCompile/.wasp/out/installedNpmDepsLog.json
+waspCompile/.wasp/out/sdk/wasp/api/axios.d.ts
 waspCompile/.wasp/out/sdk/wasp/api/events.ts
 waspCompile/.wasp/out/sdk/wasp/api/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/config.ts
