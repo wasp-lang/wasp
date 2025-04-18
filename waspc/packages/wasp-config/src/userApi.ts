@@ -92,55 +92,29 @@ export class App {
   }
 }
 
+export type UserSpec = {
+  app: { name: string; config: AppConfig }
+  actions: Map<string, ActionConfig>
+  apiNamespaces: Map<string, ApiNamespaceConfig>
+  apis: Map<string, ApiConfig>
+  auth?: AuthConfig
+  client?: ClientConfig
+  cruds: Map<string, Crud>
+  db?: DbConfig
+  emailSender?: EmailSenderConfig
+  jobs: Map<string, JobConfig>
+  pages: Map<string, PageConfig>
+  queries: Map<string, QueryConfig>
+  routes: Map<string, RouteConfig>
+  server?: ServerConfig
+  websocket?: WebsocketConfig
+}
+
 export type AppConfig = {
   title: string
   wasp: AppSpec.Wasp
   head?: string[]
 }
-
-export type ExtImport =
-  | {
-      import: string
-      from: AppSpec.ExtImport['path']
-    }
-  | {
-      importDefault: string
-      from: AppSpec.ExtImport['path']
-    }
-
-export type ServerConfig = {
-  setupFn?: ExtImport
-  middlewareConfigFn?: ExtImport
-  envValidationSchema?: ExtImport
-}
-
-export type PageConfig = {
-  component: ExtImport
-  authRequired?: boolean
-}
-
-export type WebsocketConfig = {
-  fn: ExtImport
-  autoConnect?: boolean
-}
-
-export type ClientConfig = {
-  rootComponent?: ExtImport
-  setupFn?: ExtImport
-  baseDir?: `/${string}`
-  envValidationSchema?: ExtImport
-}
-
-export type DbConfig = {
-  seeds?: ExtImport[]
-}
-
-export type RouteConfig = {
-  path: string
-  to: PageName
-}
-
-type PageName = string & { _brand: 'Page' }
 
 export type ActionConfig = {
   fn: ExtImport
@@ -153,11 +127,6 @@ export type ApiNamespaceConfig = {
   path: string
 }
 
-export type HttpRoute = {
-  method: AppSpec.HttpMethod
-  route: string
-}
-
 export type ApiConfig = {
   fn: ExtImport
   middlewareConfigFn?: ExtImport
@@ -166,57 +135,9 @@ export type ApiConfig = {
   auth?: boolean
 }
 
-export type JobConfig = {
-  executor: AppSpec.JobExecutor
-  perform: Perform
-  schedule?: ScheduleConfig
-  entities?: string[]
-}
-
-export type Crud = {
-  entity: string
-  operations: CrudOperations
-}
-
-export type CrudOperations = {
-  get?: CrudOperationOptions
-  getAll?: CrudOperationOptions
-  create?: CrudOperationOptions
-  update?: CrudOperationOptions
-  delete?: CrudOperationOptions
-}
-
-export type CrudOperationOptions = {
-  isPublic?: boolean
-  overrideFn?: ExtImport
-}
-
-export type Perform = {
-  fn: ExtImport
-  executorOptions?: ExecutorOptions
-}
-
-export type ScheduleConfig = {
-  cron: string
-  args?: object
-  executorOptions?: ExecutorOptions
-}
-
-type ExecutorOptions = {
-  // TODO: Type this better and test it
-  // rewriting waspc/todoApp should make sure it works
-  pgBoss: object
-}
-
-export type QueryConfig = {
-  fn: ExtImport
-  entities?: string[]
-  auth?: boolean
-}
-
-export type EmailSenderConfig = {
-  provider: AppSpec.EmailProvider
-  defaultFrom?: EmailFromField
+export type HttpRoute = {
+  method: AppSpec.HttpMethod
+  route: string
 }
 
 export type AuthConfig = {
@@ -245,28 +166,11 @@ export type UsernameAndPasswordConfig = {
   userSignupFields?: ExtImport
 }
 
-export type ExternalAuthConfig = {
-  configFn?: ExtImport
-  userSignupFields?: ExtImport
-}
-
 export type EmailAuthConfig = {
   userSignupFields?: ExtImport
   fromField: EmailFromField
   emailVerification: EmailVerificationConfig
   passwordReset: PasswordResetConfig
-}
-
-export type EmailSender = {
-  provider: EmailProvider
-  defaultFrom?: EmailFromField
-}
-
-export type EmailProvider = AppSpec.EmailProvider
-
-export type EmailFromField = {
-  name?: string
-  email: string
 }
 
 export type EmailVerificationConfig = {
@@ -279,20 +183,109 @@ export type PasswordResetConfig = {
   clientRoute: string
 }
 
-export type UserSpec = {
-  app: { name: string; config: AppConfig }
-  actions: Map<string, ActionConfig>
-  apiNamespaces: Map<string, ApiNamespaceConfig>
-  apis: Map<string, ApiConfig>
-  auth?: AuthConfig
-  client?: ClientConfig
-  cruds: Map<string, Crud>
-  db?: DbConfig
-  emailSender?: EmailSenderConfig
-  jobs: Map<string, JobConfig>
-  pages: Map<string, PageConfig>
-  queries: Map<string, QueryConfig>
-  routes: Map<string, RouteConfig>
-  server?: ServerConfig
-  websocket?: WebsocketConfig
+export type ExternalAuthConfig = {
+  configFn?: ExtImport
+  userSignupFields?: ExtImport
+}
+
+export type ClientConfig = {
+  rootComponent?: ExtImport
+  setupFn?: ExtImport
+  baseDir?: `/${string}`
+  envValidationSchema?: ExtImport
+}
+
+export type Crud = {
+  entity: string
+  operations: CrudOperations
+}
+
+export type CrudOperations = {
+  get?: CrudOperationOptions
+  getAll?: CrudOperationOptions
+  create?: CrudOperationOptions
+  update?: CrudOperationOptions
+  delete?: CrudOperationOptions
+}
+
+export type CrudOperationOptions = {
+  isPublic?: boolean
+  overrideFn?: ExtImport
+}
+
+export type DbConfig = {
+  seeds?: ExtImport[]
+}
+
+export type EmailSenderConfig = {
+  provider: AppSpec.EmailProvider
+  defaultFrom?: EmailFromField
+}
+
+export type JobConfig = {
+  executor: AppSpec.JobExecutor
+  perform: Perform
+  schedule?: ScheduleConfig
+  entities?: string[]
+}
+
+export type Perform = {
+  fn: ExtImport
+  executorOptions?: ExecutorOptions
+}
+
+export type ScheduleConfig = {
+  cron: string
+  args?: object
+  executorOptions?: ExecutorOptions
+}
+
+type ExecutorOptions = {
+  // TODO: Type this better and test it
+  // rewriting waspc/todoApp should make sure it works
+  pgBoss: object
+}
+
+export type PageConfig = {
+  component: ExtImport
+  authRequired?: boolean
+}
+
+export type QueryConfig = {
+  fn: ExtImport
+  entities?: string[]
+  auth?: boolean
+}
+
+export type RouteConfig = {
+  path: string
+  to: PageName
+}
+
+type PageName = string & { _brand: 'Page' }
+
+export type ServerConfig = {
+  setupFn?: ExtImport
+  middlewareConfigFn?: ExtImport
+  envValidationSchema?: ExtImport
+}
+
+export type WebsocketConfig = {
+  fn: ExtImport
+  autoConnect?: boolean
+}
+
+export type ExtImport =
+  | {
+      import: string
+      from: AppSpec.ExtImport['path']
+    }
+  | {
+      importDefault: string
+      from: AppSpec.ExtImport['path']
+    }
+
+export type EmailFromField = {
+  name?: string
+  email: string
 }
