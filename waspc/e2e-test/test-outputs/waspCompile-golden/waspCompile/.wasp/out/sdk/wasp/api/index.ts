@@ -34,17 +34,17 @@ export function removeLocalUserData(): void {
   apiEventsEmitter.emit('sessionId.clear')
 }
 
-api.interceptors.request.use((request) => {
+api.interceptors.request.use((config) => {
   const sessionId = getSessionId()
   if (sessionId) {
-    request.headers['Authorization'] = `Bearer ${sessionId}`
-    request.headers['X-Session-Id'] = sessionId
+    config.headers['Authorization'] = `Bearer ${sessionId}`
+    config._waspSessionId = sessionId
   }
-  return request
+  return config
 })
 
 api.interceptors.response.use(undefined, (error) => {
-  const failingSessionId = error.config.headers['X-Session-Id']
+  const failingSessionId = error.config._waspSessionId
   const currentSessionId = getSessionId()
   if (error.response?.status === 401 && failingSessionId === currentSessionId) {
     clearSessionId()
