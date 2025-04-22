@@ -1,269 +1,336 @@
 // File explanation:
 // https://stackoverflow.com/questions/12071344/what-are-fixtures-in-programming
 
+import {
+  ActionConfig,
+  ApiConfig,
+  ApiNamespaceConfig,
+  AppConfig,
+  AuthConfig,
+  ClientConfig,
+  Crud,
+  DbConfig,
+  EmailSenderConfig,
+  JobConfig,
+  PageConfig,
+  QueryConfig,
+  RouteConfig,
+  ServerConfig,
+  WebsocketConfig,
+} from '../userApi.js'
+
 export const APP = {
   NAME: 'todoApp',
-  TITLE: 'ToDO App',
-  VERSION: '^0.16.0',
-  HEAD_FAVICON: '<link rel="icon" href="/favicon.ico" />',
+  CONFIG: {
+    title: 'ToDO App',
+    wasp: { version: '^0.16.0' },
+    head: ['<link rel="icon" href="/favicon.ico" />'],
+  } satisfies AppConfig,
 } as const
 
 export const CRUD = {
   NAME: 'TaskCrud',
-  ENTITY: 'Task',
-  OPERATIONS: {
-    GET: {
-      IS_PUBLIC: true,
-      OVERRIDE_FN: {
-        IMPORT: 'getTask',
-        FROM: '@src/cruds/task',
+  CONFIG: {
+    entity: 'Task',
+    operations: {
+      get: {
+        isPublic: true,
+        overrideFn: {
+          import: 'getTask',
+          from: '@src/cruds/task',
+        },
+      },
+      getAll: {
+        isPublic: true,
+      },
+      create: {
+        isPublic: false,
+      },
+      update: {
+        isPublic: false,
+      },
+      delete: {
+        isPublic: false,
+        overrideFn: {
+          import: 'deleteTask',
+          from: '@src/cruds/task',
+        },
       },
     },
-    GET_ALL: {
-      IS_PUBLIC: true,
-    },
-    CREATE: {
-      IS_PUBLIC: false,
-    },
-    UPDATE: {
-      IS_PUBLIC: false,
-    },
-    DELETE: {
-      IS_PUBLIC: false,
-      OVERRIDE_FN: {
-        IMPORT: 'deleteTask',
-        FROM: '@src/cruds/task',
-      },
-    },
-  },
+  } satisfies Crud,
 } as const
 
 export const PAGE = {
   LOGIN: {
     NAME: 'LoginPage',
-    COMPONENT: {
-      FROM: '@src/pages/auth/Login',
-      IMPORT: 'Login',
-    },
+    CONFIG: {
+      component: {
+        from: '@src/pages/auth/Login',
+        import: 'Login',
+      },
+    } satisfies PageConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
-    COMPONENT: {
-      FROM: '@src/pages/auth/EmailVerification',
-      IMPORT: 'EmailVerification',
-    },
+    CONFIG: {
+      component: {
+        from: '@src/pages/auth/EmailVerification',
+        import: 'EmailVerification',
+      },
+    } satisfies PageConfig,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetPage',
-    COMPONENT: {
-      FROM: '@src/pages/auth/PasswordReset',
-      IMPORT: 'PasswordReset',
-    },
+    CONFIG: {
+      component: {
+        from: '@src/pages/auth/PasswordReset',
+        import: 'PasswordReset',
+      },
+    } satisfies PageConfig,
   },
 } as const
 
+// For simplicity sake we asserted `RouteConfig.to` as branded type
+// instead of creating a function which would accept branded string.
 export const ROUTE = {
   LOGIN: {
     NAME: 'LoginRoute',
-    PATH: '/login',
-    TO: PAGE.LOGIN.NAME,
+    CONFIG: {
+      path: '/login',
+      to: PAGE.LOGIN.NAME as string & { _brand: 'Page' },
+    } satisfies RouteConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationRoute',
-    PATH: '/email-verification',
-    TO: PAGE.EMAIL_VERIFICATION.NAME,
+    CONFIG: {
+      path: '/email-verification',
+      to: PAGE.EMAIL_VERIFICATION.NAME as string & { _brand: 'Page' },
+    } satisfies RouteConfig,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetRoute',
-    PATH: '/password-reset',
-    TO: PAGE.PASSWORD_RESET.NAME,
+    CONFIG: {
+      path: '/password-reset',
+      to: PAGE.PASSWORD_RESET.NAME as string & { _brand: 'Page' },
+    } satisfies RouteConfig,
   },
 } as const
 
 export const API_NAMESPACE = {
   NAME: 'bar',
-  MIDDLEWARE_CONFIG_FN: {
-    IMPORT: 'barMiddlewareConfigFn',
-    FROM: '@src/apis',
-  },
-  PATH: '/bar',
+  CONFIG: {
+    middlewareConfigFn: {
+      import: 'barMiddlewareConfigFn',
+      from: '@src/apis',
+    },
+    path: '/bar',
+  } satisfies ApiNamespaceConfig,
 } as const
 
 export const API = {
   NAME: 'barBaz',
-  FN: {
-    IMPORT: 'barBaz',
-    FROM: '@src/apis',
-  },
-  AUTH: true,
-  HTTP_ROUTE: {
-    METHOD: 'GET',
-    ROUTE: '/bar/baz',
-  },
-  ENTITY: 'Task',
+  CONFIG: {
+    fn: {
+      import: 'barBaz',
+      from: '@src/apis',
+    },
+    auth: true,
+    httpRoute: {
+      method: 'GET',
+      route: '/bar/baz',
+    },
+    entities: ['Task'],
+  } satisfies ApiConfig,
 } as const
 
 export const ACTION = {
   NAME: 'createTask',
-  FROM: '@src/actions',
-  ENTITY: 'Task',
+  CONFIG: {
+    fn: {
+      import: 'createTask',
+      from: '@src/actions',
+    },
+    entities: ['Task'],
+  } satisfies ActionConfig,
 } as const
 
 export const QUERY = {
   NAME: 'getTasks',
-  FROM: '@src/queries',
-  ENTITY: 'Task',
+  CONFIG: {
+    fn: {
+      import: 'getTasks',
+      from: '@src/queries',
+    },
+    entities: ['Task'],
+  } satisfies QueryConfig,
 } as const
 
 export const JOB = {
   NAME: 'mySpecialJob',
-  EXECUTOR: 'PgBoss',
-  ENTITY: 'Task',
-  PERFORM: {
-    FN: {
-      IMPORT: 'perform',
-      FROM: '@src/jobs/bar',
+  CONFIG: {
+    executor: 'PgBoss',
+    perform: {
+      fn: {
+        import: 'perform',
+        from: '@src/jobs/bar',
+      },
     },
-  },
+    entities: ['Task'],
+  } satisfies JobConfig,
 } as const
 
 export const AUTH = {
-  NAME: 'Auth',
-  ENTITY: 'User',
-  METHODS: {
-    DISCORD: {
-      CONFIG_FN: {
-        IMPORT: 'config',
-        FROM: '@src/auth/discord',
-      },
-      USER_SIGNUP_FIELDS: {
-        IMPORT: 'userSignupFields',
-        FROM: '@src/auth/discord',
-      },
-    },
-
-    GOOGLE: {
-      CONFIG_FN: {
-        IMPORT: 'config',
-        FROM: '@src/auth/google',
-      },
-      USER_SIGNUP_FIELDS: {
-        IMPORT: 'userSignupFields',
-        FROM: '@src/auth/google',
-      },
-    },
-
-    GITHUB: {
-      CONFIG_FN: {
-        IMPORT: 'config',
-        FROM: '@src/auth/github',
-      },
-      USER_SIGNUP_FIELDS: {
-        IMPORT: 'userSignupFields',
-        FROM: '@src/auth/github',
-      },
-    },
-
-    KEYCLOAK: {
-      CONFIG_FN: {
-        IMPORT: 'config',
-        FROM: '@src/auth/keycloak',
-      },
-      USER_SIGNUP_FIELDS: {
-        IMPORT: 'userSignupFields',
-        FROM: '@src/auth/keycloak',
-      },
-    },
-
-    USERNAME_AND_PASSWORD: {
-      USER_SIGNUP_FIELDS: {
-        IMPORT: 'userSignupFields',
-        FROM: '@src/auth/usernameAndPassword',
-      },
-    },
-
-    EMAIL: {
-      USER_SIGNUP_FIELDS: {
-        IMPORT: 'userSignupFields',
-        FROM: '@src/auth/email',
-      },
-      FROM_FIELD: {
-        NAME: 'ToDo App',
-        EMAIL: 'test@domain.tld',
-      },
-      EMAIL_VERIFICATION: {
-        GET_EMAIL_CONTENT_FN: {
-          IMPORT: 'getVerificationEmailContent',
-          FROM: '@src/auth/email',
+  CONFIG: {
+    userEntity: 'User',
+    methods: {
+      discord: {
+        configFn: {
+          import: 'config',
+          from: '@src/auth/discord',
         },
-        CLIENT_ROUTE: ROUTE.EMAIL_VERIFICATION.NAME,
-      },
-      PASSWORD_RESET: {
-        GET_EMAIL_CONTENT_FN: {
-          IMPORT: 'getPasswordResetEmailContent',
-          FROM: '@src/auth/email',
+        userSignupFields: {
+          import: 'userSignupFields',
+          from: '@src/auth/discord',
         },
-        CLIENT_ROUTE: ROUTE.PASSWORD_RESET.NAME,
+      },
+      google: {
+        configFn: {
+          import: 'config',
+          from: '@src/auth/google',
+        },
+        userSignupFields: {
+          import: 'userSignupFields',
+          from: '@src/auth/google',
+        },
+      },
+      gitHub: {
+        configFn: {
+          import: 'config',
+          from: '@src/auth/github',
+        },
+        userSignupFields: {
+          import: 'userSignupFields',
+          from: '@src/auth/github',
+        },
+      },
+      keycloak: {
+        configFn: {
+          import: 'config',
+          from: '@src/auth/keycloak',
+        },
+        userSignupFields: {
+          import: 'userSignupFields',
+          from: '@src/auth/keycloak',
+        },
+      },
+      usernameAndPassword: {
+        userSignupFields: {
+          import: 'userSignupFields',
+          from: '@src/auth/usernameAndPassword',
+        },
+      },
+      email: {
+        userSignupFields: {
+          import: 'userSignupFields',
+          from: '@src/auth/email',
+        },
+        fromField: {
+          name: 'ToDo App',
+          email: 'test@domain.tld',
+        },
+        emailVerification: {
+          getEmailContentFn: {
+            import: 'getVerificationEmailContent',
+            from: '@src/auth/email',
+          },
+          clientRoute: ROUTE.EMAIL_VERIFICATION.NAME,
+        },
+        passwordReset: {
+          getEmailContentFn: {
+            import: 'getPasswordResetEmailContent',
+            from: '@src/auth/email',
+          },
+          clientRoute: ROUTE.PASSWORD_RESET.NAME,
+        },
       },
     },
-  },
-  ON_AUTH_FAILED_REDIRECT_TO: '/login',
-  ON_AUTH_SUCCEEDED_REDIRECT_TO: '/profile',
-  ON_BEFORE_SIGNUP: {
-    IMPORT: 'onBeforeSignup',
-    FROM: '@src/auth/hooks.js',
-  },
-  ON_AFTER_SIGNUP: {
-    IMPORT: 'onAfterSignup',
-    FROM: '@src/auth/hooks.js',
-  },
-  ON_BEFORE_OAUTH_REDIRECT: {
-    IMPORT: 'onBeforeOAuthRedirect',
-    FROM: '@src/auth/hooks.js',
-  },
-  ON_BEFORE_LOGIN: {
-    IMPORT: 'onBeforeLogin',
-    FROM: '@src/auth/hooks.js',
-  },
-  ON_AFTER_LOGIN: {
-    IMPORT: 'onAfterLogin',
-    FROM: '@src/auth/hooks.js',
-  },
+    onAuthFailedRedirectTo: '/login',
+    onAuthSucceededRedirectTo: '/profile',
+    onBeforeSignup: {
+      import: 'onBeforeSignup',
+      from: '@src/auth/hooks.js',
+    },
+    onAfterSignup: {
+      import: 'onAfterSignup',
+      from: '@src/auth/hooks.js',
+    },
+    onBeforeOAuthRedirect: {
+      import: 'onBeforeOAuthRedirect',
+      from: '@src/auth/hooks.js',
+    },
+    onBeforeLogin: {
+      import: 'onBeforeLogin',
+      from: '@src/auth/hooks.js',
+    },
+    onAfterLogin: {
+      import: 'onAfterLogin',
+      from: '@src/auth/hooks.js',
+    },
+  } satisfies AuthConfig,
 } as const
 
 export const CLIENT = {
-  ROOT_COMPONENT: {
-    FROM: '@src/App',
-    IMPORT: 'App',
-  },
-  SETUP_FN: {
-    FROM: '@src/clientSetup',
-    IMPORT: 'setup',
-  },
+  CONFIG: {
+    rootComponent: {
+      from: '@src/App',
+      import: 'App',
+    },
+    setupFn: {
+      from: '@src/clientSetup',
+      import: 'setup',
+    },
+  } satisfies ClientConfig,
 } as const
 
 export const SERVER = {
-  SETUP_FROM: '@src/serverSetup',
-  SETUP_IMPORT_DEFAULT: 'setup',
-  MIDDLEWARE_IMPORT: 'serverMiddlewareFn',
+  CONFIG: {
+    setupFn: {
+      import: 'setup',
+      from: '@src/serverSetup',
+    },
+    middlewareConfigFn: {
+      import: 'serverMiddlewareFn',
+      from: '@src/serverSetup',
+    },
+  } satisfies ServerConfig,
 } as const
 
 export const WEBSOCKET = {
-  FROM: '@src/webSocket',
-  FN_IMPORT: 'webSocketFn',
-  AUTO_CONNECT: true,
+  CONFIG: {
+    fn: {
+      import: 'webSocketFn',
+      from: '@src/webSocket',
+    },
+    autoConnect: true,
+  } satisfies WebsocketConfig,
 } as const
 
 export const DB = {
-  SEEDS: {
-    FROM: '@src/dbSeeds',
-    IMPORT: 'devSeedSimple',
-  },
+  CONFIG: {
+    seeds: [
+      {
+        import: 'devSeedSimple',
+        from: '@src/dbSeeds',
+      },
+    ],
+  } satisfies DbConfig,
 } as const
 
 export const EMAIL = {
-  SMTP: {
-    PROVIDER: 'SMTP',
-    ADDRESS: 'test@test.com',
-  },
+  CONFIG: {
+    provider: 'SMTP',
+    defaultFrom: {
+      email: 'test@test.com',
+    },
+  } satisfies EmailSenderConfig,
 } as const
