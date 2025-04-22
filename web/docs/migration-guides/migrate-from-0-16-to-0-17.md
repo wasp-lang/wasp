@@ -141,7 +141,7 @@ and `@types/express`:
 </TabItem>
 </Tabs>
 
-### 2. Upgrade your `api` endpoints to Express 5
+### 3. Upgrade your `api` endpoints to Express 5
 
 Wasp now uses [Express v5](https://expressjs.com/2024/10/15/v5-release.html), which impacts
 [API Endpoints](../advanced/apis.md) (defined with `api` in your Wasp file).
@@ -155,7 +155,7 @@ In general, you only need to worry about changes to the `req` and `res` objects 
 The breaking changes are mostly edge cases and most code should work without any updates.
 :::
 
-### 3. Enjoy your updated Wasp app
+### 4. Enjoy your updated Wasp app
 
 That's it!
 
