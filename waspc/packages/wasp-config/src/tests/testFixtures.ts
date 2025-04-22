@@ -33,12 +33,24 @@ export const CRUD = {
       },
       getAll: {
         isPublic: true,
+        overrideFn: {
+          import: 'getAllTasks',
+          from: '@src/cruds/task',
+        },
       },
       create: {
         isPublic: false,
+        overrideFn: {
+          import: 'createTask',
+          from: '@src/cruds/task',
+        },
       },
       update: {
         isPublic: false,
+        overrideFn: {
+          import: 'updateTask',
+          from: '@src/cruds/task',
+        },
       },
       delete: {
         isPublic: false,
@@ -173,6 +185,9 @@ export const JOB = {
       fn: {
         import: 'perform',
         from: '@src/jobs/bar',
+      },
+      executorOptions: {
+        pgBoss: { jobOptions: { attempts: 3 } },
       },
     },
     entities: [TASK_ENTITY],

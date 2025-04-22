@@ -106,15 +106,15 @@ function mapToDecls<T, DeclType extends AppSpec.Decl['declType']>(
   }))
 }
 
-function mapOperationConfig(
+export function mapOperationConfig(
   config: User.QueryConfig,
   parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Query
-function mapOperationConfig(
+export function mapOperationConfig(
   config: User.ActionConfig,
   parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Action
-function mapOperationConfig(
+export function mapOperationConfig(
   config: User.ActionConfig | User.QueryConfig,
   parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Action | AppSpec.Query {
@@ -158,11 +158,11 @@ export function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
   }
 }
 
-function mapHttpRoute(httpRoute: User.HttpRoute): AppSpec.HttpRoute {
+export function mapHttpRoute(httpRoute: User.HttpRoute): AppSpec.HttpRoute {
   return [httpRoute.method, httpRoute.route]
 }
 
-function mapApiConfig(
+export function mapApiConfig(
   config: User.ApiConfig,
   parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Api {
@@ -176,7 +176,7 @@ function mapApiConfig(
   }
 }
 
-function mapApiNamespace(
+export function mapApiNamespace(
   config: User.ApiNamespaceConfig
 ): AppSpec.ApiNamespace {
   const { middlewareConfigFn, path } = config
@@ -379,7 +379,7 @@ export function mapWebSocket(
   }
 }
 
-function mapJob(
+export function mapJob(
   job: User.JobConfig,
   parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Job {
@@ -392,7 +392,7 @@ function mapJob(
   }
 }
 
-function mapSchedule(schedule: User.ScheduleConfig): AppSpec.Schedule {
+export function mapSchedule(schedule: User.ScheduleConfig): AppSpec.Schedule {
   const { cron, args, executorOptions } = schedule
   return {
     cron,
@@ -400,7 +400,8 @@ function mapSchedule(schedule: User.ScheduleConfig): AppSpec.Schedule {
     executorOptions,
   }
 }
-function mapPerform(perform: User.Perform): AppSpec.Perform {
+
+export function mapPerform(perform: User.Perform): AppSpec.Perform {
   const { fn, executorOptions } = perform
   return {
     fn: mapExtImport(fn),
@@ -408,7 +409,7 @@ function mapPerform(perform: User.Perform): AppSpec.Perform {
   }
 }
 
-function mapRoute(
+export function mapRoute(
   route: User.RouteConfig,
   parsePageRef: RefParser<'Page'>
 ): AppSpec.Route {
@@ -418,7 +419,8 @@ function mapRoute(
     to: parsePageRef(to),
   }
 }
-function mapCrud(
+
+export function mapCrud(
   crudConfig: User.Crud,
   parseEntityRef: RefParser<'Entity'>
 ): AppSpec.Crud {
@@ -429,7 +431,7 @@ function mapCrud(
   }
 }
 
-function mapCrudOperations(
+export function mapCrudOperations(
   operations: User.CrudOperations
 ): AppSpec.CrudOperations {
   const { get, getAll, create, update, delete: del } = operations
@@ -443,7 +445,7 @@ function mapCrudOperations(
   }
 }
 
-function mapCrudOperationOptions(
+export function mapCrudOperationOptions(
   options: User.CrudOperationOptions
 ): AppSpec.CrudOperationOptions {
   const { isPublic, overrideFn } = options
@@ -453,7 +455,7 @@ function mapCrudOperationOptions(
   }
 }
 
-function mapPage(pageConfig: User.PageConfig): AppSpec.Page {
+export function mapPage(pageConfig: User.PageConfig): AppSpec.Page {
   const { component, authRequired } = pageConfig
   return {
     component: mapExtImport(component),
