@@ -104,6 +104,43 @@ It is possible that you were not using this function in your code.
 If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
 this change is already handled for you.
 
+### 2. Upgrade Express dependencies
+
+You should change your `package.json` to use v5 of `express`
+and `@types/express`:
+
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "dependencies": {
+    "express": "~4.21.0",
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```json title="package.json"
+{
+  "dependencies": {
+    "express": "~5.1.0",
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
 ### 2. Upgrade your `api` endpoints to Express 5
 
 Wasp now uses [Express v5](https://expressjs.com/2024/10/15/v5-release.html), which impacts
