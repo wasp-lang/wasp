@@ -151,7 +151,7 @@
             "file",
             "../out/sdk/wasp/auth/useAuth.ts"
         ],
-        "d215bb817de2f9dc2a4d1fa45fdb3f81048ba0552eecec922b853592c19a56ac"
+        "2cb0377bbdf84d3b93a45cddf96929bdf7ca693d9c1487bc1f32e8f8342de1b6"
     ],
     [
         [
@@ -1110,7 +1110,7 @@
             "file",
             "server/src/routes/auth/me.ts"
         ],
-        "da6eff1a2bb7855987343b030e66fc76316d38705f004aa8071213fff6029e00"
+        "625814fbb520c63d903d56c0c6f92888763b6572d7996a9bdb63df137e8034c9"
     ],
     [
         [
