@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import { writeFileSync } from 'fs'
+import { mapUserSpecToAppSpecJson } from './mapUserSpecToAppSepcJson.js'
 import { App } from './userApi.js'
-import { Decl } from './appSpec.js'
-import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
-import { GET_USER_SPEC } from './_private.js'
 
 main()
 
@@ -21,8 +19,7 @@ async function main() {
   }
   const { value: appDefinition } = result
 
-  const decls = analyzeAppDefinition(appDefinition, entityNames)
-  const declsJson = getDeclsJson(decls)
+  const declsJson = mapUserSpecToAppSpecJson(appDefinition, entityNames)
 
   writeFileSync(declsJsonOutputFile, declsJson)
 }
@@ -32,15 +29,6 @@ async function getAppDefinitionOrError(
 ): Promise<Result<App, string>> {
   const usersDefaultExport: unknown = (await import(mainWaspJs)).default
   return getValidAppOrError(usersDefaultExport)
-}
-
-function analyzeAppDefinition(app: App, entityNames: string[]): Decl[] {
-  const userSpec = app[GET_USER_SPEC]()
-  return mapUserSpecToAppSpecDecls(userSpec, entityNames)
-}
-
-function getDeclsJson(appConfig: Decl[]): string {
-  return JSON.stringify(appConfig)
 }
 
 function getValidAppOrError(app: unknown): Result<App, string> {

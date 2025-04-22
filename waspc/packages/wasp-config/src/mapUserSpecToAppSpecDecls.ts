@@ -170,7 +170,7 @@ function mapApiNamespace(
   }
 }
 
-function mapApp(
+export function mapApp(
   app: User.AppConfig,
   // TODO: Make this better, optional props are problematic so I have to pass the parsers first
   parseEntityRef: RefParser<'Entity'>,
@@ -447,7 +447,7 @@ type RefParser<T extends AppSpec.DeclType> = (
   potentialReferences: string
 ) => AppSpec.Ref<T>
 
-function makeRefParser<T extends AppSpec.DeclType>(
+export function makeRefParser<T extends AppSpec.DeclType>(
   declType: T,
   declNames: string[]
 ): RefParser<T> {

@@ -1,8 +1,12 @@
 import { describe, expect, test } from 'vitest'
-import { GET_USER_SPEC } from '../_private.js'
 import * as AppSpec from '../appSpec.js'
-import { mapUserSpecToAppSpecDecls } from '../mapUserSpecToAppSpecDecls.js'
-import * as User from '../userApi.js'
+import { getUserSpec } from '../mapUserSpecToAppSepcJson.js'
+import {
+  makeRefParser,
+  mapApp,
+  mapUserSpecToAppSpecDecls,
+} from '../mapUserSpecToAppSpecDecls.js'
+import * as UserSpec from '../userApi.js'
 import {
   ACTION,
   API,
@@ -19,12 +23,13 @@ import {
   QUERY,
   ROUTE,
   SERVER,
+  USER_ENTITY,
   WEBSOCKET,
 } from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
   test('correctly transforms a complete app configuration', () => {
-    const app = new User.App(APP.NAME, APP.CONFIG)
+    const app = new UserSpec.App(APP.NAME, APP.CONFIG)
     app.action(ACTION.NAME, ACTION.CONFIG)
     app.apiNamespace(API_NAMESPACE.NAME, API_NAMESPACE.CONFIG)
     app.api(API.NAME, API.CONFIG)
@@ -45,9 +50,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
     app.server(SERVER.CONFIG)
     app.webSocket(WEBSOCKET.CONFIG)
 
-    const userSpec = app[GET_USER_SPEC]()
-    const entityNames = ENTITIES
-    const result = mapUserSpecToAppSpecDecls(userSpec, entityNames)
+    const userSpec = getUserSpec(app)
+    const result = mapUserSpecToAppSpecDecls(userSpec, ENTITIES)
 
     const declTypes = result.map((decl) => decl.declType)
     const declNames = result.map((decl) => decl.declName)
@@ -198,6 +202,12 @@ describe('mapUserSpecToAppSpecDecls', () => {
       name: CLIENT.CONFIG.setupFn.import,
       path: CLIENT.CONFIG.setupFn.from,
     })
+    expect(client?.baseDir).toBe(CLIENT.CONFIG.baseDir)
+    expect(client?.envValidationSchema).toEqual({
+      kind: 'named',
+      name: CLIENT.CONFIG.envValidationSchema.import,
+      path: CLIENT.CONFIG.envValidationSchema.from,
+    })
 
     // DbConfig Mapping
     const db = appDecl.declValue.db
@@ -214,6 +224,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(emailSender).toBeDefined()
     expect(emailSender?.provider).toBe(EMAIL.CONFIG.provider)
     expect(emailSender?.defaultFrom?.email).toBe(EMAIL.CONFIG.defaultFrom.email)
+    expect(emailSender?.defaultFrom?.name).toBe(EMAIL.CONFIG.defaultFrom.name)
 
     // ServerConfig Mapping
     const server = appDecl.declValue.server
@@ -222,6 +233,16 @@ describe('mapUserSpecToAppSpecDecls', () => {
       kind: 'named',
       name: SERVER.CONFIG.setupFn.import,
       path: SERVER.CONFIG.setupFn.from,
+    })
+    expect(server?.middlewareConfigFn).toEqual({
+      kind: 'named',
+      name: SERVER.CONFIG.middlewareConfigFn.import,
+      path: SERVER.CONFIG.middlewareConfigFn.from,
+    })
+    expect(server?.envValidationSchema).toEqual({
+      kind: 'named',
+      name: SERVER.CONFIG.envValidationSchema.import,
+      path: SERVER.CONFIG.envValidationSchema.from,
     })
 
     // WebSocketConfig Mapping
@@ -429,6 +450,273 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(queryDecl.declValue.entities?.[0]).toEqual({
       name: QUERY.CONFIG.entities[0],
       declType: 'Entity',
+    })
+  })
+
+  describe('mapApp', () => {
+    test('should map minimal UserSpec App', () => {
+      const app = new UserSpec.App(APP.NAME, {
+        title: APP.CONFIG.title,
+        wasp: APP.CONFIG.wasp,
+      })
+      const userSpec = getUserSpec(app)
+      const parseEntityRef = makeRefParser('Entity', [])
+      const parseRouteRef = makeRefParser('Route', [])
+
+      const result = mapApp(
+        userSpec.app.config,
+        parseEntityRef,
+        parseRouteRef,
+        userSpec.auth,
+        userSpec.client,
+        userSpec.server,
+        userSpec.db,
+        userSpec.emailSender,
+        userSpec.websocket
+      )
+
+      expect(result).toBeDefined()
+      expect(result).toEqual({
+        wasp: {
+          version: APP.CONFIG.wasp.version,
+        },
+        title: APP.CONFIG.title,
+        head: undefined,
+        auth: undefined,
+        server: undefined,
+        client: undefined,
+        db: undefined,
+        emailSender: undefined,
+        webSocket: undefined,
+      } satisfies AppSpec.App)
+    })
+
+    test('should map full UserSpec App', () => {
+      const app = new UserSpec.App(APP.NAME, APP.CONFIG)
+      app.auth(AUTH.CONFIG)
+      app.client(CLIENT.CONFIG)
+      app.db(DB.CONFIG)
+      app.emailSender(EMAIL.CONFIG)
+      app.server(SERVER.CONFIG)
+      app.webSocket(WEBSOCKET.CONFIG)
+
+      const userSpec = getUserSpec(app)
+      const parseEntityRef = makeRefParser('Entity', [USER_ENTITY])
+      const parseRouteRef = makeRefParser('Route', [
+        ROUTE.EMAIL_VERIFICATION.NAME,
+        ROUTE.PASSWORD_RESET.NAME,
+      ])
+
+      const result = mapApp(
+        userSpec.app.config,
+        parseEntityRef,
+        parseRouteRef,
+        userSpec.auth,
+        userSpec.server,
+        userSpec.client,
+        userSpec.db,
+        userSpec.emailSender,
+        userSpec.websocket
+      )
+
+      expect(result).toBeDefined()
+      expect(result).toEqual({
+        wasp: {
+          version: APP.CONFIG.wasp.version,
+        },
+        title: APP.CONFIG.title,
+        head: APP.CONFIG.head,
+        auth: {
+          userEntity: {
+            declType: 'Entity',
+            name: USER_ENTITY,
+          },
+          externalAuthEntity: undefined,
+          methods: {
+            discord: {
+              configFn: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.discord.configFn.import,
+                path: AUTH.CONFIG.methods.discord.configFn.from,
+              },
+              userSignupFields: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.discord.userSignupFields.import,
+                path: AUTH.CONFIG.methods.discord.userSignupFields.from,
+              },
+            },
+            gitHub: {
+              configFn: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.gitHub.configFn.import,
+                path: AUTH.CONFIG.methods.gitHub.configFn.from,
+              },
+              userSignupFields: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.gitHub.userSignupFields.import,
+                path: AUTH.CONFIG.methods.gitHub.userSignupFields.from,
+              },
+            },
+            google: {
+              configFn: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.google.configFn.import,
+                path: AUTH.CONFIG.methods.google.configFn.from,
+              },
+              userSignupFields: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.google.userSignupFields.import,
+                path: AUTH.CONFIG.methods.google.userSignupFields.from,
+              },
+            },
+            keycloak: {
+              configFn: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.keycloak.configFn.import,
+                path: AUTH.CONFIG.methods.keycloak.configFn.from,
+              },
+              userSignupFields: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.keycloak.userSignupFields.import,
+                path: AUTH.CONFIG.methods.keycloak.userSignupFields.from,
+              },
+            },
+            usernameAndPassword: {
+              userSignupFields: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields
+                  .import,
+                path: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields
+                  .from,
+              },
+            },
+            email: {
+              userSignupFields: {
+                kind: 'named',
+                name: AUTH.CONFIG.methods.email.userSignupFields.import,
+                path: AUTH.CONFIG.methods.email.userSignupFields.from,
+              },
+              fromField: {
+                name: AUTH.CONFIG.methods.email.fromField.name,
+                email: AUTH.CONFIG.methods.email.fromField.email,
+              },
+              emailVerification: {
+                getEmailContentFn: {
+                  kind: 'named',
+                  name: AUTH.CONFIG.methods.email.emailVerification
+                    .getEmailContentFn.import,
+                  path: AUTH.CONFIG.methods.email.emailVerification
+                    .getEmailContentFn.from,
+                },
+                clientRoute: {
+                  name: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+                  declType: 'Route',
+                },
+              },
+              passwordReset: {
+                getEmailContentFn: {
+                  kind: 'named',
+                  name: AUTH.CONFIG.methods.email.passwordReset
+                    .getEmailContentFn.import,
+                  path: AUTH.CONFIG.methods.email.passwordReset
+                    .getEmailContentFn.from,
+                },
+                clientRoute: {
+                  name: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+                  declType: 'Route',
+                },
+              },
+            },
+          },
+          onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+          onAuthSucceededRedirectTo: AUTH.CONFIG.onAuthSucceededRedirectTo,
+
+          onBeforeSignup: {
+            kind: 'named',
+            name: AUTH.CONFIG.onBeforeSignup.import,
+            path: AUTH.CONFIG.onBeforeSignup.from,
+          },
+          onAfterSignup: {
+            kind: 'named',
+            name: AUTH.CONFIG.onAfterSignup.import,
+            path: AUTH.CONFIG.onAfterSignup.from,
+          },
+          onBeforeOAuthRedirect: {
+            kind: 'named',
+            name: AUTH.CONFIG.onBeforeOAuthRedirect.import,
+            path: AUTH.CONFIG.onBeforeOAuthRedirect.from,
+          },
+          onBeforeLogin: {
+            kind: 'named',
+            name: AUTH.CONFIG.onBeforeLogin.import,
+            path: AUTH.CONFIG.onBeforeLogin.from,
+          },
+          onAfterLogin: {
+            kind: 'named',
+            name: AUTH.CONFIG.onAfterLogin.import,
+            path: AUTH.CONFIG.onAfterLogin.from,
+          },
+        },
+        server: {
+          envValidationSchema: {
+            kind: 'named',
+            name: SERVER.CONFIG.envValidationSchema.import,
+            path: SERVER.CONFIG.envValidationSchema.from,
+          },
+          setupFn: {
+            kind: 'named',
+            name: SERVER.CONFIG.setupFn.import,
+            path: SERVER.CONFIG.setupFn.from,
+          },
+          middlewareConfigFn: {
+            kind: 'named',
+            name: SERVER.CONFIG.middlewareConfigFn.import,
+            path: SERVER.CONFIG.middlewareConfigFn.from,
+          },
+        },
+        client: {
+          rootComponent: {
+            kind: 'named',
+            name: CLIENT.CONFIG.rootComponent.import,
+            path: CLIENT.CONFIG.rootComponent.from,
+          },
+          setupFn: {
+            kind: 'named',
+            name: CLIENT.CONFIG.setupFn.import,
+            path: CLIENT.CONFIG.setupFn.from,
+          },
+          baseDir: CLIENT.CONFIG.baseDir,
+          envValidationSchema: {
+            kind: 'named',
+            name: CLIENT.CONFIG.envValidationSchema.import,
+            path: CLIENT.CONFIG.envValidationSchema.from,
+          },
+        },
+        db: {
+          seeds: [
+            {
+              kind: 'named',
+              name: DB.CONFIG.seeds[0]?.import as string,
+              path: DB.CONFIG.seeds[0]?.from as `@src/${string}`,
+            },
+          ],
+        },
+        emailSender: {
+          provider: EMAIL.CONFIG.provider,
+          defaultFrom: {
+            email: EMAIL.CONFIG.defaultFrom.email,
+            name: EMAIL.CONFIG.defaultFrom.name,
+          },
+        },
+        webSocket: {
+          autoConnect: WEBSOCKET.CONFIG.autoConnect,
+          fn: {
+            kind: 'named',
+            name: WEBSOCKET.CONFIG.fn.import,
+            path: WEBSOCKET.CONFIG.fn.from,
+          },
+        },
+      } satisfies AppSpec.App)
     })
   })
 })

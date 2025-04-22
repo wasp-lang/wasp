@@ -1,26 +1,12 @@
-// File explanation:
+import * as UserSpec from '../userApi.js'
+
+// Contains sample data that can be used for testing purposes.
+// In our case the sample data represents UserSpec data.
+// Further explanation:
 // https://stackoverflow.com/questions/12071344/what-are-fixtures-in-programming
 
-import {
-  ActionConfig,
-  ApiConfig,
-  ApiNamespaceConfig,
-  AppConfig,
-  AuthConfig,
-  ClientConfig,
-  Crud,
-  DbConfig,
-  EmailSenderConfig,
-  JobConfig,
-  PageConfig,
-  QueryConfig,
-  RouteConfig,
-  ServerConfig,
-  WebsocketConfig,
-} from '../userApi.js'
-
-const TASK_ENTITY = 'Task'
-const USER_ENTITY = 'User'
+export const TASK_ENTITY = 'Task'
+export const USER_ENTITY = 'User'
 export const ENTITIES = [TASK_ENTITY, USER_ENTITY]
 
 export const APP = {
@@ -29,7 +15,7 @@ export const APP = {
     title: 'ToDO App',
     wasp: { version: '^0.16.0' },
     head: ['<link rel="icon" href="/favicon.ico" />'],
-  } satisfies AppConfig,
+  } satisfies UserSpec.AppConfig,
 } as const
 
 export const CRUD = {
@@ -61,7 +47,7 @@ export const CRUD = {
         },
       },
     },
-  } satisfies Crud,
+  } satisfies UserSpec.Crud,
 } as const
 
 export const PAGE = {
@@ -72,7 +58,7 @@ export const PAGE = {
         from: '@src/pages/auth/Login',
         import: 'Login',
       },
-    } satisfies PageConfig,
+    } satisfies UserSpec.PageConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
@@ -81,7 +67,7 @@ export const PAGE = {
         from: '@src/pages/auth/EmailVerification',
         import: 'EmailVerification',
       },
-    } satisfies PageConfig,
+    } satisfies UserSpec.PageConfig,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetPage',
@@ -90,7 +76,7 @@ export const PAGE = {
         from: '@src/pages/auth/PasswordReset',
         import: 'PasswordReset',
       },
-    } satisfies PageConfig,
+    } satisfies UserSpec.PageConfig,
   },
 } as const
 
@@ -102,21 +88,21 @@ export const ROUTE = {
     CONFIG: {
       path: '/login',
       to: PAGE.LOGIN.NAME as string & { _brand: 'Page' },
-    } satisfies RouteConfig,
+    } satisfies UserSpec.RouteConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationRoute',
     CONFIG: {
       path: '/email-verification',
       to: PAGE.EMAIL_VERIFICATION.NAME as string & { _brand: 'Page' },
-    } satisfies RouteConfig,
+    } satisfies UserSpec.RouteConfig,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetRoute',
     CONFIG: {
       path: '/password-reset',
       to: PAGE.PASSWORD_RESET.NAME as string & { _brand: 'Page' },
-    } satisfies RouteConfig,
+    } satisfies UserSpec.RouteConfig,
   },
 } as const
 
@@ -128,7 +114,7 @@ export const API_NAMESPACE = {
       from: '@src/apis',
     },
     path: '/bar',
-  } satisfies ApiNamespaceConfig,
+  } satisfies UserSpec.ApiNamespaceConfig,
 } as const
 
 export const API = {
@@ -144,7 +130,7 @@ export const API = {
       route: '/bar/baz',
     },
     entities: [TASK_ENTITY],
-  } satisfies ApiConfig,
+  } satisfies UserSpec.ApiConfig,
 } as const
 
 export const ACTION = {
@@ -155,7 +141,7 @@ export const ACTION = {
       from: '@src/actions',
     },
     entities: [TASK_ENTITY],
-  } satisfies ActionConfig,
+  } satisfies UserSpec.ActionConfig,
 } as const
 
 export const QUERY = {
@@ -166,7 +152,7 @@ export const QUERY = {
       from: '@src/queries',
     },
     entities: [TASK_ENTITY],
-  } satisfies QueryConfig,
+  } satisfies UserSpec.QueryConfig,
 } as const
 
 export const JOB = {
@@ -180,7 +166,7 @@ export const JOB = {
       },
     },
     entities: [TASK_ENTITY],
-  } satisfies JobConfig,
+  } satisfies UserSpec.JobConfig,
 } as const
 
 export const AUTH = {
@@ -280,7 +266,7 @@ export const AUTH = {
       import: 'onAfterLogin',
       from: '@src/auth/hooks.js',
     },
-  } satisfies AuthConfig,
+  } satisfies UserSpec.AuthConfig,
 } as const
 
 export const CLIENT = {
@@ -293,7 +279,12 @@ export const CLIENT = {
       from: '@src/clientSetup',
       import: 'setup',
     },
-  } satisfies ClientConfig,
+    baseDir: '/src',
+    envValidationSchema: {
+      import: 'envValidationSchema',
+      from: '@src/envValidationSchema',
+    },
+  } satisfies UserSpec.ClientConfig,
 } as const
 
 export const SERVER = {
@@ -306,7 +297,11 @@ export const SERVER = {
       import: 'serverMiddlewareFn',
       from: '@src/serverSetup',
     },
-  } satisfies ServerConfig,
+    envValidationSchema: {
+      import: 'envValidationSchema',
+      from: '@src/envValidationSchema',
+    },
+  } satisfies UserSpec.ServerConfig,
 } as const
 
 export const WEBSOCKET = {
@@ -316,7 +311,7 @@ export const WEBSOCKET = {
       from: '@src/webSocket',
     },
     autoConnect: true,
-  } satisfies WebsocketConfig,
+  } satisfies UserSpec.WebsocketConfig,
 } as const
 
 export const DB = {
@@ -327,14 +322,15 @@ export const DB = {
         from: '@src/dbSeeds',
       },
     ],
-  } satisfies DbConfig,
+  } satisfies UserSpec.DbConfig,
 } as const
 
 export const EMAIL = {
   CONFIG: {
     provider: 'SMTP',
     defaultFrom: {
+      name: 'Test',
       email: 'test@test.com',
     },
-  } satisfies EmailSenderConfig,
+  } satisfies UserSpec.EmailSenderConfig,
 } as const
