@@ -17,7 +17,7 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
-    "@types/express": "^4.17.13",
+    "@types/express": "^5.0.1",
     "@types/react": "^18.0.37",
     "@types/uuid": "^9.0.8",
     "prisma": "5.19.1",
