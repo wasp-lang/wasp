@@ -335,7 +335,7 @@ export function mapDb(db: User.DbConfig): AppSpec.Db {
   }
 }
 
-function mapEmailSender(
+export function mapEmailSender(
   emailSender: User.EmailSenderConfig
 ): AppSpec.EmailSender {
   const { provider, defaultFrom } = emailSender
@@ -348,7 +348,7 @@ function mapEmailSender(
   }
 }
 
-function mapServer(server: User.ServerConfig): AppSpec.Server {
+export function mapServer(server: User.ServerConfig): AppSpec.Server {
   const { setupFn, middlewareConfigFn, envValidationSchema } = server
   return {
     setupFn: setupFn && mapExtImport(setupFn),
@@ -358,7 +358,7 @@ function mapServer(server: User.ServerConfig): AppSpec.Server {
   }
 }
 
-function mapClient(client: User.ClientConfig): AppSpec.Client {
+export function mapClient(client: User.ClientConfig): AppSpec.Client {
   const { setupFn, rootComponent, baseDir, envValidationSchema } = client
   return {
     setupFn: setupFn && mapExtImport(setupFn),
@@ -369,7 +369,9 @@ function mapClient(client: User.ClientConfig): AppSpec.Client {
   }
 }
 
-function mapWebSocket(websocket: User.WebsocketConfig): AppSpec.WebSocket {
+export function mapWebSocket(
+  websocket: User.WebsocketConfig
+): AppSpec.WebSocket {
   const { fn, autoConnect } = websocket
   return {
     fn: mapExtImport(fn),

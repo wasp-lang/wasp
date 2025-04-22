@@ -6,13 +6,18 @@ import {
   mapApp,
   mapAuth,
   mapAuthMethods,
+  mapClient,
+  mapDb,
   mapEmailAuth,
+  mapEmailSender,
   mapEmailVerification,
   mapExternalAuth,
   mapExtImport,
   mapPasswordReset,
+  mapServer,
   mapUsernameAndPassword,
   mapUserSpecToAppSpecDecls,
+  mapWebSocket,
 } from '../mapUserSpecToAppSpecDecls.js'
 import * as UserSpec from '../userApi.js'
 import {
@@ -649,20 +654,11 @@ describe('mapUserSpecToAppSpecDecls', () => {
   })
 
   describe('mapEmailAuth', () => {
-    test('should map correctly', () => {
+    test('should map minimal config correctly', () => {
       const emailAuth: UserSpec.EmailAuthConfig = {
-        userSignupFields: AUTH.CONFIG.methods.email.userSignupFields,
         fromField: AUTH.CONFIG.methods.email.fromField,
-        emailVerification: {
-          getEmailContentFn:
-            AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn,
-          clientRoute: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
-        },
-        passwordReset: {
-          getEmailContentFn:
-            AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn,
-          clientRoute: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
-        },
+        emailVerification: AUTH.CONFIG.methods.email.emailVerification,
+        passwordReset: AUTH.CONFIG.methods.email.passwordReset,
       }
       const parseRouteRef = makeRefParser('Route', [
         AUTH.CONFIG.methods.email.emailVerification.clientRoute,
@@ -670,6 +666,50 @@ describe('mapUserSpecToAppSpecDecls', () => {
       ])
 
       const result = mapEmailAuth(emailAuth, parseRouteRef)
+
+      expect(result).toStrictEqual({
+        fromField: {
+          name: AUTH.CONFIG.methods.email.fromField.name,
+          email: AUTH.CONFIG.methods.email.fromField.email,
+        },
+        emailVerification: {
+          getEmailContentFn: {
+            kind: 'named',
+            name: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
+              .import,
+            path: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
+              .from,
+          },
+          clientRoute: {
+            name: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+            declType: 'Route',
+          },
+        },
+        passwordReset: {
+          getEmailContentFn: {
+            kind: 'named',
+            name: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+              .import,
+            path: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+              .from,
+          },
+          clientRoute: {
+            name: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+            declType: 'Route',
+          },
+        },
+        userSignupFields: undefined,
+      } satisfies AppSpec.EmailAuthConfig)
+    })
+
+    test('should map correctly', () => {
+      const parseRouteRef = makeRefParser('Route', [
+        AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+        AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+      ])
+
+      const result = mapEmailAuth(AUTH.CONFIG.methods.email, parseRouteRef)
+
       expect(result).toStrictEqual({
         userSignupFields: {
           kind: 'named',
@@ -711,7 +751,6 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     test('should throw if emailVerification clientRoute is not provided when defined', () => {
       const emailAuth: UserSpec.EmailAuthConfig = {
-        userSignupFields: AUTH.CONFIG.methods.email.userSignupFields,
         fromField: AUTH.CONFIG.methods.email.fromField,
         emailVerification: {
           getEmailContentFn:
@@ -734,11 +773,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapEmailVerification', () => {
     test('should map correctly', () => {
-      const emailVerification: UserSpec.EmailVerificationConfig = {
-        getEmailContentFn:
-          AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn,
-        clientRoute: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
-      }
+      const emailVerification = AUTH.CONFIG.methods.email.emailVerification
       const parseRouteRef = makeRefParser('Route', [
         AUTH.CONFIG.methods.email.emailVerification.clientRoute,
       ])
@@ -763,11 +798,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapPasswordReset', () => {
     test('should map correctly', () => {
-      const passwordReset: UserSpec.PasswordResetConfig = {
-        getEmailContentFn:
-          AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn,
-        clientRoute: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
-      }
+      const passwordReset = AUTH.CONFIG.methods.email.passwordReset
       const parseRouteRef = makeRefParser('Route', [
         AUTH.CONFIG.methods.email.passwordReset.clientRoute,
       ])
@@ -791,12 +822,10 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapUsernameAndPassword', () => {
     test('should map correctly', () => {
-      const usernameAndPassword: UserSpec.UsernameAndPasswordConfig = {
-        userSignupFields:
-          AUTH.CONFIG.methods.usernameAndPassword.userSignupFields,
-      }
+      const usernameAndPassword = AUTH.CONFIG.methods.usernameAndPassword
 
       const result = mapUsernameAndPassword(usernameAndPassword)
+
       expect(result).toStrictEqual({
         userSignupFields: {
           kind: 'named',
@@ -809,10 +838,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapExternalAuth', () => {
     test('should map correctly', () => {
-      const externalAuth: UserSpec.ExternalAuthConfig = {
-        configFn: AUTH.CONFIG.methods.discord.configFn,
-        userSignupFields: AUTH.CONFIG.methods.discord.userSignupFields,
-      }
+      const externalAuth = AUTH.CONFIG.methods.discord
 
       const result = mapExternalAuth(externalAuth)
 
@@ -853,6 +879,149 @@ describe('mapUserSpecToAppSpecDecls', () => {
         keycloak: undefined,
         email: undefined,
       } satisfies AppSpec.AuthMethods)
+    })
+  })
+
+  describe('mapDb', () => {
+    test('should map minimal config correctly', () => {
+      const db: UserSpec.DbConfig = {
+        seeds: [],
+      }
+
+      const result = mapDb(db)
+
+      expect(result).toStrictEqual({
+        seeds: [],
+      } satisfies AppSpec.Db)
+    })
+
+    test('should map correctly', () => {
+      const db: UserSpec.DbConfig = {
+        seeds: DB.CONFIG.seeds,
+      }
+
+      const result = mapDb(db)
+
+      expect(result).toStrictEqual({
+        seeds: DB.CONFIG.seeds.map((seed) => mapExtImport(seed)),
+      } satisfies AppSpec.Db)
+    })
+  })
+
+  describe('mapEmailSender', () => {
+    test('should map minimal config correctly', () => {
+      const emailSender: UserSpec.EmailSender = {
+        provider: EMAIL.CONFIG.provider,
+        defaultFrom: EMAIL.CONFIG.defaultFrom,
+      }
+
+      const result = mapEmailSender(emailSender)
+
+      expect(result).toStrictEqual({
+        provider: EMAIL.CONFIG.provider,
+        defaultFrom: EMAIL.CONFIG.defaultFrom,
+      } satisfies AppSpec.EmailSender)
+    })
+  })
+
+  describe('mapServer', () => {
+    test('should map minimal config correctly', () => {
+      const server: UserSpec.ServerConfig = {
+        setupFn: SERVER.CONFIG.setupFn,
+        middlewareConfigFn: SERVER.CONFIG.middlewareConfigFn,
+        envValidationSchema: SERVER.CONFIG.envValidationSchema,
+      }
+
+      const result = mapServer(server)
+
+      expect(result).toStrictEqual({
+        setupFn: {
+          kind: 'named',
+          name: SERVER.CONFIG.setupFn.import,
+          path: SERVER.CONFIG.setupFn.from,
+        },
+        middlewareConfigFn: {
+          kind: 'named',
+          name: SERVER.CONFIG.middlewareConfigFn.import,
+          path: SERVER.CONFIG.middlewareConfigFn.from,
+        },
+        envValidationSchema: {
+          kind: 'named',
+          name: SERVER.CONFIG.envValidationSchema.import,
+          path: SERVER.CONFIG.envValidationSchema.from,
+        },
+      } satisfies AppSpec.Server)
+    })
+  })
+
+  describe('mapWebSocket', () => {
+    test('should map minimal config correctly', () => {
+      const webSocket: UserSpec.WebsocketConfig = {
+        fn: WEBSOCKET.CONFIG.fn,
+      }
+
+      const result = mapWebSocket(webSocket)
+
+      expect(result).toStrictEqual({
+        fn: {
+          kind: 'named',
+          name: WEBSOCKET.CONFIG.fn.import,
+          path: WEBSOCKET.CONFIG.fn.from,
+        },
+        autoConnect: undefined,
+      } satisfies AppSpec.WebSocket)
+    })
+
+    test('should map correctly', () => {
+      const result = mapWebSocket(WEBSOCKET.CONFIG)
+
+      expect(result).toStrictEqual({
+        fn: {
+          kind: 'named',
+          name: WEBSOCKET.CONFIG.fn.import,
+          path: WEBSOCKET.CONFIG.fn.from,
+        },
+        autoConnect: WEBSOCKET.CONFIG.autoConnect,
+      } satisfies AppSpec.WebSocket)
+    })
+  })
+
+  describe('mapClient', () => {
+    test('should map minimal config correctly', () => {
+      const client: UserSpec.ClientConfig = {}
+
+      const result = mapClient(client)
+
+      expect(result).toStrictEqual({
+        rootComponent: undefined,
+        setupFn: undefined,
+        baseDir: undefined,
+        envValidationSchema: undefined,
+      } satisfies AppSpec.Client)
+    })
+
+    test('should map correctly', () => {
+      const result = mapClient(CLIENT.CONFIG)
+
+      expect(result).toStrictEqual({
+        rootComponent: {
+          kind: 'named',
+          name: CLIENT.CONFIG.rootComponent.import,
+          path: CLIENT.CONFIG.rootComponent.from,
+        },
+        setupFn: {
+          kind: 'named',
+          name: CLIENT.CONFIG.setupFn.import,
+          path: CLIENT.CONFIG.setupFn.from,
+        },
+        baseDir: CLIENT.CONFIG.baseDir,
+        envValidationSchema: {
+          kind: 'named',
+          name: CLIENT.CONFIG.envValidationSchema.import,
+
+          path: CLIENT.CONFIG.envValidationSchema.from,
+        },
+      } satisfies AppSpec.Client)
     })
   })
 })
