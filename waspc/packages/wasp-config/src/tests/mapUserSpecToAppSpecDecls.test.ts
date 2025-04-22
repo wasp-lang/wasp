@@ -13,6 +13,7 @@ import {
   CRUD,
   DB,
   EMAIL,
+  ENTITIES,
   JOB,
   PAGE,
   QUERY,
@@ -45,10 +46,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     app.webSocket(WEBSOCKET.CONFIG)
 
     const userSpec = app[GET_USER_SPEC]()
-    const entityNames: string[] = [
-      AUTH.CONFIG.userEntity,
-      'Task', // Common entity used by multiple declarations
-    ]
+    const entityNames = ENTITIES
     const result = mapUserSpecToAppSpecDecls(userSpec, entityNames)
 
     const declTypes = result.map((decl) => decl.declType)

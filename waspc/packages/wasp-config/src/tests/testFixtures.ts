@@ -19,6 +19,10 @@ import {
   WebsocketConfig,
 } from '../userApi.js'
 
+const TASK_ENTITY = 'Task'
+const USER_ENTITY = 'User'
+export const ENTITIES = [TASK_ENTITY, USER_ENTITY]
+
 export const APP = {
   NAME: 'todoApp',
   CONFIG: {
@@ -31,7 +35,7 @@ export const APP = {
 export const CRUD = {
   NAME: 'TaskCrud',
   CONFIG: {
-    entity: 'Task',
+    entity: TASK_ENTITY,
     operations: {
       get: {
         isPublic: true,
@@ -139,7 +143,7 @@ export const API = {
       method: 'GET',
       route: '/bar/baz',
     },
-    entities: ['Task'],
+    entities: [TASK_ENTITY],
   } satisfies ApiConfig,
 } as const
 
@@ -150,7 +154,7 @@ export const ACTION = {
       import: 'createTask',
       from: '@src/actions',
     },
-    entities: ['Task'],
+    entities: [TASK_ENTITY],
   } satisfies ActionConfig,
 } as const
 
@@ -161,7 +165,7 @@ export const QUERY = {
       import: 'getTasks',
       from: '@src/queries',
     },
-    entities: ['Task'],
+    entities: [TASK_ENTITY],
   } satisfies QueryConfig,
 } as const
 
@@ -175,13 +179,13 @@ export const JOB = {
         from: '@src/jobs/bar',
       },
     },
-    entities: ['Task'],
+    entities: [TASK_ENTITY],
   } satisfies JobConfig,
 } as const
 
 export const AUTH = {
   CONFIG: {
-    userEntity: 'User',
+    userEntity: USER_ENTITY,
     methods: {
       discord: {
         configFn: {
