@@ -126,9 +126,25 @@ function mapOperationConfig(
   }
 }
 
-function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
+export function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
+  if ('import' in extImport && 'importDefault' in extImport) {
+    throw new Error(
+      'Invalid ExtImport: both `import` and `importDefault` are defined'
+    )
+  }
+
+  if (!extImport.from.startsWith('@src/')) {
+    throw new Error(
+      `Invalid ExtImport: path must start with '@src/', got ${extImport.from}`
+    )
+  }
+
   if ('import' in extImport) {
-    return { kind: 'named', name: extImport.import, path: extImport.from }
+    return {
+      kind: 'named',
+      name: extImport.import,
+      path: extImport.from,
+    }
   } else if ('importDefault' in extImport) {
     return {
       kind: 'default',
@@ -196,7 +212,7 @@ export function mapApp(
   }
 }
 
-function mapAuth(
+export function mapAuth(
   auth: User.AuthConfig,
   parseEntityRef: RefParser<'Entity'>,
   parseRouteRef: RefParser<'Route'>
@@ -232,7 +248,7 @@ function mapAuth(
   }
 }
 
-function mapAuthMethods(
+export function mapAuthMethods(
   methods: User.AuthMethods,
   parseRouteRef: RefParser<'Route'>
 ): AppSpec.AuthMethods {
@@ -250,7 +266,7 @@ function mapAuthMethods(
   }
 }
 
-function mapUsernameAndPassword(
+export function mapUsernameAndPassword(
   usernameAndPassword: User.UsernameAndPasswordConfig
 ): AppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword
@@ -259,7 +275,7 @@ function mapUsernameAndPassword(
   }
 }
 
-function mapExternalAuth(
+export function mapExternalAuth(
   externalAuth: User.ExternalAuthConfig
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth
@@ -269,7 +285,7 @@ function mapExternalAuth(
   }
 }
 
-function mapEmailAuth(
+export function mapEmailAuth(
   emailConfig: User.EmailAuthConfig,
   parseRouteRef: RefParser<'Route'>
 ): AppSpec.EmailAuthConfig {
@@ -290,7 +306,7 @@ function mapEmailAuth(
   }
 }
 
-function mapEmailVerification(
+export function mapEmailVerification(
   emailVerification: User.EmailVerificationConfig,
   parseRouteRef: RefParser<'Route'>
 ): AppSpec.EmailVerificationConfig {
@@ -301,7 +317,7 @@ function mapEmailVerification(
   }
 }
 
-function mapPasswordReset(
+export function mapPasswordReset(
   passwordReset: User.PasswordResetConfig,
   parseRouteRef: RefParser<'Route'>
 ): AppSpec.PasswordResetConfig {
@@ -312,7 +328,7 @@ function mapPasswordReset(
   }
 }
 
-function mapDb(db: User.DbConfig): AppSpec.Db {
+export function mapDb(db: User.DbConfig): AppSpec.Db {
   const { seeds } = db
   return {
     seeds: seeds && seeds.map(mapExtImport),

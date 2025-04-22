@@ -4,6 +4,14 @@ import { getUserSpec } from '../mapUserSpecToAppSepcJson.js'
 import {
   makeRefParser,
   mapApp,
+  mapAuth,
+  mapAuthMethods,
+  mapEmailAuth,
+  mapEmailVerification,
+  mapExternalAuth,
+  mapExtImport,
+  mapPasswordReset,
+  mapUsernameAndPassword,
   mapUserSpecToAppSpecDecls,
 } from '../mapUserSpecToAppSpecDecls.js'
 import * as UserSpec from '../userApi.js'
@@ -23,7 +31,6 @@ import {
   QUERY,
   ROUTE,
   SERVER,
-  USER_ENTITY,
   WEBSOCKET,
 } from './testFixtures.js'
 
@@ -42,7 +49,6 @@ describe('mapUserSpecToAppSpecDecls', () => {
     app.page(PAGE.LOGIN.NAME, PAGE.LOGIN.CONFIG)
     app.page(PAGE.EMAIL_VERIFICATION.NAME, PAGE.EMAIL_VERIFICATION.CONFIG)
     app.page(PAGE.PASSWORD_RESET.NAME, PAGE.PASSWORD_RESET.CONFIG)
-    // not passing PageName for simplicity
     app.route(ROUTE.LOGIN.NAME, ROUTE.LOGIN.CONFIG)
     app.route(ROUTE.EMAIL_VERIFICATION.NAME, ROUTE.EMAIL_VERIFICATION.CONFIG)
     app.route(ROUTE.PASSWORD_RESET.NAME, ROUTE.PASSWORD_RESET.CONFIG)
@@ -72,77 +78,81 @@ describe('mapUserSpecToAppSpecDecls', () => {
     // AuthConfig Mapping
     const auth = appDecl.declValue.auth
     expect(auth).toBeDefined()
-    expect(auth?.userEntity).toEqual({
+    expect(auth?.userEntity).toStrictEqual({
       name: AUTH.CONFIG.userEntity,
+      declType: 'Entity',
+    })
+    expect(auth?.externalAuthEntity).toStrictEqual({
+      name: AUTH.CONFIG.externalAuthEntity,
       declType: 'Entity',
     })
     // Discord
     expect(auth?.methods.discord).toBeDefined()
-    expect(auth?.methods.discord?.configFn).toEqual({
+    expect(auth?.methods.discord?.configFn).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.discord.configFn.import,
       path: AUTH.CONFIG.methods.discord.configFn.from,
     })
-    expect(auth?.methods.discord?.userSignupFields).toEqual({
+    expect(auth?.methods.discord?.userSignupFields).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.discord.userSignupFields.import,
       path: AUTH.CONFIG.methods.discord.userSignupFields.from,
     })
     // GitHub
     expect(auth?.methods.gitHub).toBeDefined()
-    expect(auth?.methods.gitHub?.configFn).toEqual({
+    expect(auth?.methods.gitHub?.configFn).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.gitHub.configFn.import,
       path: AUTH.CONFIG.methods.gitHub.configFn.from,
     })
-    expect(auth?.methods.gitHub?.userSignupFields).toEqual({
+    expect(auth?.methods.gitHub?.userSignupFields).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.gitHub.userSignupFields.import,
       path: AUTH.CONFIG.methods.gitHub.userSignupFields.from,
     })
     // Keycloak
     expect(auth?.methods.keycloak).toBeDefined()
-    expect(auth?.methods.keycloak?.configFn).toEqual({
+    expect(auth?.methods.keycloak?.configFn).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.keycloak.configFn.import,
       path: AUTH.CONFIG.methods.keycloak.configFn.from,
     })
-    expect(auth?.methods.keycloak?.userSignupFields).toEqual({
+    expect(auth?.methods.keycloak?.userSignupFields).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.keycloak.userSignupFields.import,
       path: AUTH.CONFIG.methods.keycloak.userSignupFields.from,
     })
     // Google
     expect(auth?.methods.google).toBeDefined()
-    expect(auth?.methods.google?.configFn).toEqual({
+    expect(auth?.methods.google?.configFn).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.google.configFn.import,
       path: AUTH.CONFIG.methods.google.configFn.from,
     })
-    expect(auth?.methods.google?.userSignupFields).toEqual({
+    expect(auth?.methods.google?.userSignupFields).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.google.userSignupFields.import,
       path: AUTH.CONFIG.methods.google.userSignupFields.from,
     })
     // Username and Password
     expect(auth?.methods.usernameAndPassword).toBeDefined()
-    expect(auth?.methods.usernameAndPassword?.userSignupFields).toEqual({
+    expect(auth?.methods.usernameAndPassword?.userSignupFields).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields.import,
       path: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields.from,
     })
     // Email
     expect(auth?.methods.email).toBeDefined()
-    expect(auth?.methods.email?.userSignupFields).toEqual({
+    expect(auth?.methods.email?.userSignupFields).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.methods.email.userSignupFields.import,
       path: AUTH.CONFIG.methods.email.userSignupFields.from,
     })
-    expect(auth?.methods.email?.fromField).toEqual({
+    expect(auth?.methods.email?.fromField).toStrictEqual({
       name: AUTH.CONFIG.methods.email.fromField.name,
       email: AUTH.CONFIG.methods.email.fromField.email,
     })
-    expect(auth?.methods.email?.emailVerification).toEqual({
+    expect(auth?.methods.email?.emailVerification).toStrictEqual({
       getEmailContentFn: {
         kind: 'named',
         name: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
@@ -155,7 +165,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
         declType: 'Route',
       },
     })
-    expect(auth?.methods.email?.passwordReset).toEqual({
+    expect(auth?.methods.email?.passwordReset).toStrictEqual({
       getEmailContentFn: {
         kind: 'named',
         name: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn.import,
@@ -173,17 +183,17 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(auth?.onAuthSucceededRedirectTo).toBe(
       AUTH.CONFIG.onAuthSucceededRedirectTo
     )
-    expect(auth?.onBeforeOAuthRedirect).toEqual({
+    expect(auth?.onBeforeOAuthRedirect).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.onBeforeOAuthRedirect.import,
       path: AUTH.CONFIG.onBeforeOAuthRedirect.from,
     })
-    expect(auth?.onBeforeSignup).toEqual({
+    expect(auth?.onBeforeSignup).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.onBeforeSignup.import,
       path: AUTH.CONFIG.onBeforeSignup.from,
     })
-    expect(auth?.onAfterSignup).toEqual({
+    expect(auth?.onAfterSignup).toStrictEqual({
       kind: 'named',
       name: AUTH.CONFIG.onAfterSignup.import,
       path: AUTH.CONFIG.onAfterSignup.from,
@@ -192,18 +202,18 @@ describe('mapUserSpecToAppSpecDecls', () => {
     // ClientConfig Mapping
     const client = appDecl.declValue.client
     expect(client).toBeDefined()
-    expect(client?.rootComponent).toEqual({
+    expect(client?.rootComponent).toStrictEqual({
       kind: 'named',
       name: CLIENT.CONFIG.rootComponent.import,
       path: CLIENT.CONFIG.rootComponent.from,
     })
-    expect(client?.setupFn).toEqual({
+    expect(client?.setupFn).toStrictEqual({
       kind: 'named',
       name: CLIENT.CONFIG.setupFn.import,
       path: CLIENT.CONFIG.setupFn.from,
     })
     expect(client?.baseDir).toBe(CLIENT.CONFIG.baseDir)
-    expect(client?.envValidationSchema).toEqual({
+    expect(client?.envValidationSchema).toStrictEqual({
       kind: 'named',
       name: CLIENT.CONFIG.envValidationSchema.import,
       path: CLIENT.CONFIG.envValidationSchema.from,
@@ -213,7 +223,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     const db = appDecl.declValue.db
     expect(db).toBeDefined()
     expect(db?.seeds).toHaveLength(1)
-    expect(db?.seeds?.[0]).toEqual({
+    expect(db?.seeds?.[0]).toStrictEqual({
       kind: 'named',
       name: DB.CONFIG.seeds[0]?.import,
       path: DB.CONFIG.seeds[0]?.from,
@@ -229,17 +239,17 @@ describe('mapUserSpecToAppSpecDecls', () => {
     // ServerConfig Mapping
     const server = appDecl.declValue.server
     expect(server).toBeDefined()
-    expect(server?.setupFn).toEqual({
+    expect(server?.setupFn).toStrictEqual({
       kind: 'named',
       name: SERVER.CONFIG.setupFn.import,
       path: SERVER.CONFIG.setupFn.from,
     })
-    expect(server?.middlewareConfigFn).toEqual({
+    expect(server?.middlewareConfigFn).toStrictEqual({
       kind: 'named',
       name: SERVER.CONFIG.middlewareConfigFn.import,
       path: SERVER.CONFIG.middlewareConfigFn.from,
     })
-    expect(server?.envValidationSchema).toEqual({
+    expect(server?.envValidationSchema).toStrictEqual({
       kind: 'named',
       name: SERVER.CONFIG.envValidationSchema.import,
       path: SERVER.CONFIG.envValidationSchema.from,
@@ -248,7 +258,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     // WebSocketConfig Mapping
     const webSocket = appDecl.declValue.webSocket
     expect(webSocket).toBeDefined()
-    expect(webSocket?.fn).toEqual({
+    expect(webSocket?.fn).toStrictEqual({
       kind: 'named',
       name: WEBSOCKET.CONFIG.fn.import,
       path: WEBSOCKET.CONFIG.fn.from,
@@ -261,17 +271,18 @@ describe('mapUserSpecToAppSpecDecls', () => {
       (decl) => decl.declType === 'Action' && decl.declName === ACTION.NAME
     ) as AppSpec.GetDeclForType<'Action'>
     expect(actionDecl).toBeDefined()
-    expect(actionDecl.declValue.fn).toEqual({
+    expect(actionDecl.declValue.fn).toStrictEqual({
       kind: 'named',
       name: ACTION.CONFIG.fn.import,
       path: ACTION.CONFIG.fn.from,
     })
     expect(actionDecl.declValue.entities).toBeDefined()
     expect(actionDecl.declValue.entities).toHaveLength(1)
-    expect(actionDecl.declValue.entities?.[0]).toEqual({
+    expect(actionDecl.declValue.entities?.[0]).toStrictEqual({
       name: ACTION.CONFIG.entities[0],
       declType: 'Entity',
     })
+    expect(actionDecl.declValue.auth).toBe(ACTION.CONFIG.auth)
 
     // ApiNamespaceConfig Mapping
     expect(declTypes).toContain('ApiNamespace')
@@ -282,7 +293,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     ) as AppSpec.GetDeclForType<'ApiNamespace'>
     expect(apiNamespaceDecl).toBeDefined()
     expect(apiNamespaceDecl.declValue.path).toBe(API_NAMESPACE.CONFIG.path)
-    expect(apiNamespaceDecl.declValue.middlewareConfigFn).toEqual({
+    expect(apiNamespaceDecl.declValue.middlewareConfigFn).toStrictEqual({
       kind: 'named',
       name: API_NAMESPACE.CONFIG.middlewareConfigFn.import,
       path: API_NAMESPACE.CONFIG.middlewareConfigFn.from,
@@ -294,21 +305,26 @@ describe('mapUserSpecToAppSpecDecls', () => {
     const apiDecl = result.find(
       (decl) => decl.declType === 'Api' && decl.declName === API.NAME
     ) as AppSpec.GetDeclForType<'Api'>
-    expect(apiDecl.declValue.fn).toEqual({
+    expect(apiDecl.declValue.fn).toStrictEqual({
       kind: 'named',
       name: API.CONFIG.fn.import,
       path: API.CONFIG.fn.from,
     })
     expect(apiDecl.declValue.auth).toBe(API.CONFIG.auth)
-    expect(apiDecl.declValue.httpRoute).toEqual([
+    expect(apiDecl.declValue.httpRoute).toStrictEqual([
       API.CONFIG.httpRoute.method,
       API.CONFIG.httpRoute.route,
     ])
     expect(apiDecl.declValue.entities).toBeDefined()
     expect(apiDecl.declValue.entities).toHaveLength(1)
-    expect(apiDecl.declValue.entities?.[0]).toEqual({
+    expect(apiDecl.declValue.entities?.[0]).toStrictEqual({
       name: API.CONFIG.entities[0],
       declType: 'Entity',
+    })
+    expect(apiDecl.declValue.middlewareConfigFn).toStrictEqual({
+      kind: 'named',
+      name: API.CONFIG.middlewareConfigFn.import,
+      path: API.CONFIG.middlewareConfigFn.from,
     })
 
     // CrudConfig Mapping
@@ -318,7 +334,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       (decl) => decl.declType === 'Crud' && decl.declName === CRUD.NAME
     ) as AppSpec.GetDeclForType<'Crud'>
     expect(crudDecl).toBeDefined()
-    expect(crudDecl.declValue.entity).toEqual({
+    expect(crudDecl.declValue.entity).toStrictEqual({
       name: CRUD.CONFIG.entity,
       declType: 'Entity',
     })
@@ -326,7 +342,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(crudDecl.declValue.operations.get?.isPublic).toBe(
       CRUD.CONFIG.operations.get.isPublic
     )
-    expect(crudDecl.declValue.operations.get?.overrideFn).toEqual({
+    expect(crudDecl.declValue.operations.get?.overrideFn).toStrictEqual({
       kind: 'named',
       name: CRUD.CONFIG.operations.get.overrideFn.import,
       path: CRUD.CONFIG.operations.get.overrideFn.from,
@@ -343,7 +359,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(crudDecl.declValue.operations.delete?.isPublic).toBe(
       CRUD.CONFIG.operations.delete.isPublic
     )
-    expect(crudDecl.declValue.operations.delete?.overrideFn).toEqual({
+    expect(crudDecl.declValue.operations.delete?.overrideFn).toStrictEqual({
       kind: 'named',
       name: CRUD.CONFIG.operations.delete.overrideFn.import,
       path: CRUD.CONFIG.operations.delete.overrideFn.from,
@@ -356,14 +372,21 @@ describe('mapUserSpecToAppSpecDecls', () => {
       (decl) => decl.declType === 'Job' && decl.declName === JOB.NAME
     ) as AppSpec.GetDeclForType<'Job'>
     expect(jobDecl.declValue.executor).toBe(JOB.CONFIG.executor)
-    expect(jobDecl.declValue.perform.fn).toEqual({
+    expect(jobDecl.declValue.perform.fn).toStrictEqual({
       kind: 'named',
       name: JOB.CONFIG.perform.fn.import,
       path: JOB.CONFIG.perform.fn.from,
     })
-    expect(jobDecl.declValue.entities?.[0]).toEqual({
+    expect(jobDecl.declValue.entities?.[0]).toStrictEqual({
       name: JOB.CONFIG.entities[0],
       declType: 'Entity',
+    })
+    expect(jobDecl.declValue.schedule).toStrictEqual({
+      cron: JOB.CONFIG.schedule.cron,
+      args: JOB.CONFIG.schedule.args,
+      executorOptions: {
+        pgBoss: JOB.CONFIG.schedule.executorOptions.pgBoss,
+      },
     })
 
     // PageConfig Mapping
@@ -372,32 +395,41 @@ describe('mapUserSpecToAppSpecDecls', () => {
     const loginPageDecl = result.find(
       (decl) => decl.declType === 'Page' && decl.declName === PAGE.LOGIN.NAME
     ) as AppSpec.GetDeclForType<'Page'>
-    expect(loginPageDecl.declValue.component).toEqual({
+    expect(loginPageDecl.declValue.component).toStrictEqual({
       kind: 'named',
       name: PAGE.LOGIN.CONFIG.component.import,
       path: PAGE.LOGIN.CONFIG.component.from,
     })
+    expect(loginPageDecl.declValue.authRequired).toBe(
+      PAGE.LOGIN.CONFIG.authRequired
+    )
     expect(declNames).toContain(PAGE.EMAIL_VERIFICATION.NAME)
     const emailVerificationPageDecl = result.find(
       (decl) =>
         decl.declType === 'Page' &&
         decl.declName === PAGE.EMAIL_VERIFICATION.NAME
     ) as AppSpec.GetDeclForType<'Page'>
-    expect(emailVerificationPageDecl.declValue.component).toEqual({
+    expect(emailVerificationPageDecl.declValue.component).toStrictEqual({
       kind: 'named',
       name: PAGE.EMAIL_VERIFICATION.CONFIG.component.import,
       path: PAGE.EMAIL_VERIFICATION.CONFIG.component.from,
     })
+    expect(emailVerificationPageDecl.declValue.authRequired).toBe(
+      PAGE.EMAIL_VERIFICATION.CONFIG.authRequired
+    )
     expect(declNames).toContain(PAGE.PASSWORD_RESET.NAME)
     const passwordResetPageDecl = result.find(
       (decl) =>
         decl.declType === 'Page' && decl.declName === PAGE.PASSWORD_RESET.NAME
     ) as AppSpec.GetDeclForType<'Page'>
-    expect(passwordResetPageDecl.declValue.component).toEqual({
+    expect(passwordResetPageDecl.declValue.component).toStrictEqual({
       kind: 'named',
       name: PAGE.PASSWORD_RESET.CONFIG.component.import,
       path: PAGE.PASSWORD_RESET.CONFIG.component.from,
     })
+    expect(passwordResetPageDecl.declValue.authRequired).toBe(
+      PAGE.PASSWORD_RESET.CONFIG.authRequired
+    )
 
     // RouteConfig Mapping
     expect(declTypes).toContain('Route')
@@ -406,7 +438,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       (decl) => decl.declType === 'Route' && decl.declName === ROUTE.LOGIN.NAME
     ) as AppSpec.GetDeclForType<'Route'>
     expect(routeDecl.declValue.path).toBe(ROUTE.LOGIN.CONFIG.path)
-    expect(routeDecl.declValue.to).toEqual({
+    expect(routeDecl.declValue.to).toStrictEqual({
       name: PAGE.LOGIN.NAME,
       declType: 'Page',
     })
@@ -419,7 +451,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(emailVerificationRouteDecl.declValue.path).toBe(
       ROUTE.EMAIL_VERIFICATION.CONFIG.path
     )
-    expect(emailVerificationRouteDecl.declValue.to).toEqual({
+    expect(emailVerificationRouteDecl.declValue.to).toStrictEqual({
       name: PAGE.EMAIL_VERIFICATION.NAME,
       declType: 'Page',
     })
@@ -431,7 +463,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(passwordResetRouteDecl.declValue.path).toBe(
       ROUTE.PASSWORD_RESET.CONFIG.path
     )
-    expect(passwordResetRouteDecl.declValue.to).toEqual({
+    expect(passwordResetRouteDecl.declValue.to).toStrictEqual({
       name: PAGE.PASSWORD_RESET.NAME,
       declType: 'Page',
     })
@@ -442,12 +474,13 @@ describe('mapUserSpecToAppSpecDecls', () => {
     const queryDecl = result.find(
       (decl) => decl.declType === 'Query' && decl.declName === QUERY.NAME
     ) as AppSpec.GetDeclForType<'Query'>
-    expect(queryDecl.declValue.fn).toEqual({
+    expect(queryDecl.declValue.fn).toStrictEqual({
       kind: 'named',
       name: QUERY.CONFIG.fn.import,
       path: QUERY.CONFIG.fn.from,
     })
-    expect(queryDecl.declValue.entities?.[0]).toEqual({
+    expect(queryDecl.declValue.auth).toBe(QUERY.CONFIG.auth)
+    expect(queryDecl.declValue.entities?.[0]).toStrictEqual({
       name: QUERY.CONFIG.entities[0],
       declType: 'Entity',
     })
@@ -476,7 +509,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       )
 
       expect(result).toBeDefined()
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         wasp: {
           version: APP.CONFIG.wasp.version,
         },
@@ -490,233 +523,336 @@ describe('mapUserSpecToAppSpecDecls', () => {
         webSocket: undefined,
       } satisfies AppSpec.App)
     })
+  })
 
-    test('should map full UserSpec App', () => {
-      const app = new UserSpec.App(APP.NAME, APP.CONFIG)
-      app.auth(AUTH.CONFIG)
-      app.client(CLIENT.CONFIG)
-      app.db(DB.CONFIG)
-      app.emailSender(EMAIL.CONFIG)
-      app.server(SERVER.CONFIG)
-      app.webSocket(WEBSOCKET.CONFIG)
+  describe('mapExtImport', () => {
+    test('should map named import', () => {
+      const extImport: UserSpec.ExtImport = {
+        import: 'myNamedImport',
+        from: '@src/myModule',
+      }
+      const result = mapExtImport(extImport)
+      expect(result).toStrictEqual({
+        kind: 'named',
+        name: 'myNamedImport',
+        path: '@src/myModule',
+      })
+    })
 
-      const userSpec = getUserSpec(app)
-      const parseEntityRef = makeRefParser('Entity', [USER_ENTITY])
+    test('should map default import', () => {
+      const extImport: UserSpec.ExtImport = {
+        importDefault: 'myDefaultImport',
+        from: '@src/myModule',
+      }
+      const result = mapExtImport(extImport)
+      expect(result).toStrictEqual({
+        kind: 'default',
+        name: 'myDefaultImport',
+        path: '@src/myModule',
+      })
+    })
+
+    test('should throw error for having both import kind', () => {
+      const extImport: UserSpec.ExtImport = {
+        import: 'myNamedImport',
+        from: '@src/myModule',
+        importDefault: 'myDefaultImport',
+      }
+      expect(() => mapExtImport(extImport)).toThrowError(
+        'Invalid ExtImport: both `import` and `importDefault` are defined'
+      )
+    })
+
+    test('should throw error for missing import kind', () => {
+      const extImport: UserSpec.ExtImport = {
+        from: '@src/myModule',
+      } as unknown as UserSpec.ExtImport
+      expect(() => mapExtImport(extImport)).toThrowError(
+        'Invalid ExtImport: neither `import` nor `importDefault` is defined'
+      )
+    })
+
+    test('should throw error for invalid from path', () => {
+      const extImport: UserSpec.ExtImport = {
+        import: 'myNamedImport',
+        from: 'invalid/path',
+      } as unknown as UserSpec.ExtImport
+      expect(() => mapExtImport(extImport)).toThrowError(
+        `Invalid ExtImport: path must start with '@src/', got ${extImport.from}`
+      )
+    })
+  })
+
+  describe('mapAuth', () => {
+    test('should map minimal config correctly', () => {
+      const auth: UserSpec.AuthConfig = {
+        userEntity: AUTH.CONFIG.userEntity,
+        methods: {},
+        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+      }
+      const parseEntityRef = makeRefParser('Entity', [AUTH.CONFIG.userEntity])
+      const parseRouteRef = makeRefParser('Route', [])
+
+      const result = mapAuth(auth, parseEntityRef, parseRouteRef)
+      expect(result).toStrictEqual({
+        userEntity: {
+          name: AUTH.CONFIG.userEntity,
+          declType: 'Entity',
+        },
+        externalAuthEntity: undefined,
+        methods: {
+          usernameAndPassword: undefined,
+          discord: undefined,
+          google: undefined,
+          gitHub: undefined,
+          keycloak: undefined,
+          email: undefined,
+        },
+        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+        onAuthSucceededRedirectTo: undefined,
+        onBeforeSignup: undefined,
+        onAfterSignup: undefined,
+        onBeforeOAuthRedirect: undefined,
+        onBeforeLogin: undefined,
+        onAfterLogin: undefined,
+      } satisfies AppSpec.Auth)
+    })
+
+    test('should throw if userEntity is not provided', () => {
+      const auth: UserSpec.AuthConfig = {
+        userEntity: AUTH.CONFIG.userEntity,
+        methods: {},
+        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+      }
+      const parseEntityRef = makeRefParser('Entity', [])
+      const parseRouteRef = makeRefParser('Route', [])
+
+      expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError(
+        `Invalid Entity reference: ${AUTH.CONFIG.userEntity}`
+      )
+    })
+
+    test('should throw if externalAuthEntity ref is not provided when defined', () => {
+      const auth: UserSpec.AuthConfig = {
+        userEntity: AUTH.CONFIG.userEntity,
+        externalAuthEntity: AUTH.CONFIG.externalAuthEntity,
+        methods: {},
+        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+      }
+      const parseEntityRef = makeRefParser('Entity', [AUTH.CONFIG.userEntity])
+      const parseRouteRef = makeRefParser('Route', [])
+
+      expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError(
+        `Invalid Entity reference: ${AUTH.CONFIG.externalAuthEntity}`
+      )
+    })
+  })
+
+  describe('mapEmailAuth', () => {
+    test('should map correctly', () => {
+      const emailAuth: UserSpec.EmailAuthConfig = {
+        userSignupFields: AUTH.CONFIG.methods.email.userSignupFields,
+        fromField: AUTH.CONFIG.methods.email.fromField,
+        emailVerification: {
+          getEmailContentFn:
+            AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn,
+          clientRoute: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+        },
+        passwordReset: {
+          getEmailContentFn:
+            AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn,
+          clientRoute: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+        },
+      }
       const parseRouteRef = makeRefParser('Route', [
-        ROUTE.EMAIL_VERIFICATION.NAME,
-        ROUTE.PASSWORD_RESET.NAME,
+        AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+        AUTH.CONFIG.methods.email.passwordReset.clientRoute,
       ])
 
-      const result = mapApp(
-        userSpec.app.config,
-        parseEntityRef,
-        parseRouteRef,
-        userSpec.auth,
-        userSpec.server,
-        userSpec.client,
-        userSpec.db,
-        userSpec.emailSender,
-        userSpec.websocket
+      const result = mapEmailAuth(emailAuth, parseRouteRef)
+      expect(result).toStrictEqual({
+        userSignupFields: {
+          kind: 'named',
+          name: AUTH.CONFIG.methods.email.userSignupFields.import,
+          path: AUTH.CONFIG.methods.email.userSignupFields.from,
+        },
+        fromField: {
+          name: AUTH.CONFIG.methods.email.fromField.name,
+          email: AUTH.CONFIG.methods.email.fromField.email,
+        },
+        emailVerification: {
+          getEmailContentFn: {
+            kind: 'named',
+            name: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
+              .import,
+            path: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
+              .from,
+          },
+          clientRoute: {
+            name: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+            declType: 'Route',
+          },
+        },
+        passwordReset: {
+          getEmailContentFn: {
+            kind: 'named',
+            name: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+              .import,
+            path: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+              .from,
+          },
+          clientRoute: {
+            name: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+            declType: 'Route',
+          },
+        },
+      } satisfies AppSpec.EmailAuthConfig)
+    })
+
+    test('should throw if emailVerification clientRoute is not provided when defined', () => {
+      const emailAuth: UserSpec.EmailAuthConfig = {
+        userSignupFields: AUTH.CONFIG.methods.email.userSignupFields,
+        fromField: AUTH.CONFIG.methods.email.fromField,
+        emailVerification: {
+          getEmailContentFn:
+            AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn,
+          clientRoute: 'undefined',
+        },
+        passwordReset: {
+          getEmailContentFn:
+            AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn,
+          clientRoute: 'undefined',
+        },
+      }
+      const parseRouteRef = makeRefParser('Route', [])
+
+      expect(() => mapEmailAuth(emailAuth, parseRouteRef)).toThrowError(
+        `Invalid Route reference: undefined`
       )
+    })
+  })
 
-      expect(result).toBeDefined()
-      expect(result).toEqual({
-        wasp: {
-          version: APP.CONFIG.wasp.version,
-        },
-        title: APP.CONFIG.title,
-        head: APP.CONFIG.head,
-        auth: {
-          userEntity: {
-            declType: 'Entity',
-            name: USER_ENTITY,
-          },
-          externalAuthEntity: undefined,
-          methods: {
-            discord: {
-              configFn: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.discord.configFn.import,
-                path: AUTH.CONFIG.methods.discord.configFn.from,
-              },
-              userSignupFields: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.discord.userSignupFields.import,
-                path: AUTH.CONFIG.methods.discord.userSignupFields.from,
-              },
-            },
-            gitHub: {
-              configFn: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.gitHub.configFn.import,
-                path: AUTH.CONFIG.methods.gitHub.configFn.from,
-              },
-              userSignupFields: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.gitHub.userSignupFields.import,
-                path: AUTH.CONFIG.methods.gitHub.userSignupFields.from,
-              },
-            },
-            google: {
-              configFn: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.google.configFn.import,
-                path: AUTH.CONFIG.methods.google.configFn.from,
-              },
-              userSignupFields: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.google.userSignupFields.import,
-                path: AUTH.CONFIG.methods.google.userSignupFields.from,
-              },
-            },
-            keycloak: {
-              configFn: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.keycloak.configFn.import,
-                path: AUTH.CONFIG.methods.keycloak.configFn.from,
-              },
-              userSignupFields: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.keycloak.userSignupFields.import,
-                path: AUTH.CONFIG.methods.keycloak.userSignupFields.from,
-              },
-            },
-            usernameAndPassword: {
-              userSignupFields: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields
-                  .import,
-                path: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields
-                  .from,
-              },
-            },
-            email: {
-              userSignupFields: {
-                kind: 'named',
-                name: AUTH.CONFIG.methods.email.userSignupFields.import,
-                path: AUTH.CONFIG.methods.email.userSignupFields.from,
-              },
-              fromField: {
-                name: AUTH.CONFIG.methods.email.fromField.name,
-                email: AUTH.CONFIG.methods.email.fromField.email,
-              },
-              emailVerification: {
-                getEmailContentFn: {
-                  kind: 'named',
-                  name: AUTH.CONFIG.methods.email.emailVerification
-                    .getEmailContentFn.import,
-                  path: AUTH.CONFIG.methods.email.emailVerification
-                    .getEmailContentFn.from,
-                },
-                clientRoute: {
-                  name: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
-                  declType: 'Route',
-                },
-              },
-              passwordReset: {
-                getEmailContentFn: {
-                  kind: 'named',
-                  name: AUTH.CONFIG.methods.email.passwordReset
-                    .getEmailContentFn.import,
-                  path: AUTH.CONFIG.methods.email.passwordReset
-                    .getEmailContentFn.from,
-                },
-                clientRoute: {
-                  name: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
-                  declType: 'Route',
-                },
-              },
-            },
-          },
-          onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
-          onAuthSucceededRedirectTo: AUTH.CONFIG.onAuthSucceededRedirectTo,
+  describe('mapEmailVerification', () => {
+    test('should map correctly', () => {
+      const emailVerification: UserSpec.EmailVerificationConfig = {
+        getEmailContentFn:
+          AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn,
+        clientRoute: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+      }
+      const parseRouteRef = makeRefParser('Route', [
+        AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+      ])
 
-          onBeforeSignup: {
-            kind: 'named',
-            name: AUTH.CONFIG.onBeforeSignup.import,
-            path: AUTH.CONFIG.onBeforeSignup.from,
-          },
-          onAfterSignup: {
-            kind: 'named',
-            name: AUTH.CONFIG.onAfterSignup.import,
-            path: AUTH.CONFIG.onAfterSignup.from,
-          },
-          onBeforeOAuthRedirect: {
-            kind: 'named',
-            name: AUTH.CONFIG.onBeforeOAuthRedirect.import,
-            path: AUTH.CONFIG.onBeforeOAuthRedirect.from,
-          },
-          onBeforeLogin: {
-            kind: 'named',
-            name: AUTH.CONFIG.onBeforeLogin.import,
-            path: AUTH.CONFIG.onBeforeLogin.from,
-          },
-          onAfterLogin: {
-            kind: 'named',
-            name: AUTH.CONFIG.onAfterLogin.import,
-            path: AUTH.CONFIG.onAfterLogin.from,
-          },
+      const result = mapEmailVerification(emailVerification, parseRouteRef)
+
+      expect(result).toStrictEqual({
+        getEmailContentFn: {
+          kind: 'named',
+          name: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
+            .import,
+          path: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
+            .from,
         },
-        server: {
-          envValidationSchema: {
-            kind: 'named',
-            name: SERVER.CONFIG.envValidationSchema.import,
-            path: SERVER.CONFIG.envValidationSchema.from,
-          },
-          setupFn: {
-            kind: 'named',
-            name: SERVER.CONFIG.setupFn.import,
-            path: SERVER.CONFIG.setupFn.from,
-          },
-          middlewareConfigFn: {
-            kind: 'named',
-            name: SERVER.CONFIG.middlewareConfigFn.import,
-            path: SERVER.CONFIG.middlewareConfigFn.from,
-          },
+        clientRoute: {
+          name: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+          declType: 'Route',
         },
-        client: {
-          rootComponent: {
-            kind: 'named',
-            name: CLIENT.CONFIG.rootComponent.import,
-            path: CLIENT.CONFIG.rootComponent.from,
-          },
-          setupFn: {
-            kind: 'named',
-            name: CLIENT.CONFIG.setupFn.import,
-            path: CLIENT.CONFIG.setupFn.from,
-          },
-          baseDir: CLIENT.CONFIG.baseDir,
-          envValidationSchema: {
-            kind: 'named',
-            name: CLIENT.CONFIG.envValidationSchema.import,
-            path: CLIENT.CONFIG.envValidationSchema.from,
-          },
+      } satisfies AppSpec.EmailVerificationConfig)
+    })
+  })
+
+  describe('mapPasswordReset', () => {
+    test('should map correctly', () => {
+      const passwordReset: UserSpec.PasswordResetConfig = {
+        getEmailContentFn:
+          AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn,
+        clientRoute: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+      }
+      const parseRouteRef = makeRefParser('Route', [
+        AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+      ])
+
+      const result = mapPasswordReset(passwordReset, parseRouteRef)
+
+      expect(result).toStrictEqual({
+        getEmailContentFn: {
+          kind: 'named',
+          name: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+            .import,
+          path: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn.from,
         },
-        db: {
-          seeds: [
-            {
-              kind: 'named',
-              name: DB.CONFIG.seeds[0]?.import as string,
-              path: DB.CONFIG.seeds[0]?.from as `@src/${string}`,
-            },
-          ],
+        clientRoute: {
+          name: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+          declType: 'Route',
         },
-        emailSender: {
-          provider: EMAIL.CONFIG.provider,
-          defaultFrom: {
-            email: EMAIL.CONFIG.defaultFrom.email,
-            name: EMAIL.CONFIG.defaultFrom.name,
-          },
+      } satisfies AppSpec.PasswordResetConfig)
+    })
+  })
+
+  describe('mapUsernameAndPassword', () => {
+    test('should map correctly', () => {
+      const usernameAndPassword: UserSpec.UsernameAndPasswordConfig = {
+        userSignupFields:
+          AUTH.CONFIG.methods.usernameAndPassword.userSignupFields,
+      }
+
+      const result = mapUsernameAndPassword(usernameAndPassword)
+      expect(result).toStrictEqual({
+        userSignupFields: {
+          kind: 'named',
+          name: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields.import,
+          path: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields.from,
         },
-        webSocket: {
-          autoConnect: WEBSOCKET.CONFIG.autoConnect,
-          fn: {
-            kind: 'named',
-            name: WEBSOCKET.CONFIG.fn.import,
-            path: WEBSOCKET.CONFIG.fn.from,
-          },
+      } satisfies AppSpec.UsernameAndPasswordConfig)
+    })
+  })
+
+  describe('mapExternalAuth', () => {
+    test('should map correctly', () => {
+      const externalAuth: UserSpec.ExternalAuthConfig = {
+        configFn: AUTH.CONFIG.methods.discord.configFn,
+        userSignupFields: AUTH.CONFIG.methods.discord.userSignupFields,
+      }
+
+      const result = mapExternalAuth(externalAuth)
+
+      expect(result).toStrictEqual({
+        configFn: {
+          kind: 'named',
+          name: AUTH.CONFIG.methods.discord.configFn.import,
+          path: AUTH.CONFIG.methods.discord.configFn.from,
         },
-      } satisfies AppSpec.App)
+        userSignupFields: {
+          kind: 'named',
+          name: AUTH.CONFIG.methods.discord.userSignupFields.import,
+          path: AUTH.CONFIG.methods.discord.userSignupFields.from,
+        },
+      } satisfies AppSpec.ExternalAuthConfig)
+    })
+  })
+
+  describe('mapAuthMethods', () => {
+    test('should map minimal config correctly', () => {
+      const authMethods: UserSpec.AuthMethods = {
+        usernameAndPassword: undefined,
+        discord: undefined,
+        google: undefined,
+        gitHub: undefined,
+        keycloak: undefined,
+        email: undefined,
+      }
+
+      const parseRouteRef = makeRefParser('Route', [])
+      const result = mapAuthMethods(authMethods, parseRouteRef)
+
+      expect(result).toStrictEqual({
+        usernameAndPassword: undefined,
+        discord: undefined,
+        google: undefined,
+        gitHub: undefined,
+        keycloak: undefined,
+        email: undefined,
+      } satisfies AppSpec.AuthMethods)
     })
   })
 })

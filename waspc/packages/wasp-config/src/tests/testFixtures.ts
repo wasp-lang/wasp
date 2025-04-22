@@ -7,7 +7,8 @@ import * as UserSpec from '../userApi.js'
 
 export const TASK_ENTITY = 'Task'
 export const USER_ENTITY = 'User'
-export const ENTITIES = [TASK_ENTITY, USER_ENTITY]
+export const SOCIAL_USER_ENTITY = 'SocialUser'
+export const ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
 
 export const APP = {
   NAME: 'todoApp',
@@ -15,7 +16,7 @@ export const APP = {
     title: 'ToDO App',
     wasp: { version: '^0.16.0' },
     head: ['<link rel="icon" href="/favicon.ico" />'],
-  } satisfies UserSpec.AppConfig,
+  } satisfies Required<UserSpec.AppConfig>,
 } as const
 
 export const CRUD = {
@@ -47,7 +48,7 @@ export const CRUD = {
         },
       },
     },
-  } satisfies UserSpec.Crud,
+  } satisfies Required<UserSpec.Crud>,
 } as const
 
 export const PAGE = {
@@ -58,7 +59,8 @@ export const PAGE = {
         from: '@src/pages/auth/Login',
         import: 'Login',
       },
-    } satisfies UserSpec.PageConfig,
+      authRequired: false,
+    } satisfies Required<UserSpec.PageConfig>,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
@@ -67,7 +69,8 @@ export const PAGE = {
         from: '@src/pages/auth/EmailVerification',
         import: 'EmailVerification',
       },
-    } satisfies UserSpec.PageConfig,
+      authRequired: false,
+    } satisfies Required<UserSpec.PageConfig>,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetPage',
@@ -76,7 +79,8 @@ export const PAGE = {
         from: '@src/pages/auth/PasswordReset',
         import: 'PasswordReset',
       },
-    } satisfies UserSpec.PageConfig,
+      authRequired: false,
+    } satisfies Required<UserSpec.PageConfig>,
   },
 } as const
 
@@ -88,21 +92,21 @@ export const ROUTE = {
     CONFIG: {
       path: '/login',
       to: PAGE.LOGIN.NAME as string & { _brand: 'Page' },
-    } satisfies UserSpec.RouteConfig,
+    } satisfies Required<UserSpec.RouteConfig>,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationRoute',
     CONFIG: {
       path: '/email-verification',
       to: PAGE.EMAIL_VERIFICATION.NAME as string & { _brand: 'Page' },
-    } satisfies UserSpec.RouteConfig,
+    } satisfies Required<UserSpec.RouteConfig>,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetRoute',
     CONFIG: {
       path: '/password-reset',
       to: PAGE.PASSWORD_RESET.NAME as string & { _brand: 'Page' },
-    } satisfies UserSpec.RouteConfig,
+    } satisfies Required<UserSpec.RouteConfig>,
   },
 } as const
 
@@ -114,7 +118,7 @@ export const API_NAMESPACE = {
       from: '@src/apis',
     },
     path: '/bar',
-  } satisfies UserSpec.ApiNamespaceConfig,
+  } satisfies Required<UserSpec.ApiNamespaceConfig>,
 } as const
 
 export const API = {
@@ -130,7 +134,11 @@ export const API = {
       route: '/bar/baz',
     },
     entities: [TASK_ENTITY],
-  } satisfies UserSpec.ApiConfig,
+    middlewareConfigFn: {
+      import: 'barBazMiddlewareConfigFn',
+      from: '@src/apis',
+    },
+  } satisfies Required<UserSpec.ApiConfig>,
 } as const
 
 export const ACTION = {
@@ -141,7 +149,8 @@ export const ACTION = {
       from: '@src/actions',
     },
     entities: [TASK_ENTITY],
-  } satisfies UserSpec.ActionConfig,
+    auth: true,
+  } satisfies Required<UserSpec.ActionConfig>,
 } as const
 
 export const QUERY = {
@@ -152,7 +161,8 @@ export const QUERY = {
       from: '@src/queries',
     },
     entities: [TASK_ENTITY],
-  } satisfies UserSpec.QueryConfig,
+    auth: true,
+  } satisfies Required<UserSpec.QueryConfig>,
 } as const
 
 export const JOB = {
@@ -166,7 +176,14 @@ export const JOB = {
       },
     },
     entities: [TASK_ENTITY],
-  } satisfies UserSpec.JobConfig,
+    schedule: {
+      cron: '0 0 * * *',
+      args: { foo: 'bar' },
+      executorOptions: {
+        pgBoss: { jobOptions: { attempts: 3 } },
+      },
+    },
+  } satisfies Required<UserSpec.JobConfig>,
 } as const
 
 export const AUTH = {
@@ -266,7 +283,8 @@ export const AUTH = {
       import: 'onAfterLogin',
       from: '@src/auth/hooks.js',
     },
-  } satisfies UserSpec.AuthConfig,
+    externalAuthEntity: SOCIAL_USER_ENTITY,
+  } satisfies Required<UserSpec.AuthConfig>,
 } as const
 
 export const CLIENT = {
@@ -284,7 +302,7 @@ export const CLIENT = {
       import: 'envValidationSchema',
       from: '@src/envValidationSchema',
     },
-  } satisfies UserSpec.ClientConfig,
+  } satisfies Required<UserSpec.ClientConfig>,
 } as const
 
 export const SERVER = {
@@ -301,7 +319,7 @@ export const SERVER = {
       import: 'envValidationSchema',
       from: '@src/envValidationSchema',
     },
-  } satisfies UserSpec.ServerConfig,
+  } satisfies Required<UserSpec.ServerConfig>,
 } as const
 
 export const WEBSOCKET = {
@@ -311,7 +329,7 @@ export const WEBSOCKET = {
       from: '@src/webSocket',
     },
     autoConnect: true,
-  } satisfies UserSpec.WebsocketConfig,
+  } satisfies Required<UserSpec.WebsocketConfig>,
 } as const
 
 export const DB = {
@@ -322,7 +340,7 @@ export const DB = {
         from: '@src/dbSeeds',
       },
     ],
-  } satisfies UserSpec.DbConfig,
+  } satisfies Required<UserSpec.DbConfig>,
 } as const
 
 export const EMAIL = {
@@ -332,5 +350,5 @@ export const EMAIL = {
       name: 'Test',
       email: 'test@test.com',
     },
-  } satisfies UserSpec.EmailSenderConfig,
+  } satisfies Required<UserSpec.EmailSenderConfig>,
 } as const
