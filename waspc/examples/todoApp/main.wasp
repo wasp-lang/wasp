@@ -64,7 +64,8 @@ app todoApp {
     seeds: [
       import { devSeedSimple } from "@src/dbSeeds",
       import { prodSeed } from "@src/dbSeeds"
-    ]
+    ],
+    prismaSetupFn: import { setupPrisma } from "@src/prisma",
   },
   emailSender: {
     provider: SMTP,
