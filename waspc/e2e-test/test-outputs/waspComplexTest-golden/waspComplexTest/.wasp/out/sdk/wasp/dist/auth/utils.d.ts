@@ -81,3 +81,4 @@ export declare function getProviderData<PN extends ProviderName>(providerData: s
 export declare function getProviderDataWithPassword<PN extends ProviderName>(providerData: string): PossibleProviderData[PN];
 export declare function sanitizeAndSerializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): Promise<string>;
 export declare function createInvalidCredentialsError(message?: string): HttpError;
+//# sourceMappingURL=utils.d.ts.map

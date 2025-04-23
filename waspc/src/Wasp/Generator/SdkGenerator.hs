@@ -23,7 +23,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.ExternalFiles as EC
-import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -225,14 +225,11 @@ npmDepsForSdk spec =
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
         Npm.Dependency.fromList
-          [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-            -- Should @types/* go into their package.json?
+          [ -- Should @types/* go into their package.json?
             ("@types/express", show Server.expressTypesVersion),
             ("@types/express-serve-static-core", show Server.expressTypesVersion)
           ]
     }
-  where
-    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

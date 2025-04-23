@@ -13,14 +13,13 @@ function createUserGetter() {
     const getMeRelativePath = 'auth/me';
     const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` };
     const getMe = async () => {
-        var _a;
         try {
             const response = await api.get(getMeRoute.path);
             const userData = superjsonDeserialize(response.data);
             return makeAuthUserIfPossible(userData);
         }
         catch (error) {
-            if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401) {
+            if (error.response?.status === 401) {
                 return null;
             }
             else {

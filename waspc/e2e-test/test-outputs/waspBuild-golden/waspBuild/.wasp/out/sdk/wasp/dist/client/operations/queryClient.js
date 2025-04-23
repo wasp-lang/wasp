@@ -14,7 +14,7 @@ export function configureQueryClient(config) {
 }
 // PRIVATE API (framework code)
 export function initializeQueryClient() {
-    const queryClient = new QueryClient(queryClientConfig !== null && queryClientConfig !== void 0 ? queryClientConfig : defaultQueryClientConfig);
+    const queryClient = new QueryClient(queryClientConfig ?? defaultQueryClientConfig);
     isQueryClientInitialized = true;
     resolveQueryClientInitialized(queryClient);
 }

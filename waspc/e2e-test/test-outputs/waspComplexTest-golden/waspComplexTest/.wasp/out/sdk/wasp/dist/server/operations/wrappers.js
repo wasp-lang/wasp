@@ -42,12 +42,18 @@ export function createAuthenticatedOperation(userOperation, entities) {
         else if (includesPayload(args)) {
             // Two arguments sent -> the first argument is the payload, the second is the context.
             const [payload, context] = args;
-            return userOperation(payload, Object.assign(Object.assign({}, context), { entities }));
+            return userOperation(payload, {
+                ...context,
+                entities,
+            });
         }
         else {
             // One argument sent -> the first and only argument is the user.
             const [context] = args;
-            return userOperation(undefined, Object.assign(Object.assign({}, context), { entities }));
+            return userOperation(undefined, {
+                ...context,
+                entities,
+            });
         }
     }
     return operation;

@@ -39,3 +39,4 @@ type ClientOperationWithNonAnyInput<Input, Output> = [
     Input
 ] extends [never] ? (args?: unknown) => Promise<Output> : [Input] extends [void] ? () => Promise<Output> : (args: Input) => Promise<Output>;
 export {};
+//# sourceMappingURL=rpc.d.ts.map

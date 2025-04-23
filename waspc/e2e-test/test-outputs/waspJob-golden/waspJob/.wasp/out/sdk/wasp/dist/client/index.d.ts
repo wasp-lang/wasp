@@ -10,3 +10,4 @@ export type Route = {
 };
 export { config, ClientConfig } from './config.js';
 export { env } from './env.js';
+//# sourceMappingURL=index.d.ts.map
