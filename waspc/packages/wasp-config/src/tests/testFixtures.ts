@@ -8,7 +8,7 @@ import * as UserSpec from '../userApi.js'
 export const TASK_ENTITY = 'Task'
 export const USER_ENTITY = 'User'
 export const SOCIAL_USER_ENTITY = 'SocialUser'
-export const ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
+export const ALL_ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
 
 export const APP = {
   NAME: 'todoApp',
@@ -96,6 +96,12 @@ export const PAGE = {
   },
 } as const
 
+export const ALL_PAGES = [
+  PAGE.LOGIN.NAME,
+  PAGE.EMAIL_VERIFICATION.NAME,
+  PAGE.PASSWORD_RESET.NAME,
+]
+
 // For simplicity sake we asserted `RouteConfig.to` as branded type
 // instead of creating a function which would accept branded string.
 export const ROUTE = {
@@ -121,6 +127,12 @@ export const ROUTE = {
     } satisfies Required<UserSpec.RouteConfig>,
   },
 } as const
+
+export const ALL_ROUTES = [
+  ROUTE.LOGIN.NAME,
+  ROUTE.EMAIL_VERIFICATION.NAME,
+  ROUTE.PASSWORD_RESET.NAME,
+]
 
 export const API_NAMESPACE = {
   NAME: 'bar',
