@@ -516,10 +516,11 @@ spec_AppSpecValid = do
                       T.jsx = Just "preserve",
                       T.strict = Just True,
                       T.esModuleInterop = Just True,
+                      T.isolatedModules = Just True,
+                      T.moduleDetection = Just "force",
                       T.lib = Just ["dom", "dom.iterable", "esnext"],
                       T.skipLibCheck = Just True,
                       T.allowJs = Just True,
-                      T.typeRoots = Just ["node_modules/@testing-library", "node_modules/@types"],
                       T.outDir = Just ".wasp/out/user"
                     },
                 T.include = Just ["src"]
