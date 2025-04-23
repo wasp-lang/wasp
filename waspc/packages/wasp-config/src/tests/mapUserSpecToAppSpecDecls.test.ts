@@ -1207,53 +1207,31 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
   })
 
-  describe('mapDb', () => {
+  describe('mapClient', () => {
     test('should map minimal config correctly', () => {
-      const minimalDb: UserSpec.DbConfig = {}
+      const minimalClient: UserSpec.ClientConfig = {}
 
-      const result = mapDb(minimalDb)
+      const result = mapClient(minimalClient)
 
       expect(result).toStrictEqual({
-        seeds: undefined,
-      } satisfies AppSpec.Db)
+        rootComponent: undefined,
+        setupFn: undefined,
+        baseDir: undefined,
+        envValidationSchema: undefined,
+      } satisfies AppSpec.Client)
     })
 
     test('should map full config correctly', () => {
-      const db: UserSpec.DbConfig = {
-        seeds: DB.CONFIG.seeds,
-      }
+      const client = CLIENT.CONFIG
 
-      const result = mapDb(db)
+      const result = mapClient(client)
 
       expect(result).toStrictEqual({
-        seeds: db.seeds?.map((seed) => mapExtImport(seed)),
-      } satisfies AppSpec.Db)
-    })
-  })
-
-  describe('mapEmailSender', () => {
-    test('should map minimal config correctly', () => {
-      const minimalEmailSender: UserSpec.EmailSender = {
-        provider: EMAIL_SENDER.CONFIG.provider,
-      }
-
-      const result = mapEmailSender(minimalEmailSender)
-
-      expect(result).toStrictEqual({
-        provider: minimalEmailSender.provider,
-        defaultFrom: undefined,
-      } satisfies AppSpec.EmailSender)
-    })
-
-    test('should map full config correctly', () => {
-      const emailSender = EMAIL_SENDER.CONFIG
-
-      const result = mapEmailSender(emailSender)
-
-      expect(result).toStrictEqual({
-        provider: emailSender.provider,
-        defaultFrom: emailSender.defaultFrom,
-      } satisfies AppSpec.EmailSender)
+        rootComponent: mapExtImport(client.rootComponent),
+        setupFn: mapExtImport(client.setupFn),
+        baseDir: client.baseDir,
+        envValidationSchema: mapExtImport(client.envValidationSchema),
+      } satisfies AppSpec.Client)
     })
   })
 
@@ -1283,6 +1261,32 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
   })
 
+  describe('mapEmailSender', () => {
+    test('should map minimal config correctly', () => {
+      const minimalEmailSender: UserSpec.EmailSender = {
+        provider: EMAIL_SENDER.CONFIG.provider,
+      }
+
+      const result = mapEmailSender(minimalEmailSender)
+
+      expect(result).toStrictEqual({
+        provider: minimalEmailSender.provider,
+        defaultFrom: undefined,
+      } satisfies AppSpec.EmailSender)
+    })
+
+    test('should map full config correctly', () => {
+      const emailSender = EMAIL_SENDER.CONFIG
+
+      const result = mapEmailSender(emailSender)
+
+      expect(result).toStrictEqual({
+        provider: emailSender.provider,
+        defaultFrom: emailSender.defaultFrom,
+      } satisfies AppSpec.EmailSender)
+    })
+  })
+
   describe('mapWebSocket', () => {
     test('should map minimal config correctly', () => {
       const minimalWebsocket: UserSpec.WebsocketConfig = {
@@ -1309,31 +1313,65 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
   })
 
-  describe('mapClient', () => {
+  describe('mapDb', () => {
     test('should map minimal config correctly', () => {
-      const minimalClient: UserSpec.ClientConfig = {}
+      const minimalDb: UserSpec.DbConfig = {}
 
-      const result = mapClient(minimalClient)
+      const result = mapDb(minimalDb)
 
       expect(result).toStrictEqual({
-        rootComponent: undefined,
-        setupFn: undefined,
-        baseDir: undefined,
-        envValidationSchema: undefined,
-      } satisfies AppSpec.Client)
+        seeds: undefined,
+      } satisfies AppSpec.Db)
     })
 
     test('should map full config correctly', () => {
-      const client = CLIENT.CONFIG
+      const db: UserSpec.DbConfig = {
+        seeds: DB.CONFIG.seeds,
+      }
 
-      const result = mapClient(client)
+      const result = mapDb(db)
 
       expect(result).toStrictEqual({
-        rootComponent: mapExtImport(client.rootComponent),
-        setupFn: mapExtImport(client.setupFn),
-        baseDir: client.baseDir,
-        envValidationSchema: mapExtImport(client.envValidationSchema),
-      } satisfies AppSpec.Client)
+        seeds: db.seeds?.map((seed) => mapExtImport(seed)),
+      } satisfies AppSpec.Db)
+    })
+  })
+
+  describe('mapPage', () => {
+    test('should map minimal config correctly', () => {
+      const minimalPage = PAGES.MINIMAL.CONFIG
+
+      const result = mapPage(minimalPage)
+
+      expect(result).toStrictEqual({
+        component: mapExtImport(minimalPage.component),
+        authRequired: undefined,
+      } satisfies AppSpec.Page)
+    })
+
+    test('should map full config correctly', () => {
+      const page = PAGES.FULL.CONFIG
+
+      const result = mapPage(page)
+
+      expect(result).toStrictEqual({
+        component: mapExtImport(page.component),
+        authRequired: page.authRequired,
+      } satisfies AppSpec.Page)
+    })
+  })
+
+  describe('mapRoute', () => {
+    test('should map full config correctly', () => {
+      const route = ROUTES.FULL.CONFIG
+      const parsePageRef = makeRefParser('Page', [route.to])
+
+      const result = mapRoute(route, parsePageRef)
+
+      expect(result).toStrictEqual({
+        path: route.path,
+        to: parsePageRef(route.to),
+      } satisfies AppSpec.Route)
     })
   })
 
@@ -1402,142 +1440,6 @@ describe('mapUserSpecToAppSpecDecls', () => {
       const parseEntityRef = makeRefParser('Entity', [])
 
       expect(() => mapOperationConfig(action, parseEntityRef)).toThrowError()
-    })
-  })
-
-  describe('mapApiConfig', () => {
-    test('should map minimal config correctly', () => {
-      const minimalApi = APIS.MINIMAL.CONFIG
-      const parseEntityRef = makeRefParser('Entity', [])
-
-      const result = mapApiConfig(minimalApi, parseEntityRef)
-
-      expect(result).toStrictEqual({
-        fn: mapExtImport(minimalApi.fn),
-        httpRoute: mapHttpRoute(minimalApi.httpRoute),
-        auth: undefined,
-        entities: undefined,
-        middlewareConfigFn: undefined,
-      } satisfies AppSpec.Api)
-    })
-
-    test('should map full config correctly', () => {
-      const api = APIS.FULL.CONFIG
-      const parseEntityRef = makeRefParser('Entity', api.entities)
-
-      const result = mapApiConfig(api, parseEntityRef)
-
-      expect(result).toStrictEqual({
-        fn: mapExtImport(api.fn),
-        middlewareConfigFn: mapExtImport(api.middlewareConfigFn),
-        entities: api.entities.map(parseEntityRef),
-        httpRoute: mapHttpRoute(api.httpRoute),
-        auth: api.auth,
-      } satisfies AppSpec.Api)
-    })
-  })
-
-  describe('mapHttpRoute', () => {
-    test('should map full config correctly', () => {
-      const httpRoute = APIS.FULL.CONFIG.httpRoute
-
-      const result = mapHttpRoute(httpRoute)
-
-      expect(result).toStrictEqual([
-        httpRoute.method,
-        httpRoute.route,
-      ] satisfies AppSpec.HttpRoute)
-    })
-  })
-
-  describe('mapApiNamespace', () => {
-    test('should map full config correctly', () => {
-      const apiNamespace = API_NAMESPACES.FULL.CONFIG
-
-      const result = mapApiNamespace(apiNamespace)
-
-      expect(result).toStrictEqual({
-        middlewareConfigFn: mapExtImport(apiNamespace.middlewareConfigFn),
-        path: apiNamespace.path,
-      } satisfies AppSpec.ApiNamespace)
-    })
-  })
-
-  describe('mapJob', () => {
-    test('should map minimal config correctly', () => {
-      const minimalJob = JOBS.MINIMAL.CONFIG
-      const parseEntityRef = makeRefParser('Entity', [])
-
-      const result = mapJob(minimalJob, parseEntityRef)
-
-      expect(result).toStrictEqual({
-        executor: minimalJob.executor,
-        perform: mapPerform(minimalJob.perform),
-        schedule: undefined,
-        entities: undefined,
-      } satisfies AppSpec.Job)
-    })
-
-    test('should map full config correctly', () => {
-      const job = JOBS.FULL.CONFIG
-      const parseEntityRef = makeRefParser('Entity', job.entities)
-
-      const result = mapJob(job, parseEntityRef)
-
-      expect(result).toStrictEqual({
-        executor: job.executor,
-        perform: mapPerform(job.perform),
-        schedule: mapSchedule(job.schedule),
-        entities: job.entities.map(parseEntityRef),
-      } satisfies AppSpec.Job)
-    })
-
-    test('should throw if entity ref is not provided', () => {
-      const job = JOBS.FULL.CONFIG
-      const parseEntityRef = makeRefParser('Entity', [])
-
-      expect(() => mapJob(job, parseEntityRef)).toThrowError()
-    })
-  })
-
-  describe('mapSchedule', () => {
-    test('should map full config correctly', () => {
-      const schedule = JOBS.FULL.CONFIG.schedule
-
-      const result = mapSchedule(schedule)
-
-      expect(result).toStrictEqual({
-        cron: schedule.cron,
-        args: schedule.args,
-        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
-      } satisfies AppSpec.Schedule)
-    })
-  })
-
-  describe('mapPerform', () => {
-    test('should map full config correctly', () => {
-      const perform = JOBS.FULL.CONFIG.perform
-
-      const result = mapPerform(perform)
-
-      expect(result).toStrictEqual({
-        fn: mapExtImport(perform.fn),
-        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
-      } satisfies AppSpec.Perform)
-    })
-  })
-
-  describe('mapRoute', () => {
-    test('should map full config correctly', () => {
-      const route = ROUTES.FULL.CONFIG
-      const parsePageRef = makeRefParser('Page', [route.to])
-
-      const result = mapRoute(route, parsePageRef)
-
-      expect(result).toStrictEqual({
-        path: route.path,
-        to: parsePageRef(route.to),
-      } satisfies AppSpec.Route)
     })
   })
 
@@ -1630,27 +1532,125 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
   })
 
-  describe('mapPage', () => {
-    test('should map minimal config correctly', () => {
-      const minimalPage = PAGES.MINIMAL.CONFIG
+  describe('mapApiNamespace', () => {
+    test('should map full config correctly', () => {
+      const apiNamespace = API_NAMESPACES.FULL.CONFIG
 
-      const result = mapPage(minimalPage)
+      const result = mapApiNamespace(apiNamespace)
 
       expect(result).toStrictEqual({
-        component: mapExtImport(minimalPage.component),
-        authRequired: undefined,
-      } satisfies AppSpec.Page)
+        middlewareConfigFn: mapExtImport(apiNamespace.middlewareConfigFn),
+        path: apiNamespace.path,
+      } satisfies AppSpec.ApiNamespace)
+    })
+  })
+
+  describe('mapApiConfig', () => {
+    test('should map minimal config correctly', () => {
+      const minimalApi = APIS.MINIMAL.CONFIG
+      const parseEntityRef = makeRefParser('Entity', [])
+
+      const result = mapApiConfig(minimalApi, parseEntityRef)
+
+      expect(result).toStrictEqual({
+        fn: mapExtImport(minimalApi.fn),
+        httpRoute: mapHttpRoute(minimalApi.httpRoute),
+        auth: undefined,
+        entities: undefined,
+        middlewareConfigFn: undefined,
+      } satisfies AppSpec.Api)
     })
 
     test('should map full config correctly', () => {
-      const page = PAGES.FULL.CONFIG
+      const api = APIS.FULL.CONFIG
+      const parseEntityRef = makeRefParser('Entity', api.entities)
 
-      const result = mapPage(page)
+      const result = mapApiConfig(api, parseEntityRef)
 
       expect(result).toStrictEqual({
-        component: mapExtImport(page.component),
-        authRequired: page.authRequired,
-      } satisfies AppSpec.Page)
+        fn: mapExtImport(api.fn),
+        middlewareConfigFn: mapExtImport(api.middlewareConfigFn),
+        entities: api.entities.map(parseEntityRef),
+        httpRoute: mapHttpRoute(api.httpRoute),
+        auth: api.auth,
+      } satisfies AppSpec.Api)
+    })
+  })
+
+  describe('mapHttpRoute', () => {
+    test('should map full config correctly', () => {
+      const httpRoute = APIS.FULL.CONFIG.httpRoute
+
+      const result = mapHttpRoute(httpRoute)
+
+      expect(result).toStrictEqual([
+        httpRoute.method,
+        httpRoute.route,
+      ] satisfies AppSpec.HttpRoute)
+    })
+  })
+
+  describe('mapJob', () => {
+    test('should map minimal config correctly', () => {
+      const minimalJob = JOBS.MINIMAL.CONFIG
+      const parseEntityRef = makeRefParser('Entity', [])
+
+      const result = mapJob(minimalJob, parseEntityRef)
+
+      expect(result).toStrictEqual({
+        executor: minimalJob.executor,
+        perform: mapPerform(minimalJob.perform),
+        schedule: undefined,
+        entities: undefined,
+      } satisfies AppSpec.Job)
+    })
+
+    test('should map full config correctly', () => {
+      const job = JOBS.FULL.CONFIG
+      const parseEntityRef = makeRefParser('Entity', job.entities)
+
+      const result = mapJob(job, parseEntityRef)
+
+      expect(result).toStrictEqual({
+        executor: job.executor,
+        perform: mapPerform(job.perform),
+        schedule: mapSchedule(job.schedule),
+        entities: job.entities.map(parseEntityRef),
+      } satisfies AppSpec.Job)
+    })
+
+    test('should throw if entity ref is not provided', () => {
+      const job = JOBS.FULL.CONFIG
+      const parseEntityRef = makeRefParser('Entity', [])
+
+      expect(() => mapJob(job, parseEntityRef)).toThrowError()
+    })
+  })
+
+  describe('mapSchedule', () => {
+    test('should map full config correctly', () => {
+      const schedule = JOBS.FULL.CONFIG.schedule
+
+      const result = mapSchedule(schedule)
+
+      expect(result).toStrictEqual({
+        cron: schedule.cron,
+        args: schedule.args,
+        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
+      } satisfies AppSpec.Schedule)
+    })
+  })
+
+  describe('mapPerform', () => {
+    test('should map full config correctly', () => {
+      const perform = JOBS.FULL.CONFIG.perform
+
+      const result = mapPerform(perform)
+
+      expect(result).toStrictEqual({
+        fn: mapExtImport(perform.fn),
+        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
+      } satisfies AppSpec.Perform)
     })
   })
 
