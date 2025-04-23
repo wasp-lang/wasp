@@ -1,10 +1,10 @@
 import { Router } from "express";
 
-import { createSession } from 'wasp/auth/session';
-import { findAuthWithUserBy } from 'wasp/auth/utils';
 import { HttpError } from 'wasp/server';
-import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
 import { defineHandler } from 'wasp/server/utils';
+import { findAuthWithUserBy } from 'wasp/auth/utils'
+import { createSession } from 'wasp/auth/session'
+import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
 
 export function setupOneTimeCodeRoute(router: Router) {
   router.post(
