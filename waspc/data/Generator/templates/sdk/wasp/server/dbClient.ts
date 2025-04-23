@@ -1,9 +1,19 @@
 {{={= =}=}}
+{=# prismaSetupFn.isDefined =}
+{=& prismaSetupFn.importStatement =}
+{=/ prismaSetupFn.isDefined =}
 {=# areThereAnyEntitiesDefined =}
-import Prisma from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
-function createDbClient(): Prisma.PrismaClient {
-  return new Prisma.PrismaClient()
+{=# prismaSetupFn.isDefined =}
+const _waspSetupPrisma = {= prismaSetupFn.importIdentifier =}
+{=/ prismaSetupFn.isDefined =}
+{=^ prismaSetupFn.isDefined =}
+const _waspSetupPrisma = () => new PrismaClient()
+{=/ prismaSetupFn.isDefined =}
+
+function createDbClient(): PrismaClient {
+  return _waspSetupPrisma()
 }
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
