@@ -3,3 +3,4 @@ export declare class HttpError extends Error {
     data: unknown;
     constructor(statusCode: number, message?: string, data?: Record<string, unknown>, options?: ErrorOptions);
 }
+//# sourceMappingURL=HttpError.d.ts.map

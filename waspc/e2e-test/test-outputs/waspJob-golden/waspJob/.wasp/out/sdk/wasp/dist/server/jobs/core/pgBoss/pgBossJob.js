@@ -35,7 +35,10 @@ export function registerJob({ job, jobFn }) {
         // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
         // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
         if (job.jobSchedule) {
-            const options = Object.assign(Object.assign({}, job.defaultJobOptions), job.jobSchedule.options);
+            const options = {
+                ...job.defaultJobOptions,
+                ...job.jobSchedule.options,
+            };
             await boss.schedule(job.jobName, job.jobSchedule.cron, job.jobSchedule.args, options);
         }
     });
@@ -46,6 +49,10 @@ export function registerJob({ job, jobFn }) {
  * The caller can make as many calls to `submit()` as they wish.
  */
 class PgBossJob extends Job {
+    defaultJobOptions;
+    startAfter;
+    entities;
+    jobSchedule;
     constructor(jobName, defaultJobOptions, entities, jobSchedule, startAfter) {
         super(jobName, PG_BOSS_EXECUTOR_NAME);
         this.defaultJobOptions = defaultJobOptions;
@@ -58,7 +65,11 @@ class PgBossJob extends Job {
     }
     async submit(jobArgs, jobOptions = {}) {
         const boss = await pgBossStarted;
-        const jobId = await boss.send(this.jobName, jobArgs, Object.assign(Object.assign(Object.assign({}, this.defaultJobOptions), (this.startAfter && { startAfter: this.startAfter })), jobOptions));
+        const jobId = await boss.send(this.jobName, jobArgs, {
+            ...this.defaultJobOptions,
+            ...(this.startAfter && { startAfter: this.startAfter }),
+            ...jobOptions,
+        });
         return new PgBossSubmittedJob(boss, this, jobId);
     }
 }
@@ -66,6 +77,7 @@ class PgBossJob extends Job {
  * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
  */
 class PgBossSubmittedJob extends SubmittedJob {
+    pgBoss;
     constructor(boss, job, jobId) {
         super(job, jobId);
         this.pgBoss = {

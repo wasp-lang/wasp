@@ -4,12 +4,34 @@
 
 ### ⚠️ Breaking Changes
 
+Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-16-to-0-17) to address all the breaking changes. Here's a short overview:
+
 - In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
 - Wasp requires that projects have `tailwindcss@^3.2.7` dependency specified in their `devDependencies` in `package.json`. ([#2465](https://github.com/wasp-lang/wasp/pull/2465))
+- We've made some improvements to our TypeScript setup that require you to
+  update the `tsconfig.json` file. The migration guide will lead you through
+  them, but here are all the non-cosmetic ones:
+  ```diff
+   {
+     "compilerOptions": {
+       // ...
+  +    "moduleDetection": "force",
+  +    "isolatedModules": true,
+  -    "typeRoots": [ ... ]
+     },
+   }
+  ```
+- The types for DOM helpers in tests are now handled with an import in `src/vite-env.d.ts` (instead of overriding `typeRoots` in `tsconfig.json`).
+
+### 🐞 Bug fixes
+
+- Fixes an OAuth logic race condition where a valid session ID was cleared and users would be logged out. ([#2684](https://github.com/wasp-lang/wasp/pull/2684))
 
 ### 🔧 Small improvements
 
 - Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
+- Modernized our TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+- Added support for jump-to-definition for Wasp symbols ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 
 ## 0.16.3
 

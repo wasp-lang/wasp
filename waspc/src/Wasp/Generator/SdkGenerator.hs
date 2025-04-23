@@ -23,7 +23,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.ExternalFiles as EC
-import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -97,6 +97,7 @@ genSdk spec =
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
+      genFileCopy [relfile|api/axios.d.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
@@ -227,14 +228,11 @@ npmDepsForSdk spec =
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
         Npm.Dependency.fromList
-          [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-            -- Should @types/* go into their package.json?
+          [ -- Should @types/* go into their package.json?
             ("@types/express", show expressTypesVersion),
             ("@types/express-serve-static-core", show expressTypesVersion)
           ]
     }
-  where
-    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

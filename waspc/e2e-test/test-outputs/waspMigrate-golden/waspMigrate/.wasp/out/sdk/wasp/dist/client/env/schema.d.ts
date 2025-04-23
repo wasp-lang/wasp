@@ -6,3 +6,4 @@ export declare const clientEnvSchema: z.ZodObject<{
 }, {
     REACT_APP_API_URL?: string | undefined;
 }>;
+//# sourceMappingURL=schema.d.ts.map

@@ -15,3 +15,4 @@ declare const auth: (req: import("express").Request<import("express-serve-static
     sessionId: string | null;
 }, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
 export default auth;
+//# sourceMappingURL=auth.d.ts.map
