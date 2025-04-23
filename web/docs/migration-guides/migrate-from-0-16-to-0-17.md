@@ -104,7 +104,7 @@ It is possible that you were not using this function in your code.
 If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
 this change is already handled for you.
 
-### Update your `tsconfig.json`
+### 2. Update your `tsconfig.json`
 To ensure your project works correctly with Wasp 0.17.0, you must also update your
 `tsconfig.json` file.
 
@@ -115,7 +115,7 @@ below.
 If you have made changes to your `tsconfig.json` file, we recommend taking the
 new version of the file and reapplying them.
 
-Here's the new version `tsconfig.json`:
+Here's the new version of `tsconfig.json`:
 ```json title=tsconfig.json
 // =============================== IMPORTANT =================================
 // This file is mainly used for Wasp IDE support.
@@ -155,9 +155,11 @@ Here's the new version `tsconfig.json`:
 
 ### 3. Tell Wasp about `jest-dom` types
 If you're using (or planning to use) Wasp's [client tests](../project/testing.md) with `jest-dom`,
-add this to your `src/vite-env.d.ts` file:
+update your `src/vite-env.d.ts` file:
 
-```ts
+```ts src/vite-env.d.ts {3-7}
+/// <reference types="vite/client" />
+
 // This is needed to properly support Vitest testing with jest-dom matchers.
 // Types for jest-dom are not recognized automatically and Typescript complains
 // about missing types e.g. when using `toBeInTheDocument` and other matchers.
