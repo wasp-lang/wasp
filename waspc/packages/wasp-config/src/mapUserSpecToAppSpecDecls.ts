@@ -127,18 +127,6 @@ export function mapOperationConfig(
 }
 
 export function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
-  if ('import' in extImport && 'importDefault' in extImport) {
-    throw new Error(
-      'Invalid ExtImport: both `import` and `importDefault` are defined'
-    )
-  }
-
-  if (!extImport.from.startsWith('@src/')) {
-    throw new Error(
-      `Invalid ExtImport: path must start with '@src/', got ${extImport.from}`
-    )
-  }
-
   if ('import' in extImport) {
     return {
       kind: 'named',
