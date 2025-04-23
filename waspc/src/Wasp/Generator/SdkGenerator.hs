@@ -24,18 +24,17 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EC
-import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
+    WebAppRootDir,
     makeJsonWithEntityData,
-    prismaVersion,
-    superjsonVersion,
   )
-import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
+import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import qualified Wasp.Generator.JsImport as GJI
@@ -48,6 +47,7 @@ import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as Clien
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
+import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
@@ -59,10 +59,13 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WebAppGenerator.Common
-  ( WebAppRootDir,
-    axiosVersion,
+import Wasp.Generator.ServerGenerator.DepVersions
+  ( expressTypesVersion,
+    expressVersionStr,
+  )
+import qualified Wasp.Generator.TailwindConfigFile as TCF
+import Wasp.Generator.WebAppGenerator.DepVersions
+  ( axiosVersion,
     reactQueryVersion,
     reactRouterVersion,
     reactVersion,
@@ -97,6 +100,7 @@ genSdk spec =
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
+      genFileCopy [relfile|api/axios.d.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
@@ -199,7 +203,7 @@ npmDepsForSdk spec =
             ("prisma", show prismaVersion),
             ("@tanstack/react-query", show reactQueryVersion),
             ("axios", show axiosVersion),
-            ("express", Server.expressVersionStr),
+            ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
             ("react-router-dom", show reactRouterVersion),
@@ -227,14 +231,11 @@ npmDepsForSdk spec =
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
         Npm.Dependency.fromList
-          [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-            -- Should @types/* go into their package.json?
-            ("@types/express", show Server.expressTypesVersion),
-            ("@types/express-serve-static-core", show Server.expressTypesVersion)
+          [ -- Should @types/* go into their package.json?
+            ("@types/express", show expressTypesVersion),
+            ("@types/express-serve-static-core", show expressTypesVersion)
           ]
     }
-  where
-    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
@@ -286,10 +287,10 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
 
 depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByTailwind spec =
-  if G.CF.isTailwindUsed spec
+  if TCF.isTailwindUsed spec
     then
       Npm.Dependency.fromList
-        [ ("tailwindcss", "^3.2.7"),
+        [ ("tailwindcss", show tailwindCssVersion),
           ("postcss", "^8.4.21"),
           ("autoprefixer", "^10.4.13")
         ]

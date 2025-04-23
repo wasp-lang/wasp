@@ -1,14 +1,3 @@
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
 import { hashPassword } from './password.js';
 import { prisma, HttpError } from 'wasp/server';
 import { sleep } from 'wasp/server/utils';
@@ -53,7 +42,10 @@ export async function updateAuthIdentityProviderData(providerId, existingProvide
     // We are doing the sanitization here only on updates to avoid
     // hashing the password multiple times.
     const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
-    const newProviderData = Object.assign(Object.assign({}, existingProviderData), sanitizedProviderDataUpdates);
+    const newProviderData = {
+        ...existingProviderData,
+        ...sanitizedProviderDataUpdates,
+    };
     const serializedProviderData = await serializeProviderData(newProviderData);
     return prisma.authIdentity.update({
         where: {
@@ -71,12 +63,16 @@ export async function findAuthWithUserBy(where) {
     if (result.user === null) {
         return null;
     }
-    return Object.assign(Object.assign({}, result), { user: result.user });
+    return { ...result, user: result.user };
 }
 // PUBLIC API
 export async function createUser(providerId, serializedProviderData, userFields) {
     return prisma.user.create({
-        data: Object.assign(Object.assign({}, (userFields !== null && userFields !== void 0 ? userFields : {})), { auth: {
+        data: {
+            // Using any here to prevent type errors when userFields are not
+            // defined. We want Prisma to throw an error in that case.
+            ...(userFields ?? {}),
+            auth: {
                 create: {
                     identities: {
                         create: {
@@ -86,7 +82,8 @@ export async function createUser(providerId, serializedProviderData, userFields)
                         },
                     },
                 }
-            } }),
+            },
+        },
         // We need to include the Auth entity here because we need `authId`
         // to be able to create a session.
         include: {
@@ -153,7 +150,7 @@ export function rethrowPossibleAuthError(e) {
 }
 // PRIVATE API
 export async function validateAndGetUserFields(data, userSignupFields) {
-    const { password: _password } = data, sanitizedData = __rest(data, ["password"]);
+    const { password: _password, ...sanitizedData } = data;
     const result = {};
     if (!userSignupFields) {
         return result;
@@ -180,7 +177,7 @@ export function getProviderDataWithPassword(providerData) {
 }
 function sanitizeProviderData(providerData) {
     if (providerDataHasPasswordField(providerData)) {
-        const { hashedPassword } = providerData, rest = __rest(providerData, ["hashedPassword"]);
+        const { hashedPassword, ...rest } = providerData;
         return rest;
     }
     else {
@@ -195,7 +192,9 @@ function serializeProviderData(providerData) {
     return JSON.stringify(providerData);
 }
 async function ensurePasswordIsHashed(providerData) {
-    const data = Object.assign({}, providerData);
+    const data = {
+        ...providerData,
+    };
     if (providerDataHasPasswordField(data)) {
         data.hashedPassword = await hashPassword(data.hashedPassword);
     }

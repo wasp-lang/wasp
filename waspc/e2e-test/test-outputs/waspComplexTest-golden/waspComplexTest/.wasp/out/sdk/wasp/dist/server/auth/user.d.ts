@@ -28,3 +28,4 @@ type MakeAuthEntityWithIdentities<IdentityType> = Auth & {
 };
 export declare function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData;
 export {};
+//# sourceMappingURL=user.d.ts.map

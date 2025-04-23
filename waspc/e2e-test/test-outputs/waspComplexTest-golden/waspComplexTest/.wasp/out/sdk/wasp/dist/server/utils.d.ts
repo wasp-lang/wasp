@@ -15,3 +15,4 @@ export declare const handleRejection: (middleware: (req: RequestWithExtraFields,
 export declare const sleep: (ms: number) => Promise<unknown>;
 export declare function redirect(res: Response, redirectUri: string): Response<any, Record<string, any>>;
 export {};
+//# sourceMappingURL=utils.d.ts.map

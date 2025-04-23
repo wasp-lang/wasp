@@ -25,3 +25,4 @@ export type AdditionalSignupField = {
     validations?: RegisterOptions<LoginSignupFormFields>;
 };
 export type AdditionalSignupFields = (AdditionalSignupField | AdditionalSignupFieldRenderFn)[] | AdditionalSignupFieldRenderFn;
+//# sourceMappingURL=types.d.ts.map

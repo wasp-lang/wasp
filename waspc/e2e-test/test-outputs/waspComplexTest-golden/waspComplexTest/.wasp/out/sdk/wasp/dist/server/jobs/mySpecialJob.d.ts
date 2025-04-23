@@ -44,3 +44,4 @@ export declare const mySpecialJob: {
     readonly executorName: string | symbol;
 };
 export {};
+//# sourceMappingURL=mySpecialJob.d.ts.map
