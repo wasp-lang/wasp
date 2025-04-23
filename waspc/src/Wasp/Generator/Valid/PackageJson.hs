@@ -8,9 +8,7 @@ import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import qualified Wasp.Generator.Valid.PackageJsonValidationContext as C
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
@@ -22,11 +20,10 @@ type PackageSpecification = (P.PackageName, P.PackageVersion)
 
 validatePackageJson ::
   P.PackageJson ->
-  C.PackageJsonValidationContext ->
   [GeneratorError]
-validatePackageJson packageJson context =
+validatePackageJson packageJson =
   validateRuntimeDependencies packageJson
-    ++ validateDevelopmentDependencies packageJson context
+    ++ validateDevelopmentDependencies packageJson
     ++ validateOptionalDependencies packageJson
 
 validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
@@ -42,19 +39,14 @@ validateRuntimeDependencies packageJson =
   where
     validateRuntime packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredRuntime
 
-validateDevelopmentDependencies :: P.PackageJson -> C.PackageJsonValidationContext -> [GeneratorError]
-validateDevelopmentDependencies packageJson context =
+validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
+validateDevelopmentDependencies packageJson =
   concat $
     [ validateDevelopment ("vite", show viteVersion),
       validateDevelopment ("prisma", show prismaVersion)
     ]
-      ++ tailwindValidations
   where
     validateDevelopment packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredDevelopment
-
-    tailwindValidations =
-      [ validateDevelopment ("tailwindcss", show tailwindCssVersion) | C.isTailwindUsed context
-      ]
 
 validateOptionalDependencies :: P.PackageJson -> [GeneratorError]
 validateOptionalDependencies packageJson =

@@ -350,7 +350,6 @@ library
     Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
-    Wasp.Generator.Valid.PackageJsonValidationContext
     Wasp.Generator.Valid.TsConfig
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
