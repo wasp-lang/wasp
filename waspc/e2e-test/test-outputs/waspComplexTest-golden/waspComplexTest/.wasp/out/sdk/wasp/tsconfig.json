@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    /* Basic opitions */
+    /* Basic options */
     "target": "esnext",
     "jsx": "preserve",
     "lib": [
