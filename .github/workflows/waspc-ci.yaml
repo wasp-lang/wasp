@@ -1,6 +1,7 @@
 name: WASPC-CI
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "waspc/**"
