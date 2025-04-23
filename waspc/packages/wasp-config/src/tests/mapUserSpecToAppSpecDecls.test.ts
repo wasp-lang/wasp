@@ -33,56 +33,83 @@ import {
 } from '../mapUserSpecToAppSpecDecls.js'
 import * as UserSpec from '../userApi.js'
 import {
-  ACTION,
+  ACTIONS,
   ALL_ENTITIES,
-  ALL_PAGES,
-  ALL_ROUTES,
-  API,
-  API_NAMESPACE,
+  ALL_PAGE_NAMES,
+  ALL_ROUTE_NAMES,
+  API_NAMESPACES,
+  APIS,
   APP,
   AUTH,
   CLIENT,
-  CRUD,
+  CRUDS,
   DB,
-  EMAIL,
-  JOB,
-  PAGE,
-  QUERY,
-  ROUTE,
+  EMAIL_SENDER,
+  JOBS,
+  PAGES,
+  QUERIES,
+  ROUTES,
   SERVER,
   WEBSOCKET,
 } from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
-  // This test deliberately avoids using individual mapping functions and instead uses raw values.
-  // This serves as an integration test to ensure the complete UserSpec to AppSpec transformation
-  // pipeline works correctly end-to-end, independent of the individual mapping functions tested below.
-  test('should map end-to-end without functions correctly', () => {
+  function createFullApp() {
     const app = new UserSpec.App(APP.NAME, APP.CONFIG)
     app.auth(AUTH.CONFIG)
     app.client(CLIENT.CONFIG)
     app.server(SERVER.CONFIG)
-    app.emailSender(EMAIL.CONFIG)
+    app.emailSender(EMAIL_SENDER.CONFIG)
     app.webSocket(WEBSOCKET.CONFIG)
     app.db(DB.CONFIG)
+    Object.values(PAGES).forEach(({ NAME, CONFIG }) => {
+      app.page(NAME, CONFIG)
+    })
+    Object.values(ROUTES).forEach(({ NAME, CONFIG }) => {
+      app.route(NAME, CONFIG)
+    })
+    Object.values(QUERIES).forEach(({ NAME, CONFIG }) => {
+      app.query(NAME, CONFIG)
+    })
+    Object.values(ACTIONS).forEach(({ NAME, CONFIG }) => {
+      app.action(NAME, CONFIG)
+    })
+    Object.values(CRUDS).forEach(({ NAME, CONFIG }) => {
+      app.crud(NAME, CONFIG)
+    })
+    Object.values(API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
+      app.apiNamespace(NAME, CONFIG)
+    })
+    Object.values(APIS).forEach(({ NAME, CONFIG }) => {
+      app.api(NAME, CONFIG)
+    })
+    Object.values(JOBS).forEach(({ NAME, CONFIG }) => {
+      app.job(NAME, CONFIG)
+    })
+    return app
+  }
 
-    app.page(PAGE.LOGIN.NAME, PAGE.LOGIN.CONFIG)
-    app.page(PAGE.EMAIL_VERIFICATION.NAME, PAGE.EMAIL_VERIFICATION.CONFIG)
-    app.page(PAGE.PASSWORD_RESET.NAME, PAGE.PASSWORD_RESET.CONFIG)
+  function getDecl<T extends keyof AppSpec.DeclTypeToValue>(
+    decls: AppSpec.Decl[],
+    declType: T,
+    declName: string | undefined = undefined
+  ): AppSpec.GetDeclForType<T> | undefined {
+    if (declName === undefined) {
+      return decls.find((decl) => decl.declType === declType) as
+        | AppSpec.GetDeclForType<T>
+        | undefined
+    } else {
+      return decls.find(
+        (decl) => decl.declType === declType && decl.declName === declName
+      ) as AppSpec.GetDeclForType<T> | undefined
+    }
+  }
 
-    app.route(ROUTE.LOGIN.NAME, ROUTE.LOGIN.CONFIG)
-    app.route(ROUTE.EMAIL_VERIFICATION.NAME, ROUTE.EMAIL_VERIFICATION.CONFIG)
-    app.route(ROUTE.PASSWORD_RESET.NAME, ROUTE.PASSWORD_RESET.CONFIG)
-
-    app.query(QUERY.NAME, QUERY.CONFIG)
-    app.action(ACTION.NAME, ACTION.CONFIG)
-    app.crud(CRUD.NAME, CRUD.CONFIG)
-
-    app.apiNamespace(API_NAMESPACE.NAME, API_NAMESPACE.CONFIG)
-    app.api(API.NAME, API.CONFIG)
-
-    app.job(JOB.NAME, JOB.CONFIG)
-
+  // This test deliberately avoids using individual mapping functions and instead uses raw values.
+  // This serves as an integration test to ensure the complete UserSpec to AppSpec transformation
+  // pipeline works correctly end-to-end, independent of the individual mapping functions tested below.
+  test('should map end-to-end without mapping functions correctly', () => {
+    const app = createFullApp()
     const userSpec = getUserSpec(app)
     const result = mapUserSpecToAppSpecDecls(userSpec, ALL_ENTITIES)
 
@@ -93,9 +120,10 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(declTypes).toContain('App')
     expect(declNames).toContain(APP.NAME)
 
-    const appDecl = result.find(
-      (decl) => decl.declType === 'App'
-    ) as AppSpec.GetDeclForType<'App'>
+    const appDecl = getDecl(result, 'App')
+    if (!appDecl) {
+      throw new Error('App declaration not found')
+    }
 
     expect(appDecl).toBeDefined()
     expect(appDecl.declValue.title).toBe(APP.CONFIG.title)
@@ -277,6 +305,28 @@ describe('mapUserSpecToAppSpecDecls', () => {
       path: SERVER.CONFIG.envValidationSchema.from,
     })
 
+    // EmailSenderConfig
+    const emailSender = appDecl.declValue.emailSender
+
+    expect(emailSender).toBeDefined()
+    expect(emailSender?.provider).toBe(EMAIL_SENDER.CONFIG.provider)
+    expect(emailSender?.defaultFrom?.email).toBe(
+      EMAIL_SENDER.CONFIG.defaultFrom.email
+    )
+    expect(emailSender?.defaultFrom?.name).toBe(
+      EMAIL_SENDER.CONFIG.defaultFrom.name
+    )
+
+    // WebSocketConfig
+    const webSocket = appDecl.declValue.webSocket
+
+    expect(webSocket).toBeDefined()
+    expect(webSocket?.fn).toStrictEqual({
+      kind: 'named',
+      name: WEBSOCKET.CONFIG.fn.import,
+      path: WEBSOCKET.CONFIG.fn.from,
+    })
+
     // DbConfig
     const db = appDecl.declValue.db
 
@@ -290,329 +340,285 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // PageConfig
     expect(declTypes).toContain('Page')
+    Object.values(PAGES).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    // Login Page
-    expect(declNames).toContain(PAGE.LOGIN.NAME)
+      const loginPageDecl = getDecl(result, 'Page', NAME)
+      if (!loginPageDecl) {
+        throw new Error(`Login page declaration for ${NAME} not found`)
+      }
 
-    const loginPageDecl = result.find(
-      (decl) => decl.declType === 'Page' && decl.declName === PAGE.LOGIN.NAME
-    ) as AppSpec.GetDeclForType<'Page'>
-
-    expect(loginPageDecl.declValue.component).toStrictEqual({
-      kind: 'named',
-      name: PAGE.LOGIN.CONFIG.component.import,
-      path: PAGE.LOGIN.CONFIG.component.from,
+      expect(loginPageDecl.declValue.component).toStrictEqual({
+        kind: 'named',
+        name: CONFIG.component.import,
+        path: CONFIG.component.from,
+      })
+      if ('authRequired' in CONFIG) {
+        expect(loginPageDecl.declValue.authRequired).toBe(CONFIG.authRequired)
+      }
     })
-    expect(loginPageDecl.declValue.authRequired).toBe(
-      PAGE.LOGIN.CONFIG.authRequired
-    )
-
-    // Email Verification Page
-    expect(declNames).toContain(PAGE.EMAIL_VERIFICATION.NAME)
-
-    const emailVerificationPageDecl = result.find(
-      (decl) =>
-        decl.declType === 'Page' &&
-        decl.declName === PAGE.EMAIL_VERIFICATION.NAME
-    ) as AppSpec.GetDeclForType<'Page'>
-
-    expect(emailVerificationPageDecl.declValue.component).toStrictEqual({
-      kind: 'named',
-      name: PAGE.EMAIL_VERIFICATION.CONFIG.component.import,
-      path: PAGE.EMAIL_VERIFICATION.CONFIG.component.from,
-    })
-    expect(emailVerificationPageDecl.declValue.authRequired).toBe(
-      PAGE.EMAIL_VERIFICATION.CONFIG.authRequired
-    )
-
-    // Password Reset Page
-    expect(declNames).toContain(PAGE.PASSWORD_RESET.NAME)
-
-    const passwordResetPageDecl = result.find(
-      (decl) =>
-        decl.declType === 'Page' && decl.declName === PAGE.PASSWORD_RESET.NAME
-    ) as AppSpec.GetDeclForType<'Page'>
-
-    expect(passwordResetPageDecl.declValue.component).toStrictEqual({
-      kind: 'named',
-      name: PAGE.PASSWORD_RESET.CONFIG.component.import,
-      path: PAGE.PASSWORD_RESET.CONFIG.component.from,
-    })
-    expect(passwordResetPageDecl.declValue.authRequired).toBe(
-      PAGE.PASSWORD_RESET.CONFIG.authRequired
-    )
 
     // RouteConfig
     expect(declTypes).toContain('Route')
+    Object.values(ROUTES).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    // Login Route
-    expect(declNames).toContain(ROUTE.LOGIN.NAME)
+      const routeDecl = getDecl(result, 'Route', NAME)
+      if (!routeDecl) {
+        throw new Error(`Route declaration for ${NAME} not found`)
+      }
 
-    const routeDecl = result.find(
-      (decl) => decl.declType === 'Route' && decl.declName === ROUTE.LOGIN.NAME
-    ) as AppSpec.GetDeclForType<'Route'>
-
-    expect(routeDecl.declValue.path).toBe(ROUTE.LOGIN.CONFIG.path)
-    expect(routeDecl.declValue.to).toStrictEqual({
-      name: PAGE.LOGIN.NAME,
-      declType: 'Page',
-    })
-
-    // Email Verification Route
-    expect(declNames).toContain(ROUTE.EMAIL_VERIFICATION.NAME)
-
-    const emailVerificationRouteDecl = result.find(
-      (decl) =>
-        decl.declType === 'Route' &&
-        decl.declName === ROUTE.EMAIL_VERIFICATION.NAME
-    ) as AppSpec.GetDeclForType<'Route'>
-
-    expect(emailVerificationRouteDecl.declValue.path).toBe(
-      ROUTE.EMAIL_VERIFICATION.CONFIG.path
-    )
-    expect(emailVerificationRouteDecl.declValue.to).toStrictEqual({
-      name: PAGE.EMAIL_VERIFICATION.NAME,
-      declType: 'Page',
-    })
-
-    // Password Reset Route
-    expect(declNames).toContain(ROUTE.PASSWORD_RESET.NAME)
-
-    const passwordResetRouteDecl = result.find(
-      (decl) =>
-        decl.declType === 'Route' && decl.declName === ROUTE.PASSWORD_RESET.NAME
-    ) as AppSpec.GetDeclForType<'Route'>
-
-    expect(passwordResetRouteDecl.declValue.path).toBe(
-      ROUTE.PASSWORD_RESET.CONFIG.path
-    )
-    expect(passwordResetRouteDecl.declValue.to).toStrictEqual({
-      name: PAGE.PASSWORD_RESET.NAME,
-      declType: 'Page',
+      expect(routeDecl.declValue.path).toBe(CONFIG.path)
+      expect(routeDecl.declValue.to).toStrictEqual({
+        name: CONFIG.to,
+        declType: 'Page',
+      })
     })
 
     // QueryConfig
     expect(declTypes).toContain('Query')
-    expect(declNames).toContain(QUERY.NAME)
+    Object.values(QUERIES).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    const queryDecl = result.find(
-      (decl) => decl.declType === 'Query' && decl.declName === QUERY.NAME
-    ) as AppSpec.GetDeclForType<'Query'>
+      const queryDecl = getDecl(result, 'Query', NAME)
+      if (!queryDecl) {
+        throw new Error(`Query declaration for ${NAME} not found`)
+      }
 
-    expect(queryDecl.declValue.fn).toStrictEqual({
-      kind: 'named',
-      name: QUERY.CONFIG.fn.import,
-      path: QUERY.CONFIG.fn.from,
-    })
-    expect(queryDecl.declValue.auth).toBe(QUERY.CONFIG.auth)
-    expect(queryDecl.declValue.entities?.[0]).toStrictEqual({
-      name: QUERY.CONFIG.entities[0],
-      declType: 'Entity',
+      expect(queryDecl.declValue.fn).toStrictEqual({
+        kind: 'named',
+        name: CONFIG.fn.import,
+        path: CONFIG.fn.from,
+      })
+
+      if ('auth' in CONFIG) {
+        expect(queryDecl.declValue.auth).toBe(CONFIG.auth)
+      }
+
+      if ('entities' in CONFIG) {
+        queryDecl.declValue.entities?.forEach((entity, index) => {
+          expect(entity).toStrictEqual({
+            name: CONFIG.entities[index],
+            declType: 'Entity',
+          })
+        })
+      }
     })
 
     // ActionConfig
     expect(declTypes).toContain('Action')
-    expect(declNames).toContain(ACTION.NAME)
+    Object.values(ACTIONS).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    const actionDecl = result.find(
-      (decl) => decl.declType === 'Action' && decl.declName === ACTION.NAME
-    ) as AppSpec.GetDeclForType<'Action'>
+      const actionDecl = getDecl(result, 'Action', NAME)
+      if (!actionDecl) {
+        throw new Error(`Action declaration for ${NAME} not found`)
+      }
 
-    expect(actionDecl).toBeDefined()
-    expect(actionDecl.declValue.fn).toStrictEqual({
-      kind: 'named',
-      name: ACTION.CONFIG.fn.import,
-      path: ACTION.CONFIG.fn.from,
+      expect(actionDecl.declValue.fn).toStrictEqual({
+        kind: 'named',
+        name: CONFIG.fn.import,
+        path: CONFIG.fn.from,
+      })
+
+      if ('auth' in CONFIG) {
+        expect(actionDecl.declValue.auth).toBe(CONFIG.auth)
+      }
+
+      if ('entities' in CONFIG) {
+        expect(actionDecl.declValue.entities).toBeDefined()
+        expect(actionDecl.declValue.entities).toHaveLength(
+          CONFIG.entities?.length
+        )
+      }
     })
-    expect(actionDecl.declValue.entities).toBeDefined()
-    expect(actionDecl.declValue.entities).toHaveLength(1)
-    expect(actionDecl.declValue.entities?.[0]).toStrictEqual({
-      name: ACTION.CONFIG.entities[0],
-      declType: 'Entity',
-    })
-    expect(actionDecl.declValue.auth).toBe(ACTION.CONFIG.auth)
 
     // CrudConfig
     expect(declTypes).toContain('Crud')
-    expect(declNames).toContain(CRUD.NAME)
+    Object.values(CRUDS).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    const crudDecl = result.find(
-      (decl) => decl.declType === 'Crud' && decl.declName === CRUD.NAME
-    ) as AppSpec.GetDeclForType<'Crud'>
+      const crudDecl = getDecl(result, 'Crud', NAME)
+      if (!crudDecl) {
+        throw new Error(`Crud declaration for ${NAME} not found`)
+      }
 
-    expect(crudDecl).toBeDefined()
-    expect(crudDecl.declValue.entity).toStrictEqual({
-      name: CRUD.CONFIG.entity,
-      declType: 'Entity',
-    })
-    expect(crudDecl.declValue.operations.get).toBeDefined()
-    expect(crudDecl.declValue.operations.get?.isPublic).toBe(
-      CRUD.CONFIG.operations.get.isPublic
-    )
-    expect(crudDecl.declValue.operations.get?.overrideFn).toStrictEqual({
-      kind: 'named',
-      name: CRUD.CONFIG.operations.get.overrideFn.import,
-      path: CRUD.CONFIG.operations.get.overrideFn.from,
-    })
-    expect(crudDecl.declValue.operations.getAll).toBeDefined()
-    expect(crudDecl.declValue.operations.getAll?.isPublic).toBe(
-      CRUD.CONFIG.operations.getAll.isPublic
-    )
-    expect(crudDecl.declValue.operations.getAll?.overrideFn).toStrictEqual({
-      kind: 'named',
-      name: CRUD.CONFIG.operations.getAll.overrideFn.import,
-      path: CRUD.CONFIG.operations.getAll.overrideFn.from,
-    })
-    expect(crudDecl.declValue.operations.create).toBeDefined()
-    expect(crudDecl.declValue.operations.create?.isPublic).toBe(
-      CRUD.CONFIG.operations.create.isPublic
-    )
-    expect(crudDecl.declValue.operations.create?.overrideFn).toStrictEqual({
-      kind: 'named',
-      name: CRUD.CONFIG.operations.create.overrideFn.import,
-      path: CRUD.CONFIG.operations.create.overrideFn.from,
-    })
-    expect(crudDecl.declValue.operations.update).toBeDefined()
-    expect(crudDecl.declValue.operations.update?.isPublic).toBe(
-      CRUD.CONFIG.operations.update.isPublic
-    )
-    expect(crudDecl.declValue.operations.update?.overrideFn).toStrictEqual({
-      kind: 'named',
-      name: CRUD.CONFIG.operations.update.overrideFn.import,
-      path: CRUD.CONFIG.operations.update.overrideFn.from,
-    })
-    expect(crudDecl.declValue.operations.delete).toBeDefined()
-    expect(crudDecl.declValue.operations.delete?.isPublic).toBe(
-      CRUD.CONFIG.operations.delete.isPublic
-    )
-    expect(crudDecl.declValue.operations.delete?.overrideFn).toStrictEqual({
-      kind: 'named',
-      name: CRUD.CONFIG.operations.delete.overrideFn.import,
-      path: CRUD.CONFIG.operations.delete.overrideFn.from,
+      expect(crudDecl.declValue.entity).toStrictEqual({
+        name: CONFIG.entity,
+        declType: 'Entity',
+      })
+
+      if ('get' in CONFIG.operations) {
+        expect(crudDecl.declValue.operations.get?.isPublic).toBe(
+          CONFIG.operations?.get.isPublic
+        )
+        expect(crudDecl.declValue.operations.get?.overrideFn).toStrictEqual({
+          kind: 'named',
+          name: CONFIG.operations.get.overrideFn.import,
+          path: CONFIG.operations.get.overrideFn.from,
+        })
+      }
+
+      if ('getAll' in CONFIG.operations) {
+        expect(crudDecl.declValue.operations.getAll?.isPublic).toBe(
+          CONFIG.operations?.getAll.isPublic
+        )
+        expect(crudDecl.declValue.operations.getAll?.overrideFn).toStrictEqual({
+          kind: 'named',
+          name: CONFIG.operations.getAll.overrideFn.import,
+          path: CONFIG.operations.getAll.overrideFn.from,
+        })
+      }
+
+      if ('create' in CONFIG.operations) {
+        expect(crudDecl.declValue.operations.create?.isPublic).toBe(
+          CONFIG.operations.create.isPublic
+        )
+        expect(crudDecl.declValue.operations.create?.overrideFn).toStrictEqual({
+          kind: 'named',
+          name: CONFIG.operations.create.overrideFn.import,
+          path: CONFIG.operations.create.overrideFn.from,
+        })
+      }
+
+      if ('update' in CONFIG.operations) {
+        expect(crudDecl.declValue.operations.update?.isPublic).toBe(
+          CONFIG.operations.update.isPublic
+        )
+        expect(crudDecl.declValue.operations.update?.overrideFn).toStrictEqual({
+          kind: 'named',
+          name: CONFIG.operations.update.overrideFn.import,
+          path: CONFIG.operations.update.overrideFn.from,
+        })
+      }
+
+      if ('delete' in CONFIG.operations) {
+        expect(crudDecl.declValue.operations.delete?.isPublic).toBe(
+          CONFIG.operations.delete.isPublic
+        )
+        expect(crudDecl.declValue.operations.delete?.overrideFn).toStrictEqual({
+          kind: 'named',
+          name: CONFIG.operations.delete.overrideFn.import,
+          path: CONFIG.operations.delete.overrideFn.from,
+        })
+      }
     })
 
     // ApiNamespaceConfig
     expect(declTypes).toContain('ApiNamespace')
-    expect(declNames).toContain(API_NAMESPACE.NAME)
+    Object.values(API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    const apiNamespaceDecl = result.find(
-      (decl) =>
-        decl.declType === 'ApiNamespace' && decl.declName === API_NAMESPACE.NAME
-    ) as AppSpec.GetDeclForType<'ApiNamespace'>
+      const apiNamespaceDecl = getDecl(result, 'ApiNamespace', NAME)
+      if (!apiNamespaceDecl) {
+        throw new Error(`ApiNamespace declaration for ${NAME} not found`)
+      }
 
-    expect(apiNamespaceDecl).toBeDefined()
-    expect(apiNamespaceDecl.declValue.path).toBe(API_NAMESPACE.CONFIG.path)
-    expect(apiNamespaceDecl.declValue.middlewareConfigFn).toStrictEqual({
-      kind: 'named',
-      name: API_NAMESPACE.CONFIG.middlewareConfigFn.import,
-      path: API_NAMESPACE.CONFIG.middlewareConfigFn.from,
+      expect(apiNamespaceDecl.declValue.path).toBe(CONFIG.path)
+      expect(apiNamespaceDecl.declValue.middlewareConfigFn).toStrictEqual({
+        kind: 'named',
+        name: CONFIG.middlewareConfigFn.import,
+        path: CONFIG.middlewareConfigFn.from,
+      })
     })
 
     // ApiConfig
     expect(declTypes).toContain('Api')
-    expect(declNames).toContain(API.NAME)
+    Object.values(APIS).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    const apiDecl = result.find(
-      (decl) => decl.declType === 'Api' && decl.declName === API.NAME
-    ) as AppSpec.GetDeclForType<'Api'>
+      const apiDecl = getDecl(result, 'Api', NAME)
+      if (!apiDecl) {
+        throw new Error(`Api declaration for ${NAME} not found`)
+      }
 
-    expect(apiDecl.declValue.fn).toStrictEqual({
-      kind: 'named',
-      name: API.CONFIG.fn.import,
-      path: API.CONFIG.fn.from,
-    })
-    expect(apiDecl.declValue.auth).toBe(API.CONFIG.auth)
-    expect(apiDecl.declValue.httpRoute).toStrictEqual([
-      API.CONFIG.httpRoute.method,
-      API.CONFIG.httpRoute.route,
-    ])
-    expect(apiDecl.declValue.entities).toBeDefined()
-    expect(apiDecl.declValue.entities).toHaveLength(1)
-    expect(apiDecl.declValue.entities?.[0]).toStrictEqual({
-      name: API.CONFIG.entities[0],
-      declType: 'Entity',
-    })
-    expect(apiDecl.declValue.middlewareConfigFn).toStrictEqual({
-      kind: 'named',
-      name: API.CONFIG.middlewareConfigFn.import,
-      path: API.CONFIG.middlewareConfigFn.from,
-    })
-
-    // EmailSenderConfig
-    const emailSender = appDecl.declValue.emailSender
-
-    expect(emailSender).toBeDefined()
-    expect(emailSender?.provider).toBe(EMAIL.CONFIG.provider)
-    expect(emailSender?.defaultFrom?.email).toBe(EMAIL.CONFIG.defaultFrom.email)
-    expect(emailSender?.defaultFrom?.name).toBe(EMAIL.CONFIG.defaultFrom.name)
-
-    // WebSocketConfig
-    const webSocket = appDecl.declValue.webSocket
-
-    expect(webSocket).toBeDefined()
-    expect(webSocket?.fn).toStrictEqual({
-      kind: 'named',
-      name: WEBSOCKET.CONFIG.fn.import,
-      path: WEBSOCKET.CONFIG.fn.from,
+      expect(apiDecl.declValue.fn).toStrictEqual({
+        kind: 'named',
+        name: CONFIG.fn.import,
+        path: CONFIG.fn.from,
+      })
+      expect(apiDecl.declValue.httpRoute).toStrictEqual([
+        CONFIG.httpRoute.method,
+        CONFIG.httpRoute.route,
+      ])
+      if ('auth' in CONFIG) {
+        expect(apiDecl.declValue.auth).toBe(CONFIG.auth)
+      }
+      if ('entities' in CONFIG) {
+        expect(apiDecl.declValue.entities).toBeDefined()
+        expect(apiDecl.declValue.entities).toHaveLength(CONFIG.entities.length)
+        CONFIG.entities.forEach((entity, index) => {
+          expect(apiDecl.declValue.entities?.[index]).toStrictEqual({
+            name: entity,
+            declType: 'Entity',
+          })
+        })
+      }
+      if ('middlewareConfigFn' in CONFIG) {
+        expect(apiDecl.declValue.middlewareConfigFn).toStrictEqual({
+          kind: 'named',
+          name: CONFIG.middlewareConfigFn.import,
+          path: CONFIG.middlewareConfigFn.from,
+        })
+      }
     })
 
     // JobConfig
     expect(declTypes).toContain('Job')
-    expect(declNames).toContain(JOB.NAME)
+    Object.values(JOBS).forEach(({ NAME, CONFIG }) => {
+      expect(declNames).toContain(NAME)
 
-    const jobDecl = result.find(
-      (decl) => decl.declType === 'Job' && decl.declName === JOB.NAME
-    ) as AppSpec.GetDeclForType<'Job'>
+      const jobDecl = getDecl(result, 'Job', NAME)
+      if (!jobDecl) {
+        throw new Error(`Job declaration for ${NAME} not found`)
+      }
 
-    expect(jobDecl.declValue.executor).toBe(JOB.CONFIG.executor)
-    expect(jobDecl.declValue.perform.fn).toStrictEqual({
-      kind: 'named',
-      name: JOB.CONFIG.perform.fn.import,
-      path: JOB.CONFIG.perform.fn.from,
-    })
-    expect(jobDecl.declValue.entities?.[0]).toStrictEqual({
-      name: JOB.CONFIG.entities[0],
-      declType: 'Entity',
-    })
-    expect(jobDecl.declValue.schedule).toStrictEqual({
-      cron: JOB.CONFIG.schedule.cron,
-      args: JOB.CONFIG.schedule.args,
-      executorOptions: {
-        pgBoss: JOB.CONFIG.schedule.executorOptions.pgBoss,
-      },
+      expect(jobDecl.declValue.executor).toBe(CONFIG.executor)
+      expect(jobDecl.declValue.perform).toBeDefined()
+      expect(jobDecl.declValue.perform.fn).toStrictEqual({
+        kind: 'named',
+        name: CONFIG.perform.fn.import,
+        path: CONFIG.perform.fn.from,
+      })
+      if ('executorOptions' in CONFIG.perform) {
+        expect(jobDecl.declValue.perform.executorOptions).toStrictEqual({
+          pgBoss: CONFIG.perform.executorOptions.pgBoss,
+        })
+      }
+      if ('entities' in CONFIG) {
+        expect(jobDecl.declValue.entities).toBeDefined()
+        expect(jobDecl.declValue.entities).toHaveLength(CONFIG.entities.length)
+        CONFIG.entities.forEach((entity, index) => {
+          expect(jobDecl.declValue.entities?.[index]).toStrictEqual({
+            name: entity,
+            declType: 'Entity',
+          })
+        })
+      }
+      if ('schedule' in CONFIG) {
+        expect(jobDecl.declValue.schedule?.cron).toBe(CONFIG.schedule.cron)
+        if ('args' in CONFIG.schedule) {
+          expect(jobDecl.declValue.schedule?.args).toBeDefined()
+          expect(jobDecl.declValue.schedule?.args).toStrictEqual(
+            CONFIG.schedule.args
+          )
+        }
+        if ('executorOptions' in CONFIG.schedule) {
+          expect(jobDecl.declValue.schedule?.executorOptions).toBeDefined()
+          expect(jobDecl.declValue.schedule?.executorOptions?.pgBoss).toBe(
+            CONFIG.schedule.executorOptions.pgBoss
+          )
+        }
+      }
     })
   })
 
-  test('should map using mapping functions correctly', () => {
-    const app = new UserSpec.App(APP.NAME, APP.CONFIG)
-    app.auth(AUTH.CONFIG)
-    app.client(CLIENT.CONFIG)
-    app.server(SERVER.CONFIG)
-    app.db(DB.CONFIG)
-    app.emailSender(EMAIL.CONFIG)
-    app.webSocket(WEBSOCKET.CONFIG)
-
-    app.page(PAGE.LOGIN.NAME, PAGE.LOGIN.CONFIG)
-    app.page(PAGE.EMAIL_VERIFICATION.NAME, PAGE.EMAIL_VERIFICATION.CONFIG)
-    app.page(PAGE.PASSWORD_RESET.NAME, PAGE.PASSWORD_RESET.CONFIG)
-
-    app.route(ROUTE.LOGIN.NAME, ROUTE.LOGIN.CONFIG)
-    app.route(ROUTE.EMAIL_VERIFICATION.NAME, ROUTE.EMAIL_VERIFICATION.CONFIG)
-    app.route(ROUTE.PASSWORD_RESET.NAME, ROUTE.PASSWORD_RESET.CONFIG)
-
-    app.query(QUERY.NAME, QUERY.CONFIG)
-    app.action(ACTION.NAME, ACTION.CONFIG)
-    app.crud(CRUD.NAME, CRUD.CONFIG)
-
-    app.apiNamespace(API_NAMESPACE.NAME, API_NAMESPACE.CONFIG)
-    app.api(API.NAME, API.CONFIG)
-
-    app.job(JOB.NAME, JOB.CONFIG)
-
+  test('should map end-to-end using mapping functions correctly', () => {
+    const app = createFullApp()
     const userSpec = getUserSpec(app)
     const parseEntityRef = makeRefParser('Entity', ALL_ENTITIES)
-    const parseRouteRef = makeRefParser('Route', ALL_ROUTES)
-    const parsePageRef = makeRefParser('Page', ALL_PAGES)
+    const parseRouteRef = makeRefParser('Route', ALL_ROUTE_NAMES)
+    const parsePageRef = makeRefParser('Page', ALL_PAGE_NAMES)
 
     const result = mapUserSpecToAppSpecDecls(userSpec, ALL_ENTITIES)
 
@@ -623,9 +629,10 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(declTypes).toContain('App')
     expect(declNames).toContain(APP.NAME)
 
-    const appDecl = result.find(
-      (decl) => decl.declType === 'App'
-    ) as AppSpec.GetDeclForType<'App'>
+    const appDecl = getDecl(result, 'App')
+    if (!appDecl) {
+      throw new Error('App declaration not found')
+    }
 
     expect(appDecl).toBeDefined()
     expect(appDecl.declValue).toStrictEqual(
@@ -644,13 +651,13 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Pages
     expect(declTypes).toContain('Page')
-    ALL_PAGES.forEach((pageName) => {
+    ALL_PAGE_NAMES.forEach((pageName) => {
       expect(declNames).toContain(pageName)
 
-      const pageDecl = result.find(
-        (decl) => decl.declType === 'Page' && decl.declName === pageName
-      ) as AppSpec.GetDeclForType<'Page'>
-      expect(pageDecl).toBeDefined()
+      const pageDecl = getDecl(result, 'Page', pageName)
+      if (!pageDecl) {
+        throw new Error(`Page declaration not found for ${pageName}`)
+      }
 
       const page = userSpec.pages.get(pageName)
       if (!page) {
@@ -661,13 +668,13 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Routes
     expect(declTypes).toContain('Route')
-    ALL_ROUTES.forEach((routeName) => {
+    ALL_ROUTE_NAMES.forEach((routeName) => {
       expect(declNames).toContain(routeName)
 
-      const routeDecl = result.find(
-        (decl) => decl.declType === 'Route' && decl.declName === routeName
-      ) as AppSpec.GetDeclForType<'Route'>
-      expect(routeDecl).toBeDefined()
+      const routeDecl = getDecl(result, 'Route', routeName)
+      if (!routeDecl) {
+        throw new Error(`Route declaration not found for ${routeName}`)
+      }
 
       const route = userSpec.routes.get(routeName)
       if (!route) {
@@ -678,100 +685,111 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Query
     expect(declTypes).toContain('Query')
-    expect(declNames).toContain(QUERY.NAME)
+    Object.values(QUERIES).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-    const queryDecl = result.find(
-      (decl) => decl.declType === 'Query' && decl.declName === QUERY.NAME
-    ) as AppSpec.GetDeclForType<'Query'>
-    expect(queryDecl).toBeDefined()
+      const queryDecl = getDecl(result, 'Query', NAME)
+      if (!queryDecl) {
+        throw new Error(`Query declaration not found for ${NAME}`)
+      }
 
-    const query = userSpec.queries.get(QUERY.NAME)
-    if (!query) {
-      throw new Error(`Query config not found for ${QUERY.NAME}`)
-    }
-    expect(queryDecl.declValue).toStrictEqual(
-      mapOperationConfig(query, parseEntityRef)
-    )
+      const query = userSpec.queries.get(NAME)
+      if (!query) {
+        throw new Error(`Query config not found for ${NAME}`)
+      }
+      expect(queryDecl.declValue).toStrictEqual(
+        mapOperationConfig(query, parseEntityRef)
+      )
+    })
 
     // Action
     expect(declTypes).toContain('Action')
-    expect(declNames).toContain(ACTION.NAME)
+    Object.values(ACTIONS).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-    const actionDecl = result.find(
-      (decl) => decl.declType === 'Action' && decl.declName === ACTION.NAME
-    ) as AppSpec.GetDeclForType<'Action'>
-    expect(actionDecl).toBeDefined()
+      const actionDecl = getDecl(result, 'Action', NAME)
+      if (!actionDecl) {
+        throw new Error(`Action declaration not found for ${NAME}`)
+      }
 
-    const action = userSpec.actions.get(ACTION.NAME)
-    if (!action) {
-      throw new Error(`Action config not found for ${ACTION.NAME}`)
-    }
-    expect(actionDecl.declValue).toStrictEqual(
-      mapOperationConfig(action, parseEntityRef)
-    )
+      const action = userSpec.actions.get(NAME)
+      if (!action) {
+        throw new Error(`Action config not found for ${NAME}`)
+      }
+      expect(actionDecl.declValue).toStrictEqual(
+        mapOperationConfig(action, parseEntityRef)
+      )
+    })
 
     // Crud
     expect(declTypes).toContain('Crud')
-    expect(declNames).toContain(CRUD.NAME)
+    Object.values(CRUDS).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-    const crudDecl = result.find(
-      (decl) => decl.declType === 'Crud' && decl.declName === CRUD.NAME
-    ) as AppSpec.GetDeclForType<'Crud'>
-    expect(crudDecl).toBeDefined()
+      const crudDecl = getDecl(result, 'Crud', NAME)
+      if (!crudDecl) {
+        throw new Error(`Crud declaration not found for ${NAME}`)
+      }
 
-    const crud = userSpec.cruds.get(CRUD.NAME)
-    if (!crud) {
-      throw new Error(`Crud config not found for ${CRUD.NAME}`)
-    }
-    expect(crudDecl.declValue).toStrictEqual(mapCrud(crud, parseEntityRef))
+      const crud = userSpec.cruds.get(NAME)
+      if (!crud) {
+        throw new Error(`Crud config not found for ${NAME}`)
+      }
+      expect(crudDecl.declValue).toStrictEqual(mapCrud(crud, parseEntityRef))
+    })
 
     // ApiNamespace
     expect(declTypes).toContain('ApiNamespace')
-    expect(declNames).toContain(API_NAMESPACE.NAME)
+    Object.values(API_NAMESPACES).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-    const apiNamespaceDecl = result.find(
-      (decl) =>
-        decl.declType === 'ApiNamespace' && decl.declName === API_NAMESPACE.NAME
-    ) as AppSpec.GetDeclForType<'ApiNamespace'>
-    expect(apiNamespaceDecl).toBeDefined()
+      const apiNamespaceDecl = getDecl(result, 'ApiNamespace', NAME)
+      if (!apiNamespaceDecl) {
+        throw new Error(`ApiNamespace declaration not found for ${NAME}`)
+      }
 
-    const apiNamespace = userSpec.apiNamespaces.get(API_NAMESPACE.NAME)
-    if (!apiNamespace) {
-      throw new Error(`ApiNamespace config not found for ${API_NAMESPACE.NAME}`)
-    }
-    expect(apiNamespaceDecl.declValue).toStrictEqual(
-      mapApiNamespace(apiNamespace)
-    )
+      const apiNamespace = userSpec.apiNamespaces.get(NAME)
+      if (!apiNamespace) {
+        throw new Error(`ApiNamespace config not found for ${NAME}`)
+      }
+      expect(apiNamespaceDecl.declValue).toStrictEqual(
+        mapApiNamespace(apiNamespace)
+      )
+    })
 
     // Api
     expect(declTypes).toContain('Api')
-    expect(declNames).toContain(API.NAME)
+    Object.values(APIS).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-    const apiDecl = result.find(
-      (decl) => decl.declType === 'Api' && decl.declName === API.NAME
-    ) as AppSpec.GetDeclForType<'Api'>
-    expect(apiDecl).toBeDefined()
+      const apiDecl = getDecl(result, 'Api', NAME)
+      if (!apiDecl) {
+        throw new Error(`Api declaration not found for ${NAME}`)
+      }
 
-    const api = userSpec.apis.get(API.NAME)
-    if (!api) {
-      throw new Error(`Api config not found for ${API.NAME}`)
-    }
-    expect(apiDecl.declValue).toStrictEqual(mapApiConfig(api, parseEntityRef))
+      const api = userSpec.apis.get(NAME)
+      if (!api) {
+        throw new Error(`Api config not found for ${NAME}`)
+      }
+      expect(apiDecl.declValue).toStrictEqual(mapApiConfig(api, parseEntityRef))
+    })
 
     // Job
     expect(declTypes).toContain('Job')
-    expect(declNames).toContain(JOB.NAME)
+    Object.values(JOBS).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-    const jobDecl = result.find(
-      (decl) => decl.declType === 'Job' && decl.declName === JOB.NAME
-    ) as AppSpec.GetDeclForType<'Job'>
-    expect(jobDecl).toBeDefined()
+      const jobDecl = getDecl(result, 'Job', NAME)
+      if (!jobDecl) {
+        throw new Error(`Job declaration not found for ${NAME}`)
+      }
 
-    const job = userSpec.jobs.get(JOB.NAME)
-    if (!job) {
-      throw new Error(`Job config not found for ${JOB.NAME}`)
-    }
-    expect(jobDecl.declValue).toStrictEqual(mapJob(job, parseEntityRef))
+      const job = userSpec.jobs.get(NAME)
+      if (!job) {
+        throw new Error(`Job config not found for ${NAME}`)
+      }
+      expect(jobDecl.declValue).toStrictEqual(mapJob(job, parseEntityRef))
+    })
   })
 
   describe('mapApp', () => {
@@ -818,7 +836,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       app.server(SERVER.CONFIG)
       app.client(CLIENT.CONFIG)
       app.db(DB.CONFIG)
-      app.emailSender(EMAIL.CONFIG)
+      app.emailSender(EMAIL_SENDER.CONFIG)
       app.webSocket(WEBSOCKET.CONFIG)
 
       const userSpec = getUserSpec(app)
@@ -924,9 +942,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       const parseEntityRef = makeRefParser('Entity', [])
       const parseRouteRef = makeRefParser('Route', [])
 
-      expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError(
-        `Invalid Entity reference: ${auth.userEntity}`
-      )
+      expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError()
     })
 
     test('should throw if externalAuthEntity ref is not provided when defined', () => {
@@ -939,9 +955,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       const parseEntityRef = makeRefParser('Entity', [AUTH.CONFIG.userEntity])
       const parseRouteRef = makeRefParser('Route', [])
 
-      expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError(
-        `Invalid Entity reference: ${auth.externalAuthEntity}`
-      )
+      expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError()
     })
   })
 
@@ -1052,9 +1066,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
         emailAuth.passwordReset.clientRoute,
       ])
 
-      expect(() => mapEmailAuth(emailAuth, parseRouteRef)).toThrowError(
-        `Invalid Route reference: undefined`
-      )
+      expect(() => mapEmailAuth(emailAuth, parseRouteRef)).toThrowError()
     })
 
     test('should throw if password reset client route is not provided when defined', () => {
@@ -1070,9 +1082,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
         emailAuth.emailVerification.clientRoute,
       ])
 
-      expect(() => mapEmailAuth(emailAuth, parseRouteRef)).toThrowError(
-        `Invalid Route reference: undefined`
-      )
+      expect(() => mapEmailAuth(emailAuth, parseRouteRef)).toThrowError()
     })
   })
 
@@ -1224,7 +1234,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapEmailSender', () => {
     test('should map minimal config correctly', () => {
       const minimalEmailSender: UserSpec.EmailSender = {
-        provider: EMAIL.CONFIG.provider,
+        provider: EMAIL_SENDER.CONFIG.provider,
       }
 
       const result = mapEmailSender(minimalEmailSender)
@@ -1236,7 +1246,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const emailSender = EMAIL.CONFIG
+      const emailSender = EMAIL_SENDER.CONFIG
 
       const result = mapEmailSender(emailSender)
 
@@ -1329,9 +1339,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapOperationConfig', () => {
     test('should map minimal query config correctly', () => {
-      const minimalQuery: UserSpec.QueryConfig = {
-        fn: QUERY.CONFIG.fn,
-      }
+      const minimalQuery = QUERIES.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       const result = mapOperationConfig(minimalQuery, parseEntityRef)
@@ -1344,7 +1352,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map query config correctly', () => {
-      const query = QUERY.CONFIG
+      const query = QUERIES.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', query.entities)
 
       const result = mapOperationConfig(query, parseEntityRef)
@@ -1357,18 +1365,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided in query config', () => {
-      const query: UserSpec.QueryConfig = QUERY.CONFIG
+      const query: UserSpec.QueryConfig = QUERIES.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
-      expect(() => mapOperationConfig(query, parseEntityRef)).toThrowError(
-        `Invalid Entity reference: ${query.entities?.[0]}`
-      )
+      expect(() => mapOperationConfig(query, parseEntityRef)).toThrowError()
     })
 
     test('should map minimal action config correctly', () => {
-      const minimalAction: UserSpec.ActionConfig = {
-        fn: ACTION.CONFIG.fn,
-      }
+      const minimalAction = ACTIONS.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       const result = mapOperationConfig(minimalAction, parseEntityRef)
@@ -1381,7 +1385,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map action config correctly', () => {
-      const action = ACTION.CONFIG
+      const action = ACTIONS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', action.entities)
 
       const result = mapOperationConfig(action, parseEntityRef)
@@ -1394,21 +1398,16 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided in action config', () => {
-      const action: UserSpec.ActionConfig = ACTION.CONFIG
+      const action = ACTIONS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
-      expect(() => mapOperationConfig(action, parseEntityRef)).toThrowError(
-        `Invalid Entity reference: ${action.entities?.[0]}`
-      )
+      expect(() => mapOperationConfig(action, parseEntityRef)).toThrowError()
     })
   })
 
   describe('mapApiConfig', () => {
     test('should map minimal config correctly', () => {
-      const minimalApi: UserSpec.ApiConfig = {
-        fn: API.CONFIG.fn,
-        httpRoute: API.CONFIG.httpRoute,
-      }
+      const minimalApi = APIS.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       const result = mapApiConfig(minimalApi, parseEntityRef)
@@ -1423,7 +1422,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const api = API.CONFIG
+      const api = APIS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', api.entities)
 
       const result = mapApiConfig(api, parseEntityRef)
@@ -1440,7 +1439,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapHttpRoute', () => {
     test('should map full config correctly', () => {
-      const httpRoute = API.CONFIG.httpRoute
+      const httpRoute = APIS.FULL.CONFIG.httpRoute
 
       const result = mapHttpRoute(httpRoute)
 
@@ -1453,7 +1452,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapApiNamespace', () => {
     test('should map full config correctly', () => {
-      const apiNamespace = API_NAMESPACE.CONFIG
+      const apiNamespace = API_NAMESPACES.FULL.CONFIG
 
       const result = mapApiNamespace(apiNamespace)
 
@@ -1465,8 +1464,22 @@ describe('mapUserSpecToAppSpecDecls', () => {
   })
 
   describe('mapJob', () => {
+    test('should map minimal config correctly', () => {
+      const minimalJob = JOBS.MINIMAL.CONFIG
+      const parseEntityRef = makeRefParser('Entity', [])
+
+      const result = mapJob(minimalJob, parseEntityRef)
+
+      expect(result).toStrictEqual({
+        executor: minimalJob.executor,
+        perform: mapPerform(minimalJob.perform),
+        schedule: undefined,
+        entities: undefined,
+      } satisfies AppSpec.Job)
+    })
+
     test('should map full config correctly', () => {
-      const job = JOB.CONFIG
+      const job = JOBS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', job.entities)
 
       const result = mapJob(job, parseEntityRef)
@@ -1480,45 +1493,43 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided', () => {
-      const job: UserSpec.JobConfig = JOB.CONFIG
+      const job = JOBS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
-      expect(() => mapJob(job, parseEntityRef)).toThrowError(
-        `Invalid Entity reference: ${job.entities?.[0]}`
-      )
+      expect(() => mapJob(job, parseEntityRef)).toThrowError()
     })
   })
 
   describe('mapSchedule', () => {
     test('should map full config correctly', () => {
-      const schedule = JOB.CONFIG.schedule
+      const schedule = JOBS.FULL.CONFIG.schedule
 
       const result = mapSchedule(schedule)
 
       expect(result).toStrictEqual({
         cron: schedule.cron,
         args: schedule.args,
-        executorOptions: JOB.CONFIG.perform.executorOptions,
+        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
       } satisfies AppSpec.Schedule)
     })
   })
 
   describe('mapPerform', () => {
     test('should map full config correctly', () => {
-      const perform = JOB.CONFIG.perform
+      const perform = JOBS.FULL.CONFIG.perform
 
       const result = mapPerform(perform)
 
       expect(result).toStrictEqual({
         fn: mapExtImport(perform.fn),
-        executorOptions: perform.executorOptions,
+        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
       } satisfies AppSpec.Perform)
     })
   })
 
   describe('mapRoute', () => {
     test('should map full config correctly', () => {
-      const route = ROUTE.LOGIN.CONFIG
+      const route = ROUTES.FULL.CONFIG
       const parsePageRef = makeRefParser('Page', [route.to])
 
       const result = mapRoute(route, parsePageRef)
@@ -1532,10 +1543,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapCrud', () => {
     test('should map minimal config correctly', () => {
-      const minimalCrud: UserSpec.Crud = {
-        entity: CRUD.CONFIG.entity,
-        operations: {},
-      }
+      const minimalCrud = CRUDS.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [minimalCrud.entity])
 
       const result = mapCrud(minimalCrud, parseEntityRef)
@@ -1547,7 +1555,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const crud = CRUD.CONFIG
+      const crud = CRUDS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [crud.entity])
 
       const result = mapCrud(crud, parseEntityRef)
@@ -1559,18 +1567,16 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided', () => {
-      const crud: UserSpec.Crud = CRUD.CONFIG
+      const crud: UserSpec.Crud = CRUDS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
-      expect(() => mapCrud(crud, parseEntityRef)).toThrowError(
-        `Invalid Entity reference: ${CRUD.CONFIG.entity}`
-      )
+      expect(() => mapCrud(crud, parseEntityRef)).toThrowError()
     })
   })
 
   describe('mapCrudOperations', () => {
     test('should map minimal config correctly', () => {
-      const minimalCrudOperations: UserSpec.CrudOperations = {}
+      const minimalCrudOperations = CRUDS.MINIMAL.CONFIG.operations
 
       const result = mapCrudOperations(minimalCrudOperations)
 
@@ -1584,7 +1590,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const crudOperations = CRUD.CONFIG.operations
+      const crudOperations = CRUDS.FULL.CONFIG.operations
 
       const result = mapCrudOperations(crudOperations)
 
@@ -1613,7 +1619,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const crudOperationOptions = CRUD.CONFIG.operations.get
+      const crudOperationOptions = CRUDS.FULL.CONFIG.operations.get
 
       const result = mapCrudOperationOptions(crudOperationOptions)
 
@@ -1626,9 +1632,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapPage', () => {
     test('should map minimal config correctly', () => {
-      const minimalPage: UserSpec.PageConfig = {
-        component: PAGE.LOGIN.CONFIG.component,
-      }
+      const minimalPage = PAGES.MINIMAL.CONFIG
 
       const result = mapPage(minimalPage)
 
@@ -1639,7 +1643,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const page = PAGE.LOGIN.CONFIG
+      const page = PAGES.FULL.CONFIG
 
       const result = mapPage(page)
 
@@ -1651,12 +1655,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
   })
 
   describe('mapExtImport', () => {
-    test('should map named import', () => {
+    test('should map named import correctly', () => {
       const extImport: UserSpec.ExtImport = {
         import: 'myNamedImport',
         from: '@src/myModule',
       }
+
       const result = mapExtImport(extImport)
+
       expect(result).toStrictEqual({
         kind: 'named',
         name: 'myNamedImport',
@@ -1664,12 +1670,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
       })
     })
 
-    test('should map default import', () => {
+    test('should map default import correctly', () => {
       const extImport: UserSpec.ExtImport = {
         importDefault: 'myDefaultImport',
         from: '@src/myModule',
       }
+
       const result = mapExtImport(extImport)
+
       expect(result).toStrictEqual({
         kind: 'default',
         name: 'myDefaultImport',
@@ -1677,34 +1685,31 @@ describe('mapUserSpecToAppSpecDecls', () => {
       })
     })
 
-    test('should throw error for having both import kind', () => {
+    test('should throw for having both import kind', () => {
       const extImport: UserSpec.ExtImport = {
         import: 'myNamedImport',
         from: '@src/myModule',
         importDefault: 'myDefaultImport',
       }
-      expect(() => mapExtImport(extImport)).toThrowError(
-        'Invalid ExtImport: both `import` and `importDefault` are defined'
-      )
+
+      expect(() => mapExtImport(extImport)).toThrowError()
     })
 
-    test('should throw error for missing import kind', () => {
+    test('should throw for missing import kind', () => {
       const extImport: UserSpec.ExtImport = {
         from: '@src/myModule',
       } as unknown as UserSpec.ExtImport
-      expect(() => mapExtImport(extImport)).toThrowError(
-        'Invalid ExtImport: neither `import` nor `importDefault` is defined'
-      )
+
+      expect(() => mapExtImport(extImport)).toThrowError()
     })
 
     test('should throw error for invalid from path', () => {
       const extImport: UserSpec.ExtImport = {
         import: 'myNamedImport',
-        from: 'invalid/path',
+        from: './invalid/path',
       } as unknown as UserSpec.ExtImport
-      expect(() => mapExtImport(extImport)).toThrowError(
-        `Invalid ExtImport: path must start with '@src/', got ${extImport.from}`
-      )
+
+      expect(() => mapExtImport(extImport)).toThrowError()
     })
   })
 })

@@ -10,69 +10,25 @@ export const USER_ENTITY = 'User'
 export const SOCIAL_USER_ENTITY = 'SocialUser'
 export const ALL_ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
 
-export const APP = {
-  NAME: 'todoApp',
-  CONFIG: {
-    title: 'ToDO App',
-    wasp: { version: '^0.16.0' },
-    head: ['<link rel="icon" href="/favicon.ico" />'],
-  } satisfies Required<UserSpec.AppConfig>,
-} as const
-
-export const CRUD = {
-  NAME: 'TaskCrud',
-  CONFIG: {
-    entity: TASK_ENTITY,
-    operations: {
-      get: {
-        isPublic: true,
-        overrideFn: {
-          import: 'getTask',
-          from: '@src/cruds/task',
-        },
-      },
-      getAll: {
-        isPublic: true,
-        overrideFn: {
-          import: 'getAllTasks',
-          from: '@src/cruds/task',
-        },
-      },
-      create: {
-        isPublic: false,
-        overrideFn: {
-          import: 'createTask',
-          from: '@src/cruds/task',
-        },
-      },
-      update: {
-        isPublic: false,
-        overrideFn: {
-          import: 'updateTask',
-          from: '@src/cruds/task',
-        },
-      },
-      delete: {
-        isPublic: false,
-        overrideFn: {
-          import: 'deleteTask',
-          from: '@src/cruds/task',
-        },
-      },
-    },
-  } satisfies Required<UserSpec.Crud>,
-} as const
-
-export const PAGE = {
-  LOGIN: {
-    NAME: 'LoginPage',
+export const PAGES = {
+  MINIMAL: {
+    NAME: 'MinimalPage',
     CONFIG: {
       component: {
-        from: '@src/pages/auth/Login',
-        import: 'Login',
+        from: '@src/pages/minimal',
+        import: 'Minimal',
       },
-      authRequired: false,
-    } satisfies Required<UserSpec.PageConfig>,
+    } satisfies UserSpec.PageConfig,
+  },
+  FULL: {
+    NAME: 'FullPage',
+    CONFIG: {
+      component: {
+        from: '@src/pages/full',
+        import: 'Full',
+      },
+      authRequired: true,
+    } satisfies UserSpec.PageConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
@@ -95,122 +51,227 @@ export const PAGE = {
     } satisfies Required<UserSpec.PageConfig>,
   },
 } as const
-
-export const ALL_PAGES = [
-  PAGE.LOGIN.NAME,
-  PAGE.EMAIL_VERIFICATION.NAME,
-  PAGE.PASSWORD_RESET.NAME,
-]
+export const ALL_PAGE_NAMES = Object.values(PAGES).map((page) => page.NAME)
 
 // For simplicity sake we asserted `RouteConfig.to` as branded type
 // instead of creating a function which would accept branded string.
-export const ROUTE = {
-  LOGIN: {
-    NAME: 'LoginRoute',
+export const ROUTES = {
+  FULL: {
+    NAME: 'FullRoute',
     CONFIG: {
-      path: '/login',
-      to: PAGE.LOGIN.NAME as string & { _brand: 'Page' },
-    } satisfies Required<UserSpec.RouteConfig>,
+      path: '/full',
+      to: PAGES.FULL.NAME as string & { _brand: 'Page' },
+    } satisfies UserSpec.RouteConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationRoute',
     CONFIG: {
       path: '/email-verification',
-      to: PAGE.EMAIL_VERIFICATION.NAME as string & { _brand: 'Page' },
+      to: PAGES.EMAIL_VERIFICATION.NAME as string & { _brand: 'Page' },
     } satisfies Required<UserSpec.RouteConfig>,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetRoute',
     CONFIG: {
       path: '/password-reset',
-      to: PAGE.PASSWORD_RESET.NAME as string & { _brand: 'Page' },
+      to: PAGES.PASSWORD_RESET.NAME as string & { _brand: 'Page' },
     } satisfies Required<UserSpec.RouteConfig>,
   },
 } as const
+export const ALL_ROUTE_NAMES = Object.values(ROUTES).map((route) => route.NAME)
 
-export const ALL_ROUTES = [
-  ROUTE.LOGIN.NAME,
-  ROUTE.EMAIL_VERIFICATION.NAME,
-  ROUTE.PASSWORD_RESET.NAME,
-]
-
-export const API_NAMESPACE = {
-  NAME: 'bar',
-  CONFIG: {
-    middlewareConfigFn: {
-      import: 'barMiddlewareConfigFn',
-      from: '@src/apis',
-    },
-    path: '/bar',
-  } satisfies Required<UserSpec.ApiNamespaceConfig>,
-} as const
-
-export const API = {
-  NAME: 'barBaz',
-  CONFIG: {
-    fn: {
-      import: 'barBaz',
-      from: '@src/apis',
-    },
-    auth: true,
-    httpRoute: {
-      method: 'GET',
-      route: '/bar/baz',
-    },
-    entities: [TASK_ENTITY],
-    middlewareConfigFn: {
-      import: 'barBazMiddlewareConfigFn',
-      from: '@src/apis',
-    },
-  } satisfies Required<UserSpec.ApiConfig>,
-} as const
-
-export const ACTION = {
-  NAME: 'createTask',
-  CONFIG: {
-    fn: {
-      import: 'createTask',
-      from: '@src/actions',
-    },
-    entities: [TASK_ENTITY],
-    auth: true,
-  } satisfies Required<UserSpec.ActionConfig>,
-} as const
-
-export const QUERY = {
-  NAME: 'getTasks',
-  CONFIG: {
-    fn: {
-      import: 'getTasks',
-      from: '@src/queries',
-    },
-    entities: [TASK_ENTITY],
-    auth: true,
-  } satisfies Required<UserSpec.QueryConfig>,
-} as const
-
-export const JOB = {
-  NAME: 'mySpecialJob',
-  CONFIG: {
-    executor: 'PgBoss',
-    perform: {
+export const QUERIES = {
+  FULL: {
+    NAME: 'getTask',
+    CONFIG: {
       fn: {
-        import: 'perform',
-        from: '@src/jobs/bar',
+        import: 'getTask',
+        from: '@src/queries',
       },
-      executorOptions: {
-        pgBoss: { jobOptions: { attempts: 3 } },
+      entities: [TASK_ENTITY],
+      auth: true,
+    } satisfies Required<UserSpec.QueryConfig>,
+  },
+  MINIMAL: {
+    NAME: 'getTasks',
+    CONFIG: {
+      fn: {
+        import: 'getTasks',
+        from: '@src/queries',
       },
-    },
-    entities: [TASK_ENTITY],
-    schedule: {
-      cron: '0 0 * * *',
-      args: { foo: 'bar' },
-      executorOptions: {
-        pgBoss: { jobOptions: { attempts: 3 } },
+    } satisfies UserSpec.QueryConfig,
+  },
+} as const
+
+export const ACTIONS = {
+  FULL: {
+    NAME: 'createTask',
+    CONFIG: {
+      fn: {
+        import: 'createTask',
+        from: '@src/actions',
       },
-    },
-  } satisfies Required<UserSpec.JobConfig>,
+      entities: [TASK_ENTITY],
+      auth: true,
+    } satisfies Required<UserSpec.ActionConfig>,
+  },
+  MINIMAL: {
+    NAME: 'deleteTask',
+    CONFIG: {
+      fn: {
+        import: 'deleteTask',
+        from: '@src/actions',
+      },
+    } satisfies UserSpec.ActionConfig,
+  },
+} as const
+
+export const CRUDS = {
+  FULL: {
+    NAME: 'TaskCrud',
+    CONFIG: {
+      entity: TASK_ENTITY,
+      operations: {
+        get: {
+          isPublic: true,
+          overrideFn: {
+            import: 'getTask',
+            from: '@src/cruds/task',
+          },
+        },
+        getAll: {
+          isPublic: true,
+          overrideFn: {
+            import: 'getAllTasks',
+            from: '@src/cruds/task',
+          },
+        },
+        create: {
+          isPublic: false,
+          overrideFn: {
+            import: 'createTask',
+            from: '@src/cruds/task',
+          },
+        },
+        update: {
+          isPublic: false,
+          overrideFn: {
+            import: 'updateTask',
+            from: '@src/cruds/task',
+          },
+        },
+        delete: {
+          isPublic: false,
+          overrideFn: {
+            import: 'deleteTask',
+            from: '@src/cruds/task',
+          },
+        },
+      },
+    } satisfies Required<UserSpec.Crud>,
+  },
+  MINIMAL: {
+    NAME: 'EmptyTaskCrud',
+    CONFIG: {
+      entity: TASK_ENTITY,
+      operations: {},
+    } satisfies UserSpec.Crud,
+  },
+} as const
+
+export const API_NAMESPACES = {
+  FULL: {
+    NAME: 'bar',
+    CONFIG: {
+      middlewareConfigFn: {
+        import: 'barMiddlewareConfigFn',
+        from: '@src/apis',
+      },
+      path: '/bar',
+    } satisfies Required<UserSpec.ApiNamespaceConfig>,
+  },
+} as const
+
+export const APIS = {
+  FULL: {
+    NAME: 'barBaz',
+    CONFIG: {
+      fn: {
+        import: 'barBaz',
+        from: '@src/apis',
+      },
+      auth: true,
+      httpRoute: {
+        method: 'GET',
+        route: '/bar/baz',
+      },
+      entities: [TASK_ENTITY],
+      middlewareConfigFn: {
+        import: 'barBazMiddlewareConfigFn',
+        from: '@src/apis',
+      },
+    } satisfies Required<UserSpec.ApiConfig>,
+  },
+  MINIMAL: {
+    NAME: 'barFoo',
+    CONFIG: {
+      fn: {
+        import: 'barFoo',
+        from: '@src/apis',
+      },
+      httpRoute: {
+        method: 'POST',
+        route: '/bar/foo',
+      },
+    } satisfies UserSpec.ApiConfig,
+  },
+} as const
+
+export const JOBS = {
+  FULL: {
+    NAME: 'mySpecialJob',
+    CONFIG: {
+      executor: 'PgBoss',
+      perform: {
+        fn: {
+          import: 'perform',
+          from: '@src/jobs/bar',
+        },
+        executorOptions: {
+          pgBoss: { jobOptions: { attempts: 3 } },
+        },
+      },
+      entities: [TASK_ENTITY],
+      schedule: {
+        cron: '0 0 * * *',
+        args: { foo: 'bar' },
+        executorOptions: {
+          pgBoss: { jobOptions: { attempts: 3 } },
+        },
+      },
+    } satisfies Required<UserSpec.JobConfig>,
+  },
+  MINIMAL: {
+    NAME: 'mySimpleJob',
+    CONFIG: {
+      executor: 'PgBoss',
+      perform: {
+        fn: {
+          import: 'perform',
+          from: '@src/jobs/bar',
+        },
+      },
+    } satisfies UserSpec.JobConfig,
+  },
+} as const
+
+export const APP = {
+  NAME: 'todoApp',
+  CONFIG: {
+    title: 'ToDO App',
+    wasp: { version: '^0.16.0' },
+    head: ['<link rel="icon" href="/favicon.ico" />'],
+  } satisfies Required<UserSpec.AppConfig>,
 } as const
 
 export const AUTH = {
@@ -277,14 +338,14 @@ export const AUTH = {
             import: 'getVerificationEmailContent',
             from: '@src/auth/email',
           },
-          clientRoute: ROUTE.EMAIL_VERIFICATION.NAME,
+          clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
         },
         passwordReset: {
           getEmailContentFn: {
             import: 'getPasswordResetEmailContent',
             from: '@src/auth/email',
           },
-          clientRoute: ROUTE.PASSWORD_RESET.NAME,
+          clientRoute: ROUTES.PASSWORD_RESET.NAME,
         },
       },
     },
@@ -349,6 +410,16 @@ export const SERVER = {
   } satisfies Required<UserSpec.ServerConfig>,
 } as const
 
+export const EMAIL_SENDER = {
+  CONFIG: {
+    provider: 'SMTP',
+    defaultFrom: {
+      name: 'Test',
+      email: 'test@test.com',
+    },
+  } satisfies Required<UserSpec.EmailSenderConfig>,
+} as const
+
 export const WEBSOCKET = {
   CONFIG: {
     fn: {
@@ -368,14 +439,4 @@ export const DB = {
       },
     ],
   } satisfies Required<UserSpec.DbConfig>,
-} as const
-
-export const EMAIL = {
-  CONFIG: {
-    provider: 'SMTP',
-    defaultFrom: {
-      name: 'Test',
-      email: 'test@test.com',
-    },
-  } satisfies Required<UserSpec.EmailSenderConfig>,
 } as const
