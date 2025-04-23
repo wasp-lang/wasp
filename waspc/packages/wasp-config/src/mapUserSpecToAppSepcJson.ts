@@ -19,5 +19,5 @@ export function getUserSpec(app: UserSpec.App): UserSpec.UserSpec {
 }
 
 function getDeclsJson(appConfig: AppSpec.Decl[]): string {
-  return JSON.stringify(appConfig, null, 2)
+  return JSON.stringify(appConfig)
 }
