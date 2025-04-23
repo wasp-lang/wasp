@@ -35,7 +35,6 @@ data CompilerOptions = CompilerOptions
     esModuleInterop :: !(Maybe Bool),
     lib :: !(Maybe [String]),
     allowJs :: !(Maybe Bool),
-    typeRoots :: !(Maybe [String]),
     outDir :: !(Maybe String)
   }
   deriving (Show, Generic)

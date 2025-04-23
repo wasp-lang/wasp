@@ -1,13 +1,13 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Wasp.Generator.ExternalConfig.TsConfig
+module Wasp.Generator.Valid.TsConfig
   ( validateSrcTsConfig,
   )
 where
 
 import Data.List (intercalate)
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
+import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 
 class JsonValue a where
   showAsJsValue :: a -> String
@@ -32,12 +32,12 @@ type FieldPath = [String]
 instance Show FullyQualifiedFieldName where
   show (FieldName fieldPath) = intercalate "." fieldPath
 
-validateSrcTsConfig :: T.TsConfig -> [ErrorMsg]
-validateSrcTsConfig tsConfig =
-  validateRequiredField (FieldName ["include"]) (T.include tsConfig) ["src"]
-    ++ validateCompilerOptions (T.compilerOptions tsConfig)
+validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
+validateSrcTsConfig srcTsConfig =
+  validateRequiredField (FieldName ["include"]) (T.include srcTsConfig) ["src"]
+    ++ validateCompilerOptions (T.compilerOptions srcTsConfig)
 
-validateCompilerOptions :: T.CompilerOptions -> [ErrorMsg]
+validateCompilerOptions :: T.CompilerOptions -> [GeneratorError]
 validateCompilerOptions compilerOptions =
   -- References for understanding the required compiler options:
   --   - The comments in templates/sdk/wasp/tsconfig.json
@@ -73,11 +73,11 @@ validateCompilerOptions compilerOptions =
     validateRequiredFieldInCompilerOptions relativeFieldName getFieldValue =
       validateRequiredField (FieldName ["compilerOptions", relativeFieldName]) (getFieldValue compilerOptions)
 
-validateRequiredField :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> a -> [String]
+validateRequiredField :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> a -> [GeneratorError]
 validateRequiredField fullyQualifiedFieldName fieldValue expectedValue =
   validateFieldValue fullyQualifiedFieldName (Just expectedValue) fieldValue
 
-validateFieldValue :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [String]
+validateFieldValue :: (Eq a, JsonValue a) => FullyQualifiedFieldName -> Maybe a -> Maybe a -> [GeneratorError]
 validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
   case (expectedValue, actualValue) of
     (Nothing, Nothing) -> []
@@ -86,24 +86,27 @@ validateFieldValue fullyQualifiedFieldName expectedValue actualValue =
     (Nothing, Just _) -> [fieldMustBeUnsetErrorMessage]
   where
     makeInvalidValueErrorMessage expected =
-      unwords
-        [ "Invalid value for the",
-          "\"" ++ show fullyQualifiedFieldName ++ "\"",
-          "field in TS config, you must set it to:",
-          showAsJsValue expected ++ "."
-        ]
+      GenericGeneratorError $
+        unwords
+          [ "Invalid value for the",
+            "\"" ++ show fullyQualifiedFieldName ++ "\"",
+            "field in TS config, you must set it to:",
+            showAsJsValue expected ++ "."
+          ]
 
     fieldMustBeUnsetErrorMessage =
-      unwords
-        [ "The",
-          "\"" ++ show fullyQualifiedFieldName ++ "\"",
-          "field in TS Config must be left unspecified."
-        ]
+      GenericGeneratorError $
+        unwords
+          [ "The",
+            "\"" ++ show fullyQualifiedFieldName ++ "\"",
+            "field in TS Config must be left unspecified."
+          ]
 
     makeMissingFieldErrorMessage expected =
-      unwords
-        [ "The",
-          "\"" ++ show fullyQualifiedFieldName ++ "\"",
-          "field is missing in TS config, you must set it to:",
-          showAsJsValue expected ++ "."
-        ]
+      GenericGeneratorError $
+        unwords
+          [ "The",
+            "\"" ++ show fullyQualifiedFieldName ++ "\"",
+            "field is missing in TS config, you must set it to:",
+            showAsJsValue expected ++ "."
+          ]

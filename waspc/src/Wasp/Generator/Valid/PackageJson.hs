@@ -1,4 +1,4 @@
-module Wasp.Generator.ExternalConfig.PackageJson
+module Wasp.Generator.Valid.PackageJson
   ( validatePackageJson,
   )
 where
@@ -6,10 +6,10 @@ where
 import Control.Applicative ((<|>))
 import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Common (prismaVersion, typescriptVersion)
-import Wasp.Generator.ExternalConfig.Common (ErrorMsg)
-import Wasp.Generator.ServerGenerator.Common (expressTypesVersion)
-import Wasp.Generator.WebAppGenerator.Common (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
+import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
+import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
+import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
   = RequiredRuntime
@@ -18,13 +18,15 @@ data PackageRequirement
 
 type PackageSpecification = (P.PackageName, P.PackageVersion)
 
-validatePackageJson :: P.PackageJson -> [ErrorMsg]
+validatePackageJson ::
+  P.PackageJson ->
+  [GeneratorError]
 validatePackageJson packageJson =
   validateRuntimeDependencies packageJson
     ++ validateDevelopmentDependencies packageJson
     ++ validateOptionalDependencies packageJson
 
-validateRuntimeDependencies :: P.PackageJson -> [ErrorMsg]
+validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
 validateRuntimeDependencies packageJson =
   concat
     [ validateRuntime ("wasp", "file:.wasp/out/sdk/wasp"),
@@ -35,18 +37,18 @@ validateRuntimeDependencies packageJson =
       validateRuntime ("react-dom", show reactVersion)
     ]
   where
-    validateRuntime spec = validatePackageJsonDependency packageJson spec RequiredRuntime
+    validateRuntime packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredRuntime
 
-validateDevelopmentDependencies :: P.PackageJson -> [ErrorMsg]
+validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
 validateDevelopmentDependencies packageJson =
-  concat
+  concat $
     [ validateDevelopment ("vite", show viteVersion),
       validateDevelopment ("prisma", show prismaVersion)
     ]
   where
-    validateDevelopment spec = validatePackageJsonDependency packageJson spec RequiredDevelopment
+    validateDevelopment packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredDevelopment
 
-validateOptionalDependencies :: P.PackageJson -> [ErrorMsg]
+validateOptionalDependencies :: P.PackageJson -> [GeneratorError]
 validateOptionalDependencies packageJson =
   concat
     [ validateOptional ("typescript", show typescriptVersion),
@@ -54,9 +56,9 @@ validateOptionalDependencies packageJson =
       validateOptional ("@types/express", show expressTypesVersion)
     ]
   where
-    validateOptional spec = validatePackageJsonDependency packageJson spec Optional
+    validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
 
-validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [ErrorMsg]
+validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
   case maybePackageJsonDepedency of
     Just actualPackageVersion ->
@@ -82,47 +84,50 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
       RequiredDevelopment -> M.member packageName (P.dependencies packageJson)
       Optional -> False
 
-    getMissingPackageError :: PackageRequirement -> [ErrorMsg]
+    getMissingPackageError :: PackageRequirement -> [GeneratorError]
     getMissingPackageError = \case
       RequiredRuntime -> [missingRequiredPackageErrorMessage]
       RequiredDevelopment -> [missingRequiredPackageErrorMessage]
       Optional -> []
 
-    incorrectPackageVersionErrorMessage :: ErrorMsg
+    incorrectPackageVersionErrorMessage :: GeneratorError
     incorrectPackageVersionErrorMessage =
-      unwords
-        [ "Wasp requires package",
-          show packageName,
-          "to be version",
-          show expectedPackageVersion,
-          "in package.json."
-        ]
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires package",
+            show packageName,
+            "to be version",
+            show expectedPackageVersion,
+            "in package.json."
+          ]
 
-    missingRequiredPackageErrorMessage :: ErrorMsg
+    missingRequiredPackageErrorMessage :: GeneratorError
     missingRequiredPackageErrorMessage =
-      unwords
-        [ "Wasp requires package",
-          show packageName,
-          "with version",
-          show expectedPackageVersion,
-          "to be in",
-          show $ getExpectedPackageJsonDependencyKey requirement,
-          "in package.json."
-        ]
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires package",
+            show packageName,
+            "with version",
+            show expectedPackageVersion,
+            "to be in",
+            show $ getExpectedPackageJsonDependencyKey requirement,
+            "in package.json."
+          ]
 
-    wrongDependencyTypeErrorMessage :: ErrorMsg
+    wrongDependencyTypeErrorMessage :: GeneratorError
     wrongDependencyTypeErrorMessage =
-      unwords $
-        [ "Wasp requires package",
-          show packageName,
-          "to be in",
-          show $ getExpectedPackageJsonDependencyKey requirement
-        ]
-          ++ ( case getOppositePackageJsonDepedencyKey requirement of
-                 Just oppositeKey -> ["and not in", show oppositeKey]
-                 Nothing -> []
-             )
-          ++ ["in package.json."]
+      GenericGeneratorError $
+        unwords $
+          [ "Wasp requires package",
+            show packageName,
+            "to be in",
+            show $ getExpectedPackageJsonDependencyKey requirement
+          ]
+            ++ ( case getOppositePackageJsonDepedencyKey requirement of
+                   Just oppositeKey -> ["and not in", show oppositeKey]
+                   Nothing -> []
+               )
+            ++ ["in package.json."]
 
 getExpectedPackageJsonDependencyKey :: PackageRequirement -> String
 getExpectedPackageJsonDependencyKey = \case
