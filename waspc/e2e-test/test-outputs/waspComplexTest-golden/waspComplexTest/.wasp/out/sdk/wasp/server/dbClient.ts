@@ -1,7 +1,12 @@
-import Prisma from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
-function createDbClient(): Prisma.PrismaClient {
-  return new Prisma.PrismaClient()
+const _waspSetupPrisma = () => new PrismaClient()
+
+// We are not typing the return value because 
+// we want to infer the type from the (potentially)
+// user-defined function _waspSetupPrisma
+function createDbClient() {
+  return _waspSetupPrisma()
 }
 
 const dbClient = createDbClient()

@@ -15,3 +15,6 @@ export { env } from './env.js'
 
 // PUBLIC API
 export type DbSeedFn = (prisma: PrismaClient) => Promise<void>
+
+// PUBLIC API
+export type PrismaSetupFn = () => PrismaClient
