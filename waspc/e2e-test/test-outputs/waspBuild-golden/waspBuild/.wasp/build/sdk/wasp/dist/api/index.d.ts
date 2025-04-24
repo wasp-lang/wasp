@@ -19,3 +19,4 @@ declare class WaspHttpError extends Error {
     constructor(statusCode: number, message: string, data: unknown);
 }
 export {};
+//# sourceMappingURL=index.d.ts.map

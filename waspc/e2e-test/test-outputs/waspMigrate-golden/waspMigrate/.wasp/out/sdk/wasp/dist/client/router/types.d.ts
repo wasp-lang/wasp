@@ -56,3 +56,4 @@ type SplitPath<S extends string> = S extends "/" ? [""] : S extends `${infer T}/
 type JoinPath<T extends string[]> = T extends [infer Only extends string] ? Only extends "" ? "/" : Only : T extends [infer First extends string, ...infer Rest extends string[]] ? `${First}/${JoinPath<Rest>}` : never;
 type NonEmptyString<S extends string> = S extends "" ? never : S;
 export {};
+//# sourceMappingURL=types.d.ts.map

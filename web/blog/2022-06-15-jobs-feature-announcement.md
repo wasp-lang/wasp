@@ -12,33 +12,25 @@ import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
 <p align="center">
-  <img alt="You get a job!"
-      src={useBaseUrl('img/jobs-oprah.gif')}
-      width="300px"
-  />
+  <img alt="You get a job!" src={useBaseUrl('img/jobs-oprah.gif')} width="300px" />
 </p>
 
 <!--truncate-->
 
 <WaspIntro />
+
 <InBlogCta />
 
 ## **Storytime**
 
 <p align="center">
-  <img alt="Storytime"
-      src={useBaseUrl('img/jobs-storytime.gif')}
-      width="300px"
-  />
+  <img alt="Storytime" src={useBaseUrl('img/jobs-storytime.gif')} width="300px" />
 </p>
 
 Imagine you are working on the next unicorn SaaS web app and need to send a user an email, manipulate an uploaded image via an external API call, or recalculate some internal metrics every night. (Or, maybe you’re doing some fancy blockchain thing for that frothy investment multiple; :D whatever it is, just envision an operation that may take a significant amount of time and/or fail.) How would you implement this?
 
 <p align="center">
-  <img alt="Spinning!"
-      src={useBaseUrl('img/jobs-spinner.gif')}
-      width="30px"
-  />
+  <img alt="Spinning!" src={useBaseUrl('img/jobs-spinner.gif')} width="30px" />
 </p>
 
 You wouldn’t want the server to delay sending its HTTP response until those are done (unless you are one of those people who love seeing the Mac spinning icon), so you'll need something out-of-band from the normal request-response flow. Even in an event-loop-based system like Node.js, just calling an async function isn't ideal since you will need to handle failures, retries, and throttling, amongst other concerns. And sometimes we need to schedule tasks to run in the future, or repeatedly, so we need a completely different toolset.
@@ -71,9 +63,8 @@ Wasp allows you to write a regular async JavaScript function (like the one above
 
 <p align="center">
   <figure>
-    <img alt="Eeek"
-        src={useBaseUrl('img/jobs-eyes.gif')}
-    />
+    <img alt="Eeek" src={useBaseUrl('img/jobs-eyes.gif')} />
+
     <figcaption>Me trying to lay off the job-related puns. Ok, ok, I’ll quit. Ahhh!</figcaption>
   </figure>
 </p>
@@ -82,7 +73,7 @@ In my prior life as a Ruby on Rails developer, the decision of how to implement 
 
 In the JavaScript world, [Bull](https://github.com/OptimalBits/bull) is quite popular these days. However, we decided to use [pg-boss](https://github.com/timgit/pg-boss), as it too provides persistence, delayed jobs, and schedules (plus many other features). But critically, pg-boss uses PostgreSQL instead of Redis (like Bull) for storage and coordination, and this was important since we did not want to introduce any new infrastructure dependencies to our existing production stack.
 
-But isn’t a database as a queue an anti-pattern, you may ask? Well, historically I’d probably say yes. However, PostgreSQL 9.5 added SKIP LOCKED, which it specifically mentions can aid in avoiding lock contention with multiple consumer queue-like workloads [[https://www.postgresql.org/docs/9.5/sql-select.html#SQL-FOR-UPDATE-SHARE](https://www.postgresql.org/docs/9.5/sql-select.html#SQL-FOR-UPDATE-SHARE)]. So for the low-volume background job workloads that many apps have, we feel using a database as a queue is a great compromise and starting point for many users from a benefit vs. complexity perspective.
+But isn’t a database as a queue an anti-pattern, you may ask? Well, historically I’d probably say yes. However, PostgreSQL 9.5 added SKIP LOCKED, which it specifically mentions can aid in avoiding lock contention with multiple consumer queue-like workloads \[[https://www.postgresql.org/docs/9.5/sql-select.html#SQL-FOR-UPDATE-SHARE](https://www.postgresql.org/docs/9.5/sql-select.html#SQL-FOR-UPDATE-SHARE)]. So for the low-volume background job workloads that many apps have, we feel using a database as a queue is a great compromise and starting point for many users from a benefit vs. complexity perspective.
 
 However, we will also continue to expand the number of job execution runtimes we support. Let us know in [Discord](https://discord.gg/rzdnErX) what you’d like to see next!
 
@@ -118,7 +109,8 @@ job calcPageLoadTime {
 }
 ```
 
-And here is an example of how you can reference and invoke jobs on the server. *Note: We did not even need to do this step since jobs with a schedule are automatically configured to run at the desired time.*
+And here is an example of how you can reference and invoke jobs on the server. _Note: We did not even need to do this step since jobs with a schedule are automatically configured to run at the desired time._
+
 ```js title=src/server/serverSetup.js
 /**
 * These Jobs are automatically scheduled by Wasp.
