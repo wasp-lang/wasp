@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { writeFileSync } from 'fs'
-import { mapUserSpecToAppSpecJson } from './mapUserSpecToAppSepcJson.js'
+import { mapUserSpecAppToDeclJson } from './mapUserSpecToAppSepcJson.js'
 import { App } from './userApi.js'
 
 main()
@@ -19,7 +19,7 @@ async function main() {
   }
   const { value: appDefinition } = result
 
-  const declsJson = mapUserSpecToAppSpecJson(appDefinition, entityNames)
+  const declsJson = mapUserSpecAppToDeclJson(appDefinition, entityNames)
 
   writeFileSync(declsJsonOutputFile, declsJson)
 }
