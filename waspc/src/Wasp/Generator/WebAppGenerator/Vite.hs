@@ -78,7 +78,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
 makeCustomViteConfigJsImport :: Path' (Rel WaspProjectDir) File' -> JsImport
 makeCustomViteConfigJsImport pathToConfig = makeJsImport (RelativeImportPath importPath) importName
   where
-    importPath = SP.castRel $ C.toViteImportPath relPathToConfigInProjectDir
+    importPath = SP.castRel relPathToConfigInProjectDir
     relPathToConfigInProjectDir = relPathFromWebAppRootDirWaspProjectDir </> (fromJust . SP.relFileToPosix $ pathToConfig)
     importName = JsImportModule "customViteConfig"
 
