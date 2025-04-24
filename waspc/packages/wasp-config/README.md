@@ -4,7 +4,7 @@ Wasp Config is a TypeScript SDK for working with Wasp application specifications
 
 ## Important Notes
 
-The type definitions in this package are meant to mirror the AppSpec declarations defined in the `Wasp` Haskell codebase. When making changes to this package, ensure that they align with the corresponding Haskell implementation.
+The type definitions in this package are meant to mirror the AppSpec declarations defined in the `waspc` Haskell codebase. When making changes to this package, ensure that they align with the corresponding Haskell implementation.
 
 ## Installation
 
@@ -16,7 +16,15 @@ npm install wasp-config
 
 ### `npm run test`
 
-Runs the test suite using `vitest`. Use this to verify that your changes don't break existing functionality.
+Runs all test suites using `vitest`. 
+
+### `npm run test:unit`
+
+Runs only the unit tests using `vitest`. 
+
+### `npm run test:integration`
+
+Runs only the integration tests using `vitest`. 
 
 ### `npm run coverage`
 
