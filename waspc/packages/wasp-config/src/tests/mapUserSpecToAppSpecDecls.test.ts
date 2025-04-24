@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
+import { GET_USER_SPEC } from '../_private.js'
 import * as AppSpec from '../appSpec.js'
-import { getUserSpec } from '../mapUserSpecToAppSepcJson.js'
 import {
   makeRefParser,
   mapApiConfig,
@@ -91,7 +91,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
   // pipeline works correctly end-to-end, independent of the individual mapping functions tested below.
   test('should map end-to-end without mapping functions correctly', () => {
     const app = createFullApp()
-    const userSpec = getUserSpec(app)
+    const userSpec = app[GET_USER_SPEC]()
     const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
     const declTypes = result.map((decl) => decl.declType)
@@ -602,7 +602,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   test('should map end-to-end using mapping functions correctly', () => {
     const app = createFullApp()
-    const userSpec = getUserSpec(app)
+    const userSpec = app[GET_USER_SPEC]()
     const parseEntityRef = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
     const parseRouteRef = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
     const parsePageRef = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
@@ -785,7 +785,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
         title: Fixtures.APP.CONFIG.title,
         wasp: Fixtures.APP.CONFIG.wasp,
       })
-      const userSpec = getUserSpec(app)
+      const userSpec = app[GET_USER_SPEC]()
       const parseEntityRef = makeRefParser('Entity', [])
       const parseRouteRef = makeRefParser('Route', [])
 
@@ -826,7 +826,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       app.emailSender(Fixtures.EMAIL_SENDER.CONFIG)
       app.webSocket(Fixtures.WEBSOCKET.CONFIG)
 
-      const userSpec = getUserSpec(app)
+      const userSpec = app[GET_USER_SPEC]()
       const parseEntityRef = makeRefParser('Entity', [
         Fixtures.AUTH.CONFIG.userEntity,
         Fixtures.AUTH.CONFIG.externalAuthEntity,
