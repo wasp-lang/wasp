@@ -22,6 +22,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
    }
   ```
 - The types for DOM helpers in tests are now handled with an import in `src/vite-env.d.ts` (instead of overriding `typeRoots` in `tsconfig.json`).
+- Upgrade to Vite v6 ([#2695](https://github.com/wasp-lang/wasp/pull/2695))
 
 ### 🐞 Bug fixes
 
