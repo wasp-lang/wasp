@@ -41,7 +41,7 @@ genVite spec =
     <++> genVitePlugins
 
 viteConfigTmplFile :: Path' (Rel WebAppTemplatesDir) File'
-viteConfigTmplFile = C.asTmplFile [relfile|vite.config.ts|]
+viteConfigTmplFile = C.asTmplFile [relfile|vite.config.mts|]
 
 relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir WaspProjectDir)
 relPathFromWebAppRootDirWaspProjectDir =

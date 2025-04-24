@@ -19,4 +19,4 @@ testWebApp args projectDir = do
       dotWaspDirInWaspProjectDir
         </> generatedCodeDirInDotWaspDir
         </> webAppRootDirInProjectRootDir
-        </> [relfile|vite.config.ts|]
+        </> [relfile|vite.config.mts|]

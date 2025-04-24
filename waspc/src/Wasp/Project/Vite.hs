@@ -14,7 +14,7 @@ findCustomViteConfigPath waspProjectDir = do
     isCustomViteConfig path = path == pathToViteTsConfig || path == pathToViteJsConfig
 
     pathToViteTsConfig :: Path' (Rel WaspProjectDir) File'
-    pathToViteTsConfig = [relfile|vite.config.ts|]
+    pathToViteTsConfig = [relfile|vite.config.mts|]
 
     pathToViteJsConfig :: Path' (Rel WaspProjectDir) File'
-    pathToViteJsConfig = [relfile|vite.config.js|]
+    pathToViteJsConfig = [relfile|vite.config.mjs|]
