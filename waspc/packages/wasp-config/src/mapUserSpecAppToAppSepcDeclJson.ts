@@ -2,7 +2,7 @@ import { GET_USER_SPEC } from './_private.js'
 import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
 import * as UserSpec from './userApi.js'
 
-export function mapUserSpecAppToDeclJson(
+export function mapUserSpecAppToAppSepcDeclJson(
   app: UserSpec.App,
   entityNames: string[]
 ): string {
