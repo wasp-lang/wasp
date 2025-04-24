@@ -10,6 +10,8 @@
     "build": "tsc",
     "dev": "nodemon ./src/index.ts",
     "test": "vitest",
+    "test:unit": "vitest --project unit",
+    "test:integration": "vitest --project integration",
     "coverage": "vitest run --coverage"
   },
   "bin": "./dist/run.js",
