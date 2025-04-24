@@ -8,14 +8,14 @@ async function main() {
   const { mainWaspJs, declsJsonOutputFile, entityNames } =
     parseProcessArgsOrThrow(process.argv)
 
-  const result = await tryAnalyzeUserApp(mainWaspJs, entityNames)
+  const declsJsonResult = await tryAnalyzeUserApp(mainWaspJs, entityNames)
 
-  if (result.status === 'error') {
-    console.error(result.error)
+  if (declsJsonResult.status === 'error') {
+    console.error(declsJsonResult.error)
     process.exit(1)
   }
 
-  writeFileSync(declsJsonOutputFile, result.value)
+  writeFileSync(declsJsonOutputFile, declsJsonResult.value)
 }
 
 function parseProcessArgsOrThrow(args: string[]): {
