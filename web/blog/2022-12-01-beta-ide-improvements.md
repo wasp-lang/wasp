@@ -11,27 +11,22 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 With the Beta release (0.7), Wasp brings its IDE game to a whole new level!
 
 So far Wasp didn’t have much beyond basic syntax highlighting in VSCode, but now it has:
 
 1. **Wasp language server**, that brings the following to your .wasp files:
-    1. live error reporting in your editor
-    2. autocompletion (basic for now)
+   1. live error reporting in your editor
+   2. autocompletion (basic for now)
 2. **VSCode Wasp language extension**:
-    1. snippets (for `page`, `query`, `action`, `entity`)
-    2. improved syntax highlighting for .wasp files
-    3. integration with the above-mentioned language server
+   1. snippets (for `page`, `query`, `action`, `entity`)
+   2. improved syntax highlighting for .wasp files
+   3. integration with the above-mentioned language server
 3. Support for popular **IDEs to fully support Javascript and Typescript files** in the Wasp project.
 
 <!--truncate-->
 
-<ImgWithCaption
-    alt=""
-    source="img/beta-ide-improvements/wls-demo.gif"
-    caption="Wasp IDE support in action in VSCode: syntax highlighting, snippets, live error reporting."
-/>
+<ImgWithCaption alt="" source="img/beta-ide-improvements/wls-demo.gif" caption="Wasp IDE support in action in VSCode: syntax highlighting, snippets, live error reporting." />
 
 Wasp IDE support in action in VSCode: syntax highlighting, snippets, live error reporting.
 
@@ -49,21 +44,13 @@ For curious, check out the source code of WLS on Github: [https://github.com/was
 
 WLS compiles wasp code for you as you work on it and shows you any errors directly in the editor, via red squiggly lines.
 
-
-<ImgWithCaption
-    alt=""
-    source="img/beta-ide-improvements/wls-live-errors.gif"
-/>
+<ImgWithCaption alt="" source="img/beta-ide-improvements/wls-live-errors.gif" />
 
 ### Autocompletion
 
 WLS understands at which part of code you are right now and offers appropriate completions for it.
 
-
-<ImgWithCaption
-    alt=""
-    source="img/beta-ide-improvements/wls-autocompletion.gif"
-/>
+<ImgWithCaption alt="" source="img/beta-ide-improvements/wls-autocompletion.gif" />
 
 :::note
 Right now WLS is pretty naive here, and mostly focuses on offering available expressions when it realizes you need an expression. This is helpful but just a start, and it will get much smarter in future versions!
@@ -85,19 +72,13 @@ The best thing: there is nothing you, as a Wasp user, have to do to set up WLS! 
 
 An easy way to check that your version of `wasp` has WLS packaged into it is to run it and look at its usage instructions: it should mention `waspls` as one of the commands.
 
-<ImgWithCaption
-    alt=""
-    source="img/beta-ide-improvements/wasp-cli-waspls.png"
-/>
+<ImgWithCaption alt="" source="img/beta-ide-improvements/wasp-cli-waspls.png" />
 
 # Wasp VSCode extension
 
 If we would call Wasp Language Server (WLS) the “backend”, then [VSCode Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) would be “frontend” → it takes care of everything to ensure you have a nice experience working with Wasp in VSCode, while delegating the hardest work to the WLS.
 
-<ImgWithCaption
-    alt=""
-    source="img/beta-ide-improvements/wasp-vscode-extension.png"
-/>
+<ImgWithCaption alt="" source="img/beta-ide-improvements/wasp-vscode-extension.png" />
 
 :::tip
 For curious, you can check out its source code here, core of it is just one file: [https://github.com/wasp-lang/vscode-wasp/blob/main/src/extension.ts](https://github.com/wasp-lang/vscode-wasp/blob/main/src/extension.ts)
@@ -115,10 +96,7 @@ If you are curious how is this implemented, check [https://github.com/wasp-lang/
 
 Wasp allows you to quickly generate a snippet of code for a new `page`, `query`, `action`, or `entity`!
 
-<ImgWithCaption
-    alt=""
-    source="img/beta-ide-improvements/wls-snippets.gif"
-/>
+<ImgWithCaption alt="" source="img/beta-ide-improvements/wls-snippets.gif" />
 
 Check out our snippet definitions here: [https://github.com/wasp-lang/vscode-wasp/blob/main/snippets/wasp.json](https://github.com/wasp-lang/vscode-wasp/blob/main/snippets/wasp.json) . It is actually really easy, in VSCode, to define them and add new ones.
 
@@ -139,8 +117,8 @@ To learn more about Typescript support in Wasp Beta, check [this blog post](http
 While Wasp Beta greatly improved IDE support for Wasp, there are still quite a few things we want to improve on:
 
 1. Smarter autocompletion via WLS.
-    1. Right now it suggests any expression when you need an expression. In the future, we want it to know exactly what is the type of needed expression, and suggest only expressions of that type! So if I am in `route ... { to: <my_cursor_here> }`, then I want to see only `page`s among the suggested completions, not `queries` or `actions` or something else.
-    2. Further, we would also like it to autocomplete on dictionary fields → so if I am in `route ... { <my_cursor_here> }`, it should offer me `path` and `to` as completions, as those are only valid fields in the `route` dictionary.
+   1. Right now it suggests any expression when you need an expression. In the future, we want it to know exactly what is the type of needed expression, and suggest only expressions of that type! So if I am in `route ... { to: <my_cursor_here> }`, then I want to see only `page`s among the suggested completions, not `queries` or `actions` or something else.
+   2. Further, we would also like it to autocomplete on dictionary fields → so if I am in `route ... { <my_cursor_here> }`, it should offer me `path` and `to` as completions, as those are only valid fields in the `route` dictionary.
 2. Extensions for other editors besides VSCode. Now that we have Wasp Language Server, these shouldn’t be too hard to implement! This is also a great task for potential contributors: check this [GH issue](https://github.com/wasp-lang/wasp/issues/864) if you are interested.
 3. Implement Wasp code formatter. We could make it a part of WLS, and then have the editor extension call it on save.
 4. Improve support for PSL (Prisma Schema Language) in .wasp files.
