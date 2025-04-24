@@ -312,7 +312,7 @@ waspBuild/.wasp/build/web-app/src/vite-env.d.ts
 waspBuild/.wasp/build/web-app/tsconfig.app.json
 waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.vite.json
-waspBuild/.wasp/build/web-app/vite.config.ts
+waspBuild/.wasp/build/web-app/vite.config.mts
 waspBuild/.wasp/build/web-app/vite/detectServerImports.ts
 waspBuild/.wasp/build/web-app/vite/validateEnv.ts
 waspBuild/.wasp/out/sdk/wasp/api/axios.d.ts
@@ -594,4 +594,4 @@ waspBuild/src/MainPage.jsx
 waspBuild/src/vite-env.d.ts
 waspBuild/src/waspLogo.png
 waspBuild/tsconfig.json
-waspBuild/vite.config.ts
+waspBuild/vite.config.mts

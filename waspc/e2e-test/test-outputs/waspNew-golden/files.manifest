@@ -9,4 +9,4 @@ waspNew/src/MainPage.jsx
 waspNew/src/vite-env.d.ts
 waspNew/src/waspLogo.png
 waspNew/tsconfig.json
-waspNew/vite.config.ts
+waspNew/vite.config.mts

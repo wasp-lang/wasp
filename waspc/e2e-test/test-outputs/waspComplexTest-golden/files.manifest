@@ -662,7 +662,7 @@ waspComplexTest/.wasp/out/web-app/src/vite-env.d.ts
 waspComplexTest/.wasp/out/web-app/tsconfig.app.json
 waspComplexTest/.wasp/out/web-app/tsconfig.json
 waspComplexTest/.wasp/out/web-app/tsconfig.vite.json
-waspComplexTest/.wasp/out/web-app/vite.config.ts
+waspComplexTest/.wasp/out/web-app/vite.config.mts
 waspComplexTest/.wasp/out/web-app/vite/detectServerImports.ts
 waspComplexTest/.wasp/out/web-app/vite/validateEnv.ts
 waspComplexTest/.waspignore
@@ -686,4 +686,4 @@ waspComplexTest/src/server/queries/bar.js
 waspComplexTest/src/vite-env.d.ts
 waspComplexTest/src/waspLogo.png
 waspComplexTest/tsconfig.json
-waspComplexTest/vite.config.ts
+waspComplexTest/vite.config.mts

@@ -697,7 +697,7 @@
             "file",
             "web-app/package.json"
         ],
-        "b3031378d935d26f660108a5445d6679c34fccd124dbc6d900a20cb67ee88bc7"
+        "a9f6a2b9beb8aa56baaaba36ccfc13be10964e78164e86564aa944560b493189"
     ],
     [
         [
@@ -816,12 +816,12 @@
             "file",
             "web-app/tsconfig.vite.json"
         ],
-        "d73bf64453727c005983dea11c1b38ab9db2f6b4e7b5c266f731835d4bf8eb37"
+        "cec98672241b3d23f77d2ed109a838a7fcbea3aa8e1a117e51cfadb7893b6f5d"
     ],
     [
         [
             "file",
-            "web-app/vite.config.ts"
+            "web-app/vite.config.mts"
         ],
         "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
     ],
