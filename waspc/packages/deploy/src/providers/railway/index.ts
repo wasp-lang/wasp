@@ -1,5 +1,5 @@
 import { Command, Option } from 'commander';
-import { ensureRailwayReady } from './helpers/railwayHelpers.js';
+import { ensureRailwayBasenameIsValid, ensureRailwayReady } from './helpers/railwayHelpers.js';
 import {
   ensureWaspDirLooksRight,
   ensureWaspProjectDirInCmdIsAbsoluteAndPresent,
@@ -72,6 +72,7 @@ export function addRailwayCommand(program: Command): void {
       .option('--skip-build', 'do not run `wasp build` before the command')
       // Maybe we'll need to use --team for Railway
       // .option('--org <org>', 'Fly org to use (with commands that support it)')
+      .hook('preAction', ensureRailwayBasenameIsValid)
       .hook('preAction', ensureRailwayReady)
       .hook('preAction', ensureWaspProjectDirInCmdIsAbsoluteAndPresent)
       .hook('preAction', ensureWaspDirLooksRight);

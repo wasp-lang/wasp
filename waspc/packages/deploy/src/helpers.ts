@@ -135,3 +135,8 @@ export async function silence(cmd: ($hh: Shell) => Promise<ProcessOutput>): Prom
   $.verbose = verboseSetting;
   return proc;
 }
+
+export function parseVersion(version: string): number[] {
+  const parts = version.split('.');
+  return parts.map((part) => parseInt(part, 10));
+}
