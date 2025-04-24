@@ -17,3 +17,4 @@ export declare class SubmittedJob {
     readonly jobId: string;
     constructor(job: Job, jobId: string);
 }
+//# sourceMappingURL=job.d.ts.map

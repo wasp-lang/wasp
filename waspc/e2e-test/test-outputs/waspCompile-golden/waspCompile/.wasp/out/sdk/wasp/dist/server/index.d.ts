@@ -6,3 +6,4 @@ export { HttpError } from './HttpError.js';
 export { MiddlewareConfigFn } from './middleware/index.js';
 export { env } from './env.js';
 export type DbSeedFn = (prisma: PrismaClient) => Promise<void>;
+//# sourceMappingURL=index.d.ts.map

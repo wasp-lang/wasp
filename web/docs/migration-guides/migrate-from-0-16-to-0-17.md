@@ -104,7 +104,70 @@ It is possible that you were not using this function in your code.
 If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
 this change is already handled for you.
 
-### 2. Enjoy your updated Wasp app
+### 2. Update your `tsconfig.json`
+To ensure your project works correctly with Wasp 0.17.0, you must also update your
+`tsconfig.json` file.
+
+If you haven't changed anything in your project's `tsconfig.json` file (this is
+the case for most users), just replace its contents with the new version shown
+below.
+
+If you have made changes to your `tsconfig.json` file, we recommend taking the
+new version of the file and reapplying them.
+
+Here's the new version of `tsconfig.json`:
+```json title=tsconfig.json
+// =============================== IMPORTANT =================================
+// This file is mainly used for Wasp IDE support.
+//
+// Wasp will compile your code with slightly different (less strict) compilerOptions.
+// You can increase the configuration's strictness (e.g., by adding
+// "noUncheckedIndexedAccess": true), but you shouldn't reduce it (e.g., by
+// adding "strict": false). Just keep in mind that this will only affect your
+// IDE support, not the actual compilation.
+//
+// Full TypeScript configurability is coming very soon :)
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "composite": true,
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "outDir": ".wasp/out/user"
+  },
+  "include": [
+    "src"
+  ]
+}
+```
+
+### 3. Tell Wasp about `jest-dom` types
+If you're using (or planning to use) Wasp's [client tests](../project/testing.md) with `jest-dom`,
+update your `src/vite-env.d.ts` file:
+
+```ts src/vite-env.d.ts {3-7}
+/// <reference types="vite/client" />
+
+// This is needed to properly support Vitest testing with jest-dom matchers.
+// Types for jest-dom are not recognized automatically and Typescript complains
+// about missing types e.g. when using `toBeInTheDocument` and other matchers.
+// Reference: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
+import '@testing-library/jest-dom'
+```
+
+### 4. Enjoy your updated Wasp app
 
 That's it!
 

@@ -32,6 +32,7 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
+import qualified Wasp.ExternalConfig.TsConfig as T
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -500,10 +501,30 @@ spec_AppSpecValid = do
           AS.devEnvVarsClient = [],
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
-          AS.configFiles = [],
+          AS.tailwindConfigFilesRelocators = [],
           AS.devDatabaseUrl = Nothing,
           AS.customViteConfigPath = Nothing,
-          AS.srcTsConfigPath = [relfile|tsconfig.json|]
+          AS.srcTsConfigPath = [relfile|tsconfig.json|],
+          AS.srcTsConfig =
+            T.TsConfig
+              { T.compilerOptions =
+                  T.CompilerOptions
+                    { T._module = Just "esnext",
+                      T.composite = Just True,
+                      T.target = Just "esnext",
+                      T.moduleResolution = Just "bundler",
+                      T.jsx = Just "preserve",
+                      T.strict = Just True,
+                      T.esModuleInterop = Just True,
+                      T.isolatedModules = Just True,
+                      T.moduleDetection = Just "force",
+                      T.lib = Just ["dom", "dom.iterable", "esnext"],
+                      T.skipLibCheck = Just True,
+                      T.allowJs = Just True,
+                      T.outDir = Just ".wasp/out/user"
+                    },
+                T.include = Just ["src"]
+              }
         }
 
     getPrismaSchemaWithConfig restOfPrismaSource =
