@@ -29,10 +29,10 @@ function parseProcessArgsOrThrow(args: string[]): {
     )
   }
 
-  const [_node, _runjs, mainWaspJs, outputFile, entityNamesJson] = args
+  const [_node, _runjs, mainWaspJs, declsJsonOutputFile, entityNamesJson] = args
   if (
     typeof mainWaspJs !== 'string' ||
-    typeof outputFile !== 'string' ||
+    typeof declsJsonOutputFile !== 'string' ||
     typeof entityNamesJson !== 'string'
   ) {
     throw new Error(
@@ -44,7 +44,7 @@ function parseProcessArgsOrThrow(args: string[]): {
 
   return {
     mainWaspJs,
-    declsJsonOutputFile: outputFile,
+    declsJsonOutputFile,
     entityNames,
   }
 }
