@@ -9,9 +9,8 @@ export function mapUserSpecToAppSpecJson(
 ): string {
   const userSpec = getUserSpec(app)
   const appSpecDecls = mapUserSpecToAppSpecDecls(userSpec, entityNames)
-  const appSpecJson = getDeclsJson(appSpecDecls)
 
-  return appSpecJson
+  return getDeclsJson(appSpecDecls)
 }
 
 export function getUserSpec(app: UserSpec.App): UserSpec.UserSpec {
