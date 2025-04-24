@@ -23,3 +23,4 @@ type QueryFunctionFor<BackendQuery extends GenericBackendOperation> = OperationR
  */
 type QueryForFunction<QF extends GenericOperationRpc> = QF & QueryMetadata;
 export {};
+//# sourceMappingURL=core.d.ts.map

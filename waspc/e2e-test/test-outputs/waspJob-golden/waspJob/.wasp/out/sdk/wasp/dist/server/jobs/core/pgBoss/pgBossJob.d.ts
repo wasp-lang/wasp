@@ -69,3 +69,4 @@ type JobOutputToMetadataOutput<JobOutput> = JobOutput extends null | undefined |
     value: JobOutput;
 };
 export {};
+//# sourceMappingURL=pgBossJob.d.ts.map

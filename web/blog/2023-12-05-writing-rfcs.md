@@ -9,15 +9,11 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 Imagine you’ve been tasked to implement a sizeable new feature for the product you’re working on. That’s the opportunity you’ve been waiting for - everybody will see what a 10x developer you are! You open a list of the coolest new libraries and design patterns you’ve wanted to try out and get right into it, full “basement” mode. One week later, you victoriously emerge and present your perfect pull request!
 
-**But then, the senior dev in a team immediately rejects it - *“Too complex, you should have simply used library X and reused Y.”***. What!? Before you know it, you’re looking at 100 comments on your PR and days of refactoring to follow.
+**But then, the senior dev in a team immediately rejects it - _“Too complex, you should have simply used library X and reused Y.”_**. What!? Before you know it, you’re looking at 100 comments on your PR and days of refactoring to follow.
 
 If only there were **a way of knowing about X and Y before implementing everything**. Well, it is, and it’s called RFC!
 
-
-<ImgWithCaption
-    alt="The revelation of RFC"
-    source="img/writing-rfcs/rfc-prophet.png"
-/>
+<ImgWithCaption alt="The revelation of RFC" source="img/writing-rfcs/rfc-prophet.png" />
 
 We’ll learn about it through the example of [RFC about implementing an authentication system in a web framework Wasp](https://wasp-lang.notion.site/RFC-Auth-without-user-defined-entities-6d2925439627456ab01b74ff4b4cd087?pvs=4). [Wasp](https://github.com/wasp-lang/wasp) is a full-stack web framework built on top of React, Node.js and Prisma. It is used by [MAGE](https://usemage.ai/), a free GPT-powered codebase generator, which has been used to start over 30,000 applications.
 
@@ -25,24 +21,17 @@ Let's dive in!
 
 ## So, what is an RFC?
 
-RFC (*Request For Comments*) is, simply explained, a document proposing a codebase change to solve a specific problem. **Its main purpose is to find the best way to solve a problem, as a team effort, before the implementation starts**. RFCs were first adopted by the open-source community, but today, they are used in almost any type of developer organization.
+RFC (_Request For Comments_) is, simply explained, a document proposing a codebase change to solve a specific problem. **Its main purpose is to find the best way to solve a problem, as a team effort, before the implementation starts**. RFCs were first adopted by the open-source community, but today, they are used in almost any type of developer organization.
 
-<ImgWithCaption
-    alt="RFC overivew"
-    source="img/writing-rfcs/rfc-overview.png"
-    caption="A simplified schema of a typical RFC."
-/>
+<ImgWithCaption alt="RFC overivew" source="img/writing-rfcs/rfc-overview.png" caption="A simplified schema of a typical RFC." />
 
-There are other names for this type of document you might encounter in the industry, like TDD (*Technical Design Document*) or SDD (*Software Design Document*). Some people argue over the distinction between them, but we won’t.
+There are other names for this type of document you might encounter in the industry, like TDD (_Technical Design Document_) or SDD (_Software Design Document_). Some people argue over the distinction between them, but we won’t.
 
-**Fun fact**: RFCs were invented by IETF (*Internet Engineering Task Force*), the engineering organization behind some of the most important internet standards and protocols we use today, like TCP/IP! Not too shabby, right?
+**Fun fact**: RFCs were invented by IETF (_Internet Engineering Task Force_), the engineering organization behind some of the most important internet standards and protocols we use today, like TCP/IP! Not too shabby, right?
 
 ## When should I write RFC, and when can I skip it?
 
-<ImgWithCaption
-    alt="RFC overivew"
-    source="img/writing-rfcs/rfc-meme-when.png"
-/>
+<ImgWithCaption alt="RFC overivew" source="img/writing-rfcs/rfc-meme-when.png" />
 
 So, why bother writing about what you will eventually code, instead of saving time and simply doing it? **If you’re dealing with a bug or a relatively simple feature, where it’s very clear what you must do and doesn’t affect project structure, then there’s no need for an RFC - fire up that IDE and get cracking!**
 
@@ -50,20 +39,17 @@ But, if you are introducing a completely new concept (e.g., introducing a role-b
 
 All the above being said, sometimes it's not easy to figure out if you should write an RFC or not. Maybe it’s a more prominent feature, but you’ve done something similar before, and you’ve already mapped everything out in your head and pretty much have no questions. To help with that, here’s a simple heuristic I like to use: **Is there more than one obvious way to implement this feature? Is there a new library/service we have to pick?** If the answer to both of these is “No", you probably don’t need an RFC. Otherwise, there’s a discussion to be had, and RFC is the way to do it.
 
-<ImgWithCaption
-    alt="RFC decision flowchart"
-    source="img/writing-rfcs/rfc-flowchart.png"
-/>
+<ImgWithCaption alt="RFC decision flowchart" source="img/writing-rfcs/rfc-flowchart.png" />
 
 ## It sounds useful. But what’s in it for me?
 
-We’ve established how to decide *when* to write an RFC, but here is also *why* you should do it:
+We’ve established how to decide _when_ to write an RFC, but here is also _why_ you should do it:
 
 - **You will organize your thoughts and get clarity**. If you’ve decided to write an RFC, that means you’re dealing with a non-trivial, open-ended problem. Writing things down will help distill your thoughts and have an objective look at them.
 - **You will learn more** than if you just jumped into coding. You will give yourself space to explore different approaches and oftentimes discover something you haven’t even thought of initially.
 - **You will crowdsource your team’s knowledge.** By asking your team for feedback (hence Request For Comments), you will get a complete picture of the problem you’re solving and fill in any remaining gaps.
 - **You will advance your team’s understanding of the codebase.** By collaborating on your RFC, everybody on the team will understand what you’re doing and how you eventually did it. That means next time somebody has to touch that part of the code, they will need to ask you much less questions (=== more uninterrupted coding time!).
-- **PR reviews will go *much* smoother**. Remember that situation from the beginning of this article, when your PR got rejected as "too complex"? That’s because the reviewer is missing the context, and you made a sizeable change without a previous buy-in from the rest of the team. By writing an RFC first, you’ll never encounter this type of situation again.
+- **PR reviews will go _much_ smoother**. Remember that situation from the beginning of this article, when your PR got rejected as "too complex"? That’s because the reviewer is missing the context, and you made a sizeable change without a previous buy-in from the rest of the team. By writing an RFC first, you’ll never encounter this type of situation again.
 - **Your documentation is already 50% done!** To be clear, RFC is not the final documentation, and you cannot simply point to it, but you can likely reuse a lot - images, diagrams, paragraphs, etc.
 
 Wow, this sounds so good that I want to come up with a new feature right now just so I can write an RFC for it! Joke aside, going through with the RFC first makes the coding part so much more enjoyable - you know exactly what you need to do, and you don’t need to question your approach and how it will be received once you create that PR.
@@ -84,20 +70,13 @@ Let’s now go over each of these and see what they look like in practice, on ou
 
 ## Metadata ⌗
 
-<ImgWithCaption
-    alt="RFC metadata"
-    source="img/writing-rfcs/rfc-metadata.png"
-/>
+<ImgWithCaption alt="RFC metadata" source="img/writing-rfcs/rfc-metadata.png" />
 
-This one is pretty self-explanatory - you will want to track some basic info about your RFCs - status, date of creation, etc. 
+This one is pretty self-explanatory - you will want to track some basic info about your RFCs - status, date of creation, etc.
 
 Some templates also explicitly list the reviewers and the status of their “approval” of the RFC, similar to the PR review process - we don’t have it since we’re a small team where communication happens fast, but it can be handy for larger teams where not everybody knows everybody, and you want to have a bit more of a process in place (e.g. when mentoring junior developers).
 
-<ImgWithCaption
-    alt="RFC reviewer status"
-    source="img/writing-rfcs/rfc-reviewer-status-example.png"
-    caption="Some RFCs require explicit approval by each reviewer."
-/>
+<ImgWithCaption alt="RFC reviewer status" source="img/writing-rfcs/rfc-reviewer-status-example.png" caption="Some RFCs require explicit approval by each reviewer." />
 
 ## The problem 🤔
 
@@ -105,10 +84,7 @@ This is where things get interesting. **The better you define the problem or the
 
 By doing this, you will also very likely get first hints and pointers on the possible solutions, and develop a rough sense of the problem space you’re in.
 
-<ImgWithCaption
-    alt="RFC problem definition"
-    source="img/writing-rfcs/rfc-problem.png"
-/>
+<ImgWithCaption alt="RFC problem definition" source="img/writing-rfcs/rfc-problem.png" />
 
 Here are a few tips from the example above:
 
@@ -139,10 +115,7 @@ It’s better to start at the higher level, and then go deeper when you realize 
 
 ### Find out how are others doing it
 
-<ImgWithCaption
-    alt="See what others are doing"
-    source="img/writing-rfcs/existing-solutions.png"
-/>
+<ImgWithCaption alt="See what others are doing" source="img/writing-rfcs/existing-solutions.png" />
 
 How you find this out may differ depending on the type of product you’re developing, but there is almost always a way to do it. If you’re developing an open-source tool like [Wasp](https://github.com/wasp-lang/wasp) you can simply check out other popular solutions (that are also open-source) and learn how they did it. If you’re working on a SaaS and need to figure out whether to use cookies or JWTs for the authentication, you likely have some friends who have done it before, and you can ask them. Lastly, simply Google/GPT it.
 
@@ -187,4 +160,4 @@ Just as it is the best practice to write a summary at the end of your RFC, we wi
 
 Finally, **being able to clearly express your thoughts, formulate the problem, and objectively analyze the possible solutions, with feedback from the team, is what will help you develop the right thing, which is the ultimate productivity hack**. This is how you become a 10x engineer.
 
-And don't forget: *Weeks of coding can save you hours of planning.*
+And don't forget: _Weeks of coding can save you hours of planning._

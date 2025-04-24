@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { HttpError } from 'wasp/server';
-import { defineHandler } from 'wasp/server/utils';
+import { handleRejection } from 'wasp/server/utils'
 import { findAuthWithUserBy } from 'wasp/auth/utils'
 import { createSession } from 'wasp/auth/session'
 import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
@@ -9,7 +9,7 @@ import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
 export function setupOneTimeCodeRoute(router: Router) {
   router.post(
     `/${exchangeCodeForTokenPath}`,
-    defineHandler(async (req, res) => {
+    handleRejection(async (req, res) => {
       const { code } = req.body;
 
       if (code === undefined) {

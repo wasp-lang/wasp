@@ -28,13 +28,10 @@ To self-host your Wasp app, you need to follow these general steps:
    - We'll use [Docker](https://docs.docker.com/engine/install/) to run the server app and the database, but you can run them without Docker if you prefer.
 
 3. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
+
 4. Configure the **env variables** on your server for the server app.
 
-<ImgWithCaption
-  source="/img/deploying/self-hosting.png"
-  alt="One of many possible self-hosting setups"
-  caption="One of possible self-hosting setups"
-/>
+<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One of possible self-hosting setups" />
 
 ## Deployment methods
 

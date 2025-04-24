@@ -11,7 +11,7 @@
     "@vitest/ui": "^1.2.1",
     "arctic": "^1.2.1",
     "axios": "^1.4.0",
-    "express": "~5.1.0",
+    "express": "~4.21.0",
     "jsdom": "^21.1.1",
     "lucia": "^3.0.1",
     "mitt": "3.0.0",
@@ -27,9 +27,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@tsconfig/node20": "latest",
-    "@types/express": "^5.0.0",
-    "@types/express-serve-static-core": "^5.0.0"
+    "@types/express": "^4.17.13",
+    "@types/express-serve-static-core": "^4.17.13"
   },
   "exports": {
     "./api/events": "./dist/api/events.js",

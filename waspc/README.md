@@ -399,6 +399,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 
 - Update the starter templates if necessary (i.e., if there are breaking changes or new features they should make use of):
   - Context: they are used by used by `wasp new`, you can find reference to them in `Wasp.Cli. ... .StarterTemplates`.
+  - Check and merge all PRs with the label `merge-before-release`.
   - In `StarterTemplates.hs` file, update git tag to new version of Wasp we are about to release (e.g. `wasp-v0.13.1-template`).
   - Ensure that all starter templates are working with this new version of Wasp.
     Update Wasp version in their main.wasp files, and update their code as neccessary. Finally, in their repos (for those templates that are on Github), create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`). Now, once new wasp release is out, it will immediately be able to pull the correct and working version of the starter templates, which is why all this needs to happen before we release new wasp version.

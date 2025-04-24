@@ -16,3 +16,4 @@ export type PrismaDelegate = {};
 type Context<Entities extends _Entity[]> = Expand<{
     entities: Expand<EntityMap<Entities>>;
 }>;
+//# sourceMappingURL=index.d.ts.map

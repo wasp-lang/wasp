@@ -2,6 +2,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/api/axios.d.ts"
+        ],
+        "78002ba0273e11f11df1fb9c33ef786c4732cba8835dbabc7cda39a00df27e19"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -11,7 +18,7 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "4189f4c9a84f18751d1ef626e6dd0467f16f9a41eade2f9b6371d943fd828b92"
+        "9d6652195cad93491c772567e5747b5503a1e9bca42247b3a1377fbf83803dfd"
     ],
     [
         [
@@ -368,7 +375,7 @@
             "file",
             "../out/sdk/wasp/core/auth.ts"
         ],
-        "d03f8c1c3433ae446802abcc9cf02e2e55345e1990a025d4450d8805e68fbb61"
+        "1b07a9570069f0205c4028edaeb67f7591c19885b36b1c7cbf2faef386e7e85c"
     ],
     [
         [
@@ -417,7 +424,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "287a6365816a57d5d7f5662d6455aec5745b58e69d36df1084eb6c199907fe19"
+        "015544a8e98aeb2e603d9968a5ec09bdec9cd3aaf87e0ba733eef801366092c2"
     ],
     [
         [
@@ -718,7 +725,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "0ef065c4b340bf86e3da71b919b16dd999100c48f59ee0d54489f2a77193b60f"
+        "d2e322edb5e1e8bd922b64adb0d6e4a9a3112413224b4da4b1fa7cc50cc3cebb"
     ],
     [
         [
@@ -809,7 +816,7 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+        "b90babdd0169eb18ced65b50573272e671ca0b432506fbc16050bd07e502a0cc"
     ],
     [
         [
@@ -823,7 +830,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
+        "bdbc1787b302d3efeeb4895ced9435eccb9926f32f032a493ff29b0addfc2a32"
     ],
     [
         [
@@ -928,7 +935,7 @@
             "file",
             "server/package.json"
         ],
-        "bcc70dc10dbec4f941c00f709bab7c574d13af1eb6c9bdd68d07bb8cbeb47009"
+        "95d620f46b2d4e55da471e64552297c345572c8516299614534163ed273266e0"
     ],
     [
         [
@@ -991,14 +998,14 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "19781a7c821069c559fe56905a3484f1f3c0956662c6dde5f277817a83130b85"
+        "a8ce8d2b140a59e07d767cc640b9a2b0116e2dafc3ef98ae67fa7cdab3527416"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/oneTimeCode.ts"
         ],
-        "ef7e53d7d2f666693946b490181cbe445c6e51eb205ec2148d163cdfa7c18a8c"
+        "c9bf9cb3ce635f8f53f2b176e4e9f8e39851ee1a2ba972221f3eaf1a0826fab9"
     ],
     [
         [
@@ -1054,7 +1061,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
+        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
     ],
     [
         [
@@ -1068,7 +1075,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "7221576c0402485a664777965ab14f91562f05f9c69ca394f72a8a116ae80bca"
+        "596a0b642427e926b5428cc76192dd4893e88f15b247f6e546f4d24fe29d46a5"
     ],
     [
         [
@@ -1089,7 +1096,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "bda17e429bf51d0dd03bb0f25f2e9115babc1ae61a7ac33009b532ddbd1f8fbf"
+        "cb1743c9c9c4ce903c5c600eed32bc2b225691b5c59017d640c9b87e2b42d3f8"
     ],
     [
         [
@@ -1103,14 +1110,14 @@
             "file",
             "server/src/routes/auth/logout.ts"
         ],
-        "d5cfe70ba660c3230d718763fdd6f6938a99583f465f781437b57f73e29caec3"
+        "359334c0f977e7406efda826f31a1ecf1c6b92dc72054bb41088c64d3555e916"
     ],
     [
         [
             "file",
             "server/src/routes/auth/me.ts"
         ],
-        "ca50956f0737c112b6e222568d7a7187399a38205b330fdeac8e0ac82733eada"
+        "da6eff1a2bb7855987343b030e66fc76316d38705f004aa8071213fff6029e00"
     ],
     [
         [

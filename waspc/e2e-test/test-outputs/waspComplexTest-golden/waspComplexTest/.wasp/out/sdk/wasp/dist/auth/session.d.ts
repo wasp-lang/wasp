@@ -10,3 +10,4 @@ export declare function getSessionAndUserFromBearerToken(req: ExpressRequest): P
 export declare function getSessionAndUserFromSessionId(sessionId: string): Promise<SessionAndUser | null>;
 export declare function invalidateSession(sessionId: string): Promise<void>;
 export {};
+//# sourceMappingURL=session.d.ts.map

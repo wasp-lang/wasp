@@ -29,3 +29,4 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & {
     user?: AuthUser;
 }>;
 export type { ProviderName } from 'wasp/auth/utils';
+//# sourceMappingURL=index.d.ts.map

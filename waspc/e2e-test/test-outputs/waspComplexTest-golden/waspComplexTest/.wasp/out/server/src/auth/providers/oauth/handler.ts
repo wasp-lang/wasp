@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { defineHandler, redirect } from 'wasp/server/utils'
+import { handleRejection, redirect } from 'wasp/server/utils'
 import { rethrowPossibleAuthError } from 'wasp/auth/utils'
 import {
   type UserSignupFields,
@@ -65,7 +65,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
 
   router.get(
     `/${loginPath}`,
-    defineHandler(async (req, res) => {
+    handleRejection(async (req, res) => {
       const oAuthState = generateAndStoreOAuthState({
         oAuthType,
         provider,
@@ -83,7 +83,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
 
   router.get(
     `/${callbackPath}`,
-    defineHandler(async (req, res) => {
+    handleRejection(async (req, res) => {
       try {
         const oAuthState = validateAndGetOAuthState({
           oAuthType,
@@ -91,7 +91,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
           req,
         })
         const tokens = await getProviderTokens(oAuthState)
-
+  
         const { providerProfile, providerUserId } = await getProviderInfo(tokens)
         try {
           const redirectUri = await finishOAuthFlowAndGetRedirectUri({

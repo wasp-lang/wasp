@@ -6,6 +6,7 @@ tags: [career, web-development, open-source, hacktoberfest]
 ---
 
 ## TL;DR
+
 ![How to Open-Source](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/04lotyojmwdnzt7b2s8j.png)
 In this article, we’re going to see how open-source can change your career for the better and get you out of the Skill Paradox — a point in which the skills you need to land a job are generally acquired after you get a job.
 
@@ -14,7 +15,7 @@ Besides that, we’ll check how you can start contributing to different open-sou
 ## 1. Introduction
 
 Are you a beginner developer that lacks certain skills needed to land a job? But you feel that you could only gain those skills **on** the job itself?
-If you answered “yes”, then you’re stuck in situation that I would call as the “**skill paradox**” ***—*** where you need skills to get a job, but those skills are the ones you would get if you had a job. It can generate a lot of stress and frustration when you start to realize that some skills cannot be obtained while working only on side hustles and therefore, you cannot learn only by yourself, but they’re generally required for job positions.
+If you answered “yes”, then you’re stuck in situation that I would call as the “**skill paradox**” _**—**_ where you need skills to get a job, but those skills are the ones you would get if you had a job. It can generate a lot of stress and frustration when you start to realize that some skills cannot be obtained while working only on side hustles and therefore, you cannot learn only by yourself, but they’re generally required for job positions.
 
 Collaboration and teamwork, learning how to code review (giving and receiving feedback), and getting started with bigger and existing codebases are things that cannot be taught while you work on some little projects. While, of course, you can learn those skills while getting a job in tech, sometimes those skills are necessary for you to get a job, making you stay in some kind of limbo where you need some skills to get a job, and those skills are precisely the ones you would get after the job.
 
@@ -36,13 +37,12 @@ First of all, we need to choose a project. If you’re a beginner, you’re prob
 
 If you have matches in all of these points (or at least three of them), you’re good to go!
 
-Throughout this article, I’m going to use our own repo, [Wasp Full-stack Framework](https://github.com/wasp-lang/wasp), since it gathers all the characteristics necessary for a good open-source repository. 
+Throughout this article, I’m going to use our own repo, [Wasp Full-stack Framework](https://github.com/wasp-lang/wasp), since it gathers all the characteristics necessary for a good open-source repository.
 
 So, let me show you how to find all these characteristics:
 
 - It’s actively maintained and the owners of the repo reply and care for the issues!
-    - In the case of Wasp’s repo, the last commit was 13 hours ago, so, there’s definitely signs of life here!
-
+  - In the case of Wasp’s repo, the last commit was 13 hours ago, so, there’s definitely signs of life here!
 
 ![Last commit](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/gz3g6jl8hbvw66jmtizk.png)
 
@@ -51,14 +51,13 @@ So, let me show you how to find all these characteristics:
 ![Linux repo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2cp5ptn8uwzb9qv81sey.png)
 
 - It’s good to have a documentation on how to contribute
-    - Searching for the docs, I found a file called [CONTRIBUTING.md](https://github.com/wasp-lang/wasp/blob/main/CONTRIBUTING.md) (which is a common name standard for contribution guidelines) and when we open it up:
+  - Searching for the docs, I found a file called [CONTRIBUTING.md](https://github.com/wasp-lang/wasp/blob/main/CONTRIBUTING.md) (which is a common name standard for contribution guidelines) and when we open it up:
 
 ![Contributing guidelines](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/8orfm43mllm2r5fs222o.png)
 
 We have a whole documentation on how to start with things! Awesome!
 
 - It’s good to have well characterized issues in order for you to search for something
-
 
 ![Issues](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/dk32gx185n9x9uoepobn.png)
 
@@ -70,9 +69,7 @@ Great! Now that we have already chosen where we are going to contribute, let’s
 
 When searching for issues, the labels do us a great favor by already explicitly identifying all issues that can be good for newcomers! If you’re a beginner, **good first issues** and **documentation** are excellent labels for you to search for!
 
-
 ![Good labels to search for](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/jdyigcuhobk75vsi37oi.png)
-
 
 ![Issues on the repo labeled](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yy6ek9gte26emr3bi182.png)
 
@@ -86,7 +83,6 @@ Finding another issue — it doesn’t look like anyone is working on the one be
 
 By the way, it's of absolute importance that, when you find an issue, you comment and set yourself as assignee in order to let other people know that you're going to take the task at hand!
 
-
 ![Communicating](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/h2t7qjpv9syc2hi09xai.png)
 
 In this case, GitHub is a great platform for us to discuss, but sometimes authors can be hard to find. In these cases, search for a link or a way to contact them directly (in the case of Wasp, they have a [Discord](https://discord.gg/rzdnErX) server, for example). Communicating your way through is really important to get things sorted out, and if you’re unsure of how to communicate well with people, you can read this other article [here](https://dev.to/llxd/how-to-deal-with-people-communication-5gef) and start to get the hang of it!
@@ -95,11 +91,11 @@ In this case, GitHub is a great platform for us to discuss, but sometimes author
 
 ### 3.1. Reading the guidelines and writing some code
 
-Now that we have selected a repo, an issue to work on and communicated with the authors, it’s time to check the guidelines for making Pull Requests (if you don’t know what this means, it’s basically a request to merge your modifications to the codebase, you can check some more basic git terms [here](https://rogerdudler.github.io/git-guide/) too). Sometimes, these guidelines are WAY too hard and sometimes they don’t even exist (that’s an awesome first issue actually), anyways look it up and see if you find something! 
+Now that we have selected a repo, an issue to work on and communicated with the authors, it’s time to check the guidelines for making Pull Requests (if you don’t know what this means, it’s basically a request to merge your modifications to the codebase, you can check some more basic git terms [here](https://rogerdudler.github.io/git-guide/) too). Sometimes, these guidelines are WAY too hard and sometimes they don’t even exist (that’s an awesome first issue actually), anyways look it up and see if you find something!
 
 You can check Wasp’s contributing guidelines [here](https://github.com/wasp-lang/wasp/blob/main/CONTRIBUTING.md) if you want to read it yourself! After reading it, it’s time to code the solution and get along with it.
 
-Since the intent of this article is not to actually show the solving per se, I’ll skip this part and keep talking about the process itself. 
+Since the intent of this article is not to actually show the solving per se, I’ll skip this part and keep talking about the process itself.
 
 ### 3.2 Handling Code Reviews and Feedback
 
@@ -127,7 +123,7 @@ After all that work, it’s time for us to showcase our contributions! Document 
 - How you contributed: Then, give the context of what you made, documentation, code, and problems you solved in general. Don’t forget to not focus a lot on the technical side since the person who could be reading this may not be technical.
 - How big was the impact? Talk about how this affected the ecosystem; it can be as big or as small as you like. Never neglect the impact that changing documentation can have (remember that for us, programmers, the documentation is our source of truth, and fixes there are greatly appreciated).
 
-Don’t forget to utilize the opportunity to engage with other developers and communities, make it so in order to get new connections and even greater opportunities later on! 
+Don’t forget to utilize the opportunity to engage with other developers and communities, make it so in order to get new connections and even greater opportunities later on!
 
 Now that the theory is set, let’s check a few examples on how I would showcase a few of my contributions:
 
