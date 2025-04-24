@@ -35,7 +35,7 @@ import * as UserSpec from '../userApi.js'
 import * as Fixtures from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
-  function createFullApp() {
+  function createFullUserSpec(): UserSpec.UserSpec {
     const app = new UserSpec.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
     app.auth(Fixtures.AUTH.CONFIG)
     app.client(Fixtures.CLIENT.CONFIG)
@@ -67,7 +67,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     Object.values(Fixtures.JOBS).forEach(({ NAME, CONFIG }) => {
       app.job(NAME, CONFIG)
     })
-    return app
+    return app[GET_USER_SPEC]()
   }
 
   function getDecl<T extends keyof AppSpec.DeclTypeToValue>(
@@ -90,8 +90,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
   // This serves as an integration test to ensure the complete UserSpec to AppSpec transformation
   // pipeline works correctly end-to-end, independent of the individual mapping functions tested below.
   test('should map end-to-end without mapping functions correctly', () => {
-    const app = createFullApp()
-    const userSpec = app[GET_USER_SPEC]()
+    const userSpec = createFullUserSpec()
     const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
     const declTypes = result.map((decl) => decl.declType)
@@ -601,8 +600,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
   })
 
   test('should map end-to-end using mapping functions correctly', () => {
-    const app = createFullApp()
-    const userSpec = app[GET_USER_SPEC]()
+    const userSpec = createFullUserSpec()
     const parseEntityRef = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
     const parseRouteRef = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
     const parsePageRef = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
