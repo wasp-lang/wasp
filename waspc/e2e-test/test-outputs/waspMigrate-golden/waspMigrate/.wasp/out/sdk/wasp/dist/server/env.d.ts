@@ -15,3 +15,4 @@ export declare const env: {
     WASP_WEB_CLIENT_URL: string;
     PG_BOSS_NEW_OPTIONS?: string | undefined;
 };
+//# sourceMappingURL=env.d.ts.map

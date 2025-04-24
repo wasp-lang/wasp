@@ -44,11 +44,11 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run headless:start',
-
+    command: 'wasp-app-runner --path-to-app=../ --wasp-cli-cmd=wasp-cli',
     // Wait for the backend to start
     url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 180 * 1000,
+    gracefulShutdown: { signal: 'SIGTERM', timeout: 500 },
   },
 })

@@ -6,3 +6,4 @@ type WithName<E extends Entity, Name extends EntityName> = E & {
     _entityName: Name;
 };
 export {};
+//# sourceMappingURL=taggedEntities.d.ts.map

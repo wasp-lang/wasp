@@ -26,16 +26,43 @@ export function removeLocalUserData() {
     storage.clear();
     apiEventsEmitter.emit('sessionId.clear');
 }
-api.interceptors.request.use((request) => {
+/**
+ * Axios interceptors for handling authentication
+ *
+ * (1) Request Interceptor:
+ * If a session ID exists, it is added to the request in two ways:
+ *   1. As an `Authorization` header for the server to use.
+ *   2. As a custom `_waspSessionId` property on the request config.
+ *      This custom property is *not* sent to the server but is used internally
+ *      by the Response Interceptor.
+ *
+ * (2) Response Interceptor:
+ * - Catches 401 errors from the server.
+ * - Before clearing the session ID from local storage due to a 401 error,
+ *   it compares the `_waspSessionId` stored in the *failed request's config*
+ *   with the *current* session ID in local storage.
+ * - It only clears the local session ID if the two session IDs match.
+ *
+ * This prevents a race condition like this:
+ * 1. Request A is sent with old session ID X.
+ * 2. User logs out and logs back in, obtaining new session ID Y.
+ * 3. Request A finally fails with a 401 (because ID X is invalid).
+ * Without the check, the interceptor would clear the *current* valid session ID Y.
+ * The check ensures we only clear the session if the *request that failed* used
+ * the *same session ID that's currently stored*.
+ */
+api.interceptors.request.use((config) => {
     const sessionId = getSessionId();
     if (sessionId) {
-        request.headers['Authorization'] = `Bearer ${sessionId}`;
+        config.headers['Authorization'] = `Bearer ${sessionId}`;
+        config._waspSessionId = sessionId;
     }
-    return request;
+    return config;
 });
 api.interceptors.response.use(undefined, (error) => {
-    var _a;
-    if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401) {
+    const failingSessionId = error.config._waspSessionId;
+    const currentSessionId = getSessionId();
+    if (error.response?.status === 401 && failingSessionId === currentSessionId) {
         clearSessionId();
     }
     return Promise.reject(error);
@@ -62,8 +89,7 @@ window.addEventListener('storage', (event) => {
  * error has been formatted as implemented by HttpError on the server.
  */
 export function handleApiError(error) {
-    var _a, _b;
-    if (error === null || error === void 0 ? void 0 : error.response) {
+    if (error?.response) {
         // If error came from HTTP response, we capture most informative message
         // and also add .statusCode information to it.
         // If error had JSON response, we assume it is of format { message, data } and
@@ -71,9 +97,9 @@ export function handleApiError(error) {
         // TODO: We might want to use HttpError here instead of just Error, since
         //   HttpError is also used on server to throw errors like these.
         //   That would require copying HttpError code to web-app also and using it here.
-        const responseJson = (_a = error.response) === null || _a === void 0 ? void 0 : _a.data;
+        const responseJson = error.response?.data;
         const responseStatusCode = error.response.status;
-        return new WaspHttpError(responseStatusCode, (_b = responseJson === null || responseJson === void 0 ? void 0 : responseJson.message) !== null && _b !== void 0 ? _b : error.message, responseJson);
+        return new WaspHttpError(responseStatusCode, responseJson?.message ?? error.message, responseJson);
     }
     else {
         // If any other error, we just propagate it.
@@ -81,6 +107,8 @@ export function handleApiError(error) {
     }
 }
 class WaspHttpError extends Error {
+    statusCode;
+    data;
     constructor(statusCode, message, data) {
         super(message);
         this.statusCode = statusCode;

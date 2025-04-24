@@ -5,3 +5,4 @@ type ApiEvents = {
 };
 export declare const apiEventsEmitter: Emitter<ApiEvents>;
 export {};
+//# sourceMappingURL=events.d.ts.map

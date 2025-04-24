@@ -8,12 +8,13 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
-import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), NewProjectName)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
 import Wasp.Project.Analyze (WaspFilePath (..))
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
+import Wasp.Util (camelToKebabCase)
 import qualified Wasp.Util.IO as IOUtil
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
@@ -42,7 +43,9 @@ replaceTemplatePlaceholdersInPackageJsonFile ::
 replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
   findPackageJsonFile projectDir >>= \case
     Nothing -> return ()
-    Just absPackageJsonFile -> replaceTemplatePlaceholdersInFileOnDisk appName projectName absPackageJsonFile
+    Just absPackageJsonFile -> do
+      let kebabCaseAppName = NewProjectAppName . camelToKebabCase . show $ appName
+      replaceTemplatePlaceholdersInFileOnDisk kebabCaseAppName projectName absPackageJsonFile
 
 replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
 replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do

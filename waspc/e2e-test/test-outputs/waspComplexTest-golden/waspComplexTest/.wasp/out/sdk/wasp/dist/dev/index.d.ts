@@ -9,3 +9,4 @@
  * to be relative to the `web-app` directory i.e. `../../../projectDirPath`.
  */
 export declare function resolveProjectPath(path: string): string;
+//# sourceMappingURL=index.d.ts.map

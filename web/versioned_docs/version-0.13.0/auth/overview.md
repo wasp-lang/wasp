@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-import { AuthMethodsGrid } from "@site/src/components/AuthMethodsGrid";
+import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { Required } from '@site/src/components/Tag';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 

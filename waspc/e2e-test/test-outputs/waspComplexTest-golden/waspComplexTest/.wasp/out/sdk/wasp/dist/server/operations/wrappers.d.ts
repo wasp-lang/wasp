@@ -91,3 +91,4 @@ type GenericUnauthenticatedOperationDefinition = UnauthenticatedOperationDefinit
  */
 type EntityMapFor<OperationDefinition extends GenericUnauthenticatedOperationDefinition> = _Parameters<OperationDefinition>[1]["entities"];
 export {};
+//# sourceMappingURL=wrappers.d.ts.map

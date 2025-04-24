@@ -1,19 +1,64 @@
 # Changelog
 
+## Unreleased
+
+### ⚠️ Breaking Changes
+
+Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-16-to-0-17) to address all the breaking changes. Here's a short overview:
+
+- In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
+- Wasp requires that projects have `tailwindcss@^3.2.7` dependency specified in their `devDependencies` in `package.json`. ([#2465](https://github.com/wasp-lang/wasp/pull/2465))
+- We've made some improvements to our TypeScript setup that require you to
+  update the `tsconfig.json` file. The migration guide will lead you through
+  them, but here are all the non-cosmetic ones:
+  ```diff
+   {
+     "compilerOptions": {
+       // ...
+  +    "moduleDetection": "force",
+  +    "isolatedModules": true,
+  -    "typeRoots": [ ... ]
+     },
+   }
+  ```
+- The types for DOM helpers in tests are now handled with an import in `src/vite-env.d.ts` (instead of overriding `typeRoots` in `tsconfig.json`).
+
+### 🐞 Bug fixes
+
+- Fixes an OAuth logic race condition where a valid session ID was cleared and users would be logged out. ([#2684](https://github.com/wasp-lang/wasp/pull/2684))
+
+### 🔧 Small improvements
+
+- Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
+- Modernized our TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+- Added support for jump-to-definition for Wasp symbols ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+
 ## 0.16.3
 
 ### 🎉 New Features and improvements
 
-- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
-- Increased the minimum Node version to 20.0.0 ( [#2537](https://github.com/wasp-lang/wasp/pull/2537) )
-- Invalid CLI commands now properly return non-zero exit code ( [#2522](https://github.com/wasp-lang/wasp/pull/2552) )
-- Prisma's datasource database provider string literals are now variablized ( [#2548](https://github.com/wasp-lang/wasp/pull/2548) )
-- Better validation of `package.json` ( [#2554](https://github.com/wasp-lang/wasp/pull/2554) )
-- Typescript config now accept `HttpRoute` object insteada of an array ( [#2580](https://github.com/wasp-lang/wasp/pull/2580) )
+- Prisma enums are now usable on the client ([#2565](https://github.com/wasp-lang/wasp/pull/2565))
+- Wasp now detects `wasp/server/*` imports on the client ([#2442](https://github.com/wasp-lang/wasp/pull/2442))
+- Bumped the minimum Node version to 20.0.0 ([#2537](https://github.com/wasp-lang/wasp/pull/2537))
 
-### Bug fixes
+### ⚠️ Breaking Changes
+
+- Wasp TS spec now defines HTTP routes for custom APIs with objects instead of arrays ([#2580](https://github.com/wasp-lang/wasp/pull/2580))
+
+### 🐞 Bug fixes
 
 - CRUD operations can now have their return types inferred like regular operations ([#2541](https://github.com/wasp-lang/wasp/issues/2541) by @Genyus).
+- Adds a default value for `NODE_ENV` to prevent validation errors in rare cases ([#2507](https://github.com/wasp-lang/wasp/pull/2507))
+- Invalid CLI commands now properly return non-zero exit code ([#2522](https://github.com/wasp-lang/wasp/pull/2552))
+- Custom API types have their `res` and `req` types properly defined ([#2569](https://github.com/wasp-lang/wasp/pull/2569))
+
+### 🔧 Small improvements
+
+- The root server route doesn't return "Hello World" ([#2538](https://github.com/wasp-lang/wasp/pull/2538))
+- Better surface SendGrid errors in the server logs ([##2596](https://github.com/wasp-lang/wasp/pull/2596))
+- Improved the error message when the user has a top level `.wasp` file ([#2418](https://github.com/wasp-lang/wasp/pull/2418) by @komyg)
+- Extra validation of dependencies in `package.json` ([#2554](https://github.com/wasp-lang/wasp/pull/2554))
+- Custom values for `theme-color` are now supported ([#2546](https://github.com/wasp-lang/wasp/pull/2546) by @andrsdt).
 
 ## 0.16.2
 
@@ -111,8 +156,6 @@ Read more about breaking changes in the migration guide: https://wasp.sh/docs/mi
 - Documentation improvements and fixes.
 
 Big thanks to our community members who contributed to this release! @Bojun-Feng @dabrorius @komyg @NathanaelA @vblazenka @genyus
-
-- Improved the error message when the user has a top level _.wasp_ file.
 
 ## 0.15.2
 

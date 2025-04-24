@@ -49,7 +49,7 @@ module.exports = {
           ],
         },
         'data-model/crud',
-        'data-model/backends',
+        'data-model/databases',
         'data-model/prisma-file',
       ],
     },
@@ -61,8 +61,21 @@ module.exports = {
       items: [
         'auth/overview',
         'auth/ui',
-        'auth/username-and-pass',
-        'auth/email',
+        {
+          type: 'category',
+          label: 'Username & Password',
+          collapsed: true,
+          items: [
+            'auth/username-and-pass',
+            'auth/username-and-pass/create-your-own-ui',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Email',
+          collapsed: true,
+          items: ['auth/email', 'auth/email/create-your-own-ui'],
+        },
         {
           type: 'category',
           label: 'Social Auth',
@@ -73,10 +86,17 @@ module.exports = {
             'auth/social-auth/google',
             'auth/social-auth/keycloak',
             'auth/social-auth/discord',
+            'auth/social-auth/create-your-own-ui',
           ],
         },
         'auth/entities/entities',
         'auth/auth-hooks',
+        {
+          type: 'category',
+          label: 'Advanced',
+          collapsed: true,
+          items: ['auth/advanced/custom-auth-actions'],
+        },
       ],
     },
     {
@@ -161,6 +181,7 @@ module.exports = {
       collapsed: true,
       collapsible: true,
       items: [
+        'migration-guides/migrate-from-0-16-to-0-17',
         'migration-guides/migrate-from-0-15-to-0-16',
         'migration-guides/migrate-from-0-14-to-0-15',
         'migration-guides/migrate-from-0-13-to-0-14',

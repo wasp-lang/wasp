@@ -13,5 +13,6 @@ import { join as joinPaths } from 'path'
  * to be relative to the `web-app` directory i.e. `../../../projectDirPath`.
  */
 export function resolveProjectPath(path: string): string {
-  return joinPaths('../../../', path)
+  const waspProjectDirFromWebAppDir = '../../../'
+  return joinPaths(waspProjectDirFromWebAppDir, path)
 }

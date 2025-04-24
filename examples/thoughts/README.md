@@ -1,7 +1,11 @@
-Thoughts
-==========
+# Thoughts
 
 **Thoughts** is a note-taking app organized around the concept of hashtags.
+
+## Setup
+
+Before running the application make sure that the `wasp-config` dev dependency points to the right version of `wasp`.
+You can set it to your own version of `wasp` by running `wasp ts-setup`.
 
 ## Running
 
