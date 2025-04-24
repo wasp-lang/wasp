@@ -1,6 +1,6 @@
 ### Description
 
-> Describe your PR! If it fixes specific issue, mention it with "Fixes # (issue)".
+> Describe your PR! If this PR closes an issue, use “Fixes #(issue_number)" syntax so GitHub will auto-close it when merged.
 
 ### Select what type of change this PR introduces:
 
@@ -11,10 +11,10 @@
 
 ### Update Waspc ChangeLog and version if needed
 
-If you did a **bug fix, new feature, or breaking change**, that affects waspc, make sure you satisfy the following:
+If you did a **bug fix, new feature, or breaking change**, that affects `waspc`, make sure you satisfy the following:
 
-1. [ ] I updated [ChangeLog.md](https://github.com/wasp-lang/wasp/blob/main/waspc/ChangeLog.md) with description of the change this PR introduces.
-2. [ ] I bumped waspc version in [waspc.cabal](https://github.com/wasp-lang/wasp/blob/main/waspc/waspc.cabal) to reflect changes I introduced, with regards to the version of the latest wasp release, if the bump was needed.
+1. [ ] I updated [`ChangeLog.md`](https://github.com/wasp-lang/wasp/blob/main/waspc/ChangeLog.md) with description of the change this PR introduces.
+2. [ ] I bumped `waspc` version in [`waspc.cabal`](https://github.com/wasp-lang/wasp/blob/main/waspc/waspc.cabal) to reflect changes I introduced, with regards to the version of the latest wasp release, if the bump was needed.
 
 ### Add a regression test if needed
 
@@ -29,14 +29,15 @@ This likely indicates that our current testing setup needs improvement.
 
 If you did code changes and **added a new feature**, make sure you satisfy the following:
 
-1. [ ] I updated `waspc/examples/todoApp` and its e2e tests as needed and manually checked it works correctly.
+1. [ ] I updated [`waspc/examples/todoApp`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todoApp) and its e2e tests as needed and manually checked it works correctly.
 
 If you did code changes and **updated an existing feature**, make sure you satisfy the following:
 
-1. [ ] I updated `waspc/examples/todoApp` and its e2e tests as needed and manually checked it works correctly.
-2. [ ] I updated `waspc/examples/crud-testing` as needed and manually checked it works correctly.
-3. [ ] I updated `waspc/examples/todo-typescript` as needed and manually checked it works correctly.
-4. [ ] I updated `waspc/examples/pg-vector-example` as needed and manually checked it works correctly.
+1. [ ] I updated [`waspc/examples/todoApp`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todoApp) and its e2e tests as needed and manually checked it works correctly.
+2. [ ] I updated [`waspc/examples/crud-testing`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/crud-testing) as needed and manually checked it works correctly.
+3. [ ] I updated [`waspc/examples/todo-typescript`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todo-typescript) as needed and manually checked it works correctly.
+4. [ ] I updated [`waspc/examples/pg-vector-example`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/pg-vector-example) as needed and manually checked it works correctly.
+
 
 ### Update starter apps if needed
 
