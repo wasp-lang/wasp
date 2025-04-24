@@ -313,9 +313,10 @@ function mapPasswordReset(
 }
 
 function mapDb(db: User.DbConfig): AppSpec.Db {
-  const { seeds } = db
+  const { seeds, prismaSetupFn } = db
   return {
     seeds: seeds && seeds.map(mapExtImport),
+    prismaSetupFn: prismaSetupFn && mapExtImport(prismaSetupFn),
   }
 }
 
