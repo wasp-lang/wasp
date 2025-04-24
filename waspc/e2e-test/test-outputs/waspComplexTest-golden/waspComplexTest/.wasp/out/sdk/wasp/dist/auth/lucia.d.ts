@@ -23,3 +23,4 @@ declare module "lucia" {
         };
     }
 }
+//# sourceMappingURL=lucia.d.ts.map

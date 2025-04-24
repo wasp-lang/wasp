@@ -9,15 +9,17 @@ export function useQuery(query, queryFnArgs, options) {
     if (!query.queryCacheKey) {
         throw new TypeError('queryFn needs to have queryCacheKey property defined.');
     }
-    return rqUseQuery(Object.assign({ 
+    return rqUseQuery({
         // todo: The full queryCacheKey is constructed in two places, both here and
         // inside the Query. See https://github.com/wasp-lang/wasp/issues/2017
         // FIXME: query fns don't handle the `undefined` case correctly
         // https://github.com/wasp-lang/wasp/issues/2017
-        queryKey: makeQueryCacheKey(query, queryFnArgs), 
+        queryKey: makeQueryCacheKey(query, queryFnArgs),
         // FIXME: query fns don't handle the `undefined` case correctly
         // https://github.com/wasp-lang/wasp/issues/2017
-        queryFn: () => query(queryFnArgs) }, options));
+        queryFn: () => query(queryFnArgs),
+        ...options,
+    });
 }
 // PUBLIC API
 /**
@@ -31,7 +33,7 @@ export function useAction(actionFn, actionOptions) {
     const queryClient = useQueryClient();
     let mutationFn = actionFn;
     let options = {};
-    if (actionOptions === null || actionOptions === void 0 ? void 0 : actionOptions.optimisticUpdates) {
+    if (actionOptions?.optimisticUpdates) {
         const optimisticUpdatesDefinitions = actionOptions.optimisticUpdates.map(translateToInternalDefinition);
         mutationFn = makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesDefinitions);
         options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdatesDefinitions);

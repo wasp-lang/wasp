@@ -10,3 +10,4 @@ export declare const pgBossStarted: Promise<PgBoss>;
  * This should only be called once during a server's lifetime.
  */
 export declare function startPgBoss(): Promise<void>;
+//# sourceMappingURL=pgBoss.d.ts.map

@@ -3,7 +3,7 @@ import { interpolatePath } from './linkHelpers';
 export const routes = {
     RootRoute: {
         to: "/",
-        build: (options) => interpolatePath("/", undefined, options === null || options === void 0 ? void 0 : options.search, options === null || options === void 0 ? void 0 : options.hash),
+        build: (options) => interpolatePath("/", undefined, options?.search, options?.hash),
     },
 };
 // PUBLIC API

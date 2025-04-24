@@ -4,6 +4,8 @@
  * Once submitted, you get a SubmittedJob to track it later.
  */
 export class Job {
+    jobName;
+    executorName;
     constructor(jobName, executorName) {
         this.jobName = jobName;
         this.executorName = executorName;
@@ -14,6 +16,8 @@ export class Job {
  * It can be used by callers to track things, or call executor-specific subclass functionality.
  */
 export class SubmittedJob {
+    job;
+    jobId;
     constructor(job, jobId) {
         this.job = job;
         this.jobId = jobId;

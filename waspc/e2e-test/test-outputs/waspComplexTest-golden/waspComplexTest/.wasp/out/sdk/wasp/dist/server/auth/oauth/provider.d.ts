@@ -8,3 +8,4 @@ export declare function defineProvider<OAuthClient extends OAuth2Provider | OAut
     displayName: string;
     oAuthClient: OAuthClient;
 };
+//# sourceMappingURL=provider.d.ts.map
