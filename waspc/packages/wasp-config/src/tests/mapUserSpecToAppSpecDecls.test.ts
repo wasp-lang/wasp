@@ -32,58 +32,39 @@ import {
   mapWebSocket,
 } from '../mapUserSpecToAppSpecDecls.js'
 import * as UserSpec from '../userApi.js'
-import {
-  ACTIONS,
-  ALL_ENTITIES,
-  ALL_PAGE_NAMES,
-  ALL_ROUTE_NAMES,
-  API_NAMESPACES,
-  APIS,
-  APP,
-  AUTH,
-  CLIENT,
-  CRUDS,
-  DB,
-  EMAIL_SENDER,
-  JOBS,
-  PAGES,
-  QUERIES,
-  ROUTES,
-  SERVER,
-  WEBSOCKET,
-} from './testFixtures.js'
+import * as Fixtures from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
   function createFullApp() {
-    const app = new UserSpec.App(APP.NAME, APP.CONFIG)
-    app.auth(AUTH.CONFIG)
-    app.client(CLIENT.CONFIG)
-    app.server(SERVER.CONFIG)
-    app.emailSender(EMAIL_SENDER.CONFIG)
-    app.webSocket(WEBSOCKET.CONFIG)
-    app.db(DB.CONFIG)
-    Object.values(PAGES).forEach(({ NAME, CONFIG }) => {
+    const app = new UserSpec.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
+    app.auth(Fixtures.AUTH.CONFIG)
+    app.client(Fixtures.CLIENT.CONFIG)
+    app.server(Fixtures.SERVER.CONFIG)
+    app.emailSender(Fixtures.EMAIL_SENDER.CONFIG)
+    app.webSocket(Fixtures.WEBSOCKET.CONFIG)
+    app.db(Fixtures.DB.CONFIG)
+    Object.values(Fixtures.PAGES).forEach(({ NAME, CONFIG }) => {
       app.page(NAME, CONFIG)
     })
-    Object.values(ROUTES).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.ROUTES).forEach(({ NAME, CONFIG }) => {
       app.route(NAME, CONFIG)
     })
-    Object.values(QUERIES).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.QUERIES).forEach(({ NAME, CONFIG }) => {
       app.query(NAME, CONFIG)
     })
-    Object.values(ACTIONS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.ACTIONS).forEach(({ NAME, CONFIG }) => {
       app.action(NAME, CONFIG)
     })
-    Object.values(CRUDS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.CRUDS).forEach(({ NAME, CONFIG }) => {
       app.crud(NAME, CONFIG)
     })
-    Object.values(API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
       app.apiNamespace(NAME, CONFIG)
     })
-    Object.values(APIS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.APIS).forEach(({ NAME, CONFIG }) => {
       app.api(NAME, CONFIG)
     })
-    Object.values(JOBS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.JOBS).forEach(({ NAME, CONFIG }) => {
       app.job(NAME, CONFIG)
     })
     return app
@@ -111,14 +92,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
   test('should map end-to-end without mapping functions correctly', () => {
     const app = createFullApp()
     const userSpec = getUserSpec(app)
-    const result = mapUserSpecToAppSpecDecls(userSpec, ALL_ENTITIES)
+    const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
     const declTypes = result.map((decl) => decl.declType)
     const declNames = result.map((decl) => decl.declName)
 
     // AppConfig
     expect(declTypes).toContain('App')
-    expect(declNames).toContain(APP.NAME)
+    expect(declNames).toContain(Fixtures.APP.NAME)
 
     const appDecl = getDecl(result, 'App')
     if (!appDecl) {
@@ -126,22 +107,24 @@ describe('mapUserSpecToAppSpecDecls', () => {
     }
 
     expect(appDecl).toBeDefined()
-    expect(appDecl.declValue.title).toBe(APP.CONFIG.title)
-    expect(appDecl.declValue.wasp.version).toBe(APP.CONFIG.wasp.version)
+    expect(appDecl.declValue.title).toBe(Fixtures.APP.CONFIG.title)
+    expect(appDecl.declValue.wasp.version).toBe(
+      Fixtures.APP.CONFIG.wasp.version
+    )
     expect(appDecl.declValue.head).toBeDefined()
     expect(appDecl.declValue.head).toHaveLength(1)
-    expect(appDecl.declValue.head?.[0]).toBe(APP.CONFIG.head?.[0])
+    expect(appDecl.declValue.head?.[0]).toBe(Fixtures.APP.CONFIG.head?.[0])
 
     // AuthConfig
     const auth = appDecl.declValue.auth
 
     expect(auth).toBeDefined()
     expect(auth?.userEntity).toStrictEqual({
-      name: AUTH.CONFIG.userEntity,
+      name: Fixtures.AUTH.CONFIG.userEntity,
       declType: 'Entity',
     })
     expect(auth?.externalAuthEntity).toStrictEqual({
-      name: AUTH.CONFIG.externalAuthEntity,
+      name: Fixtures.AUTH.CONFIG.externalAuthEntity,
       declType: 'Entity',
     })
 
@@ -149,119 +132,123 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(auth?.methods.discord).toBeDefined()
     expect(auth?.methods.discord?.configFn).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.discord.configFn.import,
-      path: AUTH.CONFIG.methods.discord.configFn.from,
+      name: Fixtures.AUTH.CONFIG.methods.discord.configFn.import,
+      path: Fixtures.AUTH.CONFIG.methods.discord.configFn.from,
     })
     expect(auth?.methods.discord?.userSignupFields).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.discord.userSignupFields.import,
-      path: AUTH.CONFIG.methods.discord.userSignupFields.from,
+      name: Fixtures.AUTH.CONFIG.methods.discord.userSignupFields.import,
+      path: Fixtures.AUTH.CONFIG.methods.discord.userSignupFields.from,
     })
 
     // GitHub
     expect(auth?.methods.gitHub).toBeDefined()
     expect(auth?.methods.gitHub?.configFn).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.gitHub.configFn.import,
-      path: AUTH.CONFIG.methods.gitHub.configFn.from,
+      name: Fixtures.AUTH.CONFIG.methods.gitHub.configFn.import,
+      path: Fixtures.AUTH.CONFIG.methods.gitHub.configFn.from,
     })
     expect(auth?.methods.gitHub?.userSignupFields).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.gitHub.userSignupFields.import,
-      path: AUTH.CONFIG.methods.gitHub.userSignupFields.from,
+      name: Fixtures.AUTH.CONFIG.methods.gitHub.userSignupFields.import,
+      path: Fixtures.AUTH.CONFIG.methods.gitHub.userSignupFields.from,
     })
 
     // Keycloak
     expect(auth?.methods.keycloak).toBeDefined()
     expect(auth?.methods.keycloak?.configFn).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.keycloak.configFn.import,
-      path: AUTH.CONFIG.methods.keycloak.configFn.from,
+      name: Fixtures.AUTH.CONFIG.methods.keycloak.configFn.import,
+      path: Fixtures.AUTH.CONFIG.methods.keycloak.configFn.from,
     })
     expect(auth?.methods.keycloak?.userSignupFields).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.keycloak.userSignupFields.import,
-      path: AUTH.CONFIG.methods.keycloak.userSignupFields.from,
+      name: Fixtures.AUTH.CONFIG.methods.keycloak.userSignupFields.import,
+      path: Fixtures.AUTH.CONFIG.methods.keycloak.userSignupFields.from,
     })
 
     // Google
     expect(auth?.methods.google).toBeDefined()
     expect(auth?.methods.google?.configFn).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.google.configFn.import,
-      path: AUTH.CONFIG.methods.google.configFn.from,
+      name: Fixtures.AUTH.CONFIG.methods.google.configFn.import,
+      path: Fixtures.AUTH.CONFIG.methods.google.configFn.from,
     })
     expect(auth?.methods.google?.userSignupFields).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.google.userSignupFields.import,
-      path: AUTH.CONFIG.methods.google.userSignupFields.from,
+      name: Fixtures.AUTH.CONFIG.methods.google.userSignupFields.import,
+      path: Fixtures.AUTH.CONFIG.methods.google.userSignupFields.from,
     })
 
     // Username and Password
     expect(auth?.methods.usernameAndPassword).toBeDefined()
     expect(auth?.methods.usernameAndPassword?.userSignupFields).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields.import,
-      path: AUTH.CONFIG.methods.usernameAndPassword.userSignupFields.from,
+      name: Fixtures.AUTH.CONFIG.methods.usernameAndPassword.userSignupFields
+        .import,
+      path: Fixtures.AUTH.CONFIG.methods.usernameAndPassword.userSignupFields
+        .from,
     })
 
     // Email
     expect(auth?.methods.email).toBeDefined()
     expect(auth?.methods.email?.userSignupFields).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.methods.email.userSignupFields.import,
-      path: AUTH.CONFIG.methods.email.userSignupFields.from,
+      name: Fixtures.AUTH.CONFIG.methods.email.userSignupFields.import,
+      path: Fixtures.AUTH.CONFIG.methods.email.userSignupFields.from,
     })
     expect(auth?.methods.email?.fromField).toStrictEqual({
-      name: AUTH.CONFIG.methods.email.fromField.name,
-      email: AUTH.CONFIG.methods.email.fromField.email,
+      name: Fixtures.AUTH.CONFIG.methods.email.fromField.name,
+      email: Fixtures.AUTH.CONFIG.methods.email.fromField.email,
     })
     expect(auth?.methods.email?.emailVerification).toStrictEqual({
       getEmailContentFn: {
         kind: 'named',
-        name: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
-          .import,
-        path: AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn
-          .from,
+        name: Fixtures.AUTH.CONFIG.methods.email.emailVerification
+          .getEmailContentFn.import,
+        path: Fixtures.AUTH.CONFIG.methods.email.emailVerification
+          .getEmailContentFn.from,
       },
       clientRoute: {
-        name: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+        name: Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute,
         declType: 'Route',
       },
     })
     expect(auth?.methods.email?.passwordReset).toStrictEqual({
       getEmailContentFn: {
         kind: 'named',
-        name: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn.import,
-        path: AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn.from,
+        name: Fixtures.AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+          .import,
+        path: Fixtures.AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+          .from,
       },
       clientRoute: {
-        name: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+        name: Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
         declType: 'Route',
       },
     })
 
     // Auth Hooks
     expect(auth?.onAuthFailedRedirectTo).toBe(
-      AUTH.CONFIG.onAuthFailedRedirectTo
+      Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo
     )
     expect(auth?.onAuthSucceededRedirectTo).toBe(
-      AUTH.CONFIG.onAuthSucceededRedirectTo
+      Fixtures.AUTH.CONFIG.onAuthSucceededRedirectTo
     )
     expect(auth?.onBeforeOAuthRedirect).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.onBeforeOAuthRedirect.import,
-      path: AUTH.CONFIG.onBeforeOAuthRedirect.from,
+      name: Fixtures.AUTH.CONFIG.onBeforeOAuthRedirect.import,
+      path: Fixtures.AUTH.CONFIG.onBeforeOAuthRedirect.from,
     })
     expect(auth?.onBeforeSignup).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.onBeforeSignup.import,
-      path: AUTH.CONFIG.onBeforeSignup.from,
+      name: Fixtures.AUTH.CONFIG.onBeforeSignup.import,
+      path: Fixtures.AUTH.CONFIG.onBeforeSignup.from,
     })
     expect(auth?.onAfterSignup).toStrictEqual({
       kind: 'named',
-      name: AUTH.CONFIG.onAfterSignup.import,
-      path: AUTH.CONFIG.onAfterSignup.from,
+      name: Fixtures.AUTH.CONFIG.onAfterSignup.import,
+      path: Fixtures.AUTH.CONFIG.onAfterSignup.from,
     })
 
     // ClientConfig
@@ -270,19 +257,19 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(client).toBeDefined()
     expect(client?.rootComponent).toStrictEqual({
       kind: 'named',
-      name: CLIENT.CONFIG.rootComponent.import,
-      path: CLIENT.CONFIG.rootComponent.from,
+      name: Fixtures.CLIENT.CONFIG.rootComponent.import,
+      path: Fixtures.CLIENT.CONFIG.rootComponent.from,
     })
     expect(client?.setupFn).toStrictEqual({
       kind: 'named',
-      name: CLIENT.CONFIG.setupFn.import,
-      path: CLIENT.CONFIG.setupFn.from,
+      name: Fixtures.CLIENT.CONFIG.setupFn.import,
+      path: Fixtures.CLIENT.CONFIG.setupFn.from,
     })
-    expect(client?.baseDir).toBe(CLIENT.CONFIG.baseDir)
+    expect(client?.baseDir).toBe(Fixtures.CLIENT.CONFIG.baseDir)
     expect(client?.envValidationSchema).toStrictEqual({
       kind: 'named',
-      name: CLIENT.CONFIG.envValidationSchema.import,
-      path: CLIENT.CONFIG.envValidationSchema.from,
+      name: Fixtures.CLIENT.CONFIG.envValidationSchema.import,
+      path: Fixtures.CLIENT.CONFIG.envValidationSchema.from,
     })
 
     // ServerConfig
@@ -291,30 +278,30 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(server).toBeDefined()
     expect(server?.setupFn).toStrictEqual({
       kind: 'named',
-      name: SERVER.CONFIG.setupFn.import,
-      path: SERVER.CONFIG.setupFn.from,
+      name: Fixtures.SERVER.CONFIG.setupFn.import,
+      path: Fixtures.SERVER.CONFIG.setupFn.from,
     })
     expect(server?.middlewareConfigFn).toStrictEqual({
       kind: 'named',
-      name: SERVER.CONFIG.middlewareConfigFn.import,
-      path: SERVER.CONFIG.middlewareConfigFn.from,
+      name: Fixtures.SERVER.CONFIG.middlewareConfigFn.import,
+      path: Fixtures.SERVER.CONFIG.middlewareConfigFn.from,
     })
     expect(server?.envValidationSchema).toStrictEqual({
       kind: 'named',
-      name: SERVER.CONFIG.envValidationSchema.import,
-      path: SERVER.CONFIG.envValidationSchema.from,
+      name: Fixtures.SERVER.CONFIG.envValidationSchema.import,
+      path: Fixtures.SERVER.CONFIG.envValidationSchema.from,
     })
 
     // EmailSenderConfig
     const emailSender = appDecl.declValue.emailSender
 
     expect(emailSender).toBeDefined()
-    expect(emailSender?.provider).toBe(EMAIL_SENDER.CONFIG.provider)
+    expect(emailSender?.provider).toBe(Fixtures.EMAIL_SENDER.CONFIG.provider)
     expect(emailSender?.defaultFrom?.email).toBe(
-      EMAIL_SENDER.CONFIG.defaultFrom.email
+      Fixtures.EMAIL_SENDER.CONFIG.defaultFrom.email
     )
     expect(emailSender?.defaultFrom?.name).toBe(
-      EMAIL_SENDER.CONFIG.defaultFrom.name
+      Fixtures.EMAIL_SENDER.CONFIG.defaultFrom.name
     )
 
     // WebSocketConfig
@@ -323,8 +310,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(webSocket).toBeDefined()
     expect(webSocket?.fn).toStrictEqual({
       kind: 'named',
-      name: WEBSOCKET.CONFIG.fn.import,
-      path: WEBSOCKET.CONFIG.fn.from,
+      name: Fixtures.WEBSOCKET.CONFIG.fn.import,
+      path: Fixtures.WEBSOCKET.CONFIG.fn.from,
     })
 
     // DbConfig
@@ -334,13 +321,13 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(db?.seeds).toHaveLength(1)
     expect(db?.seeds?.[0]).toStrictEqual({
       kind: 'named',
-      name: DB.CONFIG.seeds[0]?.import,
-      path: DB.CONFIG.seeds[0]?.from,
+      name: Fixtures.DB.CONFIG.seeds[0]?.import,
+      path: Fixtures.DB.CONFIG.seeds[0]?.from,
     })
 
     // PageConfig
     expect(declTypes).toContain('Page')
-    Object.values(PAGES).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.PAGES).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const loginPageDecl = getDecl(result, 'Page', NAME)
@@ -360,7 +347,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // RouteConfig
     expect(declTypes).toContain('Route')
-    Object.values(ROUTES).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.ROUTES).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const routeDecl = getDecl(result, 'Route', NAME)
@@ -377,7 +364,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // QueryConfig
     expect(declTypes).toContain('Query')
-    Object.values(QUERIES).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.QUERIES).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const queryDecl = getDecl(result, 'Query', NAME)
@@ -407,7 +394,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // ActionConfig
     expect(declTypes).toContain('Action')
-    Object.values(ACTIONS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.ACTIONS).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const actionDecl = getDecl(result, 'Action', NAME)
@@ -435,7 +422,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // CrudConfig
     expect(declTypes).toContain('Crud')
-    Object.values(CRUDS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.CRUDS).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const crudDecl = getDecl(result, 'Crud', NAME)
@@ -506,7 +493,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // ApiNamespaceConfig
     expect(declTypes).toContain('ApiNamespace')
-    Object.values(API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const apiNamespaceDecl = getDecl(result, 'ApiNamespace', NAME)
@@ -524,7 +511,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // ApiConfig
     expect(declTypes).toContain('Api')
-    Object.values(APIS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.APIS).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const apiDecl = getDecl(result, 'Api', NAME)
@@ -565,7 +552,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // JobConfig
     expect(declTypes).toContain('Job')
-    Object.values(JOBS).forEach(({ NAME, CONFIG }) => {
+    Object.values(Fixtures.JOBS).forEach(({ NAME, CONFIG }) => {
       expect(declNames).toContain(NAME)
 
       const jobDecl = getDecl(result, 'Job', NAME)
@@ -616,18 +603,18 @@ describe('mapUserSpecToAppSpecDecls', () => {
   test('should map end-to-end using mapping functions correctly', () => {
     const app = createFullApp()
     const userSpec = getUserSpec(app)
-    const parseEntityRef = makeRefParser('Entity', ALL_ENTITIES)
-    const parseRouteRef = makeRefParser('Route', ALL_ROUTE_NAMES)
-    const parsePageRef = makeRefParser('Page', ALL_PAGE_NAMES)
+    const parseEntityRef = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
+    const parseRouteRef = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
+    const parsePageRef = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
 
-    const result = mapUserSpecToAppSpecDecls(userSpec, ALL_ENTITIES)
+    const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
     const declTypes = result.map((decl) => decl.declType)
     const declNames = result.map((decl) => decl.declName)
 
     // AppConfig
     expect(declTypes).toContain('App')
-    expect(declNames).toContain(APP.NAME)
+    expect(declNames).toContain(Fixtures.APP.NAME)
 
     const appDecl = getDecl(result, 'App')
     if (!appDecl) {
@@ -651,41 +638,41 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Pages
     expect(declTypes).toContain('Page')
-    ALL_PAGE_NAMES.forEach((pageName) => {
-      expect(declNames).toContain(pageName)
+    Object.values(Fixtures.PAGES).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-      const pageDecl = getDecl(result, 'Page', pageName)
+      const pageDecl = getDecl(result, 'Page', NAME)
       if (!pageDecl) {
-        throw new Error(`Page declaration not found for ${pageName}`)
+        throw new Error(`Page declaration not found for ${NAME}`)
       }
 
-      const page = userSpec.pages.get(pageName)
+      const page = userSpec.pages.get(NAME)
       if (!page) {
-        throw new Error(`Page config not found for ${pageName}`)
+        throw new Error(`Page config not found for ${NAME}`)
       }
       expect(pageDecl.declValue).toStrictEqual(mapPage(page))
     })
 
     // Routes
     expect(declTypes).toContain('Route')
-    ALL_ROUTE_NAMES.forEach((routeName) => {
-      expect(declNames).toContain(routeName)
+    Object.values(Fixtures.ROUTES).forEach(({ NAME }) => {
+      expect(declNames).toContain(NAME)
 
-      const routeDecl = getDecl(result, 'Route', routeName)
+      const routeDecl = getDecl(result, 'Route', NAME)
       if (!routeDecl) {
-        throw new Error(`Route declaration not found for ${routeName}`)
+        throw new Error(`Route declaration not found for ${NAME}`)
       }
 
-      const route = userSpec.routes.get(routeName)
+      const route = userSpec.routes.get(NAME)
       if (!route) {
-        throw new Error(`Route config not found for ${routeName}`)
+        throw new Error(`Route config not found for ${NAME}`)
       }
       expect(routeDecl.declValue).toStrictEqual(mapRoute(route, parsePageRef))
     })
 
     // Query
     expect(declTypes).toContain('Query')
-    Object.values(QUERIES).forEach(({ NAME }) => {
+    Object.values(Fixtures.QUERIES).forEach(({ NAME }) => {
       expect(declNames).toContain(NAME)
 
       const queryDecl = getDecl(result, 'Query', NAME)
@@ -704,7 +691,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Action
     expect(declTypes).toContain('Action')
-    Object.values(ACTIONS).forEach(({ NAME }) => {
+    Object.values(Fixtures.ACTIONS).forEach(({ NAME }) => {
       expect(declNames).toContain(NAME)
 
       const actionDecl = getDecl(result, 'Action', NAME)
@@ -723,7 +710,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Crud
     expect(declTypes).toContain('Crud')
-    Object.values(CRUDS).forEach(({ NAME }) => {
+    Object.values(Fixtures.CRUDS).forEach(({ NAME }) => {
       expect(declNames).toContain(NAME)
 
       const crudDecl = getDecl(result, 'Crud', NAME)
@@ -740,7 +727,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // ApiNamespace
     expect(declTypes).toContain('ApiNamespace')
-    Object.values(API_NAMESPACES).forEach(({ NAME }) => {
+    Object.values(Fixtures.API_NAMESPACES).forEach(({ NAME }) => {
       expect(declNames).toContain(NAME)
 
       const apiNamespaceDecl = getDecl(result, 'ApiNamespace', NAME)
@@ -759,7 +746,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Api
     expect(declTypes).toContain('Api')
-    Object.values(APIS).forEach(({ NAME }) => {
+    Object.values(Fixtures.APIS).forEach(({ NAME }) => {
       expect(declNames).toContain(NAME)
 
       const apiDecl = getDecl(result, 'Api', NAME)
@@ -776,7 +763,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     // Job
     expect(declTypes).toContain('Job')
-    Object.values(JOBS).forEach(({ NAME }) => {
+    Object.values(Fixtures.JOBS).forEach(({ NAME }) => {
       expect(declNames).toContain(NAME)
 
       const jobDecl = getDecl(result, 'Job', NAME)
@@ -794,9 +781,9 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapApp', () => {
     test('should map minimal config correctly', () => {
-      const app = new UserSpec.App(APP.NAME, {
-        title: APP.CONFIG.title,
-        wasp: APP.CONFIG.wasp,
+      const app = new UserSpec.App(Fixtures.APP.NAME, {
+        title: Fixtures.APP.CONFIG.title,
+        wasp: Fixtures.APP.CONFIG.wasp,
       })
       const userSpec = getUserSpec(app)
       const parseEntityRef = makeRefParser('Entity', [])
@@ -817,9 +804,9 @@ describe('mapUserSpecToAppSpecDecls', () => {
       expect(result).toBeDefined()
       expect(result).toStrictEqual({
         wasp: {
-          version: APP.CONFIG.wasp.version,
+          version: Fixtures.APP.CONFIG.wasp.version,
         },
-        title: APP.CONFIG.title,
+        title: Fixtures.APP.CONFIG.title,
         head: undefined,
         auth: undefined,
         server: undefined,
@@ -831,22 +818,22 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const app = new UserSpec.App(APP.NAME, APP.CONFIG)
-      app.auth(AUTH.CONFIG)
-      app.server(SERVER.CONFIG)
-      app.client(CLIENT.CONFIG)
-      app.db(DB.CONFIG)
-      app.emailSender(EMAIL_SENDER.CONFIG)
-      app.webSocket(WEBSOCKET.CONFIG)
+      const app = new UserSpec.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
+      app.auth(Fixtures.AUTH.CONFIG)
+      app.server(Fixtures.SERVER.CONFIG)
+      app.client(Fixtures.CLIENT.CONFIG)
+      app.db(Fixtures.DB.CONFIG)
+      app.emailSender(Fixtures.EMAIL_SENDER.CONFIG)
+      app.webSocket(Fixtures.WEBSOCKET.CONFIG)
 
       const userSpec = getUserSpec(app)
       const parseEntityRef = makeRefParser('Entity', [
-        AUTH.CONFIG.userEntity,
-        AUTH.CONFIG.externalAuthEntity,
+        Fixtures.AUTH.CONFIG.userEntity,
+        Fixtures.AUTH.CONFIG.externalAuthEntity,
       ])
       const parseRouteRef = makeRefParser('Route', [
-        AUTH.CONFIG.methods.email.emailVerification.clientRoute,
-        AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+        Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+        Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
       ])
 
       const result = mapApp(
@@ -863,10 +850,10 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
       expect(result).toStrictEqual({
         wasp: {
-          version: APP.CONFIG.wasp.version,
+          version: Fixtures.APP.CONFIG.wasp.version,
         },
-        title: APP.CONFIG.title,
-        head: APP.CONFIG.head,
+        title: Fixtures.APP.CONFIG.title,
+        head: Fixtures.APP.CONFIG.head,
         auth:
           userSpec.auth &&
           mapAuth(userSpec.auth, parseEntityRef, parseRouteRef),
@@ -883,9 +870,9 @@ describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapAuth', () => {
     test('should map minimal config correctly', () => {
       const minimalAuth: UserSpec.AuthConfig = {
-        userEntity: AUTH.CONFIG.userEntity,
+        userEntity: Fixtures.AUTH.CONFIG.userEntity,
         methods: {},
-        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+        onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
       }
       const parseEntityRef = makeRefParser('Entity', [minimalAuth.userEntity])
       const parseRouteRef = makeRefParser('Route', [])
@@ -893,10 +880,10 @@ describe('mapUserSpecToAppSpecDecls', () => {
       const result = mapAuth(minimalAuth, parseEntityRef, parseRouteRef)
 
       expect(result).toStrictEqual({
-        userEntity: parseEntityRef(AUTH.CONFIG.userEntity),
+        userEntity: parseEntityRef(Fixtures.AUTH.CONFIG.userEntity),
         externalAuthEntity: undefined,
         methods: mapAuthMethods(minimalAuth.methods, parseRouteRef),
-        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+        onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
         onAuthSucceededRedirectTo: undefined,
         onBeforeSignup: undefined,
         onAfterSignup: undefined,
@@ -907,7 +894,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const auth = AUTH.CONFIG
+      const auth = Fixtures.AUTH.CONFIG
       const parseEntityRef = makeRefParser('Entity', [
         auth.userEntity,
         auth.externalAuthEntity,
@@ -935,9 +922,9 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     test('should throw if userEntity is not provided', () => {
       const auth: UserSpec.AuthConfig = {
-        userEntity: AUTH.CONFIG.userEntity,
+        userEntity: Fixtures.AUTH.CONFIG.userEntity,
         methods: {},
-        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+        onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
       }
       const parseEntityRef = makeRefParser('Entity', [])
       const parseRouteRef = makeRefParser('Route', [])
@@ -947,12 +934,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     test('should throw if externalAuthEntity ref is not provided when defined', () => {
       const auth: UserSpec.AuthConfig = {
-        userEntity: AUTH.CONFIG.userEntity,
-        externalAuthEntity: AUTH.CONFIG.externalAuthEntity,
+        userEntity: Fixtures.AUTH.CONFIG.userEntity,
+        externalAuthEntity: Fixtures.AUTH.CONFIG.externalAuthEntity,
         methods: {},
-        onAuthFailedRedirectTo: AUTH.CONFIG.onAuthFailedRedirectTo,
+        onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
       }
-      const parseEntityRef = makeRefParser('Entity', [AUTH.CONFIG.userEntity])
+      const parseEntityRef = makeRefParser('Entity', [
+        Fixtures.AUTH.CONFIG.userEntity,
+      ])
       const parseRouteRef = makeRefParser('Route', [])
 
       expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError()
@@ -977,7 +966,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const authMethods = AUTH.CONFIG.methods
+      const authMethods = Fixtures.AUTH.CONFIG.methods
       const parseRouteRef = makeRefParser('Route', [
         authMethods.email.emailVerification.clientRoute,
         authMethods.email.passwordReset.clientRoute,
@@ -1002,9 +991,9 @@ describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapEmailAuth', () => {
     test('should map minimal config correctly', () => {
       const minimalEmailAuth: UserSpec.EmailAuthConfig = {
-        fromField: AUTH.CONFIG.methods.email.fromField,
-        emailVerification: AUTH.CONFIG.methods.email.emailVerification,
-        passwordReset: AUTH.CONFIG.methods.email.passwordReset,
+        fromField: Fixtures.AUTH.CONFIG.methods.email.fromField,
+        emailVerification: Fixtures.AUTH.CONFIG.methods.email.emailVerification,
+        passwordReset: Fixtures.AUTH.CONFIG.methods.email.passwordReset,
       }
       const parseRouteRef = makeRefParser('Route', [
         minimalEmailAuth.emailVerification.clientRoute,
@@ -1031,7 +1020,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const emailAuth = AUTH.CONFIG.methods.email
+      const emailAuth = Fixtures.AUTH.CONFIG.methods.email
       const parseRouteRef = makeRefParser('Route', [
         emailAuth.emailVerification.clientRoute,
         emailAuth.passwordReset.clientRoute,
@@ -1055,10 +1044,11 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     test('should throw if email verification client route is not provided when defined', () => {
       const emailAuth: UserSpec.EmailAuthConfig = {
-        ...AUTH.CONFIG.methods.email,
+        ...Fixtures.AUTH.CONFIG.methods.email,
         emailVerification: {
           getEmailContentFn:
-            AUTH.CONFIG.methods.email.emailVerification.getEmailContentFn,
+            Fixtures.AUTH.CONFIG.methods.email.emailVerification
+              .getEmailContentFn,
           clientRoute: 'undefined',
         },
       }
@@ -1071,10 +1061,10 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     test('should throw if password reset client route is not provided when defined', () => {
       const emailAuth: UserSpec.EmailAuthConfig = {
-        ...AUTH.CONFIG.methods.email,
+        ...Fixtures.AUTH.CONFIG.methods.email,
         passwordReset: {
           getEmailContentFn:
-            AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn,
+            Fixtures.AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn,
           clientRoute: 'undefined',
         },
       }
@@ -1089,7 +1079,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapEmailVerification', () => {
     test('should map minimal config correctly', () => {
       const minimalEmailVerification: UserSpec.EmailVerificationConfig = {
-        clientRoute: AUTH.CONFIG.methods.email.emailVerification.clientRoute,
+        clientRoute:
+          Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute,
       }
       const parseRouteRef = makeRefParser('Route', [
         minimalEmailVerification.clientRoute,
@@ -1103,13 +1094,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
       expect(result).toStrictEqual({
         getEmailContentFn: undefined,
         clientRoute: parseRouteRef(
-          AUTH.CONFIG.methods.email.emailVerification.clientRoute
+          Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute
         ),
       } satisfies AppSpec.EmailVerificationConfig)
     })
 
     test('should map full config correctly', () => {
-      const emailVerification = AUTH.CONFIG.methods.email.emailVerification
+      const emailVerification =
+        Fixtures.AUTH.CONFIG.methods.email.emailVerification
       const parseRouteRef = makeRefParser('Route', [
         emailVerification.clientRoute,
       ])
@@ -1126,7 +1118,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapPasswordReset', () => {
     test('should map minimal config correctly', () => {
       const minimalPasswordReset: UserSpec.PasswordResetConfig = {
-        clientRoute: AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+        clientRoute:
+          Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
       }
       const parseRouteRef = makeRefParser('Route', [
         minimalPasswordReset.clientRoute,
@@ -1137,25 +1130,26 @@ describe('mapUserSpecToAppSpecDecls', () => {
       expect(result).toStrictEqual({
         getEmailContentFn: undefined,
         clientRoute: parseRouteRef(
-          AUTH.CONFIG.methods.email.passwordReset.clientRoute
+          Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute
         ),
       } satisfies AppSpec.PasswordResetConfig)
     })
 
     test('should map full config correctly', () => {
-      const passwordResetConfig = AUTH.CONFIG.methods.email.passwordReset
+      const passwordResetConfig =
+        Fixtures.AUTH.CONFIG.methods.email.passwordReset
       const parseRouteRef = makeRefParser('Route', [
-        AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+        Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
       ])
 
       const result = mapPasswordReset(passwordResetConfig, parseRouteRef)
 
       expect(result).toStrictEqual({
         getEmailContentFn: mapExtImport(
-          AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
+          Fixtures.AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
         ),
         clientRoute: parseRouteRef(
-          AUTH.CONFIG.methods.email.passwordReset.clientRoute
+          Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute
         ),
       } satisfies AppSpec.PasswordResetConfig)
     })
@@ -1173,7 +1167,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const usernameAndPassword = AUTH.CONFIG.methods.usernameAndPassword
+      const usernameAndPassword =
+        Fixtures.AUTH.CONFIG.methods.usernameAndPassword
 
       const result = mapUsernameAndPassword(usernameAndPassword)
 
@@ -1196,7 +1191,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const externalAuth = AUTH.CONFIG.methods.discord
+      const externalAuth = Fixtures.AUTH.CONFIG.methods.discord
 
       const result = mapExternalAuth(externalAuth)
 
@@ -1222,7 +1217,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const client = CLIENT.CONFIG
+      const client = Fixtures.CLIENT.CONFIG
 
       const result = mapClient(client)
 
@@ -1249,7 +1244,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const server = SERVER.CONFIG
+      const server = Fixtures.SERVER.CONFIG
 
       const result = mapServer(server)
 
@@ -1264,7 +1259,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapEmailSender', () => {
     test('should map minimal config correctly', () => {
       const minimalEmailSender: UserSpec.EmailSender = {
-        provider: EMAIL_SENDER.CONFIG.provider,
+        provider: Fixtures.EMAIL_SENDER.CONFIG.provider,
       }
 
       const result = mapEmailSender(minimalEmailSender)
@@ -1276,7 +1271,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const emailSender = EMAIL_SENDER.CONFIG
+      const emailSender = Fixtures.EMAIL_SENDER.CONFIG
 
       const result = mapEmailSender(emailSender)
 
@@ -1290,7 +1285,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapWebSocket', () => {
     test('should map minimal config correctly', () => {
       const minimalWebsocket: UserSpec.WebsocketConfig = {
-        fn: WEBSOCKET.CONFIG.fn,
+        fn: Fixtures.WEBSOCKET.CONFIG.fn,
       }
 
       const result = mapWebSocket(minimalWebsocket)
@@ -1302,7 +1297,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const websocket = WEBSOCKET.CONFIG
+      const websocket = Fixtures.WEBSOCKET.CONFIG
 
       const result = mapWebSocket(websocket)
 
@@ -1326,7 +1321,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     test('should map full config correctly', () => {
       const db: UserSpec.DbConfig = {
-        seeds: DB.CONFIG.seeds,
+        seeds: Fixtures.DB.CONFIG.seeds,
       }
 
       const result = mapDb(db)
@@ -1339,7 +1334,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapPage', () => {
     test('should map minimal config correctly', () => {
-      const minimalPage = PAGES.MINIMAL.CONFIG
+      const minimalPage = Fixtures.PAGES.MINIMAL.CONFIG
 
       const result = mapPage(minimalPage)
 
@@ -1350,7 +1345,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const page = PAGES.FULL.CONFIG
+      const page = Fixtures.PAGES.FULL.CONFIG
 
       const result = mapPage(page)
 
@@ -1363,7 +1358,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapRoute', () => {
     test('should map full config correctly', () => {
-      const route = ROUTES.FULL.CONFIG
+      const route = Fixtures.ROUTES.FULL.CONFIG
       const parsePageRef = makeRefParser('Page', [route.to])
 
       const result = mapRoute(route, parsePageRef)
@@ -1377,7 +1372,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapOperationConfig', () => {
     test('should map minimal query config correctly', () => {
-      const minimalQuery = QUERIES.MINIMAL.CONFIG
+      const minimalQuery = Fixtures.QUERIES.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       const result = mapOperationConfig(minimalQuery, parseEntityRef)
@@ -1390,7 +1385,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map query config correctly', () => {
-      const query = QUERIES.FULL.CONFIG
+      const query = Fixtures.QUERIES.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', query.entities)
 
       const result = mapOperationConfig(query, parseEntityRef)
@@ -1403,14 +1398,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided in query config', () => {
-      const query: UserSpec.QueryConfig = QUERIES.FULL.CONFIG
+      const query: UserSpec.QueryConfig = Fixtures.QUERIES.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       expect(() => mapOperationConfig(query, parseEntityRef)).toThrowError()
     })
 
     test('should map minimal action config correctly', () => {
-      const minimalAction = ACTIONS.MINIMAL.CONFIG
+      const minimalAction = Fixtures.ACTIONS.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       const result = mapOperationConfig(minimalAction, parseEntityRef)
@@ -1423,7 +1418,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map action config correctly', () => {
-      const action = ACTIONS.FULL.CONFIG
+      const action = Fixtures.ACTIONS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', action.entities)
 
       const result = mapOperationConfig(action, parseEntityRef)
@@ -1436,7 +1431,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided in action config', () => {
-      const action = ACTIONS.FULL.CONFIG
+      const action = Fixtures.ACTIONS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       expect(() => mapOperationConfig(action, parseEntityRef)).toThrowError()
@@ -1445,7 +1440,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapCrud', () => {
     test('should map minimal config correctly', () => {
-      const minimalCrud = CRUDS.MINIMAL.CONFIG
+      const minimalCrud = Fixtures.CRUDS.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [minimalCrud.entity])
 
       const result = mapCrud(minimalCrud, parseEntityRef)
@@ -1457,7 +1452,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const crud = CRUDS.FULL.CONFIG
+      const crud = Fixtures.CRUDS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [crud.entity])
 
       const result = mapCrud(crud, parseEntityRef)
@@ -1469,7 +1464,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided', () => {
-      const crud: UserSpec.Crud = CRUDS.FULL.CONFIG
+      const crud: UserSpec.Crud = Fixtures.CRUDS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       expect(() => mapCrud(crud, parseEntityRef)).toThrowError()
@@ -1478,7 +1473,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapCrudOperations', () => {
     test('should map minimal config correctly', () => {
-      const minimalCrudOperations = CRUDS.MINIMAL.CONFIG.operations
+      const minimalCrudOperations = Fixtures.CRUDS.MINIMAL.CONFIG.operations
 
       const result = mapCrudOperations(minimalCrudOperations)
 
@@ -1492,7 +1487,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const crudOperations = CRUDS.FULL.CONFIG.operations
+      const crudOperations = Fixtures.CRUDS.FULL.CONFIG.operations
 
       const result = mapCrudOperations(crudOperations)
 
@@ -1521,7 +1516,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const crudOperationOptions = CRUDS.FULL.CONFIG.operations.get
+      const crudOperationOptions = Fixtures.CRUDS.FULL.CONFIG.operations.get
 
       const result = mapCrudOperationOptions(crudOperationOptions)
 
@@ -1532,22 +1527,9 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
   })
 
-  describe('mapApiNamespace', () => {
-    test('should map full config correctly', () => {
-      const apiNamespace = API_NAMESPACES.FULL.CONFIG
-
-      const result = mapApiNamespace(apiNamespace)
-
-      expect(result).toStrictEqual({
-        middlewareConfigFn: mapExtImport(apiNamespace.middlewareConfigFn),
-        path: apiNamespace.path,
-      } satisfies AppSpec.ApiNamespace)
-    })
-  })
-
   describe('mapApiConfig', () => {
     test('should map minimal config correctly', () => {
-      const minimalApi = APIS.MINIMAL.CONFIG
+      const minimalApi = Fixtures.APIS.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       const result = mapApiConfig(minimalApi, parseEntityRef)
@@ -1562,7 +1544,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const api = APIS.FULL.CONFIG
+      const api = Fixtures.APIS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', api.entities)
 
       const result = mapApiConfig(api, parseEntityRef)
@@ -1579,7 +1561,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapHttpRoute', () => {
     test('should map full config correctly', () => {
-      const httpRoute = APIS.FULL.CONFIG.httpRoute
+      const httpRoute = Fixtures.APIS.FULL.CONFIG.httpRoute
 
       const result = mapHttpRoute(httpRoute)
 
@@ -1592,7 +1574,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapJob', () => {
     test('should map minimal config correctly', () => {
-      const minimalJob = JOBS.MINIMAL.CONFIG
+      const minimalJob = Fixtures.JOBS.MINIMAL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       const result = mapJob(minimalJob, parseEntityRef)
@@ -1606,7 +1588,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const job = JOBS.FULL.CONFIG
+      const job = Fixtures.JOBS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', job.entities)
 
       const result = mapJob(job, parseEntityRef)
@@ -1620,7 +1602,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided', () => {
-      const job = JOBS.FULL.CONFIG
+      const job = Fixtures.JOBS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       expect(() => mapJob(job, parseEntityRef)).toThrowError()
@@ -1629,27 +1611,27 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapSchedule', () => {
     test('should map full config correctly', () => {
-      const schedule = JOBS.FULL.CONFIG.schedule
+      const schedule = Fixtures.JOBS.FULL.CONFIG.schedule
 
       const result = mapSchedule(schedule)
 
       expect(result).toStrictEqual({
         cron: schedule.cron,
         args: schedule.args,
-        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
+        executorOptions: Fixtures.JOBS.FULL.CONFIG.perform.executorOptions,
       } satisfies AppSpec.Schedule)
     })
   })
 
   describe('mapPerform', () => {
     test('should map full config correctly', () => {
-      const perform = JOBS.FULL.CONFIG.perform
+      const perform = Fixtures.JOBS.FULL.CONFIG.perform
 
       const result = mapPerform(perform)
 
       expect(result).toStrictEqual({
         fn: mapExtImport(perform.fn),
-        executorOptions: JOBS.FULL.CONFIG.perform.executorOptions,
+        executorOptions: Fixtures.JOBS.FULL.CONFIG.perform.executorOptions,
       } satisfies AppSpec.Perform)
     })
   })
