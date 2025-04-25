@@ -59,6 +59,7 @@ waspComplexTest/.wasp/out/sdk/wasp/client/router/types.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/test/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 waspComplexTest/.wasp/out/sdk/wasp/core/auth.ts
+waspComplexTest/.wasp/out/sdk/wasp/core/serialization.ts
 waspComplexTest/.wasp/out/sdk/wasp/core/stitches.config.ts
 waspComplexTest/.wasp/out/sdk/wasp/core/storage.ts
 waspComplexTest/.wasp/out/sdk/wasp/dev/index.ts
@@ -274,6 +275,10 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization.d.ts.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/stitches.config.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/stitches.config.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/stitches.config.js
@@ -306,10 +311,6 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/index.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/index.js.map
-waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts
-waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts.map
-waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/serialization.js
-waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/serialization.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.js
@@ -537,7 +538,6 @@ waspComplexTest/.wasp/out/sdk/wasp/package.json
 waspComplexTest/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/HttpError.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/_types/index.ts
-waspComplexTest/.wasp/out/sdk/wasp/server/_types/serialization.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/api/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/auth/hooks.ts

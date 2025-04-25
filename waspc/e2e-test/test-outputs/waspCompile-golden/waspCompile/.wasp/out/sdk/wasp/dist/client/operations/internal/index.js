@@ -1,12 +1,12 @@
 import { api, handleApiError } from 'wasp/client/api';
 import { HttpMethod } from 'wasp/client';
-import { serialize as superjsonSerialize, deserialize as superjsonDeserialize, } from 'superjson';
+import { serialize, deserialize } from 'wasp/core/serialization';
 // PRIVATE API
 export async function callOperation(operationRoute, args) {
     try {
-        const superjsonArgs = superjsonSerialize(args);
+        const superjsonArgs = serialize(args);
         const response = await api.post(operationRoute.path, superjsonArgs);
-        return superjsonDeserialize(response.data);
+        return deserialize(response.data);
     }
     catch (error) {
         throw handleApiError(error);

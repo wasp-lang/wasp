@@ -28,6 +28,7 @@ waspJob/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspJob/.wasp/out/sdk/wasp/client/router/types.ts
 waspJob/.wasp/out/sdk/wasp/client/test/index.ts
 waspJob/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
+waspJob/.wasp/out/sdk/wasp/core/serialization.ts
 waspJob/.wasp/out/sdk/wasp/core/storage.ts
 waspJob/.wasp/out/sdk/wasp/dev/index.ts
 waspJob/.wasp/out/sdk/wasp/dist/api/events.d.ts
@@ -122,6 +123,10 @@ waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization.d.ts.map
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization.js
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization.js.map
 waspJob/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/core/storage.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/core/storage.js
@@ -150,10 +155,6 @@ waspJob/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/server/_types/index.js
 waspJob/.wasp/out/sdk/wasp/dist/server/_types/index.js.map
-waspJob/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts
-waspJob/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts.map
-waspJob/.wasp/out/sdk/wasp/dist/server/_types/serialization.js
-waspJob/.wasp/out/sdk/wasp/dist/server/_types/serialization.js.map
 waspJob/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.js
@@ -285,7 +286,6 @@ waspJob/.wasp/out/sdk/wasp/package.json
 waspJob/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspJob/.wasp/out/sdk/wasp/server/HttpError.ts
 waspJob/.wasp/out/sdk/wasp/server/_types/index.ts
-waspJob/.wasp/out/sdk/wasp/server/_types/serialization.ts
 waspJob/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspJob/.wasp/out/sdk/wasp/server/config.ts
 waspJob/.wasp/out/sdk/wasp/server/dbClient.ts
