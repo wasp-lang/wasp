@@ -9,14 +9,32 @@ const plugin: Plugin<[], Root> = () => {
         return
       }
 
-      // parse node meta
-      // source starts relative from wasp monorepo dir
-      // example:
-      // ref={source="./"}
+      // 1. Parse the `ref={...}` from the code block (node.meta).
+      // - Example: `ref={file: "wasp/waspc/examples/todoApp/src/operations.ts", lines: [7, 42], awk: "<awk_command>"}`
+      // - File path should start relative from the wasp monorepo dir.
+      // - Ok, to be able to parse this, we will probably want to be smart by actually using JSON
+      //   parser to parse the JSON object, so it stops on time and stuff (and doesn't consume
+      //   the whole node.meta).
+      // - every code block needs to have a `ref`, otherwise we throw an error, but, they can do
+      //   `ref=null` if they want to skip it.
 
-      // fetch source code
+      // 2. Fetch code block from the referenced file.
 
-      // compare source code with tree node code
+      // 3. Compare source code block with the referenced code block.
+      // - When comparing code blocks, be robust about indentation shift and trim at start and end
+      //   (whitespace, newlines). We can even minify it maybe (without changing the names
+      //   probably). I guess what we really want to do is to normalize them, and the question is
+      //   how.
+
+      // IDEAS:
+      // - Is it too ugly to have all this coderef data in the first line of code block?
+      //   If so, we can look into handling it differently: e.g. putting it into an mdx(js) comment
+      //   above the code block. This might also make parsing easier, and allows us to go multi-line
+      //   if we want. Or, a comment inside the actual code block, but at the very start, that we
+      //   process and then strip out.
+      // - To shorten the file paths, we can look into offering a couple of common replacements.
+      //   For example if most of the paths will start with "wasp/waspc/examples/", we can introduce
+      //   `"$exs" -> "wasp/waspc/examples/"` replacement.
     })
   }
 }
