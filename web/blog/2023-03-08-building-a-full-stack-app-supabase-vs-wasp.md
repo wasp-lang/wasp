@@ -8,12 +8,9 @@ tags: [Full-stack, Supabase, Wasp, WebDev]
 import Link from '@docusaurus/Link';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<br/>
+<br />
 
-<ImgWithCaption
-    alt="wasp vs. supabase"
-    source="img/building-a-full-stack-app-supabase-vs-wasp.jpg"
-/>
+<ImgWithCaption alt="wasp vs. supabase" source="img/building-a-full-stack-app-supabase-vs-wasp.jpg" />
 
 ## Intro
 
@@ -21,11 +18,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 In this blog post, I will explain how I created the [Phrase Tutor](https://phrasetutor.com/) app for learning Italian phrases using two different technologies. I will share some code snippets to show what was required to build the app with both Wasp and Supabase.
 
-<ImgWithCaption
-    alt="Phrase Tutor’s front-end"
-    source="img/building-a-full-stack-app-supabase-vs-wasp/phrase_tutor.gif"
-    caption="Phrase Tutor’s front-end"
-/>
+<ImgWithCaption alt="Phrase Tutor’s front-end" source="img/building-a-full-stack-app-supabase-vs-wasp/phrase_tutor.gif" caption="Phrase Tutor’s front-end" />
 
 As a senior full-stack developer with experience in building many side-projects, I prefer a quick development cycle. I enjoy turning ideas into POCs in just a few days or even hours.
 
@@ -37,11 +30,7 @@ We will examine how each technology can help when building a full-stack app and 
 
 Whenever I travel abroad, I enjoy imagining what it would be like to live in that place. For instance, I usually don't like taking crowded public transportation, but for some reason, it brings me joy when I do it in a foreign country. It's all about the feeling that I'm living there. One of the most important things for me to fully experience the culture is to learn the language or, at the very least, be able to not speak English all the time.
 
-<ImgWithCaption
-    alt="Pretending to be Italian"
-    source="img/building-a-full-stack-app-supabase-vs-wasp/italian.gif"
-    caption="Pretending to be Italian"
-/>
+<ImgWithCaption alt="Pretending to be Italian" source="img/building-a-full-stack-app-supabase-vs-wasp/italian.gif" caption="Pretending to be Italian" />
 
 My girlfriend and I were planning a trip to Italy, and I wanted to learn some Italian. I thought about what would be the easiest way to learn as much as possible with the least amount of effort. I decided that learning the top 100 Italian phrases would be a good start. I had a week to do it, and learning 100 phrases seemed doable if I practiced every day.
 
@@ -65,11 +54,7 @@ Now, I want to use the same method to learn Italian phrases for my trip. So, as 
 
 We will create an app that follows the method described above. The app will show you a phrase and you can tell it if you know the translation or not by selecting "I knew it" or "I didn't know it".
 
-<ImgWithCaption
-    alt="How the learning in the app should work"
-    source="img/building-a-full-stack-app-supabase-vs-wasp/phrases.png"
-    caption="How the learning in the app should work"
-/>
+<ImgWithCaption alt="How the learning in the app should work" source="img/building-a-full-stack-app-supabase-vs-wasp/phrases.png" caption="How the learning in the app should work" />
 
 The app will keep track of your answers and suggest which phrases you should learn next 🕵️
 
@@ -98,11 +83,7 @@ I showed it to my girlfriend, but she didn't like some of the phrases I used. If
 
 Supabase is a managed backend solution that provides a lot of free stuff: a PostgreSQL database and social authentication among other things.
 
-<ImgWithCaption
-    alt="Phrase Tutor built with Supabase"
-    source="img/building-a-full-stack-app-supabase-vs-wasp/supabase.png"
-    caption="Phrase Tutor built with Supabase"
-/>
+<ImgWithCaption alt="Phrase Tutor built with Supabase" source="img/building-a-full-stack-app-supabase-vs-wasp/supabase.png" caption="Phrase Tutor built with Supabase" />
 
 I set up the database tables using the Supabase UI which was pretty straightforward.
 
@@ -163,11 +144,7 @@ Naturally, I wanted to test out Wasp by rewriting one of my side projects. I dec
 
 Wasp works by having an easy-to-understand config file called `main.wasp` which coordinates your pieces of client and server functionalities. Its main purpose is to keep you productive and focused on writing interesting bits. It feels pretty much like using a web framework that covers your whole app.
 
-<ImgWithCaption
-    alt="Phrase Tutor built with Wasp"
-    source="img/building-a-full-stack-app-supabase-vs-wasp/wasp.png"
-    caption="Phrase Tutor built with Wasp"
-/>
+<ImgWithCaption alt="Phrase Tutor built with Wasp" source="img/building-a-full-stack-app-supabase-vs-wasp/wasp.png" caption="Phrase Tutor built with Wasp" />
 
 Let's begin by creating the data models. Wasp uses Prisma under the hood to communicate with your database, which makes it easy to manage your database without worrying about the details. This is just one of the many choices the framework made for me, and I appreciate the feeling of using a setup that works.
 
@@ -356,10 +333,6 @@ When I used Wasp to rebuild Phrase Tutor, it felt different because it was a ful
 
 To decide which option is best for you, I would suggest trying both and seeing how you feel. It is easy to set up both tools and see if they make sense for you.
 
-<ImgWithCaption
-    alt="Grazie for reading 🙃"
-    source="img/building-a-full-stack-app-supabase-vs-wasp/thank_you.png"
-    caption="Grazie for reading 🙃"
-/>
+<ImgWithCaption alt="Grazie for reading 🙃" source="img/building-a-full-stack-app-supabase-vs-wasp/thank_you.png" caption="Grazie for reading 🙃" />
 
 If you try out the Phrase Tutor app, please let me know what you think. You can reach me on Twitter. I'm always looking for ways to make it better.

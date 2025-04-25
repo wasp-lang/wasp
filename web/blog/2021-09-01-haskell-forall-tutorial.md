@@ -6,24 +6,29 @@ tags: [haskell, tutorial]
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
---------
+---
 
 Find out what Haskell's `forall` is all about.
 
 <!--truncate-->
 
 You might have seen `forall` being used in Haskell like this:
+
 ```haskell
 f :: forall a. [a] -> [a]
 f xs = ys ++ ys
   where ys :: [a]
         ys = reverse xs
 ```
+
 or
+
 ```hs
 liftPair :: (forall x. x -> f x) -> (a, b) -> (f a, f b)
 ```
+
 or
+
 ```hs
 data Showable = forall s. (Show s) => Showable s
 ```
@@ -54,11 +59,14 @@ In mathematical logic, we have
 In Haskell, all polymorphic type signatures are considered to be implicitly prefixed with `forall`.
 
 Therefore, if you have
+
 ```hs
 f :: a -> a
 g :: a -> (a -> b) -> b
 ```
+
 it is really the same as
+
 ```hs
 f :: forall a. a -> a
 g :: forall a b. a -> (a -> b) -> b
@@ -88,6 +96,7 @@ Since `forall` is useful only when used with extensions, let's take a look at ho
 `ScopedTypeVariables` enables lexical scoping of type variables by explicitly introducing them with `forall`.
 
 Let's take a look at the following example:
+
 ```hs
 f :: [a] -> [a]
 f xs = ys ++ ys
@@ -102,6 +111,7 @@ because it is exactly the same code -> `a` in `ys :: [a]` and `a` in `f :: [a] -
 `a` in `ys :: [a]` stands for "any type", not for "that type that is referred to with `a` in the type signature above".
 
 This is where `ScopedTypeVariables` comes in:
+
 ```hs
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -124,28 +134,33 @@ Basically, what `RankNTypes` does is enable you to use `forall` nested in type s
 This enables some cool things that you were not able to do to before, for example you can specify that your function takes a polymorphic function as an argument.
 
 Take a look at this example:
+
 ```hs
 foo :: (forall a. a -> a) -> (Char, Bool)    -- We can do this only with RankNTypes.
 
 bar :: forall a. ((a -> a) -> (Char, Bool))  -- This is usual stuff, we don't need RankNTypes for it. Actually we can even drop `forall` since it is implicit.
 ```
+
 In `foo`, `forall` is applied only to the first argument of `foo`, which is `a -> a`, and not to the rest of the `f`'s type signature. This can be done only with `RankNTypes` extension.
 `bar` on the other hand has `forall` applied to the whole signature, and we could have even ommited this `forall` since it would be there implicitly anyway.
 
 Now, what does this mean? If we now have `specificFunc :: Int -> Int` and `polymorphicFunc :: a -> a`, `foo polymorphicFunc` will compile, while `foo specificFunc` will not! On the other hand both `bar specificFunc` and `bar polymorphicFunc` will compile.
 
 This is because we specified, with `forall`, that `foo` needs a polymorphic function (function that takes value of **any** type and returns value of that same type) as the first argument, so we can't pass it a function like `specificFunc` that works only for `Int` -> such function is too specific.
-On the other hand, `bar` needs a function that takes value of **some** type and returns the value of that same type, so `specificFunc` is completely fine since it works only with `Int`, while `polymorphicFunc` is also ok although it is more general than what is needed, since compiler can easily specialize it. 
+On the other hand, `bar` needs a function that takes value of **some** type and returns the value of that same type, so `specificFunc` is completely fine since it works only with `Int`, while `polymorphicFunc` is also ok although it is more general than what is needed, since compiler can easily specialize it.
 
 Another example is `liftPair` function:
+
 ```hs
 liftPair :: (forall x. x -> f x) -> (a, b) -> (f a, f b)
 liftPair func (y, z) = (func y, func z)
 ```
+
 ```
 >> liftPair (:[]) (1, "a")
 ([1], ["a"])
 ```
+
 `liftPair` takes polymorphic function and applies it to both values in the pair.
 There would be no way to write its type signature without using `RankNTypes`.
 
@@ -156,10 +171,13 @@ There would be no way to write its type signature without using `RankNTypes`.
 This is useful because it enables us to define heterogeneous data types, which then allows us to store different types in a single data collection (which normally you can't do in Haskell, e.g. you can't have different types in a list).
 
 For example, if we have
+
 ```hs
 data Showable = forall s. (Show s) => Showable s
 ```
+
 now we can do
+
 ```hs
 someShowables :: [Showable]
 someShowables = [Showable "Hi", Showable 5, Showable (1, 2)]
@@ -178,6 +196,7 @@ What is interesting is that in this case, `forall` plays the role of an existent
 ### GADTs
 
 Alternative approach to `ExistentialQuantification` is to use the `GADTs` extension, like this:
+
 ```hs
 {-# LANGUAGE GADTs #-}
 data Showable where
@@ -185,7 +204,6 @@ data Showable where
 ```
 
 In this case `forall` is not needed, as it is implicit.
-
 
 ## `forall` and extension [TypeApplications](https://ghc.readthedocs.io/en/latest/glasgow_exts.html#visible-type-application)
 
@@ -208,9 +226,10 @@ This will require you to enable `ExplicitForAll` extension, if it is not already
 This document should give a fair idea of how `forall` is used and what can be done with it, but it doesn't go into much depth or cover all of the ways `forall` is used in Haskell.
 
 For more in-detail explanations and further investigation, here is a couple of useful resources:
+
 - Great SO question/answers: https://stackoverflow.com/questions/3071136/what-does-the-forall-keyword-in-haskell-ghc-do .
-- Docs on extensions, which in details describe how each of them works: https://ghc.readthedocs.io/en/latest/glasgow_exts.html .
-- https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/explicit_forall.html .
-- Article about `ST` monad that also explains a lot about `forall`: https://dl.acm.org/doi/10.1145/178243.178246 . 
+- Docs on extensions, which in details describe how each of them works: https://ghc.readthedocs.io/en/latest/glasgow\_exts.html .
+- https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/explicit\_forall.html .
+- Article about `ST` monad that also explains a lot about `forall`: https://dl.acm.org/doi/10.1145/178243.178246 .
 
 This blog post originated from the [notes I wrote in wasp-lang/haskell-handbook](https://github.com/wasp-lang/haskell-handbook/blob/35f14951b17f2174cbc269628bea157b6698a9e4/forall.md).

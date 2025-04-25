@@ -38,96 +38,92 @@ Follow the steps below to migrate:
 
    :::info Migrating a deployed app
 
-    If you are migrating a deployed app, you will need to define the `WASP_SERVER_URL` server env variable in your deployment environment.
+   If you are migrating a deployed app, you will need to define the `WASP_SERVER_URL` server env variable in your deployment environment.
 
-    Read more about setting env variables in production [here](./project/env-vars#defining-env-vars-in-production).
+   Read more about setting env variables in production [here](./project/env-vars#defining-env-vars-in-production).
    :::
 
 2. **Update the redirect URLs** for the OAuth providers
 
-    The redirect URL for the OAuth providers has changed. You will need to update the redirect URL for the OAuth providers in the provider's dashboard.
+   The redirect URL for the OAuth providers has changed. You will need to update the redirect URL for the OAuth providers in the provider's dashboard.
 
-    <Tabs>
-    <TabItem value="before" label="Before">
+   <Tabs>
+     <TabItem value="before" label="Before">
+       ```
+       {clientUrl}/auth/login/{provider}
+       ```
+     </TabItem>
 
-    ```
-    {clientUrl}/auth/login/{provider}
-    ```
-    </TabItem>
-    <TabItem value="after" label="After">
+     <TabItem value="after" label="After">
+       ```
+       {serverUrl}/auth/{provider}/callback
+       ```
+     </TabItem>
+   </Tabs>
 
-    ```
-    {serverUrl}/auth/{provider}/callback
-    ```
-    </TabItem>
-    </Tabs>
-
-    Check the new redirect URLs for [Google](./auth/social-auth/google.md#3-creating-a-google-oauth-app) and [GitHub](./auth/social-auth/github.md#3-creating-a-github-oauth-app) in Wasp's docs.
+   Check the new redirect URLs for [Google](./auth/social-auth/google.md#3-creating-a-google-oauth-app) and [GitHub](./auth/social-auth/github.md#3-creating-a-github-oauth-app) in Wasp's docs.
 
 3. **Update the `configFn`** for the OAuth providers
 
-    If you didn't use the `configFn` option, you can skip this step.
+   If you didn't use the `configFn` option, you can skip this step.
 
-    If you used the `configFn` to configure the `scope` for the OAuth providers, you will need to rename the `scope` property to `scopes`.
+   If you used the `configFn` to configure the `scope` for the OAuth providers, you will need to rename the `scope` property to `scopes`.
 
-    Also, the object returned from `configFn` no longer needs to include the Client ID and the Client Secret. You can remove them from the object that `configFn` returns.
+   Also, the object returned from `configFn` no longer needs to include the Client ID and the Client Secret. You can remove them from the object that `configFn` returns.
 
-    <Tabs>
-    <TabItem value="before" label="Before">
-    
-    ```ts title="google.ts"
-    export function getConfig() {
-        return {
-            clientID: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            scope: ['profile', 'email'],
-        }
-    }
-    ```
-    </TabItem>
+   <Tabs>
+     <TabItem value="before" label="Before">
+       ```ts title="google.ts"
+       export function getConfig() {
+           return {
+               clientID: process.env.GOOGLE_CLIENT_ID,
+               clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+               scope: ['profile', 'email'],
+           }
+       }
+       ```
+     </TabItem>
 
-    <TabItem value="after" label="After">
-
-    ```ts title="google.ts"
-    export function getConfig() {
-        return {
-            scopes: ['profile', 'email'],
-        }
-    }
-    ```
-    </TabItem>
-    </Tabs>
+     <TabItem value="after" label="After">
+       ```ts title="google.ts"
+       export function getConfig() {
+           return {
+               scopes: ['profile', 'email'],
+           }
+       }
+       ```
+     </TabItem>
+   </Tabs>
 
 4. **Update the `userSignupFields` fields** to use the new `profile` format
 
-    If you didn't use the `userSignupFields` option, you can skip this step.
+   If you didn't use the `userSignupFields` option, you can skip this step.
 
-    The data format for the `profile` that you receive from the OAuth providers has changed. You will need to update your code to reflect this change.
+   The data format for the `profile` that you receive from the OAuth providers has changed. You will need to update your code to reflect this change.
 
-    <Tabs>
-    <TabItem value="before" label="Before">
-    
-    ```ts title="google.ts"
-    import { defineUserSignupFields } from 'wasp/server/auth'
+   <Tabs>
+     <TabItem value="before" label="Before">
+       ```ts title="google.ts"
+       import { defineUserSignupFields } from 'wasp/server/auth'
 
-    export const userSignupFields = defineUserSignupFields({
-        displayName: (data: any) => data.profile.displayName,
-    })
-    ```
-    </TabItem>
-    <TabItem value="after" label="After">
+       export const userSignupFields = defineUserSignupFields({
+           displayName: (data: any) => data.profile.displayName,
+       })
+       ```
+     </TabItem>
 
-    ```ts title="google.ts"
-    import { defineUserSignupFields } from 'wasp/server/auth'
+     <TabItem value="after" label="After">
+       ```ts title="google.ts"
+       import { defineUserSignupFields } from 'wasp/server/auth'
 
-    export const userSignupFields = defineUserSignupFields({
-        displayName: (data: any) => data.profile.name,
-    })
-    ```
-    </TabItem>
-    </Tabs>
+       export const userSignupFields = defineUserSignupFields({
+           displayName: (data: any) => data.profile.name,
+       })
+       ```
+     </TabItem>
+   </Tabs>
 
-    Wasp now directly forwards what it receives from the OAuth providers. You can check the data format for [Google](./auth/social-auth/google.md#data-received-from-google) and [GitHub](./auth/social-auth/github.md#data-received-from-github) in Wasp's docs.
+   Wasp now directly forwards what it receives from the OAuth providers. You can check the data format for [Google](./auth/social-auth/google.md#data-received-from-google) and [GitHub](./auth/social-auth/github.md#data-received-from-github) in Wasp's docs.
 
 That's it!
 
