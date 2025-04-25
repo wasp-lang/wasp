@@ -143,7 +143,7 @@ makePageDocPrompt =
         Here's an example of its React implementation (you can use Tailwind CSS for styling):
 
         ```jsx
-        import React, { useState } from 'react';
+        import { useState } from 'react';
         import {
           useQuery,   // A thin wrapper around react-query's useQuery
           useAction,  // A thin wrapper around react-query's useMutation
@@ -219,7 +219,6 @@ makePageDocPrompt =
         And here's the corresponding React implementation:
 
         ```jsx
-        import React from 'react';
         import { Link } from 'wasp/client/router';
         import { useQuery, useAction, getUsers, deleteUser } from 'wasp/client/operations';
 

@@ -141,8 +141,8 @@ npmDepsForWasp _spec =
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", show typescriptVersion),
-            ("@types/react", "^18.0.37"),
-            ("@types/react-dom", "^18.0.11"),
+            ("@types/react", "^19.1.2"),
+            ("@types/react-dom", "^19.1.2"),
             ("@vitejs/plugin-react", "^4.2.1"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions

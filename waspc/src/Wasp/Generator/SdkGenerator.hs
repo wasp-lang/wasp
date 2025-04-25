@@ -65,7 +65,7 @@ import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
     reactQueryVersion,
     reactRouterVersion,
-    reactVersion,
+    reactVersion, reactTypesVersion,
   )
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
@@ -230,7 +230,8 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
             ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion)
+            ("@types/express-serve-static-core", show expressTypesVersion),
+            ("@types/react", show reactTypesVersion)
           ]
     }
 
