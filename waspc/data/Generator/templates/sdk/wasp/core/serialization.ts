@@ -1,3 +1,31 @@
+import { Prisma } from '@prisma/client'
+import type { Decimal as DecimalType } from "@prisma/client/runtime/library"
+import SuperJSON from 'superjson'
+
+// We add support for the Decima Prisma type
+// as listed here https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types
+
+// We can't import `Decimal` from `@prisma/client/runtime/library`
+// directly because it imports some server-only stuff.
+// But the instance in `Prisma` might not be there if the schema doesn't
+// have a Decimal property somewhere.
+// We do this trick merging the type from one place and the maybe
+// existing instance from another.
+const Decimal = (Prisma as { Decimal?: typeof DecimalType }).Decimal;
+type Decimal = DecimalType;
+
+if (Decimal) {
+  // Based on https://github.com/flightcontrolhq/superjson#decimaljs--prismadecimal
+  SuperJSON.registerCustom<Decimal, string>(
+    {
+      isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
+      serialize: (v) => v.toJSON(),
+      deserialize: (v) => new Decimal(v),
+    },
+    "prisma.decimal"
+  );
+}
+
 export type Payload = void | SuperJSONValue
 
 // The part below was copied from SuperJSON and slightly modified:
@@ -28,6 +56,7 @@ type SerializableJSONValue =
   | bigint
   | Date
   | RegExp
+  | Decimal
 
 // Here's where we excluded `ClassInstance` (which was `any`) from the union.
 type SuperJSONValue =
@@ -41,3 +70,7 @@ interface SuperJSONArray extends Array<SuperJSONValue> {}
 interface SuperJSONObject {
   [key: string]: SuperJSONValue
 }
+
+
+export const serialize = SuperJSON.serialize.bind(SuperJSON)
+export const deserialize = SuperJSON.deserialize.bind(SuperJSON)

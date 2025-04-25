@@ -99,6 +99,7 @@ genSdk spec =
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/axios.d.ts|],
       genFileCopy [relfile|api/events.ts|],
+      genFileCopy [relfile|core/serialization.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
@@ -141,7 +142,6 @@ genEntitiesAndServerTypesDirs spec =
   return
     [ entitiesIndexFileDraft,
       taggedEntitiesFileDraft,
-      serializationFileDraft,
       typesIndexFileDraft
     ]
   where
@@ -162,9 +162,6 @@ genEntitiesAndServerTypesDirs spec =
         [relfile|server/_types/taggedEntities.ts|]
         [relfile|server/_types/taggedEntities.ts|]
         (Just $ object ["entities" .= allEntities])
-    serializationFileDraft =
-      C.mkTmplFd
-        [relfile|server/_types/serialization.ts|]
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|server/_types/index.ts|]
