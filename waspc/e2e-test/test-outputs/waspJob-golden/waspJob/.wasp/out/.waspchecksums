@@ -207,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "094299f59ed45a4f674d17a5e9c6b9ddb387f0497b596728d6d748069cf4d97c"
+        "49d3f525e4b1d97230111f0837baa6aef57ae3df4aa7a1a2e1b09ff639110f29"
     ],
     [
         [
@@ -697,7 +697,7 @@
             "file",
             "web-app/package.json"
         ],
-        "b3031378d935d26f660108a5445d6679c34fccd124dbc6d900a20cb67ee88bc7"
+        "befa59ce3480a656dccc06471ddcc6f41577e9ebca0362dbd4ecd98eb4db5a6d"
     ],
     [
         [
@@ -760,7 +760,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "61265d54c480ce94df81fdd0c65fa2e3c154e7d9fb9621c87a2d81e32ecd2adf"
+        "4afa61ed65d32fdfa05929240d1e7790622a0f53d8ee840a1e092914b2f5190a"
     ],
     [
         [
@@ -774,7 +774,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "72f880dba47672ec9fb112a8b88cc8d831458cccddcc891b853a6dc9809a5752"
+        "47221bf2992727182dde797af81a38ccc355e08322205b4cc44063a39e4ee35b"
     ],
     [
         [
