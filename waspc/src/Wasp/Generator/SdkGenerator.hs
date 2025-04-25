@@ -65,7 +65,8 @@ import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
     reactQueryVersion,
     reactRouterVersion,
-    reactVersion, reactTypesVersion,
+    reactTypesVersion,
+    reactVersion,
   )
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
