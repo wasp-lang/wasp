@@ -4,6 +4,7 @@ authors: [vinny]
 image: /img/websockets-app/websockets-banner.png
 tags: [wasp, websockets, react, typescript, real-time, node, express]
 ---
+
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
@@ -11,19 +12,15 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 ## TL;DR
 
 WebSockets allow your app to have “real time” features, where updates are instant because they’re passed on an open, two-way channel. This is a different from CRUD apps, which usually use HTTP requests that must establish a connection, send a request, receive a response, and then close the connection.
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled.png"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled.png" width="550px" />
 
 To use WebSockets in your React app, you’ll need a dedicated server, such as an ExpressJS app with NodeJS, in order to maintain a persistent connection.
 
-Unfortunately, serverless solutions (e.g. NextJS, AWS lambda) don’t natively support WebSockets. Bummer. 😞 
+Unfortunately, serverless solutions (e.g. NextJS, AWS lambda) don’t natively support WebSockets. Bummer. 😞
 
 Why not? Well, serverless services turn on and off depending on if a request is coming in. With WebSockets, we need this “always on” connection that only a dedicated server can provide (although you can pay for third-party services as a workaround).
 
@@ -35,24 +32,25 @@ Luckily, we’re going to talk about two great ways you can implement them:
 These methods allow you to build fun stuff, like this instantly updating “voting with friends” app we built here:
 
 <!-- [https://www.youtube.com/watch?v=Twy-2P0Co6M](https://www.youtube.com/watch?v=Twy-2P0Co6M) -->
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Twy-2P0Co6M" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-You can try out the [live demo app here](https://websockets-voting-client.fly.dev/).  
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Twy-2P0Co6M" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
+
+You can try out the [live demo app here](https://websockets-voting-client.fly.dev/).
 And if you just want the app code, it's [available here on GitHub](https://github.com/vincanger/websockets-wasp).
 
 ## Why WebSockets?
 
-So, imagine you're at a party sending text messages to a friend to tell them what food to bring. 
+So, imagine you're at a party sending text messages to a friend to tell them what food to bring.
 
-Now, wouldn’t it be easier if you called your friend on the phone so you could talk constantly,  instead of sending sporadic messages? That's pretty much what WebSockets are in the world of web applications. 
+Now, wouldn’t it be easier if you called your friend on the phone so you could talk constantly,  instead of sending sporadic messages? That's pretty much what WebSockets are in the world of web applications.
 
-For example, traditional HTTP requests (e.g. CRUD/RESTful) are like those text messages — your app has to **ask the server** every time it wants new information, just like you had to send a text message to your friend every time you thought of food for your party. 
+For example, traditional HTTP requests (e.g. CRUD/RESTful) are like those text messages — your app has to **ask the server** every time it wants new information, just like you had to send a text message to your friend every time you thought of food for your party.
 
-But with WebSockets, once a connection is established, it **remains open** for constant, two-way communication, so the server can send new information to your app the instant it becomes available, even if the client didn’t ask for it. 
+But with WebSockets, once a connection is established, it **remains open** for constant, two-way communication, so the server can send new information to your app the instant it becomes available, even if the client didn’t ask for it.
 
 This is perfect for real-time applications like chat apps, game servers, or when you're keeping track of stock prices. For example, apps like Google Docs, Slack, WhatsApp, Uber, Zoom, and Robinhood all use WebSockets to power their real-time communication features.
 
-![https://media3.giphy.com/media/26u4hHj87jMePiO3u/giphy.gif?cid=7941fdc6hxgjnub1rcs80udcj652956fwmm4qhxsmk6ldxg7&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media3.giphy.com/media/26u4hHj87jMePiO3u/giphy.gif?cid=7941fdc6hxgjnub1rcs80udcj652956fwmm4qhxsmk6ldxg7&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media3.giphy.com/media/26u4hHj87jMePiO3u/giphy.gif?cid=7941fdc6hxgjnub1rcs80udcj652956fwmm4qhxsmk6ldxg7\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media3.giphy.com/media/26u4hHj87jMePiO3u/giphy.gif?cid=7941fdc6hxgjnub1rcs80udcj652956fwmm4qhxsmk6ldxg7\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 So remember, when your app and server have a lot to talk about, go for WebSockets and let the conversation flow freely!
 
@@ -63,13 +61,9 @@ If you want real-time capabilities in your app, you don’t always need WebSocke
 1. long-polling, e.g. running `setInterval` to periodically hit the server and check for updates.
 2. one-way “server-sent events”, e.g. keeping a unidirectional server-to-client connection open to receive new updates from the server only.
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 1.png"
-  width="550px"
-  caption="1. HTTP handshake, 2. two-way instant communication, 3. close connection"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 1.png" width="550px" caption="1. HTTP handshake, 2. two-way instant communication, 3. close connection" />
 
-WebSockets, on the other hand, provide a two-way (aka “full-duplex”) communication channel between the client and server. 
+WebSockets, on the other hand, provide a two-way (aka “full-duplex”) communication channel between the client and server.
 
 Once established via an HTTP “handshake”, the server and client can freely exchange information instantly before the connection is finally closed by either side.
 
@@ -86,10 +80,11 @@ In the sections below, we will show you two ways to implement WebSockets into a 
 
 But first, here’s a “heads up” for you: despite being a great solution for certain use-cases, serverless solutions are **not** the right tool for this job.
 
-That means, popular frameworks and infrastructure, like NextJS and AWS Lambda, do not support WebSockets integration out-of-the-box. 
+That means, popular frameworks and infrastructure, like NextJS and AWS Lambda, do not support WebSockets integration out-of-the-box.
 
 <!-- [https://www.youtube.com/watch?v=e5Cye4pIFeA](https://www.youtube.com/watch?v=e5Cye4pIFeA) -->
-<iframe width="560" height="315" src="https://www.youtube.com/embed/e5Cye4pIFeA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/e5Cye4pIFeA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
 Instead of running on a dedicated, traditional server, such solutions utilize serverless functions (also known as lambda functions), which are designed to execute and complete a task as soon as a request comes in. It’s as if they “turn on” when the request comes in, and then “turn off” once it’s completed.
 
@@ -101,10 +96,7 @@ That’s why you need a “serverful” architecture if you want to build real-t
 - **Limited Customization:** you’re using a pre-built solution, so you have less control
 - **Debugging:** fixing errors gets more difficult, as your app is not running locally
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 2.png"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 2.png" width="550px" />
 
 ### Using ExpressJS with Socket.IO  — Complex/Customizable Method
 
@@ -141,7 +133,7 @@ We also need to install the types for working with typescript:
 npm i --save-dev @types/cors
 ```
 
-Now run the server, using the `npm start` command in your terminal. 
+Now run the server, using the `npm start` command in your terminal.
 
 You should see `listening on *:8000` printed to the console!
 
@@ -166,7 +158,7 @@ server.listen(8000, () => {
 
 There’s not much going on here, so let’s install the [Socket.IO](http://Socket.IO) package and start adding WebSockets to our server!
 
-First, let’s kill the server with `ctrl + c` and then run: 
+First, let’s kill the server with `ctrl + c` and then run:
 
 ```bash
 npm install socket.io
@@ -305,10 +297,7 @@ cd ../ws-client && npm install
 
 Next, start the development server with `npm run dev` and you should see the hardcoded starter app in your browser:
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 3.png"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 3.png" width="550px" />
 
 You may have noticed that poll does not match the `PollState` from our server. We need to install the [Socket.IO](http://Socket.IO) client and set it all up in order start our real-time communication and get the correct poll from the server.
 
@@ -350,7 +339,7 @@ export function useSocket({endpoint, token } : { endpoint: string, token: string
     auth: {
       token: token
     }
-  }) 
+  })
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -393,15 +382,15 @@ import type { PollState } from './useSocket';
 const App = () => {
 	// set the PollState after receiving it from the server
   const [poll, setPoll] = useState<PollState | null>(null);
-	 
+
 	// since we're not implementing Auth, let's fake it by
 	// creating some random user names when the App mounts
   const randomUser = useMemo(() => {
     const randomName = Math.random().toString(36).substring(7);
     return `User-${randomName}`;
   }, []);
-	
-	// 🔌⚡️ get the connected socket client from our useSocket hook! 
+
+	// 🔌⚡️ get the connected socket client from our useSocket hook!
   const { socket, isConnected } = useSocket({ endpoint: `http://localhost:8000`, token: randomUser });
 
   const totalVotes = useMemo(() => {
@@ -410,7 +399,7 @@ const App = () => {
 
 	// every time we receive an 'updateState' event from the server
 	// e.g. when a user makes a new vote, we set the React's state
-	// with the results of the new PollState 
+	// with the results of the new PollState
   socket.on('updateState', (newState: PollState) => {
     setPoll(newState);
   });
@@ -485,16 +474,13 @@ If we did that correctly, we should be seeing our finished, working, REAL TIME a
 
 It looks and works great if you open it up in two or three browser tabs. Check it out:
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled.gif"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled.gif" width="550px" />
 
 Nice!
 
 So we’ve got the core functionality here, but as this is just a demo, there are a couple very important pieces missing that make this app unusable in production.
 
-Mainly, we’re creating a random fake user each time the app mounts. You can check this by refreshing the page and voting again. You’ll see the votes just add up, as we’re creating a new random user each time. We don’t want that! 
+Mainly, we’re creating a random fake user each time the app mounts. You can check this by refreshing the page and voting again. You’ll see the votes just add up, as we’re creating a new random user each time. We don’t want that!
 
 We should instead be authenticating and persisting a session for a user that’s registered in our database. But another problem: we don’t even have a database at all in this app!
 
@@ -502,17 +488,17 @@ You can start to see the how the complexity add ups for even just a simple votin
 
 Luckily, our next solution, Wasp, has integrated Authentication and Database Management. Not to mention, it also takes care of a lot of the WebSockets configuration for us.
 
-So let’s go ahead and give that a go! 
+So let’s go ahead and give that a go!
 
 ### Implementing WebSockets with Wasp — Easier/Less Config Method
 
-Because Wasp is an innovative full-stack framework, it makes building React-NodeJS apps quick and developer-friendly. 
+Because Wasp is an innovative full-stack framework, it makes building React-NodeJS apps quick and developer-friendly.
 
 Wasp has lots of time-saving features, including WebSocket support via [Socket.IO](http://socket.io/), Authentication, Database Management, and Full-stack type-safety out-of-the box.
 
 Wasp can take care of all this heavy lifting for you because of its use of a config file, which you can think of like a set of instructions that the Wasp compiler uses to help glue your app together.
 
-To see it in action, let's implement WebSocket communication using Wasp by following these steps 
+To see it in action, let's implement WebSocket communication using Wasp by following these steps
 
 :::tip
 If you just want to see finished app’s code, you can check out the [GitHub repo here](https://github.com/vincanger/websockets-wasp)
@@ -521,7 +507,7 @@ If you just want to see finished app’s code, you can check out the [GitHub rep
 1. Install Wasp globally by running the following command in your terminal:
 
 ```bash
-curl -sSL https://get.wasp.sh/installer.sh | sh 
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 If you want to code along, first clone the `start` branch of the example app:
@@ -571,7 +557,7 @@ Let’s tell it we want WebSockets, as well. Add the `webSocket` definition to t
 
 ```jsx
 app whereDoWeEat {
-	// ... 
+	// ...
   webSocket: {
     fn: import { webSocketFn } from "@src/server/ws-server",
   },
@@ -668,7 +654,7 @@ export const webSocketFn: WebSocketDefinition<ClientToServerEvents, ServerToClie
 };
 ```
 
-You may have noticed that there’s a lot less configuration and boilerplate needed here in the Wasp implementation. That’s because the: 
+You may have noticed that there’s a lot less configuration and boilerplate needed here in the Wasp implementation. That’s because the:
 
 - endpoints,
 - authentication,
@@ -676,12 +662,9 @@ You may have noticed that there’s a lot less configuration and boilerplate nee
 
 are all being handled for you by Wasp. Noice!
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 4.png"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 4.png" width="550px" />
 
-Let’s go ahead now and run the app to see what we have at this point. 
+Let’s go ahead now and run the app to see what we have at this point.
 
 First, we need to initialize the database so that our Auth works correctly. This is something we didn’t do in the previous example due to high complexity, but is easy to do with Wasp:
 
@@ -697,14 +680,11 @@ wasp start
 
 You should see a login screen this time. Go ahead and first register a user, then login:
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 5.png"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 5.png" width="550px" />
 
 Once logged in, you’ll see the same hardcoded poll data as in the previous example, because, again, we haven’t set up the [Socket.IO](http://Socket.IO) client on the frontend. But this time it should be much easier.
 
-Why? Well, besides less configuration, another nice benefit of working with [TypeScript with Wasp](/docs/advanced/web-sockets), is that you just have to define payload types with matching event names on the server, and those types will get exposed automatically on the client! 
+Why? Well, besides less configuration, another nice benefit of working with [TypeScript with Wasp](/docs/advanced/web-sockets), is that you just have to define payload types with matching event names on the server, and those types will get exposed automatically on the client!
 
 Let’s take a look at how that works now.
 
@@ -801,21 +781,15 @@ export default MainPage;
 
 In comparison to the previous implementation, Wasp saved us from having to configure the [Socket.IO](http://Socket.IO) client, as well as building our own hooks.
 
-Also, hover over the variables in your client-side code, and you’ll see that the types are being automatically inferred for you! 
+Also, hover over the variables in your client-side code, and you’ll see that the types are being automatically inferred for you!
 
 Here’s just one example, but it should work for them all:
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 6.png"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 6.png" width="550px" />
 
 Now if you open up a new private/incognito tab, register a new user, and login, you’ll see a fully working, real-time voting app. The best part is, in comparison to the previous approach, we can log out and back in, and our voting data persists, which is exactly what we’d expect from a production grade app. 🎩
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 1.gif"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 1.gif" width="550px" />
 
 Awesome… 😏
 
@@ -848,7 +822,7 @@ Disadvantages:
 
 Advantages:
 
-1. Fully-Integrated**/Less code**: Wasp provides useful abstractions such as `useSocket` and `useSocketListener` hooks for use in React components (on top of other features like Auth, Async Jobs, Email-sending, DB management, and Deployment), simplifying the client-side code, and allowing for full integration with less configuration.
+1. Fully-Integrated\*\*/Less code\*\*: Wasp provides useful abstractions such as `useSocket` and `useSocketListener` hooks for use in React components (on top of other features like Auth, Async Jobs, Email-sending, DB management, and Deployment), simplifying the client-side code, and allowing for full integration with less configuration.
 2. **Type Safety**: Wasp facilitates full-stack type safety for WebSocket events and payloads. This reduces the likelihood of runtime errors due to mismatched data types and saves you from writing even more boilerplate.
 
 Disadvantages:
@@ -864,7 +838,4 @@ Don’t forget, if you want to check out the full finished code from our “Lunc
 
 And if you know of a better, cooler, sleeker way of implementing WebSockets into your apps, let us know in the comments below
 
-<ImgWithCaption
-  source="img/websockets-app/Untitled 7.png"
-  width="550px"
-/>
+<ImgWithCaption source="img/websockets-app/Untitled 7.png" width="550px" />

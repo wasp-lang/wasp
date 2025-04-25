@@ -1,5 +1,7 @@
-const visit = require('unist-util-visit')
-const docsVersions = require('../../versions.json')
+import type { Root } from 'mdast'
+import type { Plugin } from 'unified'
+import { visit } from 'unist-util-visit'
+import docsVersions from '../../versions.json'
 
 const latestWaspVersion = docsVersions[0]
 
@@ -10,16 +12,16 @@ const replacements = [
   },
 ]
 
-function searchAndReplace(tree) {
+const plugin: Plugin<[], Root> = () => (tree) => {
   visit(tree, (node) => {
     // NOTE: For now we only replace in code blocks to keep
     // the search and replace logic simple.
     if (node.type === 'code') {
-      replacements.forEach(({ search, replace }) => {
+      for (const { search, replace } of replacements) {
         node.value = node.value.replace(search, replace)
-      })
+      }
     }
   })
 }
 
-module.exports = () => searchAndReplace
+export default plugin
