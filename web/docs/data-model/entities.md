@@ -17,7 +17,7 @@ In your project, you'll find a `schema.prisma` file in the root directory:
 ├── schema.prisma
 ├── src
 ├── tsconfig.json
-└── vite.config.ts
+└── vite.config.mts
 ```
 
 Prisma uses the _Prisma Schema Language_, a simple definition language explicitly created for defining models.

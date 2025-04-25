@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
   },
   "include": [
-    "vite.config.ts",
+    "vite.config.mts",
     "vite/detectServerImports.ts",
     "vite/validateEnv.ts",
   ]

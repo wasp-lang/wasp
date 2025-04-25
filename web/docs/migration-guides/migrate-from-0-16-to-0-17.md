@@ -167,7 +167,25 @@ update your `src/vite-env.d.ts` file:
 import '@testing-library/jest-dom'
 ```
 
-### 4. Enjoy your updated Wasp app
+### 4. Convert your Vite config file to an ES module
+
+Rename the Vite config file in your project:
+
+- If you have a file named `vite.config.ts`, rename it to `vite.config.mts`.
+- If you have a file named `vite.config.js`, rename it to `vite.config.mjs`.
+
+This will convert the file to an ES module. Convert any `require()` calls to
+`import` statements; and `module.exports` to `export default`.
+
+### 5. Check your compatibility with Vite 6
+
+Wasp now uses Vite 6 for better performance and stability. This includes some
+breaking changes, but we don't expect Wasp apps to be affected by them. If you
+are using Vite features directly in your app, you should check the migration guides
+for [Vite 5](https://v5.vite.dev/guide/migration.html) and
+[Vite 6](https://vite.dev/guide/migration.html).
+
+### 6. Enjoy your updated Wasp app
 
 That's it!
 

@@ -18,7 +18,6 @@ module Wasp.Generator.WebAppGenerator.Common
     WebAppSrcDir,
     WebAppTemplatesDir,
     WebAppTemplatesSrcDir,
-    toViteImportPath,
     staticAssetsDirInWebAppDir,
     WebAppStaticAssetsDir,
     getBaseDir,
@@ -29,7 +28,7 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe)
-import StrongPath (Abs, Dir, File, File', Path, Path', Posix, Rel, absdirP, reldir, (</>))
+import StrongPath (Abs, Dir, File', Path, Path', Posix, Rel, absdirP, reldir, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -43,7 +42,6 @@ import Wasp.Generator.Common
     ServerRootDir,
     UniversalTemplatesDir,
     WebAppRootDir,
-    dropExtensionFromImportPath,
     universalTemplatesDirInTemplatesDir,
   )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTemplateFileDraft)
@@ -136,9 +134,6 @@ mkUniversalTmplFdWithDst relSrcPath relDstPath =
     (webAppRootDirInProjectRootDir </> relDstPath)
     (universalTemplatesDirInTemplatesDir </> relSrcPath)
     Nothing
-
-toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
-toViteImportPath = dropExtensionFromImportPath
 
 getBaseDir :: AppSpec -> Path Posix Abs (Dir ())
 getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir

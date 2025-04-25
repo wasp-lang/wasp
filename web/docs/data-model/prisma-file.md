@@ -18,7 +18,7 @@ In Wasp, the `schema.prisma` file is located in your project's root directory:
 ├── schema.prisma
 ├── src
 ├── tsconfig.json
-└── vite.config.ts
+└── vite.config.mts
 ```
 
 Wasp uses the `schema.prisma` file to understand your app's data model and generate the necessary code to interact with the database.

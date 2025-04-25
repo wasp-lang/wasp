@@ -8,7 +8,7 @@ import path from "node:path"
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
 // @ts-ignore
-import customViteConfig from '../../../vite.config'
+import customViteConfig from '../../../vite.config.mts'
 const _waspUserProvidedConfig = customViteConfig
 
 const defaultViteConfig = {

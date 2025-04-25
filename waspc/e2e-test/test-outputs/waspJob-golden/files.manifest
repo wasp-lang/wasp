@@ -364,7 +364,7 @@ waspJob/.wasp/out/web-app/src/vite-env.d.ts
 waspJob/.wasp/out/web-app/tsconfig.app.json
 waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasp/out/web-app/tsconfig.vite.json
-waspJob/.wasp/out/web-app/vite.config.ts
+waspJob/.wasp/out/web-app/vite.config.mts
 waspJob/.wasp/out/web-app/vite/detectServerImports.ts
 waspJob/.wasp/out/web-app/vite/validateEnv.ts
 waspJob/.waspignore
@@ -379,4 +379,4 @@ waspJob/src/server/jobs/bar.js
 waspJob/src/vite-env.d.ts
 waspJob/src/waspLogo.png
 waspJob/tsconfig.json
-waspJob/vite.config.ts
+waspJob/vite.config.mts
