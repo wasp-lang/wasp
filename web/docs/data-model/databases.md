@@ -310,6 +310,86 @@ Check the [API Reference](#cli-commands-for-seeding-the-database) for more detai
 You'll often want to call `wasp db seed` right after you run `wasp db reset`, as it makes sense to fill the database with initial data after clearing it.
 :::
 
+## Customising the Prisma Client
+
+Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client).
+To customize the client, define a function in the `app.db.prismaSetupFn` field that returns a Prisma Client instance.
+This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
+
+<Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title=main.wasp
+    app MyApp {
+      title: "My app",
+      // ...
+      db: {
+        prismaSetupFn: import { setupPrisma } from "@src/prisma"
+      }
+    }
+    ```
+
+    ```js title="src/prisma.js"
+    import { PrismaClient } from '@prisma/client'
+
+    export const setupPrisma = () => {
+      const prisma = new PrismaClient({
+        log: ['query'],
+      }).$extends({
+        query: {
+          task: {
+            async findMany({ args, query }) {
+              args.where = {
+                ...args.where,
+                description: { not: { contains: 'hidden by setupPrisma' } },
+              }
+              return query(args)
+            },
+          },
+        },
+      })
+
+      return prisma
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title=main.wasp
+    app MyApp {
+      title: "My app",
+      // ...
+      db: {
+        prismaSetupFn: import { setupPrisma } from "@src/prisma"
+      }
+    }
+    ```
+
+    ```ts title="src/prisma.ts"
+   import { PrismaClient } from '@prisma/client'
+
+    export const setupPrisma = () => {
+      const prisma = new PrismaClient({
+        log: ['query'],
+      }).$extends({
+        query: {
+          task: {
+            async findMany({ args, query }) {
+              args.where = {
+                ...args.where,
+                description: { not: { contains: 'hidden by setupPrisma' } },
+              }
+              return query(args)
+            },
+          },
+        },
+      })
+
+      return prisma
+    }
+    ```
+  </TabItem>
+</Tabs>
+
 ## API Reference
 
 <Tabs groupId="js-ts">
@@ -320,8 +400,9 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
       // ...
       db: {
         seeds: [
-          import devSeed from "@src/dbSeeds.js"
+          import devSeed from "@src/dbSeeds"
         ],
+        prismaSetupFn: import { setupPrisma } from "@src/prisma"
       }
     }
     ```
@@ -334,8 +415,9 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
       // ...
       db: {
         seeds: [
-          import devSeed from "@src/dbSeeds.js"
+          import devSeed from "@src/dbSeeds"
         ],
+        prismaSetupFn: import { setupPrisma } from "@src/prisma"
       }
     }
     ```
@@ -348,6 +430,23 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 
   Defines the seed functions you can use with the `wasp db seed` command to seed your database with initial data.
   Read the [Seeding section](#seeding-the-database) for more details.
+
+- `prismaSetupFn: ExtImport`
+
+  Defines a function that sets up the Prisma Client instance. Wasp expects you to return a Prisma Client instance from this function.
+  You can use this function to set up [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
+
+  ```ts title="src/prisma.ts"
+  import { PrismaClient } from '@prisma/client'
+
+  export const setupPrisma = () => {
+    const prisma = new PrismaClient({
+      log: ['query', 'info', 'warn', 'error'],
+    })
+
+    return prisma
+  }
+  ```
 
 ### CLI Commands for Seeding the Database
 
