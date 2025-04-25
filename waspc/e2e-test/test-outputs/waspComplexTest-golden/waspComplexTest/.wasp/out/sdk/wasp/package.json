@@ -19,7 +19,7 @@
     "oslo": "^1.1.2",
     "pg-boss": "^8.4.2",
     "prisma": "5.19.1",
-    "react": "^18.2.0",
+    "react": "^19.1.0",
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^6.26.2",
     "superjson": "^2.2.1",
@@ -28,7 +28,8 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
-    "@types/express-serve-static-core": "^4.17.13"
+    "@types/express-serve-static-core": "^4.17.13",
+    "@types/react": "^19.1.2"
   },
   "exports": {
     "./api/events": "./dist/api/events.js",

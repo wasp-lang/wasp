@@ -150,15 +150,15 @@ generatePackageJson newProjectDetails =
         "type": "module",
         "dependencies": {
           "wasp": "file:.wasp/out/sdk/wasp",
-          "react": "^18.2.0",
-          "react-dom": "^18.2.0",
+          "react": "^19.1.0",
+          "react-dom": "^19.1.0",
           "react-router-dom": "^6.26.2",
           "tailwindcss": "^3.2.7"
         },
         "devDependencies": {
           "typescript": "^5.1.0",
           "vite": "^4.3.9",
-          "@types/react": "^18.0.37",
+          "@types/react": "^19.1.2",
           "prisma": "5.19.1"
         }
       }
@@ -172,7 +172,6 @@ generateLoginJsPage :: File
 generateLoginJsPage =
   ( "src/pages/auth/Login.jsx",
     [trimming|
-      import React from "react";
       import { Link } from "wasp/client/router";
       import { LoginForm } from "wasp/client/auth";
 
@@ -211,7 +210,6 @@ generateSignupJsPage :: File
 generateSignupJsPage =
   ( "src/pages/auth/Signup.jsx",
     [trimming|
-      import React from "react";
       import { Link } from "wasp/client/router";
       import { SignupForm } from "wasp/client/auth";
 

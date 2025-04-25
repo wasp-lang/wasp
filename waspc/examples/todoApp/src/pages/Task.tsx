@@ -11,7 +11,6 @@ import {
 } from 'wasp/client/operations'
 import { TaskVisibility } from '@prisma/client'
 
-import React from 'react'
 import { useParams } from 'react-router-dom'
 
 type TaskPayload = Pick<Task, 'id' | 'isDone'>

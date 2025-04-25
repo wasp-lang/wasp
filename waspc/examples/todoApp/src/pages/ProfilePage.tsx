@@ -6,7 +6,7 @@ import {
 } from 'wasp/client/webSocket'
 import { Link, routes } from 'wasp/client/router'
 import { api } from 'wasp/client/api'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')

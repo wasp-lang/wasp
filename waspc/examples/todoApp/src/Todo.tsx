@@ -11,7 +11,7 @@ import {
   getTasks,
 } from 'wasp/client/operations'
 
-import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
+import { useState, FormEventHandler, ChangeEventHandler } from 'react'
 import { getEmail } from 'wasp/auth'
 
 type NonEmptyArray<T> = [T, ...T[]]

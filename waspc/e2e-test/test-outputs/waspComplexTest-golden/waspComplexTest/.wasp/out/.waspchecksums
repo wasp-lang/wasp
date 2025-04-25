@@ -424,7 +424,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "015544a8e98aeb2e603d9968a5ec09bdec9cd3aaf87e0ba733eef801366092c2"
+        "722c9c0d4506d259595974b7854fb23e9e1d83cb4a3d80455be922b75ae7f135"
     ],
     [
         [
@@ -1222,7 +1222,7 @@
             "file",
             "web-app/package.json"
         ],
-        "2352cda526107792c1399ca931ac268d92827d1f08ed6db1a41b12d00abaa988"
+        "68b68fb994ec4cec2d13aed2caf9188249b716ec4fac5348bdc4fb96c508856a"
     ],
     [
         [
@@ -1257,7 +1257,7 @@
             "file",
             "web-app/src/auth/pages/createAuthRequiredPage.jsx"
         ],
-        "be2f872a6465690dec32a0d2a0c3b15d941846cc0059a9ec13d09650daccda7f"
+        "e10aa71f629ec7fd90b16ebe63fd4aaebb0d713d5ffe5f41c88c6486a5b3f454"
     ],
     [
         [
@@ -1299,7 +1299,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "27e9b6e82ad360f481cc4883b4321e18871b7c6d9be5abbaa4613c0a6faebbcd"
+        "cdda2f8f26701f671ea03ab634f713b6e1499b4ae13ea9d43da5385cd5a22115"
     ],
     [
         [
@@ -1313,7 +1313,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "8160ffecec82dde31d889825cf0a2d605e2b729be555c650b8accca2252ed613"
+        "8fc48fa44e024f1d9bc2b7fa5a7e00ee0d8d33d2e5a0deda4da78fd9a7860b11"
     ],
     [
         [
