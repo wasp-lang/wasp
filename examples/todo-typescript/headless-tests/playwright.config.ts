@@ -44,7 +44,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "wasp-app-runner --path-to-app=../",
+    command: "wasp-app-runner run dev --path-to-app=../",
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
