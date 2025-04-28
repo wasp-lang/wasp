@@ -41,6 +41,21 @@ export function startApp({
   });
 }
 
+export function buildApp({
+  waspCliCmd,
+  pathToApp,
+}: {
+  waspCliCmd: string;
+  pathToApp: string;
+}): Promise<{ exitCode: number | null }> {
+  return spawnWithLog({
+    name: "build-app",
+    cmd: waspCliCmd,
+    args: ["build"],
+    cwd: pathToApp,
+  });
+}
+
 export async function getAppInfo({
   waspCliCmd,
   pathToApp,
