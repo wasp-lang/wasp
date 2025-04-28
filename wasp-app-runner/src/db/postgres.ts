@@ -1,11 +1,12 @@
-import { createHash } from "crypto";
-
 import type { SetupDbFn } from "./types.js";
 import { log } from "../logging.js";
 import { spawnAndCollectOutput } from "../process.js";
 import { Branded } from "../types.js";
+import {
+  DbContainerName,
+  createAppSpecificDbContainerName,
+} from "../docker.js";
 
-type ContainerName = Branded<string, "ContainerName">;
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
 export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
@@ -30,7 +31,7 @@ async function startPostgresContainerForApp({
   appName: string;
   pathToApp: string;
 }): Promise<DatabaseConnectionUrl> {
-  const containerName = createAppSpecificContainerName({
+  const containerName = createAppSpecificDbContainerName({
     appName,
     pathToApp,
   });
@@ -44,22 +45,8 @@ async function startPostgresContainerForApp({
   return databaseUrl;
 }
 
-function createAppSpecificContainerName({
-  appName,
-  pathToApp,
-}: {
-  appName: string;
-  pathToApp: string;
-}): ContainerName {
-  const appPathHash = createHash("md5")
-    .update(pathToApp)
-    .digest("hex")
-    .slice(0, 16);
-  return `${appName}-${appPathHash}-db` as ContainerName;
-}
-
 async function startPostgresContainerAndWaitUntilReady(
-  containerName: ContainerName
+  containerName: DbContainerName
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
@@ -109,7 +96,7 @@ function getExtraInfoOnPostgresStartError({
   port,
 }: {
   originalErrorText: string;
-  containerName: ContainerName;
+  containerName: DbContainerName;
   port: number;
 }): string | null {
   const errorText = originalErrorText.toLowerCase();
@@ -126,7 +113,7 @@ function getExtraInfoOnPostgresStartError({
 }
 
 async function waitForPostgresReady(
-  containerName: ContainerName
+  containerName: DbContainerName
 ): Promise<void> {
   const healthCheckRetries = 10;
   const healthCheckDelay = 2000;
@@ -152,7 +139,7 @@ async function waitForPostgresReady(
 }
 
 async function checkIfPostgresIsReady(
-  containerName: ContainerName
+  containerName: DbContainerName
 ): Promise<boolean> {
   const { exitCode } = await spawnAndCollectOutput({
     name: "postgres-readiness-check",
