@@ -79,7 +79,7 @@ const Features = () => {
           title="Open Source"
           url="https://github.com/wasp-lang/wasp"
           description={`
-            This is the way. Wasp is fully open-source and you're welcome to contribute!
+            Fully open-source. Forever.
           `}
         />
 
@@ -88,7 +88,7 @@ const Features = () => {
           title="Full-stack Auth"
           url="/blog/2023/04/12/auth-ui"
           description={`
-            Add login with social providers or email in a few lines of code with powerful UI helpers. No third party vendor lock-in.
+            Email, Google, GitHub, with instant UI components. No third party vendor lock-in.
           `}
         />
 
@@ -97,7 +97,7 @@ const Features = () => {
           title="RPC (Client <-> Server)"
           url="/docs/data-model/operations/overview"
           description={`
-            Wasp provides a typesafe RPC layer that instantly brings your data models and server logic to the client.
+            Typesafe RPC layer that instantly brings your data models and server logic to the client.
           `}
         />
 
@@ -106,7 +106,7 @@ const Features = () => {
           title="Simple Deployment"
           url="/docs/deployment/intro"
           description={`
-            Deploy your app to any platform. Wasp offers CLI helpers for the most popular options.
+            Deploy anywhere with a single CLI command.
           `}
         />
 
@@ -125,7 +125,7 @@ const Features = () => {
           title="Email Sending"
           url="/docs/advanced/email"
           description={`
-            All you need to do is connect an email provider and you can send emails!
+            Connect an email provider and send emails. Fast and easy.
           `}
         />
 
@@ -134,7 +134,7 @@ const Features = () => {
           title="Full-stack Type Safety"
           url="/docs/tutorial/queries#implementing-a-query"
           description={`
-            Full support for TypeScript with auto-generated types that span the whole stack.
+            Auto-generated types for easy end-to-end type safety.
           `}
         />
 

@@ -144,8 +144,7 @@ query getTasks {
             </h1>
 
             <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
-              Rails-like framework for React, Node.js and Prisma. Build your app
-              in a day and deploy it with a single CLI command.
+              The React, NodeJS, & Prisma alternative to Laravel -- truly full-stack w/ batteries-included.
             </p>
           </div>
 
