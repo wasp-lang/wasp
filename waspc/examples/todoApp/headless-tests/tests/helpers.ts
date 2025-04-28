@@ -14,6 +14,15 @@ export async function performSignup(
   await page.locator('button').click()
 }
 
+// We do this extra step to be able to run headless tests
+// on production code that doesn't auto verify emails
+export async function performEmailVerification(page: Page) {
+  await page.goto('/headless-verify-emails')
+  await page.waitForSelector('text=Verify all user emails')
+  await page.locator('text=Verify all user emails').click()
+  await page.waitForLoadState('networkidle')
+}
+
 export async function performLogin(
   page: Page,
   {
