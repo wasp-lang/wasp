@@ -179,6 +179,8 @@ If so, you should add a `favicon.ico` to your `public` folder.
 
 If you want to keep the default, you can [download it here](https://github.com/wasp-lang/wasp/tree/main/waspc/data/Cli/templates/skeleton/public/favicon.ico).
 
+If you want to generate a `favicon.ico` and all its possible variants, check out [RealFaviconGenerator](https://realfavicongenerator.net/), a handy open-source tool for creating favicons.
+
 ### 5. Add a `<link>` meta tag for `favicon.ico`
 
 This step is required for all of the project's which use `favicon.ico`.
