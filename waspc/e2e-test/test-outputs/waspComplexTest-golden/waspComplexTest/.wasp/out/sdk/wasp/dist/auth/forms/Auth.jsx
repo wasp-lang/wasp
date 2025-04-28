@@ -33,7 +33,7 @@ function Auth({ state, appearance, logo, socialLayout = 'horizontal', additional
     // TODO(matija): this is called on every render, is it a problem?
     // If we do it in useEffect(), then there is a glitch between the default color and the
     // user provided one.
-    const customTheme = createTheme(appearance !== null && appearance !== void 0 ? appearance : {});
+    const customTheme = createTheme(appearance ?? {});
     const titles = {
         login: 'Log in to your account',
         signup: 'Create a new account',

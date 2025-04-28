@@ -18,6 +18,13 @@ To make deploying as smooth as possible, Wasp also offers a single-command deplo
 
 Regardless of how you choose to deploy your app (i.e., manually or using the Wasp CLI), you'll need to know about some common patterns covered below.
 
+:::tip Deployed? Get some swag! 👕🐝
+
+Do you have a Wasp app running in production? If yes, we'd love to send some swag your way! All you need to do is
+fill [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) out and we'll make it happen.
+
+:::
+
 ## Customizing the Dockerfile
 
 By default, Wasp generates a multi-stage Dockerfile.

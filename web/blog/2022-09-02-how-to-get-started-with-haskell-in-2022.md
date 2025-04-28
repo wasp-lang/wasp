@@ -10,7 +10,6 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 Haskell is a unique and beautiful language that is worth learning, if for nothing else, then just for the concepts it introduces and their potential to expand your view on programming.
 
 I have been programming in Haskell on and off since 2011 and professionally for the past 2 years, building a [compiler](https://github.com/wasp-lang/wasp). While in that time Haskell has become much more beginner-friendly, I keep seeing beginners who are overwhelmed by numerous popular options for build tools, installers, introductory educational resources, and similar. [Haskell’s homepage](https://www.haskell.org/) getting a call from the previous decade to give them their UX back :D also doesn’t help!
@@ -31,7 +30,7 @@ That is why I decided to write this opinionated and practical post that will tel
 
 [GHCup](https://www.haskell.org/ghcup/#) is a universal installer for Haskell. It will install everything you need to program in Haskell and will help you manage those installations in the future (update, switch versions, and similar). It is simple to use and works the same way on Linux, macOS, and Windows. It gives you a single central place/method to take care of your Haskell installation so that you don’t have to deal with OS-specific issues.
 
-To install it, follow instructions at [GHCup](https://www.haskell.org/ghcup/#). Then, use it to install the Haskell Toolchain (aka stuff that you need to program in Haskell). 
+To install it, follow instructions at [GHCup](https://www.haskell.org/ghcup/#). Then, use it to install the Haskell Toolchain (aka stuff that you need to program in Haskell).
 
 Haskell Toolchain consists of:
 
@@ -46,19 +45,19 @@ There are two popular build tools for Haskell: [cabal](https://cabal.readthedocs
 
 Some time ago, cabal was somewhat hard to use (complex, “dependency hell”). That’s why Stack was created: a user-friendly build tool that solves some of the common issues of cabal. (Interestingly, Stack uses cabal’s core library as its backend!) However, as Stack was being developed, cabal advanced, too. Many of its issues have been solved, making it a viable choice for beginners.
 
-In 2022, I recommend `cabal` to beginners. I find it a bit easier to understand when starting out (no resolvers), it works well out of the box with GHCup and the rest of the ecosystem, and it seems to be better maintained lately. 
+In 2022, I recommend `cabal` to beginners. I find it a bit easier to understand when starting out (no resolvers), it works well out of the box with GHCup and the rest of the ecosystem, and it seems to be better maintained lately.
 
 ## 3. Editor: VS Code is a safe bet
 
 HLS (Haskell Language Server) brings all the cool IDE features to your editor. So, as long as your editor has a decent Haskell language extension that utilizes HLS, you are good.
 
-The safest bet is to go with **Visual Studio Code** — it has a great [Haskell extension](https://marketplace.visualstudio.com/items?itemName=haskell.haskell) that usually works out of the box. A lot of Haskell programmers also use Emacs and Vim. I can confirm they also have good support for Haskell. 
+The safest bet is to go with **Visual Studio Code** — it has a great [Haskell extension](https://marketplace.visualstudio.com/items?itemName=haskell.haskell) that usually works out of the box. A lot of Haskell programmers also use Emacs and Vim. I can confirm they also have good support for Haskell.
 
 ## 4. Community: r/haskell and more
 
 Haskell community is a great place to ask for help and learn about new developments in the  ecosystem. I prefer [r/haskell](https://www.reddit.com/r/haskell/) -> it tracks all the newest events and no question goes unanswered. There is also [Haskell Discourse](https://discourse.haskell.org/), where a lot of discussions happen, including the more official ones. A lot of Haskellers are still active on [IRC](https://wiki.haskell.org/IRC_channel), but I find it too complex and outdated to use.
 
-*Check [https://www.haskell.org/community](https://www.haskell.org/community) for a full list of Haskell communities.*
+_Check [https://www.haskell.org/community](https://www.haskell.org/community) for a full list of Haskell communities._
 
 ## 5. Learning: You don’t need a math degree, just grab a book
 
@@ -79,7 +78,7 @@ Whatever book you go with, don’t get stuck for too long on concepts that are c
 When I say "don't get stuck", I don't mean you should skip the difficult concept after the first hurdle. No, you should spend some hours experimenting, looking at it from different angles, playing with it, trying to crack it. But you shouldn't spend days trying to understand the same concept (e.g. function as a monad) and then feel defeated due to not grasping it 100%. Instead, if you put proper effort but stuff is not completely clicking, tap yourself on the back and move on for now.
 :::
 
-Once you take the first pass through the book, I recommend doing a project or two. You can come up with an idea yourself, or you can follow one of the books that guide you through it. 
+Once you take the first pass through the book, I recommend doing a project or two. You can come up with an idea yourself, or you can follow one of the books that guide you through it.
 
 For example:
 
@@ -92,4 +91,4 @@ p.s. If you are looking for a bit of extra motivation, check the blog post my te
 
 ---
 
-*Good luck with Haskell! If you have Haskell questions for me or the rest of the Wasp team, drop me a line at `“martin” ++ “@” ++ concat [”wasp”, “-”, “lang”] <> “.dev”` , or write to #haskell channel in [Wasp-lang Discord server](https://discord.gg/rzdnErX).*
+_Good luck with Haskell! If you have Haskell questions for me or the rest of the Wasp team, drop me a line at `“martin” ++ “@” ++ concat [”wasp”, “-”, “lang”] <> “.dev”` , or write to #haskell channel in [Wasp-lang Discord server](https://discord.gg/rzdnErX)._

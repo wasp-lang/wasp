@@ -71,12 +71,12 @@ This will result in a link like this: `/task/1`.
 
 You can also pass `search` and `hash` props to the `build` function. Check out the [API Reference](#routes-object) for more details.
 
-
 ## API Reference
 
 ### `Link` Component
 
 The `Link` component accepts the following props:
+
 - `to` <Required />
 
   - A valid Wasp Route path from your `main.wasp` file.
@@ -92,8 +92,8 @@ The `Link` component accepts the following props:
   - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
 
 - `hash: string`
-- all other props that the `react-router-dom`'s [Link](https://v5.reactrouter.com/web/api/Link) component accepts
 
+- all other props that the `react-router-dom`'s [Link](https://v5.reactrouter.com/web/api/Link) component accepts
 
 ### `routes` Object
 

@@ -12,9 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 ![farnance hero shot](../static/img/farnance/farnance-hero-shot.png)
-
 
 [Julian LaNeve](https://jlaneve.github.io/) is an engineer and data scientist who currently works at [Astronomer.io](http://Astronomer.io) as a Product Manager. In his free time, he enjoys playing poker, chess and [winning](https://www.smudailycampus.com/news/smu-graduate-julian-laneve-wins-100k-grand-prize-from-data-science-competition) data science competitions.
 
@@ -34,10 +32,7 @@ Julian first learned about Wasp when it [launched on HN](https://news.ycombinato
 
 Except on the app setup, the team saved a ton of time by not needing to implement the authentication and a typical CRUD API, since it is covered by Wasp as well. They could also deploy everything for free on Heroku and Netlify in just a few steps, which was a perfect fit for a hackathon.
 
-<ImgWithCaption
-    alt="Julian's testimonial on Discord"
-    source="img/farnance/julian-discord-testimonial.png"
-/>
+<ImgWithCaption alt="Julian's testimonial on Discord" source="img/farnance/julian-discord-testimonial.png" />
 
 Farnance is still running and you can [try it out here](https://farnance.netlify.app/)! The source code is also [publicly available](https://github.com/jlaneve/Farnance), although note it is running on older version of Wasp so some things are a bit different.
 
@@ -51,24 +46,19 @@ With all the common web app features (setup, auth, CRUD API) being taken care of
 >
 > — Julian LaNeve - Farnance
 
-<ImgWithCaption
-    alt="Farnance's dashboard"
-    source="img/farnance/farnance-dashboard.png"
-    caption="Farnance dashboard in action!"
-/>
-
+<ImgWithCaption alt="Farnance's dashboard" source="img/farnance/farnance-dashboard.png" caption="Farnance dashboard in action!" />
 
 ## Start quickly, but also scale without worries
 
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
 
-As such, we have updated our Deployment docs with new recommendations: https://wasp.sh/docs/deploying
+As such, we have updated our Deployment docs with new recommendations: https://wasp.sh/docs/deployment/intro
 :::
 
 Since Wasp compiler generates a full-stack React & Node.js app under the hood, there aren’t any technical limitations to scaling Julian’s app as it grows and gets more users in the future. By running `wasp build` inside a project folder, developers gets both frontend files and a Dockerfile for the backend, which can then be deployed as any regular web app to the platform of your choice.
 
-Wasp provides [step-by step instructions](/docs/deploying) on how to do it with Netlify and Fly.io for free, but we plan to add even more examples and more integrated deployment experience in the coming releases!
+Wasp provides [step-by step instructions](/docs/deployment/intro) on how to do it with Netlify and Fly.io for free, but we plan to add even more examples and more integrated deployment experience in the coming releases!
 
 > Deploying the wasp app was incredibly easy - I didn’t have time to stand up full infrastructure in the 2 day hackathon and don’t have an infra/devops background, but I had something running on Netlify within an hour. Other projects at the hackathon struggled to do this, and putting access in the hands of the judges certainly helped get us 1st place.
 >

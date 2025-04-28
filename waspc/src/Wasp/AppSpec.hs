@@ -16,7 +16,6 @@ module Wasp.AppSpec
     getRoutes,
     getJobs,
     resolveRef,
-    doesConfigFileExist,
     asAbsWaspProjectDirFile,
     getApp,
     getApiNamespaces,
@@ -26,7 +25,7 @@ module Wasp.AppSpec
 where
 
 import Data.List (find)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
@@ -47,7 +46,8 @@ import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
-import Wasp.ExternalConfig.PackageJson (PackageJson)
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
+import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
@@ -84,13 +84,14 @@ data AppSpec = AppSpec
     isBuild :: Bool,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | A list of paths to any config files found (e.g., tailwind.config.cjs) and where to copy them.
-    configFiles :: [ConfigFileRelocator],
+    -- | A list of paths to Tailwind specific config files and where to copy them.
+    tailwindConfigFilesRelocators :: [ConfigFileRelocator],
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
     customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File'),
-    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
+    srcTsConfig :: TsConfig
   }
 
 -- TODO: Make this return "Named" declarations?
@@ -149,10 +150,6 @@ resolveRef spec ref =
     )
     $ find ((== refName ref) . fst) $
       getDecls spec
-
-doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
-doesConfigFileExist spec file =
-  isJust $ find ((==) file . _pathInWaspProjectDir) (configFiles spec)
 
 asAbsWaspProjectDirFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Path' Abs File'
 asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file

@@ -12,6 +12,7 @@
 # or modify/delete these two lines.
 *.env
 *.env.*
+!.env.vault
 
 **/.DS_Store
 # Emacs specific

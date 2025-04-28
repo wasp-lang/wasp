@@ -6,3 +6,4 @@ export declare function Link({ to, params, search, hash, ...restOfProps }: Omit<
     hash?: string;
 } & Routes): React.JSX.Element;
 export {};
+//# sourceMappingURL=Link.d.ts.map

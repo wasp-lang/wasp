@@ -12,7 +12,6 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
 ![grabbit hero shot](../static/img/michael-curry-usecase/grabbit-hero-shot.png)
 
 [Michael Curry](https://github.com/cursorial) is a senior front-end engineer at [Improbable](https://www.improbable.io/), a metaverse and simulation company based in London. In his free time he enjoys learning about compilers.
@@ -25,7 +24,7 @@ Read on to learn why Michael chose Wasp to build and deploy an internal tool for
 
 ## The problem: the battle for the dev environment
 
-StudentBeans has a microservices-based architecture with multiple environments - test, staging, production, …. The team practices CI/CD and deploys multiple times a day. With such a rapid development speed, it would relatively often happen that multiple engineering teams attempt to claim the same dev environment at the same time. 
+StudentBeans has a microservices-based architecture with multiple environments - test, staging, production, …. The team practices CI/CD and deploys multiple times a day. With such a rapid development speed, it would relatively often happen that multiple engineering teams attempt to claim the same dev environment at the same time.
 
 There wasn't an easy way for teams to synchronize on who is using which environment and it would eventually lead to unexpected changes, confusion, and prolonged development times.
 
@@ -55,7 +54,7 @@ Also, although Michael had full-stack experience, his primary strength at the ti
 
 Once Michael was satisfied with the first version of Grabbit, and confirmed with the team it fits their desired process, the only thing left to do was to deploy it! It is well known this step can get really complicated, especially if you're not yet well-versed in the sea of config options that usually come with it.
 
-Wasp CLI comes with a `wasp build` command that does all the heavy lifting for you - it creates a directory with static front-end files that you can easily deploy to e.g. Netlify, and on the other hand, a Docker image for the back-end. Since Heroku is ending its free plan, our recommendation is to deploy to Fly.io, for which the detailed guide is provided. You can find the [detailed deployment instructions here](https://wasp.sh/docs/deploying).
+Wasp CLI comes with a `wasp build` command that does all the heavy lifting for you - it creates a directory with static front-end files that you can easily deploy to e.g. Netlify, and on the other hand, a Docker image for the back-end. Since Heroku is ending its free plan, our recommendation is to deploy to Fly.io, for which the detailed guide is provided. You can find the [detailed deployment instructions here](https://wasp.sh/docs/deployment/intro).
 
 In Michael's case, he deployed Grabbit behind the VPN since it was an internal tool, and this process was made easy by having a ready-to-go Dockerfile.
 

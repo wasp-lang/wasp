@@ -12,7 +12,7 @@ const ImgWithCaption = (props) => {
             src={useBaseUrl(props.source)}
           />
           <figcaption
-            class="image-caption"
+            className="image-caption"
             style={{ fontStyle: 'italic', opacity: 0.6, fontSize: '0.9rem' }}
           >
             {props.caption}

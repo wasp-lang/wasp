@@ -4,3 +4,4 @@ export declare const google: {
     displayName: string;
     oAuthClient: Google;
 };
+//# sourceMappingURL=google.d.ts.map
