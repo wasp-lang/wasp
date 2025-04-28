@@ -105,20 +105,18 @@ query getTasks {
 
   return (
     <SectionContainer className="relative pb-5 pt-24">
-
-        {/* Conditionally render the main FileViewer */}
-        {isCodeViewerVisible && (
-          <FileViewer
-            fileName="todoApp.wasp"
-            fileExplanation="Wasp config file"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/main.wasp"
-            initialPosition={{ x: 0, y: 0 }}
-            onClose={handleCloseCodeViewer} // Pass close handler
-          >
-            <CodeHighlight language="wasp" source={waspFileSourceCode} />
-          </FileViewer>
-        )}
-        {/* <FileViewer
+      {/* Conditionally render the main FileViewer */}
+      {isCodeViewerVisible && (
+        <FileViewer
+          fileName="todoApp.wasp"
+          fileExplanation="Wasp config file"
+          link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/main.wasp"
+          onClose={handleCloseCodeViewer}
+        >
+          <CodeHighlight language="wasp" source={waspFileSourceCode} />
+        </FileViewer>
+      )}
+      {/* <FileViewer
             fileName="schema.prisma"
             fileExplanation="Wasp entities schema"
             link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/schema.prisma"
@@ -138,7 +136,9 @@ query getTasks {
               `}
             >
               Full-stack{' '}
-              <span className="text-yellow-500 lg:text-8xl font-pixelated mx-3">Everything</span>
+              <span className="font-pixelated mx-3 text-yellow-500 lg:text-8xl">
+                Everything
+              </span>
               <br />
               in a few lines of code.
             </h1>
@@ -147,90 +147,75 @@ query getTasks {
               Rails-like framework for React, Node.js and Prisma. Build your app
               in a day and deploy it with a single CLI command.
             </p>
-          </div>{' '}
+          </div>
+
           {/* EOF Hero title and subtitle */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-start gap-1">
+            {/* Get Started Button - Apply new style */}
             <Link to="/docs/quick-start">
               <button
+                // Replaced classes with nav button style
                 className={`
-                   inline-flex items-center space-x-2
-                   rounded border border-yellow-500
-                   bg-yellow-500 px-3 py-2 text-sm
-                   leading-4 text-white transition
-                   duration-200
-                   ease-out hover:border-yellow-400 hover:bg-yellow-400
-                   `}
+                   inline-flex items-center rounded-sm bg-[#ffcc00]/70 p-2 
+                   font-mono text-xs text-neutral-700 
+                   backdrop-blur-sm transition-colors duration-150 hover:bg-[#ffcc00] hover:text-neutral-800
+                 `}
               >
-                <Terminal size={16} />
-                <span>{'Get Started'}</span>
+                {/* Removed icon, updated text */}
+                <span className="flex items-center gap-1">
+                  [S]
+                  GET STARTED →
+                </span>
               </button>
             </Link>
 
-            <Link to="/docs">
-              <button
-                className={`
-                   inline-flex items-center space-x-2
-                   rounded border border-neutral-500
-                   px-3 py-2
-                   text-sm leading-4
-                   text-neutral-700
-                   transition duration-200
-                   ease-out hover:border-neutral-400 hover:text-neutral-400
-                   `}
-              >
-                <BookOpen size={16} />
-                <span>Documentation</span>
-              </button>
-            </Link>
+            {/* Removed Documentation Button */}
 
-            {/* New Show Code Button */}
+            {/* Show Code Button - Apply new style */}
             <button
               onClick={handleShowCodeClick}
+              // Replaced classes with nav button style
               className={`
-                 inline-flex items-center space-x-2
-                 rounded border border-neutral-500
-                 px-3 py-2
-                 text-sm leading-4
-                 text-neutral-700
-                 transition duration-200
-                 ease-out hover:border-neutral-400 hover:text-neutral-400
+                  inline-flex items-center rounded-sm bg-neutral-200/70 p-2 
+                  font-mono text-xs text-neutral-700 
+                  backdrop-blur-sm transition-colors duration-150 hover:bg-[#ffcc00] hover:text-neutral-800
                  `}
               title="Press 'c' to toggle"
             >
-              {/* Consider adding an icon here too if desired */}
-              <span>{isCodeViewerVisible ? 'Hide Code' : 'Show Code'}</span>
+              {/* Changed text to uppercase */}
+              <span>[C] CODE EXAMPLES</span>
             </button>
           </div>
-          <div className="flex flex-col gap-4">
-            <small className="text-xs text-neutral-500">Works with</small>
+        </div>
+        <div className="lg:col-span-2">
+          {/* <small className="text-xs text-neutral-500">Works with</small> */}
 
-            <div className="flex">
-              <img
-                className="h-8 pr-5 md:h-10 md:pr-10"
-                src="img/lp/react-logo-gray.svg"
-                alt="React"
-              />
-              <img
-                className="h-8 pr-5 md:h-10 md:pr-10"
-                src="img/lp/nodejs-logo-gray.svg"
-                alt="Node"
-              />
-              <img
-                className="h-8 pr-5 md:h-10 md:pr-10"
-                src="img/lp/prisma-logo-gray.svg"
-                alt="Prisma"
-              />
-            </div>
-
-            <span className="mt-6 flex items-center">
-              <small className="text-xs text-neutral-500">Backed by</small>
-              <img
-                className="ml-2 w-24"
-                src="img/lp/yc-logo-rounded.webp"
-                alt="YC"
-              />
-            </span>
+          <div className="flex flex-col justify-start gap-4 p-4 sm:px-6 lg:px-8">
+            <img
+              className="h-8 pr-3 md:h-20 md:pr-5"
+              src="img/lp/react-logo-gray.svg"
+              alt="React"
+            />
+            <img
+              className="h-8 pr-3 md:h-20 md:pr-5"
+              src="img/lp/nodejs-logo-gray.svg"
+              alt="Node"
+            />
+            <img
+              className="h-8 pr-3 md:h-20 md:pr-5"
+              src="img/lp/prisma-logo-gray.svg"
+              alt="Prisma"
+            />
           </div>
+
+          {/* <span className="mt-6 flex items-center">
+            <small className="text-xs text-neutral-500">Backed by</small>
+            <img
+              className="ml-2 w-24"
+              src="img/lp/yc-logo-rounded.webp"
+              alt="YC"
+            />
+          </span> */}
         </div>
       </div>
 
@@ -275,59 +260,31 @@ query getTasks {
   )
 }
 
-function FileViewer({ fileName, fileExplanation, link, children, initialPosition = { x: 0, y: 0 }, onClose }) {
-  const [position, setPosition] = useState(initialPosition);
-  // Default width based on Tailwind max-w-lg (approx 512px)
-  // Default height - auto or a fixed value? Let's start with a fixed value for simplicity.
-  const [size, setSize] = useState({ width: 512, height: 300 }); 
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false); // New state for resizing
-  const dragStartInfo = useRef({ initialMouseX: 0, initialMouseY: 0, initialPosX: 0, initialPosY: 0 });
-  // Ref for resize start info (mouse pos and initial size)
-  const resizeStartInfo = useRef({ initialMouseX: 0, initialMouseY: 0, initialWidth: 0, initialHeight: 0 }); 
+function FileViewer({ fileName, fileExplanation, link, children, onClose }) {
+  const [size, setSize] = useState({ width: 712, height: 400 });
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStartInfo = useRef({ initialMouseX: 0, initialMouseY: 0, initialWidth: 0, initialHeight: 0 });
   const viewerRef = useRef(null);
-  const resizeHandleRef = useRef(null); // Ref for the resize handle
+  const resizeHandleRef = useRef(null);
 
-  // --- Dragging Logic --- 
-  const handleMouseDownDrag = useCallback((e) => {
-    // Prevent drag if clicking the resize handle or a link
-    if (e.button !== 0 || e.target.closest('a') || e.target === resizeHandleRef.current) return;
+  // State for position and dragging
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartInfo = useRef({ initialMouseX: 0, initialMouseY: 0, initialPosX: 0, initialPosY: 0 });
 
-    setIsDragging(true);
-    dragStartInfo.current = {
-      initialMouseX: e.pageX,
-      initialMouseY: e.pageY,
-      initialPosX: position.x,
-      initialPosY: position.y,
-    };
-    document.body.style.cursor = 'grabbing';
-    e.preventDefault();
-  }, [position.x, position.y]);
-
-  const handleMouseMoveDrag = useCallback((e) => {
-    if (!isDragging) return;
-
-    const deltaX = e.pageX - dragStartInfo.current.initialMouseX;
-    const deltaY = e.pageY - dragStartInfo.current.initialMouseY;
-
-    let newX = dragStartInfo.current.initialPosX + deltaX;
-    let newY = dragStartInfo.current.initialPosY + deltaY;
-
-    setPosition({ x: newX, y: newY });
-  }, [isDragging]);
-
-  const handleMouseUpDrag = useCallback(() => {
-    if (isDragging) {
-      setIsDragging(false);
-      document.body.style.cursor = 'default';
+  // Effect to center the viewer initially
+  useEffect(() => {
+    if (viewerRef.current) {
+      const viewerRect = viewerRef.current.getBoundingClientRect();
+      setPosition({
+        x: (window.innerWidth - viewerRect.width) / 2,
+        y: (window.innerHeight - viewerRect.height) / 2,
+      });
     }
-  }, [isDragging]);
+  }, []); // Runs once on mount
 
-  // --- Resizing Logic --- 
   const handleMouseDownResize = useCallback((e) => {
-    // Only left clicks
-    if (e.button !== 0) return;
-
+    if (e.button !== 0) return; // Only react to left mouse button
     setIsResizing(true);
     resizeStartInfo.current = {
       initialMouseX: e.pageX,
@@ -335,67 +292,76 @@ function FileViewer({ fileName, fileExplanation, link, children, initialPosition
       initialWidth: size.width,
       initialHeight: size.height,
     };
-    // No cursor change needed here as the handle itself has the resize cursor
-    e.preventDefault(); // Prevent text selection etc.
-    e.stopPropagation(); // Stop the event from bubbling up to the main drag handler
-
+    e.preventDefault();
+    e.stopPropagation();
   }, [size.width, size.height]);
 
   const handleMouseMoveResize = useCallback((e) => {
     if (!isResizing) return;
-
     const deltaX = e.pageX - resizeStartInfo.current.initialMouseX;
     const deltaY = e.pageY - resizeStartInfo.current.initialMouseY;
-
-    // Min dimensions (e.g., 200x100)
     const minWidth = 200;
     const minHeight = 100;
-
     const newWidth = Math.max(minWidth, resizeStartInfo.current.initialWidth + deltaX);
     const newHeight = Math.max(minHeight, resizeStartInfo.current.initialHeight + deltaY);
-
     setSize({ width: newWidth, height: newHeight });
-
   }, [isResizing]);
 
   const handleMouseUpResize = useCallback(() => {
     if (isResizing) {
       setIsResizing(false);
-      // No cursor reset needed here as the body cursor wasn't changed
     }
   }, [isResizing]);
 
+  // Drag handlers
+  const handleMouseDownDrag = useCallback((e) => {
+      if (e.button !== 0) return; // Only react to left mouse button
+      setIsDragging(true);
+      dragStartInfo.current = {
+          initialMouseX: e.pageX,
+          initialMouseY: e.pageY,
+          initialPosX: position.x,
+          initialPosY: position.y,
+      };
+      e.preventDefault(); // Prevent text selection while dragging
+      e.stopPropagation();
+  }, [position.x, position.y]);
 
-  // --- Combined useEffect for Listeners --- 
+  const handleMouseMoveDrag = useCallback((e) => {
+      if (!isDragging) return;
+      const deltaX = e.pageX - dragStartInfo.current.initialMouseX;
+      const deltaY = e.pageY - dragStartInfo.current.initialMouseY;
+      setPosition({
+          x: dragStartInfo.current.initialPosX + deltaX,
+          y: dragStartInfo.current.initialPosY + deltaY,
+      });
+  }, [isDragging]);
+
+  const handleMouseUpDrag = useCallback(() => {
+      if (isDragging) {
+          setIsDragging(false);
+      }
+  }, [isDragging]);
+
   useEffect(() => {
-    const handleGlobalMouseMove = (e) => {
-        handleMouseMoveDrag(e);
-        handleMouseMoveResize(e);
-    };
-    const handleGlobalMouseUp = (e) => {
-        handleMouseUpDrag(e);
-        handleMouseUpResize(e);
-    };
-
-    if (isDragging || isResizing) {
-      window.addEventListener('mousemove', handleGlobalMouseMove);
-      window.addEventListener('mouseup', handleGlobalMouseUp);
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMoveResize);
+      window.addEventListener('mouseup', handleMouseUpResize);
+    } else if (isDragging) { // Add listeners for dragging
+      window.addEventListener('mousemove', handleMouseMoveDrag);
+      window.addEventListener('mouseup', handleMouseUpDrag);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
-      // Ensure cursor is reset if component unmounts while dragging
-      if (document.body.style.cursor === 'grabbing') {
-        document.body.style.cursor = 'default';
-      }
+      window.removeEventListener('mousemove', handleMouseMoveResize);
+      window.removeEventListener('mouseup', handleMouseUpResize);
+      window.removeEventListener('mousemove', handleMouseMoveDrag); // Cleanup drag listeners
+      window.removeEventListener('mouseup', handleMouseUpDrag);
     };
-    // Rerun if any state/handler changes
-  }, [isDragging, isResizing, handleMouseMoveDrag, handleMouseUpDrag, handleMouseMoveResize, handleMouseUpResize]);
+  }, [isResizing, handleMouseMoveResize, handleMouseUpResize, isDragging, handleMouseMoveDrag, handleMouseUpDrag]); // Add drag dependencies
 
-  // Internal close handler to stop propagation if needed
   const handleCloseClick = (e) => {
-      e.stopPropagation(); // Prevent triggering drag start
+      e.stopPropagation();
       if (onClose) {
           onClose();
       }
@@ -404,20 +370,18 @@ function FileViewer({ fileName, fileExplanation, link, children, initialPosition
   return (
     <div
       ref={viewerRef}
-      className={`absolute z-20 select-none overflow-hidden border border-black shadow-lg`}
+      className={`fixed z-20 select-none overflow-hidden border border-black shadow-lg ${isDragging ? 'cursor-grabbing' : ''}`} // Add grabbing cursor when dragging
       style={{
-        top: `${position.y}px`,
-        left: `${position.x}px`,
-        width: `${size.width}px`, // Apply width from state
-        height: `${size.height}px`, // Apply height from state
-        cursor: isDragging ? 'grabbing' : 'grab',
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+        top: `${position.y}px`, // Use state for position
+        left: `${position.x}px`, // Use state for position
+        cursor: 'default',
       }}
-      onMouseDown={handleMouseDownDrag} // Use the specific drag handler
     >
-      {/* Header */}
       <div
-        className="flex h-6 w-full items-center justify-between border-b border-neutral-600 bg-[#e5e5e5] px-2"
-        // Header itself doesn't need mousedown now
+        onMouseDown={handleMouseDownDrag} // Attach drag handler to the header
+        className="flex h-6 w-full items-center justify-between border-b border-neutral-600 bg-[#e5e5e5] px-2 cursor-grab" // Add grab cursor
       >
         <Link
           to={link}
@@ -426,10 +390,7 @@ function FileViewer({ fileName, fileExplanation, link, children, initialPosition
           rel="noopener noreferrer"
         >
           <span
-            className={`
-              flex items-center space-x-1 text-xs text-neutral-800 transition
-              duration-200 ease-out hover:text-neutral-200
-            `}
+            className={`flex items-center space-x-1 text-xs text-neutral-800 transition duration-200 ease-out hover:text-neutral-600`}
           >
             <span>{fileName}</span>
             <ArrowUpRight size={14} />
@@ -437,25 +398,23 @@ function FileViewer({ fileName, fileExplanation, link, children, initialPosition
         </Link>
         <button
           onClick={handleCloseClick}
-          className="p-0.5 font-mono text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+          className="p-0.5 font-mono text-neutral-500 transition-colors hover:bg-neutral-300 hover:text-neutral-700"
           aria-label="Close code viewer"
         >
-          <IconX size={14} strokeWidth={3} />
+            <IconX size={14} strokeWidth={3}/>
         </button>
       </div>
-      {/* Body - Allow overflow for scrolling if content exceeds size */}
       <div className="h-[calc(100%-1.5rem)] w-full overflow-auto bg-[#f5f5f5] text-sm">
         {children}
       </div>
-      {/* Resize Handle (Bottom Right) */}
       <div
         ref={resizeHandleRef}
-        onMouseDown={handleMouseDownResize} // Attach resize handler
-        className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize bg-[#ffdd33] hover:bg-red-500/70" // Light yellow with darker hover
-        style={{ zIndex: 1 }} // Ensure it's clickable over content
+        onMouseDown={handleMouseDownResize}
+        className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize bg-[#ffdd33] hover:bg-red-500/70"
+        style={{ zIndex: 1 }}
       ></div>
     </div>
-  )
+  );
 }
 
 export default Hero

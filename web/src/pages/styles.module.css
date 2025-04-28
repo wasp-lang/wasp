@@ -19,14 +19,14 @@
   content: '';
   position: absolute;
   pointer-events: none;
-  width: 1223px;
-  height: 912px;
+  width: 1000px;
+  height: 700px;
 
-  width: 1200px;
-  height: 912px;
+  width: 1000px;
+  height: 700px;
 
-  left: calc(50% - 1100px);
-  top: -10%;
+  left: 0;
+  top: -10px;
 
   background: radial-gradient(
     50% 50% at 50% 50%,
@@ -41,11 +41,11 @@
   content: '';
   position: absolute;
   pointer-events: none;
-  width: 1223px;
-  height: 912px;
+  width: 400px;
+  height: 300px;
 
-  width: 1200px;
-  height: 912px;
+  width: 400px;
+  height: 300px;
 
   left: calc(50%);
   top: 0px;

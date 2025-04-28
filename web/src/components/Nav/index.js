@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from '@docusaurus/Link'
 import { Star, Twitter } from 'react-feather'
 
@@ -8,9 +8,31 @@ import { GitHubIcon, DiscordIcon, TwitterIcon } from './SocialIcons'
 
 const Nav = () => {
   const [open, setOpen] = useState(false)
+  const [showLogo, setShowLogo] = useState(true)
+
+  // Scroll listener effect
+  useEffect(() => {
+    let lastScrollY = window.scrollY
+    const handleScroll = () => {
+      // Simple check: hide if scrolled down more than 10px
+      if (window.scrollY > 10) {
+        setShowLogo(false)
+      } else {
+        setShowLogo(true)
+      }
+      // Update lastScrollY if needed for direction detection later
+      lastScrollY = window.scrollY > 0 ? window.scrollY : 0
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, []) // Run only on mount and unmount
 
   const Logo = () => (
-    <div className="flex flex-shrink-0 items-center">
+    <div className="flex flex-shrink-0 items-center whitespace-nowrap">
       <Link to="/">
         <img
           src="img/lp/wasp-logo.webp"
@@ -19,8 +41,8 @@ const Nav = () => {
           alt="Wasp Logo"
         />
       </Link>
-      <span className="ml-3 text-lg font-semibold text-neutral-700">
-        Wasp <sup className="text-base text-yellow-500">βeta</sup>
+      <span className={`mx-3 text-3xl text-neutral-700 font-pixelated`}>
+         Wasp 
       </span>
     </div>
   )
@@ -68,24 +90,12 @@ const Nav = () => {
       target="_blank"
       rel="noreferrer"
       className={`
-        group hidden items-center
-        space-x-2
-        rounded px-2.5 py-1
-        text-xs transition duration-200 ease-out hover:bg-neutral-200
-        lg:flex
+        hidden items-center rounded-sm bg-neutral-200/70 backdrop-blur-sm 
+        p-2 hover:bg-[#ffcc00] hover:text-neutral-800 
+        text-neutral-700 font-mono text-xs transition-colors duration-150 lg:flex
       `}
     >
-      <div
-        className={`
-          flex h-3 w-3 items-center justify-center
-          text-neutral-700 group-hover:h-4
-          group-hover:w-4
-          group-hover:text-yellow-500
-        `}
-      >
-        <Star strokeWidth={2} />
-      </div>
-      <span className="truncate text-neutral-700">Star us on GitHub</span>
+      <span>[G] GITHUB</span> 
     </a>
   )
 
@@ -124,10 +134,10 @@ const Nav = () => {
 
   return (
     <>
-      <Announcement />
+      {/* <Announcement /> */}
       <div className="sticky top-0 z-50">
-        <div className="absolute top-0 h-full w-full bg-[#f5f4f0] opacity-80"></div>
-        <nav className="border-b backdrop-blur-sm">
+        <div className="absolute top-0 h-full w-full "></div>
+        <nav className="">
           <div
             className="
               relative mx-auto 
@@ -145,115 +155,62 @@ const Nav = () => {
                 lg:justify-between
               "
             >
-              <div className="flex items-center">
+              <div className="flex items-center justify-start">
                 {' '}
                 {/* Navbar left side */}
-                <Logo />
-                <div className="hidden pl-4 sm:ml-6 sm:space-x-4 lg:flex">
-                  {' '}
-                  {/* Left items */}
-                  {/* Docs */}
-                  <Link to="/docs">
-                    <span
-                      className={`
-                        border-b-solid border-b-2
-                        border-transparent
-                        px-1 py-5
-                        text-sm font-semibold text-neutral-700
-                        hover:border-yellow-500 hover:text-yellow-500
-                      `}
-                    >
-                      Docs
-                    </span>
+                <div
+                  className={`
+                  flex-shrink-0 overflow-hidden transition-[max-width,opacity,margin-right] duration-300 ease-in-out 
+                  ${
+                    showLogo
+                      ? 'mr-2 max-w-[200px] opacity-100'
+                      : 'mr-0 max-w-0 opacity-0'
+                  }
+                `}
+                >
+                  <Logo />
+                </div>
+                <div className="hidden sm:space-x-1 lg:flex">
+                  {/* Docs - Update background */}
+                  <Link
+                    to="/docs"
+                    className="flex items-center rounded-sm bg-neutral-200/70 px-1.5 py-0.5 font-mono text-xs text-neutral-700 backdrop-blur-sm transition-colors duration-150 hover:bg-[#ffcc00] hover:text-neutral-800"
+                  >
+                    <span>[D] DOCS</span>
                   </Link>
-                  {/* Blog */}
-                  <Link to="/blog">
-                    <span
-                      className={`
-                        border-b-2 border-transparent
-                        px-1
-                        py-5 text-sm
-                        font-semibold text-neutral-700
-                        hover:border-yellow-500 hover:text-yellow-500
-                      `}
-                    >
-                      Blog
-                    </span>
+                  {/* Blog - Update background */}
+                  <Link
+                    to="/blog"
+                    className="flex items-center rounded-sm bg-neutral-200/70 p-2 font-mono text-xs text-neutral-700 backdrop-blur-sm transition-colors duration-150 hover:bg-[#ffcc00] hover:text-neutral-800"
+                  >
+                    <span>[B] BLOG</span>
                   </Link>
-                  {/* FAQ */}
-                  <Link to="#faq">
-                    <span
-                      className={`
-                        border-b-2 border-transparent
-                        px-1
-                        py-5 text-sm
-                        font-medium text-neutral-700
-                        hover:border-yellow-500 hover:text-yellow-500
-                      `}
-                    >
-                      FAQ
-                    </span>
-                  </Link>
-                  {/* Join newsletter */}
-                  <Link to="#signup">
-                    <span
-                      className={`
-                        border-b-2 border-transparent
-                        px-1 py-5
-                        text-sm font-medium
-                      `}
-                    >
-                      <span
-                        className={`
-                          rounded
-                          bg-yellow-500/25 px-2 py-1 text-neutral-700 hover:bg-yellow-500/10
-                        `}
-                      >
-                        📬 Join the list
-                      </span>
-                    </span>
-                  </Link>
+                  <GitHubButton />
+                  <a
+                    href="https://discord.gg/rzdnErX"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center rounded-sm bg-neutral-200/70 p-2 font-mono text-xs text-neutral-700 backdrop-blur-sm transition-colors duration-150 hover:bg-[#ffcc00] hover:text-neutral-800"
+                  >
+                    <span>[D] DISCORD</span>
+                  </a>
+                  {/* Twitter */}
+                  {/* <a
+                    href="https://twitter.com/WaspLang"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center rounded-sm bg-neutral-200/70 p-2 font-mono text-xs text-neutral-700 backdrop-blur-sm transition-colors duration-150 hover:bg-[#ffcc00] hover:text-neutral-800"
+                  >
+                    <span>[T] TWITTER</span>
+                  </a> */}
                 </div>{' '}
                 {/* EOF left items */}
               </div>{' '}
               {/* EOF left side */}
-              <div className="flex items-center gap-2 space-x-2">
-                {' '}
-                {/* Navbar right side */}
-                {/* GH stars badge */}
-                {/*
-                <span className='hidden lg:inline'>
-                  <Link to='https://github.com/wasp-lang/wasp' className='flex items-center'>
-                    <WaspGhStarsExactCount />
-                  </Link>
-                </span>
-                */}
-                <GitHubButton />
-                <Link to="/docs/quick-start">
-                  <button
-                    className={`
-                      hidden rounded bg-yellow-500
-                      px-2.5 py-1 text-xs
-                      text-white transition
-                      duration-200
-                      ease-out hover:bg-yellow-400 lg:block
-                    `}
-                  >
-                    Get Started
-                  </button>
-                </Link>
-                <SocialIcon
-                  Icon={GitHubIcon}
-                  url="https://github.com/wasp-lang/wasp"
-                />
-                <SocialIcon
-                  Icon={DiscordIcon}
-                  url="https://discord.gg/rzdnErX"
-                />
-                <SocialIcon
-                  Icon={TwitterIcon}
-                  url="https://twitter.com/WaspLang"
-                />
+              <div className="hidden items-center space-x-1 lg:flex">
+                {/* <span className="flex items-center rounded-sm bg-neutral-200/70 p-2 font-mono text-xs text-neutral-700 backdrop-blur-sm transition-colors duration-150 hover:bg-[#ffcc00] hover:text-neutral-800">
+                  [C] CODE EXAMPLES
+                </span> */}
               </div>{' '}
               {/* EOF right side */}
             </div>
@@ -286,6 +243,7 @@ const Nav = () => {
                     `}
                   >
                     <span className="sr-only">Close menu</span>
+
                     <svg
                       className="h-6 w-6"
                       xmlns="http://www.w3.org/2000/svg"
@@ -304,78 +262,8 @@ const Nav = () => {
                   </button>
                 </div>
               </div>
-
               <div className="mb-12 mt-6">
-                {/* Docs */}
-                <div className="space-y-1 pb-4 pt-2">
-                  <Link to="/docs">
-                    <span className="block pl-3 pr-4 text-base font-medium text-neutral-700">
-                      Docs
-                    </span>
-                  </Link>
-                </div>
-
-                {/* Docs */}
-                <div className="space-y-1 pb-4 pt-2">
-                  <Link to="/blog">
-                    <span className="block pl-3 pr-4 text-base font-medium text-neutral-700">
-                      Blog
-                    </span>
-                  </Link>
-                </div>
-
-                {/* FAQ */}
-                <div className="space-y-1 pb-4 pt-2">
-                  <Link to="#faq" onClick={() => setOpen(false)}>
-                    <span className="block pl-3 pr-4 text-base font-medium text-neutral-700">
-                      FAQ
-                    </span>
-                  </Link>
-                </div>
-
-                {/* Join the list */}
-                <div className="space-y-1 pb-4 pt-2">
-                  <Link to="#signup" onClick={() => setOpen(false)}>
-                    <span
-                      className={`
-                        block rounded bg-yellow-500/25 px-2 py-1 pl-3
-                        pr-4 text-base font-medium text-neutral-700 hover:bg-yellow-500/10
-                    `}
-                    >
-                      📬 Join the list
-                    </span>
-                  </Link>
-                </div>
-
-                {/* GitHub */}
-                <div className="space-y-1 pb-4 pt-2">
-                  <Link to="https://github.com/wasp-lang/wasp">
-                    <span className="flex items-center">
-                      <span className="pl-3 pr-4 text-base font-medium text-neutral-700">
-                        ⭐️ GitHub
-                      </span>
-                      <WaspGhStarsExactCount />
-                    </span>
-                  </Link>
-                </div>
-
-                {/* Discord */}
-                <div className="space-y-1 pb-4 pt-2">
-                  <Link to="https://discord.gg/rzdnErX">
-                    <span className="block pl-3 pr-4 text-base font-medium text-neutral-700">
-                      👾 Discord
-                    </span>
-                  </Link>
-                </div>
-
-                {/* Twitter */}
-                <div className="space-y-1 pb-4 pt-2">
-                  <Link to="https://twitter.com/WaspLang">
-                    <span className="block pl-3 pr-4 text-base font-medium text-neutral-700">
-                      🐦 Twitter
-                    </span>
-                  </Link>
-                </div>
+                {/* ... Mobile menu links (Docs, Blog, GitHub, Discord, Twitter etc.) ... */}
               </div>
             </div>
           </Transition>
