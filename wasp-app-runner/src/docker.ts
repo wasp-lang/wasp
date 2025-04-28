@@ -15,11 +15,11 @@ export function createAppSpecificDbContainerName({
   appName: string;
   pathToApp: string;
 }): DbContainerName {
-  const appSpecificPrefix = createAppSpecificAppSpecificPrefix({
+  const prefix = createAppSpecificPrefix({
     appName,
     pathToApp,
   });
-  return `${appSpecificPrefix}-db` as DbContainerName;
+  return `${prefix}-db` as DbContainerName;
 }
 
 export function createAppSpecificServerBuildDockerNames({
@@ -32,18 +32,17 @@ export function createAppSpecificServerBuildDockerNames({
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
 } {
-  const appSpecificPrefix = createAppSpecificAppSpecificPrefix({
+  const prefix = createAppSpecificPrefix({
     appName,
     pathToApp,
   });
   return {
-    imageName: `${appSpecificPrefix}-server` as ServerBuildImageName,
-    containerName:
-      `${appSpecificPrefix}-server-container` as ServerBuildContainerName,
+    imageName: `${prefix}-server` as ServerBuildImageName,
+    containerName: `${prefix}-server-container` as ServerBuildContainerName,
   };
 }
 
-function createAppSpecificAppSpecificPrefix({
+function createAppSpecificPrefix({
   appName,
   pathToApp,
 }: {
