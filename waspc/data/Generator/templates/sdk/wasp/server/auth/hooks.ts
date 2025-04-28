@@ -53,7 +53,7 @@ export type InternalAuthHookParams = {
 // Same goes for all other *Params types in this file.
 type OnBeforeSignupHookParams = {
   /**
-   * Provider ID object that contains the provider name and the provide user ID.
+   * Provider ID object that contains the provider name and the provider user ID.
   */
   providerId: ProviderId
   /**
@@ -64,7 +64,7 @@ type OnBeforeSignupHookParams = {
 
 type OnAfterSignupHookParams = {
   /**
-   * Provider ID object that contains the provider name and the provide user ID.
+   * Provider ID object that contains the provider name and the provider user ID.
   */
   providerId: ProviderId
   /**
@@ -84,11 +84,11 @@ type OnAfterSignupHookParams = {
 
 type OnAfterEmailVerifiedHookParams = {
   /**
-   * Provider ID object that contains the provider name and the provide user ID. In this case it's always "email" provider with user id of email that was verified.
+   * Provider ID object that contains the provider name and the provider user ID. In this case it's always "email" provider with user id of email that was verified.
   */
   providerId: ProviderId
   /**
-   * The user whose email was verified.
+   * The user who verified their email.
   */
   user: FindAuthWithUserResult['user']
   /**
@@ -114,7 +114,7 @@ type OnBeforeOAuthRedirectHookParams = {
 
 type OnBeforeLoginHookParams = {
   /**
-   * Provider ID object that contains the provider name and the provide user ID.
+   * Provider ID object that contains the provider name and the provider user ID.
   */
   providerId: ProviderId
   /**
@@ -129,7 +129,7 @@ type OnBeforeLoginHookParams = {
 
 type OnAfterLoginHookParams = {
   /**
-   * Provider ID object that contains the provider name and the provide user ID.
+   * Provider ID object that contains the provider name and the provider user ID.
   */
   providerId: ProviderId
   /**

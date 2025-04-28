@@ -38,7 +38,7 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
 \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
 
-If you are using the email provider, the flow include an extra verification flow:
+If you are using the email provider, the auth flow includes extra steps before the login flow:
 
 <ImgWithCaption
   source="/img/auth-hooks/email_verification_flow_with_hooks.png"
@@ -296,9 +296,9 @@ export const onAfterSignup: OnAfterSignupHook = async ({
 
 Read more about the data the `onAfterSignup` hook receives in the [API Reference](#the-onaftersignup-hook).
 
-### Executing code after a user verifies the email
+### Executing code after a user verifies their email
 
-Wasp calls the `onAfterEmailVerified` hook once a user's email has been successfully verified.
+Wasp calls the `onAfterEmailVerified` hook exactly once, after the user verifies their email.
 
 The `onAfterEmailVerified` hook is useful for triggering actions in response to the verification event — such as sending a welcome email or syncing user data with a third-party service.
 
@@ -333,7 +333,7 @@ export const onAfterEmailVerified = async ({ providerId }) => {
     text: 'Your email has been successfully verified!',
     html: 'Your email has been successfully verified!',
   })
-  // Store that email was sent successfully, otherwise schedule it for later
+  // ...
 }
 ```
 
@@ -367,7 +367,7 @@ export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
     text: 'Your email has been successfully verified!',
     html: 'Your email has been successfully verified!',
   })
-  // Store that email was sent successfully, otherwise schedule it for later
+  // ...
 }
 ```
 
@@ -849,7 +849,7 @@ The hook receives an object as **input** with the following properties:
 
 - `user: User`
 
-  The user whose email was verified.
+  The user who verified their email.
 
 - [`oauth?: OAuthFields`](#oauth-fields)
 

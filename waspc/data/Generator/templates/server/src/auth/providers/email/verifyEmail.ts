@@ -3,8 +3,9 @@ import { validateJWT } from 'wasp/auth/jwt';
 import {
   createProviderId,
   findAuthIdentity,
+  findAuthWithUserBy,
   getProviderDataWithPassword,
-  updateAuthIdentityProviderData
+  updateAuthIdentityProviderData,
 } from 'wasp/auth/utils';
 import { HttpError } from 'wasp/server';
 import { onAfterEmailVerifiedHook } from '../../hooks.js';
@@ -31,7 +32,10 @@ export async function verifyEmail(
     await updateAuthIdentityProviderData(providerId, providerData, {
         isEmailVerified: true,
     });
-    await onAfterEmailVerifiedHook({ req, email, providerId })
+
+    const auth = await findAuthWithUserBy({ id: authIdentity.authId })
+
+    await onAfterEmailVerifiedHook({ req, providerId, user: auth.user });
 
     return res.json({ success: true });
 };
