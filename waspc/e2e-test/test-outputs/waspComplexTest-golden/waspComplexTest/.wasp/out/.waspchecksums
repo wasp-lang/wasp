@@ -1208,7 +1208,7 @@
             "file",
             "web-app/index.html"
         ],
-        "04e67239005c3ec39463778c9d0d4abc2addd8a30b295390619e494a84f96103"
+        "3a8bb4f6e5dc705458a6019cca3f881452ea844e8b268ae798710b9be5dc328e"
     ],
     [
         [
@@ -1223,13 +1223,6 @@
             "web-app/package.json"
         ],
         "2352cda526107792c1399ca931ac268d92827d1f08ed6db1a41b12d00abaa988"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
