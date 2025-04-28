@@ -1,7 +1,7 @@
 {{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand } from 'wasp/universal/types'
+import type { Expand, LimitTo } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
 
 
@@ -9,18 +9,11 @@ import type { ProviderName } from '../utils'
 {=& emailUserSignupFields.importStatement =}
 const _waspEmailUserSignupFields = {= emailUserSignupFields.importIdentifier =}
 {=/ emailUserSignupFields.isDefined =}
-{=^ emailUserSignupFields.isDefined =}
-const _waspEmailUserSignupFields = undefined
-{=/ emailUserSignupFields.isDefined =}
 
 {=# usernameAndPasswordUserSignupFields.isDefined =}
 {=& usernameAndPasswordUserSignupFields.importStatement =}
 const _waspUsernameAndPasswordUserSignupFields = {= usernameAndPasswordUserSignupFields.importIdentifier =}
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
-{=^ usernameAndPasswordUserSignupFields.isDefined =}
-const _waspUsernameAndPasswordUserSignupFields = undefined
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
-
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -29,16 +22,15 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-type LimitTo<T, U> = Record<
-  Exclude<keyof T, keyof U>,
-  never
->
-
+{=# emailUserSignupFields.isDefined =}
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<typeof _waspEmailUserSignupFields>;
+{=/ emailUserSignupFields.isDefined =}
 
+{=# usernameAndPasswordUserSignupFields.isDefined =}
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof _waspUsernameAndPasswordUserSignupFields>;
+{=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 type InferUserSignupFields<T> = T extends UserSignupFields
   ? {

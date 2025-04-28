@@ -49,3 +49,19 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
 ) => any
   ? [FirstParam, ...Rest]
   : Parameters<T>;
+
+/**
+ * LimitTo is useful when you want to allow a generic type T that extends U,
+ * but then ensure that T does not have any extra properties beyond those in U.
+ *
+ * @example
+ * function defineUserSignupFields<T extends UserSignupFields>(
+ *   fields: T & LimitTo<T, UserSignupFields>
+ * ): T {
+ *   return fields
+ * }
+ */
+export type LimitTo<T, U> = Record<
+  Exclude<keyof T, keyof U>,
+  never
+>

@@ -147,7 +147,6 @@ genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/typ
           "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
         ]
 
-    authMethods = AS.Auth.methods auth
-
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    authMethods = AS.Auth.methods auth
