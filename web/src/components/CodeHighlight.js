@@ -1,14 +1,19 @@
 import React from 'react'
 import Prism from 'prismjs'
 import Highlight from 'prism-react-renderer'
-import lightCodeTheme from 'prism-react-renderer/themes/github'
+import githubLight from 'prism-react-renderer/themes/github'
 import '../css/prismjs-github-theme.css'
+
+githubLight.plain = {
+  ...githubLight.plain,
+  backgroundColor: '#f5f5f5',
+}
 
 export default function CodeHighlight({ language, source }) {
   return (
     <Highlight
       Prism={Prism}
-      theme={lightCodeTheme}
+      theme={githubLight}
       code={source}
       language={language}
     >
@@ -16,9 +21,11 @@ export default function CodeHighlight({ language, source }) {
         <pre
           className={className}
           style={{
-            borderBottomLeftRadius: '10px',
-            borderBottomRightRadius: '10px',
-            paddingLeft: '15px',
+            borderBottomLeftRadius: '0px',
+            borderBottomRightRadius: '0px',
+            borderTopLeftRadius: '0px',
+            borderTopRightRadius: '0px',
+            // margin: '5px',
             ...style,
           }}
         >
