@@ -7,7 +7,6 @@
 Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-16-to-0-17) to address all the breaking changes. Here's a short overview:
 
 - In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
-- Wasp requires that projects have `tailwindcss@^3.2.7` dependency specified in their `devDependencies` in `package.json`. ([#2465](https://github.com/wasp-lang/wasp/pull/2465))
 - We've made some improvements to our TypeScript setup that require you to
   update the `tsconfig.json` file. The migration guide will lead you through
   them, but here are all the non-cosmetic ones:
