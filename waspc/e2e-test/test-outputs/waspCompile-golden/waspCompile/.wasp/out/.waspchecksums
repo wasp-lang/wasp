@@ -585,7 +585,7 @@
             "file",
             "web-app/index.html"
         ],
-        "e87f539b3de57d569c5984c8edca0026a939634312b5b1f0163bd34f426846e5"
+        "5e341d0f9f174192d8af416f6d18cc9e6974a07b09afb1b905526389ccda59b1"
     ],
     [
         [
@@ -600,13 +600,6 @@
             "web-app/package.json"
         ],
         "32eae3bdc2c14ab2ec0eedbce0b1e365c74945e50c207f5ab491884587a4e054"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
