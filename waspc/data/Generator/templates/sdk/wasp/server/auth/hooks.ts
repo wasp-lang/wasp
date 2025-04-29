@@ -84,9 +84,9 @@ type OnAfterSignupHookParams = {
 
 type OnAfterEmailVerifiedHookParams = {
   /**
-   * Provider ID object that contains the provider name and the provider user ID. In this case it's always "email" provider with user id of email that was verified.
+   * The email address that was verified.
   */
-  providerId: ProviderId
+  email: string
   /**
    * The user who verified their email.
   */

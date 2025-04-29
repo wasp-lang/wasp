@@ -35,7 +35,7 @@ export async function verifyEmail(
 
     const auth = await findAuthWithUserBy({ id: authIdentity.authId })
 
-    await onAfterEmailVerifiedHook({ req, providerId, user: auth.user });
+    await onAfterEmailVerifiedHook({ req, email, user: auth.user });
 
     return res.json({ success: true });
 };
