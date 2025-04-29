@@ -165,6 +165,10 @@ jobs:
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
         run: ./tools/ensure_app_compiles_and_builds.sh ./examples/todoApp
 
+      - name: Ensure examples/crud-testing compiles and builds
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        run: ./tools/ensure_app_compiles_and_builds.sh ./examples/crud-testing
+
       - name: Headless - Cache Node Modules
         id: headless-cache-node-modules
         uses: actions/cache@v3
