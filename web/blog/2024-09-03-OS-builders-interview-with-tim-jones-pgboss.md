@@ -47,7 +47,7 @@ In terms of job storage, we’ve been able to store 2-3 million jobs in v9’s s
 
 Once record counts are under control, in terms of job throughput, the number of concurrent queries to Postgres can be very high, especially when using connection poolers and job batching. I have a speed test in the suite that can both fetch and then complete 10,000 jobs in 0.5 seconds, a metric you would not easily be able to achieve even in some dedicated queuing products. For job creation on the other hand, you have the full power of SQL available in Postgres via INSERT or even COPY.
 
-:::tip[Fun fact!]
+:::tip\[Fun fact!]
 Did you know that Wasp uses pg-boss under the hood? We built Wasp Jobs on top of pg-boss, and [here's how we did it](https://wasp.sh/blog/2022/06/15/jobs-feature-announcement).
 :::
 
@@ -66,13 +66,18 @@ Another very useful new feature is queue policies. Over the years there were sev
 There are several other enhancements made to improve quality of life in v10:
 
 - All jobs have 2 retries enabled by default
+
 - FIPS compliant (dropped internal usage of MD5 hashing)
+
 - Replication support for HA or read-replicas (every table now has a primary key)
+
 - Serverless function supervision (maintain() function that can be run from another scheduler)
+
 - Postgres dependency-free (no pgcrypto extension needed uuid generation)
+
 - Dead letter queues (Replaces “completion job” feature and gains retry support for processing them)
 
-- **What are your thoughts on things like pg_render [which is a way to render HTML in Postgres](https://www.madewithsupabase.com/p/pg-render)? [](https://www.madewithsupabase.com/p/pg-render)Is that going too far?**
+- **What are your thoughts on things like pg\_render [which is a way to render HTML in Postgres](https://www.madewithsupabase.com/p/pg-render)? [](https://www.madewithsupabase.com/p/pg-render)Is that going too far?**
 
 Since I’m a Postgres fan, it’s hard for me to see how adding more capabilities to it would be considered “going too far”. This particular project appears to be a simple abstraction of other open source packages and could be a useful case study of creating a Postgres extension in Rust. Since this is compiled, it should even have better performance benchmarks over other packages with the same feature in non-compiled languages.
 

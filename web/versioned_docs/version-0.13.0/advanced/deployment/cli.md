@@ -39,8 +39,7 @@ If your account is a member of more than one organization on Fly.io, you will ne
 :::
 
 <small>
-
-Please do not CTRL-C or exit your terminal while the commands are running.
+  Please do not CTRL-C or exit your terminal while the commands are running.
 </small>
 
 Under the covers, this runs the equivalent of the following commands:
@@ -64,6 +63,7 @@ The basename is used to create all three app tiers, resulting in three separate 
 - `my-wasp-app-db`
 
 You'll notice that Wasp creates two new files in your project root directory:
+
 - `fly-server.toml`
 - `fly-client.toml`
 
@@ -109,9 +109,8 @@ You can validate your ownership of mycoolapp.com by:
 wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
 
-  <small>
-
-We need to do this to keep our CORS configuration up to date.
+<small>
+  We need to do this to keep our CORS configuration up to date.
 </small>
 
 That's it, your app should be available at `https://mycoolapp.com`! 🎉
@@ -220,8 +219,7 @@ wasp deploy fly cmd secrets list --context server
 > Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
 
 <small>
-
-Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
+  Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
 </small>
 
 You can find the list of all available Fly regions by running:

@@ -17,6 +17,7 @@ It is an opinionated way of building **full-stack web applications**. It takes c
 major parts of a web application: **client** (front-end), **server** (back-end) and **database**.
 
 ### Works well with your existing stack
+
 Wasp is not trying to do everything at once but rather focuses on the complexity that arises from connecting all the parts of the stack (client, server, database, deployment).
 
 Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on them to define web components and server queries and actions.
@@ -27,14 +28,12 @@ At the core is the Wasp compiler which takes the Wasp config and your Javascript
 
 <!-- ![Wasp compilation diagram](/img/lp/wasp-compilation-diagram.png) -->
 
-<ImgWithCaption
-    source="/img/lp/wasp-compilation-diagram.png"
-    caption="How the magic happens 🌈"
-/>
+<ImgWithCaption source="/img/lp/wasp-compilation-diagram.png" caption="How the magic happens 🌈" />
 
-The cool thing about having a compiler that understands your code is that it can do a lot of things for you. 
+The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 
 Define your app in the Wasp config and get:
+
 - login and signup with Auth UI components,
 - full-stack type safety,
 - e-mail sending,
@@ -52,6 +51,7 @@ Let's say you want to build a web app that allows users to **create and share th
 Let's start with the `main.wasp` file: it is the central file of your app, where you describe the app from the high level.
 
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
+
 ```wasp title="main.wasp"
 app RecipeApp {
   title: "My Recipes",
@@ -90,6 +90,7 @@ We do that by defining Operations, in this case, a Query `getRecipes` and Action
 which are in their essence Node.js functions that execute on the server and can, thanks to Wasp, very easily be called from the client.
 
 First, we define these Operations in our `main.wasp` file, so Wasp knows about them and can "beef them up":
+
 ```wasp title="main.wasp"
 // Queries have automatic cache invalidation and are type-safe.
 query getRecipes {
@@ -125,6 +126,7 @@ Now we can very easily use these in our React components!
 For the end, let's create a home page of our app.
 
 First, we define it in `main.wasp`:
+
 ```wasp title="main.wasp"
 ...
 
@@ -174,14 +176,17 @@ Above we skipped defining `/login` and `/signup` pages to keep the example a bit
 :::
 
 ## When to use Wasp
+
 Wasp addresses the same core problems that typical web app frameworks are addressing, and it in big part [looks, swims and quacks](https://en.wikipedia.org/wiki/Duck_test) like a web app framework.
 
 ### Best used for
+
 - building full-stack web apps (like e.g. Airbnb or Asana)
 - quickly starting a web app with industry best practices
 - to be used alongside modern web dev stack (React and Node.js are currently supported)
 
 ### Avoid using Wasp for
+
 - building static/presentational websites
 - to be used as a no-code solution
 - to be a solve-it-all tool in a single language
@@ -194,10 +199,10 @@ You don't need to know what a DSL is to use Wasp, but if you are curious, you ca
 
 Wasp does not match typical expectations of a web app framework: it is not a set of libraries, it is instead a simple programming language that understands your code and can do a lot of things for you.
 
-Wasp is a programming language, but a specific kind: it is specialized for a single purpose: **building modern web applications**. We call such languages *DSL*s (Domain Specific Language).
+Wasp is a programming language, but a specific kind: it is specialized for a single purpose: **building modern web applications**. We call such languages _DS&#x4C;_&#x73; (Domain Specific Language).
 
-Other examples of *DSL*s that are often used today are e.g. *SQL* for databases and *HTML* for web page layouts.
-The main advantage and reason why *DSL*s exist is that they need to do only one task (e.g. database queries)
+Other examples of _DS&#x4C;_&#x73; that are often used today are e.g. _SQL_ for databases and _HTML_ for web page layouts.
+The main advantage and reason why _DS&#x4C;_&#x73; exist is that they need to do only one task (e.g. database queries)
 so they can do it well and provide the best possible experience for the developer.
 
 The same idea stands behind Wasp - a language that will allow developers to **build modern web applications with 10x less code and less stack-specific knowledge**.
