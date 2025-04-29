@@ -19,7 +19,3 @@ export { env } from './env.js'
 
 // PUBLIC API
 export type DbSeedFn = (prisma: ResolvedPrismaClient) => Promise<void>
-
-// PUBLIC API
-// TODO: We can't use this type becuase prisma.$extends() doesn't return a PrismaClient?
-export type PrismaSetupFn = () => PrismaClient

@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 export const setupPrisma = () => {
   const prisma = new PrismaClient({
-    // Logs SQL queries if needed
+    // Log SQL queries if needed
     // log: ['query'],
   }).$extends({
     query: {

@@ -11,5 +11,8 @@ function createDbClient() {
 
 const dbClient = createDbClient()
 
+// PUBLIC API 
+export type ResolvedPrismaClient = typeof dbClient
+
 // PUBLIC API
 export default dbClient
