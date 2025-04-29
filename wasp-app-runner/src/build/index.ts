@@ -35,7 +35,7 @@ export async function startAppInBuildMode({
     extraEnv: dbEnvVars,
   });
 
-  startClientApp({
+  await startClientApp({
     pathToApp,
   });
 }

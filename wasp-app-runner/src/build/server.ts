@@ -35,11 +35,16 @@ export async function buildAndRunServerAppContainer({
     `Built server app container: ${containerName}`
   );
 
+  // This starts a long running process, so we don't await it.
   runServerAppContainer({
     pathToApp,
     imageName,
     containerName,
     extraEnv,
+  }).then(({ exitCode }) => {
+    if (exitCode !== 0) {
+      process.exit(1);
+    }
   });
 }
 
@@ -68,8 +73,8 @@ function runServerAppContainer({
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
   extraEnv: EnvVars;
-}): void {
-  spawnWithLog({
+}): Promise<{ exitCode: number | null }> {
+  return spawnWithLog({
     name: "server-start-app",
     cmd: "docker",
     args: [
@@ -85,10 +90,6 @@ function runServerAppContainer({
       containerName,
       imageName,
     ],
-  }).then(({ exitCode }) => {
-    if (exitCode !== 0) {
-      process.exit(1);
-    }
   });
 }
 
