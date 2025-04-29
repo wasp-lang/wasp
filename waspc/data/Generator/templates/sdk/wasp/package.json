@@ -8,6 +8,8 @@
       "test": "echo \"Error: no test specified\" && exit 1",
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
+  {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
+  {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
