@@ -5,7 +5,7 @@
 # make sure we don't accidentally add anything that causes `tsc` to error out.
 
 # Gets the directory of where this script lives.
-dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+dir="$1"
 echo "Running ensure_app_compiles_and_builds.sh from $dir"
 
 cd "$dir"
