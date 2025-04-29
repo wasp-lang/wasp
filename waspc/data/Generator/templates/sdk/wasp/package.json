@@ -125,8 +125,7 @@
       "./server/crud/Tasks": "./dist/server/crud/Tasks.js",
       "./server/operations/actions":  "./dist/server/operations/actions/index.js",
       "./server/operations/queries": "./dist/server/operations/queries/index.js",
-      "./server/_types": "./dist/server/_types/index.js",
-      "./server/_types/serialization": "./dist/server/_types/serialization.js"
+      "./server/_types": "./dist/server/_types/index.js"
 
    },
    {=!
