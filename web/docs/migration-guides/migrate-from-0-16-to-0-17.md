@@ -195,7 +195,58 @@ app MyApp {
 }
 ```
 
-### 6. Enjoy your updated Wasp app
+### 6. Upgrade Express dependencies
+
+You should change your `package.json` to use v5 of `express`
+and `@types/express`:
+
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "dependencies": {
+    "express": "~4.21.0",
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```json title="package.json"
+{
+  "dependencies": {
+    "express": "~5.1.0",
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### 7. Upgrade your `api` endpoints to Express 5
+
+Wasp now uses [Express v5](https://expressjs.com/2024/10/15/v5-release.html), which impacts
+[API Endpoints](../advanced/apis.md) (defined with `api` in your Wasp file).
+[Operations](../data-model/operations/overview.md) (defined with `query` and `action` in your Wasp file)
+are not affected by this change.
+
+To upgrade, follow [Express's v5 migration guide](https://expressjs.com/en/guide/migrating-5.html).
+
+:::tip
+In general, you only need to worry about changes to the `req` and `res` objects in your API endpoints.
+The breaking changes are mostly edge cases and most code should work without any updates.
+:::
+
+### 8. Enjoy your updated Wasp app
 
 That's it!
 

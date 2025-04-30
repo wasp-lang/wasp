@@ -23,6 +23,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - The types for DOM helpers in tests are now handled with an import in `src/vite-env.d.ts` (instead of overriding `typeRoots` in `tsconfig.json`).
 - Wasp will no longer generate `favicon.ico` on compile if there isn't one in the `public` directory. New Wasp projects will start with a default `favicon.ico` in the `public` directory, instead. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 - Wasp will no longer automatically add a favicon `<link>` tag to the `index.html`. The `<link>` tag will be included by default in the `main.wasp` for new projects. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
+- Updated Express to [v5](https://expressjs.com/en/guide/migrating-5.html) ([#2685](https://github.com/wasp-lang/wasp/pull/2685))
 
 ### 🐞 Bug fixes
 
