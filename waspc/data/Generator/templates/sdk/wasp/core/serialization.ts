@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client'
 import type { Decimal as DecimalType } from "@prisma/client/runtime/library"
-import SuperJSON from 'superjson'
+import { deserialize, registerCustom, serialize } from 'superjson'
 
 // We add support for the Decima Prisma type
 // as listed here https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types
@@ -16,7 +16,7 @@ type Decimal = DecimalType;
 
 if (Decimal) {
   // Based on https://github.com/flightcontrolhq/superjson#decimaljs--prismadecimal
-  SuperJSON.registerCustom<Decimal, string>(
+  registerCustom<Decimal, string>(
     {
       isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
       serialize: (v) => v.toJSON(),
@@ -72,5 +72,5 @@ interface SuperJSONObject {
 }
 
 
-export const serialize = SuperJSON.serialize.bind(SuperJSON)
-export const deserialize = SuperJSON.deserialize.bind(SuperJSON)
+export { deserialize, serialize }
+
