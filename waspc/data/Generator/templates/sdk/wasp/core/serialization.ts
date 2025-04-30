@@ -71,6 +71,5 @@ interface SuperJSONObject {
   [key: string]: SuperJSONValue
 }
 
-
 export { deserialize, serialize }
 
