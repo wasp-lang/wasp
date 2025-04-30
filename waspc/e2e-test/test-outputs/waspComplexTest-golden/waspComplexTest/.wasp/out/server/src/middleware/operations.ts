@@ -1,9 +1,9 @@
-import { makeAuthUserIfPossible } from 'wasp/auth/user'
 import { deserialize, serialize } from 'wasp/core/serialization'
-import { handleRejection } from 'wasp/server/utils'
+import { defineHandler } from 'wasp/server/utils'
+import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
 export function createOperation (handlerFn) {
-    return handleRejection(async (req, res) => {
+    return defineHandler(async (req, res) => {
         const args = (req.body && deserialize(req.body)) || {}
         const context = {
             user: makeAuthUserIfPossible(req.user),

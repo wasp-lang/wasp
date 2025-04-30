@@ -431,7 +431,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "108b985e7654975338240ded96b6d00c439c997cde2fabc84059166f5347a529"
+        "3af4efb9074236a2548a42cc0e8e0050d73d8c8167d4454f8f4df4a0627afe6a"
     ],
     [
         [
@@ -1075,7 +1075,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "255834cb9f941988793f8daec029f7f8bd4c0ef9e1259753758c61706f65c0e4"
+        "b7e2dc990c87a962e9ad624af77e4885f2915d4c0abceb9b7772d4d63ecceef3"
     ],
     [
         [
@@ -1117,7 +1117,7 @@
             "file",
             "server/src/routes/auth/me.ts"
         ],
-        "657af426cc1eb91bc1aedb98313175ec0ae6c33afceb211132a56cacf35cc6ca"
+        "05f02b5ca45ccf161bf8952390b1504aa23c68c9267a57b46b32db9e0d258c19"
     ],
     [
         [
