@@ -15,7 +15,7 @@ const Decimal = (Prisma as { Decimal?: typeof DecimalType }).Decimal;
 type Decimal = DecimalType;
 
 if (Decimal) {
-  // Based on https://github.com/flightcontrolhq/superjson#decimaljs--prismadecimal
+  // Based on https://github.com/flightcontrolhq/superjson/blob/v2.2.2/README.md#decimaljs--prismadecimal
   registerCustom<Decimal, string>(
     {
       isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
