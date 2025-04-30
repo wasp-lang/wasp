@@ -1,5 +1,4 @@
 import { Prisma } from '@prisma/client'
-import type { Decimal } from "@prisma/client/runtime/library"
 import { deserialize, registerCustom, serialize } from 'superjson'
 
 export type Payload = void | SuperJSONValue
@@ -70,6 +69,7 @@ interface SuperJSONObject {
   property, and give it the `Decimal` type that we take from option (b). Importantly, we only
   do `import type` from (b) so we don't trigger the runitime error when importing from the client.
 */
+type Decimal = import("@prisma/client/runtime/library").Decimal
 const Decimal = (Prisma as { Decimal?: typeof Decimal }).Decimal;
 
 /*
