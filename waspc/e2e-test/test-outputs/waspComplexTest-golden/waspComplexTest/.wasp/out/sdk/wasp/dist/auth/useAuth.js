@@ -19,12 +19,7 @@ function createUserGetter() {
             return makeAuthUserIfPossible(userData);
         }
         catch (error) {
-            if (error.response?.status === 401) {
-                return null;
-            }
-            else {
-                throw handleApiError(error);
-            }
+            throw handleApiError(error);
         }
     };
     return buildAndRegisterQuery(getMe, {

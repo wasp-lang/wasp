@@ -25,14 +25,10 @@ function createUserGetter(): Query<void, AuthUser | null> {
       const userData = deserialize<AuthUserData | null>(response.data)
       return makeAuthUserIfPossible(userData)
     } catch (error) {
-      if (error.response?.status === 401) {
-        return null
-      } else {
-        throw handleApiError(error)
-      }
+      throw handleApiError(error)
     }
   }
-  
+
   return buildAndRegisterQuery(getMe, {
     queryCacheKey: [getMeRelativePath],
     queryRoute: getMeRoute,
