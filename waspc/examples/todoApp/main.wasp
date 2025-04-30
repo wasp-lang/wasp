@@ -239,6 +239,14 @@ query getDate {
   fn: import { getDate } from "@src/testTypes/operations/definitions"
 }
 
+query getSerializedObjects {
+  fn: import { getSerializedObjects } from "@src/testTypes/operations/definitions"
+}
+
+route SerializationRoute { path: "/serialization", to: SerializationPage }
+page SerializationPage {
+  component: import { SerializationPage } from "@src/pages/Serialization"
+}
 
 query getAnythingNoAuth {
   fn: import { getAnythingNoAuth } from "@src/testTypes/operations/definitions",

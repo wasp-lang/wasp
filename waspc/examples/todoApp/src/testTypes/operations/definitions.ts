@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { Task } from 'wasp/entities'
 import type {
   VoidToStringAuth,
@@ -7,6 +8,7 @@ import type {
   TaskToTaskSatisfies,
   TaskToTaskSpecified,
   GetDate,
+  GetSerializedObjects,
   GetAnythingAuth,
   GetAnythingNoAuth,
   GetTrueVoid,
@@ -103,6 +105,22 @@ export const getDate: GetDate<void, Date> = async () => {
   return new Date()
 }
 
+const makeSerializableObjects = () => ({
+  date: new Date(),
+  set: new Set(['foo']),
+  map: new Map([['foo', 'bar']]),
+  decimal: new Prisma.Decimal(10),
+  regexp: /foo/,
+})
+export type SerializableObjects = ReturnType<typeof makeSerializableObjects>
+
+export const getSerializedObjects: GetSerializedObjects<
+  void,
+  SerializableObjects
+> = async () => {
+  return makeSerializableObjects()
+}
+
 export const getAnythingAuth: GetAnythingAuth = async () => {
   return 'anything'
 }
@@ -110,7 +128,6 @@ export const getAnythingAuth: GetAnythingAuth = async () => {
 export const getAnythingNoAuth: GetAnythingNoAuth = async () => {
   return 'anything'
 }
-
 
 export const getTrueVoid = (async () => {
   return 'anything'
@@ -124,6 +141,9 @@ export const getAnyAuth = (_args: any, _context: any): any => {
   return 'anything'
 }
 
-export const getAnyToNumberSpecified: GetAnyToNumberSpecified<any, number> = (_args, _context) => {
+export const getAnyToNumberSpecified: GetAnyToNumberSpecified<any, number> = (
+  _args,
+  _context
+) => {
   return 10
 }
