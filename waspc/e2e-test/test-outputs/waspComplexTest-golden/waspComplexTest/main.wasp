@@ -30,7 +30,10 @@ app waspComplexTest {
     },
   },
 
-  title: "waspComplexTest"
+  title: "waspComplexTest",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }
