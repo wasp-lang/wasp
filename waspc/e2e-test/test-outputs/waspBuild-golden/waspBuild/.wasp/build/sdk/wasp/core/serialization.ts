@@ -67,7 +67,7 @@ interface SuperJSONObject {
 
   What we do here is tell TypeScript that `Prisma` (option a) can have an optional `Decimal`
   property, and give it the `Decimal` type that we take from option (b). Importantly, we only
-  do `import type` from (b) so we don't trigger the runitime error when importing from the client.
+  do a type import from (b) so we don't trigger the runtime error when importing from the client.
 */
 type Decimal = import("@prisma/client/runtime/library").Decimal
 const Decimal = (Prisma as { Decimal?: typeof Decimal }).Decimal;
