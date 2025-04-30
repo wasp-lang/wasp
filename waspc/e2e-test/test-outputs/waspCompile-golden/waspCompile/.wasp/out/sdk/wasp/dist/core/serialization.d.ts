@@ -1,6 +1,4 @@
-import type { Decimal as DecimalType } from "@prisma/client/runtime/library";
-declare const Decimal: typeof DecimalType | undefined;
-type Decimal = DecimalType;
+import { deserialize, serialize } from 'superjson';
 export type Payload = void | SuperJSONValue;
 export type JSONValue = PrimitiveJSONValue | JSONArray | JSONObject;
 export interface JSONObject {
@@ -16,7 +14,7 @@ interface SuperJSONArray extends Array<SuperJSONValue> {
 interface SuperJSONObject {
     [key: string]: SuperJSONValue;
 }
-export declare const serialize: (object: import("superjson/dist/types").SuperJSONValue) => import("superjson").SuperJSONResult;
-export declare const deserialize: <T = unknown>(payload: import("superjson").SuperJSONResult) => T;
-export {};
+type Decimal = import("@prisma/client/runtime/library").Decimal;
+declare const Decimal: any;
+export { deserialize, serialize };
 //# sourceMappingURL=serialization.d.ts.map

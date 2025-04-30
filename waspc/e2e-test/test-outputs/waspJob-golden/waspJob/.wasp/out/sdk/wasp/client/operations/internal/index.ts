@@ -8,8 +8,8 @@ export type OperationRoute = { method: HttpMethod.Post, path: string }
 // PRIVATE API
 export async function callOperation(operationRoute: OperationRoute, args: any) {
   try {
-    const superjsonArgs = serialize(args)
-    const response = await api.post(operationRoute.path, superjsonArgs)
+    const serializedArgs = serialize(args)
+    const response = await api.post(operationRoute.path, serializedArgs)
     return deserialize(response.data)
   } catch (error) {
     throw handleApiError(error)

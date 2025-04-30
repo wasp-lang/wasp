@@ -67,7 +67,6 @@
     "./operations/*": "./dist/operations/*",
     "./server": "./dist/server/index.js",
     "./server/_types": "./dist/server/_types/index.js",
-    "./server/_types/serialization": "./dist/server/_types/serialization.js",
     "./server/api": "./dist/server/api/index.js",
     "./server/auth": "./dist/server/auth/index.js",
     "./server/auth/email": "./dist/server/auth/email/index.js",

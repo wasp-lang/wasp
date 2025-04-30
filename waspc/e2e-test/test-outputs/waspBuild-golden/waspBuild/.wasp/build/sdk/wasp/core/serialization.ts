@@ -1,30 +1,5 @@
 import { Prisma } from '@prisma/client'
-import type { Decimal as DecimalType } from "@prisma/client/runtime/library"
-import SuperJSON from 'superjson'
-
-// We add support for the Decima Prisma type
-// as listed here https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types
-
-// We can't import `Decimal` from `@prisma/client/runtime/library`
-// directly because it imports some server-only stuff.
-// But the instance in `Prisma` might not be there if the schema doesn't
-// have a Decimal property somewhere.
-// We do this trick merging the type from one place and the maybe
-// existing instance from another.
-const Decimal = (Prisma as { Decimal?: typeof DecimalType }).Decimal;
-type Decimal = DecimalType;
-
-if (Decimal) {
-  // Based on https://github.com/flightcontrolhq/superjson#decimaljs--prismadecimal
-  SuperJSON.registerCustom<Decimal, string>(
-    {
-      isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
-      serialize: (v) => v.toJSON(),
-      deserialize: (v) => new Decimal(v),
-    },
-    "prisma.decimal"
-  );
-}
+import { deserialize, registerCustom, serialize } from 'superjson'
 
 export type Payload = void | SuperJSONValue
 
@@ -33,7 +8,7 @@ export type Payload = void | SuperJSONValue
 //
 // We couldn't use SuperJSON's types directly because:
 //   1. They aren't exported publicly.
-//   2. They have a werid quirk that turns `SuperJSONValue` into `any`.
+//   2. They have a weird quirk that turns `SuperJSONValue` into `any`.
 //      See why here:
 //      https://github.com/blitz-js/superjson/pull/36#issuecomment-669239876
 //
@@ -48,6 +23,7 @@ type PrimitiveJSONValue = string | number | boolean | undefined | null
 
 export interface JSONArray extends Array<JSONValue> {}
 
+// Added the `Decimal` type to the union (see below)
 type SerializableJSONValue =
   | Symbol
   | Set<SuperJSONValue>
@@ -71,6 +47,46 @@ interface SuperJSONObject {
   [key: string]: SuperJSONValue
 }
 
+/*
+  == ADDING SUPPORT FOR PRISMA DECIMAL TYPE ==
+  We add support for the Decima Prisma type as listed here:
+  https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types
+*/
 
-export const serialize = SuperJSON.serialize.bind(SuperJSON)
-export const deserialize = SuperJSON.deserialize.bind(SuperJSON)
+/*
+  == Why this strange declaration? ==
+
+  You can usually get `Decimal` from Prisma in two ways:
+  a. `import("@prisma/client").Prisma.Decimal`
+  b. `import("@prisma/client/runtime/library").Decimal`
+
+  The problem is that (a) is only available in the case that the Prisma schema is using Decimal
+  somewhere, and doesn't exist at all otherwise, not even as `undefined`. And (b) is always
+  available, but the code at `@prisma/client/runtime/library` fails when imported from the
+  client (and this file can be imported from either client or server).
+
+  What we do here is tell TypeScript that `Prisma` (option a) can have an optional `Decimal`
+  property, and give it the `Decimal` type that we take from option (b). Importantly, we only
+  do `import type` from (b) so we don't trigger the runitime error when importing from the client.
+*/
+type Decimal = import("@prisma/client/runtime/library").Decimal
+const Decimal = (Prisma as { Decimal?: typeof Decimal }).Decimal;
+
+/*
+  And finally, if we have the `Decimal` type because the Prisma schema is using it,
+  we register it as a custom type with SuperJSON.
+  Based on https://github.com/flightcontrolhq/superjson/blob/v2.2.2/README.md#decimaljs--prismadecimal
+*/
+if (Decimal) {
+  registerCustom<Decimal, string>(
+    {
+      isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
+      serialize: (v) => v.toJSON(),
+      deserialize: (v) => new Decimal(v),
+    },
+    "prisma.decimal"
+  );
+}
+
+export { deserialize, serialize }
+

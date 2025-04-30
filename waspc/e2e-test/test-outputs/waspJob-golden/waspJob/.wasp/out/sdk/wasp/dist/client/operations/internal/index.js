@@ -4,8 +4,8 @@ import { serialize, deserialize } from 'wasp/core/serialization';
 // PRIVATE API
 export async function callOperation(operationRoute, args) {
     try {
-        const superjsonArgs = serialize(args);
-        const response = await api.post(operationRoute.path, superjsonArgs);
+        const serializedArgs = serialize(args);
+        const response = await api.post(operationRoute.path, serializedArgs);
         return deserialize(response.data);
     }
     catch (error) {

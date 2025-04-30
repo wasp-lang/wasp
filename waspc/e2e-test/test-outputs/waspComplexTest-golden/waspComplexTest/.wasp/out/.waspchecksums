@@ -284,7 +284,7 @@
             "file",
             "../out/sdk/wasp/client/operations/internal/index.ts"
         ],
-        "b2ad155341da94d4c8b7aa77327146a06d3b7bb9b97d7f11790deaa500b9377f"
+        "dbd92e9ee31068abb13a88dc0ed497f0e1f1e6660b39b16ffd6821b5a5c3d8c2"
     ],
     [
         [
@@ -382,7 +382,7 @@
             "file",
             "../out/sdk/wasp/core/serialization.ts"
         ],
-        "38e6a942e2f80f9a593349c466e5d8e8c584d38c959836a1bad6213d1e3656d1"
+        "e9cd609ec4391c3eb3a324976918305e9200e00b61548198a56fed2a2ed029f4"
     ],
     [
         [
@@ -431,7 +431,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "eb987dff56b29ccf4b8086daff3886731c9e95275a18f7c0ce19a43f816f1305"
+        "108b985e7654975338240ded96b6d00c439c997cde2fabc84059166f5347a529"
     ],
     [
         [
