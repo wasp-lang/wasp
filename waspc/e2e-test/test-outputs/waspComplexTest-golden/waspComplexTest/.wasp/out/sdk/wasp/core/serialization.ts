@@ -24,8 +24,8 @@ type PrimitiveJSONValue = string | number | boolean | undefined | null
 export interface JSONArray extends Array<JSONValue> {}
 
 // Added the `Decimal` type to the union (see below)
+// Removed `Symbol` since we don't explicitly register any symbol to be serialized
 type SerializableJSONValue =
-  | Symbol
   | Set<SuperJSONValue>
   | Map<SuperJSONValue, SuperJSONValue>
   | undefined

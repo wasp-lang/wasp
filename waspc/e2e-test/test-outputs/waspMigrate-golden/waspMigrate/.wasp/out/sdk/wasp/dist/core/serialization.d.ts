@@ -7,7 +7,7 @@ export interface JSONObject {
 type PrimitiveJSONValue = string | number | boolean | undefined | null;
 export interface JSONArray extends Array<JSONValue> {
 }
-type SerializableJSONValue = Symbol | Set<SuperJSONValue> | Map<SuperJSONValue, SuperJSONValue> | undefined | bigint | Date | RegExp | Decimal;
+type SerializableJSONValue = Set<SuperJSONValue> | Map<SuperJSONValue, SuperJSONValue> | undefined | bigint | Date | RegExp | Decimal;
 type SuperJSONValue = JSONValue | SerializableJSONValue | SuperJSONArray | SuperJSONObject;
 interface SuperJSONArray extends Array<SuperJSONValue> {
 }
