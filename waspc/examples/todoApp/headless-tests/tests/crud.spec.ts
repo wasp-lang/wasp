@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { generateRandomCredentials, performSignup } from './helpers'
 
 test.describe('CRUD test', () => {
@@ -41,6 +41,16 @@ test.describe('CRUD test', () => {
     await expect(page.locator('body')).toContainText('special filter 1')
     await expect(page.locator('body')).toContainText('special filter 2')
     await expect(page.locator("li[text='something else']")).not.toBeVisible()
+  })
+
+  test('serialization of superjson-supported types works', async ({ page }) => {
+    await page.goto('/serialization')
+
+    await page.waitForSelector('#serializedObjects')
+
+    await expect(page.locator('#serializedObjects')).toContainText(
+      'All serialized objects are of the expected types.'
+    )
   })
 })
 

@@ -5,7 +5,7 @@ export const SerializationPage = () => {
   const { data: serializedObjects } = useQuery(getSerializedObjects)
   console.log({ serializedObjects })
 
-  return (
+  return serializedObjects ? (
     <div>
       <label htmlFor="serializedObjects">Serialized objects</label>:
       <pre id="serializedObjects">
@@ -31,5 +31,5 @@ export const SerializationPage = () => {
           : 'Some serialized objects are not of the expected types.'}
       </pre>
     </div>
-  )
+  ) : null
 }
