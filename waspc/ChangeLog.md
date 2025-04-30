@@ -9,6 +9,7 @@
 ### 🔧 Small improvements
 
 - Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
+- The generated server code is now type-checked before building ([#2709](https://github.com/wasp-lang/wasp/pull/2709))
 
 ## 0.16.3
 
