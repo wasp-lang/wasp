@@ -23,7 +23,10 @@ export async function performSignup(
     to fetch the emails. 
     * `wasp-app-runner` starts a Mailcrab server on port 1080 by default.
 */
-export async function performEmailVerification(page: Page, email: string) {
+export async function performEmailVerification(
+  page: Page,
+  sentToEmail: string
+) {
   if (process.env.HEADLESS_TEST_MODE === 'dev') {
     // In dev mode, the emails are verified automatically
     return
@@ -32,8 +35,6 @@ export async function performEmailVerification(page: Page, email: string) {
   // Wait for the email to be sent
   await page.waitForTimeout(1000)
 
-  // We are using the Mailcrab SMTP dev server to receive emails
-  // locally when running the tests
   const messagesResponse = await page.request.get(
     'http://localhost:1080/api/messages'
   )
@@ -42,7 +43,9 @@ export async function performEmailVerification(page: Page, email: string) {
     to: { email: string }[]
   }[]
 
-  const message = messages.find((message) => message.to[0].email === email)
+  const message = messages.find(
+    (message) => message.to[0].email === sentToEmail
+  )
   if (!message) {
     throw new Error('No message found')
   }
