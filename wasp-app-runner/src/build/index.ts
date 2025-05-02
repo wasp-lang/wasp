@@ -1,6 +1,6 @@
 import { DbType, setupDb } from "../db/index.js";
 import { buildApp } from "../waspCli.js";
-import { buildClientApp, startClientApp } from "./client.js";
+import { buildAndStartClientApp } from "./client.js";
 import { buildAndRunServerAppContainer } from "./server.js";
 
 export async function startAppInBuildMode({
@@ -19,10 +19,6 @@ export async function startAppInBuildMode({
     pathToApp,
   });
 
-  await buildClientApp({
-    pathToApp,
-  });
-
   const { dbEnvVars } = await setupDb({
     appName,
     dbType,
@@ -35,7 +31,7 @@ export async function startAppInBuildMode({
     extraEnv: dbEnvVars,
   });
 
-  await startClientApp({
+  await buildAndStartClientApp({
     pathToApp,
   });
 }
