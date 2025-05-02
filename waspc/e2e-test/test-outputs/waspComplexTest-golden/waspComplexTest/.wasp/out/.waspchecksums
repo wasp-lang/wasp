@@ -375,7 +375,7 @@
             "file",
             "../out/sdk/wasp/core/auth.ts"
         ],
-        "1b07a9570069f0205c4028edaeb67f7591c19885b36b1c7cbf2faef386e7e85c"
+        "d03f8c1c3433ae446802abcc9cf02e2e55345e1990a025d4450d8805e68fbb61"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "015544a8e98aeb2e603d9968a5ec09bdec9cd3aaf87e0ba733eef801366092c2"
+        "d4027adceda1a88a8221861b4b35707cff20b3cf20c9ec02e7e7e3277758e1aa"
     ],
     [
         [
@@ -725,7 +725,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "d2e322edb5e1e8bd922b64adb0d6e4a9a3112413224b4da4b1fa7cc50cc3cebb"
+        "0ef065c4b340bf86e3da71b919b16dd999100c48f59ee0d54489f2a77193b60f"
     ],
     [
         [
@@ -935,7 +935,7 @@
             "file",
             "server/package.json"
         ],
-        "95d620f46b2d4e55da471e64552297c345572c8516299614534163ed273266e0"
+        "bcc70dc10dbec4f941c00f709bab7c574d13af1eb6c9bdd68d07bb8cbeb47009"
     ],
     [
         [
@@ -998,14 +998,14 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "a8ce8d2b140a59e07d767cc640b9a2b0116e2dafc3ef98ae67fa7cdab3527416"
+        "19781a7c821069c559fe56905a3484f1f3c0956662c6dde5f277817a83130b85"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/oneTimeCode.ts"
         ],
-        "c9bf9cb3ce635f8f53f2b176e4e9f8e39851ee1a2ba972221f3eaf1a0826fab9"
+        "ef7e53d7d2f666693946b490181cbe445c6e51eb205ec2148d163cdfa7c18a8c"
     ],
     [
         [
@@ -1061,7 +1061,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
+        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
     ],
     [
         [
@@ -1075,7 +1075,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "596a0b642427e926b5428cc76192dd4893e88f15b247f6e546f4d24fe29d46a5"
+        "7221576c0402485a664777965ab14f91562f05f9c69ca394f72a8a116ae80bca"
     ],
     [
         [
@@ -1096,7 +1096,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "cb1743c9c9c4ce903c5c600eed32bc2b225691b5c59017d640c9b87e2b42d3f8"
+        "bda17e429bf51d0dd03bb0f25f2e9115babc1ae61a7ac33009b532ddbd1f8fbf"
     ],
     [
         [
@@ -1110,14 +1110,14 @@
             "file",
             "server/src/routes/auth/logout.ts"
         ],
-        "359334c0f977e7406efda826f31a1ecf1c6b92dc72054bb41088c64d3555e916"
+        "d5cfe70ba660c3230d718763fdd6f6938a99583f465f781437b57f73e29caec3"
     ],
     [
         [
             "file",
             "server/src/routes/auth/me.ts"
         ],
-        "421cec209ecece14636aa19dc7e3e2a7e912e523e1aa9d3b229870f2b741f459"
+        "e030f03ef284b8f93deb7ecb7bb0561bf65ed23f209f887c8bfac25f681c58e6"
     ],
     [
         [
@@ -1208,7 +1208,7 @@
             "file",
             "web-app/index.html"
         ],
-        "04e67239005c3ec39463778c9d0d4abc2addd8a30b295390619e494a84f96103"
+        "3a8bb4f6e5dc705458a6019cca3f881452ea844e8b268ae798710b9be5dc328e"
     ],
     [
         [
@@ -1223,13 +1223,6 @@
             "web-app/package.json"
         ],
         "2352cda526107792c1399ca931ac268d92827d1f08ed6db1a41b12d00abaa988"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [

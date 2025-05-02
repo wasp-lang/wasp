@@ -9,7 +9,7 @@ import qualified Wasp.SemanticVersion as SV
 -- TODO: update this to use Wasp.SemanticVersion when we'll have support
 -- for patch versions
 expressVersionStr :: String
-expressVersionStr = "~4.21.0"
+expressVersionStr = "~5.1.0"
 
 expressTypesVersion :: SV.ComparatorSet
-expressTypesVersion = SV.backwardsCompatibleWith $ SV.Version 4 17 13
+expressTypesVersion = SV.backwardsCompatibleWith $ SV.Version 5 0 0
