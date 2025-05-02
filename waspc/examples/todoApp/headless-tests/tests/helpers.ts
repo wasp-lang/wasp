@@ -35,8 +35,9 @@ export async function performEmailVerification(
   // Wait for the email to be sent
   await page.waitForTimeout(1000)
 
+  const mailcrabApiUrl = 'http://localhost:1080'
   const messagesResponse = await page.request.get(
-    'http://localhost:1080/api/messages'
+    `${mailcrabApiUrl}/api/messages`
   )
   const messages = (await messagesResponse.json()) as {
     id: string
@@ -49,8 +50,9 @@ export async function performEmailVerification(
   if (!message) {
     throw new Error('No message found')
   }
+
   const messageDetailsResponse = await page.request.get(
-    `http://localhost:1080/api/message/${message.id}`
+    `${mailcrabApiUrl}/api/message/${message.id}`
   )
   const messageDetails = (await messageDetailsResponse.json()) as {
     text: string
@@ -59,6 +61,7 @@ export async function performEmailVerification(
   if (linkMatch === null) {
     throw new Error('No verification link found')
   }
+
   const link = linkMatch[0]
   await page.goto(link)
   await page.waitForSelector('text=Your email has been verified')
