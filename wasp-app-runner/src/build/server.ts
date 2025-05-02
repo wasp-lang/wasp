@@ -113,9 +113,8 @@ function getDockerEnvVarsArgs({
     JWT_SECRET: "some-jwt-secret",
     WASP_SERVER_URL: "http://localhost:3001",
   };
-  const allEnv = { ...defaultRequiredEnv, ...extraEnv };
   return [
-    ...getEnvVarsDockerArgs(allEnv),
+    ...getEnvVarsDockerArgs({ ...defaultRequiredEnv, ...extraEnv }),
     ...getDevEnvFileDockerArg({
       pathToApp,
     }),
