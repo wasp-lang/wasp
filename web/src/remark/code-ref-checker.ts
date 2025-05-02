@@ -1,13 +1,22 @@
 import type { Root } from 'mdast'
 import type { Plugin } from 'unified'
-import { visit } from 'unist-util-visit'
+import { SKIP, visit } from 'unist-util-visit'
+
+// Matches ref attributes of the shape `ref="waspc/examples/todoApp/src/operations.ts:L7-42"
+// group 1: path
+// group 2: start line
+// group 3: end line
+const CODE_META_REF_REGEX = /[\s^]ref="(.+?):L(\d+)-(\d+)"[\s$]/
 
 const plugin: Plugin<[], Root> = () => {
   return (tree, _file) => {
     visit(tree, 'code', (node) => {
-      if (!node.meta?.includes('ref=')) {
-        return
-      }
+      const codeMetaRefMatches = node.meta?.match(CODE_META_REF_REGEX)
+      if (!codeMetaRefMatches) return SKIP
+
+      const [, filePath, startLine, endLine] = codeMetaRefMatches
+
+      console.log({filePath, startLine, endLine})
 
       // 1. Parse the `ref={...}` from the code block (node.meta).
       // - Example: `ref={file: "wasp/waspc/examples/todoApp/src/operations.ts", lines: [7, 42], awk: "<awk_command>"}`
