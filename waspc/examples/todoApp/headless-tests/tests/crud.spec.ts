@@ -22,7 +22,7 @@ test.describe('CRUD test', () => {
       `You've signed up successfully! Check your email for the confirmation link.`
     )
 
-    await performEmailVerification(page)
+    await performEmailVerification(page, email)
   })
 
   test('CRUD with override works', async ({ page }) => {

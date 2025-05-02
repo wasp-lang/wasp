@@ -36,7 +36,7 @@ test.describe('signup and login', () => {
       `You've signed up successfully! Check your email for the confirmation link.`
     )
 
-    await performEmailVerification(page)
+    await performEmailVerification(page, email)
   })
 
   test('can log in and create a task', async ({ page }) => {

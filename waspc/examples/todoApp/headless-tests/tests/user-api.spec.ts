@@ -22,7 +22,7 @@ test.describe('user API', () => {
       `You've signed up successfully! Check your email for the confirmation link.`
     )
 
-    await performEmailVerification(page)
+    await performEmailVerification(page, email)
   })
 
   test('user API works on the client', async ({ page }) => {

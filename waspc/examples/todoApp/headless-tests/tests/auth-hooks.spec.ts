@@ -24,8 +24,6 @@ test.describe('auth hooks', () => {
     await expect(page.locator('body')).toContainText(
       'On Before Signup Hook disallows this email.'
     )
-
-    await performEmailVerification(page)
   })
 
   /*
@@ -40,7 +38,7 @@ test.describe('auth hooks', () => {
       password,
     })
 
-    await performEmailVerification(page)
+    await performEmailVerification(page, email)
 
     await performLogin(page, {
       email,
@@ -70,7 +68,7 @@ test.describe('auth hooks', () => {
       password,
     })
 
-    await performEmailVerification(page)
+    await performEmailVerification(page, emailThatThrowsError)
 
     await performLogin(page, {
       email: emailThatThrowsError,

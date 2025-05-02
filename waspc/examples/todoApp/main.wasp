@@ -130,11 +130,6 @@ page Crud {
   authRequired: true
 }
 
-route HeadlessVerifyEmailsRoute { path: "/headless-verify-emails", to: HeadlessVerifyEmailsPage }
-page HeadlessVerifyEmailsPage {
-  component: import { HeadlessVerifyEmailsPage } from "@src/pages/HeadlessVerifyEmails"
-}
-
 route CatchAllRoute { path: "*", to: CatchAllPage }
 page CatchAllPage {
   component: import { CatchAllPage } from "@src/pages/CatchAll"
@@ -342,13 +337,6 @@ action jsActionWithArgs {
   fn: import { jsActionWithArgs } from "@src/testTypes/operations/jsDefinitions",
   auth: true,
   entities: [Task]
-}
-
-// Headless tests
-
-action verifyAllUserEmails {
-  fn: import { verifyAllUserEmails } from "@src/auth/headless",
-  entities: [User]
 }
 
 // Crud
