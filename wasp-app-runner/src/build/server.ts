@@ -9,14 +9,16 @@ import {
 import { EnvVars } from "../types.js";
 import { log } from "../logging.js";
 import { doesFileExits } from "../files.js";
+import type { AppName } from "../waspCli.js";
+import type { PathToApp } from "../args.js";
 
 export async function buildAndRunServerAppContainer({
   appName,
   pathToApp,
   extraEnv,
 }: {
-  appName: string;
-  pathToApp: string;
+  appName: AppName;
+  pathToApp: PathToApp;
   extraEnv: EnvVars;
 }): Promise<void> {
   const { imageName, containerName } = createAppSpecificServerBuildDockerNames({
@@ -60,7 +62,7 @@ function buildServerAppContainer({
   pathToApp,
   imageName,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
   imageName: ServerBuildImageName;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
@@ -77,7 +79,7 @@ function runServerAppContainer({
   containerName,
   extraEnv,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
   extraEnv: EnvVars;
@@ -105,7 +107,7 @@ function getDockerEnvVarsArgs({
   pathToApp,
   extraEnv,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
   extraEnv: EnvVars;
 }): string[] {
   const defaultRequiredEnv: EnvVars = {
@@ -130,7 +132,7 @@ function getEnvVarsDockerArgs(envVars: EnvVars): string[] {
 function getDevEnvFileDockerArg({
   pathToApp,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
 }): [string, string] | [] {
   const envFilePath = path.resolve(pathToApp, ".env.server");
 

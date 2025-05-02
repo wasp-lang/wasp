@@ -1,5 +1,7 @@
 import { createHash } from "crypto";
 import { Branded } from "./types.js";
+import type { PathToApp } from "./args.js";
+import type { AppName } from "./waspCli.js";
 
 export type DbContainerName = Branded<string, "ContainerName">;
 export type ServerBuildContainerName = Branded<
@@ -12,8 +14,8 @@ export function createAppSpecificDbContainerName({
   appName,
   pathToApp,
 }: {
-  appName: string;
-  pathToApp: string;
+  appName: AppName;
+  pathToApp: PathToApp;
 }): DbContainerName {
   const prefix = createAppSpecificPrefix({
     appName,
@@ -26,8 +28,8 @@ export function createAppSpecificServerBuildDockerNames({
   appName,
   pathToApp,
 }: {
-  appName: string;
-  pathToApp: string;
+  appName: AppName;
+  pathToApp: PathToApp;
 }): {
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
@@ -46,8 +48,8 @@ function createAppSpecificPrefix({
   appName,
   pathToApp,
 }: {
-  appName: string;
-  pathToApp: string;
+  appName: AppName;
+  pathToApp: PathToApp;
 }): string {
   const appPathHash = createHash("md5")
     .update(pathToApp)
