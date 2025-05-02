@@ -1,43 +1,29 @@
-import type { Root } from 'mdast'
+import type { Code, Root } from 'mdast'
 import type { Plugin } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 
-// Matches ref attributes of the shape `ref="waspc/examples/todoApp/src/operations.ts:L7-42"
-// group 1: path
-// group 2: start line
-// group 3: end line
-const CODE_META_REF_REGEX = /[\s^]ref="(.+?):L(\d+)-(\d+)"[\s$]/
+// TODO: Add explanation of what this plugin is about. Examples.
 
 const plugin: Plugin<[], Root> = () => {
   return (tree, _file) => {
-    visit(tree, 'code', (node) => {
-      const codeMetaRefMatches = node.meta?.match(CODE_META_REF_REGEX)
-      if (!codeMetaRefMatches) return SKIP
+    visit(tree, 'code', (codeBlockNode) => {
+      const codeRefString = obtainCodeRefStringFromCodeBlock(codeBlockNode);
+      if (!codeRefString) return SKIP
 
-      const [, filePath, startLine, endLine] = codeMetaRefMatches
+      const codeRef = parseCodeRefString(codeRefString);
+      console.log(codeRef);
 
-      console.log({filePath, startLine, endLine})
+      // TODO: Fetch code block from the referenced file.
 
-      // 1. Parse the `ref={...}` from the code block (node.meta).
-      // - Example: `ref={file: "wasp/waspc/examples/todoApp/src/operations.ts", lines: [7, 42], awk: "<awk_command>"}`
-      // - File path should start relative from the wasp monorepo dir.
-      // - Ok, to be able to parse this, we will probably want to be smart by actually using JSON
-      //   parser to parse the JSON object, so it stops on time and stuff (and doesn't consume
-      //   the whole node.meta).
-      // - every code block needs to have a `ref`, otherwise we throw an error, but, they can do
-      //   `ref=null` if they want to skip it.
-      //   - what about the versioned_docs and other stuff? Who will add ref=null to all of that.
-      // - Actually this is better:
-      //   - `ref="waspc/examples/todoApp/src/operations.ts:L7-42"`
-      //   - and if we want something extra, we can try to also cram it in or just go like `ref-awk="<awk_command>"`.
-
-      // 2. Fetch code block from the referenced file.
-
-      // 3. Compare source code block with the referenced code block.
+      // TODO: Compare source code block with the referenced code block.
       // - When comparing code blocks, be robust about indentation shift and trim at start and end
       //   (whitespace, newlines). We can even minify it maybe (without changing the names
       //   probably). I guess what we really want to do is to normalize them, and the question is
       //   how. Don't minify.
+
+      // TODO: What about versioned docs? Should we check here if file is from there and ignore it
+      //   if so? Either that, or we have to tell it from which git reference to pull the code from.
+      //   Probably best to skip them for now.
 
       // IDEAS:
       // - Is it too ugly to have all this coderef data in the first line of code block?
@@ -50,8 +36,51 @@ const plugin: Plugin<[], Root> = () => {
       //   `"$exs" -> "wasp/waspc/examples/"` replacement.
       //   - Bad side is that it is kind of magical, so e.g. we loose copy-pastability.
       //   - let's do it only if we really get annoyed with it.
+      // - Add support for specifing the awk string to do transformation.
     })
   }
 }
 
 export default plugin
+
+// Given a code block ast node that has `ref="..."` in its meta field, it will return the string
+// between the quotes.
+// Code block's meta field is everything after initial triple backticks of the code block, in the
+// same line.
+function obtainCodeRefStringFromCodeBlock (node: Code): string | null {
+  return node.meta?.match(/\bref="(.+?)"/)?.[1];
+}
+
+interface CodeRef {
+  filePath: string,
+  startLine: number,
+  endLine: number
+}
+
+// Parses a code ref string of shape "<filepath>:L<start_line>:<end_line>".
+// Example of a valid string: "waspc/examples/todoApp/src/operations.ts:L42-314".
+// Throws if parsing failed.
+function parseCodeRefString (codeRefString: string): CodeRef {
+  const matches = codeRefString.match(/^(.+?):L(\d+)-(\d+)$/);
+  if (!matches) throwInvalidRefAttributeError();
+
+  const [, filePath, startLineStr, endLineStr] = matches;
+  const startLine: number | null = parseNonNegativeInteger(startLineStr);
+  const endLine: number | null = parseNonNegativeInteger(endLineStr);
+  if (startLine === null || endLine === null) throwInvalidRefAttributeError();
+
+  return { filePath, startLine, endLine };
+
+  function throwInvalidRefAttributeError () {
+    throw new Error(
+      `Your code block ref is not valid.`
+        + ` Expected "<filepath>:L<start_line>-<end_line>"`
+        + `, but got "${codeRefString}".`
+    );
+  }
+}
+
+function parseNonNegativeInteger (str: string): number | null {
+  const result = Number(str);
+  return (Number.isInteger(result) && result >= 0) ? result : null;
+}
