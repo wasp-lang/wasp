@@ -1,4 +1,4 @@
-import { Command } from "@commander-js/extra-typings";
+import { Command, Argument } from "@commander-js/extra-typings";
 import { log } from "./logging.js";
 import { checkDependencies } from "./dependencies.js";
 import { DbType } from "./db/index.js";
@@ -87,7 +87,9 @@ function parseArgs(): {
   const runCommand = program
     .command("run")
     .description("Run the Wasp application")
-    .argument("<mode>", "The run mode (dev or build)")
+    .addArgument(
+      new Argument("<mode>", "The run mode").choices(["dev", "build"])
+    )
     .option("--path-to-app <path>", "Path to the Wasp application", ".")
     .option("--wasp-cli-cmd <command>", "Wasp CLI command to use", "wasp");
 
@@ -100,18 +102,9 @@ function parseArgs(): {
   const options = runCommand.opts();
   const args = runCommand.processedArgs;
 
-  if (!isModeArg(args)) {
-    log("args", "error", `Invalid mode: ${args[0]}. Must be 'dev' or 'build'`);
-    process.exit(1);
-  }
-
   return {
     mode: args[0],
     pathToApp: options.pathToApp,
     waspCliCmd: options.waspCliCmd,
   };
-}
-
-function isModeArg(args: string[]): args is [Mode] {
-  return args.length === 1 && (args[0] === "dev" || args[0] === "build");
 }
