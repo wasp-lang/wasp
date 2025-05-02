@@ -32,14 +32,15 @@ async function buildClientApp({
 }: {
   pathToApp: string;
 }): Promise<{ exitCode: number | null }> {
-  const envVars = await getDevEnvVars({ pathToApp });
+  const defaultRequiredEnv = {
+    REACT_APP_API_URL: "http://localhost:3001",
+  };
+  const devEnv = await getDevEnvVars({ pathToApp });
 
   const clientBuildEnv = {
-    REACT_APP_API_URL: "http://localhost:3001",
-    ...envVars,
+    ...defaultRequiredEnv,
+    ...devEnv,
   };
-
-  console.table(clientBuildEnv);
 
   return spawnWithLog({
     name: "client-build-app",
