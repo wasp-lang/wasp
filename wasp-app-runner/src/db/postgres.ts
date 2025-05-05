@@ -6,6 +6,8 @@ import {
   DbContainerName,
   createAppSpecificDbContainerName,
 } from "../docker.js";
+import type { AppName } from "../waspCli.js";
+import type { PathToApp } from "../args.js";
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
@@ -28,8 +30,8 @@ async function startPostgresContainerForApp({
   appName,
   pathToApp,
 }: {
-  appName: string;
-  pathToApp: string;
+  appName: AppName;
+  pathToApp: PathToApp;
 }): Promise<DatabaseConnectionUrl> {
   const containerName = createAppSpecificDbContainerName({
     appName,
