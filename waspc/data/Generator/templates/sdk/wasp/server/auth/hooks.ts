@@ -57,7 +57,7 @@ type OnBeforeSignupHookParams = {
   */
   providerId: ProviderId
   /**
-   * Request object that can be used to access the incoming request.
+   * Request object that can be used to access the user's incoming signup request.
   */
   req: ExpressRequest
 } & InternalAuthHookParams
@@ -77,7 +77,7 @@ type OnAfterSignupHookParams = {
   */
   oauth?: OAuthData
   /**
-   * Request object that can be used to access the incoming request.
+   * Request object that can be used to access the user's incoming signup request.
   */
   req: ExpressRequest
 } & InternalAuthHookParams
@@ -92,8 +92,8 @@ type OnAfterEmailVerifiedHookParams = {
   */
   user: FindAuthWithUserResult['user']
   /**
-   * Request object that can be used to access the incoming request.
-  */
+   * Request object that can be used to access the user's incoming verification request.
+   */
   req: ExpressRequest
 } & InternalAuthHookParams
 
@@ -107,7 +107,7 @@ type OnBeforeOAuthRedirectHookParams = {
   */
   oauth: Pick<OAuthData, 'uniqueRequestId'>
   /**
-   * Request object that can be used to access the incoming request.
+   * Request object that can be used to access the user's incoming OAuth flow request.
   */
   req: ExpressRequest
 } & InternalAuthHookParams
@@ -120,9 +120,9 @@ type OnBeforeLoginHookParams = {
   /**
    * User that is trying to log in.
   */
-    user: FindAuthWithUserResult['user']
+  user: FindAuthWithUserResult['user']
   /**
-   * Request object that can be used to access the incoming request.
+   * Request object that can be used to access the user's incoming login request.
   */
   req: ExpressRequest
 } & InternalAuthHookParams
@@ -142,7 +142,7 @@ type OnAfterLoginHookParams = {
   */
   oauth?: OAuthData
   /**
-   * Request object that can be used to access the incoming request.
+   * Request object that can be used to access the user's incoming login request.
   */
   req: ExpressRequest
 } & InternalAuthHookParams
