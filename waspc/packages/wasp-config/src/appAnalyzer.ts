@@ -6,7 +6,7 @@ export async function analyzeUserApp(
   mainWaspJs: string,
   entityNames: string[]
 ): Promise<Result<string, string>> {
-  const userAppResult = await getUserAppDefinition(mainWaspJs)
+  const userAppResult = await getUserApp(mainWaspJs)
 
   if (userAppResult.status === 'error') {
     return userAppResult
@@ -22,7 +22,7 @@ export async function analyzeUserApp(
   }
 }
 
-async function getUserAppDefinition(
+async function getUserApp(
   mainWaspJs: string
 ): Promise<Result<UserSpec.App, string>> {
   const usersDefaultExport: unknown = (await import(mainWaspJs)).default
