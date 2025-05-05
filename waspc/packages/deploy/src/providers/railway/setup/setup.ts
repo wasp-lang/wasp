@@ -122,6 +122,9 @@ async function setupServer({
 
   await $`${options.railwayExe} ${addCmdArgs}`;
 
+  // Making sure the server URL is available before deploying the server.
+  await getServiceUrl(options.railwayExe, serverName, clientAppPort);
+
   waspSays('Server setup complete!');
 }
 

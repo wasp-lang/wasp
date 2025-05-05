@@ -15,7 +15,6 @@ import { clientAppPort, serverAppPort } from '../helpers/ports.js';
 import { getExistingProject, getServiceUrl } from '../helpers/railwayHelpers.js';
 import { exit } from 'process';
 
-// TODO: introduce a deployment.json file to store the deployment info so we can pick it up later
 export async function deploy(baseName: string, options: DeployOptions): Promise<void> {
   // Railway CLI links projects to the current directory
   cd(options.waspProjectDir);
@@ -62,7 +61,7 @@ async function deployServer({ options, serverName }: DeploymentInfo<DeployOption
 
   const serverArtefactsDir = getServerArtefactsDir(options.waspProjectDir);
 
-  await $`${options.railwayExe} up ${serverArtefactsDir} --service "${serverName}" --no-gitignore --detach --path-as-root`;
+  await $`${options.railwayExe} up ${serverArtefactsDir} --service "${serverName}" --no-gitignore --path-as-root --ci`;
 
   waspSays('Server has been deployed!');
 }
@@ -84,7 +83,7 @@ async function deployClient({ options, serverName, clientName }: DeploymentInfo<
   await $`REACT_APP_API_URL=${serverUrl} npm run build`;
 
   const webAppArtefactsDir = getWebAppArtefactsDir(options.waspProjectDir);
-  await $`${options.railwayExe} up ${webAppArtefactsDir} --service "${clientName}" --no-gitignore --detach --path-as-root`;
+  await $`${options.railwayExe} up ${webAppArtefactsDir} --service "${clientName}" --no-gitignore --path-as-root --ci`;
 
   const clientUrl = await getServiceUrl(options.railwayExe, clientName, clientAppPort);
 
