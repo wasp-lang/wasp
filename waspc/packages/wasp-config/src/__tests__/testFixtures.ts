@@ -2,8 +2,6 @@ import * as UserSpec from '../userApi.js'
 
 // Contains sample data that can be used for testing purposes.
 // In our case the sample data represents UserSpec data.
-// Further explanation:
-// https://stackoverflow.com/questions/12071344/what-are-fixtures-in-programming
 
 export const TASK_ENTITY = 'Task'
 export const USER_ENTITY = 'User'
