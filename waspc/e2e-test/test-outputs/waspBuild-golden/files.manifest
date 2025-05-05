@@ -295,7 +295,6 @@ waspBuild/.wasp/build/web-app/README.md
 waspBuild/.wasp/build/web-app/index.html
 waspBuild/.wasp/build/web-app/netlify.toml
 waspBuild/.wasp/build/web-app/package.json
-waspBuild/.wasp/build/web-app/public/.gitkeep
 waspBuild/.wasp/build/web-app/public/favicon.ico
 waspBuild/.wasp/build/web-app/public/manifest.json
 waspBuild/.wasp/build/web-app/src/components/DefaultRootErrorBoundary.tsx
@@ -587,7 +586,7 @@ waspBuild/.waspignore
 waspBuild/.wasproot
 waspBuild/main.wasp
 waspBuild/package.json
-waspBuild/public/.gitkeep
+waspBuild/public/favicon.ico
 waspBuild/schema.prisma
 waspBuild/src/Main.css
 waspBuild/src/MainPage.jsx

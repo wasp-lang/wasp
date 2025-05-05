@@ -15,6 +15,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     ├── schema.prisma      # Your Prisma schema goes here.
     ├── package.json       # Your dependencies and project info go here.
     ├── public             # Your static files (e.g., images, favicon) go here.
+    │   └── favicon.ico
     ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
     │   ├── Main.css
     │   ├── MainPage.jsx
@@ -36,13 +37,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
     After creating a new Wasp project and renaming the `src/MainPage.jsx` file, your project should look like this:
 
-    ```css
+    ```
     .
     ├── .gitignore
     ├── main.wasp          # Your Wasp code goes here.
     ├── schema.prisma      # Your Prisma schema goes here.
     ├── package.json       # Your dependencies and project info go here.
     ├── public             # Your static files (e.g., images, favicon) go here.
+    │   └── favicon.ico
     ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
     │   ├── Main.css
     // highlight-next-line
@@ -95,7 +97,10 @@ The default `main.wasp` file generated with `wasp new` on the previous page look
       wasp: {
         version: "{latestWaspVersion}" // Pins the version of Wasp to use.
       },
-      title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+      title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+      head: [
+        "<link rel='icon' href='/favicon.ico' />",
+      ]
     }
 
     route RootRoute { path: "/", to: MainPage }
@@ -114,7 +119,10 @@ The default `main.wasp` file generated with `wasp new` on the previous page look
       wasp: {
         version: "{latestWaspVersion}" // Pins the version of Wasp to use.
       },
-      title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+      title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+      head: [
+        "<link rel='icon' href='/favicon.ico' />",
+      ]
     }
 
     route RootRoute { path: "/", to: MainPage }
