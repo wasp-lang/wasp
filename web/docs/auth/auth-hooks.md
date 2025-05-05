@@ -14,7 +14,7 @@ The following auth hooks are available in Wasp:
 
 - [`onBeforeSignup`](#executing-code-before-the-user-signs-up)
 - [`onAfterSignup`](#executing-code-after-the-user-signs-up)
-- [`onAfterEmailVerified`](#executing-code-after-a-user-verifies-the-email)
+- [`onAfterEmailVerified`](#executing-code-after-a-user-verifies-their-email)
 - [`onBeforeOAuthRedirect`](#executing-code-before-the-oauth-redirect)
 - [`onBeforeLogin`](#executing-code-before-the-user-logs-in)
 - [`onAfterLogin`](#executing-code-after-the-user-logs-in)
