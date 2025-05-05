@@ -29,7 +29,7 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
   \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
 
-If you are using the email provider, the auth flow includes extra steps before the login flow:
+Users registering with [email](./email.md) must verify it before they can log in. This verification triggers the Email verification flow:
 
 <ImgWithCaption
   source="/img/auth-hooks/email_verification_flow_with_hooks.png"
@@ -37,7 +37,7 @@ If you are using the email provider, the auth flow includes extra steps before t
   caption="Email Verification Flow with Hooks"
 />
 
-If you are using OAuth, the flow includes extra steps before the auth flow:
+Users signing in with [OAuth](./social-auth/overview.md) must authorize access before completing login. This authorization triggers the OAuth consent flow:
 
 <ImgWithCaption source="/img/auth-hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
 
