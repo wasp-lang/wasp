@@ -1,6 +1,6 @@
 # Wasp Config
 
-Wasp Config is a TypeScript SDK for working with Wasp application specifications. It provides type definitions and utilities that mirror the AppSpec declarations implemented in the `waspc` Haskell codebase.
+Wasp Config is a library for working with Wasp application specifications in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
 
 ## Important Notes
 
