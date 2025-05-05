@@ -310,8 +310,7 @@ export const onAfterEmailVerified = async ({ email }) => {
     },
     to: email,
     subject: 'Thank you for verifying your email!',
-    text: 'Your email has been successfully verified!',
-    html: 'Your email has been successfully verified!',
+    text: `Your email ${email} has been successfully verified!`,
   })
   // ...
 }
@@ -344,8 +343,7 @@ export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
     },
     to: email,
     subject: 'Thank you for verifying your email!',
-    text: 'Your email has been successfully verified!',
-    html: 'Your email has been successfully verified!',
+    text: `Your email ${email} has been successfully verified!`,
   })
   // ...
 }
