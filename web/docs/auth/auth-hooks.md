@@ -806,11 +806,11 @@ The hook receives an object as **input** with the following properties:
 
 - `email: string`
 
-  The email address that was verified.
+  The user's veriried email address.
 
 - `user: User`
 
-  The user who verified their email.
+  The user who completed email verification.
 
 - Plus the [common hook input](#common-hook-input)
 

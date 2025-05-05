@@ -107,7 +107,7 @@ type OnAfterEmailVerifiedHookParams = {
   */
   email: string
   /**
-   * The user who verified their email.
+   * The user who completed email verification.
   */
   user: FindAuthWithUserResult['user']
   /**
