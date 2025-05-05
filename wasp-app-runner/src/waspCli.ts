@@ -3,15 +3,18 @@ import { stripVTControlCharacters } from "node:util";
 import { log } from "./logging.js";
 import { spawnWithLog, spawnAndCollectOutput } from "./process.js";
 import { DbType } from "./db/index.js";
-import type { EnvVars } from "./types.js";
+import type { Branded, EnvVars } from "./types.js";
+import type { PathToApp, WaspCliCmd } from "./args.js";
+
+export type AppName = Branded<string, "AppName">;
 
 export function migrateDb({
   waspCliCmd,
   pathToApp,
   extraEnv,
 }: {
-  waspCliCmd: string;
-  pathToApp: string;
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
   extraEnv: EnvVars;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
@@ -28,8 +31,8 @@ export function startApp({
   pathToApp,
   extraEnv,
 }: {
-  waspCliCmd: string;
-  pathToApp: string;
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
   extraEnv: EnvVars;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
@@ -45,8 +48,8 @@ export function buildApp({
   waspCliCmd,
   pathToApp,
 }: {
-  waspCliCmd: string;
-  pathToApp: string;
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
     name: "build-app",
@@ -60,10 +63,10 @@ export async function getAppInfo({
   waspCliCmd,
   pathToApp,
 }: {
-  waspCliCmd: string;
-  pathToApp: string;
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
 }): Promise<{
-  appName: string;
+  appName: AppName;
   dbType: DbType;
 }> {
   const { stdoutData, exitCode } = await spawnAndCollectOutput({
@@ -99,7 +102,7 @@ export async function getAppInfo({
   }
 
   return {
-    appName: ensureRegexMatch(appNameMatch, "app name"),
+    appName: ensureRegexMatch(appNameMatch, "app name") as AppName,
     dbType:
       ensureRegexMatch(dbTypeMatch, "db type") === "PostgreSQL"
         ? DbType.Postgres

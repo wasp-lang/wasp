@@ -1,5 +1,6 @@
+import type { PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
-import { migrateDb, startApp } from "../waspCli.js";
+import { type AppName, migrateDb, startApp } from "../waspCli.js";
 
 export async function startAppInDevMode({
   waspCliCmd,
@@ -7,9 +8,9 @@ export async function startAppInDevMode({
   appName,
   dbType,
 }: {
-  waspCliCmd: string;
-  pathToApp: string;
-  appName: string;
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
+  appName: AppName;
   dbType: DbType;
 }): Promise<void> {
   const { dbEnvVars } = await setupDb({

@@ -6,11 +6,12 @@ import { log } from "../logging.js";
 import { EnvVars } from "../types.js";
 import { parse } from "dotenv";
 import { doesFileExits } from "../files.js";
+import type { PathToApp } from "../args.js";
 
 export async function buildAndStartClientApp({
   pathToApp,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
 }): Promise<void> {
   const { exitCode: buildExitCode } = await buildClientApp({ pathToApp });
   if (buildExitCode !== 0) {
@@ -30,7 +31,7 @@ export async function buildAndStartClientApp({
 async function buildClientApp({
   pathToApp,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
 }): Promise<{ exitCode: number | null }> {
   const defaultRequiredEnv = {
     REACT_APP_API_URL: "http://localhost:3001",
@@ -51,7 +52,11 @@ async function buildClientApp({
   });
 }
 
-async function startClientApp({ pathToApp }: { pathToApp: string }): Promise<{
+async function startClientApp({
+  pathToApp,
+}: {
+  pathToApp: PathToApp;
+}): Promise<{
   exitCode: number | null;
 }> {
   return spawnWithLog({
@@ -65,7 +70,7 @@ async function startClientApp({ pathToApp }: { pathToApp: string }): Promise<{
 async function getDevEnvVars({
   pathToApp,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
 }): Promise<EnvVars> {
   const envVarsPath = path.join(pathToApp, ".env.client");
 
