@@ -15,6 +15,25 @@ export type OnAfterSignupHook = (
 ) => void | Promise<void>
 
 // PUBLIC API
+/**
+ * Hook that's called after a user verifies their email address.
+ * 
+ * This hook is triggered exactly once when a user successfully verifies their email
+ * during the email verification flow.
+ * 
+ * @example
+ * ```ts
+ * export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
+ *   email,
+ * }) => {
+ *   await emailSender.send({
+ *     to: email,
+ *     subject: 'Welcome to our platform!',
+ *     text: `Your email ${email} has been verified successfully.`
+ *   })
+ * }
+ * ```
+ */
 export type OnAfterEmailVerifiedHook = (
   params: Expand<OnAfterEmailVerifiedHookParams>,
 ) => void | Promise<void>
