@@ -58,15 +58,13 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
         Value of <code>user.isOnAfterSignupHookCalled</code> is{' '}
         <strong>{user.isOnAfterSignupHookCalled ? 'true' : 'false'}</strong>.
       </div>
-      {user.identities.email !== null && (
-        <div>
-          Value of <code>user.isOnAfterEmailVerifiedHookCalled</code> is{' '}
-          <strong>
-            {user.isOnAfterEmailVerifiedHookCalled ? 'true' : 'false'}
-          </strong>
-          .
-        </div>
-      )}
+      <div>
+        Value of <code>user.isOnAfterEmailVerifiedHookCalled</code> is{' '}
+        <strong>
+          {user.isOnAfterEmailVerifiedHookCalled ? 'true' : 'false'}
+        </strong>
+        .
+      </div>
       <div>
         Value of <code>user.isOnAfterLoginHookCalled</code> is{' '}
         <strong>{user.isOnAfterLoginHookCalled ? 'true' : 'false'}</strong>.
