@@ -35,7 +35,7 @@ export async function setup(baseName: string, options: SetupOptions): Promise<vo
   } else if (existingProject) {
     waspSays(`Project with name ${baseName} already exists. Skipping project creation.`);
   } else {
-    await setupProject(deploymentInfo);
+    await initProject(deploymentInfo);
     // Check if the project was created successfully...
     const newlyCreatedProject = await getExistingProject(options.railwayExe);
     if (!newlyCreatedProject) {
@@ -77,12 +77,13 @@ export async function setup(baseName: string, options: SetupOptions): Promise<vo
   }
 }
 
-async function setupProject({ baseName, options }: DeploymentInfo<SetupOptions>): Promise<void> {
+async function initProject({ baseName, options }: DeploymentInfo<SetupOptions>): Promise<void> {
   waspSays(`Setting up Railway project with name ${baseName}`);
 
   await $({
-    // If there are multiple workspaces, the user needs to select interactively
-    // which one to use. There is no way to pass it as a command line argument.
+    // If there are multiple workspaces, the user needs to select **interactively**
+    // which one to use. We need to allow users to select the workspace interactively.
+    // There is no way to pass it as a command line argument.
     stdio: 'inherit',
   })`${options.railwayExe} init --name ${baseName}`;
 }
@@ -103,17 +104,18 @@ async function setupServer({
 
   cdToServerBuildDir(options.waspProjectDir);
 
-  const randomString = crypto.randomBytes(32).toString('hex');
-  // Making sure the client URL is available before setting up the server.
+  // Making sure the client URL is available before setting up the server
+  // to have the ${{clientName.RAILWAY_PUBLIC_DOMAIN} variable available.
   await getServiceUrl(options.railwayExe, clientName, clientAppPort);
 
   const clientUrl = `https://\${{${clientName}.RAILWAY_PUBLIC_DOMAIN}}`;
   const serverUrl = 'https://${{RAILWAY_PUBLIC_DOMAIN}}';
+  const jwtSecret = crypto.randomBytes(32).toString('hex');
   const addCmdArgs = [
     'add',
     ['--service', serverName],
     ['--variables', `PORT=${serverAppPort}`],
-    ['--variables', `JWT_SECRET=${randomString}`],
+    ['--variables', `JWT_SECRET=${jwtSecret}`],
     ['--variables', `WASP_SERVER_URL=${serverUrl}`],
     ['--variables', `WASP_WEB_CLIENT_URL=${clientUrl}`],
     ['--variables', `DATABASE_URL=\${{${dbName}.DATABASE_URL}}`],
@@ -122,7 +124,8 @@ async function setupServer({
 
   await $`${options.railwayExe} ${addCmdArgs}`;
 
-  // Making sure the server URL is available before deploying the server.
+  // Making sure the server URL is available before deploying the server
+  // to have the ${{RAILWAY_PUBLIC_DOMAIN}} variable available.
   await getServiceUrl(options.railwayExe, serverName, clientAppPort);
 
   waspSays('Server setup complete!');
@@ -133,6 +136,7 @@ async function setupClient({ options, clientName }: DeploymentInfo<SetupOptions>
 
   cdToClientBuildDir(options.waspProjectDir);
 
+  // Having a Staticfile tells Railway to use a static file server.
   await $`touch Staticfile`;
 
   const addCmdArgs = [
