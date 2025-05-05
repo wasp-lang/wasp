@@ -1,4 +1,4 @@
-import * as UserSpec from '../userApi.js'
+import * as UserSpec from '../src/userApi.js'
 
 // Contains sample data that can be used for testing purposes.
 // In our case the sample data represents UserSpec data.

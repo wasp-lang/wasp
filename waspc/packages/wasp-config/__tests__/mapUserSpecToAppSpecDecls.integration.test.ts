@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { GET_USER_SPEC } from '../_private.js'
-import * as AppSpec from '../appSpec.js'
+import { GET_USER_SPEC } from '../src/_private.js'
+import * as AppSpec from '../src/appSpec.js'
 import {
   makeRefParser,
   mapApiConfig,
@@ -12,8 +12,8 @@ import {
   mapPage,
   mapRoute,
   mapUserSpecToAppSpecDecls,
-} from '../mapUserSpecToAppSpecDecls.js'
-import * as UserSpec from '../userApi.js'
+} from '../src/mapUserSpecToAppSpecDecls.js'
+import * as UserSpec from '../src/userApi.js'
 import * as Fixtures from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
