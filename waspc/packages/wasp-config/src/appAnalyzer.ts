@@ -1,6 +1,6 @@
 import { GET_USER_SPEC } from './_private.js'
 import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
-import * as UserSpec from './userApi.js'
+import * as UserApi from './userApi.js'
 
 export async function analyzeUserApp(
   mainWaspJs: string,
@@ -24,7 +24,7 @@ export async function analyzeUserApp(
 
 async function getUserApp(
   mainWaspJs: string
-): Promise<Result<UserSpec.App, string>> {
+): Promise<Result<UserApi.App, string>> {
   const usersDefaultExport: unknown = (await import(mainWaspJs)).default
 
   if (!usersDefaultExport) {
@@ -36,7 +36,7 @@ async function getUserApp(
     }
   }
 
-  if (!(usersDefaultExport instanceof UserSpec.App)) {
+  if (!(usersDefaultExport instanceof UserApi.App)) {
     return {
       status: 'error',
       error:

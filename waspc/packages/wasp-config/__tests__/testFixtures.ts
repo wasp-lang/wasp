@@ -1,4 +1,4 @@
-import * as UserSpec from '../src/userApi.js'
+import * as UserApi from '../src/userApi.js'
 
 // Contains sample data that can be used for testing purposes.
 // In our case the sample data represents UserSpec data.
@@ -16,7 +16,7 @@ export const PAGES = {
         from: '@src/pages/minimal',
         import: 'Minimal',
       },
-    } satisfies UserSpec.PageConfig,
+    } satisfies UserApi.PageConfig,
   },
   FULL: {
     NAME: 'FullPage',
@@ -26,7 +26,7 @@ export const PAGES = {
         import: 'Full',
       },
       authRequired: true,
-    } satisfies UserSpec.PageConfig,
+    } satisfies UserApi.PageConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
@@ -36,7 +36,7 @@ export const PAGES = {
         import: 'EmailVerification',
       },
       authRequired: false,
-    } satisfies Required<UserSpec.PageConfig>,
+    } satisfies Required<UserApi.PageConfig>,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetPage',
@@ -46,7 +46,7 @@ export const PAGES = {
         import: 'PasswordReset',
       },
       authRequired: false,
-    } satisfies Required<UserSpec.PageConfig>,
+    } satisfies Required<UserApi.PageConfig>,
   },
 } as const
 export const ALL_PAGE_NAMES = Object.values(PAGES).map((page) => page.NAME)
@@ -59,21 +59,21 @@ export const ROUTES = {
     CONFIG: {
       path: '/full',
       to: PAGES.FULL.NAME as string & { _brand: 'Page' },
-    } satisfies UserSpec.RouteConfig,
+    } satisfies UserApi.RouteConfig,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationRoute',
     CONFIG: {
       path: '/email-verification',
       to: PAGES.EMAIL_VERIFICATION.NAME as string & { _brand: 'Page' },
-    } satisfies Required<UserSpec.RouteConfig>,
+    } satisfies Required<UserApi.RouteConfig>,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetRoute',
     CONFIG: {
       path: '/password-reset',
       to: PAGES.PASSWORD_RESET.NAME as string & { _brand: 'Page' },
-    } satisfies Required<UserSpec.RouteConfig>,
+    } satisfies Required<UserApi.RouteConfig>,
   },
 } as const
 export const ALL_ROUTE_NAMES = Object.values(ROUTES).map((route) => route.NAME)
@@ -88,7 +88,7 @@ export const QUERIES = {
       },
       entities: [TASK_ENTITY],
       auth: true,
-    } satisfies Required<UserSpec.QueryConfig>,
+    } satisfies Required<UserApi.QueryConfig>,
   },
   MINIMAL: {
     NAME: 'getTasks',
@@ -97,7 +97,7 @@ export const QUERIES = {
         import: 'getTasks',
         from: '@src/queries',
       },
-    } satisfies UserSpec.QueryConfig,
+    } satisfies UserApi.QueryConfig,
   },
 } as const
 
@@ -111,7 +111,7 @@ export const ACTIONS = {
       },
       entities: [TASK_ENTITY],
       auth: true,
-    } satisfies Required<UserSpec.ActionConfig>,
+    } satisfies Required<UserApi.ActionConfig>,
   },
   MINIMAL: {
     NAME: 'deleteTask',
@@ -120,7 +120,7 @@ export const ACTIONS = {
         import: 'deleteTask',
         from: '@src/actions',
       },
-    } satisfies UserSpec.ActionConfig,
+    } satisfies UserApi.ActionConfig,
   },
 } as const
 
@@ -166,14 +166,14 @@ export const CRUDS = {
           },
         },
       },
-    } satisfies Required<UserSpec.Crud>,
+    } satisfies Required<UserApi.Crud>,
   },
   MINIMAL: {
     NAME: 'EmptyTaskCrud',
     CONFIG: {
       entity: TASK_ENTITY,
       operations: {},
-    } satisfies UserSpec.Crud,
+    } satisfies UserApi.Crud,
   },
 } as const
 
@@ -186,7 +186,7 @@ export const API_NAMESPACES = {
         from: '@src/apis',
       },
       path: '/bar',
-    } satisfies Required<UserSpec.ApiNamespaceConfig>,
+    } satisfies Required<UserApi.ApiNamespaceConfig>,
   },
 } as const
 
@@ -208,7 +208,7 @@ export const APIS = {
         import: 'barBazMiddlewareConfigFn',
         from: '@src/apis',
       },
-    } satisfies Required<UserSpec.ApiConfig>,
+    } satisfies Required<UserApi.ApiConfig>,
   },
   MINIMAL: {
     NAME: 'barFoo',
@@ -221,7 +221,7 @@ export const APIS = {
         method: 'POST',
         route: '/bar/foo',
       },
-    } satisfies UserSpec.ApiConfig,
+    } satisfies UserApi.ApiConfig,
   },
 } as const
 
@@ -247,7 +247,7 @@ export const JOBS = {
           pgBoss: { jobOptions: { attempts: 3 } },
         },
       },
-    } satisfies Required<UserSpec.JobConfig>,
+    } satisfies Required<UserApi.JobConfig>,
   },
   MINIMAL: {
     NAME: 'mySimpleJob',
@@ -259,7 +259,7 @@ export const JOBS = {
           from: '@src/jobs/bar',
         },
       },
-    } satisfies UserSpec.JobConfig,
+    } satisfies UserApi.JobConfig,
   },
 } as const
 
@@ -269,7 +269,7 @@ export const APP = {
     title: 'ToDO App',
     wasp: { version: '^0.16.0' },
     head: ['<link rel="icon" href="/favicon.ico" />'],
-  } satisfies Required<UserSpec.AppConfig>,
+  } satisfies Required<UserApi.AppConfig>,
 } as const
 
 export const AUTH = {
@@ -370,7 +370,7 @@ export const AUTH = {
       from: '@src/auth/hooks.js',
     },
     externalAuthEntity: SOCIAL_USER_ENTITY,
-  } satisfies Required<UserSpec.AuthConfig>,
+  } satisfies Required<UserApi.AuthConfig>,
 } as const
 
 export const CLIENT = {
@@ -388,7 +388,7 @@ export const CLIENT = {
       import: 'envValidationSchema',
       from: '@src/envValidationSchema',
     },
-  } satisfies Required<UserSpec.ClientConfig>,
+  } satisfies Required<UserApi.ClientConfig>,
 } as const
 
 export const SERVER = {
@@ -405,7 +405,7 @@ export const SERVER = {
       import: 'envValidationSchema',
       from: '@src/envValidationSchema',
     },
-  } satisfies Required<UserSpec.ServerConfig>,
+  } satisfies Required<UserApi.ServerConfig>,
 } as const
 
 export const EMAIL_SENDER = {
@@ -415,7 +415,7 @@ export const EMAIL_SENDER = {
       name: 'Test',
       email: 'test@test.com',
     },
-  } satisfies Required<UserSpec.EmailSenderConfig>,
+  } satisfies Required<UserApi.EmailSenderConfig>,
 } as const
 
 export const WEBSOCKET = {
@@ -425,7 +425,7 @@ export const WEBSOCKET = {
       from: '@src/webSocket',
     },
     autoConnect: true,
-  } satisfies Required<UserSpec.WebsocketConfig>,
+  } satisfies Required<UserApi.WebsocketConfig>,
 } as const
 
 export const DB = {
@@ -436,5 +436,5 @@ export const DB = {
         from: '@src/dbSeeds',
       },
     ],
-  } satisfies Required<UserSpec.DbConfig>,
+  } satisfies Required<UserApi.DbConfig>,
 } as const

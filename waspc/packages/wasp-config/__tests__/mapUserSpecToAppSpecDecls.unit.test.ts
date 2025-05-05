@@ -29,13 +29,13 @@ import {
   mapUsernameAndPassword,
   mapWebSocket,
 } from '../src/mapUserSpecToAppSpecDecls.js'
-import * as UserSpec from '../src/userApi.js'
+import * as UserApi from '../src/userApi.js'
 import * as Fixtures from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
   describe('mapApp', () => {
     test('should map minimal config correctly', () => {
-      const app = new UserSpec.App(Fixtures.APP.NAME, {
+      const app = new UserApi.App(Fixtures.APP.NAME, {
         title: Fixtures.APP.CONFIG.title,
         wasp: Fixtures.APP.CONFIG.wasp,
       })
@@ -72,7 +72,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const app = new UserSpec.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
+      const app = new UserApi.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
       app.auth(Fixtures.AUTH.CONFIG)
       app.server(Fixtures.SERVER.CONFIG)
       app.client(Fixtures.CLIENT.CONFIG)
@@ -123,7 +123,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapAuth', () => {
     test('should map minimal config correctly', () => {
-      const minimalAuth: UserSpec.AuthConfig = {
+      const minimalAuth: UserApi.AuthConfig = {
         userEntity: Fixtures.AUTH.CONFIG.userEntity,
         methods: {},
         onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
@@ -175,7 +175,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if userEntity is not provided', () => {
-      const auth: UserSpec.AuthConfig = {
+      const auth: UserApi.AuthConfig = {
         userEntity: Fixtures.AUTH.CONFIG.userEntity,
         methods: {},
         onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
@@ -187,7 +187,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if externalAuthEntity ref is not provided when defined', () => {
-      const auth: UserSpec.AuthConfig = {
+      const auth: UserApi.AuthConfig = {
         userEntity: Fixtures.AUTH.CONFIG.userEntity,
         externalAuthEntity: Fixtures.AUTH.CONFIG.externalAuthEntity,
         methods: {},
@@ -204,7 +204,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapAuthMethods', () => {
     test('should map minimal config correctly', () => {
-      const minimalAuthMethods: UserSpec.AuthMethods = {}
+      const minimalAuthMethods: UserApi.AuthMethods = {}
       const parseRouteRef = makeRefParser('Route', [])
 
       const result = mapAuthMethods(minimalAuthMethods, parseRouteRef)
@@ -244,7 +244,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapEmailAuth', () => {
     test('should map minimal config correctly', () => {
-      const minimalEmailAuth: UserSpec.EmailAuthConfig = {
+      const minimalEmailAuth: UserApi.EmailAuthConfig = {
         fromField: Fixtures.AUTH.CONFIG.methods.email.fromField,
         emailVerification: Fixtures.AUTH.CONFIG.methods.email.emailVerification,
         passwordReset: Fixtures.AUTH.CONFIG.methods.email.passwordReset,
@@ -297,7 +297,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if email verification client route is not provided when defined', () => {
-      const emailAuth: UserSpec.EmailAuthConfig = {
+      const emailAuth: UserApi.EmailAuthConfig = {
         ...Fixtures.AUTH.CONFIG.methods.email,
         emailVerification: {
           getEmailContentFn:
@@ -314,7 +314,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if password reset client route is not provided when defined', () => {
-      const emailAuth: UserSpec.EmailAuthConfig = {
+      const emailAuth: UserApi.EmailAuthConfig = {
         ...Fixtures.AUTH.CONFIG.methods.email,
         passwordReset: {
           getEmailContentFn:
@@ -332,7 +332,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapEmailVerification', () => {
     test('should map minimal config correctly', () => {
-      const minimalEmailVerification: UserSpec.EmailVerificationConfig = {
+      const minimalEmailVerification: UserApi.EmailVerificationConfig = {
         clientRoute:
           Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute,
       }
@@ -371,7 +371,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapPasswordReset', () => {
     test('should map minimal config correctly', () => {
-      const minimalPasswordReset: UserSpec.PasswordResetConfig = {
+      const minimalPasswordReset: UserApi.PasswordResetConfig = {
         clientRoute:
           Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
       }
@@ -411,7 +411,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapUsernameAndPassword', () => {
     test('should map minimal config correctly', () => {
-      const minimalUsernameAndPassword: UserSpec.UsernameAndPasswordConfig = {}
+      const minimalUsernameAndPassword: UserApi.UsernameAndPasswordConfig = {}
 
       const result = mapUsernameAndPassword(minimalUsernameAndPassword)
 
@@ -434,7 +434,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapExternalAuth', () => {
     test('should map minimal config correctly', () => {
-      const minimalExternalAuth: UserSpec.ExternalAuthConfig = {}
+      const minimalExternalAuth: UserApi.ExternalAuthConfig = {}
 
       const result = mapExternalAuth(minimalExternalAuth)
 
@@ -458,7 +458,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapClient', () => {
     test('should map minimal config correctly', () => {
-      const minimalClient: UserSpec.ClientConfig = {}
+      const minimalClient: UserApi.ClientConfig = {}
 
       const result = mapClient(minimalClient)
 
@@ -486,7 +486,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapServer', () => {
     test('should map minimal config correctly', () => {
-      const minimalServer: UserSpec.ServerConfig = {}
+      const minimalServer: UserApi.ServerConfig = {}
 
       const result = mapServer(minimalServer)
 
@@ -512,7 +512,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapEmailSender', () => {
     test('should map minimal config correctly', () => {
-      const minimalEmailSender: UserSpec.EmailSender = {
+      const minimalEmailSender: UserApi.EmailSender = {
         provider: Fixtures.EMAIL_SENDER.CONFIG.provider,
       }
 
@@ -538,7 +538,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapWebSocket', () => {
     test('should map minimal config correctly', () => {
-      const minimalWebsocket: UserSpec.WebsocketConfig = {
+      const minimalWebsocket: UserApi.WebsocketConfig = {
         fn: Fixtures.WEBSOCKET.CONFIG.fn,
       }
 
@@ -564,7 +564,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapDb', () => {
     test('should map minimal config correctly', () => {
-      const minimalDb: UserSpec.DbConfig = {}
+      const minimalDb: UserApi.DbConfig = {}
 
       const result = mapDb(minimalDb)
 
@@ -574,7 +574,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map full config correctly', () => {
-      const db: UserSpec.DbConfig = {
+      const db: UserApi.DbConfig = {
         seeds: Fixtures.DB.CONFIG.seeds,
       }
 
@@ -652,7 +652,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided in query config', () => {
-      const query: UserSpec.QueryConfig = Fixtures.QUERIES.FULL.CONFIG
+      const query: UserApi.QueryConfig = Fixtures.QUERIES.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       expect(() => mapOperationConfig(query, parseEntityRef)).toThrowError()
@@ -718,7 +718,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should throw if entity ref is not provided', () => {
-      const crud: UserSpec.Crud = Fixtures.CRUDS.FULL.CONFIG
+      const crud: UserApi.Crud = Fixtures.CRUDS.FULL.CONFIG
       const parseEntityRef = makeRefParser('Entity', [])
 
       expect(() => mapCrud(crud, parseEntityRef)).toThrowError()
@@ -757,7 +757,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapCrudOperationOptions', () => {
     test('should map minimal config correctly', () => {
-      const minimalCrudOperationOptions: UserSpec.CrudOperationOptions = {
+      const minimalCrudOperationOptions: UserApi.CrudOperationOptions = {
         isPublic: false,
       }
 
@@ -892,7 +892,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   describe('mapExtImport', () => {
     test('should map named import correctly', () => {
-      const extImport: UserSpec.ExtImport = {
+      const extImport: UserApi.ExtImport = {
         import: 'myNamedImport',
         from: '@src/myModule',
       }
@@ -907,7 +907,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     test('should map default import correctly', () => {
-      const extImport: UserSpec.ExtImport = {
+      const extImport: UserApi.ExtImport = {
         importDefault: 'myDefaultImport',
         from: '@src/myModule',
       }
@@ -932,9 +932,9 @@ describe('mapUserSpecToAppSpecDecls', () => {
     // })
 
     test('should throw for missing import kind', () => {
-      const extImport: UserSpec.ExtImport = {
+      const extImport: UserApi.ExtImport = {
         from: '@src/myModule',
-      } as unknown as UserSpec.ExtImport
+      } as unknown as UserApi.ExtImport
 
       expect(() => mapExtImport(extImport)).toThrowError()
     })

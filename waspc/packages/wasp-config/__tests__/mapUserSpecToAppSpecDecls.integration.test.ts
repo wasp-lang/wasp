@@ -13,12 +13,12 @@ import {
   mapRoute,
   mapUserSpecToAppSpecDecls,
 } from '../src/mapUserSpecToAppSpecDecls.js'
-import * as UserSpec from '../src/userApi.js'
+import * as UserApi from '../src/userApi.js'
 import * as Fixtures from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
-  function createFullUserSpec(): UserSpec.UserSpec {
-    const app = new UserSpec.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
+  function createFullUserSpec(): UserApi.UserSpec {
+    const app = new UserApi.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
     app.auth(Fixtures.AUTH.CONFIG)
     app.client(Fixtures.CLIENT.CONFIG)
     app.server(Fixtures.SERVER.CONFIG)
