@@ -88,7 +88,9 @@ export async function getServiceUrl(
 ): Promise<string> {
   const result = await $`${railwayExe} domain --service "${serviceName}" --port ${port}`;
   const match = result.stdout.match(/https:\/\/[^\s]*/);
-  if (!match) throw new Error('Failed to get service domain');
+  if (match === null) {
+    throw new Error('Failed to get service domain');
+  }
   return match[0];
 }
 

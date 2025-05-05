@@ -70,8 +70,6 @@ export function addRailwayCommand(program: Command): void {
           .default('railway'),
       )
       .option('--skip-build', 'do not run `wasp build` before the command')
-      // Maybe we'll need to use --team for Railway
-      // .option('--org <org>', 'Fly org to use (with commands that support it)')
       .hook('preAction', ensureRailwayBasenameIsValid)
       .hook('preAction', ensureRailwayReady)
       .hook('preAction', ensureWaspProjectDirInCmdIsAbsoluteAndPresent)
