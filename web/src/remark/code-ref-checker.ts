@@ -23,17 +23,22 @@ const plugin: Plugin<[], Root> = () => {
       const result = compareCodeBlocks(docCodeBlock, refCodeBlock)
 
       // TODO: Compare source code block with the referenced code block.
-      // - When comparing code blocks, be robust about indentation shift and trim at start and end
-      //   (whitespace, newlines). We can even minify it maybe (without changing the names
-      //   probably). I guess what we really want to do is to normalize them, and the question is
-      //   how. Don't minify.
-      // - We will also probably (almost certainly) want to ignore comments.
-      // - We should look into some kind of minifying. Ideally it would take care of whitespaces and
-      //   comments, while not e.g. changing names. We should probably do this at language level: if
-      //   block is js/ts -> us this minifier.
       // - Maybe we want to regex the whole file contents instead of specifiying the lines?
-      //   We will add holes heurestically (start and end). This way we don't have to fix
-      //   line numbers each time we change the example code.
+      //   We can also add .* at the right places (i.e. start and end).
+      //   This way we don't have to fix line numbers each time we change the example code,
+      //   which sounds like a major hassle.
+      //   This does make the whole code reffing potentially a bit imprecise, but it might be ok
+      //   in practice.
+      // - We should look into some kind of minifying as a method of normalizing the code for
+      //   comparison. Ideally it would take care of whitespaces and comments (oh yes comments for
+      //   sure!), while not e.g. changing names. We should probably do this at language level: if
+      //   block is js/ts -> use this minifier.
+      // - When comparing code blocks, be robust about indentation shift and trim at start and end
+      //   (whitespace, newlines), unless this is already covered by minification.
+      // - Regarding holes (...) -> I don't think minifiers can parse those.
+      //   Solution is probably to use `// ...` instead. We can say if js/ts file has
+      //   a line that matches `^\s*//\s*\.\.\.\s*$`, that is a hole, and we will take that into
+      //   account when comparing the code blocks.
 
       // TODO: What about versioned docs? Should we check here if file is from there and ignore it
       //   if so? Either that, or we have to tell it from which git reference to pull the code from.
@@ -42,18 +47,6 @@ const plugin: Plugin<[], Root> = () => {
 
       // IDEAS:
       // - Add support for specifing the awk string to do transformation.
-      // - To shorten the file paths, we can look into offering a couple of common replacements.
-      //   For example if most of the paths will start with "wasp/waspc/examples/", we can introduce
-      //   `"$exs" -> "wasp/waspc/examples/"` replacement.
-      //   - Bad side is that it is kind of magical, so e.g. we loose copy-pastability.
-      //   - let's do it only if we really get annoyed with it.
-      // - add support for "hole" (ellipsis)
-      //   I guess I kind of replace it with .* ? Either with regex or somehow different.
-      //   Simple:
-      //    - hole is any line with only ... in it
-      //    - transform text with awk if specified
-      //    - break it into blocks by holes
-      //    - either construct regex with .* in place of holes and the rest is literal
     })
   }
 }
