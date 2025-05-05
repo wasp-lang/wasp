@@ -1,26 +1,61 @@
 import * as path from "path";
-import { spawnWithLog } from "../process.js";
+import * as fs from "fs";
 
-export function buildClientApp({
+import { spawnWithLog } from "../process.js";
+import { log } from "../logging.js";
+import { EnvVars } from "../types.js";
+import { parse } from "dotenv";
+import { doesFileExits } from "../files.js";
+import type { PathToApp } from "../args.js";
+
+export async function buildAndStartClientApp({
   pathToApp,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
+}): Promise<void> {
+  const { exitCode: buildExitCode } = await buildClientApp({ pathToApp });
+  if (buildExitCode !== 0) {
+    log("client-build-app", "error", `Failed to build client app.`);
+    process.exit(1);
+  }
+
+  // This starts a long running process, so we don't await it.
+  startClientApp({ pathToApp }).then(({ exitCode }) => {
+    if (exitCode !== 0) {
+      log("client-start-app", "error", `Failed to start client app.`);
+      process.exit(1);
+    }
+  });
+}
+
+async function buildClientApp({
+  pathToApp,
+}: {
+  pathToApp: PathToApp;
 }): Promise<{ exitCode: number | null }> {
+  const defaultRequiredEnv = {
+    REACT_APP_API_URL: "http://localhost:3001",
+  };
+  const devEnv = await getDevEnvVars({ pathToApp });
+
+  const clientBuildEnv = {
+    ...defaultRequiredEnv,
+    ...devEnv,
+  };
+
   return spawnWithLog({
     name: "client-build-app",
     cmd: "npm",
     args: ["run", "build"],
     cwd: path.join(pathToApp, ".wasp/build/web-app"),
-    extraEnv: {
-      REACT_APP_API_URL: "http://localhost:3001",
-    },
+    extraEnv: clientBuildEnv,
   });
 }
 
-export async function startClientApp({
+async function startClientApp({
   pathToApp,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
 }): Promise<{
   exitCode: number | null;
 }> {
@@ -30,4 +65,18 @@ export async function startClientApp({
     args: ["serve", "--single", "-p", "3000"],
     cwd: path.join(pathToApp, ".wasp/build/web-app/build"),
   });
+}
+
+async function getDevEnvVars({
+  pathToApp,
+}: {
+  pathToApp: PathToApp;
+}): Promise<EnvVars> {
+  const envVarsPath = path.join(pathToApp, ".env.client");
+
+  if (!doesFileExits(envVarsPath)) {
+    return {};
+  }
+  const contents = fs.readFileSync(envVarsPath, "utf-8");
+  return parse(contents);
 }

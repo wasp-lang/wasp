@@ -1,12 +1,10 @@
-import { Command } from "@commander-js/extra-typings";
 import { log } from "./logging.js";
 import { checkDependencies } from "./dependencies.js";
 import { DbType } from "./db/index.js";
 import { getAppInfo } from "./waspCli.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { startAppInBuildMode } from "./build/index.js";
-
-type Mode = "dev" | "build";
+import { type Mode, parseArgs, PathToApp, WaspCliCmd } from "./args.js";
 
 export async function main(): Promise<void> {
   const { mode, waspCliCmd, pathToApp } = parseArgs();
@@ -33,8 +31,8 @@ async function runWaspApp({
   pathToApp,
 }: {
   mode: Mode;
-  waspCliCmd: string;
-  pathToApp: string;
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
 }): Promise<void> {
   await checkDependencies();
 
@@ -73,45 +71,4 @@ async function runWaspApp({
       dbType,
     });
   }
-}
-
-function parseArgs(): {
-  mode: Mode;
-  pathToApp: string;
-  waspCliCmd: string;
-} {
-  const program = new Command();
-
-  program.name("wasp-app-runner");
-
-  const runCommand = program
-    .command("run")
-    .description("Run the Wasp application")
-    .argument("<mode>", "The run mode (dev or build)")
-    .option("--path-to-app <path>", "Path to the Wasp application", ".")
-    .option("--wasp-cli-cmd <command>", "Wasp CLI command to use", "wasp");
-
-  if (process.argv.length === 2) {
-    program.help();
-  }
-
-  program.parse();
-
-  const options = runCommand.opts();
-  const args = runCommand.processedArgs;
-
-  if (!isModeArg(args)) {
-    log("args", "error", `Invalid mode: ${args[0]}. Must be 'dev' or 'build'`);
-    process.exit(1);
-  }
-
-  return {
-    mode: args[0],
-    pathToApp: options.pathToApp,
-    waspCliCmd: options.waspCliCmd,
-  };
-}
-
-function isModeArg(args: string[]): args is [Mode] {
-  return args.length === 1 && (args[0] === "dev" || args[0] === "build");
 }

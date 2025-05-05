@@ -1,7 +1,6 @@
 import * as path from "path";
-import * as fs from "fs";
 
-import { spawnAndCollectOutput, spawnWithLog } from "../process.js";
+import { spawnWithLog } from "../process.js";
 import {
   createAppSpecificServerBuildDockerNames,
   ServerBuildContainerName,
@@ -9,14 +8,17 @@ import {
 } from "../docker.js";
 import { EnvVars } from "../types.js";
 import { log } from "../logging.js";
+import { doesFileExits } from "../files.js";
+import type { AppName } from "../waspCli.js";
+import type { PathToApp } from "../args.js";
 
 export async function buildAndRunServerAppContainer({
   appName,
   pathToApp,
   extraEnv,
 }: {
-  appName: string;
-  pathToApp: string;
+  appName: AppName;
+  pathToApp: PathToApp;
   extraEnv: EnvVars;
 }): Promise<void> {
   const { imageName, containerName } = createAppSpecificServerBuildDockerNames({
@@ -24,16 +26,19 @@ export async function buildAndRunServerAppContainer({
     pathToApp,
   });
 
-  await buildServerAppContainer({
+  const { exitCode: buildExitCode } = await buildServerAppContainer({
     pathToApp,
     imageName,
   });
 
-  log(
-    "server-build-and-run-app",
-    "success",
-    `Built server app container: ${containerName}`
-  );
+  if (buildExitCode !== 0) {
+    log(
+      "server-build-app",
+      "error",
+      `Failed to build server app container: ${containerName}`
+    );
+    process.exit(1);
+  }
 
   // This starts a long running process, so we don't await it.
   runServerAppContainer({
@@ -43,6 +48,11 @@ export async function buildAndRunServerAppContainer({
     extraEnv,
   }).then(({ exitCode }) => {
     if (exitCode !== 0) {
+      log(
+        "server-start-app",
+        "error",
+        `Failed to start server app container: ${containerName}`
+      );
       process.exit(1);
     }
   });
@@ -52,7 +62,7 @@ function buildServerAppContainer({
   pathToApp,
   imageName,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
   imageName: ServerBuildImageName;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
@@ -69,7 +79,7 @@ function runServerAppContainer({
   containerName,
   extraEnv,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
   extraEnv: EnvVars;
@@ -80,7 +90,7 @@ function runServerAppContainer({
     args: [
       "run",
       "--rm",
-      ...getServerAppEnvArgs({
+      ...getDockerEnvVarsArgs({
         pathToApp,
         extraEnv,
       }),
@@ -93,46 +103,43 @@ function runServerAppContainer({
   });
 }
 
-function getServerAppEnvArgs({
+function getDockerEnvVarsArgs({
   pathToApp,
   extraEnv,
 }: {
-  pathToApp: string;
+  pathToApp: PathToApp;
   extraEnv: EnvVars;
 }): string[] {
-  const requiredEnv: EnvVars = {
+  const defaultRequiredEnv: EnvVars = {
     WASP_WEB_CLIENT_URL: "http://localhost:3000",
     JWT_SECRET: "some-jwt-secret",
     WASP_SERVER_URL: "http://localhost:3001",
   };
-  const allEnv = { ...requiredEnv, ...extraEnv };
   return [
-    ...envVarsToArgs(allEnv),
-    ...getDevEnvVarsFileArg({
+    ...getEnvVarsDockerArgs({ ...defaultRequiredEnv, ...extraEnv }),
+    ...getDevEnvFileDockerArg({
       pathToApp,
     }),
   ];
 }
 
-// Docker fails if the env file is not present, so we check if it exists first.
-function getDevEnvVarsFileArg({
-  pathToApp,
-}: {
-  pathToApp: string;
-}): [string, string] | [] {
-  const envFilePath = path.resolve(pathToApp, ".env.server");
-  try {
-    const stats = fs.statSync(envFilePath);
-    if (stats.isFile()) {
-      return ["--env-file", envFilePath];
-    }
-  } catch (err) {}
-
-  return [];
-}
-
-function envVarsToArgs(envVars: EnvVars): string[] {
+function getEnvVarsDockerArgs(envVars: EnvVars): string[] {
   return Object.entries(envVars).flatMap(([key, value]) => {
     return [`--env`, `${key}=${value}`];
   });
+}
+
+function getDevEnvFileDockerArg({
+  pathToApp,
+}: {
+  pathToApp: PathToApp;
+}): [string, string] | [] {
+  const envFilePath = path.resolve(pathToApp, ".env.server");
+
+  // Docker run command will fail if the file does not exist, so we check for it here.
+  if (!doesFileExits(envFilePath)) {
+    return [];
+  }
+
+  return ["--env-file", envFilePath];
 }

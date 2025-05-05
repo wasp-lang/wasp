@@ -1,6 +1,4 @@
----
-title: Migration from 0.16.X to 0.17.X
----
+## title: Migration from 0.16.X to 0.17.X
 
 ## What's new in 0.17.0?
 
@@ -39,6 +37,13 @@ await login({ username: usernameValue, password: passwordValue })
 
 This is to make it consistent with the `login` and `signup` calls in other
 authentication methods, which were already using this convention.
+
+### Wasp no longer generates a default `favicon.ico` 
+
+Wasp will no longer generate `favicon.ico` if there isn't one in the `public` directory.
+Also, Wasp will no longer generate a `<link>` meta tag in `index.html`. You'll need to define it yourself explicitly. 
+
+New Wasp projects come with a default `favicon.ico` in the `public` directory and the `<link>` meta tag in the `main.wasp` file.
 
 ## How to migrate?
 
@@ -167,7 +172,81 @@ update your `src/vite-env.d.ts` file:
 import '@testing-library/jest-dom'
 ```
 
-### 4. Enjoy your updated Wasp app
+### 4. Add a `favicon.ico` to the `public` directory
+
+This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
+If so, you should add a `favicon.ico` to your `public` folder. 
+
+If you want to keep the default, you can [download it here](https://github.com/wasp-lang/wasp/tree/main/waspc/data/Cli/templates/skeleton/public/favicon.ico).
+
+If you want to generate a `favicon.ico` and all its possible variants, check out [RealFaviconGenerator](https://realfavicongenerator.net/), a handy open-source tool for creating favicons.
+
+### 5. Add a `<link>` meta tag for `favicon.ico`
+
+This step is required for all of the project's which use `favicon.ico`.
+Add the `<link>` meta tag to the `head` property in the `main.wasp`
+
+```wasp title="main.wasp
+app MyApp {
+  // ...
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
+}
+```
+
+### 6. Upgrade Express dependencies
+
+You should change your `package.json` to use v5 of `express`
+and `@types/express`:
+
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "dependencies": {
+    "express": "~4.21.0",
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```json title="package.json"
+{
+  "dependencies": {
+    "express": "~5.1.0",
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### 7. Upgrade your `api` endpoints to Express 5
+
+Wasp now uses [Express v5](https://expressjs.com/2024/10/15/v5-release.html), which impacts
+[API Endpoints](../advanced/apis.md) (defined with `api` in your Wasp file).
+[Operations](../data-model/operations/overview.md) (defined with `query` and `action` in your Wasp file)
+are not affected by this change.
+
+To upgrade, follow [Express's v5 migration guide](https://expressjs.com/en/guide/migrating-5.html).
+
+:::tip
+In general, you only need to worry about changes to the `req` and `res` objects in your API endpoints.
+The breaking changes are mostly edge cases and most code should work without any updates.
+:::
+
+### 8. Enjoy your updated Wasp app
 
 That's it!
 
