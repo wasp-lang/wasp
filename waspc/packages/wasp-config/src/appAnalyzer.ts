@@ -2,36 +2,32 @@ import { GET_USER_SPEC } from './_private.js'
 import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
 import * as UserSpec from './userApi.js'
 
-export async function tryAnalyzeUserApp(
+export async function analyzeUserApp(
   mainWaspJs: string,
   entityNames: string[]
 ): Promise<Result<string, string>> {
-  const appResult = await tryGetUserSpec(mainWaspJs)
+  const userAppResult = await getUserAppDefinition(mainWaspJs)
 
-  if (appResult.status === 'error') {
-    return appResult
+  if (userAppResult.status === 'error') {
+    return userAppResult
   }
 
-  const app = appResult.value
-  const appSpecDecls = mapUserSpecAppToAppSpecDecls(app, entityNames)
+  const userApp = userAppResult.value
+  const userSpec = userApp[GET_USER_SPEC]()
+  const appSpecDecls = mapUserSpecToAppSpecDecls(userSpec, entityNames)
 
   return {
     status: 'ok',
-    value: appSpecDecls,
+    value: JSON.stringify(appSpecDecls),
   }
 }
 
-async function tryGetUserSpec(
+async function getUserAppDefinition(
   mainWaspJs: string
 ): Promise<Result<UserSpec.App, string>> {
   const usersDefaultExport: unknown = (await import(mainWaspJs)).default
-  const appResult = validateUserSpecApp(usersDefaultExport)
 
-  return appResult
-}
-
-function validateUserSpecApp(app: unknown): Result<UserSpec.App, string> {
-  if (!app) {
+  if (!usersDefaultExport) {
     return {
       status: 'error',
       error:
@@ -40,7 +36,7 @@ function validateUserSpecApp(app: unknown): Result<UserSpec.App, string> {
     }
   }
 
-  if (!(app instanceof UserSpec.App)) {
+  if (!(usersDefaultExport instanceof UserSpec.App)) {
     return {
       status: 'error',
       error:
@@ -49,18 +45,7 @@ function validateUserSpecApp(app: unknown): Result<UserSpec.App, string> {
     }
   }
 
-  return { status: 'ok', value: app }
-}
-
-function mapUserSpecAppToAppSpecDecls(
-  app: UserSpec.App,
-  entityNames: string[]
-): string {
-  const userSpec = app[GET_USER_SPEC]()
-  const appSpecDecls = mapUserSpecToAppSpecDecls(userSpec, entityNames)
-  const appSpecDeclsJson = JSON.stringify(appSpecDecls)
-
-  return appSpecDeclsJson
+  return { status: 'ok', value: usersDefaultExport }
 }
 
 /**

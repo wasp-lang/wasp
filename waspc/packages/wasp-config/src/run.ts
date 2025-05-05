@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { writeFileSync } from 'fs'
-import { tryAnalyzeUserApp } from './appAnalyzer.js'
+import { analyzeUserApp } from './appAnalyzer.js'
 
 main()
 
@@ -8,7 +8,7 @@ async function main() {
   const { mainWaspJs, declsJsonOutputFile, entityNames } =
     parseProcessArgsOrThrow(process.argv)
 
-  const declsJsonResult = await tryAnalyzeUserApp(mainWaspJs, entityNames)
+  const declsJsonResult = await analyzeUserApp(mainWaspJs, entityNames)
 
   if (declsJsonResult.status === 'error') {
     console.error(declsJsonResult.error)
