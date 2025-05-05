@@ -24,6 +24,10 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - Wasp will no longer generate `favicon.ico` on compile if there isn't one in the `public` directory. New Wasp projects will start with a default `favicon.ico` in the `public` directory, instead. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 - Wasp will no longer automatically add a favicon `<link>` tag to the `index.html`. The `<link>` tag will be included by default in the `main.wasp` for new projects. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 
+### 🎉 New Features
+
+- Wasp now supports `onAfterEmailVerified` auth hooks! You can use this hook to run custom logic after a user has verified their email.
+
 ### 🐞 Bug fixes
 
 - Fixes an OAuth logic race condition where a valid session ID was cleared and users would be logged out. ([#2684](https://github.com/wasp-lang/wasp/pull/2684))
