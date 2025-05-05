@@ -23,7 +23,7 @@ To set up username authentication we need to:
 
 Structure of the `main.wasp` file we will end up with:
 
-```wasp title="main.wasp" ref="wasp/waspc/examples/todoApp/src/operations.ts:L7-42"
+```wasp title="main.wasp"
 // Configuring e-mail authentication
 app myApp {
   auth: { ... }

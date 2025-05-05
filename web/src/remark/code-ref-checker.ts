@@ -1,24 +1,26 @@
+import fs from 'fs'
 import type { Code, Root } from 'mdast'
+import path from 'path'
 import type { Plugin } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
-import fs from 'fs'
+import url from 'url'
 
 // TODO: Add explanation of what this plugin is about. Examples.
 
 const plugin: Plugin<[], Root> = () => {
   return (tree, _file) => {
     visit(tree, 'code', (codeBlockNode) => {
-      const codeRefString = obtainCodeRefStringFromCodeBlock(codeBlockNode);
+      const codeRefString = obtainCodeRefStringFromCodeBlock(codeBlockNode)
       if (!codeRefString) return SKIP
 
-      const codeRef = parseCodeRefString(codeRefString);
-      console.log(codeRef);
+      const codeRef = parseCodeRefString(codeRefString)
+      console.log(codeRef)
 
-      // TODO: Fetch code block from the referenced file.
-      // We have path
+      const docCodeBlock = codeBlockNode.value
+      const refCodeBlock = fetchCodeRefCodeBlock(codeRef)
+      console.log(refCodeBlock)
 
-      const codeBlockStr = fetchCodeBlock(codeRef);
-
+      const result = compareCodeBlocks(docCodeBlock, refCodeBlock)
 
       // TODO: Compare source code block with the referenced code block.
       // - When comparing code blocks, be robust about indentation shift and trim at start and end
@@ -29,6 +31,9 @@ const plugin: Plugin<[], Root> = () => {
       // - We should look into some kind of minifying. Ideally it would take care of whitespaces and
       //   comments, while not e.g. changing names. We should probably do this at language level: if
       //   block is js/ts -> us this minifier.
+      // - Maybe we want to regex the whole file contents instead of specifiying the lines?
+      //   We will add holes heurestically (start and end). This way we don't have to fix
+      //   line numbers each time we change the example code.
 
       // TODO: What about versioned docs? Should we check here if file is from there and ignore it
       //   if so? Either that, or we have to tell it from which git reference to pull the code from.
@@ -60,13 +65,13 @@ export default plugin
  * between the quotes. Code block's meta field is everything after initial triple backticks of the
  * code block, in the same line.
  */
-function obtainCodeRefStringFromCodeBlock (node: Code): string | null {
-  return node.meta?.match(/\bref="(.+?)"/)?.[1];
+function obtainCodeRefStringFromCodeBlock(node: Code): string | null {
+  return node.meta?.match(/\bref="(.+?)"/)?.[1]
 }
 
 interface CodeRef {
-  filePathInRepo: string,
-  startLine: number,
+  filePathFromRepoRoot: string
+  startLine: number
   endLine: number
 }
 
@@ -75,42 +80,60 @@ interface CodeRef {
  * Example of a valid string: "waspc/examples/todoApp/src/operations.ts:L42-314".
  * @throws When parsing fails.
  */
-function parseCodeRefString (codeRefString: string): CodeRef {
-  const matches = codeRefString.match(/^(.+?):L(\d+)-(\d+)$/);
-  if (!matches) throwInvalidRefAttributeError();
+function parseCodeRefString(codeRefString: string): CodeRef {
+  const matches = codeRefString.match(/^(.+?):L(\d+)-(\d+)$/)
+  if (!matches) throwInvalidRefAttributeError()
 
-  const [, filePath, startLineStr, endLineStr] = matches;
-  const startLine: number | null = parseNonNegativeInteger(startLineStr);
-  const endLine: number | null = parseNonNegativeInteger(endLineStr);
-  if (startLine === null || endLine === null) throwInvalidRefAttributeError();
+  const [, filePathFromRepoRoot, startLineStr, endLineStr] = matches
+  const startLine: number | null = parseNonNegativeInteger(startLineStr)
+  const endLine: number | null = parseNonNegativeInteger(endLineStr)
+  if (startLine === null || endLine === null) throwInvalidRefAttributeError()
 
-  return { filePath, startLine, endLine };
+  return { filePathFromRepoRoot, startLine, endLine }
 
-  function throwInvalidRefAttributeError () {
+  function throwInvalidRefAttributeError() {
     throw new Error(
       `Your code block ref is not valid.`
         + ` Expected "<filepath>:L<start_line>-<end_line>"`
         + `, but got "${codeRefString}".`
-    );
+    )
   }
 }
 
-function parseNonNegativeInteger (str: string): number | null {
-  const result = Number(str);
-  return (Number.isInteger(result) && result >= 0) ? result : null;
+function parseNonNegativeInteger(str: string): number | null {
+  const result = Number(str)
+  return Number.isInteger(result) && result >= 0 ? result : null
+}
+
+function fetchCodeRefCodeBlock(codeRef: CodeRef): string {
+  const rootDir = getRepoRootDir()
+  const codeRefAbsolutePath = path.join(rootDir, codeRef.filePathFromRepoRoot)
+
+  return fs
+    .readFileSync(codeRefAbsolutePath, 'utf8')
+    .split('\n')
+    .slice(codeRef.startLine - 1, codeRef.endLine)
+    .join('\n')
 }
 
 /**
- * TODO
+ * NOTE:
+ * We rely on this file being at the specific position in the code base.
+ * If that changes, we need to update this function.
  */
-function fetchCodeBlock (codeRef: CodeRef): string {
-  const content = fs.readFileSync(codeRef.filePathInRepo, "utf8");
-  const lines = content.split("\n");
+function getRepoRootDir(): string {
+  const moduleAbsolutePath = url.fileURLToPath(import.meta.url)
 
-  // Adjust for zero-based index and return the specified lines
-  const codeBlock = lines.slice(startLine - 1, endLine).join('\n');
+  const remarkDir = path.dirname(moduleAbsolutePath)
+  const srcDir = path.dirname(remarkDir)
+  const webDir = path.dirname(srcDir)
 
-  // Fetch it from the file system
+  return path.dirname(webDir)
+}
 
-  // Take from line start to end -> watch out of r off by one
+function compareCodeBlocks(
+  docCodeBlock: string,
+  refCodeBlock: string
+): boolean {
+  return docCodeBlock === refCodeBlock
 }

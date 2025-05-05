@@ -2,33 +2,37 @@
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="src/auth.js"
+    ```ts title="src/auth.js" 
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
       address: (data) => {
-        if (!data.address) {
-          throw new Error('Address is required')
+        if (typeof data.address !== 'string') {
+          throw new Error('Address is required.')
+        }
+        if (data.address.length < 10) {
+          throw new Error('Address must be at least 10 characters long.')
         }
         return data.address
       },
-      phone: (data) => data.phone,
     })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="src/auth.ts"
+    ```ts title="src/auth.ts" ref="waspc/examples/todoApp/src/auth/signup.ts:L1-14"
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
       address: (data) => {
-        if (!data.address) {
-          throw new Error('Address is required')
+        if (typeof data.address !== 'string') {
+          throw new Error('Address is required.')
+        }
+        if (data.address.length < 10) {
+          throw new Error('Address must be at least 10 characters long.')
         }
         return data.address
-      }
-      phone: (data) => data.phone,
+      },
     })
     ```
   </TabItem>
