@@ -3,6 +3,11 @@ import { $, ProcessOutput, question } from 'zx';
 import { isYes, parseVersion, waspSays } from '../../../helpers.js';
 import { Command } from 'commander';
 
+// Railway CLI version 4.0.1 includes a change that is needed for
+// Wasp deploy command to work with Railway properly:
+// https://github.com/railwayapp/cli/pull/596
+const minSupportedRailwayCliVersion = '4.0.1';
+
 async function ensureUserLoggedIn(railwayExe: string): Promise<void> {
   const userLoggedIn = await isUserLoggedIn(railwayExe);
   if (userLoggedIn) {
@@ -43,8 +48,8 @@ export async function ensureRailwayReady(thisCommand: Command): Promise<void> {
     exit(1);
   }
 
-  if (!isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion)) {
-    waspSays('Wasp expects at least Railway CLI version 4.0.1.');
+  if (!isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion!)) {
+    waspSays(`Wasp expects at least Railway CLI version ${minSupportedRailwayCliVersion}.`);
     waspSays('Read how to update the Railway CLI here: https://docs.railway.com/guides/cli');
     exit(1);
   }
@@ -66,10 +71,7 @@ async function getRailwayCliVersion(railwayExe: string): Promise<string | null> 
 }
 
 function isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion: string): boolean {
-  // Railway CLI version 4.0.1 includes a change that is needed for
-  // Wasp deploy command to work with Railway properly:
-  // https://github.com/railwayapp/cli/pull/596
-  const [minMajor, minMinor, minPatch] = [4, 0, 1];
+  const [minMajor, minMinor, minPatch] = parseVersion(minSupportedRailwayCliVersion);
   const [major, minor, patch] = parseVersion(railwayCliVersion);
 
   return (
