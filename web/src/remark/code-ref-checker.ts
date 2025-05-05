@@ -29,6 +29,8 @@ const plugin: Plugin<[], Root> = () => {
       //   which sounds like a major hassle.
       //   This does make the whole code reffing potentially a bit imprecise, but it might be ok
       //   in practice.
+      //   We could do both: we take part specified by lines and we try to match regex inside of it.
+      //   And if you don't specify the lines, we take the whole file.
       // - We should look into some kind of minifying as a method of normalizing the code for
       //   comparison. Ideally it would take care of whitespaces and comments (oh yes comments for
       //   sure!), while not e.g. changing names. We should probably do this at language level: if
