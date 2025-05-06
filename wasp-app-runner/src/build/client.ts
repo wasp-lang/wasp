@@ -8,7 +8,11 @@ import { parse } from "dotenv";
 import { doesFileExits } from "../files.js";
 import type { PathToApp } from "../args.js";
 
-export async function buildAndStartClientApp({
+const clientAppDir = ".wasp/build/web-app";
+const clientAppBuildOutputDir = path.join(clientAppDir, "build");
+
+// Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
+export async function buildAndRunClientApp({
   pathToApp,
 }: {
   pathToApp: PathToApp;
@@ -47,7 +51,7 @@ async function buildClientApp({
     name: "client-build-app",
     cmd: "npm",
     args: ["run", "build"],
-    cwd: path.join(pathToApp, ".wasp/build/web-app"),
+    cwd: path.join(pathToApp, clientAppDir),
     extraEnv: clientBuildEnv,
   });
 }
@@ -63,7 +67,7 @@ async function startClientApp({
     name: "client-start-app",
     cmd: "npx",
     args: ["serve", "--single", "-p", "3000"],
-    cwd: path.join(pathToApp, ".wasp/build/web-app/build"),
+    cwd: path.join(pathToApp, clientAppBuildOutputDir),
   });
 }
 
