@@ -28,7 +28,8 @@ export async function performEmailVerification(
   sentToEmail: string
 ) {
   if (process.env.HEADLESS_TEST_MODE === 'dev') {
-    // In dev mode, the emails are verified automatically
+    // This relies on having the SKIP_EMAIL_VERIFICATION_IN_DEV=true in the
+    // .env.server file. This is the default value in the .env.server.headless file.
     return
   }
 
