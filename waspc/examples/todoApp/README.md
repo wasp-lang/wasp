@@ -55,7 +55,7 @@ NOTE: Normally wasp apps open automatically in browser, to help new users find t
 
 ### Compiling and building
 
-Run `./ensure_app_compiles_and_builds.sh` to verify the app correctly compiles (TS) and builds (both client and server).
+From the parent `waspc` folder, run `./tools/ensure_app_compiles_and_builds.sh examples/todoApp` to verify the app correctly compiles (TS) and builds (both client and server).
 
 This is also run in CI.
 
