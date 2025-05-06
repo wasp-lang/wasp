@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test } from 'vitest'
 import { GET_USER_SPEC } from '../src/_private.js'
 import * as AppSpec from '../src/appSpec.js'
@@ -43,7 +44,6 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
-    // App
     const appDecl = getDecl(result, 'App', Fixtures.APP.NAME)
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
@@ -58,103 +58,85 @@ describe('mapUserSpecToAppSpecDecls', () => {
         userSpec.websocket
       )
     )
-
-    // Pages
-    Object.values(Fixtures.PAGES).forEach(({ NAME }) => {
-      const pageDecl = getDecl(result, 'Page', NAME)
-
-      const page = userSpec.pages.get(NAME)
-      if (!page) {
-        throw new Error(`Page config not found for ${NAME}`)
-      }
-      expect(pageDecl.declValue).toStrictEqual(mapPage(page))
+    testDeclMapping({
+      declType: 'Page',
+      fixtures: Fixtures.PAGES,
+      property: 'pages',
+      mapper: mapPage,
+    })
+    testDeclMapping({
+      declType: 'Route',
+      fixtures: Fixtures.ROUTES,
+      property: 'routes',
+      mapper: mapRoute,
+      extraArgs: [parsePageRef],
+    })
+    testDeclMapping({
+      declType: 'Query',
+      fixtures: Fixtures.QUERIES,
+      property: 'queries',
+      mapper: mapOperationConfig,
+      extraArgs: [parseEntityRef],
+    })
+    testDeclMapping({
+      declType: 'Action',
+      fixtures: Fixtures.ACTIONS,
+      property: 'actions',
+      mapper: mapOperationConfig,
+      extraArgs: [parseEntityRef],
+    })
+    testDeclMapping({
+      declType: 'Crud',
+      fixtures: Fixtures.CRUDS,
+      property: 'cruds',
+      mapper: mapCrud,
+      extraArgs: [parseEntityRef],
+    })
+    testDeclMapping({
+      declType: 'ApiNamespace',
+      fixtures: Fixtures.API_NAMESPACES,
+      property: 'apiNamespaces',
+      mapper: mapApiNamespace,
+    })
+    testDeclMapping({
+      declType: 'Api',
+      fixtures: Fixtures.APIS,
+      property: 'apis',
+      mapper: mapApiConfig,
+      extraArgs: [parseEntityRef],
+    })
+    testDeclMapping({
+      declType: 'Job',
+      fixtures: Fixtures.JOBS,
+      property: 'jobs',
+      mapper: mapJob,
+      extraArgs: [parseEntityRef],
     })
 
-    // Routes
-    Object.values(Fixtures.ROUTES).forEach(({ NAME }) => {
-      const routeDecl = getDecl(result, 'Route', NAME)
-      if (!routeDecl) {
-        throw new Error(`Route declaration not found for ${NAME}`)
-      }
+    function testDeclMapping<T extends keyof AppSpec.DeclTypeToValue>({
+      declType,
+      fixtures,
+      property,
+      mapper,
+      extraArgs = [],
+    }: {
+      declType: T
+      fixtures: Record<string, { NAME: string }>
+      property: string
+      mapper: (item: any, ...args: any[]) => any
+      extraArgs?: any[]
+    }): void {
+      Object.values(fixtures).forEach(({ NAME }) => {
+        const decl = getDecl(result, declType, NAME)
 
-      const route = userSpec.routes.get(NAME)
-      if (!route) {
-        throw new Error(`Route config not found for ${NAME}`)
-      }
-      expect(routeDecl.declValue).toStrictEqual(mapRoute(route, parsePageRef))
-    })
+        const item = userSpec[property].get(NAME)
+        if (!item) {
+          throw new Error(`${declType} config not found for ${NAME}`)
+        }
 
-    // Query
-    Object.values(Fixtures.QUERIES).forEach(({ NAME }) => {
-      const queryDecl = getDecl(result, 'Query', NAME)
-
-      const query = userSpec.queries.get(NAME)
-      if (!query) {
-        throw new Error(`Query config not found for ${NAME}`)
-      }
-      expect(queryDecl.declValue).toStrictEqual(
-        mapOperationConfig(query, parseEntityRef)
-      )
-    })
-
-    // Action
-    Object.values(Fixtures.ACTIONS).forEach(({ NAME }) => {
-      const actionDecl = getDecl(result, 'Action', NAME)
-
-      const action = userSpec.actions.get(NAME)
-      if (!action) {
-        throw new Error(`Action config not found for ${NAME}`)
-      }
-      expect(actionDecl.declValue).toStrictEqual(
-        mapOperationConfig(action, parseEntityRef)
-      )
-    })
-
-    // Crud
-    Object.values(Fixtures.CRUDS).forEach(({ NAME }) => {
-      const crudDecl = getDecl(result, 'Crud', NAME)
-
-      const crud = userSpec.cruds.get(NAME)
-      if (!crud) {
-        throw new Error(`Crud config not found for ${NAME}`)
-      }
-      expect(crudDecl.declValue).toStrictEqual(mapCrud(crud, parseEntityRef))
-    })
-
-    // ApiNamespace
-    Object.values(Fixtures.API_NAMESPACES).forEach(({ NAME }) => {
-      const apiNamespaceDecl = getDecl(result, 'ApiNamespace', NAME)
-
-      const apiNamespace = userSpec.apiNamespaces.get(NAME)
-      if (!apiNamespace) {
-        throw new Error(`ApiNamespace config not found for ${NAME}`)
-      }
-      expect(apiNamespaceDecl.declValue).toStrictEqual(
-        mapApiNamespace(apiNamespace)
-      )
-    })
-
-    // Api
-    Object.values(Fixtures.APIS).forEach(({ NAME }) => {
-      const apiDecl = getDecl(result, 'Api', NAME)
-
-      const api = userSpec.apis.get(NAME)
-      if (!api) {
-        throw new Error(`Api config not found for ${NAME}`)
-      }
-      expect(apiDecl.declValue).toStrictEqual(mapApiConfig(api, parseEntityRef))
-    })
-
-    // Job
-    Object.values(Fixtures.JOBS).forEach(({ NAME }) => {
-      const jobDecl = getDecl(result, 'Job', NAME)
-
-      const job = userSpec.jobs.get(NAME)
-      if (!job) {
-        throw new Error(`Job config not found for ${NAME}`)
-      }
-      expect(jobDecl.declValue).toStrictEqual(mapJob(job, parseEntityRef))
-    })
+        expect(decl.declValue).toStrictEqual(mapper(item, ...extraArgs))
+      })
+    }
   })
 
   /**
