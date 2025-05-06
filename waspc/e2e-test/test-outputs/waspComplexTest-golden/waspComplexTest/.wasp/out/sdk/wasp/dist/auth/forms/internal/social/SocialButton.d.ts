@@ -22,3 +22,4 @@ export declare const SocialButton: import("@stitches/react/types/styled-componen
         sm: "0.875rem";
     };
 }, import("@stitches/react/types/config").DefaultThemeMap, {}>>;
+//# sourceMappingURL=SocialButton.d.ts.map

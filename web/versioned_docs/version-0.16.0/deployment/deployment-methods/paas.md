@@ -32,9 +32,9 @@ if you'd like to write one yourself :)
 Deploying a Wasp app comes down to the following:
 
 1. Generating deployable code.
-1. Deploying the API server (backend).
-1. Deploying the web client (frontend).
-1. Deploying a PostgreSQL database and keeping it running.
+2. Deploying the API server (backend).
+3. Deploying the web client (frontend).
+4. Deploying a PostgreSQL database and keeping it running.
 
 Let's go through each of these steps.
 
@@ -140,14 +140,18 @@ If your attempts to initiate a new app fail for whatever reason, then you should
   <summary>
     What does it look like when your DB is deployed correctly?
   </summary>
+
   <div>
     <p>When your DB is deployed correctly, you'll see it in the <a href="https://fly.io/dashboard">Fly.io dashboard</a>:</p>
+
     <img width="662" alt="image" src="/img/deploying/fly-db.png" />
   </div>
 </details>
+
 :::
-  
+
 Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
+
 ```shell
 cp fly.toml ../../
 ```
@@ -338,59 +342,59 @@ railway link
    You'll need to repeat these steps **each time** you run `wasp build` as it will remove the `.wasp/build/web-app` directory.
 
    <details>
-   <summary>
-   Here's a useful shell script to do the process
-   </summary>
+     <summary>
+       Here's a useful shell script to do the process
+     </summary>
 
-   If you want to automate the process, save the following as `deploy_client.sh` in the root of your project:
+     If you want to automate the process, save the following as `deploy_client.sh` in the root of your project:
 
-   ```bash title="deploy_client.sh"
-   #!/usr/bin/env bash
+     ```bash title="deploy_client.sh"
+     #!/usr/bin/env bash
 
-   if [ -z "$REACT_APP_API_URL" ]
-   then
-     echo "REACT_APP_API_URL is not set"
-     exit 1
-   fi
+     if [ -z "$REACT_APP_API_URL" ]
+     then
+       echo "REACT_APP_API_URL is not set"
+       exit 1
+     fi
 
-   wasp build
-   cd .wasp/build/web-app
+     wasp build
+     cd .wasp/build/web-app
 
-   npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
+     npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
 
-   cp -r build dist
+     cp -r build dist
 
-   dockerfile_contents=$(cat <<EOF
-   FROM pierrezemb/gostatic
-   CMD [ "-fallback", "index.html" ]
-   COPY ./dist/ /srv/http/
-   EOF
-   )
+     dockerfile_contents=$(cat <<EOF
+     FROM pierrezemb/gostatic
+     CMD [ "-fallback", "index.html" ]
+     COPY ./dist/ /srv/http/
+     EOF
+     )
 
-   dockerignore_contents=$(cat <<EOF
-   node_modules/
-   EOF
-   )
+     dockerignore_contents=$(cat <<EOF
+     node_modules/
+     EOF
+     )
 
-   echo "$dockerfile_contents" > Dockerfile
-   echo "$dockerignore_contents" > .dockerignore
+     echo "$dockerfile_contents" > Dockerfile
+     echo "$dockerignore_contents" > .dockerignore
 
-   railway up
-   ```
+     railway up
+     ```
 
-   Make it executable with:
+     Make it executable with:
 
-   ```shell
-   chmod +x deploy_client.sh
-   ```
+     ```shell
+     chmod +x deploy_client.sh
+     ```
 
-   You can run it with:
+     You can run it with:
 
-   ```shell
-   REACT_APP_API_URL=<url_to_wasp_backend> ./deploy_client.sh
-   ```
-
+     ```shell
+     REACT_APP_API_URL=<url_to_wasp_backend> ./deploy_client.sh
+     ```
    </details>
+
    :::
 
 5. Set the `PORT` environment variable to `8043` under the `Variables` tab.
@@ -537,9 +541,7 @@ npx netlify-cli deploy
 ```
 
 <small>
-
-Carefully follow the instructions: decide if you want to create a new app or use an existing one, pick the team under which your app will be deployed etc.
-
+  Carefully follow the instructions: decide if you want to create a new app or use an existing one, pick the team under which your app will be deployed etc.
 </small>
 
 The final step is to run:
@@ -569,65 +571,63 @@ To enable automatic deployment of the client whenever you push to the `main` bra
 Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
 
 <details>
-<summary>Example Github Action</summary>
+  <summary>Example Github Action</summary>
 
-```yaml
-name: Deploy Client to Netlify
+  ```yaml
+  name: Deploy Client to Netlify
 
-on:
-  push:
-    branches:
-      - main # Deploy on every push to the main branch
+  on:
+    push:
+      branches:
+        - main # Deploy on every push to the main branch
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        id: setup-node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+        - name: Setup Node.js
+          id: setup-node
+          uses: actions/setup-node@v4
+          with:
+            node-version: '20'
 
-      - name: Install Wasp
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
+        - name: Install Wasp
+          run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
 
-      - name: Wasp Build
-        run: wasp build
+        - name: Wasp Build
+          run: wasp build
 
-      - name: Install dependencies and build the client
-        run: |
-          cd ./.wasp/build/web-app
-          npm install
-          REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
+        - name: Install dependencies and build the client
+          run: |
+            cd ./.wasp/build/web-app
+            npm install
+            REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
 
-      - name: Deploy to Netlify
-        run: |
-          cd ./.wasp/build/web-app
-          npx netlify-cli@17.36.1 deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
+        - name: Deploy to Netlify
+          run: |
+            cd ./.wasp/build/web-app
+            npx netlify-cli@17.36.1 deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
 
-    env:
-      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      NETLIFY_SITE_NAME: netlify-site-name
-```
-
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_NAME: netlify-site-name
+  ```
 </details>
 
 <details>
-<summary>How do I get the Environment Variables?</summary>
+  <summary>How do I get the Environment Variables?</summary>
 
-- **`NETLIFY_AUTH_TOKEN`**: For the auth token, you'll generate a new Personal Access Token on [Netlify](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
+  - **`NETLIFY_AUTH_TOKEN`**: For the auth token, you'll generate a new Personal Access Token on [Netlify](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
 
-- **`NETLIFY_SITE_NAME`**: This is the name of your Netlify project.
+  - **`NETLIFY_SITE_NAME`**: This is the name of your Netlify project.
 
-- **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
+  - **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
-After getting the environment variables, you need to set these in GitHub Repository Secrets.
-
+  After getting the environment variables, you need to set these in GitHub Repository Secrets.
 </details>
 
 ## Cloudflare <Client /> {#cloudflare}
@@ -651,9 +651,7 @@ npx wrangler pages deploy ./build --commit-dirty=true --branch=main
 ```
 
 <small>
-
-Carefully follow the instructions i.e. do you want to create a new app or use an existing one.
-
+  Carefully follow the instructions i.e. do you want to create a new app or use an existing one.
 </small>
 
 That is it! Your client should be live at `https://<app-name>.pages.dev`.
@@ -674,64 +672,62 @@ To enable automatic deployment of the client whenever you push to the `main` bra
 Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Cloudflare Pages whenever changes are pushed to the main branch.
 
 <details>
-<summary>Example Github Action</summary>
+  <summary>Example Github Action</summary>
 
-```yaml
-name: Deploy Client to Cloudflare
+  ```yaml
+  name: Deploy Client to Cloudflare
 
-on:
-  push:
-    branches:
-      - main # Deploy on every push to the main branch
+  on:
+    push:
+      branches:
+        - main # Deploy on every push to the main branch
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        id: setup-node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+        - name: Setup Node.js
+          id: setup-node
+          uses: actions/setup-node@v4
+          with:
+            node-version: '20'
 
-      - name: Install Wasp
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
+        - name: Install Wasp
+          run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
 
-      - name: Wasp Build
-        run: cd ./app && wasp build
+        - name: Wasp Build
+          run: cd ./app && wasp build
 
-      - name: Install dependencies and build the client
-        run: |
-          cd ./app/.wasp/build/web-app
-          npm install
-          REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
+        - name: Install dependencies and build the client
+          run: |
+            cd ./app/.wasp/build/web-app
+            npm install
+            REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./app/.wasp/build/web-app/build --project-name=${{ env.CLIENT_CLOUDFLARE_APP_NAME }} --commit-dirty=true --branch=main
+        - name: Deploy to Cloudflare Pages
+          uses: cloudflare/wrangler-action@v3
+          with:
+            apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+            accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+            command: pages deploy ./app/.wasp/build/web-app/build --project-name=${{ env.CLIENT_CLOUDFLARE_APP_NAME }} --commit-dirty=true --branch=main
 
-    env:
-      CLIENT_CLOUDFLARE_APP_NAME: cloudflare-pages-app-name
-```
-
+      env:
+        CLIENT_CLOUDFLARE_APP_NAME: cloudflare-pages-app-name
+  ```
 </details>
 
 <details>
-<summary>How do I get the Environment Variables?</summary>
+  <summary>How do I get the Environment Variables?</summary>
 
-- **`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`**: You can get these from your [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens). Make sure to give the token `Cloudflare Pages: Read` and `Cloudflare Pages: Edit` permissions.
+  - **`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`**: You can get these from your [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens). Make sure to give the token `Cloudflare Pages: Read` and `Cloudflare Pages: Edit` permissions.
 
-- **`CLIENT_CLOUDFLARE_APP_NAME`**: This is the name of your Cloudflare Pages app. You can create a new Cloudflare Pages app with `npx wrangler pages project create <app-name>`.
+  - **`CLIENT_CLOUDFLARE_APP_NAME`**: This is the name of your Cloudflare Pages app. You can create a new Cloudflare Pages app with `npx wrangler pages project create <app-name>`.
 
-- **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
+  - **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
-After getting the environment variables, you need to set these in GitHub Repository Secrets.
-
+  After getting the environment variables, you need to set these in GitHub Repository Secrets.
 </details>

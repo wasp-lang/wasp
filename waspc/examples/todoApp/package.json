@@ -11,13 +11,13 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.26.2",
-    "wait-port": "^1.1.0",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "wasp": "file:.wasp/out/sdk/wasp",
+    "wait-port": "^1.1.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
-    "@types/express": "^4.17.13",
+    "@types/express": "^5.0.0",
     "@types/react": "^18.0.37",
     "@types/uuid": "^9.0.8",
     "prisma": "5.19.1",

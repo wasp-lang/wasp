@@ -54,56 +54,51 @@ This file, written in our Wasp configuration language, defines your app and lets
 The default Wasp file generated via `wasp new` on the previous page looks like:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app TodoApp {
+      wasp: {
+        version: "^0.11.6" // Pins the version of Wasp to use.
+      },
+      title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+    }
 
-```wasp title="main.wasp"
-app TodoApp {
-  wasp: {
-    version: "^0.11.6" // Pins the version of Wasp to use.
-  },
-  title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
-}
+    route RootRoute { path: "/", to: MainPage }
 
-route RootRoute { path: "/", to: MainPage }
+    page MainPage {
+      // We specify that the React implementation of the page is the default export
+      // of `src/client/MainPage.jsx`. This statement uses standard JS import syntax.
+      // Use `@client` to reference files inside the `src/client` folder.
+      component: import Main from "@client/MainPage.jsx"
+    }
+    ```
+  </TabItem>
 
-page MainPage {
-  // We specify that the React implementation of the page is the default export
-  // of `src/client/MainPage.jsx`. This statement uses standard JS import syntax.
-  // Use `@client` to reference files inside the `src/client` folder.
-  component: import Main from "@client/MainPage.jsx"
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app TodoApp {
+      wasp: {
+        version: "^0.11.6" // Pins the version of Wasp to use.
+      },
+      title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+    }
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    route RootRoute { path: "/", to: MainPage }
 
-```wasp title="main.wasp"
-app TodoApp {
-  wasp: {
-    version: "^0.11.6" // Pins the version of Wasp to use.
-  },
-  title: "Todo app" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
-}
-
-route RootRoute { path: "/", to: MainPage }
-
-page MainPage {
-  // We specify that the React implementation of the page is the default export
-  // of `src/client/MainPage.tsx`. This statement uses standard JS import syntax.
-  // Use `@client` to reference files inside the `src/client` folder.
-  component: import Main from "@client/MainPage.tsx"
-}
-```
-
-</TabItem>
+    page MainPage {
+      // We specify that the React implementation of the page is the default export
+      // of `src/client/MainPage.tsx`. This statement uses standard JS import syntax.
+      // Use `@client` to reference files inside the `src/client` folder.
+      component: import Main from "@client/MainPage.tsx"
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <ShowForTs>
-
-:::caution Using TypeScript
-The default project uses JavaScript. In order to use TypeScript, you'll need to rename `MainPage.jsx` to `MainPage.tsx` and update the import statement in the Wasp file.
-:::
-
+  :::caution Using TypeScript
+  The default project uses JavaScript. In order to use TypeScript, you'll need to rename `MainPage.jsx` to `MainPage.tsx` and update the import statement in the Wasp file.
+  :::
 </ShowForTs>
 
 This file uses three declaration types:

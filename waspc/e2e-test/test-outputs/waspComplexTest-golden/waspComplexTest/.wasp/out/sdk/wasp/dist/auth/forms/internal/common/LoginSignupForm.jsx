@@ -64,8 +64,7 @@ function AdditionalFormFields({ hookForm, formState: { isLoading }, additionalSi
     function renderField(field, 
     // Ideally we would use ComponentType here, but it doesn't work with react-hook-form
     Component, props) {
-        var _a;
-        const errorMessage = (_a = errors[field.name]) === null || _a === void 0 ? void 0 : _a.message;
+        const errorMessage = errors[field.name]?.message;
         return (<FormItemGroup key={field.name}>
         <FormLabel>{field.label}</FormLabel>
         <Component {...register(field.name, field.validations)} {...props} disabled={isLoading}/>

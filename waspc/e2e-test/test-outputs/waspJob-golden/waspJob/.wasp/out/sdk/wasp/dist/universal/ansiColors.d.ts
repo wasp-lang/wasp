@@ -4,3 +4,4 @@ export declare const colors: {
 };
 export declare const resetColor = "\u001B[0m";
 export declare function getColorizedConsoleFormatString(colorKey: keyof typeof colors): string;
+//# sourceMappingURL=ansiColors.d.ts.map

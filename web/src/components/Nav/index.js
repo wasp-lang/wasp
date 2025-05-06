@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
 import Link from '@docusaurus/Link'
-import { Star, Twitter } from 'react-feather'
-
-import Announcement from './Announcement'
+import { useRef, useState } from 'react'
+import { Star } from 'react-feather'
 import Transition from '../../lib/Transition'
-import { GitHubIcon, DiscordIcon, TwitterIcon } from './SocialIcons'
+import Announcement from './Announcement'
+import { DiscordIcon, GitHubIcon, TwitterIcon } from './SocialIcons'
 
 const Nav = () => {
   const [open, setOpen] = useState(false)
@@ -122,6 +121,8 @@ const Nav = () => {
     </div>
   )
 
+  const navSidebarRef = useRef(null)
+
   return (
     <>
       <Announcement />
@@ -130,7 +131,7 @@ const Nav = () => {
         <nav className="border-b backdrop-blur-sm">
           <div
             className="
-              relative mx-auto 
+              relative mx-auto
               flex h-16
               justify-between
               lg:container lg:px-16 xl:px-20
@@ -261,6 +262,7 @@ const Nav = () => {
 
           {/* Mobile Nav Menu */}
           <Transition
+            nodeRef={navSidebarRef}
             appear={true}
             show={open}
             enter="transition ease-out duration-200"
@@ -271,6 +273,7 @@ const Nav = () => {
             leaveTo="opacity-0 translate-y-1"
           >
             <div
+              ref={navSidebarRef}
               className={`
                 fixed -inset-y-0 z-50 h-screen w-screen transform overflow-y-scroll bg-white p-4 md:p-8
               `}

@@ -28,3 +28,4 @@ type CreateInput = SuperJSONObject & Prisma.XOR<Prisma.TaskCreateInput, Prisma.T
 type CreateOutput = _WaspEntity;
 export type CreateActionResolved = tasks.CreateAction<CreateInput, CreateOutput>;
 export {};
+//# sourceMappingURL=tasks.d.ts.map

@@ -3,3 +3,4 @@ export function makeUpdateHandlersMap(calculateHash: any): {
     remove: (queryKeyToRemove: any) => void;
     getUpdateHandlers: (queryKey: any) => any;
 };
+//# sourceMappingURL=updateHandlersMap.d.ts.map

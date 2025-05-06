@@ -14,3 +14,4 @@ export interface SuperJSONObject {
     [key: string]: SuperJSONValue;
 }
 export {};
+//# sourceMappingURL=serialization.d.ts.map

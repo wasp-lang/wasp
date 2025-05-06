@@ -5,3 +5,4 @@ export type OperationRoute = {
 };
 export declare function callOperation(operationRoute: OperationRoute, args: any): Promise<unknown>;
 export declare function makeOperationRoute(relativeOperationRoute: string): OperationRoute;
+//# sourceMappingURL=index.d.ts.map

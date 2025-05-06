@@ -17,7 +17,7 @@ const defaultGlobalMiddlewareConfig: MiddlewareConfig = new Map([
   ['cors', cors({ origin: config.allowedCORSOrigins })],
   ['logger', logger('dev')],
   ['express.json', express.json()],
-  ['express.urlencoded', express.urlencoded({ extended: false })],
+  ['express.urlencoded', express.urlencoded()],
   ['cookieParser', cookieParser()]
 ])
 

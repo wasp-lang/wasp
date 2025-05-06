@@ -2,3 +2,4 @@ import { type _User, type AuthenticatedActionDefinition, type Payload } from 'wa
 export type MySpecialAction<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedActionDefinition<[
     _User
 ], Input, Output>;
+//# sourceMappingURL=types.d.ts.map

@@ -2,6 +2,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/api/axios.d.ts"
+        ],
+        "78002ba0273e11f11df1fb9c33ef786c4732cba8835dbabc7cda39a00df27e19"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -11,7 +18,7 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "4189f4c9a84f18751d1ef626e6dd0467f16f9a41eade2f9b6371d943fd828b92"
+        "9d6652195cad93491c772567e5747b5503a1e9bca42247b3a1377fbf83803dfd"
     ],
     [
         [
@@ -200,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "165e6625354026315f92c67a3935267a1e87541cc028efbc652c506ba3bdc374"
+        "b839c45c5bdc7d15658bd8ddc23ef5e6905b755b9923274c2bc90dddb799ef10"
     ],
     [
         [
@@ -333,7 +340,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "0b5999f8950b307896245f6a1aa6812fe100e889188a8b829b2824145b143d77"
+        "258102c55c0e3cbea12f65e876715557053b3ebe06dd14ff67773d408abb999a"
     ],
     [
         [
@@ -354,7 +361,7 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+        "b90babdd0169eb18ced65b50573272e671ca0b432506fbc16050bd07e502a0cc"
     ],
     [
         [
@@ -368,7 +375,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
+        "bdbc1787b302d3efeeb4895ced9435eccb9926f32f032a493ff29b0addfc2a32"
     ],
     [
         [
@@ -466,7 +473,7 @@
             "file",
             "server/package.json"
         ],
-        "ae6d36c69a9a51addea31296c10660c039a47a0769848f8ea91db2c874480ebe"
+        "0ce311426f452b535325628ae341b6d6526d0c10b93849b9369914e7c94f13e2"
     ],
     [
         [
@@ -487,7 +494,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
+        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
     ],
     [
         [
@@ -501,7 +508,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "23efbb9c408f8c12bdb77359a48177430b7da636163562d0105560891ac225b9"
+        "089b4baf0e860121a2233bc309b39aa6a194ba79a12376ff489f200afde5a527"
     ],
     [
         [
@@ -564,7 +571,7 @@
             "file",
             "web-app/index.html"
         ],
-        "8cc6168f652b825015918a0d2e82a2c0ad3126e1dd39662b0a49a38f9818e5a1"
+        "ca2a74c6e1a292b0f449d1032d10482589d448b39d575c85bc8d22ca330fd17b"
     ],
     [
         [
@@ -579,13 +586,6 @@
             "web-app/package.json"
         ],
         "b0737cfea70878d3cce16612f9a6ce577d9a3cb418d8fa91ae303c347f829431"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [

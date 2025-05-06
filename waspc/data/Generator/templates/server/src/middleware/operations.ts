@@ -1,21 +1,21 @@
 {{={= =}=}}
-import { 
+import {
     deserialize as superjsonDeserialize,
     serialize as superjsonSerialize,
 } from 'superjson'
-import { handleRejection } from 'wasp/server/utils'
+import { defineHandler } from 'wasp/server/utils'
 {=# isAuthEnabled =}
 import { makeAuthUserIfPossible } from 'wasp/auth/user'
 {=/ isAuthEnabled =}
 
 export function createOperation (handlerFn) {
-    return handleRejection(async (req, res) => {
+    return defineHandler(async (req, res) => {
         const args = (req.body && superjsonDeserialize(req.body)) || {}
         const context = {
             {=# isAuthEnabled =}
             user: makeAuthUserIfPossible(req.user),
             {=/ isAuthEnabled =}
-        }  
+        }
         const result = await handlerFn(args, context)
         const serializedResult = superjsonSerialize(result)
         res.json(serializedResult)
