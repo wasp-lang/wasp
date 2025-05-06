@@ -473,14 +473,14 @@
             "file",
             "../out/sdk/wasp/server/auth/hooks.ts"
         ],
-        "3137bb3403d809e0e295604e20ac1221f56512bda873272bb7a49efd385e2108"
+        "218fa341821fa1ed7d80184e1e9842b2509b935c4ab14b79704c203edf8cf19c"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/auth/index.ts"
         ],
-        "6daa9ed1d7ad0875bd5772a440de2fd229e9cd1bf3f44bde548eff467a68116d"
+        "e8cfdbf1bd88822352e431fb5818af4585604249333a6d855e583d900a7a3c17"
     ],
     [
         [
@@ -963,7 +963,7 @@
             "file",
             "server/src/auth/hooks.ts"
         ],
-        "74f3d9cd68ef3d01d1f9a0729c93173b42725ecb49f5f6218fa8c1175e4c2a94"
+        "66aad599f5ef81b4edd45c6271dc6bf7a981754d3e81e7b1c6ffd5b6fd8f7ea4"
     ],
     [
         [

@@ -178,6 +178,7 @@ app.auth({
   onAuthSucceededRedirectTo: '/profile',
   onBeforeSignup: { import: 'onBeforeSignup', from: '@src/auth/hooks.js' },
   onAfterSignup: { import: 'onAfterSignup', from: '@src/auth/hooks.js' },
+  onAfterEmailVerified: { import: 'onAfterEmailVerified', from: "@src/auth/hooks.ts" },
   onBeforeOAuthRedirect: { import: 'onBeforeOAuthRedirect', from: '@src/auth/hooks.js' },
   onBeforeLogin: { import: 'onBeforeLogin', from: '@src/auth/hooks.js' },
   onAfterLogin: { import: 'onAfterLogin', from: '@src/auth/hooks.js' }

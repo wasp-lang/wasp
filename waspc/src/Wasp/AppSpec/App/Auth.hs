@@ -41,6 +41,7 @@ data Auth = Auth
     onAuthSucceededRedirectTo :: Maybe String,
     onBeforeSignup :: Maybe ExtImport,
     onAfterSignup :: Maybe ExtImport,
+    onAfterEmailVerified :: Maybe ExtImport,
     onBeforeOAuthRedirect :: Maybe ExtImport,
     onBeforeLogin :: Maybe ExtImport,
     onAfterLogin :: Maybe ExtImport
