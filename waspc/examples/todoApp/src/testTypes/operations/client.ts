@@ -2,7 +2,6 @@ import { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
 import {
   getDate,
-  getSerializedObjects,
   getAnythingAuth,
   getTrueVoid,
   voidToStringAuth,
