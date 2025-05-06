@@ -7,6 +7,8 @@ export const SerializationPage = () => {
   const { data: serializedObjects } = useQuery(getSerializedObjects)
 
   const result = useMemo(() => {
+    console.log({ serializedObjects })
+
     if (!serializedObjects) return
 
     try {
