@@ -22,7 +22,7 @@ export async function analyzeUserApp(
   }
 }
 
-async function getUserApp(
+export async function getUserApp(
   mainWaspJs: string
 ): Promise<Result<UserApi.App, string>> {
   const usersDefaultExport: unknown = (await import(mainWaspJs)).default

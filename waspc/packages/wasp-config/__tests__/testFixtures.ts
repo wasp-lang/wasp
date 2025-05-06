@@ -440,7 +440,7 @@ export const DB = {
   } satisfies Required<UserApi.DbConfig>,
 } as const
 
-export function createFullUserSpec(): UserApi.UserSpec {
+export function createFullUserApp(): UserApi.App {
   const app = new UserApi.App(APP.NAME, APP.CONFIG)
   app.auth(AUTH.CONFIG)
   app.client(CLIENT.CONFIG)
@@ -449,30 +449,29 @@ export function createFullUserSpec(): UserApi.UserSpec {
   app.webSocket(WEBSOCKET.CONFIG)
   app.db(DB.CONFIG)
 
-  Object.values(PAGES).forEach(({ NAME, CONFIG }) => {
-    app.page(NAME, CONFIG)
-  })
-  Object.values(ROUTES).forEach(({ NAME, CONFIG }) => {
-    app.route(NAME, CONFIG)
-  })
-  Object.values(QUERIES).forEach(({ NAME, CONFIG }) => {
-    app.query(NAME, CONFIG)
-  })
-  Object.values(ACTIONS).forEach(({ NAME, CONFIG }) => {
-    app.action(NAME, CONFIG)
-  })
-  Object.values(CRUDS).forEach(({ NAME, CONFIG }) => {
-    app.crud(NAME, CONFIG)
-  })
-  Object.values(API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
-    app.apiNamespace(NAME, CONFIG)
-  })
-  Object.values(APIS).forEach(({ NAME, CONFIG }) => {
-    app.api(NAME, CONFIG)
-  })
-  Object.values(JOBS).forEach(({ NAME, CONFIG }) => {
-    app.job(NAME, CONFIG)
-  })
+  function addDecls(
+    declName: string,
+    nameAndConfigs: Record<string, { NAME: string; CONFIG: unknown }>
+  ) {
+    Object.values(nameAndConfigs).forEach(({ NAME, CONFIG }) =>
+      app[declName](NAME, CONFIG)
+    )
+  }
+
+  addDecls('page', PAGES)
+  addDecls('route', ROUTES)
+  addDecls('query', QUERIES)
+  addDecls('action', ACTIONS)
+  addDecls('crud', CRUDS)
+  addDecls('apiNamespace', API_NAMESPACES)
+  addDecls('api', APIS)
+  addDecls('job', JOBS)
+
+  return app
+}
+
+export function createFullUserSpec(): UserApi.UserSpec {
+  const app = createFullUserApp()
 
   return app[GET_USER_SPEC]()
 }
