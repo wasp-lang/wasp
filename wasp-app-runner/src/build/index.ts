@@ -1,9 +1,9 @@
 import type { PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
 import { startLocalSmtpServer } from "../smtp.js";
-import { type AppName, buildApp } from "../waspCli.js";
-import { buildAndStartClientApp } from "./client.js";
-import { buildAndRunServerAppContainer } from "./server.js";
+import { type AppName, waspBuild } from "../waspCli.js";
+import { buildAndRunClientApp } from "./client.js";
+import { buildAndRunServerApp } from "./server.js";
 
 export async function startAppInBuildMode({
   waspCliCmd,
@@ -16,7 +16,7 @@ export async function startAppInBuildMode({
   appName: AppName;
   dbType: DbType;
 }) {
-  await buildApp({
+  await waspBuild({
     waspCliCmd,
     pathToApp,
   });
@@ -29,13 +29,13 @@ export async function startAppInBuildMode({
 
   await startLocalSmtpServer();
 
-  await buildAndRunServerAppContainer({
+  await buildAndRunServerApp({
     appName,
     pathToApp,
     extraEnv: dbEnvVars,
   });
 
-  await buildAndStartClientApp({
+  await buildAndRunClientApp({
     pathToApp,
   });
 }

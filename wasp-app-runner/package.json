@@ -14,10 +14,10 @@
   "dependencies": {
     "@commander-js/extra-typings": "^13.1.0",
     "commander": "^13.1.0",
-    "dotenv": "^16.5.0",
-    "typescript": "^5.7.3"
+    "dotenv": "^16.5.0"
   },
   "devDependencies": {
-    "@types/node": "^22.10.10"
+    "@types/node": "^22.15.12",
+    "typescript": "^5.8.3"
   }
 }

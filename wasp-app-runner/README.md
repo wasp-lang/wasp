@@ -13,10 +13,15 @@ npm install
 npm run install:global
 
 # Use the wasp-app-runner command to run your Wasp app
-wasp-app-runner run <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+cd /path/to/your/app
+wasp-app-runner run dev
 ```
 
 ### Options
+
+```bash
+wasp-app-runner run <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+```
 
 You must pass the `<mode>` as an argument, which can be either `dev` or `build`.
 

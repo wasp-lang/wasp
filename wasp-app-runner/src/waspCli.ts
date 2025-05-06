@@ -8,7 +8,7 @@ import type { PathToApp, WaspCliCmd } from "./args.js";
 
 export type AppName = Branded<string, "AppName">;
 
-export function migrateDb({
+export function waspMigrateDb({
   waspCliCmd,
   pathToApp,
   extraEnv,
@@ -18,7 +18,7 @@ export function migrateDb({
   extraEnv: EnvVars;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
-    name: "migrate-db",
+    name: "wasp-migrate-db",
     cmd: waspCliCmd,
     args: ["db", "migrate-dev"],
     cwd: pathToApp,
@@ -26,7 +26,7 @@ export function migrateDb({
   });
 }
 
-export function startApp({
+export function waspStart({
   waspCliCmd,
   pathToApp,
   extraEnv,
@@ -36,7 +36,7 @@ export function startApp({
   extraEnv: EnvVars;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
-    name: "start-app",
+    name: "wasp-start",
     cmd: waspCliCmd,
     args: ["start"],
     cwd: pathToApp,
@@ -44,7 +44,7 @@ export function startApp({
   });
 }
 
-export function buildApp({
+export function waspBuild({
   waspCliCmd,
   pathToApp,
 }: {
@@ -52,14 +52,14 @@ export function buildApp({
   pathToApp: PathToApp;
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
-    name: "build-app",
+    name: "wasp-build",
     cmd: waspCliCmd,
     args: ["build"],
     cwd: pathToApp,
   });
 }
 
-export async function getAppInfo({
+export async function waspInfo({
   waspCliCmd,
   pathToApp,
 }: {
@@ -70,7 +70,7 @@ export async function getAppInfo({
   dbType: DbType;
 }> {
   const { stdoutData, exitCode } = await spawnAndCollectOutput({
-    name: "get-app-info",
+    name: "wasp-info",
     cmd: waspCliCmd,
     args: ["info"],
     cwd: pathToApp,
@@ -79,7 +79,7 @@ export async function getAppInfo({
 
   if (exitCode !== 0) {
     log(
-      "get-app-info",
+      "wasp-info",
       "error",
       `Failed to get app info: ${stdoutDataWithoutAnsiChars}`
     );
@@ -92,12 +92,12 @@ export async function getAppInfo({
   );
 
   if (appNameMatch === null) {
-    log("get-app-info", "error", `Failed to get app name`);
+    log("wasp-info", "error", `Failed to get app name`);
     process.exit(1);
   }
 
   if (dbTypeMatch === null) {
-    log("get-app-info", "error", `Failed to get database type`);
+    log("wasp-info", "error", `Failed to get database type`);
     process.exit(1);
   }
 

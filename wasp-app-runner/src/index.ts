@@ -1,7 +1,6 @@
 import { log } from "./logging.js";
 import { checkDependencies } from "./dependencies.js";
-import { DbType } from "./db/index.js";
-import { getAppInfo } from "./waspCli.js";
+import { waspInfo } from "./waspCli.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { startAppInBuildMode } from "./build/index.js";
 import { type Mode, parseArgs, PathToApp, WaspCliCmd } from "./args.js";
@@ -36,19 +35,10 @@ async function runWaspApp({
 }): Promise<void> {
   await checkDependencies();
 
-  const { appName, dbType } = await getAppInfo({
+  const { appName, dbType } = await waspInfo({
     waspCliCmd,
     pathToApp,
   });
-
-  if (dbType === DbType.Sqlite && mode === "build") {
-    log(
-      "setup",
-      "error",
-      `SQLite is not supported in build mode. Please use a different database type (e.g., Postgres) or run in dev mode.`
-    );
-    process.exit(1);
-  }
 
   log(
     "setup",
@@ -56,19 +46,26 @@ async function runWaspApp({
     `Starting "${appName}" app (mode: ${mode}) using "${waspCliCmd}" command`
   );
 
-  if (mode === "dev") {
-    await startAppInDevMode({
-      waspCliCmd,
-      pathToApp,
-      appName,
-      dbType,
-    });
-  } else {
-    await startAppInBuildMode({
-      waspCliCmd,
-      pathToApp,
-      appName,
-      dbType,
-    });
+  switch (mode) {
+    case "dev":
+      await startAppInDevMode({
+        waspCliCmd,
+        pathToApp,
+        appName,
+        dbType,
+      });
+      break;
+
+    case "build":
+      await startAppInBuildMode({
+        waspCliCmd,
+        pathToApp,
+        appName,
+        dbType,
+      });
+      break;
+
+    default:
+      mode satisfies never;
   }
 }
