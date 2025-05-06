@@ -1,6 +1,6 @@
 # Wasp Config
 
-Wasp Config is a library for working with Wasp application specifications in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
+Wasp Config is a library for defining a Wasp application specification in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
 
 ## Important Notes
 
@@ -8,18 +8,9 @@ The type definitions in this package are meant to mirror the AppSpec declaration
 
 ## Testing 
 
-### `npm run test`
-
-Runs all test suites using `vitest`. 
-
-### `npm run test:unit`
-
-Runs only the unit tests using `vitest`. 
-
-### `npm run test:integration`
-
-Runs only the integration tests using `vitest`. 
-
-### `npm run coverage`
-
-Runs the test suite with coverage reporting enabled. This generates a detailed report of how much of the codebase is covered by tests, helping identify areas that might need additional testing.
+```bash
+npm run test
+npm run test:unit
+npm run test:integration
+npm run coverage
+```

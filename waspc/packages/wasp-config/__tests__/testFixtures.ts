@@ -1,3 +1,4 @@
+import { GET_USER_SPEC } from '../src/_private.js'
 import * as UserApi from '../src/userApi.js'
 
 // Contains sample data that can be used for testing purposes.
@@ -438,3 +439,40 @@ export const DB = {
     ],
   } satisfies Required<UserApi.DbConfig>,
 } as const
+
+export function createFullUserSpec(): UserApi.UserSpec {
+  const app = new UserApi.App(APP.NAME, APP.CONFIG)
+  app.auth(AUTH.CONFIG)
+  app.client(CLIENT.CONFIG)
+  app.server(SERVER.CONFIG)
+  app.emailSender(EMAIL_SENDER.CONFIG)
+  app.webSocket(WEBSOCKET.CONFIG)
+  app.db(DB.CONFIG)
+
+  Object.values(PAGES).forEach(({ NAME, CONFIG }) => {
+    app.page(NAME, CONFIG)
+  })
+  Object.values(ROUTES).forEach(({ NAME, CONFIG }) => {
+    app.route(NAME, CONFIG)
+  })
+  Object.values(QUERIES).forEach(({ NAME, CONFIG }) => {
+    app.query(NAME, CONFIG)
+  })
+  Object.values(ACTIONS).forEach(({ NAME, CONFIG }) => {
+    app.action(NAME, CONFIG)
+  })
+  Object.values(CRUDS).forEach(({ NAME, CONFIG }) => {
+    app.crud(NAME, CONFIG)
+  })
+  Object.values(API_NAMESPACES).forEach(({ NAME, CONFIG }) => {
+    app.apiNamespace(NAME, CONFIG)
+  })
+  Object.values(APIS).forEach(({ NAME, CONFIG }) => {
+    app.api(NAME, CONFIG)
+  })
+  Object.values(JOBS).forEach(({ NAME, CONFIG }) => {
+    app.job(NAME, CONFIG)
+  })
+
+  return app[GET_USER_SPEC]()
+}
