@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client'
 import { Task } from 'wasp/entities'
 import type {
   VoidToStringAuth,
@@ -8,7 +7,6 @@ import type {
   TaskToTaskSatisfies,
   TaskToTaskSpecified,
   GetDate,
-  GetSerializedObjects,
   GetAnythingAuth,
   GetAnythingNoAuth,
   GetTrueVoid,
@@ -103,22 +101,6 @@ export const boolToVoidAuth: BoolToStringNoAuth<boolean, void> = async (
 
 export const getDate: GetDate<void, Date> = async () => {
   return new Date()
-}
-
-const makeSerializableObjects = () => ({
-  date: new Date(),
-  set: new Set(['foo']),
-  map: new Map([['foo', 'bar']]),
-  decimal: new Prisma.Decimal(10),
-  regexp: /foo/,
-})
-export type SerializableObjects = ReturnType<typeof makeSerializableObjects>
-
-export const getSerializedObjects: GetSerializedObjects<
-  void,
-  SerializableObjects
-> = async () => {
-  return makeSerializableObjects()
 }
 
 export const getAnythingAuth: GetAnythingAuth = async () => {

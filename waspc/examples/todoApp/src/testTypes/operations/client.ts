@@ -25,7 +25,6 @@ import {
 import {
   taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
   taskToTaskSatisfies as taskToTaskSatisfiesDefinition,
-  type SerializableObjects,
 } from './definitions'
 
 import { Task } from 'wasp/entities'
@@ -59,12 +58,6 @@ type TestCases = [
   Expect<Equal<typeof boolToVoidNoAuth, (payload: boolean) => Promise<void>>>,
   Expect<Equal<typeof boolToVoidAuth, (payload: boolean) => Promise<void>>>,
   Expect<Equal<typeof getDate, QueryMetadata & (() => Promise<Date>)>>,
-  Expect<
-    Equal<
-      typeof getSerializedObjects,
-      QueryMetadata & (() => Promise<SerializableObjects>)
-    >
-  >,
   Expect<
     Equal<
       typeof getAnythingAuth,

@@ -1,9 +1,9 @@
 import { Outlet } from 'react-router-dom'
-import { useSocket } from 'wasp/client/webSocket'
-import { Link } from 'wasp/client/router'
-import { logout, useAuth } from 'wasp/client/auth'
-import { useQuery, getDate } from 'wasp/client/operations'
 import { env } from 'wasp/client'
+import { logout, useAuth } from 'wasp/client/auth'
+import { getDate, useQuery } from 'wasp/client/operations'
+import { Link } from 'wasp/client/router'
+import { useSocket } from 'wasp/client/webSocket'
 
 import './Main.css'
 import { getName } from './user'
@@ -45,6 +45,15 @@ export function App() {
         <Outlet />
       </main>
       <footer className="mt-8 text-center">Created with Wasp</footer>
+
+      <label>
+        Go to:{' '}
+        <select defaultValue="" onChange={(e) => (window.location.href = e.target.value)}>
+          <option disabled value="">Select one</option>
+          <option value="/">Main page</option>
+          <option value="/serialization">Serialization Test</option>
+        </select>
+      </label>
     </div>
   )
 }
