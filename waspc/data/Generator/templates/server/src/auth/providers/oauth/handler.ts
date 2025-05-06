@@ -77,7 +77,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
         url: redirectUrl,
         oauth: { uniqueRequestId: oAuthState.state }
       })
-      return redirect(res, redirectUrlAfterHook.toString())
+      redirect(res, redirectUrlAfterHook.toString())
     }),
   )
 
@@ -113,7 +113,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
             },
           })
           // Redirect to the client with the one time code
-          return redirect(res, redirectUri.toString())
+          redirect(res, redirectUri.toString())
         } catch (e) {
           rethrowPossibleAuthError(e)
         }
@@ -121,7 +121,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
         console.error(e)
         const redirectUri = handleOAuthErrorAndGetRedirectUri(e)
         // Redirect to the client with the error
-        return redirect(res, redirectUri.toString())
+        redirect(res, redirectUri.toString())
       }
     }),
   )

@@ -48,7 +48,7 @@ export function getSignupRoute({
       rethrowPossibleAuthError(e)
     }
 
-    return res.json({ success: true })
+    res.json({ success: true })
   })
 }
 
