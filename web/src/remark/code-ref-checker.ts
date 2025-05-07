@@ -112,6 +112,7 @@ function fetchCodeRefCodeBlock(codeRef: CodeRef): string {
 }
 
 /**
+ * TODO: Make this not be hardcoded, instead look for `.git` dir or something like that.
  * NOTE:
  * We rely on this file being at the specific position in the code base.
  * If that changes, we need to update this function.
