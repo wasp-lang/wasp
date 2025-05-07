@@ -1,5 +1,3 @@
-// @ts-check
-
 /*
 This file defines a plugin for the unified library that processes code blocks
 in Markdown documents. It looks for code blocks with a specific meta flag
@@ -24,7 +22,9 @@ Output:
 
 */
 
-const { visitParents } = require('unist-util-visit-parents')
+import { Root } from 'mdast'
+import { Plugin } from 'unified'
+import { visitParents } from 'unist-util-visit-parents'
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bwith-hole\b/
@@ -33,8 +33,7 @@ const HOLE_REPLACEMENT = '/* ... */'
 
 const SUPPORTED_LANGS = new Set(['js', 'jsx', 'ts', 'tsx'])
 
-/** @type {import("unified").Plugin<[], import("mdast").Root>} */
-const codeWithHolePlugin = () => {
+const codeWithHolePlugin: Plugin<[], Root> = () => {
   return (tree) => {
     visitParents(tree, 'code', (node) => {
       if (node.meta && META_FLAG_REGEX.test(node.meta)) {
@@ -52,4 +51,4 @@ const codeWithHolePlugin = () => {
   }
 }
 
-module.exports = codeWithHolePlugin
+export default codeWithHolePlugin

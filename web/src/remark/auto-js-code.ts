@@ -1,5 +1,3 @@
-// @ts-check
-
 /*
 This file defines a plugin for the unified library that processes code blocks
 in Markdown documents. It looks for code blocks with a specific meta flag
@@ -37,21 +35,21 @@ Output:
 
 */
 
-const assert = require('assert/strict')
-const { visitParents } = require('unist-util-visit-parents')
-const { default: tsBlankSpace } = require('ts-blank-space')
-const prettier = require('prettier')
-const path = require('path')
+import assert from 'assert/strict'
+import { Code, Parents, Root, RootContent } from 'mdast'
+import * as path from 'path'
+import * as prettier from 'prettier'
+import tsBlankSpace from 'ts-blank-space'
+import { Plugin } from 'unified'
+import { visitParents } from 'unist-util-visit-parents'
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bauto-js\b/
 const SUPPORTED_LANGS = new Set(['ts', 'tsx'])
 
-/** @type {import("unified").Plugin<[], import("mdast").Root>} */
-const autoJSCodePlugin = () => {
+const autoJSCodePlugin: Plugin<[], Root> = () => {
   return async (tree, file) => {
-    /** @type {Set<{ node: import("mdast").Code, ancestors: import("mdast").Parents[] }>} */
-    const nodesToProcess = new Set()
+    const nodesToProcess = new Set<{ node: Code; ancestors: Parents[] }>()
 
     visitParents(tree, 'code', (node, ancestors) => {
       if (node.meta && META_FLAG_REGEX.test(node.meta)) {
@@ -81,8 +79,7 @@ const autoJSCodePlugin = () => {
         location: file.path,
       })
 
-      /** @type {import("mdast").RootContent[]} */
-      const newNodes = [
+      const newNodes: RootContent[] = [
         {
           // @ts-expect-error This is an MDX extension
           type: 'jsx',
@@ -111,17 +108,17 @@ const autoJSCodePlugin = () => {
   }
 }
 
-module.exports = autoJSCodePlugin
+export default autoJSCodePlugin
 
 // Taken from Docusaurus
 // https://github.com/facebook/docusaurus/blob/v2.4.3/packages/docusaurus-theme-common/src/utils/codeBlockUtils.ts
 const CODE_BLOCK_TITLE_REGEX = /title=(?<quote>["'])(?<title>.*?)\1/
 
 async function makeJsCodeBlock(
-  /** @type {string} */ metaString,
-  /** @type {import('mdast').Code} */ node,
-  /** @type {{ location: string }} */ { location }
-) {
+  metaString: string,
+  node: Code,
+  { location }: { location: string }
+): Promise<RootContent> {
   // Find the `title=` meta param and change the extension
   const meta = metaString.replace(
     CODE_BLOCK_TITLE_REGEX,
@@ -136,36 +133,33 @@ async function makeJsCodeBlock(
     location,
   })
 
-  return /** @type {import("mdast").RootContent} */ ({
+  return {
     type: 'code',
     value: code,
     lang: lang,
     meta: meta,
-  })
+  }
 }
 
 async function makeTsCodeBlock(
-  /** @type {string} */ metaString,
-  /** @type {import('mdast').Code} */ node,
-  /** @type {{ location: string }} */ { location }
-) {
+  metaString: string,
+  node: Code,
+  { location }: { location: string }
+): Promise<RootContent> {
   const lang = node.lang
   const code = await format(node.value, { parser: 'babel-ts', location })
 
-  return /** @type {import("mdast").RootContent} */ ({
+  return {
     type: 'code',
     value: code,
     lang: lang,
     meta: metaString,
-  })
+  }
 }
 
 async function format(
-  /** @type {string} */ code,
-  /** @type {{ parser: prettier.Options["parser"], location: string }} */ {
-    parser,
-    location,
-  }
+  code: string,
+  { parser, location }: { parser: prettier.Options['parser']; location: string }
 ) {
   const config = await prettier.resolveConfig(location, {
     useCache: true,
@@ -175,10 +169,7 @@ async function format(
   return await prettier.format(code, { ...config, parser })
 }
 
-function transformExt(
-  /** @type {string} */ inPath,
-  /** @type {(ext: string) => string} */ fn
-) {
+function transformExt(inPath: string, fn: (ext: string) => string) {
   const inExt = path.extname(inPath)
   const outExt = fn(inExt)
   const outPath = inPath.slice(0, -inExt.length) + outExt
