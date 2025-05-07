@@ -2,6 +2,7 @@
 title: Google
 ---
 
+import { ShowForTs } from '@site/src/components/TsJsHelpers'
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './\_default-behaviour.md';
 import OverrideIntro from './\_override-intro.md';
@@ -425,7 +426,7 @@ export function getConfig() {
 }
 ```
 
-<ShowForTS><GetUserFieldsType /></ShowForTS>
+<ShowForTs><GetUserFieldsType /></ShowForTs>
 
 ## Using Auth
 
