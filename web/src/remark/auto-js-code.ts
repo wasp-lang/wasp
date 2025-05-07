@@ -40,7 +40,8 @@ import type { } from 'mdast-util-mdx'; // Type-only empty import to register MDX
 import assert from 'node:assert/strict'
 import * as path from 'node:path'
 import * as prettier from 'prettier'
-import tsBlankSpace from 'ts-blank-space'
+import { blankSourceFile } from 'ts-blank-space'
+import * as ts from 'typescript'
 import type { Plugin } from 'unified'
 import { visitParents } from 'unist-util-visit-parents'
 
@@ -138,7 +139,8 @@ async function makeJsCodeBlock(
       )}`
   )
   const lang = node.lang?.replace('ts', 'js')
-  const code = await format(tsBlankSpace(node.value), {
+  const isJsx = node.lang.endsWith('x')
+  const code = await format(convertToJs(node.value, { jsx: isJsx }), {
     parser: 'babel',
     location,
   })
@@ -165,6 +167,22 @@ async function makeTsCodeBlock(
     lang: lang,
     meta: metaString,
   }
+}
+
+function convertToJs(code: string, { jsx }: { jsx: boolean }) {
+  // We create a source file from ts so that way we can specify if
+  // we want to use JSX or not, because the parsing is different.
+  // Copied from the ts-blank-space playground
+  // https://github.com/bloomberg/ts-blank-space/blob/4102b1f26b1c53d38a1de74c10f262af5fd34fe8/website/play/play-utils.ts#L4
+  const sourceFile = ts.createSourceFile(
+    'input.ts',
+    code,
+    { languageVersion: ts.ScriptTarget.ESNext },
+    true,
+    jsx ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+  )
+
+  return blankSourceFile(sourceFile)
 }
 
 async function format(
