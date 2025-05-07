@@ -73,7 +73,7 @@ const ShowcaseGallery = () => {
           />
           <Tag
             text="startup"
-            className="border-indigo-500 bg-indigo-50 text-indigo-500"
+            className="border-slate-500 bg-slate-50 text-slate-500"
           />
         </ShowcaseItem>
 
@@ -100,8 +100,8 @@ const ShowcaseGallery = () => {
           description="Create and publish high-quality, SEO-optimized blog posts with AI."
         >
           <Tag
-            text="ai-tools"
-            className="border-green-600 bg-green-50 text-green-600"
+            text="marketing"
+            className="border-red-600 bg-red-50 text-red-600"
           />
           <Tag
             text="saas"
