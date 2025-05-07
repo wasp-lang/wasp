@@ -126,8 +126,8 @@ query getTasks {
             </h1>
 
             <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
-              Rails-like framework for React, Node.js and Prisma. Build your app
-              in a day and deploy it with a single CLI command.
+              The Laravel alternative for JavaScript. A truly full-stack framework with
+              batteries-included for React, Node.js, & Prisma
             </p>
           </div>{' '}
           {/* EOF Hero title and subtitle */}
