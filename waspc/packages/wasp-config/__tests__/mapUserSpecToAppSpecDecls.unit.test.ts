@@ -44,7 +44,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
-    const appDecl = getDecl(result, 'App', Fixtures.APP.NAME)
+    const appDecl = getDecl(result, 'App', Fixtures.APP.FULL.NAME)
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
         userSpec.app.config,
@@ -164,10 +164,10 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
 describe('mapApp', () => {
   test('should map minimal config correctly', () => {
-    const minimalApp = new UserApi.App(Fixtures.APP.NAME, {
-      title: Fixtures.APP.CONFIG.title,
-      wasp: Fixtures.APP.CONFIG.wasp,
-    })
+    const minimalApp = new UserApi.App(
+      Fixtures.APP.MINIMAL.NAME,
+      Fixtures.APP.MINIMAL.CONFIG
+    )
     const userSpec = minimalApp[GET_USER_SPEC]()
     const parseEntityRef = makeRefParser('Entity', [])
     const parseRouteRef = makeRefParser('Route', [])
@@ -187,9 +187,9 @@ describe('mapApp', () => {
     expect(result).toBeDefined()
     expect(result).toStrictEqual({
       wasp: {
-        version: Fixtures.APP.CONFIG.wasp.version,
+        version: Fixtures.APP.MINIMAL.CONFIG.wasp.version,
       },
-      title: Fixtures.APP.CONFIG.title,
+      title: Fixtures.APP.MINIMAL.CONFIG.title,
       head: undefined,
       auth: undefined,
       server: undefined,
@@ -201,7 +201,10 @@ describe('mapApp', () => {
   })
 
   test('should map full config correctly', () => {
-    const app = new UserApi.App(Fixtures.APP.NAME, Fixtures.APP.CONFIG)
+    const app = new UserApi.App(
+      Fixtures.APP.FULL.NAME,
+      Fixtures.APP.FULL.CONFIG
+    )
     app.auth(Fixtures.AUTH.CONFIG)
     app.server(Fixtures.SERVER.CONFIG)
     app.client(Fixtures.CLIENT.CONFIG)
@@ -233,10 +236,10 @@ describe('mapApp', () => {
 
     expect(result).toStrictEqual({
       wasp: {
-        version: Fixtures.APP.CONFIG.wasp.version,
+        version: Fixtures.APP.FULL.CONFIG.wasp.version,
       },
-      title: Fixtures.APP.CONFIG.title,
-      head: Fixtures.APP.CONFIG.head,
+      title: Fixtures.APP.FULL.CONFIG.title,
+      head: Fixtures.APP.FULL.CONFIG.head,
       auth:
         userSpec.auth && mapAuth(userSpec.auth, parseEntityRef, parseRouteRef),
       server: userSpec.server && mapServer(userSpec.server),

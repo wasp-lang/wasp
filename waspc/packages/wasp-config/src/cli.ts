@@ -5,7 +5,7 @@ import { analyzeUserApp } from './appAnalyzer.js'
  * Main function that processes command line arguments, analyzes the user app,
  * and writes the output to a file.
  */
-export async function executeMain(args: string[]): Promise<void> {
+export async function main(args: string[]): Promise<void> {
   const { mainWaspJs, declsJsonOutputFile, entityNames } =
     parseProcessArgsOrThrow(args)
 

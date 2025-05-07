@@ -265,12 +265,21 @@ export const JOBS = {
 } as const
 
 export const APP = {
-  NAME: 'todoApp',
-  CONFIG: {
-    title: 'ToDO App',
-    wasp: { version: '^0.16.0' },
-    head: ['<link rel="icon" href="/favicon.ico" />'],
-  } satisfies Required<UserApi.AppConfig>,
+  FULL: {
+    NAME: 'todoApp',
+    CONFIG: {
+      title: 'Todo App',
+      wasp: { version: '0.16.3' },
+      head: ['<link rel="icon" href="/favicon.ico" />'],
+    } satisfies Required<UserApi.AppConfig>,
+  },
+  MINIMAL: {
+    NAME: 'minimalApp',
+    CONFIG: {
+      title: 'Minimal App',
+      wasp: { version: '0.16.3' },
+    } satisfies UserApi.AppConfig,
+  },
 } as const
 
 export const AUTH = {
@@ -440,8 +449,20 @@ export const DB = {
   } satisfies Required<UserApi.DbConfig>,
 } as const
 
+export function createMinimalUserApp(): UserApi.App {
+  const app = new UserApi.App(APP.MINIMAL.NAME, APP.MINIMAL.CONFIG)
+
+  return app
+}
+
+export function createMinimalUserSpec(): UserApi.UserSpec {
+  const app = createMinimalUserApp()
+
+  return app[GET_USER_SPEC]()
+}
+
 export function createFullUserApp(): UserApi.App {
-  const app = new UserApi.App(APP.NAME, APP.CONFIG)
+  const app = new UserApi.App(APP.FULL.NAME, APP.FULL.CONFIG)
   app.auth(AUTH.CONFIG)
   app.client(CLIENT.CONFIG)
   app.server(SERVER.CONFIG)
