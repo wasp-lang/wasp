@@ -142,7 +142,7 @@ export const Foo = () => {
     fetchCustomRoute();
   }, []);
 
-  return <>// ...</>;
+  return <>{hole}</>;
 };
 ```
 
