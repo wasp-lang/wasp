@@ -1,6 +1,7 @@
 name: WASPC-CI
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "waspc/**"
@@ -24,17 +25,11 @@ defaults:
     shell: bash
     working-directory: waspc
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  cancel:
-    name: Cancel redundant actions already in progress
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Cancel actions in progress of same workflow and same branch
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
-
   build:
     name: Build Wasp
     runs-on: ${{ matrix.os }}
@@ -174,6 +169,20 @@ jobs:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
+      - name: Headless - Install wasp-cli for testing
+        id: headless-install-wasp-cli
+        if: matrix.os == 'ubuntu-22.04'
+        run: cabal install
+
+      - name: Headless - Setup the Wasp app runner
+        id: headless-setup-wasp-app-runner
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          cd ../wasp-app-runner
+          npm ci
+          # Installs the wasp-app-runner globally so that it can be used in the tests
+          npm run install:global
+
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
         if: matrix.os == 'ubuntu-22.04'
@@ -210,6 +219,8 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
+          # Prepare the environment for the tests
+          cp .env.server.headless .env.server
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test --config headless-tests/
 

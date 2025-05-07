@@ -6,3 +6,4 @@ export type DataStore = {
     clear(): void;
 };
 export declare const storage: DataStore;
+//# sourceMappingURL=storage.d.ts.map

@@ -39,3 +39,4 @@ type UpdateQuery<ActionInput, CachedData> = (item: ActionInput, oldData: CachedD
  * https://wasp.sh/docs/language/features#the-useaction-hook.
  */
 type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]];
+//# sourceMappingURL=hooks.d.ts.map

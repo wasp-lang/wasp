@@ -28,3 +28,4 @@ type CreateInput = Prisma.XOR<Prisma.TaskCreateInput, Prisma.TaskUncheckedCreate
 type CreateOutput = _WaspEntity;
 export type CreateActionResolved = tasks.CreateAction<CreateInput, CreateOutput>;
 export {};
+//# sourceMappingURL=tasks.d.ts.map

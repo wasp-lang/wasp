@@ -17,9 +17,9 @@ Wasp supports username & password authentication out of the box with login and s
 To set up username authentication we need to:
 
 1. Enable username authentication in the Wasp file
-1. Add the `User` entity
-1. Add the auth routes and pages
-1. Use Auth UI components in our pages
+2. Add the `User` entity
+3. Add the auth routes and pages
+4. Use Auth UI components in our pages
 
 Structure of the `main.wasp` file we will end up with:
 
@@ -40,48 +40,45 @@ page SignupPage { ... }
 Let's start with adding the following to our `main.wasp` file:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp" {11}
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        // 1. Specify the user entity (we'll define it next)
+        userEntity: User,
+        methods: {
+          // 2. Enable username authentication
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login"
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp" {11}
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    // 1. Specify the user entity (we'll define it next)
-    userEntity: User,
-    methods: {
-      // 2. Enable username authentication
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"  {11}
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    // 1. Specify the user entity (we'll define it next)
-    userEntity: User,
-    methods: {
-      // 2. Enable username authentication
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"  {11}
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        // 1. Specify the user entity (we'll define it next)
+        userEntity: User,
+        methods: {
+          // 2. Enable username authentication
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Read more about the `usernameAndPassword` auth method options [here](#fields-in-the-usernameandpassword-dict).
@@ -91,32 +88,29 @@ Read more about the `usernameAndPassword` auth method options [here](#fields-in-
 The `User` entity can be as simple as including only the `id` field:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```prisma title="schema.prisma"
+    // 3. Define the user entity
+    model User {
+      // highlight-next-line
+      id Int @id @default(autoincrement())
+      // Add your own fields below
+      // ...
+    }
+    ```
+  </TabItem>
 
-```prisma title="schema.prisma"
-// 3. Define the user entity
-model User {
-  // highlight-next-line
-  id Int @id @default(autoincrement())
-  // Add your own fields below
-  // ...
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```prisma title="schema.prisma"
-// 3. Define the user entity
-model User {
-  // highlight-next-line
-  id Int @id @default(autoincrement())
-  // Add your own fields below
-  // ...
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```prisma title="schema.prisma"
+    // 3. Define the user entity
+    model User {
+      // highlight-next-line
+      id Int @id @default(autoincrement())
+      // Add your own fields below
+      // ...
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <ReadMoreAboutAuthEntities />
@@ -128,36 +122,33 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp` file:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    // ...
+    route LoginRoute { path: "/login", to: LoginPage }
+    page LoginPage {
+      component: import { Login } from "@src/pages/auth.jsx"
+    }
+    route SignupRoute { path: "/signup", to: SignupPage }
+    page SignupPage {
+      component: import { Signup } from "@src/pages/auth.jsx"
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-// ...
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth.jsx"
-}
-route SignupRoute { path: "/signup", to: SignupPage }
-page SignupPage {
-  component: import { Signup } from "@src/pages/auth.jsx"
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-// ...
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth.tsx"
-}
-route SignupRoute { path: "/signup", to: SignupPage }
-page SignupPage {
-  component: import { Signup } from "@src/pages/auth.tsx"
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    // ...
+    route LoginRoute { path: "/login", to: LoginPage }
+    page LoginPage {
+      component: import { Login } from "@src/pages/auth.tsx"
+    }
+    route SignupRoute { path: "/signup", to: SignupPage }
+    page SignupPage {
+      component: import { Signup } from "@src/pages/auth.tsx"
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -171,96 +162,93 @@ We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read m
 Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```tsx title="src/pages/auth.jsx"
+    import { LoginForm, SignupForm } from 'wasp/client/auth'
+    import { Link } from 'react-router-dom'
 
-```tsx title="src/pages/auth.jsx"
-import { LoginForm, SignupForm } from 'wasp/client/auth'
-import { Link } from 'react-router-dom'
+    export function Login() {
+      return (
+        <Layout>
+          <LoginForm />
+          <br />
+          <span className="text-sm font-medium text-gray-900">
+            Don't have an account yet? <Link to="/signup">go to signup</Link>.
+          </span>
+        </Layout>
+      )
+    }
 
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-      <br />
-      <span className="text-sm font-medium text-gray-900">
-        Don't have an account yet? <Link to="/signup">go to signup</Link>.
-      </span>
-    </Layout>
-  )
-}
+    export function Signup() {
+      return (
+        <Layout>
+          <SignupForm />
+          <br />
+          <span className="text-sm font-medium text-gray-900">
+            I already have an account (<Link to="/login">go to login</Link>).
+          </span>
+        </Layout>
+      )
+    }
 
-export function Signup() {
-  return (
-    <Layout>
-      <SignupForm />
-      <br />
-      <span className="text-sm font-medium text-gray-900">
-        I already have an account (<Link to="/login">go to login</Link>).
-      </span>
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }) {
-  return (
-    <div className="h-full w-full bg-white">
-      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-        <div className="h-full w-full max-w-sm bg-white p-5">
-          <div>{children}</div>
+    // A layout component to center the content
+    export function Layout({ children }) {
+      return (
+        <div className="h-full w-full bg-white">
+          <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+            <div className="h-full w-full max-w-sm bg-white p-5">
+              <div>{children}</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  )
-}
-```
+      )
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/auth.tsx"
+    import { LoginForm, SignupForm } from 'wasp/client/auth'
+    import { Link } from 'react-router-dom'
 
-```tsx title="src/pages/auth.tsx"
-import { LoginForm, SignupForm } from 'wasp/client/auth'
-import { Link } from 'react-router-dom'
+    export function Login() {
+      return (
+        <Layout>
+          <LoginForm />
+          <br />
+          <span className="text-sm font-medium text-gray-900">
+            Don't have an account yet? <Link to="/signup">go to signup</Link>.
+          </span>
+        </Layout>
+      )
+    }
 
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-      <br />
-      <span className="text-sm font-medium text-gray-900">
-        Don't have an account yet? <Link to="/signup">go to signup</Link>.
-      </span>
-    </Layout>
-  )
-}
+    export function Signup() {
+      return (
+        <Layout>
+          <SignupForm />
+          <br />
+          <span className="text-sm font-medium text-gray-900">
+            I already have an account (<Link to="/login">go to login</Link>).
+          </span>
+        </Layout>
+      )
+    }
 
-export function Signup() {
-  return (
-    <Layout>
-      <SignupForm />
-      <br />
-      <span className="text-sm font-medium text-gray-900">
-        I already have an account (<Link to="/login">go to login</Link>).
-      </span>
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="h-full w-full bg-white">
-      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-        <div className="h-full w-full max-w-sm bg-white p-5">
-          <div>{children}</div>
+    // A layout component to center the content
+    export function Layout({ children }: { children: React.ReactNode }) {
+      return (
+        <div className="h-full w-full bg-white">
+          <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+            <div className="h-full w-full max-w-sm bg-white p-5">
+              <div>{children}</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  )
-}
-```
-
-</TabItem>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../auth/ui).
@@ -282,7 +270,7 @@ Read more about the default username and password validation rules in the [auth 
 If you require more control in your authentication flow, you can achieve that in the following ways:
 
 1. Create your UI and use `signup` and `login` actions.
-1. Create your custom sign-up action which uses the lower-level API, along with your custom code.
+2. Create your custom sign-up action which uses the lower-level API, along with your custom code.
 
 ### 1. Using the `signup` and `login` actions
 
@@ -303,64 +291,61 @@ Password of the user logging in.
 You can use it like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/pages/auth.jsx"
+    import { login } from 'wasp/client/auth'
 
-```jsx title="src/pages/auth.jsx"
-import { login } from 'wasp/client/auth'
+    import { useState } from 'react'
+    import { useNavigate, Link } from 'react-router-dom'
 
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+    export function LoginPage() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState(null)
+      const navigate = useNavigate()
 
-export function LoginPage() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+      async function handleSubmit(event) {
+        event.preventDefault()
+        try {
+          await login(username, password)
+          navigate('/')
+        } catch (error) {
+          setError(error)
+        }
+      }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    try {
-      await login(username, password)
-      navigate('/')
-    } catch (error) {
-      setError(error)
+      return <form onSubmit={handleSubmit}>{/* ... */}</form>
     }
-  }
+    ```
+  </TabItem>
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/auth.tsx"
+    import { login } from 'wasp/client/auth'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    import { useState } from 'react'
+    import { useNavigate, Link } from 'react-router-dom'
 
-```tsx title="src/pages/auth.tsx"
-import { login } from 'wasp/client/auth'
+    export function LoginPage() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState<Error | null>(null)
+      const navigate = useNavigate()
 
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        try {
+          await login(username, password)
+          navigate('/')
+        } catch (error: unknown) {
+          setError(error as Error)
+        }
+      }
 
-export function LoginPage() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    try {
-      await login(username, password)
-      navigate('/')
-    } catch (error: unknown) {
-      setError(error as Error)
+      return <form onSubmit={handleSubmit}>{/* ... */}</form>
     }
-  }
-
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
-
-</TabItem>
+    ```
+  </TabItem>
 </Tabs>
 
 :::note
@@ -388,72 +373,69 @@ It takes one argument:
 You can use it like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/pages/auth.jsx"
+    import { signup, login } from 'wasp/client/auth'
 
-```jsx title="src/pages/auth.jsx"
-import { signup, login } from 'wasp/client/auth'
+    import { useState } from 'react'
+    import { useNavigate, Link } from 'react-router-dom'
 
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+    export function Signup() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState(null)
+      const navigate = useNavigate()
 
-export function Signup() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+      async function handleSubmit(event) {
+        event.preventDefault()
+        try {
+          await signup({
+            username,
+            password,
+          })
+          await login(username, password)
+          navigate('/')
+        } catch (error) {
+          setError(error)
+        }
+      }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    try {
-      await signup({
-        username,
-        password,
-      })
-      await login(username, password)
-      navigate('/')
-    } catch (error) {
-      setError(error)
+      return <form onSubmit={handleSubmit}>{/* ... */}</form>
     }
-  }
+    ```
+  </TabItem>
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/auth.tsx"
+    import { signup, login } from 'wasp/client/auth'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    import { useState } from 'react'
+    import { useNavigate, Link } from 'react-router-dom'
 
-```tsx title="src/pages/auth.tsx"
-import { signup, login } from 'wasp/client/auth'
+    export function Signup() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState<Error | null>(null)
+      const navigate = useNavigate()
 
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        try {
+          await signup({
+            username,
+            password,
+          })
+          await login(username, password)
+          navigate('/')
+        } catch (error: unknown) {
+          setError(error as Error)
+        }
+      }
 
-export function Signup() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    try {
-      await signup({
-        username,
-        password,
-      })
-      await login(username, password)
-      navigate('/')
-    } catch (error: unknown) {
-      setError(error as Error)
+      return <form onSubmit={handleSubmit}>{/* ... */}</form>
     }
-  }
-
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
-```
-
-</TabItem>
+    ```
+  </TabItem>
 </Tabs>
 
 ### 2. Creating your custom sign-up action
@@ -461,129 +443,126 @@ export function Signup() {
 The code of your custom sign-up action can look like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    // ...
 
-```wasp title="main.wasp"
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup.js",
-}
-```
-
-```js title="src/auth/signup.js"
-import {
-  ensurePasswordIsPresent,
-  ensureValidPassword,
-  ensureValidUsername,
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  createUser,
-} from 'wasp/server/auth'
-
-export const signup = async (args, _context) => {
-  ensureValidUsername(args)
-  ensurePasswordIsPresent(args)
-  ensureValidPassword(args)
-
-  try {
-    const providerId = createProviderId('username', args.username)
-    const providerData = await sanitizeAndSerializeProviderData({
-      hashedPassword: args.password,
-    })
-
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
-  } catch (e) {
-    return {
-      success: false,
-      message: e.message,
+    action customSignup {
+      fn: import { signup } from "@src/auth/signup.js",
     }
-  }
+    ```
 
-  // Your custom code after sign-up.
-  // ...
+    ```js title="src/auth/signup.js"
+    import {
+      ensurePasswordIsPresent,
+      ensureValidPassword,
+      ensureValidUsername,
+      createProviderId,
+      sanitizeAndSerializeProviderData,
+      createUser,
+    } from 'wasp/server/auth'
 
-  return {
-    success: true,
-    message: 'User created successfully',
-  }
-}
-```
+    export const signup = async (args, _context) => {
+      ensureValidUsername(args)
+      ensurePasswordIsPresent(args)
+      ensureValidPassword(args)
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+      try {
+        const providerId = createProviderId('username', args.username)
+        const providerData = await sanitizeAndSerializeProviderData({
+          hashedPassword: args.password,
+        })
 
-```wasp title="main.wasp"
-// ...
+        await createUser(
+          providerId,
+          providerData,
+          // Any additional data you want to store on the User entity
+          {}
+        )
+      } catch (e) {
+        return {
+          success: false,
+          message: e.message,
+        }
+      }
 
-action customSignup {
-  fn: import { signup } from "@src/auth/signup",
-}
-```
+      // Your custom code after sign-up.
+      // ...
 
-```ts title="src/auth/signup.ts"
-import {
-  ensurePasswordIsPresent,
-  ensureValidPassword,
-  ensureValidUsername,
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  createUser,
-} from 'wasp/server/auth'
-import type { CustomSignup } from 'wasp/server/operations'
-
-type CustomSignupInput = {
-  username: string
-  password: string
-}
-type CustomSignupOutput = {
-  success: boolean
-  message: string
-}
-
-export const signup: CustomSignup<
-  CustomSignupInput,
-  CustomSignupOutput
-> = async (args, _context) => {
-  ensureValidUsername(args)
-  ensurePasswordIsPresent(args)
-  ensureValidPassword(args)
-
-  try {
-    const providerId = createProviderId('username', args.username)
-    const providerData = await sanitizeAndSerializeProviderData<'username'>({
-      hashedPassword: args.password,
-    })
-
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
-  } catch (e) {
-    return {
-      success: false,
-      message: e.message,
+      return {
+        success: true,
+        message: 'User created successfully',
+      }
     }
-  }
+    ```
+  </TabItem>
 
-  // Your custom code after sign-up.
-  // ...
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    // ...
 
-  return {
-    success: true,
-    message: 'User created successfully',
-  }
-}
-```
+    action customSignup {
+      fn: import { signup } from "@src/auth/signup",
+    }
+    ```
 
-</TabItem>
+    ```ts title="src/auth/signup.ts"
+    import {
+      ensurePasswordIsPresent,
+      ensureValidPassword,
+      ensureValidUsername,
+      createProviderId,
+      sanitizeAndSerializeProviderData,
+      createUser,
+    } from 'wasp/server/auth'
+    import type { CustomSignup } from 'wasp/server/operations'
+
+    type CustomSignupInput = {
+      username: string
+      password: string
+    }
+    type CustomSignupOutput = {
+      success: boolean
+      message: string
+    }
+
+    export const signup: CustomSignup<
+      CustomSignupInput,
+      CustomSignupOutput
+    > = async (args, _context) => {
+      ensureValidUsername(args)
+      ensurePasswordIsPresent(args)
+      ensureValidPassword(args)
+
+      try {
+        const providerId = createProviderId('username', args.username)
+        const providerData = await sanitizeAndSerializeProviderData<'username'>({
+          hashedPassword: args.password,
+        })
+
+        await createUser(
+          providerId,
+          providerData,
+          // Any additional data you want to store on the User entity
+          {}
+        )
+      } catch (e) {
+        return {
+          success: false,
+          message: e.message,
+        }
+      }
+
+      // Your custom code after sign-up.
+      // ...
+
+      return {
+        success: true,
+        message: 'User created successfully',
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 We suggest using the built-in field validators for your authentication flow. You can import them from `wasp/server/auth`. These are the same validators that Wasp uses internally for the default authentication flow.
@@ -619,56 +598,53 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 ### `userEntity` fields
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login"
+      }
+    }
+    ```
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-```
+    ```prisma title="schema.prisma"
+    model User {
+      id Int @id @default(autoincrement())
+    }
+    ```
+  </TabItem>
 
-```prisma title="schema.prisma"
-model User {
-  id Int @id @default(autoincrement())
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login"
+      }
+    }
+    ```
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-```
-
-```prisma title="schema.prisma"
-model User {
-  id Int @id @default(autoincrement())
-}
-```
-
-</TabItem>
+    ```prisma title="schema.prisma"
+    model User {
+      id Int @id @default(autoincrement())
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <UserFieldsExplainer />
@@ -676,53 +652,51 @@ model User {
 ### Fields in the `usernameAndPassword` dict
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@src/auth/email.js",
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
       },
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-// ...
-```
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {
+            userSignupFields: import { userSignupFields } from "@src/auth/email.js",
+          },
+        },
+        onAuthFailedRedirectTo: "/login"
+      }
+    }
+    // ...
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@src/auth/email.js",
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
       },
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-// ...
-```
-
-</TabItem>
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {
+            userSignupFields: import { userSignupFields } from "@src/auth/email.js",
+          },
+        },
+        onAuthFailedRedirectTo: "/login"
+      }
+    }
+    // ...
+    ```
+  </TabItem>
 </Tabs>
 
 #### `userSignupFields: ExtImport`
 
 <UserSignupFieldsExplainer />
+
 Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields).

@@ -2,6 +2,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/api/axios.d.ts"
+        ],
+        "78002ba0273e11f11df1fb9c33ef786c4732cba8835dbabc7cda39a00df27e19"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -11,7 +18,7 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "4189f4c9a84f18751d1ef626e6dd0467f16f9a41eade2f9b6371d943fd828b92"
+        "9d6652195cad93491c772567e5747b5503a1e9bca42247b3a1377fbf83803dfd"
     ],
     [
         [
@@ -25,7 +32,14 @@
             "file",
             "../out/sdk/wasp/client/env.ts"
         ],
-        "2a3602d40b299fbfa1a6275fe67828d5653d9f3265ba8204b75178aa41dcbae0"
+        "533337ff26b1df5f3c5c4eeb0b21830b97cbf2eabd5c76fc85d064893ecc2d86"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/env/schema.ts"
+        ],
+        "8f4b1c6093a651270e7bb6a9fbd9135c5bf46403643bca236dfc4e6194fc980b"
     ],
     [
         [
@@ -179,21 +193,21 @@
             "file",
             "../out/sdk/wasp/env/index.ts"
         ],
-        "d92b4832e9d4249ae5b1f00c0f9760d6841aa44bc199550414793a1d57a6845e"
+        "5d6193abc56eec5a8c98d2c95fa53dff6d2baabe6f5d8c2516b2d51e2a3727c6"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/env/validation.ts"
         ],
-        "e22b2fb8931275d3b1bd3176cbdbf753d22fc61887ded0e93cd8febf1b97d260"
+        "885deaa7f922a54cfd5c196ba96f2b53e10e084529687f24090bbf61ad4b4d48"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "05a448334246902483ce69e2b08eac9345fd10919d717cdc219cf803da22827a"
+        "caa2cc3509bce285283e70291fc723553b789a49e91fd272f39850447d012b68"
     ],
     [
         [
@@ -389,7 +403,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "688fdd57d6a9e9ead90141c6f0ebea9d39713d5bd7a630d43f2c2cb5a7984108"
+        "258102c55c0e3cbea12f65e876715557053b3ebe06dd14ff67773d408abb999a"
     ],
     [
         [
@@ -417,7 +431,7 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+        "b90babdd0169eb18ced65b50573272e671ca0b432506fbc16050bd07e502a0cc"
     ],
     [
         [
@@ -431,7 +445,14 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
+        "bdbc1787b302d3efeeb4895ced9435eccb9926f32f032a493ff29b0addfc2a32"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/universal/ansiColors.ts"
+        ],
+        "1b38c60fcd141712bc5a253467b46263af0ee1d64cd9d9c9a774f61dd4949a1c"
     ],
     [
         [
@@ -529,7 +550,7 @@
             "file",
             "server/package.json"
         ],
-        "ae6d36c69a9a51addea31296c10660c039a47a0769848f8ea91db2c874480ebe"
+        "0ce311426f452b535325628ae341b6d6526d0c10b93849b9369914e7c94f13e2"
     ],
     [
         [
@@ -578,7 +599,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
+        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
     ],
     [
         [
@@ -592,7 +613,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "c165909021613cb6e389b324632f199d392b093d18109f05ab33b720c429c187"
+        "089b4baf0e860121a2233bc309b39aa6a194ba79a12376ff489f200afde5a527"
     ],
     [
         [
@@ -662,7 +683,7 @@
             "file",
             "web-app/index.html"
         ],
-        "697e9b92b49353765357b3ec2607868096effc39c5de83ed11fe59fde47d9cf3"
+        "90ea29de670c49476e29a47b62a42e3bb843c68d971349a2341b3cfb2d7dc7b2"
     ],
     [
         [
@@ -677,13 +698,6 @@
             "web-app/package.json"
         ],
         "b3031378d935d26f660108a5445d6679c34fccd124dbc6d900a20cb67ee88bc7"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
@@ -795,14 +809,14 @@
             "file",
             "web-app/tsconfig.vite.json"
         ],
-        "2eb9abbbd66ed061fae538b0c20f49301a8cb6d66c00d690f7b164078c5892e6"
+        "d73bf64453727c005983dea11c1b38ab9db2f6b4e7b5c266f731835d4bf8eb37"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "ca02196d3283c818e7e27d608347d37eaba536eb2bb8fae0d61345e6f1003388"
+        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
     ],
     [
         [
@@ -810,5 +824,12 @@
             "web-app/vite/detectServerImports.ts"
         ],
         "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite/validateEnv.ts"
+        ],
+        "956bb762df6ac7a2bb493dfa335c5fbd9c53be082e709eaa8a0873a75f143784"
     ]
 ]

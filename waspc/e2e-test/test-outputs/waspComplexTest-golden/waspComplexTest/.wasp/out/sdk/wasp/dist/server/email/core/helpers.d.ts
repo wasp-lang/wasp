@@ -4,3 +4,4 @@ export declare function formatFromField({ email, name, }: {
     name?: string;
 }): string;
 export declare function getDefaultFromField(): EmailFromField;
+//# sourceMappingURL=helpers.d.ts.map

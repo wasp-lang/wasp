@@ -166,3 +166,4 @@ export declare const SubmitButton: import("@stitches/react/types/styled-componen
         sm: "0.875rem";
     };
 }, import("@stitches/react/types/config").DefaultThemeMap, {}>>;
+//# sourceMappingURL=Form.d.ts.map
