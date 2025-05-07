@@ -216,6 +216,7 @@ export type CrudOperationOptions = {
 
 export type DbConfig = {
   seeds?: ExtImport[]
+  prismaSetupFn?: ExtImport
 }
 
 export type EmailSenderConfig = {

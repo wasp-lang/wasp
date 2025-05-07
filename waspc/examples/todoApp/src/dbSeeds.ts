@@ -1,10 +1,9 @@
-import { PrismaClient } from '@prisma/client/index.js'
-import { type DbSeedFn } from 'wasp/server'
+import { type DbSeedFn, type ResolvedPrismaClient } from 'wasp/server'
 import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
 import { createTask } from './actions.js'
 import { type AuthUser } from 'wasp/auth'
 
-async function createUser(prismaClient: PrismaClient, data: any) {
+async function createUser(prismaClient: ResolvedPrismaClient, data: any) {
   const newUser = await prismaClient.user.create({
     data: {
       auth: {
