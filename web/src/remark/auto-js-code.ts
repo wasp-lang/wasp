@@ -35,76 +35,86 @@ Output:
 
 */
 
-import assert from 'assert/strict'
-import { Code, Parents, Root, RootContent } from 'mdast'
-import * as path from 'path'
+import type * as md from 'mdast'
+import type { } from 'mdast-util-mdx'; // Type-only empty import to register MDX types into mdast
+import assert from 'node:assert/strict'
+import * as path from 'node:path'
 import * as prettier from 'prettier'
 import tsBlankSpace from 'ts-blank-space'
-import { Plugin } from 'unified'
+import type { Plugin } from 'unified'
 import { visitParents } from 'unist-util-visit-parents'
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bauto-js\b/
 const SUPPORTED_LANGS = new Set(['ts', 'tsx'])
 
-const autoJSCodePlugin: Plugin<[], Root> = () => {
-  return async (tree, file) => {
-    const nodesToProcess = new Set<{ node: Code; ancestors: Parents[] }>()
+const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
+  const nodesToProcess = new Set<{ node: md.Code; ancestors: md.Parents[] }>()
 
-    visitParents(tree, 'code', (node, ancestors) => {
-      if (node.meta && META_FLAG_REGEX.test(node.meta)) {
-        if (!node.lang || !SUPPORTED_LANGS.has(node.lang)) {
-          throw new Error(`Unsupported language: ${node.lang}`)
-        }
-
-        // We put these aside for processing later
-        // because `visitParents` does not allow
-        // async visitors.
-        nodesToProcess.add({ node, ancestors })
+  visitParents(tree, 'code', (node, ancestors) => {
+    if (node.meta && META_FLAG_REGEX.test(node.meta)) {
+      if (!node.lang || !SUPPORTED_LANGS.has(node.lang)) {
+        throw new Error(`Unsupported language: ${node.lang}`)
       }
+
+      // We put these aside for processing later
+      // because `visitParents` does not allow
+      // async visitors.
+      nodesToProcess.add({ node, ancestors })
+    }
+  })
+
+  for (const { node, ancestors } of nodesToProcess) {
+    const parent = ancestors.at(-1)
+    assert(parent) // It must have a parent because the root node is a fully formed tree
+    assert(node.meta && node.lang) // Already checked in the visitor
+
+    // Remove our flag from the meta so other plugins don't trip up
+    const newMeta = node.meta.replace(META_FLAG_REGEX, '')
+
+    const jsCodeBlock = await makeJsCodeBlock(newMeta, node, {
+      location: file.path,
+    })
+    const tsCodeBlock = await makeTsCodeBlock(newMeta, node, {
+      location: file.path,
     })
 
-    for (const { node, ancestors } of nodesToProcess) {
-      const parent = ancestors.at(-1)
-      assert(parent) // It must have a parent because the root node is a fully formed tree
-      assert(node.meta && node.lang) // Already checked in the visitor
-
-      // Remove our flag from the meta so other plugins don't trip up
-      const newMeta = node.meta.replace(META_FLAG_REGEX, '')
-
-      const jsCodeBlock = await makeJsCodeBlock(newMeta, node, {
-        location: file.path,
-      })
-      const tsCodeBlock = await makeTsCodeBlock(newMeta, node, {
-        location: file.path,
-      })
-
-      const newNodes: RootContent[] = [
+    // The specific structure of the new node was retrieved by copy-pasting
+    // an example into the MDX playground and inspecting the AST.
+    // https://mdxjs.com/playground
+    const newNode: md.RootContent = {
+      type: 'mdxJsxFlowElement',
+      name: 'Tabs',
+      attributes: [
+        { type: 'mdxJsxAttribute', name: 'groupId', value: 'js-ts' },
+      ],
+      children: [
         {
-          // @ts-expect-error This is an MDX extension
-          type: 'jsx',
-          value: `<Tabs groupId="js-ts"><TabItem value="js" label="JavaScript">`,
+          type: 'mdxJsxFlowElement',
+          name: 'TabItem',
+          attributes: [
+            { type: 'mdxJsxAttribute', name: 'value', value: 'js' },
+            { type: 'mdxJsxAttribute', name: 'label', value: 'JavaScript' },
+          ],
+          children: [jsCodeBlock],
         },
-        jsCodeBlock,
         {
-          // @ts-expect-error This is an MDX extension
-          type: 'jsx',
-          value: `</TabItem><TabItem value="ts" label="TypeScript">`,
+          type: 'mdxJsxFlowElement',
+          name: 'TabItem',
+          attributes: [
+            { type: 'mdxJsxAttribute', name: 'value', value: 'ts' },
+            { type: 'mdxJsxAttribute', name: 'label', value: 'TypeScript' },
+          ],
+          children: [tsCodeBlock],
         },
-        tsCodeBlock,
-        {
-          // @ts-expect-error This is an MDX extension
-          type: 'jsx',
-          value: `</TabItem></Tabs>`,
-        },
-      ]
-
-      const idx = parent.children.findIndex((someNode) => someNode === node)
-      assert(idx !== -1, "Node not found in parent's children")
-
-      // Replace input node for the new ones in the parent's children array
-      parent.children.splice(idx, 1, ...newNodes)
+      ],
     }
+
+    const idx = parent.children.findIndex((someNode) => someNode === node)
+    assert(idx !== -1, "Node not found in parent's children")
+
+    // Replace input node for the new ones in the parent's children array
+    parent.children.splice(idx, 1, newNode)
   }
 }
 
@@ -116,9 +126,9 @@ const CODE_BLOCK_TITLE_REGEX = /title=(?<quote>["'])(?<title>.*?)\1/
 
 async function makeJsCodeBlock(
   metaString: string,
-  node: Code,
+  node: md.Code,
   { location }: { location: string }
-): Promise<RootContent> {
+): Promise<md.Code> {
   // Find the `title=` meta param and change the extension
   const meta = metaString.replace(
     CODE_BLOCK_TITLE_REGEX,
@@ -143,9 +153,9 @@ async function makeJsCodeBlock(
 
 async function makeTsCodeBlock(
   metaString: string,
-  node: Code,
+  node: md.Code,
   { location }: { location: string }
-): Promise<RootContent> {
+): Promise<md.Code> {
   const lang = node.lang
   const code = await format(node.value, { parser: 'babel-ts', location })
 
