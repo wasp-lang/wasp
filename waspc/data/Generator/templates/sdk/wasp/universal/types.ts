@@ -53,9 +53,7 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
 /**
  * 
  * Exact ensures a type has exactly the properties of another type.
- * 
- * This utility is used to enforce strict type compatibility between types,
- * preventing unexpected extra properties that could cause bugs or confusion.
+ * Helps with simulating excess property checking for generics in function definitions.
  * 
  * Inspired by: https://stackoverflow.com/questions/49580725/is-it-possible-to-restrict-typescript-object-to-contain-only-properties-define
  * 
@@ -69,10 +67,6 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
  * ): T {
  *   return fields
  * }
- * 
- * @example
- * // Can also be used with primitive types
- * type One = Exact<number, 1>;
  */
 export type Exact<T, U extends T = T> = U & {
   [P in Exclude<keyof U, keyof T>]: never;
