@@ -15,9 +15,9 @@ import {
 } from '../src/mapUserSpecToAppSpecDecls.js'
 import * as Fixtures from './testFixtures.js'
 
-test('should map using mapping functions correctly', () => {
-  describe('mapUserSpecToAppSpecDecls', () => {
-    const userSpec = Fixtures.createFullUserSpec()
+describe('mapUserSpecToAppSpecDecls', () => {
+  test('should map full app using mapping functions correctly', () => {
+    const userSpec = Fixtures.createUserSpec('full')
     const parseEntityRef = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
     const parseRouteRef = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
     const parsePageRef = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
@@ -117,6 +117,29 @@ test('should map using mapping functions correctly', () => {
         expect(decl.declValue).toStrictEqual(mapper(item, ...extraArgs))
       })
     }
+  })
+
+  test('should map mininmal app using mapping functions correctly', () => {
+    const userSpec = Fixtures.createUserSpec('minimal')
+    const parseEntityRef = makeRefParser('Entity', [])
+    const parseRouteRef = makeRefParser('Route', [])
+
+    const result = mapUserSpecToAppSpecDecls(userSpec, [])
+
+    const appDecl = getDecl(result, 'App', Fixtures.APP.MINIMAL.NAME)
+    expect(appDecl.declValue).toStrictEqual(
+      mapApp(
+        userSpec.app.config,
+        parseEntityRef,
+        parseRouteRef,
+        userSpec.auth,
+        userSpec.server,
+        userSpec.client,
+        userSpec.db,
+        userSpec.emailSender,
+        userSpec.websocket
+      )
+    )
   })
 
   /**

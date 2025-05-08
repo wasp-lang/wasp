@@ -4,6 +4,62 @@ import * as UserApi from '../src/userApi.js'
 // Contains sample data that can be used for testing purposes.
 // In our case the sample data represents UserSpec data.
 
+type ConfigType = 'minimal' | 'full'
+
+export function createUserApp(configType: ConfigType): UserApi.App {
+  if (configType === 'minimal') {
+    return createMinimalUserApp()
+  } else if (configType === 'full') {
+    return createFullUserApp()
+  } else {
+    throw new Error(`Unknown config type: ${configType}`)
+  }
+}
+
+export function createUserSpec(configType: ConfigType): UserApi.UserSpec {
+  if (configType === 'minimal') {
+    return createMinimalUserApp()[GET_USER_SPEC]()
+  } else if (configType === 'full') {
+    return createFullUserApp()[GET_USER_SPEC]()
+  } else {
+    throw new Error(`Unknown config type: ${configType}`)
+  }
+}
+
+function createMinimalUserApp(): UserApi.App {
+  return new UserApi.App(APP.MINIMAL.NAME, APP.MINIMAL.CONFIG)
+}
+
+function createFullUserApp(): UserApi.App {
+  const app = new UserApi.App(APP.FULL.NAME, APP.FULL.CONFIG)
+  app.auth(AUTH.CONFIG)
+  app.client(CLIENT.CONFIG)
+  app.server(SERVER.CONFIG)
+  app.emailSender(EMAIL_SENDER.CONFIG)
+  app.webSocket(WEBSOCKET.CONFIG)
+  app.db(DB.CONFIG)
+
+  function addDecls(
+    declName: string,
+    nameAndConfigs: Record<string, { NAME: string; CONFIG: unknown }>
+  ) {
+    Object.values(nameAndConfigs).forEach(({ NAME, CONFIG }) =>
+      app[declName](NAME, CONFIG)
+    )
+  }
+
+  addDecls('page', PAGES)
+  addDecls('route', ROUTES)
+  addDecls('query', QUERIES)
+  addDecls('action', ACTIONS)
+  addDecls('crud', CRUDS)
+  addDecls('apiNamespace', API_NAMESPACES)
+  addDecls('api', APIS)
+  addDecls('job', JOBS)
+
+  return app
+}
+
 export const TASK_ENTITY = 'Task'
 export const USER_ENTITY = 'User'
 export const SOCIAL_USER_ENTITY = 'SocialUser'
@@ -448,51 +504,3 @@ export const DB = {
     ],
   } satisfies Required<UserApi.DbConfig>,
 } as const
-
-export function createMinimalUserApp(): UserApi.App {
-  const app = new UserApi.App(APP.MINIMAL.NAME, APP.MINIMAL.CONFIG)
-
-  return app
-}
-
-export function createMinimalUserSpec(): UserApi.UserSpec {
-  const app = createMinimalUserApp()
-
-  return app[GET_USER_SPEC]()
-}
-
-export function createFullUserApp(): UserApi.App {
-  const app = new UserApi.App(APP.FULL.NAME, APP.FULL.CONFIG)
-  app.auth(AUTH.CONFIG)
-  app.client(CLIENT.CONFIG)
-  app.server(SERVER.CONFIG)
-  app.emailSender(EMAIL_SENDER.CONFIG)
-  app.webSocket(WEBSOCKET.CONFIG)
-  app.db(DB.CONFIG)
-
-  function addDecls(
-    declName: string,
-    nameAndConfigs: Record<string, { NAME: string; CONFIG: unknown }>
-  ) {
-    Object.values(nameAndConfigs).forEach(({ NAME, CONFIG }) =>
-      app[declName](NAME, CONFIG)
-    )
-  }
-
-  addDecls('page', PAGES)
-  addDecls('route', ROUTES)
-  addDecls('query', QUERIES)
-  addDecls('action', ACTIONS)
-  addDecls('crud', CRUDS)
-  addDecls('apiNamespace', API_NAMESPACES)
-  addDecls('api', APIS)
-  addDecls('job', JOBS)
-
-  return app
-}
-
-export function createFullUserSpec(): UserApi.UserSpec {
-  const app = createFullUserApp()
-
-  return app[GET_USER_SPEC]()
-}

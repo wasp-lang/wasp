@@ -6,22 +6,22 @@ import { analyzeUserApp } from './appAnalyzer.js'
  * and writes the output to a file.
  */
 export async function main(args: string[]): Promise<void> {
-  const { mainWaspJs, declsJsonOutputFile, entityNames } =
+  const { waspTsSpecPath, outputFilePath, entityNames } =
     parseProcessArgsOrThrow(args)
 
-  const declsJsonResult = await analyzeUserApp(mainWaspJs, entityNames)
+  const declsJsonResult = await analyzeUserApp(waspTsSpecPath, entityNames)
 
   if (declsJsonResult.status === 'error') {
     console.error(declsJsonResult.error)
     process.exit(1)
   }
 
-  writeFileSync(declsJsonOutputFile, declsJsonResult.value)
+  writeFileSync(outputFilePath, declsJsonResult.value)
 }
 
 export function parseProcessArgsOrThrow(args: string[]): {
-  mainWaspJs: string
-  declsJsonOutputFile: string
+  waspTsSpecPath: string
+  outputFilePath: string
   entityNames: string[]
 } {
   if (args.length !== 5) {
@@ -30,10 +30,10 @@ export function parseProcessArgsOrThrow(args: string[]): {
     )
   }
 
-  const [_node, _runjs, mainWaspJs, declsJsonOutputFile, entityNamesJson] = args
+  const [_node, _runjs, waspTsSpecPath, outputFilePath, entityNamesJson] = args
   if (
-    typeof mainWaspJs !== 'string' ||
-    typeof declsJsonOutputFile !== 'string' ||
+    typeof waspTsSpecPath !== 'string' ||
+    typeof outputFilePath !== 'string' ||
     typeof entityNamesJson !== 'string'
   ) {
     throw new Error(
@@ -44,8 +44,8 @@ export function parseProcessArgsOrThrow(args: string[]): {
   const entityNames = getValidEntityNamesOrThrow(entityNamesJson)
 
   return {
-    mainWaspJs,
-    declsJsonOutputFile,
+    waspTsSpecPath,
+    outputFilePath,
     entityNames,
   }
 }

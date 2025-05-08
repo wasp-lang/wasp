@@ -1,58 +1,41 @@
 import { describe, expect, test } from 'vitest'
 import { parseProcessArgsOrThrow } from '../src/cli'
 
+const noEnttiyArgs = ['node', 'run.js', 'main.wasp.js', 'output.json']
+
 describe('parseProcessArgsOrThrow', () => {
   test('should parse arguments correctly', () => {
-    const args = [
-      'node',
-      'run.js',
-      'main.wasp.js',
-      'output.json',
-      JSON.stringify(['entity1', 'entity2']),
-    ]
+    const args = [...noEnttiyArgs, JSON.stringify(['entity1', 'entity2'])]
 
     const result = parseProcessArgsOrThrow(args)
 
     expect(result).toEqual({
-      mainWaspJs: 'main.wasp.js',
-      declsJsonOutputFile: 'output.json',
+      waspTsSpecPath: 'main.wasp.js',
+      outputFilePath: 'output.json',
       entityNames: ['entity1', 'entity2'],
     })
   })
 
   test('should parse 0 entities correctly', () => {
-    const noEntitiesArgs = [
-      'node',
-      'run.js',
-      'main.wasp.js',
-      'output.json',
-      JSON.stringify([]),
-    ]
+    const noEntitiesArgs = [...noEnttiyArgs, '[]']
 
     const result = parseProcessArgsOrThrow(noEntitiesArgs)
 
     expect(result).toEqual({
-      mainWaspJs: 'main.wasp.js',
-      declsJsonOutputFile: 'output.json',
+      waspTsSpecPath: 'main.wasp.js',
+      outputFilePath: 'output.json',
       entityNames: [],
     })
   })
 
   test('should throw an error if less than 5 arguments', () => {
-    const notEnoughArgs = ['node', 'run.js', 'main.wasp.js', 'output.json']
+    const notEnoughArgs = [...noEnttiyArgs]
 
     expect(() => parseProcessArgsOrThrow(notEnoughArgs)).toThrowError()
   })
 
   test('should throw an error if more than 5 arguments', () => {
-    const tooMuchArgs = [
-      'node',
-      'run.js',
-      'main.wasp.js',
-      'output.json',
-      JSON.stringify(['entity1', 'entity2']),
-      'extraArg',
-    ]
+    const tooMuchArgs = [...noEnttiyArgs, '[]', 'extraArg']
 
     expect(() => parseProcessArgsOrThrow(tooMuchArgs)).toThrowError()
   })
@@ -65,7 +48,6 @@ describe('parseProcessArgsOrThrow', () => {
       'output.json',
       JSON.stringify(['entity1', 'entity2']),
     ] as string[]
-
     const pathToOutputFileNotAString = [
       'node',
       'run.js',
@@ -73,7 +55,6 @@ describe('parseProcessArgsOrThrow', () => {
       2,
       JSON.stringify(['entity1', 'entity2']),
     ] as string[]
-
     const entitiesNotAString = [
       'node',
       'run.js',
@@ -93,10 +74,7 @@ describe('parseProcessArgsOrThrow', () => {
 
   test('should throw an error if the entity names JSON is not an array', () => {
     const entitiesValidJSONButNotArray = [
-      'node',
-      'run.js',
-      'main.wasp.js',
-      'output.json',
+      ...noEnttiyArgs,
       JSON.stringify({ entity1: 'entity1' }),
     ]
 

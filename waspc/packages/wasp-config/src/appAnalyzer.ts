@@ -3,10 +3,10 @@ import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
 import * as UserApi from './userApi.js'
 
 export async function analyzeUserApp(
-  mainWaspJs: string,
+  waspTsSpecPath: string,
   entityNames: string[]
 ): Promise<Result<string, string>> {
-  const userAppResult = await getUserApp(mainWaspJs)
+  const userAppResult = await getUserApp(waspTsSpecPath)
 
   if (userAppResult.status === 'error') {
     return userAppResult
@@ -53,6 +53,6 @@ export async function getUserApp(
  * - The error users see with the Result type is nicer (no stack trace).
  * - Exceptions can slip through the type system.
  */
-type Result<Value, Error> =
+export type Result<Value, Error> =
   | { status: 'ok'; value: Value }
   | { status: 'error'; error: Error }

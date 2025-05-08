@@ -1,5 +1,8 @@
-/** This module maps the user-facing API to the internal representation of the app (AppSpec Decl).
+/**
+ * This module maps the user-facing API to the internal representation of the app (AppSpec Decl).
+ * All of the mapping functions are exported so that they can be individually tested.
  */
+
 import * as AppSpec from './appSpec.js'
 import * as User from './userApi.js'
 
@@ -451,7 +454,7 @@ export function mapPage(pageConfig: User.PageConfig): AppSpec.Page {
   }
 }
 
-type RefParser<T extends AppSpec.DeclType> = (
+export type RefParser<T extends AppSpec.DeclType> = (
   potentialReferences: string
 ) => AppSpec.Ref<T>
 

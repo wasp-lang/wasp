@@ -29,24 +29,23 @@ import {
   mapServer,
   mapUsernameAndPassword,
   mapWebSocket,
+  RefParser,
 } from '../src/mapUserSpecToAppSpecDecls.js'
 import * as UserApi from '../src/userApi.js'
 import * as Fixtures from './testFixtures.js'
 
 describe('mapApp', () => {
-  test('should map minimal config correctly', () => {
-    const minimalApp = new UserApi.App(
-      Fixtures.APP.MINIMAL.NAME,
-      Fixtures.APP.MINIMAL.CONFIG
-    )
-    const userSpec = minimalApp[GET_USER_SPEC]()
-    const parseEntityRef = makeRefParser('Entity', [])
-    const parseRouteRef = makeRefParser('Route', [])
-
+  function testMapApp(
+    app: UserApi.App,
+    entityRefParser: RefParser<'Entity'>,
+    routeRefParser: RefParser<'Route'>,
+    validateResult: (result: AppSpec.App, userSpec: UserApi.UserSpec) => void
+  ) {
+    const userSpec = app[GET_USER_SPEC]()
     const result = mapApp(
       userSpec.app.config,
-      parseEntityRef,
-      parseRouteRef,
+      entityRefParser,
+      routeRefParser,
       userSpec.auth,
       userSpec.server,
       userSpec.client,
@@ -55,90 +54,80 @@ describe('mapApp', () => {
       userSpec.websocket
     )
 
-    expect(result).toBeDefined()
-    expect(result).toStrictEqual({
-      wasp: {
-        version: Fixtures.APP.MINIMAL.CONFIG.wasp.version,
-      },
-      title: Fixtures.APP.MINIMAL.CONFIG.title,
-      head: undefined,
-      auth: undefined,
-      server: undefined,
-      client: undefined,
-      db: undefined,
-      emailSender: undefined,
-      webSocket: undefined,
-    } satisfies AppSpec.App)
+    validateResult(result, userSpec)
+  }
+
+  test('should map minimal config correctly', () => {
+    const map = Fixtures.createUserApp('minimal')
+    const entityRefParser = makeRefParser('Entity', [])
+    const routeRefParser = makeRefParser('Route', [])
+
+    testMapApp(map, entityRefParser, routeRefParser, (result, userSpec) => {
+      expect(result).toStrictEqual({
+        wasp: {
+          version: userSpec.app.config.wasp.version,
+        },
+        title: userSpec.app.config.title,
+        head: undefined,
+        auth: undefined,
+        server: undefined,
+        client: undefined,
+        db: undefined,
+        emailSender: undefined,
+        webSocket: undefined,
+      } satisfies AppSpec.App)
+    })
   })
 
   test('should map full config correctly', () => {
-    const app = new UserApi.App(
-      Fixtures.APP.FULL.NAME,
-      Fixtures.APP.FULL.CONFIG
-    )
-    app.auth(Fixtures.AUTH.CONFIG)
-    app.server(Fixtures.SERVER.CONFIG)
-    app.client(Fixtures.CLIENT.CONFIG)
-    app.db(Fixtures.DB.CONFIG)
-    app.emailSender(Fixtures.EMAIL_SENDER.CONFIG)
-    app.webSocket(Fixtures.WEBSOCKET.CONFIG)
-
-    const userSpec = app[GET_USER_SPEC]()
-    const parseEntityRef = makeRefParser('Entity', [
+    const fullApp = Fixtures.createUserApp('full')
+    const entityRefParser = makeRefParser('Entity', [
       Fixtures.AUTH.CONFIG.userEntity,
       Fixtures.AUTH.CONFIG.externalAuthEntity,
     ])
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute,
       Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
     ])
 
-    const result = mapApp(
-      userSpec.app.config,
-      parseEntityRef,
-      parseRouteRef,
-      userSpec.auth,
-      userSpec.server,
-      userSpec.client,
-      userSpec.db,
-      userSpec.emailSender,
-      userSpec.websocket
-    )
-
-    expect(result).toStrictEqual({
-      wasp: {
-        version: Fixtures.APP.FULL.CONFIG.wasp.version,
-      },
-      title: Fixtures.APP.FULL.CONFIG.title,
-      head: Fixtures.APP.FULL.CONFIG.head,
-      auth:
-        userSpec.auth && mapAuth(userSpec.auth, parseEntityRef, parseRouteRef),
-      server: userSpec.server && mapServer(userSpec.server),
-      client: userSpec.client && mapClient(userSpec.client),
-      db: userSpec.db && mapDb(userSpec.db),
-      emailSender: userSpec.emailSender && mapEmailSender(userSpec.emailSender),
-      webSocket: userSpec.websocket && mapWebSocket(userSpec.websocket),
-    } satisfies AppSpec.App)
+    testMapApp(fullApp, entityRefParser, routeRefParser, (result, userSpec) => {
+      expect(result).toStrictEqual({
+        wasp: {
+          version: userSpec.app.config.wasp.version,
+        },
+        title: userSpec.app.config.title,
+        head: userSpec.app.config.head,
+        auth:
+          userSpec.auth &&
+          mapAuth(userSpec.auth, entityRefParser, routeRefParser),
+        server: userSpec.server && mapServer(userSpec.server),
+        client: userSpec.client && mapClient(userSpec.client),
+        db: userSpec.db && mapDb(userSpec.db),
+        emailSender:
+          userSpec.emailSender && mapEmailSender(userSpec.emailSender),
+        webSocket: userSpec.websocket && mapWebSocket(userSpec.websocket),
+      } satisfies AppSpec.App)
+    })
   })
 })
 
 describe('mapAuth', () => {
   test('should map minimal config correctly', () => {
-    const minimalAuth: UserApi.AuthConfig = {
+    const auth: UserApi.AuthConfig = {
       userEntity: Fixtures.AUTH.CONFIG.userEntity,
       methods: {},
       onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
     }
-    const parseEntityRef = makeRefParser('Entity', [minimalAuth.userEntity])
+    const parseEntityRef = makeRefParser('Entity', [auth.userEntity])
     const parseRouteRef = makeRefParser('Route', [])
 
-    const result = mapAuth(minimalAuth, parseEntityRef, parseRouteRef)
+    const result = mapAuth(auth, parseEntityRef, parseRouteRef)
 
     expect(result).toStrictEqual({
-      userEntity: parseEntityRef(Fixtures.AUTH.CONFIG.userEntity),
+      userEntity: parseEntityRef(auth.userEntity),
       externalAuthEntity: undefined,
-      methods: mapAuthMethods(minimalAuth.methods, parseRouteRef),
-      onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
+      methods: mapAuthMethods(auth.methods, parseRouteRef),
+      onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: undefined,
       onBeforeSignup: undefined,
       onAfterSignup: undefined,
@@ -175,7 +164,7 @@ describe('mapAuth', () => {
     } satisfies AppSpec.Auth)
   })
 
-  test('should throw if userEntity is not provided', () => {
+  test('should throw if userEntity is not provided to entity parser', () => {
     const auth: UserApi.AuthConfig = {
       userEntity: Fixtures.AUTH.CONFIG.userEntity,
       methods: {},
@@ -194,9 +183,7 @@ describe('mapAuth', () => {
       methods: {},
       onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
     }
-    const parseEntityRef = makeRefParser('Entity', [
-      Fixtures.AUTH.CONFIG.userEntity,
-    ])
+    const parseEntityRef = makeRefParser('Entity', [auth.userEntity])
     const parseRouteRef = makeRefParser('Route', [])
 
     expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError()
@@ -205,10 +192,10 @@ describe('mapAuth', () => {
 
 describe('mapAuthMethods', () => {
   test('should map minimal config correctly', () => {
-    const minimalAuthMethods: UserApi.AuthMethods = {}
+    const authMethods: UserApi.AuthMethods = {}
     const parseRouteRef = makeRefParser('Route', [])
 
-    const result = mapAuthMethods(minimalAuthMethods, parseRouteRef)
+    const result = mapAuthMethods(authMethods, parseRouteRef)
 
     expect(result).toStrictEqual({
       usernameAndPassword: undefined,
@@ -245,31 +232,28 @@ describe('mapAuthMethods', () => {
 
 describe('mapEmailAuth', () => {
   test('should map minimal config correctly', () => {
-    const minimalEmailAuth: UserApi.EmailAuthConfig = {
+    const emailAuth: UserApi.EmailAuthConfig = {
       fromField: Fixtures.AUTH.CONFIG.methods.email.fromField,
       emailVerification: Fixtures.AUTH.CONFIG.methods.email.emailVerification,
       passwordReset: Fixtures.AUTH.CONFIG.methods.email.passwordReset,
     }
     const parseRouteRef = makeRefParser('Route', [
-      minimalEmailAuth.emailVerification.clientRoute,
-      minimalEmailAuth.passwordReset.clientRoute,
+      emailAuth.emailVerification.clientRoute,
+      emailAuth.passwordReset.clientRoute,
     ])
 
-    const result = mapEmailAuth(minimalEmailAuth, parseRouteRef)
+    const result = mapEmailAuth(emailAuth, parseRouteRef)
 
     expect(result).toStrictEqual({
       fromField: {
-        name: minimalEmailAuth.fromField.name,
-        email: minimalEmailAuth.fromField.email,
+        name: emailAuth.fromField.name,
+        email: emailAuth.fromField.email,
       },
       emailVerification: mapEmailVerification(
-        minimalEmailAuth.emailVerification,
+        emailAuth.emailVerification,
         parseRouteRef
       ),
-      passwordReset: mapPasswordReset(
-        minimalEmailAuth.passwordReset,
-        parseRouteRef
-      ),
+      passwordReset: mapPasswordReset(emailAuth.passwordReset, parseRouteRef),
       userSignupFields: undefined,
     } satisfies AppSpec.EmailAuthConfig)
   })
@@ -333,15 +317,15 @@ describe('mapEmailAuth', () => {
 
 describe('mapEmailVerification', () => {
   test('should map minimal config correctly', () => {
-    const minimalEmailVerification: UserApi.EmailVerificationConfig = {
+    const emailVerification: UserApi.EmailVerificationConfig = {
       clientRoute:
         Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute,
     }
     const parseRouteRef = makeRefParser('Route', [
-      minimalEmailVerification.clientRoute,
+      emailVerification.clientRoute,
     ])
 
-    const result = mapEmailVerification(minimalEmailVerification, parseRouteRef)
+    const result = mapEmailVerification(emailVerification, parseRouteRef)
 
     expect(result).toStrictEqual({
       getEmailContentFn: undefined,
@@ -369,14 +353,12 @@ describe('mapEmailVerification', () => {
 
 describe('mapPasswordReset', () => {
   test('should map minimal config correctly', () => {
-    const minimalPasswordReset: UserApi.PasswordResetConfig = {
+    const passwordReset: UserApi.PasswordResetConfig = {
       clientRoute: Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
     }
-    const parseRouteRef = makeRefParser('Route', [
-      minimalPasswordReset.clientRoute,
-    ])
+    const parseRouteRef = makeRefParser('Route', [passwordReset.clientRoute])
 
-    const result = mapPasswordReset(minimalPasswordReset, parseRouteRef)
+    const result = mapPasswordReset(passwordReset, parseRouteRef)
 
     expect(result).toStrictEqual({
       getEmailContentFn: undefined,
@@ -407,9 +389,9 @@ describe('mapPasswordReset', () => {
 
 describe('mapUsernameAndPassword', () => {
   test('should map minimal config correctly', () => {
-    const minimalUsernameAndPassword: UserApi.UsernameAndPasswordConfig = {}
+    const usernameAndPassword: UserApi.UsernameAndPasswordConfig = {}
 
-    const result = mapUsernameAndPassword(minimalUsernameAndPassword)
+    const result = mapUsernameAndPassword(usernameAndPassword)
 
     expect(result).toStrictEqual({
       userSignupFields: undefined,
@@ -429,9 +411,9 @@ describe('mapUsernameAndPassword', () => {
 
 describe('mapExternalAuth', () => {
   test('should map minimal config correctly', () => {
-    const minimalExternalAuth: UserApi.ExternalAuthConfig = {}
+    const externalAuth: UserApi.ExternalAuthConfig = {}
 
-    const result = mapExternalAuth(minimalExternalAuth)
+    const result = mapExternalAuth(externalAuth)
 
     expect(result).toStrictEqual({
       configFn: undefined,
@@ -453,9 +435,9 @@ describe('mapExternalAuth', () => {
 
 describe('mapClient', () => {
   test('should map minimal config correctly', () => {
-    const minimalClient: UserApi.ClientConfig = {}
+    const client: UserApi.ClientConfig = {}
 
-    const result = mapClient(minimalClient)
+    const result = mapClient(client)
 
     expect(result).toStrictEqual({
       rootComponent: undefined,
@@ -481,9 +463,9 @@ describe('mapClient', () => {
 
 describe('mapServer', () => {
   test('should map minimal config correctly', () => {
-    const minimalServer: UserApi.ServerConfig = {}
+    const server: UserApi.ServerConfig = {}
 
-    const result = mapServer(minimalServer)
+    const result = mapServer(server)
 
     expect(result).toStrictEqual({
       setupFn: undefined,
@@ -507,14 +489,14 @@ describe('mapServer', () => {
 
 describe('mapEmailSender', () => {
   test('should map minimal config correctly', () => {
-    const minimalEmailSender: UserApi.EmailSender = {
+    const emailSender: UserApi.EmailSender = {
       provider: Fixtures.EMAIL_SENDER.CONFIG.provider,
     }
 
-    const result = mapEmailSender(minimalEmailSender)
+    const result = mapEmailSender(emailSender)
 
     expect(result).toStrictEqual({
-      provider: minimalEmailSender.provider,
+      provider: emailSender.provider,
       defaultFrom: undefined,
     } satisfies AppSpec.EmailSender)
   })
@@ -533,14 +515,14 @@ describe('mapEmailSender', () => {
 
 describe('mapWebSocket', () => {
   test('should map minimal config correctly', () => {
-    const minimalWebsocket: UserApi.WebsocketConfig = {
+    const websocket: UserApi.WebsocketConfig = {
       fn: Fixtures.WEBSOCKET.CONFIG.fn,
     }
 
-    const result = mapWebSocket(minimalWebsocket)
+    const result = mapWebSocket(websocket)
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(minimalWebsocket.fn),
+      fn: mapExtImport(websocket.fn),
       autoConnect: undefined,
     } satisfies AppSpec.WebSocket)
   })
@@ -559,9 +541,9 @@ describe('mapWebSocket', () => {
 
 describe('mapDb', () => {
   test('should map minimal config correctly', () => {
-    const minimalDb: UserApi.DbConfig = {}
+    const db: UserApi.DbConfig = {}
 
-    const result = mapDb(minimalDb)
+    const result = mapDb(db)
 
     expect(result).toStrictEqual({
       seeds: undefined,
@@ -583,12 +565,12 @@ describe('mapDb', () => {
 
 describe('mapPage', () => {
   test('should map minimal config correctly', () => {
-    const minimalPage = Fixtures.PAGES.MINIMAL.CONFIG
+    const page = Fixtures.PAGES.MINIMAL.CONFIG
 
-    const result = mapPage(minimalPage)
+    const result = mapPage(page)
 
     expect(result).toStrictEqual({
-      component: mapExtImport(minimalPage.component),
+      component: mapExtImport(page.component),
       authRequired: undefined,
     } satisfies AppSpec.Page)
   })
@@ -621,13 +603,13 @@ describe('mapRoute', () => {
 
 describe('mapOperationConfig', () => {
   test('should map minimal query config correctly', () => {
-    const minimalQuery = Fixtures.QUERIES.MINIMAL.CONFIG
+    const query = Fixtures.QUERIES.MINIMAL.CONFIG
     const parseEntityRef = makeRefParser('Entity', [])
 
-    const result = mapOperationConfig(minimalQuery, parseEntityRef)
+    const result = mapOperationConfig(query, parseEntityRef)
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(minimalQuery.fn),
+      fn: mapExtImport(query.fn),
       entities: undefined,
       auth: undefined,
     } satisfies AppSpec.Query)
@@ -654,13 +636,13 @@ describe('mapOperationConfig', () => {
   })
 
   test('should map minimal action config correctly', () => {
-    const minimalAction = Fixtures.ACTIONS.MINIMAL.CONFIG
+    const action = Fixtures.ACTIONS.MINIMAL.CONFIG
     const parseEntityRef = makeRefParser('Entity', [])
 
-    const result = mapOperationConfig(minimalAction, parseEntityRef)
+    const result = mapOperationConfig(action, parseEntityRef)
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(minimalAction.fn),
+      fn: mapExtImport(action.fn),
       entities: undefined,
       auth: undefined,
     } satisfies AppSpec.Action)
@@ -689,13 +671,13 @@ describe('mapOperationConfig', () => {
 
 describe('mapCrud', () => {
   test('should map minimal config correctly', () => {
-    const minimalCrud = Fixtures.CRUDS.MINIMAL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [minimalCrud.entity])
+    const crud = Fixtures.CRUDS.MINIMAL.CONFIG
+    const parseEntityRef = makeRefParser('Entity', [crud.entity])
 
-    const result = mapCrud(minimalCrud, parseEntityRef)
+    const result = mapCrud(crud, parseEntityRef)
 
     expect(result).toStrictEqual({
-      entity: parseEntityRef(minimalCrud.entity),
+      entity: parseEntityRef(crud.entity),
       operations: mapCrudOperations({}),
     } satisfies AppSpec.Crud)
   })
@@ -722,9 +704,9 @@ describe('mapCrud', () => {
 
 describe('mapCrudOperations', () => {
   test('should map minimal config correctly', () => {
-    const minimalCrudOperations = Fixtures.CRUDS.MINIMAL.CONFIG.operations
+    const crudOperations = Fixtures.CRUDS.MINIMAL.CONFIG.operations
 
-    const result = mapCrudOperations(minimalCrudOperations)
+    const result = mapCrudOperations(crudOperations)
 
     expect(result).toStrictEqual({
       get: undefined,
@@ -752,11 +734,11 @@ describe('mapCrudOperations', () => {
 
 describe('mapCrudOperationOptions', () => {
   test('should map minimal config correctly', () => {
-    const minimalCrudOperationOptions: UserApi.CrudOperationOptions = {
+    const crudOperationOptions: UserApi.CrudOperationOptions = {
       isPublic: false,
     }
 
-    const result = mapCrudOperationOptions(minimalCrudOperationOptions)
+    const result = mapCrudOperationOptions(crudOperationOptions)
 
     expect(result).toStrictEqual({
       isPublic: false,
@@ -791,14 +773,14 @@ describe('mapApiNamespace', () => {
 
 describe('mapApiConfig', () => {
   test('should map minimal config correctly', () => {
-    const minimalApi = Fixtures.APIS.MINIMAL.CONFIG
+    const api = Fixtures.APIS.MINIMAL.CONFIG
     const parseEntityRef = makeRefParser('Entity', [])
 
-    const result = mapApiConfig(minimalApi, parseEntityRef)
+    const result = mapApiConfig(api, parseEntityRef)
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(minimalApi.fn),
-      httpRoute: mapHttpRoute(minimalApi.httpRoute),
+      fn: mapExtImport(api.fn),
+      httpRoute: mapHttpRoute(api.httpRoute),
       auth: undefined,
       entities: undefined,
       middlewareConfigFn: undefined,
@@ -836,14 +818,14 @@ describe('mapHttpRoute', () => {
 
 describe('mapJob', () => {
   test('should map minimal config correctly', () => {
-    const minimalJob = Fixtures.JOBS.MINIMAL.CONFIG
+    const job = Fixtures.JOBS.MINIMAL.CONFIG
     const parseEntityRef = makeRefParser('Entity', [])
 
-    const result = mapJob(minimalJob, parseEntityRef)
+    const result = mapJob(job, parseEntityRef)
 
     expect(result).toStrictEqual({
-      executor: minimalJob.executor,
-      perform: mapPerform(minimalJob.perform),
+      executor: job.executor,
+      perform: mapPerform(job.perform),
       schedule: undefined,
       entities: undefined,
     } satisfies AppSpec.Job)
@@ -929,16 +911,6 @@ describe('mapExtImport', () => {
     })
   })
 
-  // test('should throw for having both import kind', () => {
-  //   const extImport: UserSpec.ExtImport = {
-  //     import: 'myNamedImport',
-  //     from: '@src/myModule',
-  //     importDefault: 'myDefaultImport',
-  //   }
-
-  //   expect(() => mapExtImport(extImport)).toThrowError()
-  // })
-
   test('should throw for missing import kind', () => {
     const extImport: UserApi.ExtImport = {
       from: '@src/myModule',
@@ -947,12 +919,24 @@ describe('mapExtImport', () => {
     expect(() => mapExtImport(extImport)).toThrowError()
   })
 
-  // test('should throw error for invalid from path', () => {
-  //   const extImport: UserSpec.ExtImport = {
-  //     import: 'myNamedImport',
-  //     from: './invalid/path',
-  //   } as unknown as UserSpec.ExtImport
+  // TODO: unskip this test when we deicde how to handle this
+  test.skip('should throw for having both import kind', () => {
+    const extImport: UserApi.ExtImport = {
+      import: 'myNamedImport',
+      from: '@src/myModule',
+      importDefault: 'myDefaultImport',
+    }
 
-  //   expect(() => mapExtImport(extImport)).toThrowError()
-  // })
+    expect(() => mapExtImport(extImport)).toThrowError()
+  })
+
+  // TODO: unskip this test when we deicde how to handle this
+  test.skip('should throw error for invalid from path', () => {
+    const extImport: UserApi.ExtImport = {
+      import: 'myNamedImport',
+      from: './invalid/path',
+    } as unknown as UserApi.ExtImport
+
+    expect(() => mapExtImport(extImport)).toThrowError()
+  })
 })
