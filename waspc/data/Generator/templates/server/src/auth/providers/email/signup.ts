@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
   createProviderId,
   createUser,
