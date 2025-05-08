@@ -1,7 +1,7 @@
 {{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand, LimitTo } from 'wasp/universal/types'
+import type { Expand, Exact } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
 
 
@@ -17,7 +17,7 @@ const _waspUsernameAndPasswordUserSignupFields = {= usernameAndPasswordUserSignu
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
-  fields: T & LimitTo<T, UserSignupFields>
+  fields: Exact<UserSignupFields, T>
 ): T {
   return fields
 }

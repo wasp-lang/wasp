@@ -51,17 +51,29 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
   : Parameters<T>;
 
 /**
- * LimitTo is useful when you want to allow a generic type T that extends U,
- * but then ensure that T does not have any extra properties beyond those in U.
- *
+ * 
+ * Exact ensures a type has exactly the properties of another type.
+ * 
+ * This utility is used to enforce strict type compatibility between types,
+ * preventing unexpected extra properties that could cause bugs or confusion.
+ * 
+ * @template T - The base type that defines the allowed properties
+ * @template U - The type to be constrained (must extend T)
+ * 
  * @example
  * function defineUserSignupFields<T extends UserSignupFields>(
- *   fields: T & LimitTo<T, UserSignupFields>
+ *   fields: Exact<UserSignupFields, T>
  * ): T {
  *   return fields
  * }
+ * 
+ * @example
+ * // Can also be used with primitive types
+ * type One = Exact<number, 1>;
  */
-export type LimitTo<T, U> = Record<
-  Exclude<keyof T, keyof U>,
-  never
->
+export type Exact<T, U extends T = T> = U & {
+  [P in Exclude<keyof U, keyof T>]: never;
+}
+
+
+
