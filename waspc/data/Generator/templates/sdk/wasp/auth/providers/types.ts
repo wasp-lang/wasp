@@ -32,11 +32,21 @@ export type UserEmailSignupFields = InferUserSignupFields<typeof _waspEmailUserS
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof _waspUsernameAndPasswordUserSignupFields>;
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
 
-type InferUserSignupFields<T> = T extends UserSignupFields
+/**
+ * Extracts the result types from a UserSignupFields object.
+ * 
+ * This type transforms an object containing field getter functions
+ * into an object with the same keys but whose values are the return types
+ * of those functions.
+ */
+type InferUserSignupFields<T extends (UserSignupFields | undefined)> = T extends undefined 
+  ? {} 
+  : T extends UserSignupFields
   ? {
-      [K in keyof T]: T[K] extends (data: any) => infer R ? R : never
+      [K in keyof T]: ExtractFieldGetterReturnType<T[K]>
     }
-  : {}
+  : never
+type ExtractFieldGetterReturnType<T> = T extends (data: any) => infer R ? R : never
 
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
