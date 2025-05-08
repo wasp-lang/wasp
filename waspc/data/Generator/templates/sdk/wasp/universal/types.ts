@@ -63,6 +63,7 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
  * @template U - The type to be constrained (must extend T)
  * 
  * @example
+ * // User can no longer add properties outside of UserSignupFields to T
  * function defineUserSignupFields<T extends UserSignupFields>(
  *   fields: Exact<UserSignupFields, T>
  * ): T {
