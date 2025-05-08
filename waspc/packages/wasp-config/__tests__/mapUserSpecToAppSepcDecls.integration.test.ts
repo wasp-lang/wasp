@@ -38,54 +38,54 @@ describe('mapUserSpecToAppSpecDecls', () => {
         userSpec.websocket
       )
     )
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'Page',
       declFixtures: Fixtures.PAGES,
       declMap: userSpec.pages,
       mapUserSpecToAppSpec: mapPage,
     })
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'Route',
       declFixtures: Fixtures.ROUTES,
       declMap: userSpec.routes,
       mapUserSpecToAppSpec: mapRoute,
       parserArgs: [pageRefParser],
     })
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'Query',
       declFixtures: Fixtures.QUERIES,
       declMap: userSpec.queries,
       mapUserSpecToAppSpec: mapOperationConfig,
       parserArgs: [entityRefParser],
     })
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'Action',
       declFixtures: Fixtures.ACTIONS,
       declMap: userSpec.actions,
       mapUserSpecToAppSpec: mapOperationConfig,
       parserArgs: [entityRefParser],
     })
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'Crud',
       declFixtures: Fixtures.CRUDS,
       declMap: userSpec.cruds,
       mapUserSpecToAppSpec: mapCrud,
       parserArgs: [entityRefParser],
     })
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'ApiNamespace',
       declFixtures: Fixtures.API_NAMESPACES,
       declMap: userSpec.apiNamespaces,
       mapUserSpecToAppSpec: mapApiNamespace,
     })
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'Api',
       declFixtures: Fixtures.APIS,
       declMap: userSpec.apis,
       mapUserSpecToAppSpec: mapApiConfig,
       parserArgs: [entityRefParser],
     })
-    testDeclMapping({
+    expectCorrectMapping({
       declType: 'Job',
       declFixtures: Fixtures.JOBS,
       declMap: userSpec.jobs,
@@ -94,7 +94,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
 
     type DeclFixtures = Record<string, { NAME: string; CONFIG: any }>
-    function testDeclMapping({
+    function expectCorrectMapping({
       declType,
       declFixtures,
       declMap,
