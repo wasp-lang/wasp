@@ -118,15 +118,15 @@ describe('mapAuth', () => {
       methods: {},
       onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
     }
-    const parseEntityRef = makeRefParser('Entity', [auth.userEntity])
-    const parseRouteRef = makeRefParser('Route', [])
+    const entityRefParser = makeRefParser('Entity', [auth.userEntity])
+    const routeRefParser = makeRefParser('Route', [])
 
-    const result = mapAuth(auth, parseEntityRef, parseRouteRef)
+    const result = mapAuth(auth, entityRefParser, routeRefParser)
 
     expect(result).toStrictEqual({
-      userEntity: parseEntityRef(auth.userEntity),
+      userEntity: entityRefParser(auth.userEntity),
       externalAuthEntity: undefined,
-      methods: mapAuthMethods(auth.methods, parseRouteRef),
+      methods: mapAuthMethods(auth.methods, routeRefParser),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: undefined,
       onBeforeSignup: undefined,
@@ -139,21 +139,21 @@ describe('mapAuth', () => {
 
   test('should map full config correctly', () => {
     const auth = Fixtures.AUTH.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [
+    const entityRefParser = makeRefParser('Entity', [
       auth.userEntity,
       auth.externalAuthEntity,
     ])
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       auth.methods.email.emailVerification.clientRoute,
       auth.methods.email.passwordReset.clientRoute,
     ])
 
-    const result = mapAuth(auth, parseEntityRef, parseRouteRef)
+    const result = mapAuth(auth, entityRefParser, routeRefParser)
 
     expect(result).toStrictEqual({
-      userEntity: parseEntityRef(auth.userEntity),
-      externalAuthEntity: parseEntityRef(auth.externalAuthEntity),
-      methods: mapAuthMethods(auth.methods, parseRouteRef),
+      userEntity: entityRefParser(auth.userEntity),
+      externalAuthEntity: entityRefParser(auth.externalAuthEntity),
+      methods: mapAuthMethods(auth.methods, routeRefParser),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
       onBeforeSignup: mapExtImport(auth.onBeforeSignup),
@@ -170,10 +170,10 @@ describe('mapAuth', () => {
       methods: {},
       onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
     }
-    const parseEntityRef = makeRefParser('Entity', [])
-    const parseRouteRef = makeRefParser('Route', [])
+    const entityRefParser = makeRefParser('Entity', [])
+    const routeRefParser = makeRefParser('Route', [])
 
-    expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError()
+    expect(() => mapAuth(auth, entityRefParser, routeRefParser)).toThrowError()
   })
 
   test('should throw if externalAuthEntity ref is not provided when defined', () => {
@@ -183,19 +183,19 @@ describe('mapAuth', () => {
       methods: {},
       onAuthFailedRedirectTo: Fixtures.AUTH.CONFIG.onAuthFailedRedirectTo,
     }
-    const parseEntityRef = makeRefParser('Entity', [auth.userEntity])
-    const parseRouteRef = makeRefParser('Route', [])
+    const entityRefParser = makeRefParser('Entity', [auth.userEntity])
+    const routeRefParser = makeRefParser('Route', [])
 
-    expect(() => mapAuth(auth, parseEntityRef, parseRouteRef)).toThrowError()
+    expect(() => mapAuth(auth, entityRefParser, routeRefParser)).toThrowError()
   })
 })
 
 describe('mapAuthMethods', () => {
   test('should map minimal config correctly', () => {
     const authMethods: UserApi.AuthMethods = {}
-    const parseRouteRef = makeRefParser('Route', [])
+    const routeRefParser = makeRefParser('Route', [])
 
-    const result = mapAuthMethods(authMethods, parseRouteRef)
+    const result = mapAuthMethods(authMethods, routeRefParser)
 
     expect(result).toStrictEqual({
       usernameAndPassword: undefined,
@@ -209,12 +209,12 @@ describe('mapAuthMethods', () => {
 
   test('should map full config correctly', () => {
     const authMethods = Fixtures.AUTH.CONFIG.methods
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       authMethods.email.emailVerification.clientRoute,
       authMethods.email.passwordReset.clientRoute,
     ])
 
-    const result = mapAuthMethods(authMethods, parseRouteRef)
+    const result = mapAuthMethods(authMethods, routeRefParser)
 
     expect(result).toStrictEqual({
       usernameAndPassword: mapUsernameAndPassword(
@@ -225,7 +225,7 @@ describe('mapAuthMethods', () => {
       gitHub: mapExternalAuth(authMethods.gitHub),
       keycloak: mapExternalAuth(authMethods.keycloak),
       email:
-        authMethods.email && mapEmailAuth(authMethods.email, parseRouteRef),
+        authMethods.email && mapEmailAuth(authMethods.email, routeRefParser),
     } satisfies AppSpec.AuthMethods)
   })
 })
@@ -237,12 +237,12 @@ describe('mapEmailAuth', () => {
       emailVerification: Fixtures.AUTH.CONFIG.methods.email.emailVerification,
       passwordReset: Fixtures.AUTH.CONFIG.methods.email.passwordReset,
     }
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       emailAuth.emailVerification.clientRoute,
       emailAuth.passwordReset.clientRoute,
     ])
 
-    const result = mapEmailAuth(emailAuth, parseRouteRef)
+    const result = mapEmailAuth(emailAuth, routeRefParser)
 
     expect(result).toStrictEqual({
       fromField: {
@@ -251,21 +251,21 @@ describe('mapEmailAuth', () => {
       },
       emailVerification: mapEmailVerification(
         emailAuth.emailVerification,
-        parseRouteRef
+        routeRefParser
       ),
-      passwordReset: mapPasswordReset(emailAuth.passwordReset, parseRouteRef),
+      passwordReset: mapPasswordReset(emailAuth.passwordReset, routeRefParser),
       userSignupFields: undefined,
     } satisfies AppSpec.EmailAuthConfig)
   })
 
   test('should map full config correctly', () => {
     const emailAuth = Fixtures.AUTH.CONFIG.methods.email
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       emailAuth.emailVerification.clientRoute,
       emailAuth.passwordReset.clientRoute,
     ])
 
-    const result = mapEmailAuth(emailAuth, parseRouteRef)
+    const result = mapEmailAuth(emailAuth, routeRefParser)
 
     expect(result).toStrictEqual({
       userSignupFields: mapExtImport(emailAuth.userSignupFields),
@@ -275,9 +275,9 @@ describe('mapEmailAuth', () => {
       },
       emailVerification: mapEmailVerification(
         emailAuth.emailVerification,
-        parseRouteRef
+        routeRefParser
       ),
-      passwordReset: mapPasswordReset(emailAuth.passwordReset, parseRouteRef),
+      passwordReset: mapPasswordReset(emailAuth.passwordReset, routeRefParser),
     } satisfies AppSpec.EmailAuthConfig)
   })
 
@@ -291,11 +291,11 @@ describe('mapEmailAuth', () => {
         clientRoute: 'undefined',
       },
     }
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       emailAuth.passwordReset.clientRoute,
     ])
 
-    expect(() => mapEmailAuth(emailAuth, parseRouteRef)).toThrowError()
+    expect(() => mapEmailAuth(emailAuth, routeRefParser)).toThrowError()
   })
 
   test('should throw if password reset client route is not provided when defined', () => {
@@ -307,11 +307,11 @@ describe('mapEmailAuth', () => {
         clientRoute: 'undefined',
       },
     }
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       emailAuth.emailVerification.clientRoute,
     ])
 
-    expect(() => mapEmailAuth(emailAuth, parseRouteRef)).toThrowError()
+    expect(() => mapEmailAuth(emailAuth, routeRefParser)).toThrowError()
   })
 })
 
@@ -321,15 +321,15 @@ describe('mapEmailVerification', () => {
       clientRoute:
         Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute,
     }
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       emailVerification.clientRoute,
     ])
 
-    const result = mapEmailVerification(emailVerification, parseRouteRef)
+    const result = mapEmailVerification(emailVerification, routeRefParser)
 
     expect(result).toStrictEqual({
       getEmailContentFn: undefined,
-      clientRoute: parseRouteRef(
+      clientRoute: routeRefParser(
         Fixtures.AUTH.CONFIG.methods.email.emailVerification.clientRoute
       ),
     } satisfies AppSpec.EmailVerificationConfig)
@@ -338,15 +338,15 @@ describe('mapEmailVerification', () => {
   test('should map full config correctly', () => {
     const emailVerification =
       Fixtures.AUTH.CONFIG.methods.email.emailVerification
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       emailVerification.clientRoute,
     ])
 
-    const result = mapEmailVerification(emailVerification, parseRouteRef)
+    const result = mapEmailVerification(emailVerification, routeRefParser)
 
     expect(result).toStrictEqual({
       getEmailContentFn: mapExtImport(emailVerification.getEmailContentFn),
-      clientRoute: parseRouteRef(emailVerification.clientRoute),
+      clientRoute: routeRefParser(emailVerification.clientRoute),
     } satisfies AppSpec.EmailVerificationConfig)
   })
 })
@@ -356,13 +356,13 @@ describe('mapPasswordReset', () => {
     const passwordReset: UserApi.PasswordResetConfig = {
       clientRoute: Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
     }
-    const parseRouteRef = makeRefParser('Route', [passwordReset.clientRoute])
+    const routeRefParser = makeRefParser('Route', [passwordReset.clientRoute])
 
-    const result = mapPasswordReset(passwordReset, parseRouteRef)
+    const result = mapPasswordReset(passwordReset, routeRefParser)
 
     expect(result).toStrictEqual({
       getEmailContentFn: undefined,
-      clientRoute: parseRouteRef(
+      clientRoute: routeRefParser(
         Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute
       ),
     } satisfies AppSpec.PasswordResetConfig)
@@ -370,17 +370,17 @@ describe('mapPasswordReset', () => {
 
   test('should map full config correctly', () => {
     const passwordResetConfig = Fixtures.AUTH.CONFIG.methods.email.passwordReset
-    const parseRouteRef = makeRefParser('Route', [
+    const routeRefParser = makeRefParser('Route', [
       Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
     ])
 
-    const result = mapPasswordReset(passwordResetConfig, parseRouteRef)
+    const result = mapPasswordReset(passwordResetConfig, routeRefParser)
 
     expect(result).toStrictEqual({
       getEmailContentFn: mapExtImport(
         Fixtures.AUTH.CONFIG.methods.email.passwordReset.getEmailContentFn
       ),
-      clientRoute: parseRouteRef(
+      clientRoute: routeRefParser(
         Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute
       ),
     } satisfies AppSpec.PasswordResetConfig)
@@ -590,13 +590,13 @@ describe('mapPage', () => {
 describe('mapRoute', () => {
   test('should map full config correctly', () => {
     const route = Fixtures.ROUTES.FULL.CONFIG
-    const parsePageRef = makeRefParser('Page', [route.to])
+    const pageRefParser = makeRefParser('Page', [route.to])
 
-    const result = mapRoute(route, parsePageRef)
+    const result = mapRoute(route, pageRefParser)
 
     expect(result).toStrictEqual({
       path: route.path,
-      to: parsePageRef(route.to),
+      to: pageRefParser(route.to),
     } satisfies AppSpec.Route)
   })
 })
@@ -604,9 +604,9 @@ describe('mapRoute', () => {
 describe('mapOperationConfig', () => {
   test('should map minimal query config correctly', () => {
     const query = Fixtures.QUERIES.MINIMAL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    const result = mapOperationConfig(query, parseEntityRef)
+    const result = mapOperationConfig(query, entityRefParser)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(query.fn),
@@ -617,29 +617,29 @@ describe('mapOperationConfig', () => {
 
   test('should map query config correctly', () => {
     const query = Fixtures.QUERIES.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', query.entities)
+    const entityRefParser = makeRefParser('Entity', query.entities)
 
-    const result = mapOperationConfig(query, parseEntityRef)
+    const result = mapOperationConfig(query, entityRefParser)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(query.fn),
-      entities: query.entities.map(parseEntityRef),
+      entities: query.entities.map(entityRefParser),
       auth: query.auth,
     } satisfies AppSpec.Query)
   })
 
   test('should throw if entity ref is not provided in query config', () => {
     const query: UserApi.QueryConfig = Fixtures.QUERIES.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    expect(() => mapOperationConfig(query, parseEntityRef)).toThrowError()
+    expect(() => mapOperationConfig(query, entityRefParser)).toThrowError()
   })
 
   test('should map minimal action config correctly', () => {
     const action = Fixtures.ACTIONS.MINIMAL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    const result = mapOperationConfig(action, parseEntityRef)
+    const result = mapOperationConfig(action, entityRefParser)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(action.fn),
@@ -650,55 +650,55 @@ describe('mapOperationConfig', () => {
 
   test('should map action config correctly', () => {
     const action = Fixtures.ACTIONS.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', action.entities)
+    const entityRefParser = makeRefParser('Entity', action.entities)
 
-    const result = mapOperationConfig(action, parseEntityRef)
+    const result = mapOperationConfig(action, entityRefParser)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(action.fn),
-      entities: action.entities.map(parseEntityRef),
+      entities: action.entities.map(entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action)
   })
 
   test('should throw if entity ref is not provided in action config', () => {
     const action = Fixtures.ACTIONS.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    expect(() => mapOperationConfig(action, parseEntityRef)).toThrowError()
+    expect(() => mapOperationConfig(action, entityRefParser)).toThrowError()
   })
 })
 
 describe('mapCrud', () => {
   test('should map minimal config correctly', () => {
     const crud = Fixtures.CRUDS.MINIMAL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [crud.entity])
+    const entityRefParser = makeRefParser('Entity', [crud.entity])
 
-    const result = mapCrud(crud, parseEntityRef)
+    const result = mapCrud(crud, entityRefParser)
 
     expect(result).toStrictEqual({
-      entity: parseEntityRef(crud.entity),
+      entity: entityRefParser(crud.entity),
       operations: mapCrudOperations({}),
     } satisfies AppSpec.Crud)
   })
 
   test('should map full config correctly', () => {
     const crud = Fixtures.CRUDS.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [crud.entity])
+    const entityRefParser = makeRefParser('Entity', [crud.entity])
 
-    const result = mapCrud(crud, parseEntityRef)
+    const result = mapCrud(crud, entityRefParser)
 
     expect(result).toStrictEqual({
-      entity: parseEntityRef(crud.entity),
+      entity: entityRefParser(crud.entity),
       operations: mapCrudOperations(crud.operations),
     } satisfies AppSpec.Crud)
   })
 
   test('should throw if entity ref is not provided', () => {
     const crud: UserApi.Crud = Fixtures.CRUDS.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    expect(() => mapCrud(crud, parseEntityRef)).toThrowError()
+    expect(() => mapCrud(crud, entityRefParser)).toThrowError()
   })
 })
 
@@ -774,9 +774,9 @@ describe('mapApiNamespace', () => {
 describe('mapApiConfig', () => {
   test('should map minimal config correctly', () => {
     const api = Fixtures.APIS.MINIMAL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    const result = mapApiConfig(api, parseEntityRef)
+    const result = mapApiConfig(api, entityRefParser)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(api.fn),
@@ -789,14 +789,14 @@ describe('mapApiConfig', () => {
 
   test('should map full config correctly', () => {
     const api = Fixtures.APIS.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', api.entities)
+    const entityRefParser = makeRefParser('Entity', api.entities)
 
-    const result = mapApiConfig(api, parseEntityRef)
+    const result = mapApiConfig(api, entityRefParser)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(api.fn),
       middlewareConfigFn: mapExtImport(api.middlewareConfigFn),
-      entities: api.entities.map(parseEntityRef),
+      entities: api.entities.map(entityRefParser),
       httpRoute: mapHttpRoute(api.httpRoute),
       auth: api.auth,
     } satisfies AppSpec.Api)
@@ -819,9 +819,9 @@ describe('mapHttpRoute', () => {
 describe('mapJob', () => {
   test('should map minimal config correctly', () => {
     const job = Fixtures.JOBS.MINIMAL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    const result = mapJob(job, parseEntityRef)
+    const result = mapJob(job, entityRefParser)
 
     expect(result).toStrictEqual({
       executor: job.executor,
@@ -833,23 +833,23 @@ describe('mapJob', () => {
 
   test('should map full config correctly', () => {
     const job = Fixtures.JOBS.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', job.entities)
+    const entityRefParser = makeRefParser('Entity', job.entities)
 
-    const result = mapJob(job, parseEntityRef)
+    const result = mapJob(job, entityRefParser)
 
     expect(result).toStrictEqual({
       executor: job.executor,
       perform: mapPerform(job.perform),
       schedule: mapSchedule(job.schedule),
-      entities: job.entities.map(parseEntityRef),
+      entities: job.entities.map(entityRefParser),
     } satisfies AppSpec.Job)
   })
 
   test('should throw if entity ref is not provided', () => {
     const job = Fixtures.JOBS.FULL.CONFIG
-    const parseEntityRef = makeRefParser('Entity', [])
+    const entityRefParser = makeRefParser('Entity', [])
 
-    expect(() => mapJob(job, parseEntityRef)).toThrowError()
+    expect(() => mapJob(job, entityRefParser)).toThrowError()
   })
 })
 

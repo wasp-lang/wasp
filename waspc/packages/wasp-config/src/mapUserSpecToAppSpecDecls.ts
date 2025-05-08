@@ -31,25 +31,25 @@ export function mapUserSpecToAppSpecDecls(
   const pageNames = Array.from(pages.keys())
   const routeNames = Array.from(routes.keys())
 
-  const parseEntityRef = makeRefParser('Entity', entityNames)
-  const parsePageRef = makeRefParser('Page', pageNames)
-  const parseRouteRef = makeRefParser('Route', routeNames)
+  const entityRefParser = makeRefParser('Entity', entityNames)
+  const pageRefParser = makeRefParser('Page', pageNames)
+  const routeRefParser = makeRefParser('Route', routeNames)
 
   const pageDecls = mapToDecls(pages, 'Page', mapPage)
   const routeDecls = mapToDecls(routes, 'Route', (routeConfig) =>
-    mapRoute(routeConfig, parsePageRef)
+    mapRoute(routeConfig, pageRefParser)
   )
   const actionDecls = mapToDecls(actions, 'Action', (actionConfig) =>
-    mapOperationConfig(actionConfig, parseEntityRef)
+    mapOperationConfig(actionConfig, entityRefParser)
   )
   const queryDecls = mapToDecls(queries, 'Query', (queryConfig) =>
-    mapOperationConfig(queryConfig, parseEntityRef)
+    mapOperationConfig(queryConfig, entityRefParser)
   )
   const apiDecls = mapToDecls(apis, 'Api', (apiConfig) =>
-    mapApiConfig(apiConfig, parseEntityRef)
+    mapApiConfig(apiConfig, entityRefParser)
   )
   const jobDecls = mapToDecls(jobs, 'Job', (jobConfig) =>
-    mapJob(jobConfig, parseEntityRef)
+    mapJob(jobConfig, entityRefParser)
   )
   const apiNamespaceDecls = mapToDecls(
     apiNamespaces,
@@ -57,7 +57,7 @@ export function mapUserSpecToAppSpecDecls(
     mapApiNamespace
   )
   const crudDecls = mapToDecls(cruds, 'Crud', (crudConfig) =>
-    mapCrud(crudConfig, parseEntityRef)
+    mapCrud(crudConfig, entityRefParser)
   )
 
   const appDecl = {
@@ -65,8 +65,8 @@ export function mapUserSpecToAppSpecDecls(
     declName: app.name,
     declValue: mapApp(
       app.config,
-      parseEntityRef,
-      parseRouteRef,
+      entityRefParser,
+      routeRefParser,
       auth,
       server,
       client,
@@ -111,20 +111,20 @@ function mapToDecls<T, DeclType extends AppSpec.Decl['declType']>(
 
 export function mapOperationConfig(
   config: User.QueryConfig,
-  parseEntityRef: RefParser<'Entity'>
+  entityRefParser: RefParser<'Entity'>
 ): AppSpec.Query
 export function mapOperationConfig(
   config: User.ActionConfig,
-  parseEntityRef: RefParser<'Entity'>
+  entityRefParser: RefParser<'Entity'>
 ): AppSpec.Action
 export function mapOperationConfig(
   config: User.ActionConfig | User.QueryConfig,
-  parseEntityRef: RefParser<'Entity'>
+  entityRefParser: RefParser<'Entity'>
 ): AppSpec.Action | AppSpec.Query {
   const { fn, entities, auth } = config
   return {
     fn: mapExtImport(fn),
-    entities: entities && entities.map(parseEntityRef),
+    entities: entities && entities.map(entityRefParser),
     auth,
   }
 }
@@ -155,13 +155,13 @@ export function mapHttpRoute(httpRoute: User.HttpRoute): AppSpec.HttpRoute {
 
 export function mapApiConfig(
   config: User.ApiConfig,
-  parseEntityRef: RefParser<'Entity'>
+  entityRefParser: RefParser<'Entity'>
 ): AppSpec.Api {
   const { fn, middlewareConfigFn, entities, httpRoute, auth } = config
   return {
     fn: mapExtImport(fn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
-    entities: entities && entities.map(parseEntityRef),
+    entities: entities && entities.map(entityRefParser),
     httpRoute: mapHttpRoute(httpRoute),
     auth,
   }
@@ -180,8 +180,8 @@ export function mapApiNamespace(
 export function mapApp(
   app: User.AppConfig,
   // TODO: Make this better, optional props are problematic so I have to pass the parsers first
-  parseEntityRef: RefParser<'Entity'>,
-  parseRouteRef: RefParser<'Route'>,
+  entityRefParser: RefParser<'Entity'>,
+  routeRefParser: RefParser<'Route'>,
   auth?: User.AuthConfig,
   server?: User.ServerConfig,
   client?: User.ClientConfig,
@@ -194,7 +194,7 @@ export function mapApp(
     wasp,
     title,
     head,
-    auth: auth && mapAuth(auth, parseEntityRef, parseRouteRef),
+    auth: auth && mapAuth(auth, entityRefParser, routeRefParser),
     server: server && mapServer(server),
     client: client && mapClient(client),
     webSocket: webSocket && mapWebSocket(webSocket),
@@ -205,8 +205,8 @@ export function mapApp(
 
 export function mapAuth(
   auth: User.AuthConfig,
-  parseEntityRef: RefParser<'Entity'>,
-  parseRouteRef: RefParser<'Route'>
+  entityRefParser: RefParser<'Entity'>,
+  routeRefParser: RefParser<'Route'>
 ): AppSpec.Auth {
   const {
     userEntity,
@@ -221,13 +221,13 @@ export function mapAuth(
     onAfterLogin,
   } = auth
   return {
-    userEntity: parseEntityRef(userEntity),
+    userEntity: entityRefParser(userEntity),
     // TODO: Abstract away this pattern
     externalAuthEntity:
       externalAuthEntity === undefined
         ? undefined
-        : parseEntityRef(externalAuthEntity),
-    methods: mapAuthMethods(methods, parseRouteRef),
+        : entityRefParser(externalAuthEntity),
+    methods: mapAuthMethods(methods, routeRefParser),
     onAuthFailedRedirectTo,
     onAuthSucceededRedirectTo,
     onBeforeSignup: onBeforeSignup && mapExtImport(onBeforeSignup),
@@ -241,7 +241,7 @@ export function mapAuth(
 
 export function mapAuthMethods(
   methods: User.AuthMethods,
-  parseRouteRef: RefParser<'Route'>
+  routeRefParser: RefParser<'Route'>
 ): AppSpec.AuthMethods {
   // TODO: check keyof danger, effective ts
   const { usernameAndPassword, discord, google, gitHub, keycloak, email } =
@@ -253,7 +253,7 @@ export function mapAuthMethods(
     google: google && mapExternalAuth(google),
     gitHub: gitHub && mapExternalAuth(gitHub),
     keycloak: keycloak && mapExternalAuth(keycloak),
-    email: email && mapEmailAuth(email, parseRouteRef),
+    email: email && mapEmailAuth(email, routeRefParser),
   }
 }
 
@@ -278,7 +278,7 @@ export function mapExternalAuth(
 
 export function mapEmailAuth(
   emailConfig: User.EmailAuthConfig,
-  parseRouteRef: RefParser<'Route'>
+  routeRefParser: RefParser<'Route'>
 ): AppSpec.EmailAuthConfig {
   const {
     userSignupFields,
@@ -292,30 +292,30 @@ export function mapEmailAuth(
       name,
       email,
     },
-    emailVerification: mapEmailVerification(emailVerification, parseRouteRef),
-    passwordReset: mapPasswordReset(passwordReset, parseRouteRef),
+    emailVerification: mapEmailVerification(emailVerification, routeRefParser),
+    passwordReset: mapPasswordReset(passwordReset, routeRefParser),
   }
 }
 
 export function mapEmailVerification(
   emailVerification: User.EmailVerificationConfig,
-  parseRouteRef: RefParser<'Route'>
+  routeRefParser: RefParser<'Route'>
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailVerification
   return {
     getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
-    clientRoute: parseRouteRef(clientRoute),
+    clientRoute: routeRefParser(clientRoute),
   }
 }
 
 export function mapPasswordReset(
   passwordReset: User.PasswordResetConfig,
-  parseRouteRef: RefParser<'Route'>
+  routeRefParser: RefParser<'Route'>
 ): AppSpec.PasswordResetConfig {
   const { getEmailContentFn, clientRoute } = passwordReset
   return {
     getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
-    clientRoute: parseRouteRef(clientRoute),
+    clientRoute: routeRefParser(clientRoute),
   }
 }
 
@@ -372,14 +372,14 @@ export function mapWebSocket(
 
 export function mapJob(
   job: User.JobConfig,
-  parseEntityRef: RefParser<'Entity'>
+  entityRefParser: RefParser<'Entity'>
 ): AppSpec.Job {
   const { executor, perform, schedule, entities } = job
   return {
     executor,
     perform: mapPerform(perform),
     schedule: schedule && mapSchedule(schedule),
-    entities: entities && entities.map(parseEntityRef),
+    entities: entities && entities.map(entityRefParser),
   }
 }
 
@@ -402,22 +402,22 @@ export function mapPerform(perform: User.Perform): AppSpec.Perform {
 
 export function mapRoute(
   route: User.RouteConfig,
-  parsePageRef: RefParser<'Page'>
+  pageRefParser: RefParser<'Page'>
 ): AppSpec.Route {
   const { path, to } = route
   return {
     path,
-    to: parsePageRef(to),
+    to: pageRefParser(to),
   }
 }
 
 export function mapCrud(
   crudConfig: User.Crud,
-  parseEntityRef: RefParser<'Entity'>
+  entityRefParser: RefParser<'Entity'>
 ): AppSpec.Crud {
   const { entity, operations } = crudConfig
   return {
-    entity: parseEntityRef(entity),
+    entity: entityRefParser(entity),
     operations: mapCrudOperations(operations),
   }
 }

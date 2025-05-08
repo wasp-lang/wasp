@@ -18,9 +18,9 @@ import * as Fixtures from './testFixtures.js'
 describe('mapUserSpecToAppSpecDecls', () => {
   test('should map full app using mapping functions correctly', () => {
     const userSpec = Fixtures.createUserSpec('full')
-    const parseEntityRef = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
-    const parseRouteRef = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
-    const parsePageRef = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
+    const entityRefParser = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
+    const routeRefParser = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
+    const pageRefParser = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
 
     const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
@@ -28,8 +28,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
         userSpec.app.config,
-        parseEntityRef,
-        parseRouteRef,
+        entityRefParser,
+        routeRefParser,
         userSpec.auth,
         userSpec.server,
         userSpec.client,
@@ -40,89 +40,92 @@ describe('mapUserSpecToAppSpecDecls', () => {
     )
     testDeclMapping({
       declType: 'Page',
-      fixtures: Fixtures.PAGES,
-      property: 'pages',
-      mapper: mapPage,
+      declFixtures: Fixtures.PAGES,
+      declMap: userSpec.pages,
+      mapUserSpecToAppSpec: mapPage,
     })
     testDeclMapping({
       declType: 'Route',
-      fixtures: Fixtures.ROUTES,
-      property: 'routes',
-      mapper: mapRoute,
-      extraArgs: [parsePageRef],
+      declFixtures: Fixtures.ROUTES,
+      declMap: userSpec.routes,
+      mapUserSpecToAppSpec: mapRoute,
+      parserArgs: [pageRefParser],
     })
     testDeclMapping({
       declType: 'Query',
-      fixtures: Fixtures.QUERIES,
-      property: 'queries',
-      mapper: mapOperationConfig,
-      extraArgs: [parseEntityRef],
+      declFixtures: Fixtures.QUERIES,
+      declMap: userSpec.queries,
+      mapUserSpecToAppSpec: mapOperationConfig,
+      parserArgs: [entityRefParser],
     })
     testDeclMapping({
       declType: 'Action',
-      fixtures: Fixtures.ACTIONS,
-      property: 'actions',
-      mapper: mapOperationConfig,
-      extraArgs: [parseEntityRef],
+      declFixtures: Fixtures.ACTIONS,
+      declMap: userSpec.actions,
+      mapUserSpecToAppSpec: mapOperationConfig,
+      parserArgs: [entityRefParser],
     })
     testDeclMapping({
       declType: 'Crud',
-      fixtures: Fixtures.CRUDS,
-      property: 'cruds',
-      mapper: mapCrud,
-      extraArgs: [parseEntityRef],
+      declFixtures: Fixtures.CRUDS,
+      declMap: userSpec.cruds,
+      mapUserSpecToAppSpec: mapCrud,
+      parserArgs: [entityRefParser],
     })
     testDeclMapping({
       declType: 'ApiNamespace',
-      fixtures: Fixtures.API_NAMESPACES,
-      property: 'apiNamespaces',
-      mapper: mapApiNamespace,
+      declFixtures: Fixtures.API_NAMESPACES,
+      declMap: userSpec.apiNamespaces,
+      mapUserSpecToAppSpec: mapApiNamespace,
     })
     testDeclMapping({
       declType: 'Api',
-      fixtures: Fixtures.APIS,
-      property: 'apis',
-      mapper: mapApiConfig,
-      extraArgs: [parseEntityRef],
+      declFixtures: Fixtures.APIS,
+      declMap: userSpec.apis,
+      mapUserSpecToAppSpec: mapApiConfig,
+      parserArgs: [entityRefParser],
     })
     testDeclMapping({
       declType: 'Job',
-      fixtures: Fixtures.JOBS,
-      property: 'jobs',
-      mapper: mapJob,
-      extraArgs: [parseEntityRef],
+      declFixtures: Fixtures.JOBS,
+      declMap: userSpec.jobs,
+      mapUserSpecToAppSpec: mapJob,
+      parserArgs: [entityRefParser],
     })
 
-    function testDeclMapping<T extends keyof AppSpec.DeclTypeToValue>({
+    type DeclFixtures = Record<string, { NAME: string; CONFIG: any }>
+    function testDeclMapping({
       declType,
-      fixtures,
-      property,
-      mapper,
-      extraArgs = [],
+      declFixtures,
+      declMap,
+      mapUserSpecToAppSpec,
+      parserArgs = [],
     }: {
-      declType: T
-      fixtures: Record<string, { NAME: string }>
-      property: string
-      mapper: (item: any, ...args: any[]) => any
-      extraArgs?: any[]
+      declType: keyof AppSpec.DeclTypeToValue
+      declFixtures: DeclFixtures
+      declMap: Map<string, any>
+      mapUserSpecToAppSpec: (item: any, ...args: any[]) => any
+      parserArgs?: any[]
     }): void {
-      Object.values(fixtures).forEach(({ NAME }) => {
+      Object.values(declFixtures).forEach(({ NAME }) => {
         const decl = getDecl(result, declType, NAME)
 
-        const item = userSpec[property].get(NAME)
+        const item = declMap.get(NAME)
         if (!item) {
           throw new Error(`${declType} config not found for ${NAME}`)
         }
 
-        expect(decl.declValue).toStrictEqual(mapper(item, ...extraArgs))
+        expect(decl.declValue).toStrictEqual(
+          mapUserSpecToAppSpec(item, ...parserArgs)
+        )
       })
     }
   })
 
   test('should map mininmal app using mapping functions correctly', () => {
     const userSpec = Fixtures.createUserSpec('minimal')
-    const parseEntityRef = makeRefParser('Entity', [])
-    const parseRouteRef = makeRefParser('Route', [])
+    const entityRefParser = makeRefParser('Entity', [])
+    const routeRefParser = makeRefParser('Route', [])
 
     const result = mapUserSpecToAppSpecDecls(userSpec, [])
 
@@ -130,8 +133,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
         userSpec.app.config,
-        parseEntityRef,
-        parseRouteRef,
+        entityRefParser,
+        routeRefParser,
         userSpec.auth,
         userSpec.server,
         userSpec.client,
