@@ -1,5 +1,5 @@
 import { HttpError } from 'wasp/server'
-import type {
+import {
   type OnAfterEmailVerifiedHook,
   type OnAfterLoginHook,
   type OnAfterSignupHook,
