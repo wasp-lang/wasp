@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-import type { UserEmailSignupFields, UserSignupFields } from 'wasp/auth/providers/types'
 import {
   createProviderId,
   createUser,
@@ -40,7 +39,7 @@ export function getSignupRoute({
   isEmailAutoVerified: boolean
 }) {
   return async function signup(
-    req: Request<{ email: string; password: string } & UserEmailSignupFields>,
+    req: Request<{ email: string; password: string }>,
     res: Response,
   ): Promise<Response<{ success: true }>> {
     const fields = req.body
