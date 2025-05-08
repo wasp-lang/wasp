@@ -1,8 +1,8 @@
 import {
-  type GetPasswordResetEmailContentFn,
   type GetVerificationEmailContentFn,
+  type GetPasswordResetEmailContentFn,
   defineUserSignupFields,
-} from 'wasp/server/auth'
+} from "wasp/server/auth";
 
 export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
   passwordResetLink,
