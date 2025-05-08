@@ -57,6 +57,8 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
  * This utility is used to enforce strict type compatibility between types,
  * preventing unexpected extra properties that could cause bugs or confusion.
  * 
+ * Inspired by: https://stackoverflow.com/questions/49580725/is-it-possible-to-restrict-typescript-object-to-contain-only-properties-define
+ * 
  * @template T - The base type that defines the allowed properties
  * @template U - The type to be constrained (must extend T)
  * 
