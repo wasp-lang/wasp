@@ -4,17 +4,6 @@ import type { Prisma } from '@prisma/client'
 import type { Expand, Exact } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
 
-
-{=# emailUserSignupFields.isDefined =}
-{=& emailUserSignupFields.importStatement =}
-const _waspEmailUserSignupFields = {= emailUserSignupFields.importIdentifier =}
-{=/ emailUserSignupFields.isDefined =}
-
-{=# usernameAndPasswordUserSignupFields.isDefined =}
-{=& usernameAndPasswordUserSignupFields.importStatement =}
-const _waspUsernameAndPasswordUserSignupFields = {= usernameAndPasswordUserSignupFields.importIdentifier =}
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
-
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
   fields: Exact<UserSignupFields, T>
@@ -23,13 +12,15 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 }
 
 {=# emailUserSignupFields.isDefined =}
+{=& emailUserSignupFields.importStatement =}
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof _waspEmailUserSignupFields>;
+export type UserEmailSignupFields = InferUserSignupFields<typeof {= emailUserSignupFields.importIdentifier =}>;
 {=/ emailUserSignupFields.isDefined =}
 
 {=# usernameAndPasswordUserSignupFields.isDefined =}
+{=& usernameAndPasswordUserSignupFields.importStatement =}
 // PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof _waspUsernameAndPasswordUserSignupFields>;
+export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {= usernameAndPasswordUserSignupFields.importIdentifier =}>;
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 /**
