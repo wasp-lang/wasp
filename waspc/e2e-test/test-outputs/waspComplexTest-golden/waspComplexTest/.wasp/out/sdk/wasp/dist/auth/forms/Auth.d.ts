@@ -11,3 +11,4 @@ declare function Auth({ state, appearance, logo, socialLayout, additionalSignupF
     additionalSignupFields?: AdditionalSignupFields;
 }): import("react").JSX.Element;
 export default Auth;
+//# sourceMappingURL=Auth.d.ts.map

@@ -1,5 +1,5 @@
 module Wasp.Project.ExternalConfig
-  ( analyzeExternalConfigs,
+  ( readExternalConfigs,
     ExternalConfigs (..),
   )
 where
@@ -13,27 +13,25 @@ import Wasp.Project.Common
     SrcTsConfigFile,
     WaspProjectDir,
   )
-import Wasp.Project.ExternalConfig.PackageJson (analyzePackageJsonFile)
-import Wasp.Project.ExternalConfig.TsConfig (analyzeSrcTsConfigFile)
+import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
+import Wasp.Project.ExternalConfig.TsConfig (readSrcTsConfigFile)
 
 data ExternalConfigs = ExternalConfigs
   { _packageJson :: PackageJson,
-    _tsConfig :: TsConfig,
-    _srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
+    _srcTsConfig :: TsConfig
   }
   deriving (Show)
 
-analyzeExternalConfigs ::
+readExternalConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
-  IO (Either [CompileError] ExternalConfigs)
-analyzeExternalConfigs waspDir srcTsConfigPath = runExceptT $ do
-  packageJsonContent <- ExceptT $ analyzePackageJsonFile waspDir
-  tsConfigContent <- ExceptT $ analyzeSrcTsConfigFile waspDir srcTsConfigPath
+  IO (Either CompileError ExternalConfigs)
+readExternalConfigs waspDir srcTsConfigPath = runExceptT $ do
+  packageJsonContent <- ExceptT $ readPackageJsonFile waspDir
+  srcTsConfigContent <- ExceptT $ readSrcTsConfigFile waspDir srcTsConfigPath
 
   return $
     ExternalConfigs
       { _packageJson = packageJsonContent,
-        _tsConfig = tsConfigContent,
-        _srcTsConfigPath = srcTsConfigPath
+        _srcTsConfig = srcTsConfigContent
       }

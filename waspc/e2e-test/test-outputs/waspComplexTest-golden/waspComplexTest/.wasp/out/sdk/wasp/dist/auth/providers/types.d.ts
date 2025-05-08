@@ -22,3 +22,4 @@ type FieldGetter<T> = (data: {
     [key: string]: unknown;
 }) => Promise<T | undefined> | T | undefined;
 export {};
+//# sourceMappingURL=types.d.ts.map
