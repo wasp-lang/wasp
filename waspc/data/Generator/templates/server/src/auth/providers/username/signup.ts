@@ -12,7 +12,7 @@ import {
   ensureValidPassword,
 } from 'wasp/auth/validation'
 import { validateAndGetUserFields } from 'wasp/auth/utils'
-import type { UserSignupFields, UserUsernameAndPasswordSignupFields } from 'wasp/auth/providers/types'
+import type { UserSignupFields } from 'wasp/auth/providers/types'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
 export function getSignupRoute({
