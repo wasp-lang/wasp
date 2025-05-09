@@ -4,9 +4,9 @@ Wasp Config is a library for defining a Wasp application specification in Typesc
 
 ## Important Notes
 
-The type definitions in this package are meant to mirror the AppSpec declarations defined in the `waspc` Haskell codebase. When making changes to this package, ensure that they align with the corresponding Haskell implementation.
+The `appSpec.ts` type definitions in this package are meant to mirror the AppSpec declarations defined in the `waspc` Haskell codebase. When making changes to this package, ensure that they align with the corresponding Haskell implementation.
 
-## Testing 
+## Testing
 
 ```bash
 npm run test
