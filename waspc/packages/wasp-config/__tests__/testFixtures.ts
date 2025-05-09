@@ -41,11 +41,11 @@ export function createUserSpec(configType: ConfigType): UserApi.UserSpec {
 }
 
 function createMinimalUserApp(): UserApi.App {
-  return new UserApi.App(APP.MINIMAL.NAME, APP.MINIMAL.CONFIG)
+  return new UserApi.App(APP.MINIMAL.name, APP.MINIMAL.config)
 }
 
 function createFullUserApp(): UserApi.App {
-  const app = new UserApi.App(APP.FULL.NAME, APP.FULL.CONFIG)
+  const app = new UserApi.App(APP.FULL.name, APP.FULL.config)
   app.auth(AUTH.FULL)
   app.client(CLIENT.FULL)
   app.server(SERVER.FULL)
@@ -55,10 +55,10 @@ function createFullUserApp(): UserApi.App {
 
   function addDecls(
     declName: string,
-    nameAndConfigs: Record<string, { NAME: string; CONFIG: unknown }>
+    nameAndConfigs: Record<string, { name: string; config: unknown }>
   ) {
-    Object.values(nameAndConfigs).forEach(({ NAME, CONFIG }) =>
-      app[declName](NAME, CONFIG)
+    Object.values(nameAndConfigs).forEach(({ name, config }) =>
+      app[declName](name, config)
     )
   }
 
@@ -115,81 +115,81 @@ export const EMAIL_FROM_FIELD = {
 
 export const PAGES = {
   MINIMAL: {
-    NAME: 'MinimalPage',
-    CONFIG: {
+    name: 'MinimalPage',
+    config: {
       component: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies MinimalConfig<UserApi.PageConfig>,
   },
   FULL: {
-    NAME: 'FullPage',
-    CONFIG: {
+    name: 'FullPage',
+    config: {
       component: EXT_IMPORT.FULL.NAMED,
       authRequired: true,
     } satisfies FullConfig<UserApi.PageConfig>,
   },
   EMAIL_VERIFICATION: {
-    NAME: 'EmailVerificationPage',
-    CONFIG: {
+    name: 'EmailVerificationPage',
+    config: {
       component: EXT_IMPORT.FULL.NAMED,
       authRequired: false,
     } satisfies FullConfig<UserApi.PageConfig>,
   },
   PASSWORD_RESET: {
-    NAME: 'PasswordResetPage',
-    CONFIG: {
+    name: 'PasswordResetPage',
+    config: {
       component: EXT_IMPORT.FULL.NAMED,
       authRequired: false,
     } satisfies FullConfig<UserApi.PageConfig>,
   },
 } as const
-export const ALL_PAGE_NAMES = Object.values(PAGES).map((page) => page.NAME)
+export const ALL_PAGE_NAMES = Object.values(PAGES).map((page) => page.name)
 
 // For simplicity sake we asserted `RouteConfig.to` as branded type
 // instead of creating a function which would accept branded string.
 export const ROUTES = {
   MINIMAL: {
-    NAME: 'MinimalRoute',
-    CONFIG: {
+    name: 'MinimalRoute',
+    config: {
       path: '/minimal',
-      to: PAGES.MINIMAL.NAME as string & { _brand: 'Page' },
+      to: PAGES.MINIMAL.name as string & { _brand: 'Page' },
     } satisfies MinimalConfig<UserApi.RouteConfig>,
   },
   FULL: {
-    NAME: 'FullRoute',
-    CONFIG: {
+    name: 'FullRoute',
+    config: {
       path: '/full',
-      to: PAGES.FULL.NAME as string & { _brand: 'Page' },
+      to: PAGES.FULL.name as string & { _brand: 'Page' },
     } satisfies FullConfig<UserApi.RouteConfig>,
   },
   EMAIL_VERIFICATION: {
-    NAME: 'EmailVerificationRoute',
-    CONFIG: {
+    name: 'EmailVerificationRoute',
+    config: {
       path: '/email-verification',
-      to: PAGES.EMAIL_VERIFICATION.NAME as string & { _brand: 'Page' },
+      to: PAGES.EMAIL_VERIFICATION.name as string & { _brand: 'Page' },
     } satisfies FullConfig<UserApi.RouteConfig>,
   },
   PASSWORD_RESET: {
-    NAME: 'PasswordResetRoute',
-    CONFIG: {
+    name: 'PasswordResetRoute',
+    config: {
       path: '/password-reset',
-      to: PAGES.PASSWORD_RESET.NAME as string & { _brand: 'Page' },
+      to: PAGES.PASSWORD_RESET.name as string & { _brand: 'Page' },
     } satisfies FullConfig<UserApi.RouteConfig>,
   },
 } as const
-export const ALL_ROUTE_NAMES = Object.values(ROUTES).map((route) => route.NAME)
+export const ALL_ROUTE_NAMES = Object.values(ROUTES).map((route) => route.name)
 
 export const QUERIES = {
   FULL: {
-    NAME: 'getTask',
-    CONFIG: {
+    name: 'getTask',
+    config: {
       fn: EXT_IMPORT.FULL.NAMED,
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies FullConfig<UserApi.QueryConfig>,
   },
   MINIMAL: {
-    NAME: 'getTasks',
-    CONFIG: {
+    name: 'getTasks',
+    config: {
       fn: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies MinimalConfig<UserApi.QueryConfig>,
   },
@@ -197,16 +197,16 @@ export const QUERIES = {
 
 export const ACTIONS = {
   FULL: {
-    NAME: 'createTask',
-    CONFIG: {
+    name: 'createTask',
+    config: {
       fn: EXT_IMPORT.FULL.NAMED,
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies FullConfig<UserApi.ActionConfig>,
   },
   MINIMAL: {
-    NAME: 'deleteTask',
-    CONFIG: {
+    name: 'deleteTask',
+    config: {
       fn: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies MinimalConfig<UserApi.ActionConfig>,
   },
@@ -233,15 +233,15 @@ export const CRUD_OPERATIONS = {
 
 export const CRUDS = {
   FULL: {
-    NAME: 'TaskCrud',
-    CONFIG: {
+    name: 'TaskCrud',
+    config: {
       entity: TASK_ENTITY,
       operations: CRUD_OPERATIONS.FULL,
     } satisfies FullConfig<UserApi.Crud>,
   },
   MINIMAL: {
-    NAME: 'EmptyTaskCrud',
-    CONFIG: {
+    name: 'EmptyTaskCrud',
+    config: {
       entity: TASK_ENTITY,
       operations: CRUD_OPERATIONS.MINIMAL,
     } satisfies MinimalConfig<UserApi.Crud>,
@@ -250,15 +250,15 @@ export const CRUDS = {
 
 export const API_NAMESPACES = {
   FULL: {
-    NAME: 'bar',
-    CONFIG: {
+    name: 'bar',
+    config: {
       middlewareConfigFn: EXT_IMPORT.FULL.NAMED,
       path: '/bar',
     } satisfies FullConfig<UserApi.ApiNamespaceConfig>,
   },
   MINIMAL: {
-    NAME: 'foo',
-    CONFIG: {
+    name: 'foo',
+    config: {
       middlewareConfigFn: EXT_IMPORT.MINIMAL.NAMED,
       path: '/foo',
     } satisfies MinimalConfig<UserApi.ApiNamespaceConfig>,
@@ -278,8 +278,8 @@ export const HTTP_ROUTES = {
 
 export const APIS = {
   FULL: {
-    NAME: 'barBaz',
-    CONFIG: {
+    name: 'barBaz',
+    config: {
       fn: EXT_IMPORT.FULL.NAMED,
       auth: true,
       httpRoute: HTTP_ROUTES.FULL,
@@ -288,8 +288,8 @@ export const APIS = {
     } satisfies FullConfig<UserApi.ApiConfig>,
   },
   MINIMAL: {
-    NAME: 'barFoo',
-    CONFIG: {
+    name: 'barFoo',
+    config: {
       fn: EXT_IMPORT.MINIMAL.NAMED,
       httpRoute: HTTP_ROUTES.MINIMAL,
     } satisfies MinimalConfig<UserApi.ApiConfig>,
@@ -323,8 +323,8 @@ export const PERFORM = {
 
 export const JOBS = {
   FULL: {
-    NAME: 'mySpecialJob',
-    CONFIG: {
+    name: 'mySpecialJob',
+    config: {
       executor: 'PgBoss',
       entities: [TASK_ENTITY],
       perform: PERFORM.FULL,
@@ -332,8 +332,8 @@ export const JOBS = {
     } satisfies FullConfig<UserApi.JobConfig>,
   },
   MINIMAL: {
-    NAME: 'mySimpleJob',
-    CONFIG: {
+    name: 'mySimpleJob',
+    config: {
       executor: 'PgBoss',
       perform: PERFORM.MINIMAL,
     } satisfies MinimalConfig<UserApi.JobConfig>,
@@ -342,16 +342,16 @@ export const JOBS = {
 
 export const APP = {
   FULL: {
-    NAME: 'todoApp',
-    CONFIG: {
+    name: 'todoApp',
+    config: {
       title: 'Todo App',
       wasp: { version: '0.16.3' },
       head: ['<link rel="icon" href="/favicon.ico" />'],
     } satisfies FullConfig<UserApi.AppConfig>,
   },
   MINIMAL: {
-    NAME: 'minimalApp',
-    CONFIG: {
+    name: 'minimalApp',
+    config: {
       title: 'Minimal App',
       wasp: { version: '0.16.3' },
     } satisfies MinimalConfig<UserApi.AppConfig>,
@@ -361,20 +361,20 @@ export const APP = {
 export const EMAIL_VERIFICATION = {
   FULL: {
     getEmailContentFn: EXT_IMPORT.FULL.NAMED,
-    clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
+    clientRoute: ROUTES.EMAIL_VERIFICATION.name,
   } satisfies FullConfig<UserApi.EmailVerificationConfig>,
   MINIMAL: {
-    clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
+    clientRoute: ROUTES.EMAIL_VERIFICATION.name,
   } satisfies MinimalConfig<UserApi.EmailVerificationConfig>,
 } as const
 
 export const PASSWORD_RESET = {
   FULL: {
     getEmailContentFn: EXT_IMPORT.FULL.NAMED,
-    clientRoute: ROUTES.PASSWORD_RESET.NAME,
+    clientRoute: ROUTES.PASSWORD_RESET.name,
   } satisfies FullConfig<UserApi.PasswordResetConfig>,
   MINIMAL: {
-    clientRoute: ROUTES.PASSWORD_RESET.NAME,
+    clientRoute: ROUTES.PASSWORD_RESET.name,
   } satisfies MinimalConfig<UserApi.PasswordResetConfig>,
 } as const
 

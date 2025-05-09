@@ -24,7 +24,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
-    const appDecl = getDecl(result, 'App', Fixtures.APP.FULL.NAME)
+    const appDecl = getDecl(result, 'App', Fixtures.APP.FULL.name)
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
         userSpec.app.config,
@@ -93,7 +93,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       parserArgs: [entityRefParser],
     })
 
-    type DeclFixture = Record<string, { NAME: string; CONFIG: any }>
+    type DeclFixture = Record<string, { name: string; config: any }>
     function expectCorrectMapping({
       declType,
       declFixtures,
@@ -107,12 +107,12 @@ describe('mapUserSpecToAppSpecDecls', () => {
       mapUserSpecToAppSpec: (item: any, ...args: any[]) => any
       parserArgs?: any[]
     }): void {
-      Object.values(declFixtures).forEach(({ NAME }) => {
-        const decl = getDecl(result, declType, NAME)
+      Object.values(declFixtures).forEach(({ name }) => {
+        const decl = getDecl(result, declType, name)
 
-        const item = declMap.get(NAME)
+        const item = declMap.get(name)
         if (!item) {
-          throw new Error(`${declType} config not found for ${NAME}`)
+          throw new Error(`${declType} config not found for ${name}`)
         }
 
         expect(decl.declValue).toStrictEqual(
@@ -129,7 +129,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     const result = mapUserSpecToAppSpecDecls(userSpec, [])
 
-    const appDecl = getDecl(result, 'App', Fixtures.APP.MINIMAL.NAME)
+    const appDecl = getDecl(result, 'App', Fixtures.APP.MINIMAL.name)
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
         userSpec.app.config,

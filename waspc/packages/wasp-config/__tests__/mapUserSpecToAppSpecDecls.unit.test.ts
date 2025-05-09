@@ -603,11 +603,11 @@ describe('mapDb', () => {
 
 describe('mapPage', () => {
   test('should map minimal config correctly', () => {
-    testMapPage(Fixtures.PAGES.MINIMAL.CONFIG)
+    testMapPage(Fixtures.PAGES.MINIMAL.config)
   })
 
   test('should map full config correctly', () => {
-    testMapPage(Fixtures.PAGES.FULL.CONFIG)
+    testMapPage(Fixtures.PAGES.FULL.config)
   })
 
   function testMapPage(page: UserApi.PageConfig): void {
@@ -623,11 +623,11 @@ describe('mapPage', () => {
 describe('mapRoute', () => {
   // NOTE: currently minimal config is the same as full config
   test('should map minimal config correctly', () => {
-    testMapRoute(Fixtures.ROUTES.MINIMAL.CONFIG)
+    testMapRoute(Fixtures.ROUTES.MINIMAL.config)
   })
 
   test('should map full config correctly', () => {
-    testMapRoute(Fixtures.ROUTES.FULL.CONFIG)
+    testMapRoute(Fixtures.ROUTES.FULL.config)
   })
 
   function testMapRoute(route: UserApi.RouteConfig): void {
@@ -644,30 +644,30 @@ describe('mapRoute', () => {
 
 describe('mapOperation', () => {
   test('should map minimal query config correctly', () => {
-    testMapOperation(Fixtures.QUERIES.MINIMAL.CONFIG)
+    testMapOperation(Fixtures.QUERIES.MINIMAL.config)
   })
 
   test('should map full query config correctly', () => {
-    testMapOperation(Fixtures.QUERIES.FULL.CONFIG)
+    testMapOperation(Fixtures.QUERIES.FULL.config)
   })
 
   test('should throw if entity ref is not provided in query config', () => {
-    testMapOperation(Fixtures.QUERIES.FULL.CONFIG, {
+    testMapOperation(Fixtures.QUERIES.FULL.config, {
       overrideEntities: [],
       shouldError: true,
     })
   })
 
   test('should map minimal action config correctly', () => {
-    testMapOperation(Fixtures.ACTIONS.MINIMAL.CONFIG)
+    testMapOperation(Fixtures.ACTIONS.MINIMAL.config)
   })
 
   test('should map action config correctly', () => {
-    testMapOperation(Fixtures.ACTIONS.FULL.CONFIG)
+    testMapOperation(Fixtures.ACTIONS.FULL.config)
   })
 
   test('should throw if entity ref is not provided in action config', () => {
-    testMapOperation(Fixtures.ACTIONS.FULL.CONFIG, {
+    testMapOperation(Fixtures.ACTIONS.FULL.config, {
       overrideEntities: [],
       shouldError: true,
     })
@@ -711,15 +711,15 @@ describe('mapOperation', () => {
 
 describe('mapCrud', () => {
   test('should map minimal config correctly', () => {
-    testMapCrud(Fixtures.CRUDS.MINIMAL.CONFIG)
+    testMapCrud(Fixtures.CRUDS.MINIMAL.config)
   })
 
   test('should map full config correctly', () => {
-    testMapCrud(Fixtures.CRUDS.FULL.CONFIG)
+    testMapCrud(Fixtures.CRUDS.FULL.config)
   })
 
   test('should throw if entity ref is not provided', () => {
-    testMapCrud(Fixtures.CRUDS.FULL.CONFIG, {
+    testMapCrud(Fixtures.CRUDS.FULL.config, {
       overrideEntities: [],
       shouldError: true,
     })
@@ -812,11 +812,11 @@ describe('mapCrudOperationOptions', () => {
 describe('mapApiNamespace', () => {
   // NOTE: currently minimal config is the same as full config
   test('should map minimal config correctly', () => {
-    testMapApiNamespace(Fixtures.API_NAMESPACES.MINIMAL.CONFIG)
+    testMapApiNamespace(Fixtures.API_NAMESPACES.MINIMAL.config)
   })
 
   test('should map full config correctly', () => {
-    testMapApiNamespace(Fixtures.API_NAMESPACES.FULL.CONFIG)
+    testMapApiNamespace(Fixtures.API_NAMESPACES.FULL.config)
   })
 
   function testMapApiNamespace(apiNamespace: UserApi.ApiNamespaceConfig): void {
@@ -831,15 +831,15 @@ describe('mapApiNamespace', () => {
 
 describe('mapApi', () => {
   test('should map minimal config correctly', () => {
-    testMapApi(Fixtures.APIS.MINIMAL.CONFIG)
+    testMapApi(Fixtures.APIS.MINIMAL.config)
   })
 
   test('should map full config correctly', () => {
-    testMapApi(Fixtures.APIS.FULL.CONFIG)
+    testMapApi(Fixtures.APIS.FULL.config)
   })
 
   test('should throw if entities refs are not provided', () => {
-    testMapApi(Fixtures.APIS.FULL.CONFIG, {
+    testMapApi(Fixtures.APIS.FULL.config, {
       overrideEntities: [],
       shouldError: true,
     })
@@ -906,15 +906,15 @@ describe('mapHttpRoute', () => {
 
 describe('mapJob', () => {
   test('should map minimal config correctly', () => {
-    testMapJob(Fixtures.JOBS.MINIMAL.CONFIG)
+    testMapJob(Fixtures.JOBS.MINIMAL.config)
   })
 
   test('should map full config correctly', () => {
-    testMapJob(Fixtures.JOBS.FULL.CONFIG)
+    testMapJob(Fixtures.JOBS.FULL.config)
   })
 
   test('should throw if entity ref is not provided', () => {
-    testMapJob(Fixtures.JOBS.FULL.CONFIG, {
+    testMapJob(Fixtures.JOBS.FULL.config, {
       overrideEntities: [],
       shouldError: true,
     })
