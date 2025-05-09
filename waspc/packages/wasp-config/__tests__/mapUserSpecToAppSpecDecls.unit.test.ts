@@ -14,6 +14,7 @@ import {
   mapCrudOperations,
   mapDb,
   mapEmailAuth,
+  mapEmailFromField,
   mapEmailSender,
   mapEmailVerification,
   mapExternalAuth,
@@ -330,10 +331,7 @@ describe('mapEmailAuth', () => {
     expect(result).toStrictEqual({
       userSignupFields:
         emailAuth.userSignupFields && mapExtImport(emailAuth.userSignupFields),
-      fromField: {
-        name: emailAuth.fromField.name,
-        email: emailAuth.fromField.email,
-      },
+      fromField: mapEmailFromField(emailAuth.fromField),
       emailVerification: mapEmailVerification(
         emailAuth.emailVerification,
         routeRefParser
@@ -562,10 +560,8 @@ describe('mapEmailSender', () => {
 
     expect(result).toStrictEqual({
       provider: emailSender.provider,
-      defaultFrom: emailSender.defaultFrom && {
-        name: emailSender.defaultFrom.name,
-        email: emailSender.defaultFrom.email,
-      },
+      defaultFrom:
+        emailSender.defaultFrom && mapEmailFromField(emailSender.defaultFrom),
     } satisfies AppSpec.EmailSender)
   }
 })
@@ -1002,23 +998,42 @@ describe('mapPerform', () => {
   }
 })
 
+describe('mapEmailFromField', () => {
+  test('should map minimal config correctly', () => {
+    testMapEmailFromField(Fixtures.EMAIL_FROM_FIELD.MINIMAL.CONFIG)
+  })
+
+  test('should map full config correctly', () => {
+    testMapEmailFromField(Fixtures.EMAIL_FROM_FIELD.FULL.CONFIG)
+  })
+
+  function testMapEmailFromField(emailFromField: UserApi.EmailFromField): void {
+    const result = mapEmailFromField(emailFromField)
+
+    expect(result).toStrictEqual({
+      name: emailFromField.name,
+      email: emailFromField.email,
+    } satisfies AppSpec.EmailFromField)
+  }
+})
+
 describe('mapExtImport', () => {
   // NOTE: currently minimal named import is the same as full named import
   test('should map minimal named import correctly', () => {
-    testMapExtImport(Fixtures.EXT_IMPORTS.MINIMAL.NAMED)
+    testMapExtImport(Fixtures.EXT_IMPORT.MINIMAL.NAMED)
   })
 
   test('should map full named import correctly', () => {
-    testMapExtImport(Fixtures.EXT_IMPORTS.FULL.NAMED)
+    testMapExtImport(Fixtures.EXT_IMPORT.FULL.NAMED)
   })
 
   // NOTE: currently minimal default import is the same as full default import
   test('should map minimal named import correctly', () => {
-    testMapExtImport(Fixtures.EXT_IMPORTS.MINIMAL.DEFAULT)
+    testMapExtImport(Fixtures.EXT_IMPORT.MINIMAL.DEFAULT)
   })
 
   test('should map full named import correctly', () => {
-    testMapExtImport(Fixtures.EXT_IMPORTS.FULL.DEFAULT)
+    testMapExtImport(Fixtures.EXT_IMPORT.FULL.DEFAULT)
   })
 
   test('should throw for missing import kind', () => {
@@ -1034,8 +1049,8 @@ describe('mapExtImport', () => {
   // TODO: unskip this test when we deicde how to handle this
   test.skip('should throw for having both import kind', () => {
     const extImport = {
-      ...Fixtures.EXT_IMPORTS.FULL.NAMED,
-      ...Fixtures.EXT_IMPORTS.FULL.DEFAULT,
+      ...Fixtures.EXT_IMPORT.FULL.NAMED,
+      ...Fixtures.EXT_IMPORT.FULL.DEFAULT,
     }
 
     testMapExtImport(extImport, {

@@ -65,7 +65,7 @@ export const USER_ENTITY = 'User'
 export const SOCIAL_USER_ENTITY = 'SocialUser'
 export const ALL_ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
 
-export const EXT_IMPORTS = {
+export const EXT_IMPORT = {
   FULL: {
     NAMED: {
       from: '@src/external',
@@ -88,31 +88,45 @@ export const EXT_IMPORTS = {
   },
 } as const
 
+export const EMAIL_FROM_FIELD = {
+  FULL: {
+    CONFIG: {
+      name: 'ToDo App',
+      email: 'test@domain.tld',
+    } satisfies Required<UserApi.EmailFromField>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      email: 'test@domain.ltd',
+    } satisfies UserApi.EmailFromField,
+  },
+} as const
+
 export const PAGES = {
   MINIMAL: {
     NAME: 'MinimalPage',
     CONFIG: {
-      component: EXT_IMPORTS.MINIMAL.NAMED,
+      component: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies UserApi.PageConfig,
   },
   FULL: {
     NAME: 'FullPage',
     CONFIG: {
-      component: EXT_IMPORTS.FULL.NAMED,
+      component: EXT_IMPORT.FULL.NAMED,
       authRequired: true,
     } satisfies Required<UserApi.PageConfig>,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
     CONFIG: {
-      component: EXT_IMPORTS.FULL.NAMED,
+      component: EXT_IMPORT.FULL.NAMED,
       authRequired: false,
     } satisfies Required<UserApi.PageConfig>,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetPage',
     CONFIG: {
-      component: EXT_IMPORTS.FULL.NAMED,
+      component: EXT_IMPORT.FULL.NAMED,
       authRequired: false,
     } satisfies Required<UserApi.PageConfig>,
   },
@@ -157,7 +171,7 @@ export const QUERIES = {
   FULL: {
     NAME: 'getTask',
     CONFIG: {
-      fn: EXT_IMPORTS.FULL.NAMED,
+      fn: EXT_IMPORT.FULL.NAMED,
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies Required<UserApi.QueryConfig>,
@@ -165,7 +179,7 @@ export const QUERIES = {
   MINIMAL: {
     NAME: 'getTasks',
     CONFIG: {
-      fn: EXT_IMPORTS.MINIMAL.NAMED,
+      fn: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies UserApi.QueryConfig,
   },
 } as const
@@ -174,7 +188,7 @@ export const ACTIONS = {
   FULL: {
     NAME: 'createTask',
     CONFIG: {
-      fn: EXT_IMPORTS.FULL.NAMED,
+      fn: EXT_IMPORT.FULL.NAMED,
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies Required<UserApi.ActionConfig>,
@@ -182,7 +196,7 @@ export const ACTIONS = {
   MINIMAL: {
     NAME: 'deleteTask',
     CONFIG: {
-      fn: EXT_IMPORTS.MINIMAL.NAMED,
+      fn: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies UserApi.ActionConfig,
   },
 } as const
@@ -191,7 +205,7 @@ export const CRUD_OPERATION_OPTIONS = {
   FULL: {
     CONFIG: {
       isPublic: true,
-      overrideFn: EXT_IMPORTS.FULL.NAMED,
+      overrideFn: EXT_IMPORT.FULL.NAMED,
     } satisfies Required<UserApi.CrudOperationOptions>,
   },
   MINIMAL: {
@@ -235,14 +249,14 @@ export const API_NAMESPACES = {
   FULL: {
     NAME: 'bar',
     CONFIG: {
-      middlewareConfigFn: EXT_IMPORTS.FULL.NAMED,
+      middlewareConfigFn: EXT_IMPORT.FULL.NAMED,
       path: '/bar',
     } satisfies Required<UserApi.ApiNamespaceConfig>,
   },
   MINIMAL: {
     NAME: 'foo',
     CONFIG: {
-      middlewareConfigFn: EXT_IMPORTS.MINIMAL.NAMED,
+      middlewareConfigFn: EXT_IMPORT.MINIMAL.NAMED,
       path: '/foo',
     } satisfies UserApi.ApiNamespaceConfig,
   },
@@ -267,17 +281,17 @@ export const APIS = {
   FULL: {
     NAME: 'barBaz',
     CONFIG: {
-      fn: EXT_IMPORTS.FULL.NAMED,
+      fn: EXT_IMPORT.FULL.NAMED,
       auth: true,
       httpRoute: HTTP_ROUTES.FULL.CONFIG,
       entities: [TASK_ENTITY],
-      middlewareConfigFn: EXT_IMPORTS.FULL.NAMED,
+      middlewareConfigFn: EXT_IMPORT.FULL.NAMED,
     } satisfies Required<UserApi.ApiConfig>,
   },
   MINIMAL: {
     NAME: 'barFoo',
     CONFIG: {
-      fn: EXT_IMPORTS.MINIMAL.NAMED,
+      fn: EXT_IMPORT.MINIMAL.NAMED,
       httpRoute: HTTP_ROUTES.MINIMAL.CONFIG,
     } satisfies UserApi.ApiConfig,
   },
@@ -303,7 +317,7 @@ export const SCHEDULE = {
 export const PERFORM = {
   FULL: {
     CONFIG: {
-      fn: EXT_IMPORTS.FULL.NAMED,
+      fn: EXT_IMPORT.FULL.NAMED,
       executorOptions: {
         pgBoss: { jobOptions: { attempts: 3 } },
       },
@@ -311,7 +325,7 @@ export const PERFORM = {
   },
   MINIMAL: {
     CONFIG: {
-      fn: EXT_IMPORTS.MINIMAL.NAMED,
+      fn: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies UserApi.Perform,
   },
 }
@@ -356,7 +370,7 @@ export const APP = {
 export const EMAIL_VERIFICATION = {
   FULL: {
     CONFIG: {
-      getEmailContentFn: EXT_IMPORTS.FULL.NAMED,
+      getEmailContentFn: EXT_IMPORT.FULL.NAMED,
       clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
     } satisfies Required<UserApi.EmailVerificationConfig>,
   },
@@ -370,7 +384,7 @@ export const EMAIL_VERIFICATION = {
 export const PASSWORD_RESET = {
   FULL: {
     CONFIG: {
-      getEmailContentFn: EXT_IMPORTS.FULL.NAMED,
+      getEmailContentFn: EXT_IMPORT.FULL.NAMED,
       clientRoute: ROUTES.PASSWORD_RESET.NAME,
     } satisfies Required<UserApi.PasswordResetConfig>,
   },
@@ -384,21 +398,15 @@ export const PASSWORD_RESET = {
 export const EMAIL_AUTH = {
   FULL: {
     CONFIG: {
-      userSignupFields: EXT_IMPORTS.FULL.NAMED,
-      fromField: {
-        name: 'ToDo App',
-        email: 'test@domain.tld',
-      },
+      userSignupFields: EXT_IMPORT.FULL.NAMED,
+      fromField: EMAIL_FROM_FIELD.FULL.CONFIG,
       emailVerification: EMAIL_VERIFICATION.FULL.CONFIG,
       passwordReset: PASSWORD_RESET.FULL.CONFIG,
     } satisfies Required<UserApi.EmailAuthConfig>,
   },
   MINIMAL: {
     CONFIG: {
-      fromField: {
-        name: 'ToDo App',
-        email: 'test@domain.tld',
-      },
+      fromField: EMAIL_FROM_FIELD.MINIMAL.CONFIG,
       emailVerification: EMAIL_VERIFICATION.MINIMAL.CONFIG,
       passwordReset: PASSWORD_RESET.MINIMAL.CONFIG,
     } satisfies UserApi.EmailAuthConfig,
@@ -408,7 +416,7 @@ export const EMAIL_AUTH = {
 export const USERNAME_AND_PASSWORD_AUTH = {
   FULL: {
     CONFIG: {
-      userSignupFields: EXT_IMPORTS.FULL.NAMED,
+      userSignupFields: EXT_IMPORT.FULL.NAMED,
     } satisfies Required<UserApi.UsernameAndPasswordConfig>,
   },
   MINIMAL: {
@@ -419,8 +427,8 @@ export const USERNAME_AND_PASSWORD_AUTH = {
 export const EXTERNAL_AUTH = {
   FULL: {
     CONFIG: {
-      configFn: EXT_IMPORTS.FULL.NAMED,
-      userSignupFields: EXT_IMPORTS.FULL.NAMED,
+      configFn: EXT_IMPORT.FULL.NAMED,
+      userSignupFields: EXT_IMPORT.FULL.NAMED,
     } satisfies Required<UserApi.ExternalAuthConfig>,
   },
   MINIMAL: {
@@ -452,11 +460,11 @@ export const AUTH = {
       onAuthFailedRedirectTo: '/login',
       onAuthSucceededRedirectTo: '/profile',
       methods: AUTH_METHODS.FULL.CONFIG,
-      onBeforeSignup: EXT_IMPORTS.FULL.NAMED,
-      onAfterSignup: EXT_IMPORTS.FULL.NAMED,
-      onBeforeOAuthRedirect: EXT_IMPORTS.FULL.NAMED,
-      onBeforeLogin: EXT_IMPORTS.FULL.NAMED,
-      onAfterLogin: EXT_IMPORTS.FULL.NAMED,
+      onBeforeSignup: EXT_IMPORT.FULL.NAMED,
+      onAfterSignup: EXT_IMPORT.FULL.NAMED,
+      onBeforeOAuthRedirect: EXT_IMPORT.FULL.NAMED,
+      onBeforeLogin: EXT_IMPORT.FULL.NAMED,
+      onAfterLogin: EXT_IMPORT.FULL.NAMED,
     } satisfies Required<UserApi.AuthConfig>,
   },
   MINIMAL: {
@@ -471,10 +479,10 @@ export const AUTH = {
 export const CLIENT = {
   FULL: {
     CONFIG: {
-      rootComponent: EXT_IMPORTS.FULL.NAMED,
-      setupFn: EXT_IMPORTS.FULL.NAMED,
+      rootComponent: EXT_IMPORT.FULL.NAMED,
+      setupFn: EXT_IMPORT.FULL.NAMED,
       baseDir: '/src',
-      envValidationSchema: EXT_IMPORTS.FULL.NAMED,
+      envValidationSchema: EXT_IMPORT.FULL.NAMED,
     } satisfies Required<UserApi.ClientConfig>,
   },
   MINIMAL: {
@@ -485,9 +493,9 @@ export const CLIENT = {
 export const SERVER = {
   FULL: {
     CONFIG: {
-      setupFn: EXT_IMPORTS.FULL.NAMED,
-      middlewareConfigFn: EXT_IMPORTS.FULL.NAMED,
-      envValidationSchema: EXT_IMPORTS.FULL.NAMED,
+      setupFn: EXT_IMPORT.FULL.NAMED,
+      middlewareConfigFn: EXT_IMPORT.FULL.NAMED,
+      envValidationSchema: EXT_IMPORT.FULL.NAMED,
     } satisfies Required<UserApi.ServerConfig>,
   },
   MINIMAL: {
@@ -499,10 +507,7 @@ export const EMAIL_SENDER = {
   FULL: {
     CONFIG: {
       provider: 'SMTP',
-      defaultFrom: {
-        name: 'Test',
-        email: 'test@test.com',
-      },
+      defaultFrom: EMAIL_FROM_FIELD.FULL.CONFIG,
     } satisfies Required<UserApi.EmailSenderConfig>,
   },
   MINIMAL: {
@@ -515,13 +520,13 @@ export const EMAIL_SENDER = {
 export const WEBSOCKET = {
   FULL: {
     CONFIG: {
-      fn: EXT_IMPORTS.FULL.NAMED,
+      fn: EXT_IMPORT.FULL.NAMED,
       autoConnect: true,
     } satisfies Required<UserApi.WebsocketConfig>,
   },
   MINIMAL: {
     CONFIG: {
-      fn: EXT_IMPORTS.MINIMAL.NAMED,
+      fn: EXT_IMPORT.MINIMAL.NAMED,
     } satisfies UserApi.WebsocketConfig,
   },
 } as const
@@ -529,7 +534,7 @@ export const WEBSOCKET = {
 export const DB = {
   FULL: {
     CONFIG: {
-      seeds: [EXT_IMPORTS.FULL.NAMED, EXT_IMPORTS.FULL.DEFAULT],
+      seeds: [EXT_IMPORT.FULL.NAMED, EXT_IMPORT.FULL.DEFAULT],
     } satisfies Required<UserApi.DbConfig>,
   },
   MINIMAL: {

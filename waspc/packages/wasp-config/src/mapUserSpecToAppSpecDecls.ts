@@ -280,18 +280,11 @@ export function mapEmailAuth(
   emailConfig: User.EmailAuthConfig,
   routeRefParser: RefParser<'Route'>
 ): AppSpec.EmailAuthConfig {
-  const {
-    userSignupFields,
-    fromField: { name, email },
-    emailVerification,
-    passwordReset,
-  } = emailConfig
+  const { userSignupFields, fromField, emailVerification, passwordReset } =
+    emailConfig
   return {
     userSignupFields: userSignupFields && mapExtImport(userSignupFields),
-    fromField: {
-      name,
-      email,
-    },
+    fromField: mapEmailFromField(fromField),
     emailVerification: mapEmailVerification(emailVerification, routeRefParser),
     passwordReset: mapPasswordReset(passwordReset, routeRefParser),
   }
@@ -332,11 +325,19 @@ export function mapEmailSender(
   const { provider, defaultFrom } = emailSender
   return {
     provider,
-    defaultFrom: defaultFrom && {
+    defaultFrom: defaultFrom && mapEmailFromField(defaultFrom),
+  }
+}
+
+export function mapEmailFromField(
+  defaultFrom: User.EmailFromField
+): AppSpec.EmailFromField {
+  return (
+    defaultFrom && {
       name: defaultFrom.name,
       email: defaultFrom.email,
-    },
-  }
+    }
+  )
 }
 
 export function mapServer(server: User.ServerConfig): AppSpec.Server {
