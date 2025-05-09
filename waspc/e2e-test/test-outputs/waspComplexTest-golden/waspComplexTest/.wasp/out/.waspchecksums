@@ -382,7 +382,7 @@
             "file",
             "../out/sdk/wasp/core/serialization.ts"
         ],
-        "d96aac6fb8caef2e5536df2134fabf41a2edb489622d6b7eec21869e6d8dcf8b"
+        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "../out/sdk/wasp/server/crud/tasks.ts"
         ],
-        "289aa6aeb5a036738a6fdf0dec75f42fcd981c0de4c520dae21e2668fdc8c11b"
+        "e384898a85f8a138799bb4fa49cd80d28bb07041996743453ef39b76fba639c3"
     ],
     [
         [
@@ -1117,7 +1117,7 @@
             "file",
             "server/src/routes/auth/me.ts"
         ],
-        "05f02b5ca45ccf161bf8952390b1504aa23c68c9267a57b46b32db9e0d258c19"
+        "a2c1e8ecf1828ca79ee542cf7cfe887d2c0cd4ad0b2dff5c654c41ab171098a5"
     ],
     [
         [

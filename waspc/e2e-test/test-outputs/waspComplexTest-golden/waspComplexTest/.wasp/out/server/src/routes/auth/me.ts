@@ -3,8 +3,8 @@ import { defineHandler } from 'wasp/server/utils'
 
 export default defineHandler(async (req, res) => {
   if (req.user) {
-    return res.json(serialize(req.user))
+    res.json(serialize(req.user))
   } else {
-    return res.json(serialize(null))
+    res.json(serialize(null))
   }
 })

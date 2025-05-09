@@ -2,7 +2,7 @@ import { GetQueryResolved, GetAllQueryResolved } from 'wasp/server/crud/tasks';
 export declare const tasks: {
     get: {
         query: import("../operations/queries/core.js").QueryFor<GetQueryResolved>;
-        useQuery: (queryFnArgs?: (import("../../server/_types/serialization.js").SuperJSONObject & import(".prisma/client").Prisma.TaskWhereUniqueInput) | undefined, options?: any) => import("@tanstack/react-query").UseQueryResult<{
+        useQuery: (queryFnArgs?: (import("../../core/serialization.js").SuperJSONObject & import(".prisma/client").Prisma.TaskWhereUniqueInput) | undefined, options?: any) => import("@tanstack/react-query").UseQueryResult<{
             id: number;
             description: string;
             isDone: boolean;
@@ -17,14 +17,14 @@ export declare const tasks: {
         }[], Error>;
     };
     create: {
-        action: (args: import("../../server/_types/serialization.js").SuperJSONObject & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput))) => Promise<{
+        action: (args: import("../../core/serialization.js").SuperJSONObject & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput))) => Promise<{
             id: number;
             description: string;
             isDone: boolean;
         }>;
         useAction: (actionOptions?: {
-            optimisticUpdates: import("../operations/hooks.js").OptimisticUpdateDefinition<import("../../server/_types/serialization.js").SuperJSONObject & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput)), any>[];
-        } | undefined) => (args: import("../../server/_types/serialization.js").SuperJSONObject & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput))) => Promise<{
+            optimisticUpdates: import("../operations/hooks.js").OptimisticUpdateDefinition<import("../../core/serialization.js").SuperJSONObject & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput)), any>[];
+        } | undefined) => (args: import("../../core/serialization.js").SuperJSONObject & ((import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskCreateInput, import(".prisma/client").Prisma.TaskUncheckedCreateInput> & import(".prisma/client").Prisma.TaskUncheckedCreateInput) | (import(".prisma/client").Prisma.Without<import(".prisma/client").Prisma.TaskUncheckedCreateInput, import(".prisma/client").Prisma.TaskCreateInput> & import(".prisma/client").Prisma.TaskCreateInput))) => Promise<{
             id: number;
             description: string;
             isDone: boolean;

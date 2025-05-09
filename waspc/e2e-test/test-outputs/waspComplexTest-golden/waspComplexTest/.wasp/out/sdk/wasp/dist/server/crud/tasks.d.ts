@@ -1,7 +1,7 @@
-import type { Prisma } from "@prisma/client";
-import type { Payload } from "wasp/core/serialization";
-import type { Task } from "wasp/entities";
 import type { AuthenticatedActionDefinition, AuthenticatedQueryDefinition, _Task } from "../_types";
+import type { Prisma } from "@prisma/client";
+import type { Payload, SuperJSONObject } from "wasp/core/serialization";
+import type { Task } from "wasp/entities";
 type _WaspEntityTagged = _Task;
 type _WaspEntity = Task;
 /**
@@ -27,5 +27,5 @@ export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>;
 type CreateInput = SuperJSONObject & Prisma.XOR<Prisma.TaskCreateInput, Prisma.TaskUncheckedCreateInput>;
 type CreateOutput = _WaspEntity;
 export type CreateActionResolved = tasks.CreateAction<CreateInput, CreateOutput>;
-export { };
+export {};
 //# sourceMappingURL=tasks.d.ts.map
