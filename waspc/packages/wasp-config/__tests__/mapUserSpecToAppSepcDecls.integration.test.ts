@@ -93,7 +93,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       parserArgs: [entityRefParser],
     })
 
-    type DeclFixtures = Record<string, { NAME: string; CONFIG: any }>
+    type DeclFixture = Record<string, { NAME: string; CONFIG: any }>
     function expectCorrectMapping({
       declType,
       declFixtures,
@@ -102,7 +102,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       parserArgs = [],
     }: {
       declType: keyof AppSpec.DeclTypeToValue
-      declFixtures: DeclFixtures
+      declFixtures: DeclFixture
       declMap: Map<string, any>
       mapUserSpecToAppSpec: (item: any, ...args: any[]) => any
       parserArgs?: any[]

@@ -74,9 +74,10 @@ function createFullUserApp(): UserApi.App {
   return app
 }
 
-export const TASK_ENTITY = 'Task'
-export const USER_ENTITY = 'User'
-export const SOCIAL_USER_ENTITY = 'SocialUser'
+const TASK_ENTITY = 'Task'
+const USER_ENTITY = 'User'
+const SOCIAL_USER_ENTITY = 'SocialUser'
+
 export const ALL_ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
 
 export const EXT_IMPORT = {

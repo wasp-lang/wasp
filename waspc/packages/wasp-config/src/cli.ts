@@ -50,7 +50,7 @@ export function parseProcessArgsOrThrow(args: string[]): {
   }
 }
 
-function getValidEntityNamesOrThrow(entitiesJson: string): string[] {
+export function getValidEntityNamesOrThrow(entitiesJson: string): string[] {
   const entities = JSON.parse(entitiesJson)
   if (!Array.isArray(entities)) {
     throw new Error('The entities JSON must be an array of entity names.')
