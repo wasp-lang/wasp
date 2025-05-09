@@ -8,8 +8,8 @@ import { type AuthUserData } from './auth/user.js'
 declare global {
   namespace Express {
     interface Request {
-      user: AuthUserData | null;
-      sessionId: string | null;
+      user?: AuthUserData | null;
+      sessionId?: string | null;
     }
   }
 }
