@@ -4,6 +4,8 @@ import { writeFileSync } from 'fs'
 import { analyzeUserApp } from './appAnalyzer.js'
 import { parseProcessArgsOrThrow } from './cli.js'
 
+main(process.argv)
+
 /**
  * Main function that processes command line arguments, analyzes the user app,
  * and writes the output to a file.
@@ -21,8 +23,3 @@ export async function main(args: string[]): Promise<void> {
 
   writeFileSync(outputFilePath, declsJsonResult.value)
 }
-
-main(process.argv).catch((error) => {
-  console.error(error)
-  process.exit(1)
-})
