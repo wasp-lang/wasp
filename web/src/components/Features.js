@@ -79,7 +79,7 @@ const Features = () => {
           title="Open Source"
           url="https://github.com/wasp-lang/wasp"
           description={`
-            Wasp is fully open-source and you're welcome to contribute!
+            This is the way. Wasp is fully open-source and you're welcome to contribute!
           `}
         />
 
