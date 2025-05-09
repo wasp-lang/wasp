@@ -1,3 +1,5 @@
+import type { PathToApp } from "../args.js";
+import type { AppName } from "../waspCli.js";
 import { setupPostgres } from "./postgres.js";
 import { setupSqlite } from "./sqlite.js";
 import type { SetupDbFn } from "./types.js";
@@ -13,8 +15,8 @@ export function setupDb({
   pathToApp,
 }: {
   dbType: DbType;
-  appName: string;
-  pathToApp: string;
+  appName: AppName;
+  pathToApp: PathToApp;
 }): ReturnType<SetupDbFn> {
   switch (dbType) {
     case DbType.Sqlite:
