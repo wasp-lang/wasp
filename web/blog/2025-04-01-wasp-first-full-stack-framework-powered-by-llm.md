@@ -12,6 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
+**This blog post is an April 1st joke. Everything we said here wasn't true, we're not using LLMs to generate your code. Wasp is a full-stack, batteries-included web framework, that is being developed by humans for humans and AI tools 😃**
 
 For those of you who are new here, we have been building a **full-stack, batteries-included web framework** for the last four years. **You can think of [Wasp](https://github.com/wasp-lang/wasp) as a modern, JS-based incarnation of Laravel, Django or Ruby on Rails**. We based it on a custom compiler so it doesn’t depend on the specific stack or the architecture in the long run (currently it supports React, Node.js and Prisma).
 
