@@ -88,7 +88,7 @@ const Features = () => {
           title="Full-stack Auth"
           url="/blog/2023/04/12/auth-ui"
           description={`
-            Add login functionality in a few lines of code with powerful UI helpers. No third party vendor lock-in.
+            Add login functionality with social providers or email in a few lines of code with powerful UI helpers. No third party vendor lock-in.
           `}
         />
 
