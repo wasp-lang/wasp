@@ -31,7 +31,7 @@ export function setupOneTimeCodeRoute(router: Router) {
 
       tokenStore.markUsed(code);
 
-      return res.json({
+      res.json({
         sessionId: session.id,
       });
     })

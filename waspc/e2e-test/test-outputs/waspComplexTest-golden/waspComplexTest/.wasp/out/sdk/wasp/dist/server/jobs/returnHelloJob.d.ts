@@ -1,4 +1,4 @@
-import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization';
+import type { JSONValue, JSONObject } from 'wasp/core/serialization';
 import { type JobFn } from 'wasp/server/jobs/core/pgBoss';
 declare const entities: {
     User: import(".prisma/client").Prisma.UserDelegate<import("@prisma/client/runtime/library.js").DefaultArgs>;
@@ -30,7 +30,7 @@ export declare const returnHelloJob: {
                 output: null;
             } | {
                 state: "completed";
-                output: import("wasp/server/_types/serialization").JSONArray | JSONObject | {
+                output: import("wasp/core/serialization").JSONArray | JSONObject | {
                     value: string;
                 } | {
                     value: number;

@@ -53,7 +53,7 @@ export default defineHandler(async (req, res) => {
     user: auth.user,
   })
 
-  return res.json({
+  res.json({
       sessionId: session.id,
   })
 })

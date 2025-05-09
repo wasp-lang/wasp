@@ -81,7 +81,7 @@
             "file",
             "../out/sdk/wasp/client/operations/internal/index.ts"
         ],
-        "d710d9894f56194c0d87921f339100414c69b987f1f5221881ca372fd70be371"
+        "dbd92e9ee31068abb13a88dc0ed497f0e1f1e6660b39b16ffd6821b5a5c3d8c2"
     ],
     [
         [
@@ -165,7 +165,14 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "184454828b021bbc8f9927533cea271614ac9661598c7f458909980ad4b68d80"
+        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization.ts"
+        ],
+        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
     ],
     [
         [
@@ -207,7 +214,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "b839c45c5bdc7d15658bd8ddc23ef5e6905b755b9923274c2bc90dddb799ef10"
+        "fe15a110bc598dd31aeaef52ca1eb440818a630110b4da7bd155028db911fd3f"
     ],
     [
         [
@@ -228,14 +235,7 @@
             "file",
             "../out/sdk/wasp/server/_types/index.ts"
         ],
-        "e19d9927bb6f9d4a95641c01d3488d45dad5c8bf708b6573401e8ee9f4067995"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/server/_types/serialization.ts"
-        ],
-        "cfa5bcdd91e36fe35a91323bd3944a52873144101a5a03ae8a4f258cdd61ea03"
+        "eb670470bdf240069288cb4b26c27dee74a9c7327d1df5639018a5627b6be02f"
     ],
     [
         [
@@ -340,7 +340,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "258102c55c0e3cbea12f65e876715557053b3ebe06dd14ff67773d408abb999a"
+        "d7d15ef5f24220e7a71302f9c5a9e088688e99abf0609a2094f7fe87add4c099"
     ],
     [
         [
@@ -515,7 +515,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "089b4baf0e860121a2233bc309b39aa6a194ba79a12376ff489f200afde5a527"
+        "08c4c24a9eaee24af4237ff694be570231de9e8b3b90cc86bfca3b776aab6e34"
     ],
     [
         [
