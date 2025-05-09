@@ -1,14 +1,14 @@
 import { Outlet } from 'react-router-dom'
-import { useSocket } from 'wasp/client/webSocket'
-import { Link } from 'wasp/client/router'
-import { logout, useAuth } from 'wasp/client/auth'
-import { useQuery, getDate } from 'wasp/client/operations'
 import { env } from 'wasp/client'
+import { logout, useAuth } from 'wasp/client/auth'
+import { getDate, useQuery } from 'wasp/client/operations'
+import { Link } from 'wasp/client/router'
+import { useSocket } from 'wasp/client/webSocket'
 
 import './Main.css'
 import { getName } from './user'
 // Necessary to trigger type tests.
-import './testTypes/operations/client'
+import './rpcTests/operations/client'
 
 export function App() {
   const { data: user } = useAuth()
