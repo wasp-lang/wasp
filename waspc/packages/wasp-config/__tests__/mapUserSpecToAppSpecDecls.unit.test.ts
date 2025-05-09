@@ -38,8 +38,7 @@ describe('mapApp', () => {
   function testMapApp(
     app: UserApi.App,
     entityRefParser: RefParser<'Entity'>,
-    routeRefParser: RefParser<'Route'>,
-    validateResult: (result: AppSpec.App, userSpec: UserApi.UserSpec) => void
+    routeRefParser: RefParser<'Route'>
   ) {
     const userSpec = app[GET_USER_SPEC]()
     const result = mapApp(
@@ -54,7 +53,21 @@ describe('mapApp', () => {
       userSpec.websocket
     )
 
-    validateResult(result, userSpec)
+    expect(result).toStrictEqual({
+      wasp: {
+        version: userSpec.app.config.wasp.version,
+      },
+      title: userSpec.app.config.title,
+      head: userSpec.app.config.head,
+      auth:
+        userSpec.auth &&
+        mapAuth(userSpec.auth, entityRefParser, routeRefParser),
+      server: userSpec.server && mapServer(userSpec.server),
+      client: userSpec.client && mapClient(userSpec.client),
+      db: userSpec.db && mapDb(userSpec.db),
+      emailSender: userSpec.emailSender && mapEmailSender(userSpec.emailSender),
+      webSocket: userSpec.websocket && mapWebSocket(userSpec.websocket),
+    } satisfies AppSpec.App)
   }
 
   test('should map minimal config correctly', () => {
@@ -62,21 +75,7 @@ describe('mapApp', () => {
     const entityRefParser = makeRefParser('Entity', [])
     const routeRefParser = makeRefParser('Route', [])
 
-    testMapApp(map, entityRefParser, routeRefParser, (result, userSpec) => {
-      expect(result).toStrictEqual({
-        wasp: {
-          version: userSpec.app.config.wasp.version,
-        },
-        title: userSpec.app.config.title,
-        head: undefined,
-        auth: undefined,
-        server: undefined,
-        client: undefined,
-        db: undefined,
-        emailSender: undefined,
-        webSocket: undefined,
-      } satisfies AppSpec.App)
-    })
+    testMapApp(map, entityRefParser, routeRefParser)
   })
 
   test('should map full config correctly', () => {
@@ -90,24 +89,7 @@ describe('mapApp', () => {
       Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
     ])
 
-    testMapApp(fullApp, entityRefParser, routeRefParser, (result, userSpec) => {
-      expect(result).toStrictEqual({
-        wasp: {
-          version: userSpec.app.config.wasp.version,
-        },
-        title: userSpec.app.config.title,
-        head: userSpec.app.config.head,
-        auth:
-          userSpec.auth &&
-          mapAuth(userSpec.auth, entityRefParser, routeRefParser),
-        server: userSpec.server && mapServer(userSpec.server),
-        client: userSpec.client && mapClient(userSpec.client),
-        db: userSpec.db && mapDb(userSpec.db),
-        emailSender:
-          userSpec.emailSender && mapEmailSender(userSpec.emailSender),
-        webSocket: userSpec.websocket && mapWebSocket(userSpec.websocket),
-      } satisfies AppSpec.App)
-    })
+    testMapApp(fullApp, entityRefParser, routeRefParser)
   })
 })
 
@@ -259,7 +241,7 @@ describe('mapEmailAuth', () => {
   })
 
   test('should map full config correctly', () => {
-    const emailAuth = Fixtures.AUTH.CONFIG.methods.email
+    const emailAuth = Fixtures.EMAIL_AUTH.CONFIG
     const routeRefParser = makeRefParser('Route', [
       emailAuth.emailVerification.clientRoute,
       emailAuth.passwordReset.clientRoute,
@@ -283,11 +265,9 @@ describe('mapEmailAuth', () => {
 
   test('should throw if email verification client route is not provided when defined', () => {
     const emailAuth: UserApi.EmailAuthConfig = {
-      ...Fixtures.AUTH.CONFIG.methods.email,
+      ...Fixtures.EMAIL_AUTH.CONFIG,
       emailVerification: {
-        getEmailContentFn:
-          Fixtures.AUTH.CONFIG.methods.email.emailVerification
-            .getEmailContentFn,
+        ...Fixtures.EMAIL_AUTH_EMAIL_VERIFICATION,
         clientRoute: 'undefined',
       },
     }
@@ -336,8 +316,7 @@ describe('mapEmailVerification', () => {
   })
 
   test('should map full config correctly', () => {
-    const emailVerification =
-      Fixtures.AUTH.CONFIG.methods.email.emailVerification
+    const emailVerification = Fixtures.EMAIL_AUTH_EMAIL_VERIFICATION.CONFIG
     const routeRefParser = makeRefParser('Route', [
       emailVerification.clientRoute,
     ])
@@ -369,9 +348,9 @@ describe('mapPasswordReset', () => {
   })
 
   test('should map full config correctly', () => {
-    const passwordResetConfig = Fixtures.AUTH.CONFIG.methods.email.passwordReset
+    const passwordResetConfig = Fixtures.EMAIL_AUTH_PASSWORD_RESET.CONFIG
     const routeRefParser = makeRefParser('Route', [
-      Fixtures.AUTH.CONFIG.methods.email.passwordReset.clientRoute,
+      passwordResetConfig.clientRoute,
     ])
 
     const result = mapPasswordReset(passwordResetConfig, routeRefParser)
@@ -704,7 +683,7 @@ describe('mapCrud', () => {
 
 describe('mapCrudOperations', () => {
   test('should map minimal config correctly', () => {
-    const crudOperations = Fixtures.CRUDS.MINIMAL.CONFIG.operations
+    const crudOperations = Fixtures.CRUD_OPERATIONS.MINIMAL.CONFIG
 
     const result = mapCrudOperations(crudOperations)
 
@@ -718,7 +697,7 @@ describe('mapCrudOperations', () => {
   })
 
   test('should map full config correctly', () => {
-    const crudOperations = Fixtures.CRUDS.FULL.CONFIG.operations
+    const crudOperations = Fixtures.CRUD_OPERATIONS.FULL.CONFIG
 
     const result = mapCrudOperations(crudOperations)
 
@@ -734,20 +713,18 @@ describe('mapCrudOperations', () => {
 
 describe('mapCrudOperationOptions', () => {
   test('should map minimal config correctly', () => {
-    const crudOperationOptions: UserApi.CrudOperationOptions = {
-      isPublic: false,
-    }
+    const crudOperationOptions = Fixtures.CRUD_OPERATION_OPTIONS.MINIMAL.CONFIG
 
     const result = mapCrudOperationOptions(crudOperationOptions)
 
     expect(result).toStrictEqual({
-      isPublic: false,
+      isPublic: undefined,
       overrideFn: undefined,
     } satisfies AppSpec.CrudOperationOptions)
   })
 
   test('should map full config correctly', () => {
-    const crudOperationOptions = Fixtures.CRUDS.FULL.CONFIG.operations.get
+    const crudOperationOptions = Fixtures.CRUD_OPERATION_OPTIONS.FULL.CONFIG
 
     const result = mapCrudOperationOptions(crudOperationOptions)
 

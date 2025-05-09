@@ -181,55 +181,49 @@ export const ACTIONS = {
   },
 } as const
 
+export const CRUD_OPERATION_OPTIONS = {
+  FULL: {
+    CONFIG: {
+      isPublic: true,
+      overrideFn: {
+        import: 'taskFn',
+        from: '@src/cruds/task',
+      },
+    } satisfies Required<UserApi.CrudOperationOptions>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.CrudOperationOptions,
+  },
+} as const
+
+export const CRUD_OPERATIONS = {
+  FULL: {
+    CONFIG: {
+      get: CRUD_OPERATION_OPTIONS.FULL.CONFIG,
+      getAll: CRUD_OPERATION_OPTIONS.FULL.CONFIG,
+      create: CRUD_OPERATION_OPTIONS.FULL.CONFIG,
+      update: CRUD_OPERATION_OPTIONS.FULL.CONFIG,
+      delete: CRUD_OPERATION_OPTIONS.FULL.CONFIG,
+    } satisfies Required<UserApi.CrudOperations>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.CrudOperations,
+  },
+} as const
+
 export const CRUDS = {
   FULL: {
     NAME: 'TaskCrud',
     CONFIG: {
       entity: TASK_ENTITY,
-      operations: {
-        get: {
-          isPublic: true,
-          overrideFn: {
-            import: 'getTask',
-            from: '@src/cruds/task',
-          },
-        },
-        getAll: {
-          isPublic: true,
-          overrideFn: {
-            import: 'getAllTasks',
-            from: '@src/cruds/task',
-          },
-        },
-        create: {
-          isPublic: false,
-          overrideFn: {
-            import: 'createTask',
-            from: '@src/cruds/task',
-          },
-        },
-        update: {
-          isPublic: false,
-          overrideFn: {
-            import: 'updateTask',
-            from: '@src/cruds/task',
-          },
-        },
-        delete: {
-          isPublic: false,
-          overrideFn: {
-            import: 'deleteTask',
-            from: '@src/cruds/task',
-          },
-        },
-      },
+      operations: CRUD_OPERATIONS.FULL.CONFIG,
     } satisfies Required<UserApi.Crud>,
   },
   MINIMAL: {
     NAME: 'EmptyTaskCrud',
     CONFIG: {
       entity: TASK_ENTITY,
-      operations: {},
+      operations: CRUD_OPERATIONS.MINIMAL.CONFIG,
     } satisfies UserApi.Crud,
   },
 } as const
@@ -338,81 +332,78 @@ export const APP = {
   },
 } as const
 
+export const EMAIL_AUTH_EMAIL_VERIFICATION = {
+  CONFIG: {
+    getEmailContentFn: {
+      import: 'getVerificationEmailContent',
+      from: '@src/auth/email',
+    },
+    clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
+  } satisfies Required<UserApi.EmailVerificationConfig>,
+} as const
+
+export const EMAIL_AUTH_PASSWORD_RESET = {
+  CONFIG: {
+    getEmailContentFn: {
+      import: 'getPasswordResetEmailContent',
+      from: '@src/auth/email',
+    },
+    clientRoute: ROUTES.PASSWORD_RESET.NAME,
+  } satisfies Required<UserApi.PasswordResetConfig>,
+} as const
+
+export const EMAIL_AUTH = {
+  CONFIG: {
+    userSignupFields: {
+      import: 'userSignupFields',
+      from: '@src/auth/email',
+    },
+    fromField: {
+      name: 'ToDo App',
+      email: 'test@domain.tld',
+    },
+    emailVerification: EMAIL_AUTH_EMAIL_VERIFICATION.CONFIG,
+    passwordReset: EMAIL_AUTH_PASSWORD_RESET.CONFIG,
+  } satisfies Required<UserApi.EmailAuthConfig>,
+} as const
+
+export const USERNAME_AND_PASSWORD_AUTH = {
+  CONFIG: {
+    userSignupFields: {
+      import: 'userSignupFields',
+      from: '@src/auth/usernameAndPassword',
+    },
+  } satisfies Required<UserApi.UsernameAndPasswordConfig>,
+} as const
+
+export const EXTERNAL_AUTH = {
+  CONFIG: {
+    configFn: {
+      import: 'config',
+      from: '@src/auth/external',
+    },
+    userSignupFields: {
+      import: 'userSignupFields',
+      from: '@src/auth/external',
+    },
+  } satisfies Required<UserApi.ExternalAuthConfig>,
+} as const
+
+export const AUTH_METHODS = {
+  CONFIG: {
+    email: EMAIL_AUTH.CONFIG,
+    discord: EXTERNAL_AUTH.CONFIG,
+    google: EXTERNAL_AUTH.CONFIG,
+    gitHub: EXTERNAL_AUTH.CONFIG,
+    keycloak: EXTERNAL_AUTH.CONFIG,
+    usernameAndPassword: USERNAME_AND_PASSWORD_AUTH.CONFIG,
+  } satisfies Required<UserApi.AuthMethods>,
+} as const
+
 export const AUTH = {
   CONFIG: {
     userEntity: USER_ENTITY,
-    methods: {
-      discord: {
-        configFn: {
-          import: 'config',
-          from: '@src/auth/discord',
-        },
-        userSignupFields: {
-          import: 'userSignupFields',
-          from: '@src/auth/discord',
-        },
-      },
-      google: {
-        configFn: {
-          import: 'config',
-          from: '@src/auth/google',
-        },
-        userSignupFields: {
-          import: 'userSignupFields',
-          from: '@src/auth/google',
-        },
-      },
-      gitHub: {
-        configFn: {
-          import: 'config',
-          from: '@src/auth/github',
-        },
-        userSignupFields: {
-          import: 'userSignupFields',
-          from: '@src/auth/github',
-        },
-      },
-      keycloak: {
-        configFn: {
-          import: 'config',
-          from: '@src/auth/keycloak',
-        },
-        userSignupFields: {
-          import: 'userSignupFields',
-          from: '@src/auth/keycloak',
-        },
-      },
-      usernameAndPassword: {
-        userSignupFields: {
-          import: 'userSignupFields',
-          from: '@src/auth/usernameAndPassword',
-        },
-      },
-      email: {
-        userSignupFields: {
-          import: 'userSignupFields',
-          from: '@src/auth/email',
-        },
-        fromField: {
-          name: 'ToDo App',
-          email: 'test@domain.tld',
-        },
-        emailVerification: {
-          getEmailContentFn: {
-            import: 'getVerificationEmailContent',
-            from: '@src/auth/email',
-          },
-          clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
-        },
-        passwordReset: {
-          getEmailContentFn: {
-            import: 'getPasswordResetEmailContent',
-            from: '@src/auth/email',
-          },
-          clientRoute: ROUTES.PASSWORD_RESET.NAME,
-        },
-      },
-    },
+    methods: AUTH_METHODS.CONFIG,
     onAuthFailedRedirectTo: '/login',
     onAuthSucceededRedirectTo: '/profile',
     onBeforeSignup: {
