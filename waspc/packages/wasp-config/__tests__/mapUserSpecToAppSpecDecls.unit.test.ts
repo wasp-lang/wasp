@@ -978,7 +978,7 @@ describe('mapSchedule', () => {
     expect(result).toStrictEqual({
       cron: schedule.cron,
       args: schedule.args,
-      executorOptions: Fixtures.JOBS.FULL.CONFIG.perform.executorOptions,
+      executorOptions: schedule.executorOptions,
     } satisfies AppSpec.Schedule)
   }
 })
@@ -1003,34 +1003,22 @@ describe('mapPerform', () => {
 })
 
 describe('mapExtImport', () => {
-  test('should map named import correctly', () => {
-    const extImport: UserApi.ExtImport = {
-      import: 'myNamedImport',
-      from: '@src/myModule',
-    }
-
-    const result = mapExtImport(extImport)
-
-    expect(result).toStrictEqual({
-      kind: 'named',
-      name: 'myNamedImport',
-      path: '@src/myModule',
-    })
+  // NOTE: currently minimal named import is the same as full named import
+  test('should map minimal named import correctly', () => {
+    testMapExtImport(Fixtures.EXT_IMPORTS.MINIMAL.NAMED)
   })
 
-  test('should map default import correctly', () => {
-    const extImport: UserApi.ExtImport = {
-      importDefault: 'myDefaultImport',
-      from: '@src/myModule',
-    }
+  test('should map full named import correctly', () => {
+    testMapExtImport(Fixtures.EXT_IMPORTS.FULL.NAMED)
+  })
 
-    const result = mapExtImport(extImport)
+  // NOTE: currently minimal default import is the same as full default import
+  test('should map minimal named import correctly', () => {
+    testMapExtImport(Fixtures.EXT_IMPORTS.MINIMAL.DEFAULT)
+  })
 
-    expect(result).toStrictEqual({
-      kind: 'default',
-      name: 'myDefaultImport',
-      path: '@src/myModule',
-    })
+  test('should map full named import correctly', () => {
+    testMapExtImport(Fixtures.EXT_IMPORTS.FULL.DEFAULT)
   })
 
   test('should throw for missing import kind', () => {
@@ -1038,27 +1026,66 @@ describe('mapExtImport', () => {
       from: '@src/myModule',
     } as unknown as UserApi.ExtImport
 
-    expect(() => mapExtImport(extImport)).toThrowError()
+    testMapExtImport(extImport, {
+      shouldError: true,
+    })
   })
 
   // TODO: unskip this test when we deicde how to handle this
   test.skip('should throw for having both import kind', () => {
-    const extImport: UserApi.ExtImport = {
-      import: 'myNamedImport',
-      from: '@src/myModule',
-      importDefault: 'myDefaultImport',
+    const extImport = {
+      ...Fixtures.EXT_IMPORTS.FULL.NAMED,
+      ...Fixtures.EXT_IMPORTS.FULL.DEFAULT,
     }
 
-    expect(() => mapExtImport(extImport)).toThrowError()
+    testMapExtImport(extImport, {
+      shouldError: true,
+    })
   })
 
-  // TODO: unskip this test when we deicde how to handle this
+  // TODO: unskip this test when we decide how to handle this
   test.skip('should throw error for invalid from path', () => {
     const extImport: UserApi.ExtImport = {
       import: 'myNamedImport',
       from: './invalid/path',
     } as unknown as UserApi.ExtImport
 
-    expect(() => mapExtImport(extImport)).toThrowError()
+    testMapExtImport(extImport, {
+      shouldError: true,
+    })
   })
+
+  function testMapExtImport(
+    extImport: UserApi.ExtImport,
+    options:
+      | {
+          shouldError: boolean | undefined
+        }
+      | undefined = {
+      shouldError: false,
+    }
+  ): void {
+    const { shouldError } = options
+
+    if (shouldError) {
+      expect(() => mapExtImport(extImport)).toThrowError()
+      return
+    }
+
+    const result = mapExtImport(extImport)
+
+    if ('import' in extImport) {
+      expect(result).toStrictEqual({
+        kind: 'named',
+        name: extImport.import,
+        path: extImport.from,
+      } satisfies AppSpec.ExtImport)
+    } else if ('importDefault' in extImport) {
+      expect(result).toStrictEqual({
+        kind: 'default',
+        name: extImport.importDefault,
+        path: extImport.from,
+      } satisfies AppSpec.ExtImport)
+    }
+  }
 })

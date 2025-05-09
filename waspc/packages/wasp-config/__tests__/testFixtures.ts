@@ -65,43 +65,54 @@ export const USER_ENTITY = 'User'
 export const SOCIAL_USER_ENTITY = 'SocialUser'
 export const ALL_ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
 
+export const EXT_IMPORTS = {
+  FULL: {
+    NAMED: {
+      from: '@src/external',
+      import: 'namedExport',
+    } satisfies UserApi.ExtImport,
+    DEFAULT: {
+      from: '@src/external',
+      importDefault: 'defaultExport',
+    } satisfies UserApi.ExtImport,
+  },
+  MINIMAL: {
+    NAMED: {
+      from: '@src/external',
+      import: 'namedExport',
+    } satisfies UserApi.ExtImport,
+    DEFAULT: {
+      from: '@src/external',
+      importDefault: 'defaultExport',
+    } satisfies UserApi.ExtImport,
+  },
+} as const
+
 export const PAGES = {
   MINIMAL: {
     NAME: 'MinimalPage',
     CONFIG: {
-      component: {
-        from: '@src/pages/minimal',
-        import: 'Minimal',
-      },
+      component: EXT_IMPORTS.MINIMAL.NAMED,
     } satisfies UserApi.PageConfig,
   },
   FULL: {
     NAME: 'FullPage',
     CONFIG: {
-      component: {
-        from: '@src/pages/full',
-        import: 'Full',
-      },
+      component: EXT_IMPORTS.FULL.NAMED,
       authRequired: true,
     } satisfies Required<UserApi.PageConfig>,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
     CONFIG: {
-      component: {
-        from: '@src/pages/auth/EmailVerification',
-        import: 'EmailVerification',
-      },
+      component: EXT_IMPORTS.FULL.NAMED,
       authRequired: false,
     } satisfies Required<UserApi.PageConfig>,
   },
   PASSWORD_RESET: {
     NAME: 'PasswordResetPage',
     CONFIG: {
-      component: {
-        from: '@src/pages/auth/PasswordReset',
-        import: 'PasswordReset',
-      },
+      component: EXT_IMPORTS.FULL.NAMED,
       authRequired: false,
     } satisfies Required<UserApi.PageConfig>,
   },
@@ -146,10 +157,7 @@ export const QUERIES = {
   FULL: {
     NAME: 'getTask',
     CONFIG: {
-      fn: {
-        import: 'getTask',
-        from: '@src/queries',
-      },
+      fn: EXT_IMPORTS.FULL.NAMED,
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies Required<UserApi.QueryConfig>,
@@ -157,10 +165,7 @@ export const QUERIES = {
   MINIMAL: {
     NAME: 'getTasks',
     CONFIG: {
-      fn: {
-        import: 'getTasks',
-        from: '@src/queries',
-      },
+      fn: EXT_IMPORTS.MINIMAL.NAMED,
     } satisfies UserApi.QueryConfig,
   },
 } as const
@@ -169,10 +174,7 @@ export const ACTIONS = {
   FULL: {
     NAME: 'createTask',
     CONFIG: {
-      fn: {
-        import: 'createTask',
-        from: '@src/actions',
-      },
+      fn: EXT_IMPORTS.FULL.NAMED,
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies Required<UserApi.ActionConfig>,
@@ -180,10 +182,7 @@ export const ACTIONS = {
   MINIMAL: {
     NAME: 'deleteTask',
     CONFIG: {
-      fn: {
-        import: 'deleteTask',
-        from: '@src/actions',
-      },
+      fn: EXT_IMPORTS.MINIMAL.NAMED,
     } satisfies UserApi.ActionConfig,
   },
 } as const
@@ -192,10 +191,7 @@ export const CRUD_OPERATION_OPTIONS = {
   FULL: {
     CONFIG: {
       isPublic: true,
-      overrideFn: {
-        import: 'taskFn',
-        from: '@src/cruds/task',
-      },
+      overrideFn: EXT_IMPORTS.FULL.NAMED,
     } satisfies Required<UserApi.CrudOperationOptions>,
   },
   MINIMAL: {
@@ -239,20 +235,14 @@ export const API_NAMESPACES = {
   FULL: {
     NAME: 'bar',
     CONFIG: {
-      middlewareConfigFn: {
-        import: 'barMiddlewareConfigFn',
-        from: '@src/apis',
-      },
+      middlewareConfigFn: EXT_IMPORTS.FULL.NAMED,
       path: '/bar',
     } satisfies Required<UserApi.ApiNamespaceConfig>,
   },
   MINIMAL: {
     NAME: 'foo',
     CONFIG: {
-      middlewareConfigFn: {
-        import: 'barMiddlewareConfigFn',
-        from: '@src/apis',
-      },
+      middlewareConfigFn: EXT_IMPORTS.MINIMAL.NAMED,
       path: '/foo',
     } satisfies UserApi.ApiNamespaceConfig,
   },
@@ -277,26 +267,17 @@ export const APIS = {
   FULL: {
     NAME: 'barBaz',
     CONFIG: {
-      fn: {
-        import: 'barBaz',
-        from: '@src/apis',
-      },
+      fn: EXT_IMPORTS.FULL.NAMED,
       auth: true,
       httpRoute: HTTP_ROUTES.FULL.CONFIG,
       entities: [TASK_ENTITY],
-      middlewareConfigFn: {
-        import: 'barBazMiddlewareConfigFn',
-        from: '@src/apis',
-      },
+      middlewareConfigFn: EXT_IMPORTS.FULL.NAMED,
     } satisfies Required<UserApi.ApiConfig>,
   },
   MINIMAL: {
     NAME: 'barFoo',
     CONFIG: {
-      fn: {
-        import: 'barFoo',
-        from: '@src/apis',
-      },
+      fn: EXT_IMPORTS.MINIMAL.NAMED,
       httpRoute: HTTP_ROUTES.MINIMAL.CONFIG,
     } satisfies UserApi.ApiConfig,
   },
@@ -322,10 +303,7 @@ export const SCHEDULE = {
 export const PERFORM = {
   FULL: {
     CONFIG: {
-      fn: {
-        import: 'perform',
-        from: '@src/jobs/bar',
-      },
+      fn: EXT_IMPORTS.FULL.NAMED,
       executorOptions: {
         pgBoss: { jobOptions: { attempts: 3 } },
       },
@@ -333,10 +311,7 @@ export const PERFORM = {
   },
   MINIMAL: {
     CONFIG: {
-      fn: {
-        import: 'perform',
-        from: '@src/jobs/bar',
-      },
+      fn: EXT_IMPORTS.MINIMAL.NAMED,
     } satisfies UserApi.Perform,
   },
 }
@@ -381,10 +356,7 @@ export const APP = {
 export const EMAIL_VERIFICATION = {
   FULL: {
     CONFIG: {
-      getEmailContentFn: {
-        import: 'getVerificationEmailContent',
-        from: '@src/auth/email',
-      },
+      getEmailContentFn: EXT_IMPORTS.FULL.NAMED,
       clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
     } satisfies Required<UserApi.EmailVerificationConfig>,
   },
@@ -398,10 +370,7 @@ export const EMAIL_VERIFICATION = {
 export const PASSWORD_RESET = {
   FULL: {
     CONFIG: {
-      getEmailContentFn: {
-        import: 'getPasswordResetEmailContent',
-        from: '@src/auth/email',
-      },
+      getEmailContentFn: EXT_IMPORTS.FULL.NAMED,
       clientRoute: ROUTES.PASSWORD_RESET.NAME,
     } satisfies Required<UserApi.PasswordResetConfig>,
   },
@@ -415,10 +384,7 @@ export const PASSWORD_RESET = {
 export const EMAIL_AUTH = {
   FULL: {
     CONFIG: {
-      userSignupFields: {
-        import: 'userSignupFields',
-        from: '@src/auth/email',
-      },
+      userSignupFields: EXT_IMPORTS.FULL.NAMED,
       fromField: {
         name: 'ToDo App',
         email: 'test@domain.tld',
@@ -442,10 +408,7 @@ export const EMAIL_AUTH = {
 export const USERNAME_AND_PASSWORD_AUTH = {
   FULL: {
     CONFIG: {
-      userSignupFields: {
-        import: 'userSignupFields',
-        from: '@src/auth/usernameAndPassword',
-      },
+      userSignupFields: EXT_IMPORTS.FULL.NAMED,
     } satisfies Required<UserApi.UsernameAndPasswordConfig>,
   },
   MINIMAL: {
@@ -456,14 +419,8 @@ export const USERNAME_AND_PASSWORD_AUTH = {
 export const EXTERNAL_AUTH = {
   FULL: {
     CONFIG: {
-      configFn: {
-        import: 'config',
-        from: '@src/auth/external',
-      },
-      userSignupFields: {
-        import: 'userSignupFields',
-        from: '@src/auth/external',
-      },
+      configFn: EXT_IMPORTS.FULL.NAMED,
+      userSignupFields: EXT_IMPORTS.FULL.NAMED,
     } satisfies Required<UserApi.ExternalAuthConfig>,
   },
   MINIMAL: {
@@ -495,26 +452,11 @@ export const AUTH = {
       onAuthFailedRedirectTo: '/login',
       onAuthSucceededRedirectTo: '/profile',
       methods: AUTH_METHODS.FULL.CONFIG,
-      onBeforeSignup: {
-        import: 'onBeforeSignup',
-        from: '@src/auth/hooks.js',
-      },
-      onAfterSignup: {
-        import: 'onAfterSignup',
-        from: '@src/auth/hooks.js',
-      },
-      onBeforeOAuthRedirect: {
-        import: 'onBeforeOAuthRedirect',
-        from: '@src/auth/hooks.js',
-      },
-      onBeforeLogin: {
-        import: 'onBeforeLogin',
-        from: '@src/auth/hooks.js',
-      },
-      onAfterLogin: {
-        import: 'onAfterLogin',
-        from: '@src/auth/hooks.js',
-      },
+      onBeforeSignup: EXT_IMPORTS.FULL.NAMED,
+      onAfterSignup: EXT_IMPORTS.FULL.NAMED,
+      onBeforeOAuthRedirect: EXT_IMPORTS.FULL.NAMED,
+      onBeforeLogin: EXT_IMPORTS.FULL.NAMED,
+      onAfterLogin: EXT_IMPORTS.FULL.NAMED,
     } satisfies Required<UserApi.AuthConfig>,
   },
   MINIMAL: {
@@ -529,19 +471,10 @@ export const AUTH = {
 export const CLIENT = {
   FULL: {
     CONFIG: {
-      rootComponent: {
-        from: '@src/App',
-        import: 'App',
-      },
-      setupFn: {
-        from: '@src/clientSetup',
-        import: 'setup',
-      },
+      rootComponent: EXT_IMPORTS.FULL.NAMED,
+      setupFn: EXT_IMPORTS.FULL.NAMED,
       baseDir: '/src',
-      envValidationSchema: {
-        import: 'envValidationSchema',
-        from: '@src/envValidationSchema',
-      },
+      envValidationSchema: EXT_IMPORTS.FULL.NAMED,
     } satisfies Required<UserApi.ClientConfig>,
   },
   MINIMAL: {
@@ -552,18 +485,9 @@ export const CLIENT = {
 export const SERVER = {
   FULL: {
     CONFIG: {
-      setupFn: {
-        import: 'setup',
-        from: '@src/serverSetup',
-      },
-      middlewareConfigFn: {
-        import: 'serverMiddlewareFn',
-        from: '@src/serverSetup',
-      },
-      envValidationSchema: {
-        import: 'envValidationSchema',
-        from: '@src/envValidationSchema',
-      },
+      setupFn: EXT_IMPORTS.FULL.NAMED,
+      middlewareConfigFn: EXT_IMPORTS.FULL.NAMED,
+      envValidationSchema: EXT_IMPORTS.FULL.NAMED,
     } satisfies Required<UserApi.ServerConfig>,
   },
   MINIMAL: {
@@ -591,19 +515,13 @@ export const EMAIL_SENDER = {
 export const WEBSOCKET = {
   FULL: {
     CONFIG: {
-      fn: {
-        import: 'webSocketFn',
-        from: '@src/webSocket',
-      },
+      fn: EXT_IMPORTS.FULL.NAMED,
       autoConnect: true,
     } satisfies Required<UserApi.WebsocketConfig>,
   },
   MINIMAL: {
     CONFIG: {
-      fn: {
-        import: 'webSocketFn',
-        from: '@src/webSocket',
-      },
+      fn: EXT_IMPORTS.MINIMAL.NAMED,
     } satisfies UserApi.WebsocketConfig,
   },
 } as const
@@ -611,12 +529,7 @@ export const WEBSOCKET = {
 export const DB = {
   FULL: {
     CONFIG: {
-      seeds: [
-        {
-          import: 'devSeedSimple',
-          from: '@src/dbSeeds',
-        },
-      ],
+      seeds: [EXT_IMPORTS.FULL.NAMED, EXT_IMPORTS.FULL.DEFAULT],
     } satisfies Required<UserApi.DbConfig>,
   },
   MINIMAL: {
