@@ -964,9 +964,15 @@ describe('mapJob', () => {
 })
 
 describe('mapSchedule', () => {
-  test('should map full config correctly', () => {
-    const schedule = Fixtures.JOBS.FULL.CONFIG.schedule
+  test('should map minimal config correctly', () => {
+    testMapSchedule(Fixtures.SCHEDULE.MINIMAL.CONFIG)
+  })
 
+  test('should map full config correctly', () => {
+    testMapSchedule(Fixtures.SCHEDULE.FULL.CONFIG)
+  })
+
+  function testMapSchedule(schedule: UserApi.ScheduleConfig): void {
     const result = mapSchedule(schedule)
 
     expect(result).toStrictEqual({
@@ -974,20 +980,26 @@ describe('mapSchedule', () => {
       args: schedule.args,
       executorOptions: Fixtures.JOBS.FULL.CONFIG.perform.executorOptions,
     } satisfies AppSpec.Schedule)
-  })
+  }
 })
 
 describe('mapPerform', () => {
-  test('should map full config correctly', () => {
-    const perform = Fixtures.JOBS.FULL.CONFIG.perform
+  test('should map minimal config correctly', () => {
+    testMapPerform(Fixtures.PERFORM.MINIMAL.CONFIG)
+  })
 
+  test('should map full config correctly', () => {
+    testMapPerform(Fixtures.PERFORM.FULL.CONFIG)
+  })
+
+  function testMapPerform(perform: UserApi.Perform): void {
     const result = mapPerform(perform)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(perform.fn),
-      executorOptions: Fixtures.JOBS.FULL.CONFIG.perform.executorOptions,
+      executorOptions: perform.executorOptions,
     } satisfies AppSpec.Perform)
-  })
+  }
 })
 
 describe('mapExtImport', () => {

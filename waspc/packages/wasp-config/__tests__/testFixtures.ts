@@ -302,40 +302,60 @@ export const APIS = {
   },
 } as const
 
+export const SCHEDULE = {
+  FULL: {
+    CONFIG: {
+      cron: '0 0 * * *',
+      args: { foo: 'bar' },
+      executorOptions: {
+        pgBoss: { jobOptions: { attempts: 3 } },
+      },
+    } satisfies Required<UserApi.ScheduleConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      cron: '0 0 * * *',
+    } satisfies UserApi.ScheduleConfig,
+  },
+}
+
+export const PERFORM = {
+  FULL: {
+    CONFIG: {
+      fn: {
+        import: 'perform',
+        from: '@src/jobs/bar',
+      },
+      executorOptions: {
+        pgBoss: { jobOptions: { attempts: 3 } },
+      },
+    } satisfies Required<UserApi.Perform>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      fn: {
+        import: 'perform',
+        from: '@src/jobs/bar',
+      },
+    } satisfies UserApi.Perform,
+  },
+}
+
 export const JOBS = {
   FULL: {
     NAME: 'mySpecialJob',
     CONFIG: {
       executor: 'PgBoss',
-      perform: {
-        fn: {
-          import: 'perform',
-          from: '@src/jobs/bar',
-        },
-        executorOptions: {
-          pgBoss: { jobOptions: { attempts: 3 } },
-        },
-      },
       entities: [TASK_ENTITY],
-      schedule: {
-        cron: '0 0 * * *',
-        args: { foo: 'bar' },
-        executorOptions: {
-          pgBoss: { jobOptions: { attempts: 3 } },
-        },
-      },
+      perform: PERFORM.FULL.CONFIG,
+      schedule: SCHEDULE.FULL.CONFIG,
     } satisfies Required<UserApi.JobConfig>,
   },
   MINIMAL: {
     NAME: 'mySimpleJob',
     CONFIG: {
       executor: 'PgBoss',
-      perform: {
-        fn: {
-          import: 'perform',
-          from: '@src/jobs/bar',
-        },
-      },
+      perform: PERFORM.MINIMAL.CONFIG,
     } satisfies UserApi.JobConfig,
   },
 } as const
