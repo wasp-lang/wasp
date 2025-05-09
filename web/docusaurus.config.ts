@@ -2,6 +2,8 @@ import type * as Preset from '@docusaurus/preset-classic'
 import type { Config, DocusaurusConfig } from '@docusaurus/types'
 import { themes } from 'prism-react-renderer'
 import autoImportTabs from './src/remark/auto-import-tabs'
+import autoJSCode from './src/remark/auto-js-code'
+import codeWithHole from './src/remark/code-with-hole'
 import fileExtSwitcher from './src/remark/file-ext-switcher'
 import searchAndReplace from './src/remark/search-and-replace'
 
@@ -157,7 +159,13 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           sidebarCollapsible: true,
           editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
-          remarkPlugins: [autoImportTabs, fileExtSwitcher, searchAndReplace],
+          remarkPlugins: [
+            autoJSCode,
+            autoImportTabs,
+            fileExtSwitcher,
+            searchAndReplace,
+            codeWithHole,
+          ],
 
           // ------ Configuration for multiple docs versions ------ //
 
