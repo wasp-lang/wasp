@@ -36,35 +36,35 @@ describe('parseProcessArgsOrThrow', () => {
     )
   })
 
-  test('should throw an error if any of the arguments is not a string', () => {
+  test('should throw an error if waspTsSpecPath is not a string', () => {
     testParseProcessArgsOrThrow(
       [
         'node',
         'run.js',
-        1,
+        undefined,
         'output.json',
         JSON.stringify(['entity1']),
       ] as string[],
       { shouldError: true }
     )
+  })
+
+  test('should throw an error if outputFilePath is not a string', () => {
     testParseProcessArgsOrThrow(
       [
         'node',
         'run.js',
         'main.wasp.js',
-        2,
+        undefined,
         JSON.stringify(['entity1']),
       ] as string[],
       { shouldError: true }
     )
+  })
+
+  test('should throw an error if any entityNames is not a string', () => {
     testParseProcessArgsOrThrow(
-      [
-        'node',
-        'run.js',
-        'main.wasp.js',
-        'output.json',
-        ['entitiy1'],
-      ] as string[],
+      ['node', 'run.js', 'main.wasp.js', 'output.json', undefined] as string[],
       { shouldError: true }
     )
   })
