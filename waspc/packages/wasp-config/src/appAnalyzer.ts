@@ -22,7 +22,7 @@ export async function analyzeUserApp(
   }
 }
 
-export async function getUserApp(
+async function getUserApp(
   mainWaspJs: string
 ): Promise<Result<UserApi.App, string>> {
   const usersDefaultExport: unknown = (await import(mainWaspJs)).default
@@ -53,6 +53,6 @@ export async function getUserApp(
  * - The error users see with the Result type is nicer (no stack trace).
  * - Exceptions can slip through the type system.
  */
-export type Result<Value, Error> =
+type Result<Value, Error> =
   | { status: 'ok'; value: Value }
   | { status: 'error'; error: Error }

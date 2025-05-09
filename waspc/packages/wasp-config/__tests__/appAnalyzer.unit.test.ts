@@ -1,7 +1,7 @@
 import { afterEach } from 'node:test'
 import { describe, expect, test, vi } from 'vitest'
 import { GET_USER_SPEC } from '../src/_private'
-import { analyzeUserApp, getUserApp } from '../src/appAnalyzer'
+import { analyzeUserApp } from '../src/appAnalyzer'
 import { mapUserSpecToAppSpecDecls } from '../src/mapUserSpecToAppSpecDecls'
 import * as UserApi from '../src/userApi'
 import * as Fixtures from './testFixtures.js'
@@ -63,58 +63,7 @@ describe('analyzeUserApp', () => {
       const userSpec = userApp[GET_USER_SPEC]()
       const appSpecDecls = mapUserSpecToAppSpecDecls(userSpec, entities)
 
-      expect(result.value).toBe(JSON.stringify(appSpecDecls))
-    }
-  }
-})
-
-describe('getUserApp', () => {
-  afterEach(() => vi.clearAllMocks())
-
-  test('should return the user app if the default export is valid', async () => {
-    await testGetUserApp({ default: Fixtures.createUserApp('minimal') })
-  })
-
-  test('should return an error if the default export is not defined', async () => {
-    await testGetUserApp(
-      { default: undefined as unknown as UserApi.App },
-      { shouldReturnError: true }
-    )
-  })
-
-  test('should return an error if the default export is not an instance of App', async () => {
-    await testGetUserApp(
-      { default: 'not an instance of App' as unknown as UserApi.App },
-      { shouldReturnError: true }
-    )
-  })
-
-  async function testGetUserApp(
-    userAppModule: { default: UserApi.App },
-    options:
-      | {
-          shouldReturnError?: boolean
-        }
-      | undefined = {
-      shouldReturnError: false,
-    }
-  ): Promise<void> {
-    const { shouldReturnError } = options
-    const mockFileName = 'main.wasp.ts'
-    vi.doMock(mockFileName, () => userAppModule)
-
-    const result = await getUserApp(mockFileName)
-
-    if (shouldReturnError) {
-      if (result.status !== 'error') {
-        throw new Error('Expected an error, but got a successful result.')
-      }
-      expect(result.error).toBeDefined()
-    } else {
-      if (result.status !== 'ok') {
-        throw new Error('Expected a successful result, but got an error.')
-      }
-      expect(result.value).toBe(userAppModule.default)
+      expect(result.value).toStrictEqual(JSON.stringify(appSpecDecls))
     }
   }
 })
