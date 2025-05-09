@@ -2,6 +2,7 @@ import { AuthUser } from 'wasp/auth'
 import { getMe } from 'wasp/client/auth'
 import {
   getDate,
+  getSerializedObjects,
   getAnythingAuth,
   getTrueVoid,
   voidToStringAuth,
@@ -25,6 +26,8 @@ import {
   taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
   taskToTaskSatisfies as taskToTaskSatisfiesDefinition,
 } from './definitions'
+
+import { SERIALIZABLE_OBJECTS_FIXTURE } from './fixtures'
 
 import { Task } from 'wasp/entities'
 import { Payload } from 'wasp/server/_types'
@@ -57,6 +60,12 @@ type TestCases = [
   Expect<Equal<typeof boolToVoidNoAuth, (payload: boolean) => Promise<void>>>,
   Expect<Equal<typeof boolToVoidAuth, (payload: boolean) => Promise<void>>>,
   Expect<Equal<typeof getDate, QueryMetadata & (() => Promise<Date>)>>,
+  Expect<
+    Equal<
+      typeof getSerializedObjects,
+      QueryMetadata & (() => Promise<typeof SERIALIZABLE_OBJECTS_FIXTURE>)
+    >
+  >,
   Expect<
     Equal<
       typeof getAnythingAuth,

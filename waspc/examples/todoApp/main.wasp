@@ -241,12 +241,12 @@ query getDate {
 }
 
 query getSerializedObjects {
-  fn: import { getSerializedObjects } from "@src/rpcTests/operations",
+  fn: import { getSerializedObjects } from "@src/testTypes/operations/definitions",
 }
 
 route SerializationRoute { path: "/serialization", to: SerializationPage }
 page SerializationPage {
-  component: import { SerializationPage } from "@src/rpcTests/SerializationPage",
+  component: import { SerializationPage } from "@src/testTypes/operations/SerializationPage",
 }
 
 query getAnythingNoAuth {

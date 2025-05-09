@@ -7,11 +7,14 @@ import type {
   TaskToTaskSatisfies,
   TaskToTaskSpecified,
   GetDate,
+  GetSerializedObjects,
   GetAnythingAuth,
   GetAnythingNoAuth,
   GetTrueVoid,
   GetAnyToNumberSpecified,
 } from 'wasp/server/operations'
+
+import { SERIALIZABLE_OBJECTS_FIXTURE } from './fixtures'
 
 export const taskToTaskUnspecified = async (args: Task) => args
 
@@ -103,6 +106,11 @@ export const getDate: GetDate<void, Date> = async () => {
   return new Date()
 }
 
+export const getSerializedObjects: GetSerializedObjects<
+  void,
+  typeof SERIALIZABLE_OBJECTS_FIXTURE
+> = async () => SERIALIZABLE_OBJECTS_FIXTURE
+
 export const getAnythingAuth: GetAnythingAuth = async () => {
   return 'anything'
 }
@@ -110,7 +118,6 @@ export const getAnythingAuth: GetAnythingAuth = async () => {
 export const getAnythingNoAuth: GetAnythingNoAuth = async () => {
   return 'anything'
 }
-
 
 export const getTrueVoid = (async () => {
   return 'anything'
@@ -124,6 +131,9 @@ export const getAnyAuth = (_args: any, _context: any): any => {
   return 'anything'
 }
 
-export const getAnyToNumberSpecified: GetAnyToNumberSpecified<any, number> = (_args, _context) => {
+export const getAnyToNumberSpecified: GetAnyToNumberSpecified<any, number> = (
+  _args,
+  _context
+) => {
   return 10
 }
