@@ -1,0 +1,31 @@
+{
+  "name": "tutorial",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "tsx ./src/index.ts",
+    "generate-patch": "tsx ./src/generate-patch.ts",
+    "parse-markdown": "tsx ./src/markdown/index.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@commander-js/extra-typings": "^13.1.0",
+    "acorn": "^8.14.1",
+    "commander": "^13.1.0",
+    "dedent": "^1.6.0",
+    "mdast-util-from-markdown": "^2.0.2",
+    "mdast-util-frontmatter": "^2.0.1",
+    "mdast-util-mdx": "^3.0.0",
+    "mdast-util-mdx-jsx": "^3.2.0",
+    "mdast-util-to-markdown": "^2.1.2",
+    "micromark-extension-mdx-jsx": "^3.0.2",
+    "remark-comment": "^1.0.0",
+    "unist-util-visit": "^5.0.0",
+    "zx": "^8.5.3"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "tsx": "^4.19.4"
+  }
+}

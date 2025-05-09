@@ -4,6 +4,7 @@ title: 7. Adding Authentication
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
+import { TutorialAction } from '@site/src/components/TutorialAction';
 
 Most modern apps need a way to create and authenticate users. Wasp makes this as easy as possible with its first-class auth support.
 
@@ -23,6 +24,29 @@ Since Wasp manages authentication, it will create [the auth related entities](..
 
 You must only add the `User` Entity to keep track of who owns which tasks:
 
+<TutorialAction step="15" action="diff">
+
+```diff
+diff --git a/schema.prisma b/schema.prisma
+index 65d7d30..e07f47c 100644
+--- a/schema.prisma
++++ b/schema.prisma
+@@ -9,6 +9,10 @@ generator client {
+   provider = "prisma-client-js"
+ }
+ 
++model User {
++  id Int @id @default(autoincrement())
++}
++
+ model Task {
+   id          Int     @id @default(autoincrement())
+   description String
+
+```
+
+</TutorialAction>
+
 ```prisma title="schema.prisma"
 // ...
 
@@ -34,6 +58,37 @@ model User {
 ## Adding Auth to the Project
 
 Next, tell Wasp to use full-stack [authentication](../auth/overview):
+
+<TutorialAction step="16" action="diff">
+
+```diff
+diff --git a/main.wasp b/main.wasp
+index 42f8f6e..9b61df0 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -2,7 +2,17 @@ app TodoApp {
+   wasp: {
+     version: "^0.16.3"
+   },
+-  title: "TodoApp"
++  title: "TodoApp",
++  auth: {
++    // Tells Wasp which entity to use for storing users.
++    userEntity: User,
++    methods: {
++      // Enable username and password auth.
++      usernameAndPassword: {}
++    },
++    // We'll see how this is used in a bit.
++    onAuthFailedRedirectTo: "/login"
++  }
+ }
+ 
+ route RootRoute { path: "/", to: MainPage }
+
+```
+
+</TutorialAction>
 
 ```wasp title="main.wasp"
 app TodoApp {
@@ -59,6 +114,8 @@ app TodoApp {
 ```
 
 Don't forget to update the database schema by running:
+
+<TutorialAction step="17" action="migrate-db" />
 
 ```sh
 wasp db migrate-dev
@@ -97,6 +154,33 @@ Wasp creates the login and signup forms for us, but we still need to define the 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
+  <TutorialAction step="18" action="diff">
+
+  ```diff
+  diff --git a/main.wasp b/main.wasp
+  index 4dccb7d..12a0895 100644
+  --- a/main.wasp
+  +++ b/main.wasp
+  @@ -39,3 +39,13 @@ action updateTask {
+     fn: import { updateTask } from "@src/actions",
+     entities: [Task]
+   }
+  +
+  +route SignupRoute { path: "/signup", to: SignupPage }
+  +page SignupPage {
+  +  component: import { SignupPage } from "@src/SignupPage"
+  +}
+  +
+  +route LoginRoute { path: "/login", to: LoginPage }
+  +page LoginPage {
+  +  component: import { LoginPage } from "@src/LoginPage"
+  +}
+
+  ```
+
+  </TutorialAction>
+
+
     ```wasp title="main.wasp"
     // ...
 
@@ -138,22 +222,26 @@ Here's the React code for the pages you've just imported:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/LoginPage.tsx"
-    import { Link } from 'react-router-dom'
-    import { LoginForm } from 'wasp/client/auth'
+  <TutorialAction step="19" action="write" path="src/LoginPage.tsx">
 
-    export const LoginPage = () => {
-      return (
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <LoginForm />
-          <br />
-          <span>
-            I don't have an account yet (<Link to="/signup">go to signup</Link>).
-          </span>
-        </div>
-      )
-    }
-    ```
+  ```tsx title="src/LoginPage.tsx"
+  import { Link } from 'react-router-dom'
+  import { LoginForm } from 'wasp/client/auth'
+
+  export const LoginPage = () => {
+    return (
+      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <LoginForm />
+        <br />
+        <span>
+          I don't have an account yet (<Link to="/signup">go to signup</Link>).
+        </span>
+      </div>
+    )
+  }
+  ```
+
+  </TutorialAction>
   </TabItem>
 </Tabs>
 
@@ -180,22 +268,26 @@ The signup page is very similar to the login page:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/SignupPage.tsx"
-    import { Link } from 'react-router-dom'
-    import { SignupForm } from 'wasp/client/auth'
+  <TutorialAction step="20" action="write" path="src/SignupPage.tsx">
 
-    export const SignupPage = () => {
-      return (
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <SignupForm />
-          <br />
-          <span>
-            I already have an account (<Link to="/login">go to login</Link>).
-          </span>
-        </div>
-      )
-    }
-    ```
+  ```tsx title="src/SignupPage.tsx"
+  import { Link } from 'react-router-dom'
+  import { SignupForm } from 'wasp/client/auth'
+
+  export const SignupPage = () => {
+    return (
+      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <SignupForm />
+        <br />
+        <span>
+          I already have an account (<Link to="/login">go to login</Link>).
+        </span>
+      </div>
+    )
+  }
+  ```
+
+  </TutorialAction>
   </TabItem>
 </Tabs>
 
@@ -209,6 +301,25 @@ The signup page is very similar to the login page:
 
 We don't want users who are not logged in to access the main page, because they won't be able to create any tasks. So let's make the page private by requiring the user to be logged in:
 
+<TutorialAction step="21" action="diff">
+
+```diff
+diff --git a/main.wasp b/main.wasp
+index 12a0895..c621b88 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -17,6 +17,7 @@ app TodoApp {
+ 
+ route RootRoute { path: "/", to: MainPage }
+ page MainPage {
++  authRequired: true,
+   component: import { MainPage } from "@src/MainPage"
+ }
+
+
+```
+
+</TutorialAction>
 ```wasp title="main.wasp"
 // ...
 
@@ -235,6 +346,29 @@ Additionally, when `authRequired` is `true`, the page's React component will be 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
+  <TutorialAction step="22" action="diff">
+
+  ```diff
+  diff --git a/src/MainPage.tsx b/src/MainPage.tsx
+  index 0f58592..bb64039 100644
+  --- a/src/MainPage.tsx
+  +++ b/src/MainPage.tsx
+  @@ -6,8 +6,9 @@ import {
+     getTasks,
+     useQuery,
+   } from 'wasp/client/operations'
+  +import { AuthUser } from 'wasp/auth'
+   
+  -export const MainPage = () => {
+  +export const MainPage = ({ user }: { user: AuthUser }) => {
+     const { data: tasks, isLoading, error } = useQuery(getTasks)
+   
+     return (
+
+  ```
+
+  </TutorialAction>
+
     ```tsx title="src/MainPage.tsx"
     import { AuthUser } from 'wasp/auth'
 
@@ -271,6 +405,34 @@ However, you will notice that if you try logging in as different users and creat
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
+<TutorialAction step="23" action="diff">
+
+```diff
+diff --git a/schema.prisma b/schema.prisma
+index e07f47c..aad0a3c 100644
+--- a/schema.prisma
++++ b/schema.prisma
+@@ -10,11 +10,14 @@ generator client {
+ }
+ 
+ model User {
+-  id Int @id @default(autoincrement())
++  id    Int    @id @default(autoincrement())
++  tasks Task[]
+ }
+ 
+ model Task {
+   id          Int     @id @default(autoincrement())
+   description String
+   isDone      Boolean @default(false)
++  user        User?   @relation(fields: [userId], references: [id])
++  userId      Int?
+ }
+
+```
+
+</TutorialAction>
+
 ```prisma title="schema.prisma"
 // ...
 
@@ -293,6 +455,7 @@ model Task {
 
 As always, you must migrate the database after changing the Entities:
 
+<TutorialAction step="24" action="migrate-db" />
 ```sh
 wasp db migrate-dev
 ```
@@ -331,6 +494,35 @@ Next, let's update the queries and actions to forbid access to non-authenticated
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
+  <TutorialAction step="25" action="diff">
+
+  ```diff
+  diff --git a/src/queries.ts b/src/queries.ts
+  index 49d17ec..dc744eb 100644
+  --- a/src/queries.ts
+  +++ b/src/queries.ts
+  @@ -1,8 +1,13 @@
+   import { Task } from 'wasp/entities'
+  -import { type GetTasks } from 'wasp/server/operations'
+  +import { HttpError } from 'wasp/server'
+  +import { GetTasks } from 'wasp/server/operations'
+   
+   export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
+  +  if (!context.user) {
+  +    throw new HttpError(401)
+  +  }
+     return context.entities.Task.findMany({
+  +    where: { user: { id: context.user.id } },
+       orderBy: { id: 'asc' },
+     })
+  -}
+  \ No newline at end of file
+  +}
+
+  ```
+
+  </TutorialAction>
+
     ```ts title="src/queries.ts"
     import { Task } from 'wasp/entities'
     // highlight-next-line
@@ -383,6 +575,64 @@ Next, let's update the queries and actions to forbid access to non-authenticated
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
+
+  <TutorialAction step="26" action="diff">
+
+  ```diff
+  diff --git a/src/actions.ts b/src/actions.ts
+  index 45c82eb..1a0d088 100644
+  --- a/src/actions.ts
+  +++ b/src/actions.ts
+  @@ -1,4 +1,5 @@
+   import { Task } from 'wasp/entities'
+  +import { HttpError } from 'wasp/server'
+   import { CreateTask, UpdateTask } from 'wasp/server/operations'
+   
+   type CreateTaskPayload = Pick<Task, 'description'>
+  @@ -7,21 +8,28 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+     args,
+     context
+   ) => {
+  +  if (!context.user) {
+  +    throw new HttpError(401)
+  +  }
+     return context.entities.Task.create({
+  -    data: { description: args.description },
+  +    data: {
+  +      description: args.description,
+  +      user: { connect: { id: context.user.id } },
+  +    },
+     })
+   }
+   
+   type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
+   
+  -export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
+  -  { id, isDone },
+  -  context
+  -) => {
+  -  return context.entities.Task.update({
+  -    where: { id },
+  -    data: {
+  -      isDone: isDone,
+  -    },
+  +export const updateTask: UpdateTask<
+  +  UpdateTaskPayload,
+  +  { count: number }
+  +> = async ({ id, isDone }, context) => {
+  +  if (!context.user) {
+  +    throw new HttpError(401)
+  +  }
+  +  return context.entities.Task.updateMany({
+  +    where: { id, user: { id: context.user.id } },
+  +    data: { isDone },
+     })
+   }
+
+  ```
+
+  </TutorialAction>
+
     ```ts {2,11-13,17,28-30,32} title="src/actions.ts"
     import { Task } from 'wasp/entities'
     import { HttpError } from 'wasp/server'
@@ -463,6 +713,33 @@ Last, but not least, let's add the logout functionality:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
+  <TutorialAction step="27" action="diff">
+
+  ```diff
+  diff --git a/src/MainPage.tsx b/src/MainPage.tsx
+  index bb64039..abe5672 100644
+  --- a/src/MainPage.tsx
+  +++ b/src/MainPage.tsx
+  @@ -7,6 +7,7 @@ import {
+     useQuery,
+   } from 'wasp/client/operations'
+   import { AuthUser } from 'wasp/auth'
+  +import { logout } from 'wasp/client/auth'
+   
+   export const MainPage = ({ user }: { user: AuthUser }) => {
+     const { data: tasks, isLoading, error } = useQuery(getTasks)
+  @@ -19,6 +20,7 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
+   
+         {isLoading && 'Loading...'}
+         {error && 'Error: ' + error}
+  +      <button onClick={logout}>Logout</button>
+       </div>
+     )
+   }
+
+  ```
+
+  </TutorialAction>
     ```tsx {2,10} title="src/MainPage.tsx"
     // ...
     import { logout } from 'wasp/client/auth'

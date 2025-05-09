@@ -12,7 +12,7 @@ const replacements = [
   },
 ]
 
-const plugin: Plugin<[], Root> = () => (tree) => {
+export function visitor(tree: Root) {
   visit(tree, (node) => {
     // NOTE: For now we only replace in code blocks to keep
     // the search and replace logic simple.
@@ -23,5 +23,7 @@ const plugin: Plugin<[], Root> = () => (tree) => {
     }
   })
 }
+
+const plugin: Plugin<[], Root> = () => visitor
 
 export default plugin
