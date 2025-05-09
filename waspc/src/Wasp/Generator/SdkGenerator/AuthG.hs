@@ -59,7 +59,8 @@ genAuth spec =
             genSessionTs auth,
             genLuciaTs auth,
             genUtils auth,
-            genProvidersTypes auth
+            genProvidersTypes auth,
+            genProvdersIndex auth
           ]
         <++> genOAuth auth
         <++> genIndexTs auth
@@ -134,6 +135,19 @@ genIndexTs auth =
         ]
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+
+genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
+genProvdersIndex auth = return $ C.mkTmplFdWithData [relfile|auth/providers/index.ts|] tmplData
+  where
+    tmplData =
+      object
+        [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+        ]
+
+    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/types.ts|] tmplData

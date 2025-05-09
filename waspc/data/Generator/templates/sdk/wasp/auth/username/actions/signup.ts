@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { api, handleApiError } from 'wasp/client/api'
 {=# usernameAndPasswordUserSignupFields.isDefined =}
-import { type UserUsernameAndPasswordSignupFields } from '../../providers/types'
+import { type UserUsernameAndPasswordSignupFields } from '../../providers'
 
 interface UsernameSignupData extends UserUsernameAndPasswordSignupFields {}
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
