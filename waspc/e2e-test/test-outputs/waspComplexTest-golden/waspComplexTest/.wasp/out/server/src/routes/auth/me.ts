@@ -1,10 +1,10 @@
-import { serialize as superjsonSerialize } from 'superjson'
+import { serialize } from 'wasp/core/serialization'
 import { defineHandler } from 'wasp/server/utils'
 
 export default defineHandler(async (req, res) => {
   if (req.user) {
-    res.json(superjsonSerialize(req.user))
+    return res.json(serialize(req.user))
   } else {
-    res.json(superjsonSerialize(null))
+    return res.json(serialize(null))
   }
 })

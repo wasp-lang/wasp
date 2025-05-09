@@ -1,13 +1,13 @@
-import type {
-  AuthenticatedActionDefinition,
-  AuthenticatedQueryDefinition,
-  _Task,
-} from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload, SuperJSONObject } from "../_types/serialization";
+import type { Payload } from "wasp/core/serialization";
 import type {
-  Task,
+    Task,
 } from "wasp/entities";
+import type {
+    AuthenticatedActionDefinition,
+    AuthenticatedQueryDefinition,
+    _Task,
+} from "../_types";
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task

@@ -1,7 +1,7 @@
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
-import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization'
+import type { JSONValue, JSONObject } from 'wasp/core/serialization'
 import { PrismaDelegate } from 'wasp/server/_types'
 import type { JobFn } from 'wasp/server/jobs/core/pgBoss'
 
