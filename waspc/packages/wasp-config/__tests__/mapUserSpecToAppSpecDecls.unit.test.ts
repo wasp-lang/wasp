@@ -98,22 +98,22 @@ describe('mapApp', () => {
 
 describe('mapAuth', () => {
   test('should map minimal config correctly', () => {
-    testMapAuth(Fixtures.AUTH.MINIMAL.CONFIG)
+    testMapAuth(Fixtures.AUTH.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapAuth(Fixtures.AUTH.FULL.CONFIG)
+    testMapAuth(Fixtures.AUTH.FULL)
   })
 
   test('should throw if userEntity is not provided to entity parser', () => {
-    testMapAuth(Fixtures.AUTH.MINIMAL.CONFIG, {
+    testMapAuth(Fixtures.AUTH.MINIMAL, {
       overrideEntities: [],
       shouldError: true,
     })
   })
 
   test('should throw if externalAuthEntity ref is not provided when defined', () => {
-    const auth = Fixtures.AUTH.FULL.CONFIG
+    const auth = Fixtures.AUTH.FULL
     testMapAuth(auth, {
       overrideEntities: [auth.userEntity],
       shouldError: true,
@@ -121,7 +121,7 @@ describe('mapAuth', () => {
   })
 
   test('should throw if emailVerification clientRoute ref is not provided when defined', () => {
-    const auth = Fixtures.AUTH.FULL.CONFIG
+    const auth = Fixtures.AUTH.FULL
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
       shouldError: true,
@@ -129,7 +129,7 @@ describe('mapAuth', () => {
   })
 
   test('should throw if passwordReset clientRoute ref is not provided when defined', () => {
-    const auth = Fixtures.AUTH.FULL.CONFIG
+    const auth = Fixtures.AUTH.FULL
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
       shouldError: true,
@@ -204,15 +204,15 @@ describe('mapAuth', () => {
 
 describe('mapAuthMethods', () => {
   test('should map minimal config correctly', () => {
-    testMapAuthMethods(Fixtures.AUTH_METHODS.MINIMAL.CONFIG)
+    testMapAuthMethods(Fixtures.AUTH_METHODS.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapAuthMethods(Fixtures.AUTH_METHODS.FULL.CONFIG)
+    testMapAuthMethods(Fixtures.AUTH_METHODS.FULL)
   })
 
   test('should throw if emailVerification clientRoute ref is not provided when defined', () => {
-    const authMethods = Fixtures.AUTH_METHODS.FULL.CONFIG
+    const authMethods = Fixtures.AUTH_METHODS.FULL
     testMapAuthMethods(authMethods, {
       overrideRoutes: [authMethods.email.emailVerification.clientRoute],
       shouldError: true,
@@ -220,7 +220,7 @@ describe('mapAuthMethods', () => {
   })
 
   test('should throw if passwordReset clientRoute ref is not provided when defined', () => {
-    const authMethods = Fixtures.AUTH_METHODS.FULL.CONFIG
+    const authMethods = Fixtures.AUTH_METHODS.FULL
     testMapAuthMethods(authMethods, {
       overrideRoutes: [authMethods.email.passwordReset.clientRoute],
       shouldError: true,
@@ -274,15 +274,15 @@ describe('mapAuthMethods', () => {
 
 describe('mapEmailAuth', () => {
   test('should map minimal config correctly', () => {
-    testMapEmailAuth(Fixtures.EMAIL_AUTH.MINIMAL.CONFIG)
+    testMapEmailAuth(Fixtures.EMAIL_AUTH.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapEmailAuth(Fixtures.EMAIL_AUTH.FULL.CONFIG)
+    testMapEmailAuth(Fixtures.EMAIL_AUTH.FULL)
   })
 
   test('should throw if emailVerification clientRoute ref is not provided when defined', () => {
-    const emailAuth = Fixtures.EMAIL_AUTH.FULL.CONFIG
+    const emailAuth = Fixtures.EMAIL_AUTH.FULL
     testMapEmailAuth(emailAuth, {
       overrideRoutes: [emailAuth.passwordReset.clientRoute],
       shouldError: true,
@@ -290,7 +290,7 @@ describe('mapEmailAuth', () => {
   })
 
   test('should throw if passwordReset clientRoute ref is not provided when defined', () => {
-    const emailAuth = Fixtures.EMAIL_AUTH.FULL.CONFIG
+    const emailAuth = Fixtures.EMAIL_AUTH.FULL
     testMapEmailAuth(emailAuth, {
       overrideRoutes: [emailAuth.emailVerification.clientRoute],
       shouldError: true,
@@ -343,15 +343,15 @@ describe('mapEmailAuth', () => {
 
 describe('mapEmailVerification', () => {
   test('should map minimal config correctly', () => {
-    testMapEmailVerification(Fixtures.EMAIL_VERIFICATION.MINIMAL.CONFIG)
+    testMapEmailVerification(Fixtures.EMAIL_VERIFICATION.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapEmailVerification(Fixtures.EMAIL_VERIFICATION.FULL.CONFIG)
+    testMapEmailVerification(Fixtures.EMAIL_VERIFICATION.FULL)
   })
 
   test('should throw if clientRoute ref is not provided when defined', () => {
-    testMapEmailVerification(Fixtures.EMAIL_VERIFICATION.FULL.CONFIG, {
+    testMapEmailVerification(Fixtures.EMAIL_VERIFICATION.FULL, {
       overrideRoutes: [],
       shouldError: true,
     })
@@ -401,15 +401,15 @@ describe('mapEmailVerification', () => {
 
 describe('mapPasswordReset', () => {
   test('should map minimal config correctly', () => {
-    testMapPasswordReset(Fixtures.PASSWORD_RESET.MINIMAL.CONFIG)
+    testMapPasswordReset(Fixtures.PASSWORD_RESET.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapPasswordReset(Fixtures.PASSWORD_RESET.FULL.CONFIG)
+    testMapPasswordReset(Fixtures.PASSWORD_RESET.FULL)
   })
 
   test('should throw if clientRoute ref is not provided when defined', () => {
-    testMapPasswordReset(Fixtures.PASSWORD_RESET.FULL.CONFIG, {
+    testMapPasswordReset(Fixtures.PASSWORD_RESET.FULL, {
       overrideRoutes: [],
       shouldError: true,
     })
@@ -459,13 +459,11 @@ describe('mapPasswordReset', () => {
 
 describe('mapUsernameAndPassword', () => {
   test('should map minimal config correctly', () => {
-    testMapUsernameAndPassword(
-      Fixtures.USERNAME_AND_PASSWORD_AUTH.MINIMAL.CONFIG
-    )
+    testMapUsernameAndPassword(Fixtures.USERNAME_AND_PASSWORD_AUTH.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapUsernameAndPassword(Fixtures.USERNAME_AND_PASSWORD_AUTH.FULL.CONFIG)
+    testMapUsernameAndPassword(Fixtures.USERNAME_AND_PASSWORD_AUTH.FULL)
   })
 
   function testMapUsernameAndPassword(
@@ -483,11 +481,11 @@ describe('mapUsernameAndPassword', () => {
 
 describe('mapExternalAuth', () => {
   test('should map minimal config correctly', () => {
-    testMapExternalAuth(Fixtures.EXTERNAL_AUTH.MINIMAL.CONFIG)
+    testMapExternalAuth(Fixtures.EXTERNAL_AUTH.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapExternalAuth(Fixtures.EXTERNAL_AUTH.FULL.CONFIG)
+    testMapExternalAuth(Fixtures.EXTERNAL_AUTH.FULL)
   })
 
   function testMapExternalAuth(externalAuth: UserApi.ExternalAuthConfig): void {
@@ -504,11 +502,11 @@ describe('mapExternalAuth', () => {
 
 describe('mapClient', () => {
   test('should map minimal config correctly', () => {
-    testMapClient(Fixtures.CLIENT.MINIMAL.CONFIG)
+    testMapClient(Fixtures.CLIENT.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapClient(Fixtures.CLIENT.FULL.CONFIG)
+    testMapClient(Fixtures.CLIENT.FULL)
   })
 
   function testMapClient(client: UserApi.ClientConfig): void {
@@ -526,11 +524,11 @@ describe('mapClient', () => {
 
 describe('mapServer', () => {
   test('should map minimal config correctly', () => {
-    testMapServer(Fixtures.SERVER.MINIMAL.CONFIG)
+    testMapServer(Fixtures.SERVER.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapServer(Fixtures.SERVER.FULL.CONFIG)
+    testMapServer(Fixtures.SERVER.FULL)
   })
 
   function testMapServer(server: UserApi.ServerConfig): void {
@@ -548,11 +546,11 @@ describe('mapServer', () => {
 
 describe('mapEmailSender', () => {
   test('should map minimal config correctly', () => {
-    testMapEmailSender(Fixtures.EMAIL_SENDER.MINIMAL.CONFIG)
+    testMapEmailSender(Fixtures.EMAIL_SENDER.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapEmailSender(Fixtures.EMAIL_SENDER.FULL.CONFIG)
+    testMapEmailSender(Fixtures.EMAIL_SENDER.FULL)
   })
 
   function testMapEmailSender(emailSender: UserApi.EmailSender): void {
@@ -568,11 +566,11 @@ describe('mapEmailSender', () => {
 
 describe('mapWebSocket', () => {
   test('should map minimal config correctly', () => {
-    testMapWebSocket(Fixtures.WEBSOCKET.MINIMAL.CONFIG)
+    testMapWebSocket(Fixtures.WEBSOCKET.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapWebSocket(Fixtures.WEBSOCKET.FULL.CONFIG)
+    testMapWebSocket(Fixtures.WEBSOCKET.FULL)
   })
 
   function testMapWebSocket(websocket: UserApi.WebsocketConfig): void {
@@ -587,11 +585,11 @@ describe('mapWebSocket', () => {
 
 describe('mapDb', () => {
   test('should map minimal config correctly', () => {
-    testDb(Fixtures.DB.MINIMAL.CONFIG)
+    testDb(Fixtures.DB.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testDb(Fixtures.DB.FULL.CONFIG)
+    testDb(Fixtures.DB.FULL)
   })
 
   function testDb(db: UserApi.DbConfig): void {
@@ -764,11 +762,11 @@ describe('mapCrud', () => {
 
 describe('mapCrudOperations', () => {
   test('should map minimal config correctly', () => {
-    testMapCrudOperations(Fixtures.CRUD_OPERATIONS.MINIMAL.CONFIG)
+    testMapCrudOperations(Fixtures.CRUD_OPERATIONS.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapCrudOperations(Fixtures.CRUD_OPERATIONS.FULL.CONFIG)
+    testMapCrudOperations(Fixtures.CRUD_OPERATIONS.FULL)
   })
 
   function testMapCrudOperations(crudOperations: UserApi.CrudOperations): void {
@@ -790,11 +788,11 @@ describe('mapCrudOperations', () => {
 
 describe('mapCrudOperationOptions', () => {
   test('should map minimal config correctly', () => {
-    testMapCrudOperationOptions(Fixtures.CRUD_OPERATION_OPTIONS.MINIMAL.CONFIG)
+    testMapCrudOperationOptions(Fixtures.CRUD_OPERATION_OPTIONS.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapCrudOperationOptions(Fixtures.CRUD_OPERATION_OPTIONS.FULL.CONFIG)
+    testMapCrudOperationOptions(Fixtures.CRUD_OPERATION_OPTIONS.FULL)
   })
 
   function testMapCrudOperationOptions(
@@ -889,11 +887,11 @@ describe('mapApi', () => {
 describe('mapHttpRoute', () => {
   // NOTE: currently minimal config is the same as full config
   test('should map minimal config correctly', () => {
-    testMapHttpRoute(Fixtures.HTTP_ROUTES.MINIMAL.CONFIG)
+    testMapHttpRoute(Fixtures.HTTP_ROUTES.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapHttpRoute(Fixtures.HTTP_ROUTES.FULL.CONFIG)
+    testMapHttpRoute(Fixtures.HTTP_ROUTES.FULL)
   })
 
   function testMapHttpRoute(httpRoute: UserApi.HttpRoute): void {
@@ -961,11 +959,11 @@ describe('mapJob', () => {
 
 describe('mapSchedule', () => {
   test('should map minimal config correctly', () => {
-    testMapSchedule(Fixtures.SCHEDULE.MINIMAL.CONFIG)
+    testMapSchedule(Fixtures.SCHEDULE.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapSchedule(Fixtures.SCHEDULE.FULL.CONFIG)
+    testMapSchedule(Fixtures.SCHEDULE.FULL)
   })
 
   function testMapSchedule(schedule: UserApi.ScheduleConfig): void {
@@ -981,11 +979,11 @@ describe('mapSchedule', () => {
 
 describe('mapPerform', () => {
   test('should map minimal config correctly', () => {
-    testMapPerform(Fixtures.PERFORM.MINIMAL.CONFIG)
+    testMapPerform(Fixtures.PERFORM.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapPerform(Fixtures.PERFORM.FULL.CONFIG)
+    testMapPerform(Fixtures.PERFORM.FULL)
   })
 
   function testMapPerform(perform: UserApi.Perform): void {
@@ -1000,11 +998,11 @@ describe('mapPerform', () => {
 
 describe('mapEmailFromField', () => {
   test('should map minimal config correctly', () => {
-    testMapEmailFromField(Fixtures.EMAIL_FROM_FIELD.MINIMAL.CONFIG)
+    testMapEmailFromField(Fixtures.EMAIL_FROM_FIELD.MINIMAL)
   })
 
   test('should map full config correctly', () => {
-    testMapEmailFromField(Fixtures.EMAIL_FROM_FIELD.FULL.CONFIG)
+    testMapEmailFromField(Fixtures.EMAIL_FROM_FIELD.FULL)
   })
 
   function testMapEmailFromField(emailFromField: UserApi.EmailFromField): void {
