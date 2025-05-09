@@ -8,18 +8,24 @@
   "main": "dist/run.js",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon ./src/index.ts"
+    "dev": "nodemon ./src/index.ts",
+    "test": "vitest --reporter=verbose",
+    "test:unit": "vitest --reporter=verbose --project unit",
+    "test:integration": "vitest --reporter=verbose --project integration",
+    "coverage": "vitest run --coverage"
   },
   "bin": "./dist/run.js",
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/node": "^22.4.1",
+    "@vitest/coverage-v8": "^3.1.2",
     "eslint": "^9.9.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
     "prettier": "3.3.3",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.1.0"
+    "typescript-eslint": "^8.1.0",
+    "vitest": "^3.1.2"
   },
   "exports": {
     ".": "./dist/index.js"
