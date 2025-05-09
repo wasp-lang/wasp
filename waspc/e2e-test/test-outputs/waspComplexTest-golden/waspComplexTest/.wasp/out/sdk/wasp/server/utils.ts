@@ -8,21 +8,20 @@ import { type AuthUserData } from './auth/user.js'
 declare global {
   namespace Express {
     interface Request {
-      user: AuthUserData | null;
-      sessionId: string | null;
+      user?: AuthUserData | null;
+      sessionId?: string | null;
     }
   }
 }
-
 
 /**
  * Simple helper to give the correct types for Express handlers.
  * We define it in the same file as our extension to Request
  * so that it is picked up by TypeScript.
  */
-export const defineHandler = (
-  middleware: RequestHandler
-) => middleware
+export const defineHandler = <T extends RequestHandler>(
+  middleware: T
+): T => middleware
 
 export const sleep = (ms: number): Promise<unknown> => new Promise((r) => setTimeout(r, ms))
 

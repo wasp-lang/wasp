@@ -5,6 +5,8 @@ A robust script to run your Wasp application, including automated database setup
 - `dev`: Runs the Wasp app in development mode using `wasp start`.
 - `build`: Builds the Wasp app for production using `wasp build` and runs it.
 
+When installed, it provides a `run-wasp-app` command that can be used to run your Wasp app.
+
 ## Usage
 
 ```bash
@@ -12,15 +14,15 @@ npm install
 # Installs wasp-app-runner globally from the local directory
 npm run install:global
 
-# Use the wasp-app-runner command to run your Wasp app
+# Use the `run-wasp-app` command to run your Wasp app
 cd /path/to/your/app
-wasp-app-runner run dev
+run-wasp-app dev
 ```
 
 ### Options
 
 ```bash
-wasp-app-runner run <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 You must pass the `<mode>` as an argument, which can be either `dev` or `build`.
@@ -48,7 +50,7 @@ When using the `dev` mode:
 
 When using the `build` mode:
 
-- `wasp-app-runner` will use the `.env.server` file when running the server container with Docker locally (which is not done usually by Wasp).
+- `run-wasp-app` will use the `.env.server` file when running the server container with Docker locally (which is not done usually by Wasp).
 - `.env.client` will not be used when building the client, the `REACT_APP_API_URL` is hard-coded to `http://localhost:3001`.
 
 ### Development
@@ -57,7 +59,7 @@ When developing, you can run the script directly from the local directory withou
 
 ```
 npm install
-npm run start -- run <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+npm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 `npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.

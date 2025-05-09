@@ -3,7 +3,7 @@
   "name": "wasp-app-runner",
   "type": "module",
   "bin": {
-    "wasp-app-runner": "bin/index.js"
+    "run-wasp-app": "bin/index.js"
   },
   "scripts": {
     "build": "tsc",

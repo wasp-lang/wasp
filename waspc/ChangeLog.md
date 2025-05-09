@@ -25,6 +25,10 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - Wasp will no longer automatically add a favicon `<link>` tag to the `index.html`. The `<link>` tag will be included by default in the `main.wasp` for new projects. ([#1979](https://github.com/wasp-lang/wasp/pull/1979)).
 - Updated Express to [v5](https://expressjs.com/en/guide/migrating-5.html) ([#2685](https://github.com/wasp-lang/wasp/pull/2685))
 
+### 🎉 New Features
+
+- Wasp now supports `onAfterEmailVerified` auth hooks! You can use this hook to run custom logic after a user has verified their email.
+
 ### 🐞 Bug fixes
 
 - Fixes an OAuth logic race condition where a valid session ID was cleared and users would be logged out. ([#2684](https://github.com/wasp-lang/wasp/pull/2684))

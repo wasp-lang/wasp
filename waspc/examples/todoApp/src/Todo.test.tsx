@@ -5,11 +5,11 @@ import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 import type { TaskVisibility } from '@prisma/client'
 
-import Todo, { areThereAnyTasks } from './Todo'
-import { App } from './App'
 import { getMe } from 'wasp/client/auth'
+import { App } from './App'
+import Todo, { areThereAnyTasks } from './Todo'
 
-import { Routes, Route } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
@@ -28,6 +28,7 @@ const mockTasks = [
       id: 1,
       isOnAfterSignupHookCalled: true,
       isOnAfterLoginHookCalled: true,
+      isOnAfterEmailVerifiedHookCalled: true,
       address: '123 Main St',
       auth: {
         id: '1',

@@ -1,14 +1,14 @@
+import cors from 'cors'
 import { type Application } from 'express'
-import { mySpecialJob } from 'wasp/server/jobs'
 import {
   config,
   env,
   type MiddlewareConfigFn,
   type ServerSetupFn,
 } from 'wasp/server'
+import { mySpecialJob } from 'wasp/server/jobs'
+import './rpcTests/operations/server.js'
 import { sayHi } from './util.js'
-import cors from 'cors'
-import './testTypes/operations/server.js'
 
 let someResource: string | undefined = undefined
 
