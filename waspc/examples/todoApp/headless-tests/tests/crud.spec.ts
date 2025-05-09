@@ -1,5 +1,9 @@
-import { expect, test } from '@playwright/test'
-import { generateRandomCredentials, performSignup } from './helpers'
+import { test, expect } from '@playwright/test'
+import {
+  generateRandomCredentials,
+  performEmailVerification,
+  performSignup,
+} from './helpers'
 
 test.describe('CRUD test', () => {
   const { email, password } = generateRandomCredentials()
@@ -17,6 +21,8 @@ test.describe('CRUD test', () => {
     await expect(page.locator('body')).toContainText(
       `You've signed up successfully! Check your email for the confirmation link.`
     )
+
+    await performEmailVerification(page, email)
   })
 
   test('CRUD with override works', async ({ page }) => {
