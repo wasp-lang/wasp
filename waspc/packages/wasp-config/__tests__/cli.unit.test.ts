@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { getValidEntityNamesOrThrow, parseProcessArgsOrThrow } from '../src/cli'
+import { parseProcessArgsOrThrow } from '../src/cli'
 
 describe('parseProcessArgsOrThrow', () => {
   test('should parse arguments correctly', () => {
@@ -104,7 +104,7 @@ describe('parseProcessArgsOrThrow', () => {
     expect(result).toEqual({
       waspTsSpecPath: args.at(2),
       outputFilePath: args.at(3),
-      entityNames: args.at(4) && getValidEntityNamesOrThrow(args[4]),
+      entityNames: args.at(4) && JSON.parse(args[4]),
     })
   }
 })
