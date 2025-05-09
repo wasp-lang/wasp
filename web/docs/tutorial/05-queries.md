@@ -4,6 +4,7 @@ title: 5. Querying the Database
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
+import { TutorialAction } from '@site/src/components/TutorialAction';
 
 We want to know which tasks we need to do, so let's list them!
 
@@ -42,6 +43,35 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
+  <TutorialAction step="5" action="diff">
+
+  ```diff
+  diff --git a/main.wasp b/main.wasp
+  index 3a25ea9..ea22c79 100644
+  --- a/main.wasp
+  +++ b/main.wasp
+  @@ -8,4 +8,15 @@ app TodoApp {
+   route RootRoute { path: "/", to: MainPage }
+   page MainPage {
+     component: import { MainPage } from "@src/MainPage"
+  -}
+  \ No newline at end of file
+  +}
+  +
+  +query getTasks {
+  +  // Specifies where the implementation for the query function is.
+  +  // The path `@src/queries` resolves to `src/queries.ts`.
+  +  // No need to specify an extension.
+  +  fn: import { getTasks } from "@src/queries",
+  +  // Tell Wasp that this query reads from the `Task` entity. Wasp will
+  +  // automatically update the results of this query when tasks are modified.
+  +  entities: [Task]
+  +}
+  +
+  
+  ```
+
+  </TutorialAction>
     ```wasp title="main.wasp"
     // ...
 
@@ -84,16 +114,20 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```js title="src/queries.ts"
-    import { Task } from 'wasp/entities'
-    import { type GetTasks } from 'wasp/server/operations'
+  <TutorialAction step="6" action="write" path="src/queries.ts">
 
-    export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
-      return context.entities.Task.findMany({
-        orderBy: { id: 'asc' },
-      })
-    }
-    ```
+  ```js title="src/queries.ts"
+  import { Task } from 'wasp/entities'
+  import { type GetTasks } from 'wasp/server/operations'
+
+  export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
+    return context.entities.Task.findMany({
+      orderBy: { id: 'asc' },
+    })
+  }
+  ```
+  
+  </TutorialAction>
 
     Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
 
@@ -170,44 +204,48 @@ This makes it easy for us to use the `getTasks` Query we just created in our Rea
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx {1-2,5-14,17-36} title="src/MainPage.tsx"
-    import { Task } from 'wasp/entities'
-    import { getTasks, useQuery } from 'wasp/client/operations'
+  <TutorialAction step="7" action="write" path="src/MainPage.tsx">
 
-    export const MainPage = () => {
-      const { data: tasks, isLoading, error } = useQuery(getTasks)
+  ```tsx {1-2,5-14,17-36} title="src/MainPage.tsx"
+  import { Task } from 'wasp/entities'
+  import { getTasks, useQuery } from 'wasp/client/operations'
 
-      return (
-        <div>
-          {tasks && <TasksList tasks={tasks} />}
+  export const MainPage = () => {
+    const { data: tasks, isLoading, error } = useQuery(getTasks)
 
-          {isLoading && 'Loading...'}
-          {error && 'Error: ' + error}
-        </div>
-      )
-    }
+    return (
+      <div>
+        {tasks && <TasksList tasks={tasks} />}
 
-    const TaskView = ({ task }: { task: Task }) => {
-      return (
-        <div>
-          <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-          {task.description}
-        </div>
-      )
-    }
+        {isLoading && 'Loading...'}
+        {error && 'Error: ' + error}
+      </div>
+    )
+  }
 
-    const TasksList = ({ tasks }: { tasks: Task[] }) => {
-      if (!tasks?.length) return <div>No tasks</div>
+  const TaskView = ({ task }: { task: Task }) => {
+    return (
+      <div>
+        <input type="checkbox" id={String(task.id)} checked={task.isDone} />
+        {task.description}
+      </div>
+    )
+  }
 
-      return (
-        <div>
-          {tasks.map((task, idx) => (
-            <TaskView task={task} key={idx} />
-          ))}
-        </div>
-      )
-    }
-    ```
+  const TasksList = ({ tasks }: { tasks: Task[] }) => {
+    if (!tasks?.length) return <div>No tasks</div>
+
+    return (
+      <div>
+        {tasks.map((task, idx) => (
+          <TaskView task={task} key={idx} />
+        ))}
+      </div>
+    )
+  }
+  ```
+  
+  </TutorialAction>
   </TabItem>
 </Tabs>
 

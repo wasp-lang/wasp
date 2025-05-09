@@ -6,6 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
+import { TutorialAction } from '@site/src/components/TutorialAction';
 
 In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
 
@@ -151,11 +152,15 @@ First, remove most of the code from the `MainPage` component:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    export const MainPage = () => {
-      return <div>Hello world!</div>
-    }
-    ```
+  <TutorialAction step="1" action="write" path="src/MainPage.tsx">
+
+  ```tsx title="src/MainPage.tsx"
+  export const MainPage = () => {
+    return <div>Hello world!</div>
+  }
+  ```
+  
+  </TutorialAction>
   </TabItem>
 </Tabs>
 
@@ -187,19 +192,23 @@ Your Wasp file should now look like this:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app TodoApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "TodoApp"
-    }
+  <TutorialAction step="2" action="write" path="main.wasp">
 
-    route RootRoute { path: "/", to: MainPage }
-    page MainPage {
-      component: import { MainPage } from "@src/MainPage"
-    }
-    ```
+  ```wasp title="main.wasp"
+  app TodoApp {
+    wasp: {
+      version: "{latestWaspVersion}"
+    },
+    title: "TodoApp"
+  }
+
+  route RootRoute { path: "/", to: MainPage }
+  page MainPage {
+    component: import { MainPage } from "@src/MainPage"
+  }
+  ```
+
+  </TutorialAction>
   </TabItem>
 </Tabs>
 
