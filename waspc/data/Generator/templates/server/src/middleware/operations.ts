@@ -1,7 +1,9 @@
 {{={= =}=}}
 import { deserialize, serialize } from 'wasp/core/serialization'
 import { defineHandler } from 'wasp/server/utils'
+{=# isAuthEnabled =}
 import { makeAuthUserIfPossible } from 'wasp/auth/user'
+{=/ isAuthEnabled =}
 
 export function createOperation (handlerFn) {
     return defineHandler(async (req, res) => {

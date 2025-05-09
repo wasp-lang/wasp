@@ -1,6 +1,5 @@
 import { deserialize, serialize } from 'wasp/core/serialization'
 import { defineHandler } from 'wasp/server/utils'
-import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
 export function createOperation (handlerFn) {
     return defineHandler(async (req, res) => {

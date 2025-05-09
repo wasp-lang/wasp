@@ -7,11 +7,11 @@ export interface JSONObject {
 type PrimitiveJSONValue = string | number | boolean | undefined | null;
 export interface JSONArray extends Array<JSONValue> {
 }
-type SerializableJSONValue = Set<SuperJSONValue> | Map<SuperJSONValue, SuperJSONValue> | undefined | bigint | Date | RegExp | Decimal;
-type SuperJSONValue = JSONValue | SerializableJSONValue | SuperJSONArray | SuperJSONObject;
-interface SuperJSONArray extends Array<SuperJSONValue> {
+export type SerializableJSONValue = Set<SuperJSONValue> | Map<SuperJSONValue, SuperJSONValue> | undefined | bigint | Date | RegExp | Decimal;
+export type SuperJSONValue = JSONValue | SerializableJSONValue | SuperJSONArray | SuperJSONObject;
+export interface SuperJSONArray extends Array<SuperJSONValue> {
 }
-interface SuperJSONObject {
+export interface SuperJSONObject {
     [key: string]: SuperJSONValue;
 }
 type Decimal = import("@prisma/client/runtime/library").Decimal;

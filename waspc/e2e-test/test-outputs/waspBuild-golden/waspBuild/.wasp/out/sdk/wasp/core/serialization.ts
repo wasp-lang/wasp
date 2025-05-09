@@ -25,7 +25,7 @@ export interface JSONArray extends Array<JSONValue> {}
 
 // Added the `Decimal` type to the union (see below)
 // Removed `Symbol` since we don't explicitly register any symbol to be serialized
-type SerializableJSONValue =
+export type SerializableJSONValue =
   | Set<SuperJSONValue>
   | Map<SuperJSONValue, SuperJSONValue>
   | undefined
@@ -35,15 +35,15 @@ type SerializableJSONValue =
   | Decimal
 
 // Here's where we excluded `ClassInstance` (which was `any`) from the union.
-type SuperJSONValue =
+export type SuperJSONValue =
   | JSONValue
   | SerializableJSONValue
   | SuperJSONArray
   | SuperJSONObject
 
-interface SuperJSONArray extends Array<SuperJSONValue> {}
+export interface SuperJSONArray extends Array<SuperJSONValue> {}
 
-interface SuperJSONObject {
+export interface SuperJSONObject {
   [key: string]: SuperJSONValue
 }
 
