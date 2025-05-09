@@ -38,16 +38,13 @@ export function removeLocalUserData(): void {
  * Axios interceptors for handling authentication
  *
  * (1) Request Interceptor:
- * If a session ID exists, it is added to the request in two ways:
- *   1. As an `Authorization` header for the server to use.
- *   2. As a custom `_waspSessionId` property on the request config.
- *      This custom property is *not* sent to the server but is used internally
- *      by the Response Interceptor.
+ * If a session ID exists, it is added to the request as an `Authorization`
+ * header for the server to use.
  *
  * (2) Response Interceptor:
  * - Catches 401 errors from the server.
  * - Before clearing the session ID from local storage due to a 401 error,
- *   it compares the `_waspSessionId` stored in the *failed request's config*
+ *   it compares the session ID stored in the *failed request's config*
  *   with the *current* session ID in local storage.
  * - It only clears the local session ID if the two session IDs match.
  *
@@ -63,13 +60,12 @@ api.interceptors.request.use((config) => {
   const sessionId = getSessionId()
   if (sessionId) {
     config.headers['Authorization'] = `Bearer ${sessionId}`
-    config._waspSessionId = sessionId
   }
   return config
 })
 
 api.interceptors.response.use(undefined, (error) => {
-  const failingSessionId = error.config._waspSessionId
+  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers['Authorization'])
   const currentSessionId = getSessionId()
   if (error.response?.status === 401 && failingSessionId === currentSessionId) {
     clearSessionId()
@@ -125,5 +121,14 @@ class WaspHttpError extends Error {
     super(message)
     this.statusCode = statusCode
     this.data = data
+  }
+}
+
+function getSessionIdFromAuthorizationHeader(header: string | undefined): string | undefined {
+  const prefix = 'Bearer '
+  if (header && header.startsWith(prefix)) {
+    return header.substring(prefix.length)
+  } else {
+    return undefined
   }
 }
