@@ -1,3 +1,3 @@
 export * from "./taggedEntities";
-export * from "./serialization";
+export * from "wasp/core/serialization";
 //# sourceMappingURL=index.js.map
