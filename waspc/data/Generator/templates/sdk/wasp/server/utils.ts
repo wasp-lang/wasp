@@ -12,8 +12,8 @@ declare global {
   namespace Express {
     interface Request {
       {=# isAuthEnabled =}
-      user: AuthUserData | null;
-      sessionId: string | null;
+      user?: AuthUserData | null;
+      sessionId?: string | null;
       {=/ isAuthEnabled =}
     }
   }
