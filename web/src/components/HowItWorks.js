@@ -62,7 +62,7 @@ const HowItWorks = () => {
           <div className="py-8">
             <dl className="grid grid-cols-12 gap-y-4 md:gap-8">
               <Feature
-                title="Simple config language"
+                title="Simple config"
                 url="/docs/general/language"
                 description="Declaratively describe high-level details of your app."
               />

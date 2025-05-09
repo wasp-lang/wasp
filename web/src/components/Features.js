@@ -79,7 +79,7 @@ const Features = () => {
           title="Open Source"
           url="https://github.com/wasp-lang/wasp"
           description={`
-            This is the way. Wasp is fully open-source and you're welcome to contribute!
+            Wasp is fully open-source and you're welcome to contribute!
           `}
         />
 
@@ -88,7 +88,7 @@ const Features = () => {
           title="Full-stack Auth"
           url="/blog/2023/04/12/auth-ui"
           description={`
-            Add login with social providers or email in a few lines of code with powerful UI helpers. No third party vendor lock-in.
+            Add login functionality in a few lines of code with powerful UI helpers. No third party vendor lock-in.
           `}
         />
 
