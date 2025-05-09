@@ -4,6 +4,7 @@ import { type AppName, waspBuild } from "../waspCli.js";
 import { buildAndRunClientApp } from "./client.js";
 import { buildAndRunServerApp } from "./server.js";
 
+// Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
 export async function startAppInBuildMode({
   waspCliCmd,
   pathToApp,
