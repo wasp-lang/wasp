@@ -32,7 +32,7 @@ function createMinimalUserApp(): UserApi.App {
 
 function createFullUserApp(): UserApi.App {
   const app = new UserApi.App(APP.FULL.NAME, APP.FULL.CONFIG)
-  app.auth(AUTH.CONFIG)
+  app.auth(AUTH.FULL.CONFIG)
   app.client(CLIENT.CONFIG)
   app.server(SERVER.CONFIG)
   app.emailSender(EMAIL_SENDER.CONFIG)
@@ -332,102 +332,152 @@ export const APP = {
   },
 } as const
 
-export const EMAIL_AUTH_EMAIL_VERIFICATION = {
-  CONFIG: {
-    getEmailContentFn: {
-      import: 'getVerificationEmailContent',
-      from: '@src/auth/email',
-    },
-    clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
-  } satisfies Required<UserApi.EmailVerificationConfig>,
+export const EMAIL_VERIFICATION = {
+  FULL: {
+    CONFIG: {
+      getEmailContentFn: {
+        import: 'getVerificationEmailContent',
+        from: '@src/auth/email',
+      },
+      clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
+    } satisfies Required<UserApi.EmailVerificationConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      clientRoute: ROUTES.EMAIL_VERIFICATION.NAME,
+    } satisfies UserApi.EmailVerificationConfig,
+  },
 } as const
 
-export const EMAIL_AUTH_PASSWORD_RESET = {
-  CONFIG: {
-    getEmailContentFn: {
-      import: 'getPasswordResetEmailContent',
-      from: '@src/auth/email',
-    },
-    clientRoute: ROUTES.PASSWORD_RESET.NAME,
-  } satisfies Required<UserApi.PasswordResetConfig>,
+export const PASSWORD_RESET = {
+  FULL: {
+    CONFIG: {
+      getEmailContentFn: {
+        import: 'getPasswordResetEmailContent',
+        from: '@src/auth/email',
+      },
+      clientRoute: ROUTES.PASSWORD_RESET.NAME,
+    } satisfies Required<UserApi.PasswordResetConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      clientRoute: ROUTES.PASSWORD_RESET.NAME,
+    } satisfies UserApi.PasswordResetConfig,
+  },
 } as const
 
 export const EMAIL_AUTH = {
-  CONFIG: {
-    userSignupFields: {
-      import: 'userSignupFields',
-      from: '@src/auth/email',
-    },
-    fromField: {
-      name: 'ToDo App',
-      email: 'test@domain.tld',
-    },
-    emailVerification: EMAIL_AUTH_EMAIL_VERIFICATION.CONFIG,
-    passwordReset: EMAIL_AUTH_PASSWORD_RESET.CONFIG,
-  } satisfies Required<UserApi.EmailAuthConfig>,
+  FULL: {
+    CONFIG: {
+      userSignupFields: {
+        import: 'userSignupFields',
+        from: '@src/auth/email',
+      },
+      fromField: {
+        name: 'ToDo App',
+        email: 'test@domain.tld',
+      },
+      emailVerification: EMAIL_VERIFICATION.FULL.CONFIG,
+      passwordReset: PASSWORD_RESET.FULL.CONFIG,
+    } satisfies Required<UserApi.EmailAuthConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      fromField: {
+        name: 'ToDo App',
+        email: 'test@domain.tld',
+      },
+      emailVerification: EMAIL_VERIFICATION.MINIMAL.CONFIG,
+      passwordReset: PASSWORD_RESET.MINIMAL.CONFIG,
+    } satisfies UserApi.EmailAuthConfig,
+  },
 } as const
 
 export const USERNAME_AND_PASSWORD_AUTH = {
-  CONFIG: {
-    userSignupFields: {
-      import: 'userSignupFields',
-      from: '@src/auth/usernameAndPassword',
-    },
-  } satisfies Required<UserApi.UsernameAndPasswordConfig>,
+  FULL: {
+    CONFIG: {
+      userSignupFields: {
+        import: 'userSignupFields',
+        from: '@src/auth/usernameAndPassword',
+      },
+    } satisfies Required<UserApi.UsernameAndPasswordConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.UsernameAndPasswordConfig,
+  },
 } as const
 
 export const EXTERNAL_AUTH = {
-  CONFIG: {
-    configFn: {
-      import: 'config',
-      from: '@src/auth/external',
-    },
-    userSignupFields: {
-      import: 'userSignupFields',
-      from: '@src/auth/external',
-    },
-  } satisfies Required<UserApi.ExternalAuthConfig>,
+  FULL: {
+    CONFIG: {
+      configFn: {
+        import: 'config',
+        from: '@src/auth/external',
+      },
+      userSignupFields: {
+        import: 'userSignupFields',
+        from: '@src/auth/external',
+      },
+    } satisfies Required<UserApi.ExternalAuthConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.ExternalAuthConfig,
+  },
 } as const
 
 export const AUTH_METHODS = {
-  CONFIG: {
-    email: EMAIL_AUTH.CONFIG,
-    discord: EXTERNAL_AUTH.CONFIG,
-    google: EXTERNAL_AUTH.CONFIG,
-    gitHub: EXTERNAL_AUTH.CONFIG,
-    keycloak: EXTERNAL_AUTH.CONFIG,
-    usernameAndPassword: USERNAME_AND_PASSWORD_AUTH.CONFIG,
-  } satisfies Required<UserApi.AuthMethods>,
+  FULL: {
+    CONFIG: {
+      email: EMAIL_AUTH.FULL.CONFIG,
+      discord: EXTERNAL_AUTH.FULL.CONFIG,
+      google: EXTERNAL_AUTH.FULL.CONFIG,
+      gitHub: EXTERNAL_AUTH.FULL.CONFIG,
+      keycloak: EXTERNAL_AUTH.FULL.CONFIG,
+      usernameAndPassword: USERNAME_AND_PASSWORD_AUTH.FULL.CONFIG,
+    } satisfies Required<UserApi.AuthMethods>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.AuthMethods,
+  },
 } as const
 
 export const AUTH = {
-  CONFIG: {
-    userEntity: USER_ENTITY,
-    methods: AUTH_METHODS.CONFIG,
-    onAuthFailedRedirectTo: '/login',
-    onAuthSucceededRedirectTo: '/profile',
-    onBeforeSignup: {
-      import: 'onBeforeSignup',
-      from: '@src/auth/hooks.js',
-    },
-    onAfterSignup: {
-      import: 'onAfterSignup',
-      from: '@src/auth/hooks.js',
-    },
-    onBeforeOAuthRedirect: {
-      import: 'onBeforeOAuthRedirect',
-      from: '@src/auth/hooks.js',
-    },
-    onBeforeLogin: {
-      import: 'onBeforeLogin',
-      from: '@src/auth/hooks.js',
-    },
-    onAfterLogin: {
-      import: 'onAfterLogin',
-      from: '@src/auth/hooks.js',
-    },
-    externalAuthEntity: SOCIAL_USER_ENTITY,
-  } satisfies Required<UserApi.AuthConfig>,
+  FULL: {
+    CONFIG: {
+      userEntity: USER_ENTITY,
+      externalAuthEntity: SOCIAL_USER_ENTITY,
+      onAuthFailedRedirectTo: '/login',
+      onAuthSucceededRedirectTo: '/profile',
+      methods: AUTH_METHODS.FULL.CONFIG,
+      onBeforeSignup: {
+        import: 'onBeforeSignup',
+        from: '@src/auth/hooks.js',
+      },
+      onAfterSignup: {
+        import: 'onAfterSignup',
+        from: '@src/auth/hooks.js',
+      },
+      onBeforeOAuthRedirect: {
+        import: 'onBeforeOAuthRedirect',
+        from: '@src/auth/hooks.js',
+      },
+      onBeforeLogin: {
+        import: 'onBeforeLogin',
+        from: '@src/auth/hooks.js',
+      },
+      onAfterLogin: {
+        import: 'onAfterLogin',
+        from: '@src/auth/hooks.js',
+      },
+    } satisfies Required<UserApi.AuthConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      userEntity: USER_ENTITY,
+      onAuthFailedRedirectTo: '/login',
+      methods: AUTH_METHODS.MINIMAL.CONFIG,
+    } satisfies UserApi.AuthConfig,
+  },
 } as const
 
 export const CLIENT = {
