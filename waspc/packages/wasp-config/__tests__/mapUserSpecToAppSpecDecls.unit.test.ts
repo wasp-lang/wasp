@@ -3,7 +3,7 @@ import { GET_USER_SPEC } from '../src/_private.js'
 import * as AppSpec from '../src/appSpec.js'
 import {
   makeRefParser,
-  mapApiConfig,
+  mapApi,
   mapApiNamespace,
   mapApp,
   mapAuth,
@@ -20,7 +20,7 @@ import {
   mapExtImport,
   mapHttpRoute,
   mapJob,
-  mapOperationConfig,
+  mapOperation,
   mapPage,
   mapPasswordReset,
   mapPerform,
@@ -112,7 +112,7 @@ describe('mapAuth', () => {
     const auth = Fixtures.AUTH.MINIMAL.CONFIG
     testMapAuth(auth, {
       overrideEntities: [],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -120,7 +120,7 @@ describe('mapAuth', () => {
     const auth = Fixtures.AUTH.FULL.CONFIG
     testMapAuth(auth, {
       overrideEntities: [auth.userEntity],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -128,7 +128,7 @@ describe('mapAuth', () => {
     const auth = Fixtures.AUTH.FULL.CONFIG
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -136,7 +136,7 @@ describe('mapAuth', () => {
     const auth = Fixtures.AUTH.FULL.CONFIG
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -146,15 +146,15 @@ describe('mapAuth', () => {
       | {
           overrideEntities?: string[]
           overrideRoutes?: string[]
-          error: boolean | undefined
+          shouldError: boolean | undefined
         }
       | undefined = {
       overrideEntities: undefined,
       overrideRoutes: undefined,
-      error: false,
+      shouldError: false,
     }
   ): void {
-    const { overrideEntities, overrideRoutes, error } = options
+    const { overrideEntities, overrideRoutes, shouldError } = options
     const entities = overrideEntities ?? []
     if (!overrideEntities) {
       if (auth.userEntity) {
@@ -178,7 +178,7 @@ describe('mapAuth', () => {
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', routes)
 
-    if (error) {
+    if (shouldError) {
       expect(() =>
         mapAuth(auth, entityRefParser, routeRefParser)
       ).toThrowError()
@@ -221,7 +221,7 @@ describe('mapAuthMethods', () => {
     const authMethods = Fixtures.AUTH_METHODS.FULL.CONFIG
     testMapAuthMethods(authMethods, {
       overrideRoutes: [authMethods.email.emailVerification.clientRoute],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -229,7 +229,7 @@ describe('mapAuthMethods', () => {
     const authMethods = Fixtures.AUTH_METHODS.FULL.CONFIG
     testMapAuthMethods(authMethods, {
       overrideRoutes: [authMethods.email.passwordReset.clientRoute],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -238,14 +238,14 @@ describe('mapAuthMethods', () => {
     options:
       | {
           overrideRoutes?: string[]
-          error: boolean | undefined
+          shouldError: boolean | undefined
         }
       | undefined = {
       overrideRoutes: undefined,
-      error: false,
+      shouldError: false,
     }
   ): void {
-    const { overrideRoutes, error } = options
+    const { overrideRoutes, shouldError } = options
     const routes = overrideRoutes ?? []
     if (!overrideRoutes) {
       if (authMethods.email?.emailVerification.clientRoute) {
@@ -257,7 +257,7 @@ describe('mapAuthMethods', () => {
     }
     const routeRefParser = makeRefParser('Route', routes)
 
-    if (error) {
+    if (shouldError) {
       expect(() => mapAuthMethods(authMethods, routeRefParser)).toThrowError()
       return
     }
@@ -293,7 +293,7 @@ describe('mapEmailAuth', () => {
     const emailAuth = Fixtures.EMAIL_AUTH.FULL.CONFIG
     testMapEmailAuth(emailAuth, {
       overrideRoutes: [emailAuth.passwordReset.clientRoute],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -301,7 +301,7 @@ describe('mapEmailAuth', () => {
     const emailAuth = Fixtures.EMAIL_AUTH.FULL.CONFIG
     testMapEmailAuth(emailAuth, {
       overrideRoutes: [emailAuth.emailVerification.clientRoute],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -310,14 +310,14 @@ describe('mapEmailAuth', () => {
     options:
       | {
           overrideRoutes?: string[]
-          error: boolean | undefined
+          shouldError: boolean | undefined
         }
       | undefined = {
       overrideRoutes: undefined,
-      error: false,
+      shouldError: false,
     }
   ): void {
-    const { overrideRoutes, error } = options
+    const { overrideRoutes, shouldError } = options
     const routes = overrideRoutes ?? []
     if (!overrideRoutes) {
       if (emailAuth?.emailVerification.clientRoute) {
@@ -329,7 +329,7 @@ describe('mapEmailAuth', () => {
     }
     const routeRefParser = makeRefParser('Route', routes)
 
-    if (error) {
+    if (shouldError) {
       expect(() => mapEmailAuth(emailAuth, routeRefParser)).toThrowError()
       return
     }
@@ -367,7 +367,7 @@ describe('mapEmailVerification', () => {
     const emailVerification = Fixtures.EMAIL_VERIFICATION.FULL.CONFIG
     testMapEmailVerification(emailVerification, {
       overrideRoutes: [],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -376,14 +376,14 @@ describe('mapEmailVerification', () => {
     options:
       | {
           overrideRoutes?: string[]
-          error: boolean | undefined
+          shouldError: boolean | undefined
         }
       | undefined = {
       overrideRoutes: undefined,
-      error: false,
+      shouldError: false,
     }
   ): void {
-    const { overrideRoutes, error } = options
+    const { overrideRoutes, shouldError } = options
     const routes = overrideRoutes ?? []
     if (!overrideRoutes) {
       if (emailVerification.clientRoute) {
@@ -395,7 +395,7 @@ describe('mapEmailVerification', () => {
     }
     const routeRefParser = makeRefParser('Route', routes)
 
-    if (error) {
+    if (shouldError) {
       expect(() =>
         mapEmailVerification(emailVerification, routeRefParser)
       ).toThrowError()
@@ -428,7 +428,7 @@ describe('mapPasswordReset', () => {
     const passwordReset = Fixtures.PASSWORD_RESET.FULL.CONFIG
     testMapPasswordReset(passwordReset, {
       overrideRoutes: [],
-      error: true,
+      shouldError: true,
     })
   })
 
@@ -437,14 +437,14 @@ describe('mapPasswordReset', () => {
     options:
       | {
           overrideRoutes?: string[]
-          error: boolean | undefined
+          shouldError: boolean | undefined
         }
       | undefined = {
       overrideRoutes: undefined,
-      error: false,
+      shouldError: false,
     }
   ): void {
-    const { overrideRoutes, error } = options
+    const { overrideRoutes, shouldError } = options
     const routes = overrideRoutes ?? []
     if (!overrideRoutes) {
       if (passwordReset.clientRoute) {
@@ -456,7 +456,7 @@ describe('mapPasswordReset', () => {
     }
     const routeRefParser = makeRefParser('Route', routes)
 
-    if (error) {
+    if (shouldError) {
       expect(() =>
         mapPasswordReset(passwordReset, routeRefParser)
       ).toThrowError()
@@ -524,161 +524,149 @@ describe('mapExternalAuth', () => {
 
 describe('mapClient', () => {
   test('should map minimal config correctly', () => {
-    const client: UserApi.ClientConfig = {}
-
-    const result = mapClient(client)
-
-    expect(result).toStrictEqual({
-      rootComponent: undefined,
-      setupFn: undefined,
-      baseDir: undefined,
-      envValidationSchema: undefined,
-    } satisfies AppSpec.Client)
+    const client = Fixtures.CLIENT.MINIMAL.CONFIG
+    testMapClient(client)
   })
 
   test('should map full config correctly', () => {
-    const client = Fixtures.CLIENT.CONFIG
+    const client = Fixtures.CLIENT.FULL.CONFIG
+    testMapClient(client)
+  })
 
+  function testMapClient(client: UserApi.ClientConfig): void {
     const result = mapClient(client)
 
     expect(result).toStrictEqual({
-      rootComponent: mapExtImport(client.rootComponent),
-      setupFn: mapExtImport(client.setupFn),
+      rootComponent: client.rootComponent && mapExtImport(client.rootComponent),
+      setupFn: client.setupFn && mapExtImport(client.setupFn),
       baseDir: client.baseDir,
-      envValidationSchema: mapExtImport(client.envValidationSchema),
+      envValidationSchema:
+        client.envValidationSchema && mapExtImport(client.envValidationSchema),
     } satisfies AppSpec.Client)
-  })
+  }
 })
 
 describe('mapServer', () => {
   test('should map minimal config correctly', () => {
-    const server: UserApi.ServerConfig = {}
-
-    const result = mapServer(server)
-
-    expect(result).toStrictEqual({
-      setupFn: undefined,
-      middlewareConfigFn: undefined,
-      envValidationSchema: undefined,
-    } satisfies AppSpec.Server)
+    const server = Fixtures.SERVER.MINIMAL.CONFIG
+    testMapServer(server)
   })
 
   test('should map full config correctly', () => {
-    const server = Fixtures.SERVER.CONFIG
+    const server = Fixtures.SERVER.FULL.CONFIG
+    testMapServer(server)
+  })
 
+  function testMapServer(server: UserApi.ServerConfig): void {
     const result = mapServer(server)
 
     expect(result).toStrictEqual({
-      setupFn: mapExtImport(server.setupFn),
-      middlewareConfigFn: mapExtImport(server.middlewareConfigFn),
-      envValidationSchema: mapExtImport(server.envValidationSchema),
+      setupFn: server.setupFn && mapExtImport(server.setupFn),
+      middlewareConfigFn:
+        server.middlewareConfigFn && mapExtImport(server.middlewareConfigFn),
+      envValidationSchema:
+        server.envValidationSchema && mapExtImport(server.envValidationSchema),
     } satisfies AppSpec.Server)
-  })
+  }
 })
 
 describe('mapEmailSender', () => {
   test('should map minimal config correctly', () => {
-    const emailSender: UserApi.EmailSender = {
-      provider: Fixtures.EMAIL_SENDER.CONFIG.provider,
-    }
-
-    const result = mapEmailSender(emailSender)
-
-    expect(result).toStrictEqual({
-      provider: emailSender.provider,
-      defaultFrom: undefined,
-    } satisfies AppSpec.EmailSender)
+    const emailSender = Fixtures.EMAIL_SENDER.MINIMAL.CONFIG
+    testMapEmailSender(emailSender)
   })
 
   test('should map full config correctly', () => {
-    const emailSender = Fixtures.EMAIL_SENDER.CONFIG
+    const emailSender = Fixtures.EMAIL_SENDER.FULL.CONFIG
+    testMapEmailSender(emailSender)
+  })
 
+  function testMapEmailSender(emailSender: UserApi.EmailSender): void {
     const result = mapEmailSender(emailSender)
 
     expect(result).toStrictEqual({
       provider: emailSender.provider,
-      defaultFrom: emailSender.defaultFrom,
+      defaultFrom: emailSender.defaultFrom && {
+        name: emailSender.defaultFrom.name,
+        email: emailSender.defaultFrom.email,
+      },
     } satisfies AppSpec.EmailSender)
-  })
+  }
 })
 
 describe('mapWebSocket', () => {
   test('should map minimal config correctly', () => {
-    const websocket: UserApi.WebsocketConfig = {
-      fn: Fixtures.WEBSOCKET.CONFIG.fn,
-    }
-
-    const result = mapWebSocket(websocket)
-
-    expect(result).toStrictEqual({
-      fn: mapExtImport(websocket.fn),
-      autoConnect: undefined,
-    } satisfies AppSpec.WebSocket)
+    const websocket = Fixtures.WEBSOCKET.MINIMAL.CONFIG
+    testMapWebSocket(websocket)
   })
 
   test('should map full config correctly', () => {
-    const websocket = Fixtures.WEBSOCKET.CONFIG
+    const websocket = Fixtures.WEBSOCKET.FULL.CONFIG
+    testMapWebSocket(websocket)
+  })
 
+  function testMapWebSocket(websocket: UserApi.WebsocketConfig): void {
     const result = mapWebSocket(websocket)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(websocket.fn),
       autoConnect: websocket.autoConnect,
     } satisfies AppSpec.WebSocket)
-  })
+  }
 })
 
 describe('mapDb', () => {
   test('should map minimal config correctly', () => {
-    const db: UserApi.DbConfig = {}
-
-    const result = mapDb(db)
-
-    expect(result).toStrictEqual({
-      seeds: undefined,
-    } satisfies AppSpec.Db)
+    const db = Fixtures.DB.MINIMAL.CONFIG
+    testDb(db)
   })
 
   test('should map full config correctly', () => {
-    const db: UserApi.DbConfig = {
-      seeds: Fixtures.DB.CONFIG.seeds,
-    }
+    const db = Fixtures.DB.FULL.CONFIG
+    testDb(db)
+  })
 
+  function testDb(db: UserApi.DbConfig): void {
     const result = mapDb(db)
 
     expect(result).toStrictEqual({
       seeds: db.seeds?.map((seed) => mapExtImport(seed)),
     } satisfies AppSpec.Db)
-  })
+  }
 })
 
 describe('mapPage', () => {
   test('should map minimal config correctly', () => {
     const page = Fixtures.PAGES.MINIMAL.CONFIG
-
-    const result = mapPage(page)
-
-    expect(result).toStrictEqual({
-      component: mapExtImport(page.component),
-      authRequired: undefined,
-    } satisfies AppSpec.Page)
+    testMapPage(page)
   })
 
   test('should map full config correctly', () => {
     const page = Fixtures.PAGES.FULL.CONFIG
+    testMapPage(page)
+  })
 
+  function testMapPage(page: UserApi.PageConfig): void {
     const result = mapPage(page)
 
     expect(result).toStrictEqual({
       component: mapExtImport(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page)
-  })
+  }
 })
 
 describe('mapRoute', () => {
+  // NOTE: currently minimal config is the same as full config
+  test('should map minimal config correctly', () => {
+    testMapRoute(Fixtures.ROUTES.MINIMAL.CONFIG)
+  })
+
   test('should map full config correctly', () => {
-    const route = Fixtures.ROUTES.FULL.CONFIG
+    testMapRoute(Fixtures.ROUTES.FULL.CONFIG)
+  })
+
+  function testMapRoute(route: UserApi.RouteConfig): void {
     const pageRefParser = makeRefParser('Page', [route.to])
 
     const result = mapRoute(route, pageRefParser)
@@ -687,93 +675,117 @@ describe('mapRoute', () => {
       path: route.path,
       to: pageRefParser(route.to),
     } satisfies AppSpec.Route)
-  })
+  }
 })
 
-describe('mapOperationConfig', () => {
+describe('mapOperation', () => {
   test('should map minimal query config correctly', () => {
-    const query = Fixtures.QUERIES.MINIMAL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    const result = mapOperationConfig(query, entityRefParser)
-
-    expect(result).toStrictEqual({
-      fn: mapExtImport(query.fn),
-      entities: undefined,
-      auth: undefined,
-    } satisfies AppSpec.Query)
+    testMapOperation(Fixtures.QUERIES.MINIMAL.CONFIG)
   })
 
-  test('should map query config correctly', () => {
-    const query = Fixtures.QUERIES.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', query.entities)
-
-    const result = mapOperationConfig(query, entityRefParser)
-
-    expect(result).toStrictEqual({
-      fn: mapExtImport(query.fn),
-      entities: query.entities.map(entityRefParser),
-      auth: query.auth,
-    } satisfies AppSpec.Query)
+  test('should map full query config correctly', () => {
+    testMapOperation(Fixtures.QUERIES.FULL.CONFIG)
   })
 
   test('should throw if entity ref is not provided in query config', () => {
-    const query: UserApi.QueryConfig = Fixtures.QUERIES.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    expect(() => mapOperationConfig(query, entityRefParser)).toThrowError()
+    testMapOperation(Fixtures.QUERIES.FULL.CONFIG, {
+      overrideEntities: [],
+      shouldError: true,
+    })
   })
 
   test('should map minimal action config correctly', () => {
-    const action = Fixtures.ACTIONS.MINIMAL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    const result = mapOperationConfig(action, entityRefParser)
-
-    expect(result).toStrictEqual({
-      fn: mapExtImport(action.fn),
-      entities: undefined,
-      auth: undefined,
-    } satisfies AppSpec.Action)
+    testMapOperation(Fixtures.ACTIONS.MINIMAL.CONFIG)
   })
 
   test('should map action config correctly', () => {
-    const action = Fixtures.ACTIONS.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', action.entities)
-
-    const result = mapOperationConfig(action, entityRefParser)
-
-    expect(result).toStrictEqual({
-      fn: mapExtImport(action.fn),
-      entities: action.entities.map(entityRefParser),
-      auth: action.auth,
-    } satisfies AppSpec.Action)
+    testMapOperation(Fixtures.ACTIONS.FULL.CONFIG)
   })
 
   test('should throw if entity ref is not provided in action config', () => {
-    const action = Fixtures.ACTIONS.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    expect(() => mapOperationConfig(action, entityRefParser)).toThrowError()
+    testMapOperation(Fixtures.ACTIONS.FULL.CONFIG, {
+      overrideEntities: [],
+      shouldError: true,
+    })
   })
+
+  function testMapOperation(
+    operation: UserApi.ActionConfig | UserApi.QueryConfig,
+    options:
+      | {
+          overrideEntities?: string[]
+          shouldError: boolean | undefined
+        }
+      | undefined = {
+      overrideEntities: undefined,
+      shouldError: false,
+    }
+  ): void {
+    const { overrideEntities, shouldError } = options
+    const entities = overrideEntities ?? []
+    if (!overrideEntities) {
+      if (operation.entities) {
+        entities.push(...operation.entities)
+      }
+    }
+    const entityRefParser = makeRefParser('Entity', entities)
+
+    if (shouldError) {
+      expect(() => mapOperation(operation, entityRefParser)).toThrowError()
+      return
+    }
+
+    const result = mapOperation(operation, entityRefParser)
+
+    expect(result).toStrictEqual({
+      fn: mapExtImport(operation.fn),
+      entities: operation.entities?.map(entityRefParser),
+      auth: operation.auth,
+    } satisfies AppSpec.Query)
+  }
 })
 
 describe('mapCrud', () => {
   test('should map minimal config correctly', () => {
-    const crud = Fixtures.CRUDS.MINIMAL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [crud.entity])
-
-    const result = mapCrud(crud, entityRefParser)
-
-    expect(result).toStrictEqual({
-      entity: entityRefParser(crud.entity),
-      operations: mapCrudOperations({}),
-    } satisfies AppSpec.Crud)
+    testMapCrud(Fixtures.CRUDS.MINIMAL.CONFIG)
   })
 
   test('should map full config correctly', () => {
-    const crud = Fixtures.CRUDS.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [crud.entity])
+    testMapCrud(Fixtures.CRUDS.FULL.CONFIG)
+  })
+
+  test('should throw if entity ref is not provided', () => {
+    testMapCrud(Fixtures.CRUDS.FULL.CONFIG, {
+      overrideEntities: [],
+      shouldError: true,
+    })
+  })
+
+  function testMapCrud(
+    crud: UserApi.Crud,
+    options:
+      | {
+          overrideEntities?: string[]
+          shouldError: boolean | undefined
+        }
+      | undefined = {
+      overrideEntities: undefined,
+      shouldError: false,
+    }
+  ): void {
+    const { overrideEntities, shouldError } = options
+    const entities = overrideEntities ?? []
+    if (!overrideEntities) {
+      if (crud.entity) {
+        entities.push(crud.entity)
+      }
+    }
+    const entityRefParser = makeRefParser('Entity', entities)
+
+    if (shouldError) {
+      expect(() => mapCrud(crud, entityRefParser)).toThrowError()
+      return
+    }
 
     const result = mapCrud(crud, entityRefParser)
 
@@ -781,163 +793,204 @@ describe('mapCrud', () => {
       entity: entityRefParser(crud.entity),
       operations: mapCrudOperations(crud.operations),
     } satisfies AppSpec.Crud)
-  })
-
-  test('should throw if entity ref is not provided', () => {
-    const crud: UserApi.Crud = Fixtures.CRUDS.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    expect(() => mapCrud(crud, entityRefParser)).toThrowError()
-  })
+  }
 })
 
 describe('mapCrudOperations', () => {
   test('should map minimal config correctly', () => {
-    const crudOperations = Fixtures.CRUD_OPERATIONS.MINIMAL.CONFIG
-
-    const result = mapCrudOperations(crudOperations)
-
-    expect(result).toStrictEqual({
-      get: undefined,
-      getAll: undefined,
-      create: undefined,
-      update: undefined,
-      delete: undefined,
-    } satisfies AppSpec.CrudOperations)
+    testMapCrudOperations(Fixtures.CRUD_OPERATIONS.MINIMAL.CONFIG)
   })
 
   test('should map full config correctly', () => {
-    const crudOperations = Fixtures.CRUD_OPERATIONS.FULL.CONFIG
+    testMapCrudOperations(Fixtures.CRUD_OPERATIONS.FULL.CONFIG)
+  })
 
+  function testMapCrudOperations(crudOperations: UserApi.CrudOperations): void {
     const result = mapCrudOperations(crudOperations)
 
     expect(result).toStrictEqual({
-      get: mapCrudOperationOptions(crudOperations.get),
-      getAll: mapCrudOperationOptions(crudOperations.getAll),
-      create: mapCrudOperationOptions(crudOperations.create),
-      update: mapCrudOperationOptions(crudOperations.update),
-      delete: mapCrudOperationOptions(crudOperations.delete),
+      get: crudOperations.get && mapCrudOperationOptions(crudOperations.get),
+      getAll:
+        crudOperations.getAll && mapCrudOperationOptions(crudOperations.getAll),
+      create:
+        crudOperations.create && mapCrudOperationOptions(crudOperations.create),
+      update:
+        crudOperations.update && mapCrudOperationOptions(crudOperations.update),
+      delete:
+        crudOperations.delete && mapCrudOperationOptions(crudOperations.delete),
     } satisfies AppSpec.CrudOperations)
-  })
+  }
 })
 
 describe('mapCrudOperationOptions', () => {
   test('should map minimal config correctly', () => {
-    const crudOperationOptions = Fixtures.CRUD_OPERATION_OPTIONS.MINIMAL.CONFIG
-
-    const result = mapCrudOperationOptions(crudOperationOptions)
-
-    expect(result).toStrictEqual({
-      isPublic: undefined,
-      overrideFn: undefined,
-    } satisfies AppSpec.CrudOperationOptions)
+    testMapCrudOperationOptions(Fixtures.CRUD_OPERATION_OPTIONS.MINIMAL.CONFIG)
   })
 
   test('should map full config correctly', () => {
-    const crudOperationOptions = Fixtures.CRUD_OPERATION_OPTIONS.FULL.CONFIG
+    testMapCrudOperationOptions(Fixtures.CRUD_OPERATION_OPTIONS.FULL.CONFIG)
+  })
 
+  function testMapCrudOperationOptions(
+    crudOperationOptions: UserApi.CrudOperationOptions
+  ): void {
     const result = mapCrudOperationOptions(crudOperationOptions)
 
     expect(result).toStrictEqual({
       isPublic: crudOperationOptions.isPublic,
-      overrideFn: mapExtImport(crudOperationOptions.overrideFn),
+      overrideFn:
+        crudOperationOptions.overrideFn &&
+        mapExtImport(crudOperationOptions.overrideFn),
     } satisfies AppSpec.CrudOperationOptions)
-  })
+  }
 })
 
 describe('mapApiNamespace', () => {
-  test('should map full config correctly', () => {
-    const apiNamespace = Fixtures.API_NAMESPACES.FULL.CONFIG
+  // NOTE: currently minimal config is the same as full config
+  test('should map minimal config correctly', () => {
+    testMapApiNamespace(Fixtures.API_NAMESPACES.MINIMAL.CONFIG)
+  })
 
+  test('should map full config correctly', () => {
+    testMapApiNamespace(Fixtures.API_NAMESPACES.FULL.CONFIG)
+  })
+
+  function testMapApiNamespace(apiNamespace: UserApi.ApiNamespaceConfig): void {
     const result = mapApiNamespace(apiNamespace)
 
     expect(result).toStrictEqual({
       middlewareConfigFn: mapExtImport(apiNamespace.middlewareConfigFn),
       path: apiNamespace.path,
     } satisfies AppSpec.ApiNamespace)
-  })
+  }
 })
 
-describe('mapApiConfig', () => {
+describe('mapApi', () => {
   test('should map minimal config correctly', () => {
-    const api = Fixtures.APIS.MINIMAL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    const result = mapApiConfig(api, entityRefParser)
-
-    expect(result).toStrictEqual({
-      fn: mapExtImport(api.fn),
-      httpRoute: mapHttpRoute(api.httpRoute),
-      auth: undefined,
-      entities: undefined,
-      middlewareConfigFn: undefined,
-    } satisfies AppSpec.Api)
+    testMapApi(Fixtures.APIS.MINIMAL.CONFIG)
   })
 
   test('should map full config correctly', () => {
-    const api = Fixtures.APIS.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', api.entities)
+    testMapApi(Fixtures.APIS.FULL.CONFIG)
+  })
 
-    const result = mapApiConfig(api, entityRefParser)
+  test('should throw if entities refs are not provided', () => {
+    testMapApi(Fixtures.APIS.FULL.CONFIG, {
+      overrideEntities: [],
+      shouldError: true,
+    })
+  })
+
+  function testMapApi(
+    api: UserApi.ApiConfig,
+    options:
+      | {
+          overrideEntities?: string[]
+          shouldError: boolean | undefined
+        }
+      | undefined = {
+      overrideEntities: undefined,
+      shouldError: false,
+    }
+  ): void {
+    const { overrideEntities, shouldError } = options
+    const entities = overrideEntities ?? []
+    if (!overrideEntities) {
+      if (api.entities) {
+        entities.push(...api.entities)
+      }
+    }
+    const entityRefParser = makeRefParser('Entity', entities)
+
+    if (shouldError) {
+      expect(() => mapApi(api, entityRefParser)).toThrowError()
+      return
+    }
+
+    const result = mapApi(api, entityRefParser)
 
     expect(result).toStrictEqual({
       fn: mapExtImport(api.fn),
-      middlewareConfigFn: mapExtImport(api.middlewareConfigFn),
-      entities: api.entities.map(entityRefParser),
+      middlewareConfigFn:
+        api.middlewareConfigFn && mapExtImport(api.middlewareConfigFn),
+      entities: api.entities?.map(entityRefParser),
       httpRoute: mapHttpRoute(api.httpRoute),
       auth: api.auth,
     } satisfies AppSpec.Api)
-  })
+  }
 })
 
 describe('mapHttpRoute', () => {
-  test('should map full config correctly', () => {
-    const httpRoute = Fixtures.APIS.FULL.CONFIG.httpRoute
+  // NOTE: currently minimal config is the same as full config
+  test('should map minimal config correctly', () => {
+    testMapHttpRoute(Fixtures.HTTP_ROUTES.MINIMAL.CONFIG)
+  })
 
+  test('should map full config correctly', () => {
+    testMapHttpRoute(Fixtures.HTTP_ROUTES.FULL.CONFIG)
+  })
+
+  function testMapHttpRoute(httpRoute: UserApi.HttpRoute): void {
     const result = mapHttpRoute(httpRoute)
 
     expect(result).toStrictEqual([
       httpRoute.method,
       httpRoute.route,
     ] satisfies AppSpec.HttpRoute)
-  })
+  }
 })
 
 describe('mapJob', () => {
   test('should map minimal config correctly', () => {
-    const job = Fixtures.JOBS.MINIMAL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    const result = mapJob(job, entityRefParser)
-
-    expect(result).toStrictEqual({
-      executor: job.executor,
-      perform: mapPerform(job.perform),
-      schedule: undefined,
-      entities: undefined,
-    } satisfies AppSpec.Job)
+    testMapJob(Fixtures.JOBS.MINIMAL.CONFIG)
   })
 
   test('should map full config correctly', () => {
-    const job = Fixtures.JOBS.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', job.entities)
+    testMapJob(Fixtures.JOBS.FULL.CONFIG)
+  })
+
+  test('should throw if entity ref is not provided', () => {
+    testMapJob(Fixtures.JOBS.FULL.CONFIG, {
+      overrideEntities: [],
+      shouldError: true,
+    })
+  })
+
+  function testMapJob(
+    job: UserApi.JobConfig,
+    options:
+      | {
+          overrideEntities?: string[]
+          shouldError: boolean | undefined
+        }
+      | undefined = {
+      overrideEntities: undefined,
+      shouldError: false,
+    }
+  ): void {
+    const { overrideEntities, shouldError } = options
+    const entities = overrideEntities ?? []
+    if (!overrideEntities) {
+      if (job.entities) {
+        entities.push(...job.entities)
+      }
+    }
+    const entityRefParser = makeRefParser('Entity', entities)
+
+    if (shouldError) {
+      expect(() => mapJob(job, entityRefParser)).toThrowError()
+      return
+    }
 
     const result = mapJob(job, entityRefParser)
 
     expect(result).toStrictEqual({
       executor: job.executor,
       perform: mapPerform(job.perform),
-      schedule: mapSchedule(job.schedule),
-      entities: job.entities.map(entityRefParser),
+      schedule: job.schedule && mapSchedule(job.schedule),
+      entities: job.entities?.map(entityRefParser),
     } satisfies AppSpec.Job)
-  })
-
-  test('should throw if entity ref is not provided', () => {
-    const job = Fixtures.JOBS.FULL.CONFIG
-    const entityRefParser = makeRefParser('Entity', [])
-
-    expect(() => mapJob(job, entityRefParser)).toThrowError()
-  })
+  }
 })
 
 describe('mapSchedule', () => {

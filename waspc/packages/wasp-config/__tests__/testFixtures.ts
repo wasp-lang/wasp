@@ -33,11 +33,11 @@ function createMinimalUserApp(): UserApi.App {
 function createFullUserApp(): UserApi.App {
   const app = new UserApi.App(APP.FULL.NAME, APP.FULL.CONFIG)
   app.auth(AUTH.FULL.CONFIG)
-  app.client(CLIENT.CONFIG)
-  app.server(SERVER.CONFIG)
-  app.emailSender(EMAIL_SENDER.CONFIG)
-  app.webSocket(WEBSOCKET.CONFIG)
-  app.db(DB.CONFIG)
+  app.client(CLIENT.FULL.CONFIG)
+  app.server(SERVER.FULL.CONFIG)
+  app.emailSender(EMAIL_SENDER.FULL.CONFIG)
+  app.webSocket(WEBSOCKET.FULL.CONFIG)
+  app.db(DB.FULL.CONFIG)
 
   function addDecls(
     declName: string,
@@ -83,7 +83,7 @@ export const PAGES = {
         import: 'Full',
       },
       authRequired: true,
-    } satisfies UserApi.PageConfig,
+    } satisfies Required<UserApi.PageConfig>,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationPage',
@@ -111,12 +111,19 @@ export const ALL_PAGE_NAMES = Object.values(PAGES).map((page) => page.NAME)
 // For simplicity sake we asserted `RouteConfig.to` as branded type
 // instead of creating a function which would accept branded string.
 export const ROUTES = {
+  MINIMAL: {
+    NAME: 'MinimalRoute',
+    CONFIG: {
+      path: '/minimal',
+      to: PAGES.MINIMAL.NAME as string & { _brand: 'Page' },
+    } satisfies UserApi.RouteConfig,
+  },
   FULL: {
     NAME: 'FullRoute',
     CONFIG: {
       path: '/full',
       to: PAGES.FULL.NAME as string & { _brand: 'Page' },
-    } satisfies UserApi.RouteConfig,
+    } satisfies Required<UserApi.RouteConfig>,
   },
   EMAIL_VERIFICATION: {
     NAME: 'EmailVerificationRoute',
@@ -239,6 +246,31 @@ export const API_NAMESPACES = {
       path: '/bar',
     } satisfies Required<UserApi.ApiNamespaceConfig>,
   },
+  MINIMAL: {
+    NAME: 'foo',
+    CONFIG: {
+      middlewareConfigFn: {
+        import: 'barMiddlewareConfigFn',
+        from: '@src/apis',
+      },
+      path: '/foo',
+    } satisfies UserApi.ApiNamespaceConfig,
+  },
+} as const
+
+export const HTTP_ROUTES = {
+  FULL: {
+    CONFIG: {
+      method: 'GET',
+      route: '/bar/baz',
+    } satisfies Required<UserApi.HttpRoute>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      method: 'POST',
+      route: '/bar/foo',
+    } satisfies UserApi.HttpRoute,
+  },
 } as const
 
 export const APIS = {
@@ -250,10 +282,7 @@ export const APIS = {
         from: '@src/apis',
       },
       auth: true,
-      httpRoute: {
-        method: 'GET',
-        route: '/bar/baz',
-      },
+      httpRoute: HTTP_ROUTES.FULL.CONFIG,
       entities: [TASK_ENTITY],
       middlewareConfigFn: {
         import: 'barBazMiddlewareConfigFn',
@@ -268,10 +297,7 @@ export const APIS = {
         import: 'barFoo',
         from: '@src/apis',
       },
-      httpRoute: {
-        method: 'POST',
-        route: '/bar/foo',
-      },
+      httpRoute: HTTP_ROUTES.MINIMAL.CONFIG,
     } satisfies UserApi.ApiConfig,
   },
 } as const
@@ -481,67 +507,99 @@ export const AUTH = {
 } as const
 
 export const CLIENT = {
-  CONFIG: {
-    rootComponent: {
-      from: '@src/App',
-      import: 'App',
-    },
-    setupFn: {
-      from: '@src/clientSetup',
-      import: 'setup',
-    },
-    baseDir: '/src',
-    envValidationSchema: {
-      import: 'envValidationSchema',
-      from: '@src/envValidationSchema',
-    },
-  } satisfies Required<UserApi.ClientConfig>,
+  FULL: {
+    CONFIG: {
+      rootComponent: {
+        from: '@src/App',
+        import: 'App',
+      },
+      setupFn: {
+        from: '@src/clientSetup',
+        import: 'setup',
+      },
+      baseDir: '/src',
+      envValidationSchema: {
+        import: 'envValidationSchema',
+        from: '@src/envValidationSchema',
+      },
+    } satisfies Required<UserApi.ClientConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.ClientConfig,
+  },
 } as const
 
 export const SERVER = {
-  CONFIG: {
-    setupFn: {
-      import: 'setup',
-      from: '@src/serverSetup',
-    },
-    middlewareConfigFn: {
-      import: 'serverMiddlewareFn',
-      from: '@src/serverSetup',
-    },
-    envValidationSchema: {
-      import: 'envValidationSchema',
-      from: '@src/envValidationSchema',
-    },
-  } satisfies Required<UserApi.ServerConfig>,
+  FULL: {
+    CONFIG: {
+      setupFn: {
+        import: 'setup',
+        from: '@src/serverSetup',
+      },
+      middlewareConfigFn: {
+        import: 'serverMiddlewareFn',
+        from: '@src/serverSetup',
+      },
+      envValidationSchema: {
+        import: 'envValidationSchema',
+        from: '@src/envValidationSchema',
+      },
+    } satisfies Required<UserApi.ServerConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.ServerConfig,
+  },
 } as const
 
 export const EMAIL_SENDER = {
-  CONFIG: {
-    provider: 'SMTP',
-    defaultFrom: {
-      name: 'Test',
-      email: 'test@test.com',
-    },
-  } satisfies Required<UserApi.EmailSenderConfig>,
+  FULL: {
+    CONFIG: {
+      provider: 'SMTP',
+      defaultFrom: {
+        name: 'Test',
+        email: 'test@test.com',
+      },
+    } satisfies Required<UserApi.EmailSenderConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      provider: 'SMTP',
+    } satisfies UserApi.EmailSenderConfig,
+  },
 } as const
 
 export const WEBSOCKET = {
-  CONFIG: {
-    fn: {
-      import: 'webSocketFn',
-      from: '@src/webSocket',
-    },
-    autoConnect: true,
-  } satisfies Required<UserApi.WebsocketConfig>,
+  FULL: {
+    CONFIG: {
+      fn: {
+        import: 'webSocketFn',
+        from: '@src/webSocket',
+      },
+      autoConnect: true,
+    } satisfies Required<UserApi.WebsocketConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {
+      fn: {
+        import: 'webSocketFn',
+        from: '@src/webSocket',
+      },
+    } satisfies UserApi.WebsocketConfig,
+  },
 } as const
 
 export const DB = {
-  CONFIG: {
-    seeds: [
-      {
-        import: 'devSeedSimple',
-        from: '@src/dbSeeds',
-      },
-    ],
-  } satisfies Required<UserApi.DbConfig>,
+  FULL: {
+    CONFIG: {
+      seeds: [
+        {
+          import: 'devSeedSimple',
+          from: '@src/dbSeeds',
+        },
+      ],
+    } satisfies Required<UserApi.DbConfig>,
+  },
+  MINIMAL: {
+    CONFIG: {} satisfies UserApi.DbConfig,
+  },
 } as const

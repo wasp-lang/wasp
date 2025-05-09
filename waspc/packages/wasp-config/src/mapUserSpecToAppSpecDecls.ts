@@ -40,13 +40,13 @@ export function mapUserSpecToAppSpecDecls(
     mapRoute(routeConfig, pageRefParser)
   )
   const actionDecls = mapToDecls(actions, 'Action', (actionConfig) =>
-    mapOperationConfig(actionConfig, entityRefParser)
+    mapOperation(actionConfig, entityRefParser)
   )
   const queryDecls = mapToDecls(queries, 'Query', (queryConfig) =>
-    mapOperationConfig(queryConfig, entityRefParser)
+    mapOperation(queryConfig, entityRefParser)
   )
   const apiDecls = mapToDecls(apis, 'Api', (apiConfig) =>
-    mapApiConfig(apiConfig, entityRefParser)
+    mapApi(apiConfig, entityRefParser)
   )
   const jobDecls = mapToDecls(jobs, 'Job', (jobConfig) =>
     mapJob(jobConfig, entityRefParser)
@@ -109,22 +109,22 @@ function mapToDecls<T, DeclType extends AppSpec.Decl['declType']>(
   }))
 }
 
-export function mapOperationConfig(
+export function mapOperation(
   config: User.QueryConfig,
   entityRefParser: RefParser<'Entity'>
 ): AppSpec.Query
-export function mapOperationConfig(
+export function mapOperation(
   config: User.ActionConfig,
   entityRefParser: RefParser<'Entity'>
 ): AppSpec.Action
-export function mapOperationConfig(
+export function mapOperation(
   config: User.ActionConfig | User.QueryConfig,
   entityRefParser: RefParser<'Entity'>
 ): AppSpec.Action | AppSpec.Query {
   const { fn, entities, auth } = config
   return {
     fn: mapExtImport(fn),
-    entities: entities && entities.map(entityRefParser),
+    entities: entities?.map(entityRefParser),
     auth,
   }
 }
@@ -153,7 +153,7 @@ export function mapHttpRoute(httpRoute: User.HttpRoute): AppSpec.HttpRoute {
   return [httpRoute.method, httpRoute.route]
 }
 
-export function mapApiConfig(
+export function mapApi(
   config: User.ApiConfig,
   entityRefParser: RefParser<'Entity'>
 ): AppSpec.Api {
@@ -322,7 +322,7 @@ export function mapPasswordReset(
 export function mapDb(db: User.DbConfig): AppSpec.Db {
   const { seeds } = db
   return {
-    seeds: seeds && seeds.map(mapExtImport),
+    seeds: seeds?.map(mapExtImport),
   }
 }
 

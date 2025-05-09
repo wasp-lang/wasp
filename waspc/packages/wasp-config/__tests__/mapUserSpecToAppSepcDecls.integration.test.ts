@@ -3,12 +3,12 @@ import { describe, expect, test } from 'vitest'
 import * as AppSpec from '../src/appSpec.js'
 import {
   makeRefParser,
-  mapApiConfig,
+  mapApi,
   mapApiNamespace,
   mapApp,
   mapCrud,
   mapJob,
-  mapOperationConfig,
+  mapOperation,
   mapPage,
   mapRoute,
   mapUserSpecToAppSpecDecls,
@@ -55,14 +55,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
       declType: 'Query',
       declFixtures: Fixtures.QUERIES,
       declMap: userSpec.queries,
-      mapUserSpecToAppSpec: mapOperationConfig,
+      mapUserSpecToAppSpec: mapOperation,
       parserArgs: [entityRefParser],
     })
     expectCorrectMapping({
       declType: 'Action',
       declFixtures: Fixtures.ACTIONS,
       declMap: userSpec.actions,
-      mapUserSpecToAppSpec: mapOperationConfig,
+      mapUserSpecToAppSpec: mapOperation,
       parserArgs: [entityRefParser],
     })
     expectCorrectMapping({
@@ -82,7 +82,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       declType: 'Api',
       declFixtures: Fixtures.APIS,
       declMap: userSpec.apis,
-      mapUserSpecToAppSpec: mapApiConfig,
+      mapUserSpecToAppSpec: mapApi,
       parserArgs: [entityRefParser],
     })
     expectCorrectMapping({
