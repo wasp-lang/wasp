@@ -19,6 +19,7 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -29,17 +30,17 @@ genEmailAuth auth
         [ genIndex,
           genServerUtils auth
         ]
-        <++> genActions
+        <++> genActions auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
 genIndex = return $ C.mkTmplFd [relfile|auth/email/index.ts|]
 
-genActions :: Generator [FileDraft]
-genActions =
+genActions :: AS.Auth.Auth -> Generator [FileDraft]
+genActions auth =
   sequence
     [ genLoginAction,
-      genSignupAction,
+      genSignupAction auth,
       genPasswordResetActions,
       genVerifyEmailAction
     ]
@@ -51,12 +52,19 @@ genLoginAction =
       [relfile|auth/email/actions/login.ts|]
       (object ["loginPath" .= serverLoginUrl emailAuthProvider])
 
-genSignupAction :: Generator FileDraft
-genSignupAction =
+genSignupAction :: AS.Auth.Auth -> Generator FileDraft
+genSignupAction auth =
   return $
     C.mkTmplFdWithData
       [relfile|auth/email/actions/signup.ts|]
-      (object ["signupPath" .= serverSignupUrl emailAuthProvider])
+      ( object
+          [ "signupPath" .= serverSignupUrl emailAuthProvider,
+            "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields
+          ]
+      )
+  where
+    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    authMethods = AS.Auth.methods auth
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
