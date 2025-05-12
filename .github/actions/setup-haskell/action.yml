@@ -1,0 +1,29 @@
+name: Setup Haskell
+description: |
+  This action sets up a Haskell environment for use in actions by
+  adding the GHC and Cabal binaries to the PATH. It also caches
+  the GHC and Cabal installations to speed up subsequent runs.
+
+inputs:
+  ghc-version:
+    description: |
+      The version of GHC to install.
+    required: false
+    default: "8.10.7"
+
+runs:
+  using: composite
+
+  steps:
+    - uses: haskell-actions/setup@v2
+      id: setup-haskell-build-env
+      with:
+        ghc-version: ${{ inputs.ghc-version }}
+
+    - name: Cache Cabal dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ steps.setup-haskell-build-env.outputs.cabal-store }}
+          waspc/dist-newstyle
+        key: ${{ runner.os }}-cabal-ghc${{ inputs.ghc-version }}-${{ hashFiles('./waspc/*.project') }}-${{ hashFiles('./waspc/*.cabal') }}
