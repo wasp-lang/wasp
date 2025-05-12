@@ -3,7 +3,6 @@
  * In our case the sample data represents UserSpec data.
  */
 
-import { GET_USER_SPEC } from '../src/_private.js'
 import * as UserApi from '../src/userApi.js'
 
 /**
@@ -25,16 +24,6 @@ export function createUserApp(configType: ConfigType): UserApi.App {
     return createMinimalUserApp()
   } else if (configType === 'full') {
     return createFullUserApp()
-  } else {
-    throw new Error(`Unknown config type: ${configType}`)
-  }
-}
-
-export function createUserSpec(configType: ConfigType): UserApi.UserSpec {
-  if (configType === 'minimal') {
-    return createMinimalUserApp()[GET_USER_SPEC]()
-  } else if (configType === 'full') {
-    return createFullUserApp()[GET_USER_SPEC]()
   } else {
     throw new Error(`Unknown config type: ${configType}`)
   }

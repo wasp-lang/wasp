@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test } from 'vitest'
+import { GET_USER_SPEC } from '../src/_private.js'
 import * as AppSpec from '../src/appSpec.js'
 import {
   makeRefParser,
@@ -17,7 +18,7 @@ import * as Fixtures from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
   test('should map full app using mapping functions correctly', () => {
-    const userSpec = Fixtures.createUserSpec('full')
+    const userSpec = Fixtures.createUserApp('full')[GET_USER_SPEC]()
     const entityRefParser = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
     const routeRefParser = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
     const pageRefParser = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
@@ -122,8 +123,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
     }
   })
 
-  test('should map mininmal app using mapping functions correctly', () => {
-    const userSpec = Fixtures.createUserSpec('minimal')
+  test('should map minimal app using mapping functions correctly', () => {
+    const userSpec = Fixtures.createUserApp('minimal')[GET_USER_SPEC]()
     const entityRefParser = makeRefParser('Entity', [])
     const routeRefParser = makeRefParser('Route', [])
 
