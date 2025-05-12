@@ -36,7 +36,7 @@ Output:
 */
 
 import type * as md from 'mdast'
-import type {} from 'mdast-util-mdx' // Type-only empty import to register MDX types into mdast
+import type { } from 'mdast-util-mdx'; // Type-only empty import to register MDX types into mdast
 import * as path from 'node:path'
 import * as prettier from 'prettier'
 import { blankSourceFile } from 'ts-blank-space'
@@ -176,7 +176,8 @@ async function format(
     useCache: true,
     editorconfig: true,
   })
-  return prettier.format(code, { ...prettierConfig, parser })
+  const formatted = await prettier.format(code, { ...prettierConfig, parser })
+  return formatted.trim() // prettier adds a trailing newline, we remove it
 }
 
 function transformExt(inPath: string, fn: (ext: string) => string) {
