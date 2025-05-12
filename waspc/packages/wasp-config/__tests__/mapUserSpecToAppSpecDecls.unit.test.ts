@@ -45,6 +45,7 @@ describe('mapApp', () => {
 
   function testMapApp(app: UserApi.App): void {
     const userSpec = app[GET_USER_SPEC]()
+
     const entities: string[] = []
     if (userSpec.auth) {
       if (userSpec.auth.userEntity) {
