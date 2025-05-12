@@ -232,6 +232,7 @@ Here's an example of a seed function that imports an Action:
       return newUser
     }
     ```
+
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
@@ -291,6 +292,7 @@ Here's an example of a seed function that imports an Action:
 
     - The seeding function's argument (`prisma`) is of type `PrismaClient`.
     - The seeding function's return value is `Promise<void>`.
+
   </TabItem>
 </Tabs>
 
@@ -323,7 +325,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
       title: "My app",
       // ...
       db: {
-        prismaSetupFn: import { setupPrisma } from "@src/prisma"
+        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
       }
     }
     ```
@@ -331,7 +333,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
     ```js title="src/prisma.js"
     import { PrismaClient } from '@prisma/client'
 
-    export const setupPrisma = () => {
+    export const setUpPrisma = () => {
       const prisma = new PrismaClient({
         log: ['query'],
       }).$extends({
@@ -340,7 +342,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: 'hidden by setupPrisma' } },
+                description: { not: { contains: 'hidden by setUpPrisma' } },
               }
               return query(args)
             },
@@ -351,6 +353,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
       return prisma
     }
     ```
+
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
@@ -359,15 +362,16 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
       title: "My app",
       // ...
       db: {
-        prismaSetupFn: import { setupPrisma } from "@src/prisma"
+        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
       }
     }
     ```
 
     ```ts title="src/prisma.ts"
-   import { PrismaClient } from '@prisma/client'
 
-    export const setupPrisma = () => {
+import { PrismaClient } from '@prisma/client'
+
+    export const setUpPrisma = () => {
       const prisma = new PrismaClient({
         log: ['query'],
       }).$extends({
@@ -376,7 +380,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: 'hidden by setupPrisma' } },
+                description: { not: { contains: 'hidden by setUpPrisma' } },
               }
               return query(args)
             },
@@ -387,6 +391,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
       return prisma
     }
     ```
+
   </TabItem>
 </Tabs>
 
@@ -402,7 +407,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
         seeds: [
           import devSeed from "@src/dbSeeds"
         ],
-        prismaSetupFn: import { setupPrisma } from "@src/prisma"
+        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
       }
     }
     ```
@@ -417,7 +422,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
         seeds: [
           import devSeed from "@src/dbSeeds"
         ],
-        prismaSetupFn: import { setupPrisma } from "@src/prisma"
+        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
       }
     }
     ```
@@ -439,7 +444,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
   ```ts title="src/prisma.ts"
   import { PrismaClient } from '@prisma/client'
 
-  export const setupPrisma = () => {
+  export const setUpPrisma = () => {
     const prisma = new PrismaClient({
       log: ['query', 'info', 'warn', 'error'],
     })

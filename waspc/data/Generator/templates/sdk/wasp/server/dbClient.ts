@@ -3,20 +3,20 @@
 {=& prismaSetupFn.importStatement =}
 {=/ prismaSetupFn.isDefined =}
 {=# areThereAnyEntitiesDefined =}
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 
 {=# prismaSetupFn.isDefined =}
-const _waspSetupPrisma = {= prismaSetupFn.importIdentifier =}
+const _waspSetUpPrisma = {= prismaSetupFn.importIdentifier =}
 {=/ prismaSetupFn.isDefined =}
 {=^ prismaSetupFn.isDefined =}
-const _waspSetupPrisma = () => new PrismaClient()
+const _waspSetUpPrisma = () => new InternalPrismaClient()
 {=/ prismaSetupFn.isDefined =}
 
 // We are not typing the return value because 
 // we want to infer the type from the (potentially)
-// user-defined function _waspSetupPrisma
+// user-defined function _waspSetUpPrisma
 function createDbClient() {
-  return _waspSetupPrisma()
+  return _waspSetUpPrisma()
 }
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
@@ -33,7 +33,7 @@ function createDbClient(): null {
 const dbClient = createDbClient()
 
 // PUBLIC API 
-export type ResolvedPrismaClient = typeof dbClient
+export type PrismaClient = typeof dbClient
 
 // PUBLIC API
 export default dbClient

@@ -72,7 +72,7 @@ spec_Analyzer = do
                 "  },",
                 "  db: {",
                 "    seeds: [ import { devSeedSimple } from \"@src/dbSeeds.js\" ],",
-                "    prismaSetupFn: import { setupPrisma } from \"@src/setupPrisma.js\",",
+                "    prismaSetupFn: import { setUpPrisma } from \"@src/setUpPrisma.js\",",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -192,8 +192,8 @@ spec_Analyzer = do
                             Db.prismaSetupFn =
                               Just $
                                 ExtImport
-                                  (ExtImportField "setupPrisma")
-                                  (fromJust $ SP.parseRelFileP "setupPrisma.js")
+                                  (ExtImportField "setUpPrisma")
+                                  (fromJust $ SP.parseRelFileP "setUpPrisma.js")
                           },
                     App.emailSender =
                       Just

@@ -26,7 +26,7 @@ test.describe('prisma setup fn', () => {
     await page.goto('/')
 
     // Create a new task that will be hidden by the Prisma setup function
-    const specificTask = `hidden by setupPrisma`
+    const specificTask = 'hidden by setUpPrisma'
     await page.locator("input[type='text']").fill(specificTask)
     await page.getByText('Create new task').click()
 
