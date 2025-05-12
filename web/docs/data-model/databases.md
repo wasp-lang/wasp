@@ -433,7 +433,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 
 - `prismaSetupFn: ExtImport`
 
-  Defines a function that sets up the Prisma Client instance. Wasp expects you to return a Prisma Client instance from this function.
+  Defines a function that sets up the Prisma Client instance. Wasp expects it to return a Prisma Client instance.
   You can use this function to set up [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
   ```ts title="src/prisma.ts"
