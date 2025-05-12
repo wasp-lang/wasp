@@ -148,6 +148,7 @@ export type AuthConfig = {
   onAuthSucceededRedirectTo?: string
   onBeforeSignup?: ExtImport
   onAfterSignup?: ExtImport
+  onAfterEmailVerified?: ExtImport
   onBeforeOAuthRedirect?: ExtImport
   onBeforeLogin?: ExtImport
   onAfterLogin?: ExtImport

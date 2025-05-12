@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { deserialize as superjsonDeserialize } from 'superjson'
+import { deserialize } from 'wasp/core/serialization'
 import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations'
 import type { QueryFunction, Query  } from 'wasp/client/operations/rpc'
 import { api, handleApiError } from 'wasp/client/api'
@@ -22,17 +22,13 @@ function createUserGetter(): Query<void, AuthUser | null> {
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
       const response = await api.get(getMeRoute.path)
-      const userData = superjsonDeserialize<AuthUserData | null>(response.data)
+      const userData = deserialize<AuthUserData | null>(response.data)
       return makeAuthUserIfPossible(userData)
     } catch (error) {
-      if (error.response?.status === 401) {
-        return null
-      } else {
-        throw handleApiError(error)
-      }
+      throw handleApiError(error)
     }
   }
-  
+
   return buildAndRegisterQuery(getMe, {
     queryCacheKey: [getMeRelativePath],
     queryRoute: getMeRoute,

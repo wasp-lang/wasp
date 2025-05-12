@@ -104,11 +104,7 @@ spec_WebAppGenerator = do
                     ".gitignore",
                     "index.html"
                   ],
-                  map
-                    ("public" </>)
-                    [ "favicon.ico",
-                      "manifest.json"
-                    ],
+                  ["public" </> "manifest.json"],
                   map
                     (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
                     [ "logo.png",

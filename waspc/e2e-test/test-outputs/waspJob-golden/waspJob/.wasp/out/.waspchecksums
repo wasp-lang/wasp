@@ -81,7 +81,7 @@
             "file",
             "../out/sdk/wasp/client/operations/internal/index.ts"
         ],
-        "d710d9894f56194c0d87921f339100414c69b987f1f5221881ca372fd70be371"
+        "dbd92e9ee31068abb13a88dc0ed497f0e1f1e6660b39b16ffd6821b5a5c3d8c2"
     ],
     [
         [
@@ -165,7 +165,14 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "184454828b021bbc8f9927533cea271614ac9661598c7f458909980ad4b68d80"
+        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization.ts"
+        ],
+        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
     ],
     [
         [
@@ -207,7 +214,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "094299f59ed45a4f674d17a5e9c6b9ddb387f0497b596728d6d748069cf4d97c"
+        "6fc2663de1fa5b14fda4eeca9a00edf3225242874c6d6ce399f4a0639f36a91b"
     ],
     [
         [
@@ -228,14 +235,7 @@
             "file",
             "../out/sdk/wasp/server/_types/index.ts"
         ],
-        "e19d9927bb6f9d4a95641c01d3488d45dad5c8bf708b6573401e8ee9f4067995"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/server/_types/serialization.ts"
-        ],
-        "cfa5bcdd91e36fe35a91323bd3944a52873144101a5a03ae8a4f258cdd61ea03"
+        "eb670470bdf240069288cb4b26c27dee74a9c7327d1df5639018a5627b6be02f"
     ],
     [
         [
@@ -298,14 +298,14 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "19de68ae9a461b6e3455271aa7ff439827d2a6292a301a9ed61a24d912ac1773"
+        "0e20fd18dd406be71588df7c17bdac8dd03e06c36f4e39bd63d53c839f60df15"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/types.ts"
         ],
-        "302dc48a5f4a5eb264764134c9397d27a681d1ea003fb8ca24d281c40bc0e0dc"
+        "7450d421fd6d8f8a88be9519beb3471fbfea1a66a433f0261f976775d6f3f4c4"
     ],
     [
         [
@@ -319,21 +319,21 @@
             "file",
             "../out/sdk/wasp/server/jobs/scheduleJob.ts"
         ],
-        "c06df4ce13bd786dc74f94e608168cb373aadee3e53e9ac4b6890e519d7c412e"
+        "f2ce7dfde25ad248d9e93ea1842b218bfc56adfaa03a441acf1c82df147e96a8"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/jobs/scheduledJobWithArgs.ts"
         ],
-        "c63177d281969bfa38280f9506a97b2504efb01bd169944dd5db9781d509c9ba"
+        "d31027ef427a7a1213039007306ddf1bed0a4e25a3b9c433265f28930d7f9f92"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/server/jobs/simpleJob.ts"
         ],
-        "01ffbece6976912c847a61c9ada1017a6375d6ec2b169d44b25240aa1004892e"
+        "2355244246ed097ed868a5a348c68196d7570c286d68f12ddc571e991379608c"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "688fdd57d6a9e9ead90141c6f0ebea9d39713d5bd7a630d43f2c2cb5a7984108"
+        "d7d15ef5f24220e7a71302f9c5a9e088688e99abf0609a2094f7fe87add4c099"
     ],
     [
         [
@@ -550,7 +550,7 @@
             "file",
             "server/package.json"
         ],
-        "ae6d36c69a9a51addea31296c10660c039a47a0769848f8ea91db2c874480ebe"
+        "0ce311426f452b535325628ae341b6d6526d0c10b93849b9369914e7c94f13e2"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
+        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
     ],
     [
         [
@@ -613,7 +613,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "c165909021613cb6e389b324632f199d392b093d18109f05ab33b720c429c187"
+        "08c4c24a9eaee24af4237ff694be570231de9e8b3b90cc86bfca3b776aab6e34"
     ],
     [
         [
@@ -683,7 +683,7 @@
             "file",
             "web-app/index.html"
         ],
-        "697e9b92b49353765357b3ec2607868096effc39c5de83ed11fe59fde47d9cf3"
+        "90ea29de670c49476e29a47b62a42e3bb843c68d971349a2341b3cfb2d7dc7b2"
     ],
     [
         [
@@ -698,13 +698,6 @@
             "web-app/package.json"
         ],
         "b3031378d935d26f660108a5445d6679c34fccd124dbc6d900a20cb67ee88bc7"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
