@@ -2,6 +2,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/api/axios.d.ts"
+        ],
+        "78002ba0273e11f11df1fb9c33ef786c4732cba8835dbabc7cda39a00df27e19"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -11,7 +18,7 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "4189f4c9a84f18751d1ef626e6dd0467f16f9a41eade2f9b6371d943fd828b92"
+        "9d6652195cad93491c772567e5747b5503a1e9bca42247b3a1377fbf83803dfd"
     ],
     [
         [
@@ -74,7 +81,7 @@
             "file",
             "../out/sdk/wasp/client/operations/internal/index.ts"
         ],
-        "d710d9894f56194c0d87921f339100414c69b987f1f5221881ca372fd70be371"
+        "dbd92e9ee31068abb13a88dc0ed497f0e1f1e6660b39b16ffd6821b5a5c3d8c2"
     ],
     [
         [
@@ -158,7 +165,14 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "184454828b021bbc8f9927533cea271614ac9661598c7f458909980ad4b68d80"
+        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization.ts"
+        ],
+        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
     ],
     [
         [
@@ -200,7 +214,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "165e6625354026315f92c67a3935267a1e87541cc028efbc652c506ba3bdc374"
+        "fe15a110bc598dd31aeaef52ca1eb440818a630110b4da7bd155028db911fd3f"
     ],
     [
         [
@@ -221,14 +235,7 @@
             "file",
             "../out/sdk/wasp/server/_types/index.ts"
         ],
-        "e19d9927bb6f9d4a95641c01d3488d45dad5c8bf708b6573401e8ee9f4067995"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/server/_types/serialization.ts"
-        ],
-        "cfa5bcdd91e36fe35a91323bd3944a52873144101a5a03ae8a4f258cdd61ea03"
+        "eb670470bdf240069288cb4b26c27dee74a9c7327d1df5639018a5627b6be02f"
     ],
     [
         [
@@ -333,7 +340,7 @@
             "file",
             "../out/sdk/wasp/server/utils.ts"
         ],
-        "688fdd57d6a9e9ead90141c6f0ebea9d39713d5bd7a630d43f2c2cb5a7984108"
+        "d7d15ef5f24220e7a71302f9c5a9e088688e99abf0609a2094f7fe87add4c099"
     ],
     [
         [
@@ -354,7 +361,7 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+        "b90babdd0169eb18ced65b50573272e671ca0b432506fbc16050bd07e502a0cc"
     ],
     [
         [
@@ -368,7 +375,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "b7d9e36f1b1608769cc50169e64dc64f11d4efe28db6af1c81bda149a2d97858"
+        "bdbc1787b302d3efeeb4895ced9435eccb9926f32f032a493ff29b0addfc2a32"
     ],
     [
         [
@@ -466,7 +473,7 @@
             "file",
             "server/package.json"
         ],
-        "ae6d36c69a9a51addea31296c10660c039a47a0769848f8ea91db2c874480ebe"
+        "0ce311426f452b535325628ae341b6d6526d0c10b93849b9369914e7c94f13e2"
     ],
     [
         [
@@ -487,7 +494,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "312850493f4b17b42d5878b1c41be7db66e11bf5cf1997f9506cb06ee05ab5bd"
+        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
     ],
     [
         [
@@ -501,7 +508,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "c165909021613cb6e389b324632f199d392b093d18109f05ab33b720c429c187"
+        "08c4c24a9eaee24af4237ff694be570231de9e8b3b90cc86bfca3b776aab6e34"
     ],
     [
         [
@@ -564,7 +571,7 @@
             "file",
             "web-app/index.html"
         ],
-        "8cc6168f652b825015918a0d2e82a2c0ad3126e1dd39662b0a49a38f9818e5a1"
+        "ca2a74c6e1a292b0f449d1032d10482589d448b39d575c85bc8d22ca330fd17b"
     ],
     [
         [
@@ -579,13 +586,6 @@
             "web-app/package.json"
         ],
         "b0737cfea70878d3cce16612f9a6ce577d9a3cb418d8fa91ae303c347f829431"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [

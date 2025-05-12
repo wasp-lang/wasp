@@ -1,6 +1,6 @@
 import type { AuthenticatedActionDefinition, AuthenticatedQueryDefinition, _Task } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload } from "../_types/serialization";
+import type { Payload, SuperJSONObject } from "wasp/core/serialization";
 import type { Task } from "wasp/entities";
 type _WaspEntityTagged = _Task;
 type _WaspEntity = Task;
@@ -21,10 +21,11 @@ export declare namespace tasks {
 type GetAllInput = {};
 type GetAllOutput = _WaspEntity[];
 export type GetAllQueryResolved = tasks.GetAllQuery<GetAllInput, GetAllOutput>;
-type GetInput = Prisma.TaskWhereUniqueInput;
+type GetInput = SuperJSONObject & Prisma.TaskWhereUniqueInput;
 type GetOutput = _WaspEntity | null;
 export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>;
-type CreateInput = Prisma.XOR<Prisma.TaskCreateInput, Prisma.TaskUncheckedCreateInput>;
+type CreateInput = SuperJSONObject & Prisma.XOR<Prisma.TaskCreateInput, Prisma.TaskUncheckedCreateInput>;
 type CreateOutput = _WaspEntity;
 export type CreateActionResolved = tasks.CreateAction<CreateInput, CreateOutput>;
 export {};
+//# sourceMappingURL=tasks.d.ts.map

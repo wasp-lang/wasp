@@ -25,30 +25,27 @@ Below are some examples of how you can customize the Vite config.
 If you want to stop Vite from opening the browser automatically when you run `wasp start`, you can do that by customizing the `open` option.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/client/vite.config.js"
+    export default {
+      server: {
+        open: false,
+      },
+    }
+    ```
+  </TabItem>
 
-```js title="src/client/vite.config.js"
-export default {
-  server: {
-    open: false,
-  },
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/client/vite.config.ts"
+    import { defineConfig } from 'vite'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/client/vite.config.ts"
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  server: {
-    open: false,
-  },
-})
-```
-
-</TabItem>
+    export default defineConfig({
+      server: {
+        open: false,
+      },
+    })
+    ```
+  </TabItem>
 </Tabs>
 
 ### Custom Dev Server Port
@@ -56,38 +53,35 @@ export default defineConfig({
 You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the dev server port by setting the `port` option.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/client/vite.config.js"
+    export default {
+      server: {
+        port: 4000,
+      },
+    }
+    ```
 
-```js title="src/client/vite.config.js"
-export default {
-  server: {
-    port: 4000,
-  },
-}
-```
+    ```env title=".env.server"
+    WASP_WEB_CLIENT_URL=http://localhost:4000
+    ```
+  </TabItem>
 
-```env title=".env.server"
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/client/vite.config.ts"
+    import { defineConfig } from 'vite'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export default defineConfig({
+      server: {
+        port: 4000,
+      },
+    })
+    ```
 
-```ts title="src/client/vite.config.ts"
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  server: {
-    port: 4000,
-  },
-})
-```
-
-```env title=".env.server"
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
-
-</TabItem>
+    ```env title=".env.server"
+    WASP_WEB_CLIENT_URL=http://localhost:4000
+    ```
+  </TabItem>
 </Tabs>
 
 :::warning Changing the dev server port
@@ -99,24 +93,21 @@ WASP_WEB_CLIENT_URL=http://localhost:4000
 If you, for example, want to serve the client from a different path than `/`, you can do that by customizing the `base` option.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/client/vite.config.js"
+    export default {
+      base: '/my-app/',
+    }
+    ```
+  </TabItem>
 
-```js title="src/client/vite.config.js"
-export default {
-  base: '/my-app/',
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/client/vite.config.ts"
+    import { defineConfig } from 'vite'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/client/vite.config.ts"
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  base: '/my-app/',
-})
-```
-
-</TabItem>
+    export default defineConfig({
+      base: '/my-app/',
+    })
+    ```
+  </TabItem>
 </Tabs>

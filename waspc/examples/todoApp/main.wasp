@@ -47,6 +47,7 @@ app todoApp {
     onAuthSucceededRedirectTo: "/profile",
     onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
     onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks.js",
     onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks.js",
     onAfterLogin: import { onAfterLogin } from "@src/auth/hooks.js",
   },
@@ -231,110 +232,118 @@ job mySpecialScheduledJob {
 // --------- Testing --------- //
 
 action testingAction {
-  fn: import { testingAction } from "@src/testTypes/operations/server",
+  fn: import { testingAction } from "@src/rpcTests/operations/server",
   entities: []
 }
 
 query getDate {
-  fn: import { getDate } from "@src/testTypes/operations/definitions"
+  fn: import { getDate } from "@src/rpcTests/operations/definitions"
 }
 
+query getSerializedObjects {
+  fn: import { getSerializedObjects } from "@src/rpcTests/operations/definitions",
+}
+
+route SerializationRoute { path: "/serialization", to: SerializationPage }
+page SerializationPage {
+  component: import { SerializationPage } from "@src/rpcTests/operations/SerializationPage",
+}
 
 query getAnythingNoAuth {
-  fn: import { getAnythingNoAuth } from "@src/testTypes/operations/definitions",
+  fn: import { getAnythingNoAuth } from "@src/rpcTests/operations/definitions",
   auth: false,
   entities: []
 }
 
 query getAnythingAuth {
-  fn: import { getAnythingAuth } from "@src/testTypes/operations/definitions",
+  fn: import { getAnythingAuth } from "@src/rpcTests/operations/definitions",
   auth: true,
   entities: []
 }
 
 query getTrueVoid {
-  fn: import { getTrueVoid } from "@src/testTypes/operations/definitions",
+  fn: import { getTrueVoid } from "@src/rpcTests/operations/definitions",
   entities: []
 }
 
 query getAnyNoAuth {
-  fn: import { getAnyNoAuth } from "@src/testTypes/operations/definitions",
+  fn: import { getAnyNoAuth } from "@src/rpcTests/operations/definitions",
   auth: false,
   entities: []
 }
 
 query getAnyAuth {
-  fn: import { getAnyAuth } from "@src/testTypes/operations/definitions",
+  fn: import { getAnyAuth } from "@src/rpcTests/operations/definitions",
   auth: true,
   entities: []
 }
 
 query getAnyToNumberSpecified {
-  fn: import { getAnyToNumberSpecified } from "@src/testTypes/operations/definitions",
+  fn: import { getAnyToNumberSpecified } from "@src/rpcTests/operations/definitions",
   auth: true,
   entities: []
 }
 
 
 action taskToTaskUnspecified {
-  fn: import { taskToTaskUnspecified } from "@src/testTypes/operations/definitions",
+  fn: import { taskToTaskUnspecified } from "@src/rpcTests/operations/definitions",
   entities: [Task]
 }
 
 action taskToTaskSatisfies {
-  fn: import { taskToTaskSatisfies } from "@src/testTypes/operations/definitions",
+  fn: import { taskToTaskSatisfies } from "@src/rpcTests/operations/definitions",
   entities: [Task]
 }
 
 action taskToTaskSpecified {
-  fn: import { taskToTaskSpecified } from "@src/testTypes/operations/definitions",
+  fn: import { taskToTaskSpecified } from "@src/rpcTests/operations/definitions",
   entities: [Task]
 }
 
 action voidToStringAuth {
-  fn: import { voidToStringAuth } from "@src/testTypes/operations/definitions",
+  fn: import { voidToStringAuth } from "@src/rpcTests/operations/definitions",
   auth: true,
   entities: [Task]
 }
 
 action voidToStringNoAuth {
-  fn: import { voidToStringNoAuth } from "@src/testTypes/operations/definitions",
+  fn: import { voidToStringNoAuth } from "@src/rpcTests/operations/definitions",
   auth: false,
   entities: [Task]
 }
 
 action unspecifiedToNumber {
-  fn: import { unspecifiedToNumber } from "@src/testTypes/operations/definitions",
+  fn: import { unspecifiedToNumber } from "@src/rpcTests/operations/definitions",
   entities: [Task]
 
 }
 
 action boolToStringAuth {
-  fn: import { boolToStringAuth } from "@src/testTypes/operations/definitions",
+  fn: import { boolToStringAuth } from "@src/rpcTests/operations/definitions",
   auth: true,
   entities: [Task]
 }
 
 action boolToStringNoAuth {
-  fn: import { boolToStringNoAuth } from "@src/testTypes/operations/definitions",
+  fn: import { boolToStringNoAuth } from "@src/rpcTests/operations/definitions",
   auth: false,
   entities: [Task]
 }
 
 action boolToVoidNoAuth {
-  fn: import { boolToVoidNoAuth } from "@src/testTypes/operations/definitions",
+  fn: import { boolToVoidNoAuth } from "@src/rpcTests/operations/definitions",
   auth: false,
   entities: [Task]
 }
 
 action boolToVoidAuth {
-  fn: import { boolToVoidAuth } from "@src/testTypes/operations/definitions",
+  fn: import { boolToVoidAuth } from "@src/rpcTests/operations/definitions",
   auth: true,
   entities: [Task]
 }
 
 action jsActionWithArgs {
-  fn: import { jsActionWithArgs } from "@src/testTypes/operations/jsDefinitions",
+  fn: import { jsActionWithArgs } from "@src/rpcTests/operations/jsDefinitions",
   auth: true,
   entities: [Task]
 }

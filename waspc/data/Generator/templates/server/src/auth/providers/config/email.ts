@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
 
 import { ProviderConfig } from "wasp/auth/providers/types";
 import type { EmailFromField } from "wasp/server/email/core/types";
@@ -10,7 +10,7 @@ import { getRequestPasswordResetRoute } from "../email/requestPasswordReset.js";
 import { resetPassword } from "../email/resetPassword.js";
 import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "wasp/server/auth/email";
-import { handleRejection } from "wasp/server/utils";
+import { defineHandler } from "wasp/server/utils";
 import { env } from "wasp/server";
 
 {=# userSignupFields.isDefined =}
@@ -62,10 +62,10 @@ const config: ProviderConfig = {
     createRouter() {
         const router = Router();
 
-        const loginRoute = handleRejection(getLoginRoute());
+        const loginRoute = defineHandler(getLoginRoute());
         router.post('/login', loginRoute);
 
-        const signupRoute = handleRejection(getSignupRoute({
+        const signupRoute = defineHandler(getSignupRoute({
             userSignupFields: _waspUserSignupFields,
             fromField,
             clientRoute: '{= emailVerificationClientRoute =}',
@@ -78,16 +78,16 @@ const config: ProviderConfig = {
             {=/ isDevelopment =}
         }));
         router.post('/signup', signupRoute);
-        
-        const requestPasswordResetRoute = handleRejection(getRequestPasswordResetRoute({
+
+        const requestPasswordResetRoute = defineHandler(getRequestPasswordResetRoute({
             fromField,
             clientRoute: '{= passwordResetClientRoute =}',
             getPasswordResetEmailContent: _waspGetPasswordResetEmailContent,
         }));
         router.post('/request-password-reset', requestPasswordResetRoute);
 
-        router.post('/reset-password', handleRejection(resetPassword));
-        router.post('/verify-email', handleRejection(verifyEmail));
+        router.post('/reset-password', defineHandler(resetPassword));
+        router.post('/verify-email', defineHandler(verifyEmail));
 
         return router;
     },

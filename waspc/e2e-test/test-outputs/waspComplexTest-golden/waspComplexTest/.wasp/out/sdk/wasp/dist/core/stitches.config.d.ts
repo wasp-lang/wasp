@@ -122,3 +122,4 @@ export declare const styled: <Type extends keyof JSX.IntrinsicElements | React.C
     (): string;
     name: string;
 };
+//# sourceMappingURL=stitches.config.d.ts.map

@@ -1,17 +1,13 @@
-import { 
-    deserialize as superjsonDeserialize,
-    serialize as superjsonSerialize,
-} from 'superjson'
-import { handleRejection } from 'wasp/server/utils'
-import { makeAuthUserIfPossible } from 'wasp/auth/user'
+import { deserialize, serialize } from 'wasp/core/serialization'
+import { defineHandler } from 'wasp/server/utils'
 
 export function createOperation (handlerFn) {
-    return handleRejection(async (req, res) => {
-        const args = (req.body && superjsonDeserialize(req.body)) || {}
+    return defineHandler(async (req, res) => {
+        const args = (req.body && deserialize(req.body)) || {}
         const context = {
-        }  
+        }
         const result = await handlerFn(args, context)
-        const serializedResult = superjsonSerialize(result)
+        const serializedResult = serialize(result)
         res.json(serializedResult)
     })
 }

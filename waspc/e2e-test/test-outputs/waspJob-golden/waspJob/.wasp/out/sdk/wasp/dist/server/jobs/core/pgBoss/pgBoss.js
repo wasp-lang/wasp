@@ -10,7 +10,7 @@ function createPgBoss() {
         try {
             pgBossNewOptions = JSON.parse(env.PG_BOSS_NEW_OPTIONS);
         }
-        catch (_a) {
+        catch {
             console.error('Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!');
         }
     }

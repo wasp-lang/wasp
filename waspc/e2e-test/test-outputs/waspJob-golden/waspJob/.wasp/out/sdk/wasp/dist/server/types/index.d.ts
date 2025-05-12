@@ -5,3 +5,4 @@ export type ServerSetupFnContext = {
     app: Application;
     server: Server;
 };
+//# sourceMappingURL=index.d.ts.map
