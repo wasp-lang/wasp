@@ -15,11 +15,6 @@ The **tutorials** directory contains [Wasp tutorial](https://wasp.sh/docs/tutori
    - A simple Trello clone.
    - Demonstrates: [auth](https://wasp.sh/docs/auth/overview), [rpc](https://wasp.sh/docs/data-model/operations/overview)
 
-1. **hackaton-submissions**
-
-   - An app for organizing your own hackaton.
-   - Demonstrates: [tailwind](https://wasp.sh/docs/project/css-frameworks#tailwind), [rpc](https://wasp.sh/docs/data-model/operations/overview)
-
 1. **waspleau**
 
    - A simple clone of Tableau. The app regularly pulls in external data and shows it on a nice dashboard.
