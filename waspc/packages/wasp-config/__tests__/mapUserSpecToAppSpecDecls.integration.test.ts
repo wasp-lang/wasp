@@ -29,12 +29,16 @@ describe('mapUserSpecToAppSpecDecls', () => {
       'Page',
       Fixtures.getPages().map((p) => p.name)
     )
+    const appName = Fixtures.getApp('full').name
+    const appDeclType = 'App'
 
     const result = mapUserSpecToAppSpecDecls(userSpec, entities)
 
-    const appDecl = getDecl(result, 'App', Fixtures.getApp('full').name)
-    expect(appDecl.declValue).toStrictEqual(
-      mapApp(
+    const appDecl = getDecl(result, appDeclType, appName)
+    expect(appDecl).toStrictEqual({
+      declType: appDeclType,
+      declName: appName,
+      declValue: mapApp(
         userSpec.app.config,
         entityRefParser,
         routeRefParser,
@@ -44,8 +48,8 @@ describe('mapUserSpecToAppSpecDecls', () => {
         userSpec.db,
         userSpec.emailSender,
         userSpec.websocket
-      )
-    )
+      ),
+    })
     expectCorrectMapping({
       declType: 'Page',
       declFixtures: Fixtures.getPages(),
@@ -118,27 +122,32 @@ describe('mapUserSpecToAppSpecDecls', () => {
         const decl = getDecl(result, declType, name)
 
         const item = declMap.get(name)
-        if (!item) {
-          throw new Error(`${declType} config not found for ${name}`)
-        }
+        expect(item).toBeDefined()
 
-        expect(decl.declValue).toStrictEqual(
-          mapUserSpecToAppSpec(item, ...parserArgs)
-        )
+        expect(decl).toStrictEqual({
+          declType,
+          declName: name,
+          declValue: mapUserSpecToAppSpec(item, ...parserArgs),
+        })
       })
     }
   })
 
   test('should map minimal app using mapping functions correctly', () => {
     const userSpec = Fixtures.createUserApp('minimal')[GET_USER_SPEC]()
-    const entityRefParser = makeRefParser('Entity', [])
+    const entities = Fixtures.getEntities('minimal')
+    const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', [])
+    const appName = Fixtures.getApp('minimal').name
+    const appDeclType = 'App'
 
-    const result = mapUserSpecToAppSpecDecls(userSpec, [])
+    const result = mapUserSpecToAppSpecDecls(userSpec, entities)
 
-    const appDecl = getDecl(result, 'App', Fixtures.getApp('minimal').name)
-    expect(appDecl.declValue).toStrictEqual(
-      mapApp(
+    const appDecl = getDecl(result, appDeclType, appName)
+    expect(appDecl).toStrictEqual({
+      declType: appDeclType,
+      declName: appName,
+      declValue: mapApp(
         userSpec.app.config,
         entityRefParser,
         routeRefParser,
@@ -148,28 +157,22 @@ describe('mapUserSpecToAppSpecDecls', () => {
         userSpec.db,
         userSpec.emailSender,
         userSpec.websocket
-      )
-    )
+      ),
+    })
   })
 
   /**
    * Retrieves a specific declaration from a list of declarations based on its type and name.
-   * @returns The matching declaration if found.
-   * @throws An error if the declaration is not found.
    */
   function getDecl<T extends keyof AppSpec.DeclTypeToValue>(
     decls: AppSpec.Decl[],
     declType: T,
     declName: string
-  ): AppSpec.GetDeclForType<T> {
+  ): AppSpec.GetDeclForType<T> | undefined {
     const decl = decls.find(
       (decl): decl is AppSpec.GetDeclForType<T> =>
         decl.declType === declType && decl.declName === declName
     )
-
-    if (!decl) {
-      throw new Error(`${declType} declaration "${declName}" not found`)
-    }
 
     return decl
   }
