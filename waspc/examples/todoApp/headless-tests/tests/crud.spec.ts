@@ -1,5 +1,9 @@
-import { expect, test } from '@playwright/test'
-import { generateRandomCredentials, performSignup } from './helpers'
+import { expect, Page, test } from '@playwright/test'
+import {
+  generateRandomCredentials,
+  performLogin,
+  performSignup,
+} from './helpers'
 
 test.describe('CRUD test', () => {
   const { email, password } = generateRandomCredentials()
@@ -19,32 +23,73 @@ test.describe('CRUD test', () => {
     )
   })
 
-  test('CRUD with override works', async ({ page }) => {
-    await page.goto('/login')
+  test('crud list page', async ({ page }) => {
+    await performLogin(page, {
+      email,
+      password,
+    })
 
-    await page.waitForSelector('text=Log in to your account')
-
-    await page.locator("input[type='email']").fill(email)
-    await page.locator("input[type='password']").fill(password)
-    await page.getByRole('button', { name: 'Log in' }).click()
-
-    await page.waitForSelector('text=User Auth Fields Demo')
+    await expect(page).toHaveURL('/profile')
 
     await page.goto('/crud')
+    // wait for idle
+    await page.waitForSelector('text=Tasks (CRUD feature)')
 
-    await page.waitForSelector('text=Tasks')
+    // Create a task
+    const taskDescription = 'first task'
+    await createTask(page, taskDescription)
 
-    await createTask(page, 'special filter 1')
-    await createTask(page, 'special filter 2')
-    await createTask(page, 'something else')
+    await expect(page.locator('body')).toContainText(
+      `${taskDescription} by ${email}`
+    )
 
-    await expect(page.locator('body')).toContainText('special filter 1')
-    await expect(page.locator('body')).toContainText('special filter 2')
-    await expect(page.locator("li[text='something else']")).not.toBeVisible()
+    // Edit the task
+    await page.locator('a').filter({ hasText: 'Edit' }).click()
+    const editInput = page.getByTestId('edit-task-input')
+    const newTaskDescription = 'edited task'
+
+    await expect(editInput).toHaveValue(taskDescription)
+    await editInput.fill(newTaskDescription)
+    await page.getByRole('button', { name: 'Update task' }).click()
+    await expect(page.locator('body')).toContainText(
+      `${newTaskDescription} by ${email}`
+    )
+
+    // Delete the task
+    page.on('dialog', async (dialog) => {
+      expect(dialog.message()).toBe(
+        'Are you sure you want to delete this task?'
+      )
+      await dialog.accept()
+    })
+    await page.locator('button').filter({ hasText: 'Delete' }).click()
+    await page.waitForLoadState('networkidle')
+    await expect(page.locator('body')).not.toContainText(
+      `${newTaskDescription} by ${email}`
+    )
+    await expect(page.locator('body')).toContainText('No tasks yet.')
+  })
+
+  test('crud detail page', async ({ page }) => {
+    await performLogin(page, {
+      email,
+      password,
+    })
+
+    await expect(page).toHaveURL('/profile')
+
+    await page.goto('/crud')
+    // Create a task
+    await createTask(page, 'second task')
+    // Go to the detail page of the task
+    await page.locator('a').filter({ hasText: 'second task' }).click()
+    await expect(page).toHaveURL(/\/crud\/\d+/)
+    // Check if the task is displayed
+    await expect(page.locator('body')).toContainText('second task')
   })
 })
 
-async function createTask(page: any, description: string) {
-  await page.locator("input[type='text']").fill(description)
-  await page.getByText('Create task').click()
+async function createTask(page: Page, description: string) {
+  await page.getByRole('textbox').fill(description)
+  await page.getByRole('button', { name: 'Create task' }).click()
 }
