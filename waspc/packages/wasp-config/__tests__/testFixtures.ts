@@ -55,33 +55,28 @@ export function getEntities(scope: ConfigType): string[] {
     : [getEntity('task'), getEntity('user'), getEntity('social-user')]
 }
 
-export function createUserApp(scope: ConfigType): UserApi.App {
+export function createUserApp(scope: ConfigType): {
+  appName: string
+  userApp: UserApi.App
+} {
+  const { name: appName, config: appConfig } = getApp(scope)
+  const userApp = new UserApi.App(appName, appConfig)
+
   if (scope === 'minimal') {
-    return createMinimalUserApp()
-  } else if (scope === 'full') {
-    return createFullUserApp()
-  } else {
-    throw new Error(`Unknown config type: ${scope}`)
+    return { appName, userApp }
   }
-}
 
-function createMinimalUserApp(): UserApi.App {
-  const { name, config } = getApp('minimal')
-  return new UserApi.App(name, config)
-}
-
-function createFullUserApp(): UserApi.App {
-  const { name, config } = getApp('full')
-  const app = new UserApi.App(name, config)
-  app.auth(getAuth('full'))
-  app.client(getClient('full'))
-  app.server(getServer('full'))
-  app.emailSender(getEmailSender('full'))
-  app.webSocket(getWebSocket('full'))
-  app.db(getDb('full'))
+  userApp.auth(getAuth('full'))
+  userApp.client(getClient('full'))
+  userApp.server(getServer('full'))
+  userApp.emailSender(getEmailSender('full'))
+  userApp.webSocket(getWebSocket('full'))
+  userApp.db(getDb('full'))
 
   function addDecls(declName: string, nameAndConfigs: NamedConfig<unknown>[]) {
-    nameAndConfigs.forEach(({ name, config }) => app[declName](name, config))
+    nameAndConfigs.forEach(({ name, config }) =>
+      userApp[declName](name, config)
+    )
   }
 
   addDecls('page', getPages())
@@ -93,7 +88,7 @@ function createFullUserApp(): UserApi.App {
   addDecls('api', getApis())
   addDecls('job', getJobs())
 
-  return app
+  return { appName, userApp }
 }
 
 export function getApp(scope: ConfigType): NamedConfig<UserApi.AppConfig> {

@@ -18,7 +18,8 @@ import * as Fixtures from './testFixtures.js'
 
 describe('mapUserSpecToAppSpecDecls', () => {
   test('should map full app using mapping functions correctly', () => {
-    const userSpec = Fixtures.createUserApp('full')[GET_USER_SPEC]()
+    const { appName, userApp } = Fixtures.createUserApp('full')
+    const userSpec = userApp[GET_USER_SPEC]()
     const entities = Fixtures.getEntities('full')
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser(
@@ -29,7 +30,6 @@ describe('mapUserSpecToAppSpecDecls', () => {
       'Page',
       Fixtures.getPages().map((p) => p.name)
     )
-    const appName = Fixtures.getApp('full').name
     const appDeclType = 'App'
 
     const result = mapUserSpecToAppSpecDecls(userSpec, entities)
@@ -134,11 +134,11 @@ describe('mapUserSpecToAppSpecDecls', () => {
   })
 
   test('should map minimal app using mapping functions correctly', () => {
-    const userSpec = Fixtures.createUserApp('minimal')[GET_USER_SPEC]()
+    const { appName, userApp } = Fixtures.createUserApp('minimal')
+    const userSpec = userApp[GET_USER_SPEC]()
     const entities = Fixtures.getEntities('minimal')
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', [])
-    const appName = Fixtures.getApp('minimal').name
     const appDeclType = 'App'
 
     const result = mapUserSpecToAppSpecDecls(userSpec, entities)

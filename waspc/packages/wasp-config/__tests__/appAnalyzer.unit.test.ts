@@ -11,14 +11,14 @@ describe('analyzeUserApp', () => {
 
   test('should parse minimal app sucessfully', async () => {
     await testAnalyzeUserApp({
-      app: Fixtures.createUserApp('minimal'),
+      app: Fixtures.createUserApp('minimal').userApp,
       entities: Fixtures.getEntities('minimal'),
     })
   })
 
   test('should parse full app sucessfully', async () => {
     await testAnalyzeUserApp({
-      app: Fixtures.createUserApp('full'),
+      app: Fixtures.createUserApp('full').userApp,
       entities: Fixtures.getEntities('full'),
     })
   })

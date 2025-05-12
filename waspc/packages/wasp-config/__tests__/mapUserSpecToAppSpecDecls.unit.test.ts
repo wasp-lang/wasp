@@ -36,11 +36,11 @@ import * as Fixtures from './testFixtures.js'
 
 describe('mapApp', () => {
   test('should map minimal config correctly', () => {
-    testMapApp(Fixtures.createUserApp('minimal'))
+    testMapApp(Fixtures.createUserApp('minimal').userApp)
   })
 
   test('should map full config correctly', () => {
-    testMapApp(Fixtures.createUserApp('full'))
+    testMapApp(Fixtures.createUserApp('full').userApp)
   })
 
   function testMapApp(app: UserApi.App): void {
