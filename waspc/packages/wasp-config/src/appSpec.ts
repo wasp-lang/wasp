@@ -24,10 +24,7 @@ export type DeclTypeToValue = {
   Crud: Crud
 }
 
-export type GetDeclForType<T extends Decl['declType']> = Extract<
-  Decl,
-  { declType: T }
->
+export type GetDeclForType<T extends Decl['declType']> = Extract<Decl, { declType: T }>
 
 // NOTE: Entities are defined in the schema.prisma file, but they can still be
 // referenced.

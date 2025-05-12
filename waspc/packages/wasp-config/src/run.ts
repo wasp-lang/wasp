@@ -11,8 +11,7 @@ main(process.argv)
  * and writes the output to a file.
  */
 export async function main(args: string[]): Promise<void> {
-  const { waspTsSpecPath, outputFilePath, entityNames } =
-    parseProcessArgsOrThrow(args)
+  const { waspTsSpecPath, outputFilePath, entityNames } = parseProcessArgsOrThrow(args)
 
   const declsResult = await analyzeUserApp(waspTsSpecPath, entityNames)
 

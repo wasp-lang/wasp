@@ -85,9 +85,7 @@ describe('mapApp', () => {
       },
       title: userSpec.app.config.title,
       head: userSpec.app.config.head,
-      auth:
-        userSpec.auth &&
-        mapAuth(userSpec.auth, entityRefParser, routeRefParser),
+      auth: userSpec.auth && mapAuth(userSpec.auth, entityRefParser, routeRefParser),
       server: userSpec.server && mapServer(userSpec.server),
       client: userSpec.client && mapClient(userSpec.client),
       db: userSpec.db && mapDb(userSpec.db),
@@ -115,6 +113,7 @@ describe('mapAuth', () => {
 
   test('should throw if externalAuthEntity ref is not provided when defined', () => {
     const auth = Fixtures.getAuth('full')
+    expect(auth.externalAuthEntity).toBeDefined()
     testMapAuth(auth, {
       overrideEntities: [auth.userEntity],
       shouldError: true,
@@ -123,6 +122,7 @@ describe('mapAuth', () => {
 
   test('should throw if emailVerification clientRoute ref is not provided when defined', () => {
     const auth = Fixtures.getAuth('full')
+    expect(auth.methods.email?.emailVerification.clientRoute).toBeDefined()
     testMapAuth(auth, {
       overrideRoutes: [Fixtures.getRoute('password-reset').name],
       shouldError: true,
@@ -131,6 +131,7 @@ describe('mapAuth', () => {
 
   test('should throw if passwordReset clientRoute ref is not provided when defined', () => {
     const auth = Fixtures.getAuth('full')
+    expect(auth.methods.email?.passwordReset.clientRoute).toBeDefined()
     testMapAuth(auth, {
       overrideRoutes: [Fixtures.getRoute('email-verification').name],
       shouldError: true,
@@ -176,9 +177,7 @@ describe('mapAuth', () => {
     const routeRefParser = makeRefParser('Route', routes)
 
     if (shouldError) {
-      expect(() =>
-        mapAuth(auth, entityRefParser, routeRefParser)
-      ).toThrowError()
+      expect(() => mapAuth(auth, entityRefParser, routeRefParser)).toThrowError()
       return
     }
 
@@ -195,10 +194,8 @@ describe('mapAuth', () => {
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
       onBeforeSignup: auth.onBeforeSignup && mapExtImport(auth.onBeforeSignup),
       onAfterSignup: auth.onAfterSignup && mapExtImport(auth.onAfterSignup),
-      onAfterEmailVerified:
-        auth.onAfterEmailVerified && mapExtImport(auth.onAfterEmailVerified),
-      onBeforeOAuthRedirect:
-        auth.onBeforeOAuthRedirect && mapExtImport(auth.onBeforeOAuthRedirect),
+      onAfterEmailVerified: auth.onAfterEmailVerified && mapExtImport(auth.onAfterEmailVerified),
+      onBeforeOAuthRedirect: auth.onBeforeOAuthRedirect && mapExtImport(auth.onBeforeOAuthRedirect),
       onBeforeLogin: auth.onBeforeLogin && mapExtImport(auth.onBeforeLogin),
       onAfterLogin: auth.onAfterLogin && mapExtImport(auth.onAfterLogin),
     } satisfies AppSpec.Auth)
@@ -263,14 +260,12 @@ describe('mapAuthMethods', () => {
 
     expect(result).toStrictEqual({
       usernameAndPassword:
-        authMethods.usernameAndPassword &&
-        mapUsernameAndPassword(authMethods.usernameAndPassword),
+        authMethods.usernameAndPassword && mapUsernameAndPassword(authMethods.usernameAndPassword),
       discord: authMethods.discord && mapExternalAuth(authMethods.discord),
       google: authMethods.google && mapExternalAuth(authMethods.google),
       gitHub: authMethods.gitHub && mapExternalAuth(authMethods.gitHub),
       keycloak: authMethods.keycloak && mapExternalAuth(authMethods.keycloak),
-      email:
-        authMethods.email && mapEmailAuth(authMethods.email, routeRefParser),
+      email: authMethods.email && mapEmailAuth(authMethods.email, routeRefParser),
     } satisfies AppSpec.AuthMethods)
   }
 })
@@ -332,13 +327,9 @@ describe('mapEmailAuth', () => {
     const result = mapEmailAuth(emailAuth, routeRefParser)
 
     expect(result).toStrictEqual({
-      userSignupFields:
-        emailAuth.userSignupFields && mapExtImport(emailAuth.userSignupFields),
+      userSignupFields: emailAuth.userSignupFields && mapExtImport(emailAuth.userSignupFields),
       fromField: mapEmailFromField(emailAuth.fromField),
-      emailVerification: mapEmailVerification(
-        emailAuth.emailVerification,
-        routeRefParser
-      ),
+      emailVerification: mapEmailVerification(emailAuth.emailVerification, routeRefParser),
       passwordReset: mapPasswordReset(emailAuth.passwordReset, routeRefParser),
     } satisfies AppSpec.EmailAuthConfig)
   }
@@ -385,9 +376,7 @@ describe('mapEmailVerification', () => {
     const routeRefParser = makeRefParser('Route', routes)
 
     if (shouldError) {
-      expect(() =>
-        mapEmailVerification(emailVerification, routeRefParser)
-      ).toThrowError()
+      expect(() => mapEmailVerification(emailVerification, routeRefParser)).toThrowError()
       return
     }
 
@@ -396,8 +385,7 @@ describe('mapEmailVerification', () => {
     expect(result).toStrictEqual({
       clientRoute: routeRefParser(emailVerification.clientRoute),
       getEmailContentFn:
-        emailVerification.getEmailContentFn &&
-        mapExtImport(emailVerification.getEmailContentFn),
+        emailVerification.getEmailContentFn && mapExtImport(emailVerification.getEmailContentFn),
     } satisfies AppSpec.EmailVerificationConfig)
   }
 })
@@ -443,9 +431,7 @@ describe('mapPasswordReset', () => {
     const routeRefParser = makeRefParser('Route', routes)
 
     if (shouldError) {
-      expect(() =>
-        mapPasswordReset(passwordReset, routeRefParser)
-      ).toThrowError()
+      expect(() => mapPasswordReset(passwordReset, routeRefParser)).toThrowError()
       return
     }
 
@@ -454,8 +440,7 @@ describe('mapPasswordReset', () => {
     expect(result).toStrictEqual({
       clientRoute: routeRefParser(passwordReset.clientRoute),
       getEmailContentFn:
-        passwordReset.getEmailContentFn &&
-        mapExtImport(passwordReset.getEmailContentFn),
+        passwordReset.getEmailContentFn && mapExtImport(passwordReset.getEmailContentFn),
     } satisfies AppSpec.PasswordResetConfig)
   }
 })
@@ -476,8 +461,7 @@ describe('mapUsernameAndPassword', () => {
 
     expect(result).toStrictEqual({
       userSignupFields:
-        usernameAndPassword.userSignupFields &&
-        mapExtImport(usernameAndPassword.userSignupFields),
+        usernameAndPassword.userSignupFields && mapExtImport(usernameAndPassword.userSignupFields),
     } satisfies AppSpec.UsernameAndPasswordConfig)
   }
 })
@@ -497,8 +481,7 @@ describe('mapExternalAuth', () => {
     expect(result).toStrictEqual({
       configFn: externalAuth.configFn && mapExtImport(externalAuth.configFn),
       userSignupFields:
-        externalAuth.userSignupFields &&
-        mapExtImport(externalAuth.userSignupFields),
+        externalAuth.userSignupFields && mapExtImport(externalAuth.userSignupFields),
     } satisfies AppSpec.ExternalAuthConfig)
   }
 })
@@ -519,8 +502,7 @@ describe('mapClient', () => {
       rootComponent: client.rootComponent && mapExtImport(client.rootComponent),
       setupFn: client.setupFn && mapExtImport(client.setupFn),
       baseDir: client.baseDir,
-      envValidationSchema:
-        client.envValidationSchema && mapExtImport(client.envValidationSchema),
+      envValidationSchema: client.envValidationSchema && mapExtImport(client.envValidationSchema),
     } satisfies AppSpec.Client)
   }
 })
@@ -539,10 +521,8 @@ describe('mapServer', () => {
 
     expect(result).toStrictEqual({
       setupFn: server.setupFn && mapExtImport(server.setupFn),
-      middlewareConfigFn:
-        server.middlewareConfigFn && mapExtImport(server.middlewareConfigFn),
-      envValidationSchema:
-        server.envValidationSchema && mapExtImport(server.envValidationSchema),
+      middlewareConfigFn: server.middlewareConfigFn && mapExtImport(server.middlewareConfigFn),
+      envValidationSchema: server.envValidationSchema && mapExtImport(server.envValidationSchema),
     } satisfies AppSpec.Server)
   }
 })
@@ -561,8 +541,7 @@ describe('mapEmailSender', () => {
 
     expect(result).toStrictEqual({
       provider: emailSender.provider,
-      defaultFrom:
-        emailSender.defaultFrom && mapEmailFromField(emailSender.defaultFrom),
+      defaultFrom: emailSender.defaultFrom && mapEmailFromField(emailSender.defaultFrom),
     } satisfies AppSpec.EmailSender)
   }
 })
@@ -777,14 +756,10 @@ describe('mapCrudOperations', () => {
 
     expect(result).toStrictEqual({
       get: crudOperations.get && mapCrudOperationOptions(crudOperations.get),
-      getAll:
-        crudOperations.getAll && mapCrudOperationOptions(crudOperations.getAll),
-      create:
-        crudOperations.create && mapCrudOperationOptions(crudOperations.create),
-      update:
-        crudOperations.update && mapCrudOperationOptions(crudOperations.update),
-      delete:
-        crudOperations.delete && mapCrudOperationOptions(crudOperations.delete),
+      getAll: crudOperations.getAll && mapCrudOperationOptions(crudOperations.getAll),
+      create: crudOperations.create && mapCrudOperationOptions(crudOperations.create),
+      update: crudOperations.update && mapCrudOperationOptions(crudOperations.update),
+      delete: crudOperations.delete && mapCrudOperationOptions(crudOperations.delete),
     } satisfies AppSpec.CrudOperations)
   }
 })
@@ -798,16 +773,12 @@ describe('mapCrudOperationOptions', () => {
     testMapCrudOperationOptions(Fixtures.getCrudOperationOptions('full'))
   })
 
-  function testMapCrudOperationOptions(
-    crudOperationOptions: UserApi.CrudOperationOptions
-  ): void {
+  function testMapCrudOperationOptions(crudOperationOptions: UserApi.CrudOperationOptions): void {
     const result = mapCrudOperationOptions(crudOperationOptions)
 
     expect(result).toStrictEqual({
       isPublic: crudOperationOptions.isPublic,
-      overrideFn:
-        crudOperationOptions.overrideFn &&
-        mapExtImport(crudOperationOptions.overrideFn),
+      overrideFn: crudOperationOptions.overrideFn && mapExtImport(crudOperationOptions.overrideFn),
     } satisfies AppSpec.CrudOperationOptions)
   }
 })
@@ -878,8 +849,7 @@ describe('mapApi', () => {
 
     expect(result).toStrictEqual({
       fn: mapExtImport(api.fn),
-      middlewareConfigFn:
-        api.middlewareConfigFn && mapExtImport(api.middlewareConfigFn),
+      middlewareConfigFn: api.middlewareConfigFn && mapExtImport(api.middlewareConfigFn),
       entities: api.entities?.map(entityRefParser),
       httpRoute: mapHttpRoute(api.httpRoute),
       auth: api.auth,
@@ -899,10 +869,7 @@ describe('mapHttpRoute', () => {
   function testMapHttpRoute(httpRoute: UserApi.HttpRoute): void {
     const result = mapHttpRoute(httpRoute)
 
-    expect(result).toStrictEqual([
-      httpRoute.method,
-      httpRoute.route,
-    ] satisfies AppSpec.HttpRoute)
+    expect(result).toStrictEqual([httpRoute.method, httpRoute.route] satisfies AppSpec.HttpRoute)
   }
 })
 

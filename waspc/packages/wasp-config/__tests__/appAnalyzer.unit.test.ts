@@ -50,11 +50,7 @@ describe('analyzeUserApp', () => {
       shouldReturnError: boolean
     }
   }): Promise<void> {
-    const {
-      app,
-      entities,
-      options: { shouldReturnError } = { shouldReturnError: false },
-    } = input
+    const { app, entities, options: { shouldReturnError } = { shouldReturnError: false } } = input
     const mockMainWaspTs = 'main.wasp.ts'
     vi.doMock(mockMainWaspTs, () => ({ default: app }))
 

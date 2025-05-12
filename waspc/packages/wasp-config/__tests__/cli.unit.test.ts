@@ -3,11 +3,7 @@ import { parseProcessArgsOrThrow } from '../src/cli'
 
 describe('parseProcessArgsOrThrow', () => {
   test('should parse arguments correctly', () => {
-    expectParseProcessArgsToSucceed([
-      'main.wasp.js',
-      'output.json',
-      JSON.stringify(['entity1']),
-    ])
+    expectParseProcessArgsToSucceed(['main.wasp.js', 'output.json', JSON.stringify(['entity1'])])
   })
 
   test('should parse 0 entities correctly', () => {
@@ -19,12 +15,7 @@ describe('parseProcessArgsOrThrow', () => {
   })
 
   test('should throw an error if more than 5 arguments', () => {
-    expectParseProcessArgsToError([
-      'main.wasp.js',
-      'output.json',
-      '[]',
-      'extraArg',
-    ])
+    expectParseProcessArgsToError(['main.wasp.js', 'output.json', '[]', 'extraArg'])
   })
 
   test('should throw an error if waspTsSpecPath is not a string', () => {
@@ -44,11 +35,7 @@ describe('parseProcessArgsOrThrow', () => {
   })
 
   test('should throw an error if any entityNames is not a string', () => {
-    expectParseProcessArgsToError([
-      'main.wasp.js',
-      'output.json',
-      undefined,
-    ] as string[])
+    expectParseProcessArgsToError(['main.wasp.js', 'output.json', undefined] as string[])
   })
 
   test('should throw an error if the entity names JSON is not an array', () => {
@@ -71,8 +58,6 @@ describe('parseProcessArgsOrThrow', () => {
   }
 
   function expectParseProcessArgsToError(args: string[]) {
-    expect(() =>
-      parseProcessArgsOrThrow(['node', 'run.js', ...args])
-    ).toThrowError()
+    expect(() => parseProcessArgsOrThrow(['node', 'run.js', ...args])).toThrowError()
   }
 })

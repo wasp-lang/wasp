@@ -45,20 +45,10 @@ export function mapUserSpecToAppSpecDecls(
   const queryDecls = mapToDecls(queries, 'Query', (queryConfig) =>
     mapOperation(queryConfig, entityRefParser)
   )
-  const apiDecls = mapToDecls(apis, 'Api', (apiConfig) =>
-    mapApi(apiConfig, entityRefParser)
-  )
-  const jobDecls = mapToDecls(jobs, 'Job', (jobConfig) =>
-    mapJob(jobConfig, entityRefParser)
-  )
-  const apiNamespaceDecls = mapToDecls(
-    apiNamespaces,
-    'ApiNamespace',
-    mapApiNamespace
-  )
-  const crudDecls = mapToDecls(cruds, 'Crud', (crudConfig) =>
-    mapCrud(crudConfig, entityRefParser)
-  )
+  const apiDecls = mapToDecls(apis, 'Api', (apiConfig) => mapApi(apiConfig, entityRefParser))
+  const jobDecls = mapToDecls(jobs, 'Job', (jobConfig) => mapJob(jobConfig, entityRefParser))
+  const apiNamespaceDecls = mapToDecls(apiNamespaces, 'ApiNamespace', mapApiNamespace)
+  const crudDecls = mapToDecls(cruds, 'Crud', (crudConfig) => mapCrud(crudConfig, entityRefParser))
 
   const appDecl = {
     declType: 'App' as const,
@@ -98,9 +88,7 @@ function makeDeclsArray(decls: {
 function mapToDecls<T, DeclType extends AppSpec.Decl['declType']>(
   configs: Map<string, T>,
   type: DeclType,
-  configToDeclValue: (
-    config: T
-  ) => AppSpec.GetDeclForType<DeclType>['declValue']
+  configToDeclValue: (config: T) => AppSpec.GetDeclForType<DeclType>['declValue']
 ) {
   return [...configs].map(([name, config]) => ({
     declType: type,
@@ -143,9 +131,7 @@ export function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
       path: extImport.from,
     }
   } else {
-    throw new Error(
-      'Invalid ExtImport: neither `import` nor `importDefault` is defined'
-    )
+    throw new Error('Invalid ExtImport: neither `import` nor `importDefault` is defined')
   }
 }
 
@@ -153,10 +139,7 @@ export function mapHttpRoute(httpRoute: User.HttpRoute): AppSpec.HttpRoute {
   return [httpRoute.method, httpRoute.route]
 }
 
-export function mapApi(
-  config: User.ApiConfig,
-  entityRefParser: RefParser<'Entity'>
-): AppSpec.Api {
+export function mapApi(config: User.ApiConfig, entityRefParser: RefParser<'Entity'>): AppSpec.Api {
   const { fn, middlewareConfigFn, entities, httpRoute, auth } = config
   return {
     fn: mapExtImport(fn),
@@ -167,9 +150,7 @@ export function mapApi(
   }
 }
 
-export function mapApiNamespace(
-  config: User.ApiNamespaceConfig
-): AppSpec.ApiNamespace {
+export function mapApiNamespace(config: User.ApiNamespaceConfig): AppSpec.ApiNamespace {
   const { middlewareConfigFn, path } = config
   return {
     middlewareConfigFn: mapExtImport(middlewareConfigFn),
@@ -225,17 +206,14 @@ export function mapAuth(
     userEntity: entityRefParser(userEntity),
     // TODO: Abstract away this pattern
     externalAuthEntity:
-      externalAuthEntity === undefined
-        ? undefined
-        : entityRefParser(externalAuthEntity),
+      externalAuthEntity === undefined ? undefined : entityRefParser(externalAuthEntity),
     methods: mapAuthMethods(methods, routeRefParser),
     onAuthFailedRedirectTo,
     onAuthSucceededRedirectTo,
     onBeforeSignup: onBeforeSignup && mapExtImport(onBeforeSignup),
     onAfterSignup: onAfterSignup && mapExtImport(onAfterSignup),
     onAfterEmailVerified: onAfterEmailVerified && mapExtImport(onAfterEmailVerified),
-    onBeforeOAuthRedirect:
-      onBeforeOAuthRedirect && mapExtImport(onBeforeOAuthRedirect),
+    onBeforeOAuthRedirect: onBeforeOAuthRedirect && mapExtImport(onBeforeOAuthRedirect),
     onBeforeLogin: onBeforeLogin && mapExtImport(onBeforeLogin),
     onAfterLogin: onAfterLogin && mapExtImport(onAfterLogin),
   }
@@ -246,11 +224,9 @@ export function mapAuthMethods(
   routeRefParser: RefParser<'Route'>
 ): AppSpec.AuthMethods {
   // TODO: check keyof danger, effective ts
-  const { usernameAndPassword, discord, google, gitHub, keycloak, email } =
-    methods
+  const { usernameAndPassword, discord, google, gitHub, keycloak, email } = methods
   return {
-    usernameAndPassword:
-      usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
+    usernameAndPassword: usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
     discord: discord && mapExternalAuth(discord),
     google: google && mapExternalAuth(google),
     gitHub: gitHub && mapExternalAuth(gitHub),
@@ -268,9 +244,7 @@ export function mapUsernameAndPassword(
   }
 }
 
-export function mapExternalAuth(
-  externalAuth: User.ExternalAuthConfig
-): AppSpec.ExternalAuthConfig {
+export function mapExternalAuth(externalAuth: User.ExternalAuthConfig): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth
   return {
     configFn: configFn && mapExtImport(configFn),
@@ -282,8 +256,7 @@ export function mapEmailAuth(
   emailConfig: User.EmailAuthConfig,
   routeRefParser: RefParser<'Route'>
 ): AppSpec.EmailAuthConfig {
-  const { userSignupFields, fromField, emailVerification, passwordReset } =
-    emailConfig
+  const { userSignupFields, fromField, emailVerification, passwordReset } = emailConfig
   return {
     userSignupFields: userSignupFields && mapExtImport(userSignupFields),
     fromField: mapEmailFromField(fromField),
@@ -321,9 +294,7 @@ export function mapDb(db: User.DbConfig): AppSpec.Db {
   }
 }
 
-export function mapEmailSender(
-  emailSender: User.EmailSenderConfig
-): AppSpec.EmailSender {
+export function mapEmailSender(emailSender: User.EmailSenderConfig): AppSpec.EmailSender {
   const { provider, defaultFrom } = emailSender
   return {
     provider,
@@ -331,9 +302,7 @@ export function mapEmailSender(
   }
 }
 
-export function mapEmailFromField(
-  defaultFrom: User.EmailFromField
-): AppSpec.EmailFromField {
+export function mapEmailFromField(defaultFrom: User.EmailFromField): AppSpec.EmailFromField {
   return (
     defaultFrom && {
       name: defaultFrom.name,
@@ -347,8 +316,7 @@ export function mapServer(server: User.ServerConfig): AppSpec.Server {
   return {
     setupFn: setupFn && mapExtImport(setupFn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
-    envValidationSchema:
-      envValidationSchema && mapExtImport(envValidationSchema),
+    envValidationSchema: envValidationSchema && mapExtImport(envValidationSchema),
   }
 }
 
@@ -358,14 +326,11 @@ export function mapClient(client: User.ClientConfig): AppSpec.Client {
     setupFn: setupFn && mapExtImport(setupFn),
     rootComponent: rootComponent && mapExtImport(rootComponent),
     baseDir,
-    envValidationSchema:
-      envValidationSchema && mapExtImport(envValidationSchema),
+    envValidationSchema: envValidationSchema && mapExtImport(envValidationSchema),
   }
 }
 
-export function mapWebSocket(
-  websocket: User.WebsocketConfig
-): AppSpec.WebSocket {
+export function mapWebSocket(websocket: User.WebsocketConfig): AppSpec.WebSocket {
   const { fn, autoConnect } = websocket
   return {
     fn: mapExtImport(fn),
@@ -373,10 +338,7 @@ export function mapWebSocket(
   }
 }
 
-export function mapJob(
-  job: User.JobConfig,
-  entityRefParser: RefParser<'Entity'>
-): AppSpec.Job {
+export function mapJob(job: User.JobConfig, entityRefParser: RefParser<'Entity'>): AppSpec.Job {
   const { executor, perform, schedule, entities } = job
   return {
     executor,
@@ -403,10 +365,7 @@ export function mapPerform(perform: User.Perform): AppSpec.Perform {
   }
 }
 
-export function mapRoute(
-  route: User.RouteConfig,
-  pageRefParser: RefParser<'Page'>
-): AppSpec.Route {
+export function mapRoute(route: User.RouteConfig, pageRefParser: RefParser<'Page'>): AppSpec.Route {
   const { path, to } = route
   return {
     path,
@@ -414,10 +373,7 @@ export function mapRoute(
   }
 }
 
-export function mapCrud(
-  crudConfig: User.Crud,
-  entityRefParser: RefParser<'Entity'>
-): AppSpec.Crud {
+export function mapCrud(crudConfig: User.Crud, entityRefParser: RefParser<'Entity'>): AppSpec.Crud {
   const { entity, operations } = crudConfig
   return {
     entity: entityRefParser(entity),
@@ -425,9 +381,7 @@ export function mapCrud(
   }
 }
 
-export function mapCrudOperations(
-  operations: User.CrudOperations
-): AppSpec.CrudOperations {
+export function mapCrudOperations(operations: User.CrudOperations): AppSpec.CrudOperations {
   const { get, getAll, create, update, delete: del } = operations
   // TODO: Do this for all keys
   return {
@@ -457,9 +411,7 @@ export function mapPage(pageConfig: User.PageConfig): AppSpec.Page {
   }
 }
 
-export type RefParser<T extends AppSpec.DeclType> = (
-  potentialReferences: string
-) => AppSpec.Ref<T>
+export type RefParser<T extends AppSpec.DeclType> = (potentialReferences: string) => AppSpec.Ref<T>
 
 export function makeRefParser<T extends AppSpec.DeclType>(
   declType: T,

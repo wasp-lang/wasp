@@ -50,9 +50,7 @@ export function getEntity(entity: 'task' | 'user' | 'social-user') {
 }
 
 export function getEntities(scope: ConfigType): string[] {
-  return scope === 'minimal'
-    ? []
-    : [getEntity('task'), getEntity('user'), getEntity('social-user')]
+  return scope === 'minimal' ? [] : [getEntity('task'), getEntity('user'), getEntity('social-user')]
 }
 
 export function createUserApp(scope: ConfigType): {
@@ -74,9 +72,7 @@ export function createUserApp(scope: ConfigType): {
   userApp.db(getDb('full'))
 
   function addDecls(declName: string, nameAndConfigs: NamedConfig<unknown>[]) {
-    nameAndConfigs.forEach(({ name, config }) =>
-      userApp[declName](name, config)
-    )
+    nameAndConfigs.forEach(({ name, config }) => userApp[declName](name, config))
   }
 
   addDecls('page', getPages())
@@ -109,6 +105,8 @@ export function getApp(scope: ConfigType): NamedConfig<UserApi.AppConfig> {
   }
 }
 
+export function getAuth(scope: 'minimal'): MinimalConfig<UserApi.AuthConfig>
+export function getAuth(scope: 'full'): FullConfig<UserApi.AuthConfig>
 export function getAuth(scope: ConfigType): Config<UserApi.AuthConfig> {
   const minimal: MinimalConfig<UserApi.AuthConfig> = {
     userEntity: getEntity('user'),
@@ -147,9 +145,7 @@ export function getAuthMethods(scope: ConfigType): Config<UserApi.AuthMethods> {
       } satisfies FullConfig<UserApi.AuthMethods>)
 }
 
-export function getExternalAuth(
-  scope: ConfigType
-): Config<UserApi.ExternalAuthConfig> {
+export function getExternalAuth(scope: ConfigType): Config<UserApi.ExternalAuthConfig> {
   const minimal: MinimalConfig<UserApi.ExternalAuthConfig> = {}
 
   return scope === 'minimal'
@@ -174,9 +170,7 @@ export function getUsernameAndPassword(
       } satisfies FullConfig<UserApi.UsernameAndPasswordConfig>)
 }
 
-export function getEmailAuth(
-  scope: ConfigType
-): Config<UserApi.EmailAuthConfig> {
+export function getEmailAuth(scope: ConfigType): Config<UserApi.EmailAuthConfig> {
   const minimal: MinimalConfig<UserApi.EmailAuthConfig> = {
     fromField: getEmailFromField(scope),
     emailVerification: getEmailVerification(scope),
@@ -191,9 +185,7 @@ export function getEmailAuth(
       } satisfies FullConfig<UserApi.EmailAuthConfig>)
 }
 
-export function getPasswordReset(
-  scope: ConfigType
-): Config<UserApi.PasswordResetConfig> {
+export function getPasswordReset(scope: ConfigType): Config<UserApi.PasswordResetConfig> {
   const minimal: MinimalConfig<UserApi.PasswordResetConfig> = {
     clientRoute: getRoute('password-reset').name,
   }
@@ -206,9 +198,7 @@ export function getPasswordReset(
       } satisfies FullConfig<UserApi.PasswordResetConfig>)
 }
 
-export function getEmailVerification(
-  scope: ConfigType
-): Config<UserApi.EmailVerificationConfig> {
+export function getEmailVerification(scope: ConfigType): Config<UserApi.EmailVerificationConfig> {
   const minimal: MinimalConfig<UserApi.EmailVerificationConfig> = {
     clientRoute: getRoute('email-verification').name,
   }
@@ -248,9 +238,7 @@ export function getServer(scope: ConfigType): Config<UserApi.ServerConfig> {
       } satisfies FullConfig<UserApi.ServerConfig>)
 }
 
-export function getEmailSender(
-  scope: ConfigType
-): Config<UserApi.EmailSenderConfig> {
+export function getEmailSender(scope: ConfigType): Config<UserApi.EmailSenderConfig> {
   const minimal: MinimalConfig<UserApi.EmailSenderConfig> = {
     provider: 'SMTP',
   }
@@ -263,9 +251,7 @@ export function getEmailSender(
       } satisfies FullConfig<UserApi.EmailSenderConfig>)
 }
 
-export function getWebSocket(
-  scope: ConfigType
-): Config<UserApi.WebsocketConfig> {
+export function getWebSocket(scope: ConfigType): Config<UserApi.WebsocketConfig> {
   const minimal: MinimalConfig<UserApi.WebsocketConfig> = {
     fn: getExtImport(scope, 'named'),
   }
@@ -289,9 +275,7 @@ export function getDb(scope: ConfigType): Config<UserApi.DbConfig> {
       } satisfies FullConfig<UserApi.DbConfig>)
 }
 
-export function getEmailFromField(
-  scope: ConfigType
-): Config<UserApi.EmailFromField> {
+export function getEmailFromField(scope: ConfigType): Config<UserApi.EmailFromField> {
   const minimal: MinimalConfig<UserApi.EmailFromField> = {
     email: 'test@domain.tld',
   }
@@ -314,9 +298,7 @@ export function getExtImport(
       importDefault: 'defaultExport',
     }
 
-    return scope === 'minimal'
-      ? minimal
-      : (minimal satisfies FullConfig<UserApi.ExtImport>)
+    return scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.ExtImport>)
   }
 
   if (type === 'named') {
@@ -325,9 +307,7 @@ export function getExtImport(
       import: 'namedExport',
     }
 
-    return scope === 'minimal'
-      ? minimal
-      : (minimal satisfies FullConfig<UserApi.ExtImport>)
+    return scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.ExtImport>)
   }
 
   throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`)
@@ -408,10 +388,7 @@ export function getRoute(
 
   return {
     name,
-    config:
-      routeType === 'minimal'
-        ? minimal
-        : (minimal satisfies FullConfig<UserApi.RouteConfig>),
+    config: routeType === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.RouteConfig>),
   }
 }
 
@@ -441,9 +418,7 @@ export function getActions(): NamedConfig<UserApi.ActionConfig>[] {
   return [getAction('minimal'), getAction('full')]
 }
 
-export function getAction(
-  scope: ConfigType
-): NamedConfig<UserApi.ActionConfig> {
+export function getAction(scope: ConfigType): NamedConfig<UserApi.ActionConfig> {
   const minimal: MinimalConfig<UserApi.ActionConfig> = {
     fn: getExtImport(scope, 'named'),
   }
@@ -473,10 +448,7 @@ export function getCrud(scope: ConfigType): NamedConfig<UserApi.Crud> {
 
   return {
     name: scope === 'minimal' ? 'MinimalCrud' : 'FullCrud',
-    config:
-      scope === 'minimal'
-        ? minimal
-        : (minimal satisfies FullConfig<UserApi.Crud>),
+    config: scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.Crud>),
   }
 }
 
@@ -499,9 +471,7 @@ export function getCrudOperations(
 
 export function getCrudOperationOptions(
   scope: ConfigType
-):
-  | MinimalConfig<UserApi.CrudOperationOptions>
-  | FullConfig<UserApi.CrudOperationOptions> {
+): MinimalConfig<UserApi.CrudOperationOptions> | FullConfig<UserApi.CrudOperationOptions> {
   const minimal: MinimalConfig<UserApi.CrudOperationOptions> = {}
 
   return scope === 'minimal'
@@ -517,9 +487,7 @@ export function getApiNamespaces(): NamedConfig<UserApi.ApiNamespaceConfig>[] {
   return [getApiNamespace('minimal'), getApiNamespace('full')]
 }
 
-export function getApiNamespace(
-  scope: ConfigType
-): NamedConfig<UserApi.ApiNamespaceConfig> {
+export function getApiNamespace(scope: ConfigType): NamedConfig<UserApi.ApiNamespaceConfig> {
   const minimal: MinimalConfig<UserApi.ApiNamespaceConfig> = {
     middlewareConfigFn: getExtImport(scope, 'named'),
     path: '/foo',
@@ -528,9 +496,7 @@ export function getApiNamespace(
   return {
     name: scope === 'minimal' ? 'MinimalApiNamespace' : 'FullApiNamespace',
     config:
-      scope === 'minimal'
-        ? minimal
-        : (minimal satisfies FullConfig<UserApi.ApiNamespaceConfig>),
+      scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.ApiNamespaceConfig>),
   }
 }
 
@@ -542,9 +508,7 @@ export function getHttpRoute(
     route: '/foo/bar',
   }
 
-  return scope === 'minimal'
-    ? minimal
-    : (minimal satisfies FullConfig<UserApi.HttpRoute>)
+  return scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.HttpRoute>)
 }
 
 export function getApis(): NamedConfig<UserApi.ApiConfig>[] {
