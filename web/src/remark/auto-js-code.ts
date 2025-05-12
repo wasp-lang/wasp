@@ -36,7 +36,7 @@ Output:
 */
 
 import type * as md from 'mdast'
-import type { } from 'mdast-util-mdx'; // Type-only empty import to register MDX types into mdast
+import type {} from 'mdast-util-mdx' // Type-only empty import to register MDX types into mdast
 import assert from 'node:assert/strict'
 import * as path from 'node:path'
 import * as prettier from 'prettier'
@@ -54,8 +54,13 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
 
   visitParents(tree, 'code', (node, ancestors) => {
     if (node.meta && META_FLAG_REGEX.test(node.meta)) {
-      if (!node.lang || !SUPPORTED_LANGS.has(node.lang)) {
-        throw new Error(`Unsupported language: ${node.lang}`)
+      if (!node.lang) {
+        file.fail('No language specified', { place: node.position })
+      }
+      if (!SUPPORTED_LANGS.has(node.lang)) {
+        file.fail(`Unsupported language: ${node.lang}`, {
+          place: node.position,
+        })
       }
 
       // We put these aside for processing later
@@ -67,7 +72,7 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
 
   for (const { node, ancestors } of nodesToProcess) {
     const parent = ancestors.at(-1)
-    assert(parent) // It must have a parent because the root node is a fully formed tree
+    assert(parent) // The node is never a `Root` node, so it will always have a parent
     assert(node.meta && node.lang) // Already checked in the visitor
 
     // Remove our flag from the meta so other plugins don't trip up

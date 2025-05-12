@@ -33,11 +33,16 @@ const HOLE_REPLACEMENT = '/* ... */'
 
 const SUPPORTED_LANGS = new Set(['js', 'jsx', 'ts', 'tsx'])
 
-const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree) => {
+const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
   visitParents(tree, 'code', (node) => {
     if (node.meta && META_FLAG_REGEX.test(node.meta)) {
-      if (!node.lang || !SUPPORTED_LANGS.has(node.lang)) {
-        throw new Error(`Unsupported language: ${node.lang}`)
+      if (!node.lang) {
+        file.fail('No language specified', { place: node.position })
+      }
+      if (!SUPPORTED_LANGS.has(node.lang)) {
+        file.fail(`Unsupported language: ${node.lang}`, {
+          place: node.position,
+        })
       }
 
       // Remove our flag from the meta so other plugins don't trip up
