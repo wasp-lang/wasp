@@ -44,7 +44,7 @@ test.describe('CRUD test', () => {
     )
 
     // Edit the task
-    await page.locator('a').filter({ hasText: 'Edit' }).click()
+    await page.getByRole('button', { name: 'Edit' }).click()
     const editInput = page.getByTestId('edit-task-input')
     const newTaskDescription = 'edited task'
 
