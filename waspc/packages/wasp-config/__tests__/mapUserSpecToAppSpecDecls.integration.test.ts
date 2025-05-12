@@ -20,12 +20,18 @@ describe('mapUserSpecToAppSpecDecls', () => {
   test('should map full app using mapping functions correctly', () => {
     const userSpec = Fixtures.createUserApp('full')[GET_USER_SPEC]()
     const entityRefParser = makeRefParser('Entity', Fixtures.ALL_ENTITIES)
-    const routeRefParser = makeRefParser('Route', Fixtures.ALL_ROUTE_NAMES)
-    const pageRefParser = makeRefParser('Page', Fixtures.ALL_PAGE_NAMES)
+    const routeRefParser = makeRefParser(
+      'Route',
+      Fixtures.getRoutes().map((r) => r.name)
+    )
+    const pageRefParser = makeRefParser(
+      'Page',
+      Fixtures.getPages().map((p) => p.name)
+    )
 
     const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.ALL_ENTITIES)
 
-    const appDecl = getDecl(result, 'App', Fixtures.APP.FULL.name)
+    const appDecl = getDecl(result, 'App', Fixtures.getApp('full').name)
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
         userSpec.app.config,
@@ -41,60 +47,59 @@ describe('mapUserSpecToAppSpecDecls', () => {
     )
     expectCorrectMapping({
       declType: 'Page',
-      declFixtures: Fixtures.PAGES,
+      declFixtures: Fixtures.getPages(),
       declMap: userSpec.pages,
       mapUserSpecToAppSpec: mapPage,
     })
     expectCorrectMapping({
       declType: 'Route',
-      declFixtures: Fixtures.ROUTES,
+      declFixtures: Fixtures.getRoutes(),
       declMap: userSpec.routes,
       mapUserSpecToAppSpec: mapRoute,
       parserArgs: [pageRefParser],
     })
     expectCorrectMapping({
       declType: 'Query',
-      declFixtures: Fixtures.QUERIES,
+      declFixtures: Fixtures.getQueries(),
       declMap: userSpec.queries,
       mapUserSpecToAppSpec: mapOperation,
       parserArgs: [entityRefParser],
     })
     expectCorrectMapping({
       declType: 'Action',
-      declFixtures: Fixtures.ACTIONS,
+      declFixtures: Fixtures.getActions(),
       declMap: userSpec.actions,
       mapUserSpecToAppSpec: mapOperation,
       parserArgs: [entityRefParser],
     })
     expectCorrectMapping({
       declType: 'Crud',
-      declFixtures: Fixtures.CRUDS,
+      declFixtures: Fixtures.getCruds(),
       declMap: userSpec.cruds,
       mapUserSpecToAppSpec: mapCrud,
       parserArgs: [entityRefParser],
     })
     expectCorrectMapping({
       declType: 'ApiNamespace',
-      declFixtures: Fixtures.API_NAMESPACES,
+      declFixtures: Fixtures.getApiNamespaces(),
       declMap: userSpec.apiNamespaces,
       mapUserSpecToAppSpec: mapApiNamespace,
     })
     expectCorrectMapping({
       declType: 'Api',
-      declFixtures: Fixtures.APIS,
+      declFixtures: Fixtures.getApis(),
       declMap: userSpec.apis,
       mapUserSpecToAppSpec: mapApi,
       parserArgs: [entityRefParser],
     })
     expectCorrectMapping({
       declType: 'Job',
-      declFixtures: Fixtures.JOBS,
+      declFixtures: Fixtures.getJobs(),
       declMap: userSpec.jobs,
       mapUserSpecToAppSpec: mapJob,
       parserArgs: [entityRefParser],
     })
 
-    type DeclFixture = Record<string, { name: string; config: any }>
     function expectCorrectMapping({
       declType,
       declFixtures,
@@ -103,12 +108,12 @@ describe('mapUserSpecToAppSpecDecls', () => {
       parserArgs = [],
     }: {
       declType: keyof AppSpec.DeclTypeToValue
-      declFixtures: DeclFixture
+      declFixtures: Fixtures.NamedConfig<unknown>[]
       declMap: Map<string, any>
       mapUserSpecToAppSpec: (item: any, ...args: any[]) => any
       parserArgs?: any[]
     }): void {
-      Object.values(declFixtures).forEach(({ name }) => {
+      declFixtures.forEach(({ name }) => {
         const decl = getDecl(result, declType, name)
 
         const item = declMap.get(name)
@@ -130,7 +135,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     const result = mapUserSpecToAppSpecDecls(userSpec, [])
 
-    const appDecl = getDecl(result, 'App', Fixtures.APP.MINIMAL.name)
+    const appDecl = getDecl(result, 'App', Fixtures.getApp('minimal').name)
     expect(appDecl.declValue).toStrictEqual(
       mapApp(
         userSpec.app.config,
