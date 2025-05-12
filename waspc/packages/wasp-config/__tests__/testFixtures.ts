@@ -288,7 +288,7 @@ export function getDb(scope: ConfigType): Config<UserApi.DbConfig> {
     ? minimal
     : ({
         ...minimal,
-        seeds: [getExtImport('full', 'named'), getExtImport('full', 'default')],
+        seeds: [getExtImport(scope, 'named'), getExtImport(scope, 'default')],
       } satisfies FullConfig<UserApi.DbConfig>)
 }
 
@@ -492,11 +492,11 @@ export function getCrudOperations(
     ? minimal
     : ({
         ...minimal,
-        get: getCrudOperationOptions('full'),
-        getAll: getCrudOperationOptions('full'),
-        create: getCrudOperationOptions('full'),
-        update: getCrudOperationOptions('full'),
-        delete: getCrudOperationOptions('full'),
+        get: getCrudOperationOptions(scope),
+        getAll: getCrudOperationOptions(scope),
+        create: getCrudOperationOptions(scope),
+        update: getCrudOperationOptions(scope),
+        delete: getCrudOperationOptions(scope),
       } satisfies FullConfig<UserApi.CrudOperations>)
 }
 
@@ -512,7 +512,7 @@ export function getCrudOperationOptions(
     : ({
         ...minimal,
         isPublic: true,
-        overrideFn: getExtImport('full', 'named'),
+        overrideFn: getExtImport(scope, 'named'),
       } satisfies FullConfig<UserApi.CrudOperationOptions>)
 }
 
