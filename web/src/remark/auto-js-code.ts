@@ -183,7 +183,7 @@ async function format(
     editorconfig: true,
   })
 
-  return await prettier.format(code, { ...config, parser })
+  return prettier.format(code, { ...config, parser })
 }
 
 function transformExt(inPath: string, fn: (ext: string) => string) {
