@@ -24,44 +24,37 @@ describe('analyzeUserApp', () => {
   })
 
   test('should return an error if the default export is not defined', async () => {
-    await testAnalyzeUserApp(
-      {
-        app: undefined as unknown as UserApi.App,
-        entities: Fixtures.getEntities('minimal'),
-      },
-      {
+    await testAnalyzeUserApp({
+      app: undefined as unknown as UserApi.App,
+      entities: Fixtures.getEntities('minimal'),
+      options: {
         shouldReturnError: true,
-      }
-    )
+      },
+    })
   })
 
   test('should return an error if the default export is not an instance of App', async () => {
-    await testAnalyzeUserApp(
-      {
-        app: 'not an instance of App' as unknown as UserApi.App,
-        entities: Fixtures.getEntities('minimal'),
-      },
-      {
+    await testAnalyzeUserApp({
+      app: 'not an instance of App' as unknown as UserApi.App,
+      entities: Fixtures.getEntities('minimal'),
+      options: {
         shouldReturnError: true,
-      }
-    )
+      },
+    })
   })
 
-  async function testAnalyzeUserApp(
-    input: {
-      app: UserApi.App
-      entities: string[]
-    },
-    options:
-      | {
-          shouldReturnError: boolean
-        }
-      | undefined = {
-      shouldReturnError: false,
+  async function testAnalyzeUserApp(input: {
+    app: UserApi.App
+    entities: string[]
+    options?: {
+      shouldReturnError: boolean
     }
-  ): Promise<void> {
-    const { app, entities } = input
-    const { shouldReturnError } = options
+  }): Promise<void> {
+    const {
+      app,
+      entities,
+      options: { shouldReturnError } = { shouldReturnError: false },
+    } = input
     const mockMainWaspTs = 'main.wasp.ts'
     vi.doMock(mockMainWaspTs, () => ({ default: app }))
 
