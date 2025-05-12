@@ -52,18 +52,18 @@ describe('analyzeUserApp', () => {
     const result = await analyzeUserApp(mockMainWaspTs, entities)
 
     if (shouldReturnError) {
-      if (result.status !== 'error') {
-        throw new Error('Expected an error, but got a successful result.')
-      }
-      expect(result.error).toBeDefined()
+      expect(result).toMatchObject({
+        status: 'error',
+        error: expect.anything(),
+      })
     } else {
-      if (result.status !== 'ok') {
-        throw new Error('Expected a successful result, but got an error.')
-      }
       const userSpec = userApp[GET_USER_SPEC]()
       const appSpecDecls = mapUserSpecToAppSpecDecls(userSpec, entities)
 
-      expect(result.value).toStrictEqual(JSON.stringify(appSpecDecls))
+      expect(result).toMatchObject({
+        status: 'ok',
+        value: appSpecDecls,
+      })
     }
   }
 })
