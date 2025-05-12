@@ -94,7 +94,7 @@ export const validatePassword = (password) => password.length > 8 && ...;
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/apis.ts"
-export const validatePassword = (password: string) => password.length > 8 && ...;
+export const validatePassword = (password: string) => password.length > 8 && /* ... */;
 ```
 
 </TabItem>
