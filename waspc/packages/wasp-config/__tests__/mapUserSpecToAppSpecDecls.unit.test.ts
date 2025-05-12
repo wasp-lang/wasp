@@ -153,15 +153,8 @@ describe('mapAuth', () => {
     }
   ): void {
     const { overrideEntities, overrideRoutes, shouldError } = options
-    const entities = overrideEntities ?? []
-    if (!overrideEntities) {
-      if (auth.userEntity) {
-        entities.push(auth.userEntity)
-      }
-      if (auth.externalAuthEntity) {
-        entities.push(auth.externalAuthEntity)
-      }
-    }
+    const entities =
+      overrideEntities ?? [auth.userEntity, auth.externalAuthEntity].filter((e) => e !== undefined)
 
     const routes = overrideRoutes ?? []
     if (!overrideRoutes) {
@@ -668,12 +661,7 @@ describe('mapOperation', () => {
     }
   ): void {
     const { overrideEntities, shouldError } = options
-    const entities = overrideEntities ?? []
-    if (!overrideEntities) {
-      if (operation.entities) {
-        entities.push(...operation.entities)
-      }
-    }
+    const entities = overrideEntities ?? operation.entities?.filter((e) => e !== undefined) ?? []
     const entityRefParser = makeRefParser('Entity', entities)
 
     if (shouldError) {
@@ -720,12 +708,7 @@ describe('mapCrud', () => {
     }
   ): void {
     const { overrideEntities, shouldError } = options
-    const entities = overrideEntities ?? []
-    if (!overrideEntities) {
-      if (crud.entity) {
-        entities.push(crud.entity)
-      }
-    }
+    const entities = overrideEntities ?? [crud.entity].filter((e) => e !== undefined)
     const entityRefParser = makeRefParser('Entity', entities)
 
     if (shouldError) {
@@ -832,12 +815,7 @@ describe('mapApi', () => {
     }
   ): void {
     const { overrideEntities, shouldError } = options
-    const entities = overrideEntities ?? []
-    if (!overrideEntities) {
-      if (api.entities) {
-        entities.push(...api.entities)
-      }
-    }
+    const entities = overrideEntities ?? api.entities?.filter((e) => e !== undefined) ?? []
     const entityRefParser = makeRefParser('Entity', entities)
 
     if (shouldError) {
@@ -902,12 +880,7 @@ describe('mapJob', () => {
     }
   ): void {
     const { overrideEntities, shouldError } = options
-    const entities = overrideEntities ?? []
-    if (!overrideEntities) {
-      if (job.entities) {
-        entities.push(...job.entities)
-      }
-    }
+    const entities = overrideEntities ?? job.entities?.filter((e) => e !== undefined) ?? []
     const entityRefParser = makeRefParser('Entity', entities)
 
     if (shouldError) {
