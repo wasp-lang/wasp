@@ -7,5 +7,8 @@
     "prettier-plugin-sh": "0.17.4",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "typescript": "~5.8.3"
+  },"scripts": {
+    "format": "prettier --ignore-unknown --write .",
+    "format:check": "prettier --ignore-unknown --check ."
   }
 }
