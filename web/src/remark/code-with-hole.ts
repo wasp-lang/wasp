@@ -24,33 +24,25 @@ Output:
 
 import type * as md from 'mdast'
 import type { Plugin } from 'unified'
-import { visitParents } from 'unist-util-visit-parents'
+import { visit } from 'unist-util-visit'
+import { assertSupportedLanguage, shouldVisitNode } from './util/code-blocks'
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bwith-hole\b/
 const HOLE_IDENTIFIER_REGEX = /\bhole\b/
 const HOLE_REPLACEMENT = '/* ... */'
 
-const SUPPORTED_LANGS = new Set(['js', 'jsx', 'ts', 'tsx'])
+const SUPPORTED_LANGS = new Set(['js', 'jsx', 'ts', 'tsx'] as const)
 
 const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
-  visitParents(tree, 'code', (node) => {
-    if (node.meta && META_FLAG_REGEX.test(node.meta)) {
-      if (!node.lang) {
-        file.fail('No language specified', { place: node.position })
-      }
-      if (!SUPPORTED_LANGS.has(node.lang)) {
-        file.fail(`Unsupported language: ${node.lang}`, {
-          place: node.position,
-        })
-      }
+  visit(tree, shouldVisitNode(META_FLAG_REGEX), (node) => {
+    assertSupportedLanguage(node, file, SUPPORTED_LANGS)
 
-      // Remove our flag from the meta so other plugins don't trip up
-      node.meta = node.meta.replace(META_FLAG_REGEX, '')
+    // Remove our flag from the meta so other plugins don't trip up
+    node.meta = node.meta.replace(META_FLAG_REGEX, '')
 
-      // Replace hole with ellipsis
-      node.value = node.value.replace(HOLE_IDENTIFIER_REGEX, HOLE_REPLACEMENT)
-    }
+    // Replace hole with ellipsis
+    node.value = node.value.replace(HOLE_IDENTIFIER_REGEX, HOLE_REPLACEMENT)
   })
 }
 

@@ -38,8 +38,7 @@
     "react-tooltip": "^4.5.1",
     "react-transition-group": "^4.4.5",
     "tailwindcss": "^3.2.4",
-    "ts-blank-space": "^0.6.1",
-    "unist-util-visit-parents": "^6.0.1"
+    "ts-blank-space": "^0.6.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.7.0",

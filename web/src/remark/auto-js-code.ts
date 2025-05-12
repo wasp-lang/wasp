@@ -37,91 +37,75 @@ Output:
 
 import type * as md from 'mdast'
 import type {} from 'mdast-util-mdx' // Type-only empty import to register MDX types into mdast
-import assert from 'node:assert/strict'
 import * as path from 'node:path'
 import * as prettier from 'prettier'
 import { blankSourceFile } from 'ts-blank-space'
 import * as ts from 'typescript'
 import type { Plugin } from 'unified'
-import { visitParents } from 'unist-util-visit-parents'
+import { visit } from 'unist-util-visit'
+import { assertSupportedLanguage, shouldVisitNode } from './util/code-blocks'
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bauto-js\b/
-const SUPPORTED_LANGS = new Set(['ts', 'tsx'])
+const SUPPORTED_LANGS = new Set(['ts', 'tsx'] as const)
 
 const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
-  const nodesToProcess = new Set<{ node: md.Code; ancestors: md.Parents[] }>()
+  const asyncFns: (() => Promise<void>)[] = []
 
-  visitParents(tree, 'code', (node, ancestors) => {
-    if (node.meta && META_FLAG_REGEX.test(node.meta)) {
-      if (!node.lang) {
-        file.fail('No language specified', { place: node.position })
-      }
-      if (!SUPPORTED_LANGS.has(node.lang)) {
-        file.fail(`Unsupported language: ${node.lang}`, {
-          place: node.position,
-        })
+  visit(tree, shouldVisitNode(META_FLAG_REGEX), (node, idx, parent) => {
+    assertSupportedLanguage(node, file, SUPPORTED_LANGS)
+
+    // We save the computation for later
+    // because `visit` does not allow async visitors.
+
+    asyncFns.push(async () => {
+      // Remove our flag from the meta so other plugins don't trip up
+      const newMeta = node.meta.replace(META_FLAG_REGEX, '')
+
+      const jsCodeBlock = await makeJsCodeBlock(newMeta, node, {
+        location: file.path,
+      })
+      const tsCodeBlock = await makeTsCodeBlock(newMeta, node, {
+        location: file.path,
+      })
+
+      // The specific structure of the new node was retrieved by copy-pasting
+      // an example into the MDX playground and inspecting the AST.
+      // https://mdxjs.com/playground
+      const newNode: md.RootContent = {
+        type: 'mdxJsxFlowElement',
+        name: 'Tabs',
+        attributes: [
+          { type: 'mdxJsxAttribute', name: 'groupId', value: 'js-ts' },
+        ],
+        children: [
+          {
+            type: 'mdxJsxFlowElement',
+            name: 'TabItem',
+            attributes: [
+              { type: 'mdxJsxAttribute', name: 'value', value: 'js' },
+              { type: 'mdxJsxAttribute', name: 'label', value: 'JavaScript' },
+            ],
+            children: [jsCodeBlock],
+          },
+          {
+            type: 'mdxJsxFlowElement',
+            name: 'TabItem',
+            attributes: [
+              { type: 'mdxJsxAttribute', name: 'value', value: 'ts' },
+              { type: 'mdxJsxAttribute', name: 'label', value: 'TypeScript' },
+            ],
+            children: [tsCodeBlock],
+          },
+        ],
       }
 
-      // We put these aside for processing later
-      // because `visitParents` does not allow
-      // async visitors.
-      nodesToProcess.add({ node, ancestors })
-    }
+      // Replace input node for the new ones in the parent's children array
+      parent.children.splice(idx, 1, newNode)
+    })
   })
 
-  for (const { node, ancestors } of nodesToProcess) {
-    const parent = ancestors.at(-1)
-    assert(parent) // The node is never a `Root` node, so it will always have a parent
-    assert(node.meta && node.lang) // Already checked in the visitor
-
-    // Remove our flag from the meta so other plugins don't trip up
-    const newMeta = node.meta.replace(META_FLAG_REGEX, '')
-
-    const jsCodeBlock = await makeJsCodeBlock(newMeta, node, {
-      location: file.path,
-    })
-    const tsCodeBlock = await makeTsCodeBlock(newMeta, node, {
-      location: file.path,
-    })
-
-    // The specific structure of the new node was retrieved by copy-pasting
-    // an example into the MDX playground and inspecting the AST.
-    // https://mdxjs.com/playground
-    const newNode: md.RootContent = {
-      type: 'mdxJsxFlowElement',
-      name: 'Tabs',
-      attributes: [
-        { type: 'mdxJsxAttribute', name: 'groupId', value: 'js-ts' },
-      ],
-      children: [
-        {
-          type: 'mdxJsxFlowElement',
-          name: 'TabItem',
-          attributes: [
-            { type: 'mdxJsxAttribute', name: 'value', value: 'js' },
-            { type: 'mdxJsxAttribute', name: 'label', value: 'JavaScript' },
-          ],
-          children: [jsCodeBlock],
-        },
-        {
-          type: 'mdxJsxFlowElement',
-          name: 'TabItem',
-          attributes: [
-            { type: 'mdxJsxAttribute', name: 'value', value: 'ts' },
-            { type: 'mdxJsxAttribute', name: 'label', value: 'TypeScript' },
-          ],
-          children: [tsCodeBlock],
-        },
-      ],
-    }
-
-    const idx = parent.children.findIndex((someNode) => someNode === node)
-    assert(idx !== -1, "Node not found in parent's children")
-
-    // Replace input node for the new ones in the parent's children array
-    parent.children.splice(idx, 1, newNode)
-  }
+  await Promise.all(asyncFns.map((fn) => fn()))
 }
 
 export default autoJSCodePlugin
