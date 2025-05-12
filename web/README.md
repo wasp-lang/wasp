@@ -31,7 +31,6 @@ of how we like to write docs. You can check
 [Docusaurus' documentation](https://docusaurus.io/docs/2.x/markdown-features) to see which special
 Markdown features available (e.g. line highlighting).
 
-
 #### Polyglot code blocks
 
 For examples that have a JavaScript and TypeScript version, add a `auto-js` meta attribute
@@ -99,7 +98,21 @@ export const validatePassword = (password: string) => password.length > 8 && /* 
 
 </TabItem>
 </Tabs>
-~~~
+
+##### Caveats
+
+The `auto-js` and `with-hole` meta attributes are custom Docusaurus plugins that we wrote, implemented at
+[./src/remark/auto-js-code.ts](./src/remark/auto-js-code.ts) and [./src/remark/code-with-hole.ts](./src/remark/code-with-hole.ts).
+
+`auto-js` specifically is backed by [ts-blank-space](https://github.com/bloomberg/ts-blank-space), which will _only_ remove the
+type annotations and not process anything else. Thus, some edge-cases can arise, so we recommend to run `npm run start` and
+check the output JS in the browser to see if everything looks good.
+
+Known caveats are:
+- Run `prettier` on the code before pasting it in the document, as `auto-js` will enforce it.
+- Remember to add a `type` specifier to `import`s we don't want to appear in the JS
+- `// highlight-next-line` comment before a TS-only line will hang around and highlight the wrong line. Use `// highlight-start` and `// highlight-end` instead.
+- It doesn't replace file names' extensions in clarification comments (this is mostly unique to the tutorial pages).
 
 ### Build
 
