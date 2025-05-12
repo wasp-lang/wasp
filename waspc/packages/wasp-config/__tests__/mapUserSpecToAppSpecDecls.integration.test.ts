@@ -30,6 +30,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       'Page',
       Fixtures.getPages().map((p) => p.name)
     )
+
     const appDeclType = 'App'
 
     const result = mapUserSpecToAppSpecDecls(userSpec, entities)
@@ -52,82 +53,87 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectMapping({
       declType: 'Page',
-      declFixtures: Fixtures.getPages(),
-      declMap: userSpec.pages,
-      mapUserSpecToAppSpec: mapPage,
+      configMap: userSpec.pages,
+      expectedMapping: {
+        function: mapPage,
+      },
     })
     expectCorrectMapping({
       declType: 'Route',
-      declFixtures: Fixtures.getRoutes(),
-      declMap: userSpec.routes,
-      mapUserSpecToAppSpec: mapRoute,
-      parserArgs: [pageRefParser],
+      configMap: userSpec.routes,
+      expectedMapping: {
+        function: mapRoute,
+        extraArgs: [pageRefParser],
+      },
     })
     expectCorrectMapping({
       declType: 'Query',
-      declFixtures: Fixtures.getQueries(),
-      declMap: userSpec.queries,
-      mapUserSpecToAppSpec: mapOperation,
-      parserArgs: [entityRefParser],
+      configMap: userSpec.queries,
+      expectedMapping: {
+        function: mapOperation,
+        extraArgs: [entityRefParser],
+      },
     })
     expectCorrectMapping({
       declType: 'Action',
-      declFixtures: Fixtures.getActions(),
-      declMap: userSpec.actions,
-      mapUserSpecToAppSpec: mapOperation,
-      parserArgs: [entityRefParser],
+      configMap: userSpec.actions,
+      expectedMapping: {
+        function: mapOperation,
+        extraArgs: [entityRefParser],
+      },
     })
     expectCorrectMapping({
       declType: 'Crud',
-      declFixtures: Fixtures.getCruds(),
-      declMap: userSpec.cruds,
-      mapUserSpecToAppSpec: mapCrud,
-      parserArgs: [entityRefParser],
+      configMap: userSpec.cruds,
+      expectedMapping: {
+        function: mapCrud,
+        extraArgs: [entityRefParser],
+      },
     })
     expectCorrectMapping({
       declType: 'ApiNamespace',
-      declFixtures: Fixtures.getApiNamespaces(),
-      declMap: userSpec.apiNamespaces,
-      mapUserSpecToAppSpec: mapApiNamespace,
+      configMap: userSpec.apiNamespaces,
+      expectedMapping: {
+        function: mapApiNamespace,
+      },
     })
     expectCorrectMapping({
       declType: 'Api',
-      declFixtures: Fixtures.getApis(),
-      declMap: userSpec.apis,
-      mapUserSpecToAppSpec: mapApi,
-      parserArgs: [entityRefParser],
+      configMap: userSpec.apis,
+      expectedMapping: {
+        function: mapApi,
+        extraArgs: [entityRefParser],
+      },
     })
     expectCorrectMapping({
       declType: 'Job',
-      declFixtures: Fixtures.getJobs(),
-      declMap: userSpec.jobs,
-      mapUserSpecToAppSpec: mapJob,
-      parserArgs: [entityRefParser],
+      configMap: userSpec.jobs,
+      expectedMapping: {
+        function: mapJob,
+        extraArgs: [entityRefParser],
+      },
     })
 
     function expectCorrectMapping({
       declType,
-      declFixtures,
-      declMap,
-      mapUserSpecToAppSpec,
-      parserArgs = [],
+      configMap,
+      expectedMapping,
     }: {
       declType: keyof AppSpec.DeclTypeToValue
-      declFixtures: Fixtures.NamedConfig<unknown>[]
-      declMap: Map<string, any>
-      mapUserSpecToAppSpec: (item: any, ...args: any[]) => any
-      parserArgs?: any[]
+      configMap: Map<string, any>
+      expectedMapping: {
+        function: (item: any, ...args: any[]) => any
+        extraArgs?: any[]
+      }
     }): void {
-      declFixtures.forEach(({ name }) => {
+      const { function: mappingFn, extraArgs = [] } = expectedMapping
+      configMap.forEach((config, name) => {
         const decl = getDecl(result, declType, name)
-
-        const item = declMap.get(name)
-        expect(item).toBeDefined()
 
         expect(decl).toStrictEqual({
           declType,
           declName: name,
-          declValue: mapUserSpecToAppSpec(item, ...parserArgs),
+          declValue: mappingFn(config, ...extraArgs),
         })
       })
     }
