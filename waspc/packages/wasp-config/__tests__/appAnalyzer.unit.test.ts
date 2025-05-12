@@ -16,7 +16,7 @@ describe('analyzeUserApp', () => {
   test('should parse full app sucessfully', async () => {
     await testAnalyzeUserApp(
       Fixtures.createUserApp('full'),
-      Fixtures.ALL_ENTITIES
+      Fixtures.getEntities()
     )
   })
 

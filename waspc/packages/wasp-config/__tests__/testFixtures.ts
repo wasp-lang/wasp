@@ -28,7 +28,7 @@ type MinimalConfig<T> = keyof T extends never
  */
 type FullConfig<T> = Required<T>
 
-type Config<T> = MinimalConfig<T> | FullConfig<T>
+export type Config<T> = MinimalConfig<T> | FullConfig<T>
 export type NamedConfig<T> = {
   name: string
   config: Config<T>
@@ -36,10 +36,22 @@ export type NamedConfig<T> = {
 
 type ConfigType = 'minimal' | 'full'
 
-const TASK_ENTITY = 'Task'
-const USER_ENTITY = 'User'
-const SOCIAL_USER_ENTITY = 'SocialUser'
-export const ALL_ENTITIES = [TASK_ENTITY, USER_ENTITY, SOCIAL_USER_ENTITY]
+export function getEntity(entity: 'task' | 'user' | 'social-user') {
+  switch (entity) {
+    case 'task':
+      return 'Task'
+    case 'user':
+      return 'User'
+    case 'social-user':
+      return 'SocialUser'
+    default:
+      throw new Error(`Unknown entity: ${entity}`)
+  }
+}
+
+export function getEntities(): string[] {
+  return [getEntity('task'), getEntity('user'), getEntity('social-user')]
+}
 
 export function createUserApp(scope: ConfigType): UserApi.App {
   if (scope === 'minimal') {
@@ -102,7 +114,7 @@ export function getApp(scope: ConfigType): NamedConfig<UserApi.AppConfig> {
 
 export function getAuth(scope: ConfigType): Config<UserApi.AuthConfig> {
   const minimal: MinimalConfig<UserApi.AuthConfig> = {
-    userEntity: USER_ENTITY,
+    userEntity: getEntity('user'),
     onAuthFailedRedirectTo: '/login',
     methods: getAuthMethods(scope),
   }
@@ -111,7 +123,7 @@ export function getAuth(scope: ConfigType): Config<UserApi.AuthConfig> {
     ? minimal
     : ({
         ...minimal,
-        externalAuthEntity: SOCIAL_USER_ENTITY,
+        externalAuthEntity: getEntity('social-user'),
         onAuthSucceededRedirectTo: '/profile',
         onBeforeSignup: getExtImport(scope, 'named'),
         onAfterSignup: getExtImport(scope, 'named'),
@@ -422,7 +434,7 @@ export function getQuery(scope: ConfigType): NamedConfig<UserApi.QueryConfig> {
         ? minimal
         : ({
             ...minimal,
-            entities: [TASK_ENTITY],
+            entities: [getEntity('task')],
             auth: true,
           } satisfies FullConfig<UserApi.QueryConfig>),
   }
@@ -446,7 +458,7 @@ export function getAction(
         ? minimal
         : ({
             ...minimal,
-            entities: [TASK_ENTITY],
+            entities: [getEntity('task')],
             auth: true,
           } satisfies FullConfig<UserApi.ActionConfig>),
   }
@@ -458,7 +470,7 @@ export function getCruds(): NamedConfig<UserApi.Crud>[] {
 
 export function getCrud(scope: ConfigType): NamedConfig<UserApi.Crud> {
   const minimal: MinimalConfig<UserApi.Crud> = {
-    entity: TASK_ENTITY,
+    entity: getEntity('task'),
     operations: getCrudOperations(scope),
   }
 
@@ -555,7 +567,7 @@ export function getApi(scope: ConfigType): NamedConfig<UserApi.ApiConfig> {
         ? minimal
         : ({
             ...minimal,
-            entities: [TASK_ENTITY],
+            entities: [getEntity('task')],
             auth: true,
             middlewareConfigFn: getExtImport(scope, 'named'),
           } satisfies FullConfig<UserApi.ApiConfig>),
@@ -614,7 +626,7 @@ export function getJob(scope: ConfigType): NamedConfig<UserApi.JobConfig> {
         ? minimal
         : ({
             ...minimal,
-            entities: [TASK_ENTITY],
+            entities: [getEntity('task')],
             schedule: getSchedule(scope),
           } satisfies FullConfig<UserApi.JobConfig>),
   }
