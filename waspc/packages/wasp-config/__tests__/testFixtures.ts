@@ -3,6 +3,7 @@
  * In our case the sample data represents UserSpec data.
  */
 
+import * as AppSpec from '../src/appSpec.js'
 import * as UserApi from '../src/userApi.js'
 
 /**
@@ -106,27 +107,27 @@ export const PAGES = {
   MINIMAL: {
     name: 'MinimalPage',
     config: {
-      component: EXT_IMPORT.MINIMAL.NAMED,
+      component: getExtImport('minimal'),
     } satisfies MinimalConfig<UserApi.PageConfig>,
   },
   FULL: {
     name: 'FullPage',
     config: {
-      component: EXT_IMPORT.FULL.NAMED,
+      component: getExtImport('full'),
       authRequired: true,
     } satisfies FullConfig<UserApi.PageConfig>,
   },
   EMAIL_VERIFICATION: {
     name: 'EmailVerificationPage',
     config: {
-      component: EXT_IMPORT.FULL.NAMED,
+      component: getExtImport('full'),
       authRequired: false,
     } satisfies FullConfig<UserApi.PageConfig>,
   },
   PASSWORD_RESET: {
     name: 'PasswordResetPage',
     config: {
-      component: EXT_IMPORT.FULL.NAMED,
+      component: getExtImport('full'),
       authRequired: false,
     } satisfies FullConfig<UserApi.PageConfig>,
   },
@@ -171,7 +172,7 @@ export const QUERIES = {
   FULL: {
     name: 'getTask',
     config: {
-      fn: EXT_IMPORT.FULL.NAMED,
+      fn: getExtImport('full'),
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies FullConfig<UserApi.QueryConfig>,
@@ -179,7 +180,7 @@ export const QUERIES = {
   MINIMAL: {
     name: 'getTasks',
     config: {
-      fn: EXT_IMPORT.MINIMAL.NAMED,
+      fn: getExtImport('minimal'),
     } satisfies MinimalConfig<UserApi.QueryConfig>,
   },
 } as const
@@ -188,7 +189,7 @@ export const ACTIONS = {
   FULL: {
     name: 'createTask',
     config: {
-      fn: EXT_IMPORT.FULL.NAMED,
+      fn: getExtImport('full'),
       entities: [TASK_ENTITY],
       auth: true,
     } satisfies FullConfig<UserApi.ActionConfig>,
@@ -196,7 +197,7 @@ export const ACTIONS = {
   MINIMAL: {
     name: 'deleteTask',
     config: {
-      fn: EXT_IMPORT.MINIMAL.NAMED,
+      fn: getExtImport('minimal'),
     } satisfies MinimalConfig<UserApi.ActionConfig>,
   },
 } as const
@@ -204,7 +205,7 @@ export const ACTIONS = {
 export const CRUD_OPERATION_OPTIONS = {
   FULL: {
     isPublic: true,
-    overrideFn: EXT_IMPORT.FULL.NAMED,
+    overrideFn: getExtImport('full'),
   } satisfies FullConfig<UserApi.CrudOperationOptions>,
   MINIMAL: {} satisfies MinimalConfig<UserApi.CrudOperationOptions>,
 } as const
@@ -241,14 +242,14 @@ export const API_NAMESPACES = {
   FULL: {
     name: 'bar',
     config: {
-      middlewareConfigFn: EXT_IMPORT.FULL.NAMED,
+      middlewareConfigFn: getExtImport('full'),
       path: '/bar',
     } satisfies FullConfig<UserApi.ApiNamespaceConfig>,
   },
   MINIMAL: {
     name: 'foo',
     config: {
-      middlewareConfigFn: EXT_IMPORT.MINIMAL.NAMED,
+      middlewareConfigFn: getExtImport('minimal'),
       path: '/foo',
     } satisfies MinimalConfig<UserApi.ApiNamespaceConfig>,
   },
@@ -269,17 +270,17 @@ export const APIS = {
   FULL: {
     name: 'barBaz',
     config: {
-      fn: EXT_IMPORT.FULL.NAMED,
+      fn: getExtImport('full'),
       auth: true,
       httpRoute: HTTP_ROUTES.FULL,
       entities: [TASK_ENTITY],
-      middlewareConfigFn: EXT_IMPORT.FULL.NAMED,
+      middlewareConfigFn: getExtImport('full'),
     } satisfies FullConfig<UserApi.ApiConfig>,
   },
   MINIMAL: {
     name: 'barFoo',
     config: {
-      fn: EXT_IMPORT.MINIMAL.NAMED,
+      fn: getExtImport('minimal'),
       httpRoute: HTTP_ROUTES.MINIMAL,
     } satisfies MinimalConfig<UserApi.ApiConfig>,
   },
@@ -300,13 +301,13 @@ export const SCHEDULE = {
 
 export const PERFORM = {
   FULL: {
-    fn: EXT_IMPORT.FULL.NAMED,
+    fn: getExtImport('full'),
     executorOptions: {
       pgBoss: { jobOptions: { attempts: 3 } },
     },
   } satisfies FullConfig<UserApi.Perform>,
   MINIMAL: {
-    fn: EXT_IMPORT.MINIMAL.NAMED,
+    fn: getExtImport('minimal'),
   } satisfies MinimalConfig<UserApi.Perform>,
 }
 
@@ -349,7 +350,7 @@ export const APP = {
 
 export const EMAIL_VERIFICATION = {
   FULL: {
-    getEmailContentFn: EXT_IMPORT.FULL.NAMED,
+    getEmailContentFn: getExtImport('full'),
     clientRoute: ROUTES.EMAIL_VERIFICATION.name,
   } satisfies FullConfig<UserApi.EmailVerificationConfig>,
   MINIMAL: {
@@ -359,7 +360,7 @@ export const EMAIL_VERIFICATION = {
 
 export const PASSWORD_RESET = {
   FULL: {
-    getEmailContentFn: EXT_IMPORT.FULL.NAMED,
+    getEmailContentFn: getExtImport('full'),
     clientRoute: ROUTES.PASSWORD_RESET.name,
   } satisfies FullConfig<UserApi.PasswordResetConfig>,
   MINIMAL: {
@@ -369,7 +370,7 @@ export const PASSWORD_RESET = {
 
 export const EMAIL_AUTH = {
   FULL: {
-    userSignupFields: EXT_IMPORT.FULL.NAMED,
+    userSignupFields: getExtImport('full'),
     fromField: EMAIL_FROM_FIELD.FULL,
     emailVerification: EMAIL_VERIFICATION.FULL,
     passwordReset: PASSWORD_RESET.FULL,
@@ -383,15 +384,15 @@ export const EMAIL_AUTH = {
 
 export const USERNAME_AND_PASSWORD_AUTH = {
   FULL: {
-    userSignupFields: EXT_IMPORT.FULL.NAMED,
+    userSignupFields: getExtImport('full'),
   } satisfies FullConfig<UserApi.UsernameAndPasswordConfig>,
   MINIMAL: {} satisfies MinimalConfig<UserApi.UsernameAndPasswordConfig>,
 } as const
 
 export const EXTERNAL_AUTH = {
   FULL: {
-    configFn: EXT_IMPORT.FULL.NAMED,
-    userSignupFields: EXT_IMPORT.FULL.NAMED,
+    configFn: getExtImport('full'),
+    userSignupFields: getExtImport('full'),
   } satisfies FullConfig<UserApi.ExternalAuthConfig>,
   MINIMAL: {} satisfies MinimalConfig<UserApi.ExternalAuthConfig>,
 } as const
@@ -415,11 +416,11 @@ export const AUTH = {
     onAuthFailedRedirectTo: '/login',
     onAuthSucceededRedirectTo: '/profile',
     methods: AUTH_METHODS.FULL,
-    onBeforeSignup: EXT_IMPORT.FULL.NAMED,
-    onAfterSignup: EXT_IMPORT.FULL.NAMED,
-    onBeforeOAuthRedirect: EXT_IMPORT.FULL.NAMED,
-    onBeforeLogin: EXT_IMPORT.FULL.NAMED,
-    onAfterLogin: EXT_IMPORT.FULL.NAMED,
+    onBeforeSignup: getExtImport('full'),
+    onAfterSignup: getExtImport('full'),
+    onBeforeOAuthRedirect: getExtImport('full'),
+    onBeforeLogin: getExtImport('full'),
+    onAfterLogin: getExtImport('full'),
   } satisfies FullConfig<UserApi.AuthConfig>,
   MINIMAL: {
     userEntity: USER_ENTITY,
@@ -430,19 +431,19 @@ export const AUTH = {
 
 export const CLIENT = {
   FULL: {
-    rootComponent: EXT_IMPORT.FULL.NAMED,
-    setupFn: EXT_IMPORT.FULL.NAMED,
+    rootComponent: getExtImport('full'),
+    setupFn: getExtImport('full'),
     baseDir: '/src',
-    envValidationSchema: EXT_IMPORT.FULL.NAMED,
+    envValidationSchema: getExtImport('full'),
   } satisfies FullConfig<UserApi.ClientConfig>,
   MINIMAL: {} satisfies MinimalConfig<UserApi.ClientConfig>,
 } as const
 
 export const SERVER = {
   FULL: {
-    setupFn: EXT_IMPORT.FULL.NAMED,
-    middlewareConfigFn: EXT_IMPORT.FULL.NAMED,
-    envValidationSchema: EXT_IMPORT.FULL.NAMED,
+    setupFn: getExtImport('full'),
+    middlewareConfigFn: getExtImport('full'),
+    envValidationSchema: getExtImport('full'),
   } satisfies FullConfig<UserApi.ServerConfig>,
   MINIMAL: {} satisfies MinimalConfig<UserApi.ServerConfig>,
 } as const
@@ -459,17 +460,46 @@ export const EMAIL_SENDER = {
 
 export const WEBSOCKET = {
   FULL: {
-    fn: EXT_IMPORT.FULL.NAMED,
+    fn: getExtImport('full'),
     autoConnect: true,
   } satisfies FullConfig<UserApi.WebsocketConfig>,
   MINIMAL: {
-    fn: EXT_IMPORT.MINIMAL.NAMED,
+    fn: getExtImport('minimal'),
   } satisfies MinimalConfig<UserApi.WebsocketConfig>,
 } as const
 
 export const DB = {
   FULL: {
-    seeds: [EXT_IMPORT.FULL.NAMED, EXT_IMPORT.FULL.DEFAULT],
+    seeds: [getExtImport('full', 'named'), getExtImport('full', 'default')],
   } satisfies FullConfig<UserApi.DbConfig>,
   MINIMAL: {} satisfies MinimalConfig<UserApi.DbConfig>,
 } as const
+
+function getExtImport(
+  scope: 'minimal',
+  type?: AppSpec.ExtImportKind
+): MinimalConfig<UserApi.ExtImport>
+function getExtImport(
+  scope: 'full',
+  type?: AppSpec.ExtImportKind
+): FullConfig<UserApi.ExtImport>
+function getExtImport(
+  scope: ConfigType,
+  type: AppSpec.ExtImportKind | undefined = 'named'
+): MinimalConfig<UserApi.ExtImport> | FullConfig<UserApi.ExtImport> {
+  const base = { from: '@src/external' } as const
+
+  if (type === 'default') {
+    return { ...base, importDefault: 'defaultExport' } satisfies
+      | MinimalConfig<UserApi.ExtImport>
+      | FullConfig<UserApi.ExtImport>
+  }
+
+  if (type === 'named') {
+    return { ...base, import: 'namedExport' } satisfies
+      | MinimalConfig<UserApi.ExtImport>
+      | FullConfig<UserApi.ExtImport>
+  }
+
+  throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`)
+}
