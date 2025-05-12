@@ -17,11 +17,11 @@ export const DetailPage = () => {
   return (
     <div className="container">
       <main>
-        <h1>Tasks master</h1>
+        <h1>Tasks (CRUD feature) - Detail page</h1>
         <div className="tasks">
           {isLoading && <div>Loading...</div>}
           {task && (
-            <div key={task.id} className="task">
+            <div key={task.id} className="p-4 border my-4">
               <>
                 <div className="task__title">
                   {JSON.stringify(task, null, 2)}

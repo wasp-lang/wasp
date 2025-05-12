@@ -63,18 +63,20 @@ export const ListPage = () => {
 
   return (
     <div className="container">
-      <main>
+      <main className="space-y-4">
         <h1>Tasks (CRUD feature)</h1>
-        <div className="error">{error}</div>
-        <div className="tasks">
+        {error && <div className="p-4 text-red-500">{error}</div>}
+        <div>
           {isLoading && <div>Loading...</div>}
           {tasks?.map((task) => (
             <div key={task.id} className="task">
               {task.id === isEditing ? (
                 <>
-                  <form className="edit-task-form">
-                    <label htmlFor="title">Title</label>
-                    <div>
+                  <form className="space-y-4 border p-4">
+                    <div className="space-y-2">
+                      <label htmlFor="title" className="block">
+                        Title
+                      </label>
                       <input
                         type="text"
                         required
@@ -84,40 +86,55 @@ export const ListPage = () => {
                       />
                     </div>
 
-                    <button
-                      type="submit"
-                      onClick={handleUpdateTask}
-                      className="btn"
-                    >
-                      Update task
-                    </button>
+                    <div className="space-x-2">
+                      <button
+                        type="submit"
+                        onClick={handleUpdateTask}
+                        className="btn btn-primary"
+                      >
+                        Update task
+                      </button>
+                      <button
+                        onClick={() => setIsEditing(null)}
+                        className="btn"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </form>
                 </>
               ) : (
-                <>
-                  <div className="task__title">
+                <div className="p-4 border">
+                  <div className="mb-2">
                     <Link to="/crud/:id" params={{ id: task.id }}>
                       {task.description} by {getEmail(task.user)}
                     </Link>
                   </div>
-                  <button
-                    onClick={() => handleTaskDelete(task)}
-                    className="btn btn-red"
-                  >
-                    Delete
-                  </button>
-                  <a onClick={() => handleStartEditing(task)} className="btn">
-                    <i>Edit</i>
-                  </a>
-                </>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleTaskDelete(task)}
+                      className="btn btn-red"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => handleStartEditing(task)}
+                      className="btn"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           ))}
           {tasks?.length === 0 && <div>No tasks yet.</div>}
         </div>
-        <form className="new-task-form">
-          <label htmlFor="title">Title</label>
-          <div>
+        <form className="space-y-4 border p-4">
+          <div className="space-y-2">
+            <label htmlFor="title" className="block">
+              Title
+            </label>
             <input
               type="text"
               required
