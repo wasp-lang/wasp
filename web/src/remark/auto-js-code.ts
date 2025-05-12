@@ -57,7 +57,6 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
 
     // We save the computation for later
     // because `visit` does not allow async visitors.
-
     asyncFns.push(async () => {
       // Remove our flag from the meta so other plugins don't trip up
       const newMeta = node.meta.replace(META_FLAG_REGEX, '')
@@ -100,7 +99,7 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
         ],
       }
 
-      // Replace input node for the new ones in the parent's children array
+      // Replace input node for the new one in the parent's children array
       parent.children.splice(idx, 1, newNode)
     })
   })
