@@ -129,7 +129,7 @@ async function makeJsCodeBlock(
   )
   const lang = node.lang?.replace('ts', 'js')
   const isJsx = node.lang.endsWith('x')
-  const code = await format(convertToJs(node.value, { jsx: isJsx }), {
+  const code = await format(convertToJs(node.value, { isJsx }), {
     parser: 'babel',
     location,
   })
@@ -158,7 +158,7 @@ async function makeTsCodeBlock(
   }
 }
 
-function convertToJs(code: string, { jsx }: { jsx: boolean }) {
+function convertToJs(code: string, { isJsx }: { isJsx: boolean }) {
   // We create a source file from ts so that way we can specify if
   // we want to use JSX or not, because the parsing is different.
   // Copied from the ts-blank-space playground
@@ -168,7 +168,7 @@ function convertToJs(code: string, { jsx }: { jsx: boolean }) {
     code,
     { languageVersion: ts.ScriptTarget.ESNext },
     true,
-    jsx ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+    isJsx ? ts.ScriptKind.TSX : ts.ScriptKind.TS
   )
 
   return blankSourceFile(sourceFile)
