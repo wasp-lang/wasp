@@ -19,7 +19,8 @@ import * as Fixtures from './testFixtures.js'
 describe('mapUserSpecToAppSpecDecls', () => {
   test('should map full app using mapping functions correctly', () => {
     const userSpec = Fixtures.createUserApp('full')[GET_USER_SPEC]()
-    const entityRefParser = makeRefParser('Entity', Fixtures.getEntities())
+    const entities = Fixtures.getEntities('full')
+    const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser(
       'Route',
       Fixtures.getRoutes().map((r) => r.name)
@@ -29,7 +30,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
       Fixtures.getPages().map((p) => p.name)
     )
 
-    const result = mapUserSpecToAppSpecDecls(userSpec, Fixtures.getEntities())
+    const result = mapUserSpecToAppSpecDecls(userSpec, entities)
 
     const appDecl = getDecl(result, 'App', Fixtures.getApp('full').name)
     expect(appDecl.declValue).toStrictEqual(

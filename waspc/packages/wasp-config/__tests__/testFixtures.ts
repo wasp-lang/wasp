@@ -49,8 +49,10 @@ export function getEntity(entity: 'task' | 'user' | 'social-user') {
   }
 }
 
-export function getEntities(): string[] {
-  return [getEntity('task'), getEntity('user'), getEntity('social-user')]
+export function getEntities(scope: ConfigType): string[] {
+  return scope === 'minimal'
+    ? []
+    : [getEntity('task'), getEntity('user'), getEntity('social-user')]
 }
 
 export function createUserApp(scope: ConfigType): UserApi.App {

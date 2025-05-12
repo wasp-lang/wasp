@@ -10,44 +10,60 @@ describe('analyzeUserApp', () => {
   afterEach(() => vi.clearAllMocks())
 
   test('should parse minimal app sucessfully', async () => {
-    await testAnalyzeUserApp(Fixtures.createUserApp('minimal'), [])
+    await testAnalyzeUserApp({
+      app: Fixtures.createUserApp('minimal'),
+      entities: Fixtures.getEntities('minimal'),
+    })
   })
 
   test('should parse full app sucessfully', async () => {
-    await testAnalyzeUserApp(
-      Fixtures.createUserApp('full'),
-      Fixtures.getEntities()
-    )
+    await testAnalyzeUserApp({
+      app: Fixtures.createUserApp('full'),
+      entities: Fixtures.getEntities('full'),
+    })
   })
 
   test('should return an error if the default export is not defined', async () => {
-    await testAnalyzeUserApp(undefined as unknown as UserApi.App, [], {
-      shouldReturnError: true,
-    })
+    await testAnalyzeUserApp(
+      {
+        app: undefined as unknown as UserApi.App,
+        entities: Fixtures.getEntities('minimal'),
+      },
+      {
+        shouldReturnError: true,
+      }
+    )
   })
 
   test('should return an error if the default export is not an instance of App', async () => {
     await testAnalyzeUserApp(
-      'not an instance of App' as unknown as UserApi.App,
-      [],
-      { shouldReturnError: true }
+      {
+        app: 'not an instance of App' as unknown as UserApi.App,
+        entities: Fixtures.getEntities('minimal'),
+      },
+      {
+        shouldReturnError: true,
+      }
     )
   })
 
   async function testAnalyzeUserApp(
-    userApp: UserApi.App,
-    entities: string[],
+    input: {
+      app: UserApi.App
+      entities: string[]
+    },
     options:
       | {
-          shouldReturnError?: boolean
+          shouldReturnError: boolean
         }
       | undefined = {
       shouldReturnError: false,
     }
   ): Promise<void> {
+    const { app, entities } = input
     const { shouldReturnError } = options
     const mockMainWaspTs = 'main.wasp.ts'
-    vi.doMock(mockMainWaspTs, () => ({ default: userApp }))
+    vi.doMock(mockMainWaspTs, () => ({ default: app }))
 
     const result = await analyzeUserApp(mockMainWaspTs, entities)
 
@@ -57,7 +73,7 @@ describe('analyzeUserApp', () => {
         error: expect.anything(),
       })
     } else {
-      const userSpec = userApp[GET_USER_SPEC]()
+      const userSpec = app[GET_USER_SPEC]()
       const appSpecDecls = mapUserSpecToAppSpecDecls(userSpec, entities)
 
       expect(result).toMatchObject({
