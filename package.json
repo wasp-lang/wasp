@@ -1,0 +1,15 @@
+{
+  "name": "wasp-repo",
+  "devDependencies": {
+    "prettier": "3.5.3",
+    "prettier-plugin-organize-imports": "4.1.0",
+    "prettier-plugin-pkg": "0.19.1",
+    "prettier-plugin-sh": "0.17.4",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "typescript": "~5.8.3"
+  },
+  "scripts": {
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
+  }
+}
