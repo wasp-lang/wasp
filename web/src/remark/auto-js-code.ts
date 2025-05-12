@@ -61,12 +61,8 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
       // Remove our flag from the meta so other plugins don't trip up
       const newMeta = node.meta.replace(META_FLAG_REGEX, '')
 
-      const jsCodeBlock = await makeJsCodeBlock(newMeta, node, {
-        location: file.path,
-      })
-      const tsCodeBlock = await makeTsCodeBlock(newMeta, node, {
-        location: file.path,
-      })
+      const jsCodeBlock = await makeJsCodeBlock(newMeta, node)
+      const tsCodeBlock = await makeTsCodeBlock(newMeta, node)
 
       // The specific structure of the new node was retrieved by copy-pasting
       // an example into the MDX playground and inspecting the AST.
@@ -115,8 +111,7 @@ const CODE_BLOCK_TITLE_REGEX = /title=(?<quote>["'])(?<title>.*?)\1/
 
 async function makeJsCodeBlock(
   metaString: string,
-  node: md.Code,
-  { location }: { location: string }
+  node: md.Code
 ): Promise<md.Code> {
   // Find the `title=` meta param and change the extension
   const meta = metaString.replace(
@@ -130,7 +125,6 @@ async function makeJsCodeBlock(
   const isJsx = node.lang.endsWith('x')
   const code = await format(convertToJs(node.value, { isJsx }), {
     parser: 'babel',
-    location,
   })
 
   return {
@@ -143,11 +137,10 @@ async function makeJsCodeBlock(
 
 async function makeTsCodeBlock(
   metaString: string,
-  node: md.Code,
-  { location }: { location: string }
+  node: md.Code
 ): Promise<md.Code> {
   const lang = node.lang
-  const code = await format(node.value, { parser: 'babel-ts', location })
+  const code = await format(node.value, { parser: 'babel-ts' })
 
   return {
     type: 'code',
@@ -173,16 +166,17 @@ function convertToJs(code: string, { isJsx }: { isJsx: boolean }) {
   return blankSourceFile(sourceFile)
 }
 
+let prettierConfig: prettier.Options | undefined
+
 async function format(
   code: string,
-  { parser, location }: { parser: prettier.Options['parser']; location: string }
+  { parser }: { parser: prettier.Options['parser'] }
 ) {
-  const config = await prettier.resolveConfig(location, {
+  prettierConfig ??= await prettier.resolveConfig(__dirname, {
     useCache: true,
     editorconfig: true,
   })
-
-  return prettier.format(code, { ...config, parser })
+  return prettier.format(code, { ...prettierConfig, parser })
 }
 
 function transformExt(inPath: string, fn: (ext: string) => string) {
