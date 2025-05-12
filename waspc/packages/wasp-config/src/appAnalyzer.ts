@@ -1,11 +1,12 @@
 import { GET_USER_SPEC } from './_private.js'
+import * as AppSpec from './appSpec.js'
 import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
 import * as UserApi from './userApi.js'
 
 export async function analyzeUserApp(
   waspTsSpecPath: string,
   entityNames: string[]
-): Promise<Result<string, string>> {
+): Promise<Result<AppSpec.Decl[], string>> {
   const userAppResult = await getUserApp(waspTsSpecPath)
 
   if (userAppResult.status === 'error') {
@@ -18,7 +19,7 @@ export async function analyzeUserApp(
 
   return {
     status: 'ok',
-    value: JSON.stringify(appSpecDecls),
+    value: appSpecDecls,
   }
 }
 

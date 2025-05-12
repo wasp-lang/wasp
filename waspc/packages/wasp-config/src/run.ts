@@ -14,12 +14,12 @@ export async function main(args: string[]): Promise<void> {
   const { waspTsSpecPath, outputFilePath, entityNames } =
     parseProcessArgsOrThrow(args)
 
-  const declsJsonResult = await analyzeUserApp(waspTsSpecPath, entityNames)
+  const declsResult = await analyzeUserApp(waspTsSpecPath, entityNames)
 
-  if (declsJsonResult.status === 'error') {
-    console.error(declsJsonResult.error)
+  if (declsResult.status === 'error') {
+    console.error(declsResult.error)
     process.exit(1)
   }
 
-  writeFileSync(outputFilePath, declsJsonResult.value)
+  writeFileSync(outputFilePath, JSON.stringify(declsResult.value))
 }
