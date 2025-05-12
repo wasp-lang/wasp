@@ -155,17 +155,12 @@ describe('mapAuth', () => {
     const { overrideEntities, overrideRoutes, shouldError } = options
     const entities =
       overrideEntities ?? [auth.userEntity, auth.externalAuthEntity].filter((e) => e !== undefined)
-
-    const routes = overrideRoutes ?? []
-    if (!overrideRoutes) {
-      if (auth.methods.email?.emailVerification.clientRoute) {
-        routes.push(auth.methods.email.emailVerification.clientRoute)
-      }
-      if (auth.methods.email?.passwordReset.clientRoute) {
-        routes.push(auth.methods.email.passwordReset.clientRoute)
-      }
-    }
-
+    const routes =
+      overrideRoutes ??
+      [
+        auth.methods.email?.emailVerification.clientRoute,
+        auth.methods.email?.passwordReset.clientRoute,
+      ].filter((e) => e !== undefined)
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', routes)
 
@@ -235,15 +230,12 @@ describe('mapAuthMethods', () => {
     }
   ): void {
     const { overrideRoutes, shouldError } = options
-    const routes = overrideRoutes ?? []
-    if (!overrideRoutes) {
-      if (authMethods.email?.emailVerification.clientRoute) {
-        routes.push(authMethods.email.emailVerification.clientRoute)
-      }
-      if (authMethods.email?.passwordReset.clientRoute) {
-        routes.push(authMethods.email.passwordReset.clientRoute)
-      }
-    }
+    const routes =
+      overrideRoutes ??
+      [
+        authMethods.email?.emailVerification.clientRoute,
+        authMethods.email?.passwordReset.clientRoute,
+      ].filter((e) => e !== undefined)
     const routeRefParser = makeRefParser('Route', routes)
 
     if (shouldError) {
@@ -305,15 +297,11 @@ describe('mapEmailAuth', () => {
     }
   ): void {
     const { overrideRoutes, shouldError } = options
-    const routes = overrideRoutes ?? []
-    if (!overrideRoutes) {
-      if (emailAuth?.emailVerification.clientRoute) {
-        routes.push(emailAuth.emailVerification.clientRoute)
-      }
-      if (emailAuth?.passwordReset.clientRoute) {
-        routes.push(emailAuth.passwordReset.clientRoute)
-      }
-    }
+    const routes =
+      overrideRoutes ??
+      [emailAuth?.emailVerification.clientRoute, emailAuth?.passwordReset.clientRoute].filter(
+        (e) => e !== undefined
+      )
     const routeRefParser = makeRefParser('Route', routes)
 
     if (shouldError) {
@@ -363,15 +351,7 @@ describe('mapEmailVerification', () => {
     }
   ): void {
     const { overrideRoutes, shouldError } = options
-    const routes = overrideRoutes ?? []
-    if (!overrideRoutes) {
-      if (emailVerification.clientRoute) {
-        routes.push(emailVerification.clientRoute)
-      }
-      if (emailVerification.clientRoute) {
-        routes.push(emailVerification.clientRoute)
-      }
-    }
+    const routes = overrideRoutes ?? [emailVerification.clientRoute].filter((e) => e !== undefined)
     const routeRefParser = makeRefParser('Route', routes)
 
     if (shouldError) {
@@ -420,15 +400,7 @@ describe('mapPasswordReset', () => {
     }
   ): void {
     const { overrideRoutes, shouldError } = options
-    const routes = overrideRoutes ?? []
-    if (!overrideRoutes) {
-      if (passwordReset.clientRoute) {
-        routes.push(passwordReset.clientRoute)
-      }
-      if (passwordReset.clientRoute) {
-        routes.push(passwordReset.clientRoute)
-      }
-    }
+    const routes = overrideRoutes ?? [passwordReset.clientRoute].filter((e) => e !== undefined)
     const routeRefParser = makeRefParser('Route', routes)
 
     if (shouldError) {
