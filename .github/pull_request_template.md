@@ -34,8 +34,7 @@ If you did code changes and **added a new feature**, make sure you satisfy the f
 If you did code changes and **updated an existing feature**, make sure you satisfy the following:
 
 1. [ ] I updated [`waspc/examples/todoApp`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todoApp) and its e2e tests as needed and manually checked it works correctly.
-2. [ ] I updated [`waspc/examples/crud-testing`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/crud-testing) as needed and manually checked it works correctly.
-3. [ ] I updated [`waspc/examples/todo-typescript`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todo-typescript) as needed and manually checked it works correctly.
+2. [ ] I updated [`waspc/examples/todo-typescript`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todo-typescript) as needed and manually checked it works correctly.
 
 ### Update starter apps if needed
 

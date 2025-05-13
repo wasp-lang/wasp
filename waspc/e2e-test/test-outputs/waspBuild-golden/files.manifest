@@ -4,7 +4,6 @@ waspBuild/.wasp/build/Dockerfile
 waspBuild/.wasp/build/db/schema.prisma
 waspBuild/.wasp/build/installedNpmDepsLog.json
 waspBuild/.wasp/build/package.json
-waspBuild/.wasp/build/sdk/wasp/api/axios.d.ts
 waspBuild/.wasp/build/sdk/wasp/api/events.ts
 waspBuild/.wasp/build/sdk/wasp/api/index.ts
 waspBuild/.wasp/build/sdk/wasp/client/config.ts
@@ -314,7 +313,6 @@ waspBuild/.wasp/build/web-app/tsconfig.vite.json
 waspBuild/.wasp/build/web-app/vite.config.ts
 waspBuild/.wasp/build/web-app/vite/detectServerImports.ts
 waspBuild/.wasp/build/web-app/vite/validateEnv.ts
-waspBuild/.wasp/out/sdk/wasp/api/axios.d.ts
 waspBuild/.wasp/out/sdk/wasp/api/events.ts
 waspBuild/.wasp/out/sdk/wasp/api/index.ts
 waspBuild/.wasp/out/sdk/wasp/client/config.ts

@@ -2,13 +2,6 @@
     [
         [
             "file",
-            "../out/sdk/wasp/api/axios.d.ts"
-        ],
-        "78002ba0273e11f11df1fb9c33ef786c4732cba8835dbabc7cda39a00df27e19"
-    ],
-    [
-        [
-            "file",
             "../out/sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -18,7 +11,7 @@
             "file",
             "../out/sdk/wasp/api/index.ts"
         ],
-        "9d6652195cad93491c772567e5747b5503a1e9bca42247b3a1377fbf83803dfd"
+        "b0896350dd5899f8020c70dfb5c75224ae22b0fe525a0defacc6d9caed9dcec1"
     ],
     [
         [

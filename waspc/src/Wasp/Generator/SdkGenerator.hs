@@ -97,7 +97,6 @@ genSdk spec =
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
-      genFileCopy [relfile|api/axios.d.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/serialization.ts|],
       genFileCopy [relfile|core/storage.ts|],
