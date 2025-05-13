@@ -2,6 +2,7 @@
 title: Google
 ---
 
+import { ShowForTs } from '@site/src/components/TsJsHelpers'
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DefaultBehaviour from './\_default-behaviour.md';
 import OverrideIntro from './\_override-intro.md';
@@ -379,103 +380,53 @@ The fields you receive depend on the scopes you request. The default scope is se
 
 <OverrideExampleIntro />
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          google: {
-            // highlight-next-line
-            configFn: import { getConfig } from "@src/auth/google.js",
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-
-    ```prisma title="schema.prisma"
-    model User {
-      id          Int    @id @default(autoincrement())
-      username    String @unique
-      displayName String
-    }
-
-    // ...
-    ```
-
-    ```js title=src/auth/google.js
-    export const userSignupFields = {
-      username: () => 'hardcoded-username',
-      displayName: (data) => data.profile.name,
-    }
-
-    export function getConfig() {
-      return {
-        scopes: ['profile', 'email'],
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    userEntity: User,
+    methods: {
+      google: {
+        // highlight-next-line
+        configFn: import { getConfig } from "@src/auth/google.js",
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
       }
-    }
-    ```
-  </TabItem>
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          google: {
-            // highlight-next-line
-            configFn: import { getConfig } from "@src/auth/google.js",
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
-    ```prisma title="schema.prisma"
-    model User {
-      id          Int    @id @default(autoincrement())
-      username    String @unique
-      displayName String
-    }
+// ...
+```
 
-    // ...
-    ```
+```ts title=src/auth/google.ts auto-js
+import { defineUserSignupFields } from 'wasp/server/auth'
 
-    ```ts title=src/auth/google.ts
-    import { defineUserSignupFields } from 'wasp/server/auth'
+export const userSignupFields = defineUserSignupFields({
+  username: () => 'hardcoded-username',
+  displayName: (data: any) => data.profile.name,
+})
 
-    export const userSignupFields = defineUserSignupFields({
-      username: () => 'hardcoded-username',
-      displayName: (data: any) => data.profile.name,
-    })
+export function getConfig() {
+  return {
+    scopes: ['profile', 'email'],
+  }
+}
+```
 
-    export function getConfig() {
-      return {
-        scopes: ['profile', 'email'],
-      }
-    }
-    ```
-
-    <GetUserFieldsType />
-  </TabItem>
-</Tabs>
+<ShowForTs><GetUserFieldsType /></ShowForTs>
 
 ## Using Auth
 
