@@ -25,9 +25,5 @@ The **tutorials** directory contains [Wasp tutorial](https://wasp.sh/docs/tutori
    - A simple note-taking app organized around the concept of hashtags.
    - Demonstrates: [db seeding](https://wasp.sh/docs/data-model/databases#seeding-the-database), [auth](https://wasp.sh/docs/auth/overview), [rpc](https://wasp.sh/docs/data-model/operations/overview), [Wasp TS config](https://wasp.sh/docs/general/wasp-ts-config) .
 
-1. **streaming**
-
-   - Demonstrates: **http streaming**, [api](https://wasp.sh/docs/advanced/apis)
-
 1. **websockets-realtime-voting**
    - Demonstrates: **[web sockets](https://wasp.sh/docs/advanced/web-sockets)**, [auth](https://wasp.sh/docs/auth/overview), voting system
