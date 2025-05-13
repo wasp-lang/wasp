@@ -35,7 +35,6 @@ test.describe('websocket', () => {
 
     await expect(page).toHaveURL('/chat')
 
-    // getByRole('textbox', { name: 'Type your message...' })
     await page
       .getByRole('textbox', { name: 'Type your message...' })
       .fill('Hello World!')
