@@ -49,6 +49,8 @@ function dev_tool_path () {
 STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
 PRUNE_JUICE_CMD="$(install_dev_tool prune-juice) && $(dev_tool_path prune-juice) ${ARGS[@]}"
+PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run prettier:check)"
+PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run prettier:format)"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
@@ -112,9 +114,13 @@ print_usage () {
     print_usage_cmd "prune-juice <args>" \
                     "Runs prune-juice on the codebase, which detects unused dependencies."
     print_usage_cmd "ormolu:check" \
-                    "Runs the code formatter and reports if code is correctly formatted or not."
+                    "Runs the Haskell code formatter and reports if code is correctly formatted or not."
     print_usage_cmd "ormolu:format" \
-                    "Runs the code formatter and formats the code in place."
+                    "Runs the Haskell code formatter and formats the code in place."
+    print_usage_cmd "prettier:check" \
+                    "Runs the repo-wide code formatter and reports if code is correctly formatted or not."
+    print_usage_cmd "prettier:format" \
+                    "Runs the repo-wide code formatter and formats the code in place."
     print_usage_cmd "module-graph" \
                     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
     echo            ""
@@ -196,7 +202,16 @@ case $COMMAND in
     ormolu:format)
         echo_and_eval "$ORMOLU_FORMAT_CMD"
         ;;
+    prettier:check)
+        echo_and_eval "$PRETTIER_CHECK_CMD"
+        ;;
+    prettier:format)
+        echo_and_eval "$PRETTIER_FORMAT_CMD"
+        ;;
     code-check)
+        echo_and_eval "$PRETTIER_CHECK_CMD"
+        PRETTIER_RESULT=$?
+
         echo_and_eval "$ORMOLU_CHECK_CMD"
         ORMOLU_RESULT=$?
 
@@ -206,7 +221,7 @@ case $COMMAND in
         echo_and_eval "$STAN_CMD"
         STAN_RESULT=$?
 
-        TOTAL_RESULT=$(($ORMOLU_RESULT || $HLINT_RESULT || $STAN_RESULT))
+        TOTAL_RESULT=$((PRETTIER_RESULT || ORMOLU_RESULT || HLINT_RESULT || STAN_RESULT))
 
         echo
         echo
@@ -214,6 +229,7 @@ case $COMMAND in
         echo "               SUMMARY"
         echo "======================================"
         echo
+        echo -e "Formatter (prettier): $(exitStatusToString $PRETTIER_RESULT)"
         echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
         echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
         echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
