@@ -170,6 +170,12 @@ jobs:
           mkdir artifacts
           ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasp-binary
+          path: "waspc/artifacts/*"
+
       - name: Create Github release
         uses: ncipollo/release-action@v1
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os.runner == 'ubuntu-latest' || matrix.os.runner == 'macos-latest') && matrix.node-version == 'latest'
