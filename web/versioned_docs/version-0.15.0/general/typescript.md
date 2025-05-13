@@ -43,7 +43,7 @@ model Task {
 
 And your `main.wasp` file defines the `getTaskInfo` query:
 
-```wasp title=main.wasp
+```wasp title="main.wasp"
 query getTaskInfo {
   fn: import { getTaskInfo } from "@src/queries",
   entities: [Task]
@@ -97,7 +97,7 @@ To migrate this file to TypeScript, all you have to do is:
   </TabItem>
 
   <TabItem value="after" label="After">
-    ```typescript title=src/queries.ts
+    ```typescript title="src/queries.ts"
     import HttpError from 'wasp/server'
     // highlight-next-line
     import { type Task } from '@wasp/entities'

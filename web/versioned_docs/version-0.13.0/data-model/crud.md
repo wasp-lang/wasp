@@ -149,7 +149,7 @@ Here's the `src/tasks.{js,ts}` file:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```js title=src/tasks.js
+    ```js title="src/tasks.js"
     import { HttpError } from 'wasp/server'
 
     export const createTask = async (args, context) => {
@@ -179,7 +179,7 @@ Here's the `src/tasks.{js,ts}` file:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title=src/tasks.ts
+    ```ts title="src/tasks.ts"
     import { type Tasks } from 'wasp/server/crud'
     import { type Task } from 'wasp/entities'
     import { HttpError } from 'wasp/server'

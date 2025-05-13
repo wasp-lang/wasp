@@ -32,7 +32,7 @@ Here's what the full setup looks like:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -58,7 +58,7 @@ Here's what the full setup looks like:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -110,7 +110,7 @@ Let's go through both steps in more detail.
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```prisma title=schema.prisma
+    ```prisma title="schema.prisma"
     model User {
       id               Int     @id @default(autoincrement())
       username         String? @unique
@@ -121,7 +121,7 @@ Let's go through both steps in more detail.
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```prisma title=schema.prisma
+    ```prisma title="schema.prisma"
     model User {
       id               Int     @id @default(autoincrement())
       username         String? @unique
@@ -138,7 +138,7 @@ Declare an import under `app.auth.methods.google.userSignupFields` (the example 
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -161,7 +161,7 @@ Declare an import under `app.auth.methods.google.userSignupFields` (the example 
 
     And implement the imported function.
 
-    ```js title=src/auth/google.js
+    ```js title="src/auth/google.js"
     export const userSignupFields = {
       isSignupComplete: () => false,
     }
@@ -169,7 +169,7 @@ Declare an import under `app.auth.methods.google.userSignupFields` (the example 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -192,7 +192,7 @@ Declare an import under `app.auth.methods.google.userSignupFields` (the example 
 
     And implement the imported function:
 
-    ```ts title=src/auth/google.ts
+    ```ts title="src/auth/google.ts"
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
@@ -216,7 +216,7 @@ For example:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=src/HomePage.jsx
+    ```jsx title="src/HomePage.jsx"
     import { useAuth } from 'wasp/client/auth'
     import { Navigate } from 'react-router-dom'
 
@@ -233,7 +233,7 @@ For example:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=src/HomePage.tsx
+    ```tsx title="src/HomePage.tsx"
     import { useAuth } from 'wasp/client/auth'
     import { Navigate } from 'react-router-dom'
 
@@ -274,7 +274,7 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=src/LoginPage.jsx
+    ```jsx title="src/LoginPage.jsx"
     import {
       GoogleSignInButton,
       googleSignInUrl,
@@ -297,7 +297,7 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=src/LoginPage.tsx
+    ```tsx title="src/LoginPage.tsx"
     import {
       GoogleSignInButton,
       googleSignInUrl,

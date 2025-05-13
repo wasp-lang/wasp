@@ -11,7 +11,7 @@ The `getUsername` helper returns the user's username or `null` if the user doesn
     }
     ```
 
-    ```js title=src/tasks.js
+    ```js title="src/tasks.js"
     import { getUsername } from 'wasp/auth'
 
     export const createTask = async (args, context) => {
@@ -31,7 +31,7 @@ The `getUsername` helper returns the user's username or `null` if the user doesn
     }
     ```
 
-    ```ts title=src/tasks.ts
+    ```ts title="src/tasks.ts"
     import { getUsername } from 'wasp/auth'
 
     export const createTask: CreateTask<...>  = async (args, context) => {

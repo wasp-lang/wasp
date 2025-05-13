@@ -142,7 +142,7 @@ This can be useful if you support multiple authentication methods and you need _
     }
     ```
 
-    ```js title=src/tasks.js
+    ```js title="src/tasks.js"
     export const createTask = async (args, context) => {
       const userId = context.user.getFirstProviderUserId()
       // ...
@@ -160,7 +160,7 @@ This can be useful if you support multiple authentication methods and you need _
     }
     ```
 
-    ```ts title=src/tasks.ts
+    ```ts title="src/tasks.ts"
     export const createTask: CreateTask<...>  = async (args, context) => {
       const userId = context.user.getFirstProviderUserId()
       // ...
