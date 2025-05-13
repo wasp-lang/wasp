@@ -16,7 +16,7 @@ export function parseProcessArgsOrThrow(args: string[]): {
     typeof entityNamesJson !== 'string'
   ) {
     throw new Error(
-      'Usage: node run.js <path to main.wasp.js> <path to output file> <entity names json>'
+      'All arguments must be strings: <path to main.wasp.js> <path to output file> <entity names json>'
     )
   }
 

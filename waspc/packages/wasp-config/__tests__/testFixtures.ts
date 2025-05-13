@@ -29,40 +29,40 @@ type MinimalConfig<T> = keyof T extends never
 type FullConfig<T> = Required<T>
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>
-export type NamedConfig<T> = {
+
+type MinimalNamedConfig<T> = {
   name: string
-  config: Config<T>
+  config: MinimalConfig<T>
 }
 
-type ConfigType = 'minimal' | 'full'
-
-export function getEntity(entity: 'task' | 'user' | 'social-user') {
-  switch (entity) {
-    case 'task':
-      return 'Task'
-    case 'user':
-      return 'User'
-    case 'social-user':
-      return 'SocialUser'
-    default:
-      throw new Error(`Unknown entity: ${entity}`)
-  }
+type FullNamedConfig<T> = {
+  name: string
+  config: FullConfig<T>
 }
 
-export function getEntities(scope: ConfigType): string[] {
-  return scope === 'minimal' ? [] : [getEntity('task'), getEntity('user'), getEntity('social-user')]
-}
+type NamedConfig<T> = MinimalNamedConfig<T> | FullNamedConfig<T>
+
+const CONFIG_TYPES = ['minimal', 'full'] as const
+type ConfigType = (typeof CONFIG_TYPES)[number]
+
+const PAGE_TYPES = [...CONFIG_TYPES, 'email-verification', 'password-reset'] as const
+type PageType = (typeof PAGE_TYPES)[number]
+
+const ENTITY_TYPES = ['task', 'user', 'social-user'] as const
+type EntityType = (typeof ENTITY_TYPES)[number]
 
 export function createUserApp(scope: ConfigType): {
   appName: string
   userApp: UserApi.App
 } {
-  const { name: appName, config: appConfig } = getApp(scope)
-  const userApp = new UserApi.App(appName, appConfig)
-
   if (scope === 'minimal') {
+    const { name: appName, config: appConfig } = getApp(scope)
+    const userApp = new UserApi.App(appName, appConfig)
     return { appName, userApp }
   }
+
+  const { name: appName, config: appConfig } = getApp(scope)
+  const userApp = new UserApi.App(appName, appConfig)
 
   userApp.auth(getAuth('full'))
   userApp.client(getClient('full'))
@@ -87,508 +87,631 @@ export function createUserApp(scope: ConfigType): {
   return { appName, userApp }
 }
 
+export function getApp(scope: 'minimal'): MinimalNamedConfig<UserApi.AppConfig>
+export function getApp(scope: 'full'): FullNamedConfig<UserApi.AppConfig>
 export function getApp(scope: ConfigType): NamedConfig<UserApi.AppConfig> {
-  const minimal: MinimalConfig<UserApi.AppConfig> = {
-    title: 'Mock App',
-    wasp: { version: '^0.16.3' },
+  if (scope === 'minimal') {
+    return {
+      name: 'MinimalApp',
+      config: {
+        title: 'Mock App',
+        wasp: { version: '^0.16.3' },
+      },
+    } satisfies MinimalNamedConfig<UserApi.AppConfig>
   }
 
   return {
-    name: scope === 'minimal' ? 'MinimalApp' : 'FullApp',
-    config:
-      scope === 'minimal'
-        ? minimal
-        : ({
-            ...minimal,
-            head: ['<link rel="icon" href="/favicon.ico" />'],
-          } satisfies FullConfig<UserApi.AppConfig>),
-  }
+    name: 'FullApp',
+    config: {
+      title: 'Mock App',
+      wasp: { version: '^0.16.3' },
+      head: ['<link rel="icon" href="/favicon.ico" />'],
+    },
+  } satisfies FullNamedConfig<UserApi.AppConfig>
 }
 
 export function getAuth(scope: 'minimal'): MinimalConfig<UserApi.AuthConfig>
 export function getAuth(scope: 'full'): FullConfig<UserApi.AuthConfig>
 export function getAuth(scope: ConfigType): Config<UserApi.AuthConfig> {
-  const minimal: MinimalConfig<UserApi.AuthConfig> = {
+  if (scope === 'minimal') {
+    return {
+      userEntity: getEntity('user'),
+      onAuthFailedRedirectTo: '/login',
+      methods: getAuthMethods(scope),
+    } satisfies MinimalConfig<UserApi.AuthConfig>
+  }
+
+  return {
     userEntity: getEntity('user'),
     onAuthFailedRedirectTo: '/login',
     methods: getAuthMethods(scope),
+    externalAuthEntity: getEntity('social-user'),
+    onAuthSucceededRedirectTo: '/profile',
+    onBeforeSignup: getExtImport(scope, 'named'),
+    onAfterSignup: getExtImport(scope, 'named'),
+    onAfterEmailVerified: getExtImport(scope, 'named'),
+    onBeforeOAuthRedirect: getExtImport(scope, 'named'),
+    onBeforeLogin: getExtImport(scope, 'named'),
+    onAfterLogin: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.AuthConfig>
+}
+
+export function getAuthMethods(scope: 'minimal'): MinimalConfig<UserApi.AuthMethods>
+export function getAuthMethods(scope: 'full'): FullConfig<UserApi.AuthMethods>
+export function getAuthMethods(scope: ConfigType): Config<UserApi.AuthMethods> {
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.AuthMethods>
   }
 
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        externalAuthEntity: getEntity('social-user'),
-        onAuthSucceededRedirectTo: '/profile',
-        onBeforeSignup: getExtImport(scope, 'named'),
-        onAfterSignup: getExtImport(scope, 'named'),
-        onAfterEmailVerified: getExtImport(scope, 'named'),
-        onBeforeOAuthRedirect: getExtImport(scope, 'named'),
-        onBeforeLogin: getExtImport(scope, 'named'),
-        onAfterLogin: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.AuthConfig>)
+  return {
+    email: getEmailAuth(scope),
+    usernameAndPassword: getUsernameAndPassword(scope),
+    discord: getExternalAuth(scope),
+    google: getExternalAuth(scope),
+    gitHub: getExternalAuth(scope),
+    keycloak: getExternalAuth(scope),
+  } satisfies FullConfig<UserApi.AuthMethods>
 }
 
-export function getAuthMethods(scope: ConfigType): Config<UserApi.AuthMethods> {
-  const minimal: MinimalConfig<UserApi.AuthMethods> = {}
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        email: getEmailAuth(scope),
-        usernameAndPassword: getUsernameAndPassword(scope),
-        discord: getExternalAuth(scope),
-        google: getExternalAuth(scope),
-        gitHub: getExternalAuth(scope),
-        keycloak: getExternalAuth(scope),
-      } satisfies FullConfig<UserApi.AuthMethods>)
-}
-
+export function getExternalAuth(scope: 'minimal'): MinimalConfig<UserApi.ExternalAuthConfig>
+export function getExternalAuth(scope: 'full'): FullConfig<UserApi.ExternalAuthConfig>
 export function getExternalAuth(scope: ConfigType): Config<UserApi.ExternalAuthConfig> {
-  const minimal: MinimalConfig<UserApi.ExternalAuthConfig> = {}
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.ExternalAuthConfig>
+  }
 
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        configFn: getExtImport(scope, 'named'),
-        userSignupFields: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.ExternalAuthConfig>)
+  return {
+    configFn: getExtImport(scope, 'named'),
+    userSignupFields: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.ExternalAuthConfig>
 }
 
 export function getUsernameAndPassword(
+  scope: 'minimal'
+): MinimalConfig<UserApi.UsernameAndPasswordConfig>
+export function getUsernameAndPassword(scope: 'full'): FullConfig<UserApi.UsernameAndPasswordConfig>
+export function getUsernameAndPassword(
   scope: ConfigType
 ): Config<UserApi.UsernameAndPasswordConfig> {
-  const minimal: MinimalConfig<UserApi.UsernameAndPasswordConfig> = {}
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.UsernameAndPasswordConfig>
+  }
 
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        userSignupFields: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.UsernameAndPasswordConfig>)
+  return {
+    userSignupFields: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.UsernameAndPasswordConfig>
 }
 
+export function getEmailAuth(scope: 'minimal'): MinimalConfig<UserApi.EmailAuthConfig>
+export function getEmailAuth(scope: 'full'): FullConfig<UserApi.EmailAuthConfig>
 export function getEmailAuth(scope: ConfigType): Config<UserApi.EmailAuthConfig> {
-  const minimal: MinimalConfig<UserApi.EmailAuthConfig> = {
+  if (scope === 'minimal') {
+    return {
+      fromField: getEmailFromField(scope),
+      emailVerification: getEmailVerification(scope),
+      passwordReset: getPasswordReset(scope),
+    } satisfies MinimalConfig<UserApi.EmailAuthConfig>
+  }
+
+  return {
     fromField: getEmailFromField(scope),
     emailVerification: getEmailVerification(scope),
     passwordReset: getPasswordReset(scope),
-  }
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        userSignupFields: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.EmailAuthConfig>)
+    userSignupFields: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.EmailAuthConfig>
 }
 
+export function getPasswordReset(scope: 'minimal'): MinimalConfig<UserApi.PasswordResetConfig>
+export function getPasswordReset(scope: 'full'): FullConfig<UserApi.PasswordResetConfig>
 export function getPasswordReset(scope: ConfigType): Config<UserApi.PasswordResetConfig> {
-  const minimal: MinimalConfig<UserApi.PasswordResetConfig> = {
+  if (scope === 'minimal') {
+    return {
+      clientRoute: getRoute('password-reset').name,
+    } satisfies MinimalConfig<UserApi.PasswordResetConfig>
+  }
+
+  return {
     clientRoute: getRoute('password-reset').name,
-  }
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        getEmailContentFn: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.PasswordResetConfig>)
+    getEmailContentFn: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.PasswordResetConfig>
 }
 
+export function getEmailVerification(
+  scope: 'minimal'
+): MinimalConfig<UserApi.EmailVerificationConfig>
+export function getEmailVerification(scope: 'full'): FullConfig<UserApi.EmailVerificationConfig>
 export function getEmailVerification(scope: ConfigType): Config<UserApi.EmailVerificationConfig> {
-  const minimal: MinimalConfig<UserApi.EmailVerificationConfig> = {
+  if (scope === 'minimal') {
+    return {
+      clientRoute: getRoute('email-verification').name,
+    } satisfies MinimalConfig<UserApi.EmailVerificationConfig>
+  }
+
+  return {
     clientRoute: getRoute('email-verification').name,
-  }
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        getEmailContentFn: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.EmailVerificationConfig>)
+    getEmailContentFn: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.EmailVerificationConfig>
 }
 
+export function getClient(scope: 'minimal'): MinimalConfig<UserApi.ClientConfig>
+export function getClient(scope: 'full'): FullConfig<UserApi.ClientConfig>
 export function getClient(scope: ConfigType): Config<UserApi.ClientConfig> {
-  const minimal: MinimalConfig<UserApi.ClientConfig> = {}
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.ClientConfig>
+  }
 
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        rootComponent: getExtImport(scope, 'named'),
-        setupFn: getExtImport(scope, 'named'),
-        baseDir: '/src',
-        envValidationSchema: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.ClientConfig>)
+  return {
+    rootComponent: getExtImport(scope, 'named'),
+    setupFn: getExtImport(scope, 'named'),
+    baseDir: '/src',
+    envValidationSchema: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.ClientConfig>
 }
 
+export function getServer(scope: 'minimal'): MinimalConfig<UserApi.ServerConfig>
+export function getServer(scope: 'full'): FullConfig<UserApi.ServerConfig>
 export function getServer(scope: ConfigType): Config<UserApi.ServerConfig> {
-  const minimal: MinimalConfig<UserApi.ServerConfig> = {}
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.ServerConfig>
+  }
 
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        setupFn: getExtImport(scope, 'named'),
-        middlewareConfigFn: getExtImport(scope, 'named'),
-        envValidationSchema: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.ServerConfig>)
+  return {
+    setupFn: getExtImport(scope, 'named'),
+    middlewareConfigFn: getExtImport(scope, 'named'),
+    envValidationSchema: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.ServerConfig>
 }
 
+export function getEmailSender(scope: 'minimal'): MinimalConfig<UserApi.EmailSenderConfig>
+export function getEmailSender(scope: 'full'): FullConfig<UserApi.EmailSenderConfig>
 export function getEmailSender(scope: ConfigType): Config<UserApi.EmailSenderConfig> {
-  const minimal: MinimalConfig<UserApi.EmailSenderConfig> = {
+  if (scope === 'minimal') {
+    return {
+      provider: 'SMTP',
+    } satisfies MinimalConfig<UserApi.EmailSenderConfig>
+  }
+
+  return {
     provider: 'SMTP',
-  }
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        defaultFrom: getEmailFromField(scope),
-      } satisfies FullConfig<UserApi.EmailSenderConfig>)
+    defaultFrom: getEmailFromField(scope),
+  } satisfies FullConfig<UserApi.EmailSenderConfig>
 }
 
+export function getWebSocket(scope: 'minimal'): MinimalConfig<UserApi.WebsocketConfig>
+export function getWebSocket(scope: 'full'): FullConfig<UserApi.WebsocketConfig>
 export function getWebSocket(scope: ConfigType): Config<UserApi.WebsocketConfig> {
-  const minimal: MinimalConfig<UserApi.WebsocketConfig> = {
+  if (scope === 'minimal') {
+    return {
+      fn: getExtImport(scope, 'named'),
+    } satisfies MinimalConfig<UserApi.WebsocketConfig>
+  }
+
+  return {
     fn: getExtImport(scope, 'named'),
-  }
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        autoConnect: true,
-      } satisfies FullConfig<UserApi.WebsocketConfig>)
+    autoConnect: true,
+  } satisfies FullConfig<UserApi.WebsocketConfig>
 }
 
+export function getDb(scope: 'minimal'): MinimalConfig<UserApi.DbConfig>
+export function getDb(scope: 'full'): FullConfig<UserApi.DbConfig>
 export function getDb(scope: ConfigType): Config<UserApi.DbConfig> {
-  const minimal: MinimalConfig<UserApi.DbConfig> = {}
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        seeds: [getExtImport(scope, 'named'), getExtImport(scope, 'default')],
-      } satisfies FullConfig<UserApi.DbConfig>)
-}
-
-export function getEmailFromField(scope: ConfigType): Config<UserApi.EmailFromField> {
-  const minimal: MinimalConfig<UserApi.EmailFromField> = {
-    email: 'test@domain.tld',
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.DbConfig>
   }
 
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        name: 'ToDo App',
-      } satisfies FullConfig<UserApi.EmailFromField>)
+  return {
+    seeds: [getExtImport(scope, 'named'), getExtImport(scope, 'default')],
+  } satisfies FullConfig<UserApi.DbConfig>
 }
 
+export function getPages(): NamedConfig<UserApi.PageConfig>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return PAGE_TYPES.map((pageType) => getPage(pageType))
+}
+
+export function getPage(pageType: 'minimal'): MinimalNamedConfig<UserApi.PageConfig>
+export function getPage(
+  pageType: 'full' | 'email-verification' | 'password-reset'
+): FullNamedConfig<UserApi.PageConfig>
+export function getPage(pageType: PageType): NamedConfig<UserApi.PageConfig> {
+  if (pageType === 'minimal') {
+    return {
+      name: 'MinimalPage',
+      config: {
+        component: getExtImport(pageType, 'named'),
+      },
+    } satisfies MinimalNamedConfig<UserApi.PageConfig>
+  } else if (pageType === 'email-verification') {
+    return {
+      name: 'EmailVerificationPage',
+      config: {
+        component: getExtImport('full', 'named'),
+        authRequired: false,
+      },
+    } satisfies FullNamedConfig<UserApi.PageConfig>
+  } else if (pageType === 'password-reset') {
+    return {
+      name: 'PasswordResetPage',
+      config: {
+        component: getExtImport('full', 'named'),
+        authRequired: false,
+      },
+    } satisfies FullNamedConfig<UserApi.PageConfig>
+  }
+
+  return {
+    name: 'FullPage',
+    config: {
+      component: getExtImport(pageType, 'named'),
+      authRequired: true,
+    },
+  } satisfies NamedConfig<UserApi.PageConfig>
+}
+
+export function getRoutes(): NamedConfig<UserApi.RouteConfig>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return PAGE_TYPES.map((pageType) => getRoute(pageType))
+}
+
+export function getRoute(routeType: 'minimal'): MinimalNamedConfig<UserApi.RouteConfig>
+export function getRoute(
+  routeType: 'full' | 'email-verification' | 'password-reset'
+): FullNamedConfig<UserApi.RouteConfig>
+export function getRoute(routeType: PageType): NamedConfig<UserApi.RouteConfig> {
+  if (routeType === 'minimal') {
+    return {
+      name: 'MinimalRoute',
+      config: {
+        path: '/foo/bar',
+        to: getPage(routeType).name as string & { _brand: 'Page' },
+      },
+    } satisfies MinimalNamedConfig<UserApi.RouteConfig>
+  }
+
+  let name: string
+  if (routeType === 'email-verification') {
+    name = 'EmailVerificationRoute'
+  } else if (routeType === 'password-reset') {
+    name = 'PasswordResetRoute'
+  } else {
+    name = 'FullRoute'
+  }
+
+  return {
+    name,
+    config: {
+      path: '/foo/bar',
+      to: getPage(routeType).name as string & { _brand: 'Page' },
+    },
+  } satisfies FullNamedConfig<UserApi.RouteConfig>
+}
+
+export function getQueries(): NamedConfig<UserApi.QueryConfig>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return CONFIG_TYPES.map((scope) => getQuery(scope))
+}
+
+export function getQuery(scope: 'minimal'): MinimalNamedConfig<UserApi.QueryConfig>
+export function getQuery(scope: 'full'): FullNamedConfig<UserApi.QueryConfig>
+export function getQuery(scope: ConfigType): NamedConfig<UserApi.QueryConfig> {
+  if (scope === 'minimal') {
+    return {
+      name: 'MinimalQuery',
+      config: {
+        fn: getExtImport(scope, 'named'),
+      },
+    } satisfies MinimalNamedConfig<UserApi.QueryConfig>
+  }
+
+  return {
+    name: 'FullQuery',
+    config: {
+      fn: getExtImport(scope, 'named'),
+      entities: [getEntity('task')],
+      auth: true,
+    },
+  } satisfies FullNamedConfig<UserApi.QueryConfig>
+}
+
+export function getActions(): NamedConfig<UserApi.ActionConfig>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return CONFIG_TYPES.map((scope) => getAction(scope))
+}
+
+export function getAction(scope: 'minimal'): MinimalNamedConfig<UserApi.ActionConfig>
+export function getAction(scope: 'full'): FullNamedConfig<UserApi.ActionConfig>
+export function getAction(scope: ConfigType): NamedConfig<UserApi.ActionConfig> {
+  if (scope === 'minimal') {
+    return {
+      name: 'MinimalAction',
+      config: {
+        fn: getExtImport(scope, 'named'),
+      },
+    } satisfies MinimalNamedConfig<UserApi.ActionConfig>
+  }
+
+  return {
+    name: 'FullAction',
+    config: {
+      fn: getExtImport(scope, 'named'),
+      entities: [getEntity('task')],
+      auth: true,
+    },
+  } satisfies FullNamedConfig<UserApi.ActionConfig>
+}
+
+export function getCruds(): NamedConfig<UserApi.Crud>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return CONFIG_TYPES.map((scope) => getCrud(scope))
+}
+
+export function getCrud(scope: 'minimal'): MinimalNamedConfig<UserApi.Crud>
+export function getCrud(scope: 'full'): FullNamedConfig<UserApi.Crud>
+export function getCrud(scope: ConfigType): NamedConfig<UserApi.Crud> {
+  if (scope === 'minimal') {
+    return {
+      name: 'MinimalCrud',
+      config: {
+        entity: getEntity('task'),
+        operations: getCrudOperations(scope),
+      },
+    } satisfies MinimalNamedConfig<UserApi.Crud>
+  }
+
+  return {
+    name: 'FullCrud',
+    config: {
+      entity: getEntity('task'),
+      operations: getCrudOperations(scope),
+    },
+  } satisfies FullNamedConfig<UserApi.Crud>
+}
+
+export function getCrudOperations(scope: 'minimal'): MinimalConfig<UserApi.CrudOperations>
+export function getCrudOperations(scope: 'full'): FullConfig<UserApi.CrudOperations>
+export function getCrudOperations(scope: ConfigType): Config<UserApi.CrudOperations> {
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.CrudOperations>
+  }
+
+  return {
+    get: getCrudOperationOptions(scope),
+    getAll: getCrudOperationOptions(scope),
+    create: getCrudOperationOptions(scope),
+    update: getCrudOperationOptions(scope),
+    delete: getCrudOperationOptions(scope),
+  } satisfies FullConfig<UserApi.CrudOperations>
+}
+
+export function getCrudOperationOptions(
+  scope: 'minimal'
+): MinimalConfig<UserApi.CrudOperationOptions>
+export function getCrudOperationOptions(scope: 'full'): FullConfig<UserApi.CrudOperationOptions>
+export function getCrudOperationOptions(scope: ConfigType): Config<UserApi.CrudOperationOptions> {
+  if (scope === 'minimal') {
+    return {} satisfies MinimalConfig<UserApi.CrudOperationOptions>
+  }
+
+  return {
+    isPublic: true,
+    overrideFn: getExtImport(scope, 'named'),
+  } satisfies FullConfig<UserApi.CrudOperationOptions>
+}
+
+export function getSchedule(scope: 'minimal'): MinimalConfig<UserApi.ScheduleConfig>
+export function getSchedule(scope: 'full'): FullConfig<UserApi.ScheduleConfig>
+export function getSchedule(scope: ConfigType): Config<UserApi.ScheduleConfig> {
+  if (scope === 'minimal') {
+    return {
+      cron: '0 0 * * *',
+    } satisfies MinimalConfig<UserApi.ScheduleConfig>
+  }
+
+  return {
+    cron: '0 0 * * *',
+    args: { foo: 'bar' },
+    executorOptions: {
+      pgBoss: { jobOptions: { attempts: 3 } },
+    },
+  } satisfies FullConfig<UserApi.ScheduleConfig>
+}
+
+export function getPerform(scope: 'minimal'): MinimalConfig<UserApi.Perform>
+export function getPerform(scope: 'full'): FullConfig<UserApi.Perform>
+export function getPerform(
+  scope: ConfigType
+): MinimalConfig<UserApi.Perform> | FullConfig<UserApi.Perform> {
+  if (scope === 'minimal') {
+    return {
+      fn: getExtImport(scope, 'named'),
+    } satisfies MinimalConfig<UserApi.Perform>
+  }
+
+  return {
+    fn: getExtImport(scope, 'named'),
+    executorOptions: {
+      pgBoss: { jobOptions: { attempts: 3 } },
+    },
+  } satisfies FullConfig<UserApi.Perform>
+}
+
+export function getApiNamespaces(): NamedConfig<UserApi.ApiNamespaceConfig>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return CONFIG_TYPES.map((scope) => getApiNamespace(scope))
+}
+
+export function getApiNamespace(scope: 'minimal'): MinimalNamedConfig<UserApi.ApiNamespaceConfig>
+export function getApiNamespace(scope: 'full'): FullNamedConfig<UserApi.ApiNamespaceConfig>
+export function getApiNamespace(scope: ConfigType): NamedConfig<UserApi.ApiNamespaceConfig> {
+  if (scope === 'minimal') {
+    return {
+      name: 'MinimalApiNamespace',
+      config: {
+        middlewareConfigFn: getExtImport(scope, 'named'),
+        path: '/foo',
+      },
+    } satisfies MinimalNamedConfig<UserApi.ApiNamespaceConfig>
+  }
+
+  return {
+    name: 'FullApiNamespace',
+    config: {
+      middlewareConfigFn: getExtImport(scope, 'named'),
+      path: '/foo',
+    },
+  } satisfies FullNamedConfig<UserApi.ApiNamespaceConfig>
+}
+
+export function getApis(): NamedConfig<UserApi.ApiConfig>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return CONFIG_TYPES.map((scope) => getApi(scope))
+}
+
+export function getApi(scope: 'minimal'): MinimalNamedConfig<UserApi.ApiConfig>
+export function getApi(scope: 'full'): FullNamedConfig<UserApi.ApiConfig>
+export function getApi(scope: ConfigType): NamedConfig<UserApi.ApiConfig> {
+  if (scope === 'minimal') {
+    return {
+      name: 'MinimalApi',
+      config: {
+        fn: getExtImport(scope, 'named'),
+        httpRoute: getHttpRoute(scope),
+      },
+    } satisfies MinimalNamedConfig<UserApi.ApiConfig>
+  }
+
+  return {
+    name: 'FullApi',
+    config: {
+      fn: getExtImport(scope, 'named'),
+      httpRoute: getHttpRoute(scope),
+      entities: [getEntity('task')],
+      auth: true,
+      middlewareConfigFn: getExtImport(scope, 'named'),
+    },
+  } satisfies FullNamedConfig<UserApi.ApiConfig>
+}
+
+export function getHttpRoute(scope: 'minimal'): MinimalConfig<UserApi.HttpRoute>
+export function getHttpRoute(scope: 'full'): FullConfig<UserApi.HttpRoute>
+export function getHttpRoute(scope: ConfigType): Config<UserApi.HttpRoute> {
+  if (scope === 'minimal') {
+    return {
+      method: 'GET',
+      route: '/foo/bar',
+    } satisfies MinimalConfig<UserApi.HttpRoute>
+  }
+
+  return {
+    method: 'GET',
+    route: '/foo/bar',
+  } satisfies FullConfig<UserApi.HttpRoute>
+}
+
+export function getJobs(): NamedConfig<UserApi.JobConfig>[] {
+  // @ts-expect-error we don't need to know the specifc function overload in this case
+  return CONFIG_TYPES.map((scope) => getJob(scope))
+}
+
+export function getJob(scope: 'minimal'): MinimalNamedConfig<UserApi.JobConfig>
+export function getJob(scope: 'full'): FullNamedConfig<UserApi.JobConfig>
+export function getJob(scope: ConfigType): NamedConfig<UserApi.JobConfig> {
+  if (scope === 'minimal') {
+    return {
+      name: 'MinimalJob',
+      config: {
+        executor: 'PgBoss',
+        perform: getPerform(scope),
+      },
+    } satisfies MinimalNamedConfig<UserApi.JobConfig>
+  }
+
+  return {
+    name: 'FullJob',
+    config: {
+      executor: 'PgBoss',
+      perform: getPerform(scope),
+      entities: [getEntity('task')],
+      schedule: getSchedule(scope),
+    },
+  } satisfies FullNamedConfig<UserApi.JobConfig>
+}
+
+export function getEmailFromField(scope: 'minimal'): MinimalConfig<UserApi.EmailFromField>
+export function getEmailFromField(scope: 'full'): FullConfig<UserApi.EmailFromField>
+export function getEmailFromField(scope: ConfigType): Config<UserApi.EmailFromField> {
+  if (scope === 'minimal') {
+    return {
+      email: 'test@domain.tld',
+    } satisfies MinimalConfig<UserApi.EmailFromField>
+  }
+
+  return {
+    email: 'test@domain.tld',
+    name: 'ToDo App',
+  } satisfies FullConfig<UserApi.EmailFromField>
+}
+
+export function getExtImport(
+  scope: 'minimal',
+  type: AppSpec.ExtImportKind
+): MinimalConfig<UserApi.ExtImport>
+export function getExtImport(
+  scope: 'full',
+  type: AppSpec.ExtImportKind
+): FullConfig<UserApi.ExtImport>
 export function getExtImport(
   scope: ConfigType,
   type: AppSpec.ExtImportKind
 ): Config<UserApi.ExtImport> {
   if (type === 'default') {
-    const minimal: MinimalConfig<UserApi.ExtImport> = {
-      from: '@src/external',
-      importDefault: 'defaultExport',
+    if (scope === 'minimal') {
+      return {
+        from: '@src/external',
+        importDefault: 'defaultExport',
+      } satisfies MinimalConfig<UserApi.ExtImport>
     }
 
-    return scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.ExtImport>)
+    return {
+      from: '@src/external',
+      importDefault: 'defaultExport',
+    } satisfies FullConfig<UserApi.ExtImport>
   }
 
   if (type === 'named') {
-    const minimal: MinimalConfig<UserApi.ExtImport> = {
-      from: '@src/external',
-      import: 'namedExport',
+    if (scope === 'minimal') {
+      return {
+        from: '@src/external',
+        import: 'namedExport',
+      } satisfies MinimalConfig<UserApi.ExtImport>
     }
 
-    return scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.ExtImport>)
+    return {
+      from: '@src/external',
+      import: 'namedExport',
+    } satisfies FullConfig<UserApi.ExtImport>
   }
 
   throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`)
 }
 
-export function getPages(): NamedConfig<UserApi.PageConfig>[] {
-  return [
-    getPage('minimal'),
-    getPage('full'),
-    getPage('email-verification'),
-    getPage('password-reset'),
-  ]
-}
-
-export function getPage(
-  pageType: ConfigType | 'email-verification' | 'password-reset'
-): NamedConfig<UserApi.PageConfig> {
-  const scope = pageType === 'full' ? 'full' : 'minimal'
-
-  let name: string
-  if (pageType === 'minimal') {
-    name = 'MinimalPage'
-  } else if (pageType === 'full') {
-    name = 'FullPage'
-  } else if (pageType === 'email-verification') {
-    name = 'EmailVerificationPage'
-  } else if (pageType === 'password-reset') {
-    name = 'PasswordResetPage'
-  } else {
-    throw new Error(`Unhandled page type: ${pageType}`)
-  }
-
-  const minimal: MinimalConfig<UserApi.PageConfig> = {
-    component: getExtImport(scope, 'named'),
-  }
-
-  return {
-    name,
-    config:
-      pageType === 'minimal'
-        ? minimal
-        : ({
-            ...minimal,
-            authRequired: true,
-          } satisfies FullConfig<UserApi.PageConfig>),
+export function getEntity(entity: EntityType) {
+  switch (entity) {
+    case 'task':
+      return 'Task'
+    case 'user':
+      return 'User'
+    case 'social-user':
+      return 'SocialUser'
+    default:
+      throw new Error(`Unknown entity: ${entity}`)
   }
 }
 
-export function getRoutes(): NamedConfig<UserApi.RouteConfig>[] {
-  return [
-    getRoute('minimal'),
-    getRoute('full'),
-    getRoute('email-verification'),
-    getRoute('password-reset'),
-  ]
-}
-
-export function getRoute(
-  routeType: ConfigType | 'email-verification' | 'password-reset'
-): NamedConfig<UserApi.RouteConfig> {
-  let name: string
-  if (routeType === 'minimal') {
-    name = 'MinimalRoute'
-  } else if (routeType === 'full') {
-    name = 'FullRoute'
-  } else if (routeType === 'email-verification') {
-    name = 'EmailVerificationRoute'
-  } else if (routeType === 'password-reset') {
-    name = 'PasswordResetRoute'
-  } else {
-    throw new Error(`Unhandled route type: ${routeType}`)
+export function getEntities(scope: ConfigType): string[] {
+  if (scope === 'minimal') {
+    return []
   }
 
-  const minimal: MinimalConfig<UserApi.RouteConfig> = {
-    path: '/foo/bar',
-    to: getPage(routeType).name as string & { _brand: 'Page' },
-  }
-
-  return {
-    name,
-    config: routeType === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.RouteConfig>),
-  }
-}
-
-export function getQueries(): NamedConfig<UserApi.QueryConfig>[] {
-  return [getQuery('minimal'), getQuery('full')]
-}
-
-export function getQuery(scope: ConfigType): NamedConfig<UserApi.QueryConfig> {
-  const minimal: MinimalConfig<UserApi.QueryConfig> = {
-    fn: getExtImport(scope, 'named'),
-  }
-
-  return {
-    name: scope === 'minimal' ? 'MinimalQuery' : 'FullQuery',
-    config:
-      scope === 'minimal'
-        ? minimal
-        : ({
-            ...minimal,
-            entities: [getEntity('task')],
-            auth: true,
-          } satisfies FullConfig<UserApi.QueryConfig>),
-  }
-}
-
-export function getActions(): NamedConfig<UserApi.ActionConfig>[] {
-  return [getAction('minimal'), getAction('full')]
-}
-
-export function getAction(scope: ConfigType): NamedConfig<UserApi.ActionConfig> {
-  const minimal: MinimalConfig<UserApi.ActionConfig> = {
-    fn: getExtImport(scope, 'named'),
-  }
-
-  return {
-    name: scope === 'minimal' ? 'MinimalAction' : 'FullAction',
-    config:
-      scope === 'minimal'
-        ? minimal
-        : ({
-            ...minimal,
-            entities: [getEntity('task')],
-            auth: true,
-          } satisfies FullConfig<UserApi.ActionConfig>),
-  }
-}
-
-export function getCruds(): NamedConfig<UserApi.Crud>[] {
-  return [getCrud('minimal'), getCrud('full')]
-}
-
-export function getCrud(scope: ConfigType): NamedConfig<UserApi.Crud> {
-  const minimal: MinimalConfig<UserApi.Crud> = {
-    entity: getEntity('task'),
-    operations: getCrudOperations(scope),
-  }
-
-  return {
-    name: scope === 'minimal' ? 'MinimalCrud' : 'FullCrud',
-    config: scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.Crud>),
-  }
-}
-
-export function getCrudOperations(
-  scope: ConfigType
-): MinimalConfig<UserApi.CrudOperations> | FullConfig<UserApi.CrudOperations> {
-  const minimal: MinimalConfig<UserApi.CrudOperations> = {}
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        get: getCrudOperationOptions(scope),
-        getAll: getCrudOperationOptions(scope),
-        create: getCrudOperationOptions(scope),
-        update: getCrudOperationOptions(scope),
-        delete: getCrudOperationOptions(scope),
-      } satisfies FullConfig<UserApi.CrudOperations>)
-}
-
-export function getCrudOperationOptions(
-  scope: ConfigType
-): MinimalConfig<UserApi.CrudOperationOptions> | FullConfig<UserApi.CrudOperationOptions> {
-  const minimal: MinimalConfig<UserApi.CrudOperationOptions> = {}
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        isPublic: true,
-        overrideFn: getExtImport(scope, 'named'),
-      } satisfies FullConfig<UserApi.CrudOperationOptions>)
-}
-
-export function getApiNamespaces(): NamedConfig<UserApi.ApiNamespaceConfig>[] {
-  return [getApiNamespace('minimal'), getApiNamespace('full')]
-}
-
-export function getApiNamespace(scope: ConfigType): NamedConfig<UserApi.ApiNamespaceConfig> {
-  const minimal: MinimalConfig<UserApi.ApiNamespaceConfig> = {
-    middlewareConfigFn: getExtImport(scope, 'named'),
-    path: '/foo',
-  }
-
-  return {
-    name: scope === 'minimal' ? 'MinimalApiNamespace' : 'FullApiNamespace',
-    config:
-      scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.ApiNamespaceConfig>),
-  }
-}
-
-export function getHttpRoute(
-  scope: ConfigType
-): MinimalConfig<UserApi.HttpRoute> | FullConfig<UserApi.HttpRoute> {
-  const minimal: MinimalConfig<UserApi.HttpRoute> = {
-    method: 'GET',
-    route: '/foo/bar',
-  }
-
-  return scope === 'minimal' ? minimal : (minimal satisfies FullConfig<UserApi.HttpRoute>)
-}
-
-export function getApis(): NamedConfig<UserApi.ApiConfig>[] {
-  return [getApi('minimal'), getApi('full')]
-}
-
-export function getApi(scope: ConfigType): NamedConfig<UserApi.ApiConfig> {
-  const minimal: MinimalConfig<UserApi.ApiConfig> = {
-    fn: getExtImport(scope, 'named'),
-    httpRoute: getHttpRoute(scope),
-  }
-
-  return {
-    name: scope === 'minimal' ? 'MinimalApi' : 'FullApi',
-    config:
-      scope === 'minimal'
-        ? minimal
-        : ({
-            ...minimal,
-            entities: [getEntity('task')],
-            auth: true,
-            middlewareConfigFn: getExtImport(scope, 'named'),
-          } satisfies FullConfig<UserApi.ApiConfig>),
-  }
-}
-
-export function getSchedule(
-  scope: ConfigType
-): MinimalConfig<UserApi.ScheduleConfig> | FullConfig<UserApi.ScheduleConfig> {
-  const minimal: MinimalConfig<UserApi.ScheduleConfig> = {
-    cron: '0 0 * * *',
-  }
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        args: { foo: 'bar' },
-        executorOptions: {
-          pgBoss: { jobOptions: { attempts: 3 } },
-        },
-      } satisfies FullConfig<UserApi.ScheduleConfig>)
-}
-
-export function getPerform(
-  scope: ConfigType
-): MinimalConfig<UserApi.Perform> | FullConfig<UserApi.Perform> {
-  const minimal: MinimalConfig<UserApi.Perform> = {
-    fn: getExtImport('minimal', 'named'),
-  }
-
-  return scope === 'minimal'
-    ? minimal
-    : ({
-        ...minimal,
-        executorOptions: {
-          pgBoss: { jobOptions: { attempts: 3 } },
-        },
-      } satisfies FullConfig<UserApi.Perform>)
-}
-
-export function getJobs(): NamedConfig<UserApi.JobConfig>[] {
-  return [getJob('minimal'), getJob('full')]
-}
-
-export function getJob(scope: ConfigType): NamedConfig<UserApi.JobConfig> {
-  const minimal: MinimalConfig<UserApi.JobConfig> = {
-    executor: 'PgBoss',
-    perform: getPerform(scope),
-  }
-
-  return {
-    name: scope === 'minimal' ? 'MinimalJob' : 'FullJob',
-    config:
-      scope === 'minimal'
-        ? minimal
-        : ({
-            ...minimal,
-            entities: [getEntity('task')],
-            schedule: getSchedule(scope),
-          } satisfies FullConfig<UserApi.JobConfig>),
-  }
+  return ENTITY_TYPES.map((entity) => getEntity(entity))
 }

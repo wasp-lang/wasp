@@ -51,92 +51,76 @@ describe('mapUserSpecToAppSpecDecls', () => {
         userSpec.websocket
       ),
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'Page',
-      configMap: userSpec.pages,
+      decls: userSpec.pages,
       expectedMapping: {
         function: mapPage,
       },
+      actualMapping: result,
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'Route',
-      configMap: userSpec.routes,
+      decls: userSpec.routes,
       expectedMapping: {
         function: mapRoute,
         extraArgs: [pageRefParser],
       },
+      actualMapping: result,
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'Query',
-      configMap: userSpec.queries,
+      decls: userSpec.queries,
       expectedMapping: {
         function: mapOperation,
         extraArgs: [entityRefParser],
       },
+      actualMapping: result,
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'Action',
-      configMap: userSpec.actions,
+      decls: userSpec.actions,
       expectedMapping: {
         function: mapOperation,
         extraArgs: [entityRefParser],
       },
+      actualMapping: result,
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'Crud',
-      configMap: userSpec.cruds,
+      decls: userSpec.cruds,
       expectedMapping: {
         function: mapCrud,
         extraArgs: [entityRefParser],
       },
+      actualMapping: result,
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'ApiNamespace',
-      configMap: userSpec.apiNamespaces,
+      decls: userSpec.apiNamespaces,
       expectedMapping: {
         function: mapApiNamespace,
       },
+      actualMapping: result,
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'Api',
-      configMap: userSpec.apis,
+      decls: userSpec.apis,
       expectedMapping: {
         function: mapApi,
         extraArgs: [entityRefParser],
       },
+      actualMapping: result,
     })
-    expectCorrectMapping({
+    expectCorrectDeclMapping({
       declType: 'Job',
-      configMap: userSpec.jobs,
+      decls: userSpec.jobs,
       expectedMapping: {
         function: mapJob,
         extraArgs: [entityRefParser],
       },
+      actualMapping: result,
     })
-
-    function expectCorrectMapping({
-      declType,
-      configMap,
-      expectedMapping,
-    }: {
-      declType: keyof AppSpec.DeclTypeToValue
-      configMap: Map<string, any>
-      expectedMapping: {
-        function: (item: any, ...args: any[]) => any
-        extraArgs?: any[]
-      }
-    }): void {
-      const { function: mappingFn, extraArgs = [] } = expectedMapping
-      configMap.forEach((config, name) => {
-        const decl = getDecl(result, declType, name)
-
-        expect(decl).toStrictEqual({
-          declType,
-          declName: name,
-          declValue: mappingFn(config, ...extraArgs),
-        })
-      })
-    }
   })
 
   test('should map minimal app using mapping functions correctly', () => {
@@ -166,6 +150,32 @@ describe('mapUserSpecToAppSpecDecls', () => {
       ),
     })
   })
+
+  function expectCorrectDeclMapping({
+    declType,
+    decls,
+    expectedMapping,
+    actualMapping,
+  }: {
+    declType: keyof AppSpec.DeclTypeToValue
+    decls: Map<string, any>
+    expectedMapping: {
+      function: (item: any, ...args: any[]) => any
+      extraArgs?: any[]
+    }
+    actualMapping: AppSpec.Decl[]
+  }): void {
+    const { function: mappingFn, extraArgs = [] } = expectedMapping
+    decls.forEach((config, name) => {
+      const resultDecl = getDecl(actualMapping, declType, name)
+
+      expect(resultDecl).toStrictEqual({
+        declType,
+        declName: name,
+        declValue: mappingFn(config, ...extraArgs),
+      })
+    })
+  }
 
   /**
    * Retrieves a specific declaration from a list of declarations based on its type and name.

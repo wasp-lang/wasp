@@ -72,8 +72,8 @@ describe('mapApp', () => {
       entityRefParser,
       routeRefParser,
       userSpec.auth,
-      userSpec.server,
       userSpec.client,
+      userSpec.server,
       userSpec.db,
       userSpec.emailSender,
       userSpec.websocket
