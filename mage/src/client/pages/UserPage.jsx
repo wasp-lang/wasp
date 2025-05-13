@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { PiDownloadDuotone, PiSealWarningDuotone } from "react-icons/pi";
 import { FiLogOut } from "react-icons/fi";
+import { PiDownloadDuotone, PiSealWarningDuotone } from "react-icons/pi";
 import { format } from "timeago.js";
 
-import { Link } from "wasp/client/router";
 import { logout } from "wasp/client/auth";
-import { deleteMyself, useQuery, getProjectsByUser } from "wasp/client/operations";
+import {
+  deleteMyself,
+  getProjectsByUser,
+  useQuery,
+} from "wasp/client/operations";
+import { Link } from "wasp/client/router";
 
 import { Color } from "../components/Color";
-import { Header } from "../components/Header";
-import { StatusPill } from "../components/StatusPill";
-import { HomeButton } from "../components/Header";
 import { MyDialog } from "../components/Dialog";
+import { Header, HomeButton } from "../components/Header";
+import { StatusPill } from "../components/StatusPill";
 import {
   getTailwindClassNameForProjectBrandColor,
   getTailwindClassNameForProjectStatus,
@@ -57,7 +60,10 @@ export function UserPage({ user }) {
         )}
       </div>
       <div className="flex justify-end pt-8 px-10">
-        <button onClick={() => setIsDeleteUserModalOpen(true)} className="text-xs text-gray-500 hover:underline">
+        <button
+          onClick={() => setIsDeleteUserModalOpen(true)}
+          className="text-xs text-gray-500 hover:underline"
+        >
           *I want to delete my account.
         </button>
       </div>
@@ -89,9 +95,19 @@ function UserProjectsTable({ projects }) {
         {!!projects && projects?.length > 0 ? (
           projects.map((project) => (
             <tr className="bg-white border-t" key={project.id}>
-              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2">
-                <Color value={getTailwindClassNameForProjectBrandColor(project.primaryColor)} />{" "}
-                <span title={project.description} className="max-w-[250px] overflow-hidden overflow-ellipsis">
+              <th
+                scope="row"
+                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
+              >
+                <Color
+                  value={getTailwindClassNameForProjectBrandColor(
+                    project.primaryColor,
+                  )}
+                />{" "}
+                <span
+                  title={project.description}
+                  className="max-w-[250px] overflow-hidden overflow-ellipsis"
+                >
                   {project.name}
                 </span>{" "}
                 <span className="flex gap-1">
@@ -106,7 +122,10 @@ function UserProjectsTable({ projects }) {
                 </span>
               </th>
               <td className="px-6 py-4">
-                <StatusPill status={getTailwindClassNameForProjectStatus(project.status)} sm>
+                <StatusPill
+                  status={getTailwindClassNameForProjectStatus(project.status)}
+                  sm
+                >
                   {projectStatusToDisplayableText(project.status)}
                 </StatusPill>
               </td>
@@ -116,9 +135,14 @@ function UserProjectsTable({ projects }) {
               >
                 {format(project.createdAt)}
               </td>
-              <td className={`px-6 py-4 creativity-${project.creativityLevel}`}>{project.creativityLevel}</td>
+              <td className={`px-6 py-4 creativity-${project.creativityLevel}`}>
+                {project.creativityLevel}
+              </td>
               <td className="px-6 py-4">
-                <Link to={`/result/${project.id}`} className="font-medium text-sky-600 hover:underline">
+                <Link
+                  to={`/result/${project.id}`}
+                  className="font-medium text-sky-600 hover:underline"
+                >
                   View the app &rarr;
                 </Link>
               </td>
@@ -148,7 +172,8 @@ function DeleteUserModal({ isOpen, setIsOpen, deleteUser }) {
       onClose={() => setIsOpen(false)}
       title={
         <div className="flex items-center gap-2">
-          <PiSealWarningDuotone arie-hidden="true" /> Are You Sure You Want to Delete Your Account?
+          <PiSealWarningDuotone arie-hidden="true" /> Are You Sure You Want to
+          Delete Your Account?
         </div>
       }
     >

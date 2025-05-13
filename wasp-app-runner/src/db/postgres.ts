@@ -1,13 +1,13 @@
-import type { SetupDbFn } from "./types.js";
-import { createLogger } from "../logging.js";
-import { spawnAndCollectOutput } from "../process.js";
-import { Branded } from "../types.js";
+import type { PathToApp } from "../args.js";
 import {
   DbContainerName,
   createAppSpecificDbContainerName,
 } from "../docker.js";
+import { createLogger } from "../logging.js";
+import { spawnAndCollectOutput } from "../process.js";
+import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
-import type { PathToApp } from "../args.js";
+import type { SetupDbFn } from "./types.js";
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
@@ -42,15 +42,14 @@ async function startPostgresContainerForApp({
 
   logger.info(`Using container name: ${containerName}`);
 
-  const databaseUrl = await startPostgresContainerAndWaitUntilReady(
-    containerName
-  );
+  const databaseUrl =
+    await startPostgresContainerAndWaitUntilReady(containerName);
 
   return databaseUrl;
 }
 
 async function startPostgresContainerAndWaitUntilReady(
-  containerName: DbContainerName
+  containerName: DbContainerName,
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
@@ -117,14 +116,14 @@ function getExtraInfoOnPostgresStartError({
 }
 
 async function waitForPostgresReady(
-  containerName: DbContainerName
+  containerName: DbContainerName,
 ): Promise<void> {
   const healthCheckRetries = 10;
   const healthCheckDelay = 2000;
 
   for (let i = 1; i <= healthCheckRetries; i++) {
     logger.info(
-      `Checking PostgreSQL readiness (attempt ${i}/${healthCheckRetries})`
+      `Checking PostgreSQL readiness (attempt ${i}/${healthCheckRetries})`,
     );
 
     const isPostgresReady = await checkIfPostgresIsReady(containerName);
@@ -141,7 +140,7 @@ async function waitForPostgresReady(
 }
 
 async function checkIfPostgresIsReady(
-  containerName: DbContainerName
+  containerName: DbContainerName,
 ): Promise<boolean> {
   const { exitCode } = await spawnAndCollectOutput({
     name: "postgres-readiness-check",

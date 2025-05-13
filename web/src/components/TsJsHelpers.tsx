@@ -1,13 +1,13 @@
 // Copied from (and adapted)
 // https://github.com/redwoodjs/redwood/blob/bd903c5755925ea7174775a2fdaba371b700c910/docs/src/components/ShowForTs.tsx
 
-import * as React from 'react'
+import * as React from "react";
 
-import { useStorageSlot } from '@docusaurus/theme-common'
-import MDXContent from '@theme/MDXContent'
+import { useStorageSlot } from "@docusaurus/theme-common";
+import MDXContent from "@theme/MDXContent";
 
 interface Props {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 /**
@@ -21,8 +21,8 @@ interface Props {
  * </ShowForTs>
  * **/
 export function ShowForTs({ children }: Props) {
-  const [jsTs] = useStorageSlot('docusaurus.tab.js-ts')
-  return jsTs === 'ts' && <MDXContent>{children}</MDXContent>
+  const [jsTs] = useStorageSlot("docusaurus.tab.js-ts");
+  return jsTs === "ts" && <MDXContent>{children}</MDXContent>;
 }
 
 /**
@@ -36,6 +36,6 @@ export function ShowForTs({ children }: Props) {
  * </ShowForJs>
  * **/
 export function ShowForJs({ children }: Props) {
-  const [jsTs] = useStorageSlot('docusaurus.tab.js-ts')
-  return jsTs === 'js' && <MDXContent>{children}</MDXContent>
+  const [jsTs] = useStorageSlot("docusaurus.tab.js-ts");
+  return jsTs === "js" && <MDXContent>{children}</MDXContent>;
 }

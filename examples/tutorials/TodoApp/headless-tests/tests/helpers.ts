@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 
 export async function performSignup(
   page: Page,
-  { username, password }: { username: string; password: string }
+  { username, password }: { username: string; password: string },
 ) {
   await page.goto("/signup");
 
@@ -21,7 +21,7 @@ export async function performLogin(
   }: {
     username: string;
     password: string;
-  }
+  },
 ) {
   await page.goto("/login");
 

@@ -1,63 +1,63 @@
-import { config } from 'wasp/client'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from "react";
+import { config } from "wasp/client";
 
 export const StreamingTestPage = () => {
-  const { response } = useTextStream('/api/streaming-test')
+  const { response } = useTextStream("/api/streaming-test");
   return (
     <main className="p-4 border">
       <h1>Streaming Demo</h1>
       <p
         style={{
-          maxWidth: '600px',
+          maxWidth: "600px",
         }}
       >
         {response}
       </p>
     </main>
-  )
-}
+  );
+};
 
 function useTextStream(path: string): { response: string } {
-  const [response, setResponse] = useState('')
+  const [response, setResponse] = useState("");
   useEffect(() => {
-    const controller = new AbortController()
+    const controller = new AbortController();
     fetchStream(
       path,
       (chunk) => {
-        setResponse((prev) => prev + chunk)
+        setResponse((prev) => prev + chunk);
       },
-      controller
-    )
+      controller,
+    );
 
     return () => {
-      controller.abort()
-    }
-  }, [])
+      controller.abort();
+    };
+  }, []);
 
   return {
     response,
-  }
+  };
 }
 
 async function fetchStream(
   path: string,
   onData: (data: string) => void,
-  controller: AbortController
+  controller: AbortController,
 ) {
   const response = await fetch(config.apiUrl + path, {
     signal: controller.signal,
-  })
+  });
 
   if (response.body === null) {
-    throw new Error('Stream body is null')
+    throw new Error("Stream body is null");
   }
 
-  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader()
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
   while (true) {
-    const { done, value } = await reader.read()
+    const { done, value } = await reader.read();
     if (done) {
-      return
+      return;
     }
-    onData(value.toString())
+    onData(value.toString());
   }
 }

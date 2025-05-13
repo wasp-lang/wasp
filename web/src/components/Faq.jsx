@@ -1,13 +1,13 @@
-import useBrokenLinks from '@docusaurus/useBrokenLinks'
-import { useState } from 'react'
-import { ChevronDown, ChevronRight } from 'react-feather'
+import useBrokenLinks from "@docusaurus/useBrokenLinks";
+import { useState } from "react";
+import { ChevronDown, ChevronRight } from "react-feather";
 
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from "./Layouts/SectionContainer";
 
-const FAQ_ID = 'faq'
+const FAQ_ID = "faq";
 
 const Faq = () => {
-  useBrokenLinks().collectAnchor(FAQ_ID)
+  useBrokenLinks().collectAnchor(FAQ_ID);
 
   return (
     <SectionContainer>
@@ -35,11 +35,11 @@ const Faq = () => {
         ))}
       </dl>
     </SectionContainer>
-  )
-}
+  );
+};
 
 const FaqItem = ({ keyP, faq }) => {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="py-6">
@@ -47,7 +47,7 @@ const FaqItem = ({ keyP, faq }) => {
         <button
           className="flex w-full items-center justify-between text-left"
           onClick={() => {
-            setIsExpanded(!isExpanded)
+            setIsExpanded(!isExpanded);
           }}
         >
           <span>{faq.question}</span>
@@ -62,12 +62,12 @@ const FaqItem = ({ keyP, faq }) => {
       </dt>
       {isExpanded && <dd className="mt-2 text-neutral-500">{faq.answer}</dd>}
     </div>
-  )
-}
+  );
+};
 
 const faqs = [
   {
-    question: 'How is Wasp different from Next.js / Nuxt.js / Gatsby?',
+    question: "How is Wasp different from Next.js / Nuxt.js / Gatsby?",
     answer: (
       <p>
         <strong>TL;DR</strong> - These are frontend-first frameworks, with some
@@ -88,7 +88,7 @@ const faqs = [
     ),
   },
   {
-    question: 'How is Wasp different from Ruby on Rails or Django?',
+    question: "How is Wasp different from Ruby on Rails or Django?",
     answer: (
       <p>
         <strong>TL;DR</strong> - while Ruby on Rails and Django are considered
@@ -122,7 +122,7 @@ const faqs = [
     ),
   },
   {
-    question: 'How hard is it to learn Wasp?',
+    question: "How hard is it to learn Wasp?",
     answer: (
       <p>
         We measured! <strong>It takes about 30 minutes to get going</strong>,
@@ -144,7 +144,7 @@ const faqs = [
     ),
   },
   {
-    question: 'Do you support only React & Node.js currently?',
+    question: "Do you support only React & Node.js currently?",
     answer: (
       <p>
         Yes, that is currently the supported stack. But, Wasp is being developed
@@ -158,6 +158,6 @@ const faqs = [
       </p>
     ),
   },
-]
+];
 
-export default Faq
+export default Faq;

@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { logout, useAuth } from "wasp/client/auth";
 import "./Main.css";
 
-import { Flowbite, Dropdown, Navbar, Avatar } from "flowbite-react";
+import { Avatar, Dropdown, Flowbite, Navbar } from "flowbite-react";
 import Logo from "./logo.png";
 
 const customTheme = {

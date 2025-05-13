@@ -1,6 +1,6 @@
 import { ForgotPasswordForm } from "wasp/client/auth";
-import appearance from './appearance'
-import todoLogo from '../../todoLogo.png'
+import todoLogo from "../../todoLogo.png";
+import appearance from "./appearance";
 
 export function RequestPasswordReset() {
   return (
@@ -17,5 +17,5 @@ export function RequestPasswordReset() {
         </div>
       </div>
     </div>
-  )
+  );
 }

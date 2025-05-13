@@ -32,7 +32,8 @@
   @apply text-white rounded-sm bg-slate-700;
 }
 
-.tree-node__branch, .tree-node__leaf {
+.tree-node__branch,
+.tree-node__leaf {
   display: flex;
   align-items: center;
 }

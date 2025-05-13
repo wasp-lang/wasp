@@ -1,7 +1,7 @@
-import type { Props } from '@theme/BlogLayout'
-import BlogSidebar from '@theme/BlogSidebar'
-import Layout from '@theme/Layout'
-import clsx from 'clsx'
+import type { Props } from "@theme/BlogLayout";
+import BlogSidebar from "@theme/BlogSidebar";
+import Layout from "@theme/Layout";
+import clsx from "clsx";
 
 /*
 
@@ -22,26 +22,26 @@ import clsx from 'clsx'
 // NOTE(matija): this component is used both when listing all the posts (on /blog) and when rendering a
 // specific blog post.
 export default function BlogLayout(props: Props) {
-  const { sidebar, toc, children, ...layoutProps } = props
+  const { sidebar, toc, children, ...layoutProps } = props;
 
   // NOTE(matija): if false, then it is an individual blog post.
   //
   // FIXME(carlos): a bit hacky, but this is the only way to check if
   // the blog post is a list of blog posts.
-  const isListOfBlogPosts = !toc
+  const isListOfBlogPosts = !toc;
 
   return (
     <Layout {...layoutProps}>
       <div
         className={clsx({
-          'margin-vert--lg container': !isListOfBlogPosts,
+          "margin-vert--lg container": !isListOfBlogPosts,
         })}
       >
         <div className="row">
           {!isListOfBlogPosts && <BlogSidebar sidebar={sidebar} />}
           <main
-            className={clsx('col', {
-              'col--7': !isListOfBlogPosts,
+            className={clsx("col", {
+              "col--7": !isListOfBlogPosts,
             })}
             itemScope
             itemType="http://schema.org/Blog"
@@ -52,5 +52,5 @@ export default function BlogLayout(props: Props) {
         </div>
       </div>
     </Layout>
-  )
+  );
 }

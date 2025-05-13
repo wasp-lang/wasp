@@ -1,11 +1,11 @@
-import useBrokenLinks from '@docusaurus/useBrokenLinks'
-import classNames from 'classnames'
-import SectionContainer from './Layouts/SectionContainer'
+import useBrokenLinks from "@docusaurus/useBrokenLinks";
+import classNames from "classnames";
+import SectionContainer from "./Layouts/SectionContainer";
 
-const SHOWCASE_ID = 'showcases'
+const SHOWCASE_ID = "showcases";
 
 const ShowcaseGallery = () => {
-  useBrokenLinks().collectAnchor(SHOWCASE_ID)
+  useBrokenLinks().collectAnchor(SHOWCASE_ID);
 
   return (
     <SectionContainer className="space-y-16" id={SHOWCASE_ID}>
@@ -71,8 +71,8 @@ const ShowcaseGallery = () => {
         </ShowcaseItem>
       </div>
     </SectionContainer>
-  )
-}
+  );
+};
 
 const ShowcaseItem = ({ url, thumb, title, description, children }) => (
   <div>
@@ -97,18 +97,14 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
       </div>
     </a>
   </div>
-)
-
+);
 
 const Tag = ({ text, className }) => (
   <span
-    className={classNames(
-      `rounded-md border px-2.5 py-0.5 text-sm`,
-      className
-    )}
+    className={classNames(`rounded-md border px-2.5 py-0.5 text-sm`, className)}
   >
     {text}
   </span>
-)
+);
 
-export default ShowcaseGallery
+export default ShowcaseGallery;

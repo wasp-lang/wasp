@@ -1,27 +1,7 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import classNames from 'classnames'
-import {
-  Terminal,
-  Layers,
-  Coffee,
-  Code,
-  Unlock,
-  Repeat,
-  Send,
-  Link2,
-  Grid,
-  ArrowRight,
-  Globe,
-  Settings,
-  Mail,
-  Type,
-  Star,
-} from 'react-feather'
+import Link from "@docusaurus/Link";
+import { ArrowRight } from "react-feather";
 
-import SectionContainer from './Layouts/SectionContainer'
-
-import styles from '../pages/styles.module.css'
+import SectionContainer from "./Layouts/SectionContainer";
 
 // TODO(matija): this is duplication from HowItWorks section.
 const GhIssueLink = ({ url, label }) => (
@@ -43,7 +23,7 @@ const GhIssueLink = ({ url, label }) => (
       </div>
     </span>
   </Link>
-)
+);
 
 const Section = ({ features }) => (
   <ul className="space-y-6">
@@ -56,7 +36,7 @@ const Section = ({ features }) => (
               <>
                 &nbsp;
                 <GhIssueLink
-                  url={'https://github.com/wasp-lang/wasp/issues/' + f[1]}
+                  url={"https://github.com/wasp-lang/wasp/issues/" + f[1]}
                   label={f[1]}
                 />
               </>
@@ -66,7 +46,7 @@ const Section = ({ features }) => (
       </li>
     ))}
   </ul>
-)
+);
 
 const Roadmap = () => (
   <SectionContainer className="lg:py-18 space-y-16" id="roadmap">
@@ -93,12 +73,12 @@ const Roadmap = () => (
         </div>
         <Section
           features={[
-            ['Improve Prisma support (more features, IDE)', 641],
-            ['Add TS eDSL, next to Wasp DSL', 551],
-            ['Make Wasp Auth usable in external services', 1973],
-            ['Add more social providers to Wasp Auth', 2016],
-            ['Support for SSR / SSG', 911],
-            ['Full-Stack Modules (aka FSMs: think RoR Engines)'],
+            ["Improve Prisma support (more features, IDE)", 641],
+            ["Add TS eDSL, next to Wasp DSL", 551],
+            ["Make Wasp Auth usable in external services", 1973],
+            ["Add more social providers to Wasp Auth", 2016],
+            ["Support for SSR / SSG", 911],
+            ["Full-Stack Modules (aka FSMs: think RoR Engines)"],
           ]}
         />
       </div>
@@ -115,17 +95,17 @@ const Roadmap = () => (
         </div>
         <Section
           features={[
-            ['Multiple targets (e.g. mobile)', 1088],
-            ['Automatic generation of API for Operations', 863],
-            ['Top-level data schema', 642],
-            ['Complex arch (multiple servers, clients, serverless)'],
-            ['Polyglot (Python, Rust, Go, ...)', 1940],
-            ['Multiple frontend libraries (Vue, Svelte, ...)'],
+            ["Multiple targets (e.g. mobile)", 1088],
+            ["Automatic generation of API for Operations", 863],
+            ["Top-level data schema", 642],
+            ["Complex arch (multiple servers, clients, serverless)"],
+            ["Polyglot (Python, Rust, Go, ...)", 1940],
+            ["Multiple frontend libraries (Vue, Svelte, ...)"],
           ]}
         />
       </div>
     </div>
   </SectionContainer>
-)
+);
 
-export default Roadmap
+export default Roadmap;
