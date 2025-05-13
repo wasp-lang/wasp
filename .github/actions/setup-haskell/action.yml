@@ -16,14 +16,21 @@ runs:
 
   steps:
     - uses: haskell-actions/setup@v2
-      id: setup-haskell-build-env
+      id: setup-haskell
       with:
         ghc-version: ${{ inputs.ghc-version }}
 
+    # Based on the official recipe for Cabal caching:
+    # https://github.com/actions/cache/blob/5a3ec84eff668545956fd18022155c47e93e2684/examples.md#haskell---cabal
     - name: Cache Cabal dependencies
       uses: actions/cache@v4
       with:
         path: |
-          ${{ steps.setup-haskell-build-env.outputs.cabal-store }}
+          ${{ steps.setup-haskell.outputs.cabal-store }}
           waspc/dist-newstyle
-        key: ${{ runner.os }}-cabal-ghc${{ inputs.ghc-version }}-${{ hashFiles('./waspc/*.project') }}-${{ hashFiles('./waspc/*.cabal') }}
+        # Caches are immutable, so we use the official recipe for simulating an updatable cache:
+        # https://github.com/actions/cache/blob/5a3ec84eff668545956fd18022155c47e93e2684/tips-and-workarounds.md#update-a-cache
+        key: ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-${{ github.run_id }}
+        restore-keys: |
+          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-
+          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-
