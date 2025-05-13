@@ -375,5 +375,4 @@ apiNamespace defaultMiddlewareForStreamingText {
 route StreamingRoute { path: "/streaming", to: StreamingPage }
 page StreamingPage {
   component: import { StreamingTestPage } from "@src/streaming/StreamingTestPage",
-  authRequired: true
 }
