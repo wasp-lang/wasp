@@ -5,7 +5,7 @@ app todoApp {
   title: "ToDo App",
   // head: [],
   webSocket: {
-    fn: import { webSocketFn } from "@src/webSocket",
+    fn: import { webSocketFn } from "@src/chat/webSocket",
     // autoConnect: false
   },
   auth: {
@@ -397,4 +397,11 @@ apiNamespace defaultMiddlewareForStreamingText {
 route StreamingRoute { path: "/streaming", to: StreamingPage }
 page StreamingPage {
   component: import { StreamingTestPage } from "@src/streaming/StreamingTestPage",
+}
+
+// --------- Chat --------- //
+route ChatRoute { path: "/chat", to: ChatPage }
+page ChatPage {
+  authRequired: true,
+  component: import { ChatPage } from "@src/chat/ChatPage"
 }
