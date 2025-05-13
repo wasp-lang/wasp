@@ -18,10 +18,12 @@ export function setSessionId(sessionId: string): void {
 }
 
 // PRIVATE API (sdk)
-export function getSessionId(): string | undefined {
-  return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
+export function getSessionId(): string | null {
+  const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as
+    | string
+    | undefined
+  return sessionId ?? null
 }
-
 // PRIVATE API (sdk)
 export function clearSessionId(): void {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
@@ -58,7 +60,7 @@ export function removeLocalUserData(): void {
  */
 api.interceptors.request.use((config) => {
   const sessionId = getSessionId()
-  if (sessionId) {
+  if (sessionId !== null) {
     config.headers['Authorization'] = `Bearer ${sessionId}`
   }
   return config
@@ -124,11 +126,11 @@ class WaspHttpError extends Error {
   }
 }
 
-function getSessionIdFromAuthorizationHeader(header: string | undefined): string | undefined {
+function getSessionIdFromAuthorizationHeader(header: string | undefined): string | null {
   const prefix = 'Bearer '
   if (header && header.startsWith(prefix)) {
     return header.substring(prefix.length)
   } else {
-    return undefined
+    return null
   }
 }

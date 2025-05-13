@@ -14,7 +14,8 @@ export function setSessionId(sessionId) {
 }
 // PRIVATE API (sdk)
 export function getSessionId() {
-    return storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
+    const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
+    return sessionId ?? null;
 }
 // PRIVATE API (sdk)
 export function clearSessionId() {
@@ -50,7 +51,7 @@ export function removeLocalUserData() {
  */
 api.interceptors.request.use((config) => {
     const sessionId = getSessionId();
-    if (sessionId) {
+    if (sessionId !== null) {
         config.headers['Authorization'] = `Bearer ${sessionId}`;
     }
     return config;
@@ -117,7 +118,7 @@ function getSessionIdFromAuthorizationHeader(header) {
         return header.substring(prefix.length);
     }
     else {
-        return undefined;
+        return null;
     }
 }
 //# sourceMappingURL=index.js.map
