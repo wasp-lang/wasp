@@ -50,14 +50,16 @@ const META_FLAG_REGEX = /\bauto-js\b/
 const SUPPORTED_LANGS = new Set(['ts', 'tsx'] as const)
 
 const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
-  const asyncFns: (() => Promise<void>)[] = []
+  // `visit` does not allow async visitors, so
+  // we will just store the needed transformations
+  // in an array and run them after the visit is done.
+  const pendingCodeBlockTransforms: (() => Promise<void>)[] = []
 
   visit(tree, checkNodeIsCodeWithMeta(META_FLAG_REGEX), (node, idx, parent) => {
     assertSupportedLanguage(node, file, SUPPORTED_LANGS)
 
-    // We save the computation for later
-    // because `visit` does not allow async visitors.
-    asyncFns.push(async () => {
+    // Can't do async here, just store the transformation to run later
+    pendingCodeBlockTransforms.push(async () => {
       // Remove our flag from the meta so other plugins don't trip up
       const newMeta = node.meta.replace(META_FLAG_REGEX, '')
 
@@ -100,7 +102,10 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
     })
   })
 
-  await Promise.all(asyncFns.map((fn) => fn()))
+  // We're out of the visitor, now we can run the transforms!
+  for (const fn of pendingCodeBlockTransforms) {
+    await fn()
+  }
 }
 
 export default autoJSCodePlugin
