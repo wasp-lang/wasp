@@ -1,21 +1,21 @@
-const { resolveProjectPath } = require('wasp/dev');
+const { resolveProjectPath } = require('wasp/dev')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [resolveProjectPath("./src/**/*.{js,jsx,ts,tsx}")],
+  content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
   theme: {
     extend: {
       keyframes: {
         jumping: {
-          "0%, 25%": { transform: "translateY(0)" },
-          "10%": { transform: "translateY(-7px)" },
-          "30%": { transform: "translateY(0)" },
+          '0%, 25%': { transform: 'translateY(0)' },
+          '10%': { transform: 'translateY(-7px)' },
+          '30%': { transform: 'translateY(0)' },
         },
       },
       animation: {
-        jumping: "jumping 3s ease infinite",
+        jumping: 'jumping 3s ease infinite',
       },
     },
   },
   plugins: [],
-};
+}

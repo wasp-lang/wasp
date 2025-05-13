@@ -1,14 +1,14 @@
-import tailwindColors from "tailwindcss/colors";
+import tailwindColors from 'tailwindcss/colors'
 
 export function Color({ value }) {
   return (
     <div
-      className="w-5 h-5 rounded-full"
+      className='h-5 w-5 rounded-full'
       style={{
         backgroundColor: value,
       }}
     ></div>
-  );
+  )
 }
 
 export const validProjectBrandColors = Object.entries(tailwindColors)
@@ -16,23 +16,23 @@ export const validProjectBrandColors = Object.entries(tailwindColors)
     return {
       name,
       color: color[500],
-    };
+    }
   })
   .filter(
     (color) =>
       ![
-        "black",
-        "white",
-        "transparent",
-        "inherit",
-        "current",
-        "lightBlue",
-        "warmGray",
-        "trueGray",
-        "coolGray",
-        "blueGray",
-        "gray",
-        "neutral",
-        "zinc",
+        'black',
+        'white',
+        'transparent',
+        'inherit',
+        'current',
+        'lightBlue',
+        'warmGray',
+        'trueGray',
+        'coolGray',
+        'blueGray',
+        'gray',
+        'neutral',
+        'zinc',
       ].includes(color.name)
-  );
+  )

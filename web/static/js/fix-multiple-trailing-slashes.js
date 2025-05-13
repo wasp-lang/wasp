@@ -8,5 +8,9 @@ if (window && window.location && window.location.pathname.endsWith('//')) {
   let pathname = window.location.pathname
   let n = 0 // Num trailing slashes.
   for (; n < pathname.length && pathname[pathname.length - 1 - n] == '/'; n++);
-  window.history.replaceState('', '', pathname.substr(0, pathname.length - n + 1))
+  window.history.replaceState(
+    '',
+    '',
+    pathname.substr(0, pathname.length - n + 1)
+  )
 }

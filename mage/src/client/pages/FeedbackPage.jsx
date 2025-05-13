@@ -1,11 +1,10 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { format } from "timeago.js";
+import { Link } from 'react-router-dom'
+import { format } from 'timeago.js'
 
-import { useQuery, getFeedback } from "wasp/client/operations";
+import { getFeedback, useQuery } from 'wasp/client/operations'
 
 export function Feedback() {
-  const { data: feedback, isLoading, error } = useQuery(getFeedback);
+  const { data: feedback, isLoading, error } = useQuery(getFeedback)
 
   return (
     <>
@@ -14,57 +13,57 @@ export function Feedback() {
       {error && <p>Error: {error.message}</p>}
 
       {feedback && feedback.feedbackEntries.length === 0 && (
-        <p className="text-sm text-slate-500">No feedback yet.</p>
+        <p className='text-sm text-slate-500'>No feedback yet.</p>
       )}
 
       {feedback && feedback.feedbackEntries.length > 0 && (
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <table className="w-full text-sm text-left text-slate-500">
-            <thead className="text-xs text-slate-700 uppercase bg-gray-50">
+        <div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
+          <table className='w-full text-left text-sm text-slate-500'>
+            <thead className='bg-gray-50 text-xs uppercase text-slate-700'>
               <tr>
-                <th scope="col" className="px-6 py-3">
+                <th scope='col' className='px-6 py-3'>
                   App Name
                 </th>
-                <th scope="col" className="px-6 py-3">
+                <th scope='col' className='px-6 py-3'>
                   Created At
                 </th>
-                <th scope="col" className="px-6 py-3">
+                <th scope='col' className='px-6 py-3'>
                   Score
                 </th>
-                <th scope="col" className="px-6 py-3">
+                <th scope='col' className='px-6 py-3'>
                   Message
                 </th>
-                <th scope="col" className="px-6 py-3"></th>
+                <th scope='col' className='px-6 py-3'></th>
               </tr>
             </thead>
             <tbody>
               {feedback.feedbackEntries.map((entry, idx) => (
-                <tr className="bg-white border-b" key={idx}>
+                <tr className='border-b bg-white' key={idx}>
                   <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
+                    scope='row'
+                    className='flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900'
                   >
-                    <span title={entry.project.description}>{entry.project.name}</span>{" "}
+                    <span title={entry.project.description}>
+                      {entry.project.name}
+                    </span>{' '}
                   </th>
                   <td
-                    className="px-6 py-4"
+                    className='px-6 py-4'
                     title={`${entry.createdAt.toLocaleDateString()} ${entry.createdAt.toLocaleTimeString()}`}
                   >
                     {format(entry.createdAt)}
                   </td>
                   <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
+                    scope='row'
+                    className='flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900'
                   >
                     {entry.score}
                   </td>
-                  <td className="px-6 py-4">
-                    {entry.message}
-                  </td>
-                  <td className="px-6 py-4">
+                  <td className='px-6 py-4'>{entry.message}</td>
+                  <td className='px-6 py-4'>
                     <Link
                       to={`/result/${entry.projectId}`}
-                      className="font-medium text-sky-600 hover:underline"
+                      className='font-medium text-sky-600 hover:underline'
                     >
                       View the app &rarr;
                     </Link>

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
 import Link from '@docusaurus/Link'
-import classNames from 'classnames'
 import create from '@kodingdotninja/use-tailwind-breakpoint'
+import { useEffect, useState } from 'react'
 
 import resolveConfig from 'tailwindcss/resolveConfig'
 import tailwindConfig from '../../tailwind.config.js'
@@ -92,31 +91,31 @@ const testimonials = [
 ]
 
 const TestimonialCard = ({ url, text, name, handle, img, source }) => (
-  <div className="">
+  <div className=''>
     <Link to={url}>
-      <div className="rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 shadow-sm drop-shadow-sm">
+      <div className='rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 shadow-sm drop-shadow-sm'>
         {/* Header */}
-        <div className="flex">
-          <img className="rounded-full" src={img} width={45} height={45} />
+        <div className='flex'>
+          <img className='rounded-full' src={img} width={45} height={45} />
           {/* Header right side */}
-          <div className="flex w-full justify-between pl-3">
-            <div className="">
+          <div className='flex w-full justify-between pl-3'>
+            <div className=''>
               {' '}
               {/* Name and handle */}
-              <h6 className="text-md font-semibold text-neutral-700">{name}</h6>
-              <p className="text-sm text-neutral-500">{handle}</p>
+              <h6 className='text-md font-semibold text-neutral-700'>{name}</h6>
+              <p className='text-sm text-neutral-500'>{handle}</p>
             </div>
 
             <div>
               {' '}
               {/* Twitter or PH icon */}
               {source === TWITTER && (
-                <img className="h-5 w-5" src="img/lp/twitter-logo.webp" />
+                <img className='h-5 w-5' src='img/lp/twitter-logo.webp' />
               )}
               {source === PH && (
                 <img
-                  className="h-5 w-5 rounded-full"
-                  src="img/lp/ph-logo.webp"
+                  className='h-5 w-5 rounded-full'
+                  src='img/lp/ph-logo.webp'
                 />
               )}
             </div>
@@ -125,7 +124,7 @@ const TestimonialCard = ({ url, text, name, handle, img, source }) => (
         </div>
 
         {/* Text */}
-        <div className="mt-2 whitespace-pre-wrap text-neutral-700">{text}</div>
+        <div className='mt-2 whitespace-pre-wrap text-neutral-700'>{text}</div>
       </div>
     </Link>
   </div>
@@ -156,8 +155,8 @@ const Testimonials = () => {
   }
 
   const numOfItemsToShow = Math.min(
-    layoutConfig.initialNumOfItemsToShow +
-      loadMoreCount * layoutConfig.loadMoreStep,
+    layoutConfig.initialNumOfItemsToShow
+      + loadMoreCount * layoutConfig.loadMoreStep,
     testimonials.length
   )
 
@@ -169,17 +168,17 @@ const Testimonials = () => {
   }
 
   return (
-    <SectionContainer className="space-y-16" id="testimonials">
-      <div className="grid grid-cols-12">
-        <div className="col-span-12 text-center">
-          <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
+    <SectionContainer className='space-y-16' id='testimonials'>
+      <div className='grid grid-cols-12'>
+        <div className='col-span-12 text-center'>
+          <h2 className='mb-4 text-xl text-neutral-700 lg:text-2xl'>
             You're in a good crowd
           </h2>
-          <p className="text-neutral-500">
+          <p className='text-neutral-500'>
             Here's what folks using Wasp say about it. Join&nbsp;
             <a
-              href="https://discord.gg/rzdnErX"
-              className="font-medium underline decoration-yellow-500 decoration-2"
+              href='https://discord.gg/rzdnErX'
+              className='font-medium underline decoration-yellow-500 decoration-2'
             >
               our Discord
             </a>{' '}
@@ -188,7 +187,7 @@ const Testimonials = () => {
         </div>
       </div>
 
-      <div className="flex space-x-4">
+      <div className='flex space-x-4'>
         {cols.map((col, colIdx) => (
           <div
             key={colIdx}
@@ -202,16 +201,9 @@ const Testimonials = () => {
       </div>
 
       {numOfItemsToShow < testimonials.length && (
-        <div className="flex justify-center">
+        <div className='flex justify-center'>
           <button
-            className={`
-              inline-flex items-center space-x-2
-              rounded border border-yellow-500
-              bg-yellow-500 px-3 py-2 text-sm
-              leading-4 text-white transition
-              duration-200
-              ease-out hover:border-yellow-400 hover:bg-yellow-400
-            `}
+            className={`inline-flex items-center space-x-2 rounded border border-yellow-500 bg-yellow-500 px-3 py-2 text-sm leading-4 text-white transition duration-200 ease-out hover:border-yellow-400 hover:bg-yellow-400`}
             onClick={() => setLoadMoreCount(loadMoreCount + 1)}
           >
             🐝 Load more

@@ -1,10 +1,10 @@
+import { useEffect, useState } from 'react'
 import { config } from 'wasp/client'
-import { useState, useEffect } from 'react'
 
 export const StreamingTestPage = () => {
   const { response } = useTextStream('/api/streaming-test')
   return (
-    <main className="p-4 border">
+    <main className='border p-4'>
       <h1>Streaming Demo</h1>
       <p
         style={{

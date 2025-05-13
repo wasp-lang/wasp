@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { writeFileSync } from 'fs'
-import { App } from './userApi.js'
+import { GET_USER_SPEC } from './_private.js'
 import { Decl } from './appSpec.js'
 import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
-import { GET_USER_SPEC } from './_private.js'
+import { App } from './userApi.js'
 
 main()
 
@@ -48,8 +48,8 @@ function getValidAppOrError(app: unknown): Result<App, string> {
     return {
       status: 'error',
       error:
-        'Could not load your app config. ' +
-        'Make sure your *.wasp.ts file includes a default export of the app.',
+        'Could not load your app config. '
+        + 'Make sure your *.wasp.ts file includes a default export of the app.',
     }
   }
 
@@ -57,8 +57,8 @@ function getValidAppOrError(app: unknown): Result<App, string> {
     return {
       status: 'error',
       error:
-        'The default export of your *.wasp.ts file must be an instance of App. ' +
-        'Make sure you export an object created with new App(...).',
+        'The default export of your *.wasp.ts file must be an instance of App. '
+        + 'Make sure you export an object created with new App(...).',
     }
   }
 
@@ -78,9 +78,9 @@ function parseProcessArgsOrThrow(args: string[]): {
 
   const [_node, _runjs, mainWaspJs, outputFile, entityNamesJson] = process.argv
   if (
-    typeof mainWaspJs !== 'string' ||
-    typeof outputFile !== 'string' ||
-    typeof entityNamesJson !== 'string'
+    typeof mainWaspJs !== 'string'
+    || typeof outputFile !== 'string'
+    || typeof entityNamesJson !== 'string'
   ) {
     throw new Error(
       'Usage: node run.js <path to main.wasp.js> <path to output file> <entity names json>'

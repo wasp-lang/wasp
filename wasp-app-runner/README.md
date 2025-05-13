@@ -10,7 +10,7 @@ npm install
 npm run install:global
 
 # Use the wasp-app-runner command to run your Wasp app
-wasp-app-runner [--path-to-app <path>] [--wasp-cli-cmd <command>]
+wasp-app-runner [--path-to-app [--wasp-cli-cmd < path > ] < command > ]
 ```
 
 ### Arguments Table

@@ -7,7 +7,7 @@
     @apply m-2;
   }
   a {
-    @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
+    @apply text-blue-600 underline visited:text-purple-600 hover:text-blue-800;
   }
   input[type='text'],
   input[type='password'] {
@@ -20,7 +20,7 @@
     @apply my-2;
   }
   input[type='checkbox'] {
-    @apply appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer;
+    @apply float-left mr-2 mt-1 h-4 w-4 cursor-pointer appearance-none rounded-sm border border-gray-300 bg-white bg-contain bg-center bg-no-repeat align-top transition duration-200 checked:border-blue-600 checked:bg-blue-600 focus:outline-none;
   }
   h1 {
     @apply text-2xl;
@@ -32,7 +32,7 @@
 
 @layer components {
   .btn {
-    @apply font-bold py-2 px-4 rounded bg-gray-200;
+    @apply rounded bg-gray-200 px-4 py-2 font-bold;
   }
   .btn:hover {
     @apply bg-opacity-90;

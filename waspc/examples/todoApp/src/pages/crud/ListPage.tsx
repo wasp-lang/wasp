@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
+import { getEmail } from 'wasp/auth'
 import { tasks as tasksCrud } from 'wasp/client/crud'
 import { Link } from 'wasp/client/router'
-import { getEmail } from 'wasp/auth'
 import { Task } from 'wasp/entities'
 
 export const ListPage = () => {
@@ -62,41 +62,41 @@ export const ListPage = () => {
   }
 
   return (
-    <div className="container">
-      <main className="space-y-4">
+    <div className='container'>
+      <main className='space-y-4'>
         <h1>Tasks (CRUD feature)</h1>
-        {error && <div className="p-4 text-red-500">{error}</div>}
+        {error && <div className='p-4 text-red-500'>{error}</div>}
         <div>
           {isLoading && <div>Loading...</div>}
           {tasks?.map((task) => (
-            <div key={task.id} className="task">
+            <div key={task.id} className='task'>
               {task.id === isEditing ? (
                 <>
-                  <form className="space-y-4 border p-4">
-                    <div className="space-y-2">
-                      <label htmlFor="title" className="block">
+                  <form className='space-y-4 border p-4'>
+                    <div className='space-y-2'>
+                      <label htmlFor='title' className='block'>
                         Title
                       </label>
                       <input
-                        type="text"
+                        type='text'
                         required
                         value={editTaskTitle}
                         onChange={(e) => setEditTaskTitle(e.target.value)}
-                        data-testid="edit-task-input"
+                        data-testid='edit-task-input'
                       />
                     </div>
 
-                    <div className="space-x-2">
+                    <div className='space-x-2'>
                       <button
-                        type="submit"
+                        type='submit'
                         onClick={handleUpdateTask}
-                        className="btn btn-primary"
+                        className='btn btn-primary'
                       >
                         Update task
                       </button>
                       <button
                         onClick={() => setIsEditing(null)}
-                        className="btn"
+                        className='btn'
                       >
                         Cancel
                       </button>
@@ -104,22 +104,22 @@ export const ListPage = () => {
                   </form>
                 </>
               ) : (
-                <div className="p-4 border">
-                  <div className="mb-2">
-                    <Link to="/crud/:id" params={{ id: task.id }}>
+                <div className='border p-4'>
+                  <div className='mb-2'>
+                    <Link to='/crud/:id' params={{ id: task.id }}>
                       {task.description} by {getEmail(task.user)}
                     </Link>
                   </div>
-                  <div className="flex gap-2">
+                  <div className='flex gap-2'>
                     <button
                       onClick={() => handleTaskDelete(task)}
-                      className="btn btn-red"
+                      className='btn btn-red'
                     >
                       Delete
                     </button>
                     <button
                       onClick={() => handleStartEditing(task)}
-                      className="btn"
+                      className='btn'
                     >
                       Edit
                     </button>
@@ -130,13 +130,13 @@ export const ListPage = () => {
           ))}
           {tasks?.length === 0 && <div>No tasks yet.</div>}
         </div>
-        <form className="space-y-4 border p-4">
-          <div className="space-y-2">
-            <label htmlFor="title" className="block">
+        <form className='space-y-4 border p-4'>
+          <div className='space-y-2'>
+            <label htmlFor='title' className='block'>
               Title
             </label>
             <input
-              type="text"
+              type='text'
               required
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
@@ -144,9 +144,9 @@ export const ListPage = () => {
           </div>
 
           <button
-            type="submit"
+            type='submit'
             onClick={handleCreateTask}
-            className="btn btn-primary"
+            className='btn btn-primary'
           >
             Create task
           </button>

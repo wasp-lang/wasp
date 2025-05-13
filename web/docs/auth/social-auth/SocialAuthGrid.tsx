@@ -1,5 +1,4 @@
 import { LinkGrid } from '@site/src/components/LinkGrid'
-import React from 'react'
 
 export function SocialAuthGrid({
   pagePart = '', // e.g. #overrides
@@ -30,7 +29,7 @@ export function SocialAuthGrid({
   return (
     <LinkGrid
       links={authMethods}
-      caption="Click on each provider for more details."
+      caption='Click on each provider for more details.'
     />
   )
 }

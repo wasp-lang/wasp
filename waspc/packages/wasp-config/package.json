@@ -1,16 +1,19 @@
 {
   "name": "wasp-config",
-  "license": "MIT",
-  "author": "wasp",
   "version": "1.0.0",
-  "description": "Wasp TS SDK",
   "type": "module",
+  "description": "Wasp TS SDK",
+  "author": "wasp",
+  "license": "MIT",
+  "bin": "./dist/run.js",
   "main": "dist/run.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "nodemon ./src/index.ts"
   },
-  "bin": "./dist/run.js",
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/node": "^22.4.1",
@@ -19,8 +22,5 @@
     "nodemon": "^3.1.4",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.1.0"
-  },
-  "exports": {
-    ".": "./dist/index.js"
   }
 }

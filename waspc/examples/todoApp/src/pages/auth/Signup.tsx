@@ -1,23 +1,23 @@
-import { Link } from "wasp/client/router";
-import { SignupForm, FormItemGroup } from "wasp/client/auth";
-import { useQuery, getNumTasks } from "wasp/client/operations";
+import { FormItemGroup, SignupForm } from 'wasp/client/auth'
+import { getNumTasks, useQuery } from 'wasp/client/operations'
+import { Link } from 'wasp/client/router'
 import { getTotalTaskCountMessage } from './helpers'
 
-import appearance from './appearance'
 import todoLogo from '../../todoLogo.png'
+import appearance from './appearance'
 
 const Signup = () => {
   const { data: numTasks } = useQuery(getNumTasks)
 
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className='h-full w-full bg-white'>
+      <div className='flex min-h-[75vh] min-w-full items-center justify-center'>
+        <div className='h-full w-full max-w-sm bg-white p-5'>
           <div>
             <SignupForm
               appearance={appearance}
               logo={todoLogo}
-              socialLayout="horizontal"
+              socialLayout='horizontal'
               additionalFields={[
                 {
                   name: 'address',
@@ -28,7 +28,7 @@ const Signup = () => {
                   },
                 },
                 () => (
-                  <FormItemGroup className="text-sm text-gray-500">
+                  <FormItemGroup className='text-sm text-gray-500'>
                     👉 Don't forget to press the button below to submit the
                     form.
                   </FormItemGroup>
@@ -36,8 +36,8 @@ const Signup = () => {
               ]}
             />
             <br />
-            <span className="text-sm font-medium text-gray-900">
-              I already have an account (<Link to="/login">go to login</Link>).
+            <span className='text-sm font-medium text-gray-900'>
+              I already have an account (<Link to='/login'>go to login</Link>).
             </span>
             <br />
           </div>

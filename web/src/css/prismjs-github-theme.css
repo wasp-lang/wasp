@@ -6,8 +6,9 @@
 code[class*='language-'],
 pre[class*='language-'] {
   color: #393a34;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   direction: ltr;
   text-align: left;
   white-space: pre;

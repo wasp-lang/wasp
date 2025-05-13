@@ -22,8 +22,8 @@ export const SerializationPage = () => {
 
   return serializedObjects ? (
     <div>
-      <label htmlFor="serializedObjects">Serialized objects</label>:
-      <p id="serializedObjects">{result}</p>
+      <label htmlFor='serializedObjects'>Serialized objects</label>:
+      <p id='serializedObjects'>{result}</p>
     </div>
   ) : null
 }

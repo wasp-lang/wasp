@@ -20,21 +20,21 @@ export function App() {
   const appName = env.REACT_APP_NAME
 
   return (
-    <div className="app border-spacing-2 p-4">
-      <header className="flex justify-between">
-        <h1 className="font-bold text-3xl mb-5">
-          <Link to="/">{appName}</Link>
+    <div className='app border-spacing-2 p-4'>
+      <header className='flex justify-between'>
+        <h1 className='mb-5 text-3xl font-bold'>
+          <Link to='/'>{appName}</Link>
         </h1>
         <h2>
           Your site was loaded at: {date?.toLocaleString()} {connectionIcon}
         </h2>
         {user && (
-          <div className="flex gap-3 items-center">
+          <div className='flex items-center gap-3'>
             <div>
-              Hello, <Link to="/profile">{getName(user)}</Link>
+              Hello, <Link to='/profile'>{getName(user)}</Link>
             </div>
             <div>
-              <button className="btn btn-primary" onClick={logout}>
+              <button className='btn btn-primary' onClick={logout}>
                 Logout
               </button>
             </div>
@@ -44,14 +44,19 @@ export function App() {
       <main>
         <Outlet />
       </main>
-      <footer className="mt-8 text-center">Created with Wasp</footer>
+      <footer className='mt-8 text-center'>Created with Wasp</footer>
 
       <label>
         Go to:{' '}
-        <select defaultValue="" onChange={(e) => (window.location.href = e.target.value)}>
-          <option disabled value="">Select one</option>
-          <option value="/">Main page</option>
-          <option value="/serialization">Serialization Test</option>
+        <select
+          defaultValue=''
+          onChange={(e) => (window.location.href = e.target.value)}
+        >
+          <option disabled value=''>
+            Select one
+          </option>
+          <option value='/'>Main page</option>
+          <option value='/serialization'>Serialization Test</option>
         </select>
       </label>
     </div>

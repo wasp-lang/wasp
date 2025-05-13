@@ -1,5 +1,5 @@
-import * as z from 'zod'
 import { defineEnvValidationSchema } from 'wasp/env'
+import * as z from 'zod'
 
 export const serverEnvValidationSchema = defineEnvValidationSchema(
   z.object({

@@ -1,6 +1,6 @@
 export type SetupDbFn = (options: {
-  appName: string;
-  pathToApp: string;
+  appName: string
+  pathToApp: string
 }) => Promise<{
-  dbEnvVars: { [envVarName: string]: string };
-}>;
+  dbEnvVars: { [envVarName: string]: string }
+}>

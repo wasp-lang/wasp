@@ -1,17 +1,17 @@
 import { Link } from 'wasp/client/router'
 
 import {
-  useAction,
-  type OptimisticUpdateDefinition,
   createTask,
-  updateTaskIsDone,
   deleteCompletedTasks,
-  toggleAllTasks,
-  useQuery,
   getTasks,
+  toggleAllTasks,
+  updateTaskIsDone,
+  useAction,
+  useQuery,
+  type OptimisticUpdateDefinition,
 } from 'wasp/client/operations'
 
-import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
+import { ChangeEventHandler, FormEventHandler, useState } from 'react'
 import { getEmail } from 'wasp/auth'
 
 type NonEmptyArray<T> = [T, ...T[]]
@@ -34,11 +34,11 @@ const Todo = () => {
   }
 
   return (
-    <div className="flex justify-center">
-      <div className="w-3/6 shadow-md rounded p-6">
-        <h1 className="mb-2">Todos</h1>
+    <div className='flex justify-center'>
+      <div className='w-3/6 rounded p-6 shadow-md'>
+        <h1 className='mb-2'>Todos</h1>
 
-        <div className="flex justify-start gap-2">
+        <div className='flex justify-start gap-2'>
           <ToggleAllTasksButton disabled={!areThereAnyTasks(tasks)} />
           <NewTaskForm />
         </div>
@@ -70,7 +70,7 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
   }
 
   return (
-    <div className="flex justify-between">
+    <div className='flex justify-between'>
       <div>{numUncompletedTasks} items left</div>
 
       <div>
@@ -88,7 +88,7 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
 const Tasks = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
   return (
     <div>
-      <table className="border-separate border-spacing-2">
+      <table className='border-separate border-spacing-2'>
         <tbody>
           {tasks.map((task, idx) => (
             <TaskView task={task} key={idx} />
@@ -138,15 +138,15 @@ const TaskView = ({ task }: { task: TaskWithUser }) => {
     <tr>
       <td>
         <input
-          type="checkbox"
+          type='checkbox'
           id={String(task.id)}
           checked={task.isDone}
           onChange={handleTaskIsDoneChange}
-          color="default"
+          color='default'
         />
       </td>
       <td>
-        <Link to="/task/:id" params={{ id: task.id }}>
+        <Link to='/task/:id' params={{ id: task.id }}>
           {task.description} {email && `by ${email}`}
         </Link>
       </td>
@@ -199,14 +199,14 @@ const NewTaskForm = () => {
   }
 
   return (
-    <form onSubmit={handleNewTaskSubmit} className="content-start flex gap-2">
+    <form onSubmit={handleNewTaskSubmit} className='flex content-start gap-2'>
       <input
-        type="text"
-        placeholder="Enter task"
+        type='text'
+        placeholder='Enter task'
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <button className="btn btn-primary">Create new task</button>
+      <button className='btn btn-primary'>Create new task</button>
     </form>
   )
 }
@@ -222,7 +222,7 @@ const ToggleAllTasksButton = ({ disabled }: { disabled: boolean }) => {
 
   return (
     <button
-      className="btn btn-primary"
+      className='btn btn-primary'
       disabled={disabled}
       onClick={handleToggleAllTasks}
     >

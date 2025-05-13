@@ -7,7 +7,7 @@ export const SignupPage = () => {
       <SignupForm />
       <br />
       <span>
-        I already have an account (<Link to="/login">go to login</Link>).
+        I already have an account (<Link to='/login'>go to login</Link>).
       </span>
     </div>
   )

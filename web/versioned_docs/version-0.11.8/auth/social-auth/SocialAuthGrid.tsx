@@ -1,4 +1,3 @@
-import React from 'react'
 import Link from '@docusaurus/Link'
 import './SocialAuthGrid.css'
 
@@ -19,7 +18,7 @@ export function SocialAuthGrid({
   ]
   return (
     <>
-      <div className="social-auth-grid">
+      <div className='social-auth-grid'>
         {authMethods.map((authMethod) => (
           <AuthMethodBox
             title={authMethod.title}
@@ -28,7 +27,7 @@ export function SocialAuthGrid({
           />
         ))}
       </div>
-      <p className="social-auth-info">
+      <p className='social-auth-info'>
         <small>Click on each provider for more details.</small>
       </p>
     </>
@@ -45,7 +44,7 @@ function AuthMethodBox({
   description: string
 }) {
   return (
-    <Link to={linkToDocs} className="auth-method-box">
+    <Link to={linkToDocs} className='auth-method-box'>
       <h3>{title} »</h3>
       <p>{description}</p>
     </Link>

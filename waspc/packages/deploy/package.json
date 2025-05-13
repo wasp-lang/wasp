@@ -1,11 +1,11 @@
 {
-  "author": "Wasp Team",
-  "license": "MIT",
   "name": "wasp-deploy",
   "version": "0.0.1",
-  "main": "dist/index.js",
-  "bin": "dist/index.js",
   "type": "module",
+  "author": "Wasp Team",
+  "license": "MIT",
+  "bin": "dist/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
     "start": "node ./dist/index.js"

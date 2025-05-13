@@ -2,7 +2,7 @@
 // https://github.com/redwoodjs/redwood/blob/bd903c5755925ea7174775a2fdaba371b700c910/docs/src/remark/file-ext-switcher.js
 
 import type { Nodes, Root } from 'mdast'
-import type { } from 'mdast-util-mdx'; // empty type-only import to register mdx types into mdast
+import type {} from 'mdast-util-mdx' // empty type-only import to register mdx types into mdast
 import type { Plugin } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 import { makeImports } from './util/make-imports'

@@ -1,7 +1,6 @@
 # For Mage we are using the Debian Node.js image
 FROM node:20 AS node
 
-
 # We split Dockerfile into base, server-builder and server-production.
 # This way we have separate situations -> in server-builder we build all
 # we need to run the server, and then in server-production we start fresh
@@ -9,10 +8,8 @@ FROM node:20 AS node
 # artifacts and any settings / pollution we don't need in production
 # but only for building.
 
-
 FROM node AS base
 RUN apt update && apt upgrade -y # To ensure any potential security patches are applied.
-
 
 # Todo: The 'server-builder' image stays on disk under <none>:<none> and is
 # relatively large (~900 MB), should we remove it? Or is it useful for future
@@ -33,7 +30,6 @@ COPY db/schema.prisma .wasp/build/db/
 RUN cd .wasp/build/server && npx prisma generate --schema='../db/schema.prisma'
 # Building the server should come after Prisma generation.
 RUN cd .wasp/build/server && npm run bundle
-
 
 # TODO: Use pm2?
 # TODO: Use non-root user (node).

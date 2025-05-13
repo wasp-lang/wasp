@@ -1,5 +1,4 @@
 import { LinkGrid } from '@site/src/components/LinkGrid'
-import React from 'react'
 
 const authMethods = [
   {
@@ -37,7 +36,7 @@ const authMethods = [
 export function AuthMethodsGrid() {
   return (
     <LinkGrid
-      caption="Click on each auth method for more details."
+      caption='Click on each auth method for more details.'
       links={authMethods}
     />
   )

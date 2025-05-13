@@ -1,8 +1,7 @@
-import React from 'react'
-import TopNavbar from './TopNavbar'
-import TagsSidebar from './TagsSidebar'
 import addWaspSourceHeader from './addWaspSourceHeader'
 import './Layout.css'
+import TagsSidebar from './TagsSidebar'
+import TopNavbar from './TopNavbar'
 
 const Layout = ({ user, activeTag, children }) => (
   <div className='layout-root'>

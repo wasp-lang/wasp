@@ -1,5 +1,4 @@
 import { LinkGrid } from '@site/src/components/LinkGrid'
-import React from 'react'
 
 const deploymentMethods = [
   {
@@ -23,7 +22,7 @@ export function DeploymentOptionsGrid() {
   return (
     <LinkGrid
       links={deploymentMethods}
-      caption="Click on each deployment method for more details."
+      caption='Click on each deployment method for more details.'
     />
   )
 }

@@ -1,7 +1,7 @@
 export async function foo(args, context) {
   console.log("Inside Job bar's callback foo: ", args, context)
   await sleep(4000)
-  return { hello: "world" }
+  return { hello: 'world' }
 }
 
 async function sleep(ms) {

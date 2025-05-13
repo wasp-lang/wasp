@@ -1,9 +1,9 @@
-import { type AuthUser } from 'wasp/auth'
-import { mockServer, renderInContext } from 'wasp/client/test'
-import { getTasks, getDate } from 'wasp/client/operations'
-import { test, expect } from 'vitest'
-import { screen } from '@testing-library/react'
 import type { TaskVisibility } from '@prisma/client'
+import { screen } from '@testing-library/react'
+import { expect, test } from 'vitest'
+import { type AuthUser } from 'wasp/auth'
+import { getDate, getTasks } from 'wasp/client/operations'
+import { mockServer, renderInContext } from 'wasp/client/test'
 
 import { getMe } from 'wasp/client/auth'
 import { App } from './App'
@@ -71,8 +71,8 @@ test('handles multiple mock data sources', async () => {
 
   renderInContext(
     <Routes>
-      <Route path="/" Component={App}>
-        <Route path="/" Component={Todo} />
+      <Route path='/' Component={App}>
+        <Route path='/' Component={Todo} />
       </Route>
     </Routes>
   )

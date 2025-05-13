@@ -22,8 +22,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          cache: "npm"
-          node-version: "20"
+          cache: 'npm'
+          node-version: '20'
 
       - name: Run Prettier
         run: |
