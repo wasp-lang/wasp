@@ -1,11 +1,9 @@
-import './Main.css'
-import React from 'react'
 import { useParams } from 'react-router-dom'
 import { Link } from 'wasp/client/router'
 
 import { tasks as tasksCrud } from 'wasp/client/crud'
 
-const DetailPage = () => {
+export const DetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const { data: task, isLoading } = tasksCrud.get.useQuery(
     {
@@ -19,11 +17,11 @@ const DetailPage = () => {
   return (
     <div className="container">
       <main>
-        <h1>Tasks master</h1>
+        <h1>Tasks (CRUD feature) - Detail page</h1>
         <div className="tasks">
           {isLoading && <div>Loading...</div>}
           {task && (
-            <div key={task.id} className="task">
+            <div key={task.id} className="p-4 border my-4">
               <>
                 <div className="task__title">
                   {JSON.stringify(task, null, 2)}
@@ -32,10 +30,8 @@ const DetailPage = () => {
             </div>
           )}
         </div>
-        <Link to="/">Return</Link>
+        <Link to="/crud">Return</Link>
       </main>
     </div>
   )
 }
-
-export default DetailPage

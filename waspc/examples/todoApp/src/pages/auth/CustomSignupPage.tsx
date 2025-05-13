@@ -1,5 +1,10 @@
-import { FormError, FormInput, FormItemGroup, FormLabel } from "wasp/client/auth";
-import { customSignup as customSubmit } from "wasp/client/operations";
+import {
+  FormError,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+} from 'wasp/client/auth'
+import { customSignup as customSubmit } from 'wasp/client/operations'
 import { useState } from 'react'
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
@@ -11,7 +16,7 @@ export const SignupPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<{
-    username: string
+    email: string
     password: string
     address: string
   }>()
@@ -59,13 +64,13 @@ export const SignupPage = () => {
           </div>
         )}
         <FormItemGroup>
-          <FormLabel>Username</FormLabel>
-          <FormInput {...register('username')} />
-          <FormError>{errors.username?.message}</FormError>
+          <FormLabel>Email</FormLabel>
+          <FormInput type="email" {...register('email')} />
+          <FormError>{errors.email?.message}</FormError>
         </FormItemGroup>
         <FormItemGroup>
           <FormLabel>Password</FormLabel>
-          <FormInput {...register('password')} />
+          <FormInput type="password" {...register('password')} />
           <FormError>{errors.password?.message}</FormError>
         </FormItemGroup>
         <FormItemGroup>
