@@ -216,6 +216,7 @@ export type Client = {
 
 export type Db = {
   seeds: Optional<ExtImport[]>
+  prismaSetupFn: Optional<ExtImport>
 }
 
 export type WebSocket = {
