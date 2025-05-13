@@ -359,3 +359,21 @@ crud Tasks {
     create: {}
   }
 }
+
+// --------- Streaming --------- //
+
+api streamingText {
+  httpRoute: (GET, "/api/streaming-test"),
+  fn: import { getText } from "@src/streaming/api",
+}
+
+apiNamespace defaultMiddlewareForStreamingText {
+  path: "/api/streaming-test",
+  middlewareConfigFn: import { getMiddlewareConfig } from "@src/streaming/api",
+}
+
+route StreamingRoute { path: "/streaming", to: StreamingPage }
+page StreamingPage {
+  component: import { StreamingTestPage } from "@src/streaming/StreamingTestPage",
+  authRequired: true
+}
