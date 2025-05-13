@@ -5,7 +5,7 @@ import type { VFile } from 'vfile'
  * Creates a "check fn" for `unist-util-visit` that
  * checks if a node is a code block with a specific meta flag.
  */
-export function shouldVisitNode(metaFlag: RegExp) {
+export function checkNodeIsCodeWithMeta(metaFlag: RegExp) {
   return (node: md.Nodes): node is md.Code & { meta: string } =>
     node.type === 'code' && node.meta && metaFlag.test(node.meta)
 }

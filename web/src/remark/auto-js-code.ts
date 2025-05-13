@@ -43,7 +43,7 @@ import { blankSourceFile } from 'ts-blank-space'
 import * as ts from 'typescript'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
-import { assertSupportedLanguage, shouldVisitNode } from './util/code-blocks'
+import { assertSupportedLanguage, checkNodeIsCodeWithMeta } from './util/code-blocks'
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bauto-js\b/
@@ -52,7 +52,7 @@ const SUPPORTED_LANGS = new Set(['ts', 'tsx'] as const)
 const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
   const asyncFns: (() => Promise<void>)[] = []
 
-  visit(tree, shouldVisitNode(META_FLAG_REGEX), (node, idx, parent) => {
+  visit(tree, checkNodeIsCodeWithMeta(META_FLAG_REGEX), (node, idx, parent) => {
     assertSupportedLanguage(node, file, SUPPORTED_LANGS)
 
     // We save the computation for later

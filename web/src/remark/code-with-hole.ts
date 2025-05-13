@@ -25,7 +25,7 @@ Output:
 import type * as md from 'mdast'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
-import { assertSupportedLanguage, shouldVisitNode } from './util/code-blocks'
+import { assertSupportedLanguage, checkNodeIsCodeWithMeta } from './util/code-blocks'
 
 // Wrapped in \b to denote a word boundary
 const META_FLAG_REGEX = /\bwith-hole\b/
@@ -35,7 +35,7 @@ const HOLE_REPLACEMENT = '/* ... */'
 const SUPPORTED_LANGS = new Set(['js', 'jsx', 'ts', 'tsx'] as const)
 
 const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
-  visit(tree, shouldVisitNode(META_FLAG_REGEX), (node) => {
+  visit(tree, checkNodeIsCodeWithMeta(META_FLAG_REGEX), (node) => {
     assertSupportedLanguage(node, file, SUPPORTED_LANGS)
 
     // Remove our flag from the meta so other plugins don't trip up
