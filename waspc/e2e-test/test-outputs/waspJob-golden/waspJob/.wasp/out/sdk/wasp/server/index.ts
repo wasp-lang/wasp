@@ -1,11 +1,10 @@
-import type { PrismaClient } from '@prisma/client'
-import type { ResolvedPrismaClient } from './dbClient.js'
+import type { PrismaClient } from './dbClient.js'
 
 
 // PUBLIC API
 export { default as config } from './config.js'
 // PUBLIC API
-export { default as prisma, type ResolvedPrismaClient } from './dbClient.js'
+export { default as prisma, type PrismaClient } from './dbClient.js'
 // PUBLIC API
 export { type ServerSetupFn } from './types/index.js'
 // PUBLIC API
@@ -18,4 +17,4 @@ export { env } from './env.js'
 // PUBLIC API
 
 // PUBLIC API
-export type DbSeedFn = (prisma: ResolvedPrismaClient) => Promise<void>
+export type DbSeedFn = (prisma: PrismaClient) => Promise<void>

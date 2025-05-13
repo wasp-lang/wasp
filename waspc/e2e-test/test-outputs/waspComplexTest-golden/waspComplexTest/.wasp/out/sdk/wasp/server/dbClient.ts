@@ -1,18 +1,18 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 
-const _waspSetupPrisma = () => new PrismaClient()
+const _waspSetUpPrisma = () => new InternalPrismaClient()
 
 // We are not typing the return value because 
 // we want to infer the type from the (potentially)
-// user-defined function _waspSetupPrisma
+// user-defined function _waspSetUpPrisma
 function createDbClient() {
-  return _waspSetupPrisma()
+  return _waspSetUpPrisma()
 }
 
 const dbClient = createDbClient()
 
 // PUBLIC API 
-export type ResolvedPrismaClient = typeof dbClient
+export type PrismaClient = typeof dbClient
 
 // PUBLIC API
 export default dbClient
