@@ -1,4 +1,3 @@
-import React from 'react'
 import Link from '@docusaurus/Link'
 import './DeploymentOptionsGrid.css'
 
@@ -17,7 +16,7 @@ export function DeploymentOptionsGrid() {
   ]
   return (
     <>
-      <div className="deployment-methods-grid">
+      <div className='deployment-methods-grid'>
         {deploymentMethods.map((deploymentMethod) => (
           <DeploymentOptionBox
             title={deploymentMethod.title}
@@ -26,7 +25,7 @@ export function DeploymentOptionsGrid() {
           />
         ))}
       </div>
-      <p className="deployment-methods-info">
+      <p className='deployment-methods-info'>
         <small>Click on each deployment method for more details.</small>
       </p>
     </>
@@ -43,7 +42,7 @@ function DeploymentOptionBox({
   description: string
 }) {
   return (
-    <Link to={linkToDocs} className="deployment-method-box">
+    <Link to={linkToDocs} className='deployment-method-box'>
       <h3>{title} »</h3>
       <p>{description}</p>
     </Link>

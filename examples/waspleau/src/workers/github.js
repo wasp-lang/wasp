@@ -4,7 +4,9 @@ import { upsertData } from './utils.js'
 export async function workerFunction(args, context) {
   console.log('github.js workerFunction', args, context)
 
-  const response = await axios.get('https://api.github.com/repos/wasp-lang/wasp')
+  const response = await axios.get(
+    'https://api.github.com/repos/wasp-lang/wasp'
+  )
 
   const data = [
     { name: 'Wasp GitHub Stars', value: response.data.stargazers_count },

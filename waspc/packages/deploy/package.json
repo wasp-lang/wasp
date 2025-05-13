@@ -1,11 +1,11 @@
 {
-  "author": "Wasp Team",
-  "license": "MIT",
   "name": "wasp-deploy",
   "version": "0.0.1",
-  "main": "dist/index.js",
-  "bin": "dist/index.js",
   "type": "module",
+  "author": "Wasp Team",
+  "license": "MIT",
+  "bin": "dist/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
     "start": "node ./dist/index.js"
@@ -20,7 +20,6 @@
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",
-    "prettier": "^3.5.0",
     "typescript": "^5.7.3"
   }
 }

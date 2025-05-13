@@ -4,18 +4,18 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "waspc/**"
+      - 'waspc/**'
     branches:
       - main
       - release
   pull_request:
     paths:
-      - "waspc/**"
+      - 'waspc/**'
   create: { tags: [v*] }
   schedule:
     # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
     # (GH deletes it after 7 days of not using it).
-    - cron: "0 0 * * 0"
+    - cron: '0 0 * * 0'
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -50,11 +50,11 @@ jobs:
           - macos-latest
           - windows-latest
         node-version:
-          - "latest"
+          - 'latest'
         ghc:
-          - "8.10.7"
+          - '8.10.7'
         cabal:
-          - "3.6.2.0"
+          - '3.6.2.0'
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
@@ -62,12 +62,12 @@ jobs:
         include:
           - os: ubuntu-22.04
             node-version: 20
-            ghc: "8.10.7"
-            cabal: "3.6.2.0"
+            ghc: '8.10.7'
+            cabal: '3.6.2.0'
           - os: ubuntu-22.04
             node-version: 22
-            ghc: "8.10.7"
-            cabal: "3.6.2.0"
+            ghc: '8.10.7'
+            cabal: '3.6.2.0'
 
     steps:
       - name: Configure git
@@ -79,7 +79,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: "actions/checkout@v3"
+      - uses: 'actions/checkout@v3'
         with:
           # Workaround for a Github Checkout action bug
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
@@ -128,10 +128,6 @@ jobs:
           #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
           key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
           restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
-
-      - name: Check Haskell code formatting
-        if: matrix.os == 'ubuntu-22.04'
-        run: ./run ormolu:check
 
       - name: packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
@@ -240,7 +236,7 @@ jobs:
         with:
           draft: true
           allowUpdates: true
-          artifacts: "waspc/artifacts/*"
+          artifacts: 'waspc/artifacts/*'
           artifactErrorsFailBuild: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}

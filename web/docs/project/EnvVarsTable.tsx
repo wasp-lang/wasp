@@ -2,7 +2,7 @@ import React from 'react'
 import './EnvVarsTable.css'
 
 // @ts-ignore
-import { Required, Optional } from '@site/src/components/Tag'
+import { Optional, Required } from '@site/src/components/Tag'
 
 type EnvVar = {
   name: string
@@ -14,7 +14,7 @@ type EnvVar = {
 
 export function EnvVarsTable({ envVars }: { envVars: EnvVar[] }) {
   return (
-    <table className="env-vars-table">
+    <table className='env-vars-table'>
       <thead>
         <tr>
           <th>Name</th>
@@ -45,12 +45,12 @@ function EnvVarRow({
         <code>{name}</code>
       </td>
       <td>
-        <span className="env-var-type">
+        <span className='env-var-type'>
           <span>{type}</span>
           <span>{requiredQualifier}</span>
         </span>
         {defaultValue && (
-          <span className="env-var-default">
+          <span className='env-var-default'>
             Default: <code>{defaultValue}</code>
           </span>
         )}

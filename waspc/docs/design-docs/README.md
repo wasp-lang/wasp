@@ -6,6 +6,3 @@ It documents the high level implementation strategy and key decisions with empha
 Contributors are encouraged to submit DDs via pull request if feature is complex and could benefit from documenting its design or from having a discussion before its implementation starts.
 
 In this directory, we collect DDs for various Wasp features, one markdown document representing one DD.
-
-
-

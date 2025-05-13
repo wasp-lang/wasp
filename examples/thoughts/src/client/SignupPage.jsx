@@ -1,5 +1,4 @@
-import { SignupForm } from "wasp/client/auth";
-import React from 'react'
+import { SignupForm } from 'wasp/client/auth'
 
 import { Link } from 'react-router-dom'
 import addWaspSourceHeader from './addWaspSourceHeader'
@@ -7,11 +6,11 @@ import addWaspSourceHeader from './addWaspSourceHeader'
 const SignupPage = (props) => {
   return (
     <>
-      <div style={{maxWidth: "400px", margin: "0 auto"}}>
-        <SignupForm/>
-        <br/>
+      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <SignupForm />
+        <br />
         <span>
-          I already have an account (<Link to="/login">go to login</Link>).
+          I already have an account (<Link to='/login'>go to login</Link>).
         </span>
       </div>
     </>

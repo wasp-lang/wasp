@@ -1,17 +1,16 @@
 import { Link } from 'wasp/client/router'
 import { type Task } from 'wasp/entities'
 
+import { TaskVisibility } from '@prisma/client'
 import {
-  useAction,
-  type OptimisticUpdateDefinition,
-  updateTaskIsDone,
-  useQuery,
   getTask,
   getTasks,
+  updateTaskIsDone,
+  useAction,
+  useQuery,
+  type OptimisticUpdateDefinition,
 } from 'wasp/client/operations'
-import { TaskVisibility } from '@prisma/client'
 
-import React from 'react'
 import { useParams } from 'react-router-dom'
 
 type TaskPayload = Pick<Task, 'id' | 'isDone'>
@@ -44,8 +43,8 @@ const Todo = () => {
       {
         getQuerySpecifier: () => [getTasks],
         updateQuery: (updatedTask, oldTasks) =>
-          oldTasks &&
-          oldTasks.map((task) =>
+          oldTasks
+          && oldTasks.map((task) =>
             task.id === updatedTask.id ? { ...task, ...updatedTask } : task
           ),
       } as OptimisticUpdateDefinition<TaskPayload, Task[]>,
@@ -74,9 +73,8 @@ const Todo = () => {
           <div> description: {task.description} </div>
           <div>
             {' '}
-            who can see this task: {
-              VISIBILITY_EXPLANATION[task.visibility]
-            }{' '}
+            who can see this task:{' '}
+            {VISIBILITY_EXPLANATION[task.visibility]}{' '}
           </div>
           <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
           <button onClick={() => toggleIsDone(task)}>
@@ -85,7 +83,7 @@ const Todo = () => {
         </>
       )}
       <br />
-      <Link to="/">Go to dashboard</Link>
+      <Link to='/'>Go to dashboard</Link>
     </>
   )
 }

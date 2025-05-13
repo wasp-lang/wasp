@@ -1,23 +1,23 @@
-import { TomlFilePaths } from './helpers/tomlFileHelpers.js';
-import { CommonOptions } from './CommonOptions.js';
+import { CommonOptions } from './CommonOptions.js'
+import { TomlFilePaths } from './helpers/tomlFileHelpers.js'
 
 export type DeploymentInfo<CommandOptions extends CommonOptions> = Readonly<{
-  baseName: string;
-  region?: string;
-  options: CommandOptions;
-  tomlFilePaths: TomlFilePaths;
-  clientName: string;
-  clientUrl: string;
-  serverName: string;
-  serverUrl: string;
-  dbName: string;
-}>;
+  baseName: string
+  region?: string
+  options: CommandOptions
+  tomlFilePaths: TomlFilePaths
+  clientName: string
+  clientUrl: string
+  serverName: string
+  serverUrl: string
+  dbName: string
+}>
 
 export function createDeploymentInfo<CommandOptions extends CommonOptions>(
   baseName: string,
   region: string | undefined,
   options: CommandOptions,
-  tomlFilePaths: TomlFilePaths,
+  tomlFilePaths: TomlFilePaths
 ): DeploymentInfo<CommandOptions> {
   return Object.freeze({
     baseName,
@@ -29,5 +29,5 @@ export function createDeploymentInfo<CommandOptions extends CommonOptions>(
     serverName: `${baseName}-server`,
     serverUrl: `https://${baseName}-server.fly.dev`,
     dbName: `${baseName}-db`,
-  });
+  })
 }

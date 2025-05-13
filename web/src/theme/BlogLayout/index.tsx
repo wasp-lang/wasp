@@ -37,18 +37,18 @@ export default function BlogLayout(props: Props) {
           'margin-vert--lg container': !isListOfBlogPosts,
         })}
       >
-        <div className="row">
+        <div className='row'>
           {!isListOfBlogPosts && <BlogSidebar sidebar={sidebar} />}
           <main
             className={clsx('col', {
               'col--7': !isListOfBlogPosts,
             })}
             itemScope
-            itemType="http://schema.org/Blog"
+            itemType='http://schema.org/Blog'
           >
             {children}
           </main>
-          {toc && <div className="col col--2">{toc}</div>}
+          {toc && <div className='col col--2'>{toc}</div>}
         </div>
       </div>
     </Layout>

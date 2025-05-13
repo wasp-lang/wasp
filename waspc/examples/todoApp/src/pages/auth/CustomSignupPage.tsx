@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   FormError,
   FormInput,
@@ -5,7 +6,6 @@ import {
   FormLabel,
 } from 'wasp/client/auth'
 import { customSignup as customSubmit } from 'wasp/client/operations'
-import { useState } from 'react'
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from 'react-hook-form'
@@ -65,12 +65,12 @@ export const SignupPage = () => {
         )}
         <FormItemGroup>
           <FormLabel>Email</FormLabel>
-          <FormInput type="email" {...register('email')} />
+          <FormInput type='email' {...register('email')} />
           <FormError>{errors.email?.message}</FormError>
         </FormItemGroup>
         <FormItemGroup>
           <FormLabel>Password</FormLabel>
-          <FormInput type="password" {...register('password')} />
+          <FormInput type='password' {...register('password')} />
           <FormError>{errors.password?.message}</FormError>
         </FormItemGroup>
         <FormItemGroup>
@@ -78,7 +78,7 @@ export const SignupPage = () => {
           <FormInput {...register('address')} />
           <FormError>{errors.address?.message}</FormError>
         </FormItemGroup>
-        <button type="submit">Signup</button>
+        <button type='submit'>Signup</button>
       </form>
     </>
   )

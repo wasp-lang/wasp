@@ -1,45 +1,45 @@
-import { Outlet } from "react-router-dom";
-import { logout, useAuth } from "wasp/client/auth";
-import "./Main.css";
+import { Outlet } from 'react-router-dom'
+import { logout, useAuth } from 'wasp/client/auth'
+import './Main.css'
 
-import { Flowbite, Dropdown, Navbar, Avatar } from "flowbite-react";
-import Logo from "./logo.png";
+import { Avatar, Dropdown, Flowbite, Navbar } from 'flowbite-react'
+import Logo from './logo.png'
 
 const customTheme = {
   button: {
     color: {
-      primary: "bg-red-500 hover:bg-red-600",
+      primary: 'bg-red-500 hover:bg-red-600',
     },
   },
-};
+}
 
 export const Layout = () => {
-  const { data: user } = useAuth();
+  const { data: user } = useAuth()
 
   return (
     <Flowbite theme={{ theme: customTheme }}>
-      <div className="p-8">
+      <div className='p-8'>
         <Navbar fluid rounded>
-          <Navbar.Brand className="cursor-pointer">
-            <img alt="Fox Logo" className="mr-3 h-6 sm:h-9" src={Logo} />
-            <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+          <Navbar.Brand className='cursor-pointer'>
+            <img alt='Fox Logo' className='mr-3 h-6 sm:h-9' src={Logo} />
+            <span className='self-center whitespace-nowrap text-xl font-semibold dark:text-white'>
               Undecisive Fox App
             </span>
           </Navbar.Brand>
           {user && (
-            <div className="flex md:order-2">
+            <div className='flex md:order-2'>
               <Dropdown
                 inline
                 label={
                   <Avatar
-                    alt="User settings"
+                    alt='User settings'
                     img={`https://xsgames.co/randomusers/avatar.php?g=female&username=${user.getFirstProviderUserId()}`}
                     rounded
                   />
                 }
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">
+                  <span className='block text-sm'>
                     {user.getFirstProviderUserId()}
                   </span>
                 </Dropdown.Header>
@@ -62,10 +62,10 @@ export const Layout = () => {
             <Navbar.Link href="#">Contact</Navbar.Link>
           </Navbar.Collapse> */}
         </Navbar>
-        <div className="grid place-items-center mt-8">
+        <div className='mt-8 grid place-items-center'>
           <Outlet />
         </div>
       </div>
     </Flowbite>
-  );
-};
+  )
+}

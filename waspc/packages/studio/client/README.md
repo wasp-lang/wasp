@@ -5,7 +5,7 @@ It's a React + Vite app that connects via WebSocket to the Wasp Studio Server.
 ### Development
 
 Install deps:
-  
+
 ```
 npm install
 ```

@@ -8,7 +8,7 @@
 
 DST=$PWD/${1:-wasp.tar.gz}
 
-TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t wasp-bin-package)"
+TMP_DIR="$(mktemp -d 2> /dev/null || mktemp -d -t wasp-bin-package)"
 
 WASP_BINARY_PATH="$(cabal list-bin wasp-cli)"
 cp "$WASP_BINARY_PATH" "$TMP_DIR/wasp-bin"

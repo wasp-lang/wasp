@@ -1,8 +1,8 @@
-import React, { useState, useRef, useContext } from 'react'
-import { Plus, X, MoreHorizontal } from 'react-feather'
-import { Popover } from 'react-tiny-popover'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import classnames from 'classnames'
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { useContext, useRef, useState } from 'react'
+import { MoreHorizontal, Plus, X } from 'react-feather'
+import { Popover } from 'react-tiny-popover'
 
 import UserPageLayout from './UserPageLayout'
 
@@ -15,14 +15,14 @@ import {
 } from './PositionContext'
 
 import {
-  createList,
-  updateList,
-  deleteList,
-  createListCopy,
   createCard,
-  updateCard,
-  useQuery,
+  createList,
+  createListCopy,
+  deleteList,
   getListsAndCards,
+  updateCard,
+  updateList,
+  useQuery,
 } from 'wasp/client/operations'
 
 const createListIdToSortedCardsMap = (listsAndCards) => {

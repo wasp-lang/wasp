@@ -1,14 +1,14 @@
-import { Position, Node, Edge } from "reactflow";
+import { Edge, Node, Position } from 'reactflow'
 
-let id = 1;
+let id = 1
 
 export function generateId() {
-  return `${id++}`;
+  return `${id++}`
 }
 
 type AnyData = {
-  [key: string]: unknown;
-};
+  [key: string]: unknown
+}
 
 export function createPageNode(
   id: string,
@@ -18,12 +18,12 @@ export function createPageNode(
 ) {
   return {
     id,
-    type: "pageNode",
+    type: 'pageNode',
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
     targetPosition: Position.Left,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createActionNode(
@@ -37,9 +37,9 @@ export function createActionNode(
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
-    type: "actionNode",
+    type: 'actionNode',
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createQueryNode(
@@ -53,9 +53,9 @@ export function createQueryNode(
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
-    type: "queryNode",
+    type: 'queryNode',
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createRouteNode(
@@ -70,9 +70,9 @@ export function createRouteNode(
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
-    type: "routeNode",
+    type: 'routeNode',
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createEntityNode(
@@ -86,11 +86,11 @@ export function createEntityNode(
     id,
     data: { label: name, isUserEntity, ...data },
     position: { x: 0, y: 0 },
-    type: "entityNode",
+    type: 'entityNode',
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createApiNode(
@@ -103,10 +103,10 @@ export function createApiNode(
     id,
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
-    type: "apiNode",
+    type: 'apiNode',
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createJobNode(
@@ -119,10 +119,10 @@ export function createJobNode(
     id,
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
-    type: "jobNode",
+    type: 'jobNode',
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createAppNode(
@@ -135,11 +135,11 @@ export function createAppNode(
     id,
     data: { label: name, ...data },
     position: { x: 0, y: 0 },
-    type: "appNode",
+    type: 'appNode',
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies Node
 }
 
 export function createEdge(
@@ -153,5 +153,5 @@ export function createEdge(
     target,
     animated: true,
     selected: selectedNode?.id === source || selectedNode?.id === target,
-  } satisfies Edge;
+  } satisfies Edge
 }

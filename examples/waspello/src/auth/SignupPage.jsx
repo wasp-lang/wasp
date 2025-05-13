@@ -1,17 +1,15 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import addWaspSourceHeader from '../common/addWaspSourceHeader'
 import EmailAndPassForm from './components/EmailAndPassForm'
 import GoogleAuthButton from './components/GoogleAuthButton'
-import addWaspSourceHeader from '../common/addWaspSourceHeader'
 
+import { login, signup } from 'wasp/client/auth'
 import mainLogo from '../common/waspello-logo.svg'
 import './Signup.css'
-import { login, signup } from "wasp/client/auth";
-
 
 const SignupPage = (props) => {
-
   const navigate = useNavigate()
 
   const [usernameFieldVal, setUsernameFieldVal] = useState('')
@@ -41,11 +39,10 @@ const SignupPage = (props) => {
   }
 
   return (
-    <div className="auth-root-container">
-      <img alt="Waspello" className="main-logo" src={mainLogo} />
+    <div className='auth-root-container'>
+      <img alt='Waspello' className='main-logo' src={mainLogo} />
 
-      <div className="auth-form-container">
-
+      <div className='auth-form-container'>
         <EmailAndPassForm
           title='Sign up for your account'
           submitButtonLabel='Sign up'
@@ -57,24 +54,18 @@ const SignupPage = (props) => {
           handleSignup={handleSignup}
         />
 
-        <div className='mt-3 text-xs text-neutral-500'>
-          OR
-        </div>
+        <div className='mt-3 text-xs text-neutral-500'>OR</div>
 
         <GoogleAuthButton />
 
-        <div className='w-full text-center mt-6 pt-3 border-t border-neutral-300'>
+        <div className='mt-6 w-full border-t border-neutral-300 pt-3 text-center'>
           <p className='text-sm text-yellow-600'>
-            <Link to='/login'>
-              Already have an Waspello account? Log in.
-            </Link>
+            <Link to='/login'>Already have an Waspello account? Log in.</Link>
           </p>
         </div>
       </div>
-
     </div>
   )
 }
-
 
 export default addWaspSourceHeader(SignupPage)

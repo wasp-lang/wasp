@@ -1,33 +1,33 @@
 import {
-  voidToStringAuth,
-  voidToStringNoAuth,
-  boolToStringNoAuth,
   boolToStringAuth,
-  boolToVoidNoAuth,
+  boolToStringNoAuth,
   boolToVoidAuth,
-  unspecifiedToNumber,
-  taskToTaskUnspecified,
-  taskToTaskSatisfies,
-  taskToTaskSpecified,
+  boolToVoidNoAuth,
+  getAnyAuth,
+  getAnyNoAuth,
   getAnythingAuth,
   getAnythingNoAuth,
-  getTrueVoid,
-  getAnyNoAuth,
-  type TestingAction,
-  getAnyAuth,
   getAnyToNumberSpecified,
+  getTrueVoid,
   jsActionWithArgs,
+  taskToTaskSatisfies,
+  taskToTaskSpecified,
+  taskToTaskUnspecified,
+  unspecifiedToNumber,
+  voidToStringAuth,
+  voidToStringNoAuth,
+  type TestingAction,
 } from 'wasp/server/operations'
 
 import {
-  taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
   taskToTaskSatisfies as taskToTaskSatisfiesDefinition,
+  taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
 } from './definitions'
 
-import { Equal, Expect } from '../helpers'
 import { AuthUser } from 'wasp/auth'
 import { Task } from 'wasp/entities'
 import { Payload } from 'wasp/server/_types'
+import { Equal, Expect } from '../helpers'
 
 export const testingAction: TestingAction = async (_args, context) => {
   // TODO: (Filip) When sorting out the tests, we should also test whether the
@@ -131,5 +131,5 @@ type TestCases = [
       typeof jsActionWithArgs,
       (args: any, ctx: { user: AuthUser }) => Promise<void>
     >
-  >
+  >,
 ]

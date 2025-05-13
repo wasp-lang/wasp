@@ -1,12 +1,12 @@
 {
   "name": "wasp-studio-client",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
     "copy": "npm run build && cp -r ./dist/* ../public",
+    "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

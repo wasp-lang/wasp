@@ -1,4 +1,4 @@
 export function getNowInUTC() {
-  const now = new Date();
-  return new Date(now.toUTCString());
+  const now = new Date()
+  return new Date(now.toUTCString())
 }

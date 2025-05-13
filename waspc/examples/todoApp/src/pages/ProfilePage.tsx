@@ -46,7 +46,7 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
 
   return (
     <>
-      <h2 className="mt-4 mb-2 font-bold text-xl">User Auth Fields Demo</h2>
+      <h2 className='mb-2 mt-4 text-xl font-bold'>User Auth Fields Demo</h2>
       <div>
         Hello <strong>{user.getFirstProviderUserId()}</strong>! Your status is{' '}
         <strong>
@@ -72,8 +72,8 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
       <div>
         First provider ID: <strong>{user.getFirstProviderUserId()}</strong>
       </div>
-      <h2 className="mt-4 mb-2 font-bold text-xl">Links Demo</h2>
-      <Link to="/task/:id" params={{ id: 3 }}>
+      <h2 className='mb-2 mt-4 text-xl font-bold'>Links Demo</h2>
+      <Link to='/task/:id' params={{ id: 3 }}>
         Task 3
       </Link>
       <p>
@@ -85,15 +85,15 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
         })}
       </p>
       <div>
-        <h2 className="mt-4 mb-2 font-bold text-xl">WebSockets Demo</h2>
+        <h2 className='mb-2 mt-4 text-xl font-bold'>WebSockets Demo</h2>
         <form onSubmit={handleSubmit}>
-          <div className="flex space-x-4 place-items-center">
+          <div className='flex place-items-center space-x-4'>
             <div>{connectionIcon}</div>
             <div>
-              <input type="text" ref={inputRef} />
+              <input type='text' ref={inputRef} />
             </div>
             <div>
-              <button className="btn btn-primary" type="submit">
+              <button className='btn btn-primary' type='submit'>
                 Submit
               </button>
             </div>

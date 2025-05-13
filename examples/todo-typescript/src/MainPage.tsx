@@ -1,29 +1,29 @@
-import { getUsername, type AuthUser as User } from "wasp/auth";
-import { type Task } from "wasp/entities";
-import { logout } from "wasp/client/auth";
+import { FormEvent, FormEventHandler } from 'react'
+import { type AuthUser as User } from 'wasp/auth'
+import { logout } from 'wasp/client/auth'
 import {
   createTask,
-  updateTask,
   deleteTasks,
-  useQuery,
   getTasks,
-} from "wasp/client/operations";
-import React, { FormEventHandler, FormEvent } from "react";
-import waspLogo from "./waspLogo.png";
+  updateTask,
+  useQuery,
+} from 'wasp/client/operations'
+import { type Task } from 'wasp/entities'
+import waspLogo from './waspLogo.png'
 
-import "./Main.css";
+import './Main.css'
 
 export const MainPage = ({ user }: { user: User }) => {
-  const { data: tasks, isLoading, error } = useQuery(getTasks);
+  const { data: tasks, isLoading, error } = useQuery(getTasks)
 
-  if (isLoading) return "Loading...";
-  if (error) return "Error: " + error;
+  if (isLoading) return 'Loading...'
+  if (error) return 'Error: ' + error
 
-  const completed = tasks?.filter((task) => task.isDone).map((task) => task.id);
+  const completed = tasks?.filter((task) => task.isDone).map((task) => task.id)
 
   return (
     <main>
-      <img src={waspLogo} alt="wasp logo" />
+      <img src={waspLogo} alt='wasp logo' />
       {user && user.identities.username && (
         <h1>
           {user.identities.username.id}
@@ -32,20 +32,20 @@ export const MainPage = ({ user }: { user: User }) => {
       )}
       <NewTaskForm />
       {tasks && <TasksList tasks={tasks} />}
-      <div className="buttons">
+      <div className='buttons'>
         <button
-          className="delete-tasks"
+          className='delete-tasks'
           onClick={() => void deleteTasks(completed ?? [])}
         >
           Delete completed
         </button>
-        <button className="logout" onClick={logout}>
+        <button className='logout' onClick={logout}>
           Logout
         </button>
       </div>
     </main>
-  );
-};
+  )
+}
 
 function Todo({ id, isDone, description }: Task) {
   const handleIsDoneChange: FormEventHandler<HTMLInputElement> = async (
@@ -55,17 +55,17 @@ function Todo({ id, isDone, description }: Task) {
       await updateTask({
         id,
         isDone: event.currentTarget.checked,
-      });
+      })
     } catch (err: any) {
-      window.alert("Error while updating task " + err?.message);
+      window.alert('Error while updating task ' + err?.message)
     }
-  };
+  }
 
   return (
     <li>
-      <span className="todo-item">
+      <span className='todo-item'>
         <input
-          type="checkbox"
+          type='checkbox'
           id={id.toString()}
           checked={isDone}
           onChange={handleIsDoneChange}
@@ -74,38 +74,38 @@ function Todo({ id, isDone, description }: Task) {
         <button onClick={() => void deleteTasks([id])}>Delete</button>
       </span>
     </li>
-  );
+  )
 }
 
 function TasksList({ tasks }: { tasks: Task[] }) {
-  if (tasks.length === 0) return <p>No tasks yet.</p>;
+  if (tasks.length === 0) return <p>No tasks yet.</p>
   return (
-    <ol className="tasklist">
+    <ol className='tasklist'>
       {tasks.map((task, idx) => (
         <Todo {...task} key={idx} />
       ))}
     </ol>
-  );
+  )
 }
 
 function NewTaskForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
     try {
-      const description = event.currentTarget.description.value;
-      console.log(description);
-      event.currentTarget.reset();
-      await createTask({ description });
+      const description = event.currentTarget.description.value
+      console.log(description)
+      event.currentTarget.reset()
+      await createTask({ description })
     } catch (err: any) {
-      window.alert("Error: " + err?.message);
+      window.alert('Error: ' + err?.message)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input name="description" type="text" defaultValue="" />
-      <input type="submit" value="Create task" />
+      <input name='description' type='text' defaultValue='' />
+      <input type='submit' value='Create task' />
     </form>
-  );
+  )
 }

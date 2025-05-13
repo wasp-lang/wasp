@@ -1,4 +1,3 @@
-import React from 'react'
 import { useAllDocsData } from '@docusaurus/plugin-content-docs/client'
 
 export function HiddenLLMHelper() {

@@ -1,23 +1,23 @@
-import { type FailStaleAppsJobs } from "wasp/server/jobs";
-import { getNowInUTC } from "../utils.js";
-import { log } from "./utils.js";
+import { type FailStaleAppsJobs } from 'wasp/server/jobs'
+import { getNowInUTC } from '../utils.js'
+import { log } from './utils.js'
 
 export const failStaleGenerations: FailStaleAppsJobs<
   {},
   {
-    success: boolean;
+    success: boolean
   }
 > = async (_args, context) => {
-  log("Failing stale generations");
-  const { Project, Log } = context.entities;
+  log('Failing stale generations')
+  const { Project, Log } = context.entities
 
-  const now = getNowInUTC();
-  const fiveMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+  const now = getNowInUTC()
+  const fiveMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000)
 
   try {
     const staleProjects = await Project.findMany({
       where: {
-        status: "in-progress",
+        status: 'in-progress',
         logs: {
           every: {
             createdAt: {
@@ -33,30 +33,30 @@ export const failStaleGenerations: FailStaleAppsJobs<
           },
         },
       },
-    });
+    })
 
     for (const project of staleProjects) {
       if (project.logs.length === 0) {
-        continue;
+        continue
       }
       await Project.update({
         where: { id: project.id },
-        data: { status: "cancelled" },
-      });
+        data: { status: 'cancelled' },
+      })
       await Log.create({
         data: {
           project: { connect: { id: project.id } },
-          content: "The generation took too long.",
+          content: 'The generation took too long.',
         },
-      });
+      })
     }
     return {
       success: true,
-    };
+    }
   } catch (e) {
-    console.log("Error fetching projects:", e);
+    console.log('Error fetching projects:', e)
     return {
       success: false,
-    };
+    }
   }
-};
+}

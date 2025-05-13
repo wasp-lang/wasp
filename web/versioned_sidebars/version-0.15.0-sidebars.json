@@ -102,10 +102,7 @@
       "label": "Wasp AI",
       "collapsed": false,
       "collapsible": true,
-      "items": [
-        "wasp-ai/creating-new-app",
-        "wasp-ai/developing-existing-app"
-      ]
+      "items": ["wasp-ai/creating-new-app", "wasp-ai/developing-existing-app"]
     },
     {
       "type": "category",
@@ -162,12 +159,7 @@
       "label": "Miscellaneous",
       "collapsed": true,
       "collapsible": true,
-      "items": [
-        "contributing",
-        "telemetry",
-        "vision",
-        "contact"
-      ]
+      "items": ["contributing", "telemetry", "vision", "contact"]
     }
   ]
 }

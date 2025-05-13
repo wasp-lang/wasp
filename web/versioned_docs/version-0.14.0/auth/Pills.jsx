@@ -1,6 +1,5 @@
-import React from 'react'
-import './Pills.css'
 import Link from '@docusaurus/Link'
+import './Pills.css'
 
 export function Pill({ children, linkToPage, style = {} }) {
   return (
@@ -26,7 +25,7 @@ export function EmailPill() {
       style={{
         backgroundColor: 'var(--auth-pills-email)',
       }}
-      linkToPage="/docs/auth/email"
+      linkToPage='/docs/auth/email'
     >
       Email
     </Pill>
@@ -39,7 +38,7 @@ export function UsernameAndPasswordPill() {
       style={{
         backgroundColor: 'var(--auth-pills-username-and-pass)',
       }}
-      linkToPage="/docs/auth/username-and-pass"
+      linkToPage='/docs/auth/username-and-pass'
     >
       Username & Password
     </Pill>
@@ -52,7 +51,7 @@ export function DiscordPill() {
       style={{
         backgroundColor: 'var(--auth-pills-discord)',
       }}
-      linkToPage="/docs/auth/social-auth/discord"
+      linkToPage='/docs/auth/social-auth/discord'
     >
       Discord
     </Pill>
@@ -65,7 +64,7 @@ export function GithubPill() {
       style={{
         backgroundColor: 'var(--auth-pills-github)',
       }}
-      linkToPage="/docs/auth/social-auth/github"
+      linkToPage='/docs/auth/social-auth/github'
     >
       Github
     </Pill>
@@ -78,7 +77,7 @@ export function GooglePill() {
       style={{
         backgroundColor: 'var(--auth-pills-google)',
       }}
-      linkToPage="/docs/auth/social-auth/google"
+      linkToPage='/docs/auth/social-auth/google'
     >
       Google
     </Pill>
@@ -91,7 +90,7 @@ export function KeycloakPill() {
       style={{
         backgroundColor: 'var(--auth-pills-keycloak)',
       }}
-      linkToPage="/docs/auth/social-auth/keycloak"
+      linkToPage='/docs/auth/social-auth/keycloak'
     >
       Keycloak
     </Pill>

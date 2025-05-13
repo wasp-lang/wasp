@@ -1,5 +1,5 @@
-import { type WebSocketDefinition } from 'wasp/server/webSocket'
 import { v4 as uuidv4 } from 'uuid'
+import { type WebSocketDefinition } from 'wasp/server/webSocket'
 
 export const webSocketFn: WebSocketDefinition<
   ClientToServerEvents,

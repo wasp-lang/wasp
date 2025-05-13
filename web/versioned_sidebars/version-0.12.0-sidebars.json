@@ -93,10 +93,7 @@
       "label": "Wasp AI",
       "collapsed": false,
       "collapsible": false,
-      "items": [
-        "wasp-ai/creating-new-app",
-        "wasp-ai/developing-existing-app"
-      ]
+      "items": ["wasp-ai/creating-new-app", "wasp-ai/developing-existing-app"]
     },
     {
       "type": "category",
@@ -127,10 +124,7 @@
       "label": "General",
       "collapsed": false,
       "collapsible": false,
-      "items": [
-        "general/language",
-        "general/cli"
-      ]
+      "items": ["general/language", "general/cli"]
     },
     {
       "type": "category",

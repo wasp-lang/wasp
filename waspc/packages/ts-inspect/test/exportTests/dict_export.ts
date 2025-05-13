@@ -1,12 +1,9 @@
 function add(x: number, y: number): number {
-  return x + y;
+  return x + y
 }
 
 function sub(x: number, y: number): number {
-  return x - y;
+  return x - y
 }
 
-export {
-  add,
-  sub
-};
+export { add, sub }

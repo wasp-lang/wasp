@@ -27,17 +27,17 @@ export const Tag = ({
 // Used to mark something as internal to
 // Wasp and not to be used by the user.
 export function Internal() {
-  return <Tag color="#0b62f5">internal</Tag>
+  return <Tag color='#0b62f5'>internal</Tag>
 }
 
 // Used to mark something as required e.g. required
 // fields in Wasp file.
 export function Required() {
-  return <Tag color="#f59e0b">required</Tag>
+  return <Tag color='#f59e0b'>required</Tag>
 }
 
 // Used to mark something as optional e.g. optional
 // env vars.
 export function Optional() {
-  return <Tag color="#08c47e">optional</Tag>
+  return <Tag color='#08c47e'>optional</Tag>
 }

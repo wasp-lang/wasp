@@ -1,23 +1,23 @@
-import { Link } from "wasp/client/router";
+import { Link } from 'wasp/client/router'
 
-import { VerifyEmailForm } from "wasp/client/auth";
-import appearance from './appearance'
+import { VerifyEmailForm } from 'wasp/client/auth'
 import todoLogo from '../../todoLogo.png'
+import appearance from './appearance'
 
 export function EmailVerification() {
   return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
+    <div className='h-full w-full bg-white'>
+      <div className='flex min-h-[75vh] min-w-full items-center justify-center'>
+        <div className='h-full w-full max-w-sm bg-white p-5'>
           <div>
             <VerifyEmailForm
               appearance={appearance}
               logo={todoLogo}
-              socialLayout="horizontal"
+              socialLayout='horizontal'
             />
             <br />
-            <span className="text-sm font-medium text-gray-900">
-              If everything is okay, <Link to="/login">go to login</Link>
+            <span className='text-sm font-medium text-gray-900'>
+              If everything is okay, <Link to='/login'>go to login</Link>
             </span>
           </div>
         </div>

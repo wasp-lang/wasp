@@ -1,0 +1,10 @@
+.wasp/
+dist/
+dist-newstyle/
+waspc/data/packages/
+waspc/data/*/templates/
+waspc/e2e-test/test-outputs/
+waspc/.bin
+web/.docusaurus
+web/**/*.md
+web/**/*.mdx

@@ -1,10 +1,7 @@
-import React from 'react'
 import Link from '@docusaurus/Link'
-import classNames from 'classnames'
 
 import SectionContainer from './Layouts/SectionContainer'
 import SubscribeForm from './SubscribeForm'
-import DarkModeToggle from './DarkModeToggle'
 
 const docs = [
   {
@@ -53,27 +50,24 @@ const company = [
 
 // TODO(matija): duplication, I already have Logo in Nav/index.js
 const Logo = () => (
-  <div className="flex flex-shrink-0 items-center">
-    <Link to="/">
-      <img src="img/lp/wasp-logo.webp" width={35} height={35} alt="Wasp Logo" />
+  <div className='flex flex-shrink-0 items-center'>
+    <Link to='/'>
+      <img src='img/lp/wasp-logo.webp' width={35} height={35} alt='Wasp Logo' />
     </Link>
-    <span className="ml-3 text-lg font-semibold text-neutral-700">Wasp</span>
+    <span className='ml-3 text-lg font-semibold text-neutral-700'>Wasp</span>
   </div>
 )
 
 const Segment = ({ title, links }) => (
   <div>
-    <h6 className="text-neutral-700">{title}</h6>
-    <ul className="mt-4 space-y-2">
+    <h6 className='text-neutral-700'>{title}</h6>
+    <ul className='mt-4 space-y-2'>
       {links.map((l, idx) => {
         return (
           <li key={idx}>
             <a
               href={l.url}
-              className={`
-                text-sm text-neutral-500 transition-colors
-                hover:text-neutral-400
-              `}
+              className={`text-sm text-neutral-500 transition-colors hover:text-neutral-400`}
             >
               {l.text}
             </a>
@@ -86,45 +80,45 @@ const Segment = ({ title, links }) => (
 
 const Footer = () => {
   return (
-    <footer className="border-t">
+    <footer className='border-t'>
       <SectionContainer>
-        <div className="grid grid-cols-1 gap-8 xl:grid xl:grid-cols-3">
+        <div className='grid grid-cols-1 gap-8 xl:grid xl:grid-cols-3'>
           {/* cols with links */}
-          <div className="grid grid-cols-1 xl:col-span-2">
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
-              <Segment title="Docs" links={docs} />
-              <Segment title="Community" links={community} />
-              <Segment title="Company" links={company} />
+          <div className='grid grid-cols-1 xl:col-span-2'>
+            <div className='grid grid-cols-2 gap-8 md:grid-cols-3'>
+              <Segment title='Docs' links={docs} />
+              <Segment title='Community' links={community} />
+              <Segment title='Company' links={company} />
             </div>
           </div>
 
           {/* newsletter part */}
-          <div className="xl:col-span-1">
-            <h3 className="text-base text-neutral-700">Stay up to date</h3>
-            <p className="mt-4 text-sm text-neutral-500">
+          <div className='xl:col-span-1'>
+            <h3 className='text-base text-neutral-700'>Stay up to date</h3>
+            <p className='mt-4 text-sm text-neutral-500'>
               Join our mailing list and be the first to know when we ship new
               features and updates!
             </p>
 
             <SubscribeForm
-              className="mt-4 sm:max-w-md"
-              inputBgColor="bg-transparent"
+              className='mt-4 sm:max-w-md'
+              inputBgColor='bg-transparent'
             />
 
-            <span className="mt-6 flex items-center">
-              <small className="text-xs text-neutral-500">Backed by</small>
+            <span className='mt-6 flex items-center'>
+              <small className='text-xs text-neutral-500'>Backed by</small>
               <img
-                className="ml-2 w-24"
-                src="img/lp/yc-logo-rounded.webp"
-                alt="YC"
+                className='ml-2 w-24'
+                src='img/lp/yc-logo-rounded.webp'
+                alt='YC'
               />
             </span>
           </div>
         </div>
-        <div className="mt-8 pt-8">
+        <div className='mt-8 pt-8'>
           <Logo />
-          <div className="flex justify-between">
-            <p className="mt-4 text-xs text-neutral-400">
+          <div className='flex justify-between'>
+            <p className='mt-4 text-xs text-neutral-400'>
               © Wasp, Inc. All rights reserved.
             </p>
             {/* <DarkModeToggle /> */}

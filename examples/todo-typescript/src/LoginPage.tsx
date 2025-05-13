@@ -1,5 +1,5 @@
-import { LoginForm } from "wasp/client/auth";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom'
+import { LoginForm } from 'wasp/client/auth'
 
 export function LoginPage() {
   return (
@@ -10,8 +10,8 @@ export function LoginPage() {
       <LoginForm />
       <br />
       <span>
-        I don't have an account yet (<Link to="/signup">go to signup</Link>).
+        I don't have an account yet (<Link to='/signup'>go to signup</Link>).
       </span>
     </main>
-  );
+  )
 }

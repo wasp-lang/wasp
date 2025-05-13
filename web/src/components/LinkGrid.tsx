@@ -1,5 +1,4 @@
 import Link from '@docusaurus/Link'
-import React from 'react'
 import './LinkGrid.css'
 
 export interface LinkInfo {
@@ -17,13 +16,13 @@ export function LinkGrid({
 }) {
   return (
     <>
-      <div className="link-grid-layout">
+      <div className='link-grid-layout'>
         {links.map((link) => (
           <LinkGridBox link={link} />
         ))}
       </div>
       {caption && (
-        <p className="link-grid-info">
+        <p className='link-grid-info'>
           <small>{caption}</small>
         </p>
       )}
@@ -37,7 +36,7 @@ function LinkGridBox({
   link: LinkInfo
 }) {
   return (
-    <Link to={linkTo} className="link-grid-box">
+    <Link to={linkTo} className='link-grid-box'>
       <h3>{title} »</h3>
       {description && <p>{description}</p>}
     </Link>

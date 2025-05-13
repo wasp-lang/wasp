@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import Link from '@docusaurus/Link'
+import { useState } from 'react'
 import { ChevronDown, ChevronRight } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
@@ -103,16 +102,16 @@ const FaqItem = ({ keyP, faq }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
-    <div className="py-6">
-      <dt key={keyP} className="text-base text-neutral-700">
+    <div className='py-6'>
+      <dt key={keyP} className='text-base text-neutral-700'>
         <button
-          className="flex w-full items-center justify-between text-left"
+          className='flex w-full items-center justify-between text-left'
           onClick={() => {
             setIsExpanded(!isExpanded)
           }}
         >
           <span>{faq.question}</span>
-          <div className="ml-6 text-yellow-500">
+          <div className='ml-6 text-yellow-500'>
             {isExpanded ? (
               <ChevronDown size={20} />
             ) : (
@@ -121,7 +120,7 @@ const FaqItem = ({ keyP, faq }) => {
           </div>
         </button>
       </dt>
-      {isExpanded && <dd className="mt-2 text-neutral-500">{faq.answer}</dd>}
+      {isExpanded && <dd className='mt-2 text-neutral-500'>{faq.answer}</dd>}
     </div>
   )
 }
@@ -129,16 +128,16 @@ const FaqItem = ({ keyP, faq }) => {
 const Faq = () => {
   return (
     <SectionContainer>
-      <div className="grid grid-cols-12" id="faq">
-        <div className="col-span-12 text-center">
-          <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
+      <div className='grid grid-cols-12' id='faq'>
+        <div className='col-span-12 text-center'>
+          <h2 className='mb-4 text-xl text-neutral-700 lg:text-2xl'>
             Frequently asked questions
           </h2>
-          <p className="text-neutral-500">
+          <p className='text-neutral-500'>
             For anything not covered here, join&nbsp;
             <a
-              href="https://discord.gg/rzdnErX"
-              className="font-medium underline decoration-yellow-500 decoration-2"
+              href='https://discord.gg/rzdnErX'
+              className='font-medium underline decoration-yellow-500 decoration-2'
             >
               our Discord
             </a>
@@ -147,7 +146,7 @@ const Faq = () => {
         </div>
       </div>
 
-      <dl className="mx-auto mt-6 max-w-3xl divide-y divide-neutral-300">
+      <dl className='mx-auto mt-6 max-w-3xl divide-y divide-neutral-300'>
         {faqs.map((faq, idx) => (
           <FaqItem keyP={idx} key={idx} faq={faq} />
         ))}

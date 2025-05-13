@@ -1,14 +1,14 @@
-import { createThought } from "wasp/client/operations";
-import { routes } from "wasp/client/router";
-import React, { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { useNavigate } from 'react-router-dom'
+import { createThought } from 'wasp/client/operations'
+import { routes } from 'wasp/client/router'
 
-import Tag from './Tag'
 import './Main.css'
+import Tag from './Tag'
 
-import './Thought.css'
 import Layout from './Layout'
+import './Thought.css'
 
 // TODO:
 //   - Rename this file to Thought.js.
@@ -90,7 +90,7 @@ const Thought = () => {
   }
 
   const removeTag = (tagName) => {
-    setTagNames(tagNames.filter(name => name !== tagName))
+    setTagNames(tagNames.filter((name) => name !== tagName))
   }
 
   const handleTagsKeyPress = async (e) => {
@@ -105,11 +105,10 @@ const Thought = () => {
   }
 
   return (
-    <div className="thought">
+    <div className='thought'>
       <form ref={formRef}>
-
-        <div className="thought-tags">
-          { tagNames.map(tagName => (
+        <div className='thought-tags'>
+          {tagNames.map((tagName) => (
             <Tag
               key={tagName}
               name={tagName}
@@ -117,43 +116,53 @@ const Thought = () => {
               isDeletable={true}
             />
           ))}
-          <span className="thought-tags-new">
+          <span className='thought-tags-new'>
             #
             <input
-              type="text" value={newTagName} onChange={e => setNewTagNameIfValid(e.target.value)}
+              type='text'
+              value={newTagName}
+              onChange={(e) => setNewTagNameIfValid(e.target.value)}
               onKeyDown={handleTagsKeyPress}
               onBlur={handleTagsBlur}
-              placeholder="add.tags.here..."
+              placeholder='add.tags.here...'
             />
           </span>
         </div>
 
-        <div className="thought-text">
-          { inPreviewMode
-            ? <div className="thought-preview">
-                <ReactMarkdown children={textMd} />
-              </div>
-            : <div className="thought-editor">
-                <textarea
-                  value={textMd}
-                  onChange={e => setTextMd(e.target.value)}
-                  onKeyDown={handleThoughtEditorKeyPress}
-                  placeholder="Write here (Markdown supported, Alt+Enter to submit) ..."
-                  autoFocus={true}
-                />
-              </div>
-          }
+        <div className='thought-text'>
+          {inPreviewMode ? (
+            <div className='thought-preview'>
+              <ReactMarkdown children={textMd} />
+            </div>
+          ) : (
+            <div className='thought-editor'>
+              <textarea
+                value={textMd}
+                onChange={(e) => setTextMd(e.target.value)}
+                onKeyDown={handleThoughtEditorKeyPress}
+                placeholder='Write here (Markdown supported, Alt+Enter to submit) ...'
+                autoFocus={true}
+              />
+            </div>
+          )}
         </div>
 
-        <div className="thought-buttons">
-          <button className="plain"
-                  onClick={e => { e.preventDefault(); toggleInPreviewMode() }}>
-            { inPreviewMode ? 'edit' : 'preview' }
+        <div className='thought-buttons'>
+          <button
+            className='plain'
+            onClick={(e) => {
+              e.preventDefault()
+              toggleInPreviewMode()
+            }}
+          >
+            {inPreviewMode ? 'edit' : 'preview'}
           </button>
           &nbsp;|&nbsp;
-          <button className="plain" onClick={submit}> submit </button>
+          <button className='plain' onClick={submit}>
+            {' '}
+            submit{' '}
+          </button>
         </div>
-
       </form>
     </div>
   )

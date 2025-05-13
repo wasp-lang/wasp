@@ -1,12 +1,12 @@
-import { FormEvent, ChangeEvent } from 'react'
-import { Task } from 'wasp/entities'
+import { ChangeEvent, FormEvent } from 'react'
+import { logout } from 'wasp/client/auth'
 import {
-  updateTask,
   createTask,
   getTasks,
+  updateTask,
   useQuery,
 } from 'wasp/client/operations'
-import { logout } from 'wasp/client/auth'
+import { Task } from 'wasp/entities'
 
 export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks)
@@ -40,7 +40,7 @@ const TaskView = ({ task }: { task: Task }) => {
   return (
     <div>
       <input
-        type="checkbox"
+        type='checkbox'
         id={String(task.id)}
         checked={task.isDone}
         onChange={handleIsDoneChange}
@@ -77,8 +77,8 @@ const NewTaskForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input name="description" type="text" defaultValue="" />
-      <input type="submit" value="Create task" />
+      <input name='description' type='text' defaultValue='' />
+      <input type='submit' value='Create task' />
     </form>
   )
 }
