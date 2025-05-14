@@ -72,31 +72,64 @@ getTemplateStartingInstructions projectDirName = \case
 getStarterTemplates :: [StarterTemplate]
 getStarterTemplates =
   [ defaultStarterTemplate,
-    todoTsStarterTemplate,
+    minimalStarterTemplate,
     openSaasStarterTemplate,
-    embeddingsStarterTemplate,
     AiGeneratedStarterTemplate
   ]
 
 defaultStarterTemplate :: StarterTemplate
 defaultStarterTemplate = basicStarterTemplate
 
+{- HLINT ignore minimalStarterTemplate "Redundant $" -}
+
+minimalStarterTemplate :: StarterTemplate
+minimalStarterTemplate =
+  simpleGhRepoTemplate
+    ("minimal", [reldir|minimal|])
+    ( "minimal",
+      "Minimal starter template with a single page."
+    )
+    ( \projectDirName ->
+        unlines
+          [ styleText $ "To run your new app, do:",
+            styleCode $ "    cd " <> projectDirName,
+            styleCode $ "    wasp start"
+          ]
+    )
+
 {- HLINT ignore basicStarterTemplate "Redundant $" -}
 
 basicStarterTemplate :: StarterTemplate
 basicStarterTemplate =
-  LocalStarterTemplate $
-    DirBasedTemplateMetadata
-      { _path = [reldir|basic|],
-        _name = "basic",
-        _description = "Simple starter template with a single page.",
-        _buildStartingInstructions = \projectDirName ->
-          unlines
-            [ styleText $ "To run your new app, do:",
-              styleCode $ "    cd " <> projectDirName,
-              styleCode $ "    wasp start"
-            ]
-      }
+  simpleGhRepoTemplate
+    ("basic", [reldir|basic|])
+    ( "basic",
+      "Basic starter template to get you started quickly."
+    )
+    ( \projectDirName ->
+        unlines
+          [ styleText $ "To run your new app, follow the instructions below:",
+            styleText $ "",
+            styleText $ "  1. Position into app's root directory:",
+            styleCode $ "    cd " <> projectDirName FP.</> "app",
+            styleText $ "",
+            styleText $ "  2. Run the development database (and leave it running):",
+            styleCode $ "    wasp db start",
+            styleText $ "",
+            styleText $ "  3. Open new terminal window (or tab) in that same dir and continue in it.",
+            styleText $ "",
+            styleText $ "  4. Apply initial database migrations:",
+            styleCode $ "    wasp db migrate-dev",
+            styleText $ "",
+            styleText $ "  5. Create initial dot env file from the template:",
+            styleCode $ "    cp .env.server.example .env.server",
+            styleText $ "",
+            styleText $ "  6. Last step: run the app!",
+            styleCode $ "    wasp start",
+            styleText $ "",
+            styleText $ "Check the README for additional guidance!"
+          ]
+    )
 
 {- HLINT ignore openSaasStarterTemplate "Redundant $" -}
 
@@ -133,26 +166,6 @@ openSaasStarterTemplate =
           ]
     )
 
-{- HLINT ignore todoTsStarterTemplate "Redundant $" -}
-
-todoTsStarterTemplate :: StarterTemplate
-todoTsStarterTemplate =
-  simpleGhRepoTemplate
-    ("starters", [reldir|todo-ts|])
-    ( "todo-ts",
-      "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety."
-    )
-    ( \projectDirName ->
-        unlines
-          [ styleText $ "To run your new app, do:",
-            styleCode $ "    cd " ++ projectDirName,
-            styleCode $ "    wasp db migrate-dev",
-            styleCode $ "    wasp start",
-            styleText $ "",
-            styleText $ "Check the README for additional guidance!"
-          ]
-    )
-
 {- Functions for styling instructions. Their names are on purpose of same length, for nicer code formatting. -}
 
 styleCode :: String -> String
@@ -162,44 +175,6 @@ styleText :: String -> String
 styleText = id
 
 {- -}
-
-{- HLINT ignore embeddingsStarterTemplate "Redundant $" -}
-
-embeddingsStarterTemplate :: StarterTemplate
-embeddingsStarterTemplate =
-  simpleGhRepoTemplate
-    ("starters", [reldir|embeddings|])
-    ( "embeddings",
-      "Comes with code for generating vector embeddings and performing vector similarity search."
-    )
-    ( \projectDirName ->
-        unlines
-          [ styleText $ "To run your new app, follow the instructions below:",
-            styleText $ "",
-            styleText $ "  1. Position into app's root directory:",
-            styleCode $ "    cd " <> projectDirName,
-            styleText $ "",
-            styleText $ "  2. Create initial dot env file from the template and fill in your API keys:",
-            styleCode $ "    cp .env.server.example .env.server",
-            styleText $ "    Fill in your API keys!",
-            styleText $ "",
-            styleText $ "  3. Run the development database (and leave it running):",
-            styleCode $ "    wasp db start",
-            styleText $ "",
-            styleText $ "  4. Open new terminal window (or tab) in that same dir and continue in it.",
-            styleText $ "",
-            styleText $ "  5. Apply initial database migrations:",
-            styleCode $ "    wasp db migrate-dev",
-            styleText $ "",
-            styleText $ "  6. Run wasp seed script that will generate embeddings from the text files in src/shared/docs:",
-            styleCode $ "    wasp db seed",
-            styleText $ "",
-            styleText $ "  7. Last step: run the app!",
-            styleCode $ "    wasp start",
-            styleText $ "",
-            styleText $ "Check the README for more detailed instructions and additional guidance!"
-          ]
-    )
 
 simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
 simpleGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) buildStartingInstructions =

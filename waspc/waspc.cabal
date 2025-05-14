@@ -49,8 +49,8 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
-  Cli/templates/basic/schema.prisma
-  Cli/templates/basic/main.wasp
+  Cli/templates/minimal/schema.prisma
+  Cli/templates/minimal/main.wasp
   Cli/templates/skeleton/.gitignore
   Cli/templates/skeleton/.wasproot
   Cli/templates/skeleton/.waspignore
