@@ -223,7 +223,6 @@ describe('mapAuthMethods', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideRoutes: undefined,
       shouldError: false,
     }
   ): void {
@@ -290,7 +289,6 @@ describe('mapEmailAuth', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideRoutes: undefined,
       shouldError: false,
     }
   ): void {
@@ -344,7 +342,6 @@ describe('mapEmailVerification', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideRoutes: undefined,
       shouldError: false,
     }
   ): void {
@@ -393,7 +390,6 @@ describe('mapPasswordReset', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideRoutes: undefined,
       shouldError: false,
     }
   ): void {
@@ -634,7 +630,6 @@ describe('mapOperation', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideEntities: undefined,
       shouldError: false,
     }
   ): void {
@@ -681,7 +676,6 @@ describe('mapCrud', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideEntities: undefined,
       shouldError: false,
     }
   ): void {
@@ -788,7 +782,6 @@ describe('mapApi', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideEntities: undefined,
       shouldError: false,
     }
   ): void {
@@ -853,7 +846,6 @@ describe('mapJob', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideEntities: undefined,
       shouldError: false,
     }
   ): void {
