@@ -5,11 +5,6 @@ Most of these apps are relatively small, and each one demonstrates several of Wa
 
 The **tutorials** directory contains [Wasp tutorial](https://wasp.sh/docs/tutorial/create) apps.
 
-1. **todo-typescript**
-
-   - A simple task-tracking app implemented in TypeScript.
-   - Demonstrates: **full-stack type safety in Wasp via TypeScript**, [auth](https://wasp.sh/docs/auth/overview), [rpc](https://wasp.sh/docs/data-model/operations/overview)
-
 1. **waspello**
 
    - A simple Trello clone.
