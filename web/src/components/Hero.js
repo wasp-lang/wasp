@@ -126,8 +126,8 @@ query getTasks {
             </h1>
 
             <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
-              The Laravel alternative for JavaScript. A truly full-stack framework with
-              batteries-included for React, Node.js, & Prisma
+              The Laravel alternative for JavaScript. A truly full-stack
+              framework with batteries-included for React, Node.js, & Prisma
             </p>
           </div>{' '}
           {/* EOF Hero title and subtitle */}
@@ -167,14 +167,14 @@ query getTasks {
           <FileViewer
             fileName="todoApp.wasp"
             fileExplanation="Wasp config file"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/main.wasp"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/main.wasp"
           >
             <CodeHighlight language="wasp" source={waspFileSourceCode} />
           </FileViewer>
           <FileViewer
             fileName="schema.prisma"
             fileExplanation="Wasp entities schema"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/schema.prisma"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/schema.prisma"
           >
             <CodeHighlight language="prisma" source={prismaFileSourceCode} />
           </FileViewer>
