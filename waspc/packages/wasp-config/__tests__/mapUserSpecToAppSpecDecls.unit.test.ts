@@ -124,7 +124,7 @@ describe('mapAuth', () => {
     const auth = Fixtures.getAuth('full')
     expect(auth.methods.email.emailVerification.clientRoute).toBeDefined()
     testMapAuth(auth, {
-      overrideRoutes: [Fixtures.getRoute('password-reset').name],
+      overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
       shouldError: true,
     })
   })
@@ -133,7 +133,7 @@ describe('mapAuth', () => {
     const auth = Fixtures.getAuth('full')
     expect(auth.methods.email.passwordReset.clientRoute).toBeDefined()
     testMapAuth(auth, {
-      overrideRoutes: [Fixtures.getRoute('email-verification').name],
+      overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
       shouldError: true,
     })
   })
