@@ -30,59 +30,29 @@ This field tells Wasp which Entity represents the user.
 
 Here's what the full setup looks like:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        // highlight-next-line
-        userEntity: User,
-        methods: {
-          google: {}
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-
-    ```prisma title="schema.prisma"
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
     // highlight-next-line
-    model User {
-      id Int @id @default(autoincrement())
-    }
-    ```
-  </TabItem>
+    userEntity: User,
+    methods: {
+      google: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        // highlight-next-line
-        userEntity: User,
-        methods: {
-          google: {}
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-
-    ```prisma title="schema.prisma"
-    // highlight-next-line
-    model User {
-      id Int @id @default(autoincrement())
-    }
-    ```
-  </TabItem>
-</Tabs>
+```prisma title="schema.prisma"
+// highlight-next-line
+model User {
+  id Int @id @default(autoincrement())
+}
+```
 
 ## Default Behavior
 
@@ -108,101 +78,51 @@ Let's go through both steps in more detail.
 
 #### 1. Adding the `isSignupComplete` Field to the `User` Entity
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```prisma title="schema.prisma"
-    model User {
-      id               Int     @id @default(autoincrement())
-      username         String? @unique
-      // highlight-next-line
-      isSignupComplete Boolean @default(false)
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```prisma title="schema.prisma"
-    model User {
-      id               Int     @id @default(autoincrement())
-      username         String? @unique
-      // highlight-next-line
-      isSignupComplete Boolean @default(false)
-    }
-    ```
-  </TabItem>
-</Tabs>
+```prisma title="schema.prisma"
+model User {
+  id               Int     @id @default(autoincrement())
+  username         String? @unique
+  // highlight-next-line
+  isSignupComplete Boolean @default(false)
+}
+```
 
 #### 2. Overriding the Default Behavior
 
 Declare an import under `app.auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          google: {
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    userEntity: User,
+    methods: {
+      google: {
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@src/auth/google"
+      }
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
 
-    // ...
-    ```
+// ...
+```
 
-    And implement the imported function.
+And implement the imported function:
 
-    ```js title="src/auth/google.js"
-    export const userSignupFields = {
-      isSignupComplete: () => false,
-    }
-    ```
-  </TabItem>
+```ts title="src/auth/google.ts" auto-js
+import { defineUserSignupFields } from 'wasp/server/auth'
 
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          google: {
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
+export const userSignupFields = defineUserSignupFields({
+  isSignupComplete: () => false,
+})
+```
 
-    // ...
-    ```
-
-    And implement the imported function:
-
-    ```ts title="src/auth/google.ts"
-    import { defineUserSignupFields } from 'wasp/server/auth'
-
-    export const userSignupFields = defineUserSignupFields({
-      isSignupComplete: () => false,
-    })
-    ```
-
-    <GetUserFieldsType />
-  </TabItem>
-</Tabs>
+<GetUserFieldsType />
 
 #### 3. Showing the Correct State on the Client
 
@@ -216,38 +136,20 @@ For example:
 1. When the user lands on the homepage, check the value of `user.isSignupComplete`.
 2. If it's `false`, it means the user has started the signup process but hasn't yet chosen their username. Therefore, you can redirect them to `EditUserDetailsPage` where they can edit the `username` property.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/HomePage.jsx"
-    import { Navigate } from 'react-router-dom'
+```tsx title="src/HomePage.tsx" auto-js
+import { Navigate } from 'react-router-dom'
+import type { AuthUser } from 'wasp/auth'
 
-    export function HomePage({ user }) {
-      if (user.isSignupComplete === false) {
-        return <Navigate to="/edit-user-details" />
-      }
+export function HomePage({ user }: { user: AuthUser }) {
+  if (user.isSignupComplete === false) {
+    return <Navigate to="/edit-user-details" />
+  }
 
-      // ...
-    }
-    ```
-  </TabItem>
+  // ...
+}
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/HomePage.tsx"
-    import { Navigate } from 'react-router-dom'
-    import { AuthUser } from 'wasp/auth'
-
-    export function HomePage({ user }: { user: AuthUser }) {
-      if (user.isSignupComplete === false) {
-        return <Navigate to="/edit-user-details" />
-      }
-
-      // ...
-    }
-    ```
-
-    The same general principle applies to more complex signup procedures, just change the boolean `isSignupComplete` property to a property like `currentSignupStep` that can hold more values.
-  </TabItem>
-</Tabs>
+The same general principle applies to more complex signup procedures, just change the boolean `isSignupComplete` property to a property like `currentSignupStep` that can hold more values.
 
 ### Using the User's Provider Account Details
 
