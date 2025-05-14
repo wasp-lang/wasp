@@ -157,7 +157,7 @@ You can define as many **seed functions** as you want in an array under the `app
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       // ...
       db: {
@@ -171,7 +171,7 @@ You can define as many **seed functions** as you want in an array under the `app
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       // ...
       db: {
@@ -314,7 +314,7 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -328,7 +328,7 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -364,7 +364,7 @@ Use one of the following commands to run the seed functions:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```wasp title=main.wasp
+      ```wasp title="main.wasp"
       app MyApp {
         // ...
         db: {
@@ -378,7 +378,7 @@ Use one of the following commands to run the seed functions:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```wasp title=main.wasp
+      ```wasp title="main.wasp"
       app MyApp {
         // ...
         db: {

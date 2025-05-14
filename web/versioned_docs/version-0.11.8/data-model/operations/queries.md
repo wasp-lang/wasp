@@ -221,7 +221,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=src/client/MainPage.jsx
+    ```jsx title="src/client/MainPage.jsx"
     import React from 'react'
     import { useQuery } from '@wasp/queries'
     import getAllTasks from '@wasp/queries/getAllTasks'
@@ -272,7 +272,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=src/client/MainPage.tsx
+    ```tsx title="src/client/MainPage.tsx"
     import React from 'react'
     import { Task } from '@wasp/entities'
     import { useQuery } from '@wasp/queries'
@@ -340,7 +340,7 @@ If you do want to pass additional error information to the client, you can const
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```js title=src/server/queries.js
+    ```js title="src/server/queries.js"
     import HttpError from '@wasp/core/HttpError.js'
 
     export const getAllTasks = async (args, context) => {
@@ -354,7 +354,7 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title=src/server/queries.ts
+    ```ts title="src/server/queries.ts"
     import { GetAllTasks } from '@wasp/queries/types'
     import HttpError from '@wasp/core/HttpError.js'
 
@@ -560,7 +560,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     Expects to find a named export `getFoo` from the file `src/server/queries.js`
 
-    ```js title=queries.js
+    ```js title="queries.js"
     export const getFoo = (args, context) => {
       // implementation
     }
@@ -581,7 +581,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     You can use the generated type `GetFoo` and specify the Query's inputs and outputs using its type arguments.
 
-    ```ts title=queries.ts
+    ```ts title="queries.ts"
     import { GetFoo } from "@wasp/queries/types";
 
     type Foo = // ...

@@ -11,7 +11,7 @@ The `getEmail` helper returns the user's email or `null` if the user doesn't hav
     }
     ```
 
-    ```js title=src/tasks.js
+    ```js title="src/tasks.js"
     import { getEmail } from 'wasp/auth'
 
     export const createTask = async (args, context) => {
@@ -31,7 +31,7 @@ The `getEmail` helper returns the user's email or `null` if the user doesn't hav
     }
     ```
 
-    ```ts title=src/tasks.ts
+    ```ts title="src/tasks.ts"
     import { getEmail } from 'wasp/auth'
 
     export const createTask: CreateTask<...>  = async (args, context) => {

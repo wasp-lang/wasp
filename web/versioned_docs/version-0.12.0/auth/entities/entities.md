@@ -67,7 +67,7 @@ entity Auth {=psl
   id         String         @id @default(uuid())
   userId     Int?           @unique
   // Wasp injects this relation on the User entity as well
-  user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   identities AuthIdentity[]
   sessions   Session[]
 psl=}
@@ -95,7 +95,7 @@ entity AuthIdentity {=psl
   authId         String
   auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
-  @@id([providerName, providerUserId])  
+  @@id([providerName, providerUserId])
 psl=}
 ```
 
@@ -168,7 +168,7 @@ The `getFirstProviderUserId` helper returns the first user ID (e.g. `username` o
     }
     ```
 
-    ```js title=src/tasks.js
+    ```js title="src/tasks.js"
     import { getFirstProviderUserId } from 'wasp/auth'
 
     export const createTask = async (args, context) => {
@@ -188,7 +188,7 @@ The `getFirstProviderUserId` helper returns the first user ID (e.g. `username` o
     }
     ```
 
-    ```ts title=src/tasks.ts
+    ```ts title="src/tasks.ts"
     import { getFirstProviderUserId } from 'wasp/auth'
 
     export const createTask: CreateTask<...>  = async (args, context) => {
@@ -229,7 +229,7 @@ This can be useful if you want to check if the user has a specific auth identity
     }
     ```
 
-    ```js title=src/tasks.js
+    ```js title="src/tasks.js"
     import { findUserIdentity } from 'wasp/client/auth'
 
     export const createTask = async (args, context) => {
@@ -261,7 +261,7 @@ This can be useful if you want to check if the user has a specific auth identity
     }
     ```
 
-    ```ts title=src/tasks.ts
+    ```ts title="src/tasks.ts"
     import { findUserIdentity } from 'wasp/client/auth'
 
     export const createTask: CreateTask<...>  = async (args, context) => {

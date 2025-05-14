@@ -37,7 +37,7 @@ You wouldn’t want the server to delay sending its HTTP response until those ar
 
 The typical solution here is to use a job queue of some kind. They are not impossible to set up, of course, but there is a fair amount of boilerplate involved, some operational expertise/overhead required, and moving from one system to another when you outgrow it is usually a challenge. These are the exact areas where we feel Wasp can provide real value, so we are happy to introduce Wasp Jobs to help out with this!
 
-```js title=src/server/workers/github.js
+```js title="src/server/workers/github.js"
 import axios from 'axios'
 import { upsertMetric } from './utils.js'
 
@@ -81,7 +81,7 @@ However, we will also continue to expand the number of job execution runtimes we
 
 If you are a regular reader of this blog (thank you, you deserve a raise! 😊), you may recall we created an example app of a metrics dashboard called [Waspleau](https://wasp.sh/blog/2022/01/27/waspleau) that used workers in the background to make periodic HTTP calls for data. In that example, we didn’t yet have access to recurring jobs in Wasp, so we used Bull for scheduled jobs instead. To set up our queue-related logic we had to have this huge `setupFn` wiring it all up; but now, we can remove all that code and simply use jobs instead! Here is what the new DSL looks like:
 
-```wasp title=main.wasp
+```wasp title="main.wasp"
 // A cron job for fetching GitHub stats
 job getGithubStats {
   executor: PgBoss,
@@ -111,7 +111,7 @@ job calcPageLoadTime {
 
 And here is an example of how you can reference and invoke jobs on the server. _Note: We did not even need to do this step since jobs with a schedule are automatically configured to run at the desired time._
 
-```js title=src/server/serverSetup.js
+```js title="src/server/serverSetup.js"
 /**
 * These Jobs are automatically scheduled by Wasp.
 * However, let's kick them off on server setup to ensure we have data right away.
