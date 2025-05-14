@@ -17,6 +17,8 @@ import {
 
 import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
+import styles from '../pages/styles.module.css'
+import classNames from 'classnames'
 
 const StartIcon = () => (
   <svg
@@ -121,8 +123,9 @@ query getTasks {
                 lg:text-5xl lg:leading-tight
               `}
             >
-              Develop full-stack web apps{' '}
-              <span className="underline decoration-yellow-500">faster</span>.
+              <span>Fullstack</span>
+              <span className={classNames("font-jersey underline decoration-yellow-500")}>everything</span>
+              <span>in a few lines of code.</span>
             </h1>
 
             <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
