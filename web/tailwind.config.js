@@ -9,7 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter'],
-        jersey: ['Jersey 10'],
+        jersey: ['"Jersey 10"', 'monospace'],
       },
     },
   },

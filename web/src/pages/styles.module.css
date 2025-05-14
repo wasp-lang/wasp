@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
 
 .sectionSkewed {
   position: relative;
@@ -66,13 +66,4 @@
  */
 .gradientBackground {
   background-image: linear-gradient(to right, #d946ef, #ffcc00);
-}
-
-.jerseyFont {
-  font-family: 'Jersey 10', monospace;
-  font-size: 3.75rem;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  margin: 0.5rem;
 }

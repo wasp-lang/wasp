@@ -119,18 +119,18 @@ query getTasks {
           <div>
             <h1
               className={`
-                text-4xl font-extrabold text-neutral-700
-                lg:text-5xl lg:leading-tight
+                text-4xl font-bold text-neutral-700
+                lg:text-[5rem] lg:leading-tight
               `}
             >
-              <span>Fullstack</span>
-              <span className={classNames("font-jersey underline decoration-yellow-500")}>everything</span>
-              <span>in a few lines of code.</span>
+              <span>Fullstack</span><br/>
+              <span className={classNames("font-jersey text-5xl lg:text-[6.35rem] font-normal text-yellow-500")}>Everything</span>.
+              {/* <br/><span>in a few lines <br/>of code.</span> */}
             </h1>
 
-            <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
-              The Laravel alternative for JavaScript. A truly full-stack
-              framework with batteries-included for React, Node.js, & Prisma
+            <p className="mt-8 text-xl text-neutral-500 sm:mt-5 lg:text-xl lg:leading-relaxed">
+              The Laravel alternative for JavaScript.<br/>
+              Truly full-stack. Batteries-included. Built on top of React, Node.js, Prisma, and your favorite libraries.
             </p>
           </div>{' '}
           {/* EOF Hero title and subtitle */}
