@@ -14,6 +14,18 @@ import * as UserApi from '../src/userApi.js'
  * To represent empty objects, we use `Record<string, never>` instead.
  * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
  */
+
+/**
+ * Creates a type containing only the required properties from T.
+ *
+ * This utility:
+ * - Filters out optional properties from the type
+ * - Provides a clean type for minimal configuration objects
+ * - Returns `Record<string, never>` (empty object) when no required properties exist
+ *
+ * @template T - The type to extract required properties from
+ * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
+ */
 type MinimalConfig<T> = keyof T extends never
   ? Record<string, never>
   : {
@@ -23,10 +35,24 @@ type MinimalConfig<T> = keyof T extends never
       ? Record<string, never>
       : R
     : never
+
 /**
- * Required alias for domain consistency sake.
+ * Creates a type with all properties and nested properties required.
+ *
+ * This utility:
+ * - Makes all properties required recursively (removes optional flags)
+ * - Unwraps branded types to their base types (e.g., `string & {_brand: 'Page'}` → `string`)
+ * - Useful for creating comprehensive configuration objects
+ *
+ * @template T - The type to make fully required
  */
-type FullConfig<T> = Required<T>
+type FullConfig<T> = T extends { _brand: string }
+  ? T extends infer BaseType & { _brand: string }
+    ? BaseType
+    : never
+  : T extends object
+    ? { [K in keyof T]-?: FullConfig<T[K]> }
+    : T
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>
 

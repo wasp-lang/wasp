@@ -122,7 +122,7 @@ describe('mapAuth', () => {
 
   test('should throw if emailVerification clientRoute ref is not provided when defined', () => {
     const auth = Fixtures.getAuth('full')
-    expect(auth.methods.email?.emailVerification.clientRoute).toBeDefined()
+    expect(auth.methods.email.emailVerification.clientRoute).toBeDefined()
     testMapAuth(auth, {
       overrideRoutes: [Fixtures.getRoute('password-reset').name],
       shouldError: true,
@@ -131,7 +131,7 @@ describe('mapAuth', () => {
 
   test('should throw if passwordReset clientRoute ref is not provided when defined', () => {
     const auth = Fixtures.getAuth('full')
-    expect(auth.methods.email?.passwordReset.clientRoute).toBeDefined()
+    expect(auth.methods.email.passwordReset.clientRoute).toBeDefined()
     testMapAuth(auth, {
       overrideRoutes: [Fixtures.getRoute('email-verification').name],
       shouldError: true,
