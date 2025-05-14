@@ -71,7 +71,7 @@ getTemplateStartingInstructions projectDirName = \case
 
 getStarterTemplates :: [StarterTemplate]
 getStarterTemplates =
-  [ defaultStarterTemplate,
+  [ basicStarterTemplate,
     minimalStarterTemplate,
     openSaasStarterTemplate,
     AiGeneratedStarterTemplate
@@ -85,7 +85,7 @@ defaultStarterTemplate = basicStarterTemplate
 minimalStarterTemplate :: StarterTemplate
 minimalStarterTemplate =
   simpleGhRepoTemplate
-    ("minimal", [reldir|minimal|])
+    ("starters", [reldir|minimal|])
     ( "minimal",
       "Minimal starter template with a single page."
     )
@@ -102,7 +102,7 @@ minimalStarterTemplate =
 basicStarterTemplate :: StarterTemplate
 basicStarterTemplate =
   simpleGhRepoTemplate
-    ("basic", [reldir|basic|])
+    ("starters", [reldir|basic|])
     ( "basic",
       "Basic starter template to get you started quickly."
     )
