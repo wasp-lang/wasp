@@ -7,15 +7,6 @@ import * as AppSpec from '../src/appSpec.js'
 import * as UserApi from '../src/userApi.js'
 
 /**
- * This type removes all properties from T that are optional.
- *
- * The empty object type - {} - doesn't behave how you expect in TypeScript.
- * It represents any value except null and undefined.
- * To represent empty objects, we use `Record<string, never>` instead.
- * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
- */
-
-/**
  * Creates a type containing only the required properties from T.
  *
  * This utility:
@@ -41,15 +32,12 @@ type MinimalConfig<T> = keyof T extends never
  *
  * This utility:
  * - Makes all properties required recursively (removes optional flags)
- * - Unwraps branded types to their base types (e.g., `string & {_brand: 'Page'}` → `string`)
- * - Useful for creating comprehensive configuration objects
+ * - Stops from unwrapping branded types fully
  *
  * @template T - The type to make fully required
  */
 type FullConfig<T> = T extends { _brand: string }
-  ? T extends infer BaseType & { _brand: string }
-    ? BaseType
-    : never
+  ? T
   : T extends object
     ? { [K in keyof T]-?: FullConfig<T[K]> }
     : T
