@@ -4,6 +4,7 @@
  */
 
 import * as AppSpec from '../src/appSpec.js'
+import { Branded } from '../src/branded.js'
 import * as UserApi from '../src/userApi.js'
 
 /**
@@ -36,11 +37,12 @@ type MinimalConfig<T> = keyof T extends never
  *
  * @template T - The type to make fully required
  */
-type FullConfig<T> = T extends { _brand: string }
-  ? T
-  : T extends object
-    ? { [K in keyof T]-?: FullConfig<T[K]> }
-    : T
+type FullConfig<T> =
+  T extends Branded<infer U, infer B>
+    ? Branded<U, B>
+    : T extends object
+      ? { [K in keyof T]-?: FullConfig<T[K]> }
+      : T
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>
 
@@ -377,7 +379,7 @@ export function getRoute(routeType: PageType): NamedConfig<UserApi.RouteConfig> 
       name: 'MinimalRoute',
       config: {
         path: '/foo/bar',
-        to: getPage(routeType).name as string & { _brand: 'Page' },
+        to: getPage(routeType).name as Branded<string, 'PageName'>,
       },
     } satisfies MinimalNamedConfig<UserApi.RouteConfig>
   }
@@ -395,7 +397,7 @@ export function getRoute(routeType: PageType): NamedConfig<UserApi.RouteConfig> 
     name,
     config: {
       path: '/foo/bar',
-      to: getPage(routeType).name as string & { _brand: 'Page' },
+      to: getPage(routeType).name as Branded<string, 'PageName'>,
     },
   } satisfies FullNamedConfig<UserApi.RouteConfig>
 }
