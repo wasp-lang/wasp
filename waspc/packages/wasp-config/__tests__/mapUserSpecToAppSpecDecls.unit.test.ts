@@ -147,8 +147,6 @@ describe('mapAuth', () => {
           shouldError: boolean | undefined
         }
       | undefined = {
-      overrideEntities: undefined,
-      overrideRoutes: undefined,
       shouldError: false,
     }
   ): void {
