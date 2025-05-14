@@ -174,19 +174,6 @@ Since we've already created one task together, try to create this one yourself. 
 
   Implementing the Action on the server:
 
-  ```js title="src/actions.js"
-  // ...
-
-  export const updateTask = async ({ id, isDone }, context) => {
-    return context.entities.Task.update({
-      where: { id },
-      data: {
-        isDone: isDone,
-      },
-    })
-  }
-  ```
-
   ```ts title="src/actions.ts" auto-js
   import type { CreateTask, UpdateTask } from 'wasp/server/operations'
 
