@@ -264,7 +264,7 @@ tests:
     main: Main.hs
     source-dirs: e2e-test
     build-tools:
-      - waspc:wasp-lci
+      - waspc:wasp-cli
     dependencies:
       aeson-pretty:
       aeson:
