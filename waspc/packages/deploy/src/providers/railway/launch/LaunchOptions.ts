@@ -1,3 +1,4 @@
-import { CommonOptions, SecretsOptions } from '../CommonOptions.js';
+import { DeployOptions } from '../deploy/DeployOptions.js';
+import { SetupOptions } from '../setup/SetupOptions.js';
 
-export interface LaunchOptions extends CommonOptions, SecretsOptions {}
+export interface LaunchOptions extends SetupOptions, DeployOptions {}

@@ -94,28 +94,6 @@ export async function getServiceUrl(
   return match[0];
 }
 
-export async function getExistingProject(railwayExe: string): Promise<{
-  projectName: string;
-  serviceNames: string[];
-} | null> {
-  const result = await $({
-    verbose: false,
-    nothrow: true,
-    // Ignoring stdin and stderr to stop error output from Railway CLI
-    stdio: ['ignore', 'pipe', 'ignore'],
-  })`${railwayExe} status --json`;
-  if (result.exitCode !== 0) {
-    return null;
-  } else {
-    const json = JSON.parse(result.stdout);
-
-    return {
-      projectName: json.name,
-      serviceNames: json.services.edges.map((edge: { node: { name: string } }) => edge.node.name),
-    };
-  }
-}
-
 export async function ensureRailwayBasenameIsValid(thisCommand: Command): Promise<void> {
   // Railway has a limit of 32 characters for the service name.
   // https://docs.railway.com/reference/services#constraints

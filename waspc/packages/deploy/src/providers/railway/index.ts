@@ -1,5 +1,5 @@
 import { Command, Option } from 'commander';
-import { ensureRailwayBasenameIsValid, ensureRailwayReady } from './helpers/railwayHelpers.js';
+import { ensureRailwayBasenameIsValid, ensureRailwayReady } from './helpers/railwayCli.js';
 import {
   ensureWaspDirLooksRight,
   ensureWaspProjectDirInCmdIsAbsoluteAndPresent,
@@ -82,6 +82,10 @@ function makeRailwaySetupCommand(): Command {
     .description('Launch a new app on Railway')
     .addBasenameArgument()
     .addSecretsOptions()
+    .option(
+      '--existing-project-id [projectId]',
+      'use existing project instead of creating a new one',
+    )
     .action(setupFn);
 }
 
@@ -99,5 +103,9 @@ function makeRailwayLaunchCommand(): Command {
     .description('Launch a new app on Railway (calls setup and deploy)')
     .addBasenameArgument()
     .addSecretsOptions()
+    .option(
+      '--existing-project-id [projectId]',
+      'use existing project instead of creating a new one',
+    )
     .action(launchFn);
 }
