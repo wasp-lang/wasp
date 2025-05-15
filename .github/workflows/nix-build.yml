@@ -1,0 +1,46 @@
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: nix-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build packages
+        run: |
+          cd waspc
+          ./run build:packages
+
+      - uses: DeterminateSystems/nix-installer-action@v17
+        with:
+          extra-conf: |
+            extra-trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+            extra-substituters = https://cache.iog.io
+            accept-flake-config = true
+
+      - name: Restore cached Nix store
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: /nix/store
+          key: nix-store-cache-
+
+      - name: nix build
+        run: |
+          cd waspc
+          nix build .
+
+      - name: Save Nix store to cache
+        id: cache-save
+        uses: actions/cache/save@v4
+        # Cache even if the build fails
+        if: ${{ !cancelled()}}
+        with:
+          path: /nix/store
+          key: nix-store-cache-${{ github.run_id }}
