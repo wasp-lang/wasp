@@ -1,7 +1,9 @@
 import { exit } from 'process';
 import { $, ProcessOutput, question } from 'zx';
-import { isYes, parseVersion, waspSays } from '../../../helpers.js';
 import { Command } from 'commander';
+import semver from 'semver';
+
+import { isYes, waspSays } from '../../../helpers.js';
 
 // Railway CLI version 4.0.1 includes a change that is needed for
 // Wasp deploy command to work with Railway properly:
@@ -71,14 +73,7 @@ async function getRailwayCliVersion(railwayExe: string): Promise<string | null> 
 }
 
 function isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion: string): boolean {
-  const [minMajor, minMinor, minPatch] = parseVersion(minSupportedRailwayCliVersion);
-  const [major, minor, patch] = parseVersion(railwayCliVersion);
-
-  return (
-    major > minMajor ||
-    (major === minMajor && minor > minMinor) ||
-    (major === minMajor && minor === minMinor && patch >= minPatch)
-  );
+  return semver.gte(railwayCliVersion, minSupportedRailwayCliVersion);
 }
 
 export async function getServiceUrl(

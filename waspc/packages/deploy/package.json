@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "commander": "^13.1.0",
+    "semver": "^7.7.2",
     "toml": "^3.0.0",
     "zod": "^3.24.4",
     "zx": "^8.3.2"
