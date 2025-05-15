@@ -121,17 +121,3 @@ function trimUsage(usage: string): string {
     .replace('Usage: ', '')
     .replace(' [options]', '');
 }
-
-// There is a theoretical race condition here since we are modifying a global `$`
-// property, that when we yield to the `await cmd($)` call that some other calls to
-// `$` could use a different verbosity setting. Additionally, calling `silence` multiple
-// times concurrently could change the setting incorrectly.
-// However, our pattern of awaiting for both `$` and `silence` calls without any random
-// callbacks using either means this interleaving should not ever happen.
-export async function silence(cmd: ($hh: Shell) => Promise<ProcessOutput>): Promise<ProcessOutput> {
-  const verboseSetting = $.verbose;
-  $.verbose = false;
-  const proc = await cmd($);
-  $.verbose = verboseSetting;
-  return proc;
-}

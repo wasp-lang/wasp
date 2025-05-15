@@ -1,7 +1,7 @@
 import { exit } from 'process';
 import { $, question } from 'zx';
 import { executeFlyCommand } from '../index.js';
-import { isYes, waspSays, getCommandHelp, silence } from '../../../helpers.js';
+import { isYes, waspSays, getCommandHelp } from '../../../helpers.js';
 import { FlyRegionListSchema, FlySecretListSchema } from './schemas.js';
 
 export async function flyctlExists(): Promise<boolean> {
@@ -76,7 +76,7 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
 }
 
 async function regionExists(regionCode: string): Promise<boolean> {
-  const proc = await silence(($hh) => $hh`flyctl platform regions -j`);
+  const proc = await $`flyctl platform regions -j`.verbose(false);
   const regions = FlyRegionListSchema.parse(JSON.parse(proc.stdout));
   return regions.some((r) => r.Code === regionCode);
 }
