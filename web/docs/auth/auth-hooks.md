@@ -14,6 +14,7 @@ The following auth hooks are available in Wasp:
 
 - [`onBeforeSignup`](#executing-code-before-the-user-signs-up)
 - [`onAfterSignup`](#executing-code-after-the-user-signs-up)
+- [`onAfterEmailVerified`](#executing-code-after-a-user-verifies-their-email)
 - [`onBeforeOAuthRedirect`](#executing-code-before-the-oauth-redirect)
 - [`onBeforeLogin`](#executing-code-before-the-user-logs-in)
 - [`onAfterLogin`](#executing-code-after-the-user-logs-in)
@@ -28,7 +29,15 @@ We'll go through each of these hooks in detail. But first, let's see how the hoo
   \* When using the OAuth auth providers, the login hooks are both called before the session is created but the session is created quickly afterward, so it shouldn't make any difference in practice.
 </small>
 
-If you are using OAuth, the flow includes extra steps before the auth flow:
+Users registering with [email](./email.md) must verify it before they can log in. This verification triggers the Email verification flow:
+
+<ImgWithCaption
+  source="/img/auth-hooks/email_verification_flow_with_hooks.png"
+  alt="Email Verification Flow with Hooks"
+  caption="Email Verification Flow with Hooks"
+/>
+
+Users signing in with [OAuth](./social-auth/overview.md) must authorize access before completing login. This authorization triggers the OAuth consent flow:
 
 <ImgWithCaption source="/img/auth-hooks/oauth_flow_with_hooks.png" alt="OAuth Flow with Hooks" caption="OAuth Flow with Hooks" />
 
@@ -50,6 +59,7 @@ To use auth hooks, you must first declare them in the Wasp file:
         },
         onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
         onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
+        onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
         onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
         onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
         onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
@@ -71,6 +81,7 @@ To use auth hooks, you must first declare them in the Wasp file:
         },
         onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
         onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
+        onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
         onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
         onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
         onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
@@ -264,6 +275,84 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
 </Tabs>
 
 Read more about the data the `onAfterSignup` hook receives in the [API Reference](#the-onaftersignup-hook).
+
+### Executing code after a user verifies their email
+
+Wasp calls the `onAfterEmailVerified` hook exactly once, after the user verifies their email.
+
+The `onAfterEmailVerified` hook is useful for triggering actions in response to the verification event — such as sending a welcome email or syncing user data with a third-party service.
+
+The `onAfterEmailVerified` hook receives an `email` string and `user` object, this makes it easy to perform personalized actions upon email verification.
+
+Works with <EmailPill />
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
+  },
+}
+```
+
+```js title="src/auth/hooks.js"
+import { emailSender } from 'wasp/server/email'
+
+export const onAfterEmailVerified = async ({ email }) => {
+  const info = await emailSender.send({
+    from: {
+      name: 'John Doe',
+      email: 'john@doe.com',
+    },
+    to: email,
+    subject: 'Thank you for verifying your email!',
+    text: `Your email ${email} has been successfully verified!`,
+  })
+  // ...
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```wasp title="main.wasp"
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
+  },
+}
+```
+
+```ts title="src/auth/hooks.ts"
+import type { OnAfterEmailVerifiedHook } from 'wasp/server/auth'
+import { emailSender } from 'wasp/server/email'
+
+export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
+  email,
+}) => {
+  const info = await emailSender.send({
+    from: {
+      name: 'John Doe',
+      email: 'john@doe.com',
+    },
+    to: email,
+    subject: 'Thank you for verifying your email!',
+    text: `Your email ${email} has been successfully verified!`,
+  })
+  // ...
+}
+```
+
+</TabItem>
+</Tabs>
+
+Read more about the data the `onAfterEmailVerified` hook receives in the [API Reference](#the-onafteremailverified-hook).
 
 ### Executing code before the OAuth redirect
 
@@ -555,6 +644,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
         },
         onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
         onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
+        onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
         onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
         onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
         onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
@@ -576,6 +666,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
         },
         onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
         onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
+        onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
         onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
         onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
         onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
@@ -674,6 +765,50 @@ The hook receives an object as **input** with the following properties:
   The user object that was created.
 
 - [`oauth?: OAuthFields`](#oauth-fields)
+
+- Plus the [common hook input](#common-hook-input)
+
+Wasp ignores this hook's **return value**.
+
+### The `onAfterEmailVerified` hook
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
+
+```js title="src/auth/hooks.js"
+export const onAfterEmailVerified = async ({ email, user, prisma, req }) => {
+  // Hook code goes here
+}
+```
+
+</TabItem>
+<TabItem value="ts" label="TypeScript">
+
+```ts title="src/auth/hooks.ts"
+import type { OnAfterEmailVerifiedHook } from 'wasp/server/auth'
+
+export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
+  email,
+  user,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
+```
+
+</TabItem>
+</Tabs>
+
+The hook receives an object as **input** with the following properties:
+
+- `email: string`
+
+  The user's veriried email address.
+
+- `user: User`
+
+  The user who completed email verification.
 
 - Plus the [common hook input](#common-hook-input)
 

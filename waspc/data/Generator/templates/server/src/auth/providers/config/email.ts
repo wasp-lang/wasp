@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
 
 import { ProviderConfig } from "wasp/auth/providers/types";
 import type { EmailFromField } from "wasp/server/email/core/types";

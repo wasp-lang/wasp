@@ -302,7 +302,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -321,7 +321,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -412,7 +412,7 @@ The fields you receive depend on the scopes you request. The default scope is se
     // ...
     ```
 
-    ```js title=src/auth/google.js
+    ```js title="src/auth/google.js"
     export const userSignupFields = {
       username: () => 'hardcoded-username',
       displayName: (data) => data.profile.name,
@@ -458,7 +458,7 @@ The fields you receive depend on the scopes you request. The default scope is se
     // ...
     ```
 
-    ```ts title=src/auth/google.ts
+    ```ts title="src/auth/google.ts"
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
@@ -547,7 +547,7 @@ The `google` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/auth/google.js
+      ```js title="src/auth/google.js"
       export function getConfig() {
         return {
           scopes: ['profile', 'email'],
@@ -557,7 +557,7 @@ The `google` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/auth/google.ts
+      ```ts title="src/auth/google.ts"
       export function getConfig() {
         return {
           scopes: ['profile', 'email'],

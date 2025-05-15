@@ -1,109 +1,24 @@
 #!/usr/bin/env node
+
 import { writeFileSync } from 'fs'
-import { App } from './userApi.js'
-import { Decl } from './appSpec.js'
-import { mapUserSpecToAppSpecDecls } from './mapUserSpecToAppSpecDecls.js'
-import { GET_USER_SPEC } from './_private.js'
+import { analyzeUserApp } from './appAnalyzer.js'
+import { parseProcessArgsOrThrow } from './cli.js'
 
-main()
+main(process.argv)
 
-async function main() {
-  const {
-    mainWaspJs,
-    outputFile: declsJsonOutputFile,
-    entityNames,
-  } = parseProcessArgsOrThrow(process.argv)
+/**
+ * Main function that processes command line arguments, analyzes the user app,
+ * and writes the output to a file.
+ */
+export async function main(args: string[]): Promise<void> {
+  const { waspTsSpecPath, outputFilePath, entityNames } = parseProcessArgsOrThrow(args)
 
-  const result = await getAppDefinitionOrError(mainWaspJs)
-  if (result.status === 'error') {
-    console.error(result.error)
+  const declsResult = await analyzeUserApp(waspTsSpecPath, entityNames)
+
+  if (declsResult.status === 'error') {
+    console.error(declsResult.error)
     process.exit(1)
   }
-  const { value: appDefinition } = result
 
-  const decls = analyzeAppDefinition(appDefinition, entityNames)
-  const declsJson = getDeclsJson(decls)
-
-  writeFileSync(declsJsonOutputFile, declsJson)
+  writeFileSync(outputFilePath, JSON.stringify(declsResult.value))
 }
-
-async function getAppDefinitionOrError(
-  mainWaspJs: string
-): Promise<Result<App, string>> {
-  const usersDefaultExport: unknown = (await import(mainWaspJs)).default
-  return getValidAppOrError(usersDefaultExport)
-}
-
-function analyzeAppDefinition(app: App, entityNames: string[]): Decl[] {
-  const userSpec = app[GET_USER_SPEC]()
-  return mapUserSpecToAppSpecDecls(userSpec, entityNames)
-}
-
-function getDeclsJson(appConfig: Decl[]): string {
-  return JSON.stringify(appConfig)
-}
-
-function getValidAppOrError(app: unknown): Result<App, string> {
-  if (!app) {
-    return {
-      status: 'error',
-      error:
-        'Could not load your app config. ' +
-        'Make sure your *.wasp.ts file includes a default export of the app.',
-    }
-  }
-
-  if (!(app instanceof App)) {
-    return {
-      status: 'error',
-      error:
-        'The default export of your *.wasp.ts file must be an instance of App. ' +
-        'Make sure you export an object created with new App(...).',
-    }
-  }
-
-  return { status: 'ok', value: app }
-}
-
-function parseProcessArgsOrThrow(args: string[]): {
-  mainWaspJs: string
-  outputFile: string
-  entityNames: string[]
-} {
-  if (args.length < 5) {
-    throw new Error(
-      'Usage: node run.js <path to main.wasp.js> <path to output file>'
-    )
-  }
-
-  const [_node, _runjs, mainWaspJs, outputFile, entityNamesJson] = process.argv
-  if (
-    typeof mainWaspJs !== 'string' ||
-    typeof outputFile !== 'string' ||
-    typeof entityNamesJson !== 'string'
-  ) {
-    throw new Error(
-      'Usage: node run.js <path to main.wasp.js> <path to output file> <entity names json>'
-    )
-  }
-
-  const entityNames = getValidEntityNamesOrThrow(entityNamesJson)
-
-  return {
-    mainWaspJs,
-    outputFile,
-    entityNames,
-  }
-}
-
-function getValidEntityNamesOrThrow(entitiesJson: string): string[] {
-  const entities = JSON.parse(entitiesJson)
-  if (!Array.isArray(entities)) {
-    throw new Error('The entities JSON must be an array of entity names.')
-  }
-  return entities
-}
-
-type Result<Value, Error> =
-  | { status: 'ok'; value: Value }
-  | { status: 'error'; error: Error }

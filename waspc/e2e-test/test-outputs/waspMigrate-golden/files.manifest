@@ -7,7 +7,6 @@ waspMigrate/.wasp/out/db/schema.prisma
 waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspMigrate/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 waspMigrate/.wasp/out/installedNpmDepsLog.json
-waspMigrate/.wasp/out/sdk/wasp/api/axios.d.ts
 waspMigrate/.wasp/out/sdk/wasp/api/events.ts
 waspMigrate/.wasp/out/sdk/wasp/api/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/config.ts
@@ -31,6 +30,7 @@ waspMigrate/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspMigrate/.wasp/out/sdk/wasp/client/router/types.ts
 waspMigrate/.wasp/out/sdk/wasp/client/test/index.ts
 waspMigrate/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
+waspMigrate/.wasp/out/sdk/wasp/core/serialization.ts
 waspMigrate/.wasp/out/sdk/wasp/core/storage.ts
 waspMigrate/.wasp/out/sdk/wasp/dev/index.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/api/events.d.ts
@@ -125,6 +125,10 @@ waspMigrate/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 waspMigrate/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspMigrate/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
+waspMigrate/.wasp/out/sdk/wasp/dist/core/serialization.d.ts
+waspMigrate/.wasp/out/sdk/wasp/dist/core/serialization.d.ts.map
+waspMigrate/.wasp/out/sdk/wasp/dist/core/serialization.js
+waspMigrate/.wasp/out/sdk/wasp/dist/core/serialization.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/core/storage.d.ts.map
 waspMigrate/.wasp/out/sdk/wasp/dist/core/storage.js
@@ -153,10 +157,6 @@ waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/index.js
 waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/index.js.map
-waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts
-waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts.map
-waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/serialization.js
-waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/serialization.js.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts
 waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts.map
 waspMigrate/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.js
@@ -248,7 +248,6 @@ waspMigrate/.wasp/out/sdk/wasp/package.json
 waspMigrate/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspMigrate/.wasp/out/sdk/wasp/server/HttpError.ts
 waspMigrate/.wasp/out/sdk/wasp/server/_types/index.ts
-waspMigrate/.wasp/out/sdk/wasp/server/_types/serialization.ts
 waspMigrate/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspMigrate/.wasp/out/sdk/wasp/server/config.ts
 waspMigrate/.wasp/out/sdk/wasp/server/dbClient.ts

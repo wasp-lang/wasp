@@ -25,5 +25,6 @@ This means Wasp _dictates exact versions of certain packages_, so for example yo
 
 :::note
 
-We are currently working on a restructuring that will solve this and some other quirks: check [issue #734](https://github.com/wasp-lang/wasp/issues/734) to follow our progress.
+We are currently working on a restructuring that will solve this and some other quirks: check [issue #1644](https://github.com/wasp-lang/wasp/issues/1644) to follow our progress.
+
 :::
