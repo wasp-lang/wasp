@@ -5,6 +5,11 @@ import { $ } from 'zx';
 import { DeploymentInfo } from '../../DeploymentInfo.js';
 import { SetupOptions } from '../../setup/SetupOptions.js';
 import { waspSays } from '../../../../helpers.js';
+import {
+  type RailwayCliProject,
+  RailwayCliProjectSchema,
+  RailwayProjectListSchema,
+} from './schemas.js';
 
 export async function initProject({
   baseName,
@@ -26,7 +31,7 @@ export async function initProject({
     waspSays('Project created successfully!');
   }
 
-  return new RailwayProject(newProject);
+  return newProject;
 }
 
 export async function linkProject(
@@ -46,7 +51,7 @@ export async function linkProject(
     waspSays('Project linked successfully!');
   }
 
-  return new RailwayProject(linkedProject);
+  return linkedProject;
 }
 
 export async function getProjectForCurrentDir(railwayExe: string): Promise<RailwayProject | null> {
@@ -59,9 +64,9 @@ export async function getProjectForCurrentDir(railwayExe: string): Promise<Railw
   if (result.exitCode !== 0) {
     return null;
   } else {
-    const json = JSON.parse(result.stdout) as unknown;
+    const project = RailwayCliProjectSchema.parse(JSON.parse(result.stdout));
 
-    return mapProject(json);
+    return new RailwayProject(project);
   }
 }
 
@@ -70,23 +75,10 @@ export async function getProjects(railwayExe: string) {
     verbose: false,
   })`${railwayExe} list --json`;
 
-  const json = JSON.parse(result.stdout) as unknown[];
+  const projects = RailwayProjectListSchema.parse(JSON.parse(result.stdout));
 
-  return json.map((rawProject) => {
-    return mapProject(rawProject);
-  });
-}
-
-// TODO: use runtime validation to avoid using `any`
-function mapProject(json: any): RailwayProject {
-  const services = json.services.edges.map((edge: any) => ({
-    id: edge.node.id,
-    name: edge.node.name,
-  }));
-  return new RailwayProject({
-    id: json.id,
-    name: json.name,
-    services,
+  return projects.map((cliProject) => {
+    return new RailwayProject(cliProject);
   });
 }
 
@@ -95,10 +87,13 @@ export class RailwayProject {
   name: string;
   services: RailwayService[];
 
-  constructor({ id, name, services }: { id: string; name: string; services: RailwayService[] }) {
-    this.id = id;
-    this.name = name;
-    this.services = services;
+  constructor(cliProject: RailwayCliProject) {
+    this.id = cliProject.id;
+    this.name = cliProject.name;
+    this.services = cliProject.services.edges.map((edge) => ({
+      id: edge.node.id,
+      name: edge.node.name,
+    }));
   }
 
   doesServiceExist(serviceName: string): boolean {

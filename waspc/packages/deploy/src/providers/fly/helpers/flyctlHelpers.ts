@@ -2,6 +2,7 @@ import { exit } from 'process';
 import { $, question } from 'zx';
 import { executeFlyCommand } from '../index.js';
 import { isYes, waspSays, getCommandHelp, silence } from '../../../helpers.js';
+import { FlyRegionListSchema, FlySecretListSchema } from './schemas.js';
 
 export async function flyctlExists(): Promise<boolean> {
   try {
@@ -76,12 +77,12 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
 
 async function regionExists(regionCode: string): Promise<boolean> {
   const proc = await silence(($hh) => $hh`flyctl platform regions -j`);
-  const regions: { Code: string; Name: string }[] = JSON.parse(proc.stdout);
+  const regions = FlyRegionListSchema.parse(JSON.parse(proc.stdout));
   return regions.some((r) => r.Code === regionCode);
 }
 
 export async function secretExists(secretName: string): Promise<boolean> {
   const proc = await $`flyctl secrets list -j`;
-  const secrets: { Name: string }[] = JSON.parse(proc.stdout);
+  const secrets = FlySecretListSchema.parse(JSON.parse(proc.stdout));
   return secrets.some((s) => s.Name === secretName);
 }
