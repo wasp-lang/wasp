@@ -30,15 +30,9 @@ export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {
  * into an object with the same keys but whose values are the return types
  * of those functions.
  */
-type InferUserSignupFields<T extends (UserSignupFields | undefined)> = T extends undefined 
-  ? {} 
-  : T extends UserSignupFields
-  ? {
-      [K in keyof T]: ExtractFieldGetterReturnType<T[K]>
-    }
-  : never
-type ExtractFieldGetterReturnType<T> = T extends (data: any) => infer R ? R : never
-
+type InferUserSignupFields<T extends UserSignupFields> = {
+  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues> ? ReturnType<T[K]> : never
+}
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
 
@@ -57,6 +51,7 @@ export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
 export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>
+type PossibleUserFieldValues = PossibleUserFields[keyof PossibleUserFields]
 
 // PRIVATE API
 export type UserSignupFields = {
@@ -65,7 +60,7 @@ export type UserSignupFields = {
   >
 }
 
-type FieldGetter<T> = (
+type FieldGetter<T extends PossibleUserFieldValues> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined
 

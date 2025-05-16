@@ -7,10 +7,7 @@ import { type UserUsernameAndPasswordSignupFields } from '../../providers'
 type UsernameSignupData = {
   username: string
   password: string
-}
-{=# usernameAndPasswordUserSignupFields.isDefined =}
-  & UserUsernameAndPasswordSignupFields
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+}{=# usernameAndPasswordUserSignupFields.isDefined =} & UserUsernameAndPasswordSignupFields{=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {
