@@ -123,8 +123,8 @@ describe('mapTsAppSpecToAppSpecDecls', () => {
   })
 
   test('should map minimal app using mapping functions correctly', () => {
-    const { appConfigName, app: userApp } = Fixtures.createApp('minimal')
-    const tsAppSpec = userApp[GET_TS_APP_SPEC]()
+    const { appConfigName, app } = Fixtures.createApp('minimal')
+    const tsAppSpec = app[GET_TS_APP_SPEC]()
     const entities = Fixtures.getEntities('minimal')
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', [])
