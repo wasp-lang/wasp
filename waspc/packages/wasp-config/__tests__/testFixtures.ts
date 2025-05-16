@@ -1,6 +1,6 @@
 /**
  * This module contains sample data that can be used for testing purposes.
- * In our case the sample data represents UserSpec data.
+ * In our case the sample data represents TsAppSpec data.
  */
 
 import * as AppSpec from '../src/appSpec.js'
