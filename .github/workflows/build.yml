@@ -1,0 +1,93 @@
+name: Build waspc
+
+on:
+  push:
+
+concurrency:
+  group: "waspc-build-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - name: linux-x86_64
+            os: linux
+            runner: ubuntu-24.04 # by default a x64 image
+
+          # TODO: re-enable when we upgrade Haskell (#1446)
+          # GHC 8.10.7 is not available on Linux arm64
+          # - name: linux-aarch64
+          #   os: linux
+          #   runner: ubuntu-24.04-arm # linux arm64 images all are pinned to a version and not `latest`
+
+          - name: macos-x86_64
+            os: macos
+            runner: macos-13 # last free macOS image with x64
+
+          # TODO: re-enable when we upgrade Haskell (#1446)
+          # The `zlib` package doesn't build on macOS arm64
+          # - name: macos-aarch64
+          #   os: macos
+          #   runner: macos-14 # by default an arm64 image
+
+
+    runs-on: ${{ matrix.env.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.12.0
+        with:
+          enable-cache: true
+          project-path: waspc
+
+      # Based on the official recipe for Cabal caching:
+      # https://github.com/actions/cache/blob/5a3ec84eff668545956fd18022155c47e93e2684/examples.md#haskell---cabal
+      - name: Cache Cabal dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            $HOME/.cache/cabal
+            $HOME/.local/state/cabal
+            waspc/dist-newstyle
+          # Caches are immutable, so we use the official recipe for simulating an updatable cache:
+          # https://github.com/actions/cache/blob/5a3ec84eff668545956fd18022155c47e93e2684/tips-and-workarounds.md#update-a-cache
+          key: ${{ runner.os }}-cabal-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-cabal-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-
+            ${{ runner.os }}-cabal-
+
+      - name: Permissions workaround
+        run: |
+          sudo mkdir -p $HOME/.local/state/cabal
+          sudo chown -R $USER:$(id -gn) $HOME/.local/state/cabal
+
+      - name: Check versions
+        working-directory: waspc
+        run: |
+          devbox run -- ghc --version
+          devbox run -- cabal --version
+
+      - name: Update Cabal index
+        working-directory: waspc
+        run: devbox run -- cabal update
+
+      - name: Build
+        working-directory: waspc
+        run: devbox run -- ./run build:all
+
+      - name: Create binary package
+        working-directory: waspc
+        run: |
+          mkdir artifacts
+          devbox run -- ./tools/make_binary_package.sh "artifacts/wasp-${{ matrix.env.name }}.tar.gz"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasp-artifacts-${{ matrix.env.name }}
+          path: "waspc/artifacts/*"

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
+  "packages": {
+    "ghc": "8.10.7",
+    "cabal-install": "latest",
+    "zlib": {
+      "version": "latest",
+      "outputs": ["out", "dev", "static"]
+    },
+    "apple-sdk_13": {
+      "version": "latest",
+      "platforms": ["aarch64-darwin", "x86_64-darwin"]
+    },
+    "darwin.libobjc": {
+      "version": "latest",
+      "platforms": ["aarch64-darwin", "x86_64-darwin"]
+    },
+    "glibc": {
+      "version": "2.30",
+      "platforms": ["x86_64-linux", "aarch64-linux"],
+      "outputs": ["out", "dev"]
+    }
+  }
+}
