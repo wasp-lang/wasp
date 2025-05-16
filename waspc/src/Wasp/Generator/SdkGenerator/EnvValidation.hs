@@ -16,10 +16,9 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
@@ -66,7 +65,7 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "envValidationSchema" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationSchema)
+          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
@@ -80,7 +79,7 @@ genClientEnvSchema spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "envValidationSchema" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybeEnvValidationSchema)
+          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec

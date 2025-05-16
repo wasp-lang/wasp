@@ -4,7 +4,12 @@ module Wasp.Generator.SdkGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath
+  ( File',
+    Path',
+    Rel,
+    relfile,
+  )
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -19,6 +24,7 @@ import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
@@ -53,7 +59,8 @@ genAuth spec =
             genSessionTs auth,
             genLuciaTs auth,
             genUtils auth,
-            genProvidersTypes auth
+            genProvidersTypes auth,
+            genProvdersIndex auth
           ]
         <++> genOAuth auth
         <++> genIndexTs auth
@@ -129,9 +136,31 @@ genIndexTs auth =
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
+genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
+genProvdersIndex auth = return $ C.mkTmplFdWithData [relfile|auth/providers/index.ts|] tmplData
+  where
+    tmplData =
+      object
+        [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+        ]
+
+    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    authMethods = AS.Auth.methods auth
+
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/types.ts|] tmplData
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
-    tmplData = object ["userEntityUpper" .= (userEntityName :: String)]
+    tmplData =
+      object
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+        ]
+
+    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    authMethods = AS.Auth.methods auth
