@@ -42,29 +42,14 @@ Together, these declarations tell Wasp that when a user navigates to `/`, it sho
 
 Let's take a look at the React component referenced by the page declaration:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    import waspLogo from './waspLogo.png'
-    import './Main.css'
+```tsx title="src/MainPage.tsx" auto-js
+import waspLogo from './waspLogo.png'
+import './Main.css'
 
-    export const MainPage = () => {
-      // ...
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    import waspLogo from './waspLogo.png'
-    import './Main.css'
-
-    export const MainPage = () => {
-      // ...
-    }
-    ```
-  </TabItem>
-</Tabs>
+export const MainPage = () => {
+  // ...
+}
+```
 
 This is a regular functional React component. It also uses the CSS file and a logo image that sit next to it in the `src` folder.
 
@@ -80,51 +65,23 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 To add more pages, you can create another set of **page** and **route** declarations. You can even add parameters to the URL path, using the same syntax as [React Router](https://reactrouter.com/en/6.26.1). Let's test this out by adding a new page:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    route HelloRoute { path: "/hello/:name", to: HelloPage }
-    page HelloPage {
-      component: import { HelloPage } from "@src/HelloPage"
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    route HelloRoute { path: "/hello/:name", to: HelloPage }
-    page HelloPage {
-      component: import { HelloPage } from "@src/HelloPage"
-    }
-    ```
-  </TabItem>
-</Tabs>
+```wasp title="main.wasp"
+route HelloRoute { path: "/hello/:name", to: HelloPage }
+page HelloPage {
+  component: import { HelloPage } from "@src/HelloPage"
+}
+```
 
 When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router-dom` to access the `name` parameter:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/HelloPage.jsx"
-    import { useParams } from 'react-router-dom'
+```tsx title="src/HelloPage.tsx" auto-js
+import { useParams } from 'react-router-dom'
 
-    export const HelloPage = () => {
-      const { name } = useParams()
-      return <div>Here's {name}!</div>
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/HelloPage.tsx"
-    import { useParams } from 'react-router-dom'
-
-    export const HelloPage = () => {
-      const { name } = useParams<'name'>()
-      return <div>Here's {name}!</div>
-    }
-    ```
-  </TabItem>
-</Tabs>
+export const HelloPage = () => {
+  const { name } = useParams<'name'>()
+  return <div>Here's {name}!</div>
+}
+```
 
 Now you can visit `/hello/johnny` and see "Here's johnny!"
 
@@ -142,27 +99,15 @@ Start by cleaning up the starter project and removing unnecessary code and files
 
 First, remove most of the code from the `MainPage` component:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    export const MainPage = () => {
-      return <div>Hello world!</div>
-    }
-    ```
-  </TabItem>
+<TutorialAction step="1" action="write" path="src/MainPage.tsx">
 
-  <TabItem value="ts" label="TypeScript">
-  <TutorialAction step="1" action="write" path="src/MainPage.tsx">
+```tsx title="src/MainPage.tsx" auto-js
+export const MainPage = () => {
+  return <div>Hello world!</div>
+}
+```
 
-  ```tsx title="src/MainPage.tsx"
-  export const MainPage = () => {
-    return <div>Hello world!</div>
-  }
-  ```
-  
-  </TutorialAction>
-  </TabItem>
-</Tabs>
+</TutorialAction>
 
 At this point, the main page should look like this:
 
@@ -174,43 +119,23 @@ Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its `route` and `page` 
 
 Your Wasp file should now look like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app TodoApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "TodoApp"
-    }
+<TutorialAction step="2" action="write" path="main.wasp">
 
-    route RootRoute { path: "/", to: MainPage }
-    page MainPage {
-      component: import { MainPage } from "@src/MainPage"
-    }
-    ```
-  </TabItem>
+```wasp title="main.wasp"
+app TodoApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "TodoApp"
+}
 
-  <TabItem value="ts" label="TypeScript">
-  <TutorialAction step="2" action="write" path="main.wasp">
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { MainPage } from "@src/MainPage"
+}
+```
 
-  ```wasp title="main.wasp"
-  app TodoApp {
-    wasp: {
-      version: "{latestWaspVersion}"
-    },
-    title: "TodoApp"
-  }
-
-  route RootRoute { path: "/", to: MainPage }
-  page MainPage {
-    component: import { MainPage } from "@src/MainPage"
-  }
-  ```
-
-  </TutorialAction>
-  </TabItem>
-</Tabs>
+</TutorialAction>
 
 Excellent work!
 

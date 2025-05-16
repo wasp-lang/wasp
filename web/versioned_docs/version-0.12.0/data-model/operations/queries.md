@@ -213,7 +213,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=src/MainPage.jsx
+    ```jsx title="src/MainPage.jsx"
     import React from 'react'
     import { useQuery, getAllTasks, getFilteredTasks } from 'wasp/client/operations'
 
@@ -262,7 +262,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=src/MainPage.tsx
+    ```tsx title="src/MainPage.tsx"
     import React from 'react'
     import { type Task } from 'wasp/entities'
     import { useQuery, getAllTasks, getFilteredTasks } from 'wasp/client/operations'
@@ -328,7 +328,7 @@ If you do want to pass additional error information to the client, you can const
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```js title=src/queries.js
+    ```js title="src/queries.js"
     import { HttpError } from 'wasp/server'
 
     export const getAllTasks = async (args, context) => {
@@ -342,7 +342,7 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title=src/queries.ts
+    ```ts title="src/queries.ts"
     import { type GetAllTasks } from 'wasp/server/operations'
     import { HttpError } from 'wasp/server'
 
@@ -552,7 +552,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     Expects to find a named export `getFoo` from the file `src/queries.js`
 
-    ```js title=queries.js
+    ```js title="queries.js"
     export const getFoo = (args, context) => {
       // implementation
     }
@@ -573,7 +573,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     You can use the generated type `GetFoo` and specify the Query's inputs and outputs using its type arguments.
 
-    ```ts title=queries.ts
+    ```ts title="queries.ts"
     import { type GetFoo } from 'wasp/server/operations'
 
     type Foo = // ...

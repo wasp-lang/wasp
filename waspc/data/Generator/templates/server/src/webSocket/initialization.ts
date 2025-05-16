@@ -17,7 +17,10 @@ import { makeAuthUserIfPossible } from 'wasp/auth/user'
 export async function init(server: http.Server): Promise<void> {
   // TODO: In the future, we can consider allowing a clustering option.
   // Ref: https://github.com/wasp-lang/wasp/issues/1228
-  const io: ServerType = new Server(server, {
+
+  // TODO: Uncomment the type annotation once we make sure that the types between different packages are aligned.
+  // Ref: https://github.com/wasp-lang/wasp/issues/2726
+  const io /* : ServerType */ = new Server(server, {
     cors: {
       origin: config.frontendUrl,
     }

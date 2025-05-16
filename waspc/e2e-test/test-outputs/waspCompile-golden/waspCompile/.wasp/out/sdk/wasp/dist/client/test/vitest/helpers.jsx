@@ -1,4 +1,3 @@
-import { serialize as superjsonSerialize } from 'superjson';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -7,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeAll, afterEach, afterAll } from 'vitest';
 import { config } from 'wasp/client';
 import { HttpMethod } from 'wasp/client';
+import { serialize } from 'wasp/core/serialization';
 // PUBLIC API
 // Inspired by the Tanstack React Query helper:
 // https://github.com/TanStack/query/blob/4ae99561ca3383d6de3f4aad656a49ba4a17b57a/packages/react-query/src/__tests__/utils.tsx#L7-L26
@@ -33,7 +33,7 @@ export function mockServer() {
     afterAll(() => server.close());
     const mockQuery = (query, mockData) => {
         const route = query.route;
-        mockRoute(server, route, (_req, res, ctx) => res(ctx.json(superjsonSerialize(mockData))));
+        mockRoute(server, route, (_req, res, ctx) => res(ctx.json(serialize(mockData))));
     };
     const mockApi = (route, mockData) => {
         mockRoute(server, route, (_req, res, ctx) => res(ctx.json(mockData)));

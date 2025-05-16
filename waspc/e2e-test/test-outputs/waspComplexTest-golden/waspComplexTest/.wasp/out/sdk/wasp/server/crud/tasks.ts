@@ -4,7 +4,7 @@ import type {
   _Task,
 } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload } from "../_types/serialization";
+import type { Payload, SuperJSONObject } from "wasp/core/serialization";
 import type {
   Task,
 } from "wasp/entities";
@@ -15,7 +15,7 @@ type _WaspEntity = Task
 /**
  * PUBLIC API
  */
-export namespace tasks {
+export declare namespace tasks {
   export type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
 
   export type GetQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
@@ -27,7 +27,7 @@ export namespace tasks {
 
 /**
  * PRIVATE API
- * 
+ *
  * The types with the `Resolved` suffix are the types that are used internally by the Wasp client
  * to implement full-stack type safety.
  */
@@ -35,11 +35,11 @@ type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
 export type GetAllQueryResolved = tasks.GetAllQuery<GetAllInput, GetAllOutput>
 
-type GetInput = Prisma.TaskWhereUniqueInput
+type GetInput = SuperJSONObject & Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
 export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>
 
-type CreateInput = Prisma.XOR<
+type CreateInput = SuperJSONObject & Prisma.XOR<
   Prisma.TaskCreateInput,
   Prisma.TaskUncheckedCreateInput
 >

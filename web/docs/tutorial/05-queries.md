@@ -102,43 +102,31 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` declaration:
 </ShowForTs>
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/queries.js"
-    export const getTasks = async (args, context) => {
-      return context.entities.Task.findMany({
-        orderBy: { id: 'asc' },
-      })
-    }
-    ```
-  </TabItem>
+<TutorialAction step="6" action="write" path="src/queries.ts">
 
-  <TabItem value="ts" label="TypeScript">
-  <TutorialAction step="6" action="write" path="src/queries.ts">
+```ts title="src/queries.ts" auto-js
+import type { Task } from 'wasp/entities'
+import type { GetTasks } from 'wasp/server/operations'
 
-  ```js title="src/queries.ts"
-  import { Task } from 'wasp/entities'
-  import { type GetTasks } from 'wasp/server/operations'
+export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: 'asc' },
+  })
+}
+```
 
-  export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
-    return context.entities.Task.findMany({
-      orderBy: { id: 'asc' },
-    })
-  }
-  ```
-  
-  </TutorialAction>
+ </TutorialAction>
 
-    Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
+<ShowForTs>
+Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
 
-    - `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
-    - `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp`.
+- `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
+- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp`.
 
-    You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
+You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
-    Annotating the Queries is optional, but highly recommended because doing so enables **full-stack type safety**. We'll see what this means in the next step.
-  </TabItem>
-</Tabs>
+Annotating the Queries is optional, but highly recommended because doing so enables **full-stack type safety**. We'll see what this means in the next step.
+</ShowForTs>
 
 Query function parameters:
 
@@ -162,92 +150,53 @@ While we implement Queries on the server, Wasp generates client-side functions t
 
 This makes it easy for us to use the `getTasks` Query we just created in our React component:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx {1,4-13,16-35} title="src/MainPage.jsx"
-    import { getTasks, useQuery } from 'wasp/client/operations'
+<TutorialAction step="7" action="write" path="src/MainPage.tsx">
 
-    export const MainPage = () => {
-      const { data: tasks, isLoading, error } = useQuery(getTasks)
+```tsx title="src/MainPage.tsx" auto-js
+import type { Task } from 'wasp/entities'
+// highlight-next-line
+import { getTasks, useQuery } from 'wasp/client/operations'
 
-      return (
-        <div>
-          {tasks && <TasksList tasks={tasks} />}
+export const MainPage = () => {
+  // highlight-start
+  const { data: tasks, isLoading, error } = useQuery(getTasks)
 
-          {isLoading && 'Loading...'}
-          {error && 'Error: ' + error}
-        </div>
-      )
-    }
+  return (
+    <div>
+      {tasks && <TasksList tasks={tasks} />}
 
-    const TaskView = ({ task }) => {
-      return (
-        <div>
-          <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-          {task.description}
-        </div>
-      )
-    }
+      {isLoading && 'Loading...'}
+      {error && 'Error: ' + error}
+    </div>
+  )
+  // highlight-end
+}
 
-    const TasksList = ({ tasks }) => {
-      if (!tasks?.length) return <div>No tasks</div>
+// highlight-start
+const TaskView = ({ task }: { task: Task }) => {
+  return (
+    <div>
+      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
+      {task.description}
+    </div>
+  )
+}
 
-      return (
-        <div>
-          {tasks.map((task, idx) => (
-            <TaskView task={task} key={idx} />
-          ))}
-        </div>
-      )
-    }
-    ```
-  </TabItem>
+const TasksList = ({ tasks }: { tasks: Task[] }) => {
+  if (!tasks?.length) return <div>No tasks</div>
 
-  <TabItem value="ts" label="TypeScript">
-  <TutorialAction step="7" action="write" path="src/MainPage.tsx">
+  return (
+    <div>
+      {tasks.map((task, idx) => (
+        <TaskView task={task} key={idx} />
+      ))}
+    </div>
+  )
+}
+// highlight-end
+```
 
-  ```tsx {1-2,5-14,17-36} title="src/MainPage.tsx"
-  import { Task } from 'wasp/entities'
-  import { getTasks, useQuery } from 'wasp/client/operations'
-
-  export const MainPage = () => {
-    const { data: tasks, isLoading, error } = useQuery(getTasks)
-
-    return (
-      <div>
-        {tasks && <TasksList tasks={tasks} />}
-
-        {isLoading && 'Loading...'}
-        {error && 'Error: ' + error}
-      </div>
-    )
-  }
-
-  const TaskView = ({ task }: { task: Task }) => {
-    return (
-      <div>
-        <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-        {task.description}
-      </div>
-    )
-  }
-
-  const TasksList = ({ tasks }: { tasks: Task[] }) => {
-    if (!tasks?.length) return <div>No tasks</div>
-
-    return (
-      <div>
-        {tasks.map((task, idx) => (
-          <TaskView task={task} key={idx} />
-        ))}
-      </div>
-    )
-  }
-  ```
-  
-  </TutorialAction>
-  </TabItem>
-</Tabs>
+</TutorialAction>
 
 Most of this code is regular React, the only exception being the <ShowForJs>two</ShowForJs><ShowForTs>three</ShowForTs> special `wasp` imports:
 

@@ -1,7 +1,7 @@
 import { type AxiosInstance, type AxiosError } from 'axios';
 export declare const api: AxiosInstance;
 export declare function setSessionId(sessionId: string): void;
-export declare function getSessionId(): string | undefined;
+export declare function getSessionId(): string | null;
 export declare function clearSessionId(): void;
 export declare function removeLocalUserData(): void;
 /**

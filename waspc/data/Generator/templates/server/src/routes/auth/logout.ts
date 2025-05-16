@@ -5,7 +5,7 @@ import { invalidateSession } from 'wasp/auth/session'
 export default defineHandler(async (req, res) => {
   if (req.sessionId) {
     await invalidateSession(req.sessionId)
-    return res.json({ success: true })
+    res.json({ success: true })
   } else {
     throw createInvalidCredentialsError()
   }

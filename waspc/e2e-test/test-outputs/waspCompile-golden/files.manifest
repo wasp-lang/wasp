@@ -3,7 +3,6 @@ waspCompile/.wasp/out/.waspchecksums
 waspCompile/.wasp/out/Dockerfile
 waspCompile/.wasp/out/db/schema.prisma
 waspCompile/.wasp/out/installedNpmDepsLog.json
-waspCompile/.wasp/out/sdk/wasp/api/axios.d.ts
 waspCompile/.wasp/out/sdk/wasp/api/events.ts
 waspCompile/.wasp/out/sdk/wasp/api/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/config.ts
@@ -27,6 +26,7 @@ waspCompile/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspCompile/.wasp/out/sdk/wasp/client/router/types.ts
 waspCompile/.wasp/out/sdk/wasp/client/test/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
+waspCompile/.wasp/out/sdk/wasp/core/serialization.ts
 waspCompile/.wasp/out/sdk/wasp/core/storage.ts
 waspCompile/.wasp/out/sdk/wasp/dev/index.ts
 waspCompile/.wasp/out/sdk/wasp/dist/api/events.d.ts
@@ -121,6 +121,10 @@ waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.d.ts.map
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.js
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.js
@@ -149,10 +153,6 @@ waspCompile/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/server/_types/index.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/_types/index.js
 waspCompile/.wasp/out/sdk/wasp/dist/server/_types/index.js.map
-waspCompile/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts
-waspCompile/.wasp/out/sdk/wasp/dist/server/_types/serialization.d.ts.map
-waspCompile/.wasp/out/sdk/wasp/dist/server/_types/serialization.js
-waspCompile/.wasp/out/sdk/wasp/dist/server/_types/serialization.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.js
@@ -244,7 +244,6 @@ waspCompile/.wasp/out/sdk/wasp/package.json
 waspCompile/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 waspCompile/.wasp/out/sdk/wasp/server/HttpError.ts
 waspCompile/.wasp/out/sdk/wasp/server/_types/index.ts
-waspCompile/.wasp/out/sdk/wasp/server/_types/serialization.ts
 waspCompile/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 waspCompile/.wasp/out/sdk/wasp/server/config.ts
 waspCompile/.wasp/out/sdk/wasp/server/dbClient.ts

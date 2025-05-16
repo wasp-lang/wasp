@@ -297,7 +297,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp {10}
+    ```wasp title="main.wasp" {10}
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -316,7 +316,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp {10}
+    ```wasp title="main.wasp" {10}
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -376,7 +376,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```js title=src/server/auth/github.js
+    ```js title="src/server/auth/github.js"
     import { generateAvailableDictionaryUsername } from "@wasp/core/auth.js";
 
     export const getUserFields = async (_context, args) => {
@@ -425,7 +425,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```ts title=src/server/auth/github.ts
+    ```ts title="src/server/auth/github.ts"
     import type { GetUserFieldsFn } from '@wasp/types'
     import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
 
@@ -510,7 +510,7 @@ The `gitHub` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/server/auth/github.js
+      ```js title="src/server/auth/github.js"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere
@@ -522,7 +522,7 @@ The `gitHub` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/server/auth/github.ts
+      ```ts title="src/server/auth/github.ts"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere
@@ -545,7 +545,7 @@ The `gitHub` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/server/auth/github.js
+      ```js title="src/server/auth/github.js"
       import { generateAvailableUsername } from '@wasp/core/auth.js'
 
       export const getUserFields = async (_context, args) => {
@@ -559,7 +559,7 @@ The `gitHub` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/server/auth/github.ts
+      ```ts title="src/server/auth/github.ts"
       import type { GetUserFieldsFn } from '@wasp/types'
       import { generateAvailableUsername } from '@wasp/core/auth.js'
 

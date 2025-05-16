@@ -267,7 +267,7 @@ Add `keycloak: {}` to the `auth.methods` dictionary to use it with default setti
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.13.0"
@@ -286,7 +286,7 @@ Add `keycloak: {}` to the `auth.methods` dictionary to use it with default setti
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.13.0"
@@ -368,7 +368,7 @@ The fields you receive will depend on the scopes you requested. The default scop
     // ...
     ```
 
-    ```js title=src/auth/keycloak.js
+    ```js title="src/auth/keycloak.js"
     export const userSignupFields = {
       username: () => "hardcoded-username",
       displayName: (data) => data.profile.name,
@@ -412,7 +412,7 @@ The fields you receive will depend on the scopes you requested. The default scop
     // ...
     ```
 
-    ```ts title=src/auth/keycloak.ts
+    ```ts title="src/auth/keycloak.ts"
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
@@ -495,7 +495,7 @@ The `keycloak` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/auth/keycloak.js
+      ```js title="src/auth/keycloak.js"
       export function getConfig() {
         return {
           scopes: ['profile', 'email'],
@@ -505,7 +505,7 @@ The `keycloak` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/auth/keycloak.ts
+      ```ts title="src/auth/keycloak.ts"
       export function getConfig() {
         return {
           scopes: ['profile', 'email'],
