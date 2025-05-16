@@ -2,14 +2,15 @@
 import { api, handleApiError } from 'wasp/client/api'
 {=# usernameAndPasswordUserSignupFields.isDefined =}
 import { type UserUsernameAndPasswordSignupFields } from '../../providers'
-
-interface UsernameSignupData extends UserUsernameAndPasswordSignupFields {}
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
 
-interface UsernameSignupData {
+type UsernameSignupData = {
   username: string
   password: string
 }
+{=# usernameAndPasswordUserSignupFields.isDefined =}
+  & UserUsernameAndPasswordSignupFields
+{=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {
