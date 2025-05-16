@@ -2,6 +2,7 @@
  */
 import { GET_USER_SPEC } from './_private.js'
 import * as AppSpec from './appSpec.js'
+import { Branded } from './branded.js'
 
 export class App {
   #userSpec: UserSpec;
@@ -263,7 +264,7 @@ export type RouteConfig = {
   to: PageName
 }
 
-type PageName = string & { _brand: 'Page' }
+export type PageName = Branded<string, 'PageName'>
 
 export type ServerConfig = {
   setupFn?: ExtImport
