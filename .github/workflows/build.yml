@@ -1,0 +1,80 @@
+name: Build Waspc
+
+on:
+  pull_request:
+
+concurrency:
+  group: "waspc-build-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        system:
+          # The `arch` names come from GHCup metadata files
+          # A_64 = x64
+          # A_ARM64 = arm64
+
+          - kind: linux
+            arch: A_64
+
+            runner: ubuntu-24.04 # by default a x64 image
+          - kind: macos
+            arch: A_64
+            runner: macos-14 # by default an ARM image
+          # Alpine Linux on arm64 is not supported by GHC 8.10.7
+          # TODO: Uncomment when we update Haskell (#1446)
+          # - kind: linux
+          #   arch: A_ARM64
+          #   runner: ubuntu-24.04-arm # linux arm64 images all are pinned to a version and not `latest`
+          - kind: macos
+            arch: A_ARM64
+            runner: macos-13 # this is the latest free x64 image for macOS
+        ghc:
+          - 8.10.7
+
+    runs-on: ${{ matrix.system.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Remove when we update Haskell (#1446)
+      - name: Install LLVM@13
+        if: matrix.system.kind == 'macos'
+        run: |
+          wget 'https://raw.githubusercontent.com/Homebrew/homebrew-core/a81b855553929de37f38470bc44122b630ec9bc5/Formula/l/llvm%4013.rb' -O llvm@13.rb
+          # remove the line that starts with `disable!`
+          sed -i '' '/^ *disable!/d' llvm@13.rb
+          brew install --formula llvm@13.rb
+          brew link --force llvm@13
+
+      - uses: haskell/ghcup-setup@v1
+        if: matrix.system.kind == 'linux'
+        with:
+          cabal: latest
+          ghc: ${{ matrix.ghc }}
+          config: |
+            platform-override:
+              arch: ${{ matrix.system.arch }}
+              platform:
+                contents: Alpine
+                tag: Linux
+              version:
+
+      - uses: haskell/ghcup-setup@v1
+        if: matrix.system.kind == 'macos'
+        with:
+          cabal: latest
+          ghc: ${{ matrix.ghc }}
+
+      - name: Check versions
+        run: |
+          ghc --version
+          cabal --version
+
+      - run: cabal update
+
+      - name: Build
+        working-directory: waspc
+        run: ./run build:all
