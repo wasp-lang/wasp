@@ -31,7 +31,9 @@ export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {
  * of those functions.
  */
 type InferUserSignupFields<T extends UserSignupFields> = {
-  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues> ? ReturnType<T[K]> : never
+  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues> 
+    ? ReturnType<T[K]> 
+    : never
 }
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
