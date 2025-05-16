@@ -16,3 +16,5 @@ module-graph.png
 
 # macOS related
 .DS_Store
+
+waspc.cabal
