@@ -379,7 +379,7 @@ export function getRoute(routeType: PageType): NamedConfig<UserApi.RouteConfig> 
       name: 'MinimalRoute',
       config: {
         path: '/foo/bar',
-        to: getPage(routeType).name as Branded<string, 'PageName'>,
+        to: getPage(routeType).name as UserApi.PageName,
       },
     } satisfies MinimalNamedConfig<UserApi.RouteConfig>
   }
@@ -397,7 +397,7 @@ export function getRoute(routeType: PageType): NamedConfig<UserApi.RouteConfig> 
     name,
     config: {
       path: '/foo/bar',
-      to: getPage(routeType).name as Branded<string, 'PageName'>,
+      to: getPage(routeType).name as UserApi.PageName,
     },
   } satisfies FullNamedConfig<UserApi.RouteConfig>
 }

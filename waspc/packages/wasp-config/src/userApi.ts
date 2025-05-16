@@ -264,7 +264,7 @@ export type RouteConfig = {
   to: PageName
 }
 
-type PageName = Branded<string, 'PageName'>
+export type PageName = Branded<string, 'PageName'>
 
 export type ServerConfig = {
   setupFn?: ExtImport
