@@ -4,6 +4,7 @@ title: 5. Querying the Database
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
+import { TutorialAction } from '@site/src/components/TutorialAction';
 
 We want to know which tasks we need to do, so let's list them!
 
@@ -42,6 +43,35 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
+  <TutorialAction step="5" action="diff">
+
+  ```diff
+  diff --git a/main.wasp b/main.wasp
+  index 3a25ea9..ea22c79 100644
+  --- a/main.wasp
+  +++ b/main.wasp
+  @@ -8,4 +8,15 @@ app TodoApp {
+   route RootRoute { path: "/", to: MainPage }
+   page MainPage {
+     component: import { MainPage } from "@src/MainPage"
+  -}
+  \ No newline at end of file
+  +}
+  +
+  +query getTasks {
+  +  // Specifies where the implementation for the query function is.
+  +  // The path `@src/queries` resolves to `src/queries.ts`.
+  +  // No need to specify an extension.
+  +  fn: import { getTasks } from "@src/queries",
+  +  // Tell Wasp that this query reads from the `Task` entity. Wasp will
+  +  // automatically update the results of this query when tasks are modified.
+  +  entities: [Task]
+  +}
+  +
+  
+  ```
+
+  </TutorialAction>
     ```wasp title="main.wasp"
     // ...
 
@@ -72,6 +102,8 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` declaration:
 </ShowForTs>
 
+<TutorialAction step="6" action="write" path="src/queries.ts">
+
 ```ts title="src/queries.ts" auto-js
 import type { Task } from 'wasp/entities'
 import type { GetTasks } from 'wasp/server/operations'
@@ -82,6 +114,8 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   })
 }
 ```
+
+ </TutorialAction>
 
 <ShowForTs>
 Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
@@ -115,6 +149,8 @@ Queries and Actions are NodeJS functions executed on the server.
 While we implement Queries on the server, Wasp generates client-side functions that automatically take care of serialization, network calls, and cache invalidation, allowing you to call the server code like it's a regular function.
 
 This makes it easy for us to use the `getTasks` Query we just created in our React component:
+
+<TutorialAction step="7" action="write" path="src/MainPage.tsx">
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { Task } from 'wasp/entities'
@@ -159,6 +195,8 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
 }
 // highlight-end
 ```
+
+</TutorialAction>
 
 Most of this code is regular React, the only exception being the <ShowForJs>two</ShowForJs><ShowForTs>three</ShowForTs> special `wasp` imports:
 

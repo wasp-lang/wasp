@@ -6,6 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
+import { TutorialAction } from '@site/src/components/TutorialAction';
 
 In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
 
@@ -98,11 +99,15 @@ Start by cleaning up the starter project and removing unnecessary code and files
 
 First, remove most of the code from the `MainPage` component:
 
+<TutorialAction step="1" action="write" path="src/MainPage.tsx">
+
 ```tsx title="src/MainPage.tsx" auto-js
 export const MainPage = () => {
   return <div>Hello world!</div>
 }
 ```
+
+</TutorialAction>
 
 At this point, the main page should look like this:
 
@@ -113,6 +118,8 @@ You can now delete redundant files: `src/Main.css`, `src/waspLogo.png`, and `src
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its `route` and `page` declarations from the `main.wasp` file.
 
 Your Wasp file should now look like this:
+
+<TutorialAction step="2" action="write" path="main.wasp">
 
 ```wasp title="main.wasp"
 app TodoApp {
@@ -127,6 +134,8 @@ page MainPage {
   component: import { MainPage } from "@src/MainPage"
 }
 ```
+
+</TutorialAction>
 
 Excellent work!
 
