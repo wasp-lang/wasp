@@ -30,18 +30,18 @@ import {
   mapServer,
   mapUsernameAndPassword,
   mapWebSocket,
-} from '../src/mapUserSpecToAppSpecDecls.js'
+} from '../src/mapTsAppSpecToAppSpecDecls.js'
 import { App } from '../src/publicApi/App.js'
 import * as TsAppSpec from '../src/publicApi/tsAppSpec.js'
 import * as Fixtures from './testFixtures.js'
 
 describe('mapApp', () => {
   test('should map minimal config correctly', () => {
-    testMapApp(Fixtures.createUserApp('minimal').userApp)
+    testMapApp(Fixtures.createApp('minimal').app)
   })
 
   test('should map full config correctly', () => {
-    testMapApp(Fixtures.createUserApp('full').userApp)
+    testMapApp(Fixtures.createApp('full').app)
   })
 
   function testMapApp(app: App): void {

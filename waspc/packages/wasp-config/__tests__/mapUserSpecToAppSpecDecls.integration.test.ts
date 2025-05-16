@@ -12,14 +12,14 @@ import {
   mapOperation,
   mapPage,
   mapRoute,
-  mapUserSpecToAppSpecDecls,
-} from '../src/mapUserSpecToAppSpecDecls.js'
+  mapTsAppSpecToAppSpecDecls,
+} from '../src/mapTsAppSpecToAppSpecDecls.js'
 import * as Fixtures from './testFixtures.js'
 
-describe('mapUserSpecToAppSpecDecls', () => {
+describe('mapTsAppSpecToAppSpecDecls', () => {
   test('should map full app using mapping functions correctly', () => {
-    const { appName, userApp } = Fixtures.createUserApp('full')
-    const tsAppSpec = userApp[GET_TS_APP_SPEC]()
+    const { appConfigName, app } = Fixtures.createApp('full')
+    const tsAppSpec = app[GET_TS_APP_SPEC]()
     const entities = Fixtures.getEntities('full')
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser(
@@ -30,15 +30,14 @@ describe('mapUserSpecToAppSpecDecls', () => {
       'Page',
       Fixtures.getPages().map((p) => p.name)
     )
-
     const appDeclType = 'App'
 
-    const result = mapUserSpecToAppSpecDecls(tsAppSpec, entities)
+    const result = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities)
 
-    const appDecl = getDecl(result, appDeclType, appName)
+    const appDecl = getDecl(result, appDeclType, appConfigName)
     expect(appDecl).toStrictEqual({
       declType: appDeclType,
-      declName: appName,
+      declName: appConfigName,
       declValue: mapApp(
         tsAppSpec.app.config,
         entityRefParser,
@@ -124,19 +123,19 @@ describe('mapUserSpecToAppSpecDecls', () => {
   })
 
   test('should map minimal app using mapping functions correctly', () => {
-    const { appName, userApp } = Fixtures.createUserApp('minimal')
+    const { appConfigName, app: userApp } = Fixtures.createApp('minimal')
     const tsAppSpec = userApp[GET_TS_APP_SPEC]()
     const entities = Fixtures.getEntities('minimal')
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', [])
     const appDeclType = 'App'
 
-    const result = mapUserSpecToAppSpecDecls(tsAppSpec, entities)
+    const result = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities)
 
-    const appDecl = getDecl(result, appDeclType, appName)
+    const appDecl = getDecl(result, appDeclType, appConfigName)
     expect(appDecl).toStrictEqual({
       declType: appDeclType,
-      declName: appName,
+      declName: appConfigName,
       declValue: mapApp(
         tsAppSpec.app.config,
         entityRefParser,

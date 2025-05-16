@@ -69,17 +69,17 @@ const ENTITY_TYPES = ['task', 'user', 'social-user'] as const
 type EntityType = (typeof ENTITY_TYPES)[number]
 
 export function createApp(scope: ConfigType): {
-  appName: string
-  userApp: App
+  appConfigName: string
+  app: App
 } {
   if (scope === 'minimal') {
     const { name: appName, config: appConfig } = getApp(scope)
     const userApp = new App(appName, appConfig)
-    return { appName, userApp }
+    return { appConfigName: appName, app: userApp }
   }
 
-  const { name: appName, config: appConfig } = getApp(scope)
-  const userApp = new App(appName, appConfig)
+  const { name: appConfigName, config: appConfig } = getApp(scope)
+  const userApp = new App(appConfigName, appConfig)
 
   userApp.auth(getAuth('full'))
   userApp.client(getClient('full'))
@@ -101,7 +101,7 @@ export function createApp(scope: ConfigType): {
   addDecls('api', getApis())
   addDecls('job', getJobs())
 
-  return { appName, userApp }
+  return { appConfigName, app: userApp }
 }
 
 export function getApp(scope: 'minimal'): MinimalNamedConfig<TsAppSpec.AppConfig>
