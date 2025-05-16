@@ -3,8 +3,9 @@ import path from 'path'
 
 import { $ } from 'zx'
 
-import { appDir, patchesDir } from './paths'
-import { log } from './log'
+import { appDir, patchesDir } from '../paths'
+import { log } from '../log'
+import { waspDbMigrate } from '../waspCli'
 
 type ActionCommon = {
   step: number
@@ -19,6 +20,7 @@ export type WriteFileAction = {
 export type ApplyPatchAction = {
   kind: 'diff'
   patch: string
+  path: string
 } & ActionCommon
 
 export type MigrateDbAction = {
@@ -36,6 +38,10 @@ export async function writeFileToAppDir(file: WriteFileAction) {
 export async function applyPatch(patch: ApplyPatchAction) {
   const patchPath = path.resolve(patchesDir, `step-${patch.step}.patch`)
   await fs.writeFile(patchPath, patch.patch)
-  await $`cd ${appDir} && git apply ${patchPath} --verbose`
-  log('info', `Applied patch for step ${patch.step}`)
+  await $`cd ${appDir} && git apply ${patchPath} --verbose`.quiet(true)
+  log('info', `Applied patch to ${patch.path}`)
 }
+
+export const migrateDb = waspDbMigrate
+
+export { createApplyPatchAction } from './diff'

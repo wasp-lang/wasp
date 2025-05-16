@@ -2,9 +2,14 @@ import path from 'path'
 
 import { $, chalk } from 'zx'
 
-import { applyPatch, writeFileToAppDir, type Action } from './actions'
-import { appDir } from './paths'
-import { waspDbMigrate, waspNew } from './waspCli'
+import {
+  applyPatch,
+  migrateDb,
+  writeFileToAppDir,
+  type Action,
+} from './actions/index'
+import { appDir, ensureDirExists, patchesDir } from './paths'
+import { waspNew } from './waspCli'
 import { log } from './log'
 import { getActionsFromTutorialFiles } from './markdown/extractSteps'
 import { program } from '@commander-js/extra-typings'
@@ -36,6 +41,7 @@ const actions: Action[] = await getActionsFromTutorialFiles()
 async function prepareApp() {
   await $`rm -rf ${appDir}`
   await waspNew(appDir)
+  // TODO: Maybe we should have a whitelist of files we want to keep in src?
   await $`rm ${path.join(appDir, 'src/Main.css')}`
   await $`rm ${path.join(appDir, 'src/waspLogo.png')}`
   await $`rm ${path.join(appDir, 'src/MainPage.jsx')}`
@@ -54,9 +60,13 @@ for (const action of actions) {
   const kind = action.kind
   log('info', `${chalk.bold(`Step ${action.step}`)}: ${kind}`)
 
+  // Prepare the patches directory
+  await ensureDirExists(patchesDir)
+
   try {
     switch (kind) {
       case 'diff':
+        // TODO: Implement edit mode which would make it easier to edit diffs
         if (options.edit) {
           // Ask the user if they want to change the diff
           // If yes, don't apply the diff, let them edit manually and generate a new diff
@@ -69,13 +79,13 @@ for (const action of actions) {
         await writeFileToAppDir(action)
         break
       case 'migrate-db':
-        await waspDbMigrate(`step-${action.step}`)
+        await migrateDb(`step-${action.step}`)
         break
       default:
         kind satisfies never
     }
   } catch (err) {
-    log('error', `Error in step ${action.step}: ${err}`)
+    log('error', `Error in step ${action.step}:\n\n${err}`)
     process.exit(1)
   }
 }

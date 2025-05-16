@@ -20,6 +20,7 @@
     "mdast-util-mdx-jsx": "^3.2.0",
     "mdast-util-to-markdown": "^2.1.2",
     "micromark-extension-mdx-jsx": "^3.0.2",
+    "parse-git-diff": "^0.0.17",
     "remark-comment": "^1.0.0",
     "unist-util-visit": "^5.0.0",
     "zx": "^8.5.3"

@@ -6,7 +6,8 @@ import { mdxJsx } from 'micromark-extension-mdx-jsx'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { mdxJsxFromMarkdown, type MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
 import { visit } from 'unist-util-visit'
-import type { Action } from '../actions'
+
+import { type Action, createApplyPatchAction } from '../actions/index'
 import searchAndReplace from '../../../src/remark/search-and-replace.js'
 
 const componentName = 'TutorialAction'
@@ -78,11 +79,7 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
     const codeBlockCode = childCode.value
 
     if (action === 'diff') {
-      actions.push({
-        kind: 'diff',
-        patch: codeBlockCode,
-        step,
-      })
+      actions.push(createApplyPatchAction(codeBlockCode, step))
     } else if (action === 'write') {
       const path = getAttributeValue(node, 'path')
       if (!path) {
