@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test } from 'vitest'
-import { GET_USER_SPEC } from '../src/_private.js'
+import { GET_TS_APP_SPEC } from '../src/_private.js'
 import * as AppSpec from '../src/appSpec.js'
 import {
   makeRefParser,
@@ -19,7 +19,7 @@ import * as Fixtures from './testFixtures.js'
 describe('mapUserSpecToAppSpecDecls', () => {
   test('should map full app using mapping functions correctly', () => {
     const { appName, userApp } = Fixtures.createUserApp('full')
-    const userSpec = userApp[GET_USER_SPEC]()
+    const tsAppSpec = userApp[GET_TS_APP_SPEC]()
     const entities = Fixtures.getEntities('full')
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser(
@@ -33,27 +33,27 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
     const appDeclType = 'App'
 
-    const result = mapUserSpecToAppSpecDecls(userSpec, entities)
+    const result = mapUserSpecToAppSpecDecls(tsAppSpec, entities)
 
     const appDecl = getDecl(result, appDeclType, appName)
     expect(appDecl).toStrictEqual({
       declType: appDeclType,
       declName: appName,
       declValue: mapApp(
-        userSpec.app.config,
+        tsAppSpec.app.config,
         entityRefParser,
         routeRefParser,
-        userSpec.auth,
-        userSpec.server,
-        userSpec.client,
-        userSpec.db,
-        userSpec.emailSender,
-        userSpec.websocket
+        tsAppSpec.auth,
+        tsAppSpec.server,
+        tsAppSpec.client,
+        tsAppSpec.db,
+        tsAppSpec.emailSender,
+        tsAppSpec.websocket
       ),
     })
     expectCorrectDeclMapping({
       declType: 'Page',
-      decls: userSpec.pages,
+      decls: tsAppSpec.pages,
       expectedMapping: {
         function: mapPage,
       },
@@ -61,7 +61,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectDeclMapping({
       declType: 'Route',
-      decls: userSpec.routes,
+      decls: tsAppSpec.routes,
       expectedMapping: {
         function: mapRoute,
         extraArgs: [pageRefParser],
@@ -70,7 +70,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectDeclMapping({
       declType: 'Query',
-      decls: userSpec.queries,
+      decls: tsAppSpec.queries,
       expectedMapping: {
         function: mapOperation,
         extraArgs: [entityRefParser],
@@ -79,7 +79,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectDeclMapping({
       declType: 'Action',
-      decls: userSpec.actions,
+      decls: tsAppSpec.actions,
       expectedMapping: {
         function: mapOperation,
         extraArgs: [entityRefParser],
@@ -88,7 +88,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectDeclMapping({
       declType: 'Crud',
-      decls: userSpec.cruds,
+      decls: tsAppSpec.cruds,
       expectedMapping: {
         function: mapCrud,
         extraArgs: [entityRefParser],
@@ -97,7 +97,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectDeclMapping({
       declType: 'ApiNamespace',
-      decls: userSpec.apiNamespaces,
+      decls: tsAppSpec.apiNamespaces,
       expectedMapping: {
         function: mapApiNamespace,
       },
@@ -105,7 +105,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectDeclMapping({
       declType: 'Api',
-      decls: userSpec.apis,
+      decls: tsAppSpec.apis,
       expectedMapping: {
         function: mapApi,
         extraArgs: [entityRefParser],
@@ -114,7 +114,7 @@ describe('mapUserSpecToAppSpecDecls', () => {
     })
     expectCorrectDeclMapping({
       declType: 'Job',
-      decls: userSpec.jobs,
+      decls: tsAppSpec.jobs,
       expectedMapping: {
         function: mapJob,
         extraArgs: [entityRefParser],
@@ -125,28 +125,28 @@ describe('mapUserSpecToAppSpecDecls', () => {
 
   test('should map minimal app using mapping functions correctly', () => {
     const { appName, userApp } = Fixtures.createUserApp('minimal')
-    const userSpec = userApp[GET_USER_SPEC]()
+    const tsAppSpec = userApp[GET_TS_APP_SPEC]()
     const entities = Fixtures.getEntities('minimal')
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', [])
     const appDeclType = 'App'
 
-    const result = mapUserSpecToAppSpecDecls(userSpec, entities)
+    const result = mapUserSpecToAppSpecDecls(tsAppSpec, entities)
 
     const appDecl = getDecl(result, appDeclType, appName)
     expect(appDecl).toStrictEqual({
       declType: appDeclType,
       declName: appName,
       declValue: mapApp(
-        userSpec.app.config,
+        tsAppSpec.app.config,
         entityRefParser,
         routeRefParser,
-        userSpec.auth,
-        userSpec.server,
-        userSpec.client,
-        userSpec.db,
-        userSpec.emailSender,
-        userSpec.websocket
+        tsAppSpec.auth,
+        tsAppSpec.server,
+        tsAppSpec.client,
+        tsAppSpec.db,
+        tsAppSpec.emailSender,
+        tsAppSpec.websocket
       ),
     })
   })

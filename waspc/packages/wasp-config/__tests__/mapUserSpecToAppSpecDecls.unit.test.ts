@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { GET_USER_SPEC } from '../src/_private.js'
+import { GET_TS_APP_SPEC } from '../src/_private.js'
 import * as AppSpec from '../src/appSpec.js'
 import {
   makeRefParser,
@@ -31,7 +31,8 @@ import {
   mapUsernameAndPassword,
   mapWebSocket,
 } from '../src/mapUserSpecToAppSpecDecls.js'
-import * as UserApi from '../src/userApi.js'
+import { App } from '../src/publicApi/App.js'
+import * as TsAppSpec from '../src/publicApi/tsAppSpec.js'
 import * as Fixtures from './testFixtures.js'
 
 describe('mapApp', () => {
@@ -43,54 +44,54 @@ describe('mapApp', () => {
     testMapApp(Fixtures.createUserApp('full').userApp)
   })
 
-  function testMapApp(app: UserApi.App): void {
-    const userSpec = app[GET_USER_SPEC]()
+  function testMapApp(app: App): void {
+    const tsAppSpec = app[GET_TS_APP_SPEC]()
 
     const entities: string[] = []
-    if (userSpec.auth) {
-      if (userSpec.auth.userEntity) {
-        entities.push(userSpec.auth.userEntity)
+    if (tsAppSpec.auth) {
+      if (tsAppSpec.auth.userEntity) {
+        entities.push(tsAppSpec.auth.userEntity)
       }
-      if (userSpec.auth.externalAuthEntity) {
-        entities.push(userSpec.auth.externalAuthEntity)
+      if (tsAppSpec.auth.externalAuthEntity) {
+        entities.push(tsAppSpec.auth.externalAuthEntity)
       }
     }
     const routes: string[] = []
-    if (userSpec.auth) {
-      if (userSpec.auth.methods.email?.emailVerification.clientRoute) {
-        routes.push(userSpec.auth.methods.email.emailVerification.clientRoute)
+    if (tsAppSpec.auth) {
+      if (tsAppSpec.auth.methods.email?.emailVerification.clientRoute) {
+        routes.push(tsAppSpec.auth.methods.email.emailVerification.clientRoute)
       }
-      if (userSpec.auth.methods.email?.passwordReset.clientRoute) {
-        routes.push(userSpec.auth.methods.email.passwordReset.clientRoute)
+      if (tsAppSpec.auth.methods.email?.passwordReset.clientRoute) {
+        routes.push(tsAppSpec.auth.methods.email.passwordReset.clientRoute)
       }
     }
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser('Route', routes)
 
     const result = mapApp(
-      userSpec.app.config,
+      tsAppSpec.app.config,
       entityRefParser,
       routeRefParser,
-      userSpec.auth,
-      userSpec.client,
-      userSpec.server,
-      userSpec.db,
-      userSpec.emailSender,
-      userSpec.websocket
+      tsAppSpec.auth,
+      tsAppSpec.client,
+      tsAppSpec.server,
+      tsAppSpec.db,
+      tsAppSpec.emailSender,
+      tsAppSpec.websocket
     )
 
     expect(result).toStrictEqual({
       wasp: {
-        version: userSpec.app.config.wasp.version,
+        version: tsAppSpec.app.config.wasp.version,
       },
-      title: userSpec.app.config.title,
-      head: userSpec.app.config.head,
-      auth: userSpec.auth && mapAuth(userSpec.auth, entityRefParser, routeRefParser),
-      server: userSpec.server && mapServer(userSpec.server),
-      client: userSpec.client && mapClient(userSpec.client),
-      db: userSpec.db && mapDb(userSpec.db),
-      emailSender: userSpec.emailSender && mapEmailSender(userSpec.emailSender),
-      webSocket: userSpec.websocket && mapWebSocket(userSpec.websocket),
+      title: tsAppSpec.app.config.title,
+      head: tsAppSpec.app.config.head,
+      auth: tsAppSpec.auth && mapAuth(tsAppSpec.auth, entityRefParser, routeRefParser),
+      server: tsAppSpec.server && mapServer(tsAppSpec.server),
+      client: tsAppSpec.client && mapClient(tsAppSpec.client),
+      db: tsAppSpec.db && mapDb(tsAppSpec.db),
+      emailSender: tsAppSpec.emailSender && mapEmailSender(tsAppSpec.emailSender),
+      webSocket: tsAppSpec.websocket && mapWebSocket(tsAppSpec.websocket),
     } satisfies AppSpec.App)
   }
 })
@@ -139,7 +140,7 @@ describe('mapAuth', () => {
   })
 
   function testMapAuth(
-    auth: UserApi.AuthConfig,
+    auth: TsAppSpec.AuthConfig,
     options:
       | {
           overrideEntities?: string[]
@@ -216,7 +217,7 @@ describe('mapAuthMethods', () => {
   })
 
   function testMapAuthMethods(
-    authMethods: UserApi.AuthMethods,
+    authMethods: TsAppSpec.AuthMethods,
     options:
       | {
           overrideRoutes?: string[]
@@ -282,7 +283,7 @@ describe('mapEmailAuth', () => {
   })
 
   function testMapEmailAuth(
-    emailAuth: UserApi.EmailAuthConfig,
+    emailAuth: TsAppSpec.EmailAuthConfig,
     options:
       | {
           overrideRoutes?: string[]
@@ -335,7 +336,7 @@ describe('mapEmailVerification', () => {
   })
 
   function testMapEmailVerification(
-    emailVerification: UserApi.EmailVerificationConfig,
+    emailVerification: TsAppSpec.EmailVerificationConfig,
     options:
       | {
           overrideRoutes?: string[]
@@ -383,7 +384,7 @@ describe('mapPasswordReset', () => {
   })
 
   function testMapPasswordReset(
-    passwordReset: UserApi.PasswordResetConfig,
+    passwordReset: TsAppSpec.PasswordResetConfig,
     options:
       | {
           overrideRoutes?: string[]
@@ -422,7 +423,7 @@ describe('mapUsernameAndPassword', () => {
   })
 
   function testMapUsernameAndPassword(
-    usernameAndPassword: UserApi.UsernameAndPasswordConfig
+    usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig
   ): void {
     const result = mapUsernameAndPassword(usernameAndPassword)
 
@@ -442,7 +443,7 @@ describe('mapExternalAuth', () => {
     testMapExternalAuth(Fixtures.getExternalAuth('full'))
   })
 
-  function testMapExternalAuth(externalAuth: UserApi.ExternalAuthConfig): void {
+  function testMapExternalAuth(externalAuth: TsAppSpec.ExternalAuthConfig): void {
     const result = mapExternalAuth(externalAuth)
 
     expect(result).toStrictEqual({
@@ -462,7 +463,7 @@ describe('mapClient', () => {
     testMapClient(Fixtures.getClient('full'))
   })
 
-  function testMapClient(client: UserApi.ClientConfig): void {
+  function testMapClient(client: TsAppSpec.ClientConfig): void {
     const result = mapClient(client)
 
     expect(result).toStrictEqual({
@@ -483,7 +484,7 @@ describe('mapServer', () => {
     testMapServer(Fixtures.getServer('full'))
   })
 
-  function testMapServer(server: UserApi.ServerConfig): void {
+  function testMapServer(server: TsAppSpec.ServerConfig): void {
     const result = mapServer(server)
 
     expect(result).toStrictEqual({
@@ -503,7 +504,7 @@ describe('mapEmailSender', () => {
     testMapEmailSender(Fixtures.getEmailSender('full'))
   })
 
-  function testMapEmailSender(emailSender: UserApi.EmailSenderConfig): void {
+  function testMapEmailSender(emailSender: TsAppSpec.EmailSenderConfig): void {
     const result = mapEmailSender(emailSender)
 
     expect(result).toStrictEqual({
@@ -522,7 +523,7 @@ describe('mapWebSocket', () => {
     testMapWebSocket(Fixtures.getWebSocket('full'))
   })
 
-  function testMapWebSocket(websocket: UserApi.WebsocketConfig): void {
+  function testMapWebSocket(websocket: TsAppSpec.WebsocketConfig): void {
     const result = mapWebSocket(websocket)
 
     expect(result).toStrictEqual({
@@ -541,7 +542,7 @@ describe('mapDb', () => {
     testDb(Fixtures.getDb('full'))
   })
 
-  function testDb(db: UserApi.DbConfig): void {
+  function testDb(db: TsAppSpec.DbConfig): void {
     const result = mapDb(db)
 
     expect(result).toStrictEqual({
@@ -559,7 +560,7 @@ describe('mapPage', () => {
     testMapPage(Fixtures.getPage('full').config)
   })
 
-  function testMapPage(page: UserApi.PageConfig): void {
+  function testMapPage(page: TsAppSpec.PageConfig): void {
     const result = mapPage(page)
 
     expect(result).toStrictEqual({
@@ -579,7 +580,7 @@ describe('mapRoute', () => {
     testMapRoute(Fixtures.getRoute('full').config)
   })
 
-  function testMapRoute(route: UserApi.RouteConfig): void {
+  function testMapRoute(route: TsAppSpec.RouteConfig): void {
     const pageRefParser = makeRefParser('Page', [route.to])
 
     const result = mapRoute(route, pageRefParser)
@@ -623,7 +624,7 @@ describe('mapOperation', () => {
   })
 
   function testMapOperation(
-    operation: UserApi.ActionConfig | UserApi.QueryConfig,
+    operation: TsAppSpec.ActionConfig | TsAppSpec.QueryConfig,
     options:
       | {
           overrideEntities?: string[]
@@ -669,7 +670,7 @@ describe('mapCrud', () => {
   })
 
   function testMapCrud(
-    crud: UserApi.Crud,
+    crud: TsAppSpec.CrudConfig,
     options:
       | {
           overrideEntities?: string[]
@@ -706,7 +707,7 @@ describe('mapCrudOperations', () => {
     testMapCrudOperations(Fixtures.getCrudOperations('full'))
   })
 
-  function testMapCrudOperations(crudOperations: UserApi.CrudOperations): void {
+  function testMapCrudOperations(crudOperations: TsAppSpec.CrudOperations): void {
     const result = mapCrudOperations(crudOperations)
 
     expect(result).toStrictEqual({
@@ -728,7 +729,7 @@ describe('mapCrudOperationOptions', () => {
     testMapCrudOperationOptions(Fixtures.getCrudOperationOptions('full'))
   })
 
-  function testMapCrudOperationOptions(crudOperationOptions: UserApi.CrudOperationOptions): void {
+  function testMapCrudOperationOptions(crudOperationOptions: TsAppSpec.CrudOperationOptions): void {
     const result = mapCrudOperationOptions(crudOperationOptions)
 
     expect(result).toStrictEqual({
@@ -748,7 +749,7 @@ describe('mapApiNamespace', () => {
     testMapApiNamespace(Fixtures.getApiNamespace('full').config)
   })
 
-  function testMapApiNamespace(apiNamespace: UserApi.ApiNamespaceConfig): void {
+  function testMapApiNamespace(apiNamespace: TsAppSpec.ApiNamespaceConfig): void {
     const result = mapApiNamespace(apiNamespace)
 
     expect(result).toStrictEqual({
@@ -775,7 +776,7 @@ describe('mapApi', () => {
   })
 
   function testMapApi(
-    api: UserApi.ApiConfig,
+    api: TsAppSpec.ApiConfig,
     options:
       | {
           overrideEntities?: string[]
@@ -815,7 +816,7 @@ describe('mapHttpRoute', () => {
     testMapHttpRoute(Fixtures.getHttpRoute('full'))
   })
 
-  function testMapHttpRoute(httpRoute: UserApi.HttpRoute): void {
+  function testMapHttpRoute(httpRoute: TsAppSpec.HttpRoute): void {
     const result = mapHttpRoute(httpRoute)
 
     expect(result).toStrictEqual([httpRoute.method, httpRoute.route] satisfies AppSpec.HttpRoute)
@@ -839,7 +840,7 @@ describe('mapJob', () => {
   })
 
   function testMapJob(
-    job: UserApi.JobConfig,
+    job: TsAppSpec.JobConfig,
     options:
       | {
           overrideEntities?: string[]
@@ -878,7 +879,7 @@ describe('mapSchedule', () => {
     testMapSchedule(Fixtures.getSchedule('full'))
   })
 
-  function testMapSchedule(schedule: UserApi.ScheduleConfig): void {
+  function testMapSchedule(schedule: TsAppSpec.ScheduleConfig): void {
     const result = mapSchedule(schedule)
 
     expect(result).toStrictEqual({
@@ -898,7 +899,7 @@ describe('mapPerform', () => {
     testMapPerform(Fixtures.getPerform('full'))
   })
 
-  function testMapPerform(perform: UserApi.Perform): void {
+  function testMapPerform(perform: TsAppSpec.Perform): void {
     const result = mapPerform(perform)
 
     expect(result).toStrictEqual({
@@ -917,7 +918,7 @@ describe('mapEmailFromField', () => {
     testMapEmailFromField(Fixtures.getEmailFromField('full'))
   })
 
-  function testMapEmailFromField(emailFromField: UserApi.EmailFromField): void {
+  function testMapEmailFromField(emailFromField: TsAppSpec.EmailFromField): void {
     const result = mapEmailFromField(emailFromField)
 
     expect(result).toStrictEqual({
@@ -945,9 +946,9 @@ describe('mapExtImport', () => {
   })
 
   test('should throw for missing import kind', () => {
-    const extImport: UserApi.ExtImport = {
+    const extImport: TsAppSpec.ExtImport = {
       from: '@src/myModule',
-    } as unknown as UserApi.ExtImport
+    } as unknown as TsAppSpec.ExtImport
 
     testMapExtImport(extImport, {
       shouldError: true,
@@ -968,10 +969,10 @@ describe('mapExtImport', () => {
 
   // TODO: unskip this test when we decide how to handle this
   test.skip('should throw error for invalid from path', () => {
-    const extImport: UserApi.ExtImport = {
+    const extImport: TsAppSpec.ExtImport = {
       import: 'myNamedImport',
       from: './invalid/path',
-    } as unknown as UserApi.ExtImport
+    } as unknown as TsAppSpec.ExtImport
 
     testMapExtImport(extImport, {
       shouldError: true,
@@ -979,7 +980,7 @@ describe('mapExtImport', () => {
   })
 
   function testMapExtImport(
-    extImport: UserApi.ExtImport,
+    extImport: TsAppSpec.ExtImport,
     options:
       | {
           shouldError: boolean | undefined
