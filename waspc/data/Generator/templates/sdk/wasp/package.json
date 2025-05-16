@@ -24,6 +24,8 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/user": "./dist/auth/user.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./auth/providers/types": "./dist/auth/providers/types.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/types": "./dist/auth/types.js",
       {=!  Used by users, documented. =}
       "./auth/utils": "./dist/auth/utils.js",
