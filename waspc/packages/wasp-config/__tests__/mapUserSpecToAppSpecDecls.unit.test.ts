@@ -98,22 +98,22 @@ describe('mapApp', () => {
 
 describe('mapAuth', () => {
   test('should map minimal config correctly', () => {
-    testMapAuth(Fixtures.getAuth('minimal'))
+    testMapAuth(Fixtures.getAuthConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapAuth(Fixtures.getAuth('full'))
+    testMapAuth(Fixtures.getAuthConfig('full'))
   })
 
   test('should throw if userEntity is not provided to entity parser', () => {
-    testMapAuth(Fixtures.getAuth('minimal'), {
+    testMapAuth(Fixtures.getAuthConfig('minimal'), {
       overrideEntities: [],
       shouldError: true,
     })
   })
 
   test('should throw if externalAuthEntity ref is not provided when defined', () => {
-    const auth = Fixtures.getAuth('full')
+    const auth = Fixtures.getAuthConfig('full')
     expect(auth.externalAuthEntity).toBeDefined()
     testMapAuth(auth, {
       overrideEntities: [auth.userEntity],
@@ -122,7 +122,7 @@ describe('mapAuth', () => {
   })
 
   test('should throw if emailVerification clientRoute ref is not provided when defined', () => {
-    const auth = Fixtures.getAuth('full')
+    const auth = Fixtures.getAuthConfig('full')
     expect(auth.methods.email.emailVerification.clientRoute).toBeDefined()
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
@@ -131,7 +131,7 @@ describe('mapAuth', () => {
   })
 
   test('should throw if passwordReset clientRoute ref is not provided when defined', () => {
-    const auth = Fixtures.getAuth('full')
+    const auth = Fixtures.getAuthConfig('full')
     expect(auth.methods.email.passwordReset.clientRoute).toBeDefined()
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
@@ -257,15 +257,15 @@ describe('mapAuthMethods', () => {
 
 describe('mapEmailAuth', () => {
   test('should map minimal config correctly', () => {
-    testMapEmailAuth(Fixtures.getEmailAuth('minimal'))
+    testMapEmailAuth(Fixtures.getEmailAuthConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapEmailAuth(Fixtures.getEmailAuth('full'))
+    testMapEmailAuth(Fixtures.getEmailAuthConfig('full'))
   })
 
   test('should throw if emailVerification clientRoute ref is not provided when defined', () => {
-    const emailAuth = Fixtures.getEmailAuth('full')
+    const emailAuth = Fixtures.getEmailAuthConfig('full')
     expect(emailAuth.emailVerification.clientRoute).toBeDefined()
     testMapEmailAuth(emailAuth, {
       overrideRoutes: [emailAuth.passwordReset.clientRoute],
@@ -274,7 +274,7 @@ describe('mapEmailAuth', () => {
   })
 
   test('should throw if passwordReset clientRoute ref is not provided when defined', () => {
-    const emailAuth = Fixtures.getEmailAuth('full')
+    const emailAuth = Fixtures.getEmailAuthConfig('full')
     expect(emailAuth.passwordReset.clientRoute).toBeDefined()
     testMapEmailAuth(emailAuth, {
       overrideRoutes: [emailAuth.emailVerification.clientRoute],
@@ -319,15 +319,15 @@ describe('mapEmailAuth', () => {
 
 describe('mapEmailVerification', () => {
   test('should map minimal config correctly', () => {
-    testMapEmailVerification(Fixtures.getEmailVerification('minimal'))
+    testMapEmailVerification(Fixtures.getEmailVerificationConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapEmailVerification(Fixtures.getEmailVerification('full'))
+    testMapEmailVerification(Fixtures.getEmailVerificationConfig('full'))
   })
 
   test('should throw if clientRoute ref is not provided when defined', () => {
-    const emailVerification = Fixtures.getEmailVerification('full')
+    const emailVerification = Fixtures.getEmailVerificationConfig('full')
     expect(emailVerification.clientRoute).toBeDefined()
     testMapEmailVerification(emailVerification, {
       overrideRoutes: [],
@@ -367,15 +367,15 @@ describe('mapEmailVerification', () => {
 
 describe('mapPasswordReset', () => {
   test('should map minimal config correctly', () => {
-    testMapPasswordReset(Fixtures.getPasswordReset('minimal'))
+    testMapPasswordReset(Fixtures.getPasswordResetConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapPasswordReset(Fixtures.getPasswordReset('full'))
+    testMapPasswordReset(Fixtures.getPasswordResetConfig('full'))
   })
 
   test('should throw if clientRoute ref is not provided when defined', () => {
-    const passwordReset = Fixtures.getPasswordReset('full')
+    const passwordReset = Fixtures.getPasswordResetConfig('full')
     expect(passwordReset.clientRoute).toBeDefined()
     testMapPasswordReset(passwordReset, {
       overrideRoutes: [],
@@ -415,11 +415,11 @@ describe('mapPasswordReset', () => {
 
 describe('mapUsernameAndPassword', () => {
   test('should map minimal config correctly', () => {
-    testMapUsernameAndPassword(Fixtures.getUsernameAndPassword('minimal'))
+    testMapUsernameAndPassword(Fixtures.getUsernameAndPasswordConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapUsernameAndPassword(Fixtures.getUsernameAndPassword('full'))
+    testMapUsernameAndPassword(Fixtures.getUsernameAndPasswordConfig('full'))
   })
 
   function testMapUsernameAndPassword(
@@ -436,11 +436,11 @@ describe('mapUsernameAndPassword', () => {
 
 describe('mapExternalAuth', () => {
   test('should map minimal config correctly', () => {
-    testMapExternalAuth(Fixtures.getExternalAuth('minimal'))
+    testMapExternalAuth(Fixtures.getExternalAuthConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapExternalAuth(Fixtures.getExternalAuth('full'))
+    testMapExternalAuth(Fixtures.getExternalAuthConfig('full'))
   })
 
   function testMapExternalAuth(externalAuth: TsAppSpec.ExternalAuthConfig): void {
@@ -456,11 +456,11 @@ describe('mapExternalAuth', () => {
 
 describe('mapClient', () => {
   test('should map minimal config correctly', () => {
-    testMapClient(Fixtures.getClient('minimal'))
+    testMapClient(Fixtures.getClientConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapClient(Fixtures.getClient('full'))
+    testMapClient(Fixtures.getClientConfig('full'))
   })
 
   function testMapClient(client: TsAppSpec.ClientConfig): void {
@@ -477,11 +477,11 @@ describe('mapClient', () => {
 
 describe('mapServer', () => {
   test('should map minimal config correctly', () => {
-    testMapServer(Fixtures.getServer('minimal'))
+    testMapServer(Fixtures.getServerConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapServer(Fixtures.getServer('full'))
+    testMapServer(Fixtures.getServerConfig('full'))
   })
 
   function testMapServer(server: TsAppSpec.ServerConfig): void {
@@ -497,11 +497,11 @@ describe('mapServer', () => {
 
 describe('mapEmailSender', () => {
   test('should map minimal config correctly', () => {
-    testMapEmailSender(Fixtures.getEmailSender('minimal'))
+    testMapEmailSender(Fixtures.getEmailSenderConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapEmailSender(Fixtures.getEmailSender('full'))
+    testMapEmailSender(Fixtures.getEmailSenderConfig('full'))
   })
 
   function testMapEmailSender(emailSender: TsAppSpec.EmailSenderConfig): void {
@@ -516,11 +516,11 @@ describe('mapEmailSender', () => {
 
 describe('mapWebSocket', () => {
   test('should map minimal config correctly', () => {
-    testMapWebSocket(Fixtures.getWebSocket('minimal'))
+    testMapWebSocket(Fixtures.getWebSocketConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapWebSocket(Fixtures.getWebSocket('full'))
+    testMapWebSocket(Fixtures.getWebSocketConfig('full'))
   })
 
   function testMapWebSocket(websocket: TsAppSpec.WebsocketConfig): void {
@@ -535,11 +535,11 @@ describe('mapWebSocket', () => {
 
 describe('mapDb', () => {
   test('should map minimal config correctly', () => {
-    testDb(Fixtures.getDb('minimal'))
+    testDb(Fixtures.getDbConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testDb(Fixtures.getDb('full'))
+    testDb(Fixtures.getDbConfig('full'))
   })
 
   function testDb(db: TsAppSpec.DbConfig): void {
@@ -553,11 +553,11 @@ describe('mapDb', () => {
 
 describe('mapPage', () => {
   test('should map minimal config correctly', () => {
-    testMapPage(Fixtures.getPage('minimal').config)
+    testMapPage(Fixtures.getPageConfig('minimal').config)
   })
 
   test('should map full config correctly', () => {
-    testMapPage(Fixtures.getPage('full').config)
+    testMapPage(Fixtures.getPageConfig('full').config)
   })
 
   function testMapPage(page: TsAppSpec.PageConfig): void {
@@ -573,11 +573,11 @@ describe('mapPage', () => {
 describe('mapRoute', () => {
   // NOTE: currently minimal config is the same as full config
   test('should map minimal config correctly', () => {
-    testMapRoute(Fixtures.getRoute('minimal').config)
+    testMapRoute(Fixtures.getRouteConfig('minimal').config)
   })
 
   test('should map full config correctly', () => {
-    testMapRoute(Fixtures.getRoute('full').config)
+    testMapRoute(Fixtures.getRouteConfig('full').config)
   })
 
   function testMapRoute(route: TsAppSpec.RouteConfig): void {
@@ -594,30 +594,30 @@ describe('mapRoute', () => {
 
 describe('mapOperation', () => {
   test('should map minimal query config correctly', () => {
-    testMapOperation(Fixtures.getQuery('minimal').config)
+    testMapOperation(Fixtures.getQueryConfig('minimal').config)
   })
 
   test('should map full query config correctly', () => {
-    testMapOperation(Fixtures.getQuery('full').config)
+    testMapOperation(Fixtures.getQueryConfig('full').config)
   })
 
   test('should throw if entity ref is not provided in query config', () => {
-    testMapOperation(Fixtures.getQuery('full').config, {
+    testMapOperation(Fixtures.getQueryConfig('full').config, {
       overrideEntities: [],
       shouldError: true,
     })
   })
 
   test('should map minimal action config correctly', () => {
-    testMapOperation(Fixtures.getAction('minimal').config)
+    testMapOperation(Fixtures.getActionConfig('minimal').config)
   })
 
   test('should map action config correctly', () => {
-    testMapOperation(Fixtures.getAction('full').config)
+    testMapOperation(Fixtures.getActionConfig('full').config)
   })
 
   test('should throw if entity ref is not provided in action config', () => {
-    testMapOperation(Fixtures.getAction('full').config, {
+    testMapOperation(Fixtures.getActionConfig('full').config, {
       overrideEntities: [],
       shouldError: true,
     })
@@ -655,15 +655,15 @@ describe('mapOperation', () => {
 
 describe('mapCrud', () => {
   test('should map minimal config correctly', () => {
-    testMapCrud(Fixtures.getCrud('minimal').config)
+    testMapCrud(Fixtures.getCrudConfig('minimal').config)
   })
 
   test('should map full config correctly', () => {
-    testMapCrud(Fixtures.getCrud('full').config)
+    testMapCrud(Fixtures.getCrudConfig('full').config)
   })
 
   test('should throw if entity ref is not provided', () => {
-    testMapCrud(Fixtures.getCrud('full').config, {
+    testMapCrud(Fixtures.getCrudConfig('full').config, {
       overrideEntities: [],
       shouldError: true,
     })
@@ -742,11 +742,11 @@ describe('mapCrudOperationOptions', () => {
 describe('mapApiNamespace', () => {
   // NOTE: currently minimal config is the same as full config
   test('should map minimal config correctly', () => {
-    testMapApiNamespace(Fixtures.getApiNamespace('minimal').config)
+    testMapApiNamespace(Fixtures.getApiNamespaceConfig('minimal').config)
   })
 
   test('should map full config correctly', () => {
-    testMapApiNamespace(Fixtures.getApiNamespace('full').config)
+    testMapApiNamespace(Fixtures.getApiNamespaceConfig('full').config)
   })
 
   function testMapApiNamespace(apiNamespace: TsAppSpec.ApiNamespaceConfig): void {
@@ -761,15 +761,15 @@ describe('mapApiNamespace', () => {
 
 describe('mapApi', () => {
   test('should map minimal config correctly', () => {
-    testMapApi(Fixtures.getApi('minimal').config)
+    testMapApi(Fixtures.getApiConfig('minimal').config)
   })
 
   test('should map full config correctly', () => {
-    testMapApi(Fixtures.getApi('full').config)
+    testMapApi(Fixtures.getApiConfig('full').config)
   })
 
   test('should throw if entities refs are not provided', () => {
-    testMapApi(Fixtures.getApi('full').config, {
+    testMapApi(Fixtures.getApiConfig('full').config, {
       overrideEntities: [],
       shouldError: true,
     })
@@ -825,15 +825,15 @@ describe('mapHttpRoute', () => {
 
 describe('mapJob', () => {
   test('should map minimal config correctly', () => {
-    testMapJob(Fixtures.getJob('minimal').config)
+    testMapJob(Fixtures.getJobConfig('minimal').config)
   })
 
   test('should map full config correctly', () => {
-    testMapJob(Fixtures.getJob('full').config)
+    testMapJob(Fixtures.getJobConfig('full').config)
   })
 
   test('should throw if entity ref is not provided', () => {
-    testMapJob(Fixtures.getJob('full').config, {
+    testMapJob(Fixtures.getJobConfig('full').config, {
       overrideEntities: [],
       shouldError: true,
     })
@@ -872,11 +872,11 @@ describe('mapJob', () => {
 
 describe('mapSchedule', () => {
   test('should map minimal config correctly', () => {
-    testMapSchedule(Fixtures.getSchedule('minimal'))
+    testMapSchedule(Fixtures.getScheduleConfig('minimal'))
   })
 
   test('should map full config correctly', () => {
-    testMapSchedule(Fixtures.getSchedule('full'))
+    testMapSchedule(Fixtures.getScheduleConfig('full'))
   })
 
   function testMapSchedule(schedule: TsAppSpec.ScheduleConfig): void {

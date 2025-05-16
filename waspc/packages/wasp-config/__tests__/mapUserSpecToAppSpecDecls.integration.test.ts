@@ -24,11 +24,11 @@ describe('mapTsAppSpecToAppSpecDecls', () => {
     const entityRefParser = makeRefParser('Entity', entities)
     const routeRefParser = makeRefParser(
       'Route',
-      Fixtures.getRoutes().map((r) => r.name)
+      Fixtures.getRouteConfigs().map((r) => r.name)
     )
     const pageRefParser = makeRefParser(
       'Page',
-      Fixtures.getPages().map((p) => p.name)
+      Fixtures.getPageConfigs().map((p) => p.name)
     )
     const appDeclType = 'App'
 
