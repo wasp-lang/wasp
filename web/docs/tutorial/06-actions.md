@@ -39,6 +39,7 @@ index ea22c79..42f8f6e 100644
 +  fn: import { createTask } from "@src/actions",
 +  entities: [Task]
 +}
+
 ```
 
 </TutorialAction>
