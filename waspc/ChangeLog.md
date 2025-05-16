@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.4
+
+### 🐞 Bug fixes
+
+- Adds support for the latest version of Fly.io CLI (v0.3.121 or greater) ([#2760](https://github.com/wasp-lang/wasp/pull/2760))
+
 ## 0.16.3
 
 ### 🎉 New Features and improvements
