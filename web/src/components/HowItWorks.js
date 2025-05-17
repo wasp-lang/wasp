@@ -49,11 +49,12 @@ const HowItWorks = () => {
             How does it work? 🧐
           </h2>
           <p className="text-neutral-700">
-            Given a simple <code>.wasp</code> configuration file that describes
-            the high-level details of your web app, and{' '}
-            <code>.js(x)/.css/...</code>, source files with your unique logic,
-            Wasp compiler generates the full source of your web app in the
-            target stack: front-end, back-end and deployment. <br />
+            Given a simple <code>.wasp.ts</code> or <code>.wasp</code>{' '}
+            configuration file that describes the high-level details of your web
+            app, and <code>.js(x)/.ts(x)/.css</code> source files with your
+            unique logic, the Wasp compiler generates the full source of your
+            web app in the target stack: front-end, back-end and deployment.{' '}
+            <br />
             <br />
             This unique approach is what makes Wasp "smart" and gives it its
             super powers!
@@ -62,26 +63,26 @@ const HowItWorks = () => {
           <div className="py-8">
             <dl className="grid grid-cols-12 gap-y-4 md:gap-8">
               <Feature
-                title="Simple config language"
+                title="Simple config"
                 url="/docs/general/language"
                 description="Declaratively describe high-level details of your app."
-              />
-
-              <Feature
-                title="Wasp CLI"
-                url="/docs/general/cli"
-                description="All the handy commands at your fingertips."
-              />
-
-              <Feature
-                title="React / Node.js / Prisma"
-                description="You are still writing 90% of the code in your favorite technologies."
               />
 
               <Feature
                 title="Goodbye boilerplate"
                 description="Write only the code that matters, let Wasp handle the rest."
                 url="https://www.youtube.com/watch?v=x5nsBbLvKnU"
+              />
+
+              <Feature
+                title="React / Node.js / Prisma / Tanstack Query"
+                description="You are still writing 90% of the code in your favorite technologies."
+              />
+
+              <Feature
+                title="Wasp CLI"
+                url="/docs/general/cli"
+                description="All the handy commands at your fingertips."
               />
             </dl>
           </div>{' '}
