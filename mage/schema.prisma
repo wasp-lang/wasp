@@ -53,6 +53,7 @@ model File {
   project   Project  @relation(fields: [projectId], references: [id])
 
   @@index([name, projectId])
+  @@index([projectId])
 }
 
 model Log {
@@ -61,4 +62,6 @@ model Log {
   createdAt DateTime @default(now())
   projectId String
   project   Project  @relation(fields: [projectId], references: [id])
+
+  @@index([projectId, createdAt])
 }
