@@ -21,6 +21,11 @@ export function SocialAuthGrid({
       linkTo: './keycloak' + pagePart,
     },
     {
+      title: 'Slack',
+      description: 'Users sign in with their Slack account.',
+      linkTo: './slack' + pagePart,
+    },
+    {
       title: 'Discord',
       description: 'Users sign in with their Discord account.',
       linkTo: './discord' + pagePart,
