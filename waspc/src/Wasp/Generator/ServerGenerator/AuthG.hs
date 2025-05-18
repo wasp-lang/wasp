@@ -24,7 +24,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.AuthProviders
-  ( discordAuthProvider,
+  ( slackAuthProvider,
+    discordAuthProvider,
     emailAuthProvider,
     gitHubAuthProvider,
     googleAuthProvider,
@@ -86,7 +87,8 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     providers =
       makeConfigImportJson
         <$> concat
-          [ [OAuthProvider.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
+          [ [OAuthProvider.providerId slackAuthProvider | AS.Auth.isSlackAuthEnabled auth],
+            [OAuthProvider.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
             [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
             [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
             [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],

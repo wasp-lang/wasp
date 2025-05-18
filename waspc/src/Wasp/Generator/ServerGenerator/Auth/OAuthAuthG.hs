@@ -21,7 +21,8 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
-  ( discordAuthProvider,
+  ( slackAuthProvider,
+    discordAuthProvider,
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
@@ -41,6 +42,7 @@ genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
       genOAuthHelpers auth
+        <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)

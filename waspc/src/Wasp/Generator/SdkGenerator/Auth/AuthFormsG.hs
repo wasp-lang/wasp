@@ -7,7 +7,8 @@ import Data.Aeson (object, (.=))
 import StrongPath (reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
-  ( discordAuthProvider,
+  ( slackAuthProvider,
+    discordAuthProvider,
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
@@ -120,6 +121,7 @@ genLoginSignupForm auth =
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
           "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
           "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,

@@ -3,10 +3,17 @@
 // PUBLIC API
 export { google } from './providers/google.js';
 {=/ enabledProviders.isGoogleAuthEnabled =}
+
+{=# enabledProviders.isSlackAuthEnabled =}
+// PUBLIC API
+export { slack } from './providers/slack.js';
+{=/ enabledProviders.isSlackAuthEnabled =}
+
 {=# enabledProviders.isDiscordAuthEnabled =}
 // PUBLIC API
 export { discord } from './providers/discord.js';
 {=/ enabledProviders.isDiscordAuthEnabled =}
+
 {=# enabledProviders.isGitHubAuthEnabled =}
 // PUBLIC API
 export { github } from './providers/github.js';

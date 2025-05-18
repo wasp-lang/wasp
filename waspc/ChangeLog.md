@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Auth: you can now use Slack as a social auth provider (by @scorpil)
 
 ### ⚠️ Breaking Changes
 
