@@ -2,6 +2,7 @@ import { expect, type Page, test } from '@playwright/test'
 import {
   generateRandomCredentials,
   performLogin,
+  performEmailVerification,
   performSignup,
 } from './helpers'
 
@@ -21,6 +22,8 @@ test.describe('CRUD test', () => {
     await expect(page.locator('body')).toContainText(
       `You've signed up successfully! Check your email for the confirmation link.`
     )
+
+    await performEmailVerification(page, email)
   })
 
   test('crud list page', async ({ page }) => {

@@ -128,9 +128,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/auth/providers/index.ts"
+        ],
+        "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/auth/providers/types.ts"
         ],
-        "d9c62d1c53c0f28d92e42def6cbcc4e1c3fe0a48cb69741fb32a31cf921e7db1"
+        "8088671dd5fa778bb727b843aa63c7de0202afd50a9c04c05768cbb6a7c56845"
     ],
     [
         [
@@ -424,7 +431,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "3af4efb9074236a2548a42cc0e8e0050d73d8c8167d4454f8f4df4a0627afe6a"
+        "f3d71ee6b64d05a0f3959840712bd333fb0d00fbbcfe7097fe4f4437648d48ed"
     ],
     [
         [
@@ -844,7 +851,7 @@
             "file",
             "../out/sdk/wasp/universal/types.ts"
         ],
-        "a5c7a0300bf161b17e2cd8af4a7b51616b8c2dc7d469cd19fe2e8489ac572180"
+        "468c7f107274313594ef76ee4e4320d582ce16483c08485dd15090cb966c0303"
     ],
     [
         [

@@ -214,15 +214,25 @@ jobs:
           cd examples/todoApp
           npx playwright install --with-deps
 
-      - name: Headless - Run Playwright Tests
-        id: headless-run-playwright-tests
+      - name: Headless - Run Playwright Tests (dev)
+        id: headless-run-playwright-tests-dev
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
           # Prepare the environment for the tests
           cp .env.server.headless .env.server
           # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver npx playwright test --config headless-tests/
+          DEBUG=pw:webserver HEADLESS_TEST_MODE=dev npx playwright test --config headless-tests/
+
+      - name: Headless - Run Playwright Tests (build)
+        id: headless-run-playwright-tests-build
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          cd examples/todoApp
+          # Prepare the environment for the tests
+          cp .env.server.headless .env.server
+          # Runs the tests with the debug flag so that we can see Wasp output
+          DEBUG=pw:webserver HEADLESS_TEST_MODE=build npx playwright test --config headless-tests/
 
       - name: Run e2e tests
         run: cabal test e2e-test
