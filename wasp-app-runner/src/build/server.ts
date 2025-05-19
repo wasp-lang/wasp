@@ -7,7 +7,7 @@ import {
   ServerBuildImageName,
 } from "../docker.js";
 import { EnvVars } from "../types.js";
-import { log } from "../logging.js";
+import { createLogger } from "../logging.js";
 import { doesFileExits } from "../files.js";
 import type { AppName } from "../waspCli.js";
 import type { PathToApp } from "../args.js";
@@ -50,6 +50,7 @@ async function buildServerAppContainer({
   pathToApp: PathToApp;
   imageName: ServerBuildImageName;
 }): Promise<void> {
+  const logger = createLogger("server-build-app");
   const { exitCode } = await spawnWithLog({
     name: "server-build-app",
     cmd: "docker",
@@ -58,11 +59,7 @@ async function buildServerAppContainer({
   });
 
   if (exitCode !== 0) {
-    log(
-      "server-build-app",
-      "error",
-      `Failed to build server app image: ${imageName}`
-    );
+    logger.error(`Failed to build server app image: ${imageName}`);
     process.exit(1);
   }
 }
@@ -78,6 +75,7 @@ async function runServerAppContainer({
   containerName: ServerBuildContainerName;
   extraEnv: EnvVars;
 }): Promise<void> {
+  const logger = createLogger("server-start-app");
   const { exitCode } = await spawnWithLog({
     name: "server-start-app",
     cmd: "docker",
@@ -97,11 +95,7 @@ async function runServerAppContainer({
   });
 
   if (exitCode !== 0) {
-    log(
-      "server-start-app",
-      "error",
-      `Failed to start server app container: ${containerName}`
-    );
+    logger.error(`Failed to start server app container: ${containerName}`);
     process.exit(1);
   }
 }

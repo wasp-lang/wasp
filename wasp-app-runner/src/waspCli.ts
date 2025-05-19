@@ -1,6 +1,6 @@
 import { stripVTControlCharacters } from "node:util";
 
-import { log } from "./logging.js";
+import { createLogger } from "./logging.js";
 import { spawnWithLog, spawnAndCollectOutput } from "./process.js";
 import { DbType } from "./db/index.js";
 import type { Branded, EnvVars } from "./types.js";
@@ -69,6 +69,7 @@ export async function waspInfo({
   appName: AppName;
   dbType: DbType;
 }> {
+  const logger = createLogger("wasp-info");
   const { stdoutData, exitCode } = await spawnAndCollectOutput({
     name: "wasp-info",
     cmd: waspCliCmd,
@@ -78,11 +79,7 @@ export async function waspInfo({
   const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
 
   if (exitCode !== 0) {
-    log(
-      "wasp-info",
-      "error",
-      `Failed to get app info: ${stdoutDataWithoutAnsiChars}`
-    );
+    logger.error(`Failed to get app info: ${stdoutDataWithoutAnsiChars}`);
     process.exit(1);
   }
 
@@ -92,12 +89,12 @@ export async function waspInfo({
   );
 
   if (appNameMatch === null) {
-    log("wasp-info", "error", `Failed to get app name`);
+    logger.error("Failed to get app name");
     process.exit(1);
   }
 
   if (dbTypeMatch === null) {
-    log("wasp-info", "error", `Failed to get database type`);
+    logger.error("Failed to get database type");
     process.exit(1);
   }
 
@@ -114,13 +111,14 @@ function ensureRegexMatch(
   match: RegExpMatchArray | null,
   name: string
 ): string {
+  const logger = createLogger("ensure-regex-match");
   if (match === null) {
-    log("ensure-one-match", "error", `Failed to get ${name}`);
+    logger.error(`Failed to get ${name}`);
     process.exit(1);
   }
 
   if (match.length !== 2) {
-    log("ensure-one-match", "error", `Got more than one ${name}`);
+    logger.error(`Got more than one ${name}`);
     process.exit(1);
   }
 
