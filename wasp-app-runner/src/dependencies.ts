@@ -1,17 +1,14 @@
 import { exec } from "child_process";
 
-import { log } from "./logging.js";
+import { createLogger } from "./logging.js";
 
 export async function checkDependencies() {
+  const logger = createLogger("check-dependencies");
   const requiredCommands = ["docker"];
 
   for (const cmd of requiredCommands) {
     if (!(await commandExists(cmd))) {
-      log(
-        "setup",
-        "error",
-        `Required command '${cmd}' not found. Please install it.`
-      );
+      logger.error(`Required command '${cmd}' not found. Please install it.`);
       process.exit(1);
     }
   }

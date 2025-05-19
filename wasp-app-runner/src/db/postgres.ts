@@ -1,5 +1,5 @@
 import type { SetupDbFn } from "./types.js";
-import { log } from "../logging.js";
+import { createLogger } from "../logging.js";
 import { spawnAndCollectOutput } from "../process.js";
 import { Branded } from "../types.js";
 import {
@@ -11,6 +11,8 @@ import type { PathToApp } from "../args.js";
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
+const logger = createLogger("postgres");
+
 export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
   await ensureDockerIsRunning();
 
@@ -19,7 +21,7 @@ export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
     pathToApp,
   });
 
-  log("postgres", "info", `Using DATABASE_URL: ${databaseUrl}`);
+  logger.info(`Using DATABASE_URL: ${databaseUrl}`);
 
   return {
     dbEnvVars: { DATABASE_URL: databaseUrl },
@@ -38,7 +40,7 @@ async function startPostgresContainerForApp({
     pathToApp,
   });
 
-  log("postgres", "info", `Using container name: ${containerName}`);
+  logger.info(`Using container name: ${containerName}`);
 
   const databaseUrl = await startPostgresContainerAndWaitUntilReady(
     containerName
@@ -54,7 +56,7 @@ async function startPostgresContainerAndWaitUntilReady(
   const password = "devpass";
   const image = "postgres:16";
 
-  log("postgres", "info", "Starting the PostgreSQL container...");
+  logger.info("Starting the PostgreSQL container...");
 
   spawnAndCollectOutput({
     name: "create-postgres-container",
@@ -74,14 +76,14 @@ async function startPostgresContainerAndWaitUntilReady(
     // If we awaited here, we would block the main thread indefinitely.
     .then(({ exitCode, stderrData }) => {
       if (exitCode !== 0) {
-        log("postgres", "error", stderrData);
+        logger.error(stderrData);
         const extraInfo = getExtraInfoOnPostgresStartError({
           originalErrorText: stderrData,
           containerName,
           port,
         });
         if (extraInfo !== null) {
-          log("postgres", "info", extraInfo);
+          logger.info(extraInfo);
         }
         process.exit(1);
       }
@@ -121,22 +123,20 @@ async function waitForPostgresReady(
   const healthCheckDelay = 2000;
 
   for (let i = 1; i <= healthCheckRetries; i++) {
-    log(
-      "postgres",
-      "info",
+    logger.info(
       `Checking PostgreSQL readiness (attempt ${i}/${healthCheckRetries})`
     );
 
     const isPostgresReady = await checkIfPostgresIsReady(containerName);
 
     if (isPostgresReady) {
-      log("postgres", "success", "PostgreSQL is ready");
+      logger.success("PostgreSQL is ready");
       return;
     }
     await wait(healthCheckDelay);
   }
 
-  log("postgres", "error", "PostgreSQL did not become ready in time");
+  logger.error("PostgreSQL did not become ready in time");
   process.exit(1);
 }
 
@@ -163,11 +163,7 @@ async function ensureDockerIsRunning(): Promise<void> {
     return;
   }
 
-  log(
-    "postgres",
-    "error",
-    "Docker is not running. Please start Docker and try again."
-  );
+  logger.error("Docker is not running. Please start Docker and try again.");
   process.exit(1);
 }
 

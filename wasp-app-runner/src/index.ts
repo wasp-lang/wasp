@@ -1,9 +1,11 @@
-import { log } from "./logging.js";
+import { createLogger } from "./logging.js";
 import { checkDependencies } from "./dependencies.js";
 import { waspInfo } from "./waspCli.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { startAppInBuildMode } from "./build/index.js";
 import { type Mode, parseArgs, PathToApp, WaspCliCmd } from "./args.js";
+
+const logger = createLogger("main");
 
 export async function main(): Promise<void> {
   const { mode, waspCliCmd, pathToApp } = parseArgs();
@@ -16,9 +18,9 @@ export async function main(): Promise<void> {
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      log("main", "error", `Fatal error: ${error.message}`);
+      logger.error(`Fatal error: ${error.message}`);
     } else {
-      log("main", "error", `Fatal error: ${error}`);
+      logger.error(`Fatal error: ${error}`);
     }
     process.exit(1);
   }
@@ -40,9 +42,7 @@ async function runWaspApp({
     pathToApp,
   });
 
-  log(
-    "setup",
-    "info",
+  logger.info(
     `Starting "${appName}" app (mode: ${mode}) using "${waspCliCmd}" command`
   );
 

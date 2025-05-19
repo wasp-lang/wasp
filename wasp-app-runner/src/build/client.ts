@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 
 import { spawnWithLog } from "../process.js";
-import { log } from "../logging.js";
+import { createLogger } from "../logging.js";
 import { EnvVars } from "../types.js";
 import { parse } from "dotenv";
 import { doesFileExits } from "../files.js";
@@ -17,16 +17,17 @@ export async function buildAndRunClientApp({
 }: {
   pathToApp: PathToApp;
 }): Promise<void> {
+  const logger = createLogger("client-build-and-run-app");
   const { exitCode: buildExitCode } = await buildClientApp({ pathToApp });
   if (buildExitCode !== 0) {
-    log("client-build-app", "error", `Failed to build client app.`);
+    logger.error("Failed to build client app.");
     process.exit(1);
   }
 
   // This starts a long running process, so we don't await it.
   startClientApp({ pathToApp }).then(({ exitCode }) => {
     if (exitCode !== 0) {
-      log("client-start-app", "error", `Failed to start client app.`);
+      logger.error("Failed to start client app.");
       process.exit(1);
     }
   });
