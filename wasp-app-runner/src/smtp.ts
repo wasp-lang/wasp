@@ -1,8 +1,8 @@
-import { exitCode } from "process";
 import { spawnWithLog } from "./process.js";
-import { log } from "./logging.js";
+import { createLogger } from "./logging.js";
 
 export async function startLocalSmtpServer(): Promise<void> {
+  const logger = createLogger("smtp-server");
   spawnWithLog({
     name: "smtp-server",
     cmd: "docker",
@@ -17,7 +17,7 @@ export async function startLocalSmtpServer(): Promise<void> {
     ],
   }).then(({ exitCode }) => {
     if (exitCode !== 0) {
-      log("smtp-server", "error", `SMTP server exited with code ${exitCode}`);
+      logger.error(`SMTP server exited with code ${exitCode}`);
       process.exit(1);
     }
   });
