@@ -13,7 +13,7 @@ export function createLogger(processName: string) {
 
   function log(type: LogType, message: string): void {
     const colorFn = logTypeToColorFn[type];
-    const prefix = `[${processName}${type ? `:${type}` : ""}]`;
+    const prefix = `[${processName}:${type}]`;
 
     console.log(`${colorFn(prefix)} ${message}`);
   }
