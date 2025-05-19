@@ -1,23 +1,21 @@
+import chalk, { type ChalkInstance } from "chalk";
+
 type LogType = "error" | "warn" | "info" | "success" | "debug";
 
 export function createLogger(processName: string) {
-  const logTypeToColor: Record<LogType, number> = {
-    error: 31,
-    warn: 33,
-    info: 36,
-    success: 32,
-    debug: 90,
+  const logTypeToColorFn: Record<LogType, ChalkInstance> = {
+    error: chalk.red,
+    warn: chalk.yellow,
+    info: chalk.cyan,
+    success: chalk.green,
+    debug: chalk.gray,
   };
 
   function log(type: LogType, message: string): void {
-    const typeColor: number = logTypeToColor[type] ?? 0;
+    const colorFn = logTypeToColorFn[type];
+    const prefix = `[${processName}${type ? `:${type}` : ""}]`;
 
-    console.log(
-      `\x1b[0m` +
-        `\x1b[${typeColor}m[${processName}${
-          type ? `:${type}` : ""
-        }]\x1b[0m ${message}`
-    );
+    console.log(`${colorFn(prefix)} ${message}`);
   }
 
   return {
