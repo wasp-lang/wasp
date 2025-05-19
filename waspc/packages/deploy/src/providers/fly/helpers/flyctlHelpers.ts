@@ -74,14 +74,28 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
   }
 }
 
+type FlyctlRegionsOutput =
+  | { Code: string; Name: string }[] // older version
+  | { code: string; name: string }[]; // newer version as of flyctl v0.3.121
+
 async function regionExists(regionCode: string): Promise<boolean> {
   const proc = await silence(($hh) => $hh`flyctl platform regions -j`);
-  const regions: { Code: string; Name: string }[] = JSON.parse(proc.stdout);
-  return regions.some((r) => r.Code === regionCode);
+  const regions = JSON.parse(proc.stdout) as FlyctlRegionsOutput;
+  return regions.some((r) => {
+    const code = 'code' in r ? r.code : r.Code; // handle both cases
+    return code === regionCode;
+  });
 }
+
+type FlyctlSecretsOutput =
+  | { Name: string }[] // current version
+  | { name: string }[]; // not the output yet, but just in case they update the command in the future
 
 export async function secretExists(secretName: string): Promise<boolean> {
   const proc = await $`flyctl secrets list -j`;
-  const secrets: { Name: string }[] = JSON.parse(proc.stdout);
-  return secrets.some((s) => s.Name === secretName);
+  const secrets = JSON.parse(proc.stdout) as FlyctlSecretsOutput;
+  return secrets.some((s) => {
+    const name = 'name' in s ? s.name : s.Name; // handle both cases
+    return name === secretName;
+  });
 }

@@ -167,14 +167,14 @@ query getTasks {
           <FileViewer
             fileName="todoApp.wasp"
             fileExplanation="Wasp config file"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/main.wasp"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/main.wasp"
           >
             <CodeHighlight language="wasp" source={waspFileSourceCode} />
           </FileViewer>
           <FileViewer
             fileName="schema.prisma"
             fileExplanation="Wasp entities schema"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/schema.prisma"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/schema.prisma"
           >
             <CodeHighlight language="prisma" source={prismaFileSourceCode} />
           </FileViewer>

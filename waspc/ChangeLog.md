@@ -40,6 +40,12 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - Modernized our TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 - Added support for jump-to-definition for Wasp symbols ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 
+## 0.16.4
+
+### 🐞 Bug fixes
+
+- Adds support for the latest version of Fly.io CLI (v0.3.121 or greater) ([#2760](https://github.com/wasp-lang/wasp/pull/2760))
+
 ## 0.16.3
 
 ### 🎉 New Features and improvements

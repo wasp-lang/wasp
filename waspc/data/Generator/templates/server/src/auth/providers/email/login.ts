@@ -15,7 +15,7 @@ export function getLoginRoute() {
     return async function login(
         req: Request<{ email: string; password: string; }>,
         res: Response,
-    ): Promise<Response<{ sessionId: string } | undefined>> {
+    ): Promise<void> {
         const fields = req.body ?? {}
         ensureValidArgs(fields)
 
@@ -54,7 +54,7 @@ export function getLoginRoute() {
             user: auth.user,
         })
       
-        return res.json({
+        res.json({
             sessionId: session.id,
         })
     };

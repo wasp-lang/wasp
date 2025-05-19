@@ -46,7 +46,7 @@ Before looking at our todo app in action, let's see how we've implemented it in 
 
 These are the relevant declarations in our `.wasp` file:
 
-```wasp title=main.wasp
+```wasp title="main.wasp"
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -69,7 +69,7 @@ action updateTask {
 
 This is the query we use to fetch the tasks (together with their statuses):
 
-```js title=queries.js
+```js title="queries.js"
 export const getTasks = async (args, context) => {
   return context.entities.Task.findMany()
 }
@@ -77,7 +77,7 @@ export const getTasks = async (args, context) => {
 
 Here's the action we use to update a task’s status:
 
-```js title=actions.js
+```js title="actions.js"
 export const updateTask = async ({ id, isDone }, context) => {
   return context.entities.Task.updateMany({
     where: { id },
@@ -88,7 +88,7 @@ export const updateTask = async ({ id, isDone }, context) => {
 
 Finally, this is how our client uses this action to update a task:
 
-```jsx title=MainPage.js
+```jsx title="MainPage.js"
 import updateTask from '@wasp/queries'
 
 // ...
@@ -126,7 +126,7 @@ How can we improve it? Well, of course, we can optimistically update the checkbo
 
 To perform the `updateTask` action optimistically, all we need to do is decorate the calling code on the client:
 
-```jsx {6-16,25} title=MainPage.js
+```jsx {6-16,25} title="MainPage.js"
 import updateTask from '@wasp/queries'
 
 // ...

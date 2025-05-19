@@ -25,7 +25,7 @@ We specify that we are using WebSockets by adding `webSocket` to our `app` and p
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=todoApp.wasp
+    ```wasp title="todoApp.wasp"
     app todoApp {
       // ...
 
@@ -38,7 +38,7 @@ We specify that we are using WebSockets by adding `webSocket` to our `app` and p
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=todoApp.wasp
+    ```wasp title="todoApp.wasp"
     app todoApp {
       // ...
 
@@ -71,7 +71,7 @@ This is how we can define our `webSocketFn` function:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title=src/server/webSocket.js
+    ```ts title="src/server/webSocket.js"
     import { v4 as uuidv4 } from 'uuid'
 
     export const webSocketFn = (io, context) => {
@@ -91,7 +91,7 @@ This is how we can define our `webSocketFn` function:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title=src/server/webSocket.ts
+    ```ts title="src/server/webSocket.ts"
     import type { WebSocketDefinition, WaspSocketData } from '@wasp/webSocket'
     import { v4 as uuidv4 } from 'uuid'
 
@@ -162,7 +162,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```tsx title=src/client/ChatPage.jsx
+    ```tsx title="src/client/ChatPage.jsx"
     import React, { useState } from 'react'
     import {
       useSocket,
@@ -224,7 +224,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
     You can additionally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
 
-    ```tsx title=src/client/ChatPage.tsx
+    ```tsx title="src/client/ChatPage.tsx"
     import React, { useState } from 'react'
     import {
       useSocket,
@@ -297,7 +297,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=todoApp.wasp
+    ```wasp title="todoApp.wasp"
     app todoApp {
       // ...
 
@@ -310,7 +310,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=todoApp.wasp
+    ```wasp title="todoApp.wasp"
     app todoApp {
       // ...
 

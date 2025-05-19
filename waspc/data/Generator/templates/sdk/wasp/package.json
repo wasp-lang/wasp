@@ -8,6 +8,8 @@
       "test": "echo \"Error: no test specified\" && exit 1",
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
+  {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
+  {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
@@ -16,6 +18,8 @@
       "./core/stitches.config": "./dist/core/stitches.config.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./core/serialization": "./dist/core/serialization.js",
       "./core/auth": "./dist/core/auth.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
@@ -124,8 +128,7 @@
       "./server/crud/Tasks": "./dist/server/crud/Tasks.js",
       "./server/operations/actions":  "./dist/server/operations/actions/index.js",
       "./server/operations/queries": "./dist/server/operations/queries/index.js",
-      "./server/_types": "./dist/server/_types/index.js",
-      "./server/_types/serialization": "./dist/server/_types/serialization.js"
+      "./server/_types": "./dist/server/_types/index.js"
 
    },
    {=!

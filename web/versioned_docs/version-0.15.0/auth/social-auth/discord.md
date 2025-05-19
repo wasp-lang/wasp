@@ -257,7 +257,7 @@ Add `discord: {}` to the `auth.methods` dictionary to use it with default settin
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -276,7 +276,7 @@ Add `discord: {}` to the `auth.methods` dictionary to use it with default settin
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.15.0"
@@ -369,7 +369,7 @@ The fields you receive will depend on the scopes you requested. The default scop
     // ...
     ```
 
-    ```js title=src/auth/discord.js
+    ```js title="src/auth/discord.js"
     export const userSignupFields = {
       username: (data) => data.profile.global_name,
       avatarUrl: (data) => data.profile.avatar,
@@ -415,7 +415,7 @@ The fields you receive will depend on the scopes you requested. The default scop
     // ...
     ```
 
-    ```ts title=src/auth/discord.ts
+    ```ts title="src/auth/discord.ts"
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
@@ -504,7 +504,7 @@ The `discord` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/auth/discord.js
+      ```js title="src/auth/discord.js"
       export function getConfig() {
         return {
           scopes: [],
@@ -514,7 +514,7 @@ The `discord` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/auth/discord.ts
+      ```ts title="src/auth/discord.ts"
       export function getConfig() {
         return {
           scopes: [],

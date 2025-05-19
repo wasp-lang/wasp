@@ -161,7 +161,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     };
     ```
 
-    ```js title=src/Todo.test.jsx
+    ```js title="src/Todo.test.jsx"
     import { test, expect } from "vitest";
     import { screen } from "@testing-library/react";
 
@@ -215,7 +215,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     };
     ```
 
-    ```tsx title=src/Todo.test.tsx
+    ```tsx title="src/Todo.test.tsx"
     import { test, expect } from "vitest";
     import { screen } from "@testing-library/react";
 
@@ -280,7 +280,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     };
     ```
 
-    ```jsx title=src/Todo.test.jsx
+    ```jsx title="src/Todo.test.jsx"
     import { test, expect } from "vitest";
     import { screen } from "@testing-library/react";
 
@@ -341,7 +341,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     };
     ```
 
-    ```tsx title=src/Todo.test.tsx
+    ```tsx title="src/Todo.test.tsx"
     import { test, expect } from "vitest";
     import { screen } from "@testing-library/react";
 

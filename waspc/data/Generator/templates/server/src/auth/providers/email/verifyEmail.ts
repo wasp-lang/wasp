@@ -14,7 +14,7 @@ import { onAfterEmailVerifiedHook } from '../../hooks.js';
 export async function verifyEmail(
     req: Request<{ token: string }>,
     res: Response,
-): Promise<Response<{ success: true }>> {
+): Promise<void> {
     const { token } = req.body;
     const { email } = await validateJWT<{ email: string }>(token)
         .catch(() => {
@@ -37,6 +37,6 @@ export async function verifyEmail(
 
     await onAfterEmailVerifiedHook({ req, email, user: auth.user });
 
-    return res.json({ success: true });
+    res.json({ success: true });
 };
 
