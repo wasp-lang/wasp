@@ -458,7 +458,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
     const { getPosOfNewItem } = useContext(PositionContext)
 
     const submitOnEnter = (e) => {
-      if (e.keyCode === 13 /* && e.shiftKey == false */) {
+      if (e.keyCode === 13) {
         e.preventDefault()
 
         formRef.current.dispatchEvent(

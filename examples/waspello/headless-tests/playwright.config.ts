@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const HEADLESS_TEST_MODE = process.env.HEADLESS_TEST_MODE ?? 'dev'
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -44,7 +46,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'wasp-app-runner --path-to-app=../',
+    command: `run-wasp-app ${HEADLESS_TEST_MODE} --path-to-app=../`,
 
     // Wait for the backend to start
     url: 'http://localhost:3001',

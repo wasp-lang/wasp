@@ -5,7 +5,7 @@ import {
   performSignup,
 } from "./helpers";
 
-test.describe("auth and work with tasks", () => {
+test.describe("auth and work tasks", () => {
   const { username, password } = generateRandomCredentials();
 
   test.describe.configure({ mode: "serial" });
@@ -23,7 +23,7 @@ test.describe("auth and work with tasks", () => {
     await expect(page).toHaveURL("/login");
   });
 
-  test("can log in and cast a vote", async ({ page }) => {
+  test("can log in and interact with tasks", async ({ page }) => {
     await performLogin(page, {
       username,
       password: "12345678xxx",
