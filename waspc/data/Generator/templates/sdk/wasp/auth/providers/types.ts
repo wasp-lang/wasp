@@ -53,7 +53,6 @@ export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
 export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>
-type PossibleUserFieldValues = PossibleUserFields[keyof PossibleUserFields]
 
 // PRIVATE API
 export type UserSignupFields = {
@@ -66,3 +65,4 @@ type FieldGetter<T extends PossibleUserFieldValues> = (
   data: { [key: string]: unknown }
 ) => Promise<T | undefined> | T | undefined
 
+type PossibleUserFieldValues = PossibleUserFields[keyof PossibleUserFields]
