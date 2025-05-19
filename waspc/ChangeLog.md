@@ -39,6 +39,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
 - Modernized our TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 - Added support for jump-to-definition for Wasp symbols ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+- `userSignupFields` types are now correctly propagated to client auth methods. ([#2641](https://github.com/wasp-lang/wasp/pull/2641))
 
 ## 0.16.4
 

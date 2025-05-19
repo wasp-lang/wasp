@@ -15,10 +15,9 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
@@ -39,7 +38,7 @@ genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSo
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "userWebSocketFn" .= GJI.jsImportToImportJson (extImportToJsImport <$> mayebWebSocketFn),
+          "userWebSocketFn" .= extImportToImportJson mayebWebSocketFn,
           "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
         ]
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
