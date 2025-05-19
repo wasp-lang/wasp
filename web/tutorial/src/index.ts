@@ -1,29 +1,24 @@
 import path from 'path'
 
-import { $, chalk } from 'zx'
+import { $ } from 'zx'
 
 import fs from 'fs/promises'
 
-import {
-  applyPatch,
-  migrateDb,
-  writeFileToAppDir,
-  type Action,
-} from './actions/index'
-import { appDir, ensureDirExists, patchesDir } from './paths'
+import type { Action } from './actions/index'
+import { appDir } from './paths'
 import { waspNew } from './waspCli'
-import { log } from './log'
 import { getActionsFromTutorialFiles } from './markdown/extractSteps'
 import { program } from '@commander-js/extra-typings'
 
 import Enquirer from 'enquirer'
 import { generateGitPatch, makeCheckpoint } from './edit/generate-patch'
 import { executeSteps } from './execute-steps'
-import { write } from 'fs'
+import { log } from './log'
+import { updateBrokenDiffs } from './edit'
 
 const actions: Action[] = await getActionsFromTutorialFiles()
 
-const { editDiff, untilStep } = program
+const { brokenDiff, untilStep } = program
   .option(
     '-s, --until-step <step>',
     'Run until the given step. If not provided, run all steps.',
@@ -36,7 +31,7 @@ const { editDiff, untilStep } = program
     }
   )
   .option(
-    '-e, --edit-diff <step>',
+    '-e, --broken-diff <step>',
     'Edit mode, you will edit the diff interactively and all the steps related to the same file that come after.',
     (value: string) => {
       const step = parseInt(value, 10)
@@ -71,39 +66,8 @@ async function prepareApp() {
 
 await prepareApp()
 
-if (editDiff) {
-  const actionsBeforeStep = actions.filter(
-    (action) => action.step < editDiff.step
-  )
-  await executeSteps(actionsBeforeStep, {
-    untilStep: editDiff.step,
-  })
-  const actionsToEdit = actions
-    .filter((action) => action.kind === 'diff')
-    .filter(
-      (action) => action.path === editDiff.path && action.step >= editDiff.step
-    )
-
-  // Okay, we are going to edit now all the steps that are related to the same file
-  // starting with step editDiff.step
-  console.log(
-    `We are now going to edit all the steps for file ${editDiff.path} from step ${editDiff.step} onwards`
-  )
-
-  for (const action of actionsToEdit) {
-    const { step, path } = action
-    await makeCheckpoint()
-    await Enquirer.prompt({
-      type: 'confirm',
-      name: 'edit',
-      message: `Apply the new edit to ${path} at step ${step} and press Enter`,
-      initial: true,
-    })
-    const patch = await generateGitPatch()
-    console.log('=====================')
-    console.log(patch)
-    console.log('=====================')
-  }
+if (brokenDiff) {
+  await updateBrokenDiffs(brokenDiff, actions)
 } else {
   await executeSteps(actions, {
     untilStep,

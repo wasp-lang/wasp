@@ -31,8 +31,6 @@ export async function executeSteps(
     try {
       switch (kind) {
         case 'diff':
-          // TODO: Implement edit mode which would make it easier to edit diffs
-
           await applyPatch(action)
           break
         case 'write':
@@ -48,6 +46,5 @@ export async function executeSteps(
       log('error', `Error in step ${action.step}:\n\n${err}`)
       process.exit(1)
     }
-    log('info', 'All done!')
   }
 }

@@ -76,6 +76,12 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
       return
     }
 
+    if (action === 'diff') {
+      const patchAction = createApplyPatchAction(commonActionData)
+      actions.push(patchAction)
+      return
+    }
+
     if (node.children.length !== 1) {
       throw new Error(`${componentName} must have exactly one child`)
     }
@@ -87,9 +93,7 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
 
     const codeBlockCode = childCode.value
 
-    if (action === 'diff') {
-      actions.push(createApplyPatchAction(codeBlockCode, commonActionData))
-    } else if (action === 'write') {
+    if (action === 'write') {
       const path = getAttributeValue(node, 'path')
       if (!path) {
         throw new Error('Path attribute is required for write action')

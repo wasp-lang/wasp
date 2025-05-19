@@ -1,10 +1,21 @@
-import type { ActionCommon, ApplyPatchAction } from './index'
+import path from 'path'
+import fs from 'fs'
+
 import parseGitDiff from 'parse-git-diff'
 
+import type { ActionCommon, ApplyPatchAction } from './index'
+
 export function createApplyPatchAction(
-  patch: string,
   commonActionData: ActionCommon
 ): ApplyPatchAction {
+  const patchContentPath = path.resolve(
+    '../docs/tutorial',
+    'patches',
+    `step-${commonActionData.step}.patch`
+  )
+
+  const patch = fs.readFileSync(patchContentPath, 'utf-8')
+
   const parsedPatch = parseGitDiff(patch)
 
   if (parsedPatch.files.length === 0 || parsedPatch.files[0] === undefined) {
@@ -19,12 +30,12 @@ export function createApplyPatchAction(
     throw new Error('Invalid patch: only file changes are supported')
   }
 
-  const path = parsedPatch.files[0].path
+  const targetFilePath = parsedPatch.files[0].path
 
   return {
     ...commonActionData,
     kind: 'diff',
-    patch,
-    path,
+    targetFilePath,
+    patchContentPath,
   }
 }

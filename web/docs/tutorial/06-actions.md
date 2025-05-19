@@ -24,25 +24,7 @@ Creating an Action is very similar to creating a Query.
 We must first declare the Action in `main.wasp`:
 
 
-<TutorialAction step="8" action="diff">
-
-```diff
-diff --git a/main.wasp b/main.wasp
-index b288bf6..e83fe65 100644
---- a/main.wasp
-+++ b/main.wasp
-@@ -20,3 +20,7 @@ query getTasks {
-   entities: [Task]
- }
- 
-+action createTask {
-+  fn: import { createTask } from "@src/actions",
-+  entities: [Task]
-+}
-
-```
-
-</TutorialAction>
+<TutorialAction step="8" action="diff" />
 
 ```wasp title="main.wasp"
 // ...
@@ -90,61 +72,7 @@ We put the function in a new file `src/actions.{js,ts}`, but we could have put i
 
 Start by defining a form for creating new tasks.
 
-<TutorialAction step="10" action="diff">
-
-```diff
-diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 556e1a2..50118d6 100644
---- a/src/MainPage.tsx
-+++ b/src/MainPage.tsx
-@@ -1,6 +1,11 @@
-+import type { FormEvent } from 'react'
- import type { Task } from 'wasp/entities'
--// highlight-next-line
--import { getTasks, useQuery } from 'wasp/client/operations'
-+import {
-+  // highlight-next-line
-+  createTask,
-+  getTasks,
-+  useQuery,
-+} from 'wasp/client/operations'
- 
- export const MainPage = () => {
-   // highlight-start
-@@ -38,4 +43,27 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
-     </div>
-   )
- }
--// highlight-end
-\ No newline at end of file
-+// highlight-end
-+
-+// highlight-start
-+const NewTaskForm = () => {
-+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-+    event.preventDefault()
-+    try {
-+      const target = event.target as HTMLFormElement
-+      const description = target.description.value
-+      target.reset()
-+      await createTask({ description })
-+    } catch (err: any) {
-+      window.alert('Error: ' + err.message)
-+    }
-+  }
-+
-+  return (
-+    <form onSubmit={handleSubmit}>
-+      <input name="description" type="text" defaultValue="" />
-+      <input type="submit" value="Create task" />
-+    </form>
-+  )
-+}
-+// highlight-end
-
-```
-
-</TutorialAction>
+<TutorialAction step="10" action="diff" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { FormEvent } from 'react'
@@ -190,25 +118,7 @@ Unlike Queries, you can call Actions directly (without wrapping them in a hook) 
 
 All that's left now is adding this form to the page component:
 
-<TutorialAction step="11" action="diff">
-
-```diff
-diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 50118d6..296d0cf 100644
---- a/src/MainPage.tsx
-+++ b/src/MainPage.tsx
-@@ -13,6 +13,7 @@ export const MainPage = () => {
- 
-   return (
-     <div>
-+      <NewTaskForm />
-       {tasks && <TasksList tasks={tasks} />}
- 
-       {isLoading && 'Loading...'}
-
-```
-
-</TutorialAction>
+<TutorialAction step="11" action="diff" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { FormEvent } from 'react'
@@ -265,26 +175,7 @@ Since we've already created one task together, try to create this one yourself. 
 <Collapse title="Solution">
   Declaring the Action in `main.wasp`:
 
-  <TutorialAction step="12" action="diff">
-
-  ```diff
-  diff --git a/main.wasp b/main.wasp
-  index e83fe65..31483d2 100644
-  --- a/main.wasp
-  +++ b/main.wasp
-  @@ -24,3 +24,8 @@ action createTask {
-    fn: import { createTask } from "@src/actions",
-    entities: [Task]
-  }
-  +
-  +action updateTask {
-  +  fn: import { updateTask } from "@src/actions",
-  +  entities: [Task]
-  +}
-
-  ```
-
-  </TutorialAction>
+  <TutorialAction step="12" action="diff" />
 
   ```wasp title="main.wasp"
   // ...
@@ -295,45 +186,7 @@ Since we've already created one task together, try to create this one yourself. 
   }
   ```
 
-  <TutorialAction step="13" action="diff">
-
-  ```diff
-  diff --git a/src/actions.ts b/src/actions.ts
-  index 3edb8fb..45c82eb 100644
-  --- a/src/actions.ts
-  +++ b/src/actions.ts
-  @@ -1,5 +1,5 @@
-   import { Task } from 'wasp/entities'
-  -import { CreateTask } from 'wasp/server/operations'
-  +import { CreateTask, UpdateTask } from 'wasp/server/operations'
-   
-   type CreateTaskPayload = Pick<Task, 'description'>
-   
-  @@ -10,4 +10,18 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
-     return context.entities.Task.create({
-       data: { description: args.description },
-     })
-  -}
-  \ No newline at end of file
-  +}
-  +
-  +type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
-  +
-  +export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
-  +  { id, isDone },
-  +  context
-  +) => {
-  +  return context.entities.Task.update({
-  +    where: { id },
-  +    data: {
-  +      isDone: isDone,
-  +    },
-  +  })
-  +}
-
-  ```
-
-  </TutorialAction>
+  <TutorialAction step="13" action="diff" />
 
   Implementing the Action on the server:
 
@@ -360,57 +213,7 @@ Since we've already created one task together, try to create this one yourself. 
 
 You can now call `updateTask` from the React component:
 
-<TutorialAction step="14" action="diff">
-
-```diff
-diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 296d0cf..f02e05e 100644
---- a/src/MainPage.tsx
-+++ b/src/MainPage.tsx
-@@ -1,7 +1,8 @@
--import type { FormEvent } from 'react'
-+import type { FormEvent, ChangeEvent } from 'react'
- import type { Task } from 'wasp/entities'
- import {
-   // highlight-next-line
-+  updateTask,
-   createTask,
-   getTasks,
-   useQuery,
-@@ -25,9 +26,28 @@ export const MainPage = () => {
- 
- // highlight-start
- const TaskView = ({ task }: { task: Task }) => {
-+  // highlight-start
-+  const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
-+    try {
-+      await updateTask({
-+        id: task.id,
-+        isDone: event.target.checked,
-+      })
-+    } catch (error: any) {
-+      window.alert('Error while updating task: ' + error.message)
-+    }
-+  }
-+  // highlight-end
-+
-   return (
-     <div>
--      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-+      <input
-+        type="checkbox"
-+        id={String(task.id)}
-+        checked={task.isDone}
-+        // highlight-next-line
-+        onChange={handleIsDoneChange}
-+      />
-       {task.description}
-     </div>
-   )
-
-```
-
-</TutorialAction>
+<TutorialAction step="14" action="diff" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { FormEvent, ChangeEvent } from 'react'

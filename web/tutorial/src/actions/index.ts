@@ -20,8 +20,8 @@ export type WriteFileAction = {
 
 export type ApplyPatchAction = {
   kind: 'diff'
-  patch: string
-  path: string
+  targetFilePath: string
+  patchContentPath: string
 } & ActionCommon
 
 export type MigrateDbAction = {
@@ -37,10 +37,12 @@ export async function writeFileToAppDir(file: WriteFileAction) {
 }
 
 export async function applyPatch(patch: ApplyPatchAction) {
-  const patchPath = path.resolve(patchesDir, `step-${patch.step}.patch`)
-  await fs.writeFile(patchPath, patch.patch)
-  await $`cd ${appDir} && git apply ${patchPath} --verbose`.quiet(true)
-  log('info', `Applied patch to ${patch.path}`)
+  // const patchPath = path.resolve(patchesDir, `step-${patch.step}.patch`)
+  // await fs.writeFile(patchPath, patch.patch)
+  await $`cd ${appDir} && git apply ${patch.patchContentPath} --verbose`.quiet(
+    true
+  )
+  log('info', `Applied patch to ${patch.targetFilePath}`)
 }
 
 export const migrateDb = waspDbMigrate

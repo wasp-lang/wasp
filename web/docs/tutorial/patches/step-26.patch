@@ -1,31 +1,35 @@
 diff --git a/src/actions.ts b/src/actions.ts
-index 45c82eb..1a0d088 100644
+index d8372b9..b796bd2 100644
 --- a/src/actions.ts
 +++ b/src/actions.ts
-@@ -1,4 +1,5 @@
-  import { Task } from 'wasp/entities'
+@@ -1,4 +1,6 @@
+ import type { Task } from 'wasp/entities'
++// highlight-next-line
 +import { HttpError } from 'wasp/server'
-  import { CreateTask, UpdateTask } from 'wasp/server/operations'
-  
-  type CreateTaskPayload = Pick<Task, 'description'>
-@@ -7,21 +8,28 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
-    args,
-    context
-  ) => {
+ import type { CreateTask, UpdateTask } from 'wasp/server/operations'
+ 
+ type CreateTaskPayload = Pick<Task, 'description'>
+@@ -7,21 +9,33 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+   args,
+   context
+ ) => {
++  // highlight-start
 +  if (!context.user) {
 +    throw new HttpError(401)
 +  }
-    return context.entities.Task.create({
++  // highlight-end
+   return context.entities.Task.create({
 -    data: { description: args.description },
 +    data: {
 +      description: args.description,
++      // highlight-next-line
 +      user: { connect: { id: context.user.id } },
 +    },
-    })
-  }
-  
-  type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
-  
+   })
+ }
+ 
+ type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
+ 
 -export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
 -  { id, isDone },
 -  context
@@ -38,12 +42,14 @@ index 45c82eb..1a0d088 100644
 +export const updateTask: UpdateTask<
 +  UpdateTaskPayload,
 +  { count: number }
-+> = async ({ id, isDone }, context) => {
++> = async (args, context) => {
++  // highlight-start
 +  if (!context.user) {
 +    throw new HttpError(401)
 +  }
++  // highlight-end
 +  return context.entities.Task.updateMany({
-+    where: { id, user: { id: context.user.id } },
-+    data: { isDone },
-    })
-  }
++    where: { id: args.id, user: { id: context.user.id } },
++    data: { isDone: args.isDone },
+   })
+ }
