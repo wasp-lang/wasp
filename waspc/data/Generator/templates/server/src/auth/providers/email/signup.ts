@@ -1,30 +1,30 @@
 import { Request, Response } from 'express'
-import { EmailFromField } from 'wasp/server/email/core/types'
+import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
-  createUser,
   createProviderId,
-  findAuthIdentity,
+  createUser,
   deleteUserByAuthId,
   doFakeWork,
+  findAuthIdentity,
   getProviderDataWithPassword,
-  sanitizeAndSerializeProviderData,
   rethrowPossibleAuthError,
+  sanitizeAndSerializeProviderData,
+  validateAndGetUserFields,
 } from 'wasp/auth/utils'
 import {
-  createEmailVerificationLink,
-  sendEmailVerificationEmail,
-  isEmailResendAllowed,
-} from 'wasp/server/auth/email/utils'
-import {
+  ensurePasswordIsPresent,
   ensureValidEmail,
   ensureValidPassword,
-  ensurePasswordIsPresent,
 } from 'wasp/auth/validation'
-import { GetVerificationEmailContentFn } from 'wasp/server/auth/email'
-import { validateAndGetUserFields } from 'wasp/auth/utils'
 import { HttpError } from 'wasp/server'
-import { type UserSignupFields } from 'wasp/auth/providers/types'
-import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js'
+import { GetVerificationEmailContentFn } from 'wasp/server/auth/email'
+import {
+  createEmailVerificationLink,
+  isEmailResendAllowed,
+  sendEmailVerificationEmail,
+} from 'wasp/server/auth/email/utils'
+import { EmailFromField } from 'wasp/server/email/core/types'
+import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
 
 export function getSignupRoute({
   userSignupFields,

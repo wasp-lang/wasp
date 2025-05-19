@@ -302,7 +302,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -321,7 +321,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -381,7 +381,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```js title=src/auth/google.js
+    ```js title="src/auth/google.js"
     export const userSignupFields = {
       username: () => "hardcoded-username",
       displayName: (data) => data.profile.displayName,
@@ -427,7 +427,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```ts title=src/auth/google.ts
+    ```ts title="src/auth/google.ts"
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
@@ -512,7 +512,7 @@ The `google` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/auth/google.js
+      ```js title="src/auth/google.js"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere
@@ -524,7 +524,7 @@ The `google` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/auth/google.ts
+      ```ts title="src/auth/google.ts"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere

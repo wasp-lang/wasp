@@ -117,7 +117,7 @@ new version of the file and reapplying them.
 
 Here's the new version of the `tsconfig.json` file:
 
-```json title=tsconfig.json
+```json title="tsconfig.json"
 // =============================== IMPORTANT =================================
 //
 // This file is only used for Wasp IDE support. You can change it to configure
@@ -409,7 +409,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        import { getUsername } from 'wasp/auth'
 
        export const createTask: CreateTask<...>  = async (args, context) => {
@@ -429,7 +429,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        export const createTask: CreateTask<...>  = async (args, context) => {
            const username = context.user.identities.username?.id
            // ...
@@ -455,7 +455,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        import { getEmail } from 'wasp/auth'
 
        export const createTask: CreateTask<...>  = async (args, context) => {
@@ -475,7 +475,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        export const createTask: CreateTask<...>  = async (args, context) => {
            const email = context.user.identities.email?.id
            // ...
@@ -541,7 +541,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        import { getFirstProviderUserId } from 'wasp/auth'
 
        export const createTask: CreateTask<...>  = async (args, context) => {
@@ -561,7 +561,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        export const createTask: CreateTask<...>  = async (args, context) => {
            const userId = user.getFirstProviderUserId()
            // ...
@@ -589,7 +589,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        import { findUserIdentity } from 'wasp/auth'
 
        export const createTask: CreateTask<...>  = async (args, context) => {
@@ -612,7 +612,7 @@ Follow the steps below to migrate:
        }
        ```
 
-       ```ts title=src/tasks.ts
+       ```ts title="src/tasks.ts"
        export const createTask: CreateTask<...>  = async (args, context) => {
            if (context.user.identities.username) {
                // ...

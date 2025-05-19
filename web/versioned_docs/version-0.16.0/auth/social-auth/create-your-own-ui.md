@@ -13,7 +13,7 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=src/LoginPage.jsx
+    ```jsx title="src/LoginPage.jsx"
     import {
       GoogleSignInButton,
       googleSignInUrl,
@@ -36,7 +36,7 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=src/LoginPage.tsx
+    ```tsx title="src/LoginPage.tsx"
     import {
       GoogleSignInButton,
       googleSignInUrl,

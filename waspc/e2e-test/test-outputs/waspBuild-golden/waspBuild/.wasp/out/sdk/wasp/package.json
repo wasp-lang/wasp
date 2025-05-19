@@ -29,6 +29,7 @@
     "./auth/jwt": "./dist/auth/jwt.js",
     "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
     "./auth/password": "./dist/auth/password.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
     "./auth/providers/types": "./dist/auth/providers/types.js",
     "./auth/session": "./dist/auth/session.js",
     "./auth/types": "./dist/auth/types.js",

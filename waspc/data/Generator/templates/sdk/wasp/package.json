@@ -103,6 +103,7 @@
       "./server/webSocket": "./dist/server/webSocket/index.js",
       "./entities": "./dist/entities/index.js",
       "./auth": "./dist/auth/index.js",
+      "./auth/providers": "./dist/auth/providers/index.js",
       "./client/auth": "./dist/client/auth/index.js",
       "./client/operations": "./dist/client/operations/index.js",
       "./server/auth": "./dist/server/auth/index.js",
