@@ -17,6 +17,7 @@ import {
   Mail,
   Type,
   Star,
+  BookOpen
 } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
@@ -79,7 +80,7 @@ const Features = () => {
           title="Open Source"
           url="https://github.com/wasp-lang/wasp"
           description={`
-            This is the way. Wasp is fully open-source and you're welcome to contribute!
+            Fully open-source and you’re welcome to contribute!
           `}
         />
 
@@ -88,7 +89,7 @@ const Features = () => {
           title="Full-stack Auth"
           url="/blog/2023/04/12/auth-ui"
           description={`
-            Add login with social providers or email in a few lines of code with powerful UI helpers. No third party vendor lock-in.
+            Add email and social login in a few lines of code. Wasp manages everything from sessions to UI components. No boilerplate, no lock-in.
           `}
         />
 
@@ -103,20 +104,10 @@ const Features = () => {
 
         <Feature
           Icon={Send}
-          title="Simple Deployment"
+          title="One-command Deploy"
           url="/docs/deployment/intro"
           description={`
-            Deploy your app to any platform. Wasp offers CLI helpers for the most popular options.
-          `}
-        />
-
-        <Feature
-          Icon={Settings}
-          title="Jobs"
-          url="/docs/advanced/jobs"
-          description={`
-            Easily define, schedule and run specialized server tasks.
-            Persistent, retryable, delayable.
+            Deploy your entire app—from frontend to database—to platforms like Railway or Fly.io with just one command.
           `}
         />
 
@@ -125,7 +116,16 @@ const Features = () => {
           title="Email Sending"
           url="/docs/advanced/email"
           description={`
-            All you need to do is connect an email provider and you can send emails!
+            Just choose a provider and Wasp will handle the rest!
+          `}
+        />
+
+        <Feature
+          Icon={Settings}
+          title="Jobs"
+          url="/docs/advanced/jobs"
+          description={`
+            Easily send emails, crunch data, and schedule tasks using the power of Postgres.
           `}
         />
 

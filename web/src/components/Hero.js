@@ -17,6 +17,8 @@ import {
 
 import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
+import styles from '../pages/styles.module.css'
+import classNames from 'classnames'
 
 const StartIcon = () => (
   <svg
@@ -117,17 +119,30 @@ query getTasks {
           <div>
             <h1
               className={`
-                text-4xl font-extrabold text-neutral-700
-                lg:text-5xl lg:leading-tight
+                flex flex-col
+                text-[3.5rem] sm:text-[6rem] font-bold text-neutral-700
+                lg:text-[5rem] lg:leading-tight
               `}
             >
-              Develop full-stack web apps{' '}
-              <span className="underline decoration-yellow-500">faster</span>.
+              <div>
+                <span >Fullstack</span>
+              </div>
+              <div>
+                <span
+                  className={classNames(
+                    'text-yellow-500 '
+                  )}
+                >
+                  Everything
+                </span>
+                <span>.</span>
+              </div>
             </h1>
 
-            <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
-              Rails-like framework for React, Node.js and Prisma. Build your app
-              in a day and deploy it with a single CLI command.
+            <p className="mt-8 text-xl text-neutral-500 sm:mt-5 lg:text-xl lg:leading-relaxed">
+              The Laravel alternative for JavaScript.
+              Truly full-stack. Batteries-included. Built on top of React,
+              Node.js, Prisma, and your favorite libraries.
             </p>
           </div>{' '}
           {/* EOF Hero title and subtitle */}
@@ -167,14 +182,14 @@ query getTasks {
           <FileViewer
             fileName="todoApp.wasp"
             fileExplanation="Wasp config file"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/main.wasp"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/main.wasp"
           >
             <CodeHighlight language="wasp" source={waspFileSourceCode} />
           </FileViewer>
           <FileViewer
             fileName="schema.prisma"
             fileExplanation="Wasp entities schema"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/todo-typescript/schema.prisma"
+            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/schema.prisma"
           >
             <CodeHighlight language="prisma" source={prismaFileSourceCode} />
           </FileViewer>
