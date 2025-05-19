@@ -16,7 +16,7 @@ export async function updateBrokenDiffs(
   await executeSteps(actionsBeforeStep, {
     untilStep: editDiff.step,
   })
-  const actionsToEdit = actions
+  const diffActionsForSameFile = actions
     .filter((action) => action.kind === 'diff')
     .filter(
       (action) =>
@@ -29,7 +29,7 @@ export async function updateBrokenDiffs(
     `We are now going to edit all the steps for file ${editDiff.targetFilePath} from step ${editDiff.step} onwards`
   )
 
-  for (const action of actionsToEdit) {
+  for (const action of diffActionsForSameFile) {
     const { step, targetFilePath, patchContentPath } = action
     await makeCheckpoint()
     await Enquirer.prompt({

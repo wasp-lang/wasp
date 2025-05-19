@@ -2,18 +2,13 @@ import path from 'path'
 
 import { $ } from 'zx'
 
-import fs from 'fs/promises'
-
 import type { Action } from './actions/index'
 import { appDir } from './paths'
 import { waspNew } from './waspCli'
 import { getActionsFromTutorialFiles } from './markdown/extractSteps'
 import { program } from '@commander-js/extra-typings'
 
-import Enquirer from 'enquirer'
-import { generateGitPatch, makeCheckpoint } from './edit/generate-patch'
 import { executeSteps } from './execute-steps'
-import { log } from './log'
 import { updateBrokenDiffs } from './edit'
 
 const actions: Action[] = await getActionsFromTutorialFiles()
