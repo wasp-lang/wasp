@@ -1,0 +1,12 @@
+diff --git a/main.wasp b/main.wasp
+index 12a0895..c621b88 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -17,6 +17,7 @@ app TodoApp {
+ 
+ route RootRoute { path: "/", to: MainPage }
+ page MainPage {
++  authRequired: true,
+   component: import { MainPage } from "@src/MainPage"
+ }
+

@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "start": "tsx ./src/index.ts",
-    "generate-patch": "tsx ./src/generate-patch.ts",
     "parse-markdown": "tsx ./src/markdown/index.ts"
   },
   "license": "MIT",
@@ -14,6 +13,7 @@
     "acorn": "^8.14.1",
     "commander": "^13.1.0",
     "dedent": "^1.6.0",
+    "enquirer": "^2.4.1",
     "mdast-util-from-markdown": "^2.0.2",
     "mdast-util-frontmatter": "^2.0.1",
     "mdast-util-mdx": "^3.0.0",

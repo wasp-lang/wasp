@@ -7,7 +7,11 @@ import { fromMarkdown } from 'mdast-util-from-markdown'
 import { mdxJsxFromMarkdown, type MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
 import { visit } from 'unist-util-visit'
 
-import { type Action, createApplyPatchAction } from '../actions/index'
+import {
+  type Action,
+  type ActionCommon,
+  createApplyPatchAction,
+} from '../actions/index'
 import searchAndReplace from '../../../src/remark/search-and-replace.js'
 
 const componentName = 'TutorialAction'
@@ -59,10 +63,15 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
       throw new Error('Step and action attributes are required')
     }
 
+    const commonActionData: ActionCommon = {
+      step,
+      markdownSourceFilePath: filePath,
+    }
+
     if (action === 'migrate-db') {
       actions.push({
+        ...commonActionData,
         kind: 'migrate-db',
-        step,
       })
       return
     }
@@ -79,17 +88,17 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
     const codeBlockCode = childCode.value
 
     if (action === 'diff') {
-      actions.push(createApplyPatchAction(codeBlockCode, step))
+      actions.push(createApplyPatchAction(codeBlockCode, commonActionData))
     } else if (action === 'write') {
       const path = getAttributeValue(node, 'path')
       if (!path) {
         throw new Error('Path attribute is required for write action')
       }
       actions.push({
+        ...commonActionData,
         kind: 'write',
         content: codeBlockCode,
         path,
-        step,
       })
     }
   })

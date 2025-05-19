@@ -272,20 +272,20 @@ Additionally, when `authRequired` is `true`, the page's React component will be 
 
 ```diff
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 0f58592..bb64039 100644
+index f02e05e..a4389aa 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -6,8 +6,9 @@ import {
-    getTasks,
-    useQuery,
-  } from 'wasp/client/operations'
+@@ -7,8 +7,9 @@ import {
+   getTasks,
+   useQuery,
+ } from 'wasp/client/operations'
 +import { AuthUser } from 'wasp/auth'
-  
+ 
 -export const MainPage = () => {
 +export const MainPage = ({ user }: { user: AuthUser }) => {
-    const { data: tasks, isLoading, error } = useQuery(getTasks)
-  
-    return (
+   // highlight-start
+   const { data: tasks, isLoading, error } = useQuery(getTasks)
+ 
 
 ```
 
@@ -566,25 +566,27 @@ Last, but not least, let's add the logout functionality:
 
 ```diff
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index bb64039..abe5672 100644
+index a4389aa..b1f94f5 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -7,6 +7,7 @@ import {
-    useQuery,
-  } from 'wasp/client/operations'
-  import { AuthUser } from 'wasp/auth'
+@@ -7,7 +7,8 @@ import {
+   getTasks,
+   useQuery,
+ } from 'wasp/client/operations'
+-+import { AuthUser } from 'wasp/auth'
++import { AuthUser } from 'wasp/auth'
 +import { logout } from 'wasp/client/auth'
-  
-  export const MainPage = ({ user }: { user: AuthUser }) => {
-    const { data: tasks, isLoading, error } = useQuery(getTasks)
-@@ -19,6 +20,7 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
-  
-        {isLoading && 'Loading...'}
-        {error && 'Error: ' + error}
+ 
+ export const MainPage = ({ user }: { user: AuthUser }) => {
+   // highlight-start
+@@ -20,6 +21,7 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
+ 
+       {isLoading && 'Loading...'}
+       {error && 'Error: ' + error}
 +      <button onClick={logout}>Logout</button>
-      </div>
-    )
-  }
+     </div>
+   )
+   // highlight-end
 
 ```
 

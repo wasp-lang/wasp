@@ -1,9 +1,9 @@
-import type { ApplyPatchAction } from './index'
+import type { ActionCommon, ApplyPatchAction } from './index'
 import parseGitDiff from 'parse-git-diff'
 
 export function createApplyPatchAction(
   patch: string,
-  step: number
+  commonActionData: ActionCommon
 ): ApplyPatchAction {
   const parsedPatch = parseGitDiff(patch)
 
@@ -22,9 +22,9 @@ export function createApplyPatchAction(
   const path = parsedPatch.files[0].path
 
   return {
+    ...commonActionData,
     kind: 'diff',
     patch,
-    step,
     path,
   }
 }

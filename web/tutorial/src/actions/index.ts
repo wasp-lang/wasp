@@ -7,8 +7,9 @@ import { appDir, patchesDir } from '../paths'
 import { log } from '../log'
 import { waspDbMigrate } from '../waspCli'
 
-type ActionCommon = {
+export type ActionCommon = {
   step: number
+  markdownSourceFilePath: string
 }
 
 export type WriteFileAction = {

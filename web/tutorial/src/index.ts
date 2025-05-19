@@ -2,6 +2,8 @@ import path from 'path'
 
 import { $, chalk } from 'zx'
 
+import fs from 'fs/promises'
+
 import {
   applyPatch,
   migrateDb,
@@ -14,7 +16,14 @@ import { log } from './log'
 import { getActionsFromTutorialFiles } from './markdown/extractSteps'
 import { program } from '@commander-js/extra-typings'
 
-const options = program
+import Enquirer from 'enquirer'
+import { generateGitPatch, makeCheckpoint } from './edit/generate-patch'
+import { executeSteps } from './execute-steps'
+import { write } from 'fs'
+
+const actions: Action[] = await getActionsFromTutorialFiles()
+
+const { editDiff, untilStep } = program
   .option(
     '-s, --until-step <step>',
     'Run until the given step. If not provided, run all steps.',
@@ -27,16 +36,27 @@ const options = program
     }
   )
   .option(
-    '-e, --edit',
-    'Edit mode, you will be offered to edit the diffs',
-    false
+    '-e, --edit-diff <step>',
+    'Edit mode, you will edit the diff interactively and all the steps related to the same file that come after.',
+    (value: string) => {
+      const step = parseInt(value, 10)
+      if (isNaN(step) || step < 1) {
+        throw new Error('Step must be a positive integer.')
+      }
+      const actionAtStep = actions.find((action) => action.step === step)
+      if (!actionAtStep) {
+        throw new Error(`No action found for step ${step}.`)
+      }
+      if (actionAtStep.kind !== 'diff') {
+        throw new Error(`Action at step ${step} is not a diff action.`)
+      }
+      return actionAtStep
+    }
   )
   .parse(process.argv)
   .opts()
 
 $.verbose = true
-
-const actions: Action[] = await getActionsFromTutorialFiles()
 
 async function prepareApp() {
   await $`rm -rf ${appDir}`
@@ -51,43 +71,41 @@ async function prepareApp() {
 
 await prepareApp()
 
-for (const action of actions) {
-  if (options.untilStep && action.step === options.untilStep) {
-    log('info', `Stopping before step ${action.step}`)
-    process.exit(0)
+if (editDiff) {
+  const actionsBeforeStep = actions.filter(
+    (action) => action.step < editDiff.step
+  )
+  await executeSteps(actionsBeforeStep, {
+    untilStep: editDiff.step,
+  })
+  const actionsToEdit = actions
+    .filter((action) => action.kind === 'diff')
+    .filter(
+      (action) => action.path === editDiff.path && action.step >= editDiff.step
+    )
+
+  // Okay, we are going to edit now all the steps that are related to the same file
+  // starting with step editDiff.step
+  console.log(
+    `We are now going to edit all the steps for file ${editDiff.path} from step ${editDiff.step} onwards`
+  )
+
+  for (const action of actionsToEdit) {
+    const { step, path } = action
+    await makeCheckpoint()
+    await Enquirer.prompt({
+      type: 'confirm',
+      name: 'edit',
+      message: `Apply the new edit to ${path} at step ${step} and press Enter`,
+      initial: true,
+    })
+    const patch = await generateGitPatch()
+    console.log('=====================')
+    console.log(patch)
+    console.log('=====================')
   }
-
-  const kind = action.kind
-  log('info', `${chalk.bold(`Step ${action.step}`)}: ${kind}`)
-
-  // Prepare the patches directory
-  await ensureDirExists(patchesDir)
-
-  try {
-    switch (kind) {
-      case 'diff':
-        // TODO: Implement edit mode which would make it easier to edit diffs
-        if (options.edit) {
-          // Ask the user if they want to change the diff
-          // If yes, don't apply the diff, let them edit manually and generate a new diff
-          // Display the diff to the user
-        } else {
-          await applyPatch(action)
-        }
-        break
-      case 'write':
-        await writeFileToAppDir(action)
-        break
-      case 'migrate-db':
-        await migrateDb(`step-${action.step}`)
-        break
-      default:
-        kind satisfies never
-    }
-  } catch (err) {
-    log('error', `Error in step ${action.step}:\n\n${err}`)
-    process.exit(1)
-  }
+} else {
+  await executeSteps(actions, {
+    untilStep,
+  })
 }
-
-log('info', 'All done!')

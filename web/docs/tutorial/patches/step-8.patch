@@ -1,0 +1,12 @@
+diff --git a/main.wasp b/main.wasp
+index b288bf6..e83fe65 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -20,3 +20,7 @@ query getTasks {
+   entities: [Task]
+ }
+ 
++action createTask {
++  fn: import { createTask } from "@src/actions",
++  entities: [Task]
++}

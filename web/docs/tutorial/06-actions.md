@@ -28,13 +28,13 @@ We must first declare the Action in `main.wasp`:
 
 ```diff
 diff --git a/main.wasp b/main.wasp
-index ea22c79..42f8f6e 100644
+index b288bf6..e83fe65 100644
 --- a/main.wasp
 +++ b/main.wasp
 @@ -20,3 +20,7 @@ query getTasks {
-    entities: [Task]
-  }
-  
+   entities: [Task]
+ }
+ 
 +action createTask {
 +  fn: import { createTask } from "@src/actions",
 +  entities: [Task]
@@ -94,29 +94,32 @@ Start by defining a form for creating new tasks.
 
 ```diff
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 2a12348..a32d3ba 100644
+index 556e1a2..50118d6 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -1,5 +1,10 @@
-+import { FormEvent } from 'react'
-  import { Task } from 'wasp/entities'
+@@ -1,6 +1,11 @@
++import type { FormEvent } from 'react'
+ import type { Task } from 'wasp/entities'
+-// highlight-next-line
 -import { getTasks, useQuery } from 'wasp/client/operations'
 +import {
++  // highlight-next-line
 +  createTask,
 +  getTasks,
 +  useQuery,
 +} from 'wasp/client/operations'
-  
-  export const MainPage = () => {
-    const { data: tasks, isLoading, error } = useQuery(getTasks)
-@@ -33,4 +38,25 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
-        ))}
-      </div>
-    )
--}
+ 
+ export const MainPage = () => {
+   // highlight-start
+@@ -38,4 +43,27 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
+     </div>
+   )
+ }
+-// highlight-end
 \ No newline at end of file
-+}
++// highlight-end
 +
++// highlight-start
 +const NewTaskForm = () => {
 +  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 +    event.preventDefault()
@@ -137,6 +140,7 @@ index 2a12348..a32d3ba 100644
 +    </form>
 +  )
 +}
++// highlight-end
 
 ```
 
@@ -190,18 +194,17 @@ All that's left now is adding this form to the page component:
 
 ```diff
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index a32d3ba..c075f7d 100644
+index 50118d6..296d0cf 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -11,6 +11,8 @@ export const MainPage = () => {
-  
-    return (
-      <div>
+@@ -13,6 +13,7 @@ export const MainPage = () => {
+ 
+   return (
+     <div>
 +      <NewTaskForm />
-+      
-        {tasks && <TasksList tasks={tasks} />}
-  
-        {isLoading && 'Loading...'}
+       {tasks && <TasksList tasks={tasks} />}
+ 
+       {isLoading && 'Loading...'}
 
 ```
 
@@ -266,13 +269,13 @@ Since we've already created one task together, try to create this one yourself. 
 
   ```diff
   diff --git a/main.wasp b/main.wasp
-  index 42f8f6e..bffede4 100644
+  index e83fe65..31483d2 100644
   --- a/main.wasp
   +++ b/main.wasp
   @@ -24,3 +24,8 @@ action createTask {
-     fn: import { createTask } from "@src/actions",
-     entities: [Task]
-   }
+    fn: import { createTask } from "@src/actions",
+    entities: [Task]
+  }
   +
   +action updateTask {
   +  fn: import { updateTask } from "@src/actions",
@@ -361,22 +364,24 @@ You can now call `updateTask` from the React component:
 
 ```diff
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index a6997e0..fc436c9 100644
+index 296d0cf..f02e05e 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -1,6 +1,7 @@
--import { FormEvent } from 'react'
-+import { FormEvent, ChangeEvent } from 'react'
-  import { Task } from 'wasp/entities'
-  import {
+@@ -1,7 +1,8 @@
+-import type { FormEvent } from 'react'
++import type { FormEvent, ChangeEvent } from 'react'
+ import type { Task } from 'wasp/entities'
+ import {
+   // highlight-next-line
 +  updateTask,
-    createTask,
-    getTasks,
-    useQuery,
-@@ -22,9 +23,25 @@ export const MainPage = () => {
-  }
-  
-  const TaskView = ({ task }: { task: Task }) => {
+   createTask,
+   getTasks,
+   useQuery,
+@@ -25,9 +26,28 @@ export const MainPage = () => {
+ 
+ // highlight-start
+ const TaskView = ({ task }: { task: Task }) => {
++  // highlight-start
 +  const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
 +    try {
 +      await updateTask({
@@ -387,19 +392,21 @@ index a6997e0..fc436c9 100644
 +      window.alert('Error while updating task: ' + error.message)
 +    }
 +  }
++  // highlight-end
 +
-    return (
-      <div>
+   return (
+     <div>
 -      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
 +      <input
 +        type="checkbox"
 +        id={String(task.id)}
 +        checked={task.isDone}
++        // highlight-next-line
 +        onChange={handleIsDoneChange}
 +      />
-        {task.description}
-      </div>
-    )
+       {task.description}
+     </div>
+   )
 
 ```
 
