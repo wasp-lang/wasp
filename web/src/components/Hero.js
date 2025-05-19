@@ -125,12 +125,12 @@ query getTasks {
               `}
             >
               <div>
-                <span className="-ml-[0.22rem]">Fullstack</span>
+                <span >Fullstack</span>
               </div>
               <div>
                 <span
                   className={classNames(
-                    'font-jersey text-[4.5rem] sm:text-[8rem] lg:text-[6.35rem] font-normal text-yellow-500 '
+                    'text-yellow-500 '
                   )}
                 >
                   Everything
