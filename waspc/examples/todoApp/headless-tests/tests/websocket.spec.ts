@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import {
   generateRandomCredentials,
+  performEmailVerification,
   performLogin,
   performSignup,
 } from './helpers'
@@ -21,6 +22,8 @@ test.describe('websocket', () => {
     await expect(page.locator('body')).toContainText(
       `You've signed up successfully! Check your email for the confirmation link.`
     )
+
+    await performEmailVerification(page, email)
   })
 
   test('chat works', async ({ page }) => {
