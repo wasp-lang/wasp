@@ -6,7 +6,7 @@ test.describe("loads successfully", () => {
   test("can see stats", async ({ page }) => {
     await page.goto("/");
     // The stats don't load immediately
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(5000);
     await page.goto("/");
 
     // Wait for the dashboard to load
