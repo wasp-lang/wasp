@@ -31,6 +31,9 @@ class ChildProcessManager {
   }
 
   private cleanExit(reason: string) {
+    if (this.children.length === 0) {
+      return;
+    }
     log("shutdown", "warn", `Received ${reason}. Cleaning up...`);
     this.children.forEach((child) => {
       if (!child.killed) {

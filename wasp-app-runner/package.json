@@ -3,7 +3,7 @@
   "name": "wasp-app-runner",
   "type": "module",
   "bin": {
-    "wasp-app-runner": "bin/index.js"
+    "run-wasp-app": "bin/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -12,12 +12,12 @@
     "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
-    "@inquirer/prompts": "^7.4.1",
-    "typescript": "^5.7.3",
-    "yargs": "^17.7.2"
+    "@commander-js/extra-typings": "^13.1.0",
+    "commander": "^13.1.0",
+    "dotenv": "^16.5.0"
   },
   "devDependencies": {
-    "@types/node": "^22.10.10",
-    "@types/yargs": "^17.0.33"
+    "@types/node": "^22.15.12",
+    "typescript": "^5.8.3"
   }
 }
