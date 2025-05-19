@@ -30,13 +30,16 @@ export async function startAppInBuildMode({
 
   await startLocalSmtpServer();
 
+  // Client needs to be running before the server
+  // becuase headless tests start executing as soon
+  // as the server is up.
+  await buildAndRunClientApp({
+    pathToApp,
+  });
+
   await buildAndRunServerApp({
     appName,
     pathToApp,
     extraEnv: dbEnvVars,
-  });
-
-  await buildAndRunClientApp({
-    pathToApp,
   });
 }
