@@ -43,7 +43,7 @@ model Task {
 
 And your `main.wasp` file defines the `getTaskInfo` query:
 
-```wasp title=main.wasp
+```wasp title="main.wasp"
 query getTaskInfo {
   fn: import { getTaskInfo } from "@src/queries",
   entities: [Task]
@@ -76,59 +76,56 @@ To migrate this file to TypeScript, all you have to do is:
 2. Write some types (and optionally use some of Wasp's TypeScript features).
 
 <Tabs>
-<TabItem value="before" label="Before">
+  <TabItem value="before" label="Before">
+    ```javascript title="src/queries.js"
+    import HttpError from '@wasp/core/HttpError.js'
 
-```javascript title="src/queries.js"
-import HttpError from '@wasp/core/HttpError.js'
+    function getInfoMessage(task) {
+      const isDoneText = task.isDone ? 'is done' : 'is not done'
+      return `Task '${task.description}' is ${isDoneText}.`
+    }
 
-function getInfoMessage(task) {
-  const isDoneText = task.isDone ? 'is done' : 'is not done'
-  return `Task '${task.description}' is ${isDoneText}.`
-}
+    export const getTaskInfo = async ({ id }, context) => {
+      const Task = context.entities.Task
+      const task = await Task.findUnique({ where: { id } })
+      if (!task) {
+        throw new HttpError(404)
+      }
+      return getInfoMessage(task)
+    }
+    ```
+  </TabItem>
 
-export const getTaskInfo = async ({ id }, context) => {
-  const Task = context.entities.Task
-  const task = await Task.findUnique({ where: { id } })
-  if (!task) {
-    throw new HttpError(404)
-  }
-  return getInfoMessage(task)
-}
-```
+  <TabItem value="after" label="After">
+    ```typescript title="src/queries.ts"
+    import HttpError from 'wasp/server'
+    // highlight-next-line
+    import { type Task } from '@wasp/entities'
+    // highlight-next-line
+    import { type GetTaskInfo } from '@wasp/server/operations'
 
-</TabItem>
-<TabItem value="after" label="After">
+    // highlight-next-line
+    function getInfoMessage(task: Pick<Task, 'isDone' | 'description'>): string {
+      const isDoneText = task.isDone ? 'is done' : 'is not done'
+      return `Task '${task.description}' is ${isDoneText}.`
+    }
 
-```typescript title=src/queries.ts
-import HttpError from 'wasp/server'
-// highlight-next-line
-import { type Task } from '@wasp/entities'
-// highlight-next-line
-import { type GetTaskInfo } from '@wasp/server/operations'
+    // highlight-next-line
+    export const getTaskInfo: GetTaskInfo<Pick<Task, 'id'>, string> = async (
+      { id },
+      context
+    ) => {
+      const Task = context.entities.Task
 
-// highlight-next-line
-function getInfoMessage(task: Pick<Task, 'isDone' | 'description'>): string {
-  const isDoneText = task.isDone ? 'is done' : 'is not done'
-  return `Task '${task.description}' is ${isDoneText}.`
-}
+      const task = await Task.findUnique({ where: { id } })
+      if (!task) {
+        throw new HttpError(404)
+      }
 
-// highlight-next-line
-export const getTaskInfo: GetTaskInfo<Pick<Task, 'id'>, string> = async (
-  { id },
-  context
-) => {
-  const Task = context.entities.Task
-
-  const task = await Task.findUnique({ where: { id } })
-  if (!task) {
-    throw new HttpError(404)
-  }
-
-  return getInfoMessage(task)
-}
-```
-
-</TabItem>
+      return getInfoMessage(task)
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Your code is now processed by TypeScript and uses several of Wasp's TypeScript-specific features:
@@ -151,8 +148,8 @@ You can migrate your project gradually - on a file-by-file basis.
 
 When you want to migrate a file, follow the procedure outlined above:
 
-1.  Change the file's extension.
-2.  Fix the type errors.
-3.  Read the Wasp docs and decide which TypeScript features you want to use.
+1. Change the file's extension.
+2. Fix the type errors.
+3. Read the Wasp docs and decide which TypeScript features you want to use.
 
 <TypescriptServerNote />

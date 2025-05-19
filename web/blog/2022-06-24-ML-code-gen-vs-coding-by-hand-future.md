@@ -11,8 +11,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-
-We are working on a config language / DSL for building web apps that integrates with React & Node.js. A number of times we've been asked “*Why are you bothering creating a new language for web app development? Isn’t Github Copilot\* soon going to be generating all the code for developers anyhow?*”.
+We are working on a config language / DSL for building web apps that integrates with React & Node.js. A number of times we've been asked “_Why are you bothering creating a new language for web app development? Isn’t Github Copilot\* soon going to be generating all the code for developers anyhow?_”.
 
 This is on our take on the situation and what we think things might look like in the future.
 
@@ -34,11 +33,7 @@ If there was only a way for a computer to analyze all the code we’ve written s
 
 Delicious and moist cake aside, we actually have this working! Thanks to the latest advances in machine learning, IDEs can now do some really cool things like proposing the full implementation of a function, based on its name and the accompanying comments:
 
-<ImgWithCaption
-    alt="Copilot example - text sentiment"
-    source="img/copilot-example-sentiment.gif"
-    caption="GitHub Copilot generating a whole function body based on its signature and the comments on top of it."
-/>
+<ImgWithCaption alt="Copilot example - text sentiment" source="img/copilot-example-sentiment.gif" caption="GitHub Copilot generating a whole function body based on its signature and the comments on top of it." />
 
 This is pretty amazing! The example above is powered by [Github Copilot](https://copilot.github.com/) - it’s essentially a neural network trained on a huge amount of publicly available code. I will not get into the technical details of how it works under the hood, but there are [lots](https://betterprogramming.pub/ai-review-github-copilot-d43afde51a5a#:~:text=They%20fine%2Dtuned%20the%20Codex,code%20it's%20been%20trained%20on.) [of great](https://www.fast.ai/2021/07/19/copilot/) [articles](https://arxiv.org/abs/2107.03374) covering the science behind it.
 
@@ -54,34 +49,27 @@ For the purposes of this post, I will not delve into the questions of code quali
 
 **The question is - what happens with the code once it is generated? Who is responsible for it and who will maintain and refactor it in the future?**
 
-<ImgWithCaption
-    alt="Devs still need to maintain generated code"
-    source="img/always-has-been-copilot.png"
-/>
+<ImgWithCaption alt="Devs still need to maintain generated code" source="img/always-has-been-copilot.png" />
 
 Although ML code generation helps with getting the initial code written, it cannot do much beyond that - if that code is to be maintained and changed in the future (and if anyone uses the product, it is), the developer still needs to fully own and understand it.
 
-Imagine all we had was an assembly language, but IDE completion worked really well for it, and you could say “implement a function that sorts an array, ascending” and it would produce the required code perfectly. Would that still be something you’d like to return to in the future once you need to change your sort to descending 😅 ? 
+Imagine all we had was an assembly language, but IDE completion worked really well for it, and you could say “implement a function that sorts an array, ascending” and it would produce the required code perfectly. Would that still be something you’d like to return to in the future once you need to change your sort to descending 😅 ?
 
 In other words, it means Copilot and similar solutions do not reduce the code complexity nor the amount of knowledge required to build features, they just help write the initial code faster, and bring the knowledge/examples closer to the code (which is really helpful). If a developer accepts the generated code blindly, they are just creating tech debt and pushing it forward.
 
 ## Meet the big A - Abstraction 👆
 
-If Github Copilot and others cannot solve all our troubles of learning how to code and understanding in detail how session management via JWT works, what can? 
+If Github Copilot and others cannot solve all our troubles of learning how to code and understanding in detail how session management via JWT works, what can?
 
 Abstraction - that’s how programmers have been dealing with the code repetition and reducing complexity for decades - by creating libraries, frameworks, and languages. It is how we advanced from vanilla JS and direct DOM manipulation to jQuery and finally to UI libraries such as React and Vue.
 
 Introducing abstractions inevitably means giving up on a certain amount of power and flexibility (e.g. when summing numbers in Python you don’t get to exactly specify which CPU registers are going to be used for it), but the point is that, if done right, you don’t need nor want such power in the majority of the cases.
 
-<ImgWithCaption
-    alt="Abstraction equals less responsibility"
-    source="img/uncle-ben-great-power.jpg"
-    caption="What Uncle Ben actually meant: avoiding responsibility is the main benefit of abstraction! (Peter totally missed the point, unfortunately, and became Spiderman instead of learning how to code)"
-/>
+<ImgWithCaption alt="Abstraction equals less responsibility" source="img/uncle-ben-great-power.jpg" caption="What Uncle Ben actually meant: avoiding responsibility is the main benefit of abstraction! (Peter totally missed the point, unfortunately, and became Spiderman instead of learning how to code)" />
 
-**The only way not to be responsible for a piece of code is that it doesn’t exist in the first place**. 
+**The only way not to be responsible for a piece of code is that it doesn’t exist in the first place**.
 
-Because as soon as pixels on the screen change their color it’s something you have to worry about, and that is why the main benefit of all frameworks, languages, etc. is *less code* == *less decisions* == *less responsibility.*
+Because as soon as pixels on the screen change their color it’s something you have to worry about, and that is why the main benefit of all frameworks, languages, etc. is _less code_ == _less decisions_ == _less responsibility._
 
 The only way to have less code is to make less decisions and provide fewer details to the computer on how to do a certain task - ideally, we’d just state what we want and we wouldn’t even care about how it is done, as long as it’s within the time/memory/cost boundaries we have (so we might need to state those as well).
 
@@ -166,11 +154,11 @@ And this is just a portion of the backend code (and for the username & password 
 
 On one hand, it’s really cool to have that level of control and flexibility in our code, but on the other hand, it’s quite a lot of decisions (== mistakes) to be made, especially for something as common as authentication!
 
-If somebody later asks “*so why exactly did you choose secure-password npm package, or why exactly base64 encoding?*” it’s something we should probably answer with something else rather than “*well, there was that SO post from 2012 that seemed pretty legit, it had almost 50 upvotes. Hmm, can’t find it now though. Plus, it has ‘secure’ in the name, that sounds good, right?*”
+If somebody later asks “_so why exactly did you choose secure-password npm package, or why exactly base64 encoding?_” it’s something we should probably answer with something else rather than “_well, there was that SO post from 2012 that seemed pretty legit, it had almost 50 upvotes. Hmm, can’t find it now though. Plus, it has ‘secure’ in the name, that sounds good, right?_”
 
 Another thing to keep in mind is that we should also track how things change over time, and make sure that after a couple of years we’re still using the best practices and that the packages are regularly updated.
 
-If we try to apply the principles from above (less code, less detailed instructions, stating **what** we want instead of **how** it needs to be done), the code for auth might look something like this: 
+If we try to apply the principles from above (less code, less detailed instructions, stating **what** we want instead of **how** it needs to be done), the code for auth might look something like this:
 
 ```wasp
 auth: {
@@ -184,6 +172,7 @@ auth: {
     onAuthSucceededRedirectTo: "/dashboard"
   }
 ```
+
 Based on this, the computer/compiler could take care of all the stuff mentioned above, and then depending on the level of abstraction, provide some sort of interface (e.g. form components, or functions) to “hook” in with our own e.g. React/Node.js code (btw this is how it actually [works in Wasp](/docs/auth/overview)).
 
 We don’t need to care what exact packages or encryption methods are used beneath the hood - it is the responsibility we trust with the authors and maintainers of the abstraction layer, just like we trust that Python knows the best how to sum two numbers on the assembly level and that it is kept in sync with the latest advancements in the field. The same happens when we rely on the built-in data structures or count on the garbage collector to manage our program’s memory well.
@@ -200,30 +189,22 @@ I see the evolution here as a cycle (or an upward spiral in fact, but that’s b
 4. **new, more abstract, language/framework** emerges
 5. **back to step 1**.
 
-<ImgWithCaption
-    alt="Language evolution lifecycle"
-    source="img/language-lifecycle-copilot.png"
-    caption="It’s the circle of (language) life, and it moves us all - Ingonyama nengw' enamabala, …"
-/>
+<ImgWithCaption alt="Language evolution lifecycle" source="img/language-lifecycle-copilot.png" caption="It’s the circle of (language) life, and it moves us all - Ingonyama nengw' enamabala, …" />
 
 ## Conclusion
 
 This means we are winning on both sides - when the language is mainstream we can benefit from ML code generation, helping us write the code faster. On the other hand, when the patterns of code we don’t want to repeat/deal with emerge and become stable we get a whole new language or framework that allows us to write even less code and care about fewer implementation details!
 
-<ImgWithCaption
-    alt="Fizz Buzz with Copilot - stop"
-    source="img/fizz-buzz-copilot-stop.gif"
-    caption="The future is now, old man."
-/>
+<ImgWithCaption alt="Fizz Buzz with Copilot - stop" source="img/fizz-buzz-copilot-stop.gif" caption="The future is now, old man." />
 
-
-\**Not to be biased, there are also other solutions offering similar functionality - e.g. [TabNine](https://www.tabnine.com/), [Webstorm has its own](https://www.jetbrains.com/help/webstorm/auto-completing-code.html#ml_completion), [Kite](https://www.kite.com/), [GPT Code Clippy (OSS attempt)](https://github.com/CodedotAl/gpt-code-clippy) et al., but Github Copilot recently made the biggest splash.*
+\*_Not to be biased, there are also other solutions offering similar functionality - e.g. [TabNine](https://www.tabnine.com/), [Webstorm has its own](https://www.jetbrains.com/help/webstorm/auto-completing-code.html#ml_completion), [Kite](https://www.kite.com/), [GPT Code Clippy (OSS attempt)](https://github.com/CodedotAl/gpt-code-clippy) et al., but Github Copilot recently made the biggest splash._
 
 ### Writing that informed this post
+
 - [Is GitHub Copilot a blessing, or a curse? (fast.ai)](https://www.fast.ai/2021/07/19/copilot/) - an objective and extremely well-written overview of GitHub Copilot with real-world examples
 - [6 Reasons Why You Should Avoid GitHub Copilot and “Fly Solo” Instead](https://betterprogramming.pub/6-reasons-why-you-should-avoid-github-copilot-and-fly-solo-instead-8a948665433f) - brings up and questions the potential downsides of ML code generation and Github Copilot
 - [Github Copilot Wants to Play Chess Instead of Code](https://dagshub.com/blog/github-copilot-not-code/) - a fresh approach to GitHub Copilot where it is used as a conversation partner instead of writing code!
-- [Conversational Programming](https://jessmart.in/articles/copilot) - a forward looking post that proposes a future where AI will serve as a "sparring partner" and help us reach the optimal solution through iterations 
+- [Conversational Programming](https://jessmart.in/articles/copilot) - a forward looking post that proposes a future where AI will serve as a "sparring partner" and help us reach the optimal solution through iterations
 
 ### Thanks to the reviewers
 

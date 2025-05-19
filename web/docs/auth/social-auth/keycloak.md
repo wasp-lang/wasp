@@ -25,10 +25,10 @@ Let's walk through enabling Keycloak authentication, explain some of the default
 Enabling Keycloak Authentication comes down to a series of steps:
 
 1. Enabling Keycloak authentication in the Wasp file.
-1. Adding the `User` entity.
-1. Creating a Keycloak client.
-1. Adding the necessary Routes and Pages
-1. Using Auth UI components in our Pages.
+2. Adding the `User` entity.
+3. Creating a Keycloak client.
+4. Adding the necessary Routes and Pages
+5. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
 
@@ -36,9 +36,6 @@ Enabling Keycloak Authentication comes down to a series of steps:
 
 Let's start by properly configuring the Auth object:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
@@ -59,41 +56,12 @@ app myApp {
 }
 ```
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    // 1. Specify the User entity (we'll define it next)
-    // highlight-next-line
-    userEntity: User,
-    methods: {
-      // 2. Enable Keycloak Auth
-      // highlight-next-line
-      keycloak: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-</Tabs>
-
-The `userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
+`userEntity` is explained in [the social auth overview](./overview.md#user-entity).
 
 ### 2. Adding the User Entity
 
 Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```prisma title="schema.prisma"
 // 3. Define the user entity
 model User {
@@ -103,27 +71,11 @@ model User {
   // ...
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```prisma title="schema.prisma"
-// 3. Define the user entity
-model User {
-  // highlight-next-line
-  id Int @id @default(autoincrement())
-  // Add your own fields below
-  // ...
-}
-```
-
-</TabItem>
-</Tabs>
 
 ### 3. Creating a Keycloak Client
 
 1. Log into your Keycloak admin console.
-1. Under **Clients**, click on **Create Client**.
+2. Under **Clients**, click on **Create Client**.
 
 ![Keycloak Screenshot 1](/img/auth/keycloak/1-keycloak.png)
 
@@ -139,11 +91,11 @@ model User {
 
 ![Keycloak Screenshot 4](/img/auth/keycloak/4-keycloak.png)
 
-    - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
-    - For example: `https://my-server-url.com/auth/keycloak/callback`.
+- Once you know on which URL(s) your API server will be deployed, also add those URL(s).
+- For example: `https://my-server-url.com/auth/keycloak/callback`.
 
 1. Click **Save**.
-1. In the **Credentials** tab, copy the **Client Secret** value, which we'll use in the next step.
+2. In the **Credentials** tab, copy the **Client Secret** value, which we'll use in the next step.
 
 ![Keycloak Screenshot 5](/img/auth/keycloak/5-keycloak.png)
 
@@ -165,32 +117,14 @@ Let's define the necessary authentication Routes and Pages.
 
 Add the following code to your `main.wasp` file:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 // ...
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@src/pages/auth.jsx"
+  component: import { Login } from "@src/pages/auth"
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-// ...
-
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth.tsx"
-}
-```
-
-</TabItem>
-</Tabs>
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
 
@@ -203,10 +137,8 @@ We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read m
 Let's now create an `auth.{jsx,tsx}` file in the `src/pages`.
 It should have the following code:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```tsx title="src/pages/auth.jsx"
+```tsx title="src/pages/auth.tsx" auto-js
+import type { ReactNode } from 'react'
 import { LoginForm } from 'wasp/client/auth'
 
 export function Login() {
@@ -218,7 +150,7 @@ export function Login() {
 }
 
 // A layout component to center the content
-export function Layout({ children }) {
+export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="h-full w-full bg-white">
       <div className="flex min-h-[75vh] min-w-full items-center justify-center">
@@ -230,37 +162,6 @@ export function Layout({ children }) {
   )
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/pages/auth.tsx"
-import { LoginForm } from 'wasp/client/auth'
-
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="h-full w-full bg-white">
-      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-        <div className="h-full w-full max-w-sm bg-white p-5">
-          <div>{children}</div>
-        </div>
-      </div>
-    </div>
-  )
-}
-```
-
-</TabItem>
-</Tabs>
 
 :::info Auth UI
 Our pages use an automatically generated Auth UI component. Read more about Auth UI components [here](../../auth/ui).
@@ -277,10 +178,7 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 Add `keycloak: {}` to the `auth.methods` dictionary to use it with default settings:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title=main.wasp
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "{latestWaspVersion}"
@@ -296,29 +194,6 @@ app myApp {
   },
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      // highlight-next-line
-      keycloak: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-</Tabs>
 
 <DefaultBehaviour />
 
@@ -345,17 +220,13 @@ We are using Keycloak's API and its `/userinfo` endpoint to fetch the user's dat
 The fields you receive will depend on the scopes you requested. The default scope is set to `profile` only. If you want to get the user's email, you need to specify the `email` scope in the `configFn` function.
 
 <small>
-
-For up-to-date info about the data received from Keycloak, please refer to the [Keycloak API documentation](https://www.keycloak.org/docs-api/23.0.7/javadocs/org/keycloak/representations/UserInfo.html).
+  For up-to-date info about the data received from Keycloak, please refer to the [Keycloak API documentation](https://www.keycloak.org/docs-api/23.0.7/javadocs/org/keycloak/representations/UserInfo.html).
 </small>
 
 ### Using the Data Received From Keycloak
 
 <OverrideExampleIntro />
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
@@ -367,9 +238,9 @@ app myApp {
     methods: {
       keycloak: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/keycloak.js",
+        configFn: import { getConfig } from "@src/auth/keycloak",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/keycloak.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/keycloak"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -387,54 +258,7 @@ model User {
 // ...
 ```
 
-```js title=src/auth/keycloak.js
-export const userSignupFields = {
-  username: () => 'hardcoded-username',
-  displayName: (data) => data.profile.name,
-}
-
-export function getConfig() {
-  return {
-    scopes: ['profile', 'email'],
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      keycloak: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/keycloak.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/keycloak.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-```prisma title="schema.prisma"
-model User {
-  id          Int    @id @default(autoincrement())
-  username    String @unique
-  displayName String
-}
-
-// ...
-```
-
-```ts title=src/auth/keycloak.ts
+```ts title="src/auth/keycloak.ts" auto-js
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
@@ -451,9 +275,6 @@ export function getConfig() {
 
 <GetUserFieldsType />
 
-</TabItem>
-</Tabs>
-
 ## Using Auth
 
 <UsingAuthNote />
@@ -468,9 +289,6 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 <ApiReferenceIntro />
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
@@ -482,42 +300,15 @@ app myApp {
     methods: {
       keycloak: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/keycloak.js",
+        configFn: import { getConfig } from "@src/auth/keycloak",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/keycloak.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/keycloak"
       }
     },
     onAuthFailedRedirectTo: "/login"
   },
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      keycloak: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/keycloak.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/keycloak.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-</Tabs>
 
 The `keycloak` dict has the following properties:
 
@@ -525,30 +316,13 @@ The `keycloak` dict has the following properties:
 
   This function must return an object with the scopes for the OAuth provider.
 
-  <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-
-  ```js title=src/auth/keycloak.js
+  ```ts title="src/auth/keycloak.ts" auto-js
   export function getConfig() {
     return {
       scopes: ['profile', 'email'],
     }
   }
   ```
-
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
-
-  ```ts title=src/auth/keycloak.ts
-  export function getConfig() {
-    return {
-      scopes: ['profile', 'email'],
-    }
-  }
-  ```
-
-  </TabItem>
-  </Tabs>
 
 - #### `userSignupFields: ExtImport`
 

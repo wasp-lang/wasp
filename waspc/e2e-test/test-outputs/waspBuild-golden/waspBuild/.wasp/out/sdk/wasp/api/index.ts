@@ -18,10 +18,12 @@ export function setSessionId(sessionId: string): void {
 }
 
 // PRIVATE API (sdk)
-export function getSessionId(): string | undefined {
-  return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as string | undefined
+export function getSessionId(): string | null {
+  const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as
+    | string
+    | undefined
+  return sessionId ?? null
 }
-
 // PRIVATE API (sdk)
 export function clearSessionId(): void {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
@@ -34,16 +36,40 @@ export function removeLocalUserData(): void {
   apiEventsEmitter.emit('sessionId.clear')
 }
 
-api.interceptors.request.use((request) => {
+/**
+ * Axios interceptors for handling authentication
+ *
+ * (1) Request Interceptor:
+ * If a session ID exists, it is added to the request as an `Authorization`
+ * header for the server to use.
+ *
+ * (2) Response Interceptor:
+ * - Catches 401 errors from the server.
+ * - Before clearing the session ID from local storage due to a 401 error,
+ *   it compares the session ID stored in the *failed request's config*
+ *   with the *current* session ID in local storage.
+ * - It only clears the local session ID if the two session IDs match.
+ *
+ * This prevents a race condition like this:
+ * 1. Request A is sent with old session ID X.
+ * 2. User logs out and logs back in, obtaining new session ID Y.
+ * 3. Request A finally fails with a 401 (because ID X is invalid).
+ * Without the check, the interceptor would clear the *current* valid session ID Y.
+ * The check ensures we only clear the session if the *request that failed* used
+ * the *same session ID that's currently stored*.
+ */
+api.interceptors.request.use((config) => {
   const sessionId = getSessionId()
-  if (sessionId) {
-    request.headers['Authorization'] = `Bearer ${sessionId}`
+  if (sessionId !== null) {
+    config.headers['Authorization'] = `Bearer ${sessionId}`
   }
-  return request
+  return config
 })
 
 api.interceptors.response.use(undefined, (error) => {
-  if (error.response?.status === 401) {
+  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers['Authorization'])
+  const currentSessionId = getSessionId()
+  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
     clearSessionId()
   }
   return Promise.reject(error)
@@ -97,5 +123,14 @@ class WaspHttpError extends Error {
     super(message)
     this.statusCode = statusCode
     this.data = data
+  }
+}
+
+function getSessionIdFromAuthorizationHeader(header: string | undefined): string | null {
+  const prefix = 'Bearer '
+  if (header && header.startsWith(prefix)) {
+    return header.substring(prefix.length)
+  } else {
+    return null
   }
 }

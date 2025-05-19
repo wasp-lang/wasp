@@ -1,14 +1,14 @@
+import cors from 'cors'
 import { type Application } from 'express'
-import { mySpecialJob } from 'wasp/server/jobs'
 import {
   config,
   env,
   type MiddlewareConfigFn,
   type ServerSetupFn,
 } from 'wasp/server'
+import { mySpecialJob } from 'wasp/server/jobs'
+import './rpcTests/operations/server.js'
 import { sayHi } from './util.js'
-import cors from 'cors'
-import './testTypes/operations/server.js'
 
 let someResource: string | undefined = undefined
 
@@ -35,7 +35,7 @@ export const setup: ServerSetupFn = async ({ app }) => {
     await submittedJob.pgBoss.details()
   )
 
-  console.log('Env var MY_ENV_VAR:', env.MY_ENV_VAR)
+  console.log('Env var TEST_ENV_VAR:', env.TEST_ENV_VAR)
 }
 
 function addCustomRoute(app: Application) {

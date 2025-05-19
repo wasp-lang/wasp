@@ -1,4 +1,4 @@
-import { deserialize as superjsonDeserialize } from 'superjson';
+import { deserialize } from 'wasp/core/serialization';
 import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations';
 import { api, handleApiError } from 'wasp/client/api';
 import { HttpMethod } from 'wasp/client';
@@ -13,19 +13,13 @@ function createUserGetter() {
     const getMeRelativePath = 'auth/me';
     const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` };
     const getMe = async () => {
-        var _a;
         try {
             const response = await api.get(getMeRoute.path);
-            const userData = superjsonDeserialize(response.data);
+            const userData = deserialize(response.data);
             return makeAuthUserIfPossible(userData);
         }
         catch (error) {
-            if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401) {
-                return null;
-            }
-            else {
-                throw handleApiError(error);
-            }
+            throw handleApiError(error);
         }
     };
     return buildAndRegisterQuery(getMe, {

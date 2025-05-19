@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import {
   generateRandomCredentials,
+  performEmailVerification,
   performLogin,
   performSignup,
 } from './helpers'
@@ -21,7 +22,7 @@ test.describe('auth hooks', () => {
     })
 
     await expect(page.locator('body')).toContainText(
-      'On Before Signup Hook disallows this email.',
+      'On Before Signup Hook disallows this email.'
     )
   })
 
@@ -37,6 +38,8 @@ test.describe('auth hooks', () => {
       password,
     })
 
+    await performEmailVerification(page, email)
+
     await performLogin(page, {
       email,
       password,
@@ -45,11 +48,11 @@ test.describe('auth hooks', () => {
     await expect(page).toHaveURL('/profile')
 
     await expect(page.locator('body')).toContainText(
-      'Value of user.isOnAfterSignupHookCalled is true.',
+      'Value of user.isOnAfterSignupHookCalled is true.'
     )
 
     await expect(page.locator('body')).toContainText(
-      'Value of user.isOnAfterLoginHookCalled is true.',
+      'Value of user.isOnAfterLoginHookCalled is true.'
     )
   })
 
@@ -65,13 +68,15 @@ test.describe('auth hooks', () => {
       password,
     })
 
+    await performEmailVerification(page, emailThatThrowsError)
+
     await performLogin(page, {
       email: emailThatThrowsError,
       password,
     })
 
     await expect(page.locator('body')).toContainText(
-      'On Before Login Hook disallows this email.',
+      'On Before Login Hook disallows this email.'
     )
   })
 })

@@ -11,7 +11,7 @@ import type {
   _{= crud.entityUpper =},
 } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload } from "../_types/serialization";
+import type { Payload, SuperJSONObject } from "wasp/core/serialization";
 import type {
   {= crud.entityUpper =},
 } from "wasp/entities";
@@ -37,7 +37,7 @@ type _WaspEntity = {= crud.entityUpper =}
 /**
  * PUBLIC API
  */
-export namespace {= crud.name =} {
+export declare namespace {= crud.name =} {
   {=# crud.operations.GetAll =}
   export type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = {= queryType =}<[_WaspEntityTagged], Input, Output>
   {=/ crud.operations.GetAll =}
@@ -61,7 +61,7 @@ export namespace {= crud.name =} {
 
 /**
  * PRIVATE API
- * 
+ *
  * The types with the `Resolved` suffix are the types that are used internally by the Wasp client
  * to implement full-stack type safety.
  */
@@ -79,7 +79,7 @@ export type GetAllQueryResolved = typeof _waspGetAllQuery
 
 {=# crud.operations.Get =}
 {=^ overrides.Get.isDefined =}
-type GetInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
+type GetInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
 export type GetQueryResolved = {= crud.name =}.GetQuery<GetInput, GetOutput>
 {=/ overrides.Get.isDefined =}
@@ -91,7 +91,7 @@ export type GetQueryResolved = typeof _waspGetQuery
 
 {=# crud.operations.Create =}
 {=^ overrides.Create.isDefined =}
-type CreateInput = Prisma.XOR<
+type CreateInput = SuperJSONObject & Prisma.XOR<
   Prisma.{= crud.entityUpper =}CreateInput,
   Prisma.{= crud.entityUpper =}UncheckedCreateInput
 >
@@ -106,7 +106,7 @@ export type CreateActionResolved = typeof _waspCreateAction
 
 {=# crud.operations.Update =}
 {=^ overrides.Update.isDefined =}
-type UpdateInput = Prisma.XOR<
+type UpdateInput = SuperJSONObject & Prisma.XOR<
     Prisma.{= crud.entityUpper =}UpdateInput,
     Prisma.{= crud.entityUpper =}UncheckedUpdateInput
   >
@@ -123,7 +123,7 @@ export type UpdateActionResolved = typeof _waspUpdateAction
 
 {=# crud.operations.Delete =}
 {=^ overrides.Delete.isDefined =}
-type DeleteInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
+type DeleteInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
 export type DeleteActionResolved = {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>
 {=/ overrides.Delete.isDefined =}

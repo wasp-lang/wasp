@@ -31,60 +31,57 @@ This field tells Wasp which Entity represents the user.
 Here's what the full setup looks like:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        // highlight-next-line
+        userEntity: User,
+        methods: {
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
 
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
+    ```prisma title="schema.prisma"
     // highlight-next-line
-    userEntity: User,
-    methods: {
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
+    model User {
+      id Int @id @default(autoincrement())
+    }
+    ```
+  </TabItem>
 
-```prisma title="schema.prisma"
-// highlight-next-line
-model User {
-  id Int @id @default(autoincrement())
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        // highlight-next-line
+        userEntity: User,
+        methods: {
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
+    ```prisma title="schema.prisma"
     // highlight-next-line
-    userEntity: User,
-    methods: {
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-```prisma title="schema.prisma"
-// highlight-next-line
-model User {
-  id Int @id @default(autoincrement())
-}
-```
-
-</TabItem>
+    model User {
+      id Int @id @default(autoincrement())
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Default Behavior
@@ -112,30 +109,27 @@ Let's go through both steps in more detail.
 #### 1. Adding the `isSignupComplete` Field to the `User` Entity
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```prisma title="schema.prisma"
+    model User {
+      id               Int     @id @default(autoincrement())
+      username         String? @unique
+      // highlight-next-line
+      isSignupComplete Boolean @default(false)
+    }
+    ```
+  </TabItem>
 
-```prisma title=schema.prisma
-model User {
-  id               Int     @id @default(autoincrement())
-  username         String? @unique
-  // highlight-next-line
-  isSignupComplete Boolean @default(false)
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```prisma title=schema.prisma
-model User {
-  id               Int     @id @default(autoincrement())
-  username         String? @unique
-  // highlight-next-line
-  isSignupComplete Boolean @default(false)
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```prisma title="schema.prisma"
+    model User {
+      id               Int     @id @default(autoincrement())
+      username         String? @unique
+      // highlight-next-line
+      isSignupComplete Boolean @default(false)
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 #### 2. Overriding the Default Behavior
@@ -143,74 +137,71 @@ model User {
 Declare an import under `app.auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
+    // ...
+    ```
 
-// ...
-```
+    And implement the imported function.
 
-And implement the imported function.
+    ```js title="src/auth/google.js"
+    export const userSignupFields = {
+      isSignupComplete: () => false,
+    }
+    ```
+  </TabItem>
 
-```js title=src/auth/google.js
-export const userSignupFields = {
-  isSignupComplete: () => false,
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.15.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    // ...
+    ```
 
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
+    And implement the imported function:
 
-// ...
-```
+    ```ts title="src/auth/google.ts"
+    import { defineUserSignupFields } from 'wasp/server/auth'
 
-And implement the imported function:
+    export const userSignupFields = defineUserSignupFields({
+      isSignupComplete: () => false,
+    })
+    ```
 
-```ts title=src/auth/google.ts
-import { defineUserSignupFields } from 'wasp/server/auth'
-
-export const userSignupFields = defineUserSignupFields({
-  isSignupComplete: () => false,
-})
-```
-
-<GetUserFieldsType />
-
-</TabItem>
+    <GetUserFieldsType />
+  </TabItem>
 </Tabs>
 
 #### 3. Showing the Correct State on the Client
@@ -224,44 +215,41 @@ For example:
 2. If it's `false`, it means the user has started the signup process but hasn't yet chosen their username. Therefore, you can redirect them to `EditUserDetailsPage` where they can edit the `username` property.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/HomePage.jsx"
+    import { useAuth } from 'wasp/client/auth'
+    import { Navigate } from 'react-router-dom'
 
-```jsx title=src/HomePage.jsx
-import { useAuth } from 'wasp/client/auth'
-import { Navigate } from 'react-router-dom'
+    export function HomePage() {
+      const { data: user } = useAuth()
 
-export function HomePage() {
-  const { data: user } = useAuth()
+      if (user.isSignupComplete === false) {
+        return <Navigate to="/edit-user-details" />
+      }
 
-  if (user.isSignupComplete === false) {
-    return <Navigate to="/edit-user-details" />
-  }
+      // ...
+    }
+    ```
+  </TabItem>
 
-  // ...
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/HomePage.tsx"
+    import { useAuth } from 'wasp/client/auth'
+    import { Navigate } from 'react-router-dom'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export function HomePage() {
+      const { data: user } = useAuth()
 
-```tsx title=src/HomePage.tsx
-import { useAuth } from 'wasp/client/auth'
-import { Navigate } from 'react-router-dom'
+      if (user.isSignupComplete === false) {
+        return <Navigate to="/edit-user-details" />
+      }
 
-export function HomePage() {
-  const { data: user } = useAuth()
+      // ...
+    }
+    ```
 
-  if (user.isSignupComplete === false) {
-    return <Navigate to="/edit-user-details" />
-  }
-
-  // ...
-}
-```
-
-The same general principle applies to more complex signup procedures, just change the boolean `isSignupComplete` property to a property like `currentSignupStep` that can hold more values.
-
-</TabItem>
+    The same general principle applies to more complex signup procedures, just change the boolean `isSignupComplete` property to a property like `currentSignupStep` that can hold more values.
+  </TabItem>
 </Tabs>
 
 ### Using the User's Provider Account Details
@@ -285,54 +273,51 @@ The UI helpers described below are lower-level and are useful for creating your 
 Wasp provides sign-in buttons and URLs for each of the supported social login providers.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/LoginPage.jsx"
+    import {
+      GoogleSignInButton,
+      googleSignInUrl,
+      GitHubSignInButton,
+      gitHubSignInUrl,
+    } from 'wasp/client/auth'
 
-```jsx title=src/LoginPage.jsx
-import {
-  GoogleSignInButton,
-  googleSignInUrl,
-  GitHubSignInButton,
-  gitHubSignInUrl,
-} from 'wasp/client/auth'
+    export const LoginPage = () => {
+      return (
+        <>
+          <GoogleSignInButton />
+          <GitHubSignInButton />
+          {/* or */}
+          <a href={googleSignInUrl}>Sign in with Google</a>
+          <a href={gitHubSignInUrl}>Sign in with GitHub</a>
+        </>
+      )
+    }
+    ```
+  </TabItem>
 
-export const LoginPage = () => {
-  return (
-    <>
-      <GoogleSignInButton />
-      <GitHubSignInButton />
-      {/* or */}
-      <a href={googleSignInUrl}>Sign in with Google</a>
-      <a href={gitHubSignInUrl}>Sign in with GitHub</a>
-    </>
-  )
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/LoginPage.tsx"
+    import {
+      GoogleSignInButton,
+      googleSignInUrl,
+      GitHubSignInButton,
+      gitHubSignInUrl,
+    } from 'wasp/client/auth'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title=src/LoginPage.tsx
-import {
-  GoogleSignInButton,
-  googleSignInUrl,
-  GitHubSignInButton,
-  gitHubSignInUrl,
-} from 'wasp/client/auth'
-
-export const LoginPage = () => {
-  return (
-    <>
-      <GoogleSignInButton />
-      <GitHubSignInButton />
-      {/* or */}
-      <a href={googleSignInUrl}>Sign in with Google</a>
-      <a href={gitHubSignInUrl}>Sign in with GitHub</a>
-    </>
-  )
-}
-```
-
-</TabItem>
+    export const LoginPage = () => {
+      return (
+        <>
+          <GoogleSignInButton />
+          <GitHubSignInButton />
+          {/* or */}
+          <a href={googleSignInUrl}>Sign in with Google</a>
+          <a href={gitHubSignInUrl}>Sign in with GitHub</a>
+        </>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 If you need even more customization, you can create your custom components using `signInUrl`s.

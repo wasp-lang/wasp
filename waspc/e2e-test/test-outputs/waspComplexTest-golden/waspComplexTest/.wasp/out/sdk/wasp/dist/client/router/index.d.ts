@@ -7,3 +7,4 @@ export declare const routes: {
 };
 export type Routes = RouteDefinitionsToRoutes<typeof routes>;
 export { Link } from './Link';
+//# sourceMappingURL=index.d.ts.map

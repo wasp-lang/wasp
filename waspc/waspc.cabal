@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.16.3
+version:        0.16.4
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -54,7 +54,7 @@ data-files:
   Cli/templates/skeleton/.gitignore
   Cli/templates/skeleton/.wasproot
   Cli/templates/skeleton/.waspignore
-  Cli/templates/skeleton/public/.gitkeep
+  Cli/templates/skeleton/public/favicon.ico
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts
   Lsp/templates/**/*.jsx
@@ -278,8 +278,9 @@ library
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
-    Wasp.Generator.ConfigFile
-    Wasp.Generator.ConfigFileGenerator
+    Wasp.Generator.DepVersions
+    Wasp.Generator.TailwindConfigFile
+    Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
@@ -288,9 +289,6 @@ library
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
-    Wasp.Generator.ExternalConfig.Common
-    Wasp.Generator.ExternalConfig.PackageJson
-    Wasp.Generator.ExternalConfig.TsConfig
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
@@ -317,6 +315,7 @@ library
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
+    Wasp.Generator.SdkGenerator.DepVersions
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.JsImport
@@ -335,8 +334,9 @@ library
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
-    Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.Common
+    Wasp.Generator.ServerGenerator.Db.Seed
+    Wasp.Generator.ServerGenerator.DepVersions
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
@@ -348,11 +348,15 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
+    Wasp.Generator.Valid
+    Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.TsConfig
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.DepVersions
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
@@ -368,6 +372,7 @@ library
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.Message
+    Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Project
@@ -406,7 +411,7 @@ library
     Wasp.Psl.Generator.Enum
     Wasp.Psl.Generator.Model
     Wasp.Psl.Generator.Schema
-    Wasp.Psl.Parser.Argument 
+    Wasp.Psl.Parser.Argument
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
     Wasp.Psl.Parser.ConfigBlock
@@ -665,6 +670,7 @@ test-suite waspc-test
     Generator.JsImportTest
     Generator.CrudTest
     Generator.CommonTest
+    Node.InternalTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest

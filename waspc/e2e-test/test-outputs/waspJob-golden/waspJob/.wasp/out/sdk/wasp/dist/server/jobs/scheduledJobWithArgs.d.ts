@@ -1,4 +1,4 @@
-import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization';
+import type { JSONValue, JSONObject } from 'wasp/core/serialization';
 import { type JobFn } from 'wasp/server/jobs/core/pgBoss';
 declare const entities: {};
 export type ScheduledJobWithArgs<Input extends JSONObject, Output extends JSONValue | void> = JobFn<Input, Output, typeof entities>;
@@ -26,7 +26,7 @@ export declare const scheduledJobWithArgs: {
                 output: null;
             } | {
                 state: "completed";
-                output: import("wasp/server/_types/serialization").JSONArray | JSONObject | {
+                output: import("wasp/core/serialization").JSONArray | JSONObject | {
                     value: string;
                 } | {
                     value: number;
@@ -44,3 +44,4 @@ export declare const scheduledJobWithArgs: {
     readonly executorName: string | symbol;
 };
 export {};
+//# sourceMappingURL=scheduledJobWithArgs.d.ts.map

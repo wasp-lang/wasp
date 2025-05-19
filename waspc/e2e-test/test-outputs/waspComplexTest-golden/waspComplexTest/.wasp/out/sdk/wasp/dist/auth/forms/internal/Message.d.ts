@@ -116,3 +116,4 @@ export declare const MessageSuccess: import("@stitches/react/types/styled-compon
         sm: "0.875rem";
     };
 }, import("@stitches/react/types/config").DefaultThemeMap, {}>>;
+//# sourceMappingURL=Message.d.ts.map

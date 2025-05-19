@@ -7,3 +7,4 @@ export declare const LoginSignupForm: ({ state, socialButtonsDirection, addition
     socialButtonsDirection?: "horizontal" | "vertical";
     additionalSignupFields?: AdditionalSignupFields;
 }) => import("react").JSX.Element;
+//# sourceMappingURL=LoginSignupForm.d.ts.map

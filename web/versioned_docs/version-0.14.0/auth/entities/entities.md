@@ -29,52 +29,48 @@ All the `User` fields you defined will be present at the top level of the `AuthU
 The `AuthUser` object will change depending on which auth method you have enabled in the Wasp file. For example, if you enabled the email auth and Google auth, it would look something like this:
 
 <Tabs>
-<TabItem value="google" label="User Signed Up with Google">
+  <TabItem value="google" label="User Signed Up with Google">
+    If the user has only the Google identity, the `AuthUser` object will look like this:
 
-If the user has only the Google identity, the `AuthUser` object will look like this:
+    ```ts
+    const user = {
+      // User data
+      id: 'cluqs9qyh00007cn73apj4hp7',
+      address: 'Some address',
 
-```ts
-const user = {
-  // User data
-  id: 'cluqs9qyh00007cn73apj4hp7',
-  address: 'Some address',
+      // Auth methods specific data
+      identities: {
+        email: null,
+        google: {
+          id: '1117XXXX1301972049448',
+        },
+      },
+    }
+    ```
+  </TabItem>
 
-  // Auth methods specific data
-  identities: {
-    email: null,
-    google: {
-      id: '1117XXXX1301972049448',
-    },
-  },
-}
-```
+  <TabItem value="email" label="User Signed Up with Email">
+    If the user has only the email identity, the `AuthUser` object will look like this:
 
-</TabItem>
+    ```ts
+    const user = {
+      // User data
+      id: 'cluqsex9500017cn7i2hwsg17',
+      address: 'Some address',
 
-<TabItem value="email" label="User Signed Up with Email">
-
-If the user has only the email identity, the `AuthUser` object will look like this:
-
-```ts
-const user = {
-  // User data
-  id: 'cluqsex9500017cn7i2hwsg17',
-  address: 'Some address',
-
-  // Auth methods specific data
-  identities: {
-    email: {
-      id: 'user@app.com',
-      isEmailVerified: true,
-      emailVerificationSentAt: '2024-04-08T10:06:02.204Z',
-      passwordResetSentAt: null,
-    },
-    google: null,
-  },
-}
-```
-
-</TabItem>
+      // Auth methods specific data
+      identities: {
+        email: {
+          id: 'user@app.com',
+          isEmailVerified: true,
+          emailVerificationSentAt: '2024-04-08T10:06:02.204Z',
+          passwordResetSentAt: null,
+        },
+        google: null,
+      },
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 In the examples above, you can see the `identities` object contains the `email` and `google` objects. The `email` object contains the email-related data and the `google` object contains the Google-related data.
@@ -138,48 +134,43 @@ The `getFirstProviderUserId` method returns the first user ID that it finds for 
 This can be useful if you support multiple authentication methods and you need _any_ ID that identifies the user in your app.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/MainPage.jsx"
+    const MainPage = ({ user }) => {
+      const userId = user.getFirstProviderUserId()
+      // ...
+    }
+    ```
 
-```jsx title="src/MainPage.jsx"
-const MainPage = ({ user }) => {
-  const userId = user.getFirstProviderUserId()
-  // ...
-}
-```
+    ```js title="src/tasks.js"
+    export const createTask = async (args, context) => {
+      const userId = context.user.getFirstProviderUserId()
+      // ...
+    }
+    ```
+  </TabItem>
 
-```js title=src/tasks.js
-export const createTask = async (args, context) => {
-  const userId = context.user.getFirstProviderUserId()
-  // ...
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/MainPage.tsx"
+    import { type AuthUser } from 'wasp/auth'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    const MainPage = ({ user }: { user: AuthUser }) => {
+      const userId = user.getFirstProviderUserId()
+      // ...
+    }
+    ```
 
-```tsx title="src/MainPage.tsx"
-import { type AuthUser } from 'wasp/auth'
-
-const MainPage = ({ user }: { user: AuthUser }) => {
-  const userId = user.getFirstProviderUserId()
-  // ...
-}
-```
-
-```ts title=src/tasks.ts
-export const createTask: CreateTask<...>  = async (args, context) => {
-  const userId = context.user.getFirstProviderUserId()
-  // ...
-}
-```
-
-</TabItem>
+    ```ts title="src/tasks.ts"
+    export const createTask: CreateTask<...>  = async (args, context) => {
+      const userId = context.user.getFirstProviderUserId()
+      // ...
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <small>
-
-\* Multiple identities per user will be possible in the future and then the `getFirstProviderUserId` method will return the ID of the first identity that it finds without any guarantees about which one it will be.
-
+  \* Multiple identities per user will be possible in the future and then the `getFirstProviderUserId` method will return the ID of the first identity that it finds without any guarantees about which one it will be.
 </small>
 
 ## Including the User with Other Entities
@@ -190,79 +181,76 @@ We'll mention the `auth` and the `identities` relations which we will explain in
 
 :::caution Be careful about sensitive data
 
-You'll need to include the `auth` and the `identities` relations to get the full auth data about the user. However, you should keep in mind that the `providerData` field in the `identities` can contain sensitive data like the user's hashed password (in case of email or username auth), so you will likely want to exclude it if you are returning those values to the client. 
+You'll need to include the `auth` and the `identities` relations to get the full auth data about the user. However, you should keep in mind that the `providerData` field in the `identities` can contain sensitive data like the user's hashed password (in case of email or username auth), so you will likely want to exclude it if you are returning those values to the client.
 
 :::
 
 You can include the full user's data with other entities using the `include` option in the Prisma queries:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```js title="src/tasks.js"
-export const getAllTasks = async (args, context) => {
-  return context.entities.Task.findMany({
-    orderBy: { id: 'desc' },
-    select: {
-      id: true,
-      title: true,
-      // highlight-next-line
-      user: {
-        include: {
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/tasks.js"
+    export const getAllTasks = async (args, context) => {
+      return context.entities.Task.findMany({
+        orderBy: { id: 'desc' },
+        select: {
+          id: true,
+          title: true,
           // highlight-next-line
-          auth: {
+          user: {
             include: {
               // highlight-next-line
-              identities: {
-                // Including only the `providerName` and `providerUserId` fields
-                select: {
-                  providerName: true,
-                  providerUserId: true,
+              auth: {
+                include: {
+                  // highlight-next-line
+                  identities: {
+                    // Including only the `providerName` and `providerUserId` fields
+                    select: {
+                      providerName: true,
+                      providerUserId: true,
+                    },
+                  },
                 },
               },
             },
           },
         },
-      },
-    },
-  })
-}
-```
+      })
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/tasks.ts"
-export const getAllTasks = (async (args, context) => {
-  return context.entities.Task.findMany({
-    orderBy: { id: 'desc' },
-    select: {
-      id: true,
-      title: true,
-      // highlight-next-line
-      user: {
-        include: {
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/tasks.ts"
+    export const getAllTasks = (async (args, context) => {
+      return context.entities.Task.findMany({
+        orderBy: { id: 'desc' },
+        select: {
+          id: true,
+          title: true,
           // highlight-next-line
-          auth: {
+          user: {
             include: {
               // highlight-next-line
-              identities: {
-                // Including only the `providerName` and `providerUserId` fields
-                select: {
-                  providerName: true,
-                  providerUserId: true,
+              auth: {
+                include: {
+                  // highlight-next-line
+                  identities: {
+                    // Including only the `providerName` and `providerUserId` fields
+                    select: {
+                      providerName: true,
+                      providerUserId: true,
+                    },
+                  },
                 },
               },
             },
           },
         },
-      },
-    },
-  })
-}) satisfies tasks.GetAllQuery<{}, {}>
-```
-
-</TabItem>
+      })
+    }) satisfies tasks.GetAllQuery<{}, {}>
+    ```
+  </TabItem>
 </Tabs>
 
 If you have some **piece of the auth data that you want to access frequently** (for example the `username`), it's best to store it at the top level of the `User` entity.
@@ -274,42 +262,39 @@ For example, save the `username` or `email` as a property on the `User` and you'
 When you have the `user` object with the `auth` and `identities` fields, it can be a bit tedious to obtain the auth data (like username or Google ID) from it:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```jsx title="src/MainPage.jsx"
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {task.user.auth?.identities[0].providerUserId}
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/MainPage.jsx"
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {task.user.auth?.identities[0].providerUserId}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
+      )
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/MainPage.tsx"
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {task.user.auth?.identities[0].providerUserId}
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/MainPage.tsx"
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {task.user.auth?.identities[0].providerUserId}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
-
-</TabItem>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Wasp offers a few helper methods to access the user's auth data when you retrieve the `user` like this. They are `getUsername`, `getEmail` and `getFirstProviderUserId`. They can be used both on the client and the server.
@@ -319,46 +304,43 @@ Wasp offers a few helper methods to access the user's auth data when you retriev
 It accepts the `user` object and if the user signed up with the [Username & password](./username-and-pass) auth method, it returns the username or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/MainPage.jsx"
+    import { getUsername } from 'wasp/auth'
 
-```jsx title="src/MainPage.jsx"
-import { getUsername } from 'wasp/auth'
-
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {getUsername(task.user)}
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {getUsername(task.user)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
+      )
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/MainPage.tsx"
+    import { getUsername } from 'wasp/auth'
 
-```tsx title="src/MainPage.tsx"
-import { getUsername } from 'wasp/auth'
-
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {getUsername(task.user)}
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {getUsername(task.user)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
-
-</TabItem>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 #### `getEmail`
@@ -366,46 +348,43 @@ function MainPage() {
 It accepts the `user` object and if the user signed up with the [Email](./email) auth method, it returns the email or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/MainPage.jsx"
+    import { getEmail } from 'wasp/auth'
 
-```jsx title="src/MainPage.jsx"
-import { getEmail } from 'wasp/auth'
-
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {getEmail(task.user)}
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {getEmail(task.user)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
+      )
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/MainPage.tsx"
+    import { getEmail } from 'wasp/auth'
 
-```tsx title="src/MainPage.tsx"
-import { getEmail } from 'wasp/auth'
-
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {getEmail(task.user)}
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {getEmail(task.user)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
-
-</TabItem>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 #### `getFirstProviderUserId`
@@ -413,46 +392,43 @@ function MainPage() {
 It returns the first user ID that it finds for the user. For example if the user has signed up with email, it will return the email. If the user has signed up with Google, it will return the Google ID.  The `user` object needs to have the `auth` and the `identities` relations included.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/MainPage.jsx"
+    import { getFirstProviderUserId } from 'wasp/auth'
 
-```jsx title="src/MainPage.jsx"
-import { getFirstProviderUserId } from 'wasp/auth'
-
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {getFirstProviderUserId(task.user)}
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {getFirstProviderUserId(task.user)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
+      )
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/MainPage.tsx"
+    import { getFirstProviderUserId } from 'wasp/auth'
 
-```tsx title="src/MainPage.tsx"
-import { getFirstProviderUserId } from 'wasp/auth'
-
-function MainPage() {
-  // ...
-  return (
-    <div className="tasks">
-      {tasks.map((task) => (
-        <div key={task.id} className="task">
-          {task.title} by {getFirstProviderUserId(task.user)}
+    function MainPage() {
+      // ...
+      return (
+        <div className="tasks">
+          {tasks.map((task) => (
+            <div key={task.id} className="task">
+              {task.title} by {getFirstProviderUserId(task.user)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  )
-}
-```
-
-</TabItem>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Entities Explained
@@ -490,15 +466,15 @@ model User {
 }
 ```
 
-The `User` entity is a "business logic user" which represents a user of your app. 
+The `User` entity is a "business logic user" which represents a user of your app.
 
-You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address. 
+You can use this entity to store any information about the user that you want to store. For example, you might want to store the user's name or address.
 
 You can also use the user entity to define the relations between users and other entities in your app. For example, you might want to define a relation between a user and the tasks that they have created.
 
 You **own** the user entity and you can modify it as you wish. You can add new fields to it, remove fields from it, or change the type of the fields. You can also add new relations to it or remove existing relations from it.
 
-<ImgWithCaption alt="Auth Entities in a Wasp App" source="img/auth-entities/model.png" caption="Auth Entities in a Wasp App"/>
+<ImgWithCaption alt="Auth Entities in a Wasp App" source="img/auth-entities/model.png" caption="Auth Entities in a Wasp App" />
 
 On the other hand, the `Auth`, `AuthIdentity` and `Session` entities are created behind the scenes and are used to store the user's login credentials. You as the developer don't need to care about this entity most of the time. Wasp **owns** these entities.
 
@@ -513,7 +489,7 @@ Let's imagine we created a simple tasks management app:
 
 Let's look at how would that look in the database:
 
-<ImgWithCaption alt="Example of Auth Entities" source="img/auth-entities/model-example.png" caption="Example of Auth Entities"/>
+<ImgWithCaption alt="Example of Auth Entities" source="img/auth-entities/model-example.png" caption="Example of Auth Entities" />
 
 If we take a look at an example user in the database, we can see:
 
@@ -616,157 +592,154 @@ In the [Email](./email#creating-a-custom-sign-up-action) section of the docs we 
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    // ...
 
-```wasp title="main.wasp"
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup.js",
-  entities: [User]
-}
-```
-
-```js title="src/auth/signup.js"
-import {
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  createUser,
-} from 'wasp/server/auth'
-
-export const signup = async (args, { entities: { User } }) => {
-  try {
-    // Provider ID is a combination of the provider name and the provider user ID
-    // And it is used to uniquely identify the user in your app
-    const providerId = createProviderId('username', args.username)
-    // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
-    const providerData = await sanitizeAndSerializeProviderData({
-      hashedPassword: args.password,
-    })
-
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
-
-    // This is equivalent to:
-    // await User.create({
-    //   data: {
-    //     auth: {
-    //       create: {
-    //         identities: {
-    //             create: {
-    //                 providerName: 'username',
-    //                 providerUserId: args.username
-    //                 providerData,
-    //             },
-    //         },
-    //       }
-    //     },
-    //   }
-    // })
-  } catch (e) {
-    return {
-      success: false,
-      message: e.message,
+    action customSignup {
+      fn: import { signup } from "@src/auth/signup.js",
+      entities: [User]
     }
-  }
+    ```
 
-  // Your custom code after sign-up.
-  // ...
+    ```js title="src/auth/signup.js"
+    import {
+      createProviderId,
+      sanitizeAndSerializeProviderData,
+      createUser,
+    } from 'wasp/server/auth'
 
-  return {
-    success: true,
-    message: 'User created successfully',
-  }
-}
-```
+    export const signup = async (args, { entities: { User } }) => {
+      try {
+        // Provider ID is a combination of the provider name and the provider user ID
+        // And it is used to uniquely identify the user in your app
+        const providerId = createProviderId('username', args.username)
+        // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
+        const providerData = await sanitizeAndSerializeProviderData({
+          hashedPassword: args.password,
+        })
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+        await createUser(
+          providerId,
+          providerData,
+          // Any additional data you want to store on the User entity
+          {}
+        )
 
-```wasp title="main.wasp"
-// ...
+        // This is equivalent to:
+        // await User.create({
+        //   data: {
+        //     auth: {
+        //       create: {
+        //         identities: {
+        //             create: {
+        //                 providerName: 'username',
+        //                 providerUserId: args.username
+        //                 providerData,
+        //             },
+        //         },
+        //       }
+        //     },
+        //   }
+        // })
+      } catch (e) {
+        return {
+          success: false,
+          message: e.message,
+        }
+      }
 
-action customSignup {
-  fn: import { signup } from "@src/auth/signup.js",
-  entities: [User]
-}
-```
+      // Your custom code after sign-up.
+      // ...
 
-```ts title="src/auth/signup.ts"
-import {
-  createProviderId,
-  sanitizeAndSerializeProviderData,
-  createUser,
-} from 'wasp/server/auth'
-import type { CustomSignup } from 'wasp/server/operations'
-
-type CustomSignupInput = {
-  username: string
-  password: string
-}
-type CustomSignupOutput = {
-  success: boolean
-  message: string
-}
-
-export const signup: CustomSignup<
-  CustomSignupInput,
-  CustomSignupOutput
-> = async (args, { entities: { User } }) => {
-  try {
-    // Provider ID is a combination of the provider name and the provider user ID
-    // And it is used to uniquely identify the user in your app
-    const providerId = createProviderId('username', args.username)
-    // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
-    const providerData = await sanitizeAndSerializeProviderData<'username'>({
-      hashedPassword: args.password,
-    })
-
-    await createUser(
-      providerId,
-      providerData,
-      // Any additional data you want to store on the User entity
-      {}
-    )
-
-    // This is equivalent to:
-    // await User.create({
-    //   data: {
-    //     auth: {
-    //       create: {
-    //         identities: {
-    //             create: {
-    //                 providerName: 'username',
-    //                 providerUserId: args.username
-    //                 providerData,
-    //             },
-    //         },
-    //       }
-    //     },
-    //   }
-    // })
-  } catch (e) {
-    return {
-      success: false,
-      message: e.message,
+      return {
+        success: true,
+        message: 'User created successfully',
+      }
     }
-  }
+    ```
+  </TabItem>
 
-  // Your custom code after sign-up.
-  // ...
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    // ...
 
-  return {
-    success: true,
-    message: 'User created successfully',
-  }
-}
-```
+    action customSignup {
+      fn: import { signup } from "@src/auth/signup.js",
+      entities: [User]
+    }
+    ```
 
-</TabItem>
+    ```ts title="src/auth/signup.ts"
+    import {
+      createProviderId,
+      sanitizeAndSerializeProviderData,
+      createUser,
+    } from 'wasp/server/auth'
+    import type { CustomSignup } from 'wasp/server/operations'
+
+    type CustomSignupInput = {
+      username: string
+      password: string
+    }
+    type CustomSignupOutput = {
+      success: boolean
+      message: string
+    }
+
+    export const signup: CustomSignup<
+      CustomSignupInput,
+      CustomSignupOutput
+    > = async (args, { entities: { User } }) => {
+      try {
+        // Provider ID is a combination of the provider name and the provider user ID
+        // And it is used to uniquely identify the user in your app
+        const providerId = createProviderId('username', args.username)
+        // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
+        const providerData = await sanitizeAndSerializeProviderData<'username'>({
+          hashedPassword: args.password,
+        })
+
+        await createUser(
+          providerId,
+          providerData,
+          // Any additional data you want to store on the User entity
+          {}
+        )
+
+        // This is equivalent to:
+        // await User.create({
+        //   data: {
+        //     auth: {
+        //       create: {
+        //         identities: {
+        //             create: {
+        //                 providerName: 'username',
+        //                 providerUserId: args.username
+        //                 providerData,
+        //             },
+        //         },
+        //       }
+        //     },
+        //   }
+        // })
+      } catch (e) {
+        return {
+          success: false,
+          message: e.message,
+        }
+      }
+
+      // Your custom code after sign-up.
+      // ...
+
+      return {
+        success: true,
+        message: 'User created successfully',
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 You can use whichever method suits your needs better: either the `createUser` function or Prisma's `User.create` method. The `createUser` function is a bit more convenient to use because it hides some of the complexity. On the other hand, the `User.create` method gives you more control over the data that is stored in the `Auth` and `AuthIdentity` entities.

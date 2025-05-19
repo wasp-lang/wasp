@@ -17,70 +17,67 @@ Before 0.14.0, users defined their entities in the `.wasp` file, and Wasp genera
 Wasp now exposes the `schema.prisma` file directly to the user. You now define your entities in the `schema.prisma` file and Wasp uses that to generate the database schema and Prisma client. You can use all the Prisma features directly in the `schema.prisma` file. Simply put, the `schema.prisma` file is now the source of truth for your database schema.
 
 <Tabs>
-<TabItem value="before" label="Before">
+  <TabItem value="before" label="Before">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.13.0"
+      },
+      title: "MyApp",
+      db: {
+        system: PostgreSQL
+      },
+    }
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.13.0"
-  },
-  title: "MyApp",
-  db: {
-    system: PostgreSQL
-  },
-}
+    entity User {=psl
+      id       Int @id @default(autoincrement())
+      tasks    Task[]
+    psl=}
 
-entity User {=psl
-  id       Int @id @default(autoincrement())
-  tasks    Task[]
-psl=}
+    entity Task {=psl
+      id          Int @id @default(autoincrement())
+      description String
+      isDone      Boolean
+      userId      Int
+      user        User @relation(fields: [userId], references: [id])
+    psl=}
+    ```
+  </TabItem>
 
-entity Task {=psl
-  id          Int @id @default(autoincrement())
-  description String
-  isDone      Boolean
-  userId      Int
-  user        User @relation(fields: [userId], references: [id])
-psl=}
-```
+  <TabItem value="after" label="After">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.14.0"
+      },
+      title: "MyApp",
+    }
+    ```
 
-</TabItem>
-<TabItem value="after" label="After">
+    ```prisma title="schema.prisma"
+    datasource db {
+      provider = "postgresql"
+      url      = env("DATABASE_URL")
+    }
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.14.0"
-  },
-  title: "MyApp",
-}
-```
+    generator client {
+      provider = "prisma-client-js"
+    }
 
-```prisma title="schema.prisma"
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+    model User {
+      id       Int @id @default(autoincrement())
+      tasks    Task[]
+    }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-model User {
-  id       Int @id @default(autoincrement())
-  tasks    Task[]
-}
-
-model Task {
-  id          Int @id @default(autoincrement())
-  description String
-  isDone      Boolean
-  userId      Int
-  user        User @relation(fields: [userId], references: [id])
-}
-```
-
-</TabItem>
+    model Task {
+      id          Int @id @default(autoincrement())
+      description String
+      isDone      Boolean
+      userId      Int
+      user        User @relation(fields: [userId], references: [id])
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ### Better auth user API
@@ -91,9 +88,9 @@ Wasp introduced a much simpler API for accessing user auth fields like `username
 
 To migrate your app to Wasp 0.14.x, you must:
 
-1.  Bump the version in `main.wasp` and update your `tsconfig.json`.
-2.  Migrate your entities into the new `schema.prisma` file.
-3.  Update code that accesses user fields.
+1. Bump the version in `main.wasp` and update your `tsconfig.json`.
+2. Migrate your entities into the new `schema.prisma` file.
+3. Update code that accesses user fields.
 
 ### Bump the version and update `tsconfig.json`
 
@@ -120,7 +117,7 @@ new version of the file and reapplying them.
 
 Here's the new version of the `tsconfig.json` file:
 
-```json title=tsconfig.json
+```json title="tsconfig.json"
 // =============================== IMPORTANT =================================
 //
 // This file is only used for Wasp IDE support. You can change it to configure
@@ -184,26 +181,23 @@ Create a new file named `schema.prisma` in the root of your project:
 This block specifies the database type and connection URL:
 
 <Tabs groupId="db">
-<TabItem value="sqlite" label="Sqlite">
+  <TabItem value="sqlite" label="Sqlite">
+    ```prisma title="schema.prisma"
+    datasource db {
+      provider = "sqlite"
+      url      = env("DATABASE_URL")
+    }
+    ```
+  </TabItem>
 
-```prisma title="schema.prisma"
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-```
-
-</TabItem>
-<TabItem value="postgresql" label="PostgreSQL">
-
-```prisma title="schema.prisma"
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-</TabItem>
+  <TabItem value="postgresql" label="PostgreSQL">
+    ```prisma title="schema.prisma"
+    datasource db {
+      provider = "postgresql"
+      url      = env("DATABASE_URL")
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 - The `provider` should be either `"postgresql"` or `"sqlite"`.
@@ -215,38 +209,35 @@ datasource db {
 This block specifies the Prisma Client generator Wasp uses:
 
 <Tabs groupId="db">
-<TabItem value="sqlite" label="Sqlite">
+  <TabItem value="sqlite" label="Sqlite">
+    ```prisma title="schema.prisma"
+    datasource db {
+      provider = "sqlite"
+      url      = env("DATABASE_URL")
+    }
 
-```prisma title="schema.prisma"
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
+    // highlight-start
+    generator client {
+      provider = "prisma-client-js"
+    }
+    // highlight-end
+    ```
+  </TabItem>
 
-// highlight-start
-generator client {
-  provider = "prisma-client-js"
-}
-// highlight-end
-```
+  <TabItem value="postgresql" label="PostgreSQL">
+    ```prisma title="schema.prisma"
+    datasource db {
+      provider = "postgresql"
+      url      = env("DATABASE_URL")
+    }
 
-</TabItem>
-<TabItem value="postgresql" label="PostgreSQL">
-
-```prisma title="schema.prisma"
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// highlight-start
-generator client {
-  provider = "prisma-client-js"
-}
-// highlight-end
-```
-
-</TabItem>
+    // highlight-start
+    generator client {
+      provider = "prisma-client-js"
+    }
+    // highlight-end
+    ```
+  </TabItem>
 </Tabs>
 
 - The `provider` should be set to `"prisma-client-js"`.
@@ -256,66 +247,63 @@ generator client {
 Move the entities from the `.wasp` file to the `schema.prisma` file:
 
 <Tabs groupId="db">
-<TabItem value="sqlite" label="Sqlite">
+  <TabItem value="sqlite" label="Sqlite">
+    ```prisma title="schema.prisma"
+    datasource db {
+      provider = "sqlite"
+      url      = env("DATABASE_URL")
+    }
 
-```prisma title="schema.prisma"
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
+    generator client {
+      provider = "prisma-client-js"
+    }
 
-generator client {
-  provider = "prisma-client-js"
-}
+    // There are some example entities, you should move your entities here
+    // highlight-start
+    model User {
+      id       Int @id @default(autoincrement())
+      tasks    Task[]
+    }
 
-// There are some example entities, you should move your entities here
-// highlight-start
-model User {
-  id       Int @id @default(autoincrement())
-  tasks    Task[]
-}
+    model Task {
+      id          Int @id @default(autoincrement())
+      description String
+      isDone      Boolean
+      userId      Int
+      user        User @relation(fields: [userId], references: [id])
+    }
+    // highlight-end
+    ```
+  </TabItem>
 
-model Task {
-  id          Int @id @default(autoincrement())
-  description String
-  isDone      Boolean
-  userId      Int
-  user        User @relation(fields: [userId], references: [id])
-}
-// highlight-end
-```
+  <TabItem value="postgresql" label="PostgreSQL">
+    ```prisma title="schema.prisma"
+    datasource db {
+      provider = "postgresql"
+      url      = env("DATABASE_URL")
+    }
 
-</TabItem>
-<TabItem value="postgresql" label="PostgreSQL">
+    generator client {
+      provider = "prisma-client-js"
+    }
 
-```prisma title="schema.prisma"
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+    // There are some example entities, you should move your entities here
+    // highlight-start
+    model User {
+      id       Int @id @default(autoincrement())
+      tasks    Task[]
+    }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-// There are some example entities, you should move your entities here
-// highlight-start
-model User {
-  id       Int @id @default(autoincrement())
-  tasks    Task[]
-}
-
-model Task {
-  id          Int @id @default(autoincrement())
-  description String
-  isDone      Boolean
-  userId      Int
-  user        User @relation(fields: [userId], references: [id])
-}
-// highlight-end
-```
-
-</TabItem>
+    model Task {
+      id          Int @id @default(autoincrement())
+      description String
+      isDone      Boolean
+      userId      Int
+      user        User @relation(fields: [userId], references: [id])
+    }
+    // highlight-end
+    ```
+  </TabItem>
 </Tabs>
 
 When moving the entities over, you'll need to change `entity` to `model` and remove the `=psl` and `psl=` tags.
@@ -411,242 +399,227 @@ Follow the steps below to migrate:
    This helper changed and it no longer works with the `user` you receive as a prop on a page or through the `context`. You'll need to replace it with `user.identities.username.id`.
 
    <Tabs>
-   <TabItem value="before" label="Before">
+     <TabItem value="before" label="Before">
+       ```tsx title="src/MainPage.tsx"
+       import { getUsername, AuthUser } from 'wasp/auth'
 
-   ```tsx title="src/MainPage.tsx"
-   import { getUsername, AuthUser } from 'wasp/auth'
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const username = getUsername(user)
+         // ...
+       }
+       ```
 
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const username = getUsername(user)
-     // ...
-   }
-   ```
+       ```ts title="src/tasks.ts"
+       import { getUsername } from 'wasp/auth'
 
-   ```ts title=src/tasks.ts
-   import { getUsername } from 'wasp/auth'
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           const username = getUsername(context.user)
+           // ...
+       }
+       ```
+     </TabItem>
 
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       const username = getUsername(context.user)
-       // ...
-   }
-   ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/MainPage.tsx"
+       import { AuthUser } from 'wasp/auth'
 
-   </TabItem>
-   <TabItem value="after" label="After">
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const username = user.identities.username?.id
+         // ...
+       }
+       ```
 
-   ```tsx title="src/MainPage.tsx"
-   import { AuthUser } from 'wasp/auth'
-
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const username = user.identities.username?.id
-     // ...
-   }
-   ```
-
-   ```ts title=src/tasks.ts
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       const username = context.user.identities.username?.id
-       // ...
-   }
-   ```
-
-   </TabItem>
+       ```ts title="src/tasks.ts"
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           const username = context.user.identities.username?.id
+           // ...
+       }
+       ```
+     </TabItem>
    </Tabs>
 
-1. **Replace the `getEmail` helper** with `user.identities.email.id`
+2. **Replace the `getEmail` helper** with `user.identities.email.id`
 
    If you didn't use the `getEmail` helper in your code, you can skip this step.
 
    This helper changed and it no longer works with the `user` you receive as a prop on a page or through the `context`. You'll need to replace it with `user.identities.email.id`.
 
    <Tabs>
-   <TabItem value="before" label="Before">
+     <TabItem value="before" label="Before">
+       ```tsx title="src/MainPage.tsx"
+       import { getEmail, AuthUser } from 'wasp/auth'
 
-   ```tsx title="src/MainPage.tsx"
-   import { getEmail, AuthUser } from 'wasp/auth'
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const email = getEmail(user)
+         // ...
+       }
+       ```
 
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const email = getEmail(user)
-     // ...
-   }
-   ```
+       ```ts title="src/tasks.ts"
+       import { getEmail } from 'wasp/auth'
 
-   ```ts title=src/tasks.ts
-   import { getEmail } from 'wasp/auth'
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           const email = getEmail(context.user)
+           // ...
+       }
+       ```
+     </TabItem>
 
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       const email = getEmail(context.user)
-       // ...
-   }
-   ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/MainPage.tsx"
+       import { AuthUser } from 'wasp/auth'
 
-   </TabItem>
-   <TabItem value="after" label="After">
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const email = user.identities.email?.id
+         // ...
+       }
+       ```
 
-   ```tsx title="src/MainPage.tsx"
-   import { AuthUser } from 'wasp/auth'
-
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const email = user.identities.email?.id
-     // ...
-   }
-   ```
-
-   ```ts title=src/tasks.ts
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       const email = context.user.identities.email?.id
-       // ...
-   }
-   ```
-
-   </TabItem>
+       ```ts title="src/tasks.ts"
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           const email = context.user.identities.email?.id
+           // ...
+       }
+       ```
+     </TabItem>
    </Tabs>
 
-1. **Replace accessing `providerData`** with `user.identities.<provider>.<value>`
+3. **Replace accessing `providerData`** with `user.identities.<provider>.<value>`
 
    If you didn't use any data from the `providerData` object, you can skip this step.
 
    Replace `<provider>` with the provider name (for example `username`, `email`, `google`, `github`, etc.) and `<value>` with the field you want to access (for example `isEmailVerified`).
 
    <Tabs>
-   <TabItem value="before" label="Before">
+     <TabItem value="before" label="Before">
+       ```tsx title="src/MainPage.tsx"
+       import { findUserIdentity, AuthUser } from 'wasp/auth'
 
-   ```tsx title="src/MainPage.tsx"
-   import { findUserIdentity, AuthUser } from 'wasp/auth'
+       function getProviderData(user: AuthUser) {
+         const emailIdentity = findUserIdentity(user, 'email')
+         // We needed this before check for proper type support
+         return emailIdentity && 'isEmailVerified' in emailIdentity.providerData
+           ? emailIdentity.providerData
+           : null
+       }
 
-   function getProviderData(user: AuthUser) {
-     const emailIdentity = findUserIdentity(user, 'email')
-     // We needed this before check for proper type support
-     return emailIdentity && 'isEmailVerified' in emailIdentity.providerData
-       ? emailIdentity.providerData
-       : null
-   }
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const providerData = getProviderData(user)
+         const isEmailVerified = providerData ? providerData.isEmailVerified : null
+         // ...
+       }
+       ```
+     </TabItem>
 
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const providerData = getProviderData(user)
-     const isEmailVerified = providerData ? providerData.isEmailVerified : null
-     // ...
-   }
-   ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/MainPage.tsx"
+       import { AuthUser } from 'wasp/auth'
 
-   </TabItem>
-   <TabItem value="after" label="After">
-
-   ```tsx title="src/MainPage.tsx"
-   import { AuthUser } from 'wasp/auth'
-
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     // The email object is properly typed, so we can access `isEmailVerified` directly
-     const isEmailVerified = user.identities.email?.isEmailVerified
-     // ...
-   }
-   ```
-
-   </TabItem>
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         // The email object is properly typed, so we can access `isEmailVerified` directly
+         const isEmailVerified = user.identities.email?.isEmailVerified
+         // ...
+       }
+       ```
+     </TabItem>
    </Tabs>
 
-1. **Use `getFirstProviderUserId` directly** on the user object
+4. **Use `getFirstProviderUserId` directly** on the user object
 
    If you didn't use `getFirstProviderUserId` in your code, you can skip this step.
 
    You should replace `getFirstProviderUserId(user)` with `user.getFirstProviderUserId()`.
 
    <Tabs>
-   <TabItem value="before" label="Before">
+     <TabItem value="before" label="Before">
+       ```tsx title="src/MainPage.tsx"
+       import { getFirstProviderUserId, AuthUser } from 'wasp/auth'
 
-   ```tsx title="src/MainPage.tsx"
-   import { getFirstProviderUserId, AuthUser } from 'wasp/auth'
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const userId = getFirstProviderUserId(user)
+         // ...
+       }
+       ```
 
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const userId = getFirstProviderUserId(user)
-     // ...
-   }
-   ```
+       ```ts title="src/tasks.ts"
+       import { getFirstProviderUserId } from 'wasp/auth'
 
-   ```ts title=src/tasks.ts
-   import { getFirstProviderUserId } from 'wasp/auth'
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           const userId = getFirstProviderUserId(context.user)
+           // ...
+       }
+       ```
+     </TabItem>
 
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       const userId = getFirstProviderUserId(context.user)
-       // ...
-   }
-   ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/MainPage.tsx"
+       import { AuthUser } from 'wasp/auth'
 
-   </TabItem>
-   <TabItem value="after" label="After">
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const userId = user.getFirstProviderUserId()
+         // ...
+       }
+       ```
 
-   ```tsx title="src/MainPage.tsx"
-   import { AuthUser } from 'wasp/auth'
-
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const userId = user.getFirstProviderUserId()
-     // ...
-   }
-   ```
-
-   ```ts title=src/tasks.ts
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       const userId = user.getFirstProviderUserId()
-       // ...
-   }
-   ```
-
-   </TabItem>
+       ```ts title="src/tasks.ts"
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           const userId = user.getFirstProviderUserId()
+           // ...
+       }
+       ```
+     </TabItem>
    </Tabs>
 
-1. **Replace `findUserIdentity`** with checks on `user.identities.<provider>`
+5. **Replace `findUserIdentity`** with checks on `user.identities.<provider>`
 
    If you didn't use `findUserIdentity` in your code, you can skip this step.
 
    Instead of using `findUserIdentity` to get the identity object, you can directly check if the identity exists on the `identities` object.
 
    <Tabs>
-   <TabItem value="before" label="Before">
+     <TabItem value="before" label="Before">
+       ```tsx title="src/MainPage.tsx"
+       import { findUserIdentity, AuthUser } from 'wasp/auth'
 
-   ```tsx title="src/MainPage.tsx"
-   import { findUserIdentity, AuthUser } from 'wasp/auth'
-
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     const usernameIdentity = findUserIdentity(user, 'username')
-     if (usernameIdentity) {
-       // ...
-     }
-   }
-   ```
-
-   ```ts title=src/tasks.ts
-   import { findUserIdentity } from 'wasp/auth'
-
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       const usernameIdentity = findUserIdentity(context.user, 'username')
-       if (usernameIdentity) {
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         const usernameIdentity = findUserIdentity(user, 'username')
+         if (usernameIdentity) {
            // ...
+         }
        }
-   }
-   ```
+       ```
 
-   </TabItem>
-   <TabItem value="after" label="After">
+       ```ts title="src/tasks.ts"
+       import { findUserIdentity } from 'wasp/auth'
 
-   ```tsx title="src/MainPage.tsx"
-   import { AuthUser } from 'wasp/auth'
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           const usernameIdentity = findUserIdentity(context.user, 'username')
+           if (usernameIdentity) {
+               // ...
+           }
+       }
+       ```
+     </TabItem>
 
-   const MainPage = ({ user }: { user: AuthUser }) => {
-     if (user.identities.username) {
-       // ...
-     }
-   }
-   ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/MainPage.tsx"
+       import { AuthUser } from 'wasp/auth'
 
-   ```ts title=src/tasks.ts
-   export const createTask: CreateTask<...>  = async (args, context) => {
-       if (context.user.identities.username) {
+       const MainPage = ({ user }: { user: AuthUser }) => {
+         if (user.identities.username) {
            // ...
+         }
        }
-   }
-   ```
+       ```
 
-   </TabItem>
+       ```ts title="src/tasks.ts"
+       export const createTask: CreateTask<...>  = async (args, context) => {
+           if (context.user.identities.username) {
+               // ...
+           }
+       }
+       ```
+     </TabItem>
    </Tabs>
 
 ### Migrate the database
