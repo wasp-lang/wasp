@@ -9,9 +9,9 @@ const examples = [
     description: 'A famous To-Do list app, implemented in TypeScript.',
     authorName: 'wasp',
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'todo-typescript',
+    repoName: 'TodoAppTs',
     repoUrl:
-      'https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript',
+      'https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },

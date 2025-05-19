@@ -35,7 +35,7 @@ Both fields fall under `app.auth`. Here's what the full setup looks like:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -74,7 +74,7 @@ Both fields fall under `app.auth`. Here's what the full setup looks like:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -143,7 +143,7 @@ Let's go through both steps in more detail.
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     entity User {=psl
         id                        Int           @id @default(autoincrement())
         username                  String?       @unique
@@ -155,7 +155,7 @@ Let's go through both steps in more detail.
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     entity User {=psl
         id                        Int           @id @default(autoincrement())
         username                  String?       @unique
@@ -173,7 +173,7 @@ Declare an import under `app.auth.methods.google.getUserFieldsFn` (the example a
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -197,7 +197,7 @@ Declare an import under `app.auth.methods.google.getUserFieldsFn` (the example a
 
     And implement the imported function.
 
-    ```js title=src/server/auth/google.js
+    ```js title="src/server/auth/google.js"
     export const getUserFields = async (_context, _args) => {
       return {
         isSignupComplete: false,
@@ -207,7 +207,7 @@ Declare an import under `app.auth.methods.google.getUserFieldsFn` (the example a
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -231,7 +231,7 @@ Declare an import under `app.auth.methods.google.getUserFieldsFn` (the example a
 
     And implement the imported function:
 
-    ```ts title=src/server/auth/google.ts
+    ```ts title="src/server/auth/google.ts"
     import { GetUserFieldsFn } from '@wasp/types'
 
     export const getUserFields: GetUserFieldsFn = async (_context, _args) => {
@@ -257,7 +257,7 @@ For example:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=client/HomePage.jsx
+    ```jsx title="client/HomePage.jsx"
     import useAuth from '@wasp/auth/useAuth'
     import { Redirect } from 'react-router-dom'
 
@@ -274,7 +274,7 @@ For example:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=client/HomePage.tsx
+    ```tsx title="client/HomePage.tsx"
     import useAuth from '@wasp/auth/useAuth'
     import { Redirect } from 'react-router-dom'
 
@@ -315,7 +315,7 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=client/LoginPage.jsx
+    ```jsx title="client/LoginPage.jsx"
     import {
       SignInButton as GoogleSignInButton,
       signInUrl as googleSignInUrl,
@@ -340,7 +340,7 @@ Wasp provides sign-in buttons and URLs for each of the supported social login pr
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=client/LoginPage.tsx
+    ```tsx title="client/LoginPage.tsx"
     import {
       SignInButton as GoogleSignInButton,
       signInUrl as googleSignInUrl,
@@ -388,7 +388,7 @@ All social providers share the same Entity.
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp {4-10}
+    ```wasp title="main.wasp" {4-10}
     // ...
 
     entity SocialLogin {=psl
@@ -406,7 +406,7 @@ All social providers share the same Entity.
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp {4-10}
+    ```wasp title="main.wasp" {4-10}
     // ...
 
     entity SocialLogin {=psl
@@ -445,7 +445,7 @@ Using Social login providers requires you to add one extra field to the Entity a
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp {6}
+    ```wasp title="main.wasp" {6}
     // ...
 
     entity User {=psl
@@ -459,7 +459,7 @@ Using Social login providers requires you to add one extra field to the Entity a
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp {6}
+    ```wasp title="main.wasp" {6}
     // ...
 
     entity User {=psl

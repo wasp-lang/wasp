@@ -14,14 +14,14 @@ import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 import GithubData from '../entities/\_github-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 
-Wasp supports Github Authentication out of the box.
+Wasp supports GitHub Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.
 
 Letting your users log in using their GitHub accounts turns the signup process into a breeze.
 
-Let's walk through enabling Github Authentication, explain some of the default settings, and show how to override them.
+Let's walk through enabling GitHub Authentication, explain some of the default settings, and show how to override them.
 
-## Setting up Github Auth
+## Setting up GitHub Auth
 
 Enabling GitHub Authentication comes down to a series of steps:
 
@@ -33,89 +33,45 @@ Enabling GitHub Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Adding Github Auth to Your Wasp File
+### 1. Adding GitHub Auth to Your Wasp File
 
 Let's start by properly configuring the Auth object:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        // highlight-next-line
-        // 1. Specify the User entity  (we'll define it next)
-        // highlight-next-line
-        userEntity: User,
-        methods: {
-          // highlight-next-line
-          // 2. Enable Github Auth
-          // highlight-next-line
-          gitHub: {}
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        // highlight-next-line
-        // 1. Specify the User entity  (we'll define it next)
-        // highlight-next-line
-        userEntity: User,
-        methods: {
-          // highlight-next-line
-          // 2. Enable Github Auth
-          // highlight-next-line
-          gitHub: {}
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-  </TabItem>
-</Tabs>
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    // highlight-next-line
+    // 1. Specify the User entity  (we'll define it next)
+    // highlight-next-line
+    userEntity: User,
+    methods: {
+      // highlight-next-line
+      // 2. Enable GitHub Auth
+      // highlight-next-line
+      gitHub: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
+```
 
 ### 2. Add the User Entity
 
 Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```prisma title="schema.prisma"
-    // 3. Define the user entity
-    model User {
-      // highlight-next-line
-      id Int @id @default(autoincrement())
-      // Add your own fields below
-      // ...
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```prisma title="schema.prisma"
-    // 3. Define the user entity
-    model User {
-      // highlight-next-line
-      id Int @id @default(autoincrement())
-      // Add your own fields below
-      // ...
-    }
-    ```
-  </TabItem>
-</Tabs>
+```prisma title="schema.prisma"
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
+```
 
 ### 3. Creating a GitHub OAuth App
 
@@ -150,29 +106,14 @@ Let's define the necessary authentication Routes and Pages.
 
 Add the following code to your `main.wasp` file:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    // ...
+```wasp title="main.wasp"
+// ...
 
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { Login } from "@src/pages/auth.jsx"
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
-
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { Login } from "@src/pages/auth.tsx"
-    }
-    ```
-  </TabItem>
-</Tabs>
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { Login } from "@src/pages/auth"
+}
+```
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
 
@@ -184,69 +125,39 @@ We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read m
 
 Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```tsx title="src/pages/auth.jsx"
-    import { LoginForm } from 'wasp/client/auth'
+```tsx title="src/pages/auth.tsx" auto-js
+import type { ReactNode } from 'react'
+import { LoginForm } from 'wasp/client/auth'
 
-    export function Login() {
-      return (
-        <Layout>
-          <LoginForm />
-        </Layout>
-      )
-    }
+export function Login() {
+  return (
+    <Layout>
+      <LoginForm />
+    </Layout>
+  )
+}
 
-    // A layout component to center the content
-    export function Layout({ children }) {
-      return (
-        <div className="h-full w-full bg-white">
-          <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-            <div className="h-full w-full max-w-sm bg-white p-5">
-              <div>{children}</div>
-            </div>
-          </div>
+// A layout component to center the content
+export function Layout({ children }: { children: ReactNode }) {
+  return (
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
+          <div>{children}</div>
         </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/pages/auth.tsx"
-    import { LoginForm } from 'wasp/client/auth'
-
-    export function Login() {
-      return (
-        <Layout>
-          <LoginForm />
-        </Layout>
-      )
-    }
-
-    // A layout component to center the content
-    export function Layout({ children }: { children: React.ReactNode }) {
-      return (
-        <div className="h-full w-full bg-white">
-          <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-            <div className="h-full w-full max-w-sm bg-white p-5">
-              <div>{children}</div>
-            </div>
-          </div>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
+      </div>
+    </div>
+  )
+}
+```
 
 We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../../auth/ui).
 
 ### Conclusion
 
-Yay, we've successfully set up Github Auth! 🎉
+Yay, we've successfully set up GitHub Auth! 🎉
 
-![Github Auth](/img/auth/github.png)
+![GitHub Auth](/img/auth/github.png)
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).
@@ -255,45 +166,22 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 Add `gitHub: {}` to the `auth.methods` dictionary to use it with default settings.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          // highlight-next-line
-          gitHub: {}
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          // highlight-next-line
-          gitHub: {}
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-  </TabItem>
-</Tabs>
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    userEntity: User,
+    methods: {
+      // highlight-next-line
+      gitHub: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
+```
 
 <DefaultBehaviour />
 
@@ -349,103 +237,54 @@ The fields you receive will depend on the scopes you requested. By default we do
 
 <OverrideExampleIntro />
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          gitHub: {
-            // highlight-next-line
-            configFn: import { getConfig } from "@src/auth/github.js",
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/github.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
 
-    ```prisma title="schema.prisma"
-    model User {
-      id          Int    @id @default(autoincrement())
-      username    String @unique
-      displayName String
-    }
-
-    // ...
-    ```
-
-    ```js title=src/auth/github.js
-    export const userSignupFields = {
-      username: () => 'hardcoded-username',
-      displayName: (data) => data.profile.name,
-    }
-
-    export function getConfig() {
-      return {
-        scopes: ['user'],
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    userEntity: User,
+    methods: {
+      gitHub: {
+        // highlight-next-line
+        configFn: import { getConfig } from "@src/auth/github",
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@src/auth/github"
       }
-    }
-    ```
-  </TabItem>
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          gitHub: {
-            // highlight-next-line
-            configFn: import { getConfig } from "@src/auth/github.js",
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/github.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
+```prisma title="schema.prisma"
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  displayName String
+}
 
-    ```prisma title="schema.prisma"
-    model User {
-      id          Int    @id @default(autoincrement())
-      username    String @unique
-      displayName String
-    }
+// ...
+```
 
-    // ...
-    ```
+```ts title="src/auth/github.ts" auto-js
+import { defineUserSignupFields } from 'wasp/server/auth'
 
-    ```ts title=src/auth/github.ts
-    import { defineUserSignupFields } from 'wasp/server/auth'
+export const userSignupFields = defineUserSignupFields({
+  username: () => 'hardcoded-username',
+  displayName: (data: any) => data.profile.name,
+})
 
-    export const userSignupFields = defineUserSignupFields({
-      username: () => 'hardcoded-username',
-      displayName: (data: any) => data.profile.name,
-    })
+export function getConfig() {
+  return {
+    scopes: ['user'],
+  }
+}
+```
 
-    export function getConfig() {
-      return {
-        scopes: ['user'],
-      }
-    }
-    ```
-
-    <GetUserFieldsType />
-  </TabItem>
-</Tabs>
+<GetUserFieldsType />
 
 ## Using Auth
 
@@ -461,53 +300,26 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 <ApiReferenceIntro />
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          gitHub: {
-            // highlight-next-line
-            configFn: import { getConfig } from "@src/auth/github.js",
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/github.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          gitHub: {
-            // highlight-next-line
-            configFn: import { getConfig } from "@src/auth/github.js",
-            // highlight-next-line
-            userSignupFields: import { userSignupFields } from "@src/auth/github.js"
-          }
-        },
-        onAuthFailedRedirectTo: "/login"
-      },
-    }
-    ```
-  </TabItem>
-</Tabs>
+```wasp title="main.wasp"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    userEntity: User,
+    methods: {
+      gitHub: {
+        // highlight-next-line
+        configFn: import { getConfig } from "@src/auth/github",
+        // highlight-next-line
+        userSignupFields: import { userSignupFields } from "@src/auth/github"
+      }
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
+```
 
 The `gitHub` dict has the following properties:
 
@@ -515,27 +327,13 @@ The `gitHub` dict has the following properties:
 
   This function should return an object with the scopes for the OAuth provider.
 
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```js title=src/auth/github.js
-      export function getConfig() {
-        return {
-          scopes: [],
-        }
-      }
-      ```
-    </TabItem>
-
-    <TabItem value="ts" label="TypeScript">
-      ```ts title=src/auth/github.ts
-      export function getConfig() {
-        return {
-          scopes: [],
-        }
-      }
-      ```
-    </TabItem>
-  </Tabs>
+  ```ts title="src/auth/github.ts" auto-js
+  export function getConfig() {
+    return {
+      scopes: [],
+    }
+  }
+  ```
 
 - #### `userSignupFields: ExtImport`
 

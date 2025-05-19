@@ -5,7 +5,7 @@ app todoApp {
   title: "ToDo App",
   // head: [],
   webSocket: {
-    fn: import { webSocketFn } from "@src/webSocket",
+    fn: import { webSocketFn } from "@src/chat/webSocket",
     // autoConnect: false
   },
   auth: {
@@ -80,6 +80,11 @@ page SignupPage {
   component: import Signup from "@src/pages/auth/Signup"
 }
 
+route CustomSignupRoute { path: "/custom-signup", to: CustomSignupPage }
+page CustomSignupPage {
+  component: import { SignupPage } from "@src/pages/auth/CustomSignupPage"
+}
+
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import Login from "@src/pages/auth/Login"
@@ -125,9 +130,15 @@ page TaskPage {
   component: import Task from "@src/pages/Task"
 }
 
-route CrudRoute { path: "/crud", to: Crud }
-page Crud {
-  component: import { CrudTestPage } from "@src/pages/CrudTest.tsx",
+route CrudListRoute { path: "/crud", to: CrudList }
+page CrudList {
+  component: import { ListPage } from "@src/pages/crud/ListPage",
+  authRequired: true
+}
+
+route CrudDetailRoute { path: "/crud/:id", to: CrudDetail }
+page CrudDetail {
+  component: import { DetailPage } from "@src/pages/crud/DetailPage",
   authRequired: true
 }
 
@@ -203,6 +214,12 @@ action toggleAllTasks {
   fn: import { toggleAllTasks } from "@src/actions",
   entities: [Task]
 }
+
+action customSignup {
+  fn: import { signup } from "@src/auth/signup",
+}
+
+// --------- Jobs --------- //
 
 job mySpecialJob {
   executor: PgBoss,
@@ -348,14 +365,43 @@ action jsActionWithArgs {
   entities: [Task]
 }
 
-// Crud
+// --------- CRUD --------- //
 
-crud Tasks {
+crud tasks {
   entity: Task,
   operations: {
+    get: {},
     getAll: {
-      overrideFn: import { getAllFilteredTasks } from "@src/crud"
+      overrideFn: import { getAllTasks } from "@src/crud",
     },
-    create: {}
-  }
+    create: {
+      overrideFn: import { createTask } from "@src/crud",
+    },
+    update: {},
+    delete: {},
+  },
+}
+
+// --------- Streaming --------- //
+
+api streamingText {
+  httpRoute: (GET, "/api/streaming-test"),
+  fn: import { getText } from "@src/streaming/api",
+}
+
+apiNamespace defaultMiddlewareForStreamingText {
+  path: "/api/streaming-test",
+  middlewareConfigFn: import { getMiddlewareConfig } from "@src/streaming/api",
+}
+
+route StreamingRoute { path: "/streaming", to: StreamingPage }
+page StreamingPage {
+  component: import { StreamingTestPage } from "@src/streaming/StreamingTestPage",
+}
+
+// --------- Chat --------- //
+route ChatRoute { path: "/chat", to: ChatPage }
+page ChatPage {
+  authRequired: true,
+  component: import { ChatPage } from "@src/chat/ChatPage"
 }

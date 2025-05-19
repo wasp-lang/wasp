@@ -5,7 +5,6 @@ waspComplexTest/.wasp/out/Dockerfile
 waspComplexTest/.wasp/out/db/schema.prisma
 waspComplexTest/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspComplexTest/.wasp/out/installedNpmDepsLog.json
-waspComplexTest/.wasp/out/sdk/wasp/api/axios.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/api/events.ts
 waspComplexTest/.wasp/out/sdk/wasp/api/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/forms/Auth.tsx
@@ -24,6 +23,7 @@ waspComplexTest/.wasp/out/sdk/wasp/auth/jwt.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/logout.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/lucia.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/password.ts
+waspComplexTest/.wasp/out/sdk/wasp/auth/providers/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/providers/types.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/session.ts
 waspComplexTest/.wasp/out/sdk/wasp/auth/types.ts
@@ -135,6 +135,10 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/auth/password.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/auth/password.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/auth/password.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/auth/password.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/auth/providers/index.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/auth/providers/index.d.ts.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/auth/providers/index.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/auth/providers/index.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/auth/providers/types.js

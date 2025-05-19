@@ -79,125 +79,59 @@ Wasp also supports authentication using [Google](../auth/social-auth/google), [G
 
 Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    // ...
+```wasp title="main.wasp"
+// ...
 
-    route SignupRoute { path: "/signup", to: SignupPage }
-    page SignupPage {
-      component: import { SignupPage } from "@src/SignupPage"
-    }
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import { SignupPage } from "@src/SignupPage"
+}
 
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { LoginPage } from "@src/LoginPage"
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
-
-    route SignupRoute { path: "/signup", to: SignupPage }
-    page SignupPage {
-      component: import { SignupPage } from "@src/SignupPage"
-    }
-
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { LoginPage } from "@src/LoginPage"
-    }
-    ```
-  </TabItem>
-</Tabs>
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@src/LoginPage"
+}
+```
 
 Great, Wasp now knows these pages exist!
 
 Here's the React code for the pages you've just imported:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/LoginPage.jsx"
-    import { Link } from 'react-router-dom'
-    import { LoginForm } from 'wasp/client/auth'
+```tsx title="src/LoginPage.tsx" auto-js
+import { Link } from 'react-router-dom'
+import { LoginForm } from 'wasp/client/auth'
 
-    export const LoginPage = () => {
-      return (
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <LoginForm />
-          <br />
-          <span>
-            I don't have an account yet (<Link to="/signup">go to signup</Link>).
-          </span>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/LoginPage.tsx"
-    import { Link } from 'react-router-dom'
-    import { LoginForm } from 'wasp/client/auth'
-
-    export const LoginPage = () => {
-      return (
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <LoginForm />
-          <br />
-          <span>
-            I don't have an account yet (<Link to="/signup">go to signup</Link>).
-          </span>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
+export const LoginPage = () => {
+  return (
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+      <LoginForm />
+      <br />
+      <span>
+        I don't have an account yet (<Link to="/signup">go to signup</Link>).
+      </span>
+    </div>
+  )
+}
+```
 
 The signup page is very similar to the login page:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/SignupPage.jsx"
-    import { Link } from 'react-router-dom'
-    import { SignupForm } from 'wasp/client/auth'
+```tsx title="src/SignupPage.tsx" auto-js
+import { Link } from 'react-router-dom'
+import { SignupForm } from 'wasp/client/auth'
 
-    export const SignupPage = () => {
-      return (
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <SignupForm />
-          <br />
-          <span>
-            I already have an account (<Link to="/login">go to login</Link>).
-          </span>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/SignupPage.tsx"
-    import { Link } from 'react-router-dom'
-    import { SignupForm } from 'wasp/client/auth'
-
-    export const SignupPage = () => {
-      return (
-        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-          <SignupForm />
-          <br />
-          <span>
-            I already have an account (<Link to="/login">go to login</Link>).
-          </span>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
+export const SignupPage = () => {
+  return (
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+      <SignupForm />
+      <br />
+      <span>
+        I already have an account (<Link to="/login">go to login</Link>).
+      </span>
+    </div>
+  )
+}
+```
 
 <ShowForTs>
   :::tip Type-safe links
@@ -223,29 +157,15 @@ Now that auth is required for this page, unauthenticated users will be redirecte
 
 Additionally, when `authRequired` is `true`, the page's React component will be provided a `user` object as prop.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    // highlight-next-line
-    export const MainPage = ({ user }) => {
-      // Do something with the user
-      // ...
-    }
-    ```
-  </TabItem>
+```tsx title="src/MainPage.tsx" auto-js
+import type { AuthUser } from 'wasp/auth'
 
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    import { AuthUser } from 'wasp/auth'
-
-    // highlight-next-line
-    export const MainPage = ({ user }: { user: AuthUser }) => {
-      // Do something with the user
-      // ...
-    }
-    ```
-  </TabItem>
-</Tabs>
+// highlight-next-line
+export const MainPage = ({ user }: { user: AuthUser }) => {
+  // Do something with the user
+  // ...
+}
+```
 
 Ok, time to test this out. Navigate to the main page (`/`) of the app. You'll get redirected to `/login`, where you'll be asked to authenticate.
 
@@ -309,119 +229,69 @@ Instead, we would do a data migration to take care of those tasks, even if it me
 
 Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged-in user's tasks:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/queries.js"
+```ts title="src/queries.ts" auto-js
+import type { Task } from 'wasp/entities'
+// highlight-next-line
+import { HttpError } from 'wasp/server'
+import type { GetTasks } from 'wasp/server/operations'
+
+export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
+  // highlight-start
+  if (!context.user) {
+    throw new HttpError(401)
+  }
+  // highlight-end
+  return context.entities.Task.findMany({
     // highlight-next-line
-    import { HttpError } from 'wasp/server'
+    where: { user: { id: context.user.id } },
+    orderBy: { id: 'asc' },
+  })
+}
+```
 
-    export const getTasks = async (args, context) => {
-      // highlight-start
-      if (!context.user) {
-        throw new HttpError(401)
-      }
-      // highlight-end
-      return context.entities.Task.findMany({
-        // highlight-next-line
-        where: { user: { id: context.user.id } },
-        orderBy: { id: 'asc' },
-      })
-    }
-    ```
-  </TabItem>
+```ts title="src/actions.ts" auto-js
+import type { Task } from 'wasp/entities'
+// highlight-next-line
+import { HttpError } from 'wasp/server'
+import type { CreateTask, UpdateTask } from 'wasp/server/operations'
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/queries.ts"
-    import { Task } from 'wasp/entities'
-    // highlight-next-line
-    import { HttpError } from 'wasp/server'
-    import { GetTasks } from 'wasp/server/operations'
+type CreateTaskPayload = Pick<Task, 'description'>
 
-    export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
-      // highlight-start
-      if (!context.user) {
-        throw new HttpError(401)
-      }
-      // highlight-end
-      return context.entities.Task.findMany({
-        // highlight-next-line
-        where: { user: { id: context.user.id } },
-        orderBy: { id: 'asc' },
-      })
-    }
-    ```
-  </TabItem>
-</Tabs>
+export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+  args,
+  context
+) => {
+  // highlight-start
+  if (!context.user) {
+    throw new HttpError(401)
+  }
+  // highlight-end
+  return context.entities.Task.create({
+    data: {
+      description: args.description,
+      // highlight-next-line
+      user: { connect: { id: context.user.id } },
+    },
+  })
+}
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js {1,4-6,10,16-18} title="src/actions.js"
-    import { HttpError } from 'wasp/server'
+type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
 
-    export const createTask = async (args, context) => {
-      if (!context.user) {
-        throw new HttpError(401)
-      }
-      return context.entities.Task.create({
-        data: {
-          description: args.description,
-          user: { connect: { id: context.user.id } },
-        },
-      })
-    }
-
-    export const updateTask = async (args, context) => {
-      if (!context.user) {
-        throw new HttpError(401)
-      }
-      return context.entities.Task.updateMany({
-        where: { id: args.id, user: { id: context.user.id } },
-        data: { isDone: args.isDone },
-      })
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts {2,11-13,17,28-30,32} title="src/actions.ts"
-    import { Task } from 'wasp/entities'
-    import { HttpError } from 'wasp/server'
-    import { CreateTask, UpdateTask } from 'wasp/server/operations'
-
-    type CreateTaskPayload = Pick<Task, 'description'>
-
-    export const createTask: CreateTask<CreateTaskPayload, Task> = async (
-      args,
-      context
-    ) => {
-      if (!context.user) {
-        throw new HttpError(401)
-      }
-      return context.entities.Task.create({
-        data: {
-          description: args.description,
-          user: { connect: { id: context.user.id } },
-        },
-      })
-    }
-
-    type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
-
-    export const updateTask: UpdateTask<
-      UpdateTaskPayload,
-      { count: number }
-    > = async ({ id, isDone }, context) => {
-      if (!context.user) {
-        throw new HttpError(401)
-      }
-      return context.entities.Task.updateMany({
-        where: { id, user: { id: context.user.id } },
-        data: { isDone },
-      })
-    }
-    ```
-  </TabItem>
-</Tabs>
+export const updateTask: UpdateTask<
+  UpdateTaskPayload,
+  { count: number }
+> = async (args, context) => {
+  // highlight-start
+  if (!context.user) {
+    throw new HttpError(401)
+  }
+  // highlight-end
+  return context.entities.Task.updateMany({
+    where: { id: args.id, user: { id: context.user.id } },
+    data: { isDone: args.isDone },
+  })
+}
+```
 
 :::note
 Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
@@ -443,43 +313,23 @@ You will see that each user has their tasks, just as we specified in our code!
 
 Last, but not least, let's add the logout functionality:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx {2,10} title="src/MainPage.jsx"
-    // ...
-    import { logout } from 'wasp/client/auth'
-    //...
+```tsx title="src/MainPage.tsx" auto-js with-hole
+// ...
+// highlight-next-line
+import { logout } from 'wasp/client/auth'
+//...
 
-    const MainPage = () => {
-      // ...
-      return (
-        <div>
-          // ...
-          <button onClick={logout}>Logout</button>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx {2,10} title="src/MainPage.tsx"
-    // ...
-    import { logout } from 'wasp/client/auth'
-    //...
-
-    const MainPage = () => {
-      // ...
-      return (
-        <div>
-          // ...
-          <button onClick={logout}>Logout</button>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
+const MainPage = () => {
+  // ...
+  return (
+    <div>
+      {hole}
+      // highlight-next-line
+      <button onClick={logout}>Logout</button>
+    </div>
+  )
+}
+```
 
 This is it, we have a working authentication system, and our Todo app is multi-user!
 
