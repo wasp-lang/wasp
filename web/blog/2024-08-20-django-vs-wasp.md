@@ -707,7 +707,7 @@ Just throw a name, prompt, and select a few of your desired settings and boom, y
 
 ![https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
-Are you interested in more content like this? Sign up for [our newsletter](https://wasp.sh/#signup) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
+Are you interested in more content like this? Sign up for [our newsletter](#newsletter-input) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
 
 ### Conclusion
 

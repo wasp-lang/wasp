@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
 import Link from '@docusaurus/Link'
-import classNames from 'classnames'
+import useBrokenLinks from '@docusaurus/useBrokenLinks'
 import create from '@kodingdotninja/use-tailwind-breakpoint'
+import { useEffect, useState } from 'react'
 
 import resolveConfig from 'tailwindcss/resolveConfig'
 import tailwindConfig from '../../tailwind.config.js'
-
 import SectionContainer from './Layouts/SectionContainer'
 
 // TODO(matija): extract this into a separate file so it can be reused. E.g. into hooks.js
@@ -137,8 +136,11 @@ const testimonialLayoutConfig = {
   mobile: { colsNum: 1, initialNumOfItemsToShow: 3, loadMoreStep: 1 },
 }
 
+const TESTIMONIALS_ID = 'testimonials'
+
 const Testimonials = () => {
   const [loadMoreCount, setLoadMoreCount] = useState(0)
+  useBrokenLinks().collectAnchor(TESTIMONIALS_ID)
 
   const isSm = useBreakpoint('sm')
   const isMd = useBreakpoint('md')
@@ -156,8 +158,8 @@ const Testimonials = () => {
   }
 
   const numOfItemsToShow = Math.min(
-    layoutConfig.initialNumOfItemsToShow +
-      loadMoreCount * layoutConfig.loadMoreStep,
+    layoutConfig.initialNumOfItemsToShow 
+      + loadMoreCount * layoutConfig.loadMoreStep,
     testimonials.length
   )
 
@@ -169,7 +171,7 @@ const Testimonials = () => {
   }
 
   return (
-    <SectionContainer className="space-y-16" id="testimonials">
+    <SectionContainer className="space-y-16" id={TESTIMONIALS_ID}>
       <div className="grid grid-cols-12">
         <div className="col-span-12 text-center">
           <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
