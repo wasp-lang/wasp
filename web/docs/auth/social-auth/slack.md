@@ -360,7 +360,7 @@ The `slack` dict has the following properties:
   ```ts title="src/auth/slack.ts" auto-js
   export function getConfig() {
     return {
-      scopes: [],
+      scopes: ["openid", "email", "profile"],
     }
   }
   ```
