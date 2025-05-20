@@ -1,9 +1,10 @@
-import React from 'react'
-
-import SubscribeForm from './SubscribeForm'
+import useBrokenLinks from '@docusaurus/useBrokenLinks'
 import SectionContainer from './Layouts/SectionContainer'
+import SubscribeForm from './SubscribeForm'
 
 const Newsletter = () => {
+  useBrokenLinks().collectAnchor('signup')
+
   return (
     <SectionContainer id="signup">
       <div className="grid grid-cols-12">

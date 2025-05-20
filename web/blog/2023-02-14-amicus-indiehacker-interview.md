@@ -86,4 +86,4 @@ This wasn’t so much a decision as something that came about one decision at a 
 
 <hr />
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

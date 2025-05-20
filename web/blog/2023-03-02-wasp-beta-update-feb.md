@@ -14,7 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 <ImgWithCaption alt="Wasp Update Feb 23" source="img/update-feb-23/banner.png" />
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_
 
 Hey Wasp acolytes (Waspolytes?) 🐝,
 
@@ -123,4 +123,4 @@ As a parting gift, here are a few curated Da Boi memes created by our valued com
 Buzzy buzz, you got that snazz 🐝 🐝,
 Matija, Martin and the Wasp team
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

@@ -1,4 +1,4 @@
-import React from 'react'
+import useBrokenLinks from '@docusaurus/useBrokenLinks'
 import classNames from 'classnames'
 import SectionContainer from './Layouts/SectionContainer'
 
@@ -42,6 +42,8 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
 )
 
 const ShowcaseGallery = () => {
+  useBrokenLinks().collectAnchor('showcases')
+
   return (
     <SectionContainer className="space-y-16" id="showcases">
       <div className="grid grid-cols-12">

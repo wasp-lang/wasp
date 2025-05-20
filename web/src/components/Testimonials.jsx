@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
 import Link from '@docusaurus/Link'
-import classNames from 'classnames'
 import create from '@kodingdotninja/use-tailwind-breakpoint'
+import { useEffect, useState } from 'react'
 
+import useBrokenLinks from '@docusaurus/useBrokenLinks'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import tailwindConfig from '../../tailwind.config.js'
 
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from './Layouts/SectionContainer.js'
 
 // TODO(matija): extract this into a separate file so it can be reused. E.g. into hooks.js
 const twConfig = resolveConfig(tailwindConfig)
@@ -139,6 +139,7 @@ const testimonialLayoutConfig = {
 
 const Testimonials = () => {
   const [loadMoreCount, setLoadMoreCount] = useState(0)
+  useBrokenLinks().collectAnchor('testimonials')
 
   const isSm = useBreakpoint('sm')
   const isMd = useBreakpoint('md')
@@ -157,7 +158,7 @@ const Testimonials = () => {
 
   const numOfItemsToShow = Math.min(
     layoutConfig.initialNumOfItemsToShow +
-      loadMoreCount * layoutConfig.loadMoreStep,
+    loadMoreCount * layoutConfig.loadMoreStep,
     testimonials.length
   )
 

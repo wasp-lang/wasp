@@ -25,6 +25,7 @@ const config: Config = {
   projectName: 'wasp', // Should be repo name if hosted on Github Pages.
   trailingSlash: false,
   onBrokenLinks: 'throw',
+  onBrokenAnchors: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   themeConfig: {

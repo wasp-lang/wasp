@@ -60,4 +60,4 @@ Good luck and Happy Hacking 🐝🚀!
 
 <hr />
 
-_Want to stay in the loop? → [Join our newsletter!](https://wasp.sh/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

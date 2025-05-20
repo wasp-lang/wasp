@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import useBrokenLinks from '@docusaurus/useBrokenLinks'
 import classNames from 'classnames'
+import { useState } from 'react'
 
 const createNewEmailSubscriberApiEndpoint =
   'https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu'
@@ -7,13 +8,14 @@ const createNewEmailSubscriberApiEndpoint =
 const SubscribeForm = ({ className, inputBgColor }) => {
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
+  useBrokenLinks().collectAnchor('newsletter-input')
 
   const handleSubmit = async (event) => {
     // NOTE(matija): without this, the whole page reloads on form submission.
     event.preventDefault()
 
     try {
-      const res = await fetch(createNewEmailSubscriberApiEndpoint, {
+      await fetch(createNewEmailSubscriberApiEndpoint, {
         method: 'POST',
         body: 'userGroup=&email=' + email,
         headers: {
@@ -41,7 +43,7 @@ const SubscribeForm = ({ className, inputBgColor }) => {
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            id="email-address"
+            id="newsletter-input"
             required
             autoComplete="email"
             placeholder="you@awesomedev.com"

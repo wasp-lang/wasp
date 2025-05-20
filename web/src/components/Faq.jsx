@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import Link from '@docusaurus/Link'
+import useBrokenLinks from '@docusaurus/useBrokenLinks'
+import { useState } from 'react'
 import { ChevronDown, ChevronRight } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
@@ -127,6 +127,8 @@ const FaqItem = ({ keyP, faq }) => {
 }
 
 const Faq = () => {
+  useBrokenLinks().collectAnchor('faq')
+
   return (
     <SectionContainer>
       <div className="grid grid-cols-12" id="faq">
