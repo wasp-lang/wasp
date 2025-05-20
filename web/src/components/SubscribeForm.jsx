@@ -5,10 +5,12 @@ import { useState } from 'react'
 const createNewEmailSubscriberApiEndpoint =
   'https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu'
 
+const NEWSLETTER_INPUT_ID = 'newsletter-input'
+
 const SubscribeForm = ({ className, inputBgColor }) => {
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
-  useBrokenLinks().collectAnchor('newsletter-input')
+  useBrokenLinks().collectAnchor(NEWSLETTER_INPUT_ID)
 
   const handleSubmit = async (event) => {
     // NOTE(matija): without this, the whole page reloads on form submission.
@@ -43,7 +45,7 @@ const SubscribeForm = ({ className, inputBgColor }) => {
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            id="newsletter-input"
+            id={NEWSLETTER_INPUT_ID}
             required
             autoComplete="email"
             placeholder="you@awesomedev.com"

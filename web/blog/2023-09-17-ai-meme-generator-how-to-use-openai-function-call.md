@@ -6,30 +6,15 @@ tags: [ai, meme, openai, function calling, react, full-stack, generate]
 toc_max_heading_level: 4
 ---
 
+import TOCInline from '@theme/TOCInline';
+
 ## Table of Contents
 
-- [TL;DR](#tldr)
-- [Intro](#intro)
-  - [Call Me, Maybe](#intro)
-  - [Let's Build](#lets-build)
-- [Part 1](#part-1)
-  - [Configuration](#configuration)
-    - [Project Set Up](#set-up-your-wasp-project)
-    - [Database Set up](#setting-up-the-database)
-    - [Environment Variables](#environment-variables)
-    - [Start Your App](#start-your-app)
-  - [Generating Memes](#generating-a-meme)
-    - [Server-Side Code](#server-side-code)
-    - [Client-Side Code](#client-side-code)
-- [Part 2](#part-2)
-  - [Fetching & Updating Templates w/ Cron Jobs](#fetching--updating-templates-with-cron-jobs)
-    - [Defining our Daily Cron Job](#defining-our-daily-cron-job)
-    - [Testing](#testing)
-  - [Editing Memes](#editing-memes)
-    - [Server-Side Code](#server-side-code-1)
-    - [Client-Side Code](#client-side-code-1)
-  - [Deleting Memes](#deleting-memes)
-- [Conclusion](#conclusion)
+<TOCInline 
+  toc={toc.filter((node) => node.id !== "table-of-contents")} 
+  maxHeadingLevel={4}
+/>
+
 ## TL;DR
 
 In this two-part tutorial, we’re going to build a full-stack instant Meme Generator app using:

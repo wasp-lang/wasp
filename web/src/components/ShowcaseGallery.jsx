@@ -2,50 +2,13 @@ import useBrokenLinks from '@docusaurus/useBrokenLinks'
 import classNames from 'classnames'
 import SectionContainer from './Layouts/SectionContainer'
 
-const Tag = ({ text, className }) => (
-  <span
-    className={classNames(
-      `
-      rounded-md border px-2.5 py-0.5 text-sm
-
-    `,
-      className
-    )}
-  >
-    {text}
-  </span>
-)
-
-const ShowcaseItem = ({ url, thumb, title, description, children }) => (
-  <div>
-    <a href={url}>
-      <div className="group inline-block min-w-full">
-        <div className="flex flex-col space-y-3 pb-8 md:pb-0">
-          <div
-            className={`
-              relative mb-4 h-60 w-full overflow-auto overflow-y-hidden
-              rounded-lg border border-neutral-300 shadow-lg
-            `}
-          >
-            <img src={thumb} className="object-cover" />
-          </div>
-
-          <h3 className="text-xl text-neutral-700">{title}</h3>
-
-          <div className="flex space-x-2">{children}</div>
-
-          <p className="text-base text-neutral-500">{description}</p>
-        </div>
-      </div>
-    </a>
-  </div>
-)
+const SHOWCASE_ID = 'showcases'
 
 const ShowcaseGallery = () => {
-  useBrokenLinks().collectAnchor('showcases')
+  useBrokenLinks().collectAnchor(SHOWCASE_ID)
 
   return (
-    <SectionContainer className="space-y-16" id="showcases">
+    <SectionContainer className="space-y-16" id={SHOWCASE_ID}>
       <div className="grid grid-cols-12">
         <div className="col-span-12 text-center">
           <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
@@ -110,5 +73,45 @@ const ShowcaseGallery = () => {
     </SectionContainer>
   )
 }
+
+const ShowcaseItem = ({ url, thumb, title, description, children }) => (
+  <div>
+    <a href={url}>
+      <div className="group inline-block min-w-full">
+        <div className="flex flex-col space-y-3 pb-8 md:pb-0">
+          <div
+            className={`
+              relative mb-4 h-60 w-full overflow-auto overflow-y-hidden
+              rounded-lg border border-neutral-300 shadow-lg
+            `}
+          >
+            <img src={thumb} className="object-cover" />
+          </div>
+
+          <h3 className="text-xl text-neutral-700">{title}</h3>
+
+          <div className="flex space-x-2">{children}</div>
+
+          <p className="text-base text-neutral-500">{description}</p>
+        </div>
+      </div>
+    </a>
+  </div>
+)
+
+
+const Tag = ({ text, className }) => (
+  <span
+    className={classNames(
+      `
+      rounded-md border px-2.5 py-0.5 text-sm
+
+    `,
+      className
+    )}
+  >
+    {text}
+  </span>
+)
 
 export default ShowcaseGallery

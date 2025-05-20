@@ -17,10 +17,14 @@ export default function BlogPostItemWrapper(props) {
   )
 }
 
+const DISCORD_CARD_ID = 'discord'
+
 const JoinOurCommunityCard = () => {
+  useBrokenLinks().collectAnchor(DISCORD_CARD_ID)
+
   return (
     <div
-      id="discord"
+      id={DISCORD_CARD_ID}
       className={`
         flex flex-col items-start
         space-y-3 rounded-lg
@@ -61,10 +65,13 @@ const DiscordIcon = () => (
   </svg>
 )
 
+const DISCORD_LINK_ID = 'discord-link'
+
 const JoinOurCommunityButton = () => {
-  useBrokenLinks().collectAnchor('discord-link')
+  useBrokenLinks().collectAnchor(DISCORD_LINK_ID)
+
   return (
-    <Link to="https://discord.gg/rzdnErX" id="discord-link">
+    <Link to="https://discord.gg/rzdnErX" id={DISCORD_LINK_ID}>
       <span
         className={`
           cursor-pointer

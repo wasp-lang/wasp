@@ -2,11 +2,13 @@ import useBrokenLinks from '@docusaurus/useBrokenLinks'
 import SectionContainer from './Layouts/SectionContainer'
 import SubscribeForm from './SubscribeForm'
 
+const NEWSLETTER_ID = 'signup'
+
 const Newsletter = () => {
-  useBrokenLinks().collectAnchor('signup')
+  useBrokenLinks().collectAnchor(NEWSLETTER_ID)
 
   return (
-    <SectionContainer id="signup">
+    <SectionContainer id={NEWSLETTER_ID}>
       <div className="grid grid-cols-12">
         <div className="col-span-12">
           <div
