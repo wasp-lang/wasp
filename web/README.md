@@ -38,21 +38,20 @@ To run this version of code and check that it works correctly, run `npm run serv
 We deploy the website to Cloudflare Pages. When you want to deploy changes from the `release` branch, you do it like this:
 
 1. Make sure you have the `release` branch ready with all the changes you want to deploy.
-2. Run `npm run generate-llm-files` to generate llms.txt and llms-full.txt files.
-3. Check out the `deploy-web` branch:
+2. Check out the `deploy-web` branch:
    ```
    git checkout deploy-web
    ```
-4. Merge the `release` branch into `deploy-web`:
+3. Merge the `release` branch into `deploy-web`:
    ```
    git merge release
    ```
-5. Push the `deploy-web` branch to the remote:
+4. Push the `deploy-web` branch to the remote:
    ```
    git push
    ```
-6. Cloudflare Pages will automatically pick up the changes and deploy them.
-7. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
+5. Cloudflare Pages will automatically pick up the changes and deploy them.
+6. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
    ```
    git checkout release
    ```
