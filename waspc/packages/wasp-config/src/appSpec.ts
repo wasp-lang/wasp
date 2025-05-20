@@ -24,10 +24,7 @@ export type DeclTypeToValue = {
   Crud: Crud
 }
 
-export type GetDeclForType<T extends Decl['declType']> = Extract<
-  Decl,
-  { declType: T }
->
+export type GetDeclForType<T extends Decl['declType']> = Extract<Decl, { declType: T }>
 
 // NOTE: Entities are defined in the schema.prisma file, but they can still be
 // referenced.
@@ -102,8 +99,9 @@ export type App = {
   webSocket: Optional<WebSocket>
 }
 
+export type ExtImportKind = 'named' | 'default'
 export type ExtImport = {
-  kind: 'named' | 'default'
+  kind: ExtImportKind
   name: string
   path: `@src/${string}`
 }

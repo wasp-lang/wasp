@@ -157,7 +157,7 @@ You can define as many **seed functions** as you want in an array under the `app
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       // ...
       db: {
@@ -171,7 +171,7 @@ You can define as many **seed functions** as you want in an array under the `app
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       // ...
       db: {
@@ -399,7 +399,7 @@ import { PrismaClient } from '@prisma/client'
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -414,7 +414,7 @@ import { PrismaClient } from '@prisma/client'
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -468,7 +468,7 @@ Use one of the following commands to run the seed functions:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```wasp title=main.wasp
+      ```wasp title="main.wasp"
       app MyApp {
         // ...
         db: {
@@ -482,7 +482,7 @@ Use one of the following commands to run the seed functions:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```wasp title=main.wasp
+      ```wasp title="main.wasp"
       app MyApp {
         // ...
         db: {

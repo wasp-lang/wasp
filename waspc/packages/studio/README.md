@@ -1,6 +1,7 @@
 # Wasp Studio
 
 Wasp Studio has two components:
+
 - the server
 - the client
 
@@ -23,7 +24,7 @@ npm run dev -- -- -d <path_to_data_file>
 For example, running the server with the data file from the `examples` directory:
 
 ```bash
-npm run dev -- -- -d ../../examples/crud-testing/.wasp/out/.wasp-studio-data.json
+npm run dev -- -- -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
 ```
 
 ### Client

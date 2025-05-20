@@ -293,7 +293,7 @@ When using Actions on the client, you'll most likely want to use them inside a c
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=src/pages/Task.jsx
+    ```jsx title="src/pages/Task.jsx"
     import React from 'react'
     // highlight-next-line
     import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
@@ -327,7 +327,7 @@ When using Actions on the client, you'll most likely want to use them inside a c
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=src/pages/Task.tsx
+    ```tsx title="src/pages/Task.tsx"
     import React from 'react'
     // highlight-next-line
     import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
@@ -413,7 +413,7 @@ If you do want to pass additional error information to the client, you can const
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```js title=src/actions.js
+    ```js title="src/actions.js"
     import { HttpError } from 'wasp/server'
 
     export const createTask = async (args, context) => {
@@ -427,7 +427,7 @@ If you do want to pass additional error information to the client, you can const
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title=src/actions.ts
+    ```ts title="src/actions.ts"
     import { type CreateTask } from 'wasp/server/operations'
     import { HttpError } from 'wasp/server'
 
@@ -685,7 +685,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     Expects to find a named export `createfoo` from the file `src/actions.js`
 
-    ```js title=actions.js
+    ```js title="actions.js"
     export const createFoo = (args, context) => {
       // implementation
     }
@@ -706,7 +706,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     You can use the generated type `CreateFoo` and specify the Action's inputs and outputs using its type arguments.
 
-    ```ts title=actions.ts
+    ```ts title="actions.ts"
     import { type CreateFoo } from 'wasp/server/operations'
 
     type Foo = // ...
@@ -764,7 +764,7 @@ Here's an example showing how to configure the Action `markTaskAsDone` that togg
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```jsx title=src/pages/Task.jsx
+    ```jsx title="src/pages/Task.jsx"
     import React from 'react'
     import {
       useQuery,
@@ -815,7 +815,7 @@ Here's an example showing how to configure the Action `markTaskAsDone` that togg
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```tsx title=src/pages/Task.tsx
+    ```tsx title="src/pages/Task.tsx"
     import React from 'react'
     import {
       useQuery,

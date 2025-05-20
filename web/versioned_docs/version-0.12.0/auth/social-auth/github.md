@@ -257,7 +257,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -276,7 +276,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -336,7 +336,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```js title=src/auth/github.js
+    ```js title="src/auth/github.js"
     export const userSignupFields = {
       username: () => "hardcoded-username",
       displayName: (data) => data.profile.displayName,
@@ -382,7 +382,7 @@ Add `gitHub: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```ts title=src/auth/github.ts
+    ```ts title="src/auth/github.ts"
     import { defineUserSignupFields } from 'wasp/server/auth'
 
     export const userSignupFields = defineUserSignupFields({
@@ -467,7 +467,7 @@ The `gitHub` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/auth/github.js
+      ```js title="src/auth/github.js"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere
@@ -479,7 +479,7 @@ The `gitHub` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/auth/github.ts
+      ```ts title="src/auth/github.ts"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere

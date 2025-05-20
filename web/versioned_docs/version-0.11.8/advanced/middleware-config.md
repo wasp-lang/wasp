@@ -82,7 +82,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp {6} title=main.wasp
+    ```wasp {6} title="main.wasp"
     app todoApp {
       // ...
 
@@ -93,7 +93,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
     }
     ```
 
-    ```ts title=src/server/serverSetup.js
+    ```ts title="src/server/serverSetup.js"
     import cors from 'cors'
     import config from '@wasp/config.js'
 
@@ -106,7 +106,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp {6} title=main.wasp
+    ```wasp {6} title="main.wasp"
     app todoApp {
       // ...
 
@@ -117,7 +117,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
     }
     ```
 
-    ```ts title=src/server/serverSetup.ts
+    ```ts title="src/server/serverSetup.ts"
     import cors from 'cors'
     import type { MiddlewareConfigFn } from '@wasp/middleware'
     import config from '@wasp/config.js'
@@ -137,7 +137,7 @@ If you would like to modify the middleware for a single API, you can do somethin
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp {5} title=main.wasp
+    ```wasp {5} title="main.wasp"
     // ...
 
     api webhookCallback {
@@ -148,7 +148,7 @@ If you would like to modify the middleware for a single API, you can do somethin
     }
     ```
 
-    ```ts title=src/server/apis.js
+    ```ts title="src/server/apis.js"
     import express from 'express'
 
     export const webhookCallback = (req, res, _context) => {
@@ -157,7 +157,7 @@ If you would like to modify the middleware for a single API, you can do somethin
 
     export const webhookCallbackMiddlewareFn = (middlewareConfig) => {
       console.log('webhookCallbackMiddlewareFn: Swap express.json for express.raw')
-      
+
       middlewareConfig.delete('express.json')
       middlewareConfig.set('express.raw', express.raw({ type: '*/*' }))
 
@@ -168,7 +168,7 @@ If you would like to modify the middleware for a single API, you can do somethin
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp {5} title=main.wasp
+    ```wasp {5} title="main.wasp"
     // ...
 
     api webhookCallback {
@@ -179,7 +179,7 @@ If you would like to modify the middleware for a single API, you can do somethin
     }
     ```
 
-    ```ts title=src/server/apis.ts
+    ```ts title="src/server/apis.ts"
     import express from 'express'
     import { WebhookCallback } from '@wasp/apis/types'
     import type { MiddlewareConfigFn } from '@wasp/middleware'
@@ -190,7 +190,7 @@ If you would like to modify the middleware for a single API, you can do somethin
 
     export const webhookCallbackMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
       console.log('webhookCallbackMiddlewareFn: Swap express.json for express.raw')
-      
+
       middlewareConfig.delete('express.json')
       middlewareConfig.set('express.raw', express.raw({ type: '*/*' }))
 
@@ -216,7 +216,7 @@ If you would like to modify the middleware for all API routes under some common 
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp {4} title=main.wasp
+    ```wasp {4} title="main.wasp"
     // ...
 
     apiNamespace fooBar {
@@ -225,7 +225,7 @@ If you would like to modify the middleware for all API routes under some common 
     }
     ```
 
-    ```ts title=src/server/apis.js
+    ```ts title="src/server/apis.js"
     export const fooBarNamespaceMiddlewareFn = (middlewareConfig) => {
       const customMiddleware = (_req, _res, next) => {
         console.log('fooBarNamespaceMiddlewareFn: custom middleware')
@@ -240,7 +240,7 @@ If you would like to modify the middleware for all API routes under some common 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp {4} title=main.wasp
+    ```wasp {4} title="main.wasp"
     // ...
 
     apiNamespace fooBar {
@@ -249,7 +249,7 @@ If you would like to modify the middleware for all API routes under some common 
     }
     ```
 
-    ```ts title=src/server/apis.ts
+    ```ts title="src/server/apis.ts"
     import express from 'express'
     import type { MiddlewareConfigFn } from '@wasp/middleware'
 

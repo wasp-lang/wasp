@@ -34,7 +34,7 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 1. Set the `app.db.system` field to PostgreSQL.
 
-```wasp title=main.wasp
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   // ...
@@ -111,7 +111,7 @@ You can define as many **seed functions** as you want in an array under the `app
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       // ...
       db: {
@@ -126,7 +126,7 @@ You can define as many **seed functions** as you want in an array under the `app
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       // ...
       db: {
@@ -314,7 +314,7 @@ Here's an example that uses the `app.db` field to its full potential:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -332,7 +332,7 @@ Here's an example that uses the `app.db` field to its full potential:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
+    ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -438,7 +438,7 @@ Use one of the following commands to run the seed functions:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```wasp title=main.wasp
+      ```wasp title="main.wasp"
       app MyApp {
         // ...
         db: {
@@ -453,7 +453,7 @@ Use one of the following commands to run the seed functions:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```wasp title=main.wasp
+      ```wasp title="main.wasp"
       app MyApp {
         // ...
         db: {
