@@ -1,6 +1,7 @@
+import Head from '@docusaurus/Head'
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import classNames from 'classnames'
 
-import Head from '@docusaurus/Head'
 import ExampleWaspApps from '../components/ExampleWaspApps'
 import Faq from '../components/Faq.jsx'
 import Features from '../components/Features'
@@ -19,8 +20,6 @@ import './preflight.css'
 import styles from './styles.module.css'
 
 import '../prism/prismCustomization'
-
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 
 const Background = () => {
   return (
