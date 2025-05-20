@@ -66,7 +66,7 @@ export const Discord = () => (
   </svg>
 )
 
-export const Slack = () => ( // TODO: test this
+export const Slack = () => (
   <svg
     className={defaultStyles()}
     aria-hidden="true"

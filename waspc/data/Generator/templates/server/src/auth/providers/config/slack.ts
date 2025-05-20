@@ -1,5 +1,4 @@
 {{={= =}=}}
-// TODO: replace discord links with slack links, mb. rework logic
 import type { ProviderConfig } from "wasp/auth/providers/types";
 import { slack } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";

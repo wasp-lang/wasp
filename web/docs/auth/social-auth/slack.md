@@ -20,20 +20,7 @@ Using Slack Authentication is perfect when you build a control panel for a Slack
 
 Let's walk through enabling Slack Authentication, explain some quirks, explore default settings and show how to override them.
 
-## Setting up Slack Auth
-
-Enabling Slack Authentication comes down to a series of steps:
-
-1. Exposing local Wasp development server publicly
-2. Enabling Slack authentication in the Wasp file.
-3. Adding the `User` entity.
-4. Creating Slack App.
-5. Adding the necessary Routes and Pages
-6. Using Auth UI components in our Pages.
-
-<WaspFileStructureNote />
-
-### 1. Exposing local Wasp development server publicly
+## Prerequisite: Exposing local Wasp development server publicly
 
 Unlike most OAuth providers, Slack **explicitly enforces HTTPS and publicly accessible URLs for OAuth redirect URIs**. This means that we can't simply use `localhost:3001` as a base host for redirect urls. Instead, we need to configure Wasp server to be publicly available under HTTPS, even in the local development environment.
 
@@ -54,8 +41,6 @@ To configure client, add this line to your .env.client file (create it if doesn'
 REACT_APP_API_URL=https://<subdomain>.loca.lt
 ```
 
-**Remember to replace the subdomain placeholder with an actual value!
-
 Similarly, to configure the server, add this line to your .env.server:
 ```
 WASP_SERVER_URL=https://<subdomain>.loca.lt
@@ -63,11 +48,19 @@ WASP_SERVER_URL=https://<subdomain>.loca.lt
 
 With this done, we're ready to move on to the next step
 
-<small>
-Tip: Be precise with your redirect URL. Slack’s redirect URLs are case-sensitive and sensitive to trailing slashes. For example, `https://your-app.loca.lt/auth/slack/callback` and `https://your-app.loca.lt/auth/slack/callback/` are **not** the same.
+:::tip Be precise with your redirect URL. Slack’s redirect URLs are case-sensitive and sensitive to trailing slashes. For example, `https://your-app.loca.lt/auth/slack/callback` and `https://your-app.loca.lt/auth/slack/callback/` are **not** the same.
 
-Make sure the URL you enter in the Slack app matches **exactly** what your Wasp server uses. Mismatches will result in OAuth errors.
-</small>
+## Setting up Slack Auth
+
+Enabling Slack Authentication comes down to a series of steps:
+
+1. Enabling Slack authentication in the Wasp file.
+2. Adding the `User` entity.
+3. Creating Slack App.
+4. Adding the necessary Routes and Pages
+5. Using Auth UI components in our Pages.
+
+<WaspFileStructureNote />
 
 ### 2. Adding Slack Auth to Your Wasp File
 
@@ -299,7 +292,7 @@ app myApp {
 model User {
   id          Int    @id @default(autoincrement())
   username    String @unique
-  displayName String
+  avatarUrl   String
 }
 
 // ...
@@ -311,7 +304,7 @@ import { defineUserSignupFields } from 'wasp/server/auth'
 export function config() {
   console.log('Inside user-supplied Slack config')
   return {
-    scopes: [],
+    scopes: ["openid", "email", "profile"],
   }
 }
 
