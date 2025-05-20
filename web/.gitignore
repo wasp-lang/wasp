@@ -19,3 +19,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .vercel
+
+# LLM files
+llms.txt
+llms-full.txt
