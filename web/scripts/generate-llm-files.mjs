@@ -124,6 +124,7 @@ async function processDocumentationFiles(sidebarConfig) {
         const rawContent = await fs.readFile(absolutePath, 'utf8')
         const { attributes, body } = fm(rawContent)
         const title =
+          attributes['title-llm'] ||
           attributes.title ||
           path.basename(absolutePath, path.extname(absolutePath))
         const processedBody = cleanDocContent(body)

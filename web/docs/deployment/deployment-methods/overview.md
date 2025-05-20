@@ -1,5 +1,6 @@
 ---
-title: Deployment Overview
+title: Overview
+title-llm: Deployment Overview
 ---
 
 import { DeploymentOptionsGrid } from './DeploymentOptionsGrid.tsx';

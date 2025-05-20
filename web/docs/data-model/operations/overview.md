@@ -1,5 +1,6 @@
 ---
-title: Operations Overview
+title: Overview
+title-llm: Operations Overview
 ---
 
 import { Required } from '@site/src/components/Tag';
