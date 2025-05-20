@@ -1,5 +1,5 @@
 ---
-title: Create your own UI
+title: Create your own UI for Email Auth
 ---
 
 import { Required } from '@site/src/components/Tag'

@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Social Auth Overview
 ---
 
 import { SocialAuthGrid } from './SocialAuthGrid';

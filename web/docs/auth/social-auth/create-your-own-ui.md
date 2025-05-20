@@ -1,5 +1,5 @@
 ---
-title: Create your own UI
+title: Create your own UI for Social Auth
 ---
 
 [Auth UI](../ui.md) is a common name for all high-level auth forms that come with Wasp.

@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Email Auth Overview
 ---
 
 import { Required } from '@site/src/components/Tag';

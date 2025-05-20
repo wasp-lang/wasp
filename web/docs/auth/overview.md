@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Authentication Overview
 ---
 
 import { AuthMethodsGrid } from "./AuthMethodsGrid";
