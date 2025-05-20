@@ -103,10 +103,7 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
 const Tag = ({ text, className }) => (
   <span
     className={classNames(
-      `
-      rounded-md border px-2.5 py-0.5 text-sm
-
-    `,
+      `rounded-md border px-2.5 py-0.5 text-sm`,
       className
     )}
   >
