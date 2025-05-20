@@ -49,7 +49,7 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -361,7 +361,7 @@ genDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= GJI.jsImportToImportJson (extImportToJsImport <$> maybePrismaSetupFn)
+            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
           ]
 
   return $
