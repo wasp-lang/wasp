@@ -1,6 +1,7 @@
 name: WASPC-CI
 
 on:
+  workflow_call:
   workflow_dispatch:
   push:
     paths:
@@ -11,7 +12,6 @@ on:
   pull_request:
     paths:
       - "waspc/**"
-  create: { tags: [v*] }
   schedule:
     # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
     # (GH deletes it after 7 days of not using it).
@@ -226,21 +226,3 @@ jobs:
 
       - name: Run e2e tests
         run: cabal test e2e-test
-
-      - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
-        run: |
-          OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
-          mkdir artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
-
-      - name: Create Github release
-        uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
-        with:
-          draft: true
-          allowUpdates: true
-          artifacts: "waspc/artifacts/*"
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          token: ${{ secrets.GITHUB_TOKEN }}
