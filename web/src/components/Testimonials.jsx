@@ -157,8 +157,8 @@ const Testimonials = () => {
   }
 
   const numOfItemsToShow = Math.min(
-    layoutConfig.initialNumOfItemsToShow +
-    loadMoreCount * layoutConfig.loadMoreStep,
+    layoutConfig.initialNumOfItemsToShow 
+      + loadMoreCount * layoutConfig.loadMoreStep,
     testimonials.length
   )
 
