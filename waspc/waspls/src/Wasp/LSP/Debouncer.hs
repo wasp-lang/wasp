@@ -97,4 +97,4 @@ newtype Debouncer k = Debouncer
 newDebouncerIO :: IO (Debouncer k)
 newDebouncerIO = do
   m <- STM.newIO
-  return $ Debouncer { debouncerRunningEvents = m }
+  return $ Debouncer {debouncerRunningEvents = m}
