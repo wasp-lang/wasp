@@ -1,8 +1,9 @@
-import { Command } from 'commander';
-import { exit } from 'process';
-import { $, cd, ProcessOutput, Shell } from 'zx';
 import fs from 'fs';
 import path from 'node:path';
+
+import { Command } from 'commander';
+import { exit } from 'process';
+import { cd, chalk } from 'zx';
 
 export function isYes(str: string): boolean {
   return str.trim().toLowerCase().startsWith('y');
@@ -85,14 +86,12 @@ export function makeIdempotent<F extends () => any>(fn: F): () => ReturnType<F> 
   };
 }
 
-// For some reason, the colors from the chalk package wouldn't
-// show up when run as a subprocess by the Wasp CLI. This works.
 export function waspSays(str: string): void {
-  console.log('🚀 \x1b[33m ' + str + ' \x1b[0m');
+  console.log(chalk.yellow(`🚀 ${str}`));
 }
 
 export function boldText(str: string): string {
-  return '\x1b[1m' + str + '\x1b[0m';
+  return chalk.bold(str);
 }
 
 export function displayWaspRocketImage(): void {

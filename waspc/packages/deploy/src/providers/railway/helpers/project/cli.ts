@@ -97,7 +97,7 @@ export class RailwayProject {
   }
 
   doesServiceExist(serviceName: string): boolean {
-    return this.services.map((s) => s.name).includes(serviceName);
+    return this.services.some((s) => s.name === serviceName);
   }
 }
 
