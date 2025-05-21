@@ -59,7 +59,7 @@ On your server:
 6. Build the **client app** into static files.
    - Wasp outputs the client app in the `.wasp/build/web-app` directory.
    <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
-   - You should [build the client app](/deployment/deployment-methods/paas.md#3-deploying-the-web-client-frontend) into static files.
+   - You should [build the client app](/deployment/deployment-methods/paas.md#3-deploying-the-web-client-) into static files.
 7. Install and set up a **reverse proxy** to serve your client and server apps.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
    - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.

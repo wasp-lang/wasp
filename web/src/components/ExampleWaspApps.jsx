@@ -11,7 +11,7 @@ const examples = [
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: 'TodoAppTs',
     repoUrl:
-      'https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs,
+      'https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs',
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },

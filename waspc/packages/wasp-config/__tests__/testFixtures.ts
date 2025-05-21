@@ -4,14 +4,18 @@
  */
 
 import * as AppSpec from '../src/appSpec.js'
+import { Branded } from '../src/branded.js'
 import * as UserApi from '../src/userApi.js'
 
 /**
- * This type removes all properties from T that are optional.
+ * Creates a type containing only the required properties from T.
  *
- * The empty object type - {} - doesn't behave how you expect in TypeScript.
- * It represents any value except null and undefined.
- * To represent empty objects, we use `Record<string, never>` instead.
+ * This utility:
+ * - Filters out optional properties from the type
+ * - Provides a clean type for minimal configuration objects
+ * - Returns `Record<string, never>` (empty object) when no required properties exist
+ *
+ * @template T - The type to extract required properties from
  * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
  */
 type MinimalConfig<T> = keyof T extends never
@@ -23,10 +27,22 @@ type MinimalConfig<T> = keyof T extends never
       ? Record<string, never>
       : R
     : never
+
 /**
- * Required alias for domain consistency sake.
+ * Creates a type with all properties and nested properties required.
+ *
+ * This utility:
+ * - Makes all properties required recursively (removes optional flags)
+ * - Stops from unwrapping branded types fully
+ *
+ * @template T - The type to make fully required
  */
-type FullConfig<T> = Required<T>
+type FullConfig<T> =
+  T extends Branded<infer U, infer B>
+    ? Branded<U, B>
+    : T extends object
+      ? { [K in keyof T]-?: FullConfig<T[K]> }
+      : T
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>
 
@@ -363,7 +379,7 @@ export function getRoute(routeType: PageType): NamedConfig<UserApi.RouteConfig> 
       name: 'MinimalRoute',
       config: {
         path: '/foo/bar',
-        to: getPage(routeType).name as string & { _brand: 'Page' },
+        to: getPage(routeType).name as UserApi.PageName,
       },
     } satisfies MinimalNamedConfig<UserApi.RouteConfig>
   }
@@ -381,7 +397,7 @@ export function getRoute(routeType: PageType): NamedConfig<UserApi.RouteConfig> 
     name,
     config: {
       path: '/foo/bar',
-      to: getPage(routeType).name as string & { _brand: 'Page' },
+      to: getPage(routeType).name as UserApi.PageName,
     },
   } satisfies FullNamedConfig<UserApi.RouteConfig>
 }
