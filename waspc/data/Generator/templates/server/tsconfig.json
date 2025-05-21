@@ -17,9 +17,6 @@
     //  - https://github.com/wasp-lang/wasp/pull/1584#discussion_r1404019301
     //  - https://github.com/wasp-lang/wasp/pull/1713/files#diff-58191eecd9cc55f71c73de89420df8b1866dce38ad35f4ef0f6f8874616eda77R32
     "rootDir": ".",
-    // Overriding this because we want to use top-level await
-    "module": "esnext",
-    "target": "es2017",
     // Enable source map for debugging
     "sourceMap": true,
     // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
