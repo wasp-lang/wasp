@@ -16,7 +16,6 @@ import StrongPath
     fromAbsDir,
   )
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.ConfigFile as CF
 import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
