@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import {
   generateRandomCredentials,
+  performEmailVerification,
   performLogin,
   performSignup,
 } from './helpers'
@@ -10,12 +11,22 @@ test.describe('prisma setup fn', () => {
 
   test.describe.configure({ mode: 'serial' })
 
-  test('prisma setup hook hides a specific task', async ({ page }) => {
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage()
+
     await performSignup(page, {
       email,
       password,
     })
 
+    await expect(page.locator('body')).toContainText(
+      `You've signed up successfully! Check your email for the confirmation link.`
+    )
+
+    await performEmailVerification(page, email)
+  })
+
+  test('prisma setup hook hides a specific task', async ({ page }) => {
     await performLogin(page, {
       email,
       password,
