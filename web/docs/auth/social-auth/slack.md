@@ -62,7 +62,7 @@ Enabling Slack Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 2. Adding Slack Auth to Your Wasp File
+### 1. Enabling Slack authentication in the Wasp file.
 
 Now let's properly configure the Auth object:
 
@@ -88,7 +88,7 @@ app myApp {
 }
 ```
 
-### 3. Add the User Entity
+### 2. Add the User Entity
 
 Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
@@ -102,7 +102,7 @@ model User {
 }
 ```
 
-### 4. Creating a Slack App
+### 3. Creating a Slack App
 
 To use Slack as an authentication method, you'll first need to create a Slack App and provide Wasp with your client key and secret. Here's how you do it:
 
@@ -120,7 +120,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 6. Hit **Show** next to **Client Secret**
 6. Copy your Client ID and Client Secret as you'll need them in the next step.
 
-### 5. Adding Environment Variables
+### 4. Adding Environment Variables
 
 Add these environment variables to the `.env.server` file at the root of your project (take their values from the previous step):
 
@@ -129,7 +129,7 @@ SLACK_CLIENT_ID=your-slack-client-id
 SLACK_CLIENT_SECRET=your-slack-client-secret
 ```
 
-### 6. Adding the Necessary Routes and Pages
+### 5. Adding the Necessary Routes and Pages
 
 Let's define the necessary authentication Routes and Pages.
 
