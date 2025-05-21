@@ -9,7 +9,7 @@ import {
   type RailwayCliProject,
   RailwayCliProjectSchema,
   RailwayProjectListSchema,
-} from './schemas.js';
+} from '../../schemas.js';
 
 export async function initProject({
   baseName,

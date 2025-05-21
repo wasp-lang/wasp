@@ -5,8 +5,8 @@ import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
 import { SetupOptions } from './SetupOptions.js';
 import { waspSays, cdToServerBuildDir, cdToClientBuildDir } from '../../../helpers.js';
 import { serverAppPort, clientAppPort } from '../helpers/ports.js';
-import { getServiceUrl } from '../helpers/railwayCli.js';
 import { ensureProjectForCurrentDir } from '../helpers/project/index.js';
+import { getServiceUrl } from '../helpers/serviceUrl.js';
 
 export async function setup(baseName: string, options: SetupOptions): Promise<void> {
   waspSays('Setting up your Wasp app with Railway!');

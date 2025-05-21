@@ -57,8 +57,8 @@ export async function ensureProjectForCurrentDir(
       return exit(1);
 
     default:
-      const _exhaustiveCheck: never = status;
-      throw new Error(`Unhandled status: ${_exhaustiveCheck}`);
+      status satisfies never;
+      throw new Error(`Unhandled status: ${status}`);
   }
 }
 

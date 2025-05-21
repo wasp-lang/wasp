@@ -12,9 +12,9 @@ import {
   getServerArtefactsDir,
 } from '../../../helpers.js';
 import { clientAppPort, serverAppPort } from '../helpers/ports.js';
-import { getServiceUrl } from '../helpers/railwayCli.js';
 import { exit } from 'process';
 import { getProjectForCurrentDir } from '../helpers/project/cli.js';
+import { getServiceUrl } from '../helpers/serviceUrl.js';
 
 export async function deploy(baseName: string, options: DeployOptions): Promise<void> {
   // Railway CLI links projects to the current directory

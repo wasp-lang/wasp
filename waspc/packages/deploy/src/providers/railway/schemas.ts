@@ -22,3 +22,9 @@ export const RailwayCliProjectSchema = z.object({
 });
 
 export const RailwayProjectListSchema = z.array(RailwayCliProjectSchema);
+
+export const RailwayCliDomainSchema = z.object({
+  domain: z.string(),
+});
+
+export type RailwayCliDomain = z.infer<typeof RailwayCliDomainSchema>;

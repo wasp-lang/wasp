@@ -76,19 +76,6 @@ function isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion: string): bo
   return semver.gte(railwayCliVersion, minSupportedRailwayCliVersion);
 }
 
-export async function getServiceUrl(
-  railwayExe: string,
-  serviceName: string,
-  port: number,
-): Promise<string> {
-  const result = await $`${railwayExe} domain --service "${serviceName}" --port ${port}`;
-  const match = result.stdout.match(/https:\/\/[^\s]*/);
-  if (match === null) {
-    throw new Error('Failed to get service domain');
-  }
-  return match[0];
-}
-
 export async function ensureRailwayBasenameIsValid(thisCommand: Command): Promise<void> {
   // Railway has a limit of 32 characters for the service name.
   // https://docs.railway.com/reference/services#constraints
