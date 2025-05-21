@@ -86,13 +86,15 @@ debounce (Debouncer running) waitMicros event fire = do
 -- has its own debounce timer. Construct a debouncer with 'newDebouncerIO'.
 --
 -- See 'debounce' for how to use it.
-newtype Debouncer k = Debouncer (DebouncerRunningEvents k)
-
--- | A thread-safe map of event labels to async actions. This stores
--- actions for each event that are waiting for their debounce timers to end.
--- This is needed so that new calls to 'debounce' can cancel the currently
--- running actions before they can finish running.
-type DebouncerRunningEvents k = STM.Map k (Async ())
+newtype Debouncer k = Debouncer
+  { -- | A thread-safe map of event labels to async actions. This stores
+    -- actions for each event that are waiting for their debounce timers to end.
+    -- This is needed so that new calls to 'debounce' can cancel the currently
+    -- running actions before they can finish running.
+    debouncerRunningEvents :: STM.Map k (Async ())
+  }
 
 newDebouncerIO :: IO (Debouncer k)
-newDebouncerIO = Debouncer <$> STM.newIO
+newDebouncerIO = do
+  m <- STM.newIO
+  return $ Debouncer { debouncerRunningEvents = m }
