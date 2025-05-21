@@ -4,6 +4,7 @@
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
+    "allowJs": true,
 
     // This property currently doesn't matter because we haven't been running
     // TSC on server code since https://github.com/wasp-lang/wasp/pull/1714.
@@ -19,13 +20,17 @@
     "rootDir": ".",
     // Enable source map for debugging
     "sourceMap": true,
+    // We are using rollup and extensionless imports, our module and module
+    // resolution reflect that.
+    "module": "preserve",
+    "moduleResolution": "bundler",
     // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
     // them here to be explicit.
-    // Enable default imports in TypeScript.
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "skipLibCheck": true,
     "outDir": "dist",
-    "allowJs": true
+    "target": "es2022",
+    "lib" : ["es2023"]
   },
   "include": [
     "src"
