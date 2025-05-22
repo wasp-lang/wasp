@@ -3,11 +3,12 @@
  * Inspired by Github syntax coloring
  */
 
-code[class*='language-'],
-pre[class*='language-'] {
+code[class*="language-"],
+pre[class*="language-"] {
   color: #393a34;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
   direction: ltr;
   text-align: left;
   white-space: pre;
@@ -26,26 +27,26 @@ pre[class*='language-'] {
   hyphens: none;
 }
 
-pre > code[class*='language-'] {
+pre > code[class*="language-"] {
   font-size: 1em;
 }
 
-pre[class*='language-']::-moz-selection,
-pre[class*='language-'] ::-moz-selection,
-code[class*='language-']::-moz-selection,
-code[class*='language-'] ::-moz-selection {
+pre[class*="language-"]::-moz-selection,
+pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection,
+code[class*="language-"] ::-moz-selection {
   background: #b3d4fc;
 }
 
-pre[class*='language-']::selection,
-pre[class*='language-'] ::selection,
-code[class*='language-']::selection,
-code[class*='language-'] ::selection {
+pre[class*="language-"]::selection,
+pre[class*="language-"] ::selection,
+code[class*="language-"]::selection,
+code[class*="language-"] ::selection {
   background: #b3d4fc;
 }
 
 /* Code blocks */
-pre[class*='language-'] {
+pre[class*="language-"] {
   /* padding: 1em; */
   /* margin: 0.5em 0; */
   overflow: auto;
@@ -54,7 +55,7 @@ pre[class*='language-'] {
 }
 
 /* Inline code */
-:not(pre) > code[class*='language-'] {
+:not(pre) > code[class*="language-"] {
   padding: 0.2em;
   padding-top: 1px;
   padding-bottom: 1px;

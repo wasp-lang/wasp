@@ -16,10 +16,10 @@ body {
   @apply bg-yellow-400 text-yellow-900;
 }
 .button.light-blue {
-  @apply bg-sky-200 text-sky-600 hover:bg-sky-100
+  @apply bg-sky-200 text-sky-600 hover:bg-sky-100;
 }
-.button.amber{
-  @apply bg-amber-400 text-slate-900 hover:bg-amber-300
+.button.amber {
+  @apply bg-amber-400 text-slate-900 hover:bg-amber-300;
 }
 .button.sm {
   @apply text-sm py-2 px-4;
@@ -47,7 +47,7 @@ textarea {
 
 .big-box-dark {
   @apply bg-slate-800 text-slate-100 p-8 rounded-xl;
-} 
+}
 
 .status-icon {
   @apply rounded-full w-[27px] h-[27px] flex items-center justify-center;

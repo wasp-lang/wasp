@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import "./FileTree.css";
 
 import TreeView, { flattenTree } from "react-accessible-treeview";
@@ -7,11 +7,7 @@ import { FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa";
 import { SiPrisma } from "react-icons/si";
 import { WaspIcon } from "./WaspIcon";
 
-export function FileTree({
-  paths,
-  onActivePathSelect,
-  freshlyUpdatedPaths,
-}) {
+export function FileTree({ paths, onActivePathSelect, freshlyUpdatedPaths }) {
   const tree = useMemo(() => {
     const root = { name: "", children: [] };
     paths.forEach((path) => {
@@ -19,7 +15,7 @@ export function FileTree({
       let currentLevel = root;
       pathParts.forEach((part, index) => {
         const existingPath = currentLevel.children.find(
-          (child) => child.name === part
+          (child) => child.name === part,
         );
         if (existingPath) {
           currentLevel = existingPath;
@@ -72,7 +68,7 @@ function DirectoryTreeView({ tree, onNodeSelect, freshlyUpdatedPaths }) {
           }) => {
             const props = getNodeProps();
             const className = freshlyUpdatedPaths.includes(
-              element.metadata.path
+              element.metadata.path,
             )
               ? `${props.className} freshly-updated-file`
               : props.className;

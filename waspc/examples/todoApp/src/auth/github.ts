@@ -1,10 +1,10 @@
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth";
 
 export function config() {
-  console.log('Inside user-supplied GitHub config')
+  console.log("Inside user-supplied GitHub config");
   return {
-    scopes: ['user'],
-  }
+    scopes: ["user"],
+  };
 }
 
-export const userSignupFields = defineUserSignupFields({})
+export const userSignupFields = defineUserSignupFields({});

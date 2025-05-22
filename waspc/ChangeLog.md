@@ -1204,7 +1204,7 @@ Define a Query on the server:
 ```typescript
 export const getTask: GetTaskInfo<Pick<Task, "id">, Task> = async (
   { id },
-  context
+  context,
 ) => {
   // ...
 };
@@ -1348,7 +1348,7 @@ export const devSeedSimple = async (prismaClient) => {
   });
   await createTask(
     { description: "Chase the cat" },
-    { user: newUser, entities: { Task: prismaClient.task } }
+    { user: newUser, entities: { Task: prismaClient.task } },
   );
 };
 
@@ -1741,7 +1741,7 @@ You can now use the Tailwind CSS framework in your project by simply adding two 
 
       ```bash
       $ cd migrations
-      $ mkdir "migrations/`date -n +%Y%m%d%H%M%S`_some_name" && touch $_/migration.sql
+      $ mkdir "migrations/$(date -n +%Y%m%d%H%M%S)_some_name" && touch $_/migration.sql
       ```
 
       You can then add contents like the following:

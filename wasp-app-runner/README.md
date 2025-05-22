@@ -22,7 +22,7 @@ run-wasp-app dev
 ### Options
 
 ```bash
-run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+run-wasp-app < mode > [--path-to-app < path > ] [--wasp-cli-cmd < command > ]
 ```
 
 You must pass the `<mode>` as an argument, which can be either `dev` or `build`.

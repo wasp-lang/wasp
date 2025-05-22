@@ -1,19 +1,18 @@
-import Link from '@docusaurus/Link'
-import React from 'react'
-import './LinkGrid.css'
+import Link from "@docusaurus/Link";
+import "./LinkGrid.css";
 
 export interface LinkInfo {
-  title: string
-  description?: string
-  linkTo: string
+  title: string;
+  description?: string;
+  linkTo: string;
 }
 
 export function LinkGrid({
   links,
   caption,
 }: {
-  links: LinkInfo[]
-  caption?: string
+  links: LinkInfo[];
+  caption?: string;
 }) {
   return (
     <>
@@ -28,18 +27,18 @@ export function LinkGrid({
         </p>
       )}
     </>
-  )
+  );
 }
 
 function LinkGridBox({
   link: { title, description, linkTo },
 }: {
-  link: LinkInfo
+  link: LinkInfo;
 }) {
   return (
     <Link to={linkTo} className="link-grid-box">
       <h3>{title} »</h3>
       {description && <p>{description}</p>}
     </Link>
-  )
+  );
 }

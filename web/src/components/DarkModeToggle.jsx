@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
-import { Sun, Moon } from 'react-feather'
+import { useState } from "react";
+import { Moon, Sun } from "react-feather";
 
 const DarkModeToggle = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-  }
+    setIsDarkMode(!isDarkMode);
+  };
 
   return (
     <div className="flex items-end">
@@ -26,7 +26,7 @@ const DarkModeToggle = () => {
         <span
           aria-hidden="true"
           className={`
-            ${isDarkMode ? 'translate-x-5' : 'translate-x-0'}
+            ${isDarkMode ? "translate-x-5" : "translate-x-0"}
             inline-block h-5 w-5
             transform rounded-full bg-white shadow-lg
             ring-0 transition duration-200 ease-in-out
@@ -36,7 +36,7 @@ const DarkModeToggle = () => {
 
       <Moon strokeWidth={2} size={22} className="text-neutral-500" />
     </div>
-  )
-}
+  );
+};
 
-export default DarkModeToggle
+export default DarkModeToggle;

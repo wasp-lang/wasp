@@ -1,5 +1,4 @@
-import React from 'react'
-import useBaseUrl from '@docusaurus/useBaseUrl'
+import useBaseUrl from "@docusaurus/useBaseUrl";
 
 const ImgWithCaption = (props) => {
   return (
@@ -13,14 +12,14 @@ const ImgWithCaption = (props) => {
           />
           <figcaption
             className="image-caption"
-            style={{ fontStyle: 'italic', opacity: 0.6, fontSize: '0.9rem' }}
+            style={{ fontStyle: "italic", opacity: 0.6, fontSize: "0.9rem" }}
           >
             {props.caption}
           </figcaption>
         </figure>
       </p>
     </div>
-  )
-}
+  );
+};
 
-export default ImgWithCaption
+export default ImgWithCaption;
