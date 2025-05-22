@@ -3,6 +3,7 @@ description: |
   This action sets up a Haskell environment for use in actions by
   adding the GHC and Cabal binaries to the PATH. It also caches
   the GHC and Cabal installations to speed up subsequent runs.
+
 inputs:
   ghc-version:
     description: |
