@@ -1,9 +1,7 @@
-import React from "react";
-
-import logo from "./waspello-logo-navbar.svg";
-import "./Navbar.css";
-import { getName } from "../auth/user";
 import { logout } from "wasp/client/auth";
+import { getName } from "../auth/user";
+import "./Navbar.css";
+import logo from "./waspello-logo-navbar.svg";
 
 const Navbar = ({ user }) => {
   const name = getName(user);

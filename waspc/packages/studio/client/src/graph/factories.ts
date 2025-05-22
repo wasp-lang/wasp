@@ -1,4 +1,4 @@
-import { Position, Node, Edge } from "reactflow";
+import { Edge, Node, Position } from "reactflow";
 
 let id = 1;
 
@@ -14,7 +14,7 @@ export function createPageNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -30,7 +30,7 @@ export function createActionNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -46,7 +46,7 @@ export function createQueryNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -62,7 +62,7 @@ export function createRouteNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -80,7 +80,7 @@ export function createEntityNode(
   name: string,
   isUserEntity: boolean,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -97,7 +97,7 @@ export function createApiNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -113,7 +113,7 @@ export function createJobNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -129,7 +129,7 @@ export function createAppNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id,
@@ -145,7 +145,7 @@ export function createAppNode(
 export function createEdge(
   source: string,
   target: string,
-  selectedNode: Node | null
+  selectedNode: Node | null,
 ) {
   return {
     id: `${source}-${target}`,

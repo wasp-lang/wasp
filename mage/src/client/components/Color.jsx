@@ -34,5 +34,5 @@ export const validProjectBrandColors = Object.entries(tailwindColors)
         "gray",
         "neutral",
         "zinc",
-      ].includes(color.name)
+      ].includes(color.name),
   );

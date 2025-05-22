@@ -1,34 +1,34 @@
-import useBrokenLinks from '@docusaurus/useBrokenLinks'
-import classNames from 'classnames'
-import { useState } from 'react'
+import useBrokenLinks from "@docusaurus/useBrokenLinks";
+import classNames from "classnames";
+import { useState } from "react";
 
 const createNewEmailSubscriberApiEndpoint =
-  'https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu'
+  "https://app.loops.so/api/newsletter-form/clg0zndc9000ajn0f8a1bhgmu";
 
-const NEWSLETTER_INPUT_ID = 'newsletter-input'
+const NEWSLETTER_INPUT_ID = "newsletter-input";
 
 const SubscribeForm = ({ className, inputBgColor }) => {
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  useBrokenLinks().collectAnchor(NEWSLETTER_INPUT_ID)
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  useBrokenLinks().collectAnchor(NEWSLETTER_INPUT_ID);
 
   const handleSubmit = async (event) => {
     // NOTE(matija): without this, the whole page reloads on form submission.
-    event.preventDefault()
+    event.preventDefault();
 
     try {
       await fetch(createNewEmailSubscriberApiEndpoint, {
-        method: 'POST',
-        body: 'userGroup=&email=' + email,
+        method: "POST",
+        body: "userGroup=&email=" + email,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-      })
-      setMessage('Thank you for subscribing! 🙏')
+      });
+      setMessage("Thank you for subscribing! 🙏");
     } catch (error) {
-      setMessage('🛑 Oops! Something went wrong. Please try again.')
+      setMessage("🛑 Oops! Something went wrong. Please try again.");
     }
-  }
+  };
 
   return (
     <>
@@ -37,7 +37,7 @@ const SubscribeForm = ({ className, inputBgColor }) => {
       ) : (
         <form
           onSubmit={handleSubmit}
-          className={classNames('sm:flex', className)}
+          className={classNames("sm:flex", className)}
         >
           <input
             aria-label="Email address"
@@ -78,7 +78,7 @@ const SubscribeForm = ({ className, inputBgColor }) => {
         </form>
       )}
     </>
-  )
-}
+  );
+};
 
-export default SubscribeForm
+export default SubscribeForm;

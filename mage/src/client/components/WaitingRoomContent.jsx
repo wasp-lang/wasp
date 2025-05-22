@@ -13,8 +13,8 @@ export function WaitingRoomContent(props) {
       Math.round(
         ((props.numberOfProjectsAheadInQueue - 1) /
           NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL) *
-          AVG_APP_GENERATION_TIME_IN_MIN
-      )
+          AVG_APP_GENERATION_TIME_IN_MIN,
+      ),
     );
   }, [props.numberOfProjectsAheadInQueue]);
 
