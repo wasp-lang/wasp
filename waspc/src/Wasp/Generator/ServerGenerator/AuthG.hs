@@ -24,13 +24,13 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.AuthProviders
-  ( slackAuthProvider,
-    discordAuthProvider,
+  ( discordAuthProvider,
     emailAuthProvider,
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
     localAuthProvider,
+    slackAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider

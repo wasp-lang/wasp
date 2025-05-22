@@ -7,11 +7,11 @@ import Data.Aeson (object, (.=))
 import StrongPath (reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
-  ( slackAuthProvider,
-    discordAuthProvider,
+  ( discordAuthProvider,
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
+    slackAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
