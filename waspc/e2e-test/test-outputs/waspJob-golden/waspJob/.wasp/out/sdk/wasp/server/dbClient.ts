@@ -9,5 +9,8 @@ function createDbClient(): null {
 
 const dbClient = createDbClient()
 
+// PUBLIC API 
+export type PrismaClient = typeof dbClient
+
 // PUBLIC API
 export default dbClient

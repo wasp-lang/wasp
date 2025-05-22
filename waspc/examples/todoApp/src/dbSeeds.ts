@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client/index.js'
-import { type DbSeedFn } from 'wasp/server'
+import { type DbSeedFn, type PrismaClient } from 'wasp/server'
 import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
 import { createTask } from './actions.js'
 import { type AuthUser } from 'wasp/auth'

@@ -477,7 +477,8 @@ spec_AppSpecValid = do
           AS.App.db =
             Just $
               AS.Db.Db
-                { AS.Db.seeds = Nothing
+                { AS.Db.seeds = Nothing,
+                  AS.Db.prismaSetupFn = Nothing
                 },
           AS.App.server = Nothing,
           AS.App.client = Nothing,
