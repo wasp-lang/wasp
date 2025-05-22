@@ -14,10 +14,6 @@ jobs:
   prettier:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          git config --global core.autocrlf input
-          git config --global core.eol lf
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -28,7 +24,7 @@ jobs:
       - name: Run Prettier
         run: |
           npm ci
-          npx prettier --check --ignore-unknown .
+          npm run prettier:check
 
   ormolu:
     runs-on: ubuntu-latest

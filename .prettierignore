@@ -6,5 +6,6 @@ waspc/data/*/templates/
 waspc/e2e-test/test-outputs/
 waspc/.bin
 web/.docusaurus
+web/build/
 web/**/*.md
 web/**/*.mdx

@@ -2,12 +2,6 @@
   "plugins": [
     "prettier-plugin-organize-imports",
     "prettier-plugin-pkg",
-    "prettier-plugin-sh",
-    "prettier-plugin-tailwindcss"
-  ],
-  "semi": false,
-  "singleQuote": true,
-  "trailingComma": "es5",
-  "jsxSingleQuote": true,
-  "experimentalOperatorPosition": "start"
+    "prettier-plugin-sh"
+  ]
 }
