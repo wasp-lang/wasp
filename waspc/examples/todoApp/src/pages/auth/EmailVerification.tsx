@@ -1,8 +1,8 @@
 import { Link } from "wasp/client/router";
 
 import { VerifyEmailForm } from "wasp/client/auth";
-import appearance from './appearance'
-import todoLogo from '../../todoLogo.png'
+import todoLogo from "../../todoLogo.png";
+import appearance from "./appearance";
 
 export function EmailVerification() {
   return (
@@ -23,5 +23,5 @@ export function EmailVerification() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -2,7 +2,7 @@
 title: Auth Hooks
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, DiscordPill } from "./Pills";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 import { ShowForTs } from '@site/src/components/TsJsHelpers'
 
@@ -103,7 +103,7 @@ Wasp calls the `onBeforeSignup` hook before the user is created.
 
 The `onBeforeSignup` hook can be useful if you want to reject a user based on some criteria before they sign up.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -190,7 +190,7 @@ The `onAfterSignup` hook can be useful if you want to send the user a welcome em
 
 Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook to store the OAuth access token and/or [refresh token](#refreshing-the-oauth-access-token) in your database.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -429,7 +429,7 @@ Wasp calls the `onBeforeLogin` hook before the user is logged in.
 
 The `onBeforeLogin` hook can be useful if you want to reject a user based on some criteria before they log in.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">

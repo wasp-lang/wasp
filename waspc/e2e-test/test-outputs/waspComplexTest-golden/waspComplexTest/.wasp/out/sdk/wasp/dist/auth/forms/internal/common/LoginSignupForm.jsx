@@ -52,6 +52,8 @@ export const LoginSignupForm = ({ state, socialButtonsDirection = 'horizontal', 
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
+
+
               <SocialButton href={googleSignInUrl}><SocialIcons.Google /></SocialButton>
 
 

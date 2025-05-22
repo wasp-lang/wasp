@@ -1,4 +1,4 @@
-import waspLogo from './waspLogo.png'
+import waspLogo from "./waspLogo.png";
 
 const WaspSourceHeader = (props) => {
   const divStyle = {
@@ -12,16 +12,39 @@ const WaspSourceHeader = (props) => {
     justifyContent: "center",
     minHeight: "40px",
     height: "100%",
-    filter: "drop-shadow(0 0 0.25rem gray)"
-  }
+    filter: "drop-shadow(0 0 0.25rem gray)",
+  };
 
   return (
     <div style={divStyle}>
-      <span style={{ marginRight: "5px" }}><img alt="Wasp" src={waspLogo} height={30} /></span>
-      <span>This is an example <a href="https://wasp.sh" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>Wasp</a> application{props.name && ` called ${props.name}`}. To see the source, please visit our <a href="https://github.com/wasp-lang/wasp/tree/main/examples" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>GitHub repo</a>.</span>
+      <span style={{ marginRight: "5px" }}>
+        <img alt="Wasp" src={waspLogo} height={30} />
+      </span>
+      <span>
+        This is an example{" "}
+        <a
+          href="https://wasp.sh"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "#fc0" }}
+        >
+          Wasp
+        </a>{" "}
+        application{props.name && ` called ${props.name}`}. To see the source,
+        please visit our{" "}
+        <a
+          href="https://github.com/wasp-lang/wasp/tree/main/examples"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "#fc0" }}
+        >
+          GitHub repo
+        </a>
+        .
+      </span>
       <span style={{ marginLeft: "5px" }}>🚀</span>
     </div>
-  )
-}
+  );
+};
 
-export default WaspSourceHeader
+export default WaspSourceHeader;

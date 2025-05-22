@@ -1,6 +1,6 @@
-import { Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { Fragment } from "react";
 import { Color } from "./Color";
 
 export function MyDropdown({ value, onChange, options }) {
@@ -37,7 +37,11 @@ export function MyDropdown({ value, onChange, options }) {
               >
                 {({ selected }) => (
                   <>
-                    <Option value={option} selected={selected} showDescription={true} />
+                    <Option
+                      value={option}
+                      selected={selected}
+                      showDescription={true}
+                    />
                     {selected ? (
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-600">
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
@@ -57,9 +61,7 @@ export function MyDropdown({ value, onChange, options }) {
 function Option({ value, selected = false, showDescription = false }) {
   return (
     <span
-      className={`flex flex-col ${
-        selected ? "font-medium" : "font-normal"
-      }`}
+      className={`flex flex-col ${selected ? "font-medium" : "font-normal"}`}
     >
       <span className="flex flex-row truncate">
         {value.color && (
@@ -69,7 +71,7 @@ function Option({ value, selected = false, showDescription = false }) {
         )}
         {value.name}
       </span>
-      { showDescription && value.description && (
+      {showDescription && value.description && (
         <span className="text-slate-800 font-light text-xs">
           {value.description}
         </span>

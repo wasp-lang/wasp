@@ -1,42 +1,41 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import SectionContainer from './Layouts/SectionContainer'
-import { GitHub, ArrowUpRight, Monitor } from 'react-feather'
+import Link from "@docusaurus/Link";
+import { ArrowUpRight, GitHub, Monitor } from "react-feather";
+import SectionContainer from "./Layouts/SectionContainer";
 
 const examples = [
   {
-    title: 'Todo App (TypeScript) ✅',
-    description: 'A famous To-Do list app, implemented in TypeScript.',
-    authorName: 'wasp',
-    authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'TodoAppTs',
+    title: "Todo App (TypeScript) ✅",
+    description: "A famous To-Do list app, implemented in TypeScript.",
+    authorName: "wasp",
+    authorImg: "https://avatars.githubusercontent.com/u/55102317",
+    repoName: "TodoAppTs",
     repoUrl:
-      'https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs',
+      "https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs",
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
   },
   {
-    title: 'CoverLetterGPT 🤖',
+    title: "CoverLetterGPT 🤖",
     description:
-      'Generate cover letters based on your CV and the job description. Powered by ChatGPT.',
-    authorName: 'vincanger',
-    authorImg: 'https://avatars.githubusercontent.com/u/70215737',
-    repoName: 'coverlettergpt',
-    repoUrl: 'https://github.com/vincanger/coverlettergpt',
-    demoUrl: 'https://coverlettergpt.xyz/',
+      "Generate cover letters based on your CV and the job description. Powered by ChatGPT.",
+    authorName: "vincanger",
+    authorImg: "https://avatars.githubusercontent.com/u/70215737",
+    repoName: "coverlettergpt",
+    repoUrl: "https://github.com/vincanger/coverlettergpt",
+    demoUrl: "https://coverlettergpt.xyz/",
   },
   {
-    title: 'Realtime voting via WebSockets 🔌',
+    title: "Realtime voting via WebSockets 🔌",
     description:
-      'A realtime, websockets-powered voting app built with Wasp and TypeScript.',
-    authorName: 'wasp',
-    authorImg: 'https://avatars.githubusercontent.com/u/55102317',
-    repoName: 'websockets-realtime-voting',
+      "A realtime, websockets-powered voting app built with Wasp and TypeScript.",
+    authorName: "wasp",
+    authorImg: "https://avatars.githubusercontent.com/u/55102317",
+    repoName: "websockets-realtime-voting",
     repoUrl:
-      'https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting',
-    demoUrl: 'https://websockets-voting-client.fly.dev/login',
+      "https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting",
+    demoUrl: "https://websockets-voting-client.fly.dev/login",
   },
-]
+];
 
 const SeeTheCodeButton = ({ repoUrl }) => (
   <Link to={repoUrl}>
@@ -54,7 +53,7 @@ const SeeTheCodeButton = ({ repoUrl }) => (
       <ArrowUpRight className="ml-2" size={14} />
     </button>
   </Link>
-)
+);
 
 const DemoButton = ({ demoUrl }) => (
   <Link to={demoUrl}>
@@ -72,7 +71,7 @@ const DemoButton = ({ demoUrl }) => (
       <Monitor className="ml-2" size={14} />
     </button>
   </Link>
-)
+);
 
 const ExampleCard = (props) => (
   <>
@@ -94,7 +93,7 @@ const ExampleCard = (props) => (
           <img
             className="inline w-6 rounded-full"
             src={props.authorImg}
-            alt={props.authorName + ' GitHub profile picture'}
+            alt={props.authorName + " GitHub profile picture"}
           />
           <span className="ml-2 text-sm text-neutral-700">
             {props.authorName}
@@ -132,7 +131,7 @@ const ExampleCard = (props) => (
       </div>
     </div>
   </>
-)
+);
 
 const ExampleWaspApps = () => {
   return (
@@ -174,7 +173,7 @@ const ExampleWaspApps = () => {
         </Link>
       </div>
     </SectionContainer>
-  )
-}
+  );
+};
 
-export default ExampleWaspApps
+export default ExampleWaspApps;

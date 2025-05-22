@@ -1,5 +1,5 @@
-import { spawnWithLog } from "./process.js";
 import { createLogger } from "./logging.js";
+import { spawnWithLog } from "./process.js";
 
 export async function startLocalSmtpServer(): Promise<void> {
   const logger = createLogger("smtp-server");

@@ -1,16 +1,15 @@
-import React from 'react'
-import classNames from 'classnames'
-import { Terminal, Layers, Coffee, Code } from 'react-feather'
+import classNames from "classnames";
+import { Code, Coffee, Layers } from "react-feather";
 
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from "./Layouts/SectionContainer";
 
-import styles from '../pages/styles.module.css'
+import styles from "../pages/styles.module.css";
 
 const Lang = () => (
   <>
     <span className="font-bold underline decoration-yellow-500">language</span>
   </>
-)
+);
 
 const Benefit = ({ Icon, title, description }) => (
   <div className="mb-10 space-y-4 md:mb-0">
@@ -28,7 +27,7 @@ const Benefit = ({ Icon, title, description }) => (
     </div>
     <p className="text-neutral-700">{description}</p>
   </div>
-)
+);
 
 const Benefits = () => {
   return (
@@ -74,8 +73,8 @@ const Benefits = () => {
         />
       </dl>
     </SectionContainer>
-  )
-}
+  );
+};
 
 const BenefitsWithSkewedBorder = () => (
   <div className="relative">
@@ -83,7 +82,7 @@ const BenefitsWithSkewedBorder = () => (
       <div
         className={classNames(
           styles.sectionSkewed,
-          'border-b border-t border-yellow-500/25 bg-neutral-100/50'
+          "border-b border-t border-yellow-500/25 bg-neutral-100/50",
         )}
       ></div>
     </div>
@@ -91,6 +90,6 @@ const BenefitsWithSkewedBorder = () => (
       <Benefits />
     </div>
   </div>
-)
+);
 
-export default BenefitsWithSkewedBorder
+export default BenefitsWithSkewedBorder;

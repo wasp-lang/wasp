@@ -1,55 +1,52 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import classNames from 'classnames'
+import Link from "@docusaurus/Link";
 
-import SectionContainer from './Layouts/SectionContainer'
-import SubscribeForm from './SubscribeForm'
-import DarkModeToggle from './DarkModeToggle'
+import SectionContainer from "./Layouts/SectionContainer";
+import SubscribeForm from "./SubscribeForm";
 
 const docs = [
   {
-    text: 'Getting Started',
-    url: '/docs',
+    text: "Getting Started",
+    url: "/docs",
   },
   {
-    text: 'Todo app tutorial',
-    url: '/docs/tutorial/create',
+    text: "Todo app tutorial",
+    url: "/docs/tutorial/create",
   },
   {
-    text: 'Language reference',
-    url: '/docs/general/language',
+    text: "Language reference",
+    url: "/docs/general/language",
   },
-]
+];
 
 const community = [
   {
-    text: 'Discord',
-    url: 'https://discord.gg/rzdnErX',
+    text: "Discord",
+    url: "https://discord.gg/rzdnErX",
   },
   {
-    text: 'Twitter',
-    url: 'https://twitter.com/WaspLang',
+    text: "Twitter",
+    url: "https://twitter.com/WaspLang",
   },
   {
-    text: 'GitHub',
-    url: 'https://github.com/wasp-lang/wasp',
+    text: "GitHub",
+    url: "https://github.com/wasp-lang/wasp",
   },
-]
+];
 
 const company = [
   {
-    text: 'Blog',
-    url: '/blog',
+    text: "Blog",
+    url: "/blog",
   },
   {
-    text: 'Careers',
-    url: 'https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672',
+    text: "Careers",
+    url: "https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672",
   },
   {
-    text: 'Company',
-    url: 'https://www.notion.so/wasp-lang/Founding-Engineer-at-Wasp-88a73838f7f04ab3aee1f8e1c1bee6dd#20569f14a8af452db10ae618d764d505',
+    text: "Company",
+    url: "https://www.notion.so/wasp-lang/Founding-Engineer-at-Wasp-88a73838f7f04ab3aee1f8e1c1bee6dd#20569f14a8af452db10ae618d764d505",
   },
-]
+];
 
 // TODO(matija): duplication, I already have Logo in Nav/index.js
 const Logo = () => (
@@ -59,7 +56,7 @@ const Logo = () => (
     </Link>
     <span className="ml-3 text-lg font-semibold text-neutral-700">Wasp</span>
   </div>
-)
+);
 
 const Segment = ({ title, links }) => (
   <div>
@@ -78,11 +75,11 @@ const Segment = ({ title, links }) => (
               {l.text}
             </a>
           </li>
-        )
+        );
       })}
     </ul>
   </div>
-)
+);
 
 const Footer = () => {
   return (
@@ -132,7 +129,7 @@ const Footer = () => {
         </div>
       </SectionContainer>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

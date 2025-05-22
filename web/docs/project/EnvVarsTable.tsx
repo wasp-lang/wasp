@@ -1,16 +1,16 @@
-import React from 'react'
-import './EnvVarsTable.css'
+import React from "react";
+import "./EnvVarsTable.css";
 
 // @ts-ignore
-import { Required, Optional } from '@site/src/components/Tag'
+import { Optional, Required } from "@site/src/components/Tag";
 
 type EnvVar = {
-  name: string
-  type: 'URL' | 'string' | 'number' | 'boolean'
-  isRequired?: boolean
-  note: React.ReactNode
-  defaultValue?: string
-}
+  name: string;
+  type: "URL" | "string" | "number" | "boolean";
+  isRequired?: boolean;
+  note: React.ReactNode;
+  defaultValue?: string;
+};
 
 export function EnvVarsTable({ envVars }: { envVars: EnvVar[] }) {
   return (
@@ -28,7 +28,7 @@ export function EnvVarsTable({ envVars }: { envVars: EnvVar[] }) {
         ))}
       </tbody>
     </table>
-  )
+  );
 }
 
 function EnvVarRow({
@@ -38,7 +38,7 @@ function EnvVarRow({
   note,
   defaultValue,
 }: EnvVar) {
-  const requiredQualifier = isRequired ? <Required /> : <Optional />
+  const requiredQualifier = isRequired ? <Required /> : <Optional />;
   return (
     <tr>
       <td>
@@ -57,5 +57,5 @@ function EnvVarRow({
       </td>
       <td>{note}</td>
     </tr>
-  )
+  );
 }

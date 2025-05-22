@@ -9,17 +9,17 @@
   a {
     @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
   }
-  input[type='text'],
-  input[type='password'] {
+  input[type="text"],
+  input[type="password"] {
     @apply rounded;
   }
-  input[type='submit'] {
+  input[type="submit"] {
     @apply btn btn-primary;
   }
   form.auth-form input {
     @apply my-2;
   }
-  input[type='checkbox'] {
+  input[type="checkbox"] {
     @apply appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer;
   }
   h1 {
