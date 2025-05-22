@@ -13,42 +13,13 @@ import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 import SlackData from '../entities/\_slack-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
+import Collapse from '@site/src/components/Collapse';
 
 Wasp supports Slack Authentication out of the box.
 
 Using Slack Authentication is perfect when you build a control panel for a Slack app.
 
 Let's walk through enabling Slack Authentication, explain some quirks, explore default settings and show how to override them.
-
-## Prerequisite: Exposing local Wasp development server publicly
-
-Unlike most OAuth providers, Slack **explicitly enforces HTTPS and publicly accessible URLs for OAuth redirect URIs**. This means that we can't simply use `localhost:3001` as a base host for redirect urls. Instead, we need to configure Wasp server to be publicly available under HTTPS, even in the local development environment.
-
-Fortunately, there are quite a few free and convenient tools available to simplify the process, such as [localtunnel.me](https://localtunnel.me/) (free) and [ngrok.com](https://ngrok.com) (lots of features, but free tier is limited). This tutorial will use localtunnel.me as an example.
-
-Install localtunnel globally with `npm install -g localtunnel`. Now, start Wasp server with `wasp start`, and start a tunnel with `lt --port 3001 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have.
-
-<small>
-Note: while omitting subdomain parameter is possible, in that case localtunnel will issue a new random domain for you every time, which complicates app development quite a bit because you would need to update your slack app after each localtunnel restart. Subdomain parameter allows us to sidestep this problem.
-</small>
-
-After starting a tunnel, you will see your tunnel URL in the terminal. Go to that URL to unlock the tunnel by entering your IP address in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
-
-Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places: server and client configuration.
-
-To configure client, add this line to your .env.client file (create it if doesn't exist):
-```
-REACT_APP_API_URL=https://<subdomain>.loca.lt
-```
-
-Similarly, to configure the server, add this line to your .env.server:
-```
-WASP_SERVER_URL=https://<subdomain>.loca.lt
-```
-
-With this done, we're ready to move on to the next step
-
-:::tip Be precise with your redirect URL. Slack’s redirect URLs are case-sensitive and sensitive to trailing slashes. For example, `https://your-app.loca.lt/auth/slack/callback` and `https://your-app.loca.lt/auth/slack/callback/` are **not** the same.
 
 ## Setting up Slack Auth
 
@@ -113,12 +84,20 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 
 <img alt="Slack Applications Screenshot" src={useBaseUrl('img/integrations-slack-1.png')} width="400px" />
 
-4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**. Enter the value `https://<subdomain>.local.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
+4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**. 
+    - Enter the value `https://<subdomain>.local.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
+    - Slack requires us to use HTTPS even when developing, [read below](#slack-https) how to set it up.
 
 4. Hit **Save URLs**.
 5. Go to **Basic Information** tab
 6. Hit **Show** next to **Client Secret**
 6. Copy your Client ID and Client Secret as you'll need them in the next step.
+
+:::tip
+
+Be precise with your redirect URL. Slack’s redirect URLs are case-sensitive and sensitive to trailing slashes.
+For example, `https://your-app.loca.lt/auth/slack/callback` and `https://your-app.loca.lt/auth/slack/callback/` are **not** the same.
+:::
 
 ### 4. Adding Environment Variables
 
@@ -190,6 +169,49 @@ Yay, we've successfully set up Slack Auth! 🎉
 
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).
+
+## Developing with Slack auth and HTTPS {#slack-https}
+
+Unlike most OAuth providers, Slack **requires HTTPS and publicly accessible URL for the OAuth redirect URL**.
+This means that we can't simply use `localhost:3001` as a base host for redirect urls. Instead, we need to configure
+Wasp server to be publicly available under HTTPS, even in the local development environment.
+
+Fortunately, there are quite a few free and convenient tools available to simplify the process, such as
+[localtunnel.me](https://localtunnel.me/) (free) and [ngrok.com](https://ngrok.com) (lots of features,
+but free tier is limited).
+
+<Collapse title="Using localtunnel">
+
+Install localtunnel globally with `npm install -g localtunnel`. 
+
+Start a tunnel with `lt --port 3001 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have.
+
+:::info Subdomain option
+
+Usually localtunnel will assign you a random subdomain on each start, but you can specify it with the `-s` flag.
+Doing it this way will make it easier to remember the URL and will also make it easier to set up the redirect URL
+in Slack app settings.
+
+:::
+
+After starting the tunnel, you will see your tunnel URL in the terminal. Go to that URL to unlock the tunnel by entering your IP address
+in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure
+what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
+
+Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places:
+server and client configuration.
+
+To configure client, add this line to your `.env.client` file (create it if doesn't exist):
+```bash title=".env.client"
+REACT_APP_API_URL=https://<subdomain>.loca.lt
+```
+
+Similarly, to configure the server, add this line to your `.env.server`:
+```bash title=".env.server"
+WASP_SERVER_URL=https://<subdomain>.loca.lt
+```
+
+</Collapse>
 
 ## Default Behaviour
 
