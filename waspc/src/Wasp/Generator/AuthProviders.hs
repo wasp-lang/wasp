@@ -52,7 +52,7 @@ slackAuthProvider =
   OA.OAuthAuthProvider
     { OA._providerId = fromJust $ makeProviderId "slack",
       OA._displayName = "Slack",
-      OA._requiredScope = ["openid", "email", "profile"]
+      OA._requiredScope = ["openid"]
     }
 
 discordAuthProvider :: OA.OAuthAuthProvider

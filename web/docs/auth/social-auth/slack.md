@@ -279,7 +279,7 @@ The data we receive from Slack on the `/openid.connect.userInfo` endpoint looks 
 }
 ```
 
-The fields you receive will depend on the scopes you requested. The default scope is set to `email`, `profile` and `openid`, which are required for OAuth process.
+The fields you receive depend on the scopes you request. In the example above, the scope includes `email`, `profile` and `openid`. By default, only `openid` is requested. See below for instructions on how to request additional scopes.
 
 <small>
   For an up to date info about the data received from Slack, please refer to the [Slack API documentation](https://api.slack.com/methods/openid.connect.userInfo).
