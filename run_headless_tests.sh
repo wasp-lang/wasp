@@ -71,7 +71,14 @@ run_tests_for_app() {
     
     echo -e "${BLUE}Installing dependencies in $(pwd)...${NC}"
     if ! npm ci; then
-        echo -e "${RED}ERROR: npm install failed in $(pwd)${NC}"
+        echo -e "${RED}ERROR: npm ci failed in $(pwd)${NC}"
+        popd > /dev/null
+        return 1
+    fi
+
+    echo -e "${BLUE}Installing Playwright dependencies...${NC}"
+    if ! npx playwright install --with-deps; then
+        echo -e "${RED}ERROR: Playwright installation failed in $(pwd)${NC}"
         popd > /dev/null
         return 1
     fi

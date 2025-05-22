@@ -183,13 +183,6 @@ jobs:
           # Installs the wasp-app-runner globally so that it can be used in the tests
           npm run install:global
 
-      - name: Headless - Install Dependencies
-        id: headless-install-dependencies
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          cd examples/todoApp
-          npm ci
-
       - name: Headless - Store Playwright's Version
         id: headless-store-playwright-version
         if: matrix.os == 'ubuntu-22.04'
@@ -206,13 +199,6 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
-
-      - name: Headless - Setup Playwright
-        id: headless-setup-playwright
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
-        run: |
-          cd examples/todoApp
-          npx playwright install --with-deps
 
       - name: Headless - Run Tests on All Example Apps
         id: headless-run-playwright-tests
