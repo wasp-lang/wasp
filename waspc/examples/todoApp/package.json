@@ -6,7 +6,7 @@
     "env:push": "npx dotenv-vault@latest push development .env.server"
   },
   "dependencies": {
-    "@playwright/test": "^1.51.1",
+    "@playwright/test": "1.51.1",
     "chai": "^5.2.0",
     "linebyline": "^1.3.0",
     "react": "^18.2.0",
