@@ -104,6 +104,12 @@ run_tests_for_app() {
 
   popd > /dev/null
 
+  if [ "$CI_CLEANUP_NODE_MODULES" == "true" ]; then
+    echo -e "${BLUE}Cleaning up after testing $app_dir...${NC}"
+    (cd "$app_dir" && wasp-cli clean)
+    docker system prune -a -f
+  fi
+
   local app_end_time=$(date +%s)
   local app_elapsed=$((app_end_time - app_start_time))
   local minutes=$((app_elapsed / 60))

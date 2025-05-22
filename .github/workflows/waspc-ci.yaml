@@ -199,6 +199,8 @@ jobs:
       - name: Headless - Run Tests on All Example Apps
         id: headless-run-playwright-tests
         if: matrix.os == 'ubuntu-22.04'
+        env:
+          CI_CLEANUP_NODE_MODULES: true
         run: |
           cd ..
           ./run_headless_tests.sh
