@@ -22,6 +22,10 @@ export function getName(user?: AuthUser) {
     return `Discord user ${user.identities.discord.id}`
   }
 
+  if (user.identities.slack !== null) {
+    return `Slack user ${user.identities.slack.id}`
+  }
+
   // if (user.identities.keycloak !== null) {
   //   return `Keycloak user ${user.identities.keycloak.id}`
   // }

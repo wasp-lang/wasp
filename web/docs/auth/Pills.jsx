@@ -46,6 +46,20 @@ export function UsernameAndPasswordPill() {
   )
 }
 
+export function SlackPill() {
+  return (
+    <Pill
+      style={{
+        backgroundColor: 'var(--auth-pills-slack)',
+      }}
+      linkToPage="/docs/auth/social-auth/slack"
+    >
+      Slack
+    </Pill>
+  )
+}
+
+
 export function DiscordPill() {
   return (
     <Pill

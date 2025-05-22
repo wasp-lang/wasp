@@ -28,6 +28,11 @@ const authMethods = [
     linkTo: './social-auth/keycloak',
   },
   {
+    title: 'Slack',
+    description: 'Users sign in with their Slack account',
+    linkTo: './social-auth/slack',
+  },
+  {
     title: 'Discord',
     description: 'Users sign in with their Discord account',
     linkTo: './social-auth/discord',

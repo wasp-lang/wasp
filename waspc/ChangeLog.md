@@ -28,6 +28,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 ### 🎉 New Features
 
 - Wasp now supports `onAfterEmailVerified` auth hooks! You can use this hook to run custom logic after a user has verified their email.
+- Auth: you can now use Slack as a social auth provider (by @scorpil).
 
 ### 🐞 Bug fixes
 

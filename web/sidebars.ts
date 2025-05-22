@@ -87,6 +87,7 @@ const sidebars: SidebarsConfig = {
             'auth/social-auth/github',
             'auth/social-auth/google',
             'auth/social-auth/keycloak',
+            'auth/social-auth/slack',
             'auth/social-auth/discord',
             'auth/social-auth/create-your-own-ui',
           ],
