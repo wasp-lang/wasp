@@ -1,7 +1,7 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from "@playwright/test";
 
-const HEADLESS_TEST_MODE = process.env.HEADLESS_TEST_MODE ?? 'dev'
-const HEADLESS_WASP_CLI_CMD = process.env.HEADLESS_WASP_CLI_CMD ?? 'wasp'
+const HEADLESS_TEST_MODE = process.env.HEADLESS_TEST_MODE ?? "dev";
+const HEADLESS_WASP_CLI_CMD = process.env.HEADLESS_WASP_CLI_CMD ?? "wasp";
 
 /**
  * Read environment variables from file.
@@ -13,7 +13,7 @@ const HEADLESS_WASP_CLI_CMD = process.env.HEADLESS_WASP_CLI_CMD ?? 'wasp'
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -23,25 +23,25 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? 'dot' : 'list',
+  reporter: process.env.CI ? "dot" : "list",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
+    baseURL: "http://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
   },
 
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
     /* Test against mobile viewports. */
     {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 5"] },
     },
   ],
 
@@ -50,9 +50,9 @@ export default defineConfig({
     command: `run-wasp-app ${HEADLESS_TEST_MODE} --path-to-app=../ --wasp-cli-cmd=${HEADLESS_WASP_CLI_CMD}`,
 
     // Wait for the backend to start
-    url: 'http://localhost:3001',
+    url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
     timeout: 180 * 1000,
-    gracefulShutdown: { signal: 'SIGTERM', timeout: 500 },
+    gracefulShutdown: { signal: "SIGTERM", timeout: 500 },
   },
-})
+});

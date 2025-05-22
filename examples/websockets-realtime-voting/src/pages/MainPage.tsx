@@ -1,16 +1,16 @@
+import { Button, Card } from "flowbite-react";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "wasp/client/auth";
 import {
   type ServerToClientPayload,
   useSocket,
   useSocketListener,
 } from "wasp/client/webSocket";
-import { useAuth } from "wasp/client/auth";
-import { useState, useMemo, useEffect } from "react";
-import { Button, Card } from "flowbite-react";
 
 const MainPage = () => {
   const { data: user } = useAuth();
   const [poll, setPoll] = useState<ServerToClientPayload<"updateState"> | null>(
-    null
+    null,
   );
   const totalVotes = useMemo(() => {
     return (

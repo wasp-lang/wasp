@@ -1,10 +1,10 @@
 import * as fs from "fs";
 
+import cors from "@fastify/cors";
+import FastifyStatic from "@fastify/static";
+import { Command } from "commander";
 import Fastify from "fastify";
 import FastifySocketIO from "fastify-socket.io";
-import FastifyStatic from "@fastify/static";
-import cors from "@fastify/cors";
-import { Command } from "commander";
 
 function getUrlFromRelativePathToCwd(path: string) {
   return new URL(path, `file://${process.cwd()}/`);

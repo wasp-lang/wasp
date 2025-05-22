@@ -1,13 +1,12 @@
-import React from 'react'
-import ReactTooltip from 'react-tooltip'
-import { Clipboard } from 'react-feather'
+import { Clipboard } from "react-feather";
+import ReactTooltip from "react-tooltip";
 
 const copyToClipboard = (text) => {
-  navigator.clipboard.writeText(text)
-}
+  navigator.clipboard.writeText(text);
+};
 
 const InstallCmd = () => {
-  const code = 'curl -sSL https://get.wasp.sh/installer.sh | sh'
+  const code = "curl -sSL https://get.wasp.sh/installer.sh | sh";
 
   return (
     <div
@@ -40,7 +39,7 @@ const InstallCmd = () => {
         <b>Copied to clipboard!</b>
       </ReactTooltip>
     </div>
-  )
-}
+  );
+};
 
-export default InstallCmd
+export default InstallCmd;

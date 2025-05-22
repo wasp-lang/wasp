@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
 import Prism from "prismjs";
+import React, { useEffect } from "react";
 import "../css/prismjs-github-theme.css";
 
 export function CodeHighlight(props = {}) {

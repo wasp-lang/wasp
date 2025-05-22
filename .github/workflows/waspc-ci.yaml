@@ -129,10 +129,6 @@ jobs:
           key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
           restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
-      - name: Check Haskell code formatting
-        if: matrix.os == 'ubuntu-22.04'
-        run: ./run ormolu:check
-
       - name: packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
         run: |

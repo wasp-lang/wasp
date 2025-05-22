@@ -1,1 +1,1 @@
-require('../prism/wasp')(Prism)
+require("../prism/wasp")(Prism);
