@@ -3,5 +3,9 @@
     "prettier-plugin-organize-imports",
     "prettier-plugin-pkg",
     "prettier-plugin-sh"
-  ]
+  ],
+  "semi": true,
+  "singleQuote": false,
+  "jsxSingleQuote": false,
+  "trailingComma": "all"
 }
