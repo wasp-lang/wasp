@@ -1,0 +1,20 @@
+diff --git a/schema.prisma b/schema.prisma
+index e07f47c..aad0a3c 100644
+--- a/schema.prisma
++++ b/schema.prisma
+@@ -10,11 +10,14 @@ generator client {
+ }
+ 
+ model User {
+-  id Int @id @default(autoincrement())
++  id    Int    @id @default(autoincrement())
++  tasks Task[]
+ }
+ 
+ model Task {
+   id          Int     @id @default(autoincrement())
+   description String
+   isDone      Boolean @default(false)
++  user        User?   @relation(fields: [userId], references: [id])
++  userId      Int?
+ }

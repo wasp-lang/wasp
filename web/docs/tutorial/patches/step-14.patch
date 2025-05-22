@@ -1,0 +1,44 @@
+diff --git a/src/MainPage.tsx b/src/MainPage.tsx
+index 296d0cf..f02e05e 100644
+--- a/src/MainPage.tsx
++++ b/src/MainPage.tsx
+@@ -1,7 +1,8 @@
+-import type { FormEvent } from 'react'
++import type { FormEvent, ChangeEvent } from 'react'
+ import type { Task } from 'wasp/entities'
+ import {
+   // highlight-next-line
++  updateTask,
+   createTask,
+   getTasks,
+   useQuery,
+@@ -25,9 +26,28 @@ export const MainPage = () => {
+ 
+ // highlight-start
+ const TaskView = ({ task }: { task: Task }) => {
++  // highlight-start
++  const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
++    try {
++      await updateTask({
++        id: task.id,
++        isDone: event.target.checked,
++      })
++    } catch (error: any) {
++      window.alert('Error while updating task: ' + error.message)
++    }
++  }
++  // highlight-end
++
+   return (
+     <div>
+-      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
++      <input
++        type="checkbox"
++        id={String(task.id)}
++        checked={task.isDone}
++        // highlight-next-line
++        onChange={handleIsDoneChange}
++      />
+       {task.description}
+     </div>
+   )
