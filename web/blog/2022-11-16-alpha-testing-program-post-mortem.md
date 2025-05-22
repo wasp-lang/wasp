@@ -127,4 +127,4 @@ Our understanding is that once people finally gave it a try, a portion of them f
 
 The overall conclusion from our Alpha Testing Program is it was a worthy effort which got us valuable feedback and positively affected the overall usage. Moving forward we’ll try to focus on ensuring more quality feedback and prioritising 1-to-1 communication to make sure we fully understand what bothers Wasp users and what we can improve. It also might be helpful to do testing in smaller batches so we are not overwhelmed with responses and can focus on the individual testers - that’s something we might try out in Beta.
 
-As mentioned, the next stop is Beta! It comes out on the 27th of November - [sign up here](/#signup) to get notified.
+As mentioned, the next stop is Beta! It comes out on the 27th of November - [sign up here](#newsletter-input) to get notified.

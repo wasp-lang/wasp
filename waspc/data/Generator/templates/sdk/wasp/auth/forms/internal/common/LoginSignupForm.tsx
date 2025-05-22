@@ -105,6 +105,9 @@ const SocialAuthButtons = styled('div', {
     }
 })
 {=/ isSocialAuthEnabled =}
+{=# enabledProviders.isSlackAuthEnabled =}
+const slackSignInUrl = `${config.apiUrl}{= slackSignInPath =}`
+{=/ enabledProviders.isSlackAuthEnabled =}
 {=# enabledProviders.isDiscordAuthEnabled =}
 const discordSignInUrl = `${config.apiUrl}{= discordSignInPath =}`
 {=/ enabledProviders.isDiscordAuthEnabled =}
@@ -194,9 +197,14 @@ export const LoginSignupForm = ({
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
+            {=# enabledProviders.isSlackAuthEnabled =}
+              <SocialButton href={slackSignInUrl}><SocialIcons.Slack/></SocialButton>
+            {=/ enabledProviders.isSlackAuthEnabled =}
+
             {=# enabledProviders.isDiscordAuthEnabled =}
               <SocialButton href={discordSignInUrl}><SocialIcons.Discord/></SocialButton>
             {=/ enabledProviders.isDiscordAuthEnabled =}
+
             {=# enabledProviders.isGoogleAuthEnabled =}
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
             {=/ enabledProviders.isGoogleAuthEnabled =}

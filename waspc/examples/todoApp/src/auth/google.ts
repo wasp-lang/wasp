@@ -1,10 +1,10 @@
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth";
 
 export function config() {
-  console.log('Inside user-supplied Google config')
+  console.log("Inside user-supplied Google config");
   return {
-    scopes: ['profile', 'email'],
-  }
+    scopes: ["profile", "email"],
+  };
 }
 
-export const userSignupFields = defineUserSignupFields({})
+export const userSignupFields = defineUserSignupFields({});

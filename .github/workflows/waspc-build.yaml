@@ -6,23 +6,23 @@ on:
   workflow_dispatch:
     inputs:
       ghc-version:
-        description: 'GHC version to use'
-        default: '8.10.7'
+        description: "GHC version to use"
+        default: "8.10.7"
         required: false
       node-version:
-        description: 'Node.js version to use'
-        default: '22'
+        description: "Node.js version to use"
+        default: "22"
         required: false
   workflow_call:
     inputs:
       ghc-version:
-        description: 'GHC version to use'
-        default: '8.10.7'
+        description: "GHC version to use"
+        default: "8.10.7"
         type: string
         required: false
       node-version:
-        description: 'Node.js version to use'
-        default: '22'
+        description: "Node.js version to use"
+        default: "22"
         type: string
         required: false
 
@@ -148,7 +148,6 @@ jobs:
 
           # Pack back up
           tar -czf wasp-darwin-universal.tar.gz -C universal .
-
 
       - uses: actions/upload-artifact@v4
         with:

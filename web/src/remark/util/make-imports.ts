@@ -1,4 +1,4 @@
-import type { RootContent } from 'mdast'
+import type { RootContent } from "mdast";
 
 /**
  * Imports in MDX should have their corresponding JS AST attached
@@ -7,34 +7,34 @@ import type { RootContent } from 'mdast'
  * [MDX playground](https://mdxjs.com/playground/))
  */
 export const makeImports = (
-  imports: { from: string; importDefaultAs: string }[]
+  imports: { from: string; importDefaultAs: string }[],
 ): RootContent => {
   return {
-    type: 'mdxjsEsm',
+    type: "mdxjsEsm",
     value: imports
       .map(
         ({ from, importDefaultAs }) =>
-          `import ${importDefaultAs} from ${JSON.stringify(from)}`
+          `import ${importDefaultAs} from ${JSON.stringify(from)}`,
       )
-      .join('\n'),
+      .join("\n"),
     data: {
       estree: {
-        type: 'Program',
-        sourceType: 'module',
+        type: "Program",
+        sourceType: "module",
         comments: [],
         body: imports.map(({ from, importDefaultAs }) => ({
-          type: 'ImportDeclaration',
+          type: "ImportDeclaration",
           specifiers: [
             {
-              type: 'ImportDefaultSpecifier',
+              type: "ImportDefaultSpecifier",
               local: {
-                type: 'Identifier',
+                type: "Identifier",
                 name: importDefaultAs,
               },
             },
           ],
           source: {
-            type: 'Literal',
+            type: "Literal",
             value: from,
             raw: JSON.stringify(from),
           },
@@ -42,5 +42,5 @@ export const makeImports = (
         })),
       },
     },
-  }
-}
+  };
+};

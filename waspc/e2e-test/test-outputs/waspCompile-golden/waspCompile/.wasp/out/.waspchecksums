@@ -513,13 +513,6 @@
     [
         [
             "file",
-            "server/src/polyfill.ts"
-        ],
-        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
-    ],
-    [
-        [
-            "file",
             "server/src/routes/index.js"
         ],
         "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
@@ -536,7 +529,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "ab9d7722a512f2a51a81a63de0b81172421dc86a6556c49f70aab4683d57657f"
+        "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
     ],
     [
         [

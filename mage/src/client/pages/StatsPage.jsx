@@ -1,18 +1,17 @@
-import { useState, useMemo } from "react";
+import ParentSize from "@visx/responsive/lib/components/ParentSize";
+import { useMemo, useState } from "react";
+import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { format } from "timeago.js";
-import ParentSize from "@visx/responsive/lib/components/ParentSize";
-import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
 
 import { logout } from "wasp/client/auth";
-import { useQuery, getProjects, getStats } from "wasp/client/operations";
+import { getProjects, getStats, useQuery } from "wasp/client/operations";
 
-import { Color } from "../components/Color";
-import { StatusPill } from "../components/StatusPill";
 import { BarChart } from "../components/BarChart";
-import { Header } from "../components/Header";
+import { Color } from "../components/Color";
 import { MyDropdown } from "../components/Dropdown";
-import { HomeButton } from "../components/Header";
+import { Header, HomeButton } from "../components/Header";
+import { StatusPill } from "../components/StatusPill";
 import { exampleIdeas } from "../examples";
 import {
   getTailwindClassNameForProjectBrandColor,
@@ -56,7 +55,9 @@ export function Stats() {
   const filteredProjects = useMemo(() => {
     const filters = [];
     if (filterOutExampleApps) {
-      filters.push((stat) => !exampleIdeas.some((example) => example.name === stat.name));
+      filters.push(
+        (stat) => !exampleIdeas.some((example) => example.name === stat.name),
+      );
     }
     return projects
       ? projects.projects.filter((stat) => {
@@ -112,10 +113,16 @@ export function Stats() {
           <>
             <div className="mb-3 flex justify-between items-end">
               <div>
-                <h2 className="text-xl font-semibold text-slate-800">Projects over time</h2>
+                <h2 className="text-xl font-semibold text-slate-800">
+                  Projects over time
+                </h2>
               </div>
               <div className="w-1/3">
-                <MyDropdown options={chartTypes} value={chartType} onChange={setChartType} />
+                <MyDropdown
+                  options={chartTypes}
+                  value={chartType}
+                  onChange={setChartType}
+                />
               </div>
             </div>
             <div style={{ height: 300, width: "100%" }} className="mb-4">
@@ -138,10 +145,15 @@ export function Stats() {
                     id="filter"
                     type="checkbox"
                     checked={filterOutExampleApps}
-                    onChange={(event) => setFilterOutExampleApps(event.target.checked)}
+                    onChange={(event) =>
+                      setFilterOutExampleApps(event.target.checked)
+                    }
                     className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
                   />
-                  <label htmlFor="filter" className="ml-2 text-sm font-medium text-gray-900">
+                  <label
+                    htmlFor="filter"
+                    className="ml-2 text-sm font-medium text-gray-900"
+                  >
                     Filter out example apps
                   </label>
                 </div>
@@ -150,7 +162,10 @@ export function Stats() {
               {stats && (
                 <p className="text-sm text-slate-800 flex gap-2">
                   <span className="bg-slate-100 rounded-md px-2 py-1">
-                    Generated: <strong className="text-slate-800">{stats.totalGenerated}</strong>
+                    Generated:{" "}
+                    <strong className="text-slate-800">
+                      {stats.totalGenerated}
+                    </strong>
                   </span>
                   <span className="bg-slate-100 rounded-md px-2 py-1">
                     Downloaded:{" "}
@@ -190,7 +205,9 @@ export function Stats() {
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                       >
                         <Color
-                          value={getTailwindClassNameForProjectBrandColor(project.primaryColor)}
+                          value={getTailwindClassNameForProjectBrandColor(
+                            project.primaryColor,
+                          )}
                         />{" "}
                         <span className="max-w-[250px] overflow-hidden overflow-ellipsis">
                           {project.name}
@@ -216,7 +233,9 @@ export function Stats() {
                       </th>
                       <td className="px-6 py-4">
                         <StatusPill
-                          status={getTailwindClassNameForProjectStatus(project.status)}
+                          status={getTailwindClassNameForProjectStatus(
+                            project.status,
+                          )}
                           sm
                         >
                           {projectStatusToDisplayableText(project.status)}
@@ -229,10 +248,12 @@ export function Stats() {
                         {format(project.createdAt)}
                       </td>
                       <td className="px-6 py-4">
-                        {getWaitingInQueueDuration(project, logsByProjectId)} &rarr;{" "}
-                        {getDuration(project, logsByProjectId)}
+                        {getWaitingInQueueDuration(project, logsByProjectId)}{" "}
+                        &rarr; {getDuration(project, logsByProjectId)}
                       </td>
-                      <td className={`px-6 py-4 creativity-${project.creativityLevel}`}>
+                      <td
+                        className={`px-6 py-4 creativity-${project.creativityLevel}`}
+                      >
                         {project.creativityLevel}
                       </td>
                       <td className="px-6 py-4">

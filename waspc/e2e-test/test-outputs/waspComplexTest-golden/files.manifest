@@ -627,7 +627,6 @@ waspComplexTest/.wasp/out/server/src/jobs/returnHelloJob.ts
 waspComplexTest/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspComplexTest/.wasp/out/server/src/middleware/index.ts
 waspComplexTest/.wasp/out/server/src/middleware/operations.ts
-waspComplexTest/.wasp/out/server/src/polyfill.ts
 waspComplexTest/.wasp/out/server/src/queries/mySpecialQuery.ts
 waspComplexTest/.wasp/out/server/src/routes/apis/index.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/index.js

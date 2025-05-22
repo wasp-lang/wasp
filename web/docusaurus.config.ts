@@ -1,39 +1,40 @@
-import type * as Preset from '@docusaurus/preset-classic'
-import type { Config, DocusaurusConfig } from '@docusaurus/types'
-import { themes } from 'prism-react-renderer'
-import autoImportTabs from './src/remark/auto-import-tabs'
-import autoJSCode from './src/remark/auto-js-code'
-import codeWithHole from './src/remark/code-with-hole'
-import fileExtSwitcher from './src/remark/file-ext-switcher'
-import searchAndReplace from './src/remark/search-and-replace'
+import type * as Preset from "@docusaurus/preset-classic";
+import type { Config, DocusaurusConfig } from "@docusaurus/types";
+import { themes } from "prism-react-renderer";
+import autoImportTabs from "./src/remark/auto-import-tabs";
+import autoJSCode from "./src/remark/auto-js-code";
+import codeWithHole from "./src/remark/code-with-hole";
+import fileExtSwitcher from "./src/remark/file-ext-switcher";
+import searchAndReplace from "./src/remark/search-and-replace";
 
-const lightCodeTheme = themes.github
+const lightCodeTheme = themes.github;
 
 const includeCurrentVersion =
-  process.env.DOCS_INCLUDE_CURRENT_VERSION === 'true'
-const isProduction = process.env.NODE_ENV === 'production'
+  process.env.DOCS_INCLUDE_CURRENT_VERSION === "true";
+const isProduction = process.env.NODE_ENV === "production";
 
 const config: Config = {
-  title: 'Wasp',
+  title: "Wasp",
   tagline:
-    'A simple language for developing full-stack web apps with less code.',
+    "A simple language for developing full-stack web apps with less code.",
   // url, baseUrl, organizationName, projectName and trailingSlash are set according to the
   // instructions in https://docusaurus.io/docs/deployment#deploying-to-github-pages .
-  url: 'https://wasp.sh',
-  baseUrl: '/', // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
-  organizationName: 'wasp-lang', // Should be GitHub org/user name if hosted on Github Pages.
-  projectName: 'wasp', // Should be repo name if hosted on Github Pages.
+  url: "https://wasp.sh",
+  baseUrl: "/", // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
+  organizationName: "wasp-lang", // Should be GitHub org/user name if hosted on Github Pages.
+  projectName: "wasp", // Should be repo name if hosted on Github Pages.
   trailingSlash: false,
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
+  onBrokenLinks: "throw",
+  onBrokenAnchors: "throw",
+  onBrokenMarkdownLinks: "warn",
+  favicon: "img/favicon.ico",
   themeConfig: {
     announcementBar: {
-      id: 'LW7',
+      id: "LW7",
       content:
         '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
-      backgroundColor: '#eab307',
-      textColor: '#fff',
+      backgroundColor: "#eab307",
+      textColor: "#fff",
       isCloseable: false,
     },
 
@@ -53,86 +54,86 @@ const config: Config = {
       },
     },
     navbar: {
-      title: '.wasp (beta)',
+      title: ".wasp (beta)",
       logo: {
-        alt: 'Wasp logo',
-        src: 'img/wasp-logo-eqpar-circle.png',
-        href: 'https://wasp.sh/',
-        target: '_self',
+        alt: "Wasp logo",
+        src: "img/wasp-logo-eqpar-circle.png",
+        href: "https://wasp.sh/",
+        target: "_self",
       },
       items: [
         {
-          type: 'docsVersion',
-          position: 'left',
-          label: 'Docs',
-          className: 'navbar-item-docs navbar-item-outside',
+          type: "docsVersion",
+          position: "left",
+          label: "Docs",
+          className: "navbar-item-docs navbar-item-outside",
         },
         {
-          type: 'docsVersionDropdown',
-          position: 'left',
-          className: 'navbar-item-docs-version-dropdown',
+          type: "docsVersionDropdown",
+          position: "left",
+          className: "navbar-item-docs-version-dropdown",
         },
         {
-          to: 'blog',
-          label: 'Blog',
-          position: 'left',
+          to: "blog",
+          label: "Blog",
+          position: "left",
         },
         {
-          href: 'https://github.com/wasp-lang/wasp',
-          className: 'navbar-item-github',
-          position: 'right',
+          href: "https://github.com/wasp-lang/wasp",
+          className: "navbar-item-github",
+          position: "right",
         },
         {
-          href: 'https://twitter.com/WaspLang',
-          className: 'navbar-item-twitter',
-          position: 'right',
+          href: "https://twitter.com/WaspLang",
+          className: "navbar-item-twitter",
+          position: "right",
         },
         {
-          href: 'https://discord.gg/rzdnErX',
-          className: 'navbar-item-discord',
-          position: 'right',
+          href: "https://discord.gg/rzdnErX",
+          className: "navbar-item-discord",
+          position: "right",
         },
       ],
     },
     prism: {
-      additionalLanguages: ['shell-session', 'haskell'],
+      additionalLanguages: ["shell-session", "haskell"],
       theme: lightCodeTheme,
     },
     footer: {
-      style: 'dark',
+      style: "dark",
       links: [
         {
-          title: 'Docs',
+          title: "Docs",
           items: [
             {
-              label: 'Getting started',
-              to: 'docs',
+              label: "Getting started",
+              to: "docs",
             },
             {
-              label: 'Todo app tutorial',
-              to: 'docs/tutorial/create',
+              label: "Todo app tutorial",
+              to: "docs/tutorial/create",
             },
           ],
         },
         {
-          title: 'Community',
+          title: "Community",
           items: [
             {
-              label: 'Discord',
-              href: 'https://discord.gg/rzdnErX',
+              label: "Discord",
+              href: "https://discord.gg/rzdnErX",
             },
           ],
         },
         {
-          title: 'More',
+          title: "More",
           items: [
             {
-              label: 'GitHub',
-              href: 'https://github.com/wasp-lang/wasp',
+              label: "GitHub",
+              href: "https://github.com/wasp-lang/wasp",
             },
             {
-              label: 'Contact',
-              to: 'docs/contact',
+              label: "Contact",
+              to: "docs/contact",
             },
           ],
         },
@@ -140,25 +141,25 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} Wasp.`,
     },
     algolia: {
-      appId: '2EJBEYUJK0',
-      apiKey: 'b90c50ab126398470abd0efa5d397870',
-      indexName: 'wasp',
+      appId: "2EJBEYUJK0",
+      apiKey: "b90c50ab126398470abd0efa5d397870",
+      indexName: "wasp",
       // ContextualSearch is useful when you are doing versioning,
       // it searches only in v1 docs if you are searching from v1 docs.
       // Therefore we have it enabled, since we have multiple doc versions.
       contextualSearch: true,
     },
-    image: 'img/wasp_twitter_cover.png',
-    metadata: [{ name: 'twitter:card', content: 'summary_large_image' }],
+    image: "img/wasp_twitter_cover.png",
+    metadata: [{ name: "twitter:card", content: "summary_large_image" }],
   } as Preset.ThemeConfig,
   presets: [
     [
-      '@docusaurus/preset-classic',
+      "@docusaurus/preset-classic",
       {
         docs: {
-          sidebarPath: './sidebars.ts',
+          sidebarPath: "./sidebars.ts",
           sidebarCollapsible: true,
-          editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
+          editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
           remarkPlugins: [
             autoJSCode,
             autoImportTabs,
@@ -174,7 +175,7 @@ const config: Config = {
           // In development, we want "current" docs to be the default docs (served at /docs),
           // to make it easier for us a bit. Otherwise, by default, the latest versioned docs
           // will be served under /docs.
-          lastVersion: includeCurrentVersion ? 'current' : undefined,
+          lastVersion: includeCurrentVersion ? "current" : undefined,
 
           // Uncomment line below to build and show only current docs, for faster build times
           // during development, if/when needed.
@@ -189,7 +190,7 @@ const config: Config = {
             ...(includeCurrentVersion
               ? {
                   current: {
-                    label: 'Next', // Label shown in the documentation to address this version of docs.
+                    label: "Next", // Label shown in the documentation to address this version of docs.
                     noIndex: true, // these are un-released docs, we don't want search engines indexing them.
                   },
                 }
@@ -208,51 +209,51 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
-          blogSidebarCount: 'ALL',
-          blogSidebarTitle: 'All our posts',
-          postsPerPage: 'ALL',
-          editUrl: 'https://github.com/wasp-lang/wasp/edit/release/web',
-          onUntruncatedBlogPosts: 'log',
+          blogSidebarCount: "ALL",
+          blogSidebarTitle: "All our posts",
+          postsPerPage: "ALL",
+          editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
+          onUntruncatedBlogPosts: "log",
         },
         theme: {
-          customCss: ['./src/css/custom.css'],
+          customCss: ["./src/css/custom.css"],
         },
       } as Preset.Options,
     ],
   ],
   scripts: getScripts(),
   plugins: [
-    'plugin-image-zoom',
+    "plugin-image-zoom",
     async function myPlugin(context, options) {
       return {
-        name: 'docusaurus-tailwindcss',
+        name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
           // Appends TailwindCSS and AutoPrefixer.
-          postcssOptions.plugins.push(require('tailwindcss'))
-          postcssOptions.plugins.push(require('autoprefixer'))
-          return postcssOptions
+          postcssOptions.plugins.push(require("tailwindcss"));
+          postcssOptions.plugins.push(require("autoprefixer"));
+          return postcssOptions;
         },
-      }
+      };
     },
   ],
-}
+};
 
 function getScripts() {
-  const scripts: DocusaurusConfig['scripts'] = [
-    '/scripts/posthog.js',
-    '/js/fix-multiple-trailing-slashes.js',
-  ]
+  const scripts: DocusaurusConfig["scripts"] = [
+    "/scripts/posthog.js",
+    "/js/fix-multiple-trailing-slashes.js",
+  ];
 
   if (isProduction) {
     // Using Cloudflare Workers to proxy the analytics script
     scripts.push({
-      src: '/waspara/wasp/script.js',
+      src: "/waspara/wasp/script.js",
       defer: true,
-      'data-domain': 'wasp.sh',
-      'data-api': '/waspara/wasp/event',
-    })
+      "data-domain": "wasp.sh",
+      "data-api": "/waspara/wasp/event",
+    });
   }
-  return scripts
+  return scripts;
 }
 
-export default config
+export default config;

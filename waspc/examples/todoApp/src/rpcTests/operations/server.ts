@@ -1,53 +1,53 @@
 import {
-  voidToStringAuth,
-  voidToStringNoAuth,
-  boolToStringNoAuth,
   boolToStringAuth,
-  boolToVoidNoAuth,
+  boolToStringNoAuth,
   boolToVoidAuth,
-  unspecifiedToNumber,
-  taskToTaskUnspecified,
-  taskToTaskSatisfies,
-  taskToTaskSpecified,
+  boolToVoidNoAuth,
+  getAnyAuth,
+  getAnyNoAuth,
   getAnythingAuth,
   getAnythingNoAuth,
-  getTrueVoid,
-  getAnyNoAuth,
-  type TestingAction,
-  getAnyAuth,
   getAnyToNumberSpecified,
+  getTrueVoid,
   jsActionWithArgs,
-} from 'wasp/server/operations'
+  taskToTaskSatisfies,
+  taskToTaskSpecified,
+  taskToTaskUnspecified,
+  unspecifiedToNumber,
+  voidToStringAuth,
+  voidToStringNoAuth,
+  type TestingAction,
+} from "wasp/server/operations";
 
 import {
-  taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
   taskToTaskSatisfies as taskToTaskSatisfiesDefinition,
-} from './definitions'
+  taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
+} from "./definitions";
 
-import { Equal, Expect } from '../helpers'
-import { AuthUser } from 'wasp/auth'
-import { Task } from 'wasp/entities'
-import { Payload } from 'wasp/server/_types'
+import { AuthUser } from "wasp/auth";
+import { Task } from "wasp/entities";
+import { Payload } from "wasp/server/_types";
+import { Equal, Expect } from "../helpers";
 
 export const testingAction: TestingAction = async (_args, context) => {
   // TODO: (Filip) When sorting out the tests, we should also test whether the
   // outputs are correct. See:
   // - https://github.com/wasp-lang/wasp/issues/2024
   // - https://github.com/wasp-lang/wasp/issues/2011
-  await voidToStringNoAuth()
-  await boolToStringNoAuth(true)
+  await voidToStringNoAuth();
+  await boolToStringNoAuth(true);
 
-  const user = context.user
+  const user = context.user;
   if (!user) {
-    return
+    return;
   }
 
-  await voidToStringAuth({ user })
-  await boolToStringAuth(true, { user })
+  await voidToStringAuth({ user });
+  await boolToStringAuth(true, { user });
 
-  await boolToVoidNoAuth(true)
-  await boolToVoidAuth(true, { user })
-}
+  await boolToVoidNoAuth(true);
+  await boolToVoidAuth(true, { user });
+};
 
 type TestCases = [
   Expect<
@@ -55,7 +55,7 @@ type TestCases = [
       typeof taskToTaskUnspecified,
       (
         args: Task,
-        ctx: { user: AuthUser }
+        ctx: { user: AuthUser },
       ) => ReturnType<typeof taskToTaskUnspecifiedDefinition>
     >
   >,
@@ -64,7 +64,7 @@ type TestCases = [
       typeof taskToTaskSatisfies,
       (
         args: Task,
-        ctx: { user: AuthUser }
+        ctx: { user: AuthUser },
       ) => ReturnType<typeof taskToTaskSatisfiesDefinition>
     >
   >,
@@ -131,5 +131,5 @@ type TestCases = [
       typeof jsActionWithArgs,
       (args: any, ctx: { user: AuthUser }) => Promise<void>
     >
-  >
-]
+  >,
+];

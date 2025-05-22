@@ -1,22 +1,21 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import './SocialAuthGrid.css'
+import Link from "@docusaurus/Link";
+import "./SocialAuthGrid.css";
 
 export function SocialAuthGrid({
-  pagePart = '', // e.g. #overrides
+  pagePart = "", // e.g. #overrides
 }) {
   const authMethods = [
     {
-      title: 'Google',
-      description: 'Users sign in with their Google account.',
-      linkToDocs: './google' + pagePart,
+      title: "Google",
+      description: "Users sign in with their Google account.",
+      linkToDocs: "./google" + pagePart,
     },
     {
-      title: 'Github',
-      description: 'Users sign in with their Github account.',
-      linkToDocs: './github' + pagePart,
+      title: "Github",
+      description: "Users sign in with their Github account.",
+      linkToDocs: "./github" + pagePart,
     },
-  ]
+  ];
   return (
     <>
       <div className="social-auth-grid">
@@ -32,7 +31,7 @@ export function SocialAuthGrid({
         <small>Click on each provider for more details.</small>
       </p>
     </>
-  )
+  );
 }
 
 function AuthMethodBox({
@@ -40,14 +39,14 @@ function AuthMethodBox({
   title,
   description,
 }: {
-  linkToDocs: string
-  title: string
-  description: string
+  linkToDocs: string;
+  title: string;
+  description: string;
 }) {
   return (
     <Link to={linkToDocs} className="auth-method-box">
       <h3>{title} »</h3>
       <p>{description}</p>
     </Link>
-  )
+  );
 }

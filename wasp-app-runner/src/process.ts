@@ -1,6 +1,6 @@
-import readline from "readline";
 import { ChildProcess, spawn } from "child_process";
-import { log } from "./logging.js";
+import readline from "readline";
+import { createLogger } from "./logging.js";
 import type { EnvVars } from "./types.js";
 
 type SpawnOptions = {
@@ -12,6 +12,7 @@ type SpawnOptions = {
 
 class ChildProcessManager {
   private children: ChildProcess[] = [];
+  private logger = createLogger("child-process-manager");
 
   constructor() {
     process.on("SIGINT", () => this.cleanExit("SIGINT"));
@@ -31,7 +32,10 @@ class ChildProcessManager {
   }
 
   private cleanExit(reason: string) {
-    log("shutdown", "warn", `Received ${reason}. Cleaning up...`);
+    if (this.children.length === 0) {
+      return;
+    }
+    this.logger.warn(`Received ${reason}. Cleaning up...`);
     this.children.forEach((child) => {
       if (!child.killed) {
         child.kill();
@@ -53,6 +57,7 @@ export function spawnWithLog({
   extraEnv?: EnvVars;
 }): Promise<{ exitCode: number | null }> {
   return new Promise((resolve, reject) => {
+    const logger = createLogger(name);
     const proc = spawn(cmd, args, {
       cwd,
       env: { ...process.env, ...extraEnv },
@@ -60,23 +65,23 @@ export function spawnWithLog({
     });
     childProcessManager.addChild(proc);
 
-    readStreamLines(proc.stdout, (line) => log(name, "info", line));
-    readStreamLines(proc.stderr, (line) => log(name, "error", line));
+    readStreamLines(proc.stdout, (line) => logger.info(line));
+    readStreamLines(proc.stderr, (line) => logger.error(line));
 
     proc.on("error", (err) => {
-      log(name, "error", `Process error: ${err.message}`);
+      logger.error(`Process error: ${err.message}`);
       reject(err);
     });
 
     proc.on("close", (exitCode) => {
       childProcessManager.removeChild(proc);
       if (exitCode === 0) {
-        log(name, "success", "Process completed successfully");
+        logger.success("Process completed successfully");
         resolve({
           exitCode,
         });
       } else {
-        log(name, "error", `Process exited with code ${exitCode}`);
+        logger.error(`Process exited with code ${exitCode}`);
         reject({
           exitCode,
         });
@@ -118,7 +123,7 @@ export function spawnAndCollectOutput({
 
 function readStreamLines(
   stream: NodeJS.ReadableStream,
-  callback: (line: string) => void
+  callback: (line: string) => void,
 ) {
   const rl = readline.createInterface({
     input: stream,

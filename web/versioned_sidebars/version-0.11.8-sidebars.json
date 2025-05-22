@@ -116,22 +116,14 @@
       "label": "General",
       "collapsed": false,
       "collapsible": false,
-      "items": [
-        "general/language",
-        "general/cli"
-      ]
+      "items": ["general/language", "general/cli"]
     },
     {
       "type": "category",
       "label": "Miscellaneous",
       "collapsed": false,
       "collapsible": false,
-      "items": [
-        "contributing",
-        "telemetry",
-        "vision",
-        "contact"
-      ]
+      "items": ["contributing", "telemetry", "vision", "contact"]
     }
   ]
 }

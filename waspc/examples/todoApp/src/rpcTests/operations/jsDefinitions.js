@@ -1,1 +1,1 @@
-export const jsActionWithArgs = async (args, context) => {}
+export const jsActionWithArgs = async (args, context) => {};

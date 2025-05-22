@@ -1,63 +1,63 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-import { tasks as tasksCrud } from 'wasp/client/crud'
-import { Link } from 'wasp/client/router'
-import { getEmail } from 'wasp/auth'
-import { Task } from 'wasp/entities'
+import { getEmail } from "wasp/auth";
+import { tasks as tasksCrud } from "wasp/client/crud";
+import { Link } from "wasp/client/router";
+import { Task } from "wasp/entities";
 
 export const ListPage = () => {
-  const { data: tasks, isLoading } = tasksCrud.getAll.useQuery()
+  const { data: tasks, isLoading } = tasksCrud.getAll.useQuery();
 
-  const createTask = tasksCrud.create.useAction()
-  const deleteTask = tasksCrud.delete.useAction()
-  const updateTask = tasksCrud.update.useAction()
+  const createTask = tasksCrud.create.useAction();
+  const deleteTask = tasksCrud.delete.useAction();
+  const updateTask = tasksCrud.update.useAction();
 
-  const [newTaskTitle, setNewTaskTitle] = useState('')
-  const [editTaskTitle, setEditTaskTitle] = useState('')
-  const [error, setError] = useState('')
-  const [isEditing, setIsEditing] = useState<number | null>(null)
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [editTaskTitle, setEditTaskTitle] = useState("");
+  const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState<number | null>(null);
 
   async function handleCreateTask(e: React.FormEvent) {
-    setError('')
-    e.preventDefault()
+    setError("");
+    e.preventDefault();
     try {
       await createTask({
         description: newTaskTitle,
-      })
+      });
     } catch (err: unknown) {
-      setError(`Error creating task: ${err as any}`)
+      setError(`Error creating task: ${err as any}`);
     }
-    setNewTaskTitle('')
+    setNewTaskTitle("");
   }
 
   async function handleUpdateTask(e: React.FormEvent) {
-    setError('')
-    e.preventDefault()
+    setError("");
+    e.preventDefault();
     try {
       await updateTask({
         id: isEditing as number,
         description: editTaskTitle,
-      })
+      });
     } catch (err: unknown) {
-      setError('Error updating task.')
+      setError("Error updating task.");
     }
-    setIsEditing(null)
-    setEditTaskTitle('')
+    setIsEditing(null);
+    setEditTaskTitle("");
   }
 
-  function handleStartEditing(task: Pick<Task, 'id' | 'description'>) {
-    setIsEditing(task.id)
-    setEditTaskTitle(task.description)
+  function handleStartEditing(task: Pick<Task, "id" | "description">) {
+    setIsEditing(task.id);
+    setEditTaskTitle(task.description);
   }
 
   async function handleTaskDelete(task: { id: number }) {
     try {
-      if (!confirm('Are you sure you want to delete this task?')) {
-        return
+      if (!confirm("Are you sure you want to delete this task?")) {
+        return;
       }
-      await deleteTask({ id: task.id })
+      await deleteTask({ id: task.id });
     } catch (err: unknown) {
-      setError('Error deleting task.')
+      setError("Error deleting task.");
     }
   }
 
@@ -153,5 +153,5 @@ export const ListPage = () => {
         </form>
       </main>
     </div>
-  )
-}
+  );
+};
