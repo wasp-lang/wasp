@@ -1,15 +1,15 @@
-import { FormEvent, ChangeEvent } from 'react'
-import { Task } from 'wasp/entities'
+import { ChangeEvent, FormEvent } from "react";
+import { logout } from "wasp/client/auth";
 import {
-  updateTask,
   createTask,
   getTasks,
+  updateTask,
   useQuery,
-} from 'wasp/client/operations'
-import { logout } from 'wasp/client/auth'
+} from "wasp/client/operations";
+import { Task } from "wasp/entities";
 
 export const MainPage = () => {
-  const { data: tasks, isLoading, error } = useQuery(getTasks)
+  const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
     <div>
@@ -17,13 +17,13 @@ export const MainPage = () => {
 
       {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && 'Loading...'}
-      {error && 'Error: ' + error}
+      {isLoading && "Loading..."}
+      {error && "Error: " + error}
 
       <button onClick={logout}>Logout</button>
     </div>
-  )
-}
+  );
+};
 
 const TaskView = ({ task }: { task: Task }) => {
   const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -31,11 +31,11 @@ const TaskView = ({ task }: { task: Task }) => {
       await updateTask({
         id: task.id,
         isDone: event.target.checked,
-      })
+      });
     } catch (error: any) {
-      window.alert('Error while updating task: ' + error.message)
+      window.alert("Error while updating task: " + error.message);
     }
-  }
+  };
 
   return (
     <div>
@@ -47,11 +47,11 @@ const TaskView = ({ task }: { task: Task }) => {
       />
       {task.description}
     </div>
-  )
-}
+  );
+};
 
 const TasksList = ({ tasks }: { tasks: Task[] }) => {
-  if (!tasks?.length) return <div>No tasks</div>
+  if (!tasks?.length) return <div>No tasks</div>;
 
   return (
     <div>
@@ -59,26 +59,26 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
         <TaskView task={task} key={idx} />
       ))}
     </div>
-  )
-}
+  );
+};
 
 const NewTaskForm = () => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     try {
-      const target = event.target as HTMLFormElement
-      const description = target.description.value
-      target.reset()
-      await createTask({ description })
+      const target = event.target as HTMLFormElement;
+      const description = target.description.value;
+      target.reset();
+      await createTask({ description });
     } catch (err: any) {
-      window.alert('Error: ' + err.message)
+      window.alert("Error: " + err.message);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       <input name="description" type="text" defaultValue="" />
       <input type="submit" value="Create task" />
     </form>
-  )
-}
+  );
+};

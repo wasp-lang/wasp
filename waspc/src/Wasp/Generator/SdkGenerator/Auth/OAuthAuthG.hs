@@ -12,6 +12,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
+    slackAuthProvider,
   )
 import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
@@ -29,12 +30,14 @@ genHelpers :: AS.Auth.Auth -> Generator [FileDraft]
 genHelpers auth =
   return $
     concat
-      [ [discordHelpers | AS.Auth.isDiscordAuthEnabled auth],
+      [ [slackHelpers | AS.Auth.isSlackAuthEnabled auth],
+        [discordHelpers | AS.Auth.isDiscordAuthEnabled auth],
         [gitHubHelpers | AS.Auth.isGitHubAuthEnabled auth],
         [googleHelpers | AS.Auth.isGoogleAuthEnabled auth],
         [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
       ]
   where
+    slackHelpers = mkHelpersFd slackAuthProvider [relfile|Slack.tsx|]
     discordHelpers = mkHelpersFd discordAuthProvider [relfile|Discord.tsx|]
     gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
     googleHelpers = mkHelpersFd googleAuthProvider [relfile|Google.tsx|]

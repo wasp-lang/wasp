@@ -1,30 +1,29 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import './AuthMethodsGrid.css'
+import Link from "@docusaurus/Link";
+import "./AuthMethodsGrid.css";
 
 export function AuthMethodsGrid() {
   const authMethods = [
     {
-      title: 'Email',
-      description: 'Email verification, password reset, etc.',
-      linkToDocs: './email',
+      title: "Email",
+      description: "Email verification, password reset, etc.",
+      linkToDocs: "./email",
     },
     {
-      title: 'Username & Password',
-      description: 'The simplest way to get started',
-      linkToDocs: './username-and-pass',
+      title: "Username & Password",
+      description: "The simplest way to get started",
+      linkToDocs: "./username-and-pass",
     },
     {
-      title: 'Google',
-      description: 'Users sign in with their Google account',
-      linkToDocs: './social-auth/google',
+      title: "Google",
+      description: "Users sign in with their Google account",
+      linkToDocs: "./social-auth/google",
     },
     {
-      title: 'Github',
-      description: 'Users sign in with their Github account',
-      linkToDocs: './social-auth/github',
+      title: "Github",
+      description: "Users sign in with their Github account",
+      linkToDocs: "./social-auth/github",
     },
-  ]
+  ];
   return (
     <>
       <div className="auth-methods-grid">
@@ -40,7 +39,7 @@ export function AuthMethodsGrid() {
         <small>Click on each auth method for more details.</small>
       </p>
     </>
-  )
+  );
 }
 
 function AuthMethodBox({
@@ -48,14 +47,14 @@ function AuthMethodBox({
   title,
   description,
 }: {
-  linkToDocs: string
-  title: string
-  description: string
+  linkToDocs: string;
+  title: string;
+  description: string;
 }) {
   return (
     <Link to={linkToDocs} className="auth-method-box">
       <h3>{title} »</h3>
       <p>{description}</p>
     </Link>
-  )
+  );
 }

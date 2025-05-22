@@ -280,7 +280,6 @@ waspCompile/.wasp/out/server/src/app.js
 waspCompile/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspCompile/.wasp/out/server/src/middleware/index.ts
 waspCompile/.wasp/out/server/src/middleware/operations.ts
-waspCompile/.wasp/out/server/src/polyfill.ts
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts

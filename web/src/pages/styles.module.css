@@ -16,7 +16,7 @@
 }
 
 .leftLights::after {
-  content: '';
+  content: "";
   position: absolute;
   pointer-events: none;
   width: 1223px;
@@ -38,7 +38,7 @@
 }
 
 .lightsTwo::after {
-  content: '';
+  content: "";
   position: absolute;
   pointer-events: none;
   width: 1223px;

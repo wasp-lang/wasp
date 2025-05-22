@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from "react";
-import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
-import addWaspLangauge from "./prism/wasp";
+import { useEffect, useMemo } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import addPrismaLanguage from "./prism/prisma";
+import addWaspLangauge from "./prism/wasp";
 import { saveReferrerToLocalStorage } from "./storage";
 
 import "./Main.css";
@@ -19,7 +19,7 @@ export function RootComponent() {
       {
         search: "",
       },
-      { replace: true }
+      { replace: true },
     );
   }
 

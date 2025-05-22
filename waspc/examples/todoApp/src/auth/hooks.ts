@@ -1,17 +1,17 @@
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/server";
 import {
   type OnAfterEmailVerifiedHook,
   type OnAfterLoginHook,
   type OnAfterSignupHook,
   type OnBeforeLoginHook,
   type OnBeforeSignupHook,
-} from 'wasp/server/auth'
+} from "wasp/server/auth";
 
 export const onBeforeSignup: OnBeforeSignupHook = async ({ providerId }) => {
-  if (providerId.providerUserId === 'notallowed@email.com') {
-    throw new HttpError(403, 'On Before Signup Hook disallows this email.')
+  if (providerId.providerUserId === "notallowed@email.com") {
+    throw new HttpError(403, "On Before Signup Hook disallows this email.");
   }
-}
+};
 
 export const onAfterSignup: OnAfterSignupHook = async ({ prisma, user }) => {
   await prisma.user.update({
@@ -19,8 +19,8 @@ export const onAfterSignup: OnAfterSignupHook = async ({ prisma, user }) => {
     data: {
       isOnAfterSignupHookCalled: true,
     },
-  })
-}
+  });
+};
 
 export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
   prisma,
@@ -31,14 +31,14 @@ export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
     data: {
       isOnAfterEmailVerifiedHookCalled: true,
     },
-  })
-}
+  });
+};
 
 export const onBeforeLogin: OnBeforeLoginHook = async ({ providerId }) => {
-  if (providerId.providerUserId === 'cantlogin@email.com') {
-    throw new HttpError(403, 'On Before Login Hook disallows this email.')
+  if (providerId.providerUserId === "cantlogin@email.com") {
+    throw new HttpError(403, "On Before Login Hook disallows this email.");
   }
-}
+};
 
 export const onAfterLogin: OnAfterLoginHook = async ({ prisma, user }) => {
   await prisma.user.update({
@@ -46,5 +46,5 @@ export const onAfterLogin: OnAfterLoginHook = async ({ prisma, user }) => {
     data: {
       isOnAfterLoginHookCalled: true,
     },
-  })
-}
+  });
+};
