@@ -44,7 +44,7 @@ test.describe("auth and cast a vote", () => {
     const card = page.locator(".card").first();
 
     await expect(
-      card.locator(".username").filter({ hasText: username })
+      card.locator(".username").filter({ hasText: username }),
     ).toBeVisible();
 
     await expect(card.locator("button")).toHaveText("Voted");
