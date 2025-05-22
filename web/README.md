@@ -26,15 +26,14 @@ Most changes are reflected live without having to restart the server.
 ### Writing docs
 
 To write docs, you can use Markdown or MDX. The docs are located in the `docs` directory.
-Remember to refer to the [Writing Guide](https://wasp.sh/docs/writingguide) for an explanation
-of how we like to write docs. You can check
-[Docusaurus' documentation](https://docusaurus.io/docs/markdown-features) to see which special
-Markdown features available (e.g. line highlighting).
+Remember to refer to the [Writing Guide](https://wasp.sh/docs/writingguide) for an explanation of how we like to write docs.
+You can check [Docusaurus' documentation](https://docusaurus.io/docs/markdown-features) to see which special Markdown features available (e.g. line highlighting).
 
-#### Polyglot code blocks
+#### Code blocks
 
-For examples that have a JavaScript and TypeScript version, add a `auto-js` meta attribute
-to the code block, like so:
+##### `auto-js`: write a TypeScript example and auto-generate the JavaScript version
+
+For examples that need to have both a JavaScript and TypeScript version, you can write only the TypeScript version and add an `auto-js` meta attribute to the code block, like so:
 
 ~~~mdx
 ```ts title="src/apis.ts" auto-js
@@ -42,7 +41,7 @@ export const validatePassword = (password: string) => password.length > 8;
 ```
 ~~~
 
-And it will automatically generate a JS and TS version with a selector to switch between them:
+And it will automatically generate a JS version by stripping the types from the TypeScript code, and add a selector to switch between them:
 
 ~~~mdx
 <Tabs groupId="js-ts">
@@ -63,19 +62,33 @@ export const validatePassword = (password: string) => password.length > 8;
 </Tabs>
 ~~~
 
-> [!NOTE]
-> You can create a language switcher manually as described in
-> [Docusaurus docs](https://docusaurus.io/docs/2.x/markdown-features/code-blocks#multi-language-support-code-blocks).
+This Docusaurus plugin is implemented in [./src/remark/auto-js-code.ts](./src/remark/auto-js-code.ts).
 
-If you need to omit some part of the code in a code example, you can use the `with-hole` meta attribute
-which will add an ellipsis wherever you write the identifier `hole` in the code block, so you can keep
-it syntactically valid. You can combine it with the `auto-js` tag.
+###### Caveats
+
+`auto-js` specifically is backed by [ts-blank-space](https://github.com/bloomberg/ts-blank-space), which will _only_ remove the type annotations and not process anything else. Thus, some edge-cases can arise, so we recommend to run `npm run start` and check the output JS in the browser to see if everything looks good.
+
+Known caveats are:
+- `auto-js` will run `prettier` on your code due to how the TS->JS transfomration works. You can copy the generated code back to the file to be consistent between how it's written and how it will be displayed.
+- `import`s that only import types will not be removed from the generated JS unless you use the `type` specifier in the import statement.
+- A `// highlight-next-line` comment before a TS-only line will remove the line but not the comment, which will hang around and highlight the wrong line. Use `// highlight-start` and `// highlight-end` instead.
+- The plugin will not replace file names inside the code block (e.g. imports or clarification comments). This is only really a problem in the tutorial pages. There is no solution for this at the moment.
+
+If any of these caveats get in the way of correctly expressing the code you need, you can always write the JS version manually, as explained in the next section. The `auto-js` plugin is just a convenience to avoid writing the same code twice.
+
+##### Manually creating a language switcher
+
+You can create a language switcher manually as described in [Docusaurus docs](https://docusaurus.io/docs/2.x/markdown-features/code-blocks#multi-language-support-code-blocks).
+
+##### `with-hole`: omit part of the code
+
+If you need to omit some part of the code in a code example, you can use the `with-hole` meta attribute which will add an ellipsis wherever you write the identifier `$HOLE$` in the code block, so you can keep it syntactically valid. You can combine it with the `auto-js` tag.
 
 For example, the following input:
 
 ~~~mdx
 ```ts title="src/apis.ts" auto-js with-hole
-export const validatePassword = (password: string) => password.length > 8 && hole;
+export const validatePassword = (password: string) => password.length > 8 && $HOLE$;
 ```
 ~~~
 
@@ -86,7 +99,7 @@ Will be transformed to:
 <TabItem value="js" label="JavaScript">
 
 ```js title="src/apis.js"
-export const validatePassword = (password) => password.length > 8 && ...;
+export const validatePassword = (password) => password.length > 8 && /* ... */;
 ```
 
 </TabItem>
@@ -100,20 +113,7 @@ export const validatePassword = (password: string) => password.length > 8 && /* 
 </Tabs>
 ~~~
 
-##### Caveats
-
-The `auto-js` and `with-hole` meta attributes are custom Docusaurus plugins that we wrote, implemented at
-[./src/remark/auto-js-code.ts](./src/remark/auto-js-code.ts) and [./src/remark/code-with-hole.ts](./src/remark/code-with-hole.ts).
-
-`auto-js` specifically is backed by [ts-blank-space](https://github.com/bloomberg/ts-blank-space), which will _only_ remove the
-type annotations and not process anything else. Thus, some edge-cases can arise, so we recommend to run `npm run start` and
-check the output JS in the browser to see if everything looks good.
-
-Known caveats are:
-- Run `prettier` on the code before pasting it in the document, as `auto-js` will enforce it.
-- Remember to add a `type` specifier to `import`s we don't want to appear in the JS
-- `// highlight-next-line` comment before a TS-only line will hang around and highlight the wrong line. Use `// highlight-start` and `// highlight-end` instead.
-- It doesn't replace file names' extensions in clarification comments (this is mostly unique to the tutorial pages).
+This Docusaurus plugin is implemented in [./src/remark/code-with-hole.ts](./src/remark/code-with-hole.ts).
 
 ### Build
 
