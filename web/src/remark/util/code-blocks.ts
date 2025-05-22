@@ -1,36 +1,34 @@
 import type * as md from 'mdast'
-import type { VFile } from 'vfile'
 
 /**
- * Creates a "check fn" for `unist-util-visit` that
- * checks if a node is a code block with a specific meta flag.
+ * Creates a "check fn" for `unist-util-visit` that checks if a node is a code
+ * block with a specific meta flag.
  */
-export function checkNodeIsCodeWithMeta(metaFlag: RegExp) {
+export function makeCheckForCodeWithMeta(metaFlag: RegExp) {
   return (node: md.Nodes): node is md.Code & { meta: string } =>
     node.type === 'code' && node.meta && metaFlag.test(node.meta)
 }
 
 /**
- * Checks that the code block's language is supported.
- * If not, it throws an error with the block's position
- * (through VFile#fail)
+ * Checks that the code block's language is supported. If not, it throws an error.
  */
-export function assertSupportedLanguage<T extends string>(
-  node: md.Code,
-  file: VFile,
-  supportedLanguages: Set<T>
-): asserts node is md.Code & { lang: T } {
+export function assertSupportedLanguage<
+  Language extends string,
+  CodeNode extends md.Code,
+>(
+  node: CodeNode,
+  supportedLanguages: Set<Language>
+): asserts node is CodeNode & { lang: Language } {
+  let errorMessage: string | undefined
+
   if (!node.lang) {
-    file.fail(
-      `No language specified. Please use one of: ${[...supportedLanguages].join(', ')}`,
-      { place: node.position }
-    )
+    errorMessage = 'No language specified.'
+  } else if (!(supportedLanguages as Set<string>).has(node.lang)) {
+    errorMessage = `Unsupported language: ${node.lang}.`
   }
 
-  if (!(supportedLanguages as Set<string>).has(node.lang)) {
-    file.fail(
-      `Unsupported language: ${node.lang}. Please use one of: ${[...supportedLanguages].join(', ')}`,
-      { place: node.position }
-    )
+  if (errorMessage) {
+    const solutionMessage = `Please use one of: ${[...supportedLanguages].join(', ')}`
+    throw new Error([errorMessage, solutionMessage].join('\n'))
   }
 }
