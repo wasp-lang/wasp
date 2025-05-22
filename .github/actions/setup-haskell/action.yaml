@@ -11,6 +11,12 @@ inputs:
     required: false
     default: "8.10.7"
 
+  cabal-version:
+    description: |
+      The version of Cabal to install.
+    required: false
+    default: "latest"
+
 runs:
   using: composite
 
@@ -19,18 +25,25 @@ runs:
       id: setup-haskell
       with:
         ghc-version: ${{ inputs.ghc-version }}
+        cabal-version: ${{ inputs.cabal-version }}
+
+    - name: Verify Haskell setup
+      shell: bash
+      run: |
+        ghc --version
+        cabal --version
 
     # Based on the official recipe for Cabal caching:
-    # https://github.com/actions/cache/blob/5a3ec84eff668545956fd18022155c47e93e2684/examples.md#haskell---cabal
+    # https://github.com/actions/cache/blob/v4.2.3/examples.md#haskell---cabal
     - name: Cache Cabal dependencies
       uses: actions/cache@v4
       with:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
-          waspc/dist-newstyle
         # Caches are immutable, so we use the official recipe for simulating an updatable cache:
-        # https://github.com/actions/cache/blob/5a3ec84eff668545956fd18022155c47e93e2684/tips-and-workarounds.md#update-a-cache
-        key: ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-${{ github.run_id }}
+        # https://github.com/actions/cache/blob/v4.2.3/tips-and-workarounds.md#update-a-cache
+        key: |
+          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-${{ github.run_id }}
         restore-keys: |
           ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-
           ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-
