@@ -17,7 +17,7 @@ jobs:
       - uses: ./.github/actions/setup-haskell
       - run: |
           cabal build --only-dependencies --project-file=cabal.project
-          cabal build --only-dependencies --project-file=dev-tool.project
+          cabal install --project-file=dev-tool.project
         working-directory: waspc
 
   warm-cache-node:
