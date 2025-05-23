@@ -114,19 +114,8 @@ run_tests_for_app() {
     echo -e "${BLUE}Cleaning up after testing $app_dir...${NC}"
     (cd "$app_dir" && wasp-cli clean)
 
-    app_name=$(basename "$app_dir")
-    echo -e "${BLUE}Removing Docker images for app: $app_name...${NC}"
-    # Remove app-specific server images. The -q flag outputs only image IDs.
-    # xargs --no-run-if-empty ensures docker rmi is only called if images are found.
-    docker images --filter "reference=${app_name}-*-server" -q | xargs --no-run-if-empty docker rmi -f
-    # Remove app-specific db images (if Wasp creates any with this pattern, though usually it uses a common postgres image)
-    docker images --filter "reference=${app_name}-*-db" -q | xargs --no-run-if-empty docker rmi -f
-    
-    echo -e "${BLUE}Pruning other Docker resources...${NC}"
-    docker container prune -f   # Remove all stopped containers
-    docker network prune -f    # Remove all unused networks
-    docker image prune -f      # Remove dangling images (keeps tagged unused images like postgres/mailcrab)
-    docker volume prune -f     # Remove all unused local volumes
+    # The image name is {app_dir}-{hash}-server
+    docker images --filter "reference=*-*-server" -q | xargs --no-run-if-empty docker rmi -f
   fi
 
   local app_end_time=$(date +%s)

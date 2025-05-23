@@ -163,7 +163,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         with:
           path: ~/.npm
-          key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
+          key: node-modules-${{ hashFiles('waspc/examples/todoApp/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
       - name: Headless - Install wasp-cli for testing
         id: headless-install-wasp-cli
