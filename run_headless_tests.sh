@@ -151,6 +151,14 @@ start_time_all=$(date +%s)
 
 echo -e "${YELLOW}${BOLD}Running Playwright tests for all specified Wasp applications...${NC}\n"
 
+for app_dir in "${apps_full_test[@]}" "${apps_dev_only[@]}"; do
+  echo -e "${BLUE}Compiling application: $app_dir${NC}"
+  if ! (cd "$app_dir" && wasp-cli compile); then
+    echo -e "${RED}ERROR: Compilation failed for $app_dir${NC}"
+    exit 1
+  fi
+done
+
 # Test applications specified for 'dev' mode only
 for app_dir in "${apps_dev_only[@]}"; do
   run_tests_for_app "$app_dir" "dev"
