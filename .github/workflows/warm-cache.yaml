@@ -1,0 +1,31 @@
+name: Keep cache warm
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # every day at midnight UTC
+
+jobs:
+  warm-cache-haskell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-haskell
+      - run: |
+          cabal build --only-dependencies --project-file=cabal.project
+          cabal build --only-dependencies --project-file=dev-tool.project
+        working-directory: waspc
+
+  warm-cache-node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version: "20"
+      - run: npm ci
