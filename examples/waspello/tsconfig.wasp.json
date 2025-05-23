@@ -5,7 +5,6 @@
     "isolatedModules": true,
     "moduleDetection": "force",
 
-    // linting
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

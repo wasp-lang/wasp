@@ -1,4 +1,4 @@
-import { App } from 'wasp-config'
+import { ActionConfig, App, ExtImport } from 'wasp-config'
 
 const app = new App('waspello', {
   title: 'Waspello',
@@ -21,7 +21,7 @@ const mainPage = app.page('Main', {
   authRequired: true,
   component: {
     importDefault: 'Main',
-    from: '@src/cards/MainPage.jsx'
+    from: '@src/cards/MainPage'
   }
 });
 
@@ -30,7 +30,7 @@ app.route('MainRoute', { path: '/', to: mainPage });
 const signupPage = app.page('Signup', {
   component: {
     importDefault: 'Signup',
-    from: '@src/auth/SignupPage.jsx'
+    from: '@src/auth/SignupPage'
   }
 });
 app.route('SignupRoute', { path: '/signup', to: signupPage });
@@ -41,46 +41,41 @@ app.route('LoginRoute', {
   to: app.page('Login', {
     component: {
       importDefault: 'Login',
-      from: '@src/auth/LoginPage.jsx'
+      from: '@src/auth/LoginPage'
     }
   })
 });
 
 /* Operations */
 
+// You can define them them one by one...
 app.query('getListsAndCards', {
-  fn: { import: 'getListsAndCards', from: '@src/cards/lists.js' },
+  fn: { import: 'getListsAndCards', from: '@src/cards/lists' },
   entities: ['List', 'Card']
 });
 
 app.action('createList', {
-  fn: { import: 'createList', from: '@src/cards/lists.js' },
+  fn: { import: 'createList', from: '@src/cards/lists' },
   entities: ['List']
 });
 
-app.action('updateList', {
-  fn: { import: 'updateList', from: '@src/cards/lists.js' },
-  entities: ['List']
-});
+// ...Or, if they're similar enough, create a helper function to reduce
+// duplication:
+function appAction(
+  name: string,
+  from: ExtImport['from'],
+  entities: ActionConfig['entities'],
+) {
+  app.action(name, {
+    fn: { import: name, from },
+    entities
+  });
+}
 
-app.action('deleteList', {
-  fn: { import: 'deleteList', from: '@src/cards/lists.js' },
-  entities: ['List', 'Card']
-});
-
-app.action('createListCopy', {
-  fn: { import: 'createListCopy', from: '@src/cards/lists.js' },
-  entities: ['List', 'Card']
-});
-
-app.action('createCard', {
-  fn: { import: 'createCard', from: '@src/cards/cards.js' },
-  entities: ['Card']
-});
-
-app.action('updateCard', {
-  fn: { import: 'updateCard', from: '@src/cards/cards.js' },
-  entities: ['Card']
-});
+appAction('updateList', '@src/cards/lists', ['List']);
+appAction('createCard', '@src/cards/cards', ['Card']);
+appAction('updateCard', '@src/cards/cards', ['Card']);
+appAction('deleteList', '@src/cards/lists', ['List', 'Card']);
+appAction('createListCopy', '@src/cards/lists', ['List', 'Card']);
 
 export default app;
