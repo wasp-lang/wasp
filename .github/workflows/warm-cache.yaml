@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-haskell
       - run: |
-          cabal build --only-dependencies --project-file=cabal.project
+          cabal build --only-dependencies --project-file=cabal.project || true
           cabal install --project-file=dev-tool.project
         working-directory: waspc
 
