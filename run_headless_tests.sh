@@ -32,6 +32,7 @@ total_apps_tested=0
 passed_apps_count=0
 failed_apps_count=0
 failed_apps=()
+playwright_deps_installed=false
 
 # Function to run Playwright tests for a specific mode
 run_tests_for_mode() {
@@ -76,11 +77,16 @@ run_tests_for_app() {
     return 1
   fi
 
-  echo -e "${BLUE}Installing Playwright dependencies...${NC}"
-  if ! npx playwright install --with-deps; then
-    echo -e "${RED}ERROR: Playwright installation failed in $(pwd)${NC}"
-    popd > /dev/null
-    return 1
+  if [ "$playwright_deps_installed" = false ]; then
+    echo -e "${BLUE}Installing Playwright browser dependencies (one-time operation)...${NC}"
+    if ! npx playwright install --with-deps; then
+      echo -e "${RED}ERROR: Playwright browser dependency installation failed in $(pwd)${NC}"
+      popd > /dev/null
+      return 1
+    fi
+    playwright_deps_installed=true
+  else
+    echo -e "${BLUE}Playwright browser dependencies already installed, skipping.${NC}"
   fi
 
   if [ -f ".env.server.headless" ]; then
@@ -107,7 +113,20 @@ run_tests_for_app() {
   if [ "$CI_CLEANUP_NODE_MODULES" == "true" ]; then
     echo -e "${BLUE}Cleaning up after testing $app_dir...${NC}"
     (cd "$app_dir" && wasp-cli clean)
-    docker system prune -a -f
+
+    app_name=$(basename "$app_dir")
+    echo -e "${BLUE}Removing Docker images for app: $app_name...${NC}"
+    # Remove app-specific server images. The -q flag outputs only image IDs.
+    # xargs --no-run-if-empty ensures docker rmi is only called if images are found.
+    docker images --filter "reference=${app_name}-*-server" -q | xargs --no-run-if-empty docker rmi -f
+    # Remove app-specific db images (if Wasp creates any with this pattern, though usually it uses a common postgres image)
+    docker images --filter "reference=${app_name}-*-db" -q | xargs --no-run-if-empty docker rmi -f
+    
+    echo -e "${BLUE}Pruning other Docker resources...${NC}"
+    docker container prune -f   # Remove all stopped containers
+    docker network prune -f    # Remove all unused networks
+    docker image prune -f      # Remove dangling images (keeps tagged unused images like postgres/mailcrab)
+    docker volume prune -f     # Remove all unused local volumes
   fi
 
   local app_end_time=$(date +%s)
