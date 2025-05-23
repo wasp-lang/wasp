@@ -1,8 +1,7 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import { ArrowRight } from 'react-feather'
+import Link from "@docusaurus/Link";
+import { ArrowRight } from "react-feather";
 
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from "./Layouts/SectionContainer";
 
 const Feature = ({ title, description, url }) => (
   <div className="col-span-12 md:col-span-6">
@@ -18,7 +17,7 @@ const Feature = ({ title, description, url }) => (
       </dt>
     </div>
   </div>
-)
+);
 
 const TextLink = ({ url, label }) => (
   <Link to={url}>
@@ -38,7 +37,7 @@ const TextLink = ({ url, label }) => (
       </div>
     </span>
   </Link>
-)
+);
 
 const HowItWorks = () => {
   return (
@@ -50,7 +49,7 @@ const HowItWorks = () => {
           </h2>
           <p className="text-neutral-700">
             Given a simple <code>.wasp</code> configuration file that describes
-            the high-level details of your web app, and{' '}
+            the high-level details of your web app, and{" "}
             <code>.js(x)/.css/...</code>, source files with your unique logic,
             Wasp compiler generates the full source of your web app in the
             target stack: front-end, back-end and deployment. <br />
@@ -84,7 +83,7 @@ const HowItWorks = () => {
                 url="https://www.youtube.com/watch?v=x5nsBbLvKnU"
               />
             </dl>
-          </div>{' '}
+          </div>{" "}
           {/* EOF Features */}
         </div>
 
@@ -97,7 +96,7 @@ const HowItWorks = () => {
         </div>
       </div>
     </SectionContainer>
-  )
-}
+  );
+};
 
-export default HowItWorks
+export default HowItWorks;

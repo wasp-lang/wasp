@@ -1,14 +1,13 @@
-import React from 'react'
-import './GuideLink.css'
+import "./GuideLink.css";
 
 export function GuideLink({
   linkToGuide,
   title,
   description,
 }: {
-  linkToGuide: string
-  title: string
-  description: string
+  linkToGuide: string;
+  title: string;
+  description: string;
 }) {
   return (
     <a href={linkToGuide} className="guide-link">
@@ -18,5 +17,5 @@ export function GuideLink({
       <h3>{title} »</h3>
       <p className="description">{description}</p>
     </a>
-  )
+  );
 }

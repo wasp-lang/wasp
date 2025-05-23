@@ -1,5 +1,5 @@
-import magicLogo from "../magic-app-gen-logo.png";
 import { Link } from "react-router-dom";
+import magicLogo from "../magic-app-gen-logo.png";
 
 export function Title() {
   return (

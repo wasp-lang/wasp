@@ -1,12 +1,12 @@
-import Link from '@docusaurus/Link'
-import { useRef, useState } from 'react'
-import { Star } from 'react-feather'
-import Transition from '../../lib/Transition'
-import Announcement from './Announcement'
-import { DiscordIcon, GitHubIcon, TwitterIcon } from './SocialIcons'
+import Link from "@docusaurus/Link";
+import { useRef, useState } from "react";
+import { Star } from "react-feather";
+import Transition from "../../lib/Transition";
+import Announcement from "./Announcement";
+import { DiscordIcon, GitHubIcon, TwitterIcon } from "./SocialIcons";
 
 const Nav = () => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const Logo = () => (
     <div className="flex flex-shrink-0 items-center">
@@ -22,7 +22,7 @@ const Nav = () => {
         Wasp <sup className="text-base text-yellow-500">βeta</sup>
       </span>
     </div>
-  )
+  );
 
   const SocialIcon = ({ Icon, url }) => (
     <a
@@ -38,7 +38,7 @@ const Nav = () => {
     >
       <Icon />
     </a>
-  )
+  );
 
   const WaspGhStarsExactCount = () => (
     <>
@@ -51,7 +51,7 @@ const Nav = () => {
         height="20px"
       ></iframe>
     </>
-  )
+  );
 
   // NOTE(matija): this one does not show the exact count, but e.g. 2k.
   const WaspGhStarsShield = () => (
@@ -59,7 +59,7 @@ const Nav = () => {
       alt="GitHub Repo stars"
       src="https://img.shields.io/github/stars/wasp-lang/wasp?style=social"
     />
-  )
+  );
 
   const GitHubButton = () => (
     <a
@@ -86,7 +86,7 @@ const Nav = () => {
       </div>
       <span className="truncate text-neutral-700">Star us on GitHub</span>
     </a>
-  )
+  );
 
   const HamburgerButton = ({ toggleFlyOut }) => (
     <div
@@ -119,9 +119,9 @@ const Nav = () => {
         </svg>
       </button>
     </div>
-  )
+  );
 
-  const navSidebarRef = useRef(null)
+  const navSidebarRef = useRef(null);
 
   return (
     <>
@@ -147,11 +147,11 @@ const Nav = () => {
               "
             >
               <div className="flex items-center">
-                {' '}
+                {" "}
                 {/* Navbar left side */}
                 <Logo />
                 <div className="hidden pl-4 sm:ml-6 sm:space-x-4 lg:flex">
-                  {' '}
+                  {" "}
                   {/* Left items */}
                   {/* Docs */}
                   <Link to="/docs">
@@ -214,12 +214,12 @@ const Nav = () => {
                       </span>
                     </span>
                   </Link>
-                </div>{' '}
+                </div>{" "}
                 {/* EOF left items */}
-              </div>{' '}
+              </div>{" "}
               {/* EOF left side */}
               <div className="flex items-center gap-2 space-x-2">
-                {' '}
+                {" "}
                 {/* Navbar right side */}
                 {/* GH stars badge */}
                 {/*
@@ -255,7 +255,7 @@ const Nav = () => {
                   Icon={TwitterIcon}
                   url="https://twitter.com/WaspLang"
                 />
-              </div>{' '}
+              </div>{" "}
               {/* EOF right side */}
             </div>
           </div>
@@ -385,7 +385,7 @@ const Nav = () => {
         </nav>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Nav
+export default Nav;

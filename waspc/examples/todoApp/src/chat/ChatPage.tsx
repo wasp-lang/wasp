@@ -1,27 +1,27 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState } from "react";
 import {
   useSocket,
   useSocketListener,
   type ServerToClientPayload,
-} from 'wasp/client/webSocket'
+} from "wasp/client/webSocket";
 
 export const ChatPage = () => {
   const [messages, setMessages] = useState<
-    ServerToClientPayload<'chatMessage'>[]
-  >([])
-  const { socket, isConnected } = useSocket()
-  const inputRef = useRef<HTMLInputElement>(null)
+    ServerToClientPayload<"chatMessage">[]
+  >([]);
+  const { socket, isConnected } = useSocket();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useSocketListener('chatMessage', (msg) =>
-    setMessages((priorMessages) => [...priorMessages, msg])
-  )
+  useSocketListener("chatMessage", (msg) =>
+    setMessages((priorMessages) => [...priorMessages, msg]),
+  );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (inputRef.current !== null) {
-      socket.emit('chatMessage', inputRef.current.value)
-      inputRef.current.value = ''
+      socket.emit("chatMessage", inputRef.current.value);
+      inputRef.current.value = "";
     }
   }
 
@@ -32,11 +32,11 @@ export const ChatPage = () => {
         <div className="flex items-center gap-2">
           <div
             className={`h-3 w-3 rounded-full ${
-              isConnected ? 'bg-green-500' : 'bg-red-500'
+              isConnected ? "bg-green-500" : "bg-red-500"
             }`}
           ></div>
           <span className="text-sm text-gray-500">
-            {isConnected ? 'Connected' : 'Disconnected'}
+            {isConnected ? "Connected" : "Disconnected"}
           </span>
         </div>
       </div>
@@ -84,5 +84,5 @@ export const ChatPage = () => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};

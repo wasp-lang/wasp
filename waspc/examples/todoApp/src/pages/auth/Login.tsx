@@ -2,8 +2,8 @@ import { Link } from "wasp/client/router";
 
 import { LoginForm } from "wasp/client/auth";
 
-import appearance from './appearance'
-import todoLogo from '../../todoLogo.png'
+import todoLogo from "../../todoLogo.png";
+import appearance from "./appearance";
 
 const Login = () => {
   return (
@@ -22,14 +22,14 @@ const Login = () => {
             </span>
             <br />
             <span className="text-sm font-medium text-gray-900">
-              Forgot your password?{' '}
+              Forgot your password?{" "}
               <Link to="/request-password-reset">reset it</Link>.
             </span>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

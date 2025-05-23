@@ -1,18 +1,18 @@
-import { useParams } from 'react-router-dom'
-import { Link } from 'wasp/client/router'
+import { useParams } from "react-router-dom";
+import { Link } from "wasp/client/router";
 
-import { tasks as tasksCrud } from 'wasp/client/crud'
+import { tasks as tasksCrud } from "wasp/client/crud";
 
 export const DetailPage = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string }>();
   const { data: task, isLoading } = tasksCrud.get.useQuery(
     {
       id: parseInt(id!, 10),
     },
     {
       enabled: !!id,
-    }
-  )
+    },
+  );
 
   return (
     <div className="container">
@@ -33,5 +33,5 @@ export const DetailPage = () => {
         <Link to="/crud">Return</Link>
       </main>
     </div>
-  )
-}
+  );
+};

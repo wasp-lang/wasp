@@ -1,8 +1,8 @@
-import { Highlight, themes } from 'prism-react-renderer'
-import Prism from 'prismjs'
-import '../css/prismjs-github-theme.css'
+import { Highlight, themes } from "prism-react-renderer";
+import Prism from "prismjs";
+import "../css/prismjs-github-theme.css";
 
-const lightCodeTheme = themes.github
+const lightCodeTheme = themes.github;
 
 export default function CodeHighlight({ language, source }) {
   return (
@@ -16,9 +16,9 @@ export default function CodeHighlight({ language, source }) {
         <pre
           className={className}
           style={{
-            borderBottomLeftRadius: '10px',
-            borderBottomRightRadius: '10px',
-            paddingLeft: '15px',
+            borderBottomLeftRadius: "10px",
+            borderBottomRightRadius: "10px",
+            paddingLeft: "15px",
             ...style,
           }}
         >
@@ -33,5 +33,5 @@ export default function CodeHighlight({ language, source }) {
         </pre>
       )}
     </Highlight>
-  )
+  );
 }

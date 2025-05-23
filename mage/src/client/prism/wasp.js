@@ -57,7 +57,8 @@ export default (Prism) => {
       alias: "plain",
     },
     "declaration-type": {
-      pattern: /\b(action|apiNamespace|api|app|entity|job|page|query|route|crud)\b/,
+      pattern:
+        /\b(action|apiNamespace|api|app|entity|job|page|query|route|crud)\b/,
       alias: "keyword",
     },
     "class-name": {

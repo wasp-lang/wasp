@@ -1,22 +1,12 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
+import Link from "@docusaurus/Link";
 
-import CodeHighlight from './CodeHighlight'
+import CodeHighlight from "./CodeHighlight";
 
-import {
-  Terminal,
-  ArrowUpRight,
-  Play,
-  BookOpen,
-  Grid,
-  Layout,
-  Trello,
-} from 'react-feather'
+import { ArrowUpRight, BookOpen, Terminal } from "react-feather";
 
 // Terminal, BookOpen, Grid, Layout, Trello, FileText
 
-import InstallCmd from './InstallCmd'
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from "./Layouts/SectionContainer";
 
 const StartIcon = () => (
   <svg
@@ -34,7 +24,7 @@ const StartIcon = () => (
     <polyline points="13 17 18 12 13 7"></polyline>
     <polyline points="6 17 11 12 6 7"></polyline>
   </svg>
-)
+);
 
 const ActionButtons = () => (
   <div className="flex items-center gap-2">
@@ -50,7 +40,7 @@ const ActionButtons = () => (
         `}
       >
         <Terminal size={16} />
-        <span>{'Get Started'}</span>
+        <span>{"Get Started"}</span>
       </button>
     </Link>
 
@@ -71,7 +61,7 @@ const ActionButtons = () => (
       </button>
     </Link>
   </div>
-)
+);
 
 const PHBadge = () => (
   <a
@@ -85,7 +75,7 @@ const PHBadge = () => (
       alt="Wasp&#0045;lang&#0032;Alpha - Develop&#0032;web&#0032;apps&#0032;in&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;with&#0032;no&#0032;boilerplate | Product Hunt"
     />
   </a>
-)
+);
 
 const Hero = () => {
   const waspFileSourceCode = `app todoApp {
@@ -105,9 +95,9 @@ page MainPage {
 query getTasks {
   fn: import { getTasks } from "@server/tasks.js", // Your Node.js code.
   entities: [Task] // Automatic cache invalidation.
-}`
+}`;
 
-  const prismaFileSourceCode = `model Task { ... } // Your Prisma data model`
+  const prismaFileSourceCode = `model Task { ... } // Your Prisma data model`;
 
   return (
     <SectionContainer className="pb-5 pt-24">
@@ -121,7 +111,7 @@ query getTasks {
                 lg:text-5xl lg:leading-tight
               `}
             >
-              Develop full-stack web apps{' '}
+              Develop full-stack web apps{" "}
               <span className="underline decoration-yellow-500">faster</span>.
             </h1>
 
@@ -129,7 +119,7 @@ query getTasks {
               Rails-like framework for React, Node.js and Prisma. Build your app
               in a day and deploy it with a single CLI command.
             </p>
-          </div>{' '}
+          </div>{" "}
           {/* EOF Hero title and subtitle */}
           <ActionButtons />
           <div className="flex flex-col gap-4">
@@ -219,8 +209,8 @@ query getTasks {
       </div>
       */}
     </SectionContainer>
-  )
-}
+  );
+};
 
 function FileViewer({ fileName, fileExplanation, link, children }) {
   return (
@@ -249,7 +239,7 @@ function FileViewer({ fileName, fileExplanation, link, children }) {
       <div className="w-full rounded-b-md text-sm shadow-2xl">{children}</div>
       {/* EOF code block wrapper */}
     </div>
-  )
+  );
 }
 
-export default Hero
+export default Hero;

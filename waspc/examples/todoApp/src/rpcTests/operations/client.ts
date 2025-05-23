@@ -1,38 +1,38 @@
-import { AuthUser } from 'wasp/auth'
-import { getMe } from 'wasp/client/auth'
+import { AuthUser } from "wasp/auth";
+import { getMe } from "wasp/client/auth";
 import {
-  getDate,
-  getSerializedObjects,
-  getAnythingAuth,
-  getTrueVoid,
-  voidToStringAuth,
-  voidToStringNoAuth,
-  boolToStringNoAuth,
   boolToStringAuth,
-  boolToVoidNoAuth,
+  boolToStringNoAuth,
   boolToVoidAuth,
-  unspecifiedToNumber,
-  taskToTaskUnspecified,
-  taskToTaskSatisfies,
-  taskToTaskSpecified,
+  boolToVoidNoAuth,
   getAnyAuth,
   getAnyNoAuth,
   getAnyToNumberSpecified,
+  getAnythingAuth,
   getAnythingNoAuth,
+  getDate,
+  getSerializedObjects,
+  getTrueVoid,
   jsActionWithArgs,
-} from 'wasp/client/operations'
+  taskToTaskSatisfies,
+  taskToTaskSpecified,
+  taskToTaskUnspecified,
+  unspecifiedToNumber,
+  voidToStringAuth,
+  voidToStringNoAuth,
+} from "wasp/client/operations";
 
 import {
-  taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
   taskToTaskSatisfies as taskToTaskSatisfiesDefinition,
-} from './definitions'
+  taskToTaskUnspecified as taskToTaskUnspecifiedDefinition,
+} from "./definitions";
 
-import { SERIALIZABLE_OBJECTS_FIXTURE } from './fixtures'
+import { SERIALIZABLE_OBJECTS_FIXTURE } from "./fixtures";
 
-import { Task } from 'wasp/entities'
-import { Payload } from 'wasp/server/_types'
-import { Expect, Equal } from '../helpers'
-import { QueryMetadata } from 'wasp/client/operations/rpc'
+import { QueryMetadata } from "wasp/client/operations/rpc";
+import { Task } from "wasp/entities";
+import { Payload } from "wasp/server/_types";
+import { Equal, Expect } from "../helpers";
 
 type TestCases = [
   Expect<Equal<typeof taskToTaskSpecified, (args: Task) => Promise<Task>>>,
@@ -92,5 +92,5 @@ type TestCases = [
     >
   >,
   Expect<Equal<typeof getMe, QueryMetadata & (() => Promise<AuthUser | null>)>>,
-  Expect<Equal<typeof jsActionWithArgs, (args?: any) => Promise<void>>>
-]
+  Expect<Equal<typeof jsActionWithArgs, (args?: any) => Promise<void>>>,
+];
