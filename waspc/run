@@ -33,7 +33,7 @@ TEST_INSTALL_WASP_APP_RUNNER="cd $PROJECT_ROOT/../wasp-app-runner && npm install
 TEST_HEADLESS_CMD="$TEST_INSTALL_WASP_APP_RUNNER && cd $PROJECT_ROOT/examples/todoApp && npm install && DEBUG=pw:webserver npx playwright test --config headless-tests"
 TEST_CMD="cabal test && echo 'Running headless tests' && $TEST_HEADLESS_CMD && echo 'ALL TESTS PASSED' || { echo 'SOME TESTS FAILED'; exit 1; }"
 
-RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli ${ARGS[@]}"
+RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
 
 # ghc version below should be the one from `cabal.project` file, `with-compiler` field.
