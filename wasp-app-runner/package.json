@@ -1,15 +1,15 @@
 {
-  "version": "0.0.3",
   "name": "wasp-app-runner",
+  "version": "0.0.3",
   "type": "module",
   "bin": {
     "run-wasp-app": "bin/index.js"
   },
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node ./bin/index.js",
     "install:global": "npm run build && npm install -g",
-    "prepublishOnly": "npm ci && npm run build"
+    "prepublishOnly": "npm ci && npm run build",
+    "start": "npm run build && node ./bin/index.js"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^13.1.0",

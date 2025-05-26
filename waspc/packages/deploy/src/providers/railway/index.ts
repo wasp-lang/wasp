@@ -1,29 +1,32 @@
-import { Command, Option } from 'commander';
-import { ensureRailwayBasenameIsValid, ensureRailwayReady } from './helpers/railwayCli.js';
+import { Command, Option } from "commander";
 import {
   ensureWaspDirLooksRight,
   ensureWaspProjectDirInCmdIsAbsoluteAndPresent,
-} from '../../helpers.js';
-import { setup as setupFn } from './setup/setup.js';
-import { deploy as deployFn } from './deploy/deploy.js';
-import { launch as launchFn } from './launch/launch.js';
+} from "../../helpers.js";
+import { deploy as deployFn } from "./deploy/deploy.js";
+import {
+  ensureRailwayBasenameIsValid,
+  ensureRailwayReady,
+} from "./helpers/railwayCli.js";
+import { launch as launchFn } from "./launch/launch.js";
+import { setup as setupFn } from "./setup/setup.js";
 
 class RailwayCommand extends Command {
   addBasenameArgument(): this {
-    return this.argument('<basename>', 'base app name to use on Railway');
+    return this.argument("<basename>", "base app name to use on Railway");
   }
   addSecretsOptions(): this {
     function collect(value: string, previous: string[]) {
       return previous.concat([value]);
     }
     return this.option(
-      '--server-secret <serverSecret>',
-      'secret to set on the server app (of form FOO=BAR)',
+      "--server-secret <serverSecret>",
+      "secret to set on the server app (of form FOO=BAR)",
       collect,
       [],
     ).option(
-      '--client-secret <clientSecret>',
-      'secret to set on the client app (of form FOO=BAR)',
+      "--client-secret <clientSecret>",
+      "secret to set on the client app (of form FOO=BAR)",
       collect,
       [],
     );
@@ -38,8 +41,8 @@ const railwayLaunchCommand = makeRailwayLaunchCommand();
 
 export function addRailwayCommand(program: Command): void {
   const railway = program
-    .command('railway')
-    .description('Create and deploy Wasp apps on Railway')
+    .command("railway")
+    .description("Create and deploy Wasp apps on Railway")
     .addCommand(railwaySetupCommand)
     .addCommand(railwayDeployCommand)
     .addCommand(railwayLaunchCommand)
@@ -52,60 +55,66 @@ export function addRailwayCommand(program: Command): void {
   railway.commands.forEach((cmd) => {
     cmd
       .addOption(
-        new Option('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)')
-          .hideHelp()
-          .makeOptionMandatory(),
-      )
-      .addOption(
-        new Option('--wasp-project-dir <dir>', 'absolute path to Wasp project dir')
+        new Option(
+          "--wasp-exe <path>",
+          "Wasp executable (either on PATH or absolute path)",
+        )
           .hideHelp()
           .makeOptionMandatory(),
       )
       .addOption(
         new Option(
-          '--railway-exe <path>',
-          'Railway command to run (either on PATH or absolute path)',
+          "--wasp-project-dir <dir>",
+          "absolute path to Wasp project dir",
         )
           .hideHelp()
-          .default('railway'),
+          .makeOptionMandatory(),
       )
-      .option('--skip-build', 'do not run `wasp build` before the command')
-      .hook('preAction', ensureRailwayBasenameIsValid)
-      .hook('preAction', ensureRailwayReady)
-      .hook('preAction', ensureWaspProjectDirInCmdIsAbsoluteAndPresent)
-      .hook('preAction', ensureWaspDirLooksRight);
+      .addOption(
+        new Option(
+          "--railway-exe <path>",
+          "Railway command to run (either on PATH or absolute path)",
+        )
+          .hideHelp()
+          .default("railway"),
+      )
+      .option("--skip-build", "do not run `wasp build` before the command")
+      .hook("preAction", ensureRailwayBasenameIsValid)
+      .hook("preAction", ensureRailwayReady)
+      .hook("preAction", ensureWaspProjectDirInCmdIsAbsoluteAndPresent)
+      .hook("preAction", ensureWaspDirLooksRight);
   });
 }
 
 function makeRailwaySetupCommand(): Command {
-  return new RailwayCommand('setup')
-    .description('Launch a new app on Railway')
+  return new RailwayCommand("setup")
+    .description("Launch a new app on Railway")
     .addBasenameArgument()
     .addSecretsOptions()
     .option(
-      '--existing-project-id [projectId]',
-      'use existing project instead of creating a new one',
+      "--existing-project-id [projectId]",
+      "use existing project instead of creating a new one",
     )
     .action(setupFn);
 }
 
 function makeRailwayDeployCommand(): Command {
-  return new RailwayCommand('deploy')
-    .description('Deploys the app to Railway')
+  return new RailwayCommand("deploy")
+    .description("Deploys the app to Railway")
     .addBasenameArgument()
-    .option('--skip-client', 'do not deploy the web client')
-    .option('--skip-server', 'do not deploy the server')
+    .option("--skip-client", "do not deploy the web client")
+    .option("--skip-server", "do not deploy the server")
     .action(deployFn);
 }
 
 function makeRailwayLaunchCommand(): Command {
-  return new RailwayCommand('launch')
-    .description('Launch a new app on Railway (calls setup and deploy)')
+  return new RailwayCommand("launch")
+    .description("Launch a new app on Railway (calls setup and deploy)")
     .addBasenameArgument()
     .addSecretsOptions()
     .option(
-      '--existing-project-id [projectId]',
-      'use existing project instead of creating a new one',
+      "--existing-project-id [projectId]",
+      "use existing project instead of creating a new one",
     )
     .action(launchFn);
 }

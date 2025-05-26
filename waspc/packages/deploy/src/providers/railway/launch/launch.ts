@@ -1,13 +1,15 @@
-import { exit } from 'process';
-import { LaunchOptions } from './LaunchOptions.js';
-import { DeployOptions } from '../deploy/DeployOptions.js';
-import { setup } from '../setup/setup.js';
-import { deploy } from '../deploy/deploy.js';
-import { railwayDeployCommand, railwaySetupCommand } from '../index.js';
-import { waspSays, getCommandHelp } from '../../../helpers.js';
+import { exit } from "process";
+import { getCommandHelp, waspSays } from "../../../helpers.js";
+import { deploy } from "../deploy/deploy.js";
+import { railwayDeployCommand, railwaySetupCommand } from "../index.js";
+import { setup } from "../setup/setup.js";
+import { LaunchOptions } from "./LaunchOptions.js";
 
-export async function launch(basename: string, options: LaunchOptions): Promise<void> {
-  waspSays('Launching your Wasp app to Railway!');
+export async function launch(
+  basename: string,
+  options: LaunchOptions,
+): Promise<void> {
+  waspSays("Launching your Wasp app to Railway!");
 
   try {
     await setup(basename, options);

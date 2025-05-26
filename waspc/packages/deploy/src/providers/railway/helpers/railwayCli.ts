@@ -1,14 +1,14 @@
-import { exit } from 'process';
-import { $, ProcessOutput, question } from 'zx';
-import { Command } from 'commander';
-import semver from 'semver';
+import { Command } from "commander";
+import { exit } from "process";
+import semver from "semver";
+import { $, ProcessOutput, question } from "zx";
 
-import { isYes, waspSays } from '../../../helpers.js';
+import { isYes, waspSays } from "../../../helpers.js";
 
 // Railway CLI version 4.0.1 includes a change that is needed for
 // Wasp deploy command to work with Railway properly:
 // https://github.com/railwayapp/cli/pull/596
-const minSupportedRailwayCliVersion = '4.0.1';
+const minSupportedRailwayCliVersion = "4.0.1";
 
 async function ensureUserLoggedIn(railwayExe: string): Promise<void> {
   const userLoggedIn = await isUserLoggedIn(railwayExe);
@@ -17,17 +17,19 @@ async function ensureUserLoggedIn(railwayExe: string): Promise<void> {
   }
 
   const answer = await question(
-    'railway is not logged into Railway. Would you like to log in now? ',
+    "railway is not logged into Railway. Would you like to log in now? ",
   );
   if (!isYes(answer)) {
-    waspSays('Ok, exiting.');
+    waspSays("Ok, exiting.");
     exit(1);
   }
 
   try {
     await $`${railwayExe} login`;
   } catch {
-    waspSays('It seems there was a problem logging in. Please run "railway login" and try again.');
+    waspSays(
+      'It seems there was a problem logging in. Please run "railway login" and try again.',
+    );
     exit(1);
   }
 }
@@ -45,20 +47,28 @@ export async function ensureRailwayReady(thisCommand: Command): Promise<void> {
   const railwayExe = thisCommand.opts().railwayExe;
   const railwayCliVersion = await getRailwayCliVersion(railwayExe);
   if (railwayCliVersion === null) {
-    waspSays('The Railway CLI is not available on this system.');
-    waspSays('Read how to install the Railway CLI here: https://docs.railway.com/guides/cli');
+    waspSays("The Railway CLI is not available on this system.");
+    waspSays(
+      "Read how to install the Railway CLI here: https://docs.railway.com/guides/cli",
+    );
     exit(1);
   }
 
   if (!isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion!)) {
-    waspSays(`Wasp expects at least Railway CLI version ${minSupportedRailwayCliVersion}.`);
-    waspSays('Read how to update the Railway CLI here: https://docs.railway.com/guides/cli');
+    waspSays(
+      `Wasp expects at least Railway CLI version ${minSupportedRailwayCliVersion}.`,
+    );
+    waspSays(
+      "Read how to update the Railway CLI here: https://docs.railway.com/guides/cli",
+    );
     exit(1);
   }
   await ensureUserLoggedIn(railwayExe);
 }
 
-async function getRailwayCliVersion(railwayExe: string): Promise<string | null> {
+async function getRailwayCliVersion(
+  railwayExe: string,
+): Promise<string | null> {
   try {
     const result: ProcessOutput = await $`${railwayExe} -V`;
     const match = result.stdout.match(/railwayapp (\d+\.\d+\.\d+)/);
@@ -72,15 +82,19 @@ async function getRailwayCliVersion(railwayExe: string): Promise<string | null> 
   }
 }
 
-function isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion: string): boolean {
+function isUsingMinimumSupportedRailwayCliVersion(
+  railwayCliVersion: string,
+): boolean {
   return semver.gte(railwayCliVersion, minSupportedRailwayCliVersion);
 }
 
-export async function ensureRailwayBasenameIsValid(thisCommand: Command): Promise<void> {
+export async function ensureRailwayBasenameIsValid(
+  thisCommand: Command,
+): Promise<void> {
   // Railway has a limit of 32 characters for the service name.
   // https://docs.railway.com/reference/services#constraints
   const maximumServiceNameLength = 32;
-  const suffixes = ['-server', '-client', '-db'];
+  const suffixes = ["-server", "-client", "-db"];
   const maximumSuffixLength = Math.max(...suffixes.map((s) => s.length));
   const maximumBasenameLength = maximumServiceNameLength - maximumSuffixLength;
   const basename = thisCommand.args[0];

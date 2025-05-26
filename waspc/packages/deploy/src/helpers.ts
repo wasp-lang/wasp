@@ -1,24 +1,26 @@
-import fs from 'fs';
-import path from 'node:path';
+import fs from "fs";
+import path from "node:path";
 
-import { Command } from 'commander';
-import { exit } from 'process';
-import { cd, chalk } from 'zx';
+import { Command } from "commander";
+import { exit } from "process";
+import { cd, chalk } from "zx";
 
 export function isYes(str: string): boolean {
-  return str.trim().toLowerCase().startsWith('y');
+  return str.trim().toLowerCase().startsWith("y");
 }
 
 export function ensureWaspDirLooksRight(thisCommand: Command): void {
   const dirContainsWasproot = fs.existsSync(
-    path.join(thisCommand.opts().waspProjectDir, '.wasproot'),
+    path.join(thisCommand.opts().waspProjectDir, ".wasproot"),
   );
   if (dirContainsWasproot) {
     return;
   }
 
-  waspSays('The supplied Wasp directory does not appear to be a valid Wasp project.');
-  waspSays('Please double check your path.');
+  waspSays(
+    "The supplied Wasp directory does not appear to be a valid Wasp project.",
+  );
+  waspSays("Please double check your path.");
   exit(1);
 }
 
@@ -43,11 +45,11 @@ export function getServerArtefactsDir(waspProjectDir: string): string {
 
 export function getWebAppArtefactsDir(waspProjectDir: string): string {
   const webAppBuildDir = getWebAppBuildDir(waspProjectDir);
-  return path.join(webAppBuildDir, 'build');
+  return path.join(webAppBuildDir, "build");
 }
 
 function getWaspBuildDir(waspProjectDir: string): string {
-  return path.join(waspProjectDir, '.wasp', 'build');
+  return path.join(waspProjectDir, ".wasp", "build");
 }
 
 function getServerBuildDir(waspProjectDir: string): string {
@@ -55,27 +57,32 @@ function getServerBuildDir(waspProjectDir: string): string {
 }
 
 function getWebAppBuildDir(waspProjectDir: string): string {
-  return path.join(getWaspBuildDir(waspProjectDir), 'web-app');
+  return path.join(getWaspBuildDir(waspProjectDir), "web-app");
 }
 
-export function ensureWaspProjectDirInCmdIsAbsoluteAndPresent(thisCommand: Command): void {
-  const waspProjectDirPath: string | undefined = thisCommand.opts().waspProjectDir;
+export function ensureWaspProjectDirInCmdIsAbsoluteAndPresent(
+  thisCommand: Command,
+): void {
+  const waspProjectDirPath: string | undefined =
+    thisCommand.opts().waspProjectDir;
   if (waspProjectDirPath) {
     if (!path.isAbsolute(waspProjectDirPath)) {
-      waspSays('The Wasp dir path must be absolute.');
+      waspSays("The Wasp dir path must be absolute.");
       exit(1);
     }
 
     const waspProjectDirExists = fs.existsSync(waspProjectDirPath);
     if (!waspProjectDirExists) {
-      waspSays('The Wasp dir path does not exist.');
+      waspSays("The Wasp dir path does not exist.");
       exit(1);
     }
   }
 }
 
 // eslint-disable-next-line
-export function makeIdempotent<F extends () => any>(fn: F): () => ReturnType<F> {
+export function makeIdempotent<F extends () => any>(
+  fn: F,
+): () => ReturnType<F> {
   let result: { value: ReturnType<F> } | null = null;
 
   return function idempotentFn() {
@@ -117,6 +124,6 @@ export function getCommandHelp(command: Command): string {
 function trimUsage(usage: string): string {
   return usage
     .split(/[\r\n]+/)[0]
-    .replace('Usage: ', '')
-    .replace(' [options]', '');
+    .replace("Usage: ", "")
+    .replace(" [options]", "");
 }

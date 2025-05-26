@@ -1,13 +1,12 @@
-import { BiSolidUser } from "react-icons/bi";
+import { BiSolidHome, BiSolidUser } from "react-icons/bi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
-import { BiSolidHome } from "react-icons/bi";
 
-import { Link } from "wasp/client/router";
 import { useAuth } from "wasp/client/auth";
+import { Link } from "wasp/client/router";
 
-import { Title } from "./Title";
 import { StatusPill } from "./StatusPill";
+import { Title } from "./Title";
 
 export function Header({ children, currentStatus }) {
   return (

@@ -1,4 +1,4 @@
-import { CommonOptions } from '../CommonOptions.js';
+import { CommonOptions } from "../CommonOptions.js";
 
 export interface DeployOptions extends CommonOptions {
   skipClient?: boolean;

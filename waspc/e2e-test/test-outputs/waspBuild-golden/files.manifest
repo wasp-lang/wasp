@@ -280,7 +280,6 @@ waspBuild/.wasp/build/server/src/app.js
 waspBuild/.wasp/build/server/src/middleware/globalMiddleware.ts
 waspBuild/.wasp/build/server/src/middleware/index.ts
 waspBuild/.wasp/build/server/src/middleware/operations.ts
-waspBuild/.wasp/build/server/src/polyfill.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts

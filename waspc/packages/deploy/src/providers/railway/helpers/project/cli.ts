@@ -1,15 +1,15 @@
-import { exit } from 'process';
+import { exit } from "process";
 
-import { $ } from 'zx';
+import { $ } from "zx";
 
-import { DeploymentInfo } from '../../DeploymentInfo.js';
-import { SetupOptions } from '../../setup/SetupOptions.js';
-import { waspSays } from '../../../../helpers.js';
+import { waspSays } from "../../../../helpers.js";
+import { DeploymentInfo } from "../../DeploymentInfo.js";
 import {
   type RailwayCliProject,
   RailwayCliProjectSchema,
   RailwayProjectListSchema,
-} from '../../schemas.js';
+} from "../../schemas.js";
+import { SetupOptions } from "../../setup/SetupOptions.js";
 
 export async function initProject({
   baseName,
@@ -19,16 +19,16 @@ export async function initProject({
     // If there are multiple workspaces, the user needs to select **interactively**
     // which one to use. We need to allow users to select the workspace interactively.
     // There is no way to pass it as a command line argument.
-    stdio: 'inherit',
+    stdio: "inherit",
   })`${options.railwayExe} init --name ${baseName}`;
 
   // Check if the project was created successfully...
   const newProject = await getProjectForCurrentDir(options.railwayExe);
   if (newProject === null) {
-    waspSays('Project creation failed. Exiting...');
+    waspSays("Project creation failed. Exiting...");
     exit(1);
   } else {
-    waspSays('Project created successfully!');
+    waspSays("Project created successfully!");
   }
 
   return newProject;
@@ -38,28 +38,31 @@ export async function linkProject(
   { options }: DeploymentInfo<SetupOptions>,
   project: RailwayProject,
 ): Promise<RailwayProject> {
-  const serviceArg = project.services.length > 0 ? ['-s', project.services[0].name] : [];
+  const serviceArg =
+    project.services.length > 0 ? ["-s", project.services[0].name] : [];
 
   await $`${options.railwayExe} link -p ${project.name} ${serviceArg}`;
 
   // Check if the project was linked successfully...
   const linkedProject = await getProjectForCurrentDir(options.railwayExe);
   if (linkedProject === null) {
-    waspSays('Project linking failed. Exiting...');
+    waspSays("Project linking failed. Exiting...");
     exit(1);
   } else {
-    waspSays('Project linked successfully!');
+    waspSays("Project linked successfully!");
   }
 
   return linkedProject;
 }
 
-export async function getProjectForCurrentDir(railwayExe: string): Promise<RailwayProject | null> {
+export async function getProjectForCurrentDir(
+  railwayExe: string,
+): Promise<RailwayProject | null> {
   const result = await $({
     verbose: false,
     nothrow: true,
     // Ignoring stdin and stderr to stop error output from Railway CLI
-    stdio: ['ignore', 'pipe', 'ignore'],
+    stdio: ["ignore", "pipe", "ignore"],
   })`${railwayExe} status --json`;
   if (result.exitCode !== 0) {
     return null;

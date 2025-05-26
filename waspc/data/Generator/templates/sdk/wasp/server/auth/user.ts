@@ -37,6 +37,9 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
     {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
     username: Expand<UserFacingProviderData<'username'>> | null
     {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    {=# enabledProviders.isSlackAuthEnabled =}
+    slack: Expand<UserFacingProviderData<'slack'>> | null
+    {=/ enabledProviders.isSlackAuthEnabled =}
     {=# enabledProviders.isDiscordAuthEnabled =}
     discord: Expand<UserFacingProviderData<'discord'>> | null
     {=/ enabledProviders.isDiscordAuthEnabled =}
@@ -99,6 +102,9 @@ This should never happen, but it did which means there is a bug in the code.`)
     {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
     username: getProviderInfo<'username'>({= authFieldOnUserEntityName =}, 'username'),
     {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    {=# enabledProviders.isSlackAuthEnabled =}
+    slack: getProviderInfo<'slack'>({= authFieldOnUserEntityName =}, 'slack'),
+    {=/ enabledProviders.isSlackAuthEnabled =}
     {=# enabledProviders.isDiscordAuthEnabled =}
     discord: getProviderInfo<'discord'>({= authFieldOnUserEntityName =}, 'discord'),
     {=/ enabledProviders.isDiscordAuthEnabled =}

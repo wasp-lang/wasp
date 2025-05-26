@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 export const FlyRegionListSchema = z.union([
   // older version

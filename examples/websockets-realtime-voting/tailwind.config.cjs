@@ -1,4 +1,4 @@
-const { resolveProjectPath } = require('wasp/dev')
+const { resolveProjectPath } = require("wasp/dev");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

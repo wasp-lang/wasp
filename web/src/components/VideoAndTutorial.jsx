@@ -1,8 +1,6 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import classNames from 'classnames'
+import Link from "@docusaurus/Link";
 
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from "./Layouts/SectionContainer";
 
 const VideoAndTutorial = () => {
   return (
@@ -38,7 +36,7 @@ const VideoAndTutorial = () => {
         </div>
       </div>
     </SectionContainer>
-  )
-}
+  );
+};
 
-export default VideoAndTutorial
+export default VideoAndTutorial;

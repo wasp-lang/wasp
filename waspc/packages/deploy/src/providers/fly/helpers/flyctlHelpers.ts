@@ -1,8 +1,8 @@
-import { exit } from 'process';
-import { $, question } from 'zx';
-import { executeFlyCommand } from '../index.js';
-import { isYes, waspSays, getCommandHelp } from '../../../helpers.js';
-import { FlyRegionListSchema, FlySecretListSchema } from './schemas.js';
+import { exit } from "process";
+import { $, question } from "zx";
+import { getCommandHelp, isYes, waspSays } from "../../../helpers.js";
+import { executeFlyCommand } from "../index.js";
+import { FlyRegionListSchema, FlySecretListSchema } from "./schemas.js";
 
 export async function flyctlExists(): Promise<boolean> {
   try {
@@ -28,9 +28,11 @@ async function ensureUserLoggedIn(): Promise<void> {
     return;
   }
 
-  const answer = await question('flyctl is not logged into Fly.io. Would you like to log in now? ');
+  const answer = await question(
+    "flyctl is not logged into Fly.io. Would you like to log in now? ",
+  );
   if (!isYes(answer)) {
-    waspSays('Ok, exiting.');
+    waspSays("Ok, exiting.");
     exit(1);
   }
 
@@ -47,8 +49,10 @@ async function ensureUserLoggedIn(): Promise<void> {
 export async function ensureFlyReady(): Promise<void> {
   const doesFlyctlExist = await flyctlExists();
   if (!doesFlyctlExist) {
-    waspSays('The Fly.io CLI is not available on this system.');
-    waspSays('Please install the flyctl here: https://fly.io/docs/hands-on/install-flyctl');
+    waspSays("The Fly.io CLI is not available on this system.");
+    waspSays(
+      "Please install the flyctl here: https://fly.io/docs/hands-on/install-flyctl",
+    );
     exit(1);
   }
   await ensureUserLoggedIn();
@@ -63,15 +67,15 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
       );
       waspSays(
         `You can also run "${getCommandHelp(executeFlyCommand).replace(
-          '<cmd...>',
-          'platform regions --context server',
+          "<cmd...>",
+          "platform regions --context server",
         )}".`,
       );
       exit(1);
     }
   } catch (e) {
     // Ignore any errors while checking. Commands requiring a valid region will still fail if invalid, just not as nicely.
-    waspSays('Unable to validate region before calling flyctl.');
+    waspSays("Unable to validate region before calling flyctl.");
   }
 }
 
@@ -79,7 +83,7 @@ async function regionExists(regionCode: string): Promise<boolean> {
   const proc = await $`flyctl platform regions -j`.verbose(false);
   const regions = FlyRegionListSchema.parse(JSON.parse(proc.stdout));
   return regions.some((r) => {
-    const code = 'code' in r ? r.code : r.Code;
+    const code = "code" in r ? r.code : r.Code;
     return code === regionCode;
   });
 }
@@ -88,7 +92,7 @@ export async function secretExists(secretName: string): Promise<boolean> {
   const proc = await $`flyctl secrets list -j`;
   const secrets = FlySecretListSchema.parse(JSON.parse(proc.stdout));
   return secrets.some((s) => {
-    const name = 'name' in s ? s.name : s.Name;
+    const name = "name" in s ? s.name : s.Name;
     return name === secretName;
   });
 }

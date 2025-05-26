@@ -1,23 +1,23 @@
-import { exit } from 'process';
+import { exit } from "process";
 
-import { DeploymentInfo } from '../../DeploymentInfo.js';
-import { SetupOptions } from '../../setup/SetupOptions.js';
-import { waspSays } from '../../../../helpers.js';
+import { waspSays } from "../../../../helpers.js";
+import { DeploymentInfo } from "../../DeploymentInfo.js";
+import { SetupOptions } from "../../setup/SetupOptions.js";
 import {
   getProjectForCurrentDir,
   getProjects,
   initProject,
   linkProject,
   RailwayProject,
-} from './cli.js';
+} from "./cli.js";
 
 export enum ProjectStatus {
-  EXISTING_PROJECT_LINKED = 'EXISTING_PROJECT_LINKED',
-  LINK_PROJECT = 'LINK_PROJECT',
-  NEW_PROJECT = 'NEW_PROJECT',
-  EXISTING_PROJECT_DIFFERENT_NAME_ERROR = 'EXISTING_PROJECT_DIFFERENT_NAME_ERROR',
-  PROJECT_WITH_ID_NOT_FOUND_ERROR = 'PROJECT_WITH_ID_NOT_FOUND_ERROR',
-  PROJECT_WITH_NAME_EXISTS_ERROR = 'PROJECT_WITH_NAME_EXISTS_ERROR',
+  EXISTING_PROJECT_LINKED = "EXISTING_PROJECT_LINKED",
+  LINK_PROJECT = "LINK_PROJECT",
+  NEW_PROJECT = "NEW_PROJECT",
+  EXISTING_PROJECT_DIFFERENT_NAME_ERROR = "EXISTING_PROJECT_DIFFERENT_NAME_ERROR",
+  PROJECT_WITH_ID_NOT_FOUND_ERROR = "PROJECT_WITH_ID_NOT_FOUND_ERROR",
+  PROJECT_WITH_NAME_EXISTS_ERROR = "PROJECT_WITH_NAME_EXISTS_ERROR",
 }
 
 export async function ensureProjectForCurrentDir(
@@ -29,7 +29,9 @@ export async function ensureProjectForCurrentDir(
 
   switch (status) {
     case ProjectStatus.EXISTING_PROJECT_LINKED:
-      waspSays(`Project with name "${baseName}" already linked. Skipping project creation.`);
+      waspSays(
+        `Project with name "${baseName}" already linked. Skipping project creation.`,
+      );
       return project;
 
     case ProjectStatus.LINK_PROJECT:
@@ -47,7 +49,9 @@ export async function ensureProjectForCurrentDir(
       return exit(1);
 
     case ProjectStatus.PROJECT_WITH_ID_NOT_FOUND_ERROR:
-      waspSays(`Project with ID "${options.existingProjectId}" does not exist.`);
+      waspSays(
+        `Project with ID "${options.existingProjectId}" does not exist.`,
+      );
       return exit(1);
 
     case ProjectStatus.PROJECT_WITH_NAME_EXISTS_ERROR:
@@ -82,7 +86,10 @@ async function getProject(options: SetupOptions, baseName: string) {
 
   // Trying to use an existing project
   if (options.existingProjectId) {
-    const projectById = await getProjectById(options.railwayExe, options.existingProjectId);
+    const projectById = await getProjectById(
+      options.railwayExe,
+      options.existingProjectId,
+    );
     if (projectById !== null) {
       return {
         status: ProjectStatus.LINK_PROJECT,
@@ -119,7 +126,10 @@ async function getProjectById(
   return projects.find((project) => project.id === remoteProjectId) ?? null;
 }
 
-async function getProjectByName(railwayExe: string, name: string): Promise<RailwayProject | null> {
+async function getProjectByName(
+  railwayExe: string,
+  name: string,
+): Promise<RailwayProject | null> {
   const projects = await getProjects(railwayExe);
   return projects.find((project) => project.name === name) ?? null;
 }

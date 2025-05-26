@@ -1,33 +1,26 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import classNames from 'classnames'
+import Link from "@docusaurus/Link";
+import classNames from "classnames";
 import {
-  Terminal,
-  Layers,
-  Coffee,
-  Code,
-  Unlock,
-  Repeat,
-  Send,
-  Link2,
-  Grid,
   ArrowRight,
-  Globe,
-  Settings,
+  Grid,
+  Link2,
   Mail,
-  Type,
+  Send,
+  Settings,
   Star,
-} from 'react-feather'
+  Type,
+  Unlock,
+} from "react-feather";
 
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from "./Layouts/SectionContainer";
 
-import styles from '../pages/styles.module.css'
+import styles from "../pages/styles.module.css";
 
 const Lang = () => (
   <>
     <span className="font-bold underline decoration-yellow-500">language</span>
   </>
-)
+);
 
 const Feature = ({ Icon, title, description, url }) => (
   <div className="mb-10 space-y-4 md:mb-0">
@@ -47,7 +40,7 @@ const Feature = ({ Icon, title, description, url }) => (
     <p className="text-neutral-700">{description}</p>
     <TextLink url={url} label="Learn more" />
   </div>
-)
+);
 
 // TODO(matija): this is duplication from HowItWorks section.
 const TextLink = ({ url, label }) => (
@@ -68,7 +61,7 @@ const TextLink = ({ url, label }) => (
       </div>
     </span>
   </Link>
-)
+);
 
 const Features = () => {
   return (
@@ -148,8 +141,8 @@ const Features = () => {
         />
       </dl>
     </SectionContainer>
-  )
-}
+  );
+};
 
 const FeaturesWithSkewedBorder = () => (
   <div className="relative">
@@ -157,7 +150,7 @@ const FeaturesWithSkewedBorder = () => (
       <div
         className={classNames(
           styles.sectionSkewed,
-          'border-b border-yellow-500/25 bg-neutral-100/50'
+          "border-b border-yellow-500/25 bg-neutral-100/50",
         )}
       ></div>
     </div>
@@ -165,6 +158,6 @@ const FeaturesWithSkewedBorder = () => (
       <Features />
     </div>
   </div>
-)
+);
 
-export default FeaturesWithSkewedBorder
+export default FeaturesWithSkewedBorder;

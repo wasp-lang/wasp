@@ -5,21 +5,25 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Data } from "./types";
 import ReactFlow, {
   Background,
-  Node,
   Edge,
+  Node,
   useEdgesState,
   useNodesState,
   useReactFlow,
 } from "reactflow";
+import { Data } from "./types";
 
 import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
 
-import { PageNode } from "./graph/Page";
+import { ApiNode } from "./graph/Api";
+import { AppNode } from "./graph/App";
 import { EntityNode } from "./graph/Entity";
+import { JobNode } from "./graph/Job";
 import { ActionNode, QueryNode } from "./graph/Operation";
+import { PageNode } from "./graph/Page";
+import { RouteNode } from "./graph/Route";
 import {
   createActionNode,
   createApiNode,
@@ -31,10 +35,6 @@ import {
   createQueryNode,
   createRouteNode,
 } from "./graph/factories";
-import { AppNode } from "./graph/App";
-import { RouteNode } from "./graph/Route";
-import { ApiNode } from "./graph/Api";
-import { JobNode } from "./graph/Job";
 
 const elk = new ELK();
 
@@ -108,7 +108,7 @@ export default function Flow({ data }: { data: Data }) {
       apiNode: ApiNode,
       jobNode: JobNode,
     }),
-    []
+    [],
   );
 
   const onLayout = useCallback(() => {
@@ -118,15 +118,15 @@ export default function Flow({ data }: { data: Data }) {
         generateId(data.app.name, "app"),
         data.app.name,
         data.app,
-        selectedNode
+        selectedNode,
       ),
       ...data.pages.map((page) =>
         createPageNode(
           generateId(page.name, "page"),
           page.name,
           page,
-          selectedNode
-        )
+          selectedNode,
+        ),
       ),
       ...data.operations
         .filter((operation) => operation.type === "query")
@@ -135,8 +135,8 @@ export default function Flow({ data }: { data: Data }) {
             generateId(query.name, "query"),
             query.name,
             query,
-            selectedNode
-          )
+            selectedNode,
+          ),
         ),
       ...data.operations
         .filter((operation) => operation.type === "action")
@@ -145,8 +145,8 @@ export default function Flow({ data }: { data: Data }) {
             generateId(action.name, "action"),
             action.name,
             action,
-            selectedNode
-          )
+            selectedNode,
+          ),
         ),
       ...data.entities.map((entity) =>
         createEntityNode(
@@ -154,22 +154,22 @@ export default function Flow({ data }: { data: Data }) {
           entity.name,
           entity.name === data.app.auth?.userEntity.name,
           entity,
-          selectedNode
-        )
+          selectedNode,
+        ),
       ),
       ...data.routes.map((route) =>
         createRouteNode(
           generateId(route.path, "route"),
           route.path,
           route,
-          selectedNode
-        )
+          selectedNode,
+        ),
       ),
       ...data.apis.map((api) =>
-        createApiNode(generateId(api.name, "api"), api.name, api, selectedNode)
+        createApiNode(generateId(api.name, "api"), api.name, api, selectedNode),
       ),
       ...data.jobs.map((job) =>
-        createJobNode(generateId(job.name, "job"), job.name, job, selectedNode)
+        createJobNode(generateId(job.name, "job"), job.name, job, selectedNode),
       ),
     ];
 
@@ -178,15 +178,15 @@ export default function Flow({ data }: { data: Data }) {
         createEdge(
           generateId(entity.name, "entity"),
           generateId(data.app.name, "app"),
-          selectedNode
-        )
+          selectedNode,
+        ),
       ),
       ...data.routes.map((route) =>
         createEdge(
           generateId(route.path, "route"),
           generateId(route.toPage.name, "page"),
-          selectedNode
-        )
+          selectedNode,
+        ),
       ),
       ...data.operations.flatMap((operation) =>
         operation.entities.map((entity) =>
@@ -194,34 +194,34 @@ export default function Flow({ data }: { data: Data }) {
           createEdge(
             generateId(operation.name, operation.type),
             generateId(entity.name, "entity"),
-            selectedNode
-          )
-        )
+            selectedNode,
+          ),
+        ),
       ),
       ...data.apis.flatMap((api) =>
         api.entities.map((entity) =>
           createEdge(
             generateId(api.name, "api"),
             generateId(entity.name, "entity"),
-            selectedNode
-          )
-        )
+            selectedNode,
+          ),
+        ),
       ),
       ...data.jobs.flatMap((job) =>
         job.entities.map((entity) =>
           createEdge(
             generateId(job.name, "job"),
             generateId(entity.name, "entity"),
-            selectedNode
-          )
-        )
+            selectedNode,
+          ),
+        ),
       ),
       ...data.routes.map((route) =>
         createEdge(
           generateId(data.app.name, "app"),
           generateId(route.path, "route"),
-          selectedNode
-        )
+          selectedNode,
+        ),
       ),
     ];
 

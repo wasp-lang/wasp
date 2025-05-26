@@ -1,13 +1,13 @@
-import { exit } from 'process';
-import { $ } from 'zx';
+import { exit } from "process";
+import { $ } from "zx";
 
-import { waspSays } from '../../../helpers.js';
-import { RailwayCliDomainSchema } from '../schemas.js';
+import { waspSays } from "../../../helpers.js";
+import { RailwayCliDomainSchema } from "../schemas.js";
 
 export enum ServiceUrlStatus {
-  URL_CREATED = 'URL_CREATED',
-  URL_ALREADY_EXISTS = 'URL_ALREADY_EXISTS',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  URL_CREATED = "URL_CREATED",
+  URL_ALREADY_EXISTS = "URL_ALREADY_EXISTS",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
 
 export async function getServiceUrl(
@@ -15,7 +15,11 @@ export async function getServiceUrl(
   serviceName: string,
   port: number,
 ): Promise<string> {
-  const { status, output } = await getServiceUrlStatus(railwayExe, serviceName, port);
+  const { status, output } = await getServiceUrlStatus(
+    railwayExe,
+    serviceName,
+    port,
+  );
 
   switch (status) {
     case ServiceUrlStatus.URL_CREATED:
@@ -34,8 +38,13 @@ export async function getServiceUrl(
   }
 }
 
-async function getServiceUrlStatus(railwayExe: string, serviceName: string, port: number) {
-  const result = await $`${railwayExe} domain --service "${serviceName}" --port ${port} --json`;
+async function getServiceUrlStatus(
+  railwayExe: string,
+  serviceName: string,
+  port: number,
+) {
+  const result =
+    await $`${railwayExe} domain --service "${serviceName}" --port ${port} --json`;
 
   if (result.exitCode !== 0) {
     return {
@@ -43,7 +52,7 @@ async function getServiceUrlStatus(railwayExe: string, serviceName: string, port
     } as const;
   }
 
-  if (result.stdout.includes('Domains already exists on the service:')) {
+  if (result.stdout.includes("Domains already exists on the service:")) {
     return {
       status: ServiceUrlStatus.URL_ALREADY_EXISTS,
       output: result.stdout,
@@ -59,7 +68,7 @@ async function getServiceUrlStatus(railwayExe: string, serviceName: string, port
 function matchServiceUrl(text: string): string {
   const match = text.match(/https:\/\/[^\s]*/);
   if (match === null) {
-    throw new Error('Failed to get service domain');
+    throw new Error("Failed to get service domain");
   }
   return match[0];
 }

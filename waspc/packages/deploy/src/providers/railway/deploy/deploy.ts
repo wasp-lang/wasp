@@ -1,45 +1,50 @@
-import { $, cd } from 'zx';
+import { $, cd } from "zx";
 
-import { DeployOptions } from './DeployOptions.js';
-import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
+import { exit } from "process";
 import {
-  waspSays,
-  makeIdempotent,
-  cdToServerBuildDir,
   cdToClientBuildDir,
+  cdToServerBuildDir,
   displayWaspRocketImage,
-  getWebAppArtefactsDir,
   getServerArtefactsDir,
-} from '../../../helpers.js';
-import { clientAppPort, serverAppPort } from '../helpers/ports.js';
-import { exit } from 'process';
-import { getProjectForCurrentDir } from '../helpers/project/cli.js';
-import { getServiceUrl } from '../helpers/serviceUrl.js';
+  getWebAppArtefactsDir,
+  makeIdempotent,
+  waspSays,
+} from "../../../helpers.js";
+import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
+import { clientAppPort, serverAppPort } from "../helpers/ports.js";
+import { getProjectForCurrentDir } from "../helpers/project/cli.js";
+import { getServiceUrl } from "../helpers/serviceUrl.js";
+import { DeployOptions } from "./DeployOptions.js";
 
-export async function deploy(baseName: string, options: DeployOptions): Promise<void> {
+export async function deploy(
+  baseName: string,
+  options: DeployOptions,
+): Promise<void> {
   // Railway CLI links projects to the current directory
   cd(options.waspProjectDir);
 
   const project = await getProjectForCurrentDir(options.railwayExe);
   if (project === null) {
-    waspSays('No Railway project detected. Please run "wasp deploy railway setup" first.');
+    waspSays(
+      'No Railway project detected. Please run "wasp deploy railway setup" first.',
+    );
     exit(1);
   }
 
-  waspSays('Deploying your Wasp app to Railway!');
+  waspSays("Deploying your Wasp app to Railway!");
 
   const buildWasp = makeIdempotent(async () => {
     if (options.skipBuild) {
       return;
     }
 
-    waspSays('Building your Wasp app...');
+    waspSays("Building your Wasp app...");
     cd(options.waspProjectDir);
     await $`${options.waspExe} build`;
   });
 
   if (options.skipServer) {
-    waspSays('Skipping server deploy due to CLI option.');
+    waspSays("Skipping server deploy due to CLI option.");
   } else {
     const deploymentInfo = createDeploymentInfo(baseName, options);
     await buildWasp();
@@ -47,7 +52,7 @@ export async function deploy(baseName: string, options: DeployOptions): Promise<
   }
 
   if (options.skipClient) {
-    waspSays('Skipping client deploy due to CLI option.');
+    waspSays("Skipping client deploy due to CLI option.");
   } else {
     const deploymentInfo = createDeploymentInfo(baseName, options);
     await buildWasp();
@@ -55,8 +60,11 @@ export async function deploy(baseName: string, options: DeployOptions): Promise<
   }
 }
 
-async function deployServer({ options, serverName }: DeploymentInfo<DeployOptions>) {
-  waspSays('Deploying your server now...');
+async function deployServer({
+  options,
+  serverName,
+}: DeploymentInfo<DeployOptions>) {
+  waspSays("Deploying your server now...");
 
   cdToServerBuildDir(options.waspProjectDir);
 
@@ -64,17 +72,21 @@ async function deployServer({ options, serverName }: DeploymentInfo<DeployOption
 
   await $`${options.railwayExe} up ${serverArtefactsDir} --service "${serverName}" --no-gitignore --path-as-root --ci`;
 
-  waspSays('Server has been deployed!');
+  waspSays("Server has been deployed!");
 }
 
-async function deployClient({ options, serverName, clientName }: DeploymentInfo<DeployOptions>) {
-  waspSays('Deploying your client now...');
+async function deployClient({
+  options,
+  serverName,
+  clientName,
+}: DeploymentInfo<DeployOptions>) {
+  waspSays("Deploying your client now...");
 
   cdToClientBuildDir(options.waspProjectDir);
 
-  waspSays('Building web client for production...');
+  waspSays("Building web client for production...");
   waspSays(
-    'If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy railway deploy',
+    "If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy railway deploy",
   );
 
   const serverUrl = process.env.REACT_APP_API_URL
@@ -86,8 +98,14 @@ async function deployClient({ options, serverName, clientName }: DeploymentInfo<
   const webAppArtefactsDir = getWebAppArtefactsDir(options.waspProjectDir);
   await $`${options.railwayExe} up ${webAppArtefactsDir} --service "${clientName}" --no-gitignore --path-as-root --ci`;
 
-  const clientUrl = await getServiceUrl(options.railwayExe, clientName, clientAppPort);
+  const clientUrl = await getServiceUrl(
+    options.railwayExe,
+    clientName,
+    clientAppPort,
+  );
 
   displayWaspRocketImage();
-  waspSays(`Client has been deployed! Your Wasp app is accessible at: ${clientUrl}`);
+  waspSays(
+    `Client has been deployed! Your Wasp app is accessible at: ${clientUrl}`,
+  );
 }

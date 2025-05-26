@@ -1,10 +1,10 @@
 import { stripVTControlCharacters } from "node:util";
 
-import { createLogger } from "./logging.js";
-import { spawnWithLog, spawnAndCollectOutput } from "./process.js";
-import { DbType } from "./db/index.js";
-import type { Branded, EnvVars } from "./types.js";
 import type { PathToApp, WaspCliCmd } from "./args.js";
+import { DbType } from "./db/index.js";
+import { createLogger } from "./logging.js";
+import { spawnAndCollectOutput, spawnWithLog } from "./process.js";
+import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
 
@@ -85,7 +85,7 @@ export async function waspInfo({
 
   const appNameMatch = stdoutDataWithoutAnsiChars.match(/Name: (.*)$/m);
   const dbTypeMatch = stdoutDataWithoutAnsiChars.match(
-    /Database system: (.*)$/m
+    /Database system: (.*)$/m,
   );
 
   if (appNameMatch === null) {
@@ -109,7 +109,7 @@ export async function waspInfo({
 
 function ensureRegexMatch(
   match: RegExpMatchArray | null,
-  name: string
+  name: string,
 ): string {
   const logger = createLogger("ensure-regex-match");
   if (match === null) {

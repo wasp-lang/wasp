@@ -17,7 +17,9 @@ export function MyRadio({ options, value, onChange, label }) {
                   : ""
               }
                   ${
-                    checked ? "bg-slate-900 bg-opacity-75 text-white" : "bg-white"
+                    checked
+                      ? "bg-slate-900 bg-opacity-75 text-white"
+                      : "bg-white"
                   }
                   ${
                     disabled

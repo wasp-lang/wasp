@@ -1,4 +1,4 @@
-import { CommonOptions } from './CommonOptions.js';
+import { CommonOptions } from "./CommonOptions.js";
 
 export type DeploymentInfo<CommandOptions extends CommonOptions> = Readonly<{
   baseName: string;

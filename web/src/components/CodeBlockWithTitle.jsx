@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import CodeBlock from '@theme/CodeBlock'
+import CodeBlock from "@theme/CodeBlock";
 
 export default function CodeBlockWithTitle({ title, children, language }) {
   return (
@@ -8,5 +7,5 @@ export default function CodeBlockWithTitle({ title, children, language }) {
 
       <CodeBlock language={language}>{children}</CodeBlock>
     </div>
-  )
+  );
 }

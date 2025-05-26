@@ -1,14 +1,14 @@
-import { lazy, Suspense } from "react";
 import {
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
 } from "@nextui-org/react";
+import { lazy, Suspense } from "react";
 import "reactflow/dist/style.css";
 
-import { useSocket } from "./socket";
 import { Logo } from "./Logo";
+import { useSocket } from "./socket";
 
 const Flow = lazy(() => import("./Flow"));
 
