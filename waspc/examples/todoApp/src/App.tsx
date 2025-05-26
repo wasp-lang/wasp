@@ -6,7 +6,7 @@ import { Link } from "wasp/client/router";
 import { useSocket } from "wasp/client/webSocket";
 
 import "./Main.css";
-import { getName } from "./user";
+import { getName } from "./auth/user";
 // Necessary to trigger type tests.
 import "./rpcTests/operations/client";
 
@@ -45,20 +45,6 @@ export function App() {
         <Outlet />
       </main>
       <footer className="mt-8 text-center">Created with Wasp</footer>
-
-      <label>
-        Go to:{" "}
-        <select
-          defaultValue=""
-          onChange={(e) => (window.location.href = e.target.value)}
-        >
-          <option disabled value="">
-            Select one
-          </option>
-          <option value="/">Main page</option>
-          <option value="/serialization">Serialization Test</option>
-        </select>
-      </label>
     </div>
   );
 }

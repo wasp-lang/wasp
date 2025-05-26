@@ -6,7 +6,7 @@ import { getDate, getTasks } from "wasp/client/operations";
 import { mockServer, renderInContext } from "wasp/client/test";
 
 import { getMe } from "wasp/client/auth";
-import { App } from "./App";
+import { App } from "../../App";
 import Todo, { areThereAnyTasks } from "./Todo";
 
 import { Route, Routes } from "react-router-dom";

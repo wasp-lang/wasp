@@ -6,7 +6,7 @@ import type {
   ToggleAllTasks,
   UpdateTaskIsDone,
 } from "wasp/server/operations";
-import { getSomeResource } from "./serverSetup.js";
+import { getSomeResource } from "../setup/serverSetup.js";
 
 export const createTask: CreateTask<Pick<Task, "description">, Task> = async (
   task,

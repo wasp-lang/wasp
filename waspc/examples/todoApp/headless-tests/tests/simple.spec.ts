@@ -54,7 +54,7 @@ test.describe("signup and login", () => {
 
     await expect(page).toHaveURL("/profile");
 
-    await page.goto("/");
+    await page.goto("/tasks");
 
     // Create a new task
     const randomTask = `New Task ${Math.random().toString(36).substring(7)}`;
