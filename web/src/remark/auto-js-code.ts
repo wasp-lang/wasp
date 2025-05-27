@@ -34,10 +34,8 @@ Output:
 
 */
 
-// Type-only empty import to register MDX node types into mdast.
-/// <reference types="mdast-util-mdx" />
-
 import type * as md from "mdast";
+import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import * as path from "node:path";
 import { blankSourceFile } from "ts-blank-space";
 import * as ts from "typescript";
@@ -89,44 +87,7 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
         const jsCodeBlock = await makeJsCodeBlock(node, langInfo);
         const tsCodeBlock = await formatTsCodeBlock(node);
 
-        // The specific structure of the new node was retrieved by copy-pasting
-        // an example into the MDX playground and inspecting the AST.
-        // https://mdxjs.com/playground
-        const newNode: md.RootContent = {
-          type: "mdxJsxFlowElement",
-          name: "Tabs",
-          attributes: [
-            { type: "mdxJsxAttribute", name: "groupId", value: "js-ts" },
-          ],
-          children: [
-            {
-              type: "mdxJsxFlowElement",
-              name: "TabItem",
-              attributes: [
-                { type: "mdxJsxAttribute", name: "value", value: "js" },
-                {
-                  type: "mdxJsxAttribute",
-                  name: "label",
-                  value: "JavaScript",
-                },
-              ],
-              children: [jsCodeBlock],
-            },
-            {
-              type: "mdxJsxFlowElement",
-              name: "TabItem",
-              attributes: [
-                { type: "mdxJsxAttribute", name: "value", value: "ts" },
-                {
-                  type: "mdxJsxAttribute",
-                  name: "label",
-                  value: "TypeScript",
-                },
-              ],
-              children: [tsCodeBlock],
-            },
-          ],
-        };
+        const newNode = createTabbedCodeBlocks({ jsCodeBlock, tsCodeBlock });
 
         // Replace input node for the new one in the parent's children array.
         parent.children.splice(idx, 1, newNode);
@@ -145,6 +106,51 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
 };
 
 export default autoJSCodePlugin;
+
+function createTabbedCodeBlocks({
+  jsCodeBlock,
+  tsCodeBlock,
+}: {
+  jsCodeBlock: md.Code;
+  tsCodeBlock: md.Code;
+}): MdxJsxFlowElement {
+  // The specific structure of the new node was retrieved by copy-pasting
+  // an example into the MDX playground and inspecting the AST.
+  // https://mdxjs.com/playground
+  return {
+    type: "mdxJsxFlowElement",
+    name: "Tabs",
+    attributes: [{ type: "mdxJsxAttribute", name: "groupId", value: "js-ts" }],
+    children: [
+      {
+        type: "mdxJsxFlowElement",
+        name: "TabItem",
+        attributes: [
+          { type: "mdxJsxAttribute", name: "value", value: "js" },
+          {
+            type: "mdxJsxAttribute",
+            name: "label",
+            value: "JavaScript",
+          },
+        ],
+        children: [jsCodeBlock],
+      },
+      {
+        type: "mdxJsxFlowElement",
+        name: "TabItem",
+        attributes: [
+          { type: "mdxJsxAttribute", name: "value", value: "ts" },
+          {
+            type: "mdxJsxAttribute",
+            name: "label",
+            value: "TypeScript",
+          },
+        ],
+        children: [tsCodeBlock],
+      },
+    ],
+  };
+}
 
 // Taken from Docusaurus.
 // https://github.com/facebook/docusaurus/blob/v2.4.3/packages/docusaurus-theme-common/src/utils/codeBlockUtils.ts
