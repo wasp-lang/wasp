@@ -25,18 +25,21 @@ export function assertSupportedLanguage<
   node: CodeNode,
   supportedLanguages: readonly Language[],
 ): asserts node is CodeNode & { lang: Language } {
-  let errorMessage: string | undefined;
-
   if (!node.lang) {
-    errorMessage = "No language specified.";
-  } else if (!(supportedLanguages as readonly string[]).includes(node.lang)) {
-    errorMessage = `Unsupported language: ${node.lang}.`;
+    throwLangError("No language specified.", supportedLanguages);
   }
 
-  if (errorMessage) {
-    const solutionMessage = `Please use one of: ${[...supportedLanguages].join(", ")}`;
-    throw new Error([errorMessage, solutionMessage].join("\n"));
+  if (!(supportedLanguages as readonly string[]).includes(node.lang)) {
+    throwLangError(`Unsupported language: ${node.lang}.`, supportedLanguages);
   }
+}
+
+function throwLangError(
+  errorMessage: string,
+  supportedLanguages: readonly string[],
+): never {
+  const solutionMessage = `Please use one of: ${supportedLanguages.join(", ")}`;
+  throw new Error([errorMessage, solutionMessage].join("\n"));
 }
 
 export async function formatCodeBlock(
