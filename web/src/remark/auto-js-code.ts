@@ -55,7 +55,7 @@ interface SupportedLanguageInfo {
 }
 
 // Wrapped in \b to denote a word boundary.
-const META_FLAG_REGEX = /\bauto-js\b/;
+const META_FLAG = "auto-js";
 
 const SUPPORTED_LANGUAGE_INFO = {
   ts: { jsx: false, outputLang: "js" },
@@ -67,7 +67,7 @@ const SUPPORTED_EXTENSIONS = {
   ".tsx": ".jsx",
 };
 
-const isCodeWithAutoJsFlag = makeCheckForCodeWithMeta(META_FLAG_REGEX);
+const isCodeWithAutoJsFlag = makeCheckForCodeWithMeta(META_FLAG);
 const SUPPORTED_LANGUAGES = new Set(
   Object.keys(
     SUPPORTED_LANGUAGE_INFO,

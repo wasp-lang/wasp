@@ -1,12 +1,19 @@
+import escapeStringRegexp from "escape-string-regexp";
 import type * as md from "mdast";
 
 /**
  * Creates a "check fn" for `unist-util-visit` that checks if a node is a code
  * block with a specific meta flag.
  */
-export function makeCheckForCodeWithMeta(metaFlag: RegExp) {
+export function makeCheckForCodeWithMeta(metaFlag: string) {
+  // We wrap the string in \b to denote a word boundary, so we don't match it
+  // as a substring of another word.
+  const metaFlagRegexp = new RegExp(
+    String.raw`\b${escapeStringRegexp(metaFlag)}\b`,
+  );
+
   return (node: md.Nodes): node is md.Code & { meta: string } =>
-    node.type === "code" && node.meta && metaFlag.test(node.meta);
+    node.type === "code" && node.meta && metaFlagRegexp.test(node.meta);
 }
 
 /**

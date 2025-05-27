@@ -31,14 +31,13 @@ import {
   makeCheckForCodeWithMeta,
 } from "./util/code-blocks";
 
-// Wrapped in \b to denote a word boundary.
-const META_FLAG_REGEX = /\bwith-hole\b/;
-const HOLE_IDENTIFIER_REGEX = /\b\$HOLE$\b/;
+const META_FLAG = "with-hole";
+const HOLE_IDENTIFIER_REGEX = /\b\$HOLE$\b/; // Wrapped in \b to denote a word boundary.
 const HOLE_REPLACEMENT = "/* ... */";
 
 const SUPPORTED_LANGS = new Set(["js", "jsx", "ts", "tsx"] as const);
 
-const isCodeWithHoleFlag = makeCheckForCodeWithMeta(META_FLAG_REGEX);
+const isCodeWithHoleFlag = makeCheckForCodeWithMeta(META_FLAG);
 
 const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
   visit(tree, isCodeWithHoleFlag, (node) => {
