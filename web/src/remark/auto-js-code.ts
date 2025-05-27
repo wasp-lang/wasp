@@ -52,7 +52,6 @@ interface SupportedLanguageInfo {
   outputLang: string;
 }
 
-// Wrapped in \b to denote a word boundary.
 const META_FLAG = "auto-js";
 
 const SUPPORTED_LANGUAGE_INFO = {
