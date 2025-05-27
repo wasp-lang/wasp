@@ -1,11 +1,9 @@
-/*
-In a code block tagged with `with-hole` meta, replace the word "$HOLE$" with a comment
-`/ * ... * /`. (Please note that the spaces in the comment are intentional to avoid
-the comment being parsed as a code block.)
+// In a code block tagged with `with-hole` meta, replaces the word "$HOLE$" with
+// a comment: `/* ... */`.
 
-This is useful for keeping code examples syntactically correct (for example for use
-with `auto-js`) while
-omitting parts of the code for clarity or brevity.
+/*
+This is useful for keeping code examples syntactically correct (for example for
+use with `auto-js`) while omitting parts of the code for clarity or brevity.
 
 Example:
 
