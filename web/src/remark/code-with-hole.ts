@@ -30,7 +30,7 @@ import {
 } from "./util/code-blocks";
 
 const META_FLAG = "with-hole";
-const HOLE_IDENTIFIER_REGEX = /\b\$HOLE$\b/; // Wrapped in \b to denote a word boundary.
+const HOLE_IDENTIFIER_REGEX = /\b\$HOLE\$\b/g;
 const HOLE_REPLACEMENT = "/* ... */";
 
 const SUPPORTED_LANGS = ["js", "jsx", "ts", "tsx"] as const;
@@ -43,7 +43,10 @@ const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
       assertSupportedLanguage(node, SUPPORTED_LANGS);
 
       // Replace hole with ellipsis.
-      node.value = node.value.replace(HOLE_IDENTIFIER_REGEX, HOLE_REPLACEMENT);
+      node.value = node.value.replaceAll(
+        HOLE_IDENTIFIER_REGEX,
+        HOLE_REPLACEMENT,
+      );
     } catch (error) {
       // We catch any thrown errors and annotate them as file errors, with the
       // code block position.

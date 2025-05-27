@@ -1,17 +1,15 @@
-import escapeStringRegexp from "escape-string-regexp";
 import type * as md from "mdast";
 import { formatCode, FormatCodeOptions } from "./prettier";
+import { wrapInWordBoundaries } from "./regex";
 
 /**
  * Creates a "check fn" for `unist-util-visit` that checks if a node is a code
  * block with a specific meta flag.
  */
 export function makeCheckForCodeWithMeta(metaFlag: string) {
-  // We wrap the string in \b to denote a word boundary, so we don't match it
-  // as a substring of another word.
-  const metaFlagRegexp = new RegExp(
-    String.raw`\b${escapeStringRegexp(metaFlag)}\b`,
-  );
+  // We wrap the string in word boundaries, so we don't match it as a substring
+  // of another word.
+  const metaFlagRegexp = wrapInWordBoundaries(metaFlag);
 
   return (node: md.Nodes): node is md.Code & { meta: string } =>
     node.type === "code" && node.meta && metaFlagRegexp.test(node.meta);
