@@ -130,7 +130,7 @@ If any of these caveats get in the way of correctly expressing the code you need
 
 #### Manually creating a language switcher
 
-You can create a language switcher manually as described in [Docusaurus docs](https://docusaurus.io/docs/2.x/markdown-features/code-blocks#multi-language-support-code-blocks).
+You can create a language switcher manually as described in [Docusaurus docs](https://docusaurus.io/docs/markdown-features/code-blocks#multi-language-support-code-blocks).
 
 #### `with-hole`: omit part of the code
 
