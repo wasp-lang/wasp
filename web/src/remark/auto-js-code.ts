@@ -43,9 +43,9 @@ import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import {
   assertSupportedLanguage,
+  formatCodeBlock,
   makeCheckForCodeWithMeta,
 } from "./util/code-blocks";
-import { formatCode } from "./util/prettier";
 
 const META_FLAG = "auto-js";
 
@@ -81,8 +81,11 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
         assertSupportedLanguage(node, supportedLanguages);
         const transformationInfo = LANGUAGE_TRANSFORMATIONS[node.lang];
 
-        const jsCodeBlock = await makeJsCodeBlock(node, transformationInfo);
-        const tsCodeBlock = await formatTsCodeBlock(node);
+        const jsCodeBlock = await makeFormattedJsCodeBlock(
+          node,
+          transformationInfo,
+        );
+        const tsCodeBlock = await formatCodeBlock(node, { parser: "babel-ts" });
 
         const newNode = createTabbedCodeBlocks({ jsCodeBlock, tsCodeBlock });
 
@@ -153,7 +156,7 @@ function createTabbedCodeBlocks({
 // https://github.com/facebook/docusaurus/blob/v2.4.3/packages/docusaurus-theme-common/src/utils/codeBlockUtils.ts
 const CODE_BLOCK_TITLE_REGEX = /title=(?<quote>["'])(?<title>.*?)\1/;
 
-async function makeJsCodeBlock(
+async function makeFormattedJsCodeBlock(
   originalNode: md.Code,
   transformationInfo: LanguageTransformationInfo,
 ): Promise<md.Code> {
@@ -161,30 +164,23 @@ async function makeJsCodeBlock(
   const newMeta = originalNode.meta?.replace(
     CODE_BLOCK_TITLE_REGEX,
     (_fullMatch, _quote, title) =>
-      `title=${JSON.stringify(transformExt(title))}`,
+      `title=${JSON.stringify(transformExt(title, EXTENSION_TRANSFORMATIONS))}`,
   );
 
-  const code = await formatCode(
-    convertToJs(originalNode.value, transformationInfo),
-    {
-      parser: "babel",
-    },
-  );
+  const newLang = transformationInfo.outputLang;
 
-  return {
+  const newCode = convertToJs(originalNode.value, transformationInfo);
+
+  const newNode = {
     ...originalNode,
-    value: code,
-    lang: transformationInfo.outputLang,
+    value: newCode,
+    lang: newLang,
     meta: newMeta,
   };
-}
 
-// We format the original code block to make sure it is consistent with the other one.
-async function formatTsCodeBlock(originalNode: md.Code): Promise<md.Code> {
-  return {
-    ...originalNode,
-    value: await formatCode(originalNode.value, { parser: "babel-ts" }),
-  };
+  const formattedNode = await formatCodeBlock(newNode, { parser: "babel" });
+
+  return formattedNode;
 }
 
 /*
@@ -212,9 +208,12 @@ function convertToJs(tsCode: string, { jsx }: LanguageTransformationInfo) {
   return blankSourceFile(sourceFile);
 }
 
-function transformExt(inputPath: string) {
-  const inputExt = path.extname(inputPath);
-  const outputExt = EXTENSION_TRANSFORMATIONS[inputExt] as string | undefined;
+function transformExt(
+  inputFilePath: string,
+  transformations: Partial<Record<string, string>>,
+) {
+  const inputExt = path.extname(inputFilePath);
+  const outputExt = transformations[inputExt];
 
   if (!outputExt) {
     throw new Error(
@@ -224,6 +223,6 @@ function transformExt(inputPath: string) {
     );
   }
 
-  const outputPath = inputPath.slice(0, -inputExt.length) + outputExt;
-  return outputPath;
+  const outputFilePath = inputFilePath.slice(0, -inputExt.length) + outputExt;
+  return outputFilePath;
 }

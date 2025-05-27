@@ -1,5 +1,6 @@
 import escapeStringRegexp from "escape-string-regexp";
 import type * as md from "mdast";
+import { formatCode, FormatCodeOptions } from "./prettier";
 
 /**
  * Creates a "check fn" for `unist-util-visit` that checks if a node is a code
@@ -38,4 +39,12 @@ export function assertSupportedLanguage<
     const solutionMessage = `Please use one of: ${[...supportedLanguages].join(", ")}`;
     throw new Error([errorMessage, solutionMessage].join("\n"));
   }
+}
+
+export async function formatCodeBlock(
+  node: md.Code,
+  options: FormatCodeOptions,
+): Promise<md.Code> {
+  const newCode = await formatCode(node.value, options);
+  return { ...node, value: newCode };
 }

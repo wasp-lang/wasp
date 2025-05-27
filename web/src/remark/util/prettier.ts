@@ -21,10 +21,14 @@ async function getPrettierConfig() {
 // We will cache the Prettier configuration to avoid resolving it multiple times
 let prettierConfig: prettier.Options | undefined;
 
+export interface FormatCodeOptions {
+  parser: prettier.Options["parser"];
+}
+
 export async function formatCode(
   code: string,
-  { parser }: { parser: prettier.Options["parser"] },
-) {
+  { parser }: FormatCodeOptions,
+): Promise<string> {
   prettierConfig ??= await getPrettierConfig();
   const formatted = await prettier.format(code, { ...prettierConfig, parser });
   return formatted.trim(); // prettier adds a trailing newline, we remove it
