@@ -24,13 +24,13 @@ export function assertSupportedLanguage<
   CodeNode extends md.Code,
 >(
   node: CodeNode,
-  supportedLanguages: Set<Language>,
+  supportedLanguages: readonly Language[],
 ): asserts node is CodeNode & { lang: Language } {
   let errorMessage: string | undefined;
 
   if (!node.lang) {
     errorMessage = "No language specified.";
-  } else if (!(supportedLanguages as Set<string>).has(node.lang)) {
+  } else if (!(supportedLanguages as readonly string[]).includes(node.lang)) {
     errorMessage = `Unsupported language: ${node.lang}.`;
   }
 

@@ -35,7 +35,7 @@ const META_FLAG = "with-hole";
 const HOLE_IDENTIFIER_REGEX = /\b\$HOLE$\b/; // Wrapped in \b to denote a word boundary.
 const HOLE_REPLACEMENT = "/* ... */";
 
-const SUPPORTED_LANGS = new Set(["js", "jsx", "ts", "tsx"] as const);
+const SUPPORTED_LANGS = ["js", "jsx", "ts", "tsx"] as const;
 
 const isCodeWithHoleFlag = makeCheckForCodeWithMeta(META_FLAG);
 

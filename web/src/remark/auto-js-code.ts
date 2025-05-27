@@ -47,29 +47,27 @@ import {
 } from "./util/code-blocks";
 import { formatCode } from "./util/prettier";
 
-interface SupportedLanguageInfo {
+const META_FLAG = "auto-js";
+
+interface LanguageTransformationInfo {
   jsx: boolean;
   outputLang: string;
 }
 
-const META_FLAG = "auto-js";
-
-const SUPPORTED_LANGUAGE_INFO = {
+const LANGUAGE_TRANSFORMATIONS = {
   ts: { jsx: false, outputLang: "js" },
   tsx: { jsx: true, outputLang: "jsx" },
-} satisfies Record<string, SupportedLanguageInfo>;
+} satisfies Record<string, LanguageTransformationInfo>;
 
-const SUPPORTED_EXTENSIONS = {
+const EXTENSION_TRANSFORMATIONS = {
   ".ts": ".js",
   ".tsx": ".jsx",
 };
 
 const isCodeWithAutoJsFlag = makeCheckForCodeWithMeta(META_FLAG);
-const SUPPORTED_LANGUAGES = new Set(
-  Object.keys(
-    SUPPORTED_LANGUAGE_INFO,
-  ) as (keyof typeof SUPPORTED_LANGUAGE_INFO)[],
-);
+const supportedLanguages = Object.keys(
+  LANGUAGE_TRANSFORMATIONS,
+) as readonly (keyof typeof LANGUAGE_TRANSFORMATIONS)[];
 
 const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
   // `visit` does not allow async visitors, so we will just store the needed transformations
@@ -80,10 +78,10 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
     // Can't do async here, just store the transformation to run later.
     pendingCodeBlockTransforms.push(async () => {
       try {
-        assertSupportedLanguage(node, SUPPORTED_LANGUAGES);
-        const langInfo = SUPPORTED_LANGUAGE_INFO[node.lang];
+        assertSupportedLanguage(node, supportedLanguages);
+        const transformationInfo = LANGUAGE_TRANSFORMATIONS[node.lang];
 
-        const jsCodeBlock = await makeJsCodeBlock(node, langInfo);
+        const jsCodeBlock = await makeJsCodeBlock(node, transformationInfo);
         const tsCodeBlock = await formatTsCodeBlock(node);
 
         const newNode = createTabbedCodeBlocks({ jsCodeBlock, tsCodeBlock });
@@ -157,7 +155,7 @@ const CODE_BLOCK_TITLE_REGEX = /title=(?<quote>["'])(?<title>.*?)\1/;
 
 async function makeJsCodeBlock(
   originalNode: md.Code,
-  langInfo: SupportedLanguageInfo,
+  transformationInfo: LanguageTransformationInfo,
 ): Promise<md.Code> {
   // Find the `title=` meta param and change the extension.
   const newMeta = originalNode.meta?.replace(
@@ -165,15 +163,18 @@ async function makeJsCodeBlock(
     (_fullMatch, _quote, title) =>
       `title=${JSON.stringify(transformExt(title))}`,
   );
-  const lang = langInfo.outputLang;
-  const code = await formatCode(convertToJs(originalNode.value, langInfo), {
-    parser: "babel",
-  });
+
+  const code = await formatCode(
+    convertToJs(originalNode.value, transformationInfo),
+    {
+      parser: "babel",
+    },
+  );
 
   return {
     ...originalNode,
     value: code,
-    lang: lang,
+    lang: transformationInfo.outputLang,
     meta: newMeta,
   };
 }
@@ -195,7 +196,7 @@ async function formatTsCodeBlock(originalNode: md.Code): Promise<md.Code> {
   We need to use `prettier` to format the code afterwards, because `ts-blank-space`
   leaves white space where types used to be, and we want to remove that.
 */
-function convertToJs(tsCode: string, langInfo: SupportedLanguageInfo) {
+function convertToJs(tsCode: string, { jsx }: LanguageTransformationInfo) {
   // We create a source file from ts so that way we can specify if we want to use
   // JSX or not, because the parsing is different. This is only done in memory.
   // Copied from the ts-blank-space playground.
@@ -205,7 +206,7 @@ function convertToJs(tsCode: string, langInfo: SupportedLanguageInfo) {
     tsCode,
     { languageVersion: ts.ScriptTarget.ESNext },
     true,
-    langInfo.jsx ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    jsx ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
 
   return blankSourceFile(sourceFile);
@@ -213,12 +214,12 @@ function convertToJs(tsCode: string, langInfo: SupportedLanguageInfo) {
 
 function transformExt(inputPath: string) {
   const inputExt = path.extname(inputPath);
-  const outputExt = SUPPORTED_EXTENSIONS[inputExt];
+  const outputExt = EXTENSION_TRANSFORMATIONS[inputExt] as string | undefined;
 
   if (!outputExt) {
     throw new Error(
       `Unsupported file extension: ${inputExt}. Please use one of: ${Object.keys(
-        SUPPORTED_EXTENSIONS,
+        EXTENSION_TRANSFORMATIONS,
       ).join(", ")}`,
     );
   }
