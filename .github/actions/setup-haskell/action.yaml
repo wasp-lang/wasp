@@ -43,10 +43,8 @@ runs:
       with:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
-        # Caches are immutable, so we use the official recipe for simulating an updatable cache:
-        # https://github.com/actions/cache/blob/v4.2.3/tips-and-workarounds.md#update-a-cache
         key: |
-          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-${{ github.run_id }}
+          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
         restore-keys: |
-          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}-
+          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
           ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-
