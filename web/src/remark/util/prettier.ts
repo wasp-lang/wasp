@@ -4,7 +4,7 @@ import * as prettier from "prettier";
  * Gets the Prettier configuration for the current directory
  */
 async function getPrettierConfig() {
-  const rawConfig = await prettier.resolveConfig(__dirname, {
+  const rawConfig = await prettier.resolveConfig(process.cwd(), {
     useCache: true,
     editorconfig: true,
   });
