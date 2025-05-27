@@ -1,23 +1,31 @@
 import * as prettier from "prettier";
 
-let prettierConfigPromise: Promise<prettier.Options> | undefined;
-
 /**
- * Gets the Prettier configuration for the current directory. (memoized)
+ * Gets the Prettier configuration for the current directory
  */
-export function getPrettierConfig() {
-  prettierConfigPromise ??= prettier.resolveConfig(__dirname, {
+async function getPrettierConfig() {
+  const rawConfig = await prettier.resolveConfig(__dirname, {
     useCache: true,
     editorconfig: true,
   });
-  return prettierConfigPromise;
+
+  const config = {
+    ...rawConfig,
+    // We don't need any non-default plugins for the case of simple JS/TS examples
+    plugins: [],
+  };
+
+  return config;
 }
+
+// We will cache the Prettier configuration to avoid resolving it multiple times
+let prettierConfig: prettier.Options | undefined;
 
 export async function formatCode(
   code: string,
   { parser }: { parser: prettier.Options["parser"] },
 ) {
-  const prettierConfig = await getPrettierConfig();
+  prettierConfig ??= await getPrettierConfig();
   const formatted = await prettier.format(code, { ...prettierConfig, parser });
   return formatted.trim(); // prettier adds a trailing newline, we remove it
 }
