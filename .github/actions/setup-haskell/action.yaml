@@ -44,7 +44,7 @@ runs:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
         key: |
-          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
+          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
         restore-keys: |
-          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
-          ${{ runner.os }}-cabal-${{ inputs.ghc-version }}-
+          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
+          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-
