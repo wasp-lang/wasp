@@ -27,6 +27,6 @@ test.describe("custom signup", () => {
       password,
     });
 
-    await expect(page).toHaveURL("/profile");
+    await expect(page).toHaveURL("/");
   });
 });

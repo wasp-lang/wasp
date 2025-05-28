@@ -32,7 +32,7 @@ test.describe("websocket", () => {
       password,
     });
 
-    await expect(page).toHaveURL("/profile");
+    await expect(page).toHaveURL("/");
 
     await page.goto("/chat");
 

@@ -45,7 +45,9 @@ test.describe("auth hooks", () => {
       password,
     });
 
-    await expect(page).toHaveURL("/profile");
+    await expect(page).toHaveURL("/");
+
+    await page.goto("/profile");
 
     await expect(page.locator("body")).toContainText(
       "Value of user.isOnAfterSignupHookCalled is true.",

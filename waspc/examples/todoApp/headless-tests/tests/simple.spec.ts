@@ -52,7 +52,7 @@ test.describe("signup and login", () => {
       password,
     });
 
-    await expect(page).toHaveURL("/profile");
+    await expect(page).toHaveURL("/");
 
     await page.goto("/tasks");
 

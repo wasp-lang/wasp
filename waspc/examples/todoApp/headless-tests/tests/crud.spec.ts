@@ -32,7 +32,7 @@ test.describe("CRUD test", () => {
       password,
     });
 
-    await expect(page).toHaveURL("/profile");
+    await expect(page).toHaveURL("/");
 
     await page.goto("/crud");
     // wait for idle
@@ -79,7 +79,7 @@ test.describe("CRUD test", () => {
       password,
     });
 
-    await expect(page).toHaveURL("/profile");
+    await expect(page).toHaveURL("/");
 
     await page.goto("/crud");
     // Create a task

@@ -5,70 +5,70 @@ app todoApp {
   title: "ToDo App",
   // head: [],
   webSocket: {
-    fn: import { webSocketFn } from "@src/chat/webSocket",
+    fn: import { webSocketFn } from "@src/features/chat/webSocket",
     // autoConnect: false
   },
   auth: {
     userEntity: User,
     methods: {
       // usernameAndPassword: {
-      //  userSignupFields: import { userSignupFields } from "@src/auth/github",
+      //  userSignupFields: import { userSignupFields } from "@src/features/auth/github",
       // },
       slack: {
-        configFn: import { config } from "@src/auth/providers/slack",
-        userSignupFields: import { userSignupFields } from "@src/auth/providers/slack"
+        configFn: import { config } from "@src/features/auth/providers/slack",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/slack"
       },
       discord: {
-        configFn: import { config } from "@src/auth/providers/discord",
-        userSignupFields: import { userSignupFields } from "@src/auth/providers/discord"
+        configFn: import { config } from "@src/features/auth/providers/discord",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/discord"
       },
       google: {
-        configFn: import { config } from "@src/auth/providers/google",
-        userSignupFields: import { userSignupFields } from "@src/auth/providers/google"
+        configFn: import { config } from "@src/features/auth/providers/google",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/google"
       },
       gitHub: {
-        configFn: import { config } from "@src/auth/providers/github.js",
-        userSignupFields: import { userSignupFields } from "@src/auth/providers/github.js"
+        configFn: import { config } from "@src/features/auth/providers/github.js",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/github.js"
       },
       // keycloak: {},
       email: {
-        userSignupFields: import { userSignupFields } from "@src/auth/providers/email",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/email",
         fromField: {
           name: "ToDO App",
           email: "mihovil@ilakovac.com"
         },
         emailVerification: {
-          getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/providers/email",
+          getEmailContentFn: import { getVerificationEmailContent } from "@src/features/auth/providers/email",
           clientRoute: EmailVerificationRoute,
         },
         passwordReset: {
-          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/providers/email",
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/features/auth/providers/email",
           clientRoute: PasswordResetRoute
         },
       },
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/",
-    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
-    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
-    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks.js",
-    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks.js",
-    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks.js",
+    onBeforeSignup: import { onBeforeSignup } from "@src/features/auth/hooks.js",
+    onAfterSignup: import { onAfterSignup } from "@src/features/auth/hooks.js",
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/features/auth/hooks.js",
+    onBeforeLogin: import { onBeforeLogin } from "@src/features/auth/hooks.js",
+    onAfterLogin: import { onAfterLogin } from "@src/features/auth/hooks.js",
   },
   server: {
-    setupFn: import { setup } from "@src/setup/serverSetup",
-    middlewareConfigFn: import { serverMiddlewareFn } from "@src/setup/serverSetup",
-    envValidationSchema: import { serverEnvValidationSchema } from "@src/setup/env",
+    setupFn: import { setup } from "@src/serverSetup",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup",
+    envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
   },
   client: {
     rootComponent: import { App } from "@src/App",
-    setupFn: import { setup } from "@src/setup/clientSetup",
-    envValidationSchema: import { clientEnvValidationSchema } from "@src/setup/env",
+    setupFn: import { setup } from "@src/clientSetup",
+    envValidationSchema: import { clientEnvValidationSchema } from "@src/env",
   },
   db: {
     seeds: [
-      import { devSeedSimple } from "@src/db/seeds",
-      import { prodSeed } from "@src/db/seeds"
+      import { devSeedSimple } from "@src/features/db/seeds",
+      import { prodSeed } from "@src/features/db/seeds"
     ]
   },
   emailSender: {
@@ -83,56 +83,56 @@ app todoApp {
 
 route HomeRoute { path: "/", to: HomePage }
 page HomePage {
-  component: import { HomePage } from "@src/HomePage"
+  component: import { HomePage } from "@src/pages/HomePage"
 }
 
 route CatchAllRoute { path: "*", to: CatchAllPage }
 page CatchAllPage {
-  component: import { CatchAllPage } from "@src/CatchAllPage"
+  component: import { CatchAllPage } from "@src/pages/CatchAllPage"
 }
 
 // --------- Auth --------- //
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import Signup from "@src/auth/pages/Signup"
+  component: import Signup from "@src/features/auth/pages/Signup"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@src/auth/pages/Login"
+  component: import Login from "@src/features/auth/pages/Login"
 }
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { PasswordReset } from "@src/auth/pages/PasswordReset",
+  component: import { PasswordReset } from "@src/features/auth/pages/PasswordReset",
 }
 
 route EmailVerificationRoute { path: "/email-verification-", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { EmailVerification } from "@src/auth/pages/EmailVerification",
+  component: import { EmailVerification } from "@src/features/auth/pages/EmailVerification",
 }
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { RequestPasswordReset } from "@src/auth/pages/RequestPasswordReset",
+  component: import { RequestPasswordReset } from "@src/features/auth/pages/RequestPasswordReset",
 }
 
 route ProfileRoute { path: "/profile", to: ProfilePage }
 page ProfilePage {
   authRequired: true,
-  component: import { ProfilePage } from "@src/auth/pages/ProfilePage"
+  component: import { ProfilePage } from "@src/features/auth/pages/ProfilePage"
 }
 
 // --------- Custom Signup --------- //
 
 route CustomSignupRoute { path: "/custom-signup", to: CustomSignupPage }
 page CustomSignupPage {
-  component: import { SignupPage } from "@src/auth/pages/CustomSignupPage"
+  component: import { SignupPage } from "@src/features/auth/pages/CustomSignupPage"
 }
 
 action customSignup {
-  fn: import { signup } from "@src/auth/customSignup",
+  fn: import { signup } from "@src/features/auth/customSignup",
 }
 
 
@@ -141,48 +141,48 @@ action customSignup {
 route TasksRoute { path: "/tasks", to: TasksPage }
 page TasksPage {
   authRequired: true,
-  component: import Main from "@src/operations/pages/TasksPage"
+  component: import Main from "@src/features/operations/pages/TasksPage"
 }
 
 route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage {
   authRequired: true,
-  component: import Task from "@src/operations/pages/TaskDetailPage"
+  component: import Task from "@src/features/operations/pages/TaskDetailPage"
 }
 
 query getTasks {
-  fn: import { getTasks } from "@src/operations/queries",
+  fn: import { getTasks } from "@src/features/operations/queries",
   entities: [Task]
 }
 
 query getNumTasks {
-  fn: import { getNumTasks } from "@src/operations/queries",
+  fn: import { getNumTasks } from "@src/features/operations/queries",
   entities: [Task],
   auth: false
 }
 
 query getTask {
-  fn: import { getTask } from "@src/operations/queries",
+  fn: import { getTask } from "@src/features/operations/queries",
   entities: [Task]
 }
 
 action createTask {
-  fn: import { createTask } from "@src/operations/actions",
+  fn: import { createTask } from "@src/features/operations/actions",
   entities: [Task]
 }
 
 action updateTaskIsDone {
-  fn: import { updateTaskIsDone } from "@src/operations/actions",
+  fn: import { updateTaskIsDone } from "@src/features/operations/actions",
   entities: [Task]
 }
 
 action deleteCompletedTasks {
-  fn: import { deleteCompletedTasks } from "@src/operations/actions",
+  fn: import { deleteCompletedTasks } from "@src/features/operations/actions",
   entities: [Task]
 }
 
 action toggleAllTasks {
-  fn: import { toggleAllTasks } from "@src/operations/actions",
+  fn: import { toggleAllTasks } from "@src/features/operations/actions",
   entities: [Task]
 }
 
@@ -191,7 +191,7 @@ action toggleAllTasks {
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@src/jobs/bar",
+    fn: import { foo } from "@src/features/jobs/bar",
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
@@ -202,7 +202,7 @@ job mySpecialJob {
 job mySpecialScheduledJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@src/jobs/bar"
+    fn: import { foo } from "@src/features/jobs/bar"
   },
   schedule: {
     cron: "0 * * * *",
@@ -217,32 +217,32 @@ job mySpecialScheduledJob {
 
 route ApisRoute { path: "/apis", to: ApisPage }
 page ApisPage {
-  component: import { ApisPage } from "@src/apis/pages/ApisPage"
+  component: import { ApisPage } from "@src/features/apis/pages/ApisPage"
 }
 
 api fooBar {
-  fn: import { fooBar } from "@src/apis/apis",
-  middlewareConfigFn: import { fooBarMiddlewareFn } from "@src/apis/apis",
+  fn: import { fooBar } from "@src/features/apis/apis",
+  middlewareConfigFn: import { fooBarMiddlewareFn } from "@src/features/apis/apis",
   entities: [Task],
   // ALL here let's our CORS work. If we did GET, we would need an apiNamespace over it with CORS.
   httpRoute: (ALL, "/foo/bar")
 }
 
 apiNamespace bar {
-  middlewareConfigFn: import { barNamespaceMiddlewareFn } from "@src/apis/apis",
+  middlewareConfigFn: import { barNamespaceMiddlewareFn } from "@src/features/apis/apis",
   path: "/bar"
 }
 
 api barBaz {
-  fn: import { barBaz } from "@src/apis/apis",
+  fn: import { barBaz } from "@src/features/apis/apis",
   auth: false,
   entities: [Task],
   httpRoute: (GET, "/bar/baz")
 }
 
 api webhookCallback {
-  fn: import { webhookCallback } from "@src/apis/apis",
-  middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@src/apis/apis",
+  fn: import { webhookCallback } from "@src/features/apis/apis",
+  middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@src/features/apis/apis",
   httpRoute: (POST, "/webhook/callback"),
   auth: false
 }
@@ -254,10 +254,10 @@ crud tasks {
   operations: {
     get: {},
     getAll: {
-      overrideFn: import { getAllTasks } from "@src/crud/crud",
+      overrideFn: import { getAllTasks } from "@src/features/crud/crud",
     },
     create: {
-      overrideFn: import { createTask } from "@src/crud/crud",
+      overrideFn: import { createTask } from "@src/features/crud/crud",
     },
     update: {},
     delete: {},
@@ -266,13 +266,13 @@ crud tasks {
 
 route CrudListRoute { path: "/crud", to: CrudList }
 page CrudList {
-  component: import { ListPage } from "@src/crud/pages/ListPage",
+  component: import { ListPage } from "@src/features/crud/pages/ListPage",
   authRequired: true
 }
 
 route CrudDetailRoute { path: "/crud/:id", to: CrudDetail }
 page CrudDetail {
-  component: import { DetailPage } from "@src/crud/pages/DetailPage",
+  component: import { DetailPage } from "@src/features/crud/pages/DetailPage",
   authRequired: true
 }
 
@@ -280,17 +280,17 @@ page CrudDetail {
 
 api streamingText {
   httpRoute: (GET, "/api/streaming-test"),
-  fn: import { getText } from "@src/streaming/api",
+  fn: import { getText } from "@src/features/streaming/api",
 }
 
 apiNamespace defaultMiddlewareForStreamingText {
   path: "/api/streaming-test",
-  middlewareConfigFn: import { getMiddlewareConfig } from "@src/streaming/api",
+  middlewareConfigFn: import { getMiddlewareConfig } from "@src/features/streaming/api",
 }
 
 route StreamingRoute { path: "/streaming", to: StreamingPage }
 page StreamingPage {
-  component: import { StreamingTestPage } from "@src/streaming/pages/StreamingTestPage",
+  component: import { StreamingTestPage } from "@src/features/streaming/pages/StreamingTestPage",
 }
 
 // --------- Chat --------- //
@@ -298,7 +298,7 @@ page StreamingPage {
 route ChatRoute { path: "/chat", to: ChatPage }
 page ChatPage {
   authRequired: true,
-  component: import { ChatPage } from "@src/chat/ChatPage"
+  component: import { ChatPage } from "@src/features/chat/ChatPage"
 }
 
 // --------- Operations Type Testing --------- //

@@ -6,7 +6,7 @@ import { Link } from "wasp/client/router";
 import { useSocket } from "wasp/client/webSocket";
 
 import "./Main.css";
-import { getName } from "./auth/user";
+import { getName } from "./features/auth/user";
 // Necessary to trigger type tests.
 import { AuthUser } from "wasp/auth";
 import { Button } from "./components/Button";
@@ -20,12 +20,10 @@ export function App() {
   const appName = env.REACT_APP_NAME;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* App Name/Logo */}
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                 <Link
@@ -46,7 +44,7 @@ export function App() {
                     Sign In
                   </Button>
                   <Button to="/signup" variant="primary">
-                    Get Started
+                    Sign Up
                   </Button>
                 </div>
               )}
@@ -103,12 +101,13 @@ export function App() {
   );
 }
 
-interface StatusInfoProps {
+function StatusInfo({
+  date,
+  isConnected,
+}: {
   date: Date | undefined;
   isConnected: boolean;
-}
-
-function StatusInfo({ date, isConnected }: StatusInfoProps) {
+}) {
   return (
     <div className="flex items-center space-x-4 text-sm">
       <div className="flex items-center space-x-2">
@@ -145,7 +144,7 @@ function StatusInfo({ date, isConnected }: StatusInfoProps) {
 function UserMenu({ user }: { user: AuthUser }) {
   return (
     <div className="flex items-center space-x-4">
-      <div className="hidden sm:flex items-center space-x-2">
+      <div className="hidden md:flex items-center space-x-2">
         <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
           <span className="text-indigo-600 font-medium text-sm">
             {getName(user)?.charAt(0).toUpperCase()}
@@ -164,7 +163,7 @@ function UserMenu({ user }: { user: AuthUser }) {
 
       <Link
         to="/profile"
-        className="sm:hidden w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center hover:bg-indigo-200 transition-colors"
+        className="md:hidden w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center hover:bg-indigo-200 transition-colors"
       >
         <span className="text-indigo-600 font-medium text-sm">
           {getName(user)?.charAt(0).toUpperCase()}
@@ -190,7 +189,7 @@ function UserMenu({ user }: { user: AuthUser }) {
           </svg>
         }
       >
-        <span className="hidden sm:inline">Sign Out</span>
+        Sign Out
       </Button>
     </div>
   );
