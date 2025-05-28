@@ -1,4 +1,4 @@
-name: Build binaries
+name: Build wasp-cli binaries for multiple platforms
 
 # We never trigger this workflow directly.
 # We can call it manually (workflow_dispatch) or from other workflows (workflow_call).
@@ -39,12 +39,18 @@ jobs:
         # dependencies.
         #
         # When possible, we build inside containers so we are not affected when
-        # GitHub updates the runners or deprecates old ones.
+        # GitHub updates the runners or deprecates old ones. When we build inside
+        # containers, the runner is only used to host the container, and all the
+        # steps are run inside the container and not the host (like a Dockerfile).
         env:
           - name: linux-x86_64
             runner: ubuntu-latest
-            container: ubuntu:20.04 # Old Ubuntu version so we have a low glibc requirement
-            static: false # So we dynamically link to the low glibc version
+            # We use an old Ubuntu version so we can link to a low `glibc` version.
+            # `glibc` is backwards-compatible but not forwards-compatible, so it
+            # is a good idea to use the oldest version we reasonably can. This way,
+            # we don't impose stringent `glibc` version requirements on users.
+            container: ubuntu:20.04
+            static: false
             install-deps: |
               export DEBIAN_FRONTEND=noninteractive
               apt-get update -y
@@ -58,9 +64,10 @@ jobs:
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
-            # actions/setup-node does not work in alpine to work around this, we
-            # use the alpine variant of the official node image, which already
-            # has it installed.
+            # actions/setup-node does not work in alpine.
+            # https://github.com/actions/setup-node/issues/1293
+            # To work around this, we use the alpine variant of the official node
+            # image, which already has a working Node.js version installed.
             container: node:${{ inputs.node-version }}-alpine
             skip-node-install: true
             static: true
@@ -68,7 +75,7 @@ jobs:
               apk update
               # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
               apk add binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
-              # Build script dependencies
+              # `./run` script dependencies
               apk add bash
               # Cabal dependencies
               apk add zlib-dev zlib-static
@@ -88,7 +95,7 @@ jobs:
             install-deps: |
               # We need to install llvm@13 for building on Apple Silicon (prebuilt libraries
               # are only available for x86_64). The llvm@13 formula is not available in
-              # Homebrew by default, but we can edit it and remove the disable! line.
+              # Homebrew by default, but we can edit it and comment out the `disable!` line.
               curl -fsSL https://raw.githubusercontent.com/Homebrew/homebrew-core/74572f47ce6a2463c19d7fa164ab9fb8c91bbe61/Formula/l/llvm%4013.rb > /tmp/llvm@13.rb
               sed -i '' 's/disable!/# disable!/' /tmp/llvm@13.rb
               brew install --formula /tmp/llvm@13.rb

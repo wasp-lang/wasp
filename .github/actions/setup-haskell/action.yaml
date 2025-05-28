@@ -17,6 +17,12 @@ inputs:
     required: false
     default: "latest"
 
+  working-directory:
+    description: |
+      The working directory for the action.
+    required: false
+    default: "${{ inputs.working-directory }}"
+
 runs:
   using: composite
 
@@ -44,7 +50,7 @@ runs:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
         key: |
-          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
+          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('${{ inputs.working-directory }}/*.cabal', '${{ inputs.working-directory }}/*.project', '${{ inputs.working-directory }}/*.project.freeze') }}
         restore-keys: |
-          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project', 'waspc/*.project.freeze') }}
+          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('${{ inputs.working-directory }}/*.cabal', '${{ inputs.working-directory }}/*.project', '${{ inputs.working-directory }}/*.project.freeze') }}
           cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-

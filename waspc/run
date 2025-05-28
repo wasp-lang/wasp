@@ -80,7 +80,7 @@ print_usage() {
   print_usage_cmd "build:all" \
     "Builds the Haskell project + all sub-projects (i.e. TS packages)."
   print_usage_cmd "build:all:static" \
-    "Builds the Haskell project statically + all sub-projects (i.e. TS packages). Only useful for release builds."
+    "Builds the Haskell project statically + all sub-projects (i.e. TS packages). Only useful for release builds. Needs to be run on a musl-based Linux distribution (e.g. Alpine)."
   print_usage_cmd "build:packages" \
     "Builds the TypeScript projects under packages/."
   echo ""
