@@ -1,4 +1,4 @@
-name: Create release
+name: Build and upload Wasp CLI binaries to release
 
 on:
   create:
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: wasp-*
+          pattern: wasp-cli-*
 
       - name: Create Github release
         uses: ncipollo/release-action@v1

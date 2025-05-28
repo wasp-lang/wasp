@@ -131,7 +131,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: ./waspc/artifacts/*
-          name: wasp-${{ matrix.env.name }}
+          name: wasp-cli-${{ matrix.env.name }}
           if-no-files-found: error
 
   build-universal:
@@ -169,5 +169,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wasp-darwin-universal
+          name: wasp-cli-darwin-universal
           path: ./wasp-darwin-universal.tar.gz
