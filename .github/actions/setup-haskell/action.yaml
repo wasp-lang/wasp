@@ -21,7 +21,7 @@ inputs:
     description: |
       The working directory for the action.
     required: false
-    default: "${{ inputs.working-directory }}"
+    default: "waspc"
 
 runs:
   using: composite
