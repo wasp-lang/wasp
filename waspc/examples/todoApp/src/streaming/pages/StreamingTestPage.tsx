@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 import { config } from "wasp/client";
+import { SimplePageContainer } from "../../components/SimplePageContainer";
 
 export const StreamingTestPage = () => {
   const { response } = useTextStream("/api/streaming-test");
   return (
-    <main className="p-4 border">
-      <h1>Streaming Demo</h1>
-      <p
-        style={{
-          maxWidth: "600px",
-        }}
-      >
-        {response}
-      </p>
-    </main>
+    <SimplePageContainer>
+      <main className="p-4 border bg-white">
+        <h1 className="text-2xl font-medium mb-2">Streaming Demo</h1>
+        <p
+          style={{
+            maxWidth: "600px",
+          }}
+        >
+          {response}
+        </p>
+      </main>
+    </SimplePageContainer>
   );
 };
 

@@ -1,3 +1,4 @@
+import { getNumTasks, useQuery } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
 
 import {
@@ -7,12 +8,14 @@ import {
   toggleAllTasks,
   updateTaskIsDone,
   useAction,
-  useQuery,
   type OptimisticUpdateDefinition,
 } from "wasp/client/operations";
 
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { getEmail } from "wasp/auth";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
+import { getTotalTaskCountMessage } from "../helpers";
 
 type NonEmptyArray<T> = [T, ...T[]];
 
@@ -26,6 +29,7 @@ export function areThereAnyTasks(
 
 const Todo = () => {
   const { data: tasks, isError, error: tasksError } = useQuery(getTasks);
+  const { data: numTasks } = useQuery(getNumTasks);
 
   const TasksError = () => {
     return (
@@ -34,9 +38,9 @@ const Todo = () => {
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="w-3/6 shadow-md rounded p-6">
-        <h1 className="mb-2">Todos</h1>
+    <>
+      <div className="shadow-md rounded p-6 bg-white">
+        <h1 className="mb-2 text-2xl font-medium">Todos</h1>
 
         <div className="flex justify-start gap-2">
           <ToggleAllTasksButton disabled={!areThereAnyTasks(tasks)} />
@@ -53,7 +57,11 @@ const Todo = () => {
           </>
         )}
       </div>
-    </div>
+
+      <div className="text-sm text-gray-600 mt-4">
+        {getTotalTaskCountMessage(numTasks)}
+      </div>
+    </>
   );
 };
 
@@ -74,12 +82,13 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
       <div>{numUncompletedTasks} items left</div>
 
       <div>
-        <button
-          className={"btn btn-red " + (numCompletedTasks > 0 ? "" : "hidden")}
+        <Button
           onClick={handleDeleteCompletedTasks}
+          variant="danger"
+          className={numCompletedTasks > 0 ? "" : "hidden"}
         >
           Delete completed
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -143,6 +152,7 @@ const TaskView = ({ task }: { task: TaskWithUser }) => {
           checked={task.isDone}
           onChange={handleTaskIsDoneChange}
           color="default"
+          className="appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
         />
       </td>
       <td>
@@ -200,13 +210,13 @@ const NewTaskForm = () => {
 
   return (
     <form onSubmit={handleNewTaskSubmit} className="content-start flex gap-2">
-      <input
+      <Input
         type="text"
         placeholder="Enter task"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <button className="btn btn-primary">Create new task</button>
+      <Button type="submit">Create new task</Button>
     </form>
   );
 };
@@ -221,13 +231,9 @@ const ToggleAllTasksButton = ({ disabled }: { disabled: boolean }) => {
   };
 
   return (
-    <button
-      className="btn btn-primary"
-      disabled={disabled}
-      onClick={handleToggleAllTasks}
-    >
+    <Button disabled={disabled} onClick={handleToggleAllTasks}>
       ✓
-    </button>
+    </Button>
   );
 };
 

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { type AuthUser } from "wasp/auth";
 import { api } from "wasp/client/api";
 import { Link, routes } from "wasp/client/router";
+import { SimplePageContainer } from "../../components/SimplePageContainer";
 
 async function fetchCustomRoute() {
   const res = await api.get("/foo/bar");
@@ -16,7 +17,7 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
   }, []);
 
   return (
-    <>
+    <SimplePageContainer>
       <h2 className="mt-4 mb-2 font-bold text-xl">User Auth Fields Demo</h2>
       <div>
         Hello <strong>{user.getFirstProviderUserId()}</strong>! Your status is{" "}
@@ -55,6 +56,6 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
           hash: "Miho",
         })}
       </p>
-    </>
+    </SimplePageContainer>
   );
 };

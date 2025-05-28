@@ -4,6 +4,8 @@ import { getEmail } from "wasp/auth";
 import { tasks as tasksCrud } from "wasp/client/crud";
 import { Link } from "wasp/client/router";
 import { Task } from "wasp/entities";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
 
 export const ListPage = () => {
   const { data: tasks, isLoading } = tasksCrud.getAll.useQuery();
@@ -77,7 +79,7 @@ export const ListPage = () => {
                       <label htmlFor="title" className="block">
                         Title
                       </label>
-                      <input
+                      <Input
                         type="text"
                         required
                         value={editTaskTitle}
@@ -87,19 +89,15 @@ export const ListPage = () => {
                     </div>
 
                     <div className="space-x-2">
-                      <button
-                        type="submit"
-                        onClick={handleUpdateTask}
-                        className="btn btn-primary"
-                      >
+                      <Button type="submit" onClick={handleUpdateTask}>
                         Update task
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => setIsEditing(null)}
-                        className="btn"
+                        variant="secondary"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   </form>
                 </>
@@ -111,18 +109,18 @@ export const ListPage = () => {
                     </Link>
                   </div>
                   <div className="flex gap-2">
-                    <button
+                    <Button
                       onClick={() => handleTaskDelete(task)}
-                      className="btn btn-red"
+                      variant="danger"
                     >
                       Delete
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleStartEditing(task)}
-                      className="btn"
+                      variant="secondary"
                     >
                       Edit
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -135,7 +133,7 @@ export const ListPage = () => {
             <label htmlFor="title" className="block">
               Title
             </label>
-            <input
+            <Input
               type="text"
               required
               value={newTaskTitle}
@@ -143,13 +141,9 @@ export const ListPage = () => {
             />
           </div>
 
-          <button
-            type="submit"
-            onClick={handleCreateTask}
-            className="btn btn-primary"
-          >
+          <Button type="submit" onClick={handleCreateTask}>
             Create task
-          </button>
+          </Button>
         </form>
       </main>
     </div>

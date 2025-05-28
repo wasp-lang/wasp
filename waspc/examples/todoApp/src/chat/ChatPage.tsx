@@ -4,6 +4,8 @@ import {
   useSocketListener,
   type ServerToClientPayload,
 } from "wasp/client/webSocket";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
 
 export const ChatPage = () => {
   const [messages, setMessages] = useState<
@@ -68,19 +70,16 @@ export const ChatPage = () => {
 
       <form onSubmit={handleSubmit} className="mt-4">
         <div className="flex gap-2">
-          <input
-            type="text"
+          <Input
             ref={inputRef}
             placeholder="Type your message..."
-            className="flex-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            containerClassName="w-full"
+            className="w-full"
             required
           />
-          <button
-            className="btn btn-primary flex items-center gap-1"
-            type="submit"
-          >
+          <Button type="submit" variant="primary">
             Send
-          </button>
+          </Button>
         </div>
       </form>
     </div>

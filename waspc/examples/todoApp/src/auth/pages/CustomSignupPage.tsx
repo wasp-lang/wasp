@@ -9,6 +9,7 @@ import { customSignup as customSubmit } from "wasp/client/operations";
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from "react-hook-form";
+import { Button } from "../../components/Button";
 
 export const SignupPage = () => {
   const {
@@ -78,7 +79,7 @@ export const SignupPage = () => {
           <FormInput {...register("address")} />
           <FormError>{errors.address?.message}</FormError>
         </FormItemGroup>
-        <button type="submit">Signup</button>
+        <Button type="submit">Signup</Button>
       </form>
     </>
   );

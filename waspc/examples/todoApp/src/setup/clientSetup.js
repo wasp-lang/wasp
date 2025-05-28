@@ -8,7 +8,7 @@ export function setup() {
   configureQueryClient({
     defaultOptions: {
       queries: {
-        refetchOnWindowFocus: false,
+        // refetchOnWindowFocus: false,
       },
     },
   });

@@ -11,6 +11,6 @@ export const serverEnvValidationSchema = defineEnvValidationSchema(
 
 export const clientEnvValidationSchema = defineEnvValidationSchema(
   z.object({
-    REACT_APP_NAME: z.string().default("TODO App"),
+    REACT_APP_NAME: z.string().default("Kitchen Sink App"),
   }),
 );
