@@ -174,16 +174,27 @@ function convertToJs(code: string, { isJsx }: { isJsx: boolean }) {
   return blankSourceFile(sourceFile);
 }
 
-let prettierConfig: prettier.Options | undefined;
+async function getPrettierConfig() {
+  const rawConfig = await prettier.resolveConfig(__dirname, {
+    useCache: true,
+    editorconfig: true,
+  });
 
+  const config = {
+    ...rawConfig,
+    // We don't need any non-default plugins for the case of simple JS/TS examples
+    plugins: [],
+  };
+
+  return config;
+}
+
+let prettierConfig: prettier.Options | undefined;
 async function format(
   code: string,
   { parser }: { parser: prettier.Options["parser"] },
 ) {
-  prettierConfig ??= await prettier.resolveConfig(__dirname, {
-    useCache: true,
-    editorconfig: true,
-  });
+  prettierConfig ??= await getPrettierConfig();
   const formatted = await prettier.format(code, { ...prettierConfig, parser });
   return formatted.trim(); // prettier adds a trailing newline, we remove it
 }
