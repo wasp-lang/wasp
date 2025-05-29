@@ -8,6 +8,9 @@ The backend is hosted on Fly.io at https://waspello.fly.dev.
 
 # Development
 
+This app uses Wasp's new TS spec. Check the docs for details:
+https://wasp.sh/docs/general/wasp-ts-config.
+
 ### Database
 
 Wasp needs the Postgres database running.
