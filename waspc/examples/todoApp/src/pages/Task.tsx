@@ -1,37 +1,36 @@
-import { Link } from 'wasp/client/router'
-import { type Task } from 'wasp/entities'
+import { Link } from "wasp/client/router";
+import { type Task } from "wasp/entities";
 
+import { TaskVisibility } from "@prisma/client";
 import {
-  useAction,
-  type OptimisticUpdateDefinition,
-  updateTaskIsDone,
-  useQuery,
   getTask,
   getTasks,
-} from 'wasp/client/operations'
-import { TaskVisibility } from '@prisma/client'
+  updateTaskIsDone,
+  useAction,
+  useQuery,
+  type OptimisticUpdateDefinition,
+} from "wasp/client/operations";
 
-import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from "react-router-dom";
 
-type TaskPayload = Pick<Task, 'id' | 'isDone'>
+type TaskPayload = Pick<Task, "id" | "isDone">;
 
 const VISIBILITY_EXPLANATION = {
-  [TaskVisibility.PRIVATE]: 'only you',
-  [TaskVisibility.LINK_ONLY]: 'people with a link',
-  [TaskVisibility.PUBLIC]: 'everyone',
-} as const satisfies Record<TaskVisibility, string>
+  [TaskVisibility.PRIVATE]: "only you",
+  [TaskVisibility.LINK_ONLY]: "people with a link",
+  [TaskVisibility.PUBLIC]: "everyone",
+} as const satisfies Record<TaskVisibility, string>;
 
 const Todo = () => {
-  const { id } = useParams()
-  const taskId = parseInt(id!)
+  const { id } = useParams();
+  const taskId = parseInt(id!);
 
   const {
     data: task,
     isFetching,
     error,
     isError,
-  } = useQuery(getTask, { id: taskId })
+  } = useQuery(getTask, { id: taskId });
 
   const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [
@@ -46,20 +45,20 @@ const Todo = () => {
         updateQuery: (updatedTask, oldTasks) =>
           oldTasks &&
           oldTasks.map((task) =>
-            task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+            task.id === updatedTask.id ? { ...task, ...updatedTask } : task,
           ),
       } as OptimisticUpdateDefinition<TaskPayload, Task[]>,
     ],
-  })
+  });
 
-  if (!task) return <div> Task with id {taskId} does not exist. </div>
-  if (isError) return <div> Error occurred! {error.message} </div>
+  if (!task) return <div> Task with id {taskId} does not exist. </div>;
+  if (isError) return <div> Error occurred! {error.message} </div>;
 
   async function toggleIsDone({ id, isDone }: Task) {
     try {
-      updateTaskIsDoneOptimistically({ id, isDone: !isDone })
+      updateTaskIsDoneOptimistically({ id, isDone: !isDone });
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   }
 
@@ -73,21 +72,20 @@ const Todo = () => {
           <div> id: {task.id} </div>
           <div> description: {task.description} </div>
           <div>
-            {' '}
-            who can see this task: {
-              VISIBILITY_EXPLANATION[task.visibility]
-            }{' '}
+            {" "}
+            who can see this task:{" "}
+            {VISIBILITY_EXPLANATION[task.visibility]}{" "}
           </div>
-          <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
+          <div> is done: {task.isDone ? "Yes" : "No"} </div>
           <button onClick={() => toggleIsDone(task)}>
-            Mark as {task.isDone ? 'undone' : 'done'}
+            Mark as {task.isDone ? "undone" : "done"}
           </button>
         </>
       )}
       <br />
       <Link to="/">Go to dashboard</Link>
     </>
-  )
-}
+  );
+};
 
-export default Todo
+export default Todo;

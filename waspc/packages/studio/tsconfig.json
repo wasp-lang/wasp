@@ -4,11 +4,11 @@
     "module": "esnext",
     "target": "es2017",
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "src"
   },
   "ts-node": {
     "esm": true,
-    "swc": true,
+    "swc": true
   },
   "include": ["src"]
 }

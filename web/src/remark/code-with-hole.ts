@@ -22,28 +22,31 @@ Output:
 
 */
 
-import type * as md from 'mdast'
-import type { Plugin } from 'unified'
-import { visit } from 'unist-util-visit'
-import { assertSupportedLanguage, checkNodeIsCodeWithMeta } from './util/code-blocks'
+import type * as md from "mdast";
+import type { Plugin } from "unified";
+import { visit } from "unist-util-visit";
+import {
+  assertSupportedLanguage,
+  checkNodeIsCodeWithMeta,
+} from "./util/code-blocks";
 
 // Wrapped in \b to denote a word boundary
-const META_FLAG_REGEX = /\bwith-hole\b/
-const HOLE_IDENTIFIER_REGEX = /\bhole\b/
-const HOLE_REPLACEMENT = '/* ... */'
+const META_FLAG_REGEX = /\bwith-hole\b/;
+const HOLE_IDENTIFIER_REGEX = /\bhole\b/;
+const HOLE_REPLACEMENT = "/* ... */";
 
-const SUPPORTED_LANGS = new Set(['js', 'jsx', 'ts', 'tsx'] as const)
+const SUPPORTED_LANGS = new Set(["js", "jsx", "ts", "tsx"] as const);
 
 const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
   visit(tree, checkNodeIsCodeWithMeta(META_FLAG_REGEX), (node) => {
-    assertSupportedLanguage(node, file, SUPPORTED_LANGS)
+    assertSupportedLanguage(node, file, SUPPORTED_LANGS);
 
     // Remove our flag from the meta so other plugins don't trip up
-    node.meta = node.meta.replace(META_FLAG_REGEX, '')
+    node.meta = node.meta.replace(META_FLAG_REGEX, "");
 
     // Replace hole with ellipsis
-    node.value = node.value.replace(HOLE_IDENTIFIER_REGEX, HOLE_REPLACEMENT)
-  })
-}
+    node.value = node.value.replace(HOLE_IDENTIFIER_REGEX, HOLE_REPLACEMENT);
+  });
+};
 
-export default codeWithHolePlugin
+export default codeWithHolePlugin;

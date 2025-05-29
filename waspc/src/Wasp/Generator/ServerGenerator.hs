@@ -209,8 +209,7 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genServerJs spec,
-      genFileCopy [relfile|polyfill.ts|]
+      genServerJs spec
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec

@@ -1,9 +1,6 @@
-import React from 'react'
+import Link from "@docusaurus/Link";
 
-import Link from '@docusaurus/Link'
-import useBaseUrl from '@docusaurus/useBaseUrl'
-
-const Divider = () => <span className="in-blog-cta--divider"> → </span>
+const Divider = () => <span className="in-blog-cta--divider"> → </span>;
 
 const InBlogCta = () => (
   <p className="in-blog-cta-link-container">
@@ -25,6 +22,6 @@ const InBlogCta = () => (
       Work with us
     </Link>
   </p>
-)
+);
 
-export default InBlogCta
+export default InBlogCta;
