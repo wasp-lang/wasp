@@ -114,6 +114,7 @@ jobs:
       - uses: ./.github/actions/setup-haskell
         with:
           ghc-version: ${{ inputs.ghc-version }}
+          extra-cache-key: ${{ matrix.env.static && 'static' || null }}
 
       - uses: actions/setup-node@v4
         if: ${{ !matrix.env.skip-node-install }}

@@ -23,6 +23,13 @@ inputs:
     required: false
     default: "waspc"
 
+  extra-cache-key:
+    description: |
+      An extra key to use for the cache. Mainly used to keep glibc and musl
+      caches separate, as they are not compatible.
+    required: false
+    default: "default"
+
 runs:
   using: composite
 
@@ -63,6 +70,6 @@ runs:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
         key: |
-          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('${{ inputs.cabal-project-dir }}/*.cabal', '${{ inputs.cabal-project-dir }}/*.project', '${{ inputs.cabal-project-dir }}/*.project.freeze') }}
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key }-${{ inputs.ghc-version }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
         restore-keys: |
-          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key }-${{ inputs.ghc-version }}-
