@@ -1,8 +1,8 @@
 import { exit } from "process";
+import { getCommandHelp, waspSays } from "../../../helpers.js";
 import { createDb } from "../createDb/createDb.js";
 import { deploy } from "../deploy/deploy.js";
 import { DeployOptions } from "../deploy/DeployOptions.js";
-import { getCommandHelp, waspSays } from "../helpers/helpers.js";
 import {
   clientTomlExistsInProject,
   getTomlFilePaths,

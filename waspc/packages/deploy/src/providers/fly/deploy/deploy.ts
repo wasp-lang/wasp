@@ -1,7 +1,5 @@
 import { exit } from "process";
 import { $, cd, fs } from "zx";
-import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
-import { secretExists } from "../helpers/flyctlHelpers.js";
 import {
   cdToClientBuildDir,
   cdToServerBuildDir,
@@ -9,7 +7,9 @@ import {
   getCommandHelp,
   makeIdempotent,
   waspSays,
-} from "../helpers/helpers.js";
+} from "../../../helpers.js";
+import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
+import { secretExists } from "../helpers/flyctlHelpers.js";
 import {
   clientTomlExistsInProject,
   copyLocalClientTomlToProject,
