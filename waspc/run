@@ -48,7 +48,6 @@ function ensure_wasp_app_runner_installed() {
 
 function install_wasp_app_runner() {
   local TMP_DIR="$PROJECT_ROOT/.tmp"
-  local BIN_DIR="$PROJECT_ROOT/.bin"
   local REPO_DIR="$TMP_DIR/runner-action"
 
   echo_bold "Cloning wasp-app-runner to $REPO_DIR..."
@@ -59,16 +58,11 @@ function install_wasp_app_runner() {
   cd "$REPO_DIR" || exit 1
   npm ci --silent
   npm run build --silent
-
   local TAR_FILE
   TAR_FILE=$(npm pack --silent)
 
-  echo_bold "Moving tarball to $BIN_DIR..."
-  mkdir -p "$BIN_DIR"
-  mv "$REPO_DIR/$TAR_FILE" "$BIN_DIR/"
-
   echo_bold "Installing Wasp App Runner globally from tarball..."
-  npm install -g "$BIN_DIR/$TAR_FILE"
+  npm install -g "$REPO_DIR/$TAR_FILE"
 
   echo_bold "Cleaning up $TMP_DIR..."
   rm -rf "$TMP_DIR"
