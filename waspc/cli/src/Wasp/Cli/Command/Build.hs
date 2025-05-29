@@ -34,6 +34,7 @@ import Wasp.Project.Common
     packageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    srcTsConfigInWaspLangProject,
   )
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
@@ -104,6 +105,7 @@ build = do
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
+      let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigInWaspLangProject
 
       liftIO $
         copyFile
@@ -114,6 +116,11 @@ build = do
         copyFile
           (waspProjectDir </> packageLockJsonInWaspProjectDir)
           packageLockJsonInBuildDir
+
+      liftIO $
+        copyFile
+          (waspProjectDir </> srcTsConfigInWaspLangProject)
+          tsconfigJsonInBuildDir
 
       -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
       -- We should remove this code once we implement a proper solution.
