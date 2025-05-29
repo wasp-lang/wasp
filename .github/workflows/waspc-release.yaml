@@ -1,9 +1,7 @@
 name: Build and upload Wasp CLI binaries to release
 
 on:
-  create:
-    tags:
-      - v*
+  create: { tags: [v*] }
 
 jobs:
   ci:
