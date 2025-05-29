@@ -17,7 +17,7 @@ inputs:
     required: false
     default: "latest"
 
-  working-directory:
+  cabal-project-dir:
     description: |
       The working directory for the action.
     required: false
@@ -41,16 +41,15 @@ runs:
 
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v4.2.3/examples.md#haskell---cabal
-    # We don't cache the `dist-newstyle` directory because we build on different runners
-    # with mismatching libc versions. Docker images also have different UIDs and
-    # permissions that lead to mismatches.
     - name: Cache Cabal dependencies
       uses: actions/cache@v4
       with:
+        # We don't cache the `dist-newstyle` directory because it builds quite
+        # fast, and our code changes often enough that a cache would need to be
+        # invalidated on every run, and make our caching story much more complex.
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
         key: |
-          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('${{ inputs.working-directory }}/*.cabal', '${{ inputs.working-directory }}/*.project', '${{ inputs.working-directory }}/*.project.freeze') }}
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('${{ inputs.cabal-project-dir }}/*.cabal', '${{ inputs.cabal-project-dir }}/*.project', '${{ inputs.cabal-project-dir }}/*.project.freeze') }}
         restore-keys: |
-          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-${{ hashFiles('${{ inputs.working-directory }}/*.cabal', '${{ inputs.working-directory }}/*.project', '${{ inputs.working-directory }}/*.project.freeze') }}
-          cabal-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.ghc-version }}-

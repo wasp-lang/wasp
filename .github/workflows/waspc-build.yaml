@@ -47,8 +47,9 @@ jobs:
             runner: ubuntu-latest
             # We use an old Ubuntu version so we can link to a low `glibc` version.
             # `glibc` is backwards-compatible but not forwards-compatible, so it
-            # is a good idea to use the oldest version we reasonably can. This way,
-            # we don't impose stringent `glibc` version requirements on users.
+            # is a good idea to use the oldest version we reasonably can. Otherwise,
+            # the wasp binary would possibly not work on the system using a newer
+            # glibc than what it was built with (e.g. a newer Ubuntu version).
             container: ubuntu:20.04
             static: false
             install-deps: |
