@@ -157,7 +157,7 @@ jobs:
           # Extract each architecture
           for arch in "${input_arch[@]}"; do
             mkdir "arch-$arch"
-            tar -xzf "wasp-${arch}.tar.gz" -C "arch-$arch"
+            tar -xzf "wasp-cli-${arch}.tar.gz" -C "arch-$arch"
           done
 
           mkdir universal
@@ -168,6 +168,8 @@ jobs:
 
           # Pack back up
           tar -czf wasp-darwin-universal.tar.gz -C universal .
+
+      - run: ls -R .
 
       - uses: actions/upload-artifact@v4
         with:
