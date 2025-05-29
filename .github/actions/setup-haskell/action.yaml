@@ -47,11 +47,11 @@ runs:
         # There are two extra directories that are commonly cache, that we've
         # decided not to cache:
         #
-        # - `dist-newstyle`: Our internal code builds quite fast, and changes often
-        # enough that a cache would need to be invalidated on every run, and make
-        # our caching story much more complex.
+        # - `./dist-newstyle`: Our internal code builds quite fast, and changes
+        # often enough that a cache would need to be invalidated on every run, and
+        # make our caching story much more complex.
         #
-        # - ~/.cabal/packages: This is a local cache of the package index. While
+        # - `~/.cabal/packages`: This is a local cache of the package index. While
         # it could be useful, we build in heterogeneous environments and it is
         # not always in the same paths. From testing, in packages with a frozen
         # `index-state` like ours, the build will just download a single ~4kb file.
