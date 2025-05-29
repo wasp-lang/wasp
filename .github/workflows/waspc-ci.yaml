@@ -170,14 +170,8 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
-      - name: Headless - Setup the Wasp app runner
-        id: headless-setup-wasp-app-runner
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          cd ../wasp-app-runner
-          npm ci
-          # Installs the wasp-app-runner globally so that it can be used in the tests
-          npm run install:global
+      - name: Headless - Set up Wasp App Runner
+        uses: wasp-lang/runner-action@v1
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
