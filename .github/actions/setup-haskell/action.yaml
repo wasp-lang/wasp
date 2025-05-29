@@ -70,6 +70,6 @@ runs:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
         key: |
-          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key }-${{ inputs.ghc-version }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key }}-${{ inputs.ghc-version }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
         restore-keys: |
-          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key }-${{ inputs.ghc-version }}-
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key }}-${{ inputs.ghc-version }}-
