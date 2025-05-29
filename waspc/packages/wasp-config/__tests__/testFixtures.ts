@@ -3,10 +3,10 @@
  * In our case the sample data represents TsAppSpec data.
  */
 
-import * as AppSpec from '../src/appSpec.js'
-import { Branded } from '../src/branded.js'
-import { App } from '../src/publicApi/App.js'
-import * as TsAppSpec from '../src/publicApi/tsAppSpec.js'
+import * as AppSpec from "../src/appSpec.js";
+import { Branded } from "../src/branded.js";
+import { App } from "../src/publicApi/App.js";
+import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
 
 /**
  * Creates a type containing only the required properties from T.
@@ -22,12 +22,12 @@ import * as TsAppSpec from '../src/publicApi/tsAppSpec.js'
 type MinimalConfig<T> = keyof T extends never
   ? Record<string, never>
   : {
-        [K in keyof T as undefined extends T[K] ? never : K]: T[K]
+        [K in keyof T as undefined extends T[K] ? never : K]: T[K];
       } extends infer R
     ? keyof R extends never
       ? Record<string, never>
       : R
-    : never
+    : never;
 
 /**
  * Creates a type with all properties and nested properties required.
@@ -43,121 +43,141 @@ type FullConfig<T> =
     ? Branded<U, B>
     : T extends object
       ? { [K in keyof T]-?: FullConfig<T[K]> }
-      : T
+      : T;
 
-export type Config<T> = MinimalConfig<T> | FullConfig<T>
+export type Config<T> = MinimalConfig<T> | FullConfig<T>;
 
 type MinimalNamedConfig<T> = {
-  name: string
-  config: MinimalConfig<T>
-}
+  name: string;
+  config: MinimalConfig<T>;
+};
 
 type FullNamedConfig<T> = {
-  name: string
-  config: FullConfig<T>
-}
+  name: string;
+  config: FullConfig<T>;
+};
 
-type NamedConfig<T> = MinimalNamedConfig<T> | FullNamedConfig<T>
+type NamedConfig<T> = MinimalNamedConfig<T> | FullNamedConfig<T>;
 
-const CONFIG_TYPES = ['minimal', 'full'] as const
-type ConfigType = (typeof CONFIG_TYPES)[number]
+const CONFIG_TYPES = ["minimal", "full"] as const;
+type ConfigType = (typeof CONFIG_TYPES)[number];
 
-const PAGE_TYPES = [...CONFIG_TYPES, 'email-verification', 'password-reset'] as const
-type PageType = (typeof PAGE_TYPES)[number]
+const PAGE_TYPES = [
+  ...CONFIG_TYPES,
+  "email-verification",
+  "password-reset",
+] as const;
+type PageType = (typeof PAGE_TYPES)[number];
 
-const ENTITY_TYPES = ['task', 'user', 'social-user'] as const
-type EntityType = (typeof ENTITY_TYPES)[number]
+const ENTITY_TYPES = ["task", "user", "social-user"] as const;
+type EntityType = (typeof ENTITY_TYPES)[number];
 
 export function createApp(scope: ConfigType): {
-  appConfigName: string
-  app: App
+  appConfigName: string;
+  app: App;
 } {
-  if (scope === 'minimal') {
-    const { name: appName, config: appConfig } = getAppConfig(scope)
-    const userApp = new App(appName, appConfig)
-    return { appConfigName: appName, app: userApp }
+  if (scope === "minimal") {
+    const { name: appName, config: appConfig } = getAppConfig(scope);
+    const userApp = new App(appName, appConfig);
+    return { appConfigName: appName, app: userApp };
   }
 
-  const { name: appConfigName, config: appConfig } = getAppConfig(scope)
-  const userApp = new App(appConfigName, appConfig)
+  const { name: appConfigName, config: appConfig } = getAppConfig(scope);
+  const userApp = new App(appConfigName, appConfig);
 
-  userApp.auth(getAuthConfig('full'))
-  userApp.client(getClientConfig('full'))
-  userApp.server(getServerConfig('full'))
-  userApp.emailSender(getEmailSenderConfig('full'))
-  userApp.webSocket(getWebSocketConfig('full'))
-  userApp.db(getDbConfig('full'))
+  userApp.auth(getAuthConfig("full"));
+  userApp.client(getClientConfig("full"));
+  userApp.server(getServerConfig("full"));
+  userApp.emailSender(getEmailSenderConfig("full"));
+  userApp.webSocket(getWebSocketConfig("full"));
+  userApp.db(getDbConfig("full"));
 
   function addDecls(declName: string, nameAndConfigs: NamedConfig<unknown>[]) {
-    nameAndConfigs.forEach(({ name, config }) => userApp[declName](name, config))
+    nameAndConfigs.forEach(({ name, config }) =>
+      userApp[declName](name, config),
+    );
   }
 
-  addDecls('page', getPageConfigs())
-  addDecls('route', getRouteConfigs())
-  addDecls('query', getQuerieConfigs())
-  addDecls('action', getActionConfigs())
-  addDecls('crud', getCrudConfigs())
-  addDecls('apiNamespace', getApiNamespaceConfigs())
-  addDecls('api', getApiConfigs())
-  addDecls('job', getJobConfigs())
+  addDecls("page", getPageConfigs());
+  addDecls("route", getRouteConfigs());
+  addDecls("query", getQuerieConfigs());
+  addDecls("action", getActionConfigs());
+  addDecls("crud", getCrudConfigs());
+  addDecls("apiNamespace", getApiNamespaceConfigs());
+  addDecls("api", getApiConfigs());
+  addDecls("job", getJobConfigs());
 
-  return { appConfigName, app: userApp }
+  return { appConfigName, app: userApp };
 }
 
-export function getAppConfig(scope: 'minimal'): MinimalNamedConfig<TsAppSpec.AppConfig>
-export function getAppConfig(scope: 'full'): FullNamedConfig<TsAppSpec.AppConfig>
-export function getAppConfig(scope: ConfigType): NamedConfig<TsAppSpec.AppConfig> {
-  if (scope === 'minimal') {
+export function getAppConfig(
+  scope: "minimal",
+): MinimalNamedConfig<TsAppSpec.AppConfig>;
+export function getAppConfig(
+  scope: "full",
+): FullNamedConfig<TsAppSpec.AppConfig>;
+export function getAppConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.AppConfig> {
+  if (scope === "minimal") {
     return {
-      name: 'MinimalApp',
+      name: "MinimalApp",
       config: {
-        title: 'Mock App',
-        wasp: { version: '^0.16.3' },
+        title: "Mock App",
+        wasp: { version: "^0.16.3" },
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.AppConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.AppConfig>;
   }
 
   return {
-    name: 'FullApp',
+    name: "FullApp",
     config: {
-      title: 'Mock App',
-      wasp: { version: '^0.16.3' },
+      title: "Mock App",
+      wasp: { version: "^0.16.3" },
       head: ['<link rel="icon" href="/favicon.ico" />'],
     },
-  } satisfies FullNamedConfig<TsAppSpec.AppConfig>
+  } satisfies FullNamedConfig<TsAppSpec.AppConfig>;
 }
 
-export function getAuthConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.AuthConfig>
-export function getAuthConfig(scope: 'full'): FullConfig<TsAppSpec.AuthConfig>
+export function getAuthConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.AuthConfig>;
+export function getAuthConfig(scope: "full"): FullConfig<TsAppSpec.AuthConfig>;
 export function getAuthConfig(scope: ConfigType): Config<TsAppSpec.AuthConfig> {
-  if (scope === 'minimal') {
+  if (scope === "minimal") {
     return {
-      userEntity: getEntity('user'),
-      onAuthFailedRedirectTo: '/login',
+      userEntity: getEntity("user"),
+      onAuthFailedRedirectTo: "/login",
       methods: getAuthMethods(scope),
-    } satisfies MinimalConfig<TsAppSpec.AuthConfig>
+    } satisfies MinimalConfig<TsAppSpec.AuthConfig>;
   }
 
   return {
-    userEntity: getEntity('user'),
-    onAuthFailedRedirectTo: '/login',
+    userEntity: getEntity("user"),
+    onAuthFailedRedirectTo: "/login",
     methods: getAuthMethods(scope),
-    externalAuthEntity: getEntity('social-user'),
-    onAuthSucceededRedirectTo: '/profile',
-    onBeforeSignup: getExtImport(scope, 'named'),
-    onAfterSignup: getExtImport(scope, 'named'),
-    onAfterEmailVerified: getExtImport(scope, 'named'),
-    onBeforeOAuthRedirect: getExtImport(scope, 'named'),
-    onBeforeLogin: getExtImport(scope, 'named'),
-    onAfterLogin: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.AuthConfig>
+    externalAuthEntity: getEntity("social-user"),
+    onAuthSucceededRedirectTo: "/profile",
+    onBeforeSignup: getExtImport(scope, "named"),
+    onAfterSignup: getExtImport(scope, "named"),
+    onAfterEmailVerified: getExtImport(scope, "named"),
+    onBeforeOAuthRedirect: getExtImport(scope, "named"),
+    onBeforeLogin: getExtImport(scope, "named"),
+    onAfterLogin: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.AuthConfig>;
 }
 
-export function getAuthMethods(scope: 'minimal'): MinimalConfig<TsAppSpec.AuthMethods>
-export function getAuthMethods(scope: 'full'): FullConfig<TsAppSpec.AuthMethods>
-export function getAuthMethods(scope: ConfigType): Config<TsAppSpec.AuthMethods> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.AuthMethods>
+export function getAuthMethods(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.AuthMethods>;
+export function getAuthMethods(
+  scope: "full",
+): FullConfig<TsAppSpec.AuthMethods>;
+export function getAuthMethods(
+  scope: ConfigType,
+): Config<TsAppSpec.AuthMethods> {
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.AuthMethods>;
   }
 
   return {
@@ -167,336 +187,410 @@ export function getAuthMethods(scope: ConfigType): Config<TsAppSpec.AuthMethods>
     google: getExternalAuthConfig(scope),
     gitHub: getExternalAuthConfig(scope),
     keycloak: getExternalAuthConfig(scope),
-  } satisfies FullConfig<TsAppSpec.AuthMethods>
+  } satisfies FullConfig<TsAppSpec.AuthMethods>;
 }
 
-export function getExternalAuthConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.ExternalAuthConfig>
-export function getExternalAuthConfig(scope: 'full'): FullConfig<TsAppSpec.ExternalAuthConfig>
-export function getExternalAuthConfig(scope: ConfigType): Config<TsAppSpec.ExternalAuthConfig> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.ExternalAuthConfig>
+export function getExternalAuthConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.ExternalAuthConfig>;
+export function getExternalAuthConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.ExternalAuthConfig>;
+export function getExternalAuthConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.ExternalAuthConfig> {
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.ExternalAuthConfig>;
   }
 
   return {
-    configFn: getExtImport(scope, 'named'),
-    userSignupFields: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.ExternalAuthConfig>
+    configFn: getExtImport(scope, "named"),
+    userSignupFields: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.ExternalAuthConfig>;
 }
 
 export function getUsernameAndPasswordConfig(
-  scope: 'minimal'
-): MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>;
 export function getUsernameAndPasswordConfig(
-  scope: 'full'
-): FullConfig<TsAppSpec.UsernameAndPasswordConfig>
+  scope: "full",
+): FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
 export function getUsernameAndPasswordConfig(
-  scope: ConfigType
+  scope: ConfigType,
 ): Config<TsAppSpec.UsernameAndPasswordConfig> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>;
   }
 
   return {
-    userSignupFields: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.UsernameAndPasswordConfig>
+    userSignupFields: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
 }
 
-export function getEmailAuthConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.EmailAuthConfig>
-export function getEmailAuthConfig(scope: 'full'): FullConfig<TsAppSpec.EmailAuthConfig>
-export function getEmailAuthConfig(scope: ConfigType): Config<TsAppSpec.EmailAuthConfig> {
-  if (scope === 'minimal') {
+export function getEmailAuthConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.EmailAuthConfig>;
+export function getEmailAuthConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.EmailAuthConfig>;
+export function getEmailAuthConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailAuthConfig> {
+  if (scope === "minimal") {
     return {
       fromField: getEmailFromField(scope),
       emailVerification: getEmailVerificationConfig(scope),
       passwordReset: getPasswordResetConfig(scope),
-    } satisfies MinimalConfig<TsAppSpec.EmailAuthConfig>
+    } satisfies MinimalConfig<TsAppSpec.EmailAuthConfig>;
   }
 
   return {
     fromField: getEmailFromField(scope),
     emailVerification: getEmailVerificationConfig(scope),
     passwordReset: getPasswordResetConfig(scope),
-    userSignupFields: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.EmailAuthConfig>
+    userSignupFields: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.EmailAuthConfig>;
 }
 
 export function getPasswordResetConfig(
-  scope: 'minimal'
-): MinimalConfig<TsAppSpec.PasswordResetConfig>
-export function getPasswordResetConfig(scope: 'full'): FullConfig<TsAppSpec.PasswordResetConfig>
-export function getPasswordResetConfig(scope: ConfigType): Config<TsAppSpec.PasswordResetConfig> {
-  if (scope === 'minimal') {
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.PasswordResetConfig>;
+export function getPasswordResetConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.PasswordResetConfig>;
+export function getPasswordResetConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.PasswordResetConfig> {
+  if (scope === "minimal") {
     return {
-      clientRoute: getRouteConfig('password-reset').name,
-    } satisfies MinimalConfig<TsAppSpec.PasswordResetConfig>
+      clientRoute: getRouteConfig("password-reset").name,
+    } satisfies MinimalConfig<TsAppSpec.PasswordResetConfig>;
   }
 
   return {
-    clientRoute: getRouteConfig('password-reset').name,
-    getEmailContentFn: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.PasswordResetConfig>
+    clientRoute: getRouteConfig("password-reset").name,
+    getEmailContentFn: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.PasswordResetConfig>;
 }
 
 export function getEmailVerificationConfig(
-  scope: 'minimal'
-): MinimalConfig<TsAppSpec.EmailVerificationConfig>
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.EmailVerificationConfig>;
 export function getEmailVerificationConfig(
-  scope: 'full'
-): FullConfig<TsAppSpec.EmailVerificationConfig>
+  scope: "full",
+): FullConfig<TsAppSpec.EmailVerificationConfig>;
 export function getEmailVerificationConfig(
-  scope: ConfigType
+  scope: ConfigType,
 ): Config<TsAppSpec.EmailVerificationConfig> {
-  if (scope === 'minimal') {
+  if (scope === "minimal") {
     return {
-      clientRoute: getRouteConfig('email-verification').name,
-    } satisfies MinimalConfig<TsAppSpec.EmailVerificationConfig>
+      clientRoute: getRouteConfig("email-verification").name,
+    } satisfies MinimalConfig<TsAppSpec.EmailVerificationConfig>;
   }
 
   return {
-    clientRoute: getRouteConfig('email-verification').name,
-    getEmailContentFn: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.EmailVerificationConfig>
+    clientRoute: getRouteConfig("email-verification").name,
+    getEmailContentFn: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.EmailVerificationConfig>;
 }
 
-export function getClientConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.ClientConfig>
-export function getClientConfig(scope: 'full'): FullConfig<TsAppSpec.ClientConfig>
-export function getClientConfig(scope: ConfigType): Config<TsAppSpec.ClientConfig> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.ClientConfig>
+export function getClientConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.ClientConfig>;
+export function getClientConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.ClientConfig>;
+export function getClientConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.ClientConfig> {
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.ClientConfig>;
   }
 
   return {
-    rootComponent: getExtImport(scope, 'named'),
-    setupFn: getExtImport(scope, 'named'),
-    baseDir: '/src',
-    envValidationSchema: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.ClientConfig>
+    rootComponent: getExtImport(scope, "named"),
+    setupFn: getExtImport(scope, "named"),
+    baseDir: "/src",
+    envValidationSchema: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.ClientConfig>;
 }
 
-export function getServerConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.ServerConfig>
-export function getServerConfig(scope: 'full'): FullConfig<TsAppSpec.ServerConfig>
-export function getServerConfig(scope: ConfigType): Config<TsAppSpec.ServerConfig> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.ServerConfig>
+export function getServerConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.ServerConfig>;
+export function getServerConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.ServerConfig>;
+export function getServerConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.ServerConfig> {
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.ServerConfig>;
   }
 
   return {
-    setupFn: getExtImport(scope, 'named'),
-    middlewareConfigFn: getExtImport(scope, 'named'),
-    envValidationSchema: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.ServerConfig>
+    setupFn: getExtImport(scope, "named"),
+    middlewareConfigFn: getExtImport(scope, "named"),
+    envValidationSchema: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.ServerConfig>;
 }
 
-export function getEmailSenderConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.EmailSenderConfig>
-export function getEmailSenderConfig(scope: 'full'): FullConfig<TsAppSpec.EmailSenderConfig>
-export function getEmailSenderConfig(scope: ConfigType): Config<TsAppSpec.EmailSenderConfig> {
-  if (scope === 'minimal') {
+export function getEmailSenderConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.EmailSenderConfig>;
+export function getEmailSenderConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.EmailSenderConfig>;
+export function getEmailSenderConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailSenderConfig> {
+  if (scope === "minimal") {
     return {
-      provider: 'SMTP',
-    } satisfies MinimalConfig<TsAppSpec.EmailSenderConfig>
+      provider: "SMTP",
+    } satisfies MinimalConfig<TsAppSpec.EmailSenderConfig>;
   }
 
   return {
-    provider: 'SMTP',
+    provider: "SMTP",
     defaultFrom: getEmailFromField(scope),
-  } satisfies FullConfig<TsAppSpec.EmailSenderConfig>
+  } satisfies FullConfig<TsAppSpec.EmailSenderConfig>;
 }
 
-export function getWebSocketConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.WebsocketConfig>
-export function getWebSocketConfig(scope: 'full'): FullConfig<TsAppSpec.WebsocketConfig>
-export function getWebSocketConfig(scope: ConfigType): Config<TsAppSpec.WebsocketConfig> {
-  if (scope === 'minimal') {
+export function getWebSocketConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.WebsocketConfig>;
+export function getWebSocketConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.WebsocketConfig>;
+export function getWebSocketConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.WebsocketConfig> {
+  if (scope === "minimal") {
     return {
-      fn: getExtImport(scope, 'named'),
-    } satisfies MinimalConfig<TsAppSpec.WebsocketConfig>
+      fn: getExtImport(scope, "named"),
+    } satisfies MinimalConfig<TsAppSpec.WebsocketConfig>;
   }
 
   return {
-    fn: getExtImport(scope, 'named'),
+    fn: getExtImport(scope, "named"),
     autoConnect: true,
-  } satisfies FullConfig<TsAppSpec.WebsocketConfig>
+  } satisfies FullConfig<TsAppSpec.WebsocketConfig>;
 }
 
-export function getDbConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.DbConfig>
-export function getDbConfig(scope: 'full'): FullConfig<TsAppSpec.DbConfig>
+export function getDbConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.DbConfig>;
+export function getDbConfig(scope: "full"): FullConfig<TsAppSpec.DbConfig>;
 export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.DbConfig>
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.DbConfig>;
   }
 
   return {
-    seeds: [getExtImport(scope, 'named'), getExtImport(scope, 'default')],
-  } satisfies FullConfig<TsAppSpec.DbConfig>
+    seeds: [getExtImport(scope, "named"), getExtImport(scope, "default")],
+  } satisfies FullConfig<TsAppSpec.DbConfig>;
 }
 
 export function getPageConfigs(): NamedConfig<TsAppSpec.PageConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return PAGE_TYPES.map((pageType) => getPageConfig(pageType))
+  return PAGE_TYPES.map((pageType) => getPageConfig(pageType));
 }
 
-export function getPageConfig(pageType: 'minimal'): MinimalNamedConfig<TsAppSpec.PageConfig>
 export function getPageConfig(
-  pageType: 'full' | 'email-verification' | 'password-reset'
-): FullNamedConfig<TsAppSpec.PageConfig>
-export function getPageConfig(pageType: PageType): NamedConfig<TsAppSpec.PageConfig> {
-  if (pageType === 'minimal') {
+  pageType: "minimal",
+): MinimalNamedConfig<TsAppSpec.PageConfig>;
+export function getPageConfig(
+  pageType: "full" | "email-verification" | "password-reset",
+): FullNamedConfig<TsAppSpec.PageConfig>;
+export function getPageConfig(
+  pageType: PageType,
+): NamedConfig<TsAppSpec.PageConfig> {
+  if (pageType === "minimal") {
     return {
-      name: 'MinimalPage',
+      name: "MinimalPage",
       config: {
-        component: getExtImport(pageType, 'named'),
+        component: getExtImport(pageType, "named"),
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.PageConfig>
-  } else if (pageType === 'email-verification') {
+    } satisfies MinimalNamedConfig<TsAppSpec.PageConfig>;
+  } else if (pageType === "email-verification") {
     return {
-      name: 'EmailVerificationPage',
+      name: "EmailVerificationPage",
       config: {
-        component: getExtImport('full', 'named'),
+        component: getExtImport("full", "named"),
         authRequired: false,
       },
-    } satisfies FullNamedConfig<TsAppSpec.PageConfig>
-  } else if (pageType === 'password-reset') {
+    } satisfies FullNamedConfig<TsAppSpec.PageConfig>;
+  } else if (pageType === "password-reset") {
     return {
-      name: 'PasswordResetPage',
+      name: "PasswordResetPage",
       config: {
-        component: getExtImport('full', 'named'),
+        component: getExtImport("full", "named"),
         authRequired: false,
       },
-    } satisfies FullNamedConfig<TsAppSpec.PageConfig>
+    } satisfies FullNamedConfig<TsAppSpec.PageConfig>;
   }
 
   return {
-    name: 'FullPage',
+    name: "FullPage",
     config: {
-      component: getExtImport(pageType, 'named'),
+      component: getExtImport(pageType, "named"),
       authRequired: true,
     },
-  } satisfies NamedConfig<TsAppSpec.PageConfig>
+  } satisfies NamedConfig<TsAppSpec.PageConfig>;
 }
 
 export function getRouteConfigs(): NamedConfig<TsAppSpec.RouteConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return PAGE_TYPES.map((pageType) => getRouteConfig(pageType))
+  return PAGE_TYPES.map((pageType) => getRouteConfig(pageType));
 }
 
-export function getRouteConfig(routeType: 'minimal'): MinimalNamedConfig<TsAppSpec.RouteConfig>
 export function getRouteConfig(
-  routeType: 'full' | 'email-verification' | 'password-reset'
-): FullNamedConfig<TsAppSpec.RouteConfig>
-export function getRouteConfig(routeType: PageType): NamedConfig<TsAppSpec.RouteConfig> {
-  if (routeType === 'minimal') {
+  routeType: "minimal",
+): MinimalNamedConfig<TsAppSpec.RouteConfig>;
+export function getRouteConfig(
+  routeType: "full" | "email-verification" | "password-reset",
+): FullNamedConfig<TsAppSpec.RouteConfig>;
+export function getRouteConfig(
+  routeType: PageType,
+): NamedConfig<TsAppSpec.RouteConfig> {
+  if (routeType === "minimal") {
     return {
-      name: 'MinimalRoute',
+      name: "MinimalRoute",
       config: {
-        path: '/foo/bar',
+        path: "/foo/bar",
         to: getPageConfig(routeType).name as TsAppSpec.PageName,
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.RouteConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.RouteConfig>;
   }
 
-  let name: string
-  if (routeType === 'email-verification') {
-    name = 'EmailVerificationRoute'
-  } else if (routeType === 'password-reset') {
-    name = 'PasswordResetRoute'
+  let name: string;
+  if (routeType === "email-verification") {
+    name = "EmailVerificationRoute";
+  } else if (routeType === "password-reset") {
+    name = "PasswordResetRoute";
   } else {
-    name = 'FullRoute'
+    name = "FullRoute";
   }
 
   return {
     name,
     config: {
-      path: '/foo/bar',
+      path: "/foo/bar",
       to: getPageConfig(routeType).name as TsAppSpec.PageName,
     },
-  } satisfies FullNamedConfig<TsAppSpec.RouteConfig>
+  } satisfies FullNamedConfig<TsAppSpec.RouteConfig>;
 }
 
 export function getQuerieConfigs(): NamedConfig<TsAppSpec.QueryConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return CONFIG_TYPES.map((scope) => getQueryConfig(scope))
+  return CONFIG_TYPES.map((scope) => getQueryConfig(scope));
 }
 
-export function getQueryConfig(scope: 'minimal'): MinimalNamedConfig<TsAppSpec.QueryConfig>
-export function getQueryConfig(scope: 'full'): FullNamedConfig<TsAppSpec.QueryConfig>
-export function getQueryConfig(scope: ConfigType): NamedConfig<TsAppSpec.QueryConfig> {
-  if (scope === 'minimal') {
+export function getQueryConfig(
+  scope: "minimal",
+): MinimalNamedConfig<TsAppSpec.QueryConfig>;
+export function getQueryConfig(
+  scope: "full",
+): FullNamedConfig<TsAppSpec.QueryConfig>;
+export function getQueryConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.QueryConfig> {
+  if (scope === "minimal") {
     return {
-      name: 'MinimalQuery',
+      name: "MinimalQuery",
       config: {
-        fn: getExtImport(scope, 'named'),
+        fn: getExtImport(scope, "named"),
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.QueryConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.QueryConfig>;
   }
 
   return {
-    name: 'FullQuery',
+    name: "FullQuery",
     config: {
-      fn: getExtImport(scope, 'named'),
-      entities: [getEntity('task')],
+      fn: getExtImport(scope, "named"),
+      entities: [getEntity("task")],
       auth: true,
     },
-  } satisfies FullNamedConfig<TsAppSpec.QueryConfig>
+  } satisfies FullNamedConfig<TsAppSpec.QueryConfig>;
 }
 
 export function getActionConfigs(): NamedConfig<TsAppSpec.ActionConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return CONFIG_TYPES.map((scope) => getActionConfig(scope))
+  return CONFIG_TYPES.map((scope) => getActionConfig(scope));
 }
 
-export function getActionConfig(scope: 'minimal'): MinimalNamedConfig<TsAppSpec.ActionConfig>
-export function getActionConfig(scope: 'full'): FullNamedConfig<TsAppSpec.ActionConfig>
-export function getActionConfig(scope: ConfigType): NamedConfig<TsAppSpec.ActionConfig> {
-  if (scope === 'minimal') {
+export function getActionConfig(
+  scope: "minimal",
+): MinimalNamedConfig<TsAppSpec.ActionConfig>;
+export function getActionConfig(
+  scope: "full",
+): FullNamedConfig<TsAppSpec.ActionConfig>;
+export function getActionConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.ActionConfig> {
+  if (scope === "minimal") {
     return {
-      name: 'MinimalAction',
+      name: "MinimalAction",
       config: {
-        fn: getExtImport(scope, 'named'),
+        fn: getExtImport(scope, "named"),
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.ActionConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.ActionConfig>;
   }
 
   return {
-    name: 'FullAction',
+    name: "FullAction",
     config: {
-      fn: getExtImport(scope, 'named'),
-      entities: [getEntity('task')],
+      fn: getExtImport(scope, "named"),
+      entities: [getEntity("task")],
       auth: true,
     },
-  } satisfies FullNamedConfig<TsAppSpec.ActionConfig>
+  } satisfies FullNamedConfig<TsAppSpec.ActionConfig>;
 }
 
 export function getCrudConfigs(): NamedConfig<TsAppSpec.CrudConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return CONFIG_TYPES.map((scope) => getCrudConfig(scope))
+  return CONFIG_TYPES.map((scope) => getCrudConfig(scope));
 }
 
-export function getCrudConfig(scope: 'minimal'): MinimalNamedConfig<TsAppSpec.CrudConfig>
-export function getCrudConfig(scope: 'full'): FullNamedConfig<TsAppSpec.CrudConfig>
-export function getCrudConfig(scope: ConfigType): NamedConfig<TsAppSpec.CrudConfig> {
-  if (scope === 'minimal') {
+export function getCrudConfig(
+  scope: "minimal",
+): MinimalNamedConfig<TsAppSpec.CrudConfig>;
+export function getCrudConfig(
+  scope: "full",
+): FullNamedConfig<TsAppSpec.CrudConfig>;
+export function getCrudConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.CrudConfig> {
+  if (scope === "minimal") {
     return {
-      name: 'MinimalCrud',
+      name: "MinimalCrud",
       config: {
-        entity: getEntity('task'),
+        entity: getEntity("task"),
         operations: getCrudOperations(scope),
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.CrudConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.CrudConfig>;
   }
 
   return {
-    name: 'FullCrud',
+    name: "FullCrud",
     config: {
-      entity: getEntity('task'),
+      entity: getEntity("task"),
       operations: getCrudOperations(scope),
     },
-  } satisfies FullNamedConfig<TsAppSpec.CrudConfig>
+  } satisfies FullNamedConfig<TsAppSpec.CrudConfig>;
 }
 
-export function getCrudOperations(scope: 'minimal'): MinimalConfig<TsAppSpec.CrudOperations>
-export function getCrudOperations(scope: 'full'): FullConfig<TsAppSpec.CrudOperations>
-export function getCrudOperations(scope: ConfigType): Config<TsAppSpec.CrudOperations> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.CrudOperations>
+export function getCrudOperations(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.CrudOperations>;
+export function getCrudOperations(
+  scope: "full",
+): FullConfig<TsAppSpec.CrudOperations>;
+export function getCrudOperations(
+  scope: ConfigType,
+): Config<TsAppSpec.CrudOperations> {
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.CrudOperations>;
   }
 
   return {
@@ -505,242 +599,274 @@ export function getCrudOperations(scope: ConfigType): Config<TsAppSpec.CrudOpera
     create: getCrudOperationOptions(scope),
     update: getCrudOperationOptions(scope),
     delete: getCrudOperationOptions(scope),
-  } satisfies FullConfig<TsAppSpec.CrudOperations>
+  } satisfies FullConfig<TsAppSpec.CrudOperations>;
 }
 
 export function getCrudOperationOptions(
-  scope: 'minimal'
-): MinimalConfig<TsAppSpec.CrudOperationOptions>
-export function getCrudOperationOptions(scope: 'full'): FullConfig<TsAppSpec.CrudOperationOptions>
-export function getCrudOperationOptions(scope: ConfigType): Config<TsAppSpec.CrudOperationOptions> {
-  if (scope === 'minimal') {
-    return {} satisfies MinimalConfig<TsAppSpec.CrudOperationOptions>
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.CrudOperationOptions>;
+export function getCrudOperationOptions(
+  scope: "full",
+): FullConfig<TsAppSpec.CrudOperationOptions>;
+export function getCrudOperationOptions(
+  scope: ConfigType,
+): Config<TsAppSpec.CrudOperationOptions> {
+  if (scope === "minimal") {
+    return {} satisfies MinimalConfig<TsAppSpec.CrudOperationOptions>;
   }
 
   return {
     isPublic: true,
-    overrideFn: getExtImport(scope, 'named'),
-  } satisfies FullConfig<TsAppSpec.CrudOperationOptions>
+    overrideFn: getExtImport(scope, "named"),
+  } satisfies FullConfig<TsAppSpec.CrudOperationOptions>;
 }
 
-export function getScheduleConfig(scope: 'minimal'): MinimalConfig<TsAppSpec.ScheduleConfig>
-export function getScheduleConfig(scope: 'full'): FullConfig<TsAppSpec.ScheduleConfig>
-export function getScheduleConfig(scope: ConfigType): Config<TsAppSpec.ScheduleConfig> {
-  if (scope === 'minimal') {
+export function getScheduleConfig(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.ScheduleConfig>;
+export function getScheduleConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.ScheduleConfig>;
+export function getScheduleConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.ScheduleConfig> {
+  if (scope === "minimal") {
     return {
-      cron: '0 0 * * *',
-    } satisfies MinimalConfig<TsAppSpec.ScheduleConfig>
+      cron: "0 0 * * *",
+    } satisfies MinimalConfig<TsAppSpec.ScheduleConfig>;
   }
 
   return {
-    cron: '0 0 * * *',
-    args: { foo: 'bar' },
+    cron: "0 0 * * *",
+    args: { foo: "bar" },
     executorOptions: {
       pgBoss: { jobOptions: { attempts: 3 } },
     },
-  } satisfies FullConfig<TsAppSpec.ScheduleConfig>
+  } satisfies FullConfig<TsAppSpec.ScheduleConfig>;
 }
 
-export function getPerform(scope: 'minimal'): MinimalConfig<TsAppSpec.Perform>
-export function getPerform(scope: 'full'): FullConfig<TsAppSpec.Perform>
+export function getPerform(scope: "minimal"): MinimalConfig<TsAppSpec.Perform>;
+export function getPerform(scope: "full"): FullConfig<TsAppSpec.Perform>;
 export function getPerform(
-  scope: ConfigType
+  scope: ConfigType,
 ): MinimalConfig<TsAppSpec.Perform> | FullConfig<TsAppSpec.Perform> {
-  if (scope === 'minimal') {
+  if (scope === "minimal") {
     return {
-      fn: getExtImport(scope, 'named'),
-    } satisfies MinimalConfig<TsAppSpec.Perform>
+      fn: getExtImport(scope, "named"),
+    } satisfies MinimalConfig<TsAppSpec.Perform>;
   }
 
   return {
-    fn: getExtImport(scope, 'named'),
+    fn: getExtImport(scope, "named"),
     executorOptions: {
       pgBoss: { jobOptions: { attempts: 3 } },
     },
-  } satisfies FullConfig<TsAppSpec.Perform>
+  } satisfies FullConfig<TsAppSpec.Perform>;
 }
 
 export function getApiNamespaceConfigs(): NamedConfig<TsAppSpec.ApiNamespaceConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return CONFIG_TYPES.map((scope) => getApiNamespaceConfig(scope))
+  return CONFIG_TYPES.map((scope) => getApiNamespaceConfig(scope));
 }
 
 export function getApiNamespaceConfig(
-  scope: 'minimal'
-): MinimalNamedConfig<TsAppSpec.ApiNamespaceConfig>
-export function getApiNamespaceConfig(scope: 'full'): FullNamedConfig<TsAppSpec.ApiNamespaceConfig>
+  scope: "minimal",
+): MinimalNamedConfig<TsAppSpec.ApiNamespaceConfig>;
 export function getApiNamespaceConfig(
-  scope: ConfigType
+  scope: "full",
+): FullNamedConfig<TsAppSpec.ApiNamespaceConfig>;
+export function getApiNamespaceConfig(
+  scope: ConfigType,
 ): NamedConfig<TsAppSpec.ApiNamespaceConfig> {
-  if (scope === 'minimal') {
+  if (scope === "minimal") {
     return {
-      name: 'MinimalApiNamespace',
+      name: "MinimalApiNamespace",
       config: {
-        middlewareConfigFn: getExtImport(scope, 'named'),
-        path: '/foo',
+        middlewareConfigFn: getExtImport(scope, "named"),
+        path: "/foo",
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.ApiNamespaceConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.ApiNamespaceConfig>;
   }
 
   return {
-    name: 'FullApiNamespace',
+    name: "FullApiNamespace",
     config: {
-      middlewareConfigFn: getExtImport(scope, 'named'),
-      path: '/foo',
+      middlewareConfigFn: getExtImport(scope, "named"),
+      path: "/foo",
     },
-  } satisfies FullNamedConfig<TsAppSpec.ApiNamespaceConfig>
+  } satisfies FullNamedConfig<TsAppSpec.ApiNamespaceConfig>;
 }
 
 export function getApiConfigs(): NamedConfig<TsAppSpec.ApiConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return CONFIG_TYPES.map((scope) => getApiConfig(scope))
+  return CONFIG_TYPES.map((scope) => getApiConfig(scope));
 }
 
-export function getApiConfig(scope: 'minimal'): MinimalNamedConfig<TsAppSpec.ApiConfig>
-export function getApiConfig(scope: 'full'): FullNamedConfig<TsAppSpec.ApiConfig>
-export function getApiConfig(scope: ConfigType): NamedConfig<TsAppSpec.ApiConfig> {
-  if (scope === 'minimal') {
+export function getApiConfig(
+  scope: "minimal",
+): MinimalNamedConfig<TsAppSpec.ApiConfig>;
+export function getApiConfig(
+  scope: "full",
+): FullNamedConfig<TsAppSpec.ApiConfig>;
+export function getApiConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.ApiConfig> {
+  if (scope === "minimal") {
     return {
-      name: 'MinimalApi',
+      name: "MinimalApi",
       config: {
-        fn: getExtImport(scope, 'named'),
+        fn: getExtImport(scope, "named"),
         httpRoute: getHttpRoute(scope),
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.ApiConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.ApiConfig>;
   }
 
   return {
-    name: 'FullApi',
+    name: "FullApi",
     config: {
-      fn: getExtImport(scope, 'named'),
+      fn: getExtImport(scope, "named"),
       httpRoute: getHttpRoute(scope),
-      entities: [getEntity('task')],
+      entities: [getEntity("task")],
       auth: true,
-      middlewareConfigFn: getExtImport(scope, 'named'),
+      middlewareConfigFn: getExtImport(scope, "named"),
     },
-  } satisfies FullNamedConfig<TsAppSpec.ApiConfig>
+  } satisfies FullNamedConfig<TsAppSpec.ApiConfig>;
 }
 
-export function getHttpRoute(scope: 'minimal'): MinimalConfig<TsAppSpec.HttpRoute>
-export function getHttpRoute(scope: 'full'): FullConfig<TsAppSpec.HttpRoute>
+export function getHttpRoute(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.HttpRoute>;
+export function getHttpRoute(scope: "full"): FullConfig<TsAppSpec.HttpRoute>;
 export function getHttpRoute(scope: ConfigType): Config<TsAppSpec.HttpRoute> {
-  if (scope === 'minimal') {
+  if (scope === "minimal") {
     return {
-      method: 'GET',
-      route: '/foo/bar',
-    } satisfies MinimalConfig<TsAppSpec.HttpRoute>
+      method: "GET",
+      route: "/foo/bar",
+    } satisfies MinimalConfig<TsAppSpec.HttpRoute>;
   }
 
   return {
-    method: 'GET',
-    route: '/foo/bar',
-  } satisfies FullConfig<TsAppSpec.HttpRoute>
+    method: "GET",
+    route: "/foo/bar",
+  } satisfies FullConfig<TsAppSpec.HttpRoute>;
 }
 
 export function getJobConfigs(): NamedConfig<TsAppSpec.JobConfig>[] {
   // @ts-expect-error we don't need to know the specifc function overload in this case
-  return CONFIG_TYPES.map((scope) => getJobConfig(scope))
+  return CONFIG_TYPES.map((scope) => getJobConfig(scope));
 }
 
-export function getJobConfig(scope: 'minimal'): MinimalNamedConfig<TsAppSpec.JobConfig>
-export function getJobConfig(scope: 'full'): FullNamedConfig<TsAppSpec.JobConfig>
-export function getJobConfig(scope: ConfigType): NamedConfig<TsAppSpec.JobConfig> {
-  if (scope === 'minimal') {
+export function getJobConfig(
+  scope: "minimal",
+): MinimalNamedConfig<TsAppSpec.JobConfig>;
+export function getJobConfig(
+  scope: "full",
+): FullNamedConfig<TsAppSpec.JobConfig>;
+export function getJobConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.JobConfig> {
+  if (scope === "minimal") {
     return {
-      name: 'MinimalJob',
+      name: "MinimalJob",
       config: {
-        executor: 'PgBoss',
+        executor: "PgBoss",
         perform: getPerform(scope),
       },
-    } satisfies MinimalNamedConfig<TsAppSpec.JobConfig>
+    } satisfies MinimalNamedConfig<TsAppSpec.JobConfig>;
   }
 
   return {
-    name: 'FullJob',
+    name: "FullJob",
     config: {
-      executor: 'PgBoss',
+      executor: "PgBoss",
       perform: getPerform(scope),
-      entities: [getEntity('task')],
+      entities: [getEntity("task")],
       schedule: getScheduleConfig(scope),
     },
-  } satisfies FullNamedConfig<TsAppSpec.JobConfig>
+  } satisfies FullNamedConfig<TsAppSpec.JobConfig>;
 }
 
-export function getEmailFromField(scope: 'minimal'): MinimalConfig<TsAppSpec.EmailFromField>
-export function getEmailFromField(scope: 'full'): FullConfig<TsAppSpec.EmailFromField>
-export function getEmailFromField(scope: ConfigType): Config<TsAppSpec.EmailFromField> {
-  if (scope === 'minimal') {
+export function getEmailFromField(
+  scope: "minimal",
+): MinimalConfig<TsAppSpec.EmailFromField>;
+export function getEmailFromField(
+  scope: "full",
+): FullConfig<TsAppSpec.EmailFromField>;
+export function getEmailFromField(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailFromField> {
+  if (scope === "minimal") {
     return {
-      email: 'test@domain.tld',
-    } satisfies MinimalConfig<TsAppSpec.EmailFromField>
+      email: "test@domain.tld",
+    } satisfies MinimalConfig<TsAppSpec.EmailFromField>;
   }
 
   return {
-    email: 'test@domain.tld',
-    name: 'ToDo App',
-  } satisfies FullConfig<TsAppSpec.EmailFromField>
+    email: "test@domain.tld",
+    name: "ToDo App",
+  } satisfies FullConfig<TsAppSpec.EmailFromField>;
 }
 
 export function getExtImport(
-  scope: 'minimal',
-  type: AppSpec.ExtImportKind
-): MinimalConfig<TsAppSpec.ExtImport>
+  scope: "minimal",
+  type: AppSpec.ExtImportKind,
+): MinimalConfig<TsAppSpec.ExtImport>;
 export function getExtImport(
-  scope: 'full',
-  type: AppSpec.ExtImportKind
-): FullConfig<TsAppSpec.ExtImport>
+  scope: "full",
+  type: AppSpec.ExtImportKind,
+): FullConfig<TsAppSpec.ExtImport>;
 export function getExtImport(
   scope: ConfigType,
-  type: AppSpec.ExtImportKind
+  type: AppSpec.ExtImportKind,
 ): Config<TsAppSpec.ExtImport> {
-  if (type === 'default') {
-    if (scope === 'minimal') {
+  if (type === "default") {
+    if (scope === "minimal") {
       return {
-        from: '@src/external',
-        importDefault: 'defaultExport',
-      } satisfies MinimalConfig<TsAppSpec.ExtImport>
+        from: "@src/external",
+        importDefault: "defaultExport",
+      } satisfies MinimalConfig<TsAppSpec.ExtImport>;
     }
 
     return {
-      from: '@src/external',
-      importDefault: 'defaultExport',
-    } satisfies FullConfig<TsAppSpec.ExtImport>
+      from: "@src/external",
+      importDefault: "defaultExport",
+    } satisfies FullConfig<TsAppSpec.ExtImport>;
   }
 
-  if (type === 'named') {
-    if (scope === 'minimal') {
+  if (type === "named") {
+    if (scope === "minimal") {
       return {
-        from: '@src/external',
-        import: 'namedExport',
-      } satisfies MinimalConfig<TsAppSpec.ExtImport>
+        from: "@src/external",
+        import: "namedExport",
+      } satisfies MinimalConfig<TsAppSpec.ExtImport>;
     }
 
     return {
-      from: '@src/external',
-      import: 'namedExport',
-    } satisfies FullConfig<TsAppSpec.ExtImport>
+      from: "@src/external",
+      import: "namedExport",
+    } satisfies FullConfig<TsAppSpec.ExtImport>;
   }
 
-  throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`)
+  throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`);
 }
 
 export function getEntity(entity: EntityType) {
   switch (entity) {
-    case 'task':
-      return 'Task'
-    case 'user':
-      return 'User'
-    case 'social-user':
-      return 'SocialUser'
+    case "task":
+      return "Task";
+    case "user":
+      return "User";
+    case "social-user":
+      return "SocialUser";
     default:
-      throw new Error(`Unknown entity: ${entity}`)
+      throw new Error(`Unknown entity: ${entity}`);
   }
 }
 
 export function getEntities(scope: ConfigType): string[] {
-  if (scope === 'minimal') {
-    return []
+  if (scope === "minimal") {
+    return [];
   }
 
-  return ENTITY_TYPES.map((entity) => getEntity(entity))
+  return ENTITY_TYPES.map((entity) => getEntity(entity));
 }

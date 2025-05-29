@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test } from 'vitest'
-import { GET_TS_APP_SPEC } from '../src/_private.js'
-import * as AppSpec from '../src/appSpec.js'
+import { describe, expect, test } from "vitest";
+import { GET_TS_APP_SPEC } from "../src/_private.js";
+import * as AppSpec from "../src/appSpec.js";
 import {
   makeRefParser,
   mapApi,
@@ -13,28 +13,28 @@ import {
   mapPage,
   mapRoute,
   mapTsAppSpecToAppSpecDecls,
-} from '../src/mapTsAppSpecToAppSpecDecls.js'
-import * as Fixtures from './testFixtures.js'
+} from "../src/mapTsAppSpecToAppSpecDecls.js";
+import * as Fixtures from "./testFixtures.js";
 
-describe('mapTsAppSpecToAppSpecDecls', () => {
-  test('should map full app using mapping functions correctly', () => {
-    const { appConfigName, app } = Fixtures.createApp('full')
-    const tsAppSpec = app[GET_TS_APP_SPEC]()
-    const entities = Fixtures.getEntities('full')
-    const entityRefParser = makeRefParser('Entity', entities)
+describe("mapTsAppSpecToAppSpecDecls", () => {
+  test("should map full app using mapping functions correctly", () => {
+    const { appConfigName, app } = Fixtures.createApp("full");
+    const tsAppSpec = app[GET_TS_APP_SPEC]();
+    const entities = Fixtures.getEntities("full");
+    const entityRefParser = makeRefParser("Entity", entities);
     const routeRefParser = makeRefParser(
-      'Route',
-      Fixtures.getRouteConfigs().map((r) => r.name)
-    )
+      "Route",
+      Fixtures.getRouteConfigs().map((r) => r.name),
+    );
     const pageRefParser = makeRefParser(
-      'Page',
-      Fixtures.getPageConfigs().map((p) => p.name)
-    )
-    const appDeclType = 'App'
+      "Page",
+      Fixtures.getPageConfigs().map((p) => p.name),
+    );
+    const appDeclType = "App";
 
-    const result = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities)
+    const result = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities);
 
-    const appDecl = getDecl(result, appDeclType, appConfigName)
+    const appDecl = getDecl(result, appDeclType, appConfigName);
     expect(appDecl).toStrictEqual({
       declType: appDeclType,
       declName: appConfigName,
@@ -47,92 +47,92 @@ describe('mapTsAppSpecToAppSpecDecls', () => {
         tsAppSpec.client,
         tsAppSpec.db,
         tsAppSpec.emailSender,
-        tsAppSpec.websocket
+        tsAppSpec.websocket,
       ),
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'Page',
+      declType: "Page",
       decls: tsAppSpec.pages,
       expectedMapping: {
         function: mapPage,
       },
       actualMapping: result,
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'Route',
+      declType: "Route",
       decls: tsAppSpec.routes,
       expectedMapping: {
         function: mapRoute,
         extraArgs: [pageRefParser],
       },
       actualMapping: result,
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'Query',
+      declType: "Query",
       decls: tsAppSpec.queries,
       expectedMapping: {
         function: mapOperation,
         extraArgs: [entityRefParser],
       },
       actualMapping: result,
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'Action',
+      declType: "Action",
       decls: tsAppSpec.actions,
       expectedMapping: {
         function: mapOperation,
         extraArgs: [entityRefParser],
       },
       actualMapping: result,
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'Crud',
+      declType: "Crud",
       decls: tsAppSpec.cruds,
       expectedMapping: {
         function: mapCrud,
         extraArgs: [entityRefParser],
       },
       actualMapping: result,
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'ApiNamespace',
+      declType: "ApiNamespace",
       decls: tsAppSpec.apiNamespaces,
       expectedMapping: {
         function: mapApiNamespace,
       },
       actualMapping: result,
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'Api',
+      declType: "Api",
       decls: tsAppSpec.apis,
       expectedMapping: {
         function: mapApi,
         extraArgs: [entityRefParser],
       },
       actualMapping: result,
-    })
+    });
     expectCorrectDeclMapping({
-      declType: 'Job',
+      declType: "Job",
       decls: tsAppSpec.jobs,
       expectedMapping: {
         function: mapJob,
         extraArgs: [entityRefParser],
       },
       actualMapping: result,
-    })
-  })
+    });
+  });
 
-  test('should map minimal app using mapping functions correctly', () => {
-    const { appConfigName, app } = Fixtures.createApp('minimal')
-    const tsAppSpec = app[GET_TS_APP_SPEC]()
-    const entities = Fixtures.getEntities('minimal')
-    const entityRefParser = makeRefParser('Entity', entities)
-    const routeRefParser = makeRefParser('Route', [])
-    const appDeclType = 'App'
+  test("should map minimal app using mapping functions correctly", () => {
+    const { appConfigName, app } = Fixtures.createApp("minimal");
+    const tsAppSpec = app[GET_TS_APP_SPEC]();
+    const entities = Fixtures.getEntities("minimal");
+    const entityRefParser = makeRefParser("Entity", entities);
+    const routeRefParser = makeRefParser("Route", []);
+    const appDeclType = "App";
 
-    const result = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities)
+    const result = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities);
 
-    const appDecl = getDecl(result, appDeclType, appConfigName)
+    const appDecl = getDecl(result, appDeclType, appConfigName);
     expect(appDecl).toStrictEqual({
       declType: appDeclType,
       declName: appConfigName,
@@ -145,10 +145,10 @@ describe('mapTsAppSpecToAppSpecDecls', () => {
         tsAppSpec.client,
         tsAppSpec.db,
         tsAppSpec.emailSender,
-        tsAppSpec.websocket
+        tsAppSpec.websocket,
       ),
-    })
-  })
+    });
+  });
 
   function expectCorrectDeclMapping({
     declType,
@@ -156,24 +156,24 @@ describe('mapTsAppSpecToAppSpecDecls', () => {
     expectedMapping,
     actualMapping,
   }: {
-    declType: keyof AppSpec.DeclTypeToValue
-    decls: Map<string, any>
+    declType: keyof AppSpec.DeclTypeToValue;
+    decls: Map<string, any>;
     expectedMapping: {
-      function: (item: any, ...args: any[]) => any
-      extraArgs?: any[]
-    }
-    actualMapping: AppSpec.Decl[]
+      function: (item: any, ...args: any[]) => any;
+      extraArgs?: any[];
+    };
+    actualMapping: AppSpec.Decl[];
   }): void {
-    const { function: mappingFn, extraArgs = [] } = expectedMapping
+    const { function: mappingFn, extraArgs = [] } = expectedMapping;
     decls.forEach((config, name) => {
-      const resultDecl = getDecl(actualMapping, declType, name)
+      const resultDecl = getDecl(actualMapping, declType, name);
 
       expect(resultDecl).toStrictEqual({
         declType,
         declName: name,
         declValue: mappingFn(config, ...extraArgs),
-      })
-    })
+      });
+    });
   }
 
   /**
@@ -182,13 +182,13 @@ describe('mapTsAppSpecToAppSpecDecls', () => {
   function getDecl<T extends keyof AppSpec.DeclTypeToValue>(
     decls: AppSpec.Decl[],
     declType: T,
-    declName: string
+    declName: string,
   ): AppSpec.GetDeclForType<T> | undefined {
     const decl = decls.find(
       (decl): decl is AppSpec.GetDeclForType<T> =>
-        decl.declType === declType && decl.declName === declName
-    )
+        decl.declType === declType && decl.declName === declName,
+    );
 
-    return decl
+    return decl;
   }
-})
+});
