@@ -142,7 +142,7 @@ jobs:
       - name: Download macOS binaries
         uses: actions/download-artifact@v4
         with:
-          pattern: wasp-darwin-*
+          pattern: wasp-cli-darwin-*
 
       - name: Unpack, create universal binary and pack
         run: |
