@@ -114,6 +114,7 @@ jobs:
       - uses: ./.github/actions/setup-haskell
         with:
           ghc-version: ${{ inputs.ghc-version }}
+          extra-cache-key: ${{ matrix.env.static && 'static' || null }}
 
       - uses: actions/setup-node@v4
         if: ${{ !matrix.env.skip-node-install }}
@@ -156,7 +157,7 @@ jobs:
           # Extract each architecture
           for arch in "${input_arch[@]}"; do
             mkdir "arch-$arch"
-            tar -xzf "wasp-${arch}.tar.gz" -C "arch-$arch"
+            tar -xzf "wasp-cli-${arch}/wasp-${arch}.tar.gz" -C "arch-$arch"
           done
 
           mkdir universal
