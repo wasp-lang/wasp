@@ -1,45 +1,60 @@
 import type * as md from "mdast";
 import { formatCode, FormatCodeOptions } from "./prettier";
-import { wrapInWordBoundaries } from "./regex";
+
+const CODE_BLOCK_META_REGEX = /([^\s=]+)(?:="([^"]*)")?/g;
+export function parseCodeBlockMetaString(
+  metaString: string | undefined,
+): Map<string, string | undefined> {
+  const result = new Map<string, string | undefined>();
+
+  if (!metaString) return result;
+
+  for (const [, key, value] of metaString.matchAll(CODE_BLOCK_META_REGEX)) {
+    result.set(key, value);
+  }
+  return result;
+}
+
+export function stringifyCodeBlockMetaString(
+  meta: Map<string, string | undefined>,
+): string {
+  return Array.from(meta.entries(), ([key, value]) =>
+    value ? `${key}="${value}"` : key,
+  ).join(" ");
+}
 
 /**
  * Creates a "check fn" for `unist-util-visit` that checks if a node is a code
  * block with a specific meta flag.
  */
-export function makeCheckForCodeWithMeta(metaFlag: string) {
-  // We wrap the string in word boundaries, so we don't match it as a substring
-  // of another word.
-  const metaFlagRegexp = wrapInWordBoundaries(metaFlag);
-
+export function makeCheckForCodeWithMeta(metaFlagName: string) {
   return (node: md.Nodes): node is md.Code & { meta: string } =>
-    node.type === "code" && node.meta && metaFlagRegexp.test(node.meta);
+    node.type === "code" &&
+    parseCodeBlockMetaString(node.meta).has(metaFlagName);
 }
 
 /**
  * Checks that the code block's language is supported. If not, it throws an error.
  */
-export function assertSupportedLanguage<
+export function assertCodeBlockIsInLanguage<
   Language extends string,
   CodeNode extends md.Code,
 >(
   node: CodeNode,
   supportedLanguages: readonly Language[],
 ): asserts node is CodeNode & { lang: Language } {
+  const throwLangError = (errorMessage: string) => {
+    const solutionMessage = `Expected code block to be in one of the following languages: ${supportedLanguages.join(", ")}.`;
+    throw new Error([errorMessage, solutionMessage].join("\n"));
+  };
+
   if (!node.lang) {
-    throwLangError("No language specified.", supportedLanguages);
+    throwLangError("No language specified.");
   }
 
   if (!(supportedLanguages as readonly string[]).includes(node.lang)) {
-    throwLangError(`Unsupported language: ${node.lang}.`, supportedLanguages);
+    throwLangError(`Found unexpected language: ${node.lang}.`);
   }
-}
-
-function throwLangError(
-  errorMessage: string,
-  supportedLanguages: readonly string[],
-): never {
-  const solutionMessage = `Please use one of: ${supportedLanguages.join(", ")}`;
-  throw new Error([errorMessage, solutionMessage].join("\n"));
 }
 
 export async function formatCodeBlock(

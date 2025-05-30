@@ -42,9 +42,11 @@ import * as ts from "typescript";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import {
-  assertSupportedLanguage,
+  assertCodeBlockIsInLanguage,
   formatCodeBlock,
   makeCheckForCodeWithMeta,
+  parseCodeBlockMetaString,
+  stringifyCodeBlockMetaString,
 } from "./util/code-blocks";
 
 const META_FLAG = "auto-js";
@@ -78,7 +80,7 @@ const autoJSCodePlugin: Plugin<[], md.Root> = () => async (tree, file) => {
     // Can't do async here, just store the transformation to run later.
     pendingCodeBlockTransforms.push(async () => {
       try {
-        assertSupportedLanguage(node, supportedLanguages);
+        assertCodeBlockIsInLanguage(node, supportedLanguages);
         const transformationInfo = LANGUAGE_TRANSFORMATIONS[node.lang];
 
         const jsCodeBlock = await makeFormattedJsCodeBlock(
@@ -152,20 +154,20 @@ function createTabbedCodeBlocks({
   };
 }
 
-// Taken from Docusaurus.
-// https://github.com/facebook/docusaurus/blob/v2.4.3/packages/docusaurus-theme-common/src/utils/codeBlockUtils.ts
-const CODE_BLOCK_TITLE_REGEX = /title=(?<quote>["'])(?<title>.*?)\1/;
-
 async function makeFormattedJsCodeBlock(
   originalNode: md.Code,
   transformationInfo: LanguageTransformationInfo,
 ): Promise<md.Code> {
+  const meta = parseCodeBlockMetaString(originalNode.meta);
+
   // Find the `title=` meta param and change the extension.
-  const newMeta = originalNode.meta?.replace(
-    CODE_BLOCK_TITLE_REGEX,
-    (_fullMatch, _quote, title) =>
-      `title=${JSON.stringify(transformExt(title, EXTENSION_TRANSFORMATIONS))}`,
-  );
+  const originalTitle = meta.get("title");
+  if (originalNode) {
+    const newTitle = transformExt(originalTitle, EXTENSION_TRANSFORMATIONS);
+    meta.set("title", newTitle);
+  }
+
+  const newMetaString = stringifyCodeBlockMetaString(meta);
 
   const newLang = transformationInfo.outputLang;
 
@@ -173,9 +175,9 @@ async function makeFormattedJsCodeBlock(
 
   const newNode = {
     ...originalNode,
-    value: newCode,
+    meta: newMetaString,
     lang: newLang,
-    meta: newMeta,
+    value: newCode,
   };
 
   const formattedNode = await formatCodeBlock(newNode, { parser: "babel" });

@@ -46,7 +46,6 @@
     "@docusaurus/module-type-aliases": "^3.7.0",
     "@docusaurus/tsconfig": "^3.7.0",
     "@types/mdast": "^4.0.4",
-    "escape-string-regexp": "^5.0.0",
     "mdast": "^2.3.2",
     "mdast-util-mdx": "^3.0.0",
     "prettier": "^3.0.3",

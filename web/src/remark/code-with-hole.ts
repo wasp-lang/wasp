@@ -25,12 +25,12 @@ import type * as md from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import {
-  assertSupportedLanguage,
+  assertCodeBlockIsInLanguage,
   makeCheckForCodeWithMeta,
 } from "./util/code-blocks";
 
 const META_FLAG = "with-hole";
-const HOLE_IDENTIFIER_REGEX = /\b\$HOLE\$\b/g;
+const HOLE_IDENTIFIER_REGEX = "$HOLE$";
 const HOLE_REPLACEMENT = "/* ... */";
 
 const SUPPORTED_LANGS = ["js", "jsx", "ts", "tsx"] as const;
@@ -40,7 +40,7 @@ const isCodeWithHoleFlag = makeCheckForCodeWithMeta(META_FLAG);
 const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
   visit(tree, isCodeWithHoleFlag, (node) => {
     try {
-      assertSupportedLanguage(node, SUPPORTED_LANGS);
+      assertCodeBlockIsInLanguage(node, SUPPORTED_LANGS);
 
       // Replace hole with ellipsis.
       node.value = node.value.replaceAll(
