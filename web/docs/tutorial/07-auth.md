@@ -323,7 +323,7 @@ const MainPage = () => {
   // ...
   return (
     <div>
-      {hole}
+      {$HOLE$}
       // highlight-next-line
       <button onClick={logout}>Logout</button>
     </div>
