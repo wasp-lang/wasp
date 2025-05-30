@@ -145,7 +145,7 @@ jobs:
         with:
           pattern: wasp-cli-darwin-*
 
-      - run: ls -R .
+      - run: tree .
 
       - name: Unpack, create universal binary and pack
         run: |
