@@ -173,7 +173,7 @@ jobs:
           # Pack back up
           tar -czf wasp-darwin-universal.tar.gz -C universal .
 
-      - run: ls -R .
+      - run: tree .
 
       - uses: actions/upload-artifact@v4
         with:
