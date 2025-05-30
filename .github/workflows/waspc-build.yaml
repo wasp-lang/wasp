@@ -145,6 +145,8 @@ jobs:
         with:
           pattern: wasp-cli-darwin-*
 
+      - run: ls -R .
+
       - name: Unpack, create universal binary and pack
         run: |
           set -ex # Fail on error and print each command
