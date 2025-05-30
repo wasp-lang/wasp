@@ -161,7 +161,7 @@ jobs:
           # Extract each architecture
           for arch in "${input_arch[@]}"; do
             mkdir "arch-$arch"
-            tar -xzf "wasp-cli-${arch}.tar.gz" -C "arch-$arch"
+            tar -xzf "wasp-cli-${arch}/wasp-${arch}.tar.gz" -C "arch-$arch"
           done
 
           mkdir universal
