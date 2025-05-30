@@ -21,6 +21,7 @@ WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
 BUILD_HS_CMD="cabal build all"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
 BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
+BUILD_ALL_STATIC_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD --enable-executable-static"
 
 INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 
@@ -56,8 +57,8 @@ ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
 
 echo_and_eval() {
-  echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
-  eval $1
+  echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n"
+  eval "$1"
 }
 
 echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
@@ -78,6 +79,8 @@ print_usage() {
     "Builds the Haskell project."
   print_usage_cmd "build:all" \
     "Builds the Haskell project + all sub-projects (i.e. TS packages)."
+  print_usage_cmd "build:all:static" \
+    "Builds the Haskell project statically + all sub-projects (i.e. TS packages). Only useful for release builds. Needs to be run on a musl-based Linux distribution (e.g. Alpine)."
   print_usage_cmd "build:packages" \
     "Builds the TypeScript projects under packages/."
   echo ""
@@ -138,6 +141,9 @@ case $COMMAND in
     ;;
   build:all)
     echo_and_eval "$BUILD_ALL_CMD"
+    ;;
+  build:all:static)
+    echo_and_eval "$BUILD_ALL_STATIC_CMD"
     ;;
   build:packages)
     echo_and_eval "$WASP_PACKAGES_COMPILE"
