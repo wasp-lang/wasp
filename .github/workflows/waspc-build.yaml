@@ -145,10 +145,6 @@ jobs:
         with:
           pattern: wasp-cli-darwin-*
 
-      - run: |
-          brew install tree
-          tree .
-
       - name: Unpack, create universal binary and pack
         run: |
           set -ex # Fail on error and print each command
@@ -172,8 +168,6 @@ jobs:
 
           # Pack back up
           tar -czf wasp-darwin-universal.tar.gz -C universal .
-
-      - run: tree .
 
       - uses: actions/upload-artifact@v4
         with:
