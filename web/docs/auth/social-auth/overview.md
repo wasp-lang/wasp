@@ -1,5 +1,6 @@
 ---
 title: Overview
+title-llm: Social Auth Overview
 ---
 
 import { SocialAuthGrid } from './SocialAuthGrid';
