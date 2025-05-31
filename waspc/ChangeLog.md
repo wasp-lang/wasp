@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.5
+
+### 🐞 Bug fixes
+
+- Pins down the version of tanstack/react-query to exactly `4.36.1` instead of `^4.29.0`, to avoid the issue with the latest `4.39.0` release that fails to import in Wasp.
+
 ## 0.16.4
 
 ### 🐞 Bug fixes
