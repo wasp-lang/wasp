@@ -1,6 +1,14 @@
 import type * as md from "mdast";
 import { formatCode, FormatCodeOptions } from "./prettier";
 
+/*
+  A code block's meta string format is similar to HTML attributes: a
+  space-separated list of either a key-value pair `name="value"`, or a boolean
+  key `name` without a value.
+
+  This regex is fairly simple, only supporting double quotes for values, and
+  not allowing for escaped quotes or spaces.
+*/
 const CODE_BLOCK_META_REGEX = /([^\s=]+)(?:="([^"]*)")?/g;
 export function parseCodeBlockMetaString(
   metaString: string,
