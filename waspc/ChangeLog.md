@@ -29,6 +29,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 
 - Wasp now supports `onAfterEmailVerified` auth hooks! You can use this hook to run custom logic after a user has verified their email.
 - Auth: you can now use Slack as a social auth provider (by @scorpil).
+- You can now return Prisma `Decimal`s from your Queries and Actions. ([#2701](https://github.com/wasp-lang/wasp/pull/2701))
 
 ### 🐞 Bug fixes
 
