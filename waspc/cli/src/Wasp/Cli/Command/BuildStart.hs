@@ -44,8 +44,6 @@ buildStart :: Command ()
 buildStart = do
   InWaspProject waspProjectDir <- require
 
-  void build
-
   chan <- liftIO newChan
 
   let buildDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
