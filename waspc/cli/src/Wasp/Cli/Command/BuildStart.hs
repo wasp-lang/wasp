@@ -5,7 +5,6 @@ where
 
 import Control.Concurrent (Chan, newChan)
 import Control.Concurrent.Async (race)
-import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath ((</>))
@@ -14,7 +13,6 @@ import System.Exit (ExitCode (ExitFailure, ExitSuccess))
 import System.Process (proc)
 import System.Random (Random (randoms), RandomGen, newStdGen)
 import Wasp.Cli.Command (Command, require)
-import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject))
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
