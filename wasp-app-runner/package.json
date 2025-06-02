@@ -1,0 +1,24 @@
+{
+  "name": "wasp-app-runner",
+  "version": "0.0.3",
+  "type": "module",
+  "bin": {
+    "run-wasp-app": "bin/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "install:global": "npm run build && npm install -g",
+    "prepublishOnly": "npm ci && npm run build",
+    "start": "npm run build && node ./bin/index.js"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^13.1.0",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.12",
+    "typescript": "^5.8.3"
+  }
+}
