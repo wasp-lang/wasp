@@ -238,10 +238,10 @@ Here's an example of a seed function that imports an Action:
   <TabItem value="ts" label="TypeScript">
     ```ts
     import { createTask } from './actions.js'
-    import { type DbSeedFn } from 'wasp/server'
+    import type { DbSeedFn } from 'wasp/server'
     import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
-    import { type AuthUser } from 'wasp/auth'
-    import { PrismaClient } from '@prisma/client'
+    import type { AuthUser } from 'wasp/auth'
+    import type { PrismaClient } from 'wasp/server'
 
     export const devSeedSimple: DbSeedFn = async (prisma) => {
       const user = await createUser(prisma, {
@@ -368,8 +368,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
     ```
 
     ```ts title="src/prisma.ts"
-
-import { PrismaClient } from '@prisma/client'
+    import { PrismaClient } from '@prisma/client'
 
     export const setUpPrisma = () => {
       const prisma = new PrismaClient({
