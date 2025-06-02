@@ -1,52 +1,52 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from "@playwright/test";
 import {
   generateRandomCredentials,
   performEmailVerification,
   performLogin,
   performSignup,
-} from './helpers'
+} from "./helpers";
 
-test.describe('prisma setup fn', () => {
-  const { email, password } = generateRandomCredentials()
+test.describe("prisma setup fn", () => {
+  const { email, password } = generateRandomCredentials();
 
-  test.describe.configure({ mode: 'serial' })
+  test.describe.configure({ mode: "serial" });
 
   test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage()
+    const page = await browser.newPage();
 
     await performSignup(page, {
       email,
       password,
-    })
+    });
 
-    await expect(page.locator('body')).toContainText(
-      `You've signed up successfully! Check your email for the confirmation link.`
-    )
+    await expect(page.locator("body")).toContainText(
+      `You've signed up successfully! Check your email for the confirmation link.`,
+    );
 
-    await performEmailVerification(page, email)
-  })
+    await performEmailVerification(page, email);
+  });
 
-  test('prisma setup hook hides a specific task', async ({ page }) => {
+  test("prisma setup hook hides a specific task", async ({ page }) => {
     await performLogin(page, {
       email,
       password,
-    })
+    });
 
-    await expect(page).toHaveURL('/profile')
+    await expect(page).toHaveURL("/profile");
 
-    await page.goto('/')
+    await page.goto("/");
 
     // Create a new task that will be hidden by the Prisma setup function
-    const specificTask = 'hidden by setUpPrisma'
-    await page.locator("input[type='text']").fill(specificTask)
-    await page.getByText('Create new task').click()
+    const specificTask = "hidden by setUpPrisma";
+    await page.locator("input[type='text']").fill(specificTask);
+    await page.getByText("Create new task").click();
 
     // Check that the save is submitted
-    await expect(page.locator("input[type='text']")).toHaveValue('')
+    await expect(page.locator("input[type='text']")).toHaveValue("");
 
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState("networkidle");
 
-    const fullTaskText = `${specificTask} by ${email}`
-    await expect(page.locator('body')).not.toHaveText(fullTaskText)
-  })
-})
+    const fullTaskText = `${specificTask} by ${email}`;
+    await expect(page.locator("body")).not.toHaveText(fullTaskText);
+  });
+});

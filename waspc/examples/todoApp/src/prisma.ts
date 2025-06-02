@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
 export const setUpPrisma = () => {
   const prisma = new PrismaClient({
@@ -10,13 +10,13 @@ export const setUpPrisma = () => {
         async findMany({ args, query }) {
           args.where = {
             ...args.where,
-            description: { not: { contains: 'hidden by setUpPrisma' } },
-          }
-          return query(args)
+            description: { not: { contains: "hidden by setUpPrisma" } },
+          };
+          return query(args);
         },
       },
     },
-  })
+  });
 
-  return prisma
-}
+  return prisma;
+};
