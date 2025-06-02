@@ -46,7 +46,7 @@ import {
   formatCodeBlock,
   makeCheckForCodeWithMeta,
   parseCodeBlockMetaString,
-  stringifyCodeBlockMetaString,
+  stringifyCodeBlockMeta,
 } from "./util/code-blocks";
 
 const META_FLAG = "auto-js";
@@ -167,7 +167,7 @@ async function makeFormattedJsCodeBlock(
     meta.set("title", newTitle);
   }
 
-  const newMetaString = stringifyCodeBlockMetaString(meta);
+  const newMetaString = stringifyCodeBlockMeta(meta);
 
   const newLang = transformationInfo.outputLang;
 

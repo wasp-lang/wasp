@@ -23,7 +23,7 @@ export function parseCodeBlockMetaString(
   return result;
 }
 
-export function stringifyCodeBlockMetaString(
+export function stringifyCodeBlockMeta(
   meta: Map<string, string | undefined>,
 ): string {
   return Array.from(meta.entries(), ([key, value]) =>
