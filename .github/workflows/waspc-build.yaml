@@ -69,7 +69,7 @@ jobs:
             # https://github.com/actions/setup-node/issues/1293
             # To work around this, we use the alpine variant of the official node
             # image, which already has a working Node.js version installed.
-            container: node:${{ inputs.node-version }}-alpine
+            container: node:${{ inputs.node-version }}-alpine3.21
             skip-node-install: true
             static: true
             install-deps: |
