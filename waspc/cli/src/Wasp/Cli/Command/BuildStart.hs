@@ -1,10 +1,8 @@
-module Wasp.Cli.Command.BuildStart
-  ( buildStart,
-  )
-where
+module Wasp.Cli.Command.BuildStart (buildStart) where
 
 import Control.Concurrent (Chan, newChan)
-import Control.Concurrent.Async (race)
+import Control.Concurrent.Async (concurrently, race)
+import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath ((</>))
@@ -17,6 +15,7 @@ import Wasp.Cli.Command.Require (InWaspProject (InWaspProject))
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv, runProcessAsJob)
 import Wasp.Project.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
 
@@ -26,17 +25,14 @@ clientPort = 3000
 serverPort :: Integer
 serverPort = 3001
 
-waspAppName :: String
-waspAppName = "wasp-app-example"
-
 clientUrl :: String
 clientUrl = "http://localhost:" ++ show clientPort
 
 serverUrl :: String
 serverUrl = "http://localhost:" ++ show serverPort
 
-postgresUrl :: String
-postgresUrl = "postgresql://postgres:devpass1234@localhost:5433/" ++ waspAppName ++ "-db"
+postgresUrl :: String -> String
+postgresUrl waspAppName = "postgresql://postgres:devpass1234@localhost:5433/" ++ waspAppName ++ "-db"
 
 buildStart :: Command ()
 buildStart = do
@@ -46,38 +42,67 @@ buildStart = do
 
   let buildDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
 
-  result <-
+  void $
     liftIO $
-      race
-        (buildAndStartClient buildDir chan)
-        (buildAndStartServer buildDir chan)
+      concurrently
+        (readJobMessagesAndPrintThemPrefixed chan)
+        ( buildClient buildDir chan
+            >> buildServer buildDir "wasp-app-name" chan
+        )
 
-  let printError = either error return
-  either printError printError result
+  void $
+    liftIO $
+      concurrently
+        (readJobMessagesAndPrintThemPrefixed chan)
+        ( race
+            (startClient buildDir chan)
+            (startServer "wasp-app-name" chan)
+        )
 
-buildAndStartClient :: SP.Path SP.System SP.Abs (SP.Dir ProjectRootDir) -> Chan J.JobMessage -> IO (Either String ())
-buildAndStartClient buildDir chan =
-  handleExitCode (buildClientJob chan) (("Building the client failed with exit code: " ++) . show)
-    `chain` handleExitCode (startClientJob chan) (("Serving the client failed with exit code: " ++) . show)
+buildClient :: SP.Path SP.System SP.Abs (SP.Dir ProjectRootDir) -> Chan J.JobMessage -> IO ()
+buildClient buildDir chan =
+  runNodeCommandAsJobWithExtraEnv [("REACT_APP_API_URL", serverUrl)] webAppDir "npm" ["run", "build"] J.WebApp chan
+    >>= tagErrorExit (\code -> "Building the client failed with exit code: " ++ show code)
   where
     webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir
 
-    buildClientJob = runNodeCommandAsJobWithExtraEnv [("REACT_APP_API_URL", serverUrl)] webAppDir "npm" ["run", "build"] J.WebApp
-
-    startClientJob =
-      runNodeCommandAsJob webAppDir "npm" ["exec", "vite", "preview", "--port", show clientPort] J.WebApp
-
-buildAndStartServer :: SP.Path' SP.Abs (SP.Dir ProjectRootDir) -> Chan J.JobMessage -> IO (Either String ())
-buildAndStartServer buildDir chan = do
-  jwtSecret <- randomSecret 32 <$> newStdGen
-  handleExitCode (dockerBuild waspAppName chan) (("Building the server failed with exit code: " ++) . show)
-    `chain` handleExitCode (dockerRun waspAppName jwtSecret chan) (("Running the server failed with exit code: " ++) . show)
+startClient :: SP.Path SP.System SP.Abs (SP.Dir ProjectRootDir) -> Chan J.JobMessage -> IO ()
+startClient buildDir chan =
+  runNodeCommandAsJob webAppDir "npm" ["exec", "vite", "preview", "--port", show clientPort] J.WebApp chan
+    >>= tagErrorExit (\code -> "Serving the client failed with exit code: " ++ show code)
   where
-    -- Turns a list of pairs into command line flags.
-    flags = concatMap (\(name, value) -> ["--" ++ name, value])
-    -- Turns a list of pairs into environment variables for the Docker run command.
-    envFlags = concatMap (\(name, value) -> ["--env", name ++ "=" ++ value])
+    webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir
 
+buildServer :: SP.Path' SP.Abs (SP.Dir ProjectRootDir) -> String -> Chan J.JobMessage -> IO ()
+buildServer buildDir waspAppName chan =
+  runProcessAsJob (System.Process.proc "docker" (["build"] ++ flags [("tag", waspAppName)] ++ [SP.fromAbsDir buildDir])) J.Server chan
+    >>= tagErrorExit (\code -> "Building the server failed with exit code: " ++ show code)
+
+startServer :: String -> Chan J.JobMessage -> IO ()
+startServer waspAppName chan =
+  do
+    jwtSecret <- randomSecret 32 <$> newStdGen
+    runProcessAsJob
+      ( proc
+          "docker"
+          ( ["run", "--rm"]
+              ++ flags
+                [ ("env-file", ".env.server"),
+                  ("network", "host")
+                ]
+              ++ envFlags
+                [ ("DATABASE_URL", postgresUrl waspAppName),
+                  ("WASP_WEB_CLIENT_URL", clientUrl),
+                  ("WASP_SERVER_URL", serverUrl),
+                  ("JWT_SECRET", jwtSecret)
+                ]
+              ++ [waspAppName]
+          )
+      )
+      J.Server
+      chan
+      >>= tagErrorExit (\code -> "Running the server failed with exit code: " ++ show code)
+  where
     -- Generates a random alphanumeric secret of the specified length.
     -- Uses ASCII alphanumeric characters (uppercase, lowercase, and digits).
     randomSecret :: RandomGen g => Int -> g -> String
@@ -86,34 +111,16 @@ buildAndStartServer buildDir chan = do
       where
         isAlphaNum c = isAsciiUpper c || isAsciiLower c || isDigit c
 
-    dockerBuild name = runProcessAsJob (System.Process.proc "docker" ["build", "--tag", name, show buildDir]) J.Server
+-- Turns a list of pairs into command line flags.
+flags :: [(String, String)] -> [String]
+flags = concatMap (\(name, value) -> ["--" ++ name, value])
 
-    dockerRun name jwtSecret =
-      runProcessAsJob
-        ( System.Process.proc
-            "docker"
-            ( ["run", "--rm"]
-                ++ flags [("env-file", ".env.server"), ("network", "host")]
-                ++ envFlags [("DATABASE_URL", postgresUrl), ("WASP_WEB_CLIENT_URL", clientUrl), ("WASP_SERVER_URL", serverUrl), ("JWT_SECRET", jwtSecret)]
-                ++ [name]
-            )
-        )
-        J.Server
+-- Turns a list of pairs into environment variables for the Docker run command.
+envFlags :: [(String, String)] -> [String]
+envFlags = concatMap (\(name, value) -> ["--env", name ++ "=" ++ value])
 
--- Turns an IO ExitCode into an IO Either with an error message.
-handleExitCode :: IO ExitCode -> (Int -> String) -> IO (Either String ())
-handleExitCode action f = do
-  fromExitCode f <$> action
-
--- Runs the second action only after the first one ends successfully.
-chain :: IO (Either String ()) -> IO (Either String ()) -> IO (Either String ())
-chain action1 action2 = do
-  result1 <- action1
-  case result1 of
-    Left err -> pure $ Left err
-    Right _ -> action2
-
--- Turns an ExitCode into an Either (failures are converted to a String).
-fromExitCode :: (Int -> String) -> ExitCode -> Either String ()
-fromExitCode _ ExitSuccess = Right ()
-fromExitCode f (ExitFailure code) = Left $ f code
+tagErrorExit :: (Int -> String) -> ExitCode -> IO ()
+tagErrorExit f exitCode =
+  case exitCode of
+    ExitSuccess -> return ()
+    ExitFailure code -> error $ f code
