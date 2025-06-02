@@ -162,7 +162,7 @@ async function makeFormattedJsCodeBlock(
 
   // Find the `title=` meta param and change the extension.
   const originalTitle = meta.get("title");
-  if (originalNode) {
+  if (originalTitle) {
     const newTitle = transformExt(originalTitle, EXTENSION_TRANSFORMATIONS);
     meta.set("title", newTitle);
   }
