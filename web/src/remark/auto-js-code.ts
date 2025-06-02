@@ -158,7 +158,7 @@ async function makeFormattedJsCodeBlock(
   originalNode: md.Code,
   transformationInfo: LanguageTransformationInfo,
 ): Promise<md.Code> {
-  const meta = parseCodeBlockMetaString(originalNode.meta);
+  const meta = parseCodeBlockMetaString(originalNode.meta!);
 
   // Find the `title=` meta param and change the extension.
   const originalTitle = meta.get("title");

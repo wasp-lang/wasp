@@ -3,7 +3,7 @@ import { formatCode, FormatCodeOptions } from "./prettier";
 
 const CODE_BLOCK_META_REGEX = /([^\s=]+)(?:="([^"]*)")?/g;
 export function parseCodeBlockMetaString(
-  metaString: string | undefined,
+  metaString: string,
 ): Map<string, string | undefined> {
   const result = new Map<string, string | undefined>();
 
@@ -30,6 +30,7 @@ export function stringifyCodeBlockMetaString(
 export function makeCheckForCodeWithMeta(metaFlagName: string) {
   return (node: md.Nodes): node is md.Code & { meta: string } =>
     node.type === "code" &&
+    node.meta &&
     parseCodeBlockMetaString(node.meta).has(metaFlagName);
 }
 
