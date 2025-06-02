@@ -8,8 +8,6 @@ import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 
 
-import './polyfill.js'
-
 const startServer = async () => {
   await startPgBoss()
 

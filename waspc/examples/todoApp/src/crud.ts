@@ -1,22 +1,22 @@
-import { type Task } from 'wasp/entities'
-import { HttpError } from 'wasp/server'
-import { tasks } from 'wasp/server/crud'
+import { type Task } from "wasp/entities";
+import { HttpError } from "wasp/server";
+import { tasks } from "wasp/server/crud";
 
 export const getTask = (async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, 'You must be logged in to view a task.')
+    throw new HttpError(401, "You must be logged in to view a task.");
   }
   return context.entities.Task.findUnique({
     where: { id: args.id, user: { id: context.user.id } },
     include: {
       user: {},
     },
-  })
-}) satisfies tasks.GetQuery<{ id: Task['id'] }, {}>
+  });
+}) satisfies tasks.GetQuery<{ id: Task["id"] }, {}>;
 
 export const getAllTasks = (async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, 'You must be logged in to view tasks.')
+    throw new HttpError(401, "You must be logged in to view tasks.");
   }
   return context.entities.Task.findMany({
     where: {
@@ -24,7 +24,7 @@ export const getAllTasks = (async (args, context) => {
         id: context.user.id,
       },
     },
-    orderBy: { id: 'desc' },
+    orderBy: { id: "desc" },
     select: {
       id: true,
       description: true,
@@ -43,15 +43,15 @@ export const getAllTasks = (async (args, context) => {
         },
       },
     },
-  })
-}) satisfies tasks.GetAllQuery<{}, {}>
+  });
+}) satisfies tasks.GetAllQuery<{}, {}>;
 
 export const createTask = (async (args, context) => {
   if (!context.user) {
-    throw new HttpError(401, 'You must be logged in to create a task.')
+    throw new HttpError(401, "You must be logged in to create a task.");
   }
   if (!args.description) {
-    throw new HttpError(400, 'Task description is required.')
+    throw new HttpError(400, "Task description is required.");
   }
   return context.entities.Task.create({
     data: {
@@ -62,5 +62,5 @@ export const createTask = (async (args, context) => {
         },
       },
     },
-  })
-}) satisfies tasks.CreateAction<{ description: Task['description'] }, Task>
+  });
+}) satisfies tasks.CreateAction<{ description: Task["description"] }, Task>;

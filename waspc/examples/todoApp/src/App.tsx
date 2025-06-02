@@ -1,23 +1,23 @@
-import { Outlet } from 'react-router-dom'
-import { env } from 'wasp/client'
-import { logout, useAuth } from 'wasp/client/auth'
-import { getDate, useQuery } from 'wasp/client/operations'
-import { Link } from 'wasp/client/router'
-import { useSocket } from 'wasp/client/webSocket'
+import { Outlet } from "react-router-dom";
+import { env } from "wasp/client";
+import { logout, useAuth } from "wasp/client/auth";
+import { getDate, useQuery } from "wasp/client/operations";
+import { Link } from "wasp/client/router";
+import { useSocket } from "wasp/client/webSocket";
 
-import './Main.css'
-import { getName } from './user'
+import "./Main.css";
+import { getName } from "./user";
 // Necessary to trigger type tests.
-import './rpcTests/operations/client'
+import "./rpcTests/operations/client";
 
 export function App() {
-  const { data: user } = useAuth()
-  const { data: date } = useQuery(getDate)
-  const { isConnected } = useSocket()
+  const { data: user } = useAuth();
+  const { data: date } = useQuery(getDate);
+  const { isConnected } = useSocket();
 
-  const connectionIcon = isConnected ? '🟢' : '🔴'
+  const connectionIcon = isConnected ? "🟢" : "🔴";
 
-  const appName = env.REACT_APP_NAME
+  const appName = env.REACT_APP_NAME;
 
   return (
     <div className="app border-spacing-2 p-4">
@@ -47,13 +47,18 @@ export function App() {
       <footer className="mt-8 text-center">Created with Wasp</footer>
 
       <label>
-        Go to:{' '}
-        <select defaultValue="" onChange={(e) => (window.location.href = e.target.value)}>
-          <option disabled value="">Select one</option>
+        Go to:{" "}
+        <select
+          defaultValue=""
+          onChange={(e) => (window.location.href = e.target.value)}
+        >
+          <option disabled value="">
+            Select one
+          </option>
           <option value="/">Main page</option>
           <option value="/serialization">Serialization Test</option>
         </select>
       </label>
     </div>
-  )
+  );
 }

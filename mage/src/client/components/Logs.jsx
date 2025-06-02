@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { useMemo, useState } from "react";
 import { Loader } from "./Loader";
 
 const DEFAULT_NUM_LOGS_TO_SHOW = 4;
@@ -56,9 +56,10 @@ export function Logs({ logs, status, onRetry }) {
           {status === "success" && (
             <div className="absolute inset-0 bg-green-500 opacity-[.15] z-0"></div>
           )}
-          {status === "error" || status === "cancelled" && (
-            <div className="absolute inset-0 bg-red-500 opacity-[.15] z-0"></div>
-          )}
+          {status === "error" ||
+            (status === "cancelled" && (
+              <div className="absolute inset-0 bg-red-500 opacity-[.15] z-0"></div>
+            ))}
 
           <div className="relative">
             <ToggleButton
@@ -72,19 +73,18 @@ export function Logs({ logs, status, onRetry }) {
 
           <div className="flex justify-between items-flex-start">
             <div className="flex-shrink-0 mr-3 mb-2 self-end">
-              {(status === "inProgress" || status === "pending") &&
-                <Loader />
-              }
+              {(status === "inProgress" || status === "pending") && <Loader />}
               {status === "success" && (
                 <div className="status-icon bg-green-500">
                   <CheckIcon className="w-4 h-4 text-white" />
                 </div>
               )}
-              {status === "error" || status === "cancelled" && (
-                <div className="status-icon bg-red-500">
-                  <XMarkIcon className="w-4 h-4 text-white" />
-                </div>
-              )}
+              {status === "error" ||
+                (status === "cancelled" && (
+                  <div className="status-icon bg-red-500">
+                    <XMarkIcon className="w-4 h-4 text-white" />
+                  </div>
+                ))}
             </div>
             {logs && (
               <pre className="flex-1 overflow-x-auto z-10">
@@ -95,18 +95,22 @@ export function Logs({ logs, status, onRetry }) {
                     key={i}
                     className="mb-2"
                     style={{
-                      opacity: logs.length <= DEFAULT_NUM_LOGS_TO_SHOW || showAllLogs
-                        ? 1
-                        : (i + 1) * (1 / DEFAULT_NUM_LOGS_TO_SHOW),
+                      opacity:
+                        logs.length <= DEFAULT_NUM_LOGS_TO_SHOW || showAllLogs
+                          ? 1
+                          : (i + 1) * (1 / DEFAULT_NUM_LOGS_TO_SHOW),
                     }}
                   >
                     {getEmoji(log) + " "}
                     {log}{" "}
-                    {i === (visibleLogs.length - 1) && (status === "error" || status === "cancelled" || status === "success") && (
-                      <button onClick={onRetry} className="button gray xs">
-                        Retry
-                      </button>
-                    )}
+                    {i === visibleLogs.length - 1 &&
+                      (status === "error" ||
+                        status === "cancelled" ||
+                        status === "success") && (
+                        <button onClick={onRetry} className="button gray xs">
+                          Retry
+                        </button>
+                      )}
                   </pre>
                 ))}
               </pre>
@@ -136,7 +140,10 @@ function ToggleButton({
   return (
     numberOfLogs > DEFAULT_NUM_LOGS_TO_SHOW && (
       <div className={className}>
-        <button onClick={toggleShowAllLogs} className="p-2 px-4 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300">
+        <button
+          onClick={toggleShowAllLogs}
+          className="p-2 px-4 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300"
+        >
           {showAllLogs ? "Collapse the logs" : "Expand the logs"}
         </button>
       </div>

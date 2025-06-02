@@ -1,16 +1,24 @@
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  PiGithubLogoDuotone,
+  PiMagicWandDuotone,
+  PiStarDuotone,
+} from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
-import { PiMagicWandDuotone, PiGithubLogoDuotone, PiStarDuotone } from "react-icons/pi";
 
-import { useAuth, GitHubSignInButton } from "wasp/client/auth";
-import { startGeneratingNewApp, useQuery, getProjectsByUser } from "wasp/client/operations";
+import { GitHubSignInButton, useAuth } from "wasp/client/auth";
+import {
+  getProjectsByUser,
+  startGeneratingNewApp,
+  useQuery,
+} from "wasp/client/operations";
 
+import { validProjectBrandColors } from "../components/Color";
+import { MyDialog } from "../components/Dialog";
 import { MyDropdown } from "../components/Dropdown";
 import { ExampleCard } from "../components/ExampleCard";
-import { FaqButton, Header, ProfileButton } from "../components/Header";
-import { validProjectBrandColors } from "../components/Color";
 import { Faq } from "../components/Faq";
-import { MyDialog } from "../components/Dialog";
+import { FaqButton, Header, ProfileButton } from "../components/Header";
 import { exampleIdeas } from "../examples";
 import { readReferrerFromLocalStorage } from "../storage";
 
@@ -18,7 +26,7 @@ const MainPage = () => {
   const [appName, setAppName] = useState("");
   const [appDesc, setAppDesc] = useState("");
   const [appPrimaryColor, setAppPrimaryColor] = useState(
-    validProjectBrandColors.find((color) => color.name === "sky")
+    validProjectBrandColors.find((color) => color.name === "sky"),
   );
 
   const [isAskForStarsModalOpen, setIsAskForStarsModalOpen] = useState(false);
@@ -29,7 +37,11 @@ const MainPage = () => {
   });
   const navigate = useNavigate();
   const { data: user } = useAuth();
-  const { data: userProjects } = useQuery(getProjectsByUser, {}, { enabled: !!user });
+  const { data: userProjects } = useQuery(
+    getProjectsByUser,
+    {},
+    { enabled: !!user },
+  );
 
   const availableCreativityLevels = useMemo(
     () => [
@@ -42,20 +54,22 @@ const MainPage = () => {
       {
         value: "balanced",
         name: "Balanced",
-        description: "Optimal trade-off between creativity and possible mistakes.",
+        description:
+          "Optimal trade-off between creativity and possible mistakes.",
         disabled: false,
       },
       {
         value: "creative",
         name: "Creative",
-        description: "Generates more creative code, but mistakes are more likely.",
+        description:
+          "Generates more creative code, but mistakes are more likely.",
         disabled: false,
       },
     ],
-    []
+    [],
   );
   const [creativityLevel, setCreativityLevel] = useState(
-    availableCreativityLevels.find((lvl) => lvl.value === "balanced")
+    availableCreativityLevels.find((lvl) => lvl.value === "balanced"),
   );
   const availableAuthMethods = useMemo(
     () => [
@@ -75,7 +89,7 @@ const MainPage = () => {
         disabled: true,
       },
     ],
-    []
+    [],
   );
   const [appAuthMethod, setAppAuthMethod] = useState(availableAuthMethods[0]);
 
@@ -92,13 +106,19 @@ const MainPage = () => {
         setAppName(appDetails.appName);
         setAppDesc(appDetails.appDesc);
         setAppPrimaryColor(
-          validProjectBrandColors.find((color) => color.name === appDetails.appPrimaryColor)
+          validProjectBrandColors.find(
+            (color) => color.name === appDetails.appPrimaryColor,
+          ),
         );
         setAppAuthMethod(
-          availableAuthMethods.find((method) => method.value === appDetails.appAuthMethod)
+          availableAuthMethods.find(
+            (method) => method.value === appDetails.appAuthMethod,
+          ),
         );
         setCreativityLevel(
-          availableCreativityLevels.find((level) => level.value === appDetails.appCreativityLevel)
+          availableCreativityLevels.find(
+            (level) => level.value === appDetails.appCreativityLevel,
+          ),
         );
         localStorage.removeItem("appDetails");
       }
@@ -118,7 +138,7 @@ const MainPage = () => {
           appPrimaryColor: appPrimaryColor.name,
           appAuthMethod: appAuthMethod.value,
           appCreativityLevel: creativityLevel.value,
-        })
+        }),
       );
     } catch (error) {
       console.error(error);
@@ -173,7 +193,10 @@ const MainPage = () => {
       </Header>
 
       <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
-      <AskForStarsModal isOpen={isAskForStarsModalOpen} setIsOpen={setIsAskForStarsModalOpen} />
+      <AskForStarsModal
+        isOpen={isAskForStarsModalOpen}
+        setIsOpen={setIsAskForStarsModalOpen}
+      />
 
       <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
         <div className="mb-6 flex flex-col gap-3">
@@ -210,7 +233,10 @@ The simpler and more specific the app is, the better the generated app will be."
           </div>
           <div className="grid md:grid-cols-3 gap-3">
             <div>
-              <label htmlFor="appPrimaryColor" className="text-slate-700 block mb-2">
+              <label
+                htmlFor="appPrimaryColor"
+                className="text-slate-700 block mb-2"
+              >
                 App brand color
               </label>
               <MyDropdown
@@ -220,7 +246,10 @@ The simpler and more specific the app is, the better the generated app will be."
               />
             </div>
             <div>
-              <label htmlFor="creativityLevel" className="text-slate-700 block mb-2">
+              <label
+                htmlFor="creativityLevel"
+                className="text-slate-700 block mb-2"
+              >
                 Creativity level
               </label>
               <MyDropdown
@@ -230,7 +259,10 @@ The simpler and more specific the app is, the better the generated app will be."
               />
             </div>
             <div>
-              <label htmlFor="appAuthMethod" className="text-slate-700 block mb-2">
+              <label
+                htmlFor="appAuthMethod"
+                className="text-slate-700 block mb-2"
+              >
                 Auth method
               </label>
               <MyDropdown
@@ -241,12 +273,17 @@ The simpler and more specific the app is, the better the generated app will be."
             </div>
           </div>
         </div>
-        <button className="button mr-2" disabled={currentStatus.status === "inProgress"}>
+        <button
+          className="button mr-2"
+          disabled={currentStatus.status === "inProgress"}
+        >
           Generate the app <PiMagicWandDuotone className="inline-block ml-1" />
         </button>
       </form>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4 text-slate-800">Some example ideas</h3>
+        <h3 className="text-xl font-semibold mb-4 text-slate-800">
+          Some example ideas
+        </h3>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
           {exampleIdeas.map((idea) => (
             <ExampleCard key={idea.name} idea={idea} useIdea={useIdea} />
@@ -270,10 +307,12 @@ export function AskForStarsModal({ isOpen, setIsOpen }) {
     >
       <div className="mt-6 space-y-2">
         <p className="text-base leading-relaxed text-gray-500">
-          Mage is completely <span className="font-semibold">free</span> and we cover all the costs.
+          Mage is completely <span className="font-semibold">free</span> and we
+          cover all the costs.
         </p>
         <p className="text-base leading-relaxed text-gray-500">
-          But if you enjoy using it, please consider starring the project on GitHub:
+          But if you enjoy using it, please consider starring the project on
+          GitHub:
         </p>
         <a
           href="https://github.com/wasp-lang/wasp"
@@ -281,8 +320,8 @@ export function AskForStarsModal({ isOpen, setIsOpen }) {
           className="flex items-center justify-center underline text-pink-600 "
         >
           <div className="mt-4 py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
-            <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on GitHub{" "}
-            <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
+            <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on
+            GitHub <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
           </div>
         </a>
       </div>
@@ -299,8 +338,8 @@ export function LoginModal({ isOpen, setIsOpen }) {
     >
       <div className="mt-6 space-y-5 ">
         <p className="text-base leading-relaxed text-center text-gray-500">
-          This tool is completely <span className="font-semibold">free</span>.<br /> Just sign in
-          with your GitHub Account.
+          This tool is completely <span className="font-semibold">free</span>.
+          <br /> Just sign in with your GitHub Account.
         </p>
         <GitHubSignInButton />
       </div>

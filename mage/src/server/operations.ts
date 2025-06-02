@@ -1,24 +1,24 @@
-import { checkPendingAppsJob } from "wasp/server/jobs";
 import { type Project, type User } from "wasp/entities";
 import { HttpError } from "wasp/server";
+import { checkPendingAppsJob } from "wasp/server/jobs";
 
 import {
-  type RegisterZipDownload,
-  type StartGeneratingNewApp,
   type CreateFeedback,
   type DeleteMyself,
   type GetAppGenerationResult,
-  type GetStats,
-  type GetProjects,
   type GetFeedback,
   type GetNumProjects,
+  type GetProjects,
   type GetProjectsByUser,
+  type GetStats,
+  type RegisterZipDownload,
+  type StartGeneratingNewApp,
 } from "wasp/server/operations";
 
-import { getNowInUTC } from "./utils.js";
 import type { Prisma } from "@prisma/client";
-import { generateLast24HoursData, generateLast30DaysData } from "./stats.js";
 import { AuthUser } from "wasp/auth";
+import { generateLast24HoursData, generateLast30DaysData } from "./stats.js";
+import { getNowInUTC } from "./utils.js";
 
 export const startGeneratingNewApp: StartGeneratingNewApp<
   {
@@ -38,7 +38,10 @@ export const startGeneratingNewApp: StartGeneratingNewApp<
     throw new HttpError(422, "App name is required.");
   }
   if (!/^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(args.appName)) {
-    throw new HttpError(422, "App name can only contain letters, numbers, dashes, or underscores.");
+    throw new HttpError(
+      422,
+      "App name can only contain letters, numbers, dashes, or underscores.",
+    );
   }
   if (!args.appDesc) {
     throw new HttpError(422, "App description is required.");
@@ -248,42 +251,48 @@ export const getStats = (async (args, context) => {
     },
     status: "success",
   };
-  const [totalGenerated, projectsAfterDownloadTracking, downloadedProjects, last30DaysProjects] =
-    await Promise.all([
-      Project.count({
-        where: {
-          ...filterOutExampleAppsCondition,
+  const [
+    totalGenerated,
+    projectsAfterDownloadTracking,
+    downloadedProjects,
+    last30DaysProjects,
+  ] = await Promise.all([
+    Project.count({
+      where: {
+        ...filterOutExampleAppsCondition,
+      },
+    }),
+    Project.count({
+      where: {
+        ...projectsAfterDownloadTrackingCondition,
+        ...filterOutExampleAppsCondition,
+      },
+    }),
+    Project.count({
+      where: {
+        ...projectsAfterDownloadTrackingCondition,
+        ...filterOutExampleAppsCondition,
+        zipDownloadedAt: {
+          not: null,
         },
-      }),
-      Project.count({
-        where: {
-          ...projectsAfterDownloadTrackingCondition,
-          ...filterOutExampleAppsCondition,
+      },
+    }),
+    Project.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
         },
-      }),
-      Project.count({
-        where: {
-          ...projectsAfterDownloadTrackingCondition,
-          ...filterOutExampleAppsCondition,
-          zipDownloadedAt: {
-            not: null,
-          },
-        },
-      }),
-      Project.findMany({
-        where: {
-          createdAt: {
-            gte: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
-          },
-          ...filterOutExampleAppsCondition,
-        },
-        select: {
-          createdAt: true,
-        },
-      }),
-    ]);
+        ...filterOutExampleAppsCondition,
+      },
+      select: {
+        createdAt: true,
+      },
+    }),
+  ]);
   const downloadRatio =
-    projectsAfterDownloadTracking > 0 ? downloadedProjects / projectsAfterDownloadTracking : 0;
+    projectsAfterDownloadTracking > 0
+      ? downloadedProjects / projectsAfterDownloadTracking
+      : 0;
 
   return {
     totalGenerated,
@@ -300,7 +309,10 @@ export const getNumProjects = (async (_args, context) => {
   return context.entities.Project.count();
 }) satisfies GetNumProjects<{}>;
 
-export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (_args, context) => {
+export const getProjectsByUser: GetProjectsByUser<void, Project[]> = async (
+  _args,
+  context,
+) => {
   if (!context.user) {
     throw new HttpError(401, "Not authorized");
   }

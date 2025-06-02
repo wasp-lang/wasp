@@ -14,6 +14,10 @@ app todoApp {
       // usernameAndPassword: {
       //  userSignupFields: import { userSignupFields } from "@src/auth/github",
       // },
+      slack: {
+        configFn: import { config } from "@src/auth/slack",
+        userSignupFields: import { userSignupFields } from "@src/auth/slack"
+      },
       discord: {
         configFn: import { config } from "@src/auth/discord",
         userSignupFields: import { userSignupFields } from "@src/auth/discord"

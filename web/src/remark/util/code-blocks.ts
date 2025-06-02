@@ -1,5 +1,5 @@
-import type * as md from 'mdast'
-import type { VFile } from 'vfile'
+import type * as md from "mdast";
+import type { VFile } from "vfile";
 
 /**
  * Creates a "check fn" for `unist-util-visit` that
@@ -7,7 +7,7 @@ import type { VFile } from 'vfile'
  */
 export function checkNodeIsCodeWithMeta(metaFlag: RegExp) {
   return (node: md.Nodes): node is md.Code & { meta: string } =>
-    node.type === 'code' && node.meta && metaFlag.test(node.meta)
+    node.type === "code" && node.meta && metaFlag.test(node.meta);
 }
 
 /**
@@ -18,19 +18,19 @@ export function checkNodeIsCodeWithMeta(metaFlag: RegExp) {
 export function assertSupportedLanguage<T extends string>(
   node: md.Code,
   file: VFile,
-  supportedLanguages: Set<T>
+  supportedLanguages: Set<T>,
 ): asserts node is md.Code & { lang: T } {
   if (!node.lang) {
     file.fail(
-      `No language specified. Please use one of: ${[...supportedLanguages].join(', ')}`,
-      { place: node.position }
-    )
+      `No language specified. Please use one of: ${[...supportedLanguages].join(", ")}`,
+      { place: node.position },
+    );
   }
 
   if (!(supportedLanguages as Set<string>).has(node.lang)) {
     file.fail(
-      `Unsupported language: ${node.lang}. Please use one of: ${[...supportedLanguages].join(', ')}`,
-      { place: node.position }
-    )
+      `Unsupported language: ${node.lang}. Please use one of: ${[...supportedLanguages].join(", ")}`,
+      { place: node.position },
+    );
   }
 }

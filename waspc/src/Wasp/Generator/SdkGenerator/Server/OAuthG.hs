@@ -14,7 +14,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider)
+import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider, slackAuthProvider)
 import Wasp.Generator.AuthProviders.OAuth
   ( OAuthAuthProvider,
     clientOAuthCallbackPath,
@@ -38,6 +38,7 @@ genOAuth auth
           genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|oneTimeCode.ts|],
           genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|provider.ts|]
         ]
+        <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)

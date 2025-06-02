@@ -1,10 +1,8 @@
-const { resolveProjectPath } = require('wasp/dev')
+const { resolveProjectPath } = require("wasp/dev");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}'),
-  ],
+  content: [resolveProjectPath("./src/**/*.{js,jsx,ts,tsx}")],
   corePlugins: {
     //preflight: false
   },
@@ -12,4 +10,4 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-}
+};

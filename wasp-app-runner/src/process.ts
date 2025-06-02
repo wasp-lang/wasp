@@ -1,5 +1,5 @@
-import readline from "readline";
 import { ChildProcess, spawn } from "child_process";
+import readline from "readline";
 import { createLogger } from "./logging.js";
 import type { EnvVars } from "./types.js";
 
@@ -123,7 +123,7 @@ export function spawnAndCollectOutput({
 
 function readStreamLines(
   stream: NodeJS.ReadableStream,
-  callback: (line: string) => void
+  callback: (line: string) => void,
 ) {
   const rl = readline.createInterface({
     input: stream,
