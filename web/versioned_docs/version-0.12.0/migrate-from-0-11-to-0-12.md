@@ -418,7 +418,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
   In 0.12.X, we unified these two concepts into the `userSignupFields` field.
 
   <details>
-  <summary>Migration for <AuthPills providers={['email']} /> and <AuthPills providers={['username']} /></summary>
+  <summary>Migration for <AuthPills providers={['email','username']} /></summary>
 
     First, move the value of `auth.signup.additionalFields` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
       
@@ -513,7 +513,7 @@ You can follow these steps to migrate to the new auth system (assuming you alrea
   </details>
 
   <details>
-  <summary>Migration for <AuthPills providers={['github']} /> and <AuthPills providers={['google']} /></summary>
+  <summary>Migration for <AuthPills providers={['github','google']} /></summary>
 
     First, move the value of `auth.methods.{method}.getUserFieldsFn` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
       

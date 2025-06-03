@@ -116,7 +116,7 @@ The following components are available for you to use in your app:
 
 ### Login Form
 
-Used with <AuthPills providers={['username','email','github','google','keycloak']}/> and <AuthPills providers={['discord']}/> authentication.
+Used with <AuthPills providers={['username','email','github','google','keycloak','discord']}/> authentication.
 
 ![Login form](/img/authui/login.png)
 
@@ -171,7 +171,7 @@ It will automatically show the correct authentication providers based on your `m
 
 ### Signup Form
 
-Used with <AuthPills providers={['username','email','github','google','keycloak']}/> and <AuthPills providers={['discord']}/> authentication.
+Used with <AuthPills providers={['username','email','github','google','keycloak','discord']}/> authentication.
 
 ![Signup form](/img/authui/signup.png)
 

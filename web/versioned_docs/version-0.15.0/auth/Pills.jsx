@@ -34,12 +34,23 @@ function Pill({ label, link }) {
 }
 
 export function AuthPills({ providers }) {
+  const validPills = providers
+    .map((provider) => PILL_INFO[provider])
+    .filter(Boolean);
+
   return (
-    <span style={{display: 'inline'}}>
-      {providers.map((provider) => {
-        const pill = PILL_INFO[provider];
-        if (!pill) return null;
-        return <Pill key={provider} label={pill.label} link={pill.link} />;
+    <span style={{ display: "inline" }}>
+      {validPills.map((pill, index) => {
+        const isLast = index === validPills.length - 1;
+        const isSecondLast = index === validPills.length - 2;
+
+        return (
+          <React.Fragment key={pill.link}>
+            {isLast && validPills.length > 1 && "and "}
+            <Pill label={pill.label} link={pill.link} />
+            {!isLast && (isSecondLast ? ", " : ", ")}
+          </React.Fragment>
+        );
       })}
     </span>
   );
