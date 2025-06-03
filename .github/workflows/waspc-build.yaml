@@ -69,7 +69,7 @@ jobs:
             # https://github.com/actions/setup-node/issues/1293
             # To work around this, we use the alpine variant of the official node
             # image, which already has a working Node.js version installed.
-            container: node:${{ inputs.node-version }}-alpine
+            container: node:${{ inputs.node-version }}-alpine3.21
             skip-node-install: true
             static: true
             install-deps: |
@@ -114,6 +114,7 @@ jobs:
       - uses: ./.github/actions/setup-haskell
         with:
           ghc-version: ${{ inputs.ghc-version }}
+          extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
 
       - uses: actions/setup-node@v4
         if: ${{ !matrix.env.skip-node-install }}
@@ -156,7 +157,7 @@ jobs:
           # Extract each architecture
           for arch in "${input_arch[@]}"; do
             mkdir "arch-$arch"
-            tar -xzf "wasp-${arch}.tar.gz" -C "arch-$arch"
+            tar -xzf "wasp-cli-${arch}/wasp-${arch}.tar.gz" -C "arch-$arch"
           done
 
           mkdir universal
