@@ -43,10 +43,10 @@ import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import {
   assertCodeBlockIsInLanguage,
+  codeBlockMetaStringFromMap,
+  codeBlockMetaStringToMap,
   formatCodeBlock,
   makeCheckForCodeWithMeta,
-  parseCodeBlockMetaString,
-  stringifyCodeBlockMeta,
 } from "./util/code-blocks";
 
 const META_FLAG = "auto-js";
@@ -158,7 +158,7 @@ async function makeFormattedJsCodeBlock(
   originalNode: md.Code,
   transformationInfo: LanguageTransformationInfo,
 ): Promise<md.Code> {
-  const meta = parseCodeBlockMetaString(originalNode.meta!);
+  const meta = codeBlockMetaStringToMap(originalNode.meta!);
 
   // Find the `title=` meta param and change the extension.
   const originalTitle = meta.get("title");
@@ -167,7 +167,7 @@ async function makeFormattedJsCodeBlock(
     meta.set("title", newTitle);
   }
 
-  const newMetaString = stringifyCodeBlockMeta(meta);
+  const newMetaString = codeBlockMetaStringFromMap(meta);
 
   const newLang = transformationInfo.outputLang;
 

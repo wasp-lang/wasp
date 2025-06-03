@@ -1,29 +1,35 @@
 import type * as md from "mdast";
 import { formatCode, FormatCodeOptions } from "./prettier";
 
-/*
-  A code block's meta string format is similar to HTML attributes: a
-  space-separated list of either a key-value pair `name="value"`, or a boolean
-  key `name` without a value.
-
-  This regex is fairly simple, only supporting double quotes for values, and
-  not allowing for escaped quotes or spaces.
-*/
-const CODE_BLOCK_META_REGEX = /([^\s=]+)(?:="([^"]*)")?/g;
-export function parseCodeBlockMetaString(
+/**
+ * A code block's meta string format is similar to HTML attributes: a
+ * space-separated list of either a key-value pair `name="value"`, or a boolean
+ * key `name` without a value.
+ *
+ * The underlying implementation here is fairly simple, only supporting double
+ * quotes for values, and not allowing for escaped quotes or spaces.
+ */
+export function codeBlockMetaStringToMap(
   metaString: string,
 ): Map<string, string | undefined> {
   const result = new Map<string, string | undefined>();
 
   if (!metaString) return result;
 
-  for (const [, key, value] of metaString.matchAll(CODE_BLOCK_META_REGEX)) {
+  for (const [, key, value] of metaString.matchAll(
+    // Regex to match key-value pairs in a meta string
+    // Matches `key="value"` or `key`
+    // Groups:
+    // - Match 1: key
+    // - Match 2: value (optional, if present)
+    /([^\s=]+)(?:="([^"]*)")?/g,
+  )) {
     result.set(key, value);
   }
   return result;
 }
 
-export function stringifyCodeBlockMeta(
+export function codeBlockMetaStringFromMap(
   meta: Map<string, string | undefined>,
 ): string {
   return Array.from(meta.entries(), ([key, value]) =>
@@ -39,7 +45,7 @@ export function makeCheckForCodeWithMeta(metaFlagName: string) {
   return (node: md.Nodes): node is md.Code & { meta: string } =>
     node.type === "code" &&
     node.meta &&
-    parseCodeBlockMetaString(node.meta).has(metaFlagName);
+    codeBlockMetaStringToMap(node.meta).has(metaFlagName);
 }
 
 /**
