@@ -2,7 +2,7 @@
 title: Auth Hooks
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, DiscordPill } from "./Pills";
+import { AuthPills } from "./Pills";
 import ImgWithCaption from '@site/blog/components/ImgWithCaption'
 import { ShowForTs } from '@site/src/components/TsJsHelpers'
 
@@ -108,7 +108,7 @@ Wasp calls the `onBeforeSignup` hook before the user is created.
 
 The `onBeforeSignup` hook can be useful if you want to reject a user based on some criteria before they sign up.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <AuthPills providers={['username','email','github','google','keycloak']}/> and <AuthPills providers={['discord']}/>.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -198,7 +198,7 @@ The `onAfterSignup` hook can be useful if you want to send the user a welcome em
 
 Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook to store the OAuth access token and/or [refresh token](#refreshing-the-oauth-access-token) in your database.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <AuthPills providers={['username','email','github','google','keycloak']}/> and <AuthPills providers={['discord']}/>.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -293,7 +293,7 @@ Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is gene
 
 The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that you can use later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` or `onAfterLogin` hooks.
 
-Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <AuthPills providers={['discord','github','google','keycloak']} />
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -365,7 +365,7 @@ Wasp calls the `onBeforeLogin` hook before the user is logged in.
 
 The `onBeforeLogin` hook can be useful if you want to reject a user based on some criteria before they log in.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <AuthPills providers={['username','email','github','google','keycloak']}/> and <AuthPills providers={['discord']}/>.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
@@ -438,7 +438,7 @@ The `onAfterLogin` hook can be useful if you want to perform some action after t
 
 Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to update the OAuth access token for the user in your database. You can also use it to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
 
-Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
+Works with <AuthPills providers={['username','email','github','google','keycloak']}/> and <AuthPills providers={['discord']}/>.
 
 <Tabs groupId="js-ts">
 <TabItem value="js" label="JavaScript">
