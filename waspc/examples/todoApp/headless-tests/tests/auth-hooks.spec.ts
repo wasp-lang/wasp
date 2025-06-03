@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   generateRandomCredentials,
+  isRunningInDevMode,
   performEmailVerification,
   performLogin,
   performSignup,
@@ -49,13 +50,22 @@ test.describe("auth hooks", () => {
 
     await page.goto("/profile");
 
-    await expect(page.locator("body")).toContainText(
-      "Value of user.isOnAfterSignupHookCalled is true.",
-    );
+    await expect(
+      page.getByTestId("hook-status-onAfterSignup").getByTestId("status"),
+    ).toContainText("Called");
 
-    await expect(page.locator("body")).toContainText(
-      "Value of user.isOnAfterLoginHookCalled is true.",
-    );
+    await expect(
+      page.getByTestId("hook-status-onAfterLogin").getByTestId("status"),
+    ).toContainText("Called");
+
+    const expectedEmailVerificationStatus = isRunningInDevMode()
+      ? "Not Called"
+      : "Called";
+    await expect(
+      page
+        .getByTestId("hook-status-onAfterEmailVerified")
+        .getByTestId("status"),
+    ).toContainText(expectedEmailVerificationStatus);
   });
 
   /*

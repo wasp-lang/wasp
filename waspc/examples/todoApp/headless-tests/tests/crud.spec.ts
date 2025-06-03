@@ -35,16 +35,18 @@ test.describe("CRUD test", () => {
     await expect(page).toHaveURL("/");
 
     await page.goto("/crud");
-    // wait for idle
-    await page.waitForSelector("text=Tasks (CRUD feature)");
+    await page.waitForSelector("text=CRUD Tasks");
 
     // Create a task
     const taskDescription = "first task";
     await createTask(page, taskDescription);
 
-    await expect(page.locator("body")).toContainText(
-      `${taskDescription} by ${email}`,
-    );
+    await expect(
+      page.getByTestId("task-view").getByTestId("text"),
+    ).toContainText(taskDescription);
+    await expect(
+      page.getByTestId("task-view").getByTestId("created-by"),
+    ).toContainText(`Created by ${email}`);
 
     // Edit the task
     await page.getByRole("button", { name: "Edit" }).click();
@@ -54,9 +56,12 @@ test.describe("CRUD test", () => {
     await expect(editInput).toHaveValue(taskDescription);
     await editInput.fill(newTaskDescription);
     await page.getByRole("button", { name: "Update task" }).click();
-    await expect(page.locator("body")).toContainText(
-      `${newTaskDescription} by ${email}`,
-    );
+    await expect(
+      page.getByTestId("task-view").getByTestId("text"),
+    ).toContainText(newTaskDescription);
+    await expect(
+      page.getByTestId("task-view").getByTestId("created-by"),
+    ).toContainText(`Created by ${email}`);
 
     // Delete the task
     page.on("dialog", async (dialog) => {

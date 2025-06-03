@@ -9,7 +9,7 @@ test.describe("custom signup", () => {
   test("can sign up", async ({ page }) => {
     await page.goto("/custom-signup");
 
-    await page.waitForSelector("text=Custom Signup Action");
+    await page.waitForSelector("text=Custom Signup Form");
 
     await page.locator("input[type='email']").fill(email);
     await page.locator("input[type='password']").fill(password);

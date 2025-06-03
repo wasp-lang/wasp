@@ -7,6 +7,11 @@ import {
 } from "wasp/server/api";
 
 export const fooBar: FooBar = (_req, res, context) => {
+  if (!context.user) {
+    res.status(401).json({ msg: "Unauthorized" });
+    return;
+  }
+
   const username = context.user?.getFirstProviderUserId();
 
   res.json({ msg: `Hello, ${username}!` });

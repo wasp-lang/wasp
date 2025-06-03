@@ -12,8 +12,9 @@ import {
 } from "wasp/client/operations";
 
 import { useParams } from "react-router-dom";
+import { cn } from "../../../cn";
 import { Button } from "../../../components/Button";
-import { SimplePageContainer } from "../../../components/SimplePageContainer";
+import { FeatureContainer } from "../../../components/FeatureContainer";
 
 type TaskPayload = Pick<Task, "id" | "isDone">;
 
@@ -29,7 +30,7 @@ const Todo = () => {
 
   const {
     data: task,
-    isFetching,
+    isLoading,
     error,
     isError,
   } = useQuery(getTask, { id: taskId });
@@ -65,31 +66,76 @@ const Todo = () => {
   }
 
   return (
-    <SimplePageContainer>
-      <div className="card">
-        {isFetching ? (
-          <div> Fetching task ... </div>
-        ) : (
-          <>
-            <div> id: {task.id} </div>
-            <div> description: {task.description} </div>
-            <div>
-              {" "}
-              who can see this task:{" "}
-              {VISIBILITY_EXPLANATION[task.visibility]}{" "}
+    <FeatureContainer>
+      <div className="space-y-4">
+        <div className="card" data-testid="task-detail">
+          {isLoading ? (
+            <div className="text-center py-8 text-gray-500">
+              Fetching task...
             </div>
-            <div> is done: {task.isDone ? "Yes" : "No"} </div>
-            <Button onClick={() => toggleIsDone(task)}>
-              Mark as {task.isDone ? "undone" : "done"}
-            </Button>
-          </>
-        )}
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  Task Details
+                </h1>
+                <span className="text-sm text-gray-500">ID: {task.id}</span>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Description
+                  </label>
+                  <p className="text-gray-900 mt-1" data-testid="text">
+                    {task.description}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Visibility
+                  </label>
+                  <p className="text-gray-900 mt-1" data-testid="visibility">
+                    Visible to {VISIBILITY_EXPLANATION[task.visibility]}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-600">
+                    Status
+                  </label>
+                  <div className="mt-1" data-testid="status">
+                    <span
+                      className={cn(
+                        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                        task.isDone
+                          ? "bg-green-100 text-green-800 border border-green-200"
+                          : "bg-gray-100 text-gray-800 border border-gray-200",
+                      )}
+                    >
+                      {task.isDone ? "Completed" : "Pending"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-200">
+                <Button onClick={() => toggleIsDone(task)} variant="primary">
+                  Mark as {task.isDone ? "pending" : "completed"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <Link to="/tasks" className="link">
+            Go back to tasks
+          </Link>
+        </div>
       </div>
-      <br />
-      <Link to="/" className="link">
-        Go to dashboard
-      </Link>
-    </SimplePageContainer>
+    </FeatureContainer>
   );
 };
 

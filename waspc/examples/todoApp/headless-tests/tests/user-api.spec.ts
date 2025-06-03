@@ -34,12 +34,17 @@ test.describe("user API", () => {
     await page.locator("input[type='password']").fill(password);
     await page.getByRole("button", { name: "Log in" }).click();
 
-    await page.waitForSelector("text=User Auth Fields Demo");
+    await expect(page).toHaveURL("/");
 
-    await expect(page.locator("body")).toContainText(
-      `Hello ${email}! Your status is verfied`,
-    );
+    await page.goto("/profile");
 
-    await expect(page.locator('a[href="/profile"]')).toContainText(email);
+    await expect(page).toHaveURL("/profile");
+
+    await expect(
+      page.getByTestId("user-profile").getByTestId("user-id"),
+    ).toContainText(email);
+    await expect(
+      page.getByTestId("user-profile").getByTestId("email-status"),
+    ).toContainText("Verified");
   });
 });

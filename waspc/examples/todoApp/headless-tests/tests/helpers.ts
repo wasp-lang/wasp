@@ -27,10 +27,7 @@ export async function performEmailVerification(
   page: Page,
   sentToEmail: string,
 ) {
-  if (
-    !process.env.HEADLESS_TEST_MODE ||
-    process.env.HEADLESS_TEST_MODE === "dev"
-  ) {
+  if (isRunningInDevMode()) {
     // This relies on having the SKIP_EMAIL_VERIFICATION_IN_DEV=true in the
     // .env.server file. This is the default value in the .env.server.headless file.
     return;
@@ -69,6 +66,12 @@ export async function performEmailVerification(
   const link = linkMatch[0];
   await page.goto(link);
   await page.waitForSelector("text=Your email has been verified");
+}
+
+export function isRunningInDevMode() {
+  return (
+    !process.env.HEADLESS_TEST_MODE || process.env.HEADLESS_TEST_MODE === "dev"
+  );
 }
 
 export async function performLogin(

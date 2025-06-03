@@ -1,20 +1,8 @@
 import React, { forwardRef } from "react";
+import { cn } from "../cn";
 
-type InputVariant = "default" | "filled" | "minimal";
-
-type InputSize = "sm" | "md" | "lg";
-
-type InputState = "default" | "error" | "success" | "warning";
-
-interface BaseInputProps {
+interface BaseInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  helperText?: string;
-  errorText?: string;
-  successText?: string;
-  warningText?: string;
-  variant?: InputVariant;
-  size?: InputSize;
-  state?: InputState;
   required?: boolean;
   disabled?: boolean;
   inputClassName?: string;
@@ -23,85 +11,30 @@ interface BaseInputProps {
 
 interface InputProps extends BaseInputProps {
   type?: "text" | "email" | "password" | "url" | "tel" | "search";
-  placeholder?: string;
-  value?: string;
-  defaultValue?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  maxLength?: number;
-  minLength?: number;
-  pattern?: string;
-  autoComplete?: string;
-  autoFocus?: boolean;
-}
-
-const variantStyles: Record<InputVariant, string> = {
-  default:
-    "bg-white border-gray-300 focus:border-indigo-500 focus:ring-indigo-500",
-  filled:
-    "bg-gray-50 border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500",
-  minimal:
-    "bg-transparent border-0 border-b-2 border-gray-300 focus:border-indigo-500 rounded-none focus:ring-0 px-0",
-};
-
-const sizeStyles: Record<InputSize, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-sm",
-  lg: "px-4 py-3 text-base",
-};
-
-const stateStyles: Record<InputState, string> = {
-  default: "",
-  error: "border-red-300 focus:border-red-500 focus:ring-red-500",
-  success: "border-green-300 focus:border-green-500 focus:ring-green-500",
-  warning: "border-amber-300 focus:border-amber-500 focus:ring-amber-500",
-};
-
-function getInputClasses(props: InputProps): string {
-  const {
-    variant = "default",
-    size = "md",
-    state = "default",
-    disabled = false,
-
-    inputClassName = "",
-  } = props;
-
-  const baseClasses = [
-    "block rounded-lg border transition-colors duration-200 ease-in-out",
-    "focus:outline-none focus:ring-2 focus:ring-offset-0",
-    "placeholder-gray-400",
-    "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50",
-  ];
-
-  const classes = [
-    ...baseClasses,
-    variantStyles[variant],
-    sizeStyles[size],
-    stateStyles[state],
-    inputClassName,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return classes;
 }
 
 export const Input = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   InputProps
 >((props, ref) => {
-  const { label, required, disabled, containerClassName = "" } = props;
+  const { label, required, disabled, containerClassName, inputClassName } =
+    props;
 
-  const inputClasses = getInputClasses(props);
+  const inputClasses = cn([
+    "block w-full px-3 py-2 rounded-lg border transition-colors duration-200 ease-in-out",
+    "focus:outline-none focus:ring-2 focus:ring-offset-0",
+    "placeholder-gray-400",
+    "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50",
+    "bg-white border-gray-300 focus:border-primary-500 focus:ring-primary-500",
+    inputClassName,
+  ]);
 
   const inputId = React.useId();
 
-  const { type = "text", size, ...textProps } = props;
+  const { type = "text", ...textProps } = props;
 
   return (
-    <div className={`space-y-1 ${containerClassName}`}>
+    <div className={cn("space-y-1", containerClassName)}>
       {label && (
         <label
           htmlFor={inputId}

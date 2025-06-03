@@ -10,7 +10,7 @@ import { customSignup as customSubmit } from "wasp/client/operations";
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from "react-hook-form";
 import { Button } from "../../../components/Button";
-import { SimplePageContainer } from "../../../components/SimplePageContainer";
+import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export const SignupPage = () => {
   const {
@@ -52,7 +52,7 @@ export const SignupPage = () => {
   });
 
   return (
-    <SimplePageContainer>
+    <FeatureContainer>
       <h1 className="text-2xl font-medium mb-4">Custom Signup Form</h1>
       <form onSubmit={onSubmit} className="card">
         {message && (
@@ -84,6 +84,6 @@ export const SignupPage = () => {
           <Button type="submit">Signup</Button>
         </FormItemGroup>
       </form>
-    </SimplePageContainer>
+    </FeatureContainer>
   );
 };

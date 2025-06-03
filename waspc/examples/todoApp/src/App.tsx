@@ -9,6 +9,7 @@ import "./Main.css";
 import { getName } from "./features/auth/user";
 // Necessary to trigger type tests.
 import { AuthUser } from "wasp/auth";
+import { cn } from "./cn";
 import { Button } from "./components/Button";
 import "./rpcTests/operations/client";
 
@@ -20,15 +21,15 @@ export function App() {
   const appName = env.REACT_APP_NAME;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                 <Link
                   to="/"
-                  className="hover:text-indigo-600 transition-colors duration-200"
+                  className="hover:text-primary-600 transition-colors duration-200"
                 >
                   {appName}
                 </Link>
@@ -53,11 +54,11 @@ export function App() {
         </div>
       </header>
 
-      <main className="flex-1 mt-12">
+      <main className="flex flex-1 z-50">
         <Outlet />
       </main>
 
-      <footer className="bg-white border-t border-gray-200 mt-12">
+      <footer className="bg-white border-t border-gray-200">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2">
@@ -66,7 +67,7 @@ export function App() {
                 href="https://wasp.sh"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
+                className="font-semibold text-primary-600 hover:text-primary-700 transition-colors"
               >
                 Wasp
               </a>
@@ -76,7 +77,7 @@ export function App() {
             <StatusInfo date={date} isConnected={isConnected} />
 
             <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <span>© 2025 {appName}</span>
+              <span>© 2025</span>
               <div className="flex space-x-4">
                 <a
                   href="https://wasp.sh/docs"
@@ -112,7 +113,10 @@ function StatusInfo({
     <div className="flex items-center space-x-4 text-sm">
       <div className="flex items-center space-x-2">
         <div
-          className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+          className={cn(
+            "w-2 h-2 rounded-full",
+            isConnected ? "bg-green-500" : "bg-red-500",
+          )}
         />
         <span className="text-gray-600">
           {isConnected ? "Connected" : "Disconnected"}
@@ -145,8 +149,8 @@ function UserMenu({ user }: { user: AuthUser }) {
   return (
     <div className="flex items-center space-x-4">
       <div className="hidden md:flex items-center space-x-2">
-        <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-          <span className="text-indigo-600 font-medium text-sm">
+        <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+          <span className="text-primary-600 font-medium text-sm">
             {getName(user)?.charAt(0).toUpperCase()}
           </span>
         </div>
@@ -154,7 +158,7 @@ function UserMenu({ user }: { user: AuthUser }) {
           <span className="text-sm text-gray-600">Welcome back,</span>
           <Link
             to="/profile"
-            className="text-sm font-medium text-gray-900 hover:text-indigo-600 transition-colors"
+            className="text-sm font-medium text-gray-900 hover:text-primary-600 transition-colors"
           >
             {getName(user)}
           </Link>
@@ -163,32 +167,14 @@ function UserMenu({ user }: { user: AuthUser }) {
 
       <Link
         to="/profile"
-        className="md:hidden w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center hover:bg-indigo-200 transition-colors"
+        className="md:hidden w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center hover:bg-primary-200 transition-colors"
       >
-        <span className="text-indigo-600 font-medium text-sm">
+        <span className="text-primary-600 font-medium text-sm">
           {getName(user)?.charAt(0).toUpperCase()}
         </span>
       </Link>
 
-      <Button
-        onClick={logout}
-        variant="secondary"
-        rightIcon={
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            />
-          </svg>
-        }
-      >
+      <Button onClick={logout} variant="secondary">
         Sign Out
       </Button>
     </div>

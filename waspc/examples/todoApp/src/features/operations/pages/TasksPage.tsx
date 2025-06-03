@@ -1,11 +1,11 @@
-import { SimplePageContainer } from "../../../components/SimplePageContainer";
+import { FeatureContainer } from "../../../components/FeatureContainer";
 import Todo from "../components/Todo";
 
 const Main = () => {
   return (
-    <SimplePageContainer>
+    <FeatureContainer>
       <Todo />
-    </SimplePageContainer>
+    </FeatureContainer>
   );
 };
 

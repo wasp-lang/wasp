@@ -59,20 +59,27 @@ test.describe("signup and login", () => {
     // Create a new task
     const randomTask = `New Task ${Math.random().toString(36).substring(7)}`;
     await page.locator("input[type='text']").fill(randomTask);
-    await page.getByText("Create new task").click();
+    await page.getByText("Create task").click();
 
-    const fullTaskText = `${randomTask} by ${email}`;
-    await page.waitForSelector(`text=${fullTaskText}`);
-
-    await expect(page.locator("body")).toContainText(fullTaskText);
+    await expect(
+      page.getByTestId("task-view").getByTestId("text"),
+    ).toContainText(randomTask);
+    await expect(
+      page.getByTestId("task-view").getByTestId("created-by"),
+    ).toContainText(`Created by ${email}`);
 
     // Navigate to task page
-    await page.locator(`text=${fullTaskText}`).click();
-    const taskPageText = `description: ${randomTask}`;
-    await page.waitForSelector(`text=${taskPageText}`);
+    page.getByTestId("task-view").getByTestId("text").click();
+    await expect(
+      page.getByTestId("task-detail").getByTestId("text"),
+    ).toContainText(randomTask);
+    await expect(
+      page.getByTestId("task-detail").getByTestId("status"),
+    ).toContainText("Pending");
 
     // Checking if Prisma enums work on the client
-    const taskVisibilityText = `who can see this task: only you`;
-    await expect(page.locator("body")).toContainText(taskVisibilityText);
+    await expect(
+      page.getByTestId("task-detail").getByTestId("visibility"),
+    ).toContainText("Visible to only you");
   });
 });

@@ -144,7 +144,7 @@ page TasksPage {
   component: import Main from "@src/features/operations/pages/TasksPage"
 }
 
-route TaskRoute { path: "/task/:id", to: TaskPage }
+route TaskRoute { path: "/tasks/:id", to: TaskPage }
 page TaskPage {
   authRequired: true,
   component: import Task from "@src/features/operations/pages/TaskDetailPage"

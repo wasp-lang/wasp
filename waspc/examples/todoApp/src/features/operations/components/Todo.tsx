@@ -13,6 +13,7 @@ import {
 
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { getEmail } from "wasp/auth";
+import { cn } from "../../../cn";
 import { Button } from "../../../components/Button";
 import { Input } from "../../../components/Input";
 import { getTotalTaskCountMessage } from "../helpers";
@@ -42,7 +43,7 @@ const Todo = () => {
       <div className="card">
         <h1 className="mb-2 text-2xl font-medium">Todos</h1>
 
-        <div className="flex justify-start gap-2">
+        <div className="flex items-center gap-2">
           <ToggleAllTasksButton disabled={!areThereAnyTasks(tasks)} />
           <NewTaskForm />
         </div>
@@ -78,14 +79,14 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
   };
 
   return (
-    <div className="flex justify-between">
-      <div>{numUncompletedTasks} items left</div>
+    <div className="flex items-center justify-between border-t pt-4">
+      <div className="text-sm py-3">{numUncompletedTasks} item(s) left</div>
 
       <div>
         <Button
           onClick={handleDeleteCompletedTasks}
-          variant="danger"
-          className={numCompletedTasks > 0 ? "" : "hidden"}
+          variant="secondary"
+          className={cn(numCompletedTasks === 0 && "hidden")}
         >
           Delete completed
         </Button>
@@ -97,13 +98,9 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
 const Tasks = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
   return (
     <div>
-      <table className="border-separate border-spacing-2">
-        <tbody>
-          {tasks.map((task, idx) => (
-            <TaskView task={task} key={idx} />
-          ))}
-        </tbody>
-      </table>
+      {tasks.map((task, idx) => (
+        <TaskView task={task} key={idx} />
+      ))}
     </div>
   );
 };
@@ -144,23 +141,35 @@ const TaskView = ({ task }: { task: TaskWithUser }) => {
   const email = getEmail(task.user);
 
   return (
-    <tr>
-      <td>
+    <div
+      className="flex items-center gap-4 py-4 border-b last:border-b-0"
+      data-testid="task-view"
+    >
+      <div>
         <input
           type="checkbox"
           id={String(task.id)}
           checked={task.isDone}
           onChange={handleTaskIsDoneChange}
-          color="default"
-          className="appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+          className="cursor-pointer h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:border-gray-200 disabled:opacity-50"
         />
-      </td>
-      <td>
-        <Link to="/task/:id" params={{ id: task.id }}>
-          {task.description} {email && `by ${email}`}
+      </div>
+      <div>
+        <Link
+          to="/tasks/:id"
+          params={{ id: task.id }}
+          className="link"
+          data-testid="text"
+        >
+          {task.description}
         </Link>
-      </td>
-    </tr>
+        {email && (
+          <p className="text-sm text-gray-500 mt-1" data-testid="created-by">
+            Created by {email}
+          </p>
+        )}
+      </div>
+    </div>
   );
 };
 
@@ -209,14 +218,17 @@ const NewTaskForm = () => {
   };
 
   return (
-    <form onSubmit={handleNewTaskSubmit} className="content-start flex gap-2">
+    <form
+      onSubmit={handleNewTaskSubmit}
+      className="grid grid-cols-[1fr_auto] gap-2"
+    >
       <Input
         type="text"
         placeholder="Enter task"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <Button type="submit">Create new task</Button>
+      <Button type="submit">Create task</Button>
     </form>
   );
 };
