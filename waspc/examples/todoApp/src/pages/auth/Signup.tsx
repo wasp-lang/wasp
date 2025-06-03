@@ -1,13 +1,13 @@
+import { FormItemGroup, SignupForm } from "wasp/client/auth";
+import { getNumTasks, useQuery } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
-import { SignupForm, FormItemGroup } from "wasp/client/auth";
-import { useQuery, getNumTasks } from "wasp/client/operations";
-import { getTotalTaskCountMessage } from './helpers'
+import { getTotalTaskCountMessage } from "./helpers";
 
-import appearance from './appearance'
-import todoLogo from '../../todoLogo.png'
+import todoLogo from "../../todoLogo.png";
+import appearance from "./appearance";
 
 const Signup = () => {
-  const { data: numTasks } = useQuery(getNumTasks)
+  const { data: numTasks } = useQuery(getNumTasks);
 
   return (
     <div className="w-full h-full bg-white">
@@ -20,11 +20,11 @@ const Signup = () => {
               socialLayout="horizontal"
               additionalFields={[
                 {
-                  name: 'address',
-                  type: 'input',
-                  label: 'Address',
+                  name: "address",
+                  type: "input",
+                  label: "Address",
                   validations: {
-                    required: 'Address is required',
+                    required: "Address is required",
                   },
                 },
                 () => (
@@ -47,7 +47,7 @@ const Signup = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Signup
+export default Signup;

@@ -18,17 +18,17 @@ app waspello {
 route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
-    component: import Main from "@src/cards/MainPage.jsx"
+    component: import Main from "@src/cards/MainPage"
 }
 
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
-    component: import Signup from "@src/auth/SignupPage.jsx"
+    component: import Signup from "@src/auth/SignupPage"
 }
 
 route LoginRoute { path: "/login", to: Login }
 page Login {
-    component: import Login from "@src/auth/LoginPage.jsx"
+    component: import Login from "@src/auth/LoginPage"
 }
 
 // ------------------- Queries and actions

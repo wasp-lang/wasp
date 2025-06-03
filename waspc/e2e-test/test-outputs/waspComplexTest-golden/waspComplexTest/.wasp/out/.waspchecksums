@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "2625c4c99d8925586320492a69923c487764868f4461430672b09587408c0d08"
+        "69c6a1a89118fa450c9ded5bc10c8639818b857ca98ec15a94e5dd502ad567cd"
     ],
     [
         [
@@ -67,7 +67,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "0213fcb5830ea8e0ce94d6243c81894d05cceb68199c6ee190eb1b5eba57cabd"
+        "e701e6587b0966e58ca9ac5dbcd57ebe36002ac6acd25b021114659399b7f4b3"
     ],
     [
         [
@@ -128,9 +128,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/auth/providers/index.ts"
+        ],
+        "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/auth/providers/types.ts"
         ],
-        "d9c62d1c53c0f28d92e42def6cbcc4e1c3fe0a48cb69741fb32a31cf921e7db1"
+        "8088671dd5fa778bb727b843aa63c7de0202afd50a9c04c05768cbb6a7c56845"
     ],
     [
         [
@@ -165,7 +172,7 @@
             "file",
             "../out/sdk/wasp/auth/utils.ts"
         ],
-        "ceed4ab4ea541402f329e480db98cce0478a00a5aec75e9071c7dd4457893010"
+        "f4ff0a4966e7600e9eebf2661ce35779c67549def53173d24cf1b7118b7d1f40"
     ],
     [
         [
@@ -424,7 +431,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "3af4efb9074236a2548a42cc0e8e0050d73d8c8167d4454f8f4df4a0627afe6a"
+        "7195d2f30469d0b45dc65302f2191c99e5704775e22c9519b2db0620c2dbdecd"
     ],
     [
         [
@@ -480,7 +487,7 @@
             "file",
             "../out/sdk/wasp/server/auth/oauth/index.ts"
         ],
-        "bc8cf4d3b89018a68704d30bc3183bbd58461c9db0796f603f3e13179d604630"
+        "4be7847071ca4ba20b6b5d11c30f37e977dcd9f572f6d9c95200c1c1b92b71ae"
     ],
     [
         [
@@ -844,7 +851,7 @@
             "file",
             "../out/sdk/wasp/universal/types.ts"
         ],
-        "a5c7a0300bf161b17e2cd8af4a7b51616b8c2dc7d469cd19fe2e8489ac572180"
+        "468c7f107274313594ef76ee4e4320d582ce16483c08485dd15090cb966c0303"
     ],
     [
         [
@@ -1073,13 +1080,6 @@
     [
         [
             "file",
-            "server/src/polyfill.ts"
-        ],
-        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
-    ],
-    [
-        [
-            "file",
             "server/src/queries/mySpecialQuery.ts"
         ],
         "c595702e1fc397f0682477048c13c73755345ba6eee224e6e4137c6629b78aaf"
@@ -1159,7 +1159,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "fd4a9cd212e14caefc41e916bc816594cd8b76a2565adfd5495c01a6bf5aa936"
+        "a2d9166fd4388d469305df03c0b93f865b8f9c4840aee38eab4e8430b79801a5"
     ],
     [
         [
@@ -1215,7 +1215,7 @@
             "file",
             "web-app/package.json"
         ],
-        "2352cda526107792c1399ca931ac268d92827d1f08ed6db1a41b12d00abaa988"
+        "3d07aa34221fb9e5d58e0d9b8ba89a20b4b2f48612f750074d06705cd55b73c6"
     ],
     [
         [

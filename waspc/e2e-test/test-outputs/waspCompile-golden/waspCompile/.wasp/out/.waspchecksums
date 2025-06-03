@@ -207,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "fe15a110bc598dd31aeaef52ca1eb440818a630110b4da7bd155028db911fd3f"
+        "4ef4e3e0637b3c3a3f2bc6d295251b044a8e914faf7bd0f30f0a44a0582f8914"
     ],
     [
         [
@@ -389,7 +389,7 @@
             "file",
             "../out/sdk/wasp/universal/types.ts"
         ],
-        "a5c7a0300bf161b17e2cd8af4a7b51616b8c2dc7d469cd19fe2e8489ac572180"
+        "468c7f107274313594ef76ee4e4320d582ce16483c08485dd15090cb966c0303"
     ],
     [
         [
@@ -513,13 +513,6 @@
     [
         [
             "file",
-            "server/src/polyfill.ts"
-        ],
-        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
-    ],
-    [
-        [
-            "file",
             "server/src/routes/index.js"
         ],
         "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
@@ -536,7 +529,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "ab9d7722a512f2a51a81a63de0b81172421dc86a6556c49f70aab4683d57657f"
+        "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
     ],
     [
         [
@@ -592,7 +585,7 @@
             "file",
             "web-app/package.json"
         ],
-        "32eae3bdc2c14ab2ec0eedbce0b1e365c74945e50c207f5ab491884587a4e054"
+        "c945ac7d95de4251a266e9048d6e31489411f1fdfb6bf98e3e0cf86192aa4f63"
     ],
     [
         [

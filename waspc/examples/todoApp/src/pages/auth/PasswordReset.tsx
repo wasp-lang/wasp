@@ -1,8 +1,8 @@
 import { Link } from "wasp/client/router";
 
 import { ResetPasswordForm } from "wasp/client/auth";
-import appearance from './appearance'
-import todoLogo from '../../todoLogo.png'
+import todoLogo from "../../todoLogo.png";
+import appearance from "./appearance";
 
 export function PasswordReset() {
   return (
@@ -23,5 +23,5 @@ export function PasswordReset() {
         </div>
       </div>
     </div>
-  )
+  );
 }

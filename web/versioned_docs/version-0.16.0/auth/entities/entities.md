@@ -142,7 +142,7 @@ This can be useful if you support multiple authentication methods and you need _
     }
     ```
 
-    ```js title=src/tasks.js
+    ```js title="src/tasks.js"
     export const createTask = async (args, context) => {
       const userId = context.user.getFirstProviderUserId()
       // ...
@@ -160,7 +160,7 @@ This can be useful if you support multiple authentication methods and you need _
     }
     ```
 
-    ```ts title=src/tasks.ts
+    ```ts title="src/tasks.ts"
     export const createTask: CreateTask<...>  = async (args, context) => {
       const userId = context.user.getFirstProviderUserId()
       // ...
@@ -586,7 +586,8 @@ Let's take a look at how you can use the `Auth` and `AuthIdentity` entities to c
 
 :::info Custom Signup Examples
 
-In the [Email](./email#creating-a-custom-sign-up-action) section of the docs we give you an example for custom email signup and in the [Username & password](./username-and-pass#2-creating-your-custom-sign-up-action) section of the docs we give you an example for custom username & password signup.
+In the Advanced section you can see an example for [Email](../advanced/custom-auth-actions.md#email) or [Username and password](../advanced/custom-auth-actions.md#username-and-password) authentication.
+
 :::
 
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.

@@ -5,7 +5,7 @@ app todoApp {
   title: "ToDo App",
   // head: [],
   webSocket: {
-    fn: import { webSocketFn } from "@src/webSocket",
+    fn: import { webSocketFn } from "@src/chat/webSocket",
     // autoConnect: false
   },
   auth: {
@@ -14,6 +14,10 @@ app todoApp {
       // usernameAndPassword: {
       //  userSignupFields: import { userSignupFields } from "@src/auth/github",
       // },
+      slack: {
+        configFn: import { config } from "@src/auth/slack",
+        userSignupFields: import { userSignupFields } from "@src/auth/slack"
+      },
       discord: {
         configFn: import { config } from "@src/auth/discord",
         userSignupFields: import { userSignupFields } from "@src/auth/discord"
@@ -397,4 +401,11 @@ apiNamespace defaultMiddlewareForStreamingText {
 route StreamingRoute { path: "/streaming", to: StreamingPage }
 page StreamingPage {
   component: import { StreamingTestPage } from "@src/streaming/StreamingTestPage",
+}
+
+// --------- Chat --------- //
+route ChatRoute { path: "/chat", to: ChatPage }
+page ChatPage {
+  authRequired: true,
+  component: import { ChatPage } from "@src/chat/ChatPage"
 }

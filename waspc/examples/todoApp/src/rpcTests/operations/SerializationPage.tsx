@@ -1,29 +1,29 @@
-import { expect } from 'chai'
-import { useMemo } from 'react'
-import { getSerializedObjects, useQuery } from 'wasp/client/operations'
-import { SERIALIZABLE_OBJECTS_FIXTURE } from './fixtures'
+import { expect } from "chai";
+import { useMemo } from "react";
+import { getSerializedObjects, useQuery } from "wasp/client/operations";
+import { SERIALIZABLE_OBJECTS_FIXTURE } from "./fixtures";
 
 export const SerializationPage = () => {
-  const { data: serializedObjects } = useQuery(getSerializedObjects)
+  const { data: serializedObjects } = useQuery(getSerializedObjects);
 
   const result = useMemo(() => {
-    console.log({ serializedObjects })
+    console.log({ serializedObjects });
 
-    if (!serializedObjects) return
+    if (!serializedObjects) return;
 
     try {
-      expect(serializedObjects).to.deep.equal(SERIALIZABLE_OBJECTS_FIXTURE)
-      return 'All serialized objects are of the expected types.'
+      expect(serializedObjects).to.deep.equal(SERIALIZABLE_OBJECTS_FIXTURE);
+      return "All serialized objects are of the expected types.";
     } catch (e) {
-      console.error(e)
-      return String(e)
+      console.error(e);
+      return String(e);
     }
-  }, [serializedObjects])
+  }, [serializedObjects]);
 
   return serializedObjects ? (
     <div>
       <label htmlFor="serializedObjects">Serialized objects</label>:
       <p id="serializedObjects">{result}</p>
     </div>
-  ) : null
-}
+  ) : null;
+};

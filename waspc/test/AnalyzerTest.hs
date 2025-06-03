@@ -142,6 +142,7 @@ spec_Analyzer = do
                                       Auth.UsernameAndPasswordConfig
                                         { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup.js")
                                         },
+                                  Auth.slack = Nothing,
                                   Auth.discord = Nothing,
                                   Auth.google = Nothing,
                                   Auth.keycloak = Nothing,

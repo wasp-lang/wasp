@@ -63,12 +63,18 @@ lucaslima:
 
 sam:
   name: Sam Jakshtis
-  title: Content contributor 
+  title: Content contributor
   url: https://samjakshtis.com
   image_url: https://samjakshtis.com/static/media/profile.0cff8a5a83086bb3b00b.jpg
 
 milica:
   name: Milica Maksimović
-  title: Growth @wasp 
+  title: Growth @wasp
   url: https://mmaksimovic.dev/
   image_url: https://github.com/mmaksimovic.png
+
+andrei:
+  name: Andrei Gaspar
+  title: Content contributor
+  url: https://www.literally.dev/
+  image_url: https://github.com/undrash.png

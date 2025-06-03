@@ -344,7 +344,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp {10}
+    ```wasp title="main.wasp" {10}
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -363,7 +363,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp {10}
+    ```wasp title="main.wasp" {10}
     app myApp {
       wasp: {
         version: "^0.11.0"
@@ -423,7 +423,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```js title=src/server/auth/google.js
+    ```js title="src/server/auth/google.js"
     import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
 
     export const getUserFields = async (_context, args) => {
@@ -472,7 +472,7 @@ Add `google: {}` to the `auth.methods` dictionary to use it with default setting
     // ...
     ```
 
-    ```ts title=src/server/auth/google.ts
+    ```ts title="src/server/auth/google.ts"
     import type { GetUserFieldsFn } from '@wasp/types'
     import { generateAvailableDictionaryUsername } from '@wasp/core/auth.js'
 
@@ -557,7 +557,7 @@ The `google` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/server/auth/google.js
+      ```js title="src/server/auth/google.js"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere
@@ -569,7 +569,7 @@ The `google` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/server/auth/google.ts
+      ```ts title="src/server/auth/google.ts"
       export function getConfig() {
         return {
           clientID, // look up from env or elsewhere
@@ -592,7 +592,7 @@ The `google` dict has the following properties:
 
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
-      ```js title=src/server/auth/google.js
+      ```js title="src/server/auth/google.js"
       import { generateAvailableUsername } from '@wasp/core/auth.js'
 
       export const getUserFields = async (_context, args) => {
@@ -606,7 +606,7 @@ The `google` dict has the following properties:
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
-      ```ts title=src/server/auth/google.ts
+      ```ts title="src/server/auth/google.ts"
       import type { GetUserFieldsFn } from '@wasp/types'
       import { generateAvailableUsername } from '@wasp/core/auth.js'
 
