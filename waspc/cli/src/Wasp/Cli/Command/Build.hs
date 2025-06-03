@@ -117,6 +117,8 @@ build = do
           (waspProjectDir </> packageLockJsonInWaspProjectDir)
           packageLockJsonInBuildDir
 
+      -- We need the main tsconfig.json file since the built server's TS config
+      -- extends from it.
       liftIO $
         copyFile
           (waspProjectDir </> srcTsConfigInWaspLangProject)
