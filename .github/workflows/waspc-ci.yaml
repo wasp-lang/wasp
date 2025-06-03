@@ -146,7 +146,7 @@ jobs:
         run: cabal install
 
       - name: Headless - Set up Wasp App runner
-        run: npm i -g https://github.com/wasp-lang/wasp-app-runner#franjo/runner-action
+        uses: wasp-lang/runner-action@v1
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
