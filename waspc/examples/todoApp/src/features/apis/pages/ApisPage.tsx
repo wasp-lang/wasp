@@ -4,26 +4,38 @@ import { api } from "wasp/client/api";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export function ApisPage() {
-  const api1 = useCustomApi<{ msg: string }>("/foo/bar");
-  const api2 = useCustomApi<{ msg: string }>("/bar/baz");
+  const authenticatedApi = useCustomApi<{ msg: string }>("/foo/bar");
+  const unauthenticatedApi = useCustomApi<{ msg: string }>("/bar/baz");
   return (
     <FeatureContainer>
       <div className="space-y-4">
-        <div className="card">
+        <div className="card" data-testid="authenticated-api">
           <h2 className="text-2xl font-medium mb-4">/foo/bar</h2>
-          {api1.isLoading && <div className="text-gray-500">Loading...</div>}
-          {api1.error && (
-            <div className="text-red-500">Error: {api1.error.message}</div>
+          {authenticatedApi.isLoading && (
+            <div className="text-gray-500">Loading...</div>
           )}
-          {api1.data && <div>{api1.data.msg}</div>}
+          {authenticatedApi.error && (
+            <div className="text-red-500" data-testid="error">
+              Error: {authenticatedApi.error.message}
+            </div>
+          )}
+          {authenticatedApi.data && (
+            <div data-testid="data">{authenticatedApi.data.msg}</div>
+          )}
         </div>
-        <div className="card">
+        <div className="card" data-testid="unauthenticated-api">
           <h2 className="text-2xl font-medium mb-4">/bar/baz</h2>
-          {api2.isLoading && <div className="text-gray-500">Loading...</div>}
-          {api2.error && (
-            <div className="text-red-500">Error: {api2.error.message}</div>
+          {unauthenticatedApi.isLoading && (
+            <div className="text-gray-500">Loading...</div>
           )}
-          {api2.data && <div>{api2.data.msg}</div>}
+          {unauthenticatedApi.error && (
+            <div className="text-red-500" data-testid="error">
+              Error: {unauthenticatedApi.error.message}
+            </div>
+          )}
+          {unauthenticatedApi.data && (
+            <div data-testid="data">{unauthenticatedApi.data.msg}</div>
+          )}
         </div>
       </div>
     </FeatureContainer>
