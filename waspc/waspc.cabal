@@ -368,6 +368,7 @@ library
     Wasp.JsImport
     Wasp.Job
     Wasp.Job.Common
+    Wasp.Job.Except
     Wasp.Job.IO
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
