@@ -2,7 +2,7 @@
 title: Migration from 0.11.X to 0.12.X
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill } from "../auth/Pills";
+import { AuthPills } from "../auth/AuthPills";
 
 :::note Migrating to the latest version
 
@@ -444,7 +444,7 @@ You could also define `additionalSignupFields` to specify extra fields for the E
 In 0.12.X, we unified these two concepts into the `userSignupFields` field.
 
 <details>
-  <summary>Migration for <EmailPill /> and <UsernameAndPasswordPill /></summary>
+  <summary>Migration for <AuthPills providers={['email','username']} /></summary>
 
   First, move the value of `auth.signup.additionalFields` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
 
@@ -534,7 +534,7 @@ In 0.12.X, we unified these two concepts into the `userSignupFields` field.
 </details>
 
 <details>
-  <summary>Migration for <GithubPill /> and <GooglePill /></summary>
+  <summary>Migration for <AuthPills providers={['github','google']} /></summary>
 
   First, move the value of `auth.methods.{method}.getUserFieldsFn` to `auth.methods.{method}.userSignupFields` in the `main.wasp` file.
 

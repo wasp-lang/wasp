@@ -1,0 +1,13 @@
+.display-inline {
+  display: inline;
+}
+
+.pills {
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.375rem;
+  color: white;
+  background-color: #444;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 0.25rem;
+}

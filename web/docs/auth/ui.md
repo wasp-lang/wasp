@@ -2,7 +2,7 @@
 title: Auth UI
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
+import { AuthPills } from "./AuthPills";
 
 To make using authentication in your app as easy as possible, Wasp generates the server-side code but also the client-side UI for you. It enables you to quickly get the login, signup, password reset and email verification flows in your app.
 
@@ -110,7 +110,7 @@ The following components are available for you to use in your app:
 
 ### Login Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <AuthPills providers={['email','username','slack','discord','github','google','keycloak']} /> authentication.
 
 ![Login form](/img/authui/login.png)
 
@@ -162,7 +162,7 @@ It will automatically show the correct authentication providers based on your `m
 
 ### Signup Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <AuthPills providers={['email','username','slack','discord','github','google','keycloak']} /> authentication.
 
 ![Signup form](/img/authui/signup.png)
 
@@ -216,7 +216,7 @@ Read more about customizing the signup process like adding additional fields or 
 
 ### Forgot Password Form
 
-Used with <EmailPill /> authentication.
+Used with <AuthPills providers={['email']} /> authentication.
 
 If users forget their password, they can use this form to reset it.
 
@@ -268,7 +268,7 @@ You can use the `ForgotPasswordForm` component to build your own forgot password
 
 ### Reset Password Form
 
-Used with <EmailPill /> authentication.
+Used with <AuthPills providers={['email']} /> authentication.
 
 After users click on the link in the email they receive after submitting the forgot password form, they will be redirected to this form where they can reset their password.
 
@@ -320,7 +320,7 @@ You can use the `ResetPasswordForm` component to build your reset password page:
 
 ### Verify Email Form
 
-Used with <EmailPill /> authentication.
+Used with <AuthPills providers={['email']} /> authentication.
 
 After users sign up, they will receive an email with a link to this form where they can verify their email.
 
