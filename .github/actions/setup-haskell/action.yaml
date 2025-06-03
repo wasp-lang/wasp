@@ -1,0 +1,75 @@
+name: Setup Haskell
+description: |
+  This action sets up a Haskell environment for use in actions by
+  adding the GHC and Cabal binaries to the PATH. It also caches
+  the GHC and Cabal installations to speed up subsequent runs.
+
+inputs:
+  ghc-version:
+    description: |
+      The version of GHC to install.
+    required: false
+    default: "8.10.7"
+
+  cabal-version:
+    description: |
+      The version of Cabal to install.
+    required: false
+    default: "latest"
+
+  cabal-project-dir:
+    description: |
+      The working directory for the action.
+    required: false
+    default: "waspc"
+
+  extra-cache-key-segment:
+    description: |
+      An extra key to use for the cache. Mainly used to keep glibc and musl
+      caches separate, as they are not compatible.
+    required: false
+    default: "default"
+
+runs:
+  using: composite
+
+  steps:
+    - uses: haskell-actions/setup@v2
+      id: setup-haskell
+      with:
+        ghc-version: ${{ inputs.ghc-version }}
+        cabal-version: ${{ inputs.cabal-version }}
+
+    - name: Verify Haskell setup
+      shell: bash
+      run: |
+        ghc --version
+        cabal --version
+
+    # Based on the official recipe for Cabal caching:
+    # https://github.com/actions/cache/blob/v4.2.3/examples.md#haskell---cabal
+    - name: Cache Cabal dependencies
+      uses: actions/cache@v4
+      with:
+        # There are two extra directories that are commonly cache, that we've
+        # decided not to cache:
+        #
+        # - `./dist-newstyle`: Our internal code builds quite fast, and changes
+        # often enough that a cache would need to be invalidated on every run, and
+        # make our caching story much more complex.
+        #
+        # - `~/.cabal/packages`: This is a local cache of the package index. While
+        # it could be useful, we build in heterogeneous environments and it is
+        # not always in the same paths. From testing, in packages with a frozen
+        # `index-state` like ours, the build will just download a single ~4kb file.
+        # So it is not worth the complexity of caching.
+        #
+        # We do cache the Cabal store, which is where the actual built packages
+        # are stored, as it is the most expensive part of the build, and easily
+        # reusable.
+        path: |
+          ${{ steps.setup-haskell.outputs.cabal-store }}
+        key: |
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key-segment }}-${{ inputs.ghc-version }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
+        restore-keys: |
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key-segment }}-${{ inputs.ghc-version }}-
