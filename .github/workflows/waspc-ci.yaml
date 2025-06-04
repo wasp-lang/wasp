@@ -146,7 +146,7 @@ jobs:
         run: cabal install
 
       - name: Headless - Set up Wasp App runner
-        uses: wasp-lang/runner-action@v1
+        uses: wasp-lang/runner-action@main
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
