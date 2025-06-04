@@ -1,6 +1,6 @@
-import Prisma from '@prisma/client';
+import { PrismaClient as InternalPrismaClient } from '@prisma/client';
 function createDbClient() {
-    return new Prisma.PrismaClient();
+    return new InternalPrismaClient();
 }
 const dbClient = createDbClient();
 // PUBLIC API

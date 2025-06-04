@@ -10,6 +10,5 @@ export const SERIALIZABLE_OBJECTS_FIXTURE = {
   negInf: -Infinity,
   // we ensure that it'd be too big to be represented as a `number`
   decimal: new Prisma.Decimal(Number.MAX_SAFE_INTEGER).mul(2),
-  // @ts-ignore Server has a tsconfig target of es2017, so BigInt isn't available
   bigint: 2n * BigInt(Number.MAX_SAFE_INTEGER),
 };

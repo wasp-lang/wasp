@@ -143,18 +143,12 @@ Here's the new version of `tsconfig.json`:
     "esModuleInterop": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "allowJs": true,
     "outDir": ".wasp/out/user"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
 ```
 

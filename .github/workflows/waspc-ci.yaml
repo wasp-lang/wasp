@@ -47,7 +47,7 @@ jobs:
           # and link the binaries statically:
           # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
-          - macos-latest
+          - macos-13
           - windows-latest
         node-version:
           - "latest"
@@ -105,14 +105,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: |
           cd packages/ts-inspect
           npm ci
           npm test
 
       - name: Compile TS packages and move it into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: ./tools/install_packages_to_data_dir.sh
 
       - name: Build external dependencies
@@ -122,14 +122,14 @@ jobs:
         run: cabal build all
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-13'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run unit tests
         run: cabal test cli-test waspc-test waspls-test
 
       - name: Ensure examples/todoApp compiles and builds
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
 
       - name: Headless - Cache Node Modules

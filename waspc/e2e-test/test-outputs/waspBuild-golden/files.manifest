@@ -288,6 +288,7 @@ waspBuild/.wasp/build/src/Main.css
 waspBuild/.wasp/build/src/MainPage.jsx
 waspBuild/.wasp/build/src/vite-env.d.ts
 waspBuild/.wasp/build/src/waspLogo.png
+waspBuild/.wasp/build/tsconfig.json
 waspBuild/.wasp/build/web-app/.npmrc
 waspBuild/.wasp/build/web-app/README.md
 waspBuild/.wasp/build/web-app/index.html
