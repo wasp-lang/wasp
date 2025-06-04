@@ -71,9 +71,8 @@ export const ChatPage = () => {
           ) : (
             <div className="h-full flex items-center justify-center">
               <div className="text-center">
-                <div className="text-4xl mb-2">💬</div>
                 <p className="text-gray-500">
-                  No messages yet. Start the conversation!
+                  No messages yet. Test the chat by sending a message.
                 </p>
               </div>
             </div>

@@ -1,16 +1,12 @@
 import React, { forwardRef } from "react";
 import { cn } from "../cn";
 
-interface BaseInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   required?: boolean;
   disabled?: boolean;
   inputClassName?: string;
   containerClassName?: string;
-}
-
-interface InputProps extends BaseInputProps {
-  type?: "text" | "email" | "password" | "url" | "tel" | "search";
 }
 
 export const Input = forwardRef<
