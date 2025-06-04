@@ -1,4 +1,3 @@
-// import { UppercaseTextRequestState } from "@prisma/client";
 import { useState } from "react";
 import {
   getTextUppercaseRequests,
@@ -9,6 +8,16 @@ import { cn } from "../../../cn";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { Input } from "../../../components/Input";
+
+// Ideally, we'd import this enum from "@prisma/client"
+const UppercaseTextRequestState = {
+  PENDING: "PENDING",
+  SUCCESS: "SUCCESS",
+  ERROR: "ERROR",
+} as const;
+
+export type UppercaseTextRequestState =
+  (typeof UppercaseTextRequestState)[keyof typeof UppercaseTextRequestState];
 
 export function JobsPage() {
   const { data: requests } = useQuery(getTextUppercaseRequests, null, {
@@ -125,22 +134,23 @@ export function JobsPage() {
   );
 }
 
-function StatusBadge({ state }: { state: string }) {
-  const getClasses = (state: string) => {
+function StatusBadge({ state }: { state: UppercaseTextRequestState }) {
+  const getClasses = (state: UppercaseTextRequestState) => {
     const baseClasses =
       "inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm";
 
     switch (state) {
-      case "PENDING":
+      case UppercaseTextRequestState.PENDING:
         return cn(
           baseClasses,
           "bg-amber-50 text-amber-700 border-amber-200 animate-pulse",
         );
-      case "SUCCESS":
+      case UppercaseTextRequestState.SUCCESS:
         return cn(baseClasses, "bg-green-50 text-green-700 border-green-200");
-      case "ERROR":
+      case UppercaseTextRequestState.ERROR:
         return cn(baseClasses, "bg-red-50 text-red-700 border-red-200");
       default:
+        state satisfies never;
         return cn(baseClasses, "bg-gray-50 text-gray-700 border-gray-200");
     }
   };

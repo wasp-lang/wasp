@@ -13,8 +13,15 @@ export const Input = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   InputProps
 >((props, ref) => {
-  const { label, required, disabled, containerClassName, inputClassName } =
-    props;
+  const {
+    type = "text",
+    label,
+    required,
+    disabled,
+    containerClassName,
+    inputClassName,
+    ...textProps
+  } = props;
 
   const inputClasses = cn([
     "block w-full px-3 py-2 rounded-lg border transition-colors duration-200 ease-in-out",
@@ -26,8 +33,6 @@ export const Input = forwardRef<
   ]);
 
   const inputId = React.useId();
-
-  const { type = "text", ...textProps } = props;
 
   return (
     <div className={cn("space-y-1", containerClassName)}>
