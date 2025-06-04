@@ -1,6 +1,5 @@
 import type { PrismaClient } from './dbClient.js'
 
-
 // PUBLIC API
 export { default as config } from './config.js'
 // PUBLIC API
@@ -13,8 +12,6 @@ export { HttpError } from './HttpError.js'
 export { MiddlewareConfigFn } from './middleware/index.js'
 // PUBLIC API
 export { env } from './env.js'
-
-// PUBLIC API
 
 // PUBLIC API
 export type DbSeedFn = (prisma: PrismaClient) => Promise<void>
