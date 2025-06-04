@@ -10,7 +10,7 @@ import qualified StrongPath as SP
 import System.Process (proc)
 import System.Random (Random (randoms), RandomGen, newStdGen)
 import Wasp.Cli.Command (Command, require)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InBuildDir (InBuildDir), InWaspProject (InWaspProject))
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
@@ -37,6 +37,7 @@ postgresUrl = "postgresql://postgresWaspDevUser:postgresWaspDevPass@localhost:54
 buildStart :: Command ()
 buildStart = do
   InWaspProject waspProjectDir <- require
+  InBuildDir DbConnectionEstablished <- require
 
   -- TODO: Nice error when the build directory does not exist.
   -- TODO: Nice error when DB is not running.
