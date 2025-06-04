@@ -431,7 +431,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "7195d2f30469d0b45dc65302f2191c99e5704775e22c9519b2db0620c2dbdecd"
+        "b0e0f7e2bd3b5ab6ff0c8f07e7e65d37353e6991506ef97804a355b08f3f4341"
     ],
     [
         [
@@ -1166,7 +1166,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "37091ead1cd4d4aed082857ee6ef2e2168eec9a37330c68e2ebe36c331c7c5c7"
+        "83c528671dab5859e8f73d1e1948359c1679057dcaedacae9889a1b2022e5e2e"
     ],
     [
         [
