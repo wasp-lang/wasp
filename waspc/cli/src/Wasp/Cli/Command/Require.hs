@@ -24,6 +24,8 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     DbConnectionEstablished (DbConnectionEstablished),
+    InBuildDir (InBuildDir),
+    InOutDir (InOutDir),
     InWaspProject (InWaspProject),
   )
 where
@@ -36,7 +38,7 @@ import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Cli.Command (CommandError (CommandError), InDirRequirable (checkRequirementInDir), Requirable (checkRequirement), require)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
@@ -44,23 +46,16 @@ import qualified Wasp.Project.Common as Project.Common
 
 data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
-instance Requirable DbConnectionEstablished where
-  checkRequirement = do
-    -- NOTE: 'InWaspProject' does not depend on this requirement, so this
-    -- call to 'require' will not result in an infinite loop.
-    InWaspProject waspProjectDir <- require
-    let outDir =
-          waspProjectDir
-            SP.</> Project.Common.dotWaspDirInWaspProjectDir
-            SP.</> Project.Common.generatedCodeDirInDotWaspDir
-    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
+instance InDirRequirable DbConnectionEstablished where
+  checkRequirementInDir projectDir = do
+    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection projectDir
 
     either
       ( \chan -> do
           liftIO (readJobMessagesAndPrintThemPrefixed chan)
           throwError noDbError
       )
-      (\_ -> return DbConnectionEstablished)
+      (const $ return DbConnectionEstablished)
       dbIsRunning
     where
       noDbError =
@@ -105,3 +100,25 @@ instance Requirable InWaspProject where
           ( "Couldn't find wasp project root - make sure"
               ++ " you are running this command from a Wasp project."
           )
+
+data InOutDir req = InOutDir req deriving (Typeable)
+
+instance (Typeable req, InDirRequirable req) => Requirable (InOutDir req) where
+  checkRequirement = do
+    InWaspProject waspProjectDir <- require
+    let buildDir =
+          waspProjectDir
+            SP.</> Project.Common.dotWaspDirInWaspProjectDir
+            SP.</> Project.Common.generatedCodeDirInDotWaspDir
+    InOutDir <$> checkRequirementInDir buildDir
+
+data InBuildDir req = InBuildDir req deriving (Typeable)
+
+instance (Typeable req, InDirRequirable req) => Requirable (InBuildDir req) where
+  checkRequirement = do
+    InWaspProject waspProjectDir <- require
+    let buildDir =
+          waspProjectDir
+            SP.</> Project.Common.dotWaspDirInWaspProjectDir
+            SP.</> Project.Common.buildDirInDotWaspDir
+    InBuildDir <$> checkRequirementInDir buildDir
