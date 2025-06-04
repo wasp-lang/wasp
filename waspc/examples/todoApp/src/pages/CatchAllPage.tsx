@@ -1,11 +1,12 @@
 import { useLocation } from "react-router-dom";
+import { FeatureContainer } from "../components/FeatureContainer";
 
 export function CatchAllPage() {
   const location = useLocation();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-80">
-      <div className="space-y-2 text-center">
+    <FeatureContainer>
+      <div className="grid place-items-center card">
         <h1 className="text-2xl font-bold mb-4">Not found</h1>
         <p className="text-gray-500">
           We couldn't find anything at the{" "}
@@ -15,6 +16,6 @@ export function CatchAllPage() {
           location.
         </p>
       </div>
-    </div>
+    </FeatureContainer>
   );
 }

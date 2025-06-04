@@ -65,28 +65,22 @@ export function App() {
                 href="https://wasp.sh"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+                className="link"
               >
                 Wasp
               </a>
-              <span className="text-lg">🐝</span>
             </div>
 
             <StatusInfo date={date} isConnected={isConnected} />
 
             <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <span>© 2025</span>
               <div className="flex space-x-4">
-                <a
-                  href="https://wasp.sh/docs"
-                  className="hover:text-gray-700 transition-colors"
-                  target="_blank"
-                >
+                <a href="https://wasp.sh/docs" className="link" target="_blank">
                   Docs
                 </a>
                 <a
                   href="https://discord.com/invite/rzdnErX"
-                  className="hover:text-gray-700 transition-colors"
+                  className="link"
                   target="_blank"
                 >
                   Discord
@@ -113,7 +107,8 @@ function StatusInfo({
         <div
           className={cn(
             "w-2 h-2 rounded-full",
-            isConnected ? "bg-green-500" : "bg-red-500",
+            isConnected && "bg-green-500",
+            !isConnected && "bg-red-500",
           )}
         />
         <span className="text-gray-600">
@@ -122,59 +117,58 @@ function StatusInfo({
       </div>
 
       {date && (
-        <div className="flex items-center space-x-2 text-gray-500">
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>Loaded {date.toLocaleString()}</span>
-        </div>
+        <div className="text-gray-500">Loaded {date.toLocaleString()}</div>
       )}
     </div>
   );
 }
 
 function UserMenu({ user }: { user: AuthUser }) {
+  const name = getName(user);
   return (
     <div className="flex items-center space-x-4">
       <div className="hidden md:flex items-center space-x-2">
-        <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-          <span className="text-primary-600 font-medium text-sm">
-            {getName(user)?.charAt(0).toUpperCase()}
-          </span>
-        </div>
+        <UserAvatar user={user} />
         <div className="flex flex-col">
           <span className="text-sm text-gray-600">Welcome back,</span>
           <Link
             to="/profile"
             className="text-sm font-medium text-gray-900 hover:text-primary-600 transition-colors"
           >
-            {getName(user)}
+            {name}
           </Link>
         </div>
       </div>
 
-      <Link
-        to="/profile"
-        className="md:hidden w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center hover:bg-primary-200 transition-colors"
-      >
-        <span className="text-primary-600 font-medium text-sm">
-          {getName(user)?.charAt(0).toUpperCase()}
-        </span>
+      <Link to="/profile">
+        <UserAvatar user={user} className="md:hidden" />
       </Link>
 
       <Button onClick={logout} variant="secondary">
         Sign Out
       </Button>
+    </div>
+  );
+}
+
+function UserAvatar({
+  user,
+  className,
+}: {
+  user: AuthUser;
+  className?: string;
+}) {
+  const name = getName(user);
+  return (
+    <div
+      className={cn(
+        "w-8 h-8 bg-primary-100 border border-primary-300 rounded-full flex items-center justify-center",
+        className,
+      )}
+    >
+      <span className="text-primary-600 font-medium text-sm">
+        {name?.charAt(0).toUpperCase()}
+      </span>
     </div>
   );
 }

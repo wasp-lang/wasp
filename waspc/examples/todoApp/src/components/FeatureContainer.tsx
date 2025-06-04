@@ -3,29 +3,95 @@ import { useLocation } from "react-router-dom";
 import { Link, type Routes } from "wasp/client/router";
 import { cn } from "../cn";
 
+const features: Feature[] = [
+  {
+    to: "/tasks",
+    title: "Operations",
+  },
+  {
+    to: "/custom-signup",
+    title: "Custom Signup",
+    isPublic: true,
+  },
+  {
+    to: "/apis",
+    title: "Custom APIs",
+    isPublic: true,
+  },
+  {
+    to: "/jobs",
+    title: "Async Jobs",
+  },
+  {
+    to: "/chat",
+    title: "Websockets",
+  },
+  {
+    to: "/crud",
+    title: "Automatic CRUD",
+  },
+  {
+    to: "/streaming",
+    title: "Streaming",
+  },
+  {
+    to: "/serialization",
+    title: "Serialization Test",
+    isPublic: true,
+  },
+  {
+    to: "/profile",
+    title: "User Profile",
+  },
+];
+
 export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const features = (
-    <>
-      <FeatureCard to="/tasks" title="Operations" />
-      <FeatureCard to="/custom-signup" title="Custom Signup" isPublic={true} />
-      <FeatureCard to="/apis" title="Custom APIs" isPublic={true} />
-      <FeatureCard to="/jobs" title="Async Jobs" />
-      <FeatureCard to="/chat" title="Websockets" />
-      <FeatureCard to="/crud" title="Automatic CRUD" />
-      <FeatureCard to="/streaming" title="Streaming" />
-      <FeatureCard
-        to="/serialization"
-        title="Serialization Test"
-        isPublic={true}
-      />
-      <FeatureCard to="/profile" title="User Profile" isPublic={false} />
-    </>
-  );
-
   return (
     <div className="flex z-50">
+      <FeatureListMenu />
+
+      <main className="flex-1 lg:ml-0">
+        <div className="p-6 lg:p-8">{children}</div>
+      </main>
+    </div>
+  );
+}
+
+function FeatureListMenu() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const featureCards = features.map((feature) => (
+    <FeatureCard {...feature} key={feature.to} />
+  ));
+
+  return (
+    <>
+      {/* Desktop */}
+      <div className="hidden lg:block w-80 bg-white border-r border-gray-200 overflow-y-auto">
+        <div className="p-6">
+          <nav className="space-y-2">{featureCards}</nav>
+        </div>
+      </div>
+
+      {/* Mobile */}
+      <div
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 lg:hidden transition-transform duration-300",
+          isMobileMenuOpen ? "translate-y-0" : "translate-y-full",
+        )}
+      >
+        <div className="p-6 overflow-y-auto">
+          <nav className="space-y-2">{featureCards}</nav>
+        </div>
+      </div>
+
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="fixed bottom-6 right-6 z-50 lg:hidden bg-white p-3 rounded-xl shadow-lg border border-gray-200"
@@ -44,50 +110,23 @@ export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
               d="M4 6h16M4 12h16M4 18h16"
             />
           </svg>
-          <div>Features</div>
+          <span>Features</span>
         </div>
       </button>
-
-      <div className="hidden lg:block w-80 bg-white border-r border-gray-200 overflow-y-auto">
-        <div className="p-6">
-          <nav className="space-y-2">{features}</nav>
-        </div>
-      </div>
-
-      <div
-        className={cn(
-          "fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 lg:hidden transition-transform duration-300",
-          isMobileMenuOpen ? "translate-y-0" : "translate-y-full",
-        )}
-      >
-        <div className="p-6 overflow-y-auto">
-          <nav className="space-y-2">{features}</nav>
-        </div>
-      </div>
-
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      <div className="flex-1 lg:ml-0">
-        <div className="p-6 lg:p-8">{children}</div>
-      </div>
-    </div>
+    </>
   );
 }
 
-type FeatureCardProps = {
+type Feature = {
   title: string;
   isPublic?: boolean;
   to: string;
 } & Routes;
 
-function FeatureCard({ title, isPublic, ...routeProps }: FeatureCardProps) {
+function FeatureCard({ title, isPublic, ...routeProps }: Feature) {
   const location = useLocation();
   const isActive = location.pathname.startsWith(routeProps.to);
+
   return (
     <Link
       {...routeProps}

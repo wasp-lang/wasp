@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   useSocket,
   useSocketListener,
@@ -14,7 +14,7 @@ export const ChatPage = () => {
     ServerToClientPayload<"chatMessage">[]
   >([]);
   const { socket, isConnected } = useSocket();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [text, setText] = useState("");
 
   useSocketListener("chatMessage", (msg) =>
     setMessages((priorMessages) => [...priorMessages, msg]),
@@ -23,10 +23,8 @@ export const ChatPage = () => {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (inputRef.current !== null) {
-      socket.emit("chatMessage", inputRef.current.value);
-      inputRef.current.value = "";
-    }
+    socket.emit("chatMessage", text);
+    setText("");
   }
 
   return (
@@ -82,9 +80,10 @@ export const ChatPage = () => {
         <form onSubmit={handleSubmit}>
           <div className="flex gap-2">
             <Input
-              ref={inputRef}
               placeholder="Type your message..."
               containerClassName="flex-1"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
               required
             />
             <Button type="submit" variant="primary">

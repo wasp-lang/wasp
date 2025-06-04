@@ -1,14 +1,13 @@
 import { ForgotPasswordForm } from "wasp/client/auth";
+import { FeatureContainer } from "../../../components/FeatureContainer";
 import { customisationProps } from "./auth-ui";
 
 export function RequestPasswordReset() {
   return (
-    <div className="min-w-full flex items-center justify-center">
-      <div className="w-full h-full max-w-sm p-5">
-        <div>
-          <ForgotPasswordForm {...customisationProps} />
-        </div>
+    <FeatureContainer>
+      <div className="max-w-sm mx-auto">
+        <ForgotPasswordForm {...customisationProps} />
       </div>
-    </div>
+    </FeatureContainer>
   );
 }
