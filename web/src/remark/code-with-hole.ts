@@ -1,17 +1,16 @@
+// In a code block tagged with `with-hole` meta, replaces the word "$HOLE$" with
+// a comment: `/* ... */`.
+
 /*
-This file defines a plugin for the unified library that processes code blocks
-in Markdown documents. It looks for code blocks with a specific meta flag
-(`with-hole`) and replaces occurrences of the word "hole" in the code with
-a placeholder comment (`...`). This is useful for code examples where
-parts of the code are intentionally omitted for brevity or clarity, but
-it still needs to be syntactically correct.
+This is useful for keeping code examples syntactically correct (for example for
+use with `auto-js`) while omitting parts of the code for clarity or brevity.
 
 Example:
 
 Input:
 
     ```js title="src/apis.js" with-hole
-    export const validatePassword = (password) => password.length > 8 && hole;
+    export const validatePassword = (password) => password.length > 8 && $HOLE$;
     ```
 
 Output:
@@ -26,26 +25,30 @@ import type * as md from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import {
-  assertSupportedLanguage,
-  checkNodeIsCodeWithMeta,
+  assertCodeBlockIsInLanguage,
+  makeCheckForCodeWithMeta,
 } from "./util/code-blocks";
 
-// Wrapped in \b to denote a word boundary
-const META_FLAG_REGEX = /\bwith-hole\b/;
-const HOLE_IDENTIFIER_REGEX = /\bhole\b/;
+const META_FLAG = "with-hole";
+const HOLE_IDENTIFIER = "$HOLE$";
 const HOLE_REPLACEMENT = "/* ... */";
 
-const SUPPORTED_LANGS = new Set(["js", "jsx", "ts", "tsx"] as const);
+const SUPPORTED_LANGS = ["js", "jsx", "ts", "tsx"] as const;
+
+const isCodeWithHoleFlag = makeCheckForCodeWithMeta(META_FLAG);
 
 const codeWithHolePlugin: Plugin<[], md.Root> = () => (tree, file) => {
-  visit(tree, checkNodeIsCodeWithMeta(META_FLAG_REGEX), (node) => {
-    assertSupportedLanguage(node, file, SUPPORTED_LANGS);
+  visit(tree, isCodeWithHoleFlag, (node) => {
+    try {
+      assertCodeBlockIsInLanguage(node, SUPPORTED_LANGS);
 
-    // Remove our flag from the meta so other plugins don't trip up
-    node.meta = node.meta.replace(META_FLAG_REGEX, "");
-
-    // Replace hole with ellipsis
-    node.value = node.value.replace(HOLE_IDENTIFIER_REGEX, HOLE_REPLACEMENT);
+      // Replace hole with ellipsis.
+      node.value = node.value.replaceAll(HOLE_IDENTIFIER, HOLE_REPLACEMENT);
+    } catch (error) {
+      // We catch any thrown errors and annotate them as file errors, with the
+      // code block position.
+      file.fail(error, { place: node.position });
+    }
   });
 };
 
