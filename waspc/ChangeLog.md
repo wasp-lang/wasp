@@ -28,6 +28,8 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 ### 🎉 New Features
 
 - Wasp now supports `onAfterEmailVerified` auth hooks! You can use this hook to run custom logic after a user has verified their email.
+- Auth: you can now use Slack as a social auth provider (by @scorpil).
+- You can now return Prisma `Decimal`s from your Queries and Actions. ([#2701](https://github.com/wasp-lang/wasp/pull/2701))
 
 ### 🐞 Bug fixes
 
@@ -40,6 +42,13 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - Modernized our TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 - Added support for jump-to-definition for Wasp symbols ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 - `userSignupFields` types are now correctly propagated to client auth methods. ([#2641](https://github.com/wasp-lang/wasp/pull/2641))
+- The generated server code is now type-checked before building ([#2778](https://github.com/wasp-lang/wasp/pull/2778))
+
+## 0.16.5
+
+### 🐞 Bug fixes
+
+- Pins down the version of tanstack/react-query to exactly `4.36.1` instead of `^4.29.0`, to avoid the issue with the latest `4.39.0` release that fails to import in Wasp.
 
 ## 0.16.4
 
@@ -1203,7 +1212,7 @@ Define a Query on the server:
 ```typescript
 export const getTask: GetTaskInfo<Pick<Task, "id">, Task> = async (
   { id },
-  context
+  context,
 ) => {
   // ...
 };
@@ -1347,7 +1356,7 @@ export const devSeedSimple = async (prismaClient) => {
   });
   await createTask(
     { description: "Chase the cat" },
-    { user: newUser, entities: { Task: prismaClient.task } }
+    { user: newUser, entities: { Task: prismaClient.task } },
   );
 };
 
@@ -1740,7 +1749,7 @@ You can now use the Tailwind CSS framework in your project by simply adding two 
 
       ```bash
       $ cd migrations
-      $ mkdir "migrations/`date -n +%Y%m%d%H%M%S`_some_name" && touch $_/migration.sql
+      $ mkdir "migrations/$(date -n +%Y%m%d%H%M%S)_some_name" && touch $_/migration.sql
       ```
 
       You can then add contents like the following:

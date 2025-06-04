@@ -1,6 +1,4 @@
-import React from 'react'
-
-import './emailSignupForm.css'
+import "./emailSignupForm.css";
 
 const EmailSignupForm = ({ placeholder }) => {
   return (
@@ -15,7 +13,7 @@ const EmailSignupForm = ({ placeholder }) => {
         type="email"
         required
         className="input"
-        placeholder={placeholder || 'Enter your email'}
+        placeholder={placeholder || "Enter your email"}
       />
       <div className="">
         <button className="button button--primary" type="submit">
@@ -23,7 +21,7 @@ const EmailSignupForm = ({ placeholder }) => {
         </button>
       </div>
     </form>
-  )
-}
+  );
+};
 
-export default EmailSignupForm
+export default EmailSignupForm;

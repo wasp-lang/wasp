@@ -1,8 +1,7 @@
-import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { format } from "timeago.js";
 
-import { useQuery, getFeedback } from "wasp/client/operations";
+import { getFeedback, useQuery } from "wasp/client/operations";
 
 export function Feedback() {
   const { data: feedback, isLoading, error } = useQuery(getFeedback);
@@ -44,7 +43,9 @@ export function Feedback() {
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
                   >
-                    <span title={entry.project.description}>{entry.project.name}</span>{" "}
+                    <span title={entry.project.description}>
+                      {entry.project.name}
+                    </span>{" "}
                   </th>
                   <td
                     className="px-6 py-4"
@@ -58,9 +59,7 @@ export function Feedback() {
                   >
                     {entry.score}
                   </td>
-                  <td className="px-6 py-4">
-                    {entry.message}
-                  </td>
+                  <td className="px-6 py-4">{entry.message}</td>
                   <td className="px-6 py-4">
                     <Link
                       to={`/result/${entry.projectId}`}
@@ -76,5 +75,5 @@ export function Feedback() {
         </div>
       )}
     </>
-  )
+  );
 }

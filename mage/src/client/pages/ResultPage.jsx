@@ -1,38 +1,40 @@
-import { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import { RadioGroup } from "@headlessui/react";
+import JSConfetti from "js-confetti";
+import { useEffect, useMemo, useState } from "react";
 import {
-  PiCopyDuotone,
-  PiLaptopDuotone,
-  PiDownloadDuotone,
   PiCheckDuotone,
+  PiCopyDuotone,
+  PiDownloadDuotone,
   PiGithubLogoDuotone,
+  PiLaptopDuotone,
   PiStarDuotone,
 } from "react-icons/pi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import JSConfetti from "js-confetti";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import {
-  startGeneratingNewApp,
-  registerZipDownload,
   createFeedback,
-  useQuery,
   getAppGenerationResult,
   getNumProjects,
+  registerZipDownload,
+  startGeneratingNewApp,
+  useQuery,
 } from "wasp/client/operations";
 
 import { CodeHighlight } from "../components/CodeHighlight";
-import { FileTree } from "../components/FileTree";
-import { Loader } from "../components/Loader";
 import { MyDialog } from "../components/Dialog";
-import { Logs } from "../components/Logs";
-import { WaitingRoomContent } from "../components/WaitingRoomContent";
-import { Header } from "../components/Header";
 import { Faq } from "../components/Faq";
+import { FileTree } from "../components/FileTree";
+import {
+  FaqButton,
+  Header,
+  HomeButton,
+  ProfileButton,
+} from "../components/Header";
+import { Loader } from "../components/Loader";
+import { Logs } from "../components/Logs";
 import { StatusPill } from "../components/StatusPill";
-import { HomeButton, ProfileButton, FaqButton } from "../components/Header";
+import { WaitingRoomContent } from "../components/WaitingRoomContent";
 import { createFilesAndDownloadZip } from "../zip/zipHelpers";
 
 const jsConfetti = new JSConfetti();
@@ -49,7 +51,7 @@ export const ResultPage = () => {
   } = useQuery(
     getAppGenerationResult,
     { appId },
-    { enabled: !!appId && !generationDone, refetchInterval: 3000 }
+    { enabled: !!appId && !generationDone, refetchInterval: 3000 },
   );
   const [activeFilePath, setActiveFilePath] = useState(null);
   const [currentStatus, setCurrentStatus] = useState({
@@ -109,12 +111,15 @@ export const ResultPage = () => {
       return [];
     }
 
-    const updatedFilePaths = Object.entries(files).reduce((updatedPaths, [path, newContent]) => {
-      if (newContent === previousFiles[path]) {
-        return updatedPaths;
-      }
-      return [...updatedPaths, path];
-    }, []);
+    const updatedFilePaths = Object.entries(files).reduce(
+      (updatedPaths, [path, newContent]) => {
+        if (newContent === previousFiles[path]) {
+          return updatedPaths;
+        }
+        return [...updatedPaths, path];
+      },
+      [],
+    );
 
     return updatedFilePaths;
   }, [files]);
@@ -144,7 +149,7 @@ export const ResultPage = () => {
             path !== ".gitignore" &&
             path !== ".waspignore" &&
             path !== "public/.gitkeep" &&
-            path !== ".wasproot"
+            path !== ".wasproot",
         )
         .sort((a, b) => {
           if (a.endsWith(".wasp") && !b.endsWith(".wasp")) {
@@ -179,7 +184,10 @@ export const ResultPage = () => {
   }
 
   function getUniqueZipName() {
-    const safeAppName = appGenerationResult?.project?.name.replace(/[^a-zA-Z0-9]/g, "_");
+    const safeAppName = appGenerationResult?.project?.name.replace(
+      /[^a-zA-Z0-9]/g,
+      "_",
+    );
     const randomSuffix = Math.random().toString(36).substring(2, 7);
     return `${safeAppName}-${randomSuffix}`;
   }
@@ -235,8 +243,8 @@ export const ResultPage = () => {
       {isError && (
         <div className="mb-4 bg-red-50 p-8 rounded-xl">
           <div className="text-red-500">
-            We couldn't find the app generation result. Maybe the link is incorrect or the app
-            generation has failed.
+            We couldn't find the app generation result. Maybe the link is
+            incorrect or the app generation has failed.
           </div>
           <Link className="button gray sm mt-4 inline-block" to="/">
             Generate a new one
@@ -293,7 +301,9 @@ export const ResultPage = () => {
 
       {currentStatus.status === "pending" && (
         <WaitingRoomContent
-          numberOfProjectsAheadInQueue={appGenerationResult?.numberOfProjectsAheadInQueue || 0}
+          numberOfProjectsAheadInQueue={
+            appGenerationResult?.numberOfProjectsAheadInQueue || 0
+          }
         />
       )}
 
@@ -308,8 +318,8 @@ export const ResultPage = () => {
             className="button gray block w-full mb-4 md:hidden"
             onClick={toggleMobileFileBrowser}
           >
-            {isMobileFileBrowserOpen ? "Close" : "Open"} file browser ({interestingFilePaths.length}{" "}
-            files)
+            {isMobileFileBrowserOpen ? "Close" : "Open"} file browser (
+            {interestingFilePaths.length} files)
           </button>
           <div className="grid gap-4 md:grid-cols-[320px_1fr] mt-4 overflow-x-auto md:overflow-x-visible">
             <aside className={isMobileFileBrowserOpen ? "" : "hidden md:block"}>
@@ -341,7 +351,9 @@ export const ResultPage = () => {
             </aside>
 
             {activeFilePath && (
-              <main className={isMobileFileBrowserOpen ? "hidden md:block" : ""}>
+              <main
+                className={isMobileFileBrowserOpen ? "hidden md:block" : ""}
+              >
                 <div
                   className={`
                     font-bold text-sm bg-slate-200 text-slate-700 p-3 rounded rounded-b-none
@@ -351,8 +363,14 @@ export const ResultPage = () => {
                   <span className="mr-3">{activeFilePath}:</span>
                   <Feedback projectId={appId} />
                 </div>
-                <div key={activeFilePath} className="py-4 bg-slate-100 rounded rounded-t-none">
-                  <CodeHighlight language={language} className="text-sm md:text-base">
+                <div
+                  key={activeFilePath}
+                  className="py-4 bg-slate-100 rounded rounded-t-none"
+                >
+                  <CodeHighlight
+                    language={language}
+                    className="text-sm md:text-base"
+                  >
                     {files[activeFilePath].trim()}
                   </CodeHighlight>
                 </div>
@@ -362,7 +380,9 @@ export const ResultPage = () => {
               <main className="p-8 bg-slate-100 rounded grid place-content-center">
                 <div className="text-center">
                   <div className="font-bold">Select a file to view</div>
-                  <div className="text-gray-500 text-sm">(click on a file in the file tree)</div>
+                  <div className="text-gray-500 text-sm">
+                    (click on a file in the file tree)
+                  </div>
                 </div>
               </main>
             )}
@@ -390,7 +410,9 @@ function getStatusPillData(generationResult) {
     deleted: "deleted",
   };
 
-  const queueCardinalNumber = getCardinalNumber(generationResult.numberOfProjectsAheadInQueue);
+  const queueCardinalNumber = getCardinalNumber(
+    generationResult.numberOfProjectsAheadInQueue,
+  );
 
   const backendStatusToPillText = {
     pending: `${queueCardinalNumber} in the queue`,
@@ -422,22 +444,29 @@ function getCardinalNumber(number) {
 
 export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
   const [numTokensSpent, setNumTokensSpent] = useState(0);
-  const { data: numTotalProjects } = useQuery(getNumProjects, {}, { enabled: isOpen });
+  const { data: numTotalProjects } = useQuery(
+    getNumProjects,
+    {},
+    { enabled: isOpen },
+  );
 
   useEffect(() => {
     const logText = appGenerationResult?.project?.logs?.find((log) =>
-      log.content.includes("tokens usage")
+      log.content.includes("tokens usage"),
     )?.content;
 
     if (logText) {
-      const regex = /Total\s+tokens\s+usage\s*:\s*~\s*(\d+(?:\.\d+){0,1})\s*k\b/;
+      const regex =
+        /Total\s+tokens\s+usage\s*:\s*~\s*(\d+(?:\.\d+){0,1})\s*k\b/;
       const match = logText.match(regex);
 
       if (match) {
         const num = parseFloat(match[1]);
         setNumTokensSpent(num * 1000);
       } else {
-        console.log("Failed to parse total number of tokens used: no regex match.");
+        console.log(
+          "Failed to parse total number of tokens used: no regex match.",
+        );
       }
     }
   }, [appGenerationResult]);
@@ -452,7 +481,11 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
   }, [isOpen]);
 
   function FormattedText({ children }) {
-    return <span className="py-1 px-2 font-semibold text-pink-800 rounded">{children}</span>;
+    return (
+      <span className="py-1 px-2 font-semibold text-pink-800 rounded">
+        {children}
+      </span>
+    );
   }
 
   function calcCostForGpt_4o(numTokensSpent) {
@@ -474,21 +507,29 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     >
       <div className="mt-6 space-y-5">
         <p className="text-base leading-relaxed text-gray-500">
-          We've made this tool completely <span className="font-semibold">free</span> and cover all
-          the costs 😇
+          We've made this tool completely{" "}
+          <span className="font-semibold">free</span> and cover all the costs 😇
         </p>
         {numTokensSpent > 0 && (
           <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full leading-relaxed text-gray-500 text-sm">
             <tbody>
               <tr>
-                <td className="p-2 text-gray-600"> Number of tokens your app used: </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{numTokensSpent.toLocaleString()}</FormattedText>{" "}
+                  Number of tokens your app used:{" "}
+                </td>
+                <td className="p-2 text-gray-600">
+                  {" "}
+                  <FormattedText>
+                    {numTokensSpent.toLocaleString()}
+                  </FormattedText>{" "}
                 </td>
               </tr>
               <tr>
-                <td className="p-2 text-gray-600"> Cost to generate your app: </td>
+                <td className="p-2 text-gray-600">
+                  {" "}
+                  Cost to generate your app:{" "}
+                </td>
                 <td className="p-2 text-gray-600">
                   {" "}
                   <FormattedText>{`~$${calcCostForGpt_4o(Number(numTokensSpent))}`}</FormattedText>{" "}
@@ -496,10 +537,15 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
               </tr>
               {numTotalProjects && (
                 <tr className="p-2 text-gray-600">
-                  <td className="p-2 text-gray-600"> Total number of apps generated with Mage: </td>
                   <td className="p-2 text-gray-600">
                     {" "}
-                    <FormattedText>{numTotalProjects.toLocaleString()}</FormattedText>{" "}
+                    Total number of apps generated with Mage:{" "}
+                  </td>
+                  <td className="p-2 text-gray-600">
+                    {" "}
+                    <FormattedText>
+                      {numTotalProjects.toLocaleString()}
+                    </FormattedText>{" "}
                   </td>
                 </tr>
               )}
@@ -515,14 +561,16 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
           className="flex items-center justify-center underline text-pink-600 "
         >
           <div className="py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
-            <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on GitHub{" "}
-            <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
+            <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on
+            GitHub <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
           </div>
         </a>
         <p className="text-base leading-relaxed text-gray-500">
           This helps spread the word, so we can keep making Mage better.
         </p>
-        <p className="text-base leading-relaxed text-gray-500">We'd very much appreciate it! 🧙</p>
+        <p className="text-base leading-relaxed text-gray-500">
+          We'd very much appreciate it! 🧙
+        </p>
       </div>
     </MyDialog>
   );
@@ -539,14 +587,16 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
         disabled={disabled}
         onClick={() => setShowModal(true)}
       >
-        Run the app locally <PiLaptopDuotone className="inline-block" size={20} />
+        Run the app locally{" "}
+        <PiLaptopDuotone className="inline-block" size={20} />
       </button>
       <MyDialog
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         title={
           <span>
-            Run the app locally <PiLaptopDuotone className="inline-block" size={20} />
+            Run the app locally{" "}
+            <PiLaptopDuotone className="inline-block" size={20} />
           </span>
         }
       >
@@ -563,13 +613,15 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             >
               Wasp
             </a>{" "}
-            web framework, using React, Node.js and Prisma, and is completely full-stack (frontend +
-            backend + database).
+            web framework, using React, Node.js and Prisma, and is completely
+            full-stack (frontend + backend + database).
           </p>
 
           <WarningAboutAI />
 
-          <p className="text-base leading-relaxed text-gray-500">Now, let's get the app running!</p>
+          <p className="text-base leading-relaxed text-gray-500">
+            Now, let's get the app running!
+          </p>
 
           <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
             <h2 className="font-bold flex items-center space-x-1">
@@ -596,10 +648,14 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               className="button flex items-center justify-center gap-1 w-full mt-2"
               onClick={onDownloadZip}
             >
-              Download ZIP <PiDownloadDuotone className="inline-block" size={20} />
+              Download ZIP{" "}
+              <PiDownloadDuotone className="inline-block" size={20} />
             </button>
 
-            <h2 className="font-bold mt-4"> 3. Position into the unzipped dir and run the app: </h2>
+            <h2 className="font-bold mt-4">
+              {" "}
+              3. Position into the unzipped dir and run the app:{" "}
+            </h2>
             <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
               cd {"<your-app-name>"}
               <br />
@@ -638,8 +694,9 @@ function WarningAboutAI() {
           <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
-              Since this is a GPT generated app, it might contain some mistakes, proportional to how
-              complex the app is. If there are some in your app, check out{" "}
+              Since this is a GPT generated app, it might contain some mistakes,
+              proportional to how complex the app is. If there are some in your
+              app, check out{" "}
               <a
                 href="https://wasp.sh/docs"
                 target="_blank"
@@ -648,7 +705,8 @@ function WarningAboutAI() {
               >
                 Wasp docs
               </a>{" "}
-              for help while fixing them, and also feel free to reach out to us on{" "}
+              for help while fixing them, and also feel free to reach out to us
+              on{" "}
               <a
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
@@ -657,8 +715,8 @@ function WarningAboutAI() {
               >
                 Discord
               </a>
-              ! You can also try generating the app again to get different results (try playing with
-              the creativity level).
+              ! You can also try generating the app again to get different
+              results (try playing with the creativity level).
             </p>
           </div>
         </div>
@@ -743,7 +801,10 @@ function Feedback({ projectId }) {
             </RadioGroup>
           </div>
 
-          <label htmlFor="feedbackText" className="text-slate-700 block mb-2 mt-8">
+          <label
+            htmlFor="feedbackText"
+            className="text-slate-700 block mb-2 mt-8"
+          >
             How did it go? <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -785,7 +846,8 @@ function ShareButton() {
         </span>
       ) : (
         <span>
-          Copy a shareable link <PiCopyDuotone className="inline-block" size={20} />
+          Copy a shareable link{" "}
+          <PiCopyDuotone className="inline-block" size={20} />
         </span>
       )}
     </button>

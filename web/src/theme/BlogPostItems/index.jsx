@@ -1,21 +1,17 @@
-import React from 'react'
-import Link from '@docusaurus/Link'
-import { BlogPostProvider } from '@docusaurus/theme-common/internal'
-import BlogPostItem from '@theme/BlogPostItem'
-
-import { ArrowRight } from 'react-feather'
+import Link from "@docusaurus/Link";
+import BlogPostItem from "@theme/BlogPostItem";
 
 const getReadingTimeStatement = (readingTimeFloat) =>
-  Math.ceil(readingTimeFloat) + ' min read'
+  Math.ceil(readingTimeFloat) + " min read";
 
 export default function BlogPostItems({
   items,
   component: BlogPostItemComponent = BlogPostItem,
 }) {
   // TODO(matija): what if there are no items (blog posts)?
-  const featuredItem = items[0]
+  const featuredItem = items[0];
   const coverImgSrc =
-    featuredItem.content.frontMatter.image || '/img/blog-default-img.png'
+    featuredItem.content.frontMatter.image || "/img/blog-default-img.png";
 
   return (
     <>
@@ -51,7 +47,7 @@ export default function BlogPostItems({
                 <div className="mx-2 h-px flex-1 bg-neutral-600/20"></div>
                 <span>
                   {getReadingTimeStatement(
-                    featuredItem.content.metadata.readingTime
+                    featuredItem.content.metadata.readingTime,
                   )}
                 </span>
               </span>
@@ -99,9 +95,9 @@ export default function BlogPostItems({
       <section className="container mx-auto px-4 sm:px-6 md:px-20 lg:px-28">
         <div className="mb-8 grid grid-cols-1 gap-5 md:-mt-12 md:grid-cols-2 xl:grid-cols-3">
           {items.slice(1).map((item) => {
-            const BlogPostContent = item.content
+            const BlogPostContent = item.content;
             const coverImgSrc =
-              item.content.frontMatter.image || '/img/blog-default-img.png'
+              item.content.frontMatter.image || "/img/blog-default-img.png";
 
             return (
               <article
@@ -162,7 +158,7 @@ export default function BlogPostItems({
                   className="absolute inset-0 opacity-0"
                 />
               </article>
-            )
+            );
 
             /* This is what it looked like right after swizzle --eject.
             return (
@@ -179,5 +175,5 @@ export default function BlogPostItems({
         </div>
       </section>
     </>
-  )
+  );
 }

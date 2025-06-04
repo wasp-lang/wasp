@@ -1,16 +1,14 @@
-import React from 'react'
-import classNames from 'classnames'
-import { useHistory } from '@docusaurus/router'
-import { ChevronRight, X } from 'react-feather'
+import { useHistory } from "@docusaurus/router";
+import classNames from "classnames";
 
-import styles from '../../pages/styles.module.css'
+import styles from "../../pages/styles.module.css";
 
 const Announcement = () => {
-  let history = useHistory()
+  let history = useHistory();
 
   const handleLink = () => {
-    history.push('/blog/2025/01/09/wasp-launch-week-8')
-  }
+    history.push("/blog/2025/01/09/wasp-launch-week-8");
+  };
 
   return (
     <div
@@ -22,7 +20,7 @@ const Announcement = () => {
         flex-row space-x-3
         overflow-hidden
         text-white
-      `
+      `,
       )}
     >
       <div
@@ -51,7 +49,7 @@ const Announcement = () => {
         </span>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Announcement
+export default Announcement;

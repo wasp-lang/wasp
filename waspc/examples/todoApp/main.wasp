@@ -14,6 +14,10 @@ app todoApp {
       // usernameAndPassword: {
       //  userSignupFields: import { userSignupFields } from "@src/auth/github",
       // },
+      slack: {
+        configFn: import { config } from "@src/auth/slack",
+        userSignupFields: import { userSignupFields } from "@src/auth/slack"
+      },
       discord: {
         configFn: import { config } from "@src/auth/discord",
         userSignupFields: import { userSignupFields } from "@src/auth/discord"
@@ -65,7 +69,8 @@ app todoApp {
     seeds: [
       import { devSeedSimple } from "@src/dbSeeds",
       import { prodSeed } from "@src/dbSeeds"
-    ]
+    ],
+    prismaSetupFn: import { setUpPrisma } from "@src/prisma",
   },
   emailSender: {
     provider: SMTP,

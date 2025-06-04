@@ -207,7 +207,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "c0bbf6ee0fce33510ac9cd4df1081315ce4490633ba1e0313c49a0bea7f3ea3a"
+        "4ef4e3e0637b3c3a3f2bc6d295251b044a8e914faf7bd0f30f0a44a0582f8914"
     ],
     [
         [
@@ -249,7 +249,7 @@
             "file",
             "../out/sdk/wasp/server/dbClient.ts"
         ],
-        "50f11eb232174184be5fd44e8ee3875c30707b486c8c70c3f7bfb93609d38e66"
+        "66cc2f77c482e1809113c9b31319b2a8e5d9e6413018c103dc6281c35252be51"
     ],
     [
         [
@@ -263,7 +263,7 @@
             "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
+        "8c8ad2b3979c6940d2ab90b789ff847c1af1c1bc8d8541438cd9d210f6ff6e25"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "Dockerfile"
         ],
-        "0a244b8e1f4a86228b613cfc6c370142759297c1cbfa7f71f5c6ccd4bb05db55"
+        "3ae5c9ce56794a1380463267c9c78b90eb98caeab1cd3486d88e8a43f152b42d"
     ],
     [
         [
@@ -466,7 +466,7 @@
             "file",
             "server/package.json"
         ],
-        "0ce311426f452b535325628ae341b6d6526d0c10b93849b9369914e7c94f13e2"
+        "e251aa3fe25a7636c4c26ecfbc46242e14c222eb694e50d4616e3e4164cbc3ac"
     ],
     [
         [
@@ -506,13 +506,6 @@
     [
         [
             "file",
-            "server/src/polyfill.ts"
-        ],
-        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
-    ],
-    [
-        [
-            "file",
             "server/src/routes/index.js"
         ],
         "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
@@ -529,7 +522,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "ab9d7722a512f2a51a81a63de0b81172421dc86a6556c49f70aab4683d57657f"
+        "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
     ],
     [
         [
@@ -578,7 +571,7 @@
             "file",
             "web-app/package.json"
         ],
-        "b0737cfea70878d3cce16612f9a6ce577d9a3cb418d8fa91ae303c347f829431"
+        "4ddfd02e59f34165966fadff0244bd9861eb98e4991064761594fec5a55beb84"
     ],
     [
         [

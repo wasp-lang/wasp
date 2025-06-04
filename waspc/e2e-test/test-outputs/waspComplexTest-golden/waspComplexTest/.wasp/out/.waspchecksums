@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "2625c4c99d8925586320492a69923c487764868f4461430672b09587408c0d08"
+        "69c6a1a89118fa450c9ded5bc10c8639818b857ca98ec15a94e5dd502ad567cd"
     ],
     [
         [
@@ -67,7 +67,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "0213fcb5830ea8e0ce94d6243c81894d05cceb68199c6ee190eb1b5eba57cabd"
+        "e701e6587b0966e58ca9ac5dbcd57ebe36002ac6acd25b021114659399b7f4b3"
     ],
     [
         [
@@ -172,7 +172,7 @@
             "file",
             "../out/sdk/wasp/auth/utils.ts"
         ],
-        "ceed4ab4ea541402f329e480db98cce0478a00a5aec75e9071c7dd4457893010"
+        "f4ff0a4966e7600e9eebf2661ce35779c67549def53173d24cf1b7118b7d1f40"
     ],
     [
         [
@@ -431,7 +431,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "f3d71ee6b64d05a0f3959840712bd333fb0d00fbbcfe7097fe4f4437648d48ed"
+        "7195d2f30469d0b45dc65302f2191c99e5704775e22c9519b2db0620c2dbdecd"
     ],
     [
         [
@@ -487,7 +487,7 @@
             "file",
             "../out/sdk/wasp/server/auth/oauth/index.ts"
         ],
-        "bc8cf4d3b89018a68704d30bc3183bbd58461c9db0796f603f3e13179d604630"
+        "4be7847071ca4ba20b6b5d11c30f37e977dcd9f572f6d9c95200c1c1b92b71ae"
     ],
     [
         [
@@ -550,7 +550,7 @@
             "file",
             "../out/sdk/wasp/server/dbClient.ts"
         ],
-        "c5f88f028ad62b4a2fd5d1206aa72165f74c6f46f96250512af6ae55a5354020"
+        "226fa8323e71ca4b57837f28db7b042e2a481d84bfff83585be3f161310f8f76"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
+        "8c8ad2b3979c6940d2ab90b789ff847c1af1c1bc8d8541438cd9d210f6ff6e25"
     ],
     [
         [
@@ -886,7 +886,7 @@
             "file",
             "Dockerfile"
         ],
-        "f9f1ca52eb9e344f4c9f6ddd151a31c17c355cc875fec44dc3bd537fdac504a6"
+        "5f260f7bbe676b188c546705718c0a50ebced44c5e0224995d737c49e42c9abf"
     ],
     [
         [
@@ -935,7 +935,7 @@
             "file",
             "server/package.json"
         ],
-        "bcc70dc10dbec4f941c00f709bab7c574d13af1eb6c9bdd68d07bb8cbeb47009"
+        "01e131d89fe777d750aae346a031de875ca6d12842e5a06684e9c60c535d1904"
     ],
     [
         [
@@ -1080,13 +1080,6 @@
     [
         [
             "file",
-            "server/src/polyfill.ts"
-        ],
-        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
-    ],
-    [
-        [
-            "file",
             "server/src/queries/mySpecialQuery.ts"
         ],
         "c595702e1fc397f0682477048c13c73755345ba6eee224e6e4137c6629b78aaf"
@@ -1166,7 +1159,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "fd4a9cd212e14caefc41e916bc816594cd8b76a2565adfd5495c01a6bf5aa936"
+        "a2d9166fd4388d469305df03c0b93f865b8f9c4840aee38eab4e8430b79801a5"
     ],
     [
         [
@@ -1222,7 +1215,7 @@
             "file",
             "web-app/package.json"
         ],
-        "2352cda526107792c1399ca931ac268d92827d1f08ed6db1a41b12d00abaa988"
+        "3d07aa34221fb9e5d58e0d9b8ba89a20b4b2f48612f750074d06705cd55b73c6"
     ],
     [
         [

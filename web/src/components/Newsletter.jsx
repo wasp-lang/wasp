@@ -1,11 +1,11 @@
-import useBrokenLinks from '@docusaurus/useBrokenLinks'
-import SectionContainer from './Layouts/SectionContainer'
-import SubscribeForm from './SubscribeForm'
+import useBrokenLinks from "@docusaurus/useBrokenLinks";
+import SectionContainer from "./Layouts/SectionContainer";
+import SubscribeForm from "./SubscribeForm";
 
-const NEWSLETTER_ID = 'signup'
+const NEWSLETTER_ID = "signup";
 
 const Newsletter = () => {
-  useBrokenLinks().collectAnchor(NEWSLETTER_ID)
+  useBrokenLinks().collectAnchor(NEWSLETTER_ID);
 
   return (
     <SectionContainer id={NEWSLETTER_ID}>
@@ -34,7 +34,7 @@ const Newsletter = () => {
         </div>
       </div>
     </SectionContainer>
-  )
-}
+  );
+};
 
-export default Newsletter
+export default Newsletter;

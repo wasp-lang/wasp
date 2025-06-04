@@ -1,10 +1,19 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
-import Prisma from '@prisma/client'
+{=# prismaSetupFn.isDefined =}
+{=& prismaSetupFn.importStatement =}
 
-function createDbClient(): Prisma.PrismaClient {
-  return new Prisma.PrismaClient()
+function createDbClient() {
+  return {= prismaSetupFn.importIdentifier =}()
 }
+{=/ prismaSetupFn.isDefined =}
+{=^ prismaSetupFn.isDefined =}
+import { PrismaClient as InternalPrismaClient } from '@prisma/client'
+
+function createDbClient() {
+  return new InternalPrismaClient()
+}
+{=/ prismaSetupFn.isDefined =}
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
 // * Prisma will not generate a PrismaClient if there no
@@ -18,6 +27,9 @@ function createDbClient(): null {
 {=/ areThereAnyEntitiesDefined =}
 
 const dbClient = createDbClient()
+
+// PUBLIC API 
+export type PrismaClient = typeof dbClient
 
 // PUBLIC API
 export default dbClient

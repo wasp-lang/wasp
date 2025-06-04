@@ -1,8 +1,7 @@
-import { PrismaClient } from '@prisma/client/index.js'
-import { type DbSeedFn } from 'wasp/server'
-import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
-import { createTask } from './actions.js'
-import { type AuthUser } from 'wasp/auth'
+import { type AuthUser } from "wasp/auth";
+import { type DbSeedFn, type PrismaClient } from "wasp/server";
+import { sanitizeAndSerializeProviderData } from "wasp/server/auth";
+import { createTask } from "./actions.js";
 
 async function createUser(prismaClient: PrismaClient, data: any) {
   const newUser = await prismaClient.user.create({
@@ -11,9 +10,9 @@ async function createUser(prismaClient: PrismaClient, data: any) {
         create: {
           identities: {
             create: {
-              providerName: 'username',
+              providerName: "username",
               providerUserId: data.username,
-              providerData: await sanitizeAndSerializeProviderData<'username'>({
+              providerData: await sanitizeAndSerializeProviderData<"username">({
                 hashedPassword: data.password,
               }),
             },
@@ -33,37 +32,37 @@ async function createUser(prismaClient: PrismaClient, data: any) {
         },
       },
     },
-  })
+  });
 
   return {
     id: newUser.id,
-  } as AuthUser
+  } as AuthUser;
 }
 
 export const devSeedSimple: DbSeedFn = async (prismaClient) => {
   const user = await createUser(prismaClient, {
-    username: 'martinsos',
-    password: 'test1234',
-  })
+    username: "martinsos",
+    password: "test1234",
+  });
 
   await createTask(
-    { description: 'My initial task' },
-    { user, entities: { Task: prismaClient.task } }
-  )
+    { description: "My initial task" },
+    { user, entities: { Task: prismaClient.task } },
+  );
 
-  console.log('Did simple dev seed!')
-}
+  console.log("Did simple dev seed!");
+};
 
 export const prodSeed: DbSeedFn = async (prismaClient) => {
   const user = await createUser(prismaClient, {
-    username: 'martinsosProd',
-    password: 'test1234prod',
-  })
+    username: "martinsosProd",
+    password: "test1234prod",
+  });
 
   await createTask(
-    { description: 'My initial task in production' },
-    { user, entities: { Task: prismaClient.task } }
-  )
+    { description: "My initial task in production" },
+    { user, entities: { Task: prismaClient.task } },
+  );
 
-  console.log('Did seeding intended for production!')
-}
+  console.log("Did seeding intended for production!");
+};

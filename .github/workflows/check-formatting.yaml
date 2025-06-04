@@ -1,0 +1,42 @@
+name: Check formatting
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version: "20"
+
+      - name: Run Prettier
+        run: |
+          npm ci
+          npm run prettier:check
+
+  ormolu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          git config --global core.autocrlf input
+          git config --global core.eol lf
+
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-haskell
+
+      - working-directory: waspc
+        run: ./run ormolu:check

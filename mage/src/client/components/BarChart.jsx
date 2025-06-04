@@ -1,8 +1,8 @@
-import { useMemo } from "react";
-import { Bar } from "@visx/shape";
+import { AxisBottom } from "@visx/axis";
 import { Group } from "@visx/group";
 import { scaleBand, scaleLinear } from "@visx/scale";
-import { AxisBottom, AxisLeft } from "@visx/axis";
+import { Bar } from "@visx/shape";
+import { useMemo } from "react";
 
 const verticalMargin = 50;
 const margins = {
@@ -23,7 +23,7 @@ export function BarChart({ data, width, height }) {
         domain: data.map((bucket) => bucket.displayValue),
         padding: 0.4,
       }),
-    [data, xMax]
+    [data, xMax],
   );
   const yScale = useMemo(
     () =>
@@ -32,7 +32,7 @@ export function BarChart({ data, width, height }) {
         round: true,
         domain: [0, Math.max(...data.map((bucket) => bucket.count))],
       }),
-    [data, yMax]
+    [data, yMax],
   );
 
   return width < 10 ? null : (
