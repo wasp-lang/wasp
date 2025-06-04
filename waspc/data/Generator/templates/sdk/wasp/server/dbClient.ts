@@ -2,12 +2,14 @@
 {=# areThereAnyEntitiesDefined =}
 {=# prismaSetupFn.isDefined =}
 {=& prismaSetupFn.importStatement =}
+
 function createDbClient() {
   return {= prismaSetupFn.importIdentifier =}()
 }
 {=/ prismaSetupFn.isDefined =}
 {=^ prismaSetupFn.isDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
+
 function createDbClient() {
   return new InternalPrismaClient()
 }
