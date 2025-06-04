@@ -38,6 +38,7 @@ import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
 
@@ -54,9 +55,13 @@ instance Requirable DbConnectionEstablished where
             SP.</> Project.Common.generatedCodeDirInDotWaspDir
     dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
 
-    if dbIsRunning
-      then return DbConnectionEstablished
-      else throwError noDbError
+    either
+      ( \chan -> do
+          liftIO (readJobMessagesAndPrintThemPrefixed chan)
+          throwError noDbError
+      )
+      (\_ -> return DbConnectionEstablished)
+      dbIsRunning
     where
       noDbError =
         CommandError

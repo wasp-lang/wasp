@@ -176,10 +176,10 @@ testDbConnection genProjectDir = do
 prismaErrorContainsDbNotCreatedError :: T.Text -> Bool
 prismaErrorContainsDbNotCreatedError text = text TR.=~ ("\\bP1003\\b" :: String)
 
-isDbConnectionPossible :: DbConnectionTestResult -> Bool
-isDbConnectionPossible DbConnectionSuccess = True
-isDbConnectionPossible DbNotCreated = True
-isDbConnectionPossible _ = False
+isDbConnectionPossible :: DbConnectionTestResult -> Either (Chan J.JobMessage) ()
+isDbConnectionPossible DbConnectionSuccess = Right ()
+isDbConnectionPossible DbNotCreated = Right ()
+isDbConnectionPossible (DbConnectionFailure chan) = Left chan
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient projectRootDir = do
