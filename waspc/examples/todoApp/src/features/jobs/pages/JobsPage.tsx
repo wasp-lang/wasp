@@ -54,6 +54,7 @@ export function JobsPage() {
               placeholder="Enter some text to convert..."
               disabled={isSubmitting}
               containerClassName="max-w-md"
+              data-testid="jobs-payload-input"
             />
 
             <Button
@@ -76,13 +77,17 @@ export function JobsPage() {
               requests.map((request) => (
                 <div
                   key={request.id}
-                  className="border border-gray-200 p-4 rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow duration-200"
+                  className="border border-gray-200 p-4 rounded-xl shadow-sm bg-white"
+                  data-testid="job-request"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="text-sm text-gray-600 mb-1">Input:</div>
-                        <div className="text-gray-900 font-medium break-words">
+                        <div
+                          className="text-gray-900 font-medium break-words"
+                          data-testid="input"
+                        >
                           "{request.input}"
                         </div>
                       </div>
@@ -94,7 +99,10 @@ export function JobsPage() {
                         <div className="text-sm text-gray-600 mb-1">
                           Output:
                         </div>
-                        <div className="text-gray-900 font-semibold break-words">
+                        <div
+                          className="text-gray-900 font-semibold break-words"
+                          data-testid="output"
+                        >
                           "{request.output}"
                         </div>
                       </div>
@@ -137,5 +145,9 @@ function StatusBadge({ state }: { state: string }) {
     }
   };
 
-  return <span className={getClasses(state)}>{state.toLowerCase()}</span>;
+  return (
+    <span className={getClasses(state)} data-testid="status">
+      {state.toLowerCase()}
+    </span>
+  );
 }
