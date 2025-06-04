@@ -7,9 +7,9 @@ function createDbClient() {
 }
 {=/ prismaSetupFn.isDefined =}
 {=^ prismaSetupFn.isDefined =}
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 function createDbClient() {
-  return new PrismaClient()
+  return new InternalPrismaClient()
 }
 {=/ prismaSetupFn.isDefined =}
 {=/ areThereAnyEntitiesDefined =}
