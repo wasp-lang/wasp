@@ -1,3 +1,4 @@
+import { UppercaseTextRequestState } from "@prisma/client";
 import { useState } from "react";
 import {
   getTextUppercaseRequests,
@@ -8,16 +9,6 @@ import { cn } from "../../../cn";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { Input } from "../../../components/Input";
-
-// Ideally, we'd import this enum from "@prisma/client"
-const UppercaseTextRequestState = {
-  PENDING: "PENDING",
-  SUCCESS: "SUCCESS",
-  ERROR: "ERROR",
-} as const;
-
-export type UppercaseTextRequestState =
-  (typeof UppercaseTextRequestState)[keyof typeof UppercaseTextRequestState];
 
 export function JobsPage() {
   const { data: requests } = useQuery(getTextUppercaseRequests, null, {
