@@ -5,12 +5,12 @@ import { getDate, useQuery } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
 import { useSocket } from "wasp/client/webSocket";
 
-import "./Main.css";
-import { getName } from "./features/auth/user";
-// Necessary to trigger type tests.
 import { AuthUser } from "wasp/auth";
+import "./Main.css";
 import { cn } from "./cn";
 import { Button } from "./components/Button";
+import { getName } from "./features/auth/user";
+// Necessary to trigger type tests.
 import "./rpcTests/operations/client";
 
 export function App() {
