@@ -1,10 +1,6 @@
 import { PrismaClient as InternalPrismaClient } from '@prisma/client';
-const _waspSetUpPrisma = () => new InternalPrismaClient();
-// We are not typing the return value because 
-// we want to infer the type from the (potentially)
-// user-defined function _waspSetUpPrisma
 function createDbClient() {
-    return _waspSetUpPrisma();
+    return new InternalPrismaClient();
 }
 const dbClient = createDbClient();
 // PUBLIC API
