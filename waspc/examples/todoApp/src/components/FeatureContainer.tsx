@@ -20,7 +20,7 @@ export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
   );
 
   return (
-    <div className="flex flex-1">
+    <div className="flex z-50">
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="fixed bottom-6 right-6 z-50 lg:hidden bg-white p-3 rounded-xl shadow-lg border border-gray-200"
@@ -54,12 +54,8 @@ export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
           "fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 lg:hidden transition-transform duration-300",
           isMobileMenuOpen ? "translate-y-0" : "translate-y-full",
         )}
-        style={{ maxHeight: "80vh" }}
       >
-        <div
-          className="p-6 overflow-y-auto"
-          style={{ maxHeight: "calc(80vh - 3rem)" }}
-        >
+        <div className="p-6 overflow-y-auto">
           <nav className="space-y-2">{features}</nav>
         </div>
       </div>

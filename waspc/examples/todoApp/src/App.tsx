@@ -21,7 +21,7 @@ export function App() {
   const appName = env.REACT_APP_NAME;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="grid grid-rows-[auto_1fr_auto] min-h-screen bg-gray-50">
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -54,9 +54,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="flex flex-1 z-50">
-        <Outlet />
-      </main>
+      <Outlet />
 
       <footer className="bg-white border-t border-gray-200">
         <div className="container mx-auto px-4 py-8">

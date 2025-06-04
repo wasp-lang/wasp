@@ -8,13 +8,7 @@ export const StreamingTestPage = () => {
     <FeatureContainer>
       <main className="card">
         <h1 className="text-2xl font-medium mb-2">Streaming Demo</h1>
-        <p
-          style={{
-            maxWidth: "600px",
-          }}
-        >
-          {response}
-        </p>
+        <p className="max-w-2xl">{response}</p>
       </main>
     </FeatureContainer>
   );
