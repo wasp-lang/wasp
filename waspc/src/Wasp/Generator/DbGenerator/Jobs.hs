@@ -24,6 +24,7 @@ import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
+import Wasp.Project.Env (readDotEnvServer)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectRootDir migrateArgs =
@@ -131,7 +132,6 @@ seed projectRootDir seedName =
   runPrismaCommandAsJobWithExtraEnv
     serverDir
     [(dbSeedNameEnvVarName, seedName)]
-    projectRootDir
     ["db", "seed"]
   where
     serverDir = projectRootDir </> serverRootDirInProjectRootDir
@@ -144,8 +144,9 @@ seed projectRootDir seedName =
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir ProjectRootDir) -> J.Job
 dbExecuteTest projectRootDir =
-  runPrismaCommandAsJobFromWaspServerDir projectRootDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
+  runPrismaCommandAsJobWithServerEnv waspProjectDir projectRootDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
+    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
@@ -174,24 +175,23 @@ generatePrismaClient projectRootDir =
 
 runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
 runPrismaCommandAsJobFromWaspServerDir projectRootDir cmdArgs =
-  runPrismaCommandAsJobWithExtraEnv serverDir [] projectRootDir cmdArgs
+  runPrismaCommandAsJobWithServerEnv waspProjectDir serverDir cmdArgs
   where
-    -- We must run our Prisma commands from the server dir for Prisma
-    -- to pick up our .env file there like before.  In the future, we might want
-    -- to reconsider how Prisma and the server env vars interact and change
-    -- this. Text copied from: https://github.com/wasp-lang/wasp/pull/1662
     serverDir = projectRootDir </> serverRootDirInProjectRootDir
+    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
+
+runPrismaCommandAsJobWithServerEnv :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir a) -> [String] -> J.Job
+runPrismaCommandAsJobWithServerEnv waspProjectDir fromDir cmdArgs chan = do
+  extraEnv <- readDotEnvServer waspProjectDir
+  runPrismaCommandAsJobWithExtraEnv fromDir extraEnv cmdArgs chan
 
 runPrismaCommandAsJobWithExtraEnv ::
   Path' Abs (Dir a) ->
   [(String, String)] ->
-  Path' Abs (Dir ProjectRootDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv fromDir envVars projectRootDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv envVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
-  where
-    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
+runPrismaCommandAsJobWithExtraEnv fromDir envVars cmdArgs =
+  runNodeCommandAsJobWithExtraEnv (envVars ++ [("PRISMA_HIDE_UPDATE_MESSAGE", "1")]) fromDir "npm" (["exec", "prisma", "--"] ++ cmdArgs) J.Db
 
 -- | NOTE: The expectation is that `npm install` was already executed
 -- such that we can use the locally installed package.

@@ -365,6 +365,7 @@ export function getDb(scope: ConfigType): Config<UserApi.DbConfig> {
 
   return {
     seeds: [getExtImport(scope, "named"), getExtImport(scope, "default")],
+    prismaSetupFn: getExtImport(scope, "named"),
   } satisfies FullConfig<UserApi.DbConfig>;
 }
 
