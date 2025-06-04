@@ -8,14 +8,19 @@ export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
 
   const features = (
     <>
-      <FeatureCard to="/tasks" title="Operations" isAuthRequired={true} />
-      <FeatureCard to="/custom-signup" title="Custom Signup" />
-      <FeatureCard to="/apis" title="Custom APIs" />
-      <FeatureCard to="/chat" title="Websockets" isAuthRequired={true} />
-      <FeatureCard to="/crud" title="Automatic CRUD" isAuthRequired={true} />
-      <FeatureCard to="/streaming" title="Streaming" isAuthRequired={true} />
-      <FeatureCard to="/serialization" title="Serialization Test" />
-      <FeatureCard to="/profile" title="User Profile" isAuthRequired={true} />
+      <FeatureCard to="/tasks" title="Operations" />
+      <FeatureCard to="/custom-signup" title="Custom Signup" isPublic={true} />
+      <FeatureCard to="/apis" title="Custom APIs" isPublic={true} />
+      <FeatureCard to="/jobs" title="Async Jobs" />
+      <FeatureCard to="/chat" title="Websockets" />
+      <FeatureCard to="/crud" title="Automatic CRUD" />
+      <FeatureCard to="/streaming" title="Streaming" />
+      <FeatureCard
+        to="/serialization"
+        title="Serialization Test"
+        isPublic={true}
+      />
+      <FeatureCard to="/profile" title="User Profile" isPublic={false} />
     </>
   );
 
@@ -76,15 +81,11 @@ export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
 
 type FeatureCardProps = {
   title: string;
-  isAuthRequired?: boolean;
+  isPublic?: boolean;
   to: string;
 } & Routes;
 
-function FeatureCard({
-  title,
-  isAuthRequired,
-  ...routeProps
-}: FeatureCardProps) {
+function FeatureCard({ title, isPublic, ...routeProps }: FeatureCardProps) {
   const location = useLocation();
   const isActive = location.pathname.startsWith(routeProps.to);
   return (
@@ -99,7 +100,7 @@ function FeatureCard({
     >
       <div className="flex items-center gap-2">
         <h3 className="font-medium text-sm leading-tight">{title}</h3>
-        {!isAuthRequired && <PublicFeature />}
+        {isPublic && <PublicFeature />}
       </div>
     </Link>
   );

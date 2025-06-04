@@ -24,7 +24,7 @@ const VISIBILITY_EXPLANATION = {
   [TaskVisibility.PUBLIC]: "everyone",
 } as const satisfies Record<TaskVisibility, string>;
 
-const Todo = () => {
+export const TaskDetailPage = () => {
   const { id } = useParams();
   const taskId = parseInt(id!);
 
@@ -138,5 +138,3 @@ const Todo = () => {
     </FeatureContainer>
   );
 };
-
-export default Todo;

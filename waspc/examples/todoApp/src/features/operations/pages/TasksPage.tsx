@@ -1,12 +1,10 @@
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import Todo from "../components/Todo";
 
-const Main = () => {
+export const TasksPage = () => {
   return (
     <FeatureContainer>
       <Todo />
     </FeatureContainer>
   );
 };
-
-export default Main;

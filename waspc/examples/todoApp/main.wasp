@@ -142,13 +142,13 @@ action customSignup {
 route TasksRoute { path: "/tasks", to: TasksPage }
 page TasksPage {
   authRequired: true,
-  component: import Main from "@src/features/operations/pages/TasksPage"
+  component: import { TasksPage } from "@src/features/operations/pages/TasksPage"
 }
 
 route TaskRoute { path: "/tasks/:id", to: TaskPage }
 page TaskPage {
   authRequired: true,
-  component: import Task from "@src/features/operations/pages/TaskDetailPage"
+  component: import { TaskDetailPage } from "@src/features/operations/pages/TaskDetailPage"
 }
 
 query getTasks {
@@ -188,6 +188,30 @@ action toggleAllTasks {
 }
 
 // --------- Jobs --------- //
+
+route JobsRoute { path: "/jobs", to: JobsPage }
+page JobsPage {
+  authRequired: true,
+  component: import { JobsPage } from "@src/features/jobs/pages/JobsPage"
+}
+
+action requestUppercaseText {
+  fn: import { requestUppercaseText } from "@src/features/jobs/uppercaseText",
+  entities: [UppercaseTextRequest],
+}
+
+query getTextUppercaseRequests {
+  fn: import { getTextUppercaseRequests } from "@src/features/jobs/uppercaseText",
+  entities: [UppercaseTextRequest],
+}
+
+job uppercaseTextJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { uppercaseText } from "@src/features/jobs/uppercaseText",
+  },
+  entities: [UppercaseTextRequest]
+}
 
 job mySpecialJob {
   executor: PgBoss,
