@@ -249,7 +249,7 @@
             "file",
             "../out/sdk/wasp/server/dbClient.ts"
         ],
-        "c5f88f028ad62b4a2fd5d1206aa72165f74c6f46f96250512af6ae55a5354020"
+        "226fa8323e71ca4b57837f28db7b042e2a481d84bfff83585be3f161310f8f76"
     ],
     [
         [
@@ -263,7 +263,7 @@
             "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
+        "8c8ad2b3979c6940d2ab90b789ff847c1af1c1bc8d8541438cd9d210f6ff6e25"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "Dockerfile"
         ],
-        "f9f1ca52eb9e344f4c9f6ddd151a31c17c355cc875fec44dc3bd537fdac504a6"
+        "5f260f7bbe676b188c546705718c0a50ebced44c5e0224995d737c49e42c9abf"
     ],
     [
         [
@@ -473,7 +473,7 @@
             "file",
             "server/package.json"
         ],
-        "bcc70dc10dbec4f941c00f709bab7c574d13af1eb6c9bdd68d07bb8cbeb47009"
+        "01e131d89fe777d750aae346a031de875ca6d12842e5a06684e9c60c535d1904"
     ],
     [
         [
