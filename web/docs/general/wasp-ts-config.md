@@ -13,6 +13,10 @@ If you haven't migrated your app yet, follow the [migration instructions](../mig
 This feature is currently in early preview and we are actively working on it.
 :::
 
+:::caution Running `wasp ts-setup`
+Whenever you run run `wasp clean` or remove `node_modules` on  your own, you must rerun `wasp ts-setup`! Read more about this below.
+:::
+
 In Wasp, you normally define/configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp` file in the root of your project. In `main.wasp` you write in Wasp's DSL (domain-specific language), which is a simple configuration language similar to JSON but smarter.
 
 Wasp recently introduced the **Wasp TS config**, an alternative way to define the high level of your app via `main.wasp.ts`! Although it looks similar to how you would do it in `main.wasp`, the difference is that you write in TypeScript, not in Wasp's DSL.
@@ -81,6 +85,8 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 7. Run `wasp clean` and `rm package-lock.json`. This ensures you start from a clean state.
 
 8. Run `wasp ts-setup`. This command will add the `wasp-config` package to your `package.json`'s `devDependencies`.
+
+   **IMPORTANT:** Every time you run `wasp clean` or delete your `node_modules`, you _must_ follow it up with `wasp ts-setup`.
 
 9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
 
