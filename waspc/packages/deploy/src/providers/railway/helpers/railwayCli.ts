@@ -24,8 +24,14 @@ async function ensureUserLoggedIn(railwayExe: string): Promise<void> {
     exit(1);
   }
 
+  // In the CI, users are expected to set the Railway token
+  // as an environment variable.
+  // https://docs.railway.com/guides/cli#tokens
   try {
-    await $`${railwayExe} login`;
+    await $({
+      // Login comand requires **interactive** terminal
+      stdio: "inherit",
+    })`${railwayExe} login`;
   } catch {
     waspSays(
       'It seems there was a problem logging in. Please run "railway login" and try again.',
