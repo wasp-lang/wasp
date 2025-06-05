@@ -14,7 +14,9 @@ import qualified StrongPath as SP
 import System.Process (proc)
 import System.Random (Random (randoms), RandomGen, newStdGen)
 import Wasp.Cli.Command (Command, require)
-import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InBuildDir (InBuildDir), InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), DbConnectionEstablished (DbConnectionEstablished), InBuildDir (InBuildDir), InWaspProject (InWaspProject))
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
@@ -22,6 +24,7 @@ import Wasp.Job.Except (JobExcept, toJobExcept)
 import qualified Wasp.Job.Except as JobExcept
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv, runProcessAsJob)
+import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
 import Wasp.Project.Env (dotEnvServer)
 
@@ -40,27 +43,30 @@ serverUrl = "http://localhost:" ++ show serverPort
 buildStart :: Command ()
 buildStart = do
   InWaspProject waspProjectDir <- require
+  BuildDirExists <- require
   InBuildDir DbConnectionEstablished <- require
 
-  -- TODO: Nice error when the build directory does not exist.
-  -- TODO: Progress messages with emojis and such
-  -- TODO: How to handle errors well?
   -- TODO: Correct Wasp app name
   -- TODO: Check app runner, check we do the same things
 
-  liftIO $ do
-    result <- runExceptT $ buildAndStartEverything waspProjectDir "wasp-app-name"
+  result <- liftIO $ runExceptT $ buildAndStartEverything waspProjectDir "wasp-app-name"
 
-    case result of
-      Left err -> putStrLn $ "\nBuild and start failed: " ++ err
-      Right () -> do
-        putStrLn "\nBuild and start succeeded!"
+  case result of
+    Left err -> cliSendMessageC $ Msg.Failure "Build and start failed" err
+    Right () -> cliSendMessageC $ Msg.Success "Build and start completed successfully."
 
 buildAndStartEverything :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> ExceptT String IO ()
 buildAndStartEverything waspProjectDir dockerImageName =
   do
+    liftIO $ cliSendMessage $ Msg.Start "Preparing client..."
     runAndPrintJob $ buildClient buildDir
+    liftIO $ cliSendMessage $ Msg.Success "Client prepared."
+
+    liftIO $ cliSendMessage $ Msg.Start "Preparing server..."
     runAndPrintJob $ buildServer buildDir dockerImageName
+    liftIO $ cliSendMessage $ Msg.Success "Server prepared."
+
+    liftIO $ cliSendMessage $ Msg.Start "Starting client and server..."
     runAndPrintJob $
       JobExcept.concurrently
         (startClient buildDir)

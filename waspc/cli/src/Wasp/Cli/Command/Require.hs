@@ -27,6 +27,7 @@ module Wasp.Cli.Command.Require
     InBuildDir (InBuildDir),
     InOutDir (InOutDir),
     InWaspProject (InWaspProject),
+    BuildDirExists (BuildDirExists),
   )
 where
 
@@ -100,6 +101,23 @@ instance Requirable InWaspProject where
           ( "Couldn't find wasp project root - make sure"
               ++ " you are running this command from a Wasp project."
           )
+
+data BuildDirExists = BuildDirExists deriving (Typeable)
+
+instance Requirable BuildDirExists where
+  checkRequirement = do
+    InWaspProject waspProjectDir <- require
+    let buildDir =
+          waspProjectDir
+            SP.</> Project.Common.dotWaspDirInWaspProjectDir
+            SP.</> Project.Common.buildDirInDotWaspDir
+    doesBuildDirExist <- liftIO $ doesPathExist (SP.fromAbsDir buildDir)
+    unless doesBuildDirExist $ do
+      throwError $
+        CommandError
+          "Build directory does not exist"
+          "Run `wasp build` first."
+    return BuildDirExists
 
 data InOutDir req = InOutDir req deriving (Typeable)
 
