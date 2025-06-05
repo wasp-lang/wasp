@@ -368,6 +368,7 @@ library
     Wasp.JsImport
     Wasp.Job
     Wasp.Job.Common
+    Wasp.Job.Except
     Wasp.Job.IO
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
@@ -533,6 +534,7 @@ library cli-lib
     , path-io
     , pretty-simple ^>= 4.1.2.0
     , process
+    , random
     , strong-path
     , text
     , utf8-string
@@ -553,6 +555,7 @@ library cli-lib
     Wasp.Cli.Archive
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
+    Wasp.Cli.Command.BuildStart
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean
     Wasp.Cli.Command.Uninstall
