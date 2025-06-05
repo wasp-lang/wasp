@@ -12,7 +12,7 @@ module Wasp.Generator.DbGenerator.Operations
   )
 where
 
-import Control.Concurrent (newChan)
+import Control.Concurrent (Chan, dupChan, newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Catch (catch)
 import Control.Monad.Extra (whenM)
@@ -37,6 +37,7 @@ import Wasp.Generator.DbGenerator.Common
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
+import qualified Wasp.Job as J
 import Wasp.Job.IO
   ( collectJobTextOutputUntilExitReceived,
     printJobMsgsUntilExitReceived,
@@ -50,7 +51,7 @@ import qualified Wasp.Util.IO as IOUtil
 data DbConnectionTestResult
   = DbConnectionSuccess
   | DbNotCreated
-  | DbConnectionFailure
+  | DbConnectionFailure (Chan J.JobMessage)
   deriving (Eq)
 
 -- | Migrates in the generated project context and then copies the migrations dir back
@@ -155,28 +156,30 @@ testDbConnection ::
   Path' Abs (Dir ProjectRootDir) ->
   IO DbConnectionTestResult
 testDbConnection genProjectDir = do
-  chan <- newChan
-  exitCode <- DbJobs.dbExecuteTest genProjectDir chan
+  chanForInspecting <- newChan
+  chanForPrinting <- dupChan chanForInspecting
+
+  exitCode <- DbJobs.dbExecuteTest genProjectDir chanForInspecting
 
   case exitCode of
     ExitSuccess -> return DbConnectionSuccess
     ExitFailure _ -> do
-      outputLines <- collectJobTextOutputUntilExitReceived chan
+      outputLines <- collectJobTextOutputUntilExitReceived chanForInspecting
       let databaseNotCreated = any prismaErrorContainsDbNotCreatedError outputLines
 
       return $
         if databaseNotCreated
           then DbNotCreated
-          else DbConnectionFailure
+          else DbConnectionFailure chanForPrinting
 
 -- Prisma error code for "Database not created" is P1003.
 prismaErrorContainsDbNotCreatedError :: T.Text -> Bool
 prismaErrorContainsDbNotCreatedError text = text TR.=~ ("\\bP1003\\b" :: String)
 
-isDbConnectionPossible :: DbConnectionTestResult -> Bool
-isDbConnectionPossible DbConnectionSuccess = True
-isDbConnectionPossible DbNotCreated = True
-isDbConnectionPossible _ = False
+isDbConnectionPossible :: DbConnectionTestResult -> Either (Chan J.JobMessage) ()
+isDbConnectionPossible DbConnectionSuccess = Right ()
+isDbConnectionPossible DbNotCreated = Right ()
+isDbConnectionPossible (DbConnectionFailure chan) = Left chan
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient projectRootDir = do
