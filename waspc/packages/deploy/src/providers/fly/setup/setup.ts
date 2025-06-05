@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import { $, cd, question } from "zx";
-import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
 import {
   boldText,
   cdToClientBuildDir,
@@ -8,7 +7,8 @@ import {
   getCommandHelp,
   makeIdempotent,
   waspSays,
-} from "../helpers/helpers.js";
+} from "../../../helpers.js";
+import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
 import {
   clientTomlExistsInProject,
   copyLocalClientTomlToProject,
@@ -129,10 +129,10 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
 
-  const randomString = crypto.randomBytes(32).toString("hex");
+  const jwtSecret = crypto.randomBytes(32).toString("hex");
 
   const secretsArgs = [
-    `JWT_SECRET=${randomString}`,
+    `JWT_SECRET=${jwtSecret}`,
     // NOTE: Normally these would just be envars, but flyctl
     // doesn't provide a way to set envars that persist to fly.toml.
     `PORT=${serverAppPort}`,

@@ -1,7 +1,7 @@
 import { exit } from "process";
 import { $, question } from "zx";
+import { getCommandHelp, waspSays } from "../../../helpers.js";
 import { createDeploymentInfo } from "../DeploymentInfo.js";
-import { getCommandHelp, waspSays } from "../helpers/helpers.js";
 import {
   getInferredBasenameFromServerToml,
   getTomlFilePaths,

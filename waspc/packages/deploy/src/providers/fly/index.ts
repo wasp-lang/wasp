@@ -1,4 +1,5 @@
 import { Command, Option } from "commander";
+import { ensureWaspDirLooksRight } from "../../helpers.js";
 import { cmd as cmdFn } from "./cmd/cmd.js";
 import { createDb as createDbFn } from "./createDb/createDb.js";
 import { deploy as deployFn } from "./deploy/deploy.js";
@@ -7,10 +8,7 @@ import {
   ensureFlyReady,
   ensureRegionIsValid,
 } from "./helpers/flyctlHelpers.js";
-import {
-  ensureDirsInCmdAreAbsoluteAndPresent,
-  ensureWaspDirLooksRight,
-} from "./helpers/helpers.js";
+import { ensureDirsInFlyCmdAreAbsoluteAndPresent } from "./helpers/helpers.js";
 import { launch as launchFn } from "./launch/launch.js";
 import { setup as setupFn } from "./setup/setup.js";
 
@@ -118,7 +116,7 @@ export function addFlyCommand(program: Command): void {
       )
       .option("--org <org>", "Fly org to use (with commands that support it)")
       .hook("preAction", ensureFlyReady)
-      .hook("preAction", ensureDirsInCmdAreAbsoluteAndPresent)
+      .hook("preAction", ensureDirsInFlyCmdAreAbsoluteAndPresent)
       .hook("preAction", ensureWaspDirLooksRight);
   });
 
