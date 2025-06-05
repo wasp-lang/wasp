@@ -37,9 +37,6 @@ clientUrl = "http://localhost:" ++ show clientPort
 serverUrl :: String
 serverUrl = "http://localhost:" ++ show serverPort
 
-postgresUrl :: String
-postgresUrl = "postgresql://postgresWaspDevUser:postgresWaspDevPass@localhost:5432/todoApp-c032198002"
-
 buildStart :: Command ()
 buildStart = do
   InWaspProject waspProjectDir <- require
@@ -49,7 +46,6 @@ buildStart = do
   -- TODO: Progress messages with emojis and such
   -- TODO: How to handle errors well?
   -- TODO: Correct Wasp app name
-  -- TODO: Correct DB name
   -- TODO: Check app runner, check we do the same things
 
   liftIO $ do
@@ -83,7 +79,7 @@ buildAndStartEverything waspProjectDir dockerImageName =
 buildClient :: SP.Path' SP.Abs (SP.Dir ProjectRootDir) -> JobExcept
 buildClient buildDir =
   runNodeCommandAsJobWithExtraEnv
-    [("REACT_APP_API_URL", serverUrl)] -- Give the client the URL to the server
+    [("REACT_APP_API_URL", serverUrl)]
     webAppDir
     "npm"
     ["run", "build"]
@@ -120,14 +116,13 @@ buildServer buildDir dockerImageName =
 startServer :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> JobExcept
 startServer projectDir dockerImageName =
   ( \chan -> do
-      jwtSecret <- randomAsciiAlpaNum 32 <$> newStdGen
+      jwtSecret <- randomAsciiAlphaNum 32 <$> newStdGen
 
       runProcessAsJob
         ( proc "docker" $
             ["run", "--rm", "--env-file", envFilePath, "--network", "host"]
               ++ toDockerEnvFlags
-                [ ("DATABASE_URL", postgresUrl),
-                  ("WASP_WEB_CLIENT_URL", clientUrl),
+                [ ("WASP_WEB_CLIENT_URL", clientUrl),
                   ("WASP_SERVER_URL", serverUrl),
                   ("JWT_SECRET", jwtSecret)
                 ]
@@ -140,11 +135,10 @@ startServer projectDir dockerImageName =
   where
     envFilePath = SP.fromAbsFile $ projectDir </> dotEnvServer
 
-    randomAsciiAlpaNum :: RandomGen g => Int -> g -> String
-    randomAsciiAlpaNum len gen = take len $ filter isAlphaNum $ randoms gen
+    randomAsciiAlphaNum :: RandomGen g => Int -> g -> String
+    randomAsciiAlphaNum len gen = take len $ filter isAlphaNum $ randoms gen
       where
         isAlphaNum c = isAsciiUpper c || isAsciiLower c || isDigit c
 
-    -- Turns a list of string pairs into "--env" arguments for the Docker run command.
     toDockerEnvFlags :: [(String, String)] -> [String]
     toDockerEnvFlags = concatMap (\(name, value) -> ["--env", name ++ "=" ++ value])
