@@ -77,7 +77,7 @@ async function getRailwayCliVersion(
 ): Promise<string | null> {
   try {
     const result: ProcessOutput = await $`${railwayExe} -V`;
-    const match = result.stdout.match(/railwayapp (\d+\.\d+\.\d+)/);
+    const match = result.stdout.match(/railway(?:app)? (\d+\.\d+\.\d+)/);
     if (match !== null) {
       return match[1];
     } else {
