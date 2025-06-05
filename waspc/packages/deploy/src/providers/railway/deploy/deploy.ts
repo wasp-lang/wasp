@@ -1,4 +1,4 @@
-import { $, cd } from "zx";
+import { $, cd, ProcessOutput } from "zx";
 
 import { exit } from "process";
 import {
@@ -70,9 +70,18 @@ async function deployServer({
 
   const serverArtefactsDir = getServerArtefactsDir(options.waspProjectDir);
 
-  await $`${options.railwayExe} up ${serverArtefactsDir} --service "${serverName}" --no-gitignore --path-as-root --ci`;
+  const status = await deployServiceWithStreamingLogs(options.railwayExe, {
+    name: serverName,
+    artefactsDirectory: serverArtefactsDir,
+  });
 
-  waspSays("Server has been deployed!");
+  const messages: Record<ServiceDeploymentStatus, string> = {
+    [ServiceDeploymentStatus.SUCCESS]: "Server has been deployed!",
+    [ServiceDeploymentStatus.FAILED_STREAMING_LOGS]:
+      "Server deployment started, but failed to stream build logs. Please check the Railway dashboard for build logs.",
+  };
+
+  waspSays(messages[status]);
 }
 
 async function deployClient({
@@ -96,7 +105,11 @@ async function deployClient({
   await $`REACT_APP_API_URL=${serverUrl} npm run build`;
 
   const webAppArtefactsDir = getWebAppArtefactsDir(options.waspProjectDir);
-  await $`${options.railwayExe} up ${webAppArtefactsDir} --service "${clientName}" --no-gitignore --path-as-root --ci`;
+
+  const status = await deployServiceWithStreamingLogs(options.railwayExe, {
+    name: clientName,
+    artefactsDirectory: webAppArtefactsDir,
+  });
 
   const clientUrl = await getServiceUrl(
     options.railwayExe,
@@ -105,7 +118,60 @@ async function deployClient({
   );
 
   displayWaspRocketImage();
-  waspSays(
-    `Client has been deployed! Your Wasp app is accessible at: ${clientUrl}`,
+
+  const messages: Record<ServiceDeploymentStatus, string> = {
+    [ServiceDeploymentStatus.SUCCESS]: `Client has been deployed! Your Wasp app is accessible at: ${clientUrl}`,
+    [ServiceDeploymentStatus.FAILED_STREAMING_LOGS]: `Client deployment started, but failed to stream build logs. Your Wasp app should be accessible at: ${clientUrl}`,
+  };
+  waspSays(messages[status]);
+}
+
+enum ServiceDeploymentStatus {
+  SUCCESS = "SUCCESS",
+  FAILED_STREAMING_LOGS = "FAILED_STREAMING_LOGS",
+}
+
+async function deployServiceWithStreamingLogs(
+  railwayExe: string,
+  service: {
+    name: string;
+    artefactsDirectory: string;
+  },
+): Promise<ServiceDeploymentStatus> {
+  try {
+    const commandArgs = [
+      service.artefactsDirectory,
+      "--service",
+      service.name,
+      "--no-gitignore",
+      "--path-as-root",
+      "--ci",
+    ];
+    await $`${railwayExe} up ${commandArgs}`;
+    return ServiceDeploymentStatus.SUCCESS;
+  } catch (e: unknown) {
+    if (isFailedToStreamLogsError(e)) {
+      // Continue with the deployment, but notify the user about the known issue.
+      waspSays(
+        `Failed to stream build log for service "${service.name}". This sometimes happens with the Railway CLI. Please check the Railway dashboard for build logs.`,
+      );
+      return ServiceDeploymentStatus.FAILED_STREAMING_LOGS;
+    }
+
+    waspSays(
+      `Error deploying service "${service.name}", please check the output above.`,
+    );
+    exit(1);
+  }
+}
+
+function isFailedToStreamLogsError(error: unknown): boolean {
+  return (
+    isProcessOutputError(error) &&
+    error.stderr.includes("Failed to stream build log")
   );
+}
+
+function isProcessOutputError(error: unknown): error is ProcessOutput {
+  return error instanceof ProcessOutput;
 }
