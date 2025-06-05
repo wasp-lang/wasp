@@ -88,7 +88,7 @@ export function addRailwayCommand(program: Command): void {
 
 function makeRailwaySetupCommand(): Command {
   return new RailwayCommand("setup")
-    .description("Launch a new app on Railway")
+    .description("Configure a new app on Railway")
     .addBasenameArgument()
     .addSecretsOptions()
     .option(
