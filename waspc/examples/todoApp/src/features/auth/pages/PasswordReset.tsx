@@ -13,7 +13,7 @@ export function PasswordReset() {
         <span className="text-sm font-medium text-gray-900">
           If everything is okay,{" "}
           <Link to="/login" className="link">
-            go to login
+            Go to login
           </Link>
         </span>
       </div>

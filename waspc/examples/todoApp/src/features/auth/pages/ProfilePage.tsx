@@ -75,15 +75,11 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
   );
 };
 
-const SimpleCard = ({ children }: React.PropsWithChildren<{}>) => {
-  return <div className="border p-3 rounded-lg shadow-sm">{children}</div>;
-};
-
 const HookStatus = ({
   hookName,
   isCalled,
 }: {
-  hookName: string;
+  hookName: "onAfterSignup" | "onAfterEmailVerified" | "onAfterLogin";
   isCalled: boolean;
 }) => {
   return (
@@ -106,4 +102,8 @@ const HookStatus = ({
       </div>
     </SimpleCard>
   );
+};
+
+const SimpleCard = ({ children }: React.PropsWithChildren<{}>) => {
+  return <div className="border p-3 rounded-lg shadow-sm">{children}</div>;
 };

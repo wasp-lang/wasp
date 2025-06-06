@@ -13,7 +13,7 @@ export function EmailVerification() {
         <span className="text-sm font-medium text-gray-900">
           If everything is okay,{" "}
           <Link className="link" to="/login">
-            go to login
+            Go to login
           </Link>
         </span>
       </div>

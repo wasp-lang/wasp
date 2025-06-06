@@ -14,7 +14,7 @@ const Login = () => {
         <span className="text-sm font-medium text-gray-900">
           Don't have an account yet?{" "}
           <Link to="/signup" className="link">
-            go to signup
+            Go to signup
           </Link>
           .
         </span>
@@ -22,7 +22,7 @@ const Login = () => {
         <span className="text-sm font-medium text-gray-900">
           Forgot your password?{" "}
           <Link to="/request-password-reset" className="link">
-            reset it
+            Reset it
           </Link>
           .
         </span>

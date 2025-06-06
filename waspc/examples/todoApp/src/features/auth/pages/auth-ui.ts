@@ -1,3 +1,5 @@
+import { CustomizationOptions } from "wasp/client/auth";
+
 export const customisationProps = {
   appearance: {
     colors: {
@@ -7,4 +9,4 @@ export const customisationProps = {
     },
   },
   socialLayout: "horizontal",
-} as const;
+} satisfies CustomizationOptions;

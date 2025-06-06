@@ -31,7 +31,7 @@ const Signup = () => {
         <span className="text-sm font-medium text-gray-900">
           You already have an account?{" "}
           <Link to="/login" className="link">
-            go to login
+            Go to login
           </Link>
           .
         </span>
