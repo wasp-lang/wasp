@@ -1,4 +1,4 @@
-# Ask The Documents (Embeddings / ChatGPT) with Wasp & PG Vector
+# Ask The Documents (Embeddings / RAG / ChatGPT) with Wasp & PG Vector
 
 ![Ask The Documents Cover](./github.png)
 
