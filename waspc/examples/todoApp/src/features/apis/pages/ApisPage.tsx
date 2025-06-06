@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useEffect, useState } from "react";
 import { api } from "wasp/client/api";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
@@ -46,33 +46,16 @@ function useCustomApi<Data = unknown>(
   endpoint: string,
 ): {
   isLoading: boolean;
-  data: Data | null;
+  data: Data | undefined;
   error: AxiosError | null;
 } {
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState<Data | null>(null);
-  const [error, setError] = useState<AxiosError | null>(null);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-    api
-      .get(endpoint, {
-        signal: abortController.signal,
-      })
-      .then((response) => {
-        setData(response.data);
-        setError(null);
-        setIsLoading(false);
-      })
-      .catch((err: unknown) => {
-        setError(err as AxiosError);
-        setData(null);
-        setIsLoading(false);
-      });
-    return () => {
-      abortController.abort();
-    };
-  }, []);
+  const { isLoading, data, error } = useQuery<Data, AxiosError>(
+    [endpoint],
+    () => api.get(endpoint).then((response) => response.data),
+    {
+      retry: false,
+    },
+  );
 
   return { isLoading, data, error };
 }
