@@ -1,6 +1,33 @@
-import type { Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-export async function performSignup(
+export function setupTestUser() {
+  const credentials = generateRandomCredentials();
+
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+
+    await performSignupAndVerifyEmail(page, credentials);
+
+    await page.close();
+  });
+
+  return credentials;
+}
+
+async function performSignupAndVerifyEmail(
+  page: Page,
+  { email, password }: { email: string; password: string },
+) {
+  await submitSignupForm(page, { email, password });
+
+  await expect(page.locator("body")).toContainText(
+    `You've signed up successfully! Check your email for the confirmation link.`,
+  );
+
+  await performEmailVerification(page, email);
+}
+
+export async function submitSignupForm(
   page: Page,
   { email, password }: { email: string; password: string },
 ) {
@@ -75,6 +102,15 @@ export function isRunningInDevMode() {
 }
 
 export async function performLogin(
+  page: Page,
+  { email, password }: { email: string; password: string },
+) {
+  await submitLoginForm(page, { email, password });
+
+  await expect(page).toHaveURL("/");
+}
+
+export async function submitLoginForm(
   page: Page,
   {
     email,

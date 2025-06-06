@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("catch all route + oauth route", () => {
-  test.describe.configure({ mode: "serial" });
-
   test("catch all route renders for unknown route", async ({ page }) => {
     await page.goto("/unknown-route");
 

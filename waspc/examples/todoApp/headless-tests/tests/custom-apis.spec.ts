@@ -1,81 +1,67 @@
-import { expect, test } from "@playwright/test";
-import {
-  generateRandomCredentials,
-  performEmailVerification,
-  performSignup,
-} from "./helpers";
+import { expect, Page, test } from "@playwright/test";
+import { performLogin, setupTestUser } from "./helpers";
 
 test.describe("custom APIs", () => {
-  const { email, password } = generateRandomCredentials();
-
-  test.describe.configure({ mode: "serial" });
-
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-
-    await performSignup(page, {
-      email,
-      password,
-    });
-
-    await expect(page.locator("body")).toContainText(
-      `You've signed up successfully! Check your email for the confirmation link.`,
-    );
-
-    await performEmailVerification(page, email);
-  });
+  const credentials = setupTestUser();
 
   test("unauthenticated APIs work", async ({ page }) => {
     await page.goto("/apis");
 
     await expect(page).toHaveURL("/apis");
 
-    // Authenticated API should return an error
-    await expect(
-      page.getByTestId("authenticated-api").getByTestId("error"),
-    ).toBeVisible();
-    await expect(
-      page.getByTestId("authenticated-api").getByTestId("data"),
-    ).not.toBeVisible();
+    await expectApiCallToError(page, {
+      testId: "authenticated-api",
+    });
 
-    // Unauthenticated API should return data
-    await expect(
-      page.getByTestId("unauthenticated-api").getByTestId("error"),
-    ).not.toBeVisible();
-    await expect(
-      page.getByTestId("unauthenticated-api").getByTestId("data"),
-    ).toContainText("Hello, stranger!");
+    await expectApiCallToSucceed(page, {
+      testId: "unauthenticated-api",
+      expectedData: "Hello, stranger!",
+    });
   });
 
   test("authenticated APIs work", async ({ page }) => {
-    await page.goto("/login");
-
-    await page.waitForSelector("text=Log in to your account");
-
-    await page.locator("input[type='email']").fill(email);
-    await page.locator("input[type='password']").fill(password);
-    await page.getByRole("button", { name: "Log in" }).click();
-
-    await expect(page).toHaveURL("/");
+    await performLogin(page, credentials);
 
     await page.goto("/apis");
 
     await expect(page).toHaveURL("/apis");
 
-    // Authenticated API should return data
-    await expect(
-      page.getByTestId("authenticated-api").getByTestId("error"),
-    ).not.toBeVisible();
-    await expect(
-      page.getByTestId("authenticated-api").getByTestId("data"),
-    ).toContainText(`Hello, ${email}!`);
+    await expectApiCallToSucceed(page, {
+      testId: "authenticated-api",
+      expectedData: `Hello, ${credentials.email}!`,
+    });
 
-    // Unauthenticated API should return data
-    await expect(
-      page.getByTestId("unauthenticated-api").getByTestId("error"),
-    ).not.toBeVisible();
-    await expect(
-      page.getByTestId("unauthenticated-api").getByTestId("data"),
-    ).toContainText("Hello, stranger!");
+    await expectApiCallToSucceed(page, {
+      testId: "unauthenticated-api",
+      expectedData: "Hello, stranger!",
+    });
   });
 });
+
+async function expectApiCallToError(
+  page: Page,
+  {
+    testId,
+  }: {
+    testId: string;
+  },
+) {
+  await expect(page.getByTestId(testId).getByTestId("error")).toBeVisible();
+  await expect(page.getByTestId(testId).getByTestId("data")).not.toBeVisible();
+}
+
+async function expectApiCallToSucceed(
+  page: Page,
+  {
+    testId,
+    expectedData,
+  }: {
+    testId: string;
+    expectedData: string;
+  },
+) {
+  await expect(page.getByTestId(testId).getByTestId("error")).not.toBeVisible();
+  await expect(page.getByTestId(testId).getByTestId("data")).toContainText(
+    expectedData,
+  );
+}
