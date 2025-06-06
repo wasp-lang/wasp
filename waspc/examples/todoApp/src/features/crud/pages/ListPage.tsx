@@ -3,7 +3,6 @@ import { useState } from "react";
 import { getEmail } from "wasp/auth";
 import { tasks as tasksCrud } from "wasp/client/crud";
 import { Link } from "wasp/client/router";
-import { Task } from "wasp/entities";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { Input } from "../../../components/Input";
@@ -17,45 +16,33 @@ export const ListPage = () => {
   const deleteTask = tasksCrud.delete.useAction();
   const updateTask = tasksCrud.update.useAction();
 
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [editTaskTitle, setEditTaskTitle] = useState("");
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState<number | null>(null);
 
-  async function handleCreateTask(e: React.FormEvent) {
+  async function handleCreateTask(data: { description: string }) {
     setError("");
-    e.preventDefault();
     try {
-      await createTask({
-        description: newTaskTitle,
-      });
+      await createTask(data);
     } catch (err: unknown) {
-      setError(`Error creating task: ${err as any}`);
+      setError("Error creating task.");
     }
-    setNewTaskTitle("");
   }
 
-  async function handleUpdateTask(e: React.FormEvent) {
+  async function handleUpdateTask(data: { description: string }) {
     setError("");
-    e.preventDefault();
     try {
       await updateTask({
         id: isEditing as number,
-        description: editTaskTitle,
+        description: data.description,
       });
+      setIsEditing(null);
     } catch (err: unknown) {
       setError("Error updating task.");
     }
-    setIsEditing(null);
-    setEditTaskTitle("");
-  }
-
-  function handleStartEditing(task: Pick<Task, "id" | "description">) {
-    setIsEditing(task.id);
-    setEditTaskTitle(task.description);
   }
 
   async function handleTaskDelete(task: { id: number }) {
+    setError("");
     try {
       if (!confirm("Are you sure you want to delete this task?")) {
         return;
@@ -90,15 +77,14 @@ export const ListPage = () => {
             <div key={task.id} className="card">
               {task.id === isEditing ? (
                 <TaskEdit
-                  title={editTaskTitle}
-                  onTitleChange={setEditTaskTitle}
-                  onSubmit={handleUpdateTask}
+                  initialTaskDescription={task.description}
+                  onUpdate={handleUpdateTask}
                   cancelEdit={() => setIsEditing(null)}
                 />
               ) : (
                 <TaskView
                   task={task}
-                  onEdit={() => handleStartEditing(task)}
+                  onEdit={() => setIsEditing(task.id)}
                   onDelete={() => handleTaskDelete(task)}
                 />
               )}
@@ -119,20 +105,7 @@ export const ListPage = () => {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Create New Task
           </h2>
-          <form className="space-y-4" onSubmit={handleCreateTask}>
-            <Input
-              type="text"
-              required
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              label="Task Description"
-              placeholder="Enter task description..."
-            />
-
-            <Button type="submit" variant="primary">
-              Create task
-            </Button>
-          </form>
+          <TaskCreateForm onCreate={handleCreateTask} />
         </div>
       </div>
     </FeatureContainer>
@@ -177,16 +150,23 @@ function TaskView({
 }
 
 function TaskEdit({
+  initialTaskDescription,
   cancelEdit,
-  title,
-  onTitleChange,
-  onSubmit,
+  onUpdate,
 }: {
+  initialTaskDescription: string;
   cancelEdit?: () => void;
-  title: string;
-  onTitleChange: (title: string) => void;
-  onSubmit: (e: React.FormEvent) => Promise<void>;
+  onUpdate: ({ description }: { description: string }) => Promise<void>;
 }) {
+  const [editTaskDescription, setEditTaskDescription] = useState(
+    initialTaskDescription,
+  );
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    onUpdate({ description: editTaskDescription });
+  }
+
   return (
     <form
       className="space-y-4"
@@ -196,8 +176,8 @@ function TaskEdit({
       <Input
         type="text"
         required
-        value={title}
-        onChange={(e) => onTitleChange(e.target.value)}
+        value={editTaskDescription}
+        onChange={(e) => setEditTaskDescription(e.target.value)}
         label="Task Description"
         data-testid="edit-task-input"
       />
@@ -210,6 +190,37 @@ function TaskEdit({
           Cancel
         </Button>
       </div>
+    </form>
+  );
+}
+
+function TaskCreateForm({
+  onCreate,
+}: {
+  onCreate: ({ description }: { description: string }) => Promise<void>;
+}) {
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    onCreate({ description: newTaskDescription });
+    setNewTaskDescription("");
+  }
+
+  return (
+    <form className="space-y-4" onSubmit={onSubmit}>
+      <Input
+        type="text"
+        required
+        value={newTaskDescription}
+        onChange={(e) => setNewTaskDescription(e.target.value)}
+        label="Task Description"
+        placeholder="Enter task description..."
+      />
+
+      <Button type="submit" variant="primary">
+        Create task
+      </Button>
     </form>
   );
 }
