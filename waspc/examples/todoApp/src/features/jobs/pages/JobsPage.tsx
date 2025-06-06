@@ -126,28 +126,19 @@ export function JobsPage() {
 }
 
 function StatusBadge({ state }: { state: UppercaseTextRequestState }) {
-  const getClasses = (state: UppercaseTextRequestState) => {
-    const baseClasses =
-      "inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm";
-
-    switch (state) {
-      case UppercaseTextRequestState.PENDING:
-        return cn(
-          baseClasses,
-          "bg-amber-50 text-amber-700 border-amber-200 animate-pulse",
-        );
-      case UppercaseTextRequestState.SUCCESS:
-        return cn(baseClasses, "bg-green-50 text-green-700 border-green-200");
-      case UppercaseTextRequestState.ERROR:
-        return cn(baseClasses, "bg-red-50 text-red-700 border-red-200");
-      default:
-        state satisfies never;
-        return cn(baseClasses, "bg-gray-50 text-gray-700 border-gray-200");
-    }
-  };
+  const classes = cn(
+    "inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-sm",
+    "bg-gray-50 text-gray-700 border-gray-200",
+    state === UppercaseTextRequestState.PENDING &&
+      "bg-amber-50 text-amber-700 border-amber-200 animate-pulse",
+    state === UppercaseTextRequestState.SUCCESS &&
+      "bg-green-50 text-green-700 border-green-200",
+    state === UppercaseTextRequestState.ERROR &&
+      "bg-red-50 text-red-700 border-red-200",
+  );
 
   return (
-    <span className={getClasses(state)} data-testid="status">
+    <span className={classes} data-testid="status">
       {state.toLowerCase()}
     </span>
   );

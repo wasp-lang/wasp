@@ -13,7 +13,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.26.2",
-    "tailwind-merge": "^3.3.0",
+    "tailwind-merge": "^2.6.0",
     "wait-port": "^1.1.0",
     "wasp": "file:.wasp/out/sdk/wasp"
   },

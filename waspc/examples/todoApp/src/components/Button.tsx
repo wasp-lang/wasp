@@ -50,43 +50,31 @@ const variantStyles: Record<ButtonVariant, string> = {
     "bg-amber-600 hover:bg-amber-700 text-white border-transparent shadow-sm hover:shadow-md",
 };
 
-const disabledStyles =
-  "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none pointer-events-none";
-
 export function Button(props: ButtonProps) {
-  const { disabled, children, variant = "primary", className = "" } = props;
+  const { disabled, children, variant = "primary", className } = props;
 
   const classes = cn(
     "inline-flex items-center justify-center",
-    "font-medium rounded-lg border",
+    "text-sm font-medium rounded-lg border px-4 py-2",
     "transition-all duration-200 ease-in-out",
     "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500",
     "select-none",
-    "px-4 py-2 text-sm",
     variantStyles[variant],
-    disabled && disabledStyles,
+    disabled &&
+      "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none pointer-events-none",
     className,
   );
 
   if (isLinkButton(props)) {
-    const { to, replace } = props;
-
     return (
-      <Link to={to} replace={replace} className={classes}>
+      <Link {...props} className={classes}>
         {children}
       </Link>
     );
   }
 
-  const { onClick, type = "button" } = props;
-
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={classes}
-    >
+    <button {...props} className={classes}>
       {children}
     </button>
   );

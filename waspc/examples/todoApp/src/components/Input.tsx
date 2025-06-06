@@ -3,8 +3,6 @@ import { cn } from "../cn";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  required?: boolean;
-  disabled?: boolean;
   inputClassName?: string;
   containerClassName?: string;
 }
