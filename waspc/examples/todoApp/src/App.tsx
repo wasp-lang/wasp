@@ -9,7 +9,7 @@ import { useSocket } from "wasp/client/webSocket";
 
 import "./Main.css";
 import { cn } from "./cn";
-import { Button } from "./components/Button";
+import { Button, ButtonLink } from "./components/Button";
 import { getName } from "./features/auth/user";
 
 // Necessary to trigger type tests.
@@ -52,12 +52,12 @@ function Header({ user }: { user: AuthUser | null | undefined }) {
               <UserMenu user={user} />
             ) : (
               <div className="flex items-center space-x-3">
-                <Button to="/login" variant="ghost">
+                <ButtonLink to="/login" variant="ghost">
                   Sign In
-                </Button>
-                <Button to="/signup" variant="primary">
+                </ButtonLink>
+                <ButtonLink to="/signup" variant="primary">
                   Sign Up
-                </Button>
+                </ButtonLink>
               </div>
             )}
           </div>

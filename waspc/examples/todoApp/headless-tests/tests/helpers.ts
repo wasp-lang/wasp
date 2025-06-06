@@ -96,9 +96,8 @@ export async function performEmailVerification(
 }
 
 export function isRunningInDevMode() {
-  return (
-    !process.env.HEADLESS_TEST_MODE || process.env.HEADLESS_TEST_MODE === "dev"
-  );
+  const testMode = process.env.HEADLESS_TEST_MODE ?? "dev";
+  return testMode === "dev";
 }
 
 export async function performLogin(
