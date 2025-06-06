@@ -3,6 +3,7 @@ import { Link } from "wasp/client/router";
 
 import { tasks as tasksCrud } from "wasp/client/crud";
 import { FeatureContainer } from "../../../components/FeatureContainer";
+import { TaskDetailView } from "../../../components/TaskDetailView";
 
 export const DetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,15 +18,13 @@ export const DetailPage = () => {
 
   return (
     <FeatureContainer>
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="crud-task-details">
         <h1 className="text-2xl font-medium">CRUD Task Detail Page</h1>
         <div className="tasks">
           {isLoading && <div>Loading...</div>}
           {task && (
             <div className="card">
-              <code className="whitespace-pre-wrap break-words text-sm text-gray-800">
-                {JSON.stringify(task, null, 2)}
-              </code>
+              <TaskDetailView task={task} />
             </div>
           )}
         </div>

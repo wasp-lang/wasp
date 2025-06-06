@@ -8,7 +8,7 @@ test.describe("CRUD test", () => {
     await performLogin(page, credentials);
 
     await page.goto("/crud");
-    await page.waitForSelector("text=CRUD Tasks");
+    await expect(page.getByTestId("crud-tasks")).toBeVisible();
 
     // Create a task
     const taskDescription = "first task";
@@ -45,10 +45,14 @@ test.describe("CRUD test", () => {
     });
     await page.locator("button").filter({ hasText: "Delete" }).click();
     await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).not.toContainText(
-      `${newTaskDescription} by ${credentials.email}`,
-    );
-    await expect(page.locator("body")).toContainText("No tasks yet.");
+
+    await expect(
+      page.getByTestId("task-view").getByTestId("text"),
+    ).not.toBeVisible();
+    await expect(
+      page.getByTestId("task-view").getByTestId("created-by"),
+    ).not.toBeVisible();
+    await expect(page.getByTestId("no-tasks-message")).toBeVisible();
   });
 
   test("crud detail page", async ({ page }) => {
@@ -61,7 +65,10 @@ test.describe("CRUD test", () => {
     await page.locator("a").filter({ hasText: "second task" }).click();
     await expect(page).toHaveURL(/\/crud\/\d+/);
     // Check if the task is displayed
-    await expect(page.locator("body")).toContainText("second task");
+    // await expect(page.locator("body")).toContainText("second task");
+    await expect(page.getByTestId("task-detail-view")).toContainText(
+      "second task",
+    );
   });
 });
 

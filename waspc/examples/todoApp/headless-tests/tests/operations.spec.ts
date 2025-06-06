@@ -24,15 +24,15 @@ test.describe("operations", () => {
     // Task details
     page.getByTestId("task-view").getByTestId("text").click();
     await expect(
-      page.getByTestId("task-detail").getByTestId("text"),
+      page.getByTestId("task-detail-view").getByTestId("description"),
     ).toContainText(randomTask);
     await expect(
-      page.getByTestId("task-detail").getByTestId("status"),
+      page.getByTestId("task-detail-view").getByTestId("status"),
     ).toContainText("Pending");
 
     // Checking if Prisma enums work on the client
     await expect(
-      page.getByTestId("task-detail").getByTestId("visibility"),
+      page.getByTestId("task-detail-view").getByTestId("visibility"),
     ).toContainText("Visible to only you");
   });
 });

@@ -51,7 +51,7 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const disabledStyles =
-  "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none";
+  "opacity-50 cursor-not-allowed hover:transform-none hover:shadow-none pointer-events-none";
 
 export function Button(props: ButtonProps) {
   const { disabled, children, variant = "primary", className = "" } = props;
@@ -72,12 +72,7 @@ export function Button(props: ButtonProps) {
     const { to, replace } = props;
 
     return (
-      <Link
-        to={to}
-        replace={replace}
-        className={classes}
-        style={disabled ? { pointerEvents: "none" } : undefined}
-      >
+      <Link to={to} replace={replace} className={classes}>
         {children}
       </Link>
     );

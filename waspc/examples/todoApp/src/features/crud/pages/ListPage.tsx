@@ -68,7 +68,7 @@ export const ListPage = () => {
 
   return (
     <FeatureContainer>
-      <div className="space-y-6">
+      <div className="space-y-6" data-testid="crud-tasks">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-gray-900">CRUD Tasks</h1>
         </div>
@@ -106,7 +106,10 @@ export const ListPage = () => {
           ))}
 
           {tasks?.length === 0 && (
-            <div className="card text-center py-8 text-gray-500">
+            <div
+              className="card text-center py-8 text-gray-500"
+              data-testid="no-tasks-message"
+            >
               No tasks yet. Create your first task below.
             </div>
           )}
