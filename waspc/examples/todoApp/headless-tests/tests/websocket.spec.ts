@@ -1,38 +1,11 @@
 import { expect, test } from "@playwright/test";
-import {
-  generateRandomCredentials,
-  performEmailVerification,
-  performLogin,
-  performSignup,
-} from "./helpers";
+import { performLogin, setupTestUser } from "./helpers";
 
 test.describe("websocket", () => {
-  const { email, password } = generateRandomCredentials();
-
-  test.describe.configure({ mode: "serial" });
-
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-
-    await performSignup(page, {
-      email,
-      password,
-    });
-
-    await expect(page.locator("body")).toContainText(
-      `You've signed up successfully! Check your email for the confirmation link.`,
-    );
-
-    await performEmailVerification(page, email);
-  });
+  const credentials = setupTestUser();
 
   test("chat works", async ({ page }) => {
-    await performLogin(page, {
-      email,
-      password,
-    });
-
-    await expect(page).toHaveURL("/profile");
+    await performLogin(page, credentials);
 
     await page.goto("/chat");
 
@@ -49,6 +22,6 @@ test.describe("websocket", () => {
     const message = page.getByTestId("message");
     await expect(message).toHaveCount(1);
     await expect(message).toContainText("Hello World!");
-    await expect(message).toContainText(email);
+    await expect(message).toContainText(credentials.email);
   });
 });

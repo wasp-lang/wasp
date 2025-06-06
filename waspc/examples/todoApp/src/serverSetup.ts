@@ -7,8 +7,8 @@ import {
   type ServerSetupFn,
 } from "wasp/server";
 import { mySpecialJob } from "wasp/server/jobs";
-import "./rpcTests/operations/server.js";
-import { sayHi } from "./util.js";
+
+import "./rpcTests/operations/server";
 
 let someResource: string | undefined = undefined;
 
@@ -17,7 +17,6 @@ export const getSomeResource = () => someResource;
 export const setup: ServerSetupFn = async ({ app }) => {
   addCustomRoute(app);
 
-  sayHi();
   await new Promise((resolve) => setTimeout(resolve, 2000));
   someResource = "This resource is now set up.";
   console.log("Custom server setup done!");
