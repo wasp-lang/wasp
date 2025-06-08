@@ -320,9 +320,10 @@ export function mapPasswordReset(
 }
 
 export function mapDb(db: TsAppSpec.DbConfig): AppSpec.Db {
-  const { seeds } = db;
+  const { seeds, prismaSetupFn } = db;
   return {
     seeds: seeds?.map(mapExtImport),
+    prismaSetupFn: prismaSetupFn && mapExtImport(prismaSetupFn),
   };
 }
 

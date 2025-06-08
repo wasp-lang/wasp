@@ -40,7 +40,7 @@ data Operator
 
 -- | We rely on this `show` implementation to produce valid semver representation of version.
 instance Show Operator where
-  show Equal = "="
+  show Equal = ""
   show LessThan = "<"
   show LessThanOrEqual = "<="
   show GreaterThan = ">"

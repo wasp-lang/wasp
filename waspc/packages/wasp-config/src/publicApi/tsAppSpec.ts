@@ -1,6 +1,24 @@
 import * as AppSpec from "../appSpec.js";
 import { Branded } from "../branded.js";
 
+export type TsAppSpec = {
+  app: { name: string; config: AppConfig };
+  actions: Map<string, ActionConfig>;
+  apiNamespaces: Map<string, ApiNamespaceConfig>;
+  apis: Map<string, ApiConfig>;
+  auth?: AuthConfig;
+  client?: ClientConfig;
+  cruds: Map<string, CrudConfig>;
+  db?: DbConfig;
+  emailSender?: EmailSenderConfig;
+  jobs: Map<string, JobConfig>;
+  pages: Map<string, PageConfig>;
+  queries: Map<string, QueryConfig>;
+  routes: Map<string, RouteConfig>;
+  server?: ServerConfig;
+  websocket?: WebsocketConfig;
+};
+
 export type AppConfig = {
   title: string;
   wasp: AppSpec.Wasp;
@@ -107,6 +125,7 @@ export type CrudOperationOptions = {
 
 export type DbConfig = {
   seeds?: ExtImport[];
+  prismaSetupFn?: ExtImport;
 };
 
 export type EmailSenderConfig = {

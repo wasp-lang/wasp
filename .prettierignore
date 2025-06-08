@@ -9,3 +9,5 @@ web/.docusaurus
 web/build/
 web/**/*.md
 web/**/*.mdx
+web/static/img/
+waspc/packages/studio/public/assets/

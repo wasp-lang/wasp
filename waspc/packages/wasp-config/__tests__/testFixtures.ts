@@ -422,6 +422,7 @@ export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig> {
 
   return {
     seeds: [getExtImport(scope, "named"), getExtImport(scope, "default")],
+    prismaSetupFn: getExtImport(scope, "named"),
   } satisfies FullConfig<TsAppSpec.DbConfig>;
 }
 

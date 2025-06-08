@@ -37,8 +37,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup-haskell
-        with:
-          cabal-project: dev-tool.project
 
       - working-directory: waspc
         run: ./run ormolu:check

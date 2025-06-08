@@ -42,6 +42,13 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - Modernized our TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 - Added support for jump-to-definition for Wasp symbols ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 - `userSignupFields` types are now correctly propagated to client auth methods. ([#2641](https://github.com/wasp-lang/wasp/pull/2641))
+- The generated server code is now type-checked before building ([#2778](https://github.com/wasp-lang/wasp/pull/2778))
+
+## 0.16.5
+
+### 🐞 Bug fixes
+
+- Pins down the version of tanstack/react-query to exactly `4.36.1` instead of `^4.29.0`, to avoid the issue with the latest `4.39.0` release that fails to import in Wasp.
 
 ## 0.16.4
 
