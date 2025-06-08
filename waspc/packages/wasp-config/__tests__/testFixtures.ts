@@ -121,6 +121,9 @@ export function getAppConfig(
 ): FullNamedConfig<TsAppSpec.AppConfig>;
 export function getAppConfig(
   scope: ConfigType,
+): NamedConfig<TsAppSpec.AppConfig>;
+export function getAppConfig(
+  scope: ConfigType,
 ): NamedConfig<TsAppSpec.AppConfig> {
   if (scope === "minimal") {
     return {
@@ -146,6 +149,7 @@ export function getAuthConfig(
   scope: "minimal",
 ): MinimalConfig<TsAppSpec.AuthConfig>;
 export function getAuthConfig(scope: "full"): FullConfig<TsAppSpec.AuthConfig>;
+export function getAuthConfig(scope: ConfigType): Config<TsAppSpec.AuthConfig>;
 export function getAuthConfig(scope: ConfigType): Config<TsAppSpec.AuthConfig> {
   if (scope === "minimal") {
     return {
@@ -178,6 +182,9 @@ export function getAuthMethods(
 ): FullConfig<TsAppSpec.AuthMethods>;
 export function getAuthMethods(
   scope: ConfigType,
+): Config<TsAppSpec.AuthMethods>;
+export function getAuthMethods(
+  scope: ConfigType,
 ): Config<TsAppSpec.AuthMethods> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.AuthMethods>;
@@ -201,6 +208,9 @@ export function getExternalAuthConfig(
 ): FullConfig<TsAppSpec.ExternalAuthConfig>;
 export function getExternalAuthConfig(
   scope: ConfigType,
+): Config<TsAppSpec.ExternalAuthConfig>;
+export function getExternalAuthConfig(
+  scope: ConfigType,
 ): Config<TsAppSpec.ExternalAuthConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.ExternalAuthConfig>;
@@ -220,6 +230,9 @@ export function getUsernameAndPasswordConfig(
 ): FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
 export function getUsernameAndPasswordConfig(
   scope: ConfigType,
+): Config<TsAppSpec.UsernameAndPasswordConfig>;
+export function getUsernameAndPasswordConfig(
+  scope: ConfigType,
 ): Config<TsAppSpec.UsernameAndPasswordConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>;
@@ -236,6 +249,9 @@ export function getEmailAuthConfig(
 export function getEmailAuthConfig(
   scope: "full",
 ): FullConfig<TsAppSpec.EmailAuthConfig>;
+export function getEmailAuthConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailAuthConfig>;
 export function getEmailAuthConfig(
   scope: ConfigType,
 ): Config<TsAppSpec.EmailAuthConfig> {
@@ -263,6 +279,9 @@ export function getPasswordResetConfig(
 ): FullConfig<TsAppSpec.PasswordResetConfig>;
 export function getPasswordResetConfig(
   scope: ConfigType,
+): Config<TsAppSpec.PasswordResetConfig>;
+export function getPasswordResetConfig(
+  scope: ConfigType,
 ): Config<TsAppSpec.PasswordResetConfig> {
   if (scope === "minimal") {
     return {
@@ -282,6 +301,9 @@ export function getEmailVerificationConfig(
 export function getEmailVerificationConfig(
   scope: "full",
 ): FullConfig<TsAppSpec.EmailVerificationConfig>;
+export function getEmailVerificationConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailVerificationConfig>;
 export function getEmailVerificationConfig(
   scope: ConfigType,
 ): Config<TsAppSpec.EmailVerificationConfig> {
@@ -305,6 +327,9 @@ export function getClientConfig(
 ): FullConfig<TsAppSpec.ClientConfig>;
 export function getClientConfig(
   scope: ConfigType,
+): Config<TsAppSpec.ClientConfig>;
+export function getClientConfig(
+  scope: ConfigType,
 ): Config<TsAppSpec.ClientConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.ClientConfig>;
@@ -326,6 +351,9 @@ export function getServerConfig(
 ): FullConfig<TsAppSpec.ServerConfig>;
 export function getServerConfig(
   scope: ConfigType,
+): Config<TsAppSpec.ServerConfig>;
+export function getServerConfig(
+  scope: ConfigType,
 ): Config<TsAppSpec.ServerConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.ServerConfig>;
@@ -344,6 +372,9 @@ export function getEmailSenderConfig(
 export function getEmailSenderConfig(
   scope: "full",
 ): FullConfig<TsAppSpec.EmailSenderConfig>;
+export function getEmailSenderConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailSenderConfig>;
 export function getEmailSenderConfig(
   scope: ConfigType,
 ): Config<TsAppSpec.EmailSenderConfig> {
@@ -367,6 +398,9 @@ export function getWebSocketConfig(
 ): FullConfig<TsAppSpec.WebsocketConfig>;
 export function getWebSocketConfig(
   scope: ConfigType,
+): Config<TsAppSpec.WebsocketConfig>;
+export function getWebSocketConfig(
+  scope: ConfigType,
 ): Config<TsAppSpec.WebsocketConfig> {
   if (scope === "minimal") {
     return {
@@ -384,6 +418,7 @@ export function getDbConfig(
   scope: "minimal",
 ): MinimalConfig<TsAppSpec.DbConfig>;
 export function getDbConfig(scope: "full"): FullConfig<TsAppSpec.DbConfig>;
+export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig>;
 export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.DbConfig>;
@@ -601,6 +636,9 @@ export function getCrudOperations(
 ): FullConfig<TsAppSpec.CrudOperations>;
 export function getCrudOperations(
   scope: ConfigType,
+): Config<TsAppSpec.CrudOperations>;
+export function getCrudOperations(
+  scope: ConfigType,
 ): Config<TsAppSpec.CrudOperations> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.CrudOperations>;
@@ -623,6 +661,9 @@ export function getCrudOperationOptions(
 ): FullConfig<TsAppSpec.CrudOperationOptions>;
 export function getCrudOperationOptions(
   scope: ConfigType,
+): Config<TsAppSpec.CrudOperationOptions>;
+export function getCrudOperationOptions(
+  scope: ConfigType,
 ): Config<TsAppSpec.CrudOperationOptions> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.CrudOperationOptions>;
@@ -640,6 +681,9 @@ export function getScheduleConfig(
 export function getScheduleConfig(
   scope: "full",
 ): FullConfig<TsAppSpec.ScheduleConfig>;
+export function getScheduleConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.ScheduleConfig>;
 export function getScheduleConfig(
   scope: ConfigType,
 ): Config<TsAppSpec.ScheduleConfig> {
@@ -660,9 +704,8 @@ export function getScheduleConfig(
 
 export function getPerform(scope: "minimal"): MinimalConfig<TsAppSpec.Perform>;
 export function getPerform(scope: "full"): FullConfig<TsAppSpec.Perform>;
-export function getPerform(
-  scope: ConfigType,
-): MinimalConfig<TsAppSpec.Perform> | FullConfig<TsAppSpec.Perform> {
+export function getPerform(scope: ConfigType): Config<TsAppSpec.Perform>;
+export function getPerform(scope: ConfigType): Config<TsAppSpec.Perform> {
   if (scope === "minimal") {
     return {
       fn: getExtImport(scope, "named"),
@@ -724,6 +767,9 @@ export function getApiConfig(
 ): FullNamedConfig<TsAppSpec.ApiConfig>;
 export function getApiConfig(
   scope: ConfigType,
+): NamedConfig<TsAppSpec.ApiConfig>;
+export function getApiConfig(
+  scope: ConfigType,
 ): NamedConfig<TsAppSpec.ApiConfig> {
   if (scope === "minimal") {
     return {
@@ -751,6 +797,7 @@ export function getHttpRoute(
   scope: "minimal",
 ): MinimalConfig<TsAppSpec.HttpRoute>;
 export function getHttpRoute(scope: "full"): FullConfig<TsAppSpec.HttpRoute>;
+export function getHttpRoute(scope: ConfigType): Config<TsAppSpec.HttpRoute>;
 export function getHttpRoute(scope: ConfigType): Config<TsAppSpec.HttpRoute> {
   if (scope === "minimal") {
     return {
@@ -810,6 +857,9 @@ export function getEmailFromField(
 ): FullConfig<TsAppSpec.EmailFromField>;
 export function getEmailFromField(
   scope: ConfigType,
+): Config<TsAppSpec.EmailFromField>;
+export function getEmailFromField(
+  scope: ConfigType,
 ): Config<TsAppSpec.EmailFromField> {
   if (scope === "minimal") {
     return {
@@ -831,6 +881,10 @@ export function getExtImport(
   scope: "full",
   type: AppSpec.ExtImportKind,
 ): FullConfig<TsAppSpec.ExtImport>;
+export function getExtImport(
+  scope: ConfigType,
+  type: AppSpec.ExtImportKind,
+): Config<TsAppSpec.ExtImport>;
 export function getExtImport(
   scope: ConfigType,
   type: AppSpec.ExtImportKind,
