@@ -76,28 +76,24 @@ export function createApp(scope: ConfigType): {
   appConfigName: string;
   app: App;
 } {
-  if (scope === "minimal") {
-    const { name: appName, config: appConfig } = getAppConfig(scope);
-    const userApp = new App(appName, appConfig);
-    return { appConfigName: appName, app: userApp };
-  } else {
-    const { name: appConfigName, config: appConfig } = getAppConfig(scope);
-    const userApp = new App(appConfigName, appConfig);
+  const { name: appName, config: appConfig } = getAppConfig(scope);
+  const app = new App(appName, appConfig);
 
-    userApp.auth(getAuthConfig("full"));
-    userApp.client(getClientConfig("full"));
-    userApp.server(getServerConfig("full"));
-    userApp.emailSender(getEmailSenderConfig("full"));
-    userApp.webSocket(getWebSocketConfig("full"));
-    userApp.db(getDbConfig("full"));
+  if (scope === "minimal") {
+    return { appConfigName: appName, app };
+  } else {
+    app.auth(getAuthConfig("full"));
+    app.client(getClientConfig("full"));
+    app.server(getServerConfig("full"));
+    app.emailSender(getEmailSenderConfig("full"));
+    app.webSocket(getWebSocketConfig("full"));
+    app.db(getDbConfig("full"));
 
     function addDecls(
       declName: string,
       nameAndConfigs: NamedConfig<unknown>[],
     ) {
-      nameAndConfigs.forEach(({ name, config }) =>
-        userApp[declName](name, config),
-      );
+      nameAndConfigs.forEach(({ name, config }) => app[declName](name, config));
     }
 
     addDecls("page", getPageConfigs());
@@ -109,7 +105,7 @@ export function createApp(scope: ConfigType): {
     addDecls("api", getApiConfigs());
     addDecls("job", getJobConfigs());
 
-    return { appConfigName, app: userApp };
+    return { appConfigName: appName, app };
   }
 }
 
