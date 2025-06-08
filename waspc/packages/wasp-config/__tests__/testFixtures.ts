@@ -395,7 +395,6 @@ export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig> {
 }
 
 export function getPageConfigs(): NamedConfig<TsAppSpec.PageConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return PAGE_TYPES.map((pageType) => getPageConfig(pageType));
 }
 
@@ -405,6 +404,9 @@ export function getPageConfig(
 export function getPageConfig(
   pageType: "full" | "email-verification" | "password-reset",
 ): FullNamedConfig<TsAppSpec.PageConfig>;
+export function getPageConfig(
+  pageType: PageType,
+): NamedConfig<TsAppSpec.PageConfig>;
 export function getPageConfig(
   pageType: PageType,
 ): NamedConfig<TsAppSpec.PageConfig> {
@@ -443,7 +445,6 @@ export function getPageConfig(
 }
 
 export function getRouteConfigs(): NamedConfig<TsAppSpec.RouteConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return PAGE_TYPES.map((pageType) => getRouteConfig(pageType));
 }
 
@@ -453,6 +454,9 @@ export function getRouteConfig(
 export function getRouteConfig(
   routeType: "full" | "email-verification" | "password-reset",
 ): FullNamedConfig<TsAppSpec.RouteConfig>;
+export function getRouteConfig(
+  routeType: PageType,
+): NamedConfig<TsAppSpec.RouteConfig>;
 export function getRouteConfig(
   routeType: PageType,
 ): NamedConfig<TsAppSpec.RouteConfig> {
@@ -485,7 +489,6 @@ export function getRouteConfig(
 }
 
 export function getQuerieConfigs(): NamedConfig<TsAppSpec.QueryConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return CONFIG_TYPES.map((scope) => getQueryConfig(scope));
 }
 
@@ -495,6 +498,9 @@ export function getQueryConfig(
 export function getQueryConfig(
   scope: "full",
 ): FullNamedConfig<TsAppSpec.QueryConfig>;
+export function getQueryConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.QueryConfig>;
 export function getQueryConfig(
   scope: ConfigType,
 ): NamedConfig<TsAppSpec.QueryConfig> {
@@ -518,7 +524,6 @@ export function getQueryConfig(
 }
 
 export function getActionConfigs(): NamedConfig<TsAppSpec.ActionConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return CONFIG_TYPES.map((scope) => getActionConfig(scope));
 }
 
@@ -528,6 +533,9 @@ export function getActionConfig(
 export function getActionConfig(
   scope: "full",
 ): FullNamedConfig<TsAppSpec.ActionConfig>;
+export function getActionConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.ActionConfig>;
 export function getActionConfig(
   scope: ConfigType,
 ): NamedConfig<TsAppSpec.ActionConfig> {
@@ -551,7 +559,6 @@ export function getActionConfig(
 }
 
 export function getCrudConfigs(): NamedConfig<TsAppSpec.CrudConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return CONFIG_TYPES.map((scope) => getCrudConfig(scope));
 }
 
@@ -561,6 +568,9 @@ export function getCrudConfig(
 export function getCrudConfig(
   scope: "full",
 ): FullNamedConfig<TsAppSpec.CrudConfig>;
+export function getCrudConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.CrudConfig>;
 export function getCrudConfig(
   scope: ConfigType,
 ): NamedConfig<TsAppSpec.CrudConfig> {
@@ -668,7 +678,6 @@ export function getPerform(
 }
 
 export function getApiNamespaceConfigs(): NamedConfig<TsAppSpec.ApiNamespaceConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return CONFIG_TYPES.map((scope) => getApiNamespaceConfig(scope));
 }
 
@@ -678,6 +687,9 @@ export function getApiNamespaceConfig(
 export function getApiNamespaceConfig(
   scope: "full",
 ): FullNamedConfig<TsAppSpec.ApiNamespaceConfig>;
+export function getApiNamespaceConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.ApiNamespaceConfig>;
 export function getApiNamespaceConfig(
   scope: ConfigType,
 ): NamedConfig<TsAppSpec.ApiNamespaceConfig> {
@@ -701,7 +713,6 @@ export function getApiNamespaceConfig(
 }
 
 export function getApiConfigs(): NamedConfig<TsAppSpec.ApiConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return CONFIG_TYPES.map((scope) => getApiConfig(scope));
 }
 
@@ -755,7 +766,6 @@ export function getHttpRoute(scope: ConfigType): Config<TsAppSpec.HttpRoute> {
 }
 
 export function getJobConfigs(): NamedConfig<TsAppSpec.JobConfig>[] {
-  // @ts-expect-error we don't need to know the specifc function overload in this case
   return CONFIG_TYPES.map((scope) => getJobConfig(scope));
 }
 
@@ -765,6 +775,9 @@ export function getJobConfig(
 export function getJobConfig(
   scope: "full",
 ): FullNamedConfig<TsAppSpec.JobConfig>;
+export function getJobConfig(
+  scope: ConfigType,
+): NamedConfig<TsAppSpec.JobConfig>;
 export function getJobConfig(
   scope: ConfigType,
 ): NamedConfig<TsAppSpec.JobConfig> {
