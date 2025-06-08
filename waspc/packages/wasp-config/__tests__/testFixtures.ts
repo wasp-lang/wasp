@@ -80,34 +80,37 @@ export function createApp(scope: ConfigType): {
     const { name: appName, config: appConfig } = getAppConfig(scope);
     const userApp = new App(appName, appConfig);
     return { appConfigName: appName, app: userApp };
+  } else {
+    const { name: appConfigName, config: appConfig } = getAppConfig(scope);
+    const userApp = new App(appConfigName, appConfig);
+
+    userApp.auth(getAuthConfig("full"));
+    userApp.client(getClientConfig("full"));
+    userApp.server(getServerConfig("full"));
+    userApp.emailSender(getEmailSenderConfig("full"));
+    userApp.webSocket(getWebSocketConfig("full"));
+    userApp.db(getDbConfig("full"));
+
+    function addDecls(
+      declName: string,
+      nameAndConfigs: NamedConfig<unknown>[],
+    ) {
+      nameAndConfigs.forEach(({ name, config }) =>
+        userApp[declName](name, config),
+      );
+    }
+
+    addDecls("page", getPageConfigs());
+    addDecls("route", getRouteConfigs());
+    addDecls("query", getQuerieConfigs());
+    addDecls("action", getActionConfigs());
+    addDecls("crud", getCrudConfigs());
+    addDecls("apiNamespace", getApiNamespaceConfigs());
+    addDecls("api", getApiConfigs());
+    addDecls("job", getJobConfigs());
+
+    return { appConfigName, app: userApp };
   }
-
-  const { name: appConfigName, config: appConfig } = getAppConfig(scope);
-  const userApp = new App(appConfigName, appConfig);
-
-  userApp.auth(getAuthConfig("full"));
-  userApp.client(getClientConfig("full"));
-  userApp.server(getServerConfig("full"));
-  userApp.emailSender(getEmailSenderConfig("full"));
-  userApp.webSocket(getWebSocketConfig("full"));
-  userApp.db(getDbConfig("full"));
-
-  function addDecls(declName: string, nameAndConfigs: NamedConfig<unknown>[]) {
-    nameAndConfigs.forEach(({ name, config }) =>
-      userApp[declName](name, config),
-    );
-  }
-
-  addDecls("page", getPageConfigs());
-  addDecls("route", getRouteConfigs());
-  addDecls("query", getQuerieConfigs());
-  addDecls("action", getActionConfigs());
-  addDecls("crud", getCrudConfigs());
-  addDecls("apiNamespace", getApiNamespaceConfigs());
-  addDecls("api", getApiConfigs());
-  addDecls("job", getJobConfigs());
-
-  return { appConfigName, app: userApp };
 }
 
 export function getAppConfig(
@@ -127,16 +130,16 @@ export function getAppConfig(
         wasp: { version: "^0.16.3" },
       },
     } satisfies MinimalNamedConfig<TsAppSpec.AppConfig>;
+  } else {
+    return {
+      name: "FullApp",
+      config: {
+        title: "Mock App",
+        wasp: { version: "^0.16.3" },
+        head: ['<link rel="icon" href="/favicon.ico" />'],
+      },
+    } satisfies FullNamedConfig<TsAppSpec.AppConfig>;
   }
-
-  return {
-    name: "FullApp",
-    config: {
-      title: "Mock App",
-      wasp: { version: "^0.16.3" },
-      head: ['<link rel="icon" href="/favicon.ico" />'],
-    },
-  } satisfies FullNamedConfig<TsAppSpec.AppConfig>;
 }
 
 export function getAuthConfig(
@@ -150,21 +153,21 @@ export function getAuthConfig(scope: ConfigType): Config<TsAppSpec.AuthConfig> {
       onAuthFailedRedirectTo: "/login",
       methods: getAuthMethods(scope),
     } satisfies MinimalConfig<TsAppSpec.AuthConfig>;
+  } else {
+    return {
+      userEntity: getEntity("user"),
+      onAuthFailedRedirectTo: "/login",
+      methods: getAuthMethods(scope),
+      externalAuthEntity: getEntity("social-user"),
+      onAuthSucceededRedirectTo: "/profile",
+      onBeforeSignup: getExtImport(scope, "named"),
+      onAfterSignup: getExtImport(scope, "named"),
+      onAfterEmailVerified: getExtImport(scope, "named"),
+      onBeforeOAuthRedirect: getExtImport(scope, "named"),
+      onBeforeLogin: getExtImport(scope, "named"),
+      onAfterLogin: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.AuthConfig>;
   }
-
-  return {
-    userEntity: getEntity("user"),
-    onAuthFailedRedirectTo: "/login",
-    methods: getAuthMethods(scope),
-    externalAuthEntity: getEntity("social-user"),
-    onAuthSucceededRedirectTo: "/profile",
-    onBeforeSignup: getExtImport(scope, "named"),
-    onAfterSignup: getExtImport(scope, "named"),
-    onAfterEmailVerified: getExtImport(scope, "named"),
-    onBeforeOAuthRedirect: getExtImport(scope, "named"),
-    onBeforeLogin: getExtImport(scope, "named"),
-    onAfterLogin: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.AuthConfig>;
 }
 
 export function getAuthMethods(
@@ -178,16 +181,16 @@ export function getAuthMethods(
 ): Config<TsAppSpec.AuthMethods> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.AuthMethods>;
+  } else {
+    return {
+      email: getEmailAuthConfig(scope),
+      usernameAndPassword: getUsernameAndPasswordConfig(scope),
+      discord: getExternalAuthConfig(scope),
+      google: getExternalAuthConfig(scope),
+      gitHub: getExternalAuthConfig(scope),
+      keycloak: getExternalAuthConfig(scope),
+    } satisfies FullConfig<TsAppSpec.AuthMethods>;
   }
-
-  return {
-    email: getEmailAuthConfig(scope),
-    usernameAndPassword: getUsernameAndPasswordConfig(scope),
-    discord: getExternalAuthConfig(scope),
-    google: getExternalAuthConfig(scope),
-    gitHub: getExternalAuthConfig(scope),
-    keycloak: getExternalAuthConfig(scope),
-  } satisfies FullConfig<TsAppSpec.AuthMethods>;
 }
 
 export function getExternalAuthConfig(
@@ -201,12 +204,12 @@ export function getExternalAuthConfig(
 ): Config<TsAppSpec.ExternalAuthConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.ExternalAuthConfig>;
+  } else {
+    return {
+      configFn: getExtImport(scope, "named"),
+      userSignupFields: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.ExternalAuthConfig>;
   }
-
-  return {
-    configFn: getExtImport(scope, "named"),
-    userSignupFields: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.ExternalAuthConfig>;
 }
 
 export function getUsernameAndPasswordConfig(
@@ -220,11 +223,11 @@ export function getUsernameAndPasswordConfig(
 ): Config<TsAppSpec.UsernameAndPasswordConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>;
+  } else {
+    return {
+      userSignupFields: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
   }
-
-  return {
-    userSignupFields: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
 }
 
 export function getEmailAuthConfig(
@@ -242,14 +245,14 @@ export function getEmailAuthConfig(
       emailVerification: getEmailVerificationConfig(scope),
       passwordReset: getPasswordResetConfig(scope),
     } satisfies MinimalConfig<TsAppSpec.EmailAuthConfig>;
+  } else {
+    return {
+      fromField: getEmailFromField(scope),
+      emailVerification: getEmailVerificationConfig(scope),
+      passwordReset: getPasswordResetConfig(scope),
+      userSignupFields: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.EmailAuthConfig>;
   }
-
-  return {
-    fromField: getEmailFromField(scope),
-    emailVerification: getEmailVerificationConfig(scope),
-    passwordReset: getPasswordResetConfig(scope),
-    userSignupFields: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.EmailAuthConfig>;
 }
 
 export function getPasswordResetConfig(
@@ -265,12 +268,12 @@ export function getPasswordResetConfig(
     return {
       clientRoute: getRouteConfig("password-reset").name,
     } satisfies MinimalConfig<TsAppSpec.PasswordResetConfig>;
+  } else {
+    return {
+      clientRoute: getRouteConfig("password-reset").name,
+      getEmailContentFn: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.PasswordResetConfig>;
   }
-
-  return {
-    clientRoute: getRouteConfig("password-reset").name,
-    getEmailContentFn: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.PasswordResetConfig>;
 }
 
 export function getEmailVerificationConfig(
@@ -286,12 +289,12 @@ export function getEmailVerificationConfig(
     return {
       clientRoute: getRouteConfig("email-verification").name,
     } satisfies MinimalConfig<TsAppSpec.EmailVerificationConfig>;
+  } else {
+    return {
+      clientRoute: getRouteConfig("email-verification").name,
+      getEmailContentFn: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.EmailVerificationConfig>;
   }
-
-  return {
-    clientRoute: getRouteConfig("email-verification").name,
-    getEmailContentFn: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.EmailVerificationConfig>;
 }
 
 export function getClientConfig(
@@ -305,14 +308,14 @@ export function getClientConfig(
 ): Config<TsAppSpec.ClientConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.ClientConfig>;
+  } else {
+    return {
+      rootComponent: getExtImport(scope, "named"),
+      setupFn: getExtImport(scope, "named"),
+      baseDir: "/src",
+      envValidationSchema: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.ClientConfig>;
   }
-
-  return {
-    rootComponent: getExtImport(scope, "named"),
-    setupFn: getExtImport(scope, "named"),
-    baseDir: "/src",
-    envValidationSchema: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.ClientConfig>;
 }
 
 export function getServerConfig(
@@ -326,13 +329,13 @@ export function getServerConfig(
 ): Config<TsAppSpec.ServerConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.ServerConfig>;
+  } else {
+    return {
+      setupFn: getExtImport(scope, "named"),
+      middlewareConfigFn: getExtImport(scope, "named"),
+      envValidationSchema: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.ServerConfig>;
   }
-
-  return {
-    setupFn: getExtImport(scope, "named"),
-    middlewareConfigFn: getExtImport(scope, "named"),
-    envValidationSchema: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.ServerConfig>;
 }
 
 export function getEmailSenderConfig(
@@ -348,12 +351,12 @@ export function getEmailSenderConfig(
     return {
       provider: "SMTP",
     } satisfies MinimalConfig<TsAppSpec.EmailSenderConfig>;
+  } else {
+    return {
+      provider: "SMTP",
+      defaultFrom: getEmailFromField(scope),
+    } satisfies FullConfig<TsAppSpec.EmailSenderConfig>;
   }
-
-  return {
-    provider: "SMTP",
-    defaultFrom: getEmailFromField(scope),
-  } satisfies FullConfig<TsAppSpec.EmailSenderConfig>;
 }
 
 export function getWebSocketConfig(
@@ -369,12 +372,12 @@ export function getWebSocketConfig(
     return {
       fn: getExtImport(scope, "named"),
     } satisfies MinimalConfig<TsAppSpec.WebsocketConfig>;
+  } else {
+    return {
+      fn: getExtImport(scope, "named"),
+      autoConnect: true,
+    } satisfies FullConfig<TsAppSpec.WebsocketConfig>;
   }
-
-  return {
-    fn: getExtImport(scope, "named"),
-    autoConnect: true,
-  } satisfies FullConfig<TsAppSpec.WebsocketConfig>;
 }
 
 export function getDbConfig(
@@ -428,15 +431,15 @@ export function getPageConfig(
         authRequired: false,
       },
     } satisfies FullNamedConfig<TsAppSpec.PageConfig>;
+  } else {
+    return {
+      name: "FullPage",
+      config: {
+        component: getExtImport(pageType, "named"),
+        authRequired: true,
+      },
+    } satisfies NamedConfig<TsAppSpec.PageConfig>;
   }
-
-  return {
-    name: "FullPage",
-    config: {
-      component: getExtImport(pageType, "named"),
-      authRequired: true,
-    },
-  } satisfies NamedConfig<TsAppSpec.PageConfig>;
 }
 
 export function getRouteConfigs(): NamedConfig<TsAppSpec.RouteConfig>[] {
@@ -461,24 +464,24 @@ export function getRouteConfig(
         to: getPageConfig(routeType).name as TsAppSpec.PageName,
       },
     } satisfies MinimalNamedConfig<TsAppSpec.RouteConfig>;
-  }
-
-  let name: string;
-  if (routeType === "email-verification") {
-    name = "EmailVerificationRoute";
-  } else if (routeType === "password-reset") {
-    name = "PasswordResetRoute";
   } else {
-    name = "FullRoute";
-  }
+    let name: string;
+    if (routeType === "email-verification") {
+      name = "EmailVerificationRoute";
+    } else if (routeType === "password-reset") {
+      name = "PasswordResetRoute";
+    } else {
+      name = "FullRoute";
+    }
 
-  return {
-    name,
-    config: {
-      path: "/foo/bar",
-      to: getPageConfig(routeType).name as TsAppSpec.PageName,
-    },
-  } satisfies FullNamedConfig<TsAppSpec.RouteConfig>;
+    return {
+      name,
+      config: {
+        path: "/foo/bar",
+        to: getPageConfig(routeType).name as TsAppSpec.PageName,
+      },
+    } satisfies FullNamedConfig<TsAppSpec.RouteConfig>;
+  }
 }
 
 export function getQuerieConfigs(): NamedConfig<TsAppSpec.QueryConfig>[] {
@@ -502,16 +505,16 @@ export function getQueryConfig(
         fn: getExtImport(scope, "named"),
       },
     } satisfies MinimalNamedConfig<TsAppSpec.QueryConfig>;
+  } else {
+    return {
+      name: "FullQuery",
+      config: {
+        fn: getExtImport(scope, "named"),
+        entities: [getEntity("task")],
+        auth: true,
+      },
+    } satisfies FullNamedConfig<TsAppSpec.QueryConfig>;
   }
-
-  return {
-    name: "FullQuery",
-    config: {
-      fn: getExtImport(scope, "named"),
-      entities: [getEntity("task")],
-      auth: true,
-    },
-  } satisfies FullNamedConfig<TsAppSpec.QueryConfig>;
 }
 
 export function getActionConfigs(): NamedConfig<TsAppSpec.ActionConfig>[] {
@@ -535,16 +538,16 @@ export function getActionConfig(
         fn: getExtImport(scope, "named"),
       },
     } satisfies MinimalNamedConfig<TsAppSpec.ActionConfig>;
+  } else {
+    return {
+      name: "FullAction",
+      config: {
+        fn: getExtImport(scope, "named"),
+        entities: [getEntity("task")],
+        auth: true,
+      },
+    } satisfies FullNamedConfig<TsAppSpec.ActionConfig>;
   }
-
-  return {
-    name: "FullAction",
-    config: {
-      fn: getExtImport(scope, "named"),
-      entities: [getEntity("task")],
-      auth: true,
-    },
-  } satisfies FullNamedConfig<TsAppSpec.ActionConfig>;
 }
 
 export function getCrudConfigs(): NamedConfig<TsAppSpec.CrudConfig>[] {
@@ -569,15 +572,15 @@ export function getCrudConfig(
         operations: getCrudOperations(scope),
       },
     } satisfies MinimalNamedConfig<TsAppSpec.CrudConfig>;
+  } else {
+    return {
+      name: "FullCrud",
+      config: {
+        entity: getEntity("task"),
+        operations: getCrudOperations(scope),
+      },
+    } satisfies FullNamedConfig<TsAppSpec.CrudConfig>;
   }
-
-  return {
-    name: "FullCrud",
-    config: {
-      entity: getEntity("task"),
-      operations: getCrudOperations(scope),
-    },
-  } satisfies FullNamedConfig<TsAppSpec.CrudConfig>;
 }
 
 export function getCrudOperations(
@@ -591,15 +594,15 @@ export function getCrudOperations(
 ): Config<TsAppSpec.CrudOperations> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.CrudOperations>;
+  } else {
+    return {
+      get: getCrudOperationOptions(scope),
+      getAll: getCrudOperationOptions(scope),
+      create: getCrudOperationOptions(scope),
+      update: getCrudOperationOptions(scope),
+      delete: getCrudOperationOptions(scope),
+    } satisfies FullConfig<TsAppSpec.CrudOperations>;
   }
-
-  return {
-    get: getCrudOperationOptions(scope),
-    getAll: getCrudOperationOptions(scope),
-    create: getCrudOperationOptions(scope),
-    update: getCrudOperationOptions(scope),
-    delete: getCrudOperationOptions(scope),
-  } satisfies FullConfig<TsAppSpec.CrudOperations>;
 }
 
 export function getCrudOperationOptions(
@@ -613,12 +616,12 @@ export function getCrudOperationOptions(
 ): Config<TsAppSpec.CrudOperationOptions> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.CrudOperationOptions>;
+  } else {
+    return {
+      isPublic: true,
+      overrideFn: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.CrudOperationOptions>;
   }
-
-  return {
-    isPublic: true,
-    overrideFn: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.CrudOperationOptions>;
 }
 
 export function getScheduleConfig(
@@ -634,15 +637,15 @@ export function getScheduleConfig(
     return {
       cron: "0 0 * * *",
     } satisfies MinimalConfig<TsAppSpec.ScheduleConfig>;
+  } else {
+    return {
+      cron: "0 0 * * *",
+      args: { foo: "bar" },
+      executorOptions: {
+        pgBoss: { jobOptions: { attempts: 3 } },
+      },
+    } satisfies FullConfig<TsAppSpec.ScheduleConfig>;
   }
-
-  return {
-    cron: "0 0 * * *",
-    args: { foo: "bar" },
-    executorOptions: {
-      pgBoss: { jobOptions: { attempts: 3 } },
-    },
-  } satisfies FullConfig<TsAppSpec.ScheduleConfig>;
 }
 
 export function getPerform(scope: "minimal"): MinimalConfig<TsAppSpec.Perform>;
@@ -654,14 +657,14 @@ export function getPerform(
     return {
       fn: getExtImport(scope, "named"),
     } satisfies MinimalConfig<TsAppSpec.Perform>;
+  } else {
+    return {
+      fn: getExtImport(scope, "named"),
+      executorOptions: {
+        pgBoss: { jobOptions: { attempts: 3 } },
+      },
+    } satisfies FullConfig<TsAppSpec.Perform>;
   }
-
-  return {
-    fn: getExtImport(scope, "named"),
-    executorOptions: {
-      pgBoss: { jobOptions: { attempts: 3 } },
-    },
-  } satisfies FullConfig<TsAppSpec.Perform>;
 }
 
 export function getApiNamespaceConfigs(): NamedConfig<TsAppSpec.ApiNamespaceConfig>[] {
@@ -686,15 +689,15 @@ export function getApiNamespaceConfig(
         path: "/foo",
       },
     } satisfies MinimalNamedConfig<TsAppSpec.ApiNamespaceConfig>;
+  } else {
+    return {
+      name: "FullApiNamespace",
+      config: {
+        middlewareConfigFn: getExtImport(scope, "named"),
+        path: "/foo",
+      },
+    } satisfies FullNamedConfig<TsAppSpec.ApiNamespaceConfig>;
   }
-
-  return {
-    name: "FullApiNamespace",
-    config: {
-      middlewareConfigFn: getExtImport(scope, "named"),
-      path: "/foo",
-    },
-  } satisfies FullNamedConfig<TsAppSpec.ApiNamespaceConfig>;
 }
 
 export function getApiConfigs(): NamedConfig<TsAppSpec.ApiConfig>[] {
@@ -719,18 +722,18 @@ export function getApiConfig(
         httpRoute: getHttpRoute(scope),
       },
     } satisfies MinimalNamedConfig<TsAppSpec.ApiConfig>;
+  } else {
+    return {
+      name: "FullApi",
+      config: {
+        fn: getExtImport(scope, "named"),
+        httpRoute: getHttpRoute(scope),
+        entities: [getEntity("task")],
+        auth: true,
+        middlewareConfigFn: getExtImport(scope, "named"),
+      },
+    } satisfies FullNamedConfig<TsAppSpec.ApiConfig>;
   }
-
-  return {
-    name: "FullApi",
-    config: {
-      fn: getExtImport(scope, "named"),
-      httpRoute: getHttpRoute(scope),
-      entities: [getEntity("task")],
-      auth: true,
-      middlewareConfigFn: getExtImport(scope, "named"),
-    },
-  } satisfies FullNamedConfig<TsAppSpec.ApiConfig>;
 }
 
 export function getHttpRoute(
@@ -743,12 +746,12 @@ export function getHttpRoute(scope: ConfigType): Config<TsAppSpec.HttpRoute> {
       method: "GET",
       route: "/foo/bar",
     } satisfies MinimalConfig<TsAppSpec.HttpRoute>;
+  } else {
+    return {
+      method: "GET",
+      route: "/foo/bar",
+    } satisfies FullConfig<TsAppSpec.HttpRoute>;
   }
-
-  return {
-    method: "GET",
-    route: "/foo/bar",
-  } satisfies FullConfig<TsAppSpec.HttpRoute>;
 }
 
 export function getJobConfigs(): NamedConfig<TsAppSpec.JobConfig>[] {
@@ -773,17 +776,17 @@ export function getJobConfig(
         perform: getPerform(scope),
       },
     } satisfies MinimalNamedConfig<TsAppSpec.JobConfig>;
+  } else {
+    return {
+      name: "FullJob",
+      config: {
+        executor: "PgBoss",
+        perform: getPerform(scope),
+        entities: [getEntity("task")],
+        schedule: getScheduleConfig(scope),
+      },
+    } satisfies FullNamedConfig<TsAppSpec.JobConfig>;
   }
-
-  return {
-    name: "FullJob",
-    config: {
-      executor: "PgBoss",
-      perform: getPerform(scope),
-      entities: [getEntity("task")],
-      schedule: getScheduleConfig(scope),
-    },
-  } satisfies FullNamedConfig<TsAppSpec.JobConfig>;
 }
 
 export function getEmailFromField(
@@ -799,12 +802,12 @@ export function getEmailFromField(
     return {
       email: "test@domain.tld",
     } satisfies MinimalConfig<TsAppSpec.EmailFromField>;
+  } else {
+    return {
+      email: "test@domain.tld",
+      name: "ToDo App",
+    } satisfies FullConfig<TsAppSpec.EmailFromField>;
   }
-
-  return {
-    email: "test@domain.tld",
-    name: "ToDo App",
-  } satisfies FullConfig<TsAppSpec.EmailFromField>;
 }
 
 export function getExtImport(
@@ -825,29 +828,27 @@ export function getExtImport(
         from: "@src/external",
         importDefault: "defaultExport",
       } satisfies MinimalConfig<TsAppSpec.ExtImport>;
+    } else {
+      return {
+        from: "@src/external",
+        importDefault: "defaultExport",
+      } satisfies FullConfig<TsAppSpec.ExtImport>;
     }
-
-    return {
-      from: "@src/external",
-      importDefault: "defaultExport",
-    } satisfies FullConfig<TsAppSpec.ExtImport>;
-  }
-
-  if (type === "named") {
+  } else if (type === "named") {
     if (scope === "minimal") {
       return {
         from: "@src/external",
         import: "namedExport",
       } satisfies MinimalConfig<TsAppSpec.ExtImport>;
+    } else {
+      return {
+        from: "@src/external",
+        import: "namedExport",
+      } satisfies FullConfig<TsAppSpec.ExtImport>;
     }
-
-    return {
-      from: "@src/external",
-      import: "namedExport",
-    } satisfies FullConfig<TsAppSpec.ExtImport>;
+  } else {
+    throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`);
   }
-
-  throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`);
 }
 
 export function getEntity(entity: EntityType) {
