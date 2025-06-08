@@ -27,7 +27,7 @@ export class App {
   // NOTE: Using a non-public symbol gives us a package-private property.
   // It's not that important to hide it from the users, but we still don't want
   // user's IDE to suggest it during autocompletion.
-  [GET_TS_APP_SPEC]() {
+  [GET_TS_APP_SPEC](): TsAppSpec {
     return this.#tsAppSpec;
   }
 
