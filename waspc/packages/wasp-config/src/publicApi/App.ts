@@ -100,6 +100,7 @@ export class App {
   }
 }
 
+// TODO: new name
 export type AppData = {
   app: { name: string; config: TsAppSpec.AppConfig };
   actions: Map<string, TsAppSpec.ActionConfig>;
