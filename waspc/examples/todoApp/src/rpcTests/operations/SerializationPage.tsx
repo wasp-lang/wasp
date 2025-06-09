@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { useMemo } from "react";
 import { getSerializedObjects, useQuery } from "wasp/client/operations";
+import { FeatureContainer } from "../../components/FeatureContainer";
 import { SERIALIZABLE_OBJECTS_FIXTURE } from "./fixtures";
 
 export const SerializationPage = () => {
@@ -21,9 +22,14 @@ export const SerializationPage = () => {
   }, [serializedObjects]);
 
   return serializedObjects ? (
-    <div>
-      <label htmlFor="serializedObjects">Serialized objects</label>:
-      <p id="serializedObjects">{result}</p>
-    </div>
+    <FeatureContainer>
+      <div className="space-y-4">
+        <h2 className="feature-title">Serialization</h2>
+        <div className="card">
+          <label htmlFor="serializedObjects">Serialized objects</label>:
+          <p id="serializedObjects">{result}</p>
+        </div>
+      </div>
+    </FeatureContainer>
   ) : null;
 };
