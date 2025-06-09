@@ -24,6 +24,7 @@ export const TaskDetailPage = () => {
   const {
     data: task,
     isLoading,
+    isSuccess,
     error,
     isError,
   } = useQuery(getTask, { id: taskId });
@@ -47,9 +48,6 @@ export const TaskDetailPage = () => {
     ],
   });
 
-  if (!task) return <div> Task with id {taskId} does not exist. </div>;
-  if (isError) return <div> Error occurred! {error.message} </div>;
-
   async function toggleIsDone({ id, isDone }: Task) {
     try {
       updateTaskIsDoneOptimistically({ id, isDone: !isDone });
@@ -63,14 +61,13 @@ export const TaskDetailPage = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="feature-title">Task Details</h2>
-          <span className="text-sm text-gray-500">ID: {task.id}</span>
+          {isSuccess && (
+            <span className="text-sm text-gray-500">ID: {task.id}</span>
+          )}
         </div>
         <div className="card" data-testid="task-detail">
-          {isLoading ? (
-            <div className="text-center py-8 text-gray-500">
-              Fetching task...
-            </div>
-          ) : (
+          {isLoading && <div className="text-gray-500">Fetching task...</div>}
+          {isSuccess && (
             <div className="space-y-4">
               <TaskDetailView task={task} />
 
@@ -79,6 +76,11 @@ export const TaskDetailPage = () => {
                   Mark as {task.isDone ? "pending" : "completed"}
                 </Button>
               </div>
+            </div>
+          )}
+          {isError && (
+            <div className="text-red-500">
+              Error fetching task: {error.message}
             </div>
           )}
         </div>

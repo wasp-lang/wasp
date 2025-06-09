@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { generateRandomCredentials, performLogin } from "./helpers";
+import { generateRandomEmailCredentials, performLogin } from "./helpers";
 
 test.describe("custom signup", () => {
-  // We need the login test to run after the signup test
+  // We need the login test to run after the signup test.
   test.describe.configure({ mode: "serial" });
 
-  const { email, password } = generateRandomCredentials();
+  const { email, password } = generateRandomEmailCredentials();
 
   test("can sign up", async ({ page }) => {
     await page.goto("/custom-signup");

@@ -17,8 +17,10 @@ export function ApisPage() {
             <div className="text-gray-500">Loading...</div>
           )}
           {authenticatedApi.error && (
-            <Alert variant="error" data-testid="error">
-              Error: {authenticatedApi.error.message}
+            <Alert variant="error">
+              <span data-testid="error">
+                Error: {authenticatedApi.error.message}
+              </span>
             </Alert>
           )}
           {authenticatedApi.data && (
@@ -32,7 +34,9 @@ export function ApisPage() {
           )}
           {unauthenticatedApi.error && (
             <Alert variant="error" data-testid="error">
-              Error: {unauthenticatedApi.error.message}
+              <span data-testid="error">
+                Error: {unauthenticatedApi.error.message}
+              </span>
             </Alert>
           )}
           {unauthenticatedApi.data && (

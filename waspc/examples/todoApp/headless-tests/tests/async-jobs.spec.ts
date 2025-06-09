@@ -17,18 +17,16 @@ test.describe("async jobs", () => {
 
     await expect(
       page.getByTestId("job-request").getByTestId("input"),
-    ).toContainText(text);
+    ).toHaveText(`"${text}"`);
     await expect(
       page.getByTestId("job-request").getByTestId("status"),
-    ).toContainText("pending");
-
-    await page.waitForTimeout(2000);
+    ).toHaveText("pending");
 
     await expect(
       page.getByTestId("job-request").getByTestId("status"),
-    ).toContainText("success");
+    ).toHaveText("success");
     await expect(
       page.getByTestId("job-request").getByTestId("output"),
-    ).toContainText(text.toUpperCase());
+    ).toHaveText(`"${text.toUpperCase()}"`);
   });
 });

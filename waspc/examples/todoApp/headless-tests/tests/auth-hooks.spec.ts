@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
-  generateRandomCredentials,
+  generateRandomEmailCredentials,
   isRunningInDevMode,
   performEmailVerification,
   performLogin,
@@ -31,7 +31,7 @@ test.describe("auth hooks", () => {
     We also set up the "after login hook" to set a value in the user object.
   */
   test("after signup and after login hooks work", async ({ page }) => {
-    const { email, password } = generateRandomCredentials();
+    const { email, password } = generateRandomEmailCredentials();
 
     await submitSignupForm(page, {
       email,
@@ -49,11 +49,11 @@ test.describe("auth hooks", () => {
 
     await expect(
       page.getByTestId("hook-status-onAfterSignup").getByTestId("status"),
-    ).toContainText("Called");
+    ).toHaveText("Called");
 
     await expect(
       page.getByTestId("hook-status-onAfterLogin").getByTestId("status"),
-    ).toContainText("Called");
+    ).toHaveText("Called");
 
     const expectedEmailVerificationStatus = isRunningInDevMode()
       ? "Not Called"
@@ -62,7 +62,7 @@ test.describe("auth hooks", () => {
       page
         .getByTestId("hook-status-onAfterEmailVerified")
         .getByTestId("status"),
-    ).toContainText(expectedEmailVerificationStatus);
+    ).toHaveText(expectedEmailVerificationStatus);
   });
 
   /*

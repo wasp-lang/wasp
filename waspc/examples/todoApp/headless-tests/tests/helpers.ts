@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 export function setupTestUser() {
-  const credentials = generateRandomCredentials();
+  const credentials = generateRandomEmailCredentials();
 
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
@@ -63,6 +63,16 @@ export async function performEmailVerification(
   // Wait for the email to be sent
   await page.waitForTimeout(1000);
 
+  const link = await getEmailVerificationLink(page, sentToEmail);
+
+  await page.goto(link);
+  await page.waitForSelector("text=Your email has been verified");
+}
+
+export async function getEmailVerificationLink(
+  page: Page,
+  sentToEmail: string,
+): Promise<string> {
   const mailcrabApiUrl = "http://localhost:1080";
   const messagesResponse = await page.request.get(
     `${mailcrabApiUrl}/api/messages`,
@@ -90,9 +100,7 @@ export async function performEmailVerification(
     throw new Error("No verification link found");
   }
 
-  const link = linkMatch[0];
-  await page.goto(link);
-  await page.waitForSelector("text=Your email has been verified");
+  return linkMatch[0];
 }
 
 export function isRunningInDevMode() {
@@ -128,7 +136,7 @@ export async function submitLoginForm(
   await page.getByRole("button", { name: "Log in" }).click();
 }
 
-export function generateRandomCredentials(): {
+export function generateRandomEmailCredentials(): {
   email: string;
   password: string;
 } {

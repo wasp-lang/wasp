@@ -1,4 +1,4 @@
-import { expect, Page, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import { performLogin, setupTestUser } from "./helpers";
 
 test.describe("custom APIs", () => {

@@ -62,12 +62,8 @@ export const SignupPage = () => {
           data-testid="custom-signup-form"
         >
           {message && (
-            <Alert
-              variant={message.type}
-              className="mb-4"
-              data-testid="message"
-            >
-              {message.text}
+            <Alert variant={message.type} className="mb-4">
+              <span data-testid="message">{message.text}</span>
             </Alert>
           )}
           <FormItemGroup>
