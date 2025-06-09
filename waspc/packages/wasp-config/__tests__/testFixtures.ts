@@ -9,41 +9,114 @@ import { App } from "../src/publicApi/App.js";
 import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
 
 /**
- * Creates a type containing only the required properties from T.
+ * Creates a type containing only the required properties from T recursively.
  *
  * This utility:
- * - Filters out optional properties from the type
- * - Provides a clean type for minimal configuration objects
- * - Returns `Record<string, never>` (empty object) when no required properties exist
+ * - Filters out optional properties recurisvely
+ * - Stops from unwrapping `Branded` types
+ * - Returns `EmptyObject` when no required properties exist
  *
  * @template T - The type to extract required properties from
- * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
+ *
+ * @example
+ * ```ts
+ * // Given the following type:
+ * type Result = MinimalConfig<{
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *     d?: {
+ *       e: boolean;
+ *     };
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h?: string;
+ *   }[];
+ * };
+ * // The result will be:
+ * type Result = {
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h: string;
+ *   }[];
+ * };
  */
-type MinimalConfig<T> = keyof T extends never
-  ? Record<string, never>
-  : {
-        [K in keyof T as undefined extends T[K] ? never : K]: T[K];
-      } extends infer R
-    ? keyof R extends never
-      ? Record<string, never>
-      : R
-    : never;
+type MinimalConfig<T> =
+  T extends Branded<infer TType, infer TBrand>
+    ? Branded<TType, TBrand>
+    : T extends Array<infer TArrayItem>
+      ? Array<MinimalConfig<TArrayItem>>
+      : T extends object
+        ? keyof T extends never
+          ? EmptyObject
+          : {
+              [K in keyof T as T[K] extends Required<T>[K]
+                ? K
+                : never]: MinimalConfig<T[K]>;
+            }
+        : T;
 
 /**
- * Creates a type with all properties and nested properties required.
+ * Represents an empty object type in TypeScript.
+ * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
+ */
+type EmptyObject = Record<string, never>;
+
+/**
+ * Creates a type with all properties of T required recursively.
  *
  * This utility:
- * - Makes all properties required recursively (removes optional flags)
- * - Stops from unwrapping branded types fully
+ * - Makes all properties required recursively
+ * - Stops from unwrapping branded types
  *
  * @template T - The type to make fully required
+ *
+ * @example
+ * ```ts
+ * // Given the following type:
+ * type Result = FullConfig<{
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *     d?: {
+ *       e: boolean;
+ *     };
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h?: string;
+ *   }[];
+ * };
+ * // The result will be:
+ * type Result = FullConfig<{
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *     d: {
+ *       e: boolean;
+ *     };
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h: string;
+ *   }[];
+ * };
  */
 type FullConfig<T> =
-  T extends Branded<infer U, infer B>
-    ? Branded<U, B>
-    : T extends object
-      ? { [K in keyof T]-?: FullConfig<T[K]> }
-      : T;
+  T extends Branded<infer TType, infer TBrand>
+    ? Branded<TType, TBrand>
+    : T extends Array<infer TArrayItem>
+      ? Array<FullConfig<TArrayItem>>
+      : T extends object
+        ? {
+            [K in keyof T]-?: FullConfig<T[K]>;
+          }
+        : T;
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>;
 
@@ -89,10 +162,7 @@ export function createApp(scope: ConfigType): {
     app.webSocket(getWebSocketConfig("full"));
     app.db(getDbConfig("full"));
 
-    function addDecls(
-      declName: string,
-      nameAndConfigs: NamedConfig<unknown>[],
-    ) {
+    function addDecls(declName: string, nameAndConfigs: NamedConfig<object>[]) {
       nameAndConfigs.forEach(({ name, config }) => app[declName](name, config));
     }
 
@@ -418,12 +488,12 @@ export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig>;
 export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig> {
   if (scope === "minimal") {
     return {} satisfies MinimalConfig<TsAppSpec.DbConfig>;
+  } else {
+    return {
+      seeds: [getExtImport(scope, "named"), getExtImport(scope, "default")],
+      prismaSetupFn: getExtImport(scope, "named"),
+    } satisfies FullConfig<TsAppSpec.DbConfig>;
   }
-
-  return {
-    seeds: [getExtImport(scope, "named"), getExtImport(scope, "default")],
-    prismaSetupFn: getExtImport(scope, "named"),
-  } satisfies FullConfig<TsAppSpec.DbConfig>;
 }
 
 export function getPageConfigs(): NamedConfig<TsAppSpec.PageConfig>[] {
