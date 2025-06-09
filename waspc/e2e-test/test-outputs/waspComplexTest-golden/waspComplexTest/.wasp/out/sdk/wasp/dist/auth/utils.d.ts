@@ -51,6 +51,7 @@ export type ProviderId = {
     providerUserId: string;
 };
 export declare function createProviderId(providerName: ProviderName, providerUserId: string): ProviderId;
+export declare function normalizeProviderUserId(providerName: ProviderName, providerUserId: string): string;
 export declare function findAuthIdentity(providerId: ProviderId): Promise<AuthIdentity | null>;
 /**
  * Updates the provider data for the given auth identity.

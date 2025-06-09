@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.6
+
+### 🐞 Bug fixes
+
+- Stops lowercasing user IDs received from OAuth providers.
+
 ## 0.16.5
 
 ### 🐞 Bug fixes

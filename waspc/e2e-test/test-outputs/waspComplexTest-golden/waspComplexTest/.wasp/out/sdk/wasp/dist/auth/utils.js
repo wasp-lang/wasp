@@ -29,8 +29,35 @@ export const authConfig = {
 export function createProviderId(providerName, providerUserId) {
     return {
         providerName,
-        providerUserId: providerUserId.toLowerCase(),
+        providerUserId: normalizeProviderUserId(providerName, providerUserId),
     };
+}
+// PRIVATE API
+export function normalizeProviderUserId(providerName, providerUserId) {
+    switch (providerName) {
+        case 'email':
+        case 'username':
+            return providerUserId.toLowerCase();
+        case 'google':
+        case 'github':
+        case 'discord':
+        case 'keycloak':
+            return providerUserId;
+        /*
+          Why the default case?
+          In case users add a new auth provider in the user-land.
+          Users can't extend this function because it is private.
+          If there is an unknown `providerName` in runtime, we'll
+          return the `providerUserId` as is.
+    
+          We want to still have explicit OAuth providers listed
+          so that we get a type error if we forget to add a new provider
+          to the switch statement.
+        */
+        default:
+            providerName;
+            return providerUserId;
+    }
 }
 // PUBLIC API
 export async function findAuthIdentity(providerId) {
