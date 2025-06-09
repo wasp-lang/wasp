@@ -61,6 +61,10 @@ export const TaskDetailPage = () => {
   return (
     <FeatureContainer>
       <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="feature-title">Task Details</h2>
+          <span className="text-sm text-gray-500">ID: {task.id}</span>
+        </div>
         <div className="card" data-testid="task-detail">
           {isLoading ? (
             <div className="text-center py-8 text-gray-500">
@@ -68,13 +72,6 @@ export const TaskDetailPage = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-semibold text-gray-900">
-                  Task Details
-                </h1>
-                <span className="text-sm text-gray-500">ID: {task.id}</span>
-              </div>
-
               <TaskDetailView task={task} />
 
               <div className="pt-4 border-t border-gray-200">

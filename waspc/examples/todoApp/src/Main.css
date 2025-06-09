@@ -2,10 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-.link {
-  @apply text-primary-600 hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 underline underline-offset-4;
-}
+@layer components {
+  .link {
+    @apply text-primary-600 hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 underline underline-offset-4;
+  }
 
-.card {
-  @apply bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200;
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200;
+  }
+
+  .feature-title {
+    @apply text-2xl font-semibold;
+  }
 }

@@ -19,7 +19,7 @@ export const DetailPage = () => {
   return (
     <FeatureContainer>
       <div className="space-y-4" data-testid="crud-task-details">
-        <h1 className="text-2xl font-medium">CRUD Task Detail Page</h1>
+        <h2 className="feature-title">CRUD Task Detail Page</h2>
         <div className="tasks">
           {isLoading && <div>Loading...</div>}
           {task && (

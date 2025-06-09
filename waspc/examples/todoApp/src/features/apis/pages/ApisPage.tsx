@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { api } from "wasp/client/api";
+import { Alert } from "../../../components/Alert";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export function ApisPage() {
@@ -9,29 +10,30 @@ export function ApisPage() {
   return (
     <FeatureContainer>
       <div className="space-y-4">
+        <h2 className="feature-title">Custom APIs</h2>
         <div className="card" data-testid="authenticated-api">
-          <h2 className="text-2xl font-medium mb-4">/foo/bar</h2>
+          <h2 className="text-xl font-medium mb-2">/foo/bar</h2>
           {authenticatedApi.isLoading && (
             <div className="text-gray-500">Loading...</div>
           )}
           {authenticatedApi.error && (
-            <div className="text-red-500" data-testid="error">
+            <Alert variant="error" data-testid="error">
               Error: {authenticatedApi.error.message}
-            </div>
+            </Alert>
           )}
           {authenticatedApi.data && (
             <div data-testid="data">{authenticatedApi.data.msg}</div>
           )}
         </div>
         <div className="card" data-testid="unauthenticated-api">
-          <h2 className="text-2xl font-medium mb-4">/bar/baz</h2>
+          <h2 className="text-xl font-medium mb-2">/bar/baz</h2>
           {unauthenticatedApi.isLoading && (
             <div className="text-gray-500">Loading...</div>
           )}
           {unauthenticatedApi.error && (
-            <div className="text-red-500" data-testid="error">
+            <Alert variant="error" data-testid="error">
               Error: {unauthenticatedApi.error.message}
-            </div>
+            </Alert>
           )}
           {unauthenticatedApi.data && (
             <div data-testid="data">{unauthenticatedApi.data.msg}</div>

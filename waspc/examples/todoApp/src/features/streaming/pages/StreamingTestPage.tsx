@@ -6,10 +6,12 @@ export const StreamingTestPage = () => {
   const { response } = useTextStream("/api/streaming-test");
   return (
     <FeatureContainer>
-      <main className="card">
-        <h1 className="text-2xl font-medium mb-2">Streaming Demo</h1>
-        <p className="max-w-2xl">{response}</p>
-      </main>
+      <div className="space-y-4">
+        <h2 className="feature-title">Streaming Demo</h2>
+        <div className="card">
+          <p className="max-w-2xl">{response}</p>
+        </div>
+      </div>
     </FeatureContainer>
   );
 };

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getEmail } from "wasp/auth";
 import { tasks as tasksCrud } from "wasp/client/crud";
 import { Link } from "wasp/client/router";
+import { Alert } from "../../../components/Alert";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { Input } from "../../../components/Input";
@@ -55,18 +56,14 @@ export const ListPage = () => {
 
   return (
     <FeatureContainer>
-      <div className="space-y-6" data-testid="crud-tasks">
+      <div className="space-y-4" data-testid="crud-tasks">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">CRUD Tasks</h1>
+          <h2 className="feature-title">CRUD Tasks</h2>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {isLoading && (
             <div className="card text-center py-8 text-gray-500">
               Loading...

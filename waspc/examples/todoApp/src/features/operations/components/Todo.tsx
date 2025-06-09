@@ -39,10 +39,9 @@ const Todo = () => {
   };
 
   return (
-    <>
+    <div className="space-y-4">
+      <h2 className="feature-title">Todos</h2>
       <div className="card">
-        <h1 className="mb-2 text-2xl font-medium">Todos</h1>
-
         <div className="flex items-center gap-2">
           <ToggleAllTasksButton disabled={!areThereAnyTasks(tasks)} />
           <NewTaskForm />
@@ -62,7 +61,7 @@ const Todo = () => {
       <div className="text-sm text-gray-600 mt-4">
         {getTotalTaskCountMessage(numTasks)}
       </div>
-    </>
+    </div>
   );
 };
 

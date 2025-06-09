@@ -23,9 +23,12 @@ export const SerializationPage = () => {
 
   return serializedObjects ? (
     <FeatureContainer>
-      <div className="card">
-        <label htmlFor="serializedObjects">Serialized objects</label>:
-        <p id="serializedObjects">{result}</p>
+      <div className="space-y-4">
+        <h2 className="feature-title">Serialization</h2>
+        <div className="card">
+          <label htmlFor="serializedObjects">Serialized objects</label>:
+          <p id="serializedObjects">{result}</p>
+        </div>
       </div>
     </FeatureContainer>
   ) : null;
