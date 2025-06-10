@@ -30,40 +30,8 @@ TEST_CLI_CMD="cabal test cli-test"
 TEST_E2E_CMD="cabal test e2e-test"
 TEST_E2E_DELETE_GOLDENS="rm -rf $PROJECT_ROOT/e2e-test/test-outputs/*-golden"
 TEST_E2E_ACCEPT_ALL_CMD="$TEST_E2E_DELETE_GOLDENS && $TEST_E2E_CMD"
-TEST_HEADLESS_CMD="ensure_wasp_app_runner_installed && cd $PROJECT_ROOT/examples/todoApp && npm install && DEBUG=pw:webserver npx playwright test --config headless-tests"
+TEST_HEADLESS_CMD="${SCRIPT_DIR}/tools/install_wasp-app-runner.sh && cd $PROJECT_ROOT/examples/todoApp && npm install && DEBUG=pw:webserver npx playwright test --config headless-tests"
 TEST_CMD="cabal test && echo 'Running headless tests' && $TEST_HEADLESS_CMD && echo 'ALL TESTS PASSED' || { echo 'SOME TESTS FAILED'; exit 1; }"
-
-function ensure_wasp_app_runner_installed() {
-  if ! command -v run-wasp-app > /dev/null 2>&1; then
-    echo -e "${YELLOW}run-wasp-app is not installed. Installing...${RESET}"
-    install_wasp_app_runner
-    if ! command -v run-wasp-app > /dev/null 2>&1; then
-      echo -e "${RED}Failed to install run-wasp-app!${RESET}"
-      exit 1
-    fi
-  fi
-}
-
-function install_wasp_app_runner() {
-  local TMP_DIR="$PROJECT_ROOT/.tmp"
-  local REPO_DIR="$TMP_DIR/runner-action"
-
-  echo_bold "Cloning wasp-app-runner to $REPO_DIR..."
-  mkdir -p "$TMP_DIR"
-  git clone --depth 1 https://github.com/wasp-lang/runner-action.git "$REPO_DIR"
-
-  echo_bold "Building and packing Wasp App Runner..."
-  cd "$REPO_DIR" || exit 1
-  npm ci --silent
-  local TAR_FILE
-  TAR_FILE=$(npm pack --silent)
-
-  echo_bold "Installing Wasp App Runner globally from tarball..."
-  npm install -g "$REPO_DIR/$TAR_FILE"
-
-  echo_bold "Cleaning up $TMP_DIR..."
-  rm -rf "$TMP_DIR"
-}
 
 RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
