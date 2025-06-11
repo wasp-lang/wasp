@@ -44,3 +44,9 @@ If you did code changes and **updated an existing feature**, make sure you satis
 3. [ ] I updated [`todo-ts` starter](https://github.com/wasp-lang/starters/tree/dev/todo-ts) as needed and manually checked it works correctly.
 4. [ ] I updated [`embeddings` starter](https://github.com/wasp-lang/starters/tree/dev/embeddings) as needed and manually checked it works correctly.
 5. [ ] I updated [`saas` starter](https://github.com/wasp-lang/open-saas/tree/main/template) as needed and manually checked it works correctly.
+
+### Update e2e tests if needed
+
+If you did code changes and changed Wasp's code generation logic, make sure you satisfy the following:
+
+1. [] I updated [e2e tests](https://github.com/wasp-lang/wasp/tree/main/waspc#end-to-end-e2e-tests) as needed and manually checked they are correct.
