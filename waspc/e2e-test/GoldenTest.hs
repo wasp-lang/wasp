@@ -91,9 +91,9 @@ runGoldenTest goldenTest = do
     isTestOutputFileTestable fp =
       takeFileName fp
         `notElem` [ ".DS_Store",
-                    ".gitignore",
                     "dev.db",
                     "dev.db-journal",
+                    ".gitignore",
                     ".waspinfo",
                     "package-lock.json",
                     "node_modules",
