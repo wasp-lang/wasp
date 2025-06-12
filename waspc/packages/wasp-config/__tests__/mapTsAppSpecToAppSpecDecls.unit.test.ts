@@ -930,14 +930,14 @@ describe("mapJob", () => {
 
 describe("mapSchedule", () => {
   test("should map minimal config correctly", () => {
-    testMapSchedule(Fixtures.getScheduleConfig("minimal"));
+    testMapSchedule(Fixtures.getSchedule("minimal"));
   });
 
   test("should map full config correctly", () => {
-    testMapSchedule(Fixtures.getScheduleConfig("full"));
+    testMapSchedule(Fixtures.getSchedule("full"));
   });
 
-  function testMapSchedule(schedule: TsAppSpec.ScheduleConfig): void {
+  function testMapSchedule(schedule: TsAppSpec.Schedule): void {
     const result = mapSchedule(schedule);
 
     expect(result).toStrictEqual({

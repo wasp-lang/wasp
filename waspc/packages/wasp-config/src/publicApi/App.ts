@@ -117,7 +117,7 @@ export class App {
   }
 }
 
-type AppTsAppSpec = {
+export type AppTsAppSpec = {
   app: { name: string; config: AppConfig };
   actions: Map<string, ActionConfig>;
   apiNamespaces: Map<string, ApiNamespaceConfig>;

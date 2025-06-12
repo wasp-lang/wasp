@@ -46,36 +46,36 @@ export type AuthConfig = {
 };
 
 export type AuthMethods = {
-  usernameAndPassword?: UsernameAndPassword;
-  discord?: ExternalAuth;
-  google?: ExternalAuth;
-  gitHub?: ExternalAuth;
-  keycloak?: ExternalAuth;
-  email?: EmailAuth;
+  usernameAndPassword?: UsernameAndPasswordConfig;
+  discord?: ExternalAuthConfig;
+  google?: ExternalAuthConfig;
+  gitHub?: ExternalAuthConfig;
+  keycloak?: ExternalAuthConfig;
+  email?: EmailAuthConfig;
 };
 
-export type UsernameAndPassword = {
+export type UsernameAndPasswordConfig = {
   userSignupFields?: ExtImport;
 };
 
-export type EmailAuth = {
+export type EmailAuthConfig = {
   userSignupFields?: ExtImport;
   fromField: EmailFromField;
-  emailVerification: EmailVerification;
-  passwordReset: PasswordReset;
+  emailVerification: EmailVerificationConfig;
+  passwordReset: PasswordResetConfig;
 };
 
-export type EmailVerification = {
+export type EmailVerificationConfig = {
   getEmailContentFn?: ExtImport;
   clientRoute: string;
 };
 
-export type PasswordReset = {
+export type PasswordResetConfig = {
   getEmailContentFn?: ExtImport;
   clientRoute: string;
 };
 
-export type ExternalAuth = {
+export type ExternalAuthConfig = {
   configFn?: ExtImport;
   userSignupFields?: ExtImport;
 };

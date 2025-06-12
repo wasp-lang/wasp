@@ -1,2 +1,2 @@
-export * from "./publicApi/App.js";
+export { App } from "./publicApi/App.js";
 export * from "./publicApi/tsAppSpec.js";

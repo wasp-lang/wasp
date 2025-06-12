@@ -119,126 +119,132 @@ export function getAuthMethods(
     return {} satisfies MinimalConfig<TsAppSpec.AuthMethods>;
   } else {
     return {
-      email: getEmailAuth(scope),
-      usernameAndPassword: getUsernameAndPassword(scope),
-      discord: getExternalAuth(scope),
-      google: getExternalAuth(scope),
-      gitHub: getExternalAuth(scope),
-      keycloak: getExternalAuth(scope),
+      email: getEmailAuthConfig(scope),
+      usernameAndPassword: getUsernameAndPasswordConfig(scope),
+      discord: getExternalAuthConfig(scope),
+      google: getExternalAuthConfig(scope),
+      gitHub: getExternalAuthConfig(scope),
+      keycloak: getExternalAuthConfig(scope),
     } satisfies FullConfig<TsAppSpec.AuthMethods>;
   }
 }
 
-export function getExternalAuth(
+export function getExternalAuthConfig(
   scope: "minimal",
-): MinimalConfig<TsAppSpec.ExternalAuth>;
-export function getExternalAuth(
+): MinimalConfig<TsAppSpec.ExternalAuthConfig>;
+export function getExternalAuthConfig(
   scope: "full",
-): FullConfig<TsAppSpec.ExternalAuth>;
-export function getExternalAuth(
+): FullConfig<TsAppSpec.ExternalAuthConfig>;
+export function getExternalAuthConfig(
   scope: ConfigType,
-): Config<TsAppSpec.ExternalAuth>;
-export function getExternalAuth(
+): Config<TsAppSpec.ExternalAuthConfig>;
+export function getExternalAuthConfig(
   scope: ConfigType,
-): Config<TsAppSpec.ExternalAuth> {
+): Config<TsAppSpec.ExternalAuthConfig> {
   if (scope === "minimal") {
-    return {} satisfies MinimalConfig<TsAppSpec.ExternalAuth>;
+    return {} satisfies MinimalConfig<TsAppSpec.ExternalAuthConfig>;
   } else {
     return {
       configFn: getExtImport(scope, "named"),
       userSignupFields: getExtImport(scope, "named"),
-    } satisfies FullConfig<TsAppSpec.ExternalAuth>;
+    } satisfies FullConfig<TsAppSpec.ExternalAuthConfig>;
   }
 }
 
-export function getUsernameAndPassword(
+export function getUsernameAndPasswordConfig(
   scope: "minimal",
-): MinimalConfig<TsAppSpec.UsernameAndPassword>;
-export function getUsernameAndPassword(
+): MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>;
+export function getUsernameAndPasswordConfig(
   scope: "full",
-): FullConfig<TsAppSpec.UsernameAndPassword>;
-export function getUsernameAndPassword(
+): FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
+export function getUsernameAndPasswordConfig(
   scope: ConfigType,
-): Config<TsAppSpec.UsernameAndPassword>;
-export function getUsernameAndPassword(
+): Config<TsAppSpec.UsernameAndPasswordConfig>;
+export function getUsernameAndPasswordConfig(
   scope: ConfigType,
-): Config<TsAppSpec.UsernameAndPassword> {
+): Config<TsAppSpec.UsernameAndPasswordConfig> {
   if (scope === "minimal") {
-    return {} satisfies MinimalConfig<TsAppSpec.UsernameAndPassword>;
+    return {} satisfies MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>;
   } else {
     return {
       userSignupFields: getExtImport(scope, "named"),
-    } satisfies FullConfig<TsAppSpec.UsernameAndPassword>;
+    } satisfies FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
   }
 }
 
-export function getEmailAuth(
+export function getEmailAuthConfig(
   scope: "minimal",
-): MinimalConfig<TsAppSpec.EmailAuth>;
-export function getEmailAuth(scope: "full"): FullConfig<TsAppSpec.EmailAuth>;
-export function getEmailAuth(scope: ConfigType): Config<TsAppSpec.EmailAuth>;
-export function getEmailAuth(scope: ConfigType): Config<TsAppSpec.EmailAuth> {
+): MinimalConfig<TsAppSpec.EmailAuthConfig>;
+export function getEmailAuthConfig(
+  scope: "full",
+): FullConfig<TsAppSpec.EmailAuthConfig>;
+export function getEmailAuthConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailAuthConfig>;
+export function getEmailAuthConfig(
+  scope: ConfigType,
+): Config<TsAppSpec.EmailAuthConfig> {
   if (scope === "minimal") {
     return {
       fromField: getEmailFromField(scope),
-      emailVerification: getEmailVerification(scope),
-      passwordReset: getPasswordReset(scope),
-    } satisfies MinimalConfig<TsAppSpec.EmailAuth>;
+      emailVerification: getEmailVerificationConfig(scope),
+      passwordReset: getPasswordResetConfig(scope),
+    } satisfies MinimalConfig<TsAppSpec.EmailAuthConfig>;
   } else {
     return {
       fromField: getEmailFromField(scope),
-      emailVerification: getEmailVerification(scope),
-      passwordReset: getPasswordReset(scope),
+      emailVerification: getEmailVerificationConfig(scope),
+      passwordReset: getPasswordResetConfig(scope),
       userSignupFields: getExtImport(scope, "named"),
-    } satisfies FullConfig<TsAppSpec.EmailAuth>;
+    } satisfies FullConfig<TsAppSpec.EmailAuthConfig>;
   }
 }
 
-export function getPasswordReset(
+export function getPasswordResetConfig(
   scope: "minimal",
-): MinimalConfig<TsAppSpec.PasswordReset>;
-export function getPasswordReset(
+): MinimalConfig<TsAppSpec.PasswordResetConfig>;
+export function getPasswordResetConfig(
   scope: "full",
-): FullConfig<TsAppSpec.PasswordReset>;
-export function getPasswordReset(
+): FullConfig<TsAppSpec.PasswordResetConfig>;
+export function getPasswordResetConfig(
   scope: ConfigType,
-): Config<TsAppSpec.PasswordReset>;
-export function getPasswordReset(
+): Config<TsAppSpec.PasswordResetConfig>;
+export function getPasswordResetConfig(
   scope: ConfigType,
-): Config<TsAppSpec.PasswordReset> {
+): Config<TsAppSpec.PasswordResetConfig> {
   if (scope === "minimal") {
     return {
       clientRoute: getRouteConfig("password-reset").name,
-    } satisfies MinimalConfig<TsAppSpec.PasswordReset>;
+    } satisfies MinimalConfig<TsAppSpec.PasswordResetConfig>;
   } else {
     return {
       clientRoute: getRouteConfig("password-reset").name,
       getEmailContentFn: getExtImport(scope, "named"),
-    } satisfies FullConfig<TsAppSpec.PasswordReset>;
+    } satisfies FullConfig<TsAppSpec.PasswordResetConfig>;
   }
 }
 
-export function getEmailVerification(
+export function getEmailVerificationConfig(
   scope: "minimal",
-): MinimalConfig<TsAppSpec.EmailVerification>;
-export function getEmailVerification(
+): MinimalConfig<TsAppSpec.EmailVerificationConfig>;
+export function getEmailVerificationConfig(
   scope: "full",
-): FullConfig<TsAppSpec.EmailVerification>;
-export function getEmailVerification(
+): FullConfig<TsAppSpec.EmailVerificationConfig>;
+export function getEmailVerificationConfig(
   scope: ConfigType,
-): Config<TsAppSpec.EmailVerification>;
-export function getEmailVerification(
+): Config<TsAppSpec.EmailVerificationConfig>;
+export function getEmailVerificationConfig(
   scope: ConfigType,
-): Config<TsAppSpec.EmailVerification> {
+): Config<TsAppSpec.EmailVerificationConfig> {
   if (scope === "minimal") {
     return {
       clientRoute: getRouteConfig("email-verification").name,
-    } satisfies MinimalConfig<TsAppSpec.EmailVerification>;
+    } satisfies MinimalConfig<TsAppSpec.EmailVerificationConfig>;
   } else {
     return {
       clientRoute: getRouteConfig("email-verification").name,
       getEmailContentFn: getExtImport(scope, "named"),
-    } satisfies FullConfig<TsAppSpec.EmailVerification>;
+    } satisfies FullConfig<TsAppSpec.EmailVerificationConfig>;
   }
 }
 

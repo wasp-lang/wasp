@@ -4,10 +4,11 @@
  */
 
 import * as AppSpec from "./appSpec.js";
+import { AppTsAppSpec } from "./publicApi/App.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapTsAppSpecToAppSpecDecls(
-  spec: TsAppSpec.TsAppSpec,
+  spec: AppTsAppSpec,
   entityNames: string[],
 ): AppSpec.Decl[] {
   const {
@@ -265,7 +266,7 @@ export function mapAuthMethods(
 }
 
 export function mapUsernameAndPassword(
-  usernameAndPassword: TsAppSpec.UsernameAndPassword,
+  usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
 ): AppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword;
   return {
@@ -274,7 +275,7 @@ export function mapUsernameAndPassword(
 }
 
 export function mapExternalAuth(
-  externalAuth: TsAppSpec.ExternalAuth,
+  externalAuth: TsAppSpec.ExternalAuthConfig,
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth;
   return {
@@ -284,7 +285,7 @@ export function mapExternalAuth(
 }
 
 export function mapEmailAuth(
-  emailConfig: TsAppSpec.EmailAuth,
+  emailConfig: TsAppSpec.EmailAuthConfig,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.EmailAuthConfig {
   const { userSignupFields, fromField, emailVerification, passwordReset } =
@@ -298,7 +299,7 @@ export function mapEmailAuth(
 }
 
 export function mapEmailVerification(
-  emailVerification: TsAppSpec.EmailVerification,
+  emailVerification: TsAppSpec.EmailVerificationConfig,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailVerification;
@@ -309,7 +310,7 @@ export function mapEmailVerification(
 }
 
 export function mapPasswordReset(
-  passwordReset: TsAppSpec.PasswordReset,
+  passwordReset: TsAppSpec.PasswordResetConfig,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.PasswordResetConfig {
   const { getEmailContentFn, clientRoute } = passwordReset;
