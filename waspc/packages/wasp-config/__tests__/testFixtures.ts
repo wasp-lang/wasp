@@ -8,143 +8,6 @@ import { Branded } from "../src/branded.js";
 import { App } from "../src/publicApi/App.js";
 import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
 
-/**
- * Creates a type containing only the required properties from T recursively.
- *
- * This utility:
- * - Filters out optional properties recurisvely
- * - Stops from unwrapping `Branded` types
- * - Returns `EmptyObject` when no required properties exist
- *
- * @template T - The type to extract required properties from
- *
- * @example
- * ```ts
- * // Given the following type:
- * type Result = MinimalConfig<{
- *   a: Branded<string, "A">;
- *   b: {
- *     c: boolean;
- *     d?: {
- *       e: boolean;
- *     };
- *   };
- *   f: {
- *     g: boolean;
- *     h?: string;
- *   }[];
- * };
- * // The result will be:
- * type Result = {
- *   a: Branded<string, "A">;
- *   b: {
- *     c: boolean;
- *   };
- *   f: {
- *     g: boolean;
- *     h: string;
- *   }[];
- * };
- */
-type MinimalConfig<T> =
-  T extends Branded<infer TType, infer TBrand>
-    ? Branded<TType, TBrand>
-    : T extends Array<infer TArrayItem>
-      ? Array<MinimalConfig<TArrayItem>>
-      : T extends object
-        ? keyof T extends never
-          ? EmptyObject
-          : {
-              [K in keyof T as T[K] extends Required<T>[K]
-                ? K
-                : never]: MinimalConfig<T[K]>;
-            }
-        : T;
-
-/**
- * Represents an empty object type in TypeScript.
- * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
- */
-type EmptyObject = Record<string, never>;
-
-/**
- * Creates a type with all properties of T required recursively.
- *
- * This utility:
- * - Makes all properties required recursively
- * - Stops from unwrapping branded types
- *
- * @template T - The type to make fully required
- *
- * @example
- * ```ts
- * // Given the following type:
- * type Result = FullConfig<{
- *   a: Branded<string, "A">;
- *   b: {
- *     c: boolean;
- *     d?: {
- *       e: boolean;
- *     };
- *   };
- *   f: {
- *     g: boolean;
- *     h?: string;
- *   }[];
- * };
- * // The result will be:
- * type Result = FullConfig<{
- *   a: Branded<string, "A">;
- *   b: {
- *     c: boolean;
- *     d: {
- *       e: boolean;
- *     };
- *   };
- *   f: {
- *     g: boolean;
- *     h: string;
- *   }[];
- * };
- */
-type FullConfig<T> =
-  T extends Branded<infer TType, infer TBrand>
-    ? Branded<TType, TBrand>
-    : T extends Array<infer TArrayItem>
-      ? Array<FullConfig<TArrayItem>>
-      : T extends object
-        ? {
-            [K in keyof T]-?: FullConfig<T[K]>;
-          }
-        : T;
-
-export type Config<T> = MinimalConfig<T> | FullConfig<T>;
-
-type MinimalNamedConfig<T> = {
-  name: string;
-  config: MinimalConfig<T>;
-};
-
-type FullNamedConfig<T> = {
-  name: string;
-  config: FullConfig<T>;
-};
-
-type NamedConfig<T> = MinimalNamedConfig<T> | FullNamedConfig<T>;
-
-const CONFIG_TYPES = ["minimal", "full"] as const;
-type ConfigType = (typeof CONFIG_TYPES)[number];
-
-const PAGE_TYPES = [
-  ...CONFIG_TYPES,
-  "email-verification",
-  "password-reset",
-] as const;
-type PageType = (typeof PAGE_TYPES)[number];
-
-const ENTITY_TYPES = ["task", "user", "social-user"] as const;
-type EntityType = (typeof ENTITY_TYPES)[number];
-
 export function createApp(scope: ConfigType): {
   appConfigName: string;
   app: App;
@@ -154,29 +17,29 @@ export function createApp(scope: ConfigType): {
 
   if (scope === "minimal") {
     return { appConfigName: appName, app };
-  } else {
-    app.auth(getAuthConfig("full"));
-    app.client(getClientConfig("full"));
-    app.server(getServerConfig("full"));
-    app.emailSender(getEmailSenderConfig("full"));
-    app.webSocket(getWebSocketConfig("full"));
-    app.db(getDbConfig("full"));
-
-    function addDecls(declName: string, nameAndConfigs: NamedConfig<object>[]) {
-      nameAndConfigs.forEach(({ name, config }) => app[declName](name, config));
-    }
-
-    addDecls("page", getPageConfigs());
-    addDecls("route", getRouteConfigs());
-    addDecls("query", getQuerieConfigs());
-    addDecls("action", getActionConfigs());
-    addDecls("crud", getCrudConfigs());
-    addDecls("apiNamespace", getApiNamespaceConfigs());
-    addDecls("api", getApiConfigs());
-    addDecls("job", getJobConfigs());
-
-    return { appConfigName: appName, app };
   }
+
+  app.auth(getAuthConfig("full"));
+  app.client(getClientConfig("full"));
+  app.server(getServerConfig("full"));
+  app.emailSender(getEmailSenderConfig("full"));
+  app.webSocket(getWebSocketConfig("full"));
+  app.db(getDbConfig("full"));
+
+  function addDecls(declName: string, nameAndConfigs: NamedConfig<object>[]) {
+    nameAndConfigs.forEach(({ name, config }) => app[declName](name, config));
+  }
+
+  addDecls("page", getPageConfigs());
+  addDecls("route", getRouteConfigs());
+  addDecls("query", getQuerieConfigs());
+  addDecls("action", getActionConfigs());
+  addDecls("crud", getCrudConfigs());
+  addDecls("apiNamespace", getApiNamespaceConfigs());
+  addDecls("api", getApiConfigs());
+  addDecls("job", getJobConfigs());
+
+  return { appConfigName: appName, app };
 }
 
 export function getAppConfig(
@@ -993,3 +856,139 @@ export function getEntities(scope: ConfigType): string[] {
 
   return ENTITY_TYPES.map((entity) => getEntity(entity));
 }
+
+const CONFIG_TYPES = ["minimal", "full"] as const;
+type ConfigType = (typeof CONFIG_TYPES)[number];
+
+const PAGE_TYPES = [
+  ...CONFIG_TYPES,
+  "email-verification",
+  "password-reset",
+] as const;
+type PageType = (typeof PAGE_TYPES)[number];
+
+const ENTITY_TYPES = ["task", "user", "social-user"] as const;
+type EntityType = (typeof ENTITY_TYPES)[number];
+
+type NamedConfig<T> = MinimalNamedConfig<T> | FullNamedConfig<T>;
+export type Config<T> = MinimalConfig<T> | FullConfig<T>;
+
+type MinimalNamedConfig<T> = {
+  name: string;
+  config: MinimalConfig<T>;
+};
+
+type FullNamedConfig<T> = {
+  name: string;
+  config: FullConfig<T>;
+};
+
+/**
+ * Creates a type containing only the required properties from T recursively.
+ *
+ * This utility:
+ * - Filters out optional properties recurisvely
+ * - Stops from unwrapping `Branded` types
+ * - Returns `EmptyObject` when no required properties exist
+ *
+ * @template T - The type to extract required properties from
+ *
+ * @example
+ * ```ts
+ * // Given the following type:
+ * type Result = MinimalConfig<{
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *     d?: {
+ *       e: boolean;
+ *     };
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h?: string;
+ *   }[];
+ * };
+ * // The result will be:
+ * type Result = {
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h: string;
+ *   }[];
+ * };
+ */
+type MinimalConfig<T> =
+  T extends Branded<infer TType, infer TBrand>
+    ? Branded<TType, TBrand>
+    : T extends Array<infer TArrayItem>
+      ? Array<MinimalConfig<TArrayItem>>
+      : T extends object
+        ? keyof T extends never
+          ? EmptyObject
+          : {
+              [K in keyof T as T[K] extends Required<T>[K]
+                ? K
+                : never]: MinimalConfig<T[K]>;
+            }
+        : T;
+
+/**
+ * Represents an empty object type in TypeScript.
+ * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
+ */
+type EmptyObject = Record<string, never>;
+
+/**
+ * Creates a type with all properties of T required recursively.
+ *
+ * This utility:
+ * - Makes all properties required recursively
+ * - Stops from unwrapping branded types
+ *
+ * @template T - The type to make fully required
+ *
+ * @example
+ * ```ts
+ * // Given the following type:
+ * type Result = FullConfig<{
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *     d?: {
+ *       e: boolean;
+ *     };
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h?: string;
+ *   }[];
+ * };
+ * // The result will be:
+ * type Result = FullConfig<{
+ *   a: Branded<string, "A">;
+ *   b: {
+ *     c: boolean;
+ *     d: {
+ *       e: boolean;
+ *     };
+ *   };
+ *   f: {
+ *     g: boolean;
+ *     h: string;
+ *   }[];
+ * };
+ */
+type FullConfig<T> =
+  T extends Branded<infer TType, infer TBrand>
+    ? Branded<TType, TBrand>
+    : T extends Array<infer TArrayItem>
+      ? Array<FullConfig<TArrayItem>>
+      : T extends object
+        ? {
+            [K in keyof T]-?: FullConfig<T[K]>;
+          }
+        : T;
