@@ -265,7 +265,7 @@ export function mapAuthMethods(
 }
 
 export function mapUsernameAndPassword(
-  usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
+  usernameAndPassword: TsAppSpec.UsernameAndPassword,
 ): AppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword;
   return {
@@ -274,7 +274,7 @@ export function mapUsernameAndPassword(
 }
 
 export function mapExternalAuth(
-  externalAuth: TsAppSpec.ExternalAuthConfig,
+  externalAuth: TsAppSpec.ExternalAuth,
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth;
   return {
@@ -284,7 +284,7 @@ export function mapExternalAuth(
 }
 
 export function mapEmailAuth(
-  emailConfig: TsAppSpec.EmailAuthConfig,
+  emailConfig: TsAppSpec.EmailAuth,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.EmailAuthConfig {
   const { userSignupFields, fromField, emailVerification, passwordReset } =
@@ -298,7 +298,7 @@ export function mapEmailAuth(
 }
 
 export function mapEmailVerification(
-  emailVerification: TsAppSpec.EmailVerificationConfig,
+  emailVerification: TsAppSpec.EmailVerification,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailVerification;
@@ -309,7 +309,7 @@ export function mapEmailVerification(
 }
 
 export function mapPasswordReset(
-  passwordReset: TsAppSpec.PasswordResetConfig,
+  passwordReset: TsAppSpec.PasswordReset,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.PasswordResetConfig {
   const { getEmailContentFn, clientRoute } = passwordReset;
@@ -392,9 +392,7 @@ export function mapJob(
   };
 }
 
-export function mapSchedule(
-  schedule: TsAppSpec.ScheduleConfig,
-): AppSpec.Schedule {
+export function mapSchedule(schedule: TsAppSpec.Schedule): AppSpec.Schedule {
   const { cron, args, executorOptions } = schedule;
   return {
     cron,

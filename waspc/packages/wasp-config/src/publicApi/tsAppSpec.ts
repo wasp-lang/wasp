@@ -1,24 +1,6 @@
 import * as AppSpec from "../appSpec.js";
 import { Branded } from "../branded.js";
 
-export type TsAppSpec = {
-  app: { name: string; config: AppConfig };
-  actions: Map<string, ActionConfig>;
-  apiNamespaces: Map<string, ApiNamespaceConfig>;
-  apis: Map<string, ApiConfig>;
-  auth?: AuthConfig;
-  client?: ClientConfig;
-  cruds: Map<string, CrudConfig>;
-  db?: DbConfig;
-  emailSender?: EmailSenderConfig;
-  jobs: Map<string, JobConfig>;
-  pages: Map<string, PageConfig>;
-  queries: Map<string, QueryConfig>;
-  routes: Map<string, RouteConfig>;
-  server?: ServerConfig;
-  websocket?: WebsocketConfig;
-};
-
 export type AppConfig = {
   title: string;
   wasp: AppSpec.Wasp;
@@ -64,36 +46,36 @@ export type AuthConfig = {
 };
 
 export type AuthMethods = {
-  usernameAndPassword?: UsernameAndPasswordConfig;
-  discord?: ExternalAuthConfig;
-  google?: ExternalAuthConfig;
-  gitHub?: ExternalAuthConfig;
-  keycloak?: ExternalAuthConfig;
-  email?: EmailAuthConfig;
+  usernameAndPassword?: UsernameAndPassword;
+  discord?: ExternalAuth;
+  google?: ExternalAuth;
+  gitHub?: ExternalAuth;
+  keycloak?: ExternalAuth;
+  email?: EmailAuth;
 };
 
-export type UsernameAndPasswordConfig = {
+export type UsernameAndPassword = {
   userSignupFields?: ExtImport;
 };
 
-export type EmailAuthConfig = {
+export type EmailAuth = {
   userSignupFields?: ExtImport;
   fromField: EmailFromField;
-  emailVerification: EmailVerificationConfig;
-  passwordReset: PasswordResetConfig;
+  emailVerification: EmailVerification;
+  passwordReset: PasswordReset;
 };
 
-export type EmailVerificationConfig = {
+export type EmailVerification = {
   getEmailContentFn?: ExtImport;
   clientRoute: string;
 };
 
-export type PasswordResetConfig = {
+export type PasswordReset = {
   getEmailContentFn?: ExtImport;
   clientRoute: string;
 };
 
-export type ExternalAuthConfig = {
+export type ExternalAuth = {
   configFn?: ExtImport;
   userSignupFields?: ExtImport;
 };
@@ -136,7 +118,7 @@ export type EmailSenderConfig = {
 export type JobConfig = {
   executor: AppSpec.JobExecutor;
   perform: Perform;
-  schedule?: ScheduleConfig;
+  schedule?: Schedule;
   entities?: string[];
 };
 
@@ -145,7 +127,7 @@ export type Perform = {
   executorOptions?: ExecutorOptions;
 };
 
-export type ScheduleConfig = {
+export type Schedule = {
   cron: string;
   args?: object;
   executorOptions?: ExecutorOptions;

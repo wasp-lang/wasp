@@ -2,14 +2,31 @@
  */
 import { GET_TS_APP_SPEC } from "../_private.js";
 import * as TsAppSpec from "./tsAppSpec.js";
+import {
+  ActionConfig,
+  ApiConfig,
+  ApiNamespaceConfig,
+  AppConfig,
+  AuthConfig,
+  ClientConfig,
+  CrudConfig,
+  DbConfig,
+  EmailSenderConfig,
+  JobConfig,
+  PageConfig,
+  QueryConfig,
+  RouteConfig,
+  ServerConfig,
+  WebsocketConfig,
+} from "./tsAppSpec.js";
 
 export class App {
-  #tsAppSpec: TsAppSpec.TsAppSpec;
+  #tsAppSpec: AppTsAppSpec;
 
   // NOTE: Using a non-public symbol gives us a package-private property.
   // It's not that important to hide it from the users, but we still don't want
   // user's IDE to suggest it during autocompletion.
-  [GET_TS_APP_SPEC](): TsAppSpec.TsAppSpec {
+  [GET_TS_APP_SPEC](): AppTsAppSpec {
     return this.#tsAppSpec;
   }
 
@@ -99,3 +116,21 @@ export class App {
     this.#tsAppSpec.websocket = config;
   }
 }
+
+type AppTsAppSpec = {
+  app: { name: string; config: AppConfig };
+  actions: Map<string, ActionConfig>;
+  apiNamespaces: Map<string, ApiNamespaceConfig>;
+  apis: Map<string, ApiConfig>;
+  auth?: AuthConfig;
+  client?: ClientConfig;
+  cruds: Map<string, CrudConfig>;
+  db?: DbConfig;
+  emailSender?: EmailSenderConfig;
+  jobs: Map<string, JobConfig>;
+  pages: Map<string, PageConfig>;
+  queries: Map<string, QueryConfig>;
+  routes: Map<string, RouteConfig>;
+  server?: ServerConfig;
+  websocket?: WebsocketConfig;
+};
