@@ -32,7 +32,7 @@ export function createApp(scope: ConfigType): {
 
   addDecls("page", getPageConfigs());
   addDecls("route", getRouteConfigs());
-  addDecls("query", getQuerieConfigs());
+  addDecls("query", getQueryConfigs());
   addDecls("action", getActionConfigs());
   addDecls("crud", getCrudConfigs());
   addDecls("apiNamespace", getApiNamespaceConfigs());
@@ -360,7 +360,7 @@ export function getDbConfig(scope: ConfigType): Config<TsAppSpec.DbConfig> {
 }
 
 export function getPageConfigs(): NamedConfig<TsAppSpec.PageConfig>[] {
-  return PAGE_TYPES.map((pageType) => getPageConfig(pageType));
+  return PAGE_TYPES.map(getPageConfig);
 }
 
 export function getPageConfig(
@@ -410,7 +410,7 @@ export function getPageConfig(
 }
 
 export function getRouteConfigs(): NamedConfig<TsAppSpec.RouteConfig>[] {
-  return PAGE_TYPES.map((pageType) => getRouteConfig(pageType));
+  return PAGE_TYPES.map(getRouteConfig);
 }
 
 export function getRouteConfig(
@@ -453,8 +453,8 @@ export function getRouteConfig(
   }
 }
 
-export function getQuerieConfigs(): NamedConfig<TsAppSpec.QueryConfig>[] {
-  return CONFIG_TYPES.map((scope) => getQueryConfig(scope));
+export function getQueryConfigs(): NamedConfig<TsAppSpec.QueryConfig>[] {
+  return CONFIG_TYPES.map(getQueryConfig);
 }
 
 export function getQueryConfig(
@@ -489,7 +489,7 @@ export function getQueryConfig(
 }
 
 export function getActionConfigs(): NamedConfig<TsAppSpec.ActionConfig>[] {
-  return CONFIG_TYPES.map((scope) => getActionConfig(scope));
+  return CONFIG_TYPES.map(getActionConfig);
 }
 
 export function getActionConfig(
@@ -524,7 +524,7 @@ export function getActionConfig(
 }
 
 export function getCrudConfigs(): NamedConfig<TsAppSpec.CrudConfig>[] {
-  return CONFIG_TYPES.map((scope) => getCrudConfig(scope));
+  return CONFIG_TYPES.map(getCrudConfig);
 }
 
 export function getCrudConfig(
@@ -645,7 +645,7 @@ export function getPerform(scope: ConfigType): Config<TsAppSpec.Perform> {
 }
 
 export function getApiNamespaceConfigs(): NamedConfig<TsAppSpec.ApiNamespaceConfig>[] {
-  return CONFIG_TYPES.map((scope) => getApiNamespaceConfig(scope));
+  return CONFIG_TYPES.map(getApiNamespaceConfig);
 }
 
 export function getApiNamespaceConfig(
@@ -680,7 +680,7 @@ export function getApiNamespaceConfig(
 }
 
 export function getApiConfigs(): NamedConfig<TsAppSpec.ApiConfig>[] {
-  return CONFIG_TYPES.map((scope) => getApiConfig(scope));
+  return CONFIG_TYPES.map(getApiConfig);
 }
 
 export function getApiConfig(
@@ -737,7 +737,7 @@ export function getHttpRoute(scope: ConfigType): Config<TsAppSpec.HttpRoute> {
 }
 
 export function getJobConfigs(): NamedConfig<TsAppSpec.JobConfig>[] {
-  return CONFIG_TYPES.map((scope) => getJobConfig(scope));
+  return CONFIG_TYPES.map(getJobConfig);
 }
 
 export function getJobConfig(
@@ -799,46 +799,37 @@ export function getEmailFromField(
 
 export function getExtImport(
   scope: "minimal",
-  type: AppSpec.ExtImportKind,
+  kind: AppSpec.ExtImportKind,
 ): MinimalConfig<TsAppSpec.ExtImport>;
 export function getExtImport(
   scope: "full",
-  type: AppSpec.ExtImportKind,
+  kind: AppSpec.ExtImportKind,
 ): FullConfig<TsAppSpec.ExtImport>;
 export function getExtImport(
   scope: ConfigType,
-  type: AppSpec.ExtImportKind,
+  kind: AppSpec.ExtImportKind,
 ): Config<TsAppSpec.ExtImport>;
 export function getExtImport(
   scope: ConfigType,
-  type: AppSpec.ExtImportKind,
+  kind: AppSpec.ExtImportKind,
 ): Config<TsAppSpec.ExtImport> {
-  if (type === "default") {
-    if (scope === "minimal") {
-      return {
-        from: "@src/external",
-        importDefault: "defaultExport",
-      } satisfies MinimalConfig<TsAppSpec.ExtImport>;
-    } else {
-      return {
-        from: "@src/external",
-        importDefault: "defaultExport",
-      } satisfies FullConfig<TsAppSpec.ExtImport>;
-    }
-  } else if (type === "named") {
-    if (scope === "minimal") {
-      return {
-        from: "@src/external",
-        import: "namedExport",
-      } satisfies MinimalConfig<TsAppSpec.ExtImport>;
-    } else {
-      return {
-        from: "@src/external",
-        import: "namedExport",
-      } satisfies FullConfig<TsAppSpec.ExtImport>;
-    }
+  const importObject =
+    kind === "default"
+      ? { importDefault: "defaultExport" }
+      : { import: "namedExport" };
+
+  if (scope === "minimal") {
+    return {
+      from: "@src/external",
+      ...importObject,
+    } satisfies MinimalConfig<TsAppSpec.ExtImport>;
+  } else if (scope === "full") {
+    return {
+      from: "@src/external",
+      ...importObject,
+    } satisfies FullConfig<TsAppSpec.ExtImport>;
   } else {
-    throw new Error(`Unhandled scope or type: scope=${scope}, type=${type}`);
+    throw new Error(`Unknown scope: ${scope}`);
   }
 }
 
@@ -860,12 +851,21 @@ export function getEntities(scope: ConfigType): string[] {
     return [];
   }
 
-  return ENTITY_TYPES.map((entity) => getEntity(entity));
+  return ENTITY_TYPES.map(getEntity);
 }
 
 const CONFIG_TYPES = ["minimal", "full"] as const;
 type ConfigType = (typeof CONFIG_TYPES)[number];
 
+/**
+ * By default we define only `ConfigType` variants for all of the configs
+ * that can be used in the app. This is because we want to test both
+ * edge cases of the configs.
+ *
+ * Pages are a special case, because even though they are a top-level config,
+ * they are also used by `AuthConfig`. That is why we define those two cases separately.
+ * Mostly to bring attention that we have additional edge cases for pages.
+ */
 const PAGE_TYPES = [
   ...CONFIG_TYPES,
   "email-verification",
@@ -935,12 +935,18 @@ type MinimalConfig<T> =
       : T extends object
         ? keyof T extends never
           ? EmptyObject
-          : {
-              [K in keyof T as T[K] extends Required<T>[K]
-                ? K
-                : never]: MinimalConfig<T[K]>;
-            }
+          : MinimalConfigObject<T>
         : T;
+
+type MinimalConfigObject<T> = {
+  [K in keyof T as T[K] extends Required<T>[K] ? K : never]: MinimalConfig<
+    T[K]
+  >;
+} extends infer TObject
+  ? TObject extends EmptyObject
+    ? EmptyObject
+    : TObject
+  : never;
 
 /**
  * Represents an empty object type in TypeScript.
@@ -994,7 +1000,9 @@ type FullConfig<T> =
     : T extends Array<infer TArrayItem>
       ? Array<FullConfig<TArrayItem>>
       : T extends object
-        ? {
-            [K in keyof T]-?: FullConfig<T[K]>;
-          }
+        ? FullConfigObject<T>
         : T;
+
+type FullConfigObject<T> = {
+  [K in keyof T]-?: FullConfig<T[K]>;
+};
