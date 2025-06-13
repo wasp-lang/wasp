@@ -14,9 +14,10 @@
     "build": "tsc",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
-    "test": "vitest --reporter=verbose",
+    "test": "vitest --typecheck --reporter=verbose",
     "test:integration": "vitest --reporter=verbose --project integration",
-    "test:unit": "vitest --reporter=verbose --project unit"
+    "test:unit": "vitest --reporter=verbose --project unit",
+    "test:type": "vitest --typecheck --reporter=verbose --project type"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

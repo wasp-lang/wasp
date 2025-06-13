@@ -927,7 +927,7 @@ type FullNamedConfig<T> = {
  *   }[];
  * };
  */
-type MinimalConfig<T> =
+export type MinimalConfig<T> =
   T extends Branded<infer TType, infer TBrand>
     ? Branded<TType, TBrand>
     : T extends Array<infer TArrayItem>
@@ -952,7 +952,7 @@ type MinimalConfigObject<T> = {
  * Represents an empty object type in TypeScript.
  * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
  */
-type EmptyObject = Record<string, never>;
+export type EmptyObject = Record<string, never>;
 
 /**
  * Creates a type with all properties of T required recursively.
@@ -994,7 +994,7 @@ type EmptyObject = Record<string, never>;
  *   }[];
  * };
  */
-type FullConfig<T> =
+export type FullConfig<T> =
   T extends Branded<infer TType, infer TBrand>
     ? Branded<TType, TBrand>
     : T extends Array<infer TArrayItem>
