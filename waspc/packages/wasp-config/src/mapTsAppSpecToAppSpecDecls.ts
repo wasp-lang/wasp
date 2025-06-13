@@ -4,11 +4,10 @@
  */
 
 import * as AppSpec from "./appSpec.js";
-import { AppTsAppSpec } from "./publicApi/App.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapTsAppSpecToAppSpecDecls(
-  spec: AppTsAppSpec,
+  tsAppSpec: TsAppSpec.TsAppSpec,
   entityNames: string[],
 ): AppSpec.Decl[] {
   const {
@@ -27,7 +26,7 @@ export function mapTsAppSpecToAppSpecDecls(
     server,
     websocket,
     cruds,
-  } = spec;
+  } = tsAppSpec;
 
   const pageNames = Array.from(pages.keys());
   const routeNames = Array.from(routes.keys());
