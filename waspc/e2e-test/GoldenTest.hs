@@ -90,14 +90,15 @@ runGoldenTest goldenTest = do
     isTestOutputFileTestable :: FilePath -> Bool
     isTestOutputFileTestable fp =
       takeFileName fp
-        `notElem` [ ".waspinfo",
-                    "node_modules",
+        `notElem` [ ".DS_Store",
                     "dev.db",
                     "dev.db-journal",
-                    "package-lock.json",
                     ".gitignore",
-                    ".DS_Store",
-                    "tsconfig.tsbuildinfo"
+                    ".waspinfo",
+                    "package-lock.json",
+                    "node_modules",
+                    "tsconfig.tsbuildinfo",
+                    "dist"
                   ]
 
     writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
