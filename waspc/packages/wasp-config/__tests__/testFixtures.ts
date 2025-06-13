@@ -26,23 +26,61 @@ export function createApp(scope: ConfigType): {
       app.webSocket(getWebSocketConfig("full"));
       app.db(getDbConfig("full"));
 
-      function addDecls(
-        declName: string,
-        nameAndConfigs: NamedConfig<object>[],
-      ) {
-        nameAndConfigs.forEach(({ name, config }) =>
-          app[declName](name, config),
+      type NamedDeclMethodNameToNamedConfig = {
+        [K in keyof App as Parameters<App[K]> extends [string, object]
+          ? K
+          : never]: NamedConfig<Parameters<App[K]>[1]>;
+      };
+
+      /**
+       * We thinks this may be a false positive
+       * @see https://www.typescriptlang.org/play/?#code/LAKAxgNghgzjAEAZKBzKA7A9vA3qe8ADgE4BuUAFAC4AWAljAFxKoaYA08AHszFcXXQoAlM1KY6AE1wBffPEnEArmmr0mLNFk4946JQFsARgFNio+OKmzQckKCoBPQifgA5KAZMAVTN+euALy48gDaANLwgvAA1iaOmABmmmwAuswAClDEniZUZjAAPMhamBGpAHyhAAyptqCgYJjofPDQWoJ08MHoJgDuKVgUwgDcDSCJSuhgVHTN8PkwMZiFALLwJlz56JIIcQnJHl6+-i4VFOi5zKuc2SjMRz5+AaGrqRZW0nggBO0YnaFLl5UhQ7sJ4AB6CHwABWZngfAEQngADI9IZTMRunoTKQzPUQEA
+       */
+      function addNamedDecl<M extends keyof NamedDeclMethodNameToNamedConfig>({
+        declName,
+        namedConfigs,
+      }: {
+        declName: M;
+        namedConfigs: NamedDeclMethodNameToNamedConfig[M][];
+      }): void {
+        namedConfigs.forEach(({ name, config }) =>
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          app[declName](name, config as any),
         );
       }
 
-      addDecls("page", getPageConfigs());
-      addDecls("route", getRouteConfigs());
-      addDecls("query", getQueryConfigs());
-      addDecls("action", getActionConfigs());
-      addDecls("crud", getCrudConfigs());
-      addDecls("apiNamespace", getApiNamespaceConfigs());
-      addDecls("api", getApiConfigs());
-      addDecls("job", getJobConfigs());
+      addNamedDecl({
+        declName: "page",
+        namedConfigs: getPageConfigs(),
+      });
+      addNamedDecl({
+        declName: "route",
+        namedConfigs: getRouteConfigs(),
+      });
+      addNamedDecl({
+        declName: "query",
+        namedConfigs: getQueryConfigs(),
+      });
+      addNamedDecl({
+        declName: "action",
+        namedConfigs: getActionConfigs(),
+      });
+      addNamedDecl({
+        declName: "crud",
+        namedConfigs: getCrudConfigs(),
+      });
+      addNamedDecl({
+        declName: "apiNamespace",
+        namedConfigs: getApiNamespaceConfigs(),
+      });
+      addNamedDecl({
+        declName: "api",
+        namedConfigs: getApiConfigs(),
+      });
+      addNamedDecl({
+        declName: "job",
+        namedConfigs: getJobConfigs(),
+      });
 
       return { appConfigName: appName, app };
     }

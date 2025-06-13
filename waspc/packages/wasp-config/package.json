@@ -14,10 +14,10 @@
     "build": "tsc",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
-    "test": "vitest --typecheck --reporter=verbose",
+    "test": "vitest --reporter=verbose",
     "test:integration": "vitest --reporter=verbose --project integration",
     "test:unit": "vitest --reporter=verbose --project unit",
-    "test:type": "vitest --typecheck --reporter=verbose --project type"
+    "test:type": "vitest --reporter=verbose --project type"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
@@ -26,8 +26,10 @@
     "eslint": "^9.9.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
-    "typescript": "^5.5.4",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.1.0",
-    "vitest": "^3.1.2"
+    "//": "We pin vitest because type tests are an experimental feature,",
+    "//": "and changes to API are not breaking changes.",
+    "vitest": "3.1.2"
   }
 }

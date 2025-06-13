@@ -17,6 +17,10 @@ export default defineWorkspace([
     test: {
       name: "type",
       include: ["**/__tests__/**/*.test-d.ts"],
+      typecheck: {
+        enabled: true,
+        only: true,
+      },
     },
   },
 ]);

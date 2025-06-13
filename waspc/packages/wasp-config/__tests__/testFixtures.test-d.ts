@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from "vitest";
-import { Branded } from "../src/branded";
-import { EmptyObject, FullConfig, MinimalConfig } from "./testFixtures";
+import { Branded } from "../src/branded.js";
+import { EmptyObject, FullConfig, MinimalConfig } from "./testFixtures.js";
 
 describe("MinimalConfig<T>", () => {
   test("should handle primitive types", async () => {
