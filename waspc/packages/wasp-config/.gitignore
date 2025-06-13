@@ -3,3 +3,4 @@ coverage/
 dist/
 .env
 .vscode/
+tsconfig.vitest-temp.json

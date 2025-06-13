@@ -1,21 +1,21 @@
-import { GET_USER_SPEC } from "./_private.js";
+import { GET_TS_APP_SPEC } from "./_private.js";
 import * as AppSpec from "./appSpec.js";
-import { mapUserSpecToAppSpecDecls } from "./mapUserSpecToAppSpecDecls.js";
-import * as UserApi from "./userApi.js";
+import { mapTsAppSpecToAppSpecDecls } from "./mapTsAppSpecToAppSpecDecls.js";
+import { App } from "./publicApi/App.js";
 
-export async function analyzeUserApp(
+export async function analyzeApp(
   waspTsSpecPath: string,
   entityNames: string[],
 ): Promise<Result<AppSpec.Decl[], string>> {
-  const userAppResult = await getUserApp(waspTsSpecPath);
+  const appResult = await getApp(waspTsSpecPath);
 
-  if (userAppResult.status === "error") {
-    return userAppResult;
+  if (appResult.status === "error") {
+    return appResult;
   }
 
-  const userApp = userAppResult.value;
-  const userSpec = userApp[GET_USER_SPEC]();
-  const appSpecDecls = mapUserSpecToAppSpecDecls(userSpec, entityNames);
+  const app = appResult.value;
+  const tsAppSpec = app[GET_TS_APP_SPEC]();
+  const appSpecDecls = mapTsAppSpecToAppSpecDecls(tsAppSpec, entityNames);
 
   return {
     status: "ok",
@@ -23,9 +23,7 @@ export async function analyzeUserApp(
   };
 }
 
-async function getUserApp(
-  mainWaspJs: string,
-): Promise<Result<UserApi.App, string>> {
+async function getApp(mainWaspJs: string): Promise<Result<App, string>> {
   const usersDefaultExport: unknown = (await import(mainWaspJs)).default;
 
   if (!usersDefaultExport) {
@@ -37,7 +35,7 @@ async function getUserApp(
     };
   }
 
-  if (!(usersDefaultExport instanceof UserApi.App)) {
+  if (!(usersDefaultExport instanceof App)) {
     return {
       status: "error",
       error:

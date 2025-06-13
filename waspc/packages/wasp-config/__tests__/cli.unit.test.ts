@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parseProcessArgsOrThrow } from "../src/cli";
+import { parseProcessArgsOrThrow } from "../src/cli.js";
 
 describe("parseProcessArgsOrThrow", () => {
   test("should parse arguments correctly", () => {
