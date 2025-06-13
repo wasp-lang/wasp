@@ -1021,8 +1021,8 @@ type FullNamedConfig<T> = {
  * };
  */
 export type MinimalConfig<T> =
-  T extends Branded<infer TType, infer TBrand>
-    ? Branded<TType, TBrand>
+  T extends Branded<unknown, unknown>
+    ? T
     : T extends Array<infer TArrayItem>
       ? Array<MinimalConfig<TArrayItem>>
       : T extends object
@@ -1088,8 +1088,8 @@ export type EmptyObject = Record<string, never>;
  * };
  */
 export type FullConfig<T> =
-  T extends Branded<infer TType, infer TBrand>
-    ? Branded<TType, TBrand>
+  T extends Branded<unknown, unknown>
+    ? T
     : T extends Array<infer TArrayItem>
       ? Array<FullConfig<TArrayItem>>
       : T extends object
