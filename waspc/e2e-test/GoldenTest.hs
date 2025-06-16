@@ -62,11 +62,12 @@ runGoldenTest goldenTest = do
   -- TODO: Save stdout/error as log file for "contains" checks.
   callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
-  currentOutputAbsFps <- listRelevantTestOutputFiles currentOutputDirAbsFp
-  reformatPackageJsonFiles currentOutputAbsFps
+  filesForManifestAbsFps <- listFilesForManifest currentOutputDirAbsFp
+  filesForGoldenTestAbsFps <- listFilesForGoldenTest currentOutputDirAbsFp
+  reformatPackageJsonFiles filesForGoldenTestAbsFps
 
   let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
-  writeFileManifest currentOutputDirAbsFp currentOutputAbsFps manifestAbsFp
+  writeFileManifest currentOutputDirAbsFp filesForManifestAbsFps manifestAbsFp
 
   let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
@@ -79,16 +80,37 @@ runGoldenTest goldenTest = do
           goldenOutputAbsFp
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentOutputAbsFp <- manifestAbsFp : currentOutputAbsFps,
+        | currentOutputAbsFp <- manifestAbsFp : filesForGoldenTestAbsFps,
           let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
       ]
   where
-    listRelevantTestOutputFiles :: FilePath -> IO [FilePath]
-    listRelevantTestOutputFiles dirToFilterAbsFp =
-      getDirFiltered (return <$> isTestOutputFileTestable) dirToFilterAbsFp >>= filterM doesFileExist
+    -- Lists files that should be included in the `files.manifest`.
+    listFilesForManifest :: FilePath -> IO [FilePath]
+    listFilesForManifest dirToFilterAbsFp =
+      getDirFiltered (return <$> shouldIncludeInManifest) dirToFilterAbsFp >>= filterM doesFileExist
 
-    isTestOutputFileTestable :: FilePath -> Bool
-    isTestOutputFileTestable fp =
+    -- Lists files that should be compared in golden tests.
+    listFilesForGoldenTest :: FilePath -> IO [FilePath]
+    listFilesForGoldenTest dirToFilterAbsFp =
+      getDirFiltered (return <$> shouldIncludeInGoldenTest) dirToFilterAbsFp >>= filterM doesFileExist
+
+    -- Determines if a file should be included in the `files.manifest`.
+    shouldIncludeInManifest :: FilePath -> Bool
+    shouldIncludeInManifest fp =
+      takeFileName fp
+        `notElem` [ ".DS_Store",
+                    "dev.db",
+                    "dev.db-journal",
+                    ".gitignore",
+                    ".waspinfo",
+                    "package-lock.json",
+                    "node_modules",
+                    "tsconfig.tsbuildinfo"
+                  ]
+
+    -- Determines if a file should be included in golden test comparisons.
+    shouldIncludeInGoldenTest :: FilePath -> Bool
+    shouldIncludeInGoldenTest fp =
       takeFileName fp
         `notElem` [ ".DS_Store",
                     "dev.db",
