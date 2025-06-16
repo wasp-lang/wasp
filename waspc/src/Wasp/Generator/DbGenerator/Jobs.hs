@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Wasp.Generator.DbGenerator.Jobs
   ( migrateDev,
     migrateDiff,
@@ -13,15 +11,15 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', (</>))
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import StrongPath.TH (relfile)
+import System.Environment (getEnvironment)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.Job.Process (runNodeCommandAsJobWithEnv)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
 import Wasp.Project.Env (readDotEnvServer)
 
@@ -107,8 +105,9 @@ reset projectRootDir =
 seed :: Path' Abs (Dir ProjectRootDir) -> String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed projectRootDir seedName =
-  runPrismaCommandAsJobWithExtraEnv
+  runPrismaCommandAsJob
     serverDir
+    []
     [(dbSeedNameEnvVarName, seedName)]
     ["db", "seed"]
   where
@@ -160,22 +159,20 @@ runPrismaCommandAsJobFromWaspServerDir projectRootDir cmdArgs =
 
 runPrismaCommandAsJobWithServerEnv :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir a) -> [String] -> J.Job
 runPrismaCommandAsJobWithServerEnv waspProjectDir fromDir cmdArgs chan = do
-  extraEnv <- readDotEnvServer waspProjectDir
-  runPrismaCommandAsJobWithExtraEnv fromDir extraEnv cmdArgs chan
+  serverEnv <- readDotEnvServer waspProjectDir
+  runPrismaCommandAsJob fromDir serverEnv [] cmdArgs chan
 
-runPrismaCommandAsJobWithExtraEnv ::
+runPrismaCommandAsJob ::
   Path' Abs (Dir a) ->
+  [(String, String)] ->
   [(String, String)] ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv fromDir envVars cmdArgs =
-  runNodeCommandAsJobWithExtraEnv (envVars ++ [("PRISMA_HIDE_UPDATE_MESSAGE", "1")]) fromDir "npm" (["exec", "prisma", "--"] ++ cmdArgs) J.Db
-
--- | NOTE: The expectation is that `npm install` was already executed
--- such that we can use the locally installed package.
--- This assumption is ok since it happens during compilation now.
-absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
-absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
-  where
-    prismaExecutableAbs :: Path' Abs File'
-    prismaExecutableAbs = waspProjectDir </> [relfile|./node_modules/.bin/prisma|]
+runPrismaCommandAsJob fromDir fallbackEnvVars extraEnvVars cmdArgs chan = do
+  currentEnvVars <- getEnvironment
+  -- Haskell will use the first value for variable name it finds. Therefore, env
+  -- vars with more precedence (`export VAR=VALUE` or inline `VAR=VALUE
+  -- command`) should come first. Env vars read from `.env` file should come
+  -- last.
+  let envVars = extraEnvVars ++ currentEnvVars ++ fallbackEnvVars
+  runNodeCommandAsJobWithEnv envVars fromDir "npm" (["exec", "prisma", "--"] ++ cmdArgs) J.Db chan
