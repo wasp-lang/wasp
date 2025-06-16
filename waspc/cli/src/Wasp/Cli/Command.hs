@@ -11,7 +11,6 @@ module Wasp.Cli.Command
     -- See "Wasp.Cli.Command.Requires" for documentation.
     require,
     Requirable (checkRequirement),
-    InDirRequirable (checkRequirementInDir),
   )
 where
 
@@ -21,10 +20,8 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
-import qualified StrongPath as SP
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Generator (ProjectRootDir)
 import qualified Wasp.Message as Msg
 
 newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
@@ -71,6 +68,3 @@ require =
       req <- checkRequirement
       Command $ modify (Requirement req :)
       return req
-
-class InDirRequirable a where
-  checkRequirementInDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir) -> Command a
