@@ -66,7 +66,7 @@ runGoldenTest goldenTest = do
   filesForGoldenTestAbsFps <- listFilesForGoldenTest currentOutputDirAbsFp
   reformatPackageJsonFiles filesForGoldenTestAbsFps
 
-  let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
+  let manifestAbsFp = currentOutputDirAbsFp FP.</> manifestFileName
   writeFileManifest currentOutputDirAbsFp filesForManifestAbsFps manifestAbsFp
 
   let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
@@ -84,6 +84,9 @@ runGoldenTest goldenTest = do
           let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
       ]
   where
+    manifestFileName :: String
+    manifestFileName = "files.manifest"
+
     -- Lists files that should be included in the `files.manifest`.
     listFilesForManifest :: FilePath -> IO [FilePath]
     listFilesForManifest dirToFilterAbsFp =
@@ -134,8 +137,8 @@ runGoldenTest goldenTest = do
     -- All of this can result in e2e flagging these files as being different when it should not.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
-    reformatPackageJsonFiles allOutputFilePaths = do
-      let packageJsonFilePaths = filter isPathToPackageJson allOutputFilePaths
+    reformatPackageJsonFiles goldenTestFilePaths = do
+      let packageJsonFilePaths = filter isPathToPackageJson goldenTestFilePaths
       mapM_ reformatJson packageJsonFilePaths
       where
         isPathToPackageJson :: FilePath -> Bool
