@@ -108,23 +108,9 @@ basicStarterTemplate =
     )
     ( \projectDirName ->
         unlines
-          [ styleText $ "To run your new app, follow the instructions below:",
-            styleText $ "",
-            styleText $ "  1. Position into app's root directory:",
-            styleCode $ "    cd " <> projectDirName FP.</> "app",
-            styleText $ "",
-            styleText $ "  2. Run the development database (and leave it running):",
-            styleCode $ "    wasp db start",
-            styleText $ "",
-            styleText $ "  3. Open new terminal window (or tab) in that same dir and continue in it.",
-            styleText $ "",
-            styleText $ "  4. Apply initial database migrations:",
+          [ styleText $ "To run your new app, do:",
+            styleCode $ "    cd " ++ projectDirName,
             styleCode $ "    wasp db migrate-dev",
-            styleText $ "",
-            styleText $ "  5. Create initial dot env file from the template:",
-            styleCode $ "    cp .env.server.example .env.server",
-            styleText $ "",
-            styleText $ "  6. Last step: run the app!",
             styleCode $ "    wasp start",
             styleText $ "",
             styleText $ "Check the README for additional guidance!"
