@@ -16,13 +16,12 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
+import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
 import Wasp.Project.Env (readDotEnvServer)
 
@@ -30,44 +29,23 @@ migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectRootDir migrateArgs =
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
-  -- NOTE(martin): `prisma migrate dev` refuses to execute when interactivity is needed if stdout is being piped,
-  --   because it assumes it is used in non-interactive environment. In our case we are piping both stdin and stdout
-  --   so we do have interactivity, but Prisma doesn't know that.
-  --   I opened an issue with Prisma https://github.com/prisma/prisma/issues/7113, but in the meantime
-  --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
-  runNodeCommandAsJob serverDir "script" scriptArgs J.Db
+  runPrismaCommandAsJobFromWaspServerDir
+    projectRootDir
+    prismaArgs
   where
-    serverDir = projectRootDir </> serverRootDirInProjectRootDir
     schemaFile = projectRootDir </> dbSchemaFileInProjectRootDir
 
-    scriptArgs =
-      if System.Info.os == "darwin"
-        then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
-          ["-Fq", "/dev/null"] ++ buildPrismaMigrateCmd id
-        else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
-          ["-feqc", unwords $ buildPrismaMigrateCmd quoteArg, "/dev/null"]
-
-    -- NOTE(miho): Since we are running the Prisma command using `script` and we are doing it
-    --  in two different ways (MacOS and Linux), we have to take care of quoting the paths
-    --  differently.
-    --  * MacOS - we are passing the command as multiple arguments, so we MUST NOT quote the paths.
-    --  * Linux - we are passing the command as one argument, so we MUST quote the paths.
-    buildPrismaMigrateCmd :: (String -> String) -> [String]
-    buildPrismaMigrateCmd argQuoter =
-      [ argQuoter $ absPrismaExecutableFp (projectRootDir </> waspProjectDirFromProjectRootDir),
-        "migrate",
+    prismaArgs =
+      [ "migrate",
         "dev",
         "--schema",
-        argQuoter $ SP.fromAbsFile schemaFile,
+        SP.fromAbsFile schemaFile,
         "--skip-generate",
         -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically
         --   in some situations is too aggressive / confusing.
         "--skip-seed"
       ]
         ++ asPrismaCliArgs migrateArgs
-
-    quoteArg :: String -> String
-    quoteArg arg = "\"" ++ arg ++ "\""
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
