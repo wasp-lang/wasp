@@ -66,7 +66,7 @@ runGoldenTest goldenTest = do
   filesForGoldenTestAbsFps <- listFilesForGoldenTest currentOutputDirAbsFp
   reformatPackageJsonFiles filesForGoldenTestAbsFps
 
-  let manifestAbsFp = currentOutputDirAbsFp FP.</> manifestFileName
+  let manifestAbsFp = currentOutputDirAbsFp FP.</> fileManifestFileName
   writeFileManifest currentOutputDirAbsFp filesForManifestAbsFps manifestAbsFp
 
   let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
@@ -84,8 +84,8 @@ runGoldenTest goldenTest = do
           let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
       ]
   where
-    manifestFileName :: String
-    manifestFileName = "files.manifest"
+    fileManifestFileName :: String
+    fileManifestFileName = "files.manifest"
 
     -- Lists files that should be included in the `files.manifest`.
     listFilesForManifest :: FilePath -> IO [FilePath]
