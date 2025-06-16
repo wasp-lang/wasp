@@ -576,6 +576,7 @@ describe("mapDb", () => {
 
     expect(result).toStrictEqual({
       seeds: db.seeds?.map((seed) => mapExtImport(seed)),
+      prismaSetupFn: db.prismaSetupFn && mapExtImport(db.prismaSetupFn),
     } satisfies AppSpec.Db);
   }
 });

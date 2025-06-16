@@ -22,6 +22,7 @@ import Wasp.AppSpec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EC
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -36,6 +37,7 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -47,6 +49,7 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -355,12 +358,18 @@ genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
 
-  let tmplData = object ["areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined]
+  let tmplData =
+        object
+          [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
+            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+          ]
 
   return $
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
+  where
+    maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
 
 genDevIndex :: Generator FileDraft
 genDevIndex =

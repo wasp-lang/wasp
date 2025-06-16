@@ -14,7 +14,8 @@ import GHC.Generics (Generic)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Db = Db
-  { seeds :: Maybe [ExtImport]
+  { seeds :: Maybe [ExtImport],
+    prismaSetupFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 
