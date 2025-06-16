@@ -137,7 +137,7 @@ action customSignup {
 }
 
 
-// --------- Tasks --------- //
+// --------- Operations --------- //
 
 route TasksRoute { path: "/tasks", to: TasksPage }
 page TasksPage {
@@ -185,6 +185,15 @@ action deleteCompletedTasks {
 action toggleAllTasks {
   fn: import { toggleAllTasks } from "@src/features/operations/actions",
   entities: [Task]
+}
+
+query getSerializedObjects {
+  fn: import { getSerializedObjects } from "@src/features/operations/queries",
+}
+
+route SerializationRoute { path: "/serialization", to: SerializationPage }
+page SerializationPage {
+  component: import { SerializationPage } from "@src/features/operations/pages/SerializationPage",
 }
 
 // --------- Jobs --------- //
@@ -335,15 +344,6 @@ action testingAction {
 
 query getDate {
   fn: import { getDate } from "@src/rpcTests/operations/definitions"
-}
-
-query getSerializedObjects {
-  fn: import { getSerializedObjects } from "@src/rpcTests/operations/definitions",
-}
-
-route SerializationRoute { path: "/serialization", to: SerializationPage }
-page SerializationPage {
-  component: import { SerializationPage } from "@src/rpcTests/operations/SerializationPage",
 }
 
 query getAnythingNoAuth {

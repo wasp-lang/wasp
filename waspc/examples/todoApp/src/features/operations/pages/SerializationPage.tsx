@@ -1,8 +1,10 @@
 import { expect } from "chai";
 import { useMemo } from "react";
+
 import { getSerializedObjects, useQuery } from "wasp/client/operations";
-import { FeatureContainer } from "../../components/FeatureContainer";
-import { SERIALIZABLE_OBJECTS_FIXTURE } from "./fixtures";
+
+import { FeatureContainer } from "../../../components/FeatureContainer";
+import { SERIALIZABLE_OBJECTS_FIXTURE } from "../../../rpcTests/operations/fixtures";
 
 export const SerializationPage = () => {
   const { data: serializedObjects } = useQuery(getSerializedObjects);

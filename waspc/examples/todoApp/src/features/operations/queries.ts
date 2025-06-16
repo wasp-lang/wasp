@@ -1,6 +1,13 @@
 import { type Task } from "wasp/entities";
 import { HttpError } from "wasp/server";
-import type { GetNumTasks, GetTask, GetTasks } from "wasp/server/operations";
+import type {
+  GetNumTasks,
+  GetSerializedObjects,
+  GetTask,
+  GetTasks,
+} from "wasp/server/operations";
+
+import { SERIALIZABLE_OBJECTS_FIXTURE } from "../../rpcTests/operations/fixtures";
 
 export const getTasks = (async (_args, context) => {
   if (!context.user) {
@@ -63,3 +70,8 @@ export const getTask: GetTask<Pick<Task, "id">, Task> = async (
 
   return task;
 };
+
+export const getSerializedObjects: GetSerializedObjects<
+  void,
+  typeof SERIALIZABLE_OBJECTS_FIXTURE
+> = async () => SERIALIZABLE_OBJECTS_FIXTURE;
