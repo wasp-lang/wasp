@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 export function setupTestUser() {
-  const credentials = generateRandomEmailCredentials();
+  const credentials = { email: generateRandomEmail(), password: "12345678" };
 
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
@@ -136,12 +136,6 @@ export async function submitLoginForm(
   await page.getByRole("button", { name: "Log in" }).click();
 }
 
-export function generateRandomEmailCredentials(): {
-  email: string;
-  password: string;
-} {
-  return {
-    email: `test${Math.random().toString(36).substring(7)}@test.com`,
-    password: "12345678",
-  };
+export function generateRandomEmail(): string {
+  return `test${Math.random().toString(36).substring(7)}@test.com`;
 }

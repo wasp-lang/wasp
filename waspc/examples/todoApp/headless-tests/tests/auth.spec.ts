@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { WASP_SERVER_PORT } from "../playwright.config";
 import {
-  generateRandomEmailCredentials,
+  generateRandomEmail,
   getEmailVerificationLink,
   isRunningInDevMode,
   submitLoginForm,
@@ -12,12 +13,15 @@ test.describe("auth", () => {
     await page.goto("/signup");
 
     await expect(
-      page.locator("a[href='http://localhost:3001/auth/google/login']"),
+      page.locator(
+        `a[href='http://localhost:${WASP_SERVER_PORT}/auth/google/login']`,
+      ),
     ).toBeVisible();
   });
 
   test.describe("signup and login", () => {
-    const { email, password } = generateRandomEmailCredentials();
+    const email = generateRandomEmail();
+    const password = "12345678";
 
     // We need the login test to run after the signup test.
     test.describe.configure({ mode: "serial" });

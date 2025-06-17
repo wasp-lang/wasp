@@ -4,10 +4,10 @@ import {
   useSocketListener,
   type ServerToClientPayload,
 } from "wasp/client/webSocket";
-import { cn } from "../../cn";
-import { Button } from "../../components/Button";
-import { FeatureContainer } from "../../components/FeatureContainer";
-import { Input } from "../../components/Input";
+import { cn } from "../../../cn";
+import { Button } from "../../../components/Button";
+import { FeatureContainer } from "../../../components/FeatureContainer";
+import { Input } from "../../../components/Input";
 
 export const ChatPage = () => {
   const [messages, setMessages] = useState<

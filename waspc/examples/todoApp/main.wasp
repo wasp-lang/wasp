@@ -332,7 +332,7 @@ page StreamingPage {
 route ChatRoute { path: "/chat", to: ChatPage }
 page ChatPage {
   authRequired: true,
-  component: import { ChatPage } from "@src/features/chat/ChatPage"
+  component: import { ChatPage } from "@src/features/chat/pages/ChatPage"
 }
 
 // --------- Operations Type Testing --------- //

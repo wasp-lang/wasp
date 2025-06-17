@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
-  generateRandomEmailCredentials,
+  generateRandomEmail,
   isRunningInDevMode,
   performEmailVerification,
   performLogin,
@@ -31,7 +31,8 @@ test.describe("auth hooks", () => {
     We also set up the "after login hook" to set a value in the user object.
   */
   test("after signup and after login hooks work", async ({ page }) => {
-    const { email, password } = generateRandomEmailCredentials();
+    const email = generateRandomEmail();
+    const password = "12345678";
 
     await submitSignupForm(page, {
       email,
