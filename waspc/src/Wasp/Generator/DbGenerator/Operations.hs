@@ -156,21 +156,21 @@ testDbConnection ::
   Path' Abs (Dir ProjectRootDir) ->
   IO DbConnectionTestResult
 testDbConnection genProjectDir = do
-  chanForInspecting <- newChan
-  chanForPrinting <- dupChan chanForInspecting
+  chan <- newChan
+  chanCopy <- dupChan chan
 
-  exitCode <- DbJobs.dbExecuteTest genProjectDir chanForInspecting
+  exitCode <- DbJobs.dbExecuteTest genProjectDir chan
 
   case exitCode of
     ExitSuccess -> return DbConnectionSuccess
     ExitFailure _ -> do
-      outputLines <- collectJobTextOutputUntilExitReceived chanForInspecting
+      outputLines <- collectJobTextOutputUntilExitReceived chan
       let databaseNotCreated = any prismaErrorContainsDbNotCreatedError outputLines
 
       return $
         if databaseNotCreated
           then DbNotCreated
-          else DbConnectionFailure chanForPrinting
+          else DbConnectionFailure chanCopy
 
 -- Prisma error code for "Database not created" is P1003.
 prismaErrorContainsDbNotCreatedError :: T.Text -> Bool
