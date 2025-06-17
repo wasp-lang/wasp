@@ -23,9 +23,6 @@ module Wasp.Cli.Command.Require
 
     -- * Requirables
     Requirable (checkRequirement),
-    DbConnectionEstablished (DbConnectionEstablished),
-    InBuildDir (InBuildDir),
-    InOutDir (InOutDir),
     InWaspProject (InWaspProject),
     BuildDirExists (BuildDirExists),
   )
@@ -39,32 +36,9 @@ import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (CommandError (CommandError), InDirRequirable (checkRequirementInDir), Requirable (checkRequirement), require)
-import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
-
-data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
-
-instance InDirRequirable DbConnectionEstablished where
-  checkRequirementInDir projectDir = do
-    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection projectDir
-
-    either
-      ( \chan -> do
-          liftIO (readJobMessagesAndPrintThemPrefixed chan)
-          throwError noDbError
-      )
-      (const $ return DbConnectionEstablished)
-      dbIsRunning
-    where
-      noDbError =
-        CommandError
-          "Can not connect to database"
-          ( "The database needs to be running in order to execute this command."
-              ++ " You can easily start a managed dev database with `wasp start db`."
-          )
 
 -- | Require a Wasp project to exist near the current directory. Get the
 -- project directory by pattern matching on the result of 'require':
@@ -118,25 +92,3 @@ instance Requirable BuildDirExists where
           "Build directory does not exist"
           "Run `wasp build` first."
     return BuildDirExists
-
-data InOutDir req = InOutDir req deriving (Typeable)
-
-instance (Typeable req, InDirRequirable req) => Requirable (InOutDir req) where
-  checkRequirement = do
-    InWaspProject waspProjectDir <- require
-    let buildDir =
-          waspProjectDir
-            SP.</> Project.Common.dotWaspDirInWaspProjectDir
-            SP.</> Project.Common.generatedCodeDirInDotWaspDir
-    InOutDir <$> checkRequirementInDir buildDir
-
-data InBuildDir req = InBuildDir req deriving (Typeable)
-
-instance (Typeable req, InDirRequirable req) => Requirable (InBuildDir req) where
-  checkRequirement = do
-    InWaspProject waspProjectDir <- require
-    let buildDir =
-          waspProjectDir
-            SP.</> Project.Common.dotWaspDirInWaspProjectDir
-            SP.</> Project.Common.buildDirInDotWaspDir
-    InBuildDir <$> checkRequirementInDir buildDir

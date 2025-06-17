@@ -4,6 +4,8 @@ module Wasp.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
     runNodeCommandAsJobWithExtraEnv,
+    runNodeCommandAsJobWithFallbackEnv,
+    runNodeCommandAsJobWithEnv,
   )
 where
 
@@ -95,18 +97,28 @@ runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
+runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan = do
+  -- Haskell will use the first value for variable name it finds. Since env
+  -- vars in 'extraEnvVars' should override the inherited env vars, we
+  -- must prepend them.
+  envVars <- (extraEnvVars ++) <$> getEnvironment
+  runNodeCommandAsJobWithEnv envVars fromDir command args jobType chan
+
+runNodeCommandAsJobWithFallbackEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithFallbackEnv fallbackEnvVars fromDir command args jobType chan = do
+  -- Same as above, but we want to give these env vars as fallback, so we add
+  -- them at the end of the list.
+  envVars <- (++ fallbackEnvVars) <$> getEnvironment
+  runNodeCommandAsJobWithEnv envVars fromDir command args jobType chan
+
+runNodeCommandAsJobWithEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithEnv envVars fromDir command args jobType chan =
   NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
     NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     NodeVersion.VersionCheckSuccess -> do
-      envVars <- getAllEnvVars
       let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
       runProcessAsJob nodeCommandProcess jobType chan
   where
-    -- Haskell will use the first value for variable name it finds. Since env
-    -- vars in 'extraEnvVars' should override the inherited env vars, we
-    -- must prepend them.
-    getAllEnvVars = (extraEnvVars ++) <$> getEnvironment
     exitWithError exitCode errorMsg = do
       writeChan chan $
         J.JobMessage

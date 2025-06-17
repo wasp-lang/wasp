@@ -15,7 +15,8 @@ import System.Process (proc)
 import System.Random (Random (randoms), RandomGen, newStdGen)
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), DbConnectionEstablished (DbConnectionEstablished), InBuildDir (InBuildDir), InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.Db (DbConnectionEstablishedFromBuildDir (DbConnectionEstablishedFromBuildDir))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
@@ -44,7 +45,7 @@ buildStart :: Command ()
 buildStart = do
   InWaspProject waspProjectDir <- require
   BuildDirExists <- require
-  InBuildDir DbConnectionEstablished <- require
+  DbConnectionEstablishedFromBuildDir <- require
 
   -- TODO: Correct Wasp app name
   -- TODO: Check app runner, check we do the same things
