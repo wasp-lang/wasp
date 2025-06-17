@@ -7,13 +7,14 @@ import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
+import Data.Char (isAsciiLower, isAsciiUpper, isDigit, toLower)
 import Data.Function ((&))
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Process (proc)
 import System.Random (Random (randoms), RandomGen, newStdGen)
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -29,7 +30,7 @@ import qualified Wasp.Job.Except as JobExcept
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv, runProcessAsJob)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Env (dotEnvServer)
 
 buildStart :: Command ()
@@ -46,13 +47,15 @@ buildStart = do
   -- access to one in the `.wasp/build`, only in `.wasp/out` (which is not built
   -- for this command).
 
-  -- TODO: Correct Wasp app name
   -- TODO: Check app runner, check we do the same things
+
+  let (appName, _) = ASV.getApp appSpec
+  let imageName = makeAppImageName waspProjectDir appName
 
   result <-
     liftIO $
       runExceptT $
-        buildAndStartEverything waspProjectDir appSpec "wasp-app-name"
+        buildAndStartEverything waspProjectDir appSpec imageName
 
   case result of
     Left err -> cliSendMessageC $ Msg.Failure "Build and start failed" err
@@ -158,3 +161,16 @@ startServer projectDir clientUrl dockerImageName =
 
     toDockerEnvFlags :: [(String, String)] -> [String]
     toDockerEnvFlags = concatMap (\(name, value) -> ["--env", name ++ "=" ++ value])
+
+appImageNamePrefix :: String
+appImageNamePrefix = "wasp-preview"
+
+maxDockerImageNameLength :: Int
+maxDockerImageNameLength = 63
+
+-- | Docker image name unique for the Wasp project with specified path and name.
+makeAppImageName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
+makeAppImageName waspProjectDir appName =
+  map toLower $
+    take maxDockerImageNameLength $
+      appImageNamePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
