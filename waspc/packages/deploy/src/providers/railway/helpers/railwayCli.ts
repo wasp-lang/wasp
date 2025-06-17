@@ -115,6 +115,7 @@ function getMaximumProjectNameLength(): number {
   // Railway has a limit of 32 characters for the service name.
   // https://docs.railway.com/reference/services#constraints
   const maximumServiceNameLength = 32;
+  // We construct service names by appending suffixes to the project name.
   const suffixes = ["-server", "-client", "-db"];
   const maximumSuffixLength = Math.max(...suffixes.map((s) => s.length));
   return maximumServiceNameLength - maximumSuffixLength;
