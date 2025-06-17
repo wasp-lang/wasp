@@ -13,11 +13,15 @@ import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Process (proc)
 import System.Random (Random (randoms), RandomGen, newStdGen)
+import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, require)
+import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
+import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
 import Wasp.Job.Except (JobExcept, toJobExcept)
@@ -28,21 +32,10 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
 import Wasp.Project.Env (dotEnvServer)
 
-clientPort :: Integer
-clientPort = 3000
-
-serverPort :: Integer
-serverPort = 3001
-
-clientUrl :: String
-clientUrl = "http://localhost:" ++ show clientPort
-
-serverUrl :: String
-serverUrl = "http://localhost:" ++ show serverPort
-
 buildStart :: Command ()
 buildStart = do
   InWaspProject waspProjectDir <- require
+  appSpec <- analyze waspProjectDir
   BuildDirExists <- require
 
   -- TODO: Find a way to easily check we can connect to the DB.
@@ -56,14 +49,17 @@ buildStart = do
   -- TODO: Correct Wasp app name
   -- TODO: Check app runner, check we do the same things
 
-  result <- liftIO $ runExceptT $ buildAndStartEverything waspProjectDir "wasp-app-name"
+  result <-
+    liftIO $
+      runExceptT $
+        buildAndStartEverything waspProjectDir appSpec "wasp-app-name"
 
   case result of
     Left err -> cliSendMessageC $ Msg.Failure "Build and start failed" err
     Right () -> cliSendMessageC $ Msg.Success "Build and start completed successfully."
 
-buildAndStartEverything :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> ExceptT String IO ()
-buildAndStartEverything waspProjectDir dockerImageName =
+buildAndStartEverything :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> AppSpec -> String -> ExceptT String IO ()
+buildAndStartEverything waspProjectDir appSpec dockerImageName =
   do
     liftIO $ cliSendMessage $ Msg.Start "Preparing client..."
     runAndPrintJob $ buildClient buildDir
@@ -77,9 +73,11 @@ buildAndStartEverything waspProjectDir dockerImageName =
     runAndPrintJob $
       JobExcept.race_
         (startClient buildDir)
-        (startServer waspProjectDir dockerImageName)
+        (startServer waspProjectDir clientUrl dockerImageName)
   where
     buildDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
+
+    clientUrl = getDefaultDevClientUrl appSpec
 
     runAndPrintJob jobExcept = ExceptT $ do
       chan <- newChan
@@ -92,7 +90,7 @@ buildAndStartEverything waspProjectDir dockerImageName =
 buildClient :: SP.Path' SP.Abs (SP.Dir ProjectRootDir) -> JobExcept
 buildClient buildDir =
   runNodeCommandAsJobWithExtraEnv
-    [("REACT_APP_API_URL", serverUrl)]
+    [("REACT_APP_API_URL", defaultDevServerUrl)]
     webAppDir
     "npm"
     ["run", "build"]
@@ -111,7 +109,7 @@ startClient buildDir =
       "--",
       "preview", -- `preview` launches vite just as a webserver to the built files
       "--port",
-      show clientPort,
+      show defaultClientPort,
       "--strictPort" -- This will make it fail if the port is already in use
     ]
     J.WebApp
@@ -126,8 +124,8 @@ buildServer buildDir dockerImageName =
     J.Server
     & toJobExcept (("Building the server failed with exit code: " <>) . show)
 
-startServer :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> JobExcept
-startServer projectDir dockerImageName =
+startServer :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String -> JobExcept
+startServer projectDir clientUrl dockerImageName =
   ( \chan -> do
       jwtSecret <- randomAsciiAlphaNum 32 <$> newStdGen
 
@@ -141,7 +139,7 @@ startServer projectDir dockerImageName =
               ["--env", "DATABASE_URL"]
               ++ toDockerEnvFlags
                 [ ("WASP_WEB_CLIENT_URL", clientUrl),
-                  ("WASP_SERVER_URL", serverUrl),
+                  ("WASP_SERVER_URL", defaultDevServerUrl),
                   ("JWT_SECRET", jwtSecret)
                 ]
               ++ [dockerImageName]
