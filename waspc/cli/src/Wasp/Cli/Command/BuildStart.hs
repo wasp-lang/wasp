@@ -134,6 +134,11 @@ startServer projectDir dockerImageName =
       runProcessAsJob
         ( proc "docker" $
             ["run", "--rm", "--env-file", envFilePath, "--network", "host"]
+              ++
+              -- We specifically pass this environment variable from the current
+              -- execution to the server container because Prisma will need it,
+              -- and it is not set in the .env file (wasp start complains if so).
+              ["--env", "DATABASE_URL"]
               ++ toDockerEnvFlags
                 [ ("WASP_WEB_CLIENT_URL", clientUrl),
                   ("WASP_SERVER_URL", serverUrl),
