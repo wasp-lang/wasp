@@ -10,7 +10,7 @@ import Data.Data (Typeable)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject))
-import Wasp.Generator (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Project.Common as Project.Common
