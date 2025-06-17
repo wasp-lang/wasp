@@ -183,6 +183,9 @@ runPrismaCommandAsJob waspProjectDir fromDir fallbackEnvVars extraEnvVars cmdArg
   where
     prisma = absPrismaExecutableFp waspProjectDir
 
+-- | NOTE: The expectation is that `npm install` was already executed
+-- such that we can use the locally installed package.
+-- This assumption is ok since it happens during compilation now.
 absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
 absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
   where
