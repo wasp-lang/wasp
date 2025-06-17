@@ -23,6 +23,7 @@ module Wasp.Cli.Command.Require
 
     -- * Requirables
     Requirable (checkRequirement),
+    DbConnectionEstablished (DbConnectionEstablished),
     InWaspProject (InWaspProject),
   )
 where
@@ -36,8 +37,33 @@ import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
+
+data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
+
+instance Requirable DbConnectionEstablished where
+  checkRequirement = do
+    -- NOTE: 'InWaspProject' does not depend on this requirement, so this
+    -- call to 'require' will not result in an infinite loop.
+    InWaspProject waspProjectDir <- require
+    let outDir =
+          waspProjectDir
+            SP.</> Project.Common.dotWaspDirInWaspProjectDir
+            SP.</> Project.Common.generatedCodeDirInDotWaspDir
+    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
+
+    if dbIsRunning
+      then return DbConnectionEstablished
+      else throwError noDbError
+    where
+      noDbError =
+        CommandError
+          "Can not connect to database"
+          ( "The database needs to be running in order to execute this command."
+              ++ " You can easily start a managed dev database with `wasp start db`."
+          )
 
 -- | Require a Wasp project to exist near the current directory. Get the
 -- project directory by pattern matching on the result of 'require':

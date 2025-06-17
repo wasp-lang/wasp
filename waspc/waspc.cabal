@@ -578,7 +578,6 @@ library cli-lib
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
-    Wasp.Cli.Command.Require.Db
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry
