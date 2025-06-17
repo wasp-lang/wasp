@@ -1,6 +1,6 @@
 import { exit } from "process";
 import { $, fs } from "zx";
-import { makeIdempotentWaspBuild } from "../../../common/build.js";
+import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
 import {
   getServerUrlFromEnv,
   serverUrlEnvVarName,
@@ -30,7 +30,7 @@ import { DeployOptions } from "./DeployOptions.js";
 export async function deploy(options: DeployOptions): Promise<void> {
   waspSays("Deploying your Wasp app to Fly.io!");
 
-  const buildWasp = makeIdempotentWaspBuild(options);
+  const buildWasp = makeIdempotentWaspBuildCommand(options);
 
   const tomlFilePaths = getTomlFilePaths(options);
 

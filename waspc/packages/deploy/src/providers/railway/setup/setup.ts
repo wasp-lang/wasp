@@ -1,6 +1,6 @@
 import { $ } from "zx";
 
-import { makeIdempotentWaspBuild } from "../../../common/build.js";
+import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
 import { createCommandWithDirectory } from "../../../common/cli.js";
 import { generateRandomJwtSecret } from "../../../common/jwt.js";
 import { waspSays } from "../../../common/output.js";
@@ -33,7 +33,7 @@ export async function setup(
     deploymentInfo,
   );
 
-  const buildWasp = makeIdempotentWaspBuild(options);
+  const buildWasp = makeIdempotentWaspBuildCommand(options);
 
   await buildWasp();
 

@@ -1,5 +1,5 @@
 import { $, chalk, question } from "zx";
-import { makeIdempotentWaspBuild } from "../../../common/build.js";
+import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
 import { getCommandName } from "../../../common/commander.js";
 import { generateRandomJwtSecret } from "../../../common/jwt.js";
 import { waspSays } from "../../../common/output.js";
@@ -32,7 +32,7 @@ export async function setup(
 ): Promise<void> {
   waspSays("Setting up your Wasp app with Fly.io!");
 
-  const buildWasp = makeIdempotentWaspBuild(options);
+  const buildWasp = makeIdempotentWaspBuildCommand(options);
 
   const tomlFilePaths = getTomlFilePaths(options);
   const deploymentInfo = createDeploymentInfo(

@@ -1,5 +1,5 @@
 import { exit } from "process";
-import { makeIdempotentWaspBuild } from "../../../common/build.js";
+import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
 import { waspSays } from "../../../common/output.js";
 import { createDeploymentInfo, RailwayProjectName } from "../DeploymentInfo.js";
 import { getProjectForDirectory } from "../helpers/project/cli.js";
@@ -26,7 +26,7 @@ export async function deploy(
 
   const deploymentInfo = createDeploymentInfo(projectName, options);
 
-  const buildWasp = makeIdempotentWaspBuild(options);
+  const buildWasp = makeIdempotentWaspBuildCommand(options);
 
   if (options.skipServer) {
     waspSays("Skipping server deploy due to CLI option.");
