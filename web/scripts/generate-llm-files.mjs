@@ -1,122 +1,155 @@
-import fs from 'fs-extra'
+import fs from 'fs/promises'
 import path from 'path'
 import { globSync } from 'glob'
 import fm from 'front-matter'
+import docsSidebarConfig from '../sidebars.js'
 
 const SITE_ROOT = process.cwd()
 const STATIC_DIR = path.join(SITE_ROOT, 'static/')
 const DOCS_DIR = path.join(SITE_ROOT, 'docs/')
 const BLOG_DIR = path.join(SITE_ROOT, 'blog/')
-const GITHUB_RAW_BASE_URL = 'https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/' // Use the release branch
+const GITHUB_RAW_BASE_URL =
+  'https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/' // Use the release branch
 const WASP_BASE_URL = 'https://wasp.sh/'
 const LLM_FULL_FILENAME = 'llms-full.txt'
 const LLM_OVERVIEW_FILENAME = 'llms.txt'
 const LLMS_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_OVERVIEW_FILENAME)
 const LLMS_FULL_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_FULL_FILENAME)
 
-generateFiles().catch((error) => {
-  console.error('Unhandled error during LLM file generation:', error)
-  process.exit(1)
-})
+const OVERVIEW_INTRO_CONTENT = `
+# Wasp
+Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.
 
+## Individual documentation sections and guides:
+`
+
+await generateFiles()
+
+/**
+ * Main function to generate the LLM-friendly doc files.
+ * It orchestrates the process by fetching and processing documentation and blog files,
+ * and then writing the final output to the static directory.
+ */
 async function generateFiles() {
   console.log('Starting LLM file generation...')
-  let llmsTxtContent = initializeOverviewContent()
+  let llmsTxtContent = OVERVIEW_INTRO_CONTENT
   let llmsFullTxtContent = ''
 
-  try {
-    const docsSidebarConfig = await getDocsPageSidebarConfig()
-    const docProcessingResult = await processDocumentationFiles(docsSidebarConfig)
+  const docProcessingResult = await processDocumentationFiles(
+    docsSidebarConfig.docs
+  )
 
-    llmsTxtContent += docProcessingResult.overviewDocsSection
-    llmsFullTxtContent = docProcessingResult.fullConcatContent
+  llmsTxtContent += docProcessingResult.overviewDocsSection
+  llmsFullTxtContent = docProcessingResult.fullConcatContent
 
-    const blogSection = await processBlogFiles()
-    if (blogSection) {
-      llmsTxtContent += `\n${blogSection}\n`
-    }
-
-  } catch (error) {
-    console.error('Error during content processing and gathering:', error)
+  const blogSection = await processBlogFiles()
+  if (blogSection) {
+    llmsTxtContent += `\n${blogSection}\n\n`
   }
 
-  await writeOutputFiles(llmsTxtContent, llmsFullTxtContent)
+  llmsTxtContent += getMiscSectionContent()
 
+  await writeOutputFiles(llmsTxtContent, llmsFullTxtContent)
   console.log('🎉 LLM file generation complete.')
 }
 
-function initializeOverviewContent() {
-  const crawlerPermissions = `# llms.txt for wasp.sh\n# This site allows LLMs to crawl and use its content.\n# Contact: info@wasp-lang.dev\nUser-Agent: *\nDisallow:\n\n`
-  const introSummary =
-    '# The Wasp Full-stack Framework\nWasp is a full-stack framework with batteries included for React, Node.js, and Prisma.\n\n'
-  return `${crawlerPermissions}${introSummary}# Full Documentation\n- [Complete LLM-formatted Wasp Documentation](${WASP_BASE_URL}${LLM_FULL_FILENAME})\n\n# Individual documentation sections and guides:\n`
-}
-
-async function getDocsPageSidebarConfig() {
-  const sidebarFilePath = path.join(SITE_ROOT, 'sidebars.js')
-  const absoluteSidebarFilePath = path.resolve(sidebarFilePath)
-  console.log(`Loading sidebar configuration from: ${absoluteSidebarFilePath}`)
-  const sidebarsModule = await import(`file://${absoluteSidebarFilePath}`)
-  const sidebarDocs = sidebarsModule.default?.docs || sidebarsModule.docs
-
-  if (!sidebarDocs) {
-    throw new Error('`docs` array not found in sidebars.js module')
-  }
-  return sidebarDocs
-}
-
+/**
+ * Processes all documentation files based on the sidebar configuration's order.
+ * It builds a map of document IDs to file paths, processes each document,
+ * and generates both a summarized overview and a full concatenated string of the content.
+ * @param {object[]} sidebarConfig - The `docs` array from the sidebars.js configuration.
+ * @returns {{overviewDocsSection: string, fullConcatContent: string}} - An object containing the generated overview section and the full concatenated content.
+ */
 async function processDocumentationFiles(sidebarConfig) {
-  const docInfoMap = new Map()
   let overviewDocsSection = ''
   let fullConcatContent = ''
 
-  const orderedDocIds = getOrderedSidebarCategoryItems(sidebarConfig)
+  const orderedDocIds = flattenSidebarItemsToDocIds(sidebarConfig)
   console.log(
     `Found ${orderedDocIds.length} document IDs in sidebar order for processing.`
   )
 
-  const sidebarOverviewStructure = getDocsSidebarCategoryStructure(sidebarConfig)
+  const sidebarOverviewStructure =
+    getDocsSidebarCategoryStructure(sidebarConfig)
 
-  console.log(`Gathering and processing source files from: ${DOCS_DIR}...`)
-  const allGlobbedRelativeFilePaths = globSync('*/**/*.{md,mdx}', {
-    cwd: DOCS_DIR,
+  const docIdToPathMap = buildDocIdToPathMap(DOCS_DIR)
+
+  const docInfoMap = await populateDocInfoMap(orderedDocIds, docIdToPathMap)
+
+  for (const category of sidebarOverviewStructure) {
+    overviewDocsSection += `${category.categoryLabel}\n`
+    for (const docId of category.docIds) {
+      if (docInfoMap.has(docId)) {
+        const info = docInfoMap.get(docId)
+        const relativeToSiteForGithub = path
+          .relative(SITE_ROOT, info.absolutePath)
+          .replace(/\\/g, '/')
+        const githubRawUrl = GITHUB_RAW_BASE_URL + relativeToSiteForGithub
+        overviewDocsSection += `- [${info.title}](${githubRawUrl})\n`
+      } else {
+        // Warning already issued during docInfoMap population
+      }
+    }
+  }
+
+  // Build fullConcatContent using sidebar structure with proper heading hierarchy
+  for (const category of sidebarOverviewStructure) {
+    // Add category header as H1 and separator
+    fullConcatContent += `# ${category.categoryLabel}\n\n`
+
+    for (const docId of category.docIds) {
+      if (docInfoMap.has(docId)) {
+        const info = docInfoMap.get(docId)
+        // Add document title as H2
+        fullConcatContent += `## ${info.title}\n\n${info.processedBody}\n\n`
+      }
+    }
+
+    // Add category separator
+    fullConcatContent += `------\n\n`
+  }
+  return { overviewDocsSection, fullConcatContent }
+}
+
+/**
+ * Scans a directory for markdown files, normalizes their paths to create doc IDs,
+ * and returns a map from each unique doc ID to its relative file path.
+ * @param {string} directory - The directory to scan for documentation files (e.g., DOCS_DIR).
+ * @returns {Map<string, string>} A map where keys are normalized doc IDs and values are the original file paths.
+ */
+function buildDocIdToPathMap(directory) {
+  console.log(`Gathering and processing source files from: ${directory}...`)
+  // Use **/*.{md,mdx} to match files at any depth, including directly under docs/
+  const allGlobbedRelativeFilePaths = globSync('**/*.{md,mdx}', {
+    cwd: directory,
     nodir: true,
     ignore: ['**/_*.md', '**/_*.mdx'],
   })
 
-  const orderedDocsRelativePaths = new Map()
-  allGlobbedRelativeFilePaths.forEach((filePath) => {
-    // relativeFile is a path like 'tutorial/create.mdx' or 'data-model/entities/index.md'
-    // So, for example:
-    //   'data-model/entitie.md => 'data-model/entities'
-    //   'tutorial/01-create.mdx' should become 'tutorial/create'
-    const docIdWithoutExtAndIndex = filePath
-      .replace(/\.(mdx|md)$/, '')
-      .replace(/\/index$/, '');
-
-    const pathSegments = docIdWithoutExtAndIndex.split('/');
-    const lastSegment = pathSegments.pop(); // This will be the filename or last directory name
-    
-    // Remove leading "NN-" or "NN." from the filename part, e.g. "01-create" => "create"
-    const cleanedLastSegment = lastSegment.replace(/^\d+[-.]/, ''); 
-    
-    let docId;
-    if (pathSegments.length > 0) {
-      docId = [...pathSegments, cleanedLastSegment].join('/');
-    } else {
-      docId = cleanedLastSegment;
+  const docsRelativePaths = new Map()
+  for (const filePath of allGlobbedRelativeFilePaths) {
+    const docId = normalizePathToDocId(filePath)
+    if (!docsRelativePaths.has(docId)) {
+      docsRelativePaths.set(docId, filePath)
     }
+  }
+  return docsRelativePaths
+}
 
-    if (!orderedDocsRelativePaths.has(docId)) {
-      orderedDocsRelativePaths.set(docId, filePath);
-    }
-  })
-
+/**
+ * Iterates through an ordered list of doc IDs, reads the corresponding file for each,
+ * processes its content, and returns a map containing the processed information for each document.
+ * This loop ensures that we process the files in the exact order specified in sidebars.js,
+ * regardless of how the filesystem returns them.
+ * @param {string[]} orderedDocIds - An array of doc IDs in the desired order.
+ * @param {Map<string, string>} docIdToPathMap - A map from doc IDs to their file paths.
+ * @returns {Promise<Map<string, object>>} A promise that resolves to a map where keys are doc IDs
+ * and values are objects containing the title, processedBody, and path information.
+ */
+async function populateDocInfoMap(orderedDocIds, docIdToPathMap) {
+  const docInfoMap = new Map()
   for (const docId of orderedDocIds) {
-    let relativeDocPath = orderedDocsRelativePaths.get(docId)
-    if (!relativeDocPath && orderedDocsRelativePaths.has(`${docId}/index`)) {
-      relativeDocPath = orderedDocsRelativePaths.get(`${docId}/index`)
-    }
+    const relativeDocPath = docIdToPathMap.get(docId)
 
     if (relativeDocPath) {
       const absolutePath = path.join(DOCS_DIR, relativeDocPath)
@@ -135,6 +168,8 @@ async function processDocumentationFiles(sidebarConfig) {
           relativeDocPath,
         })
       } catch (fileReadError) {
+        // This is intentionally not re-thrown to allow the script to continue
+        // and generate a partial file, even if some source files have errors.
         console.error(
           `Error reading or processing file for docId '${docId}' at ${absolutePath}:`,
           fileReadError
@@ -146,70 +181,50 @@ async function processDocumentationFiles(sidebarConfig) {
       )
     }
   }
-
-  for (const category of sidebarOverviewStructure) {
-    overviewDocsSection += `## ${category.categoryLabel}\n`
-    for (const docId of category.docIds) {
-      if (docInfoMap.has(docId)) {
-        const info = docInfoMap.get(docId)
-        const relativeToSiteForGithub = path
-          .relative(SITE_ROOT, info.absolutePath)
-          .replace(/\\/g, '/')
-        const githubRawUrl = GITHUB_RAW_BASE_URL + relativeToSiteForGithub
-        overviewDocsSection += `- [${info.title}](${githubRawUrl})\n`
-      } else {
-        // Warning already issued during docInfoMap population
-      }
-    }
-  }
-
-  let currentPathSegments = []
-  for (const docId of orderedDocIds) {
-    if (docInfoMap.has(docId)) {
-      const info = docInfoMap.get(docId)
-      const dirParts = path
-        .dirname(info.relativeDocPath)
-        .split(path.sep)
-        .filter((p) => p && p !== '.')
-      let newHeaders = ''
-      let differingSegmentFound = false
-      for (let i = 0; i < dirParts.length; i++) {
-        if (
-          i >= currentPathSegments.length ||
-          dirParts[i] !== currentPathSegments[i]
-        ) {
-          differingSegmentFound = true
-        }
-        if (differingSegmentFound) {
-          const segmentTitle = dirParts[i]
-            .split('-')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ')
-          const headerLevel = i + 1
-          newHeaders += `${'#'.repeat(headerLevel)} ${segmentTitle}\n\n`
-        }
-      }
-      if (newHeaders) {
-        fullConcatContent += newHeaders
-      }
-      currentPathSegments = dirParts
-      const fileTitleLevel = dirParts.length + 1
-      fullConcatContent += `${'#'.repeat(fileTitleLevel)} ${info.title}\n\n${
-        info.processedBody
-      }\n\n---\n\n`
-    }
-  }
-  return { docInfoMap, overviewDocsSection, fullConcatContent }
+  return docInfoMap
 }
 
-function getOrderedSidebarCategoryItems(items) {
+/**
+ * Normalizes a file path into a standardized document ID.
+ * e.g., 'tutorial/01-create.mdx' becomes 'tutorial/create'
+ * e.g., 'data-model/entities/index.md' becomes 'data-model/entities'
+ * @param {string} filePath - The relative file path to normalize.
+ * @returns {string} The normalized doc ID.
+ */
+function normalizePathToDocId(filePath) {
+  // This function converts a file path like 'tutorial/01-create.mdx' into a docId like 'tutorial/create'
+  const docIdWithoutExtAndIndex = filePath
+    .replace(/\.(mdx|md)$/, '')
+    .replace(/\/index$/, '')
+
+  const pathSegments = docIdWithoutExtAndIndex.split('/')
+  const lastSegment = pathSegments.pop() // This will be the filename or last directory name
+
+  // Remove leading "NN-" or "NN." from the filename part, e.g. "01-create" => "create"
+  const cleanedLastSegment = lastSegment.replace(/^\d+[-.]/, '')
+
+  let docId
+  if (pathSegments.length > 0) {
+    docId = [...pathSegments, cleanedLastSegment].join('/')
+  } else {
+    docId = cleanedLastSegment
+  }
+  return docId
+}
+
+/**
+ * Recursively traverses the sidebar configuration to produce a flat, ordered list of document IDs.
+ * @param {object[]} items - An array of sidebar items (strings or objects).
+ * @returns {string[]} A flat array of doc ID strings.
+ */
+function flattenSidebarItemsToDocIds(items) {
   let paths = []
   if (!items) return paths
   for (const item of items) {
     if (typeof item === 'string') {
       paths.push(item)
     } else if (item.type === 'category' && item.items) {
-      paths = paths.concat(getOrderedSidebarCategoryItems(item.items))
+      paths = paths.concat(flattenSidebarItemsToDocIds(item.items))
     } else if (item.type === 'autogenerated') {
       console.warn(
         `Warning: 'autogenerated' sidebar type for dirName '${item.dirName}' might not be fully processed.`
@@ -220,9 +235,11 @@ function getOrderedSidebarCategoryItems(items) {
 }
 
 /**
- * Returns an ordered structure of the sidebar categories 
- * and their docIds (relative paths w/out file extension, e.g. 'tutorial/create').
- * Used for generating the overview section of the LLM files.
+ * Returns an ordered structure of the sidebar categories and their docIds.
+ * This is used for generating the overview section of the LLM files.
+ * It ignores categories that are not relevant for the LLM context (e.g., 'Miscellaneous').
+ * @param {object[]} sidebarTopLevelItems - The top-level items from the sidebar config.
+ * @returns {object[]} A structured array of objects, each containing a categoryLabel and its array of docIds.
  */
 function getDocsSidebarCategoryStructure(sidebarTopLevelItems) {
   const structuredOverview = []
@@ -236,7 +253,7 @@ function getDocsSidebarCategoryStructure(sidebarTopLevelItems) {
       topItem.items &&
       !categoriesToIgnore.includes(topItem.label)
     ) {
-      const docIdsWithinCategory = getOrderedSidebarCategoryItems(topItem.items)
+      const docIdsWithinCategory = flattenSidebarItemsToDocIds(topItem.items)
       if (docIdsWithinCategory.length > 0) {
         structuredOverview.push({
           categoryLabel: topItem.label,
@@ -248,8 +265,13 @@ function getDocsSidebarCategoryStructure(sidebarTopLevelItems) {
   return structuredOverview
 }
 
+/**
+ * Processes all blog post files, extracting their title, date, and URL.
+ * It returns a markdown-formatted string of the blog posts, sorted by date.
+ * @returns {Promise<string>} A promise that resolves to a markdown string listing the blog posts.
+ */
 async function processBlogFiles() {
-  let blogSectionContent = `# Blogposts\n`
+  let blogSectionContent = `## Blogposts\n`
   const blogPostFiles = globSync('*.{md,mdx}', {
     cwd: BLOG_DIR,
     nodir: true,
@@ -305,6 +327,8 @@ async function processBlogFiles() {
         )
       }
     } catch (fileReadError) {
+      // This is intentionally not re-thrown to allow the script to continue
+      // and generate a partial file, even if some source files have errors.
       console.error(
         `Error reading or processing blog file ${absoluteFilePath}:`,
         fileReadError
@@ -324,23 +348,28 @@ async function processBlogFiles() {
   }
 }
 
+/**
+ * Writes the LLM-friendly content to their respective output files.
+ * @param {string} llmsTxtContent - The content for the overview file (llms.txt).
+ * @param {string} llmsFullTxtContent - The content for the full concatenated file (llms-full.txt).
+ */
 async function writeOutputFiles(llmsTxtContent, llmsFullTxtContent) {
   console.log('Writing output files to static/ ...')
-  try {
-    await fs.writeFile(LLMS_TXT_FILE_PATH, llmsTxtContent.trim(), 'utf8')
-    console.log(`Generated overview file: ${LLMS_TXT_FILE_PATH}`)
 
-    await fs.writeFile(
-      LLMS_FULL_TXT_FILE_PATH,
-      llmsFullTxtContent.trim(),
-      'utf8'
-    )
-    console.log(`Generated full concatenated file: ${LLMS_FULL_TXT_FILE_PATH}`)
-  } catch (error) {
-    console.error('Error writing output files:', error)
-  }
+  await fs.writeFile(LLMS_TXT_FILE_PATH, llmsTxtContent.trim(), 'utf8')
+  console.log(`Generated overview file: ${LLMS_TXT_FILE_PATH}`)
+
+  await fs.writeFile(LLMS_FULL_TXT_FILE_PATH, llmsFullTxtContent.trim(), 'utf8')
+  console.log(`Generated full concatenated file: ${LLMS_FULL_TXT_FILE_PATH}`)
 }
 
+/**
+ * Cleans the raw markdown content of a document to make it more suitable for an LLM.
+ * This involves removing React/HTML components, import statements, comments, and other non-content elements.
+ * It also adjusts heading levels to be consistent with the overall document structure.
+ * @param {string} content - The raw markdown string.
+ * @returns {string} The cleaned markdown string.
+ */
 function cleanDocContent(content) {
   if (!content) return ''
 
@@ -414,5 +443,12 @@ function cleanDocContent(content) {
   // Remove more than two line breaks
   cleaned = cleaned.replace(/\n{3,}/g, '\n\n')
 
+  // Increase heading level by adding an extra # to any existing headings
+  cleaned = cleaned.replace(/^(#{1,6})\s/gm, '#$1 ')
+
   return cleaned.trim()
+}
+
+function getMiscSectionContent() {
+  return `## Miscellaneous\n- [Wasp Developer Discord](https://discord.com/invite/rzdnErX)\n- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)`
 }
