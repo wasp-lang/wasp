@@ -47,22 +47,21 @@ buildStart = do
   -- access to one in the `.wasp/build`, only in `.wasp/out` (which is not built
   -- for this command).
 
-  -- TODO: Check app runner, check we do the same things
-
   let (appName, _) = ASV.getApp appSpec
   let imageName = makeAppImageName waspProjectDir appName
+  let containerName = makeAppContainerName waspProjectDir appName
 
   result <-
     liftIO $
       runExceptT $
-        buildAndStartEverything waspProjectDir appSpec imageName
+        buildAndStartEverything waspProjectDir appSpec imageName containerName
 
   case result of
     Left err -> cliSendMessageC $ Msg.Failure "Build and start failed" err
     Right () -> cliSendMessageC $ Msg.Success "Build and start completed successfully."
 
-buildAndStartEverything :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> AppSpec -> String -> ExceptT String IO ()
-buildAndStartEverything waspProjectDir appSpec dockerImageName =
+buildAndStartEverything :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> AppSpec -> String -> String -> ExceptT String IO ()
+buildAndStartEverything waspProjectDir appSpec dockerImageName dockerContainerName =
   do
     liftIO $ cliSendMessage $ Msg.Start "Preparing client..."
     runAndPrintJob $ buildClient buildDir
@@ -76,7 +75,7 @@ buildAndStartEverything waspProjectDir appSpec dockerImageName =
     runAndPrintJob $
       JobExcept.race_
         (startClient buildDir)
-        (startServer waspProjectDir clientUrl dockerImageName)
+        (startServer waspProjectDir clientUrl dockerImageName dockerContainerName)
   where
     buildDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
 
@@ -127,14 +126,14 @@ buildServer buildDir dockerImageName =
     J.Server
     & toJobExcept (("Building the server failed with exit code: " <>) . show)
 
-startServer :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String -> JobExcept
-startServer projectDir clientUrl dockerImageName =
+startServer :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String -> String -> JobExcept
+startServer projectDir clientUrl dockerImageName containerName =
   ( \chan -> do
       jwtSecret <- randomAsciiAlphaNum 32 <$> newStdGen
 
       runProcessAsJob
         ( proc "docker" $
-            ["run", "--rm", "--env-file", envFilePath, "--network", "host"]
+            ["run", "--name", containerName, "--rm", "--env-file", envFilePath, "--network", "host"]
               ++
               -- We specifically pass this environment variable from the current
               -- execution to the server container because Prisma will need it,
@@ -162,15 +161,13 @@ startServer projectDir clientUrl dockerImageName =
     toDockerEnvFlags :: [(String, String)] -> [String]
     toDockerEnvFlags = concatMap (\(name, value) -> ["--env", name ++ "=" ++ value])
 
-appImageNamePrefix :: String
-appImageNamePrefix = "wasp-preview"
-
-maxDockerImageNameLength :: Int
-maxDockerImageNameLength = 63
-
 -- | Docker image name unique for the Wasp project with specified path and name.
 makeAppImageName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
 makeAppImageName waspProjectDir appName =
   map toLower $
-    take maxDockerImageNameLength $
-      appImageNamePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
+    makeAppUniqueId waspProjectDir appName <> "-server"
+
+makeAppContainerName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
+makeAppContainerName waspProjectDir appName =
+  map toLower $
+    makeAppUniqueId waspProjectDir appName <> "-server-container"
