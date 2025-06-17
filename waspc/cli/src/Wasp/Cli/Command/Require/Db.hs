@@ -15,6 +15,9 @@ import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConn
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Project.Common as Project.Common
 
+-- NOTE: 'InWaspProject' does not depend on these requirements, so these
+-- 'require' calls will not result in an infinite loop.
+
 data DbConnectionEstablishedFromBuildDir = DbConnectionEstablishedFromBuildDir deriving (Typeable)
 
 data DbConnectionEstablishedFromOutDir = DbConnectionEstablishedFromOutDir deriving (Typeable)
