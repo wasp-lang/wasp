@@ -1,11 +1,10 @@
 import { createCommandWithDirectory } from "./cli.js";
+import { WaspCliExe, WaspProjectDir } from "./cliArgs.js";
 import { waspSays } from "./output.js";
 
 export function makeIdempotentWaspBuild(options: {
-  // NOTE: Not using branded types here becuase we still need to migrate
-  // the Fly provider to use WaspProjectDir
-  waspProjectDir: string;
-  waspExe: string;
+  waspProjectDir: WaspProjectDir;
+  waspExe: WaspCliExe;
   skipBuild?: boolean;
 }): () => Promise<void> {
   const buildWasp = async () => {
