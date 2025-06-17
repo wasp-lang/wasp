@@ -16,7 +16,6 @@ import System.Random (Random (randoms), RandomGen, newStdGen)
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.Db (DbConnectionEstablishedFromBuildDir (DbConnectionEstablishedFromBuildDir))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
@@ -45,7 +44,14 @@ buildStart :: Command ()
 buildStart = do
   InWaspProject waspProjectDir <- require
   BuildDirExists <- require
-  DbConnectionEstablishedFromBuildDir <- require
+
+  -- TODO: Find a way to easily check we can connect to the DB.
+  -- Right now we just assume it is running and let Prisma fail if it is not. It
+  -- is not easy for us to do the same check as in other commands
+  -- (`DBConnecionEstablished <- require`), because that needs a built Prisma
+  -- schema, and currently we do that inside the Dockerfile. We might not have
+  -- access to one in the `.wasp/build`, only in `.wasp/out` (which is not built
+  -- for this command).
 
   -- TODO: Correct Wasp app name
   -- TODO: Check app runner, check we do the same things
@@ -69,7 +75,7 @@ buildAndStartEverything waspProjectDir dockerImageName =
 
     liftIO $ cliSendMessage $ Msg.Start "Starting client and server..."
     runAndPrintJob $
-      JobExcept.concurrently
+      JobExcept.race_
         (startClient buildDir)
         (startServer waspProjectDir dockerImageName)
   where

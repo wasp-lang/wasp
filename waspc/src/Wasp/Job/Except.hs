@@ -2,11 +2,10 @@ module Wasp.Job.Except
   ( JobExcept,
     fromExitCode,
     toJobExcept,
-    concurrently,
+    race_,
   )
 where
 
-import Control.Applicative (Applicative (liftA2))
 import Control.Concurrent (Chan)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
@@ -27,12 +26,12 @@ fromExitCode :: (Int -> String) -> ExitCode -> Either String ()
 fromExitCode _ ExitSuccess = Right ()
 fromExitCode exitCodeToErrorMessage (ExitFailure code) = Left $ exitCodeToErrorMessage code
 
-concurrently :: JobExcept -> JobExcept -> JobExcept
-concurrently except1 except2 chan =
+race_ :: JobExcept -> JobExcept -> JobExcept
+race_ except1 except2 chan =
   ExceptT $
-    void . liftATuple
-      <$> Async.concurrently
+    void . unwrapEither
+      <$> Async.race
         (runExceptT $ except1 chan)
         (runExceptT $ except2 chan)
   where
-    liftATuple (a, b) = liftA2 (,) a b
+    unwrapEither = either id id
