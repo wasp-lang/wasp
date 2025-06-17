@@ -1,56 +1,23 @@
-import { Command } from "commander";
 import { exit } from "process";
 import semver from "semver";
-import { $, ProcessOutput, question } from "zx";
+import { $ } from "zx";
 
-import { isYes, waspSays } from "../../../helpers.js";
+import { confirm } from "@inquirer/prompts";
+import { Branded } from "../../../common/branded.js";
+import { waspSays } from "../../../common/output.js";
+import { RailwayCliExe } from "../CommonOptions.js";
+import { RailwayProjectName } from "../DeploymentInfo.js";
 
 // Railway CLI version 4.0.1 includes a change that is needed for
 // Wasp deploy command to work with Railway properly:
 // https://github.com/railwayapp/cli/pull/596
 const minSupportedRailwayCliVersion = "4.0.1";
 
-async function ensureUserLoggedIn(railwayExe: string): Promise<void> {
-  const userLoggedIn = await isUserLoggedIn(railwayExe);
-  if (userLoggedIn) {
-    return;
-  }
+type RailwayCliVersion = Branded<string, "RailwayCliVersion">;
 
-  const answer = await question(
-    "railway is not logged into Railway. Would you like to log in now? ",
-  );
-  if (!isYes(answer)) {
-    waspSays("Ok, exiting.");
-    exit(1);
-  }
-
-  // In the CI, users are expected to set the Railway token
-  // as an environment variable.
-  // https://docs.railway.com/guides/cli#tokens
-  try {
-    await $({
-      // Login comand requires **interactive** terminal
-      stdio: "inherit",
-    })`${railwayExe} login`;
-  } catch {
-    waspSays(
-      'It seems there was a problem logging in. Please run "railway login" and try again.',
-    );
-    exit(1);
-  }
-}
-
-async function isUserLoggedIn(railwayExe: string): Promise<boolean> {
-  try {
-    await $`${railwayExe} whoami`;
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export async function ensureRailwayReady(thisCommand: Command): Promise<void> {
-  const railwayExe = thisCommand.opts().railwayExe;
+export async function ensureRailwayReady(
+  railwayExe: RailwayCliExe,
+): Promise<void> {
   const railwayCliVersion = await getRailwayCliVersion(railwayExe);
   if (railwayCliVersion === null) {
     waspSays("The Railway CLI is not available on this system.");
@@ -72,14 +39,51 @@ export async function ensureRailwayReady(thisCommand: Command): Promise<void> {
   await ensureUserLoggedIn(railwayExe);
 }
 
-async function getRailwayCliVersion(
-  railwayExe: string,
-): Promise<string | null> {
+async function ensureUserLoggedIn(railwayExe: RailwayCliExe): Promise<void> {
+  const userLoggedIn = await isUserLoggedIn(railwayExe);
+  if (userLoggedIn) {
+    return;
+  }
+
+  const wantsToLogin = await confirm({
+    message:
+      "railway is not logged into Railway. Would you like to log in now?",
+  });
+  if (!wantsToLogin) {
+    waspSays("Ok, exiting.");
+    exit(1);
+  }
+
   try {
-    const result: ProcessOutput = await $`${railwayExe} -V`;
+    await $({
+      // Login comand requires **interactive** terminal
+      stdio: "inherit",
+    })`${railwayExe} login`;
+  } catch {
+    waspSays(
+      'It seems there was a problem logging in. Please run "railway login" and try again.',
+    );
+    exit(1);
+  }
+}
+
+async function isUserLoggedIn(railwayExe: RailwayCliExe): Promise<boolean> {
+  try {
+    await $`${railwayExe} whoami`;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function getRailwayCliVersion(
+  railwayExe: RailwayCliExe,
+): Promise<RailwayCliVersion | null> {
+  try {
+    const result = await $`${railwayExe} -V`;
     const match = result.stdout.match(/railway(?:app)? (\d+\.\d+\.\d+)/);
     if (match !== null) {
-      return match[1];
+      return match[1] as RailwayCliVersion;
     } else {
       return null;
     }
@@ -89,26 +93,29 @@ async function getRailwayCliVersion(
 }
 
 function isUsingMinimumSupportedRailwayCliVersion(
-  railwayCliVersion: string,
+  railwayCliVersion: RailwayCliVersion,
 ): boolean {
   return semver.gte(railwayCliVersion, minSupportedRailwayCliVersion);
 }
 
-export async function ensureRailwayBasenameIsValid(
-  thisCommand: Command,
+export async function assertRailwayProjectNameIsValid(
+  projectName: RailwayProjectName,
 ): Promise<void> {
+  const maximumProjectNameLength = getMaximumProjectNameLength();
+
+  if (projectName.length > maximumProjectNameLength) {
+    waspSays(
+      `The project name "${projectName}" is too long (${projectName.length} characters). It must be at most ${maximumProjectNameLength} characters long.`,
+    );
+    exit(1);
+  }
+}
+
+function getMaximumProjectNameLength(): number {
   // Railway has a limit of 32 characters for the service name.
   // https://docs.railway.com/reference/services#constraints
   const maximumServiceNameLength = 32;
   const suffixes = ["-server", "-client", "-db"];
   const maximumSuffixLength = Math.max(...suffixes.map((s) => s.length));
-  const maximumBasenameLength = maximumServiceNameLength - maximumSuffixLength;
-  const basename = thisCommand.args[0];
-
-  if (basename.length > maximumBasenameLength) {
-    waspSays(
-      `The basename "${basename}" is too long (${basename.length} characters). It must be at most ${maximumBasenameLength} characters long.`,
-    );
-    exit(1);
-  }
+  return maximumServiceNameLength - maximumSuffixLength;
 }

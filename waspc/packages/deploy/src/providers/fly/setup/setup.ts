@@ -1,13 +1,12 @@
-import crypto from "crypto";
-import { $, cd, question } from "zx";
+import { $, chalk, question } from "zx";
+import { makeIdempotentWaspBuild } from "../../../common/build.js";
+import { getCommandName } from "../../../common/commander.js";
+import { generateRandomJwtSecret } from "../../../common/jwt.js";
+import { waspSays } from "../../../common/output.js";
 import {
-  boldText,
   cdToClientBuildDir,
   cdToServerBuildDir,
-  getCommandHelp,
-  makeIdempotent,
-  waspSays,
-} from "../../../helpers.js";
+} from "../../../common/waspProject.js";
 import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
 import {
   clientTomlExistsInProject,
@@ -33,11 +32,7 @@ export async function setup(
 ): Promise<void> {
   waspSays("Setting up your Wasp app with Fly.io!");
 
-  const buildWasp = makeIdempotent(async () => {
-    waspSays("Building your Wasp app...");
-    cd(options.waspProjectDir);
-    await $`${options.waspExe} build`;
-  });
+  const buildWasp = makeIdempotentWaspBuild(options);
 
   const tomlFilePaths = getTomlFilePaths(options);
   const deploymentInfo = createDeploymentInfo(
@@ -62,7 +57,7 @@ export async function setup(
   }
 
   waspSays(
-    `Don't forget to create your database by running "${getCommandHelp(createFlyDbCommand)}".`,
+    `Don't forget to create your database by running "${getCommandName(createFlyDbCommand)}".`,
   );
 }
 
@@ -90,9 +85,9 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
 
   if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
     await question(`\n⚠️  There was a possible issue setting up your server app.
-We tried modifying your server fly.toml to set ${boldText(
+We tried modifying your server fly.toml to set ${chalk.bold(
       "min_machines_running = 1",
-    )}, but couldn't find the option ${boldText("min_machines_running")} in the fly.toml.
+    )}, but couldn't find the option ${chalk.bold("min_machines_running")} in the fly.toml.
 
 We advise that you additionaly check what is the value for "minimal number of machines running" on Fly
 for this server app and confirm that it is set to the value you are OK with.
@@ -111,9 +106,9 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
     await question(`\n⚠️  There was an issue setting up your server app.
-We tried modifying your server fly.toml to set ${boldText(
+We tried modifying your server fly.toml to set ${chalk.bold(
       `internal_port = ${serverAppPort}`,
-    )}, but couldn't find the option ${boldText("internal_port")} in the fly.toml.
+    )}, but couldn't find the option ${chalk.bold("internal_port")} in the fly.toml.
 
 This means your server app might not be accessible.
 
@@ -129,7 +124,7 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
 
-  const jwtSecret = crypto.randomBytes(32).toString("hex");
+  const jwtSecret = generateRandomJwtSecret();
 
   const secretsArgs = [
     `JWT_SECRET=${jwtSecret}`,
@@ -174,9 +169,9 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
 
   if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
     await question(`\n⚠️  There was an issue setting up your client app.
-We tried modifying your client fly.toml to set ${boldText(
+We tried modifying your client fly.toml to set ${chalk.bold(
       `internal_port = ${clientAppPort}`,
-    )}, but couldn't find the option ${boldText("internal_port")} in the fly.toml.
+    )}, but couldn't find the option ${chalk.bold("internal_port")} in the fly.toml.
 
 This means your client app might not be accessible.
 

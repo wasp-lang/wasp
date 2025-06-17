@@ -1,8 +1,13 @@
+import { confirm } from "@inquirer/prompts";
 import { exit } from "process";
-import { $, question } from "zx";
-import { getCommandHelp, isYes, waspSays } from "../../../helpers.js";
+import { $ } from "zx";
+import { getCommandName } from "../../../common/commander.js";
+import { waspSays } from "../../../common/output.js";
 import { executeFlyCommand } from "../index.js";
-import { FlyRegionListSchema, FlySecretListSchema } from "./schemas.js";
+import {
+  FlyRegionListSchema,
+  FlySecretListSchema,
+} from "./jsonOutputSchemas.js";
 
 export async function flyctlExists(): Promise<boolean> {
   try {
@@ -28,10 +33,10 @@ async function ensureUserLoggedIn(): Promise<void> {
     return;
   }
 
-  const answer = await question(
-    "flyctl is not logged into Fly.io. Would you like to log in now? ",
-  );
-  if (!isYes(answer)) {
+  const wantsToLogin = await confirm({
+    message: "flyctl is not logged into Fly.io. Would you like to log in now?",
+  });
+  if (!wantsToLogin) {
     waspSays("Ok, exiting.");
     exit(1);
   }
@@ -66,7 +71,7 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
         `Invalid region code ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`,
       );
       waspSays(
-        `You can also run "${getCommandHelp(executeFlyCommand).replace(
+        `You can also run "${getCommandName(executeFlyCommand).replace(
           "<cmd...>",
           "platform regions --context server",
         )}".`,

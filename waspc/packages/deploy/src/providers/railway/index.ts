@@ -1,19 +1,22 @@
 import { Command, Option } from "commander";
+import { WaspCliExe, WaspProjectDir } from "../../common/cliArgs.js";
 import {
-  ensureWaspDirLooksRight,
-  ensureWaspProjectDirInCmdIsAbsoluteAndPresent,
-} from "../../helpers.js";
-import { deploy as deployFn } from "./deploy/deploy.js";
+  assertValidWaspProject,
+  assertWaspProjectDirInCmdIsAbsoluteAndPresent,
+} from "../../common/waspProject.js";
+import { RailwayCliExe } from "./CommonOptions.js";
+import { deploy as deployFn } from "./deploy/index.js";
+import { RailwayProjectName } from "./DeploymentInfo.js";
 import {
-  ensureRailwayBasenameIsValid,
+  assertRailwayProjectNameIsValid,
   ensureRailwayReady,
 } from "./helpers/railwayCli.js";
 import { launch as launchFn } from "./launch/launch.js";
 import { setup as setupFn } from "./setup/setup.js";
 
 class RailwayCommand extends Command {
-  addBasenameArgument(): this {
-    return this.argument("<basename>", "base app name to use on Railway");
+  addProjectNameArgument(): this {
+    return this.argument("<project-name>", "project name to use on Railway");
   }
   addSecretsOptions(): this {
     function collect(value: string, previous: string[]) {
@@ -79,17 +82,30 @@ export function addRailwayCommand(program: Command): void {
           .default("railway"),
       )
       .option("--skip-build", "do not run `wasp build` before the command")
-      .hook("preAction", ensureRailwayBasenameIsValid)
-      .hook("preAction", ensureRailwayReady)
-      .hook("preAction", ensureWaspProjectDirInCmdIsAbsoluteAndPresent)
-      .hook("preAction", ensureWaspDirLooksRight);
+      .hook("preAction", (cmd) =>
+        ensureRailwayReady(cmd.opts().railwayExe as RailwayCliExe),
+      )
+      .hook("preAction", (cmd) =>
+        assertRailwayProjectNameIsValid(cmd.args[0] as RailwayProjectName),
+      )
+      .hook("preAction", (cmd) =>
+        assertWaspProjectDirInCmdIsAbsoluteAndPresent(
+          cmd.opts().waspProjectDir as WaspProjectDir,
+        ),
+      )
+      .hook("preAction", (cmd) =>
+        assertValidWaspProject(
+          cmd.opts().waspProjectDir as WaspProjectDir,
+          cmd.opts().waspExe as WaspCliExe,
+        ),
+      );
   });
 }
 
 function makeRailwaySetupCommand(): Command {
   return new RailwayCommand("setup")
     .description("Configure a new app on Railway")
-    .addBasenameArgument()
+    .addProjectNameArgument()
     .addSecretsOptions()
     .option(
       "--existing-project-id [projectId]",
@@ -101,7 +117,7 @@ function makeRailwaySetupCommand(): Command {
 function makeRailwayDeployCommand(): Command {
   return new RailwayCommand("deploy")
     .description("Deploys the app to Railway")
-    .addBasenameArgument()
+    .addProjectNameArgument()
     .option("--skip-client", "do not deploy the web client")
     .option("--skip-server", "do not deploy the server")
     .action(deployFn);
@@ -110,7 +126,7 @@ function makeRailwayDeployCommand(): Command {
 function makeRailwayLaunchCommand(): Command {
   return new RailwayCommand("launch")
     .description("Launch a new app on Railway (calls setup and deploy)")
-    .addBasenameArgument()
+    .addProjectNameArgument()
     .addSecretsOptions()
     .option(
       "--existing-project-id [projectId]",

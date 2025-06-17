@@ -1,6 +1,8 @@
 import { exit } from "process";
-import { $, cd } from "zx";
-import { buildDirExists, waspSays } from "../../../helpers.js";
+import { $ } from "zx";
+import { createCommandWithDirectory } from "../../../common/cli.js";
+import { waspSays } from "../../../common/output.js";
+import { buildDirExists } from "../../../common/waspProject.js";
 import { CommonOps, getCommonOps } from "../helpers/CommonOps.js";
 import {
   deleteLocalToml,
@@ -25,8 +27,12 @@ export async function cmd(
 
   if (!buildDirExists(options.waspProjectDir)) {
     waspSays("Building your Wasp app...");
-    cd(options.waspProjectDir);
-    await $`${options.waspExe} build`;
+
+    const waspCli = createCommandWithDirectory(
+      options.waspExe,
+      options.waspProjectDir,
+    );
+    await waspCli(["build"]);
   }
 
   const tomlFilePaths = getTomlFilePaths(options);

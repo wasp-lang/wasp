@@ -1,4 +1,8 @@
-import { cdToClientBuildDir, cdToServerBuildDir } from "../../../helpers.js";
+import { WaspProjectDir } from "../../../common/cliArgs.js";
+import {
+  cdToClientBuildDir,
+  cdToServerBuildDir,
+} from "../../../common/waspProject.js";
 import {
   clientTomlExistsInProject,
   copyLocalClientTomlToProject,
@@ -25,7 +29,7 @@ export enum ContextOption {
 
 export function getCommonOps(
   context: ContextOption,
-  waspProjectDir: string,
+  waspProjectDir: WaspProjectDir,
   paths: TomlFilePaths,
 ): CommonOps {
   const commonOps: Record<ContextOption, CommonOps> = {
@@ -36,7 +40,7 @@ export function getCommonOps(
 }
 
 function createClientCommonOps(
-  waspProjectDir: string,
+  waspProjectDir: WaspProjectDir,
   paths: TomlFilePaths,
 ): CommonOps {
   return {
@@ -50,7 +54,7 @@ function createClientCommonOps(
 }
 
 function createServerCommonOps(
-  waspProjectDir: string,
+  waspProjectDir: WaspProjectDir,
   paths: TomlFilePaths,
 ): CommonOps {
   return {

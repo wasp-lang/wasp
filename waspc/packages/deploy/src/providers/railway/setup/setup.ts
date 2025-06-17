@@ -1,55 +1,55 @@
-import crypto from "crypto";
-import { $, cd } from "zx";
+import { $ } from "zx";
 
+import { makeIdempotentWaspBuild } from "../../../common/build.js";
+import { createCommandWithDirectory } from "../../../common/cli.js";
+import { generateRandomJwtSecret } from "../../../common/jwt.js";
+import { waspSays } from "../../../common/output.js";
 import {
-  cdToClientBuildDir,
-  cdToServerBuildDir,
-  waspSays,
-} from "../../../helpers.js";
-import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
+  getClientBuildDir,
+  getServerBuildDir,
+} from "../../../common/waspProject.js";
+import {
+  ClientServiceName,
+  createDeploymentInfo,
+  DeploymentInfo,
+  RailwayProjectName,
+  ServerServiceName,
+} from "../DeploymentInfo.js";
 import { clientAppPort, serverAppPort } from "../helpers/ports.js";
-import { ensureProjectForCurrentDir } from "../helpers/project/index.js";
-import { getServiceUrl } from "../helpers/serviceUrl.js";
+import { ensureProjectForDirectory } from "../helpers/project/index.js";
+import { generateServiceUrl } from "../helpers/serviceUrl.js";
 import { SetupOptions } from "./SetupOptions.js";
 
 export async function setup(
-  baseName: string,
+  projectName: RailwayProjectName,
   options: SetupOptions,
 ): Promise<void> {
   waspSays("Setting up your Wasp app with Railway!");
 
-  // Railway CLI links projects to the current directory
-  cd(options.waspProjectDir);
+  const deploymentInfo = createDeploymentInfo(projectName, options);
 
-  const deploymentInfo = createDeploymentInfo(baseName, options);
+  const project = await ensureProjectForDirectory(
+    options.waspProjectDir,
+    deploymentInfo,
+  );
 
-  const project = await ensureProjectForCurrentDir(deploymentInfo);
-
-  const buildWasp = async () => {
-    if (options.skipBuild) {
-      return;
-    }
-
-    waspSays("Building your Wasp app...");
-    cd(options.waspProjectDir);
-    await $`${options.waspExe} build`;
-  };
+  const buildWasp = makeIdempotentWaspBuild(options);
 
   await buildWasp();
 
-  if (project.doesServiceExist(deploymentInfo.dbName)) {
+  if (project.doesServiceExist(deploymentInfo.dbServiceName)) {
     waspSays("Postgres service already exists. Skipping database setup.");
   } else {
     await setupDb(deploymentInfo);
   }
 
-  if (project.doesServiceExist(deploymentInfo.clientName)) {
+  if (project.doesServiceExist(deploymentInfo.clientServiceName)) {
     waspSays("Client service already exists. Skipping client setup.");
   } else {
     await setupClient(deploymentInfo);
   }
 
-  if (project.doesServiceExist(deploymentInfo.serverName)) {
+  if (project.doesServiceExist(deploymentInfo.serverServiceName)) {
     waspSays("Server service already exists. Skipping server setup.");
   } else {
     await setupServer(deploymentInfo);
@@ -61,65 +61,85 @@ async function setupDb({
 }: DeploymentInfo<SetupOptions>): Promise<void> {
   waspSays("Setting up database");
 
-  await $`${options.railwayExe} add -d postgres`;
+  const railwayCli = createCommandWithDirectory(
+    options.railwayExe,
+    options.waspProjectDir,
+  );
+  await railwayCli(["add", "-d", "postgres"]);
 }
 
 async function setupServer({
   options,
-  serverName,
-  clientName,
-  dbName,
+  serverServiceName,
+  clientServiceName,
+  dbServiceName,
 }: DeploymentInfo<SetupOptions>): Promise<void> {
-  waspSays(`Setting up server app with name ${serverName}`);
+  waspSays(`Setting up server app with name ${serverServiceName}`);
 
-  cdToServerBuildDir(options.waspProjectDir);
+  // The client service needs a URL so it can be referenced in the
+  // server service env variables.
+  await generateServiceUrl(clientServiceName, clientAppPort, options);
 
-  // Making sure the client URL is available before setting up the server
-  // to have the ${{clientName.RAILWAY_PUBLIC_DOMAIN} variable available.
-  await getServiceUrl(options.railwayExe, clientName, clientAppPort);
+  const serverBuildDir = getServerBuildDir(options.waspProjectDir);
+  const railwayCli = createCommandWithDirectory(
+    options.railwayExe,
+    serverBuildDir,
+  );
 
-  const clientUrl = `https://\${{${clientName}.RAILWAY_PUBLIC_DOMAIN}}`;
-  const serverUrl = "https://${{RAILWAY_PUBLIC_DOMAIN}}";
-  const jwtSecret = crypto.randomBytes(32).toString("hex");
+  const clientUrl = getRailwayPublicUrlReference(clientServiceName);
+  const serverUrl = getRailwayPublicUrlReference();
+  const jwtSecret = generateRandomJwtSecret();
   const addCmdArgs = [
-    "add",
-    ["--service", serverName],
+    ["--service", serverServiceName],
     ["--variables", `PORT=${serverAppPort}`],
     ["--variables", `JWT_SECRET=${jwtSecret}`],
     ["--variables", `WASP_SERVER_URL=${serverUrl}`],
     ["--variables", `WASP_WEB_CLIENT_URL=${clientUrl}`],
-    ["--variables", `DATABASE_URL=\${{${dbName}.DATABASE_URL}}`],
+    ["--variables", `DATABASE_URL=\${{${dbServiceName}.DATABASE_URL}}`],
     ...options.serverSecret.map((secret) => ["--variables", secret]),
   ].flat();
+  await railwayCli(["add", ...addCmdArgs]);
 
-  await $`${options.railwayExe} ${addCmdArgs}`;
-
-  // Making sure the server URL is available before deploying the server
-  // to have the ${{RAILWAY_PUBLIC_DOMAIN}} variable available.
-  await getServiceUrl(options.railwayExe, serverName, clientAppPort);
+  // The server service needs a URL so it can be referenced in the
+  // env variables.
+  await generateServiceUrl(serverServiceName, serverAppPort, options);
 
   waspSays("Server setup complete!");
 }
 
+// Uses the special Railway env variable "RAILWAY_PUBLIC_DOMAIN"
+// to reference the public domain of a service.
+function getRailwayPublicUrlReference(
+  serviceName?: ClientServiceName | ServerServiceName,
+): string {
+  const publicDomainEnvVarName = serviceName
+    ? `${serviceName}.RAILWAY_PUBLIC_DOMAIN`
+    : "RAILWAY_PUBLIC_DOMAIN";
+
+  return "https://${{" + publicDomainEnvVarName + "}}";
+}
+
 async function setupClient({
   options,
-  clientName,
+  clientServiceName,
 }: DeploymentInfo<SetupOptions>): Promise<void> {
-  waspSays(`Setting up client app with name ${clientName}`);
+  waspSays(`Setting up client app with name ${clientServiceName}`);
 
-  cdToClientBuildDir(options.waspProjectDir);
+  const clientBuildDir = getClientBuildDir(options.waspProjectDir);
+  const railwayCli = createCommandWithDirectory(
+    options.railwayExe,
+    clientBuildDir,
+  );
 
   // Having a Staticfile tells Railway to use a static file server.
-  await $`touch Staticfile`;
+  await $({ cwd: clientBuildDir })`touch Staticfile`;
 
   const addCmdArgs = [
-    "add",
-    ["--service", clientName],
+    ["--service", clientServiceName],
     ["--variables", `PORT=${clientAppPort}`],
     ...options.clientSecret.map((secret) => ["--variables", secret]),
   ].flat();
-
-  await $`${options.railwayExe} ${addCmdArgs}`;
+  await railwayCli(["add", ...addCmdArgs]);
 
   waspSays("Client setup complete!");
 }

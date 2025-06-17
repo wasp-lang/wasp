@@ -1,10 +1,12 @@
 import { exit } from "process";
 
-import { waspSays } from "../../../../helpers.js";
-import { DeploymentInfo } from "../../DeploymentInfo.js";
+import { WaspProjectDir } from "../../../../common/cliArgs.js";
+import { waspSays } from "../../../../common/output.js";
+import { RailwayCliExe } from "../../CommonOptions.js";
+import { DeploymentInfo, RailwayProjectName } from "../../DeploymentInfo.js";
 import { SetupOptions } from "../../setup/SetupOptions.js";
 import {
-  getProjectForCurrentDir,
+  getProjectForDirectory,
   getProjects,
   initProject,
   linkProject,
@@ -12,49 +14,54 @@ import {
 } from "./cli.js";
 
 export enum ProjectStatus {
-  EXISTING_PROJECT_LINKED = "EXISTING_PROJECT_LINKED",
-  LINK_PROJECT = "LINK_PROJECT",
-  NEW_PROJECT = "NEW_PROJECT",
-  EXISTING_PROJECT_DIFFERENT_NAME_ERROR = "EXISTING_PROJECT_DIFFERENT_NAME_ERROR",
-  PROJECT_WITH_ID_NOT_FOUND_ERROR = "PROJECT_WITH_ID_NOT_FOUND_ERROR",
-  PROJECT_WITH_NAME_EXISTS_ERROR = "PROJECT_WITH_NAME_EXISTS_ERROR",
+  EXISTING_PROJECT_ALREADY_LINKED = "EXISTING_PROJECT_ALREADY_LINKED",
+  EXISTING_PROJECT_LINK_PROJECT = "EXISTING_PROJECT_LINK_PROJECT",
+  CREATE_NEW_PROJECT = "CREATE_NEW_PROJECT",
+  ERROR_EXISTING_PROJECT_DIFFERENT_NAME = "ERROR_EXISTING_PROJECT_DIFFERENT_NAME",
+  ERROR_PROJECT_WITH_ID_NOT_FOUND = "ERROR_PROJECT_WITH_ID_NOT_FOUND",
+  ERROR_PROJECT_WITH_NAME_EXISTS = "ERROR_PROJECT_WITH_NAME_EXISTS",
 }
 
-export async function ensureProjectForCurrentDir(
+export async function ensureProjectForDirectory(
+  waspProjectDirPath: WaspProjectDir,
   deploymentInfo: DeploymentInfo<SetupOptions>,
 ): Promise<RailwayProject> {
-  const { baseName, options } = deploymentInfo;
+  const { projectName, options } = deploymentInfo;
 
-  const { status, project } = await getProject(options, baseName);
+  const { status, project } = await getProjectStatus(
+    projectName,
+    waspProjectDirPath,
+    options,
+  );
 
   switch (status) {
-    case ProjectStatus.EXISTING_PROJECT_LINKED:
+    case ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED:
       waspSays(
-        `Project with name "${baseName}" already linked. Skipping project creation.`,
+        `Project with name "${projectName}" already linked. Skipping project creation.`,
       );
       return project;
 
-    case ProjectStatus.LINK_PROJECT:
+    case ProjectStatus.EXISTING_PROJECT_LINK_PROJECT:
       waspSays(`Linking project with name "${project.name}" to this directory`);
-      return linkProject(deploymentInfo, project);
+      return linkProject(project, deploymentInfo);
 
-    case ProjectStatus.NEW_PROJECT:
-      waspSays(`Setting up Railway project with name "${baseName}"`);
+    case ProjectStatus.CREATE_NEW_PROJECT:
+      waspSays(`Setting up Railway project with name "${projectName}"`);
       return initProject(deploymentInfo);
 
-    case ProjectStatus.EXISTING_PROJECT_DIFFERENT_NAME_ERROR:
+    case ProjectStatus.ERROR_EXISTING_PROJECT_DIFFERENT_NAME:
       waspSays(
         `Project with a different name already linked to this directory: "${project.name}". Run "railway unlink" to unlink it.`,
       );
       return exit(1);
 
-    case ProjectStatus.PROJECT_WITH_ID_NOT_FOUND_ERROR:
+    case ProjectStatus.ERROR_PROJECT_WITH_ID_NOT_FOUND:
       waspSays(
         `Project with ID "${options.existingProjectId}" does not exist.`,
       );
       return exit(1);
 
-    case ProjectStatus.PROJECT_WITH_NAME_EXISTS_ERROR:
+    case ProjectStatus.ERROR_PROJECT_WITH_NAME_EXISTS:
       waspSays(
         `Project with name "${project.name}" already exists. Add "--existing-project-id ${project.id}" option to this command to link it or use a different name.`,
       );
@@ -66,21 +73,53 @@ export async function ensureProjectForCurrentDir(
   }
 }
 
-async function getProject(options: SetupOptions, baseName: string) {
-  const projectLinkedToDir = await getProjectForCurrentDir(options.railwayExe);
+async function getProjectStatus(
+  projectName: RailwayProjectName,
+  waspProjectDirPath: WaspProjectDir,
+  options: SetupOptions,
+): Promise<
+  | {
+      status: ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED;
+      project: RailwayProject;
+    }
+  | {
+      status: ProjectStatus.EXISTING_PROJECT_LINK_PROJECT;
+      project: RailwayProject;
+    }
+  | {
+      status: ProjectStatus.CREATE_NEW_PROJECT;
+      project: null;
+    }
+  | {
+      status: ProjectStatus.ERROR_EXISTING_PROJECT_DIFFERENT_NAME;
+      project: RailwayProject;
+    }
+  | {
+      status: ProjectStatus.ERROR_PROJECT_WITH_ID_NOT_FOUND;
+      project: null;
+    }
+  | {
+      status: ProjectStatus.ERROR_PROJECT_WITH_NAME_EXISTS;
+      project: RailwayProject;
+    }
+> {
+  const projectLinkedToDir = await getProjectForDirectory(
+    options.railwayExe,
+    waspProjectDirPath,
+  );
 
   // Project already linked to this directory
   if (projectLinkedToDir !== null) {
-    if (projectLinkedToDir.name === baseName) {
+    if (projectLinkedToDir.name === projectName) {
       return {
-        status: ProjectStatus.EXISTING_PROJECT_LINKED,
+        status: ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED,
         project: projectLinkedToDir,
-      } as const;
+      };
     } else {
       return {
-        status: ProjectStatus.EXISTING_PROJECT_DIFFERENT_NAME_ERROR,
+        status: ProjectStatus.ERROR_EXISTING_PROJECT_DIFFERENT_NAME,
         project: projectLinkedToDir,
-      } as const;
+      };
     }
   }
 
@@ -92,34 +131,34 @@ async function getProject(options: SetupOptions, baseName: string) {
     );
     if (projectById !== null) {
       return {
-        status: ProjectStatus.LINK_PROJECT,
+        status: ProjectStatus.EXISTING_PROJECT_LINK_PROJECT,
         project: projectById,
-      } as const;
+      };
     } else {
       return {
-        status: ProjectStatus.PROJECT_WITH_ID_NOT_FOUND_ERROR,
+        status: ProjectStatus.ERROR_PROJECT_WITH_ID_NOT_FOUND,
         project: null,
-      } as const;
+      };
     }
   }
 
   // Trying to create a new project
-  const projectByName = await getProjectByName(options.railwayExe, baseName);
+  const projectByName = await getProjectByName(options.railwayExe, projectName);
   if (projectByName !== null) {
     return {
-      status: ProjectStatus.PROJECT_WITH_NAME_EXISTS_ERROR,
+      status: ProjectStatus.ERROR_PROJECT_WITH_NAME_EXISTS,
       project: projectByName,
-    } as const;
+    };
   } else {
     return {
-      status: ProjectStatus.NEW_PROJECT,
+      status: ProjectStatus.CREATE_NEW_PROJECT,
       project: null,
-    } as const;
+    };
   }
 }
 
 async function getProjectById(
-  railwayExe: string,
+  railwayExe: RailwayCliExe,
   remoteProjectId: string,
 ): Promise<RailwayProject | null> {
   const projects = await getProjects(railwayExe);
@@ -127,7 +166,7 @@ async function getProjectById(
 }
 
 async function getProjectByName(
-  railwayExe: string,
+  railwayExe: RailwayCliExe,
   name: string,
 ): Promise<RailwayProject | null> {
   const projects = await getProjects(railwayExe);

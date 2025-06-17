@@ -1,8 +1,11 @@
 import { exit } from "process";
-import { $ } from "zx";
 
-import { waspSays } from "../../../helpers.js";
-import { RailwayCliDomainSchema } from "../schemas.js";
+import { createCommandWithDirectory } from "../../../common/cli.js";
+import { WaspProjectDir } from "../../../common/cliArgs.js";
+import { waspSays } from "../../../common/output.js";
+import { RailwayCliExe } from "../CommonOptions.js";
+import { ClientServiceName, ServerServiceName } from "../DeploymentInfo.js";
+import { RailwayCliDomainSchema } from "../jsonOutputSchemas.js";
 
 export enum ServiceUrlStatus {
   URL_CREATED = "URL_CREATED",
@@ -10,15 +13,18 @@ export enum ServiceUrlStatus {
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
 
-export async function getServiceUrl(
-  railwayExe: string,
-  serviceName: string,
+export async function generateServiceUrl(
+  serviceName: ClientServiceName | ServerServiceName,
   port: number,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<string> {
   const { status, output } = await getServiceUrlStatus(
-    railwayExe,
     serviceName,
     port,
+    options,
   );
 
   switch (status) {
@@ -39,29 +45,55 @@ export async function getServiceUrl(
 }
 
 async function getServiceUrlStatus(
-  railwayExe: string,
-  serviceName: string,
+  serviceName: ClientServiceName | ServerServiceName,
   port: number,
-) {
-  const result =
-    await $`${railwayExe} domain --service "${serviceName}" --port ${port} --json`;
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
+): Promise<
+  | {
+      status: ServiceUrlStatus.URL_CREATED;
+      output: string;
+    }
+  | {
+      status: ServiceUrlStatus.URL_ALREADY_EXISTS;
+      output: string;
+    }
+  | {
+      status: ServiceUrlStatus.UNKNOWN_ERROR;
+      output?: undefined;
+    }
+> {
+  const railwayCli = createCommandWithDirectory(
+    options.railwayExe,
+    options.waspProjectDir,
+  );
+  const result = await railwayCli([
+    "domain",
+    "--service",
+    serviceName,
+    "--port",
+    port.toString(),
+    "--json",
+  ]);
 
   if (result.exitCode !== 0) {
     return {
       status: ServiceUrlStatus.UNKNOWN_ERROR,
-    } as const;
+    };
   }
 
   if (result.stdout.includes("Domains already exists on the service:")) {
     return {
       status: ServiceUrlStatus.URL_ALREADY_EXISTS,
       output: result.stdout,
-    } as const;
+    };
   } else {
     return {
       status: ServiceUrlStatus.URL_CREATED,
       output: result.stdout,
-    } as const;
+    };
   }
 }
 

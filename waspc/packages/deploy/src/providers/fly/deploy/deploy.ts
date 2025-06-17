@@ -1,13 +1,16 @@
 import { exit } from "process";
-import { $, cd, fs } from "zx";
+import { $, fs } from "zx";
+import { makeIdempotentWaspBuild } from "../../../common/build.js";
+import {
+  getServerUrlFromEnv,
+  serverUrlEnvVarName,
+} from "../../../common/clientApp.js";
+import { getCommandName } from "../../../common/commander.js";
+import { displayWaspRocketImage, waspSays } from "../../../common/output.js";
 import {
   cdToClientBuildDir,
   cdToServerBuildDir,
-  displayWaspRocketImage,
-  getCommandHelp,
-  makeIdempotent,
-  waspSays,
-} from "../../../helpers.js";
+} from "../../../common/waspProject.js";
 import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
 import { secretExists } from "../helpers/flyctlHelpers.js";
 import {
@@ -27,15 +30,7 @@ import { DeployOptions } from "./DeployOptions.js";
 export async function deploy(options: DeployOptions): Promise<void> {
   waspSays("Deploying your Wasp app to Fly.io!");
 
-  const buildWasp = makeIdempotent(async () => {
-    if (options.skipBuild) {
-      return;
-    }
-
-    waspSays("Building your Wasp app...");
-    cd(options.waspProjectDir);
-    await $`${options.waspExe} build`;
-  });
+  const buildWasp = makeIdempotentWaspBuild(options);
 
   const tomlFilePaths = getTomlFilePaths(options);
 
@@ -45,7 +40,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
     waspSays(
       `${
         tomlFilePaths.serverTomlPath
-      } missing. Skipping server deploy. Perhaps you need to run "${getCommandHelp(
+      } missing. Skipping server deploy. Perhaps you need to run "${getCommandName(
         flySetupCommand,
       )}" first?`,
     );
@@ -67,7 +62,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
     waspSays(
       `${
         tomlFilePaths.clientTomlPath
-      } missing. Skipping client deploy. Perhaps you need to run "${getCommandHelp(
+      } missing. Skipping client deploy. Perhaps you need to run "${getCommandName(
         flySetupCommand,
       )}" first?`,
     );
@@ -131,14 +126,12 @@ async function deployClient(
 
   waspSays("Building web client for production...");
   waspSays(
-    "If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com wasp deploy fly deploy",
+    `If you configured a custom domain for the server, you should run the command with an env variable: ${serverUrlEnvVarName}=https://serverUrl.com wasp deploy fly deploy`,
   );
 
-  const serverUrl = process.env.REACT_APP_API_URL
-    ? process.env.REACT_APP_API_URL
-    : deploymentInfo.serverUrl;
+  const serverUrl = getServerUrlFromEnv(deploymentInfo.serverUrl);
   await $`npm install`;
-  await $`REACT_APP_API_URL=${serverUrl} npm run build`;
+  await $`${serverUrlEnvVarName}=${serverUrl} npm run build`;
 
   // Creates the necessary Dockerfile for deploying static websites to Fly.io.
   // Adds dummy .dockerignore to supress CLI question.

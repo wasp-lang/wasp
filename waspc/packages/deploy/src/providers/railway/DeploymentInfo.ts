@@ -1,22 +1,31 @@
+import { Branded } from "../../common/branded.js";
 import { CommonOptions } from "./CommonOptions.js";
 
+export type RailwayProjectName = Branded<string, "RailwayProjectName">;
+export type ClientServiceName = Branded<string, "ClientServiceName">;
+export type ServerServiceName = Branded<string, "ServerServiceName">;
+export type DbServiceName = Branded<string, "DbServiceName">;
+
 export type DeploymentInfo<CommandOptions extends CommonOptions> = Readonly<{
-  baseName: string;
+  projectName: RailwayProjectName;
   options: CommandOptions;
-  clientName: string;
-  serverName: string;
-  dbName: string;
+  clientServiceName: ClientServiceName;
+  serverServiceName: ServerServiceName;
+  dbServiceName: DbServiceName;
 }>;
 
+// Railway doesn't allow us to choose the database service name.
+const hardcodedRailwayDbServiceName = "Postgres" as DbServiceName;
+
 export function createDeploymentInfo<CommandOptions extends CommonOptions>(
-  baseName: string,
+  projectName: RailwayProjectName,
   options: CommandOptions,
 ): DeploymentInfo<CommandOptions> {
   return Object.freeze({
-    baseName,
+    projectName: projectName as RailwayProjectName,
     options,
-    clientName: `${baseName}-client`,
-    serverName: `${baseName}-server`,
-    dbName: `Postgres`,
+    clientServiceName: `${projectName}-client` as ClientServiceName,
+    serverServiceName: `${projectName}-server` as ServerServiceName,
+    dbServiceName: hardcodedRailwayDbServiceName,
   });
 }

@@ -1,6 +1,7 @@
 import { exit } from "process";
 import { $, question } from "zx";
-import { getCommandHelp, waspSays } from "../../../helpers.js";
+import { getCommandName } from "../../../common/commander.js";
+import { waspSays } from "../../../common/output.js";
 import { createDeploymentInfo } from "../DeploymentInfo.js";
 import {
   getInferredBasenameFromServerToml,
@@ -22,7 +23,7 @@ export async function createDb(
     waspSays(
       `${
         tomlFilePaths.serverTomlPath
-      } missing. Skipping DB creation. Perhaps you need to run "${getCommandHelp(
+      } missing. Skipping DB creation. Perhaps you need to run "${getCommandName(
         flySetupCommand,
       )}" first?`,
     );
@@ -64,6 +65,6 @@ export async function createDb(
   );
 
   waspSays(
-    `Don't forget to deploy your app by running "${getCommandHelp(flyDeployCommand)}".`,
+    `Don't forget to deploy your app by running "${getCommandName(flyDeployCommand)}".`,
   );
 }

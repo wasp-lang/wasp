@@ -1,5 +1,6 @@
 import { exit } from "process";
-import { getCommandHelp, waspSays } from "../../../helpers.js";
+import { getCommandName } from "../../../common/commander.js";
+import { waspSays } from "../../../common/output.js";
 import { createDb } from "../createDb/createDb.js";
 import { deploy } from "../deploy/deploy.js";
 import { DeployOptions } from "../deploy/DeployOptions.js";
@@ -38,7 +39,7 @@ export async function launch(
     await setup(basename, region, options);
   } catch (e) {
     waspSays(
-      `There was an error running "${getCommandHelp(
+      `There was an error running "${getCommandName(
         flySetupCommand,
       )}". Please review the error and try again (if appropriate).`,
     );
@@ -49,7 +50,7 @@ export async function launch(
     await createDb(region, options);
   } catch (e) {
     waspSays(
-      `There was an error running "${getCommandHelp(
+      `There was an error running "${getCommandName(
         createFlyDbCommand,
       )}". Please review the error and try again (if appropriate).`,
     );
@@ -61,7 +62,7 @@ export async function launch(
     await deploy(deployOptions);
   } catch (e) {
     waspSays(
-      `There was an error running "${getCommandHelp(
+      `There was an error running "${getCommandName(
         flyDeployCommand,
       )}". Please review the error and try again (if appropriate).`,
     );
