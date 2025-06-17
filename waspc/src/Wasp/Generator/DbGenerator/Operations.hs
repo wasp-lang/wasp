@@ -12,7 +12,7 @@ module Wasp.Generator.DbGenerator.Operations
   )
 where
 
-import Control.Concurrent (Chan, dupChan, newChan)
+import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Catch (catch)
 import Control.Monad.Extra (whenM)
@@ -37,7 +37,6 @@ import Wasp.Generator.DbGenerator.Common
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
-import qualified Wasp.Job as J
 import Wasp.Job.IO
   ( collectJobTextOutputUntilExitReceived,
     printJobMsgsUntilExitReceived,
@@ -51,7 +50,7 @@ import qualified Wasp.Util.IO as IOUtil
 data DbConnectionTestResult
   = DbConnectionSuccess
   | DbNotCreated
-  | DbConnectionFailure (Chan J.JobMessage)
+  | DbConnectionFailure
   deriving (Eq)
 
 -- | Migrates in the generated project context and then copies the migrations dir back
@@ -157,8 +156,6 @@ testDbConnection ::
   IO DbConnectionTestResult
 testDbConnection genProjectDir = do
   chan <- newChan
-  chanCopy <- dupChan chan
-
   exitCode <- DbJobs.dbExecuteTest genProjectDir chan
 
   case exitCode of
@@ -170,16 +167,16 @@ testDbConnection genProjectDir = do
       return $
         if databaseNotCreated
           then DbNotCreated
-          else DbConnectionFailure chanCopy
+          else DbConnectionFailure
 
 -- Prisma error code for "Database not created" is P1003.
 prismaErrorContainsDbNotCreatedError :: T.Text -> Bool
 prismaErrorContainsDbNotCreatedError text = text TR.=~ ("\\bP1003\\b" :: String)
 
-isDbConnectionPossible :: DbConnectionTestResult -> Either (Chan J.JobMessage) ()
-isDbConnectionPossible DbConnectionSuccess = Right ()
-isDbConnectionPossible DbNotCreated = Right ()
-isDbConnectionPossible (DbConnectionFailure chan) = Left chan
+isDbConnectionPossible :: DbConnectionTestResult -> Bool
+isDbConnectionPossible DbConnectionSuccess = True
+isDbConnectionPossible DbNotCreated = True
+isDbConnectionPossible _ = False
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient projectRootDir = do

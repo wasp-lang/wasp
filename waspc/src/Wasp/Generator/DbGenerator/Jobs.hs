@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 module Wasp.Generator.DbGenerator.Jobs
   ( migrateDev,
     migrateDiff,
@@ -14,15 +16,13 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import System.Environment (getEnvironment)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJobWithEnv)
+import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
-import Wasp.Project.Env (readDotEnvServer)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectRootDir migrateArgs =
@@ -106,15 +106,13 @@ reset projectRootDir =
 seed :: Path' Abs (Dir ProjectRootDir) -> String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
 seed projectRootDir seedName =
-  runPrismaCommandAsJob
-    waspProjectDir
+  runPrismaCommandAsJobWithExtraEnv
     serverDir
-    []
     [(dbSeedNameEnvVarName, seedName)]
+    projectRootDir
     ["db", "seed"]
   where
     serverDir = projectRootDir </> serverRootDirInProjectRootDir
-    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
 
 -- | Checks if the DB is running and connectable by running
 -- `prisma db execute --stdin --schema <path to db schema>`.
@@ -124,9 +122,8 @@ seed projectRootDir seedName =
 -- SQL command, which works perfectly for checking if the database is running.
 dbExecuteTest :: Path' Abs (Dir ProjectRootDir) -> J.Job
 dbExecuteTest projectRootDir =
-  runPrismaCommandAsJobWithServerEnv waspProjectDir projectRootDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
+  runPrismaCommandAsJobFromWaspServerDir projectRootDir ["db", "execute", "--stdin", "--schema", SP.fromAbsFile schema]
   where
-    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
@@ -155,34 +152,28 @@ generatePrismaClient projectRootDir =
 
 runPrismaCommandAsJobFromWaspServerDir :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
 runPrismaCommandAsJobFromWaspServerDir projectRootDir cmdArgs =
-  runPrismaCommandAsJobWithServerEnv waspProjectDir serverDir cmdArgs
+  runPrismaCommandAsJobWithExtraEnv serverDir [] projectRootDir cmdArgs
   where
+    -- We must run our Prisma commands from the server dir for Prisma
+    -- to pick up our .env file there like before.  In the future, we might want
+    -- to reconsider how Prisma and the server env vars interact and change
+    -- this. Text copied from: https://github.com/wasp-lang/wasp/pull/1662
     serverDir = projectRootDir </> serverRootDirInProjectRootDir
-    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
 
-runPrismaCommandAsJobWithServerEnv :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir a) -> [String] -> J.Job
-runPrismaCommandAsJobWithServerEnv waspProjectDir fromDir cmdArgs chan = do
-  serverEnv <- readDotEnvServer waspProjectDir
-  runPrismaCommandAsJob waspProjectDir fromDir serverEnv [] cmdArgs chan
-
-runPrismaCommandAsJob ::
-  Path' Abs (Dir WaspProjectDir) ->
+runPrismaCommandAsJobWithExtraEnv ::
   Path' Abs (Dir a) ->
   [(String, String)] ->
-  [(String, String)] ->
+  Path' Abs (Dir ProjectRootDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJob waspProjectDir fromDir fallbackEnvVars extraEnvVars cmdArgs chan = do
-  currentEnvVars <- getEnvironment
-  -- Haskell will use the first value for variable name it finds. Therefore, env
-  -- vars with more precedence (`export VAR=VALUE` or inline `VAR=VALUE
-  -- command`) should come first. Env vars read from `.env` file should come
-  -- last.
-  let envVars = extraEnvVars ++ currentEnvVars ++ fallbackEnvVars
-  runNodeCommandAsJobWithEnv envVars fromDir prisma cmdArgs J.Db chan
+runPrismaCommandAsJobWithExtraEnv fromDir envVars projectRootDir cmdArgs =
+  runNodeCommandAsJobWithExtraEnv envVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
-    prisma = absPrismaExecutableFp waspProjectDir
+    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
 
+-- | NOTE: The expectation is that `npm install` was already executed
+-- such that we can use the locally installed package.
+-- This assumption is ok since it happens during compilation now.
 absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
 absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
   where
