@@ -43,9 +43,11 @@ buildStart = do
   -- Right now we just assume it is running and let Prisma fail if it is not. It
   -- is not easy for us to do the same check as in other commands
   -- (`DBConnecionEstablished <- require`), because that needs a built Prisma
-  -- schema, and currently we do that inside the Dockerfile. We might not have
-  -- access to one in the `.wasp/build`, only in `.wasp/out` (which is not built
-  -- for this command).
+  -- schema, and currently we do that inside the Dockerfile, not in the
+  -- `.wasp/build` folder, like the `wasp start` command does.
+  -- It is not a big problem right now, because Prisma will fail shortly after
+  -- the server starts if the DB is not running anyway, and with a very clear
+  -- error message that we print.
 
   let (appName, _) = ASV.getApp appSpec
   let imageName = makeAppImageName waspProjectDir appName
