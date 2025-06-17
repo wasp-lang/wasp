@@ -380,7 +380,6 @@ library
     Wasp.Project.Analyze
     Wasp.Project.Common
     Wasp.Project.Db
-    Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Db.Migrations

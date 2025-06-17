@@ -21,9 +21,8 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.Project.Db.Dev (makeDevDbUniqueId)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
@@ -156,7 +155,7 @@ startPostgreDevDb waspProjectDir appName = do
 makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String
 makeWaspDevDbDockerVolumeName waspProjectDir appName =
   take maxDockerVolumeNameLength $
-    waspDevDbDockerVolumePrefix <> "-" <> makeDevDbUniqueId waspProjectDir appName
+    waspDevDbDockerVolumePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
 
 waspDevDbDockerVolumePrefix :: String
 waspDevDbDockerVolumePrefix = "wasp-dev-db"
@@ -168,7 +167,7 @@ maxDockerVolumeNameLength = 255
 makeWaspDevDbDockerContainerName :: Path' Abs (Dir WaspProjectDir) -> String -> String
 makeWaspDevDbDockerContainerName waspProjectDir appName =
   take maxDockerContainerNameLength $
-    waspDevDbDockerVolumePrefix <> "-" <> makeDevDbUniqueId waspProjectDir appName
+    waspDevDbDockerVolumePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
 
 maxDockerContainerNameLength :: Int
 maxDockerContainerNameLength = 63
