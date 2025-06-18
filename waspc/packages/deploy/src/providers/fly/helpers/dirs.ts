@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "node:path";
 import { exit } from "process";
 import { WaspProjectDir } from "../../../common/cliArgs.js";
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { assertWaspProjectDirInCmdIsAbsoluteAndPresent } from "../../../common/waspProject.js";
 
 export function assertDirsInFlyCmdAreAbsoluteAndPresent(

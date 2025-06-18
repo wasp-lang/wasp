@@ -2,11 +2,11 @@ import { exit } from "process";
 import { $, fs } from "zx";
 import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
 import {
-  getServerUrlFromEnv,
+  getServerAppUrlFromEnv,
   serverUrlEnvVarName,
 } from "../../../common/clientApp.js";
 import { getCommandName } from "../../../common/commander.js";
-import { displayWaspRocketImage, waspSays } from "../../../common/output.js";
+import { displayWaspRocketImage, waspSays } from "../../../common/terminal.js";
 import {
   cdToClientBuildDir,
   cdToServerBuildDir,
@@ -129,7 +129,7 @@ async function deployClient(
     `If you configured a custom domain for the server, you should run the command with an env variable: ${serverUrlEnvVarName}=https://serverUrl.com wasp deploy fly deploy`,
   );
 
-  const serverUrl = getServerUrlFromEnv(deploymentInfo.serverUrl);
+  const serverUrl = getServerAppUrlFromEnv(deploymentInfo.serverUrl);
   await $`npm install`;
   await $`${serverUrlEnvVarName}=${serverUrl} npm run build`;
 

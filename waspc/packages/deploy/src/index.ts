@@ -2,8 +2,8 @@
 
 import { Command } from "commander";
 import { $, syncProcessCwd } from "zx";
-import { addFlyCommand } from "./providers/fly/index.js";
-import { addRailwayCommand } from "./providers/railway/index.js";
+import { createFlyCommand } from "./providers/fly/index.js";
+import { createRailwayCommand } from "./providers/railway/index.js";
 
 const program = new Command();
 
@@ -19,7 +19,7 @@ $.verbose = true;
 // if it is changed via cd().
 syncProcessCwd();
 
-addFlyCommand(program);
-addRailwayCommand(program);
+program.addCommand(createFlyCommand());
+program.addCommand(createRailwayCommand());
 
 program.parseAsync();

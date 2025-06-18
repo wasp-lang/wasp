@@ -42,9 +42,8 @@ export const railwayDeployCommand = makeRailwayDeployCommand();
 
 const railwayLaunchCommand = makeRailwayLaunchCommand();
 
-export function addRailwayCommand(program: Command): void {
-  const railway = program
-    .command("railway")
+export function createRailwayCommand(): Command {
+  const railway = new Command("railway")
     .description("Create and deploy Wasp apps on Railway")
     .addCommand(railwaySetupCommand)
     .addCommand(railwayDeployCommand)
@@ -100,6 +99,8 @@ export function addRailwayCommand(program: Command): void {
         ),
       );
   });
+
+  return railway;
 }
 
 function makeRailwaySetupCommand(): Command {

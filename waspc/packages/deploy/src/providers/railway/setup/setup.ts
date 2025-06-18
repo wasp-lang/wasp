@@ -2,8 +2,8 @@ import { $ } from "zx";
 
 import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
 import { createCommandWithDirectory } from "../../../common/cli.js";
-import { generateRandomJwtSecret } from "../../../common/jwt.js";
-import { waspSays } from "../../../common/output.js";
+import { generateRandomString } from "../../../common/random.js";
+import { waspSays } from "../../../common/terminal.js";
 import {
   getClientBuildDir,
   getServerBuildDir,
@@ -88,7 +88,7 @@ async function setupServer({
 
   const clientUrl = getRailwayPublicUrlReference(clientServiceName);
   const serverUrl = getRailwayPublicUrlReference();
-  const jwtSecret = generateRandomJwtSecret();
+  const jwtSecret = generateRandomString();
   const addCmdArgs = [
     ["--service", serverServiceName],
     ["--variables", `PORT=${serverAppPort}`],

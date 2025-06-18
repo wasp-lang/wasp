@@ -1,7 +1,7 @@
 import { exit } from "process";
 import { $ } from "zx";
 import { createCommandWithDirectory } from "../../../common/cli.js";
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { buildDirExists } from "../../../common/waspProject.js";
 import { CommonOps, getCommonOps } from "../helpers/CommonOps.js";
 import {

@@ -1,9 +1,9 @@
 import { createCommandWithDirectory } from "../../../common/cli.js";
 import {
-  getServerUrlFromEnv,
+  getServerAppUrlFromEnv,
   serverUrlEnvVarName,
 } from "../../../common/clientApp.js";
-import { displayWaspRocketImage, waspSays } from "../../../common/output.js";
+import { displayWaspRocketImage, waspSays } from "../../../common/terminal.js";
 import {
   getClientBuildDir,
   getWebAppArtefactsDir,
@@ -71,7 +71,7 @@ async function buildClient({
 
   await npmCli(["install"]);
 
-  const serverUrl = getServerUrlFromEnv(
+  const serverUrl = getServerAppUrlFromEnv(
     await generateServiceUrl(serverServiceName, serverAppPort, options),
   );
   await npmCli(["run", "build"], {

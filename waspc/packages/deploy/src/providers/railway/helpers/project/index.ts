@@ -1,7 +1,7 @@
 import { exit } from "process";
 
 import { WaspProjectDir } from "../../../../common/cliArgs.js";
-import { waspSays } from "../../../../common/output.js";
+import { waspSays } from "../../../../common/terminal.js";
 import { RailwayCliExe } from "../../CommonOptions.js";
 import { DeploymentInfo, RailwayProjectName } from "../../DeploymentInfo.js";
 import { SetupOptions } from "../../setup/SetupOptions.js";

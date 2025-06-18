@@ -1,6 +1,6 @@
 import { exit } from "process";
 import { getCommandName } from "../../../common/commander.js";
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { deploy } from "../deploy/index.js";
 import { RailwayProjectName } from "../DeploymentInfo.js";
 import { railwayDeployCommand, railwaySetupCommand } from "../index.js";

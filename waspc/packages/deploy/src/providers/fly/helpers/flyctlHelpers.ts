@@ -2,7 +2,7 @@ import { confirm } from "@inquirer/prompts";
 import { exit } from "process";
 import { $ } from "zx";
 import { getCommandName } from "../../../common/commander.js";
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { executeFlyCommand } from "../index.js";
 import {
   FlyRegionListSchema,

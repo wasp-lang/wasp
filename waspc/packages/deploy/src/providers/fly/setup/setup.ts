@@ -1,8 +1,8 @@
 import { $, chalk, question } from "zx";
 import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
 import { getCommandName } from "../../../common/commander.js";
-import { generateRandomJwtSecret } from "../../../common/jwt.js";
-import { waspSays } from "../../../common/output.js";
+import { generateRandomString } from "../../../common/random.js";
+import { waspSays } from "../../../common/terminal.js";
 import {
   cdToClientBuildDir,
   cdToServerBuildDir,
@@ -124,7 +124,7 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
 
-  const jwtSecret = generateRandomJwtSecret();
+  const jwtSecret = generateRandomString();
 
   const secretsArgs = [
     `JWT_SECRET=${jwtSecret}`,

@@ -4,7 +4,7 @@ import { $ } from "zx";
 
 import { confirm } from "@inquirer/prompts";
 import { Branded } from "../../../common/branded.js";
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { RailwayCliExe } from "../CommonOptions.js";
 import { RailwayProjectName } from "../DeploymentInfo.js";
 

@@ -1,6 +1,6 @@
 import { createCommandWithDirectory } from "./cli.js";
 import { WaspCliExe, WaspProjectDir } from "./cliArgs.js";
-import { waspSays } from "./output.js";
+import { waspSays } from "./terminal.js";
 
 export function makeIdempotentWaspBuildCommand(options: {
   waspProjectDir: WaspProjectDir;

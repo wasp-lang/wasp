@@ -1,6 +1,6 @@
 import { exit } from "process";
 import { makeIdempotentWaspBuildCommand } from "../../../common/build.js";
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { createDeploymentInfo, RailwayProjectName } from "../DeploymentInfo.js";
 import { getProjectForDirectory } from "../helpers/project/cli.js";
 import { deployClient } from "./client.js";

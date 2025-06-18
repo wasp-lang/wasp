@@ -1,4 +1,4 @@
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { getServerArtefactsDir } from "../../../common/waspProject.js";
 import { DeploymentInfo } from "../DeploymentInfo.js";
 import {

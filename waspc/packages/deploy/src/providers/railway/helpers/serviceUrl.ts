@@ -2,7 +2,7 @@ import { exit } from "process";
 
 import { createCommandWithDirectory } from "../../../common/cli.js";
 import { WaspProjectDir } from "../../../common/cliArgs.js";
-import { waspSays } from "../../../common/output.js";
+import { waspSays } from "../../../common/terminal.js";
 import { RailwayCliExe } from "../CommonOptions.js";
 import { ClientServiceName, ServerServiceName } from "../DeploymentInfo.js";
 import { RailwayCliDomainSchema } from "../jsonOutputSchemas.js";

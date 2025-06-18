@@ -5,7 +5,7 @@ import { exit } from "process";
 import { cd } from "zx";
 import { createCommandWithDirectory } from "./cli.js";
 import { WaspCliExe, WaspProjectDir } from "./cliArgs.js";
-import { waspSays } from "./output.js";
+import { waspSays } from "./terminal.js";
 
 export async function assertValidWaspProject(
   waspProjectDir: WaspProjectDir,

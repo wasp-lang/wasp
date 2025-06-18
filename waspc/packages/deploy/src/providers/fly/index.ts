@@ -78,9 +78,8 @@ export const flyDeployCommand = makeFlyDeployCommand();
 
 export const executeFlyCommand = makeExecuteFlyCommand();
 
-export function addFlyCommand(program: Command): void {
-  const fly = program
-    .command("fly")
+export function createFlyCommand(): Command {
+  const fly = new Command("fly")
     .description("Create and deploy Wasp apps on Fly.io")
     .addCommand(flyLaunchCommand)
     .addCommand(flySetupCommand)
@@ -141,6 +140,8 @@ export function addFlyCommand(program: Command): void {
   createFlyDbCommand.hook("preAction", (_thisCommand, actionCommand) =>
     ensureRegionIsValid(actionCommand.args[0]),
   );
+
+  return fly;
 }
 
 function makeFlyLaunchCommand(): Command {
