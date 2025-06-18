@@ -26,12 +26,12 @@ export default function App() {
           <NavbarItem>
             <div className="text-sm p-2 w-35">
               {isConnected ? (
-                /* Green dot */ <span className="flex items-center">
+                <span className="flex items-center">
                   Connected
                   <span className="w-2 h-2 bg-green-500 rounded-full inline-block ml-2"></span>
                 </span>
               ) : (
-                /* Red dot */ <span className="flex items-center">
+                <span className="flex items-center">
                   Connecting
                   <span className="w-2 h-2 bg-yellow-500 rounded-full inline-block ml-2"></span>
                 </span>

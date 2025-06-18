@@ -1,10 +1,11 @@
 import * as fs from "fs";
 
-import cors from "@fastify/cors";
-import FastifyStatic from "@fastify/static";
 import { Command } from "commander";
-import Fastify from "fastify";
-import FastifySocketIO from "fastify-socket.io";
+import cors from "cors";
+import express from "express";
+import { createServer } from "http";
+import morgan from "morgan";
+import { Server } from "socket.io";
 
 function getUrlFromRelativePathToCwd(path: string) {
   return new URL(path, `file://${process.cwd()}/`);
@@ -19,21 +20,24 @@ const options = program.opts<{
   dataFile: string;
 }>();
 
-const fastify = Fastify({
-  logger: true,
-});
-
-fastify.register(FastifySocketIO, {
+const app = express();
+const server = createServer(app);
+const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: true,
   },
 });
-fastify.register(cors, {
-  origin: true,
-});
-fastify.register(FastifyStatic, {
-  root: new URL("./public", import.meta.url).pathname,
-});
+
+app.use(morgan("dev"));
+
+app.use(
+  cors({
+    origin: true,
+  }),
+);
+
+const publicDirPath = new URL("./public", import.meta.url).pathname;
+app.use(express.static(publicDirPath));
 
 const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);
 function readFile() {
@@ -43,24 +47,23 @@ function readFile() {
 let data = readFile();
 fs.watch(pathToDataFile, () => {
   data = readFile();
-  fastify.io.emit("data", data);
+  io.emit("data", data);
 });
 
-fastify.ready((err) => {
-  if (err) throw err;
-  fastify.io.on("connection", (socket) => {
-    console.log("Client connected");
-    socket.emit("data", data);
+io.on("connection", (socket) => {
+  console.log("Client connected");
+  socket.emit("data", data);
 
-    socket.on("disconnect", () => {
-      console.log("Client disconnected");
-    });
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
   });
 });
 
 try {
-  await fastify.listen({ port: 4000 });
+  server.listen(4000, () => {
+    console.log("Server listening on port 4000");
+  });
 } catch (err) {
-  fastify.log.error(err);
+  console.error(err);
   process.exit(1);
 }
