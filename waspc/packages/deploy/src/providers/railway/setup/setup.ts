@@ -9,14 +9,16 @@ import {
   getServerBuildDir,
 } from "../../../common/waspProject.js";
 import {
-  ClientServiceName,
   createDeploymentInfo,
   DeploymentInfo,
   RailwayProjectName,
-  ServerServiceName,
 } from "../DeploymentInfo.js";
 import { clientAppPort, serverAppPort } from "../helpers/ports.js";
 import { ensureProjectForDirectory } from "../helpers/project/index.js";
+import {
+  getRailwayDatabaseUrlReference,
+  getRailwayPublicUrlReference,
+} from "../helpers/railwayServiceEnv.js";
 import { generateServiceUrl } from "../helpers/serviceUrl.js";
 import { SetupOptions } from "./SetupOptions.js";
 
@@ -88,6 +90,7 @@ async function setupServer({
 
   const clientUrl = getRailwayPublicUrlReference(clientServiceName);
   const serverUrl = getRailwayPublicUrlReference();
+  const databaseUrl = getRailwayDatabaseUrlReference(dbServiceName);
   const jwtSecret = generateRandomString();
   const addCmdArgs = [
     ["--service", serverServiceName],
@@ -95,28 +98,16 @@ async function setupServer({
     ["--variables", `JWT_SECRET=${jwtSecret}`],
     ["--variables", `WASP_SERVER_URL=${serverUrl}`],
     ["--variables", `WASP_WEB_CLIENT_URL=${clientUrl}`],
-    ["--variables", `DATABASE_URL=\${{${dbServiceName}.DATABASE_URL}}`],
+    ["--variables", `DATABASE_URL=${databaseUrl}`],
     ...options.serverSecret.map((secret) => ["--variables", secret]),
   ].flat();
   await railwayCli(["add", ...addCmdArgs]);
 
   // The server service needs a URL so it can be referenced in the
-  // env variables.
+  // env variables, we can only generate it after the service is created.
   await generateServiceUrl(serverServiceName, serverAppPort, options);
 
   waspSays("Server setup complete!");
-}
-
-// Uses the special Railway env variable "RAILWAY_PUBLIC_DOMAIN"
-// to reference the public domain of a service.
-function getRailwayPublicUrlReference(
-  serviceName?: ClientServiceName | ServerServiceName,
-): string {
-  const publicDomainEnvVarName = serviceName
-    ? `${serviceName}.RAILWAY_PUBLIC_DOMAIN`
-    : "RAILWAY_PUBLIC_DOMAIN";
-
-  return "https://${{" + publicDomainEnvVarName + "}}";
 }
 
 async function setupClient({
