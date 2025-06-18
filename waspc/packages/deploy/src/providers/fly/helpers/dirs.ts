@@ -3,17 +3,17 @@ import path from "node:path";
 import { exit } from "process";
 import { WaspProjectDir } from "../../../common/cliArgs.js";
 import { waspSays } from "../../../common/terminal.js";
-import { assertWaspProjectDirInCmdIsAbsoluteAndPresent } from "../../../common/waspProject.js";
+import { assertWaspProjectDirIsAbsoluteAndPresent } from "../../../common/waspProject.js";
 
 export function assertDirsInFlyCmdAreAbsoluteAndPresent(
   waspProjectDir: WaspProjectDir,
   flyTomlDirPath: string | undefined,
 ): void {
-  assertWaspProjectDirInCmdIsAbsoluteAndPresent(waspProjectDir);
-  assertFlyTomlDirInCmdIsAbsoluteAndPresent(flyTomlDirPath);
+  assertWaspProjectDirIsAbsoluteAndPresent(waspProjectDir);
+  assertFlyTomlDirIsAbsoluteAndPresent(flyTomlDirPath);
 }
 
-function assertFlyTomlDirInCmdIsAbsoluteAndPresent(
+function assertFlyTomlDirIsAbsoluteAndPresent(
   flyTomlDirPath: string | undefined,
 ): void {
   if (flyTomlDirPath) {

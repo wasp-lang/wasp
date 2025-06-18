@@ -2,7 +2,7 @@ import { Command, Option } from "commander";
 import { WaspCliExe, WaspProjectDir } from "../../common/cliArgs.js";
 import {
   assertValidWaspProject,
-  assertWaspProjectDirInCmdIsAbsoluteAndPresent,
+  assertWaspProjectDirIsAbsoluteAndPresent,
 } from "../../common/waspProject.js";
 import { RailwayCliExe } from "./CommonOptions.js";
 import { deploy as deployFn } from "./deploy/index.js";
@@ -88,7 +88,7 @@ export function createRailwayCommand(): Command {
         assertRailwayProjectNameIsValid(cmd.args[0] as RailwayProjectName),
       )
       .hook("preAction", (cmd) =>
-        assertWaspProjectDirInCmdIsAbsoluteAndPresent(
+        assertWaspProjectDirIsAbsoluteAndPresent(
           cmd.opts().waspProjectDir as WaspProjectDir,
         ),
       )

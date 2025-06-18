@@ -25,7 +25,7 @@ export async function assertValidWaspProject(
   }
 }
 
-export function assertWaspProjectDirInCmdIsAbsoluteAndPresent(
+export function assertWaspProjectDirIsAbsoluteAndPresent(
   waspProjectDir: WaspProjectDir,
 ): void {
   if (!path.isAbsolute(waspProjectDir)) {
