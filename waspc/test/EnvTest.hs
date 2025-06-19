@@ -1,7 +1,7 @@
 module EnvTest where
 
-import Test.Tasty.Hspec
 import qualified Data.Text as T
+import Test.Tasty.Hspec
 import Wasp.Env (envVarsToDotEnvContent)
 
 spec_envVarsToDotEnvContent :: Spec
@@ -21,17 +21,19 @@ spec_envVarsToDotEnvContent = do
       result `shouldBe` T.pack "PG_BOSS_NEW_OPTIONS={\"teamConcurrency\":3}"
 
     it "should handle multiple environment variables correctly" $ do
-      let envVars = [
-            ("DATABASE_URL", "postgresql://localhost:5432/mydb"),
-            ("PG_BOSS_NEW_OPTIONS", "{\"teamConcurrency\":3,\"retryLimit\":2}"),
-            ("SIMPLE_VAR", "value")
+      let envVars =
+            [ ("DATABASE_URL", "postgresql://localhost:5432/mydb"),
+              ("PG_BOSS_NEW_OPTIONS", "{\"teamConcurrency\":3,\"retryLimit\":2}"),
+              ("SIMPLE_VAR", "value")
             ]
       let result = envVarsToDotEnvContent envVars
-      let expected = T.pack $ unlines [
-            "DATABASE_URL=postgresql://localhost:5432/mydb",
-            "PG_BOSS_NEW_OPTIONS={\"teamConcurrency\":3,\"retryLimit\":2}",
-            "SIMPLE_VAR=value"
-            ]
+      let expected =
+            T.pack $
+              unlines
+                [ "DATABASE_URL=postgresql://localhost:5432/mydb",
+                  "PG_BOSS_NEW_OPTIONS={\"teamConcurrency\":3,\"retryLimit\":2}",
+                  "SIMPLE_VAR=value"
+                ]
       -- Remove the trailing newline from expected since intercalate doesn't add one at the end
       result `shouldBe` T.take (T.length expected - 1) expected
 
@@ -63,4 +65,4 @@ spec_envVarsToDotEnvContent = do
       let envVars = [("SPECIAL_CHARS", "value$with&special=chars")]
       let result = envVarsToDotEnvContent envVars
       -- Special characters should be preserved as-is
-      result `shouldBe` T.pack "SPECIAL_CHARS=value$with&special=chars" 
+      result `shouldBe` T.pack "SPECIAL_CHARS=value$with&special=chars"

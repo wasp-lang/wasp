@@ -39,11 +39,11 @@ envVarsToDotEnvContent vars =
   T.pack $ intercalate "\n" $ map formatEnvVar vars
   where
     formatEnvVar (name, value) = name <> "=" <> formatEnvValue value
-    
+
     formatEnvValue value
       | needsQuoting value = "\"" <> value <> "\""
       | otherwise = value
-    
+
     -- Only quote values that contain spaces (but not empty values)
     -- This preserves JSON strings, URLs, and other complex values
     needsQuoting value = ' ' `elem` value
