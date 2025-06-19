@@ -1,48 +1,57 @@
 import fs from "fs";
 import path from "node:path";
 
-import { exit } from "process";
-import { cd } from "zx";
-import { createCommandWithDirectory } from "./cli.js";
-import { WaspCliExe, WaspProjectDir } from "./cliArgs.js";
+import { cd, ProcessOutput } from "zx";
+import { WaspCliExe, WaspProjectDir } from "./brandedTypes.js";
 import { waspSays } from "./terminal.js";
+import { assertDirIsAbsoluteAndPresent } from "./validation.js";
+import { createCommandWithCwd } from "./zx.js";
 
 export async function assertValidWaspProject(
   waspProjectDir: WaspProjectDir,
   waspExe: WaspCliExe,
 ): Promise<void> {
   try {
-    const waspCli = createCommandWithDirectory(waspExe, waspProjectDir);
+    const waspCli = createCommandWithCwd(waspExe, waspProjectDir);
     await waspCli(["info"], {
       quiet: true,
     });
-  } catch {
-    waspSays(
-      "The supplied Wasp directory does not appear to be a valid Wasp project.",
-    );
-    waspSays("Please double check your Wasp project directory.");
-    exit(1);
+  } catch (e) {
+    if (e instanceof ProcessOutput) {
+      const message = [
+        "The supplied Wasp directory does not appear to be a valid Wasp project.",
+        "Please double check your Wasp project directory.",
+      ].join("\n");
+      throw new Error(message);
+    } else {
+      throw e;
+    }
   }
 }
 
 export function assertWaspProjectDirIsAbsoluteAndPresent(
   waspProjectDir: WaspProjectDir,
 ): void {
-  if (!path.isAbsolute(waspProjectDir)) {
-    waspSays("The supplied Wasp directory path must be absolute.");
-    exit(1);
+  assertDirIsAbsoluteAndPresent(waspProjectDir, "Wasp project directory");
+}
+
+export async function ensureWaspProjectIsBuilt(options: {
+  waspProjectDir: WaspProjectDir;
+  waspExe: WaspCliExe;
+}): Promise<void> {
+  // NOTE: we assume that existance of the build directory means
+  // that the project has been built.
+  if (buildDirExists(options.waspProjectDir)) {
+    return;
   }
 
-  const waspProjectDirExists = fs.existsSync(waspProjectDir);
-  if (!waspProjectDirExists) {
-    waspSays("The Wasp directory does not exist.");
-    exit(1);
-  }
+  waspSays("Building your Wasp app...");
+  const waspCli = createCommandWithCwd(options.waspExe, options.waspProjectDir);
+  await waspCli(["build"]);
 }
 
 export function buildDirExists(waspProjectDir: WaspProjectDir): boolean {
-  const waspBuildDir = getWaspBuildDir(waspProjectDir);
-  return fs.existsSync(waspBuildDir);
+  return fs.existsSync(getWaspBuildDir(waspProjectDir));
 }
 
 export function cdToServerBuildDir(waspProjectDir: WaspProjectDir): void {
@@ -51,17 +60,17 @@ export function cdToServerBuildDir(waspProjectDir: WaspProjectDir): void {
 }
 
 export function cdToClientBuildDir(waspProjectDir: WaspProjectDir): void {
-  const webAppBuildDir = getClientBuildDir(waspProjectDir);
-  cd(webAppBuildDir);
+  const clientBuildDir = getClientBuildDir(waspProjectDir);
+  cd(clientBuildDir);
 }
 
 export function getServerArtefactsDir(waspProjectDir: WaspProjectDir): string {
   return getServerBuildDir(waspProjectDir);
 }
 
-export function getWebAppArtefactsDir(waspProjectDir: WaspProjectDir): string {
-  const webAppBuildDir = getClientBuildDir(waspProjectDir);
-  return path.join(webAppBuildDir, "build");
+export function getClientArtefactsDir(waspProjectDir: WaspProjectDir): string {
+  const clientBuildDir = getClientBuildDir(waspProjectDir);
+  return path.join(clientBuildDir, "build");
 }
 
 function getWaspBuildDir(waspProjectDir: WaspProjectDir): string {

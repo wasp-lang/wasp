@@ -1,13 +1,10 @@
-import { Branded } from "../../common/branded";
-import { WaspCliExe, WaspProjectDir } from "../../common/cliArgs";
-
-export type RailwayCliExe = Branded<string, "RailwayCliExe">;
+import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
+import { RailwayCliExe } from "./brandedTypes.js";
 
 export interface CommonOptions {
   waspExe: WaspCliExe;
   railwayExe: RailwayCliExe;
   waspProjectDir: WaspProjectDir;
-  skipBuild?: boolean;
 }
 
 export interface SecretsOptions {

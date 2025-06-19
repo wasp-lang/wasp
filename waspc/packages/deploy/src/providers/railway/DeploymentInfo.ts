@@ -1,10 +1,10 @@
-import { Branded } from "../../common/branded.js";
+import {
+  ClientServiceName,
+  DbServiceName,
+  RailwayProjectName,
+  ServerServiceName,
+} from "./brandedTypes.js";
 import { CommonOptions } from "./CommonOptions.js";
-
-export type RailwayProjectName = Branded<string, "RailwayProjectName">;
-export type ClientServiceName = Branded<string, "ClientServiceName">;
-export type ServerServiceName = Branded<string, "ServerServiceName">;
-export type DbServiceName = Branded<string, "DbServiceName">;
 
 export type DeploymentInfo<CommandOptions extends CommonOptions> = Readonly<{
   projectName: RailwayProjectName;
@@ -22,7 +22,7 @@ export function createDeploymentInfo<CommandOptions extends CommonOptions>(
   options: CommandOptions,
 ): DeploymentInfo<CommandOptions> {
   return Object.freeze({
-    projectName: projectName as RailwayProjectName,
+    projectName,
     options,
     clientServiceName: `${projectName}-client` as ClientServiceName,
     serverServiceName: `${projectName}-server` as ServerServiceName,

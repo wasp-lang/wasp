@@ -1,17 +1,17 @@
 import { Command, Option } from "commander";
-import { WaspCliExe, WaspProjectDir } from "../../common/cliArgs.js";
-import { assertValidWaspProject } from "../../common/waspProject.js";
-import { cmd as cmdFn } from "./cmd/cmd.js";
-import { createDb as createDbFn } from "./createDb/createDb.js";
-import { deploy as deployFn } from "./deploy/deploy.js";
-import { ContextOption } from "./helpers/CommonOps.js";
-import { assertDirsInFlyCmdAreAbsoluteAndPresent } from "./helpers/dirs.js";
+import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
 import {
-  ensureFlyReady,
-  ensureRegionIsValid,
-} from "./helpers/flyctlHelpers.js";
-import { launch as launchFn } from "./launch/launch.js";
-import { setup as setupFn } from "./setup/setup.js";
+  assertValidWaspProject,
+  assertWaspProjectDirIsAbsoluteAndPresent,
+} from "../../common/waspProject.js";
+import { cmd as cmdFn } from "./commands/cmd/cmd.js";
+import { createDb as createDbFn } from "./commands/createDb/createDb.js";
+import { deploy as deployFn } from "./commands/deploy/deploy.js";
+import { launch as launchFn } from "./commands/launch/launch.js";
+import { setup as setupFn } from "./commands/setup/setup.js";
+import { ContextOption } from "./CommonOps.js";
+import { assertRegionIsValid, ensureFlyReady } from "./flyCli.js";
+import { assertFlyTomlDirIsAbsoluteAndPresent } from "./tomlFile.js";
 
 class FlyCommand extends Command {
   addBasenameArgument(): this {
@@ -115,30 +115,32 @@ export function createFlyCommand(): Command {
         "absolute path to dir where fly.toml files live",
       )
       .option("--org <org>", "Fly org to use (with commands that support it)")
-      .hook("preAction", ensureFlyReady)
-      .hook("preAction", (cmd) =>
-        assertDirsInFlyCmdAreAbsoluteAndPresent(
-          cmd.opts().waspProjectDir as WaspProjectDir,
-          cmd.opts().flyTomlDir as string | undefined,
-        ),
-      )
-      .hook("preAction", (cmd) =>
-        assertValidWaspProject(
-          cmd.opts().waspProjectDir as WaspProjectDir,
-          cmd.opts().waspExe as WaspCliExe,
-        ),
-      );
+      .hook("preAction", async (cmd) => {
+        const { waspProjectDir, waspExe, flyTomlDir } = cmd.opts<{
+          waspProjectDir: WaspProjectDir;
+          waspExe: WaspCliExe;
+          flyTomlDir?: string;
+        }>();
+
+        await ensureFlyReady();
+
+        assertWaspProjectDirIsAbsoluteAndPresent(waspProjectDir);
+        if (flyTomlDir !== undefined) {
+          assertFlyTomlDirIsAbsoluteAndPresent(flyTomlDir);
+        }
+        await assertValidWaspProject(waspProjectDir, waspExe);
+      });
   });
 
   // Add command-specific hooks.
   flyLaunchCommand.hook("preAction", (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[1]),
+    assertRegionIsValid(actionCommand.args[1]),
   );
   flySetupCommand.hook("preAction", (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[1]),
+    assertRegionIsValid(actionCommand.args[1]),
   );
   createFlyDbCommand.hook("preAction", (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[0]),
+    assertRegionIsValid(actionCommand.args[0]),
   );
 
   return fly;

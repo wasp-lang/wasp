@@ -1,4 +1,4 @@
-import { WaspCliExe, WaspProjectDir } from "../../common/cliArgs";
+import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
 
 export interface CommonOptions {
   waspExe: WaspCliExe;

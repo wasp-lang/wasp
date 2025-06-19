@@ -1,18 +1,17 @@
 import { Command, Option } from "commander";
-import { WaspCliExe, WaspProjectDir } from "../../common/cliArgs.js";
+import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
 import {
   assertValidWaspProject,
   assertWaspProjectDirIsAbsoluteAndPresent,
 } from "../../common/waspProject.js";
-import { RailwayCliExe } from "./CommonOptions.js";
-import { deploy as deployFn } from "./deploy/index.js";
-import { RailwayProjectName } from "./DeploymentInfo.js";
+import { RailwayCliExe, RailwayProjectName } from "./brandedTypes.js";
+import { deploy as deployFn } from "./commands/deploy/index.js";
+import { launch as launchFn } from "./commands/launch/launch.js";
+import { setup as setupFn } from "./commands/setup/setup.js";
 import {
   assertRailwayProjectNameIsValid,
   ensureRailwayReady,
-} from "./helpers/railwayCli.js";
-import { launch as launchFn } from "./launch/launch.js";
-import { setup as setupFn } from "./setup/setup.js";
+} from "./railwayCli.js";
 
 class RailwayCommand extends Command {
   addProjectNameArgument(): this {
@@ -81,23 +80,20 @@ export function createRailwayCommand(): Command {
           .default("railway"),
       )
       .option("--skip-build", "do not run `wasp build` before the command")
-      .hook("preAction", (cmd) =>
-        ensureRailwayReady(cmd.opts().railwayExe as RailwayCliExe),
-      )
-      .hook("preAction", (cmd) =>
-        assertRailwayProjectNameIsValid(cmd.args[0] as RailwayProjectName),
-      )
-      .hook("preAction", (cmd) =>
-        assertWaspProjectDirIsAbsoluteAndPresent(
-          cmd.opts().waspProjectDir as WaspProjectDir,
-        ),
-      )
-      .hook("preAction", (cmd) =>
-        assertValidWaspProject(
-          cmd.opts().waspProjectDir as WaspProjectDir,
-          cmd.opts().waspExe as WaspCliExe,
-        ),
-      );
+      .hook("preAction", async (cmd) => {
+        const { waspProjectDir, waspExe, railwayExe } = cmd.opts<{
+          waspProjectDir: WaspProjectDir;
+          waspExe: WaspCliExe;
+          railwayExe: RailwayCliExe;
+        }>();
+        const railwayProjectName = cmd.args[0] as RailwayProjectName;
+
+        await ensureRailwayReady(railwayExe);
+
+        assertRailwayProjectNameIsValid(railwayProjectName);
+        assertWaspProjectDirIsAbsoluteAndPresent(waspProjectDir);
+        await assertValidWaspProject(waspProjectDir, waspExe);
+      });
   });
 
   return railway;
