@@ -27,6 +27,9 @@ For example, running the server with the data file from the `examples` directory
 npm run dev -- -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
 ```
 
+Wasp CLI generates the `.wasp-studio-data.json` file when the `wasp studio` command is run.
+You can run the `wasp studio` once to get the file generated, and then run the studio in development mode.
+
 ### Client
 
 Install dependencies:

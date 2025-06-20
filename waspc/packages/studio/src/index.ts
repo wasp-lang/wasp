@@ -28,11 +28,12 @@ const io = new Server(server, {
   },
 });
 
-app.use(morgan("dev"));
+const requestLogger = morgan("dev");
+app.use(requestLogger);
 
 app.use(
   cors({
-    origin: true,
+    origin: "*",
   }),
 );
 
@@ -59,11 +60,6 @@ io.on("connection", (socket) => {
   });
 });
 
-try {
-  server.listen(4000, () => {
-    console.log("Server listening on port 4000");
-  });
-} catch (err) {
-  console.error(err);
-  process.exit(1);
-}
+server.listen(4000, () => {
+  console.log("Server listening on port 4000");
+});
