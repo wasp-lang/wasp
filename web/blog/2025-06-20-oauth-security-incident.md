@@ -1,5 +1,5 @@
 ---
-title: 'Incident Report: Case insensitive OAuth IDs  vulnerability in Wasp'
+title: 'Incident Report: Case insensitive OAuth IDs vulnerability in Wasp'
 authors: [miho]
 image: /img/security-incident/security-incident.png
 tags: [security, oauth, keycloak, wasp]
@@ -7,13 +7,14 @@ tags: [security, oauth, keycloak, wasp]
 
 ## Introduction
 
-We received a report on a security vulnerability in Wasp auth related to our OAuth support in Wasp `0.16.5` and earlier.
+On May 23rd, 2025, we learned about a security vulnerability in Wasp auth related to our OAuth support in Wasp `0.16.5` and earlier.
+Users with same IDs with different casing (e.g. `abc` and `ABC`) were considered the same person which could lead to users gaining access to other users' accounts.
 
-**This issue only affects users using Keycloak authentication with non-default case-sensitive IDs.**
+**Only users using Keycloak with non-default case-sensitive IDs are affected.**
 
 All other configurations (Google, GitHub, Discord, or Keycloak with the default case-insensitive configuration) are **not affected**. Email and username auth providers are also **not affected**.
 
-Users should upgrade to Wasp `0.16.6` which contains the fix ASAP.
+Users should upgrade to Wasp version `0.16.6` which contains the fix. Affected Keycloak users will need to [migrate their user IDs](#migrate) in the database.
 
 ## Description
 
@@ -74,7 +75,7 @@ export function createProviderId(
 
 Wasp has released version `0.16.6` which includes a fix for the vulnerability - Wasp no longer lowercases user IDs received from OAuth providers, only the `email` and `username` user IDs.
 
-All users should upgrade to Wasp `0.16.6`, especially if they use Keycloak auth with a configuration that makes the user IDs case sensitive. 
+Users using use Keycloak auth with a configuration that makes the user IDs case sensitive should upgrade immediately to Wasp `0.16.6` to keep their Wasp apps secure.
 
 Upgrade to the latest Wasp version by running:
 
@@ -84,8 +85,18 @@ curl -sSL https://get.wasp.sh/installer.sh | sh -s
 
 <small>
 
-Check out the commit that fixed the issue: [wasp-lang/wasp#433b9b7](https://github.com/wasp-lang/wasp/commit/433b9b7f491c172db656fb94cc85e5bd7d614b74)
+Commit addressing the issue: [wasp-lang/wasp#433b9b7](https://github.com/wasp-lang/wasp/commit/433b9b7f491c172db656fb94cc85e5bd7d614b74)
 </small>
+
+
+### Migration for Keycloak users {#migrate}
+
+If you did have case sensitive IDs set up, your users will need to register again with Keycloak since their old Keycloak account ID won’t be correct.
+
+If you wish to avoid this, you’ll need to manually update the database table called `AuthIdentity` to contain the correct user ID casing.
+
+You will need to update the `providerUserId` column for all affected users to match the IDs in Keycloak. Read more about the `AuthIdentity` table in the [Wasp docs](/docs/auth/entities#authidentity-entity-).
+
 
 
 ## Timeline
