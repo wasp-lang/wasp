@@ -13,7 +13,7 @@ import {
 // https://github.com/railwayapp/cli/pull/596
 const minSupportedRailwayCliVersion = "4.0.1" as SemverVersion;
 
-export async function ensureRailwayReady(
+export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,
 ): Promise<void> {
   const railwayCliVersion = await getRailwayCliVersion(railwayExe);
@@ -50,10 +50,11 @@ async function ensureUserLoggedIn(railwayExe: RailwayCliExe): Promise<void> {
   }
 
   try {
-    await $({
-      // Login comand requires **interactive** terminal
+    // Login comand requires **interactive** terminal
+    const loginCmdOptions = {
       stdio: "inherit",
-    })`${railwayExe} login`;
+    } as const;
+    await $(loginCmdOptions)`${railwayExe} login`;
   } catch {
     throw new Error(
       'It seems there was a problem logging in. Please run "railway login" and try again.',

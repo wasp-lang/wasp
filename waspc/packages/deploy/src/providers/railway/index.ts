@@ -10,7 +10,7 @@ import { launch as launchFn } from "./commands/launch/launch.js";
 import { setup as setupFn } from "./commands/setup/setup.js";
 import {
   assertRailwayProjectNameIsValid,
-  ensureRailwayReady,
+  ensureRailwayCliReady,
 } from "./railwayCli.js";
 
 class RailwayCommand extends Command {
@@ -88,7 +88,7 @@ export function createRailwayCommand(): Command {
         }>();
         const railwayProjectName = cmd.args[0] as RailwayProjectName;
 
-        await ensureRailwayReady(railwayExe);
+        await ensureRailwayCliReady(railwayExe);
 
         assertRailwayProjectNameIsValid(railwayProjectName);
         assertWaspProjectDirIsAbsoluteAndPresent(waspProjectDir);

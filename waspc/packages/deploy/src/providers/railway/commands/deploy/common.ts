@@ -35,7 +35,10 @@ export async function deployServiceWithStreamingLogs(
       "--service",
       service.name,
       "--no-gitignore",
+      // This option fixes a Railway CLI quirk to package the
+      // service directory as the root of the deployment.
       "--path-as-root",
+      // This option enables service build logs streaming.
       "--ci",
     ]);
     return ServiceDeploymentStatus.SUCCESS;

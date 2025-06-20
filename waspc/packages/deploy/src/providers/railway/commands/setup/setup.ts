@@ -14,8 +14,8 @@ import { clientAppPort, serverAppPort } from "../../ports.js";
 import { ensureRailwayProjectForDirectory } from "../../railwayProject/index.js";
 import {
   getRailwayDatabaseUrlReference,
-  getRailwayPublicUrlReference,
   getRailwayPublicUrlReferenceForSelf,
+  getRailwayPublicUrlReferenceForService,
 } from "../../railwayService/env.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
 import { SetupOptions } from "./SetupOptions.js";
@@ -81,20 +81,22 @@ async function setupServer({
   const serverBuildDir = getServerBuildDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(options.railwayExe, serverBuildDir);
 
-  const clientUrl = getRailwayPublicUrlReference(clientServiceName);
+  const clientUrl = getRailwayPublicUrlReferenceForService(clientServiceName);
   const databaseUrl = getRailwayDatabaseUrlReference(dbServiceName);
   const serverUrl = getRailwayPublicUrlReferenceForSelf();
   const jwtSecret = generateRandomString();
-  const addCmdArgs = [
-    ["--service", serverServiceName],
-    ["--variables", `PORT=${serverAppPort}`],
-    ["--variables", `JWT_SECRET=${jwtSecret}`],
-    ["--variables", `WASP_SERVER_URL=${serverUrl}`],
-    ["--variables", `WASP_WEB_CLIENT_URL=${clientUrl}`],
-    ["--variables", `DATABASE_URL=${databaseUrl}`],
-    ...options.serverSecret.map((secret) => ["--variables", secret]),
-  ].flat();
-  await railwayCli(["add", ...addCmdArgs]);
+  await railwayCli(
+    [
+      "add",
+      ["--service", serverServiceName],
+      ["--variables", `PORT=${serverAppPort}`],
+      ["--variables", `JWT_SECRET=${jwtSecret}`],
+      ["--variables", `WASP_SERVER_URL=${serverUrl}`],
+      ["--variables", `WASP_WEB_CLIENT_URL=${clientUrl}`],
+      ["--variables", `DATABASE_URL=${databaseUrl}`],
+      ...options.serverSecret.map((secret) => ["--variables", secret]),
+    ].flat(),
+  );
 
   // The server service needs a URL so it can be referenced in the
   // env variables, we can only generate it after the service is created.
@@ -115,12 +117,14 @@ async function setupClient({
   // Having a Staticfile tells Railway to use a static file server.
   await $({ cwd: clientBuildDir })`touch Staticfile`;
 
-  const addCmdArgs = [
-    ["--service", clientServiceName],
-    ["--variables", `PORT=${clientAppPort}`],
-    ...options.clientSecret.map((secret) => ["--variables", secret]),
-  ].flat();
-  await railwayCli(["add", ...addCmdArgs]);
+  await railwayCli(
+    [
+      "add",
+      ["--service", clientServiceName],
+      ["--variables", `PORT=${clientAppPort}`],
+      ...options.clientSecret.map((secret) => ["--variables", secret]),
+    ].flat(),
+  );
 
   waspSays("Client setup complete!");
 }

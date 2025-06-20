@@ -11,6 +11,6 @@ export function assertDirIsAbsoluteAndPresent(
 
   const dirExists = fs.existsSync(dirPath);
   if (!dirExists) {
-    throw new Error(`The ${dirNameInError} does not exist.`);
+    throw new Error(`The supplied ${dirNameInError} does not exist.`);
   }
 }

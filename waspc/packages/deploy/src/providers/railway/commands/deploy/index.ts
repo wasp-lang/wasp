@@ -2,7 +2,7 @@ import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspProject.js";
 import { RailwayProjectName } from "../../brandedTypes.js";
 import { createDeploymentInfo } from "../../DeploymentInfo.js";
-import { getRailwayProjectForDirectory } from "../../project/cli.js";
+import { getRailwayProjectForDirectory } from "../../railwayProject/cli.js";
 
 import { deployClient } from "./client.js";
 import { DeployOptions } from "./DeployOptions.js";

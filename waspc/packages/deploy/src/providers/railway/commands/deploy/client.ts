@@ -29,7 +29,7 @@ export async function deployClient({
 
   const webAppArtefactsDir = getClientArtefactsDir(options.waspProjectDir);
 
-  const status = await deployServiceWithStreamingLogs(
+  const deploymentStatus = await deployServiceWithStreamingLogs(
     {
       name: clientServiceName,
       artefactsDirectory: webAppArtefactsDir,
@@ -49,5 +49,5 @@ export async function deployClient({
     [ServiceDeploymentStatus.SUCCESS]: `Client has been deployed! Your Wasp app is accessible at: ${clientUrl}`,
     [ServiceDeploymentStatus.FAILED_STREAMING_LOGS]: `Client deployment started, but failed to stream build logs. Your Wasp app should be accessible at: ${clientUrl}`,
   };
-  waspSays(messages[status]);
+  waspSays(messages[deploymentStatus]);
 }

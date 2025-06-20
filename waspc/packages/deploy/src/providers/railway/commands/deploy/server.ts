@@ -16,7 +16,7 @@ export async function deployServer({
 
   const serverArtefactsDir = getServerArtefactsDir(options.waspProjectDir);
 
-  const status = await deployServiceWithStreamingLogs(
+  const deploymentStatus = await deployServiceWithStreamingLogs(
     {
       name: serverServiceName,
       artefactsDirectory: serverArtefactsDir,
@@ -30,5 +30,5 @@ export async function deployServer({
       "Server deployment started, but failed to stream build logs. Please check the Railway dashboard for build logs.",
   };
 
-  waspSays(messages[status]);
+  waspSays(messages[deploymentStatus]);
 }

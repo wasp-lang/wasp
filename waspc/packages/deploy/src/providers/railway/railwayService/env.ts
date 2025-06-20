@@ -7,7 +7,7 @@ import {
 const railwayPublicDomainEnvVarName = "RAILWAY_PUBLIC_DOMAIN";
 const railwayDatabaseUrlEnvVarName = "DATABASE_URL";
 
-export function getRailwayPublicUrlReference(
+export function getRailwayPublicUrlReferenceForService(
   serviceName?: ClientServiceName | ServerServiceName,
 ): string {
   return `https://${getRailwayEnvVarReference(`${serviceName}.${railwayPublicDomainEnvVarName}`)}`;

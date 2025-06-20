@@ -11,13 +11,13 @@ export async function assertValidWaspProject(
   waspProjectDir: WaspProjectDir,
   waspExe: WaspCliExe,
 ): Promise<void> {
+  const waspCli = createCommandWithCwd(waspExe, waspProjectDir);
   try {
-    const waspCli = createCommandWithCwd(waspExe, waspProjectDir);
     await waspCli(["info"], {
       quiet: true,
     });
   } catch (e) {
-    if (e instanceof ProcessOutput) {
+    if (e instanceof ProcessOutput && e.exitCode === 1) {
       const message = [
         "The supplied Wasp directory does not appear to be a valid Wasp project.",
         "Please double check your Wasp project directory.",

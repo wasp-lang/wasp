@@ -28,19 +28,19 @@ export async function initRailwayProject({
   });
 
   // Check if the project was created successfully...
-  const newProject = await getRailwayProjectForDirectory(
+  const newRailwayProject = await getRailwayProjectForDirectory(
     options.railwayExe,
     options.waspProjectDir,
   );
-  if (newProject === null) {
-    throw new Error("Project creation failed.");
+  if (newRailwayProject === null) {
+    throw new Error("Railway project creation failed.");
   }
 
-  waspSays("Project created successfully!");
-  return newProject;
+  waspSays("Railway project created successfully!");
+  return newRailwayProject;
 }
 
-export async function linkRailwayProject(
+export async function linkRailwayProjectToWaspProjectDir(
   project: RailwayProject,
   { options }: DeploymentInfo<SetupOptions>,
 ): Promise<RailwayProject> {
@@ -58,16 +58,16 @@ export async function linkRailwayProject(
 
   // Sometimes linking fails silently, so we need to check if the project
   // was linked successfully.
-  const linkedProject = await getRailwayProjectForDirectory(
+  const linkedRailwayProject = await getRailwayProjectForDirectory(
     options.railwayExe,
     options.waspProjectDir,
   );
-  if (linkedProject === null) {
-    throw new Error("Project linking failed.");
+  if (linkedRailwayProject === null) {
+    throw new Error("Railway project linking failed.");
   }
 
-  waspSays("Project linked successfully!");
-  return linkedProject;
+  waspSays("Railway project linked successfully!");
+  return linkedRailwayProject;
 }
 
 export async function getRailwayProjectForDirectory(
@@ -90,25 +90,25 @@ export async function getRailwayProjectForDirectory(
   }
 }
 
-export async function getProjectById(
+export async function getRailwayProjectById(
   railwayExe: RailwayCliExe,
-  remoteProjectId: string,
+  id: string,
 ): Promise<RailwayProject | null> {
-  const projects = await getProjects(railwayExe);
-  return projects.find((project) => project.id === remoteProjectId) ?? null;
+  const projects = await getRailwayProjects(railwayExe);
+  return projects.find((project) => project.id === id) ?? null;
 }
 
-export async function getProjectByName(
+export async function getRailwayProjectByName(
   railwayExe: RailwayCliExe,
   name: string,
 ): Promise<RailwayProject | null> {
-  const projects = await getProjects(railwayExe);
+  const projects = await getRailwayProjects(railwayExe);
   return projects.find((project) => project.name === name) ?? null;
 }
 
 // TODO: Figure out how to specify the workspace when listing projects.
 // This command lists all projects in all the workspaces the user has access to.
-async function getProjects(
+async function getRailwayProjects(
   railwayExe: RailwayCliExe,
 ): Promise<RailwayProject[]> {
   const result = await $({

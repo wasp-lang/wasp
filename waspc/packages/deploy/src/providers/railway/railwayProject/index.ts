@@ -9,11 +9,11 @@ import {
 import { SetupOptions } from "../commands/setup/SetupOptions.js";
 import { RailwayProject } from "./RailwayProject.js";
 import {
-  getProjectById,
-  getProjectByName,
+  getRailwayProjectById,
+  getRailwayProjectByName,
   getRailwayProjectForDirectory,
   initRailwayProject,
-  linkRailwayProject,
+  linkRailwayProjectToWaspProjectDir,
 } from "./cli.js";
 
 enum ProjectStatus {
@@ -43,7 +43,7 @@ export async function ensureRailwayProjectForDirectory(
 
     case ProjectStatus.EXISTING_PROJECT_SHOULD_BE_LINKED:
       waspSays(`Linking project with name "${project.name}" to this directory`);
-      return linkRailwayProject(project, deploymentInfo);
+      return linkRailwayProjectToWaspProjectDir(project, deploymentInfo);
 
     case ProjectStatus.MISSING_PROJECT:
       waspSays(`Setting up Railway project with name "${projectName}"`);
@@ -113,7 +113,10 @@ async function getExistingProjectById(
   railwayExe: RailwayCliExe,
   existingProjectId: RailwayProjectId,
 ): Promise<RailwayProject> {
-  const projectById = await getProjectById(railwayExe, existingProjectId);
+  const projectById = await getRailwayProjectById(
+    railwayExe,
+    existingProjectId,
+  );
   if (projectById === null) {
     throw new Error(`Project with ID "${existingProjectId}" does not exist.`);
   }
@@ -136,7 +139,7 @@ async function assertUniqueProjectName(
   railwayExe: RailwayCliExe,
   projectName: RailwayProjectName,
 ): Promise<void> {
-  const project = await getProjectByName(railwayExe, projectName);
+  const project = await getRailwayProjectByName(railwayExe, projectName);
   if (project !== null) {
     throw new Error(
       `Project with name "${project.name}" already exists. Add "--existing-project-id ${project.id}" option to this command to link it or use a different name.`,
