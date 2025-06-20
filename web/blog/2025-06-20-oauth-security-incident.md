@@ -75,7 +75,7 @@ export function createProviderId(
 
 Wasp has released version `0.16.6` which includes a fix for the vulnerability - Wasp no longer lowercases user IDs received from OAuth providers, only the `email` and `username` user IDs.
 
-Users using use Keycloak auth with a configuration that makes the user IDs case sensitive should upgrade immediately to Wasp `0.16.6` to keep their Wasp apps secure.
+Users who use Keycloak auth with a configuration that makes the user IDs case sensitive should upgrade immediately to Wasp `0.16.6` to keep their Wasp apps secure.
 
 Upgrade to the latest Wasp version by running:
 
