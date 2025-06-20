@@ -41,34 +41,32 @@ async function ensureUserLoggedIn(railwayExe: RailwayCliExe): Promise<void> {
     return;
   }
 
+  await confirmWithUserTheyWantToLogin();
+  await loginToRailway(railwayExe);
+}
+
+async function isUserLoggedIn(railwayExe: RailwayCliExe): Promise<boolean> {
+  const result = await $({
+    nothrow: true,
+  })`${railwayExe} whoami`;
+  return result.exitCode === 0;
+}
+
+async function confirmWithUserTheyWantToLogin(): Promise<void> {
   const wantsToLogin = await confirm({
-    message:
-      "railway is not logged into Railway. Would you like to log in now?",
+    message: "You are not logged into Railway. Would you like to log in now?",
   });
   if (!wantsToLogin) {
     throw new Error("Unable to continue without logging in to Railway.");
   }
-
-  try {
-    // Login comand requires **interactive** terminal
-    const loginCmdOptions = {
-      stdio: "inherit",
-    } as const;
-    await $(loginCmdOptions)`${railwayExe} login`;
-  } catch {
-    throw new Error(
-      'It seems there was a problem logging in. Please run "railway login" and try again.',
-    );
-  }
 }
 
-async function isUserLoggedIn(railwayExe: RailwayCliExe): Promise<boolean> {
-  try {
-    await $`${railwayExe} whoami`;
-    return true;
-  } catch {
-    return false;
-  }
+async function loginToRailway(railwayExe: RailwayCliExe): Promise<void> {
+  // Login comand requires **interactive** terminal
+  const loginCmdOptions = {
+    stdio: "inherit",
+  } as const;
+  await $(loginCmdOptions)`${railwayExe} login`;
 }
 
 async function getRailwayCliVersion(

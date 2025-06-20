@@ -81,12 +81,10 @@ export async function getRailwayProjectForDirectory(
     // Ignoring stdin and stderr to stop error output from Railway CLI
     stdio: ["ignore", "pipe", "ignore"],
   });
-  if (result.exitCode !== 0) {
-    return null;
+  if (result.exitCode === 0) {
+    return new RailwayProject(RailwayCliProjectSchema.parse(result.json()));
   } else {
-    return new RailwayProject(
-      RailwayCliProjectSchema.parse(JSON.parse(result.stdout)),
-    );
+    return null;
   }
 }
 

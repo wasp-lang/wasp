@@ -73,7 +73,7 @@ export async function assertRegionIsValid(region: string): Promise<void> {
 
 async function regionExists(regionCode: string): Promise<boolean> {
   const proc = await $`flyctl platform regions -j`.verbose(false);
-  const regions = FlyRegionListSchema.parse(JSON.parse(proc.stdout));
+  const regions = FlyRegionListSchema.parse(proc.json());
   return regions.some((r) => {
     const code = "code" in r ? r.code : r.Code;
     return code === regionCode;
@@ -82,7 +82,7 @@ async function regionExists(regionCode: string): Promise<boolean> {
 
 export async function secretExists(secretName: string): Promise<boolean> {
   const proc = await $`flyctl secrets list -j`;
-  const secrets = FlySecretListSchema.parse(JSON.parse(proc.stdout));
+  const secrets = FlySecretListSchema.parse(proc.json());
   return secrets.some((s) => {
     const name = "name" in s ? s.name : s.Name;
     return name === secretName;

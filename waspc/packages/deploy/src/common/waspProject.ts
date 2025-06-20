@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "node:path";
 
-import { cd, ProcessOutput } from "zx";
+import { cd } from "zx";
 import { WaspCliExe, WaspProjectDir } from "./brandedTypes.js";
 import { waspSays } from "./terminal.js";
 import { assertDirIsAbsoluteAndPresent } from "./validation.js";
@@ -12,20 +12,16 @@ export async function assertValidWaspProject(
   waspExe: WaspCliExe,
 ): Promise<void> {
   const waspCli = createCommandWithCwd(waspExe, waspProjectDir);
-  try {
-    await waspCli(["info"], {
-      quiet: true,
-    });
-  } catch (e) {
-    if (e instanceof ProcessOutput && e.exitCode === 1) {
-      const message = [
-        "The supplied Wasp directory does not appear to be a valid Wasp project.",
-        "Please double check your Wasp project directory.",
-      ].join("\n");
-      throw new Error(message);
-    } else {
-      throw e;
-    }
+  const result = await waspCli(["info"], {
+    quiet: true,
+    nothrow: true,
+  });
+  if (result.exitCode !== 0) {
+    const message = [
+      "The supplied Wasp directory does not appear to be a valid Wasp project.",
+      "Please double check your Wasp project directory.",
+    ].join("\n");
+    throw new Error(message);
   }
 }
 
