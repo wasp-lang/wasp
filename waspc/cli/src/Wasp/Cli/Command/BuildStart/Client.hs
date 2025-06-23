@@ -33,10 +33,9 @@ startClient config =
   runNodeCommandAsJob
     webAppDir
     "npm"
-    [ "exec",
-      "vite",
+    [ "run",
+      "preview", -- `preview` launches a static file server for the built client.
       "--",
-      "preview", -- `preview` launches vite just as a webserver to the built files.
       "--port",
       show defaultClientPort,
       "--strictPort" -- This will make it fail if the port is already in use.

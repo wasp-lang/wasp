@@ -28,6 +28,7 @@
   "private": true,
   "scripts": {
     "build": "tsc --build && vite build",
+    "preview": "vite preview",
     "start": "vite"
   },
   "type": "module",

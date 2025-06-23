@@ -15,6 +15,7 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
@@ -65,10 +66,11 @@ buildAndStartServerAndClient config = do
       (startClient config)
       (startServer config)
   where
+    runAndPrintJob :: ExceptJob -> ExceptT String IO ()
     runAndPrintJob exceptJob = ExceptT $ do
       chan <- newChan
-      (_, result) <-
+      (result, _) <-
         concurrently
-          (readJobMessagesAndPrintThemPrefixed chan)
           (runExceptT $ exceptJob chan)
+          (readJobMessagesAndPrintThemPrefixed chan)
       return result
