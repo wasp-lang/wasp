@@ -5,7 +5,8 @@ where
 
 import Wasp.Cli.Command (Command, runCommand)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
-import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require.Db (DbConnectionEstablishedFromOutDir (DbConnectionEstablishedFromOutDir))
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 
@@ -21,7 +22,7 @@ makeDbCommand cmd = do
   -- Ensure code is generated and npm dependencies are installed.
   InWaspProject waspProjectDir <- require
   _ <- compileWithOptions $ compileOptions waspProjectDir
-  DbConnectionEstablished <- require
+  DbConnectionEstablishedFromOutDir <- require
   cmd
   where
     compileOptions waspProjectDir =
