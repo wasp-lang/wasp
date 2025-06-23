@@ -45,8 +45,6 @@ data-files:
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.json
-  Cli/templates/**/*.jsx
-  Cli/templates/**/*.png
   Cli/templates/**/*.ts
   Cli/templates/skeleton/.gitignore
   Cli/templates/skeleton/.wasproot
