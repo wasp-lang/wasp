@@ -182,7 +182,7 @@ printUsage =
         cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
-        cmd   "    build start           Builds the app and then starts it in production mode.",
+        cmd   "    build start           Previews the built app locally.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
         cmd   "    telemetry             Prints telemetry status.",
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",

@@ -1,7 +1,6 @@
 module Wasp.Job.Except
-  ( JobExcept,
-    fromExitCode,
-    toJobExcept,
+  ( ExceptJob,
+    toExceptJob,
     race_,
   )
 where
@@ -9,27 +8,27 @@ where
 import Control.Concurrent (Chan)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
-import Data.Functor (void, (<&>))
+import Data.Functor ((<&>))
 import System.Exit (ExitCode (ExitFailure, ExitSuccess))
 import Wasp.Job (Job)
 import qualified Wasp.Job as J
 
-type JobExcept = Chan J.JobMessage -> ExceptT String IO ()
+type ExceptJob = Chan J.JobMessage -> ExceptT String IO ()
 
-toJobExcept :: (Int -> String) -> Job -> JobExcept
-toJobExcept exitCodeToErrorMessage action chan =
+toExceptJob :: (Int -> String) -> Job -> ExceptJob
+toExceptJob exitCodeToErrorMessage job chan =
   ExceptT $
-    action chan
+    job chan
       <&> fromExitCode exitCodeToErrorMessage
+  where
+    fromExitCode :: (Int -> String) -> ExitCode -> Either String ()
+    fromExitCode _ ExitSuccess = Right ()
+    fromExitCode toErrorMessage (ExitFailure code) = Left $ toErrorMessage code
 
-fromExitCode :: (Int -> String) -> ExitCode -> Either String ()
-fromExitCode _ ExitSuccess = Right ()
-fromExitCode exitCodeToErrorMessage (ExitFailure code) = Left $ exitCodeToErrorMessage code
-
-race_ :: JobExcept -> JobExcept -> JobExcept
+race_ :: ExceptJob -> ExceptJob -> ExceptJob
 race_ except1 except2 chan =
   ExceptT $
-    void . unwrapEither
+    unwrapEither
       <$> Async.race
         (runExceptT $ except1 chan)
         (runExceptT $ except2 chan)
