@@ -5,7 +5,6 @@ import type {
   GetAnythingNoAuth,
   GetAnyToNumberSpecified,
   GetDate,
-  GetSerializedObjects,
   GetTrueVoid,
   TaskToTaskSatisfies,
   TaskToTaskSpecified,
@@ -13,8 +12,6 @@ import type {
   VoidToStringAuth,
   VoidToStringNoAuth,
 } from "wasp/server/operations";
-
-import { SERIALIZABLE_OBJECTS_FIXTURE } from "./fixtures";
 
 export const taskToTaskUnspecified = async (args: Task) => args;
 
@@ -105,11 +102,6 @@ export const boolToVoidAuth: BoolToStringNoAuth<boolean, void> = async (
 export const getDate: GetDate<void, Date> = async () => {
   return new Date();
 };
-
-export const getSerializedObjects: GetSerializedObjects<
-  void,
-  typeof SERIALIZABLE_OBJECTS_FIXTURE
-> = async () => SERIALIZABLE_OBJECTS_FIXTURE;
 
 export const getAnythingAuth: GetAnythingAuth = async () => {
   return "anything";

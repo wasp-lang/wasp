@@ -1,15 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("catch all route + oauth route", () => {
-  test.describe.configure({ mode: "serial" });
-
   test("catch all route renders for unknown route", async ({ page }) => {
     await page.goto("/unknown-route");
 
-    await page.waitForSelector("text=Not found");
+    await expect(page.getByTestId("not-found-title")).toHaveText("Not found");
 
-    await expect(page.locator("body")).toContainText(
-      `We couldn't find anything at the /unknown-route location.`,
+    await expect(page.getByTestId("not-found-message")).toContainText(
+      "We couldn't find anything at the /unknown-route location.",
     );
   });
 

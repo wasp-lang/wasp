@@ -1,14 +1,14 @@
 import { expect, test } from "@playwright/test";
 import {
-  generateRandomCredentials,
+  generateRandomEmail,
+  isRunningInDevMode,
   performEmailVerification,
   performLogin,
-  performSignup,
+  submitLoginForm,
+  submitSignupForm,
 } from "./helpers";
 
 test.describe("auth hooks", () => {
-  test.describe.configure({ mode: "serial" });
-
   /*
     We set up the "before signup hook" to throw an error for a specific email address.
   */
@@ -16,7 +16,7 @@ test.describe("auth hooks", () => {
     const emailThatThrowsError = "notallowed@email.com";
     const password = "12345678";
 
-    await performSignup(page, {
+    await submitSignupForm(page, {
       email: emailThatThrowsError,
       password,
     });
@@ -31,9 +31,10 @@ test.describe("auth hooks", () => {
     We also set up the "after login hook" to set a value in the user object.
   */
   test("after signup and after login hooks work", async ({ page }) => {
-    const { email, password } = generateRandomCredentials();
+    const email = generateRandomEmail();
+    const password = "12345678";
 
-    await performSignup(page, {
+    await submitSignupForm(page, {
       email,
       password,
     });
@@ -45,15 +46,24 @@ test.describe("auth hooks", () => {
       password,
     });
 
-    await expect(page).toHaveURL("/profile");
+    await page.goto("/profile");
 
-    await expect(page.locator("body")).toContainText(
-      "Value of user.isOnAfterSignupHookCalled is true.",
-    );
+    await expect(
+      page.getByTestId("hook-status-onAfterSignup").getByTestId("status"),
+    ).toHaveText("Called");
 
-    await expect(page.locator("body")).toContainText(
-      "Value of user.isOnAfterLoginHookCalled is true.",
-    );
+    await expect(
+      page.getByTestId("hook-status-onAfterLogin").getByTestId("status"),
+    ).toHaveText("Called");
+
+    const expectedEmailVerificationStatus = isRunningInDevMode()
+      ? "Not Called"
+      : "Called";
+    await expect(
+      page
+        .getByTestId("hook-status-onAfterEmailVerified")
+        .getByTestId("status"),
+    ).toHaveText(expectedEmailVerificationStatus);
   });
 
   /*
@@ -63,14 +73,14 @@ test.describe("auth hooks", () => {
     const emailThatThrowsError = "cantlogin@email.com";
     const password = "12345678";
 
-    await performSignup(page, {
+    await submitSignupForm(page, {
       email: emailThatThrowsError,
       password,
     });
 
     await performEmailVerification(page, emailThatThrowsError);
 
-    await performLogin(page, {
+    await submitLoginForm(page, {
       email: emailThatThrowsError,
       password,
     });
