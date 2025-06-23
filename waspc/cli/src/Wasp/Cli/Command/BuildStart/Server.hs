@@ -4,8 +4,8 @@
 module Wasp.Cli.Command.BuildStart.Server
   ( buildServer,
     startServer,
-    makeAppImageName,
-    makeAppContainerName,
+    makeAppDockerImageName,
+    makeAppDockerContainerName,
   )
 where
 
@@ -31,13 +31,13 @@ buildServer buildDir dockerImageName =
     & toExceptJob (("Building the server failed with exit code: " <>) . show)
 
 startServer :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String -> String -> ExceptJob
-startServer projectDir clientUrl dockerImageName containerName =
+startServer projectDir clientUrl dockerImageName dockerContainerName =
   ( \chan -> do
       jwtSecret <- randomAsciiAlphaNum 32 <$> newStdGen
 
       runProcessAsJob
         ( proc "docker" $
-            ["run", "--name", containerName, "--rm", "--env-file", envFilePath, "--network", "host"]
+            ["run", "--name", dockerContainerName, "--rm", "--env-file", envFilePath, "--network", "host"]
               ++
               -- We specifically pass this environment variable from the current
               -- execution to the server container because Prisma will need it,
@@ -66,12 +66,12 @@ startServer projectDir clientUrl dockerImageName containerName =
     toDockerEnvFlags = concatMap (\(name, value) -> ["--env", name ++ "=" ++ value])
 
 -- | Docker image name unique for the Wasp project with specified path and name.
-makeAppImageName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
-makeAppImageName waspProjectDir appName =
+makeAppDockerImageName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
+makeAppDockerImageName waspProjectDir appName =
   map toLower $
     makeAppUniqueId waspProjectDir appName <> "-server"
 
-makeAppContainerName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
-makeAppContainerName waspProjectDir appName =
+makeAppDockerContainerName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
+makeAppDockerContainerName waspProjectDir appName =
   map toLower $
     makeAppUniqueId waspProjectDir appName <> "-server-container"

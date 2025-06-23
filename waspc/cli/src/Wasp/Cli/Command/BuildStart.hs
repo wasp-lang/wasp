@@ -13,7 +13,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
-import Wasp.Cli.Command.BuildStart.Server (buildServer, makeAppContainerName, makeAppImageName, startServer)
+import Wasp.Cli.Command.BuildStart.Server (buildServer, makeAppDockerContainerName, makeAppDockerImageName, startServer)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
@@ -43,28 +43,24 @@ buildStart = do
   -- the server starts if the DB is not running anyway, and with a very clear
   -- error message that we print.
 
-  let (appName, _) = ASV.getApp appSpec
-  let dockerImageName = makeAppImageName waspProjectDir appName
-  let dockerContainerName = makeAppContainerName waspProjectDir appName
-
   result <-
     liftIO $
       runExceptT $
-        buildAndStartServerAndCient waspProjectDir appSpec dockerImageName dockerContainerName
+        buildAndStartServerAndClient waspProjectDir appSpec
 
   case result of
     Left err -> cliSendMessageC $ Msg.Failure "Build and start failed" err
     Right () -> cliSendMessageC $ Msg.Success "Build and start completed successfully."
 
-buildAndStartServerAndCient :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> AppSpec -> String -> String -> ExceptT String IO ()
-buildAndStartServerAndCient waspProjectDir appSpec dockerImageName dockerContainerName = do
-  liftIO $ cliSendMessage $ Msg.Start "Preparing client..."
+buildAndStartServerAndClient :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> AppSpec -> ExceptT String IO ()
+buildAndStartServerAndClient waspProjectDir appSpec = do
+  liftIO $ cliSendMessage $ Msg.Start "Building client..."
   runAndPrintJob $ buildClient buildDir
-  liftIO $ cliSendMessage $ Msg.Success "Client prepared."
+  liftIO $ cliSendMessage $ Msg.Success "Client built."
 
-  liftIO $ cliSendMessage $ Msg.Start "Preparing server..."
+  liftIO $ cliSendMessage $ Msg.Start "Building server..."
   runAndPrintJob $ buildServer buildDir dockerImageName
-  liftIO $ cliSendMessage $ Msg.Success "Server prepared."
+  liftIO $ cliSendMessage $ Msg.Success "Server built."
 
   liftIO $ cliSendMessage $ Msg.Start "Starting client and server..."
   runAndPrintJob $
@@ -72,6 +68,11 @@ buildAndStartServerAndCient waspProjectDir appSpec dockerImageName dockerContain
       (startClient buildDir)
       (startServer waspProjectDir clientUrl dockerImageName dockerContainerName)
   where
+    (appName, _) = ASV.getApp appSpec
+
+    dockerImageName = makeAppDockerImageName waspProjectDir appName
+    dockerContainerName = makeAppDockerContainerName waspProjectDir appName
+
     buildDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
 
     clientUrl = getDefaultDevClientUrl appSpec
