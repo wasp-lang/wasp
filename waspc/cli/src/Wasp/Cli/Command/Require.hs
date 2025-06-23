@@ -37,6 +37,7 @@ import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
 
@@ -76,7 +77,7 @@ instance Requirable InWaspProject where
               ++ " you are running this command from a Wasp project."
           )
 
-data BuildDirExists = BuildDirExists deriving (Typeable)
+data BuildDirExists = BuildDirExists (SP.Path' SP.Abs (SP.Dir ProjectRootDir)) deriving (Typeable)
 
 instance Requirable BuildDirExists where
   checkRequirement = do
@@ -85,10 +86,10 @@ instance Requirable BuildDirExists where
           waspProjectDir
             SP.</> Project.Common.dotWaspDirInWaspProjectDir
             SP.</> Project.Common.buildDirInDotWaspDir
-    doesBuildDirExist <- liftIO $ doesPathExist (SP.fromAbsDir buildDir)
+    doesBuildDirExist <- liftIO $ doesPathExist $ SP.fromAbsDir buildDir
     unless doesBuildDirExist $ do
       throwError $
         CommandError
           "Build directory does not exist"
           "Run `wasp build` first."
-    return BuildDirExists
+    return $ BuildDirExists buildDir

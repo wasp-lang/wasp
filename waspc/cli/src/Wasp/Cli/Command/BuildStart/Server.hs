@@ -4,34 +4,34 @@
 module Wasp.Cli.Command.BuildStart.Server
   ( buildServer,
     startServer,
-    makeAppDockerImageName,
-    makeAppDockerContainerName,
   )
 where
 
-import Data.Char (isAsciiLower, isAsciiUpper, isDigit, toLower)
+import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import Data.Function ((&))
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Process (proc)
 import System.Random (Random (randoms), RandomGen, newStdGen)
-import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
+import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runProcessAsJob)
-import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Env (dotEnvServer)
 
-buildServer :: SP.Path' SP.Abs (SP.Dir ProjectRootDir) -> String -> ExceptJob
-buildServer buildDir dockerImageName =
+buildServer :: BuildStartConfig -> ExceptJob
+buildServer config =
   runProcessAsJob
     (proc "docker" ["build", "--tag", dockerImageName, SP.fromAbsDir buildDir])
     J.Server
     & toExceptJob (("Building the server failed with exit code: " <>) . show)
+  where
+    buildDir = Config.buildDir config
+    dockerImageName = Config.dockerImageName config
 
-startServer :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String -> String -> ExceptJob
-startServer projectDir clientUrl dockerImageName dockerContainerName =
+startServer :: BuildStartConfig -> ExceptJob
+startServer config =
   ( \chan -> do
       jwtSecret <- randomAsciiAlphaNum 32 <$> newStdGen
 
@@ -45,7 +45,7 @@ startServer projectDir clientUrl dockerImageName dockerContainerName =
               ["--env", "DATABASE_URL"]
               ++ toDockerEnvFlags
                 [ ("WASP_WEB_CLIENT_URL", clientUrl),
-                  ("WASP_SERVER_URL", defaultDevServerUrl),
+                  ("WASP_SERVER_URL", serverUrl),
                   ("JWT_SECRET", jwtSecret)
                 ]
               ++ [dockerImageName]
@@ -55,7 +55,13 @@ startServer projectDir clientUrl dockerImageName dockerContainerName =
   )
     & toExceptJob (("Running the server failed with exit code: " <>) . show)
   where
+    projectDir = Config.projectDir config
     envFilePath = SP.fromAbsFile $ projectDir </> dotEnvServer
+
+    clientUrl = Config.clientUrl config
+    serverUrl = Config.serverUrl config
+    dockerContainerName = Config.dockerContainerName config
+    dockerImageName = Config.dockerImageName config
 
     randomAsciiAlphaNum :: RandomGen g => Int -> g -> String
     randomAsciiAlphaNum len gen = take len $ filter isAlphaNum $ randoms gen
@@ -64,14 +70,3 @@ startServer projectDir clientUrl dockerImageName dockerContainerName =
 
     toDockerEnvFlags :: [(String, String)] -> [String]
     toDockerEnvFlags = concatMap (\(name, value) -> ["--env", name ++ "=" ++ value])
-
--- | Docker image name unique for the Wasp project with specified path and name.
-makeAppDockerImageName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
-makeAppDockerImageName waspProjectDir appName =
-  map toLower $
-    makeAppUniqueId waspProjectDir appName <> "-server"
-
-makeAppDockerContainerName :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> String -> String
-makeAppDockerContainerName waspProjectDir appName =
-  map toLower $
-    makeAppUniqueId waspProjectDir appName <> "-server-container"

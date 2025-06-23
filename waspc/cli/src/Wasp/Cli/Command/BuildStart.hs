@@ -7,26 +7,21 @@ import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath ((</>))
-import qualified StrongPath as SP
-import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
-import Wasp.Cli.Command.BuildStart.Server (buildServer, makeAppDockerContainerName, makeAppDockerImageName, startServer)
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (BuildStartConfig))
+import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Generator.WebAppGenerator.Common (getDefaultDevClientUrl)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir)
 
 buildStart :: Command ()
 buildStart = do
-  BuildDirExists <- require
+  BuildDirExists buildDir <- require
 
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir
@@ -43,40 +38,33 @@ buildStart = do
   -- the server starts if the DB is not running anyway, and with a very clear
   -- error message that we print.
 
+  let config = BuildStartConfig appSpec waspProjectDir buildDir
+
   result <-
     liftIO $
       runExceptT $
-        buildAndStartServerAndClient waspProjectDir appSpec
+        buildAndStartServerAndClient config
 
   case result of
     Left err -> cliSendMessageC $ Msg.Failure "Build and start failed" err
     Right () -> cliSendMessageC $ Msg.Success "Build and start completed successfully."
 
-buildAndStartServerAndClient :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> AppSpec -> ExceptT String IO ()
-buildAndStartServerAndClient waspProjectDir appSpec = do
+buildAndStartServerAndClient :: BuildStartConfig -> ExceptT String IO ()
+buildAndStartServerAndClient config = do
   liftIO $ cliSendMessage $ Msg.Start "Building client..."
-  runAndPrintJob $ buildClient buildDir
+  runAndPrintJob $ buildClient config
   liftIO $ cliSendMessage $ Msg.Success "Client built."
 
   liftIO $ cliSendMessage $ Msg.Start "Building server..."
-  runAndPrintJob $ buildServer buildDir dockerImageName
+  runAndPrintJob $ buildServer config
   liftIO $ cliSendMessage $ Msg.Success "Server built."
 
   liftIO $ cliSendMessage $ Msg.Start "Starting client and server..."
   runAndPrintJob $
     ExceptJob.race_
-      (startClient buildDir)
-      (startServer waspProjectDir clientUrl dockerImageName dockerContainerName)
+      (startClient config)
+      (startServer config)
   where
-    (appName, _) = ASV.getApp appSpec
-
-    dockerImageName = makeAppDockerImageName waspProjectDir appName
-    dockerContainerName = makeAppDockerContainerName waspProjectDir appName
-
-    buildDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
-
-    clientUrl = getDefaultDevClientUrl appSpec
-
     runAndPrintJob exceptJob = ExceptT $ do
       chan <- newChan
       (_, result) <-
