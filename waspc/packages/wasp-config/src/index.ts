@@ -28,7 +28,10 @@ export type {
   RouteConfig,
   Schedule,
   ServerConfig,
-  // We don't want to export this type.
+  /**
+   * We don't want to export this type, as it's only used internally by `App`.
+   * Users can't access this type through the public API.
+   */
   // TsAppSpec,
   UsernameAndPasswordConfig,
   WebsocketConfig,
