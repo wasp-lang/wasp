@@ -2,10 +2,9 @@
 
 # This script ensures wasp-app-runner is installed and up-to-date.
 
-SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
-BOLD="\033[1m"
 RESET="\033[0m"
 YELLOW="\033[33m"
 GREEN="\033[32m"
