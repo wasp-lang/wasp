@@ -11,19 +11,19 @@ GREEN="\033[32m"
 RED="\033[31m"
 
 main_flow() {
-  echo -e "Checking run-wasp-app status..."
+  echo -e "Checking wasp-app-runner status..."
 
   if ! is_wasp_app_runner_installed; then
-    echo -e "${YELLOW}run-wasp-app is not installed.${RESET}"
+    echo -e "${YELLOW}wasp-app-runner is not installed.${RESET}"
     if ! install_latest_wasp_app_runner; then
-      echo -e "${RED}Failed to install run-wasp-app. Please check errors above.${RESET}"
+      echo -e "${RED}Failed to install wasp-app-runner. Please check errors above.${RESET}"
       exit 1
     fi
-    echo -e "${GREEN}run-wasp-app is now installed.${RESET}"
+    echo -e "${GREEN}wasp-app-runner is now installed.${RESET}"
     exit 0
   fi
 
-  echo -e "Checking for run-wasp-app updates..."
+  echo -e "Checking for wasp-app-runner updates..."
 
   local INSTALLED_VERSION
   INSTALLED_VERSION=$(get_installed_wasp_app_runner_version)
@@ -32,14 +32,14 @@ main_flow() {
   LATEST_VERSION=$(get_latest_wasp_app_runner_version_from_github)
 
   if [[ "$INSTALLED_VERSION" == "$LATEST_VERSION" ]]; then
-    echo -e "${GREEN}run-wasp-app (version $INSTALLED_VERSION) is up to date.${RESET}"
+    echo -e "${GREEN}wasp-app-runner (version $INSTALLED_VERSION) is up to date.${RESET}"
   else
-    echo -e "${YELLOW}A new version ($LATEST_VERSION) of run-wasp-app is available (installed: $INSTALLED_VERSION).${RESET}"
+    echo -e "${YELLOW}A new version ($LATEST_VERSION) of wasp-app-runner is available (installed: $INSTALLED_VERSION).${RESET}"
     if ! install_latest_wasp_app_runner; then
-      echo -e "${RED}Failed to update run-wasp-app. Please check errors above.${RESET}"
+      echo -e "${RED}Failed to update wasp-app-runner. Please check errors above.${RESET}"
       exit 1
     fi
-    echo -e "${GREEN}run-wasp-app has been updated to version ${LATEST_VERSION}.${RESET}"
+    echo -e "${GREEN}wasp-app-runner has been updated to version ${LATEST_VERSION}.${RESET}"
   fi
   exit 0
 }
@@ -68,7 +68,7 @@ get_latest_wasp_app_runner_version_from_github() {
 }
 
 install_latest_wasp_app_runner() {
-  echo -e "Installing the latest version of run-wasp-app..."
+  echo -e "Installing the latest version of wasp-app-runner..."
 
   local TMP_INSTALL_DIR
   TMP_INSTALL_DIR=$(mktemp -d "${PROJECT_ROOT}/tmp.XXXXXXXXXX")
@@ -118,7 +118,7 @@ install_latest_wasp_app_runner() {
   trap - EXIT TERM INT # Clear the trap as we are done
   rm -rf "$TMP_INSTALL_DIR" > /dev/null 2>&1
 
-  echo -e "${GREEN}run-wasp-app installed/updated successfully.${RESET}"
+  echo -e "${GREEN}wasp-app-runner installed/updated successfully.${RESET}"
   return 0
 }
 
