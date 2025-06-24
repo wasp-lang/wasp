@@ -62,12 +62,12 @@ runGoldenTest goldenTest = do
   -- TODO: Save stdout/error as log file for "contains" checks.
   callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
-  filesForManifestAbsFps <- listFilesForManifest currentOutputDirAbsFp
-  filesForGoldenTestAbsFps <- listFilesForGoldenTest currentOutputDirAbsFp
-  reformatPackageJsonFiles filesForGoldenTestAbsFps
+  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentOutputDirAbsFp
+  filesForCheckingContentAbsFps <- getFilesForCheckingContent currentOutputDirAbsFp
+  reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let manifestAbsFp = currentOutputDirAbsFp FP.</> manifestFileName
-  writeFileManifest currentOutputDirAbsFp filesForManifestAbsFps manifestAbsFp
+  let fileManifestAbsFp = currentOutputDirAbsFp FP.</> fileManifestFileName
+  writeFileManifest currentOutputDirAbsFp filesForCheckingExistenceAbsFps fileManifestAbsFp
 
   let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
@@ -80,40 +80,32 @@ runGoldenTest goldenTest = do
           goldenOutputAbsFp
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentOutputAbsFp <- manifestAbsFp : filesForGoldenTestAbsFps,
+        | currentOutputAbsFp <- fileManifestAbsFp : filesForCheckingContentAbsFps,
           let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
       ]
   where
-    manifestFileName :: String
-    manifestFileName = "files.manifest"
+    fileManifestFileName :: String
+    fileManifestFileName = "files.manifest"
 
     -- Lists files that should be included in the `files.manifest`.
-    listFilesForManifest :: FilePath -> IO [FilePath]
-    listFilesForManifest dirToFilterAbsFp =
-      getDirFiltered (return <$> shouldIncludeInManifest) dirToFilterAbsFp >>= filterM doesFileExist
+    getFilesForCheckingExistence :: FilePath -> IO [FilePath]
+    getFilesForCheckingExistence dirToFilterAbsFp =
+      getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist
 
     -- Lists files that should be compared in golden tests.
-    listFilesForGoldenTest :: FilePath -> IO [FilePath]
-    listFilesForGoldenTest dirToFilterAbsFp =
-      getDirFiltered (return <$> shouldIncludeInGoldenTest) dirToFilterAbsFp >>= filterM doesFileExist
+    getFilesForCheckingContent :: FilePath -> IO [FilePath]
+    getFilesForCheckingContent dirToFilterAbsFp =
+      getDirFiltered (return <$> shouldCheckFileContents) dirToFilterAbsFp >>= filterM doesFileExist
 
-    -- Determines if a file should be included in the `files.manifest`.
-    shouldIncludeInManifest :: FilePath -> Bool
-    shouldIncludeInManifest fp =
+    shouldCheckFileExistence :: FilePath -> Bool
+    shouldCheckFileExistence fp =
       takeFileName fp
         `notElem` [ ".DS_Store",
-                    "dev.db",
-                    "dev.db-journal",
-                    ".gitignore",
-                    ".waspinfo",
-                    "package-lock.json",
                     "node_modules",
-                    "tsconfig.tsbuildinfo"
                   ]
 
-    -- Determines if a file should be included in golden test comparisons.
-    shouldIncludeInGoldenTest :: FilePath -> Bool
-    shouldIncludeInGoldenTest fp =
+    shouldCheckFileContents :: FilePath -> Bool
+    shouldCheckFileContents fp =
       takeFileName fp
         `notElem` [ ".DS_Store",
                     "dev.db",
@@ -127,9 +119,9 @@ runGoldenTest goldenTest = do
                   ]
 
     writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
-    writeFileManifest baseAbsFp filePaths manifestAbsFp = do
+    writeFileManifest baseAbsFp filePaths fileManifestAbsFp = do
       let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
-      writeFile manifestAbsFp sortedRelativeFilePaths
+      writeFile fileManifestAbsFp sortedRelativeFilePaths
 
     -- While Wasp deterministically produces package.json files in the generated code,
     -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
