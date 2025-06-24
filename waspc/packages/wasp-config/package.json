@@ -16,13 +16,9 @@
     "dev": "nodemon ./src/index.ts",
     "test": "vitest --reporter=verbose",
     "test:integration": "vitest --reporter=verbose --project integration",
-    "test:unit": "vitest --reporter=verbose --project unit",
-    "test:type": "vitest --reporter=verbose --project type"
+    "test:type": "vitest --reporter=verbose --project type",
+    "test:unit": "vitest --reporter=verbose --project unit"
   },
-  "//": [
-    "We pin `vitest` version because type tests are an experimental feature,",
-    "and changes to API are not breaking changes."
-  ],
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/node": "^22.4.1",
@@ -33,5 +29,9 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.1.0",
     "vitest": "3.1.2"
-  }
+  },
+  "//": [
+    "We pin `vitest` version because type tests are an experimental feature,",
+    "and changes to API are not breaking changes."
+  ]
 }
