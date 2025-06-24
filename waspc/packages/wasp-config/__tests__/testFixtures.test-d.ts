@@ -3,7 +3,7 @@ import { Branded } from "../src/branded.js";
 import { EmptyObject, FullConfig, MinimalConfig } from "./testFixtures.js";
 
 describe("MinimalConfig<T>", () => {
-  test("should handle primitive types", async () => {
+  test("should not affect primitive types", async () => {
     expectTypeOf<MinimalConfig<string>>().toEqualTypeOf<string>();
     expectTypeOf<MinimalConfig<number>>().toEqualTypeOf<number>();
     expectTypeOf<MinimalConfig<boolean>>().toEqualTypeOf<boolean>();
@@ -13,59 +13,41 @@ describe("MinimalConfig<T>", () => {
     expectTypeOf<MinimalConfig<symbol>>().toEqualTypeOf<symbol>();
   });
 
-  test("should handle empty object", async () => {
+  test("should not affect branded types", async () => {
+    expectTypeOf<MinimalConfig<BrandedType>>().toEqualTypeOf<BrandedType>();
+  });
+
+  test("should convert no props object to EmptyObject", async () => {
     expectTypeOf<
       MinimalConfig<NoPropertiesObject>
     >().toEqualTypeOf<EmptyObject>();
   });
 
-  test("should handle optional props object", async () => {
+  test("should remove optional props", async () => {
     expectTypeOf<MinimalConfig<OptionalObject>>().toEqualTypeOf<EmptyObject>();
   });
 
-  test("should handle nested optional props object", async () => {
-    expectTypeOf<
-      MinimalConfig<OptionalNested<OptionalObject>>
-    >().toEqualTypeOf<EmptyObject>();
-  });
-
-  test("should handle required props object", async () => {
+  test("should not affect required props", async () => {
     expectTypeOf<
       MinimalConfig<RequiredObject>
     >().toEqualTypeOf<RequiredObject>();
   });
 
-  test("should handle nested required props object", async () => {
-    expectTypeOf<MinimalConfig<RequiredNested<RequiredObject>>>().toEqualTypeOf<
-      RequiredNested<RequiredObject>
-    >();
+  test("should handle objects recursively", async () => {
+    expectTypeOf<MinimalConfig<{ nested: unknown }>>().toEqualTypeOf<{
+      nested: MinimalConfig<unknown>;
+    }>();
   });
 
-  test("should handle nested optional props object", async () => {
-    expectTypeOf<MinimalConfig<RequiredNested<OptionalObject>>>().toEqualTypeOf<
-      RequiredNested<EmptyObject>
+  test("should handle objects recursively", async () => {
+    expectTypeOf<MinimalConfig<unknown[]>>().toEqualTypeOf<
+      MinimalConfig<unknown>[]
     >();
-  });
-
-  test("should handle array with optional props object", async () => {
-    expectTypeOf<MinimalConfig<OptionalObject[]>>().toEqualTypeOf<
-      EmptyObject[]
-    >();
-  });
-
-  test("should handle array with required props object", async () => {
-    expectTypeOf<MinimalConfig<RequiredObject[]>>().toEqualTypeOf<
-      RequiredObject[]
-    >();
-  });
-
-  test("should handle branded type", async () => {
-    expectTypeOf<MinimalConfig<BrandedType>>().toEqualTypeOf<BrandedType>();
   });
 });
 
 describe("FullConfig<T>", () => {
-  test("should handle primitive types", async () => {
+  test("should not affect primitive types", async () => {
     expectTypeOf<FullConfig<string>>().toEqualTypeOf<string>();
     expectTypeOf<FullConfig<number>>().toEqualTypeOf<number>();
     expectTypeOf<FullConfig<boolean>>().toEqualTypeOf<boolean>();
@@ -75,58 +57,32 @@ describe("FullConfig<T>", () => {
     expectTypeOf<FullConfig<symbol>>().toEqualTypeOf<symbol>();
   });
 
-  test("should handle empty object", async () => {
-    expectTypeOf<
-      FullConfig<NoPropertiesObject>
-    >().toEqualTypeOf<NoPropertiesObject>();
+  test("should not affect branded types", async () => {
+    expectTypeOf<FullConfig<BrandedType>>().toEqualTypeOf<BrandedType>();
   });
 
-  test("should handle optional props object", async () => {
-    expectTypeOf<FullConfig<OptionalObject>>().toEqualTypeOf<RequiredObject>();
-  });
-
-  test("should handle nested optional props object", async () => {
-    expectTypeOf<FullConfig<OptionalNested<OptionalObject>>>().toEqualTypeOf<
-      RequiredNested<RequiredObject>
-    >();
-  });
-
-  test("should handle required props object", async () => {
+  test("should not affect required props", async () => {
     expectTypeOf<FullConfig<RequiredObject>>().toEqualTypeOf<RequiredObject>();
   });
 
-  test("should handle nested required props object", async () => {
-    expectTypeOf<FullConfig<RequiredNested<RequiredObject>>>().toEqualTypeOf<
-      RequiredNested<RequiredObject>
-    >();
+  test("should make optional props required", async () => {
+    expectTypeOf<FullConfig<OptionalObject>>().toEqualTypeOf<RequiredObject>();
   });
 
-  test("should handle nested required props object", async () => {
-    expectTypeOf<FullConfig<RequiredNested<RequiredObject>>>().toEqualTypeOf<
-      RequiredNested<RequiredObject>
-    >();
+  test("should not affect required props", async () => {
+    expectTypeOf<FullConfig<RequiredObject>>().toEqualTypeOf<RequiredObject>();
   });
 
-  test("should handle nested optional props object", async () => {
-    expectTypeOf<FullConfig<RequiredNested<OptionalObject>>>().toEqualTypeOf<
-      RequiredNested<RequiredObject>
-    >();
+  test("should handle objects recursively", async () => {
+    expectTypeOf<FullConfig<{ nested: unknown }>>().toEqualTypeOf<{
+      nested: FullConfig<unknown>;
+    }>();
   });
 
-  test("should handle array with optional props object", async () => {
-    expectTypeOf<FullConfig<OptionalObject[]>>().toEqualTypeOf<
-      RequiredObject[]
+  test("should handle objects recursively", async () => {
+    expectTypeOf<FullConfig<unknown[]>>().toEqualTypeOf<
+      FullConfig<unknown>[]
     >();
-  });
-
-  test("should handle array with required props object", async () => {
-    expectTypeOf<FullConfig<RequiredObject[]>>().toEqualTypeOf<
-      RequiredObject[]
-    >();
-  });
-
-  test("should handle branded type", async () => {
-    expectTypeOf<FullConfig<BrandedType>>().toEqualTypeOf<BrandedType>();
   });
 });
 
@@ -143,11 +99,5 @@ type OptionalObject = {
 };
 
 type RequiredObject = Required<OptionalObject>;
-
-type OptionalNested<T> = {
-  nested?: T;
-};
-
-type RequiredNested<T> = Required<OptionalNested<T>>;
 
 type BrandedType = Branded<string, "BrandedString">;

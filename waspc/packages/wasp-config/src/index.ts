@@ -29,7 +29,7 @@ export type {
   Schedule,
   ServerConfig,
   /**
-   * We don't want to export this type, as it's only used internally by `App`.
+   * We don't want to export this type, as it's only used internally by the `App`.
    * Users can't access this type through the public API.
    */
   // TsAppSpec,
