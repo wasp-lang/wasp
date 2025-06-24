@@ -18,9 +18,8 @@ describe("MinimalConfig<T>", () => {
   });
 
   test("should convert no props object to EmptyObject", async () => {
-    expectTypeOf<
-      MinimalConfig<NoPropertiesObject>
-    >().toEqualTypeOf<EmptyObject>();
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    expectTypeOf<MinimalConfig<{}>>().toEqualTypeOf<EmptyObject>();
   });
 
   test("should remove optional props", async () => {
@@ -86,18 +85,11 @@ describe("FullConfig<T>", () => {
   });
 });
 
-/**
- * It warns us that `{}` doesn't represent an empty object type, but any non-nullish value.
- * But we specifically want to test the `{}` edge case so we have to ignore it.
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type NoPropertiesObject = {};
-
-type OptionalObject = {
-  prop?: string;
-  anotherProp?: number;
+type RequiredObject = {
+  prop: string;
+  anotherProp: number;
 };
 
-type RequiredObject = Required<OptionalObject>;
+type OptionalObject = Partial<RequiredObject>;
 
 type BrandedType = Branded<string, "BrandedString">;
