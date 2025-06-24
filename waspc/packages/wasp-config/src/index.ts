@@ -28,7 +28,7 @@ export type {
   RouteConfig,
   Schedule,
   ServerConfig,
-  // We don't want to export this tyep
+  // We don't want to export this type.
   // TsAppSpec,
   UsernameAndPasswordConfig,
   WebsocketConfig,
