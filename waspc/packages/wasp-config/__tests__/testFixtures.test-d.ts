@@ -130,6 +130,10 @@ describe("FullConfig<T>", () => {
   });
 });
 
+/**
+ * It warns us that `{}` doesn't represent an empty object type, but any non-nullish value.
+ * But we specifically want to test the `{}` edge case so we have to ignore it.
+ */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type NoPropertiesObject = {};
 
