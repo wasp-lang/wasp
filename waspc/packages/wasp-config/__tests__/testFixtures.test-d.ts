@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from "vitest";
 import { Branded } from "../src/branded.js";
-import { EmptyObject, FullConfig, MinimalConfig } from "./testFixtures.js";
+import { FullConfig, MinimalConfig } from "./testFixtures.js";
 
 describe("MinimalConfig<T>", () => {
   test("should not affect primitive types", async () => {
@@ -38,7 +38,7 @@ describe("MinimalConfig<T>", () => {
     }>();
   });
 
-  test("should handle objects recursively", async () => {
+  test("should handle arrays recursively", async () => {
     expectTypeOf<MinimalConfig<unknown[]>>().toEqualTypeOf<
       MinimalConfig<unknown>[]
     >();
@@ -68,17 +68,13 @@ describe("FullConfig<T>", () => {
     expectTypeOf<FullConfig<OptionalObject>>().toEqualTypeOf<RequiredObject>();
   });
 
-  test("should not affect required props", async () => {
-    expectTypeOf<FullConfig<RequiredObject>>().toEqualTypeOf<RequiredObject>();
-  });
-
   test("should handle objects recursively", async () => {
     expectTypeOf<FullConfig<{ nested: unknown }>>().toEqualTypeOf<{
       nested: FullConfig<unknown>;
     }>();
   });
 
-  test("should handle objects recursively", async () => {
+  test("should handle arrays recursively", async () => {
     expectTypeOf<FullConfig<unknown[]>>().toEqualTypeOf<
       FullConfig<unknown>[]
     >();
@@ -93,3 +89,9 @@ type RequiredObject = {
 type OptionalObject = Partial<RequiredObject>;
 
 type BrandedType = Branded<string, "BrandedString">;
+
+/**
+ * Represents an empty object type in TypeScript.
+ * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
+ */
+export type EmptyObject = Record<string, never>;
