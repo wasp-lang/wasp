@@ -85,14 +85,12 @@ runGoldenTest goldenTest = do
       ]
   where
     expectedFilesListFileName :: String
-    expectedFilesListFileName = "files.manifest"
+    expectedFilesListFileName = "expected-files.manifest"
 
-    -- Lists files that should be included in the `files.manifest`.
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
     getFilesForCheckingExistence dirToFilterAbsFp =
       getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist
 
-    -- Lists files that should be compared in golden tests.
     getFilesForCheckingContent :: FilePath -> IO [FilePath]
     getFilesForCheckingContent dirToFilterAbsFp =
       getDirFiltered (return <$> shouldCheckFileContents) dirToFilterAbsFp >>= filterM doesFileExist
