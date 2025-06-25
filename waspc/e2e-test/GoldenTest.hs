@@ -66,8 +66,8 @@ runGoldenTest goldenTest = do
   filesForCheckingContentAbsFps <- getFilesForCheckingContent currentOutputDirAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let fileManifestAbsFp = currentOutputDirAbsFp FP.</> fileManifestFileName
-  writeFileManifest currentOutputDirAbsFp filesForCheckingExistenceAbsFps fileManifestAbsFp
+  let expectedFilesListAbsFp = currentOutputDirAbsFp FP.</> expectedFilesListFileName
+  writeExpectedFilesList currentOutputDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp
 
   let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
@@ -80,12 +80,12 @@ runGoldenTest goldenTest = do
           goldenOutputAbsFp
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentOutputAbsFp <- fileManifestAbsFp : filesForCheckingContentAbsFps,
+        | currentOutputAbsFp <- expectedFilesListAbsFp : filesForCheckingContentAbsFps,
           let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
       ]
   where
-    fileManifestFileName :: String
-    fileManifestFileName = "files.manifest"
+    expectedFilesListFileName :: String
+    expectedFilesListFileName = "files.manifest"
 
     -- Lists files that should be included in the `files.manifest`.
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
@@ -118,10 +118,10 @@ runGoldenTest goldenTest = do
                     "dist"
                   ]
 
-    writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
-    writeFileManifest baseAbsFp filePaths fileManifestAbsFp = do
-      let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
-      writeFile fileManifestAbsFp sortedRelativeFilePaths
+    writeExpectedFilesList :: String -> [FilePath] -> FilePath -> IO ()
+    writeExpectedFilesList baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
+      let sortedRelativeFps = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
+      writeFile expectedFilesListAbsFp sortedRelativeFps
 
     -- While Wasp deterministically produces package.json files in the generated code,
     -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
