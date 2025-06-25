@@ -1061,8 +1061,8 @@ type FullNamedConfig<T> = {
 export type MinimalConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer TArrayItem>
-      ? Array<MinimalConfig<TArrayItem>>
+    : T extends Array<infer ArrayItem>
+      ? Array<MinimalConfig<ArrayItem>>
       : T extends object
         ? keyof T extends never
           ? EmptyObject
@@ -1073,10 +1073,10 @@ type MinimalConfigObject<T> = {
   [K in keyof T as T[K] extends Required<T>[K] ? K : never]: MinimalConfig<
     T[K]
   >;
-} extends infer TObject
-  ? TObject extends EmptyObject
+} extends infer Object
+  ? Object extends EmptyObject
     ? EmptyObject
-    : TObject
+    : Object
   : never;
 
 /**
@@ -1128,8 +1128,8 @@ export type EmptyObject = Record<string, never>;
 export type FullConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer TArrayItem>
-      ? Array<FullConfig<TArrayItem>>
+    : T extends Array<infer ArrayItem>
+      ? Array<FullConfig<ArrayItem>>
       : T extends object
         ? FullConfigObject<T>
         : T;
