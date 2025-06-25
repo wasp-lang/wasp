@@ -36,20 +36,21 @@ makeGoldenTest :: String -> ShellCommandBuilder [ShellCommand] -> GoldenTest
 makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCommands = commands}
 
 -- | This runs a golden test by creating a Wasp project (via `wasp-cli new`), running commands,
--- and then comparing all file outputs to the corresponding golden test output directory.
+-- and then comparing all file outputs to the corresponding expected test output directory.
 runGoldenTest :: GoldenTest -> IO TestTree
 runGoldenTest goldenTest = do
   testOutputsDirAbsSp <- getTestOutputsDir
   let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
   let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
-  let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
+  let expectedOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-expected")
+  let expectedFilesListAbsFp = currentOutputDirAbsFp FP.</> expectedFilesListFileName
 
   -- Remove existing current output files from a prior test run.
   callCommand $ "rm -rf " ++ currentOutputDirAbsFp
 
-  -- Create current output dir as well as the golden output dir, if missing.
+  -- Create current output dir as well as the expected output dir, if missing.
   callCommand $ "mkdir " ++ currentOutputDirAbsFp
-  callCommand $ "mkdir -p " ++ goldenOutputDirAbsFp
+  callCommand $ "mkdir -p " ++ expectedOutputDirAbsFp
 
   let context =
         ShellCommandContext
@@ -63,13 +64,12 @@ runGoldenTest goldenTest = do
   callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
   filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentOutputDirAbsFp
-  filesForCheckingContentAbsFps <- getFilesForCheckingContent currentOutputDirAbsFp
-  reformatPackageJsonFiles filesForCheckingContentAbsFps
-
-  let expectedFilesListAbsFp = currentOutputDirAbsFp FP.</> expectedFilesListFileName
   writeExpectedFilesList currentOutputDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp
 
-  let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
+  filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
+  reformatPackageJsonFiles filesForCheckingContentAbsFps
+
+  let remapCurrentToExpectedFp fp = unpack $ replace (pack currentOutputDirAbsFp) (pack expectedOutputDirAbsFp) (pack fp)
 
   return $
     testGroup
@@ -77,11 +77,11 @@ runGoldenTest goldenTest = do
       [ goldenVsFileDiff
           currentOutputAbsFp -- The test name that shows in the output.
           (\ref new -> ["diff", "-u", ref, new])
-          goldenOutputAbsFp
+          expectedOutputAbsFp
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentOutputAbsFp <- expectedFilesListAbsFp : filesForCheckingContentAbsFps,
-          let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
+        | currentOutputAbsFp <- filesForCheckingContentAbsFps,
+          let expectedOutputAbsFp = remapCurrentToExpectedFp currentOutputAbsFp
       ]
   where
     expectedFilesListFileName :: String
@@ -99,7 +99,7 @@ runGoldenTest goldenTest = do
     shouldCheckFileExistence fp =
       takeFileName fp
         `notElem` [ ".DS_Store",
-                    "node_modules",
+                    "node_modules"
                   ]
 
     shouldCheckFileContents :: FilePath -> Bool
@@ -127,9 +127,9 @@ runGoldenTest goldenTest = do
     -- All of this can result in e2e flagging these files as being different when it should not.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
-    reformatPackageJsonFiles goldenTestFilePaths = do
-      let packageJsonFilePaths = filter isPathToPackageJson goldenTestFilePaths
-      mapM_ reformatJson packageJsonFilePaths
+    reformatPackageJsonFiles fps = do
+      let packageJsonFps = filter isPathToPackageJson fps
+      mapM_ reformatJson packageJsonFps
       where
         isPathToPackageJson :: FilePath -> Bool
         isPathToPackageJson = ((FP.pathSeparator : "package.json") `isSuffixOf`)
@@ -144,9 +144,9 @@ runGoldenTest goldenTest = do
             }
 
         reformatJson :: FilePath -> IO ()
-        reformatJson jsonFilePath =
-          BSL.writeFile jsonFilePath . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
-            =<< B.readFile jsonFilePath
+        reformatJson jsonFp =
+          BSL.writeFile jsonFp . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
+            =<< B.readFile jsonFp
           where
             unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
             unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
