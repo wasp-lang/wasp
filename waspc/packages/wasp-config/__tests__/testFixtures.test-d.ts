@@ -23,22 +23,26 @@ describe("MinimalConfig<T>", () => {
   });
 
   test("should remove optional props", async () => {
-    expectTypeOf<MinimalConfig<OptionalObject>>().toEqualTypeOf<EmptyObject>();
+    expectTypeOf<
+      MinimalConfig<ObjectWithOptionalPrimitiveProperties>
+    >().toEqualTypeOf<EmptyObject>();
   });
 
   test("should not affect required props", async () => {
     expectTypeOf<
-      MinimalConfig<RequiredObject>
-    >().toEqualTypeOf<RequiredObject>();
+      MinimalConfig<ObjectWithRequiredPrimitiveProperties>
+    >().toEqualTypeOf<ObjectWithRequiredPrimitiveProperties>();
   });
 
-  test("should handle objects recursively", async () => {
-    expectTypeOf<MinimalConfig<{ nested: unknown }>>().toEqualTypeOf<{
-      nested: MinimalConfig<unknown>;
+  test("should recursively apply to nested objects", async () => {
+    expectTypeOf<
+      MinimalConfig<{ nested1: { nested2: unknown } }>
+    >().toEqualTypeOf<{
+      nested1: { nested2: MinimalConfig<unknown> };
     }>();
   });
 
-  test("should handle arrays recursively", async () => {
+  test("Should recursively apply to array items", async () => {
     expectTypeOf<MinimalConfig<unknown[]>>().toEqualTypeOf<
       MinimalConfig<unknown>[]
     >();
@@ -61,32 +65,39 @@ describe("FullConfig<T>", () => {
   });
 
   test("should not affect required props", async () => {
-    expectTypeOf<FullConfig<RequiredObject>>().toEqualTypeOf<RequiredObject>();
+    expectTypeOf<
+      FullConfig<ObjectWithRequiredPrimitiveProperties>
+    >().toEqualTypeOf<ObjectWithRequiredPrimitiveProperties>();
   });
 
   test("should make optional props required", async () => {
-    expectTypeOf<FullConfig<OptionalObject>>().toEqualTypeOf<RequiredObject>();
+    expectTypeOf<
+      FullConfig<ObjectWithOptionalPrimitiveProperties>
+    >().toEqualTypeOf<ObjectWithRequiredPrimitiveProperties>();
   });
 
-  test("should handle objects recursively", async () => {
-    expectTypeOf<FullConfig<{ nested: unknown }>>().toEqualTypeOf<{
-      nested: FullConfig<unknown>;
+  test("should recursively apply to nested objects", async () => {
+    expectTypeOf<
+      FullConfig<{ nested1: { nested2: unknown } }>
+    >().toEqualTypeOf<{
+      nested1: { nested2: FullConfig<unknown> };
     }>();
   });
 
-  test("should handle arrays recursively", async () => {
+  test("Should recursively apply to array items", async () => {
     expectTypeOf<FullConfig<unknown[]>>().toEqualTypeOf<
       FullConfig<unknown>[]
     >();
   });
 });
 
-type RequiredObject = {
-  prop: string;
-  anotherProp: number;
+type ObjectWithRequiredPrimitiveProperties = {
+  prop: unknown;
+  anotherProp: unknown;
 };
 
-type OptionalObject = Partial<RequiredObject>;
+type ObjectWithOptionalPrimitiveProperties =
+  Partial<ObjectWithRequiredPrimitiveProperties>;
 
 type BrandedType = Branded<string, "BrandedString">;
 

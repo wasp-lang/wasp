@@ -1070,7 +1070,7 @@ export type MinimalConfig<T> =
         : T;
 
 type MinimalConfigObject<T> = {
-  [K in keyof T as T[K] extends Required<T>[K] ? K : never]: MinimalConfig<
+  [K in keyof T as EmptyObject extends Pick<T, K> ? never : K]: MinimalConfig<
     T[K]
   >;
 } extends infer Object
