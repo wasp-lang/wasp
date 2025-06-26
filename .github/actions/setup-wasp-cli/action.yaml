@@ -36,18 +36,12 @@ runs:
   using: composite
 
   steps:
-    # - uses: "actions/checkout@v4"
-    #   with:
-    #     # Workaround for a Github Checkout action bug
-    #     # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
-    #     ref: ${{ github.event.pull_request.head.sha }}
-
     - name: Set up Haskell
       uses: ./.github/actions/setup-haskell
       with:
-        ghc-version: ${{ matrix.ghc }}
-        cabal-version: ${{ matrix.cabal }}
-        cabal-project-dir: waspc
+        ghc-version: ${{ inputs.ghc-version }}
+        cabal-version: ${{ inputs.cabal-version }}
+        cabal-project-dir: ${{ inputs.cabal-project-dir }}
         extra-cache-key-segment: ${{ inputs.extra-cache-key-segment }}
 
     - name: Set up Node
