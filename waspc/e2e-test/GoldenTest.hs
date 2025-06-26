@@ -144,9 +144,9 @@ runGoldenTest goldenTest = do
             }
 
         reformatJson :: FilePath -> IO ()
-        reformatJson jsonFilePaths =
-          BSL.writeFile jsonFilePaths . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
-            =<< B.readFile jsonFilePaths
+        reformatJson jsonFilePath =
+          BSL.writeFile jsonFilePath . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
+            =<< B.readFile jsonFilePath
           where
             unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
             unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
