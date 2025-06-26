@@ -69,7 +69,7 @@ jobs:
 
       - name: Get Playwright Version from Example App
         id: get-playwright-version
-        working-directory: waspello
+        working-directory: examples/waspello
         run: |
           npm ci
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
