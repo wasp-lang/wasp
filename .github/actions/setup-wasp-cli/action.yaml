@@ -36,11 +36,11 @@ runs:
   using: composite
 
   steps:
-    - uses: "actions/checkout@v4"
-      with:
-        # Workaround for a Github Checkout action bug
-        # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
-        ref: ${{ github.event.pull_request.head.sha }}
+    # - uses: "actions/checkout@v4"
+    #   with:
+    #     # Workaround for a Github Checkout action bug
+    #     # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+    #     ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Set up Haskell
       uses: ./.github/actions/setup-haskell
@@ -57,17 +57,21 @@ runs:
 
     - name: Compile TS packages and move it into the Cabal data dir
       shell: bash
-      run: ./tools/install_packages_to_data_dir.sh
+      working-directory: waspc
+      run: tools/install_packages_to_data_dir.sh
 
     - name: Build external dependencies
       shell: bash
+      working-directory: waspc
       run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
     - name: Build wasp code
       shell: bash
+      working-directory: waspc
       run: cabal build all
 
     - name: Install Wasp CLI
       shell: bash
+      working-directory: waspc
       id: headless-install-wasp-cli
       run: cabal install
