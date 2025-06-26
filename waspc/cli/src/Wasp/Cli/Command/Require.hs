@@ -84,9 +84,9 @@ data DbConnectionEstablishedFromOutDir = DbConnectionEstablishedFromOutDir deriv
 -- Why is this requirement specific to `.wasp/out`? For the time being, most of
 -- our DB are designed to work in the context of `wasp start`, and the functions
 -- end up depending on two specific outputs:
--- 1. the `.env.server` file, as copied to `<WaspProjectDir>/server/.env`
+-- 1. the `.env.server` file, as copied to `<ProjectRootDir>/server/.env`
 -- 2. the `schema.prisma` file, processed by the Wasp compiler (to add Auth
---   entities), and copied to `<WaspProjectDir>/db/schema.prisma`
+--   entities), and copied to `<ProjectRootDir>/db/schema.prisma`
 --
 -- The `wasp start` command generates these files, but `wasp build` does not, as
 -- it expects the environment variables to be given to the resulting Docker
