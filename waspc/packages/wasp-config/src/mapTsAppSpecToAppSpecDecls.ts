@@ -1,13 +1,13 @@
 /**
- * This module maps the user-facing API to the internal representation of the app (AppSpec Decl).
+ * This module maps the TsAppSpec-facing API to the internal representation of the app (AppSpec Decl).
  * All of the mapping functions are exported so that they can be individually tested.
  */
 
 import * as AppSpec from "./appSpec.js";
-import * as User from "./userApi.js";
+import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
-export function mapUserSpecToAppSpecDecls(
-  spec: User.UserSpec,
+export function mapTsAppSpecToAppSpecDecls(
+  tsAppSpec: TsAppSpec.TsAppSpec,
   entityNames: string[],
 ): AppSpec.Decl[] {
   const {
@@ -26,7 +26,7 @@ export function mapUserSpecToAppSpecDecls(
     server,
     websocket,
     cruds,
-  } = spec;
+  } = tsAppSpec;
 
   const pageNames = Array.from(pages.keys());
   const routeNames = Array.from(routes.keys());
@@ -110,15 +110,15 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
 }
 
 export function mapOperation(
-  config: User.QueryConfig,
+  config: TsAppSpec.QueryConfig,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Query;
 export function mapOperation(
-  config: User.ActionConfig,
+  config: TsAppSpec.ActionConfig,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Action;
 export function mapOperation(
-  config: User.ActionConfig | User.QueryConfig,
+  config: TsAppSpec.ActionConfig | TsAppSpec.QueryConfig,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Action | AppSpec.Query {
   const { fn, entities, auth } = config;
@@ -129,7 +129,9 @@ export function mapOperation(
   };
 }
 
-export function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
+export function mapExtImport(
+  extImport: TsAppSpec.ExtImport,
+): AppSpec.ExtImport {
   if ("import" in extImport) {
     return {
       kind: "named",
@@ -149,12 +151,14 @@ export function mapExtImport(extImport: User.ExtImport): AppSpec.ExtImport {
   }
 }
 
-export function mapHttpRoute(httpRoute: User.HttpRoute): AppSpec.HttpRoute {
+export function mapHttpRoute(
+  httpRoute: TsAppSpec.HttpRoute,
+): AppSpec.HttpRoute {
   return [httpRoute.method, httpRoute.route];
 }
 
 export function mapApi(
-  config: User.ApiConfig,
+  config: TsAppSpec.ApiConfig,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Api {
   const { fn, middlewareConfigFn, entities, httpRoute, auth } = config;
@@ -168,7 +172,7 @@ export function mapApi(
 }
 
 export function mapApiNamespace(
-  config: User.ApiNamespaceConfig,
+  config: TsAppSpec.ApiNamespaceConfig,
 ): AppSpec.ApiNamespace {
   const { middlewareConfigFn, path } = config;
   return {
@@ -178,16 +182,16 @@ export function mapApiNamespace(
 }
 
 export function mapApp(
-  app: User.AppConfig,
+  app: TsAppSpec.AppConfig,
   // TODO: Make this better, optional props are problematic so I have to pass the parsers first
   entityRefParser: RefParser<"Entity">,
   routeRefParser: RefParser<"Route">,
-  auth?: User.AuthConfig,
-  client?: User.ClientConfig,
-  server?: User.ServerConfig,
-  db?: User.DbConfig,
-  emailSender?: User.EmailSenderConfig,
-  webSocket?: User.WebsocketConfig,
+  auth?: TsAppSpec.AuthConfig,
+  client?: TsAppSpec.ClientConfig,
+  server?: TsAppSpec.ServerConfig,
+  db?: TsAppSpec.DbConfig,
+  emailSender?: TsAppSpec.EmailSenderConfig,
+  webSocket?: TsAppSpec.WebsocketConfig,
 ): AppSpec.App {
   const { title, wasp, head } = app;
   return {
@@ -204,7 +208,7 @@ export function mapApp(
 }
 
 export function mapAuth(
-  auth: User.AuthConfig,
+  auth: TsAppSpec.AuthConfig,
   entityRefParser: RefParser<"Entity">,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.Auth {
@@ -243,7 +247,7 @@ export function mapAuth(
 }
 
 export function mapAuthMethods(
-  methods: User.AuthMethods,
+  methods: TsAppSpec.AuthMethods,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.AuthMethods {
   // TODO: check keyof danger, effective ts
@@ -261,7 +265,7 @@ export function mapAuthMethods(
 }
 
 export function mapUsernameAndPassword(
-  usernameAndPassword: User.UsernameAndPasswordConfig,
+  usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
 ): AppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword;
   return {
@@ -270,7 +274,7 @@ export function mapUsernameAndPassword(
 }
 
 export function mapExternalAuth(
-  externalAuth: User.ExternalAuthConfig,
+  externalAuth: TsAppSpec.ExternalAuthConfig,
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth;
   return {
@@ -280,7 +284,7 @@ export function mapExternalAuth(
 }
 
 export function mapEmailAuth(
-  emailConfig: User.EmailAuthConfig,
+  emailConfig: TsAppSpec.EmailAuthConfig,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.EmailAuthConfig {
   const { userSignupFields, fromField, emailVerification, passwordReset } =
@@ -294,7 +298,7 @@ export function mapEmailAuth(
 }
 
 export function mapEmailVerification(
-  emailVerification: User.EmailVerificationConfig,
+  emailVerification: TsAppSpec.EmailVerificationConfig,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailVerification;
@@ -305,7 +309,7 @@ export function mapEmailVerification(
 }
 
 export function mapPasswordReset(
-  passwordReset: User.PasswordResetConfig,
+  passwordReset: TsAppSpec.PasswordResetConfig,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.PasswordResetConfig {
   const { getEmailContentFn, clientRoute } = passwordReset;
@@ -315,7 +319,7 @@ export function mapPasswordReset(
   };
 }
 
-export function mapDb(db: User.DbConfig): AppSpec.Db {
+export function mapDb(db: TsAppSpec.DbConfig): AppSpec.Db {
   const { seeds, prismaSetupFn } = db;
   return {
     seeds: seeds?.map(mapExtImport),
@@ -324,7 +328,7 @@ export function mapDb(db: User.DbConfig): AppSpec.Db {
 }
 
 export function mapEmailSender(
-  emailSender: User.EmailSenderConfig,
+  emailSender: TsAppSpec.EmailSenderConfig,
 ): AppSpec.EmailSender {
   const { provider, defaultFrom } = emailSender;
   return {
@@ -334,7 +338,7 @@ export function mapEmailSender(
 }
 
 export function mapEmailFromField(
-  defaultFrom: User.EmailFromField,
+  defaultFrom: TsAppSpec.EmailFromField,
 ): AppSpec.EmailFromField {
   return (
     defaultFrom && {
@@ -344,7 +348,7 @@ export function mapEmailFromField(
   );
 }
 
-export function mapServer(server: User.ServerConfig): AppSpec.Server {
+export function mapServer(server: TsAppSpec.ServerConfig): AppSpec.Server {
   const { setupFn, middlewareConfigFn, envValidationSchema } = server;
   return {
     setupFn: setupFn && mapExtImport(setupFn),
@@ -354,7 +358,7 @@ export function mapServer(server: User.ServerConfig): AppSpec.Server {
   };
 }
 
-export function mapClient(client: User.ClientConfig): AppSpec.Client {
+export function mapClient(client: TsAppSpec.ClientConfig): AppSpec.Client {
   const { setupFn, rootComponent, baseDir, envValidationSchema } = client;
   return {
     setupFn: setupFn && mapExtImport(setupFn),
@@ -366,7 +370,7 @@ export function mapClient(client: User.ClientConfig): AppSpec.Client {
 }
 
 export function mapWebSocket(
-  websocket: User.WebsocketConfig,
+  websocket: TsAppSpec.WebsocketConfig,
 ): AppSpec.WebSocket {
   const { fn, autoConnect } = websocket;
   return {
@@ -376,7 +380,7 @@ export function mapWebSocket(
 }
 
 export function mapJob(
-  job: User.JobConfig,
+  job: TsAppSpec.JobConfig,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Job {
   const { executor, perform, schedule, entities } = job;
@@ -388,7 +392,7 @@ export function mapJob(
   };
 }
 
-export function mapSchedule(schedule: User.ScheduleConfig): AppSpec.Schedule {
+export function mapSchedule(schedule: TsAppSpec.Schedule): AppSpec.Schedule {
   const { cron, args, executorOptions } = schedule;
   return {
     cron,
@@ -397,7 +401,7 @@ export function mapSchedule(schedule: User.ScheduleConfig): AppSpec.Schedule {
   };
 }
 
-export function mapPerform(perform: User.Perform): AppSpec.Perform {
+export function mapPerform(perform: TsAppSpec.Perform): AppSpec.Perform {
   const { fn, executorOptions } = perform;
   return {
     fn: mapExtImport(fn),
@@ -406,7 +410,7 @@ export function mapPerform(perform: User.Perform): AppSpec.Perform {
 }
 
 export function mapRoute(
-  route: User.RouteConfig,
+  route: TsAppSpec.RouteConfig,
   pageRefParser: RefParser<"Page">,
 ): AppSpec.Route {
   const { path, to } = route;
@@ -417,7 +421,7 @@ export function mapRoute(
 }
 
 export function mapCrud(
-  crudConfig: User.Crud,
+  crudConfig: TsAppSpec.CrudConfig,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Crud {
   const { entity, operations } = crudConfig;
@@ -428,7 +432,7 @@ export function mapCrud(
 }
 
 export function mapCrudOperations(
-  operations: User.CrudOperations,
+  operations: TsAppSpec.CrudOperations,
 ): AppSpec.CrudOperations {
   const { get, getAll, create, update, delete: del } = operations;
   // TODO: Do this for all keys
@@ -442,7 +446,7 @@ export function mapCrudOperations(
 }
 
 export function mapCrudOperationOptions(
-  options: User.CrudOperationOptions,
+  options: TsAppSpec.CrudOperationOptions,
 ): AppSpec.CrudOperationOptions {
   const { isPublic, overrideFn } = options;
   return {
@@ -451,7 +455,7 @@ export function mapCrudOperationOptions(
   };
 }
 
-export function mapPage(pageConfig: User.PageConfig): AppSpec.Page {
+export function mapPage(pageConfig: TsAppSpec.PageConfig): AppSpec.Page {
   const { component, authRequired } = pageConfig;
   return {
     component: mapExtImport(component),
