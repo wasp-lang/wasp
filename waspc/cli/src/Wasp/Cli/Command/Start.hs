@@ -12,8 +12,7 @@ import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Command.Require.Db (DbConnectionEstablishedFromOutDir (DbConnectionEstablishedFromOutDir))
+import Wasp.Cli.Command.Require (DbConnectionEstablishedFromOutDir (DbConnectionEstablishedFromOutDir), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg

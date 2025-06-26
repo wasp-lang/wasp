@@ -5,8 +5,7 @@ where
 
 import Wasp.Cli.Command (Command, runCommand)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Command.Require.Db (DbConnectionEstablishedFromOutDir (DbConnectionEstablishedFromOutDir))
+import Wasp.Cli.Command.Require (DbConnectionEstablishedFromOutDir (DbConnectionEstablishedFromOutDir), InWaspProject (InWaspProject), require)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 
