@@ -69,7 +69,7 @@ runGoldenTest goldenTest = do
   filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToGoldenFp fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFilePaths fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
   return $
     testGroup
@@ -81,7 +81,7 @@ runGoldenTest goldenTest = do
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
         | currentOutputAbsFp <- filesForCheckingContentAbsFps,
-          let goldenOutputAbsFp = remapCurrentToGoldenFp currentOutputAbsFp
+          let goldenOutputAbsFp = remapCurrentToGoldenFilePaths currentOutputAbsFp
       ]
   where
     expectedFilesListFileName :: String
@@ -96,15 +96,15 @@ runGoldenTest goldenTest = do
       getDirFiltered (return <$> shouldCheckFileContents) dirToFilterAbsFp >>= filterM doesFileExist
 
     shouldCheckFileExistence :: FilePath -> Bool
-    shouldCheckFileExistence fp =
-      takeFileName fp
+    shouldCheckFileExistence filePath =
+      takeFileName filePath
         `notElem` [ ".DS_Store",
                     "node_modules"
                   ]
 
     shouldCheckFileContents :: FilePath -> Bool
-    shouldCheckFileContents fp =
-      takeFileName fp
+    shouldCheckFileContents filePath =
+      takeFileName filePath
         `notElem` [ ".DS_Store",
                     "dev.db",
                     "dev.db-journal",
@@ -118,8 +118,8 @@ runGoldenTest goldenTest = do
 
     writeExpectedFilesList :: String -> [FilePath] -> FilePath -> IO ()
     writeExpectedFilesList baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
-      let sortedRelativeFps = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
-      writeFile expectedFilesListAbsFp sortedRelativeFps
+      let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
+      writeFile expectedFilesListAbsFp sortedRelativeFilePaths
 
     -- While Wasp deterministically produces package.json files in the generated code,
     -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
@@ -127,9 +127,9 @@ runGoldenTest goldenTest = do
     -- All of this can result in e2e flagging these files as being different when it should not.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
-    reformatPackageJsonFiles fps = do
-      let packageJsonFps = filter isPathToPackageJson fps
-      mapM_ reformatJson packageJsonFps
+    reformatPackageJsonFiles filePaths = do
+      let packageJsonFilePaths = filter isPathToPackageJson filePaths
+      mapM_ reformatJson packageJsonFilePaths
       where
         isPathToPackageJson :: FilePath -> Bool
         isPathToPackageJson = ((FP.pathSeparator : "package.json") `isSuffixOf`)
@@ -144,9 +144,9 @@ runGoldenTest goldenTest = do
             }
 
         reformatJson :: FilePath -> IO ()
-        reformatJson jsonFp =
-          BSL.writeFile jsonFp . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
-            =<< B.readFile jsonFp
+        reformatJson jsonFilePaths =
+          BSL.writeFile jsonFilePaths . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
+            =<< B.readFile jsonFilePaths
           where
             unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
             unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
