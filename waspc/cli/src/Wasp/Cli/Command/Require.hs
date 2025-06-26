@@ -79,7 +79,7 @@ instance Requirable InWaspProject where
 
 data DbConnectionEstablishedFromOutDir = DbConnectionEstablishedFromOutDir deriving (Typeable)
 
--- TODO(carlos): Modify this requirement to work in `.wasp/build` as well
+-- TODO(carlos): Modify this requirement to work in `.wasp/build` as well (#2858)
 --
 -- Why is this requirement specific to `.wasp/out`? For the time being, most of
 -- our DB are designed to work in the context of `wasp start`, and the functions
