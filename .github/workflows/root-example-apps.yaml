@@ -132,8 +132,7 @@ jobs:
           # Useful for debugging when the playwright webserver fails.
           # DEBUG: pw:webserver
         run: |
-          # Runs the tests with the debug flag so that we can see Wasp output
-          npx playwright test --config headless-tests/
+          npx playwright test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}/headless-tests
@@ -142,5 +141,4 @@ jobs:
           # Useful for debugging when the playwright webserver fails.
           # DEBUG: pw:webserver
         run: |
-          # Runs the tests with the debug flag so that we can see Wasp output
-          npx playwright test --config headless-tests/
+          npx playwright test
