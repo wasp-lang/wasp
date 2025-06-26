@@ -69,7 +69,7 @@ runGoldenTest goldenTest = do
   filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToGoldenFilePaths fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
   return $
     testGroup
@@ -81,7 +81,7 @@ runGoldenTest goldenTest = do
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
         | currentOutputAbsFp <- filesForCheckingContentAbsFps,
-          let goldenOutputAbsFp = remapCurrentToGoldenFilePaths currentOutputAbsFp
+          let goldenOutputAbsFp = remapCurrentToGoldenFilePath currentOutputAbsFp
       ]
   where
     expectedFilesListFileName :: String
