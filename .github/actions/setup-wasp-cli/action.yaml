@@ -32,6 +32,8 @@ inputs:
       caches separate, as they are not compatible.
     required: false
 
+defaults:
+  shell: bash
 
 runs:
   using: composite
