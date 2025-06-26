@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       playwright-version: ${{ steps.get-playwright-version.outputs.version }}
-    
+
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -76,7 +76,7 @@ jobs:
     name: Test Example Apps
     runs-on: ubuntu-22.04
     needs: setup-and-cache
-    
+
     strategy:
       fail-fast: false
       matrix:
