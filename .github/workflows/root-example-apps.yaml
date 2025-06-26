@@ -130,7 +130,7 @@ jobs:
         env:
           HEADLESS_TEST_MODE: dev
           # Useful for debugging when the playwright webserver fails.
-          # DEBUG: pw:webserver
+          DEBUG: pw:webserver
         run: |
           npx playwright test
 
@@ -139,6 +139,6 @@ jobs:
         env:
           HEADLESS_TEST_MODE: build
           # Useful for debugging when the playwright webserver fails.
-          # DEBUG: pw:webserver
+          DEBUG: pw:webserver
         run: |
           npx playwright test
