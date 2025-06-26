@@ -1,0 +1,158 @@
+name: Run headless tests on root example apps
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup-and-cache:
+    name: Setup Global Dependencies and Cache Playwright
+    runs-on: ubuntu-22.04
+    outputs:
+      playwright-version: ${{ steps.get-playwright-version.outputs.version }}
+    
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Cache Wasp Installation
+        id: cache-wasp
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/wasp-lang
+          key: wasp-${{ runner.os }}-latest
+          restore-keys: |
+            wasp-${{ runner.os }}-
+
+      - name: Set up Wasp
+        id: setup-wasp
+        if: steps.cache-wasp.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL https://get.wasp.sh/installer.sh | sh
+
+      - name: Add Wasp to PATH
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Wasp App Runner
+        id: cache-wasp-app-runner
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: wasp-app-runner-${{ runner.os }}-latest
+          restore-keys: |
+            wasp-app-runner-${{ runner.os }}-
+
+      - name: Set up Wasp App Runner
+        if: steps.cache-wasp-app-runner.outputs.cache-hit != 'true'
+        uses: wasp-lang/runner-action@main
+
+      - name: Get Playwright Version from Example App
+        id: get-playwright-version
+        working-directory: examples/waspello
+        run: |
+          npm ci
+          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+          echo "version=$PLAYWRIGHT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright Browsers for Playwright's Version
+        id: cache-playwright-browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ steps.get-playwright-version.outputs.version }}
+
+      - name: Setup Playwright
+        id: setup-playwright
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+        run: |
+          npx playwright install --with-deps
+
+  test-example-apps:
+    name: Test Example Apps
+    runs-on: ubuntu-22.04
+    needs: setup-and-cache
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - tutorials/TodoApp
+          - tutorials/TodoAppTs
+          - waspello
+          - waspleau
+          - websockets-realtime-voting
+
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Restore Wasp Installation Cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.local/share/wasp-lang
+          key: wasp-${{ runner.os }}-latest
+          restore-keys: |
+            wasp-${{ runner.os }}-
+      - name: Add Wasp to PATH
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Restore Wasp App Runner Cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.npm
+          key: wasp-app-runner-${{ runner.os }}-latest
+          restore-keys: |
+            wasp-app-runner-${{ runner.os }}-
+
+      - name: Set up Wasp App Runner
+        uses: wasp-lang/runner-action@main
+
+      - name: Restore Playwright Browsers Cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ needs.setup-and-cache.outputs.playwright-version }}
+
+      - name: Install Dependencies for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          npm ci
+
+      - name: Run Headless Tests for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}/headless-tests
+        # Useful for debugging when the playwright webserver fails.
+        # env:
+        #   DEBUG: pw:webserver
+        run: |
+          npx playwright test
