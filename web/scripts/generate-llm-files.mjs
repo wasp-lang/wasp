@@ -15,12 +15,18 @@ const LLM_FULL_FILENAME = 'llms-full.txt'
 const LLM_OVERVIEW_FILENAME = 'llms.txt'
 const LLMS_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_OVERVIEW_FILENAME)
 const LLMS_FULL_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_FULL_FILENAME)
+const CATEGORIES_TO_IGNORE = ['Miscellaneous']
 
 const OVERVIEW_INTRO_CONTENT = `
 # Wasp
 Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.
 
 ## Individual documentation sections and guides:
+`
+const OVERVIEW_MISC_SECTION_CONTENT = `
+## Miscellaneous
+- [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
+- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
 `
 
 await generateFiles()
@@ -32,22 +38,17 @@ await generateFiles()
  */
 async function generateFiles() {
   console.log('Starting LLM file generation...')
-  let llmsTxtContent = OVERVIEW_INTRO_CONTENT
-  let llmsFullTxtContent = ''
 
-  const docProcessingResult = await processDocumentationFiles(
-    docsSidebarConfig.docs
-  )
+  const { overviewDocsSection, fullConcatContent } =
+    await processDocumentationFiles(docsSidebarConfig.docs)
+  const blogSectionContent = await processBlogFiles()
 
-  llmsTxtContent += docProcessingResult.overviewDocsSection
-  llmsFullTxtContent = docProcessingResult.fullConcatContent
-
-  const blogSection = await processBlogFiles()
-  if (blogSection) {
-    llmsTxtContent += `\n${blogSection}\n\n`
-  }
-
-  llmsTxtContent += getMiscSectionContent()
+  const llmsTxtContent =
+    OVERVIEW_INTRO_CONTENT +
+    overviewDocsSection +
+    blogSectionContent +
+    OVERVIEW_MISC_SECTION_CONTENT
+  const llmsFullTxtContent = fullConcatContent
 
   await writeOutputFiles(llmsTxtContent, llmsFullTxtContent)
   console.log('🎉 LLM file generation complete.')
@@ -213,6 +214,35 @@ function normalizePathToDocId(filePath) {
 }
 
 /**
+ * Returns an ordered structure of the sidebar categories and their docIds.
+ * This is used for generating the overview section of the LLM files.
+ * It ignores categories that are not relevant for the LLM context (e.g., 'Miscellaneous').
+ * @param {object[]} sidebarTopLevelItems - The top-level items from the sidebar config.
+ * @returns {object[]} A structured array of objects, each containing a categoryLabel and its array of docIds.
+ */
+function getDocsSidebarCategoryStructure(sidebarTopLevelItems) {
+  const structuredOverview = []
+
+  for (const topItem of sidebarTopLevelItems) {
+    if (
+      topItem.type === 'category' &&
+      topItem.label &&
+      topItem.items &&
+      !CATEGORIES_TO_IGNORE.includes(topItem.label)
+    ) {
+      const docIdsWithinCategory = flattenSidebarItemsToDocIds(topItem.items)
+      if (docIdsWithinCategory.length > 0) {
+        structuredOverview.push({
+          categoryLabel: topItem.label,
+          docIds: docIdsWithinCategory,
+        })
+      }
+    }
+  }
+  return structuredOverview
+}
+
+/**
  * Recursively traverses the sidebar configuration to produce a flat, ordered list of document IDs.
  * @param {object[]} items - An array of sidebar items (strings or objects).
  * @returns {string[]} A flat array of doc ID strings.
@@ -235,37 +265,6 @@ function flattenSidebarItemsToDocIds(items) {
 }
 
 /**
- * Returns an ordered structure of the sidebar categories and their docIds.
- * This is used for generating the overview section of the LLM files.
- * It ignores categories that are not relevant for the LLM context (e.g., 'Miscellaneous').
- * @param {object[]} sidebarTopLevelItems - The top-level items from the sidebar config.
- * @returns {object[]} A structured array of objects, each containing a categoryLabel and its array of docIds.
- */
-function getDocsSidebarCategoryStructure(sidebarTopLevelItems) {
-  const structuredOverview = []
-  const categoriesToIgnore = ['Miscellaneous']
-  if (!sidebarTopLevelItems) return structuredOverview
-
-  for (const topItem of sidebarTopLevelItems) {
-    if (
-      topItem.type === 'category' &&
-      topItem.label &&
-      topItem.items &&
-      !categoriesToIgnore.includes(topItem.label)
-    ) {
-      const docIdsWithinCategory = flattenSidebarItemsToDocIds(topItem.items)
-      if (docIdsWithinCategory.length > 0) {
-        structuredOverview.push({
-          categoryLabel: topItem.label,
-          docIds: docIdsWithinCategory,
-        })
-      }
-    }
-  }
-  return structuredOverview
-}
-
-/**
  * Processes all blog post files, extracting their title, date, and URL.
  * It returns a markdown-formatted string of the blog posts, sorted by date.
  * @returns {Promise<string>} A promise that resolves to a markdown string listing the blog posts.
@@ -281,46 +280,21 @@ async function processBlogFiles() {
   const blogPostsData = []
 
   for (const file of blogPostFiles) {
-    const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})-.*\.(mdx|md)$/)
+    const dateMatch = validateBlogFileDate(file)
     if (!dateMatch) {
-      if (
-        file !== 'authors.yml' &&
-        !file.startsWith('_') &&
-        !file.includes('components/')
-      ) {
-        console.warn(
-          `Skipping file in web/blog, does not match YYYY-MM-DD-name.md(x) naming convention or is an ignored type: ${file}`
-        )
-      }
       continue
     }
-
     const dateString = dateMatch[1]
     const absoluteFilePath = path.join(BLOG_DIR, file)
     try {
       const rawContent = await fs.readFile(absoluteFilePath, 'utf8')
       const { attributes } = fm(rawContent)
-      let title = attributes.title
-      if (!title) {
-        title = path.basename(file, path.extname(file))
-        title = title.replace(/^\d{4}-\d{2}-\d{2}-/, '')
-        title = title.replace(/-/g, ' ')
-        title = title
-          .split(' ')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ')
-      }
 
-      const fileNoExt = file.replace(/\.(mdx|md)$/, '')
-      const fileParts = fileNoExt.split('-')
-      if (fileParts.length >= 4) {
-        const year = fileParts[0]
-        const month = fileParts[1]
-        const day = fileParts[2]
-        const slug = fileParts.slice(3).join('-')
-        let blogPath = `${WASP_BASE_URL}blog/${year}/${month}/${day}/${slug}`
-        blogPath = blogPath.replace(/\\/g, '/')
-        blogPostsData.push({ title, dateString, linkPath: blogPath })
+      const title = extractBlogPostTitle(attributes, file)
+      const linkPath = constructBlogUrl(file)
+
+      if (linkPath) {
+        blogPostsData.push({ title, dateString, linkPath })
       } else {
         console.warn(
           `Skipping blog post ${file}, does not match YYYY-MM-DD-name.md(x) naming convention`
@@ -346,6 +320,78 @@ async function processBlogFiles() {
   } else {
     return ''
   }
+}
+
+/**
+ * Validates a blog post filename against the 'YYYY-MM-DD-slug' format.
+ * Logs a warning for files that don't match and aren't explicitly ignored.
+ * @param {string} file - The filename to validate.
+ * @returns {RegExpMatchArray | null} The result of the match, or null if it doesn't match.
+ */
+function validateBlogFileDate(file) {
+  const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})-.*\.(mdx|md)$/)
+  if (dateMatch) {
+    return dateMatch
+  }
+
+  // If it doesn't match, check if it's a file type we should warn about.
+  const isIgnoredType =
+    file === 'authors.yml' ||
+    file.startsWith('_') ||
+    file.includes('components/')
+
+  if (!isIgnoredType) {
+    console.warn(
+      `Skipping file in web/blog, does not match YYYY-MM-DD-name.md(x) naming convention or is an ignored type: ${file}`
+    )
+  }
+  return null
+}
+
+/**
+ * Extracts the title for a blog post.
+ * It first checks for a title in the front-matter attributes. If not found,
+ * it generates a title from the filename.
+ * @param {object} attributes - The front-matter attributes from the blog post file.
+ * @param {string} filename - The filename of the blog post.
+ * @returns {string} The extracted or generated title.
+ */
+function extractBlogPostTitle(attributes, filename) {
+  if (attributes.title) {
+    return attributes.title
+  }
+
+  // Generate title from filename if not in front-matter
+  let title = path.basename(filename, path.extname(filename))
+  title = title.replace(/^\d{4}-\d{2}-\d{2}-/, '') // Remove date prefix
+  title = title.replace(/-/g, ' ') // Replace hyphens with spaces
+  // Capitalize each word
+  return title
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+/**
+ * Constructs the absolute URL for a blog post based on its filename.
+ * The filename is expected to follow the 'YYYY-MM-DD-slug' format.
+ * @param {string} filename - The filename of the blog post.
+ * @returns {string|null} The full URL to the blog post, or null if the filename format is invalid.
+ */
+function constructBlogUrl(filename) {
+  const fileNoExt = filename.replace(/\.(mdx|md)$/, '')
+  const fileParts = fileNoExt.split('-')
+
+  if (fileParts.length < 4) {
+    return null // Invalid format
+  }
+
+  const year = fileParts[0]
+  const month = fileParts[1]
+  const day = fileParts[2]
+  const slug = fileParts.slice(3).join('-')
+  const blogPath = `${WASP_BASE_URL}blog/${year}/${month}/${day}/${slug}`
+  return blogPath.replace(/\\/g, '/')
 }
 
 /**
@@ -380,7 +426,6 @@ function cleanDocContent(content) {
   // Example: import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
   const importRegex =
     /^\s*import\s+(.+?)\s+from\s+['"]@site\/src\/components\/Tag['"]\s*;?\s*$/gm
-  let importMatch
 
   // Helper to extract actual component names (including aliases)
   // Defined inside cleanContent to be self-contained
@@ -407,13 +452,11 @@ function cleanDocContent(content) {
   }
 
   // Scan the original content for these specific imports BEFORE any modifications
-  // Global regex exec updates lastIndex, so use original content string for scanning.
-  while ((importMatch = importRegex.exec(content)) !== null) {
-    extractNames(importMatch[1]).forEach((name) =>
+  for (const importMatch of content.matchAll(importRegex)) {
+    for (const name of extractNames(importMatch[1])) {
       componentsToReplace.add(name)
-    )
+    }
   }
-  importRegex.lastIndex = 0 // Reset regex for any potential future use within same scope if it were designed differently
 
   let cleaned = content // Start modifications from original content
 
@@ -430,16 +473,6 @@ function cleanDocContent(content) {
   cleaned = cleaned.replace(/^\{\/\*.*\*\/\}\s*$/gm, '')
   // Remove lines like <!-- TODO: ... -->
   cleaned = cleaned.replace(/^<!--.*-->\s*$/gm, '')
-  // Remove components that are not in the componentsToReplace set
-  cleaned = cleaned.replace(/<[^>]+>|<\/[^>]+>/g, '')
-  // Remove Emojis using specific ranges (less likely to remove digits)
-  cleaned = cleaned.replace(
-    /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{FE00}-\u{FE0F}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA70}-\u{1FAFF}]/gu,
-    ''
-  )
-  cleaned = cleaned.replace(/\u00A0/g, ' ') // Replace non-breaking space with regular space
-  // Remove Box Drawing Characters (single and double line)
-  cleaned = cleaned.replace(/[│├└─╔═╗║╚╝]/g, '')
   // Remove more than two line breaks
   cleaned = cleaned.replace(/\n{3,}/g, '\n\n')
 
@@ -447,8 +480,4 @@ function cleanDocContent(content) {
   cleaned = cleaned.replace(/^(#{1,6})\s/gm, '#$1 ')
 
   return cleaned.trim()
-}
-
-function getMiscSectionContent() {
-  return `## Miscellaneous\n- [Wasp Developer Discord](https://discord.com/invite/rzdnErX)\n- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)`
 }
