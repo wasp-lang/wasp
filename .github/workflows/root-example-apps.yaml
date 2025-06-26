@@ -50,23 +50,6 @@ jobs:
         run: |
           curl -sSL https://get.wasp.sh/installer.sh | sh
 
-      - name: Add Wasp to PATH
-        run: |
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Cache Wasp App Runner
-        id: cache-wasp-app-runner
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: wasp-app-runner-${{ runner.os }}-latest
-          restore-keys: |
-            wasp-app-runner-${{ runner.os }}-
-
-      - name: Set up Wasp App Runner
-        if: steps.cache-wasp-app-runner.outputs.cache-hit != 'true'
-        uses: wasp-lang/runner-action@main
-
       - name: Get Playwright Version from Example App
         id: get-playwright-version
         working-directory: examples/waspello
@@ -123,20 +106,10 @@ jobs:
           key: wasp-${{ runner.os }}-latest
           restore-keys: |
             wasp-${{ runner.os }}-
+
       - name: Add Wasp to PATH
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Restore Wasp App Runner Cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.npm
-          key: wasp-app-runner-${{ runner.os }}-latest
-          restore-keys: |
-            wasp-app-runner-${{ runner.os }}-
-
-      - name: Set up Wasp App Runner
-        uses: wasp-lang/runner-action@main
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
@@ -144,15 +117,30 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ needs.setup-and-cache.outputs.playwright-version }}
 
+      - name: Set up Wasp App Runner
+        uses: wasp-lang/runner-action@main
+
       - name: Install Dependencies for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         run: |
           npm ci
 
-      - name: Run Headless Tests for ${{ matrix.example }}
+      - name: Run Headless DEV Tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}/headless-tests
-        # Useful for debugging when the playwright webserver fails.
-        # env:
-        #   DEBUG: pw:webserver
+        env:
+          HEADLESS_TEST_MODE: dev
+          # Useful for debugging when the playwright webserver fails.
+          # DEBUG: pw:webserver
         run: |
-          npx playwright test
+          # Runs the tests with the debug flag so that we can see Wasp output
+          npx playwright test --config headless-tests/
+
+      - name: Run Headless BUILD Tests for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}/headless-tests
+        env:
+          HEADLESS_TEST_MODE: build
+          # Useful for debugging when the playwright webserver fails.
+          # DEBUG: pw:webserver
+        run: |
+          # Runs the tests with the debug flag so that we can see Wasp output
+          npx playwright test --config headless-tests/
