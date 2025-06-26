@@ -42,13 +42,6 @@ runs:
         # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
         ref: ${{ github.event.pull_request.head.sha }}
 
-    # # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
-    # # The fix will be propagated in a few days, so we can remove this workaround then.
-    # # https://github.com/actions/runner-images/issues/7061
-    # - name: Workaround runner image issue
-    #   if: matrix.os == 'ubuntu-22.04'
-    #   run: sudo chown -R $USER /usr/local/.ghcup
-
     - name: Set up Haskell
       uses: ./.github/actions/setup-haskell
       with:
@@ -62,30 +55,19 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    # - name: packages/ts-inspect - Run tests
-    #   if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
-    #   run: |
-    #     cd packages/ts-inspect
-    #     npm ci
-    #     npm test
-
     - name: Compile TS packages and move it into the Cabal data dir
-      with:
-        shell: bash
+      shell: bash
       run: ./tools/install_packages_to_data_dir.sh
 
     - name: Build external dependencies
-      with:
-        shell: bash
+      shell: bash
       run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
     - name: Build wasp code
-      with:
-        shell: bash
+      shell: bash
       run: cabal build all
 
     - name: Install Wasp CLI
-      with:
-        shell: bash
+      shell: bash
       id: headless-install-wasp-cli
       run: cabal install
