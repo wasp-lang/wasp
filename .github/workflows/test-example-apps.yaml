@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   setup-and-cache:
-    name: Setup Global Dependencies and Cache Playwright
+    name: Setup and Cache Playwright
     runs-on: ubuntu-22.04
     outputs:
       playwright-version: ${{ steps.get-playwright-version.outputs.version }}
@@ -29,26 +29,6 @@ jobs:
           # Workaround for a Github Checkout action bug
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-
-      - name: Cache Wasp Installation
-        id: cache-wasp
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/wasp-lang
-          key: wasp-${{ runner.os }}-latest
-          restore-keys: |
-            wasp-${{ runner.os }}-
-
-      - name: Set up Wasp
-        id: setup-wasp
-        if: steps.cache-wasp.outputs.cache-hit != 'true'
-        run: |
-          curl -sSL https://get.wasp.sh/installer.sh | sh
 
       - name: Get Playwright Version from Example App
         id: get-playwright-version
@@ -94,22 +74,17 @@ jobs:
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - name: Set up Wasp CLI
+        uses: ./.github/actions/setup-wasp-cli
         with:
           node-version: "lts/*"
+          ghc-version: "8.10.7"
+          cabal-version: "3.6.2.0"
+          cabal-project-dir: waspc
 
-      - name: Restore Wasp Installation Cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.local/share/wasp-lang
-          key: wasp-${{ runner.os }}-latest
-          restore-keys: |
-            wasp-${{ runner.os }}-
-
-      - name: Add Wasp to PATH
-        run: |
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      # - name: Add Wasp to PATH
+      #   run: |
+      #     echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
@@ -128,6 +103,7 @@ jobs:
       - name: Run Headless DEV Tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}/headless-tests
         env:
+          WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: dev
           # Useful for debugging when the playwright webserver fails.
           DEBUG: pw:webserver
@@ -137,6 +113,7 @@ jobs:
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}/headless-tests
         env:
+          WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: build
           # Useful for debugging when the playwright webserver fails.
           DEBUG: pw:webserver
