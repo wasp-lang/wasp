@@ -36,21 +36,21 @@ makeGoldenTest :: String -> ShellCommandBuilder [ShellCommand] -> GoldenTest
 makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCommands = commands}
 
 -- | This runs a golden test by creating a Wasp project (via `wasp-cli new`), running commands,
--- and then comparing all file outputs to the corresponding expected test output directory.
+-- and then comparing all file outputs to the corresponding golden test output directory.
 runGoldenTest :: GoldenTest -> IO TestTree
 runGoldenTest goldenTest = do
   testOutputsDirAbsSp <- getTestOutputsDir
   let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
   let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
-  let expectedOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-expected")
+  let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
   let expectedFilesListAbsFp = currentOutputDirAbsFp FP.</> expectedFilesListFileName
 
   -- Remove existing current output files from a prior test run.
   callCommand $ "rm -rf " ++ currentOutputDirAbsFp
 
-  -- Create current output dir as well as the expected output dir, if missing.
+  -- Create current output dir as well as the golden output dir, if missing.
   callCommand $ "mkdir " ++ currentOutputDirAbsFp
-  callCommand $ "mkdir -p " ++ expectedOutputDirAbsFp
+  callCommand $ "mkdir -p " ++ goldenOutputDirAbsFp
 
   let context =
         ShellCommandContext
@@ -69,7 +69,7 @@ runGoldenTest goldenTest = do
   filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToExpectedFp fp = unpack $ replace (pack currentOutputDirAbsFp) (pack expectedOutputDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFp fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
   return $
     testGroup
@@ -77,11 +77,11 @@ runGoldenTest goldenTest = do
       [ goldenVsFileDiff
           currentOutputAbsFp -- The test name that shows in the output.
           (\ref new -> ["diff", "-u", ref, new])
-          expectedOutputAbsFp
+          goldenOutputAbsFp
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
         | currentOutputAbsFp <- filesForCheckingContentAbsFps,
-          let expectedOutputAbsFp = remapCurrentToExpectedFp currentOutputAbsFp
+          let goldenOutputAbsFp = remapCurrentToGoldenFp currentOutputAbsFp
       ]
   where
     expectedFilesListFileName :: String
