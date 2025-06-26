@@ -1083,7 +1083,7 @@ type MinimalConfigObject<T> = {
  * Represents an empty object type in TypeScript.
  * @see https://www.totaltypescript.com/the-empty-object-type-in-typescript
  */
-export type EmptyObject = Record<string, never>;
+type EmptyObject = Record<string, never>;
 
 /**
  * Creates a type with all properties of T required recursively.
