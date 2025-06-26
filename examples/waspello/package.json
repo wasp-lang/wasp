@@ -12,6 +12,7 @@
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
+    "@playwright/test": "^1.53.1",
     "@types/react": "^18.0.37",
     "prisma": "5.19.1",
     "tailwindcss": "^3.2.7",
