@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Wasp.Cli.Command.Require
   ( -- * Asserting Requirements
 
@@ -24,7 +26,8 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
-    DbConnectionEstablishedFromOutDir (DbConnectionEstablishedFromOutDir),
+    DbConnectionEstablished (DbConnectionEstablished),
+    FromOutDir (FromOutDir),
   )
 where
 
@@ -77,25 +80,18 @@ instance Requirable InWaspProject where
               ++ " you are running this command from a Wasp project."
           )
 
-data DbConnectionEstablishedFromOutDir = DbConnectionEstablishedFromOutDir deriving (Typeable)
+data FromOutDir = FromOutDir deriving (Typeable)
 
--- TODO(carlos): Modify this requirement to work in `.wasp/build` as well (#2858)
+-- TODO(carlos): Refactor this requirement to work in `.wasp/build` as well
 --
--- Why is this requirement specific to `.wasp/out`? For the time being, most of
--- our DB are designed to work in the context of `wasp start`, and the functions
--- end up depending on two specific outputs:
--- 1. the `.env.server` file, as copied to `<ProjectRootDir>/server/.env`
--- 2. the `schema.prisma` file, processed by the Wasp compiler (to add Auth
---   entities), and copied to `<ProjectRootDir>/db/schema.prisma`
---
--- The `wasp start` command generates these files, but `wasp build` does not, as
--- it expects the environment variables to be given to the resulting Docker
--- container. Moreover, the processing of the `schema.prisma` file is done
--- inside the Docker image building process, so the user's local filesystem
--- doesn't see the final schema file, making it unavailable for the compiler
--- running normally in the user's environment.
+-- Check GitHub issue #2858 for more details. In short, `.wasp/build` is missing
+-- the `server/.env` and `db/schema.prisma` files. `wasp start` creates these
+-- files for `.wasp/out`, which our current DB functions expect; but `wasp
+-- build` doesn't do the same for `.wasp/build`.
 
-instance Requirable DbConnectionEstablishedFromOutDir where
+data DbConnectionEstablished fromDir = DbConnectionEstablished fromDir deriving (Typeable)
+
+instance Requirable (DbConnectionEstablished FromOutDir) where
   checkRequirement = do
     -- NOTE: 'InWaspProject' does not depend on this requirement, so this
     -- call to 'require' will not result in an infinite loop.
@@ -107,7 +103,7 @@ instance Requirable DbConnectionEstablishedFromOutDir where
     dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
 
     if dbIsRunning
-      then return DbConnectionEstablishedFromOutDir
+      then return $ DbConnectionEstablished FromOutDir
       else throwError noDbError
     where
       noDbError =
