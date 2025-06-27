@@ -85,12 +85,11 @@ data FromOutDir = FromOutDir deriving (Typeable)
 -- TODO(carlos): Create a `FromBuildDir` instance of `DbConnectionEstablished`
 -- as well. (#2858)
 --
--- Currently, our functions that interface with Prisma expect the `server/.env`
--- and `db/schema.prisma` files. The `wasp start` command runs from `.wasp/out`,
--- and creates these files as part of its function. `wasp build` runs from
--- `.wasp/build`, but it doesn't create these files (check #2858 for
--- explanation). We should refactor our Prisma functions to not depend on these
--- files.
+-- We can't run our Prisma functions from the `.wasp/build` dir, because some of
+-- the files they expect present are not generated as part of `wasp build` (only
+-- as part of `wasp start`, which runs in `.wasp/out`). We should refactor our
+-- Prisma functions to not depend on these files so we can run them inside
+-- `.wasp/build`. Check #2858 for more details.
 
 data DbConnectionEstablished fromDir = DbConnectionEstablished fromDir deriving (Typeable)
 
