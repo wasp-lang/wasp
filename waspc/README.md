@@ -415,6 +415,21 @@ During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
 If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
 
+We also have a workflow for deploying example apps to Fly.io (`deploy-examples.yml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
+
+You can run this workflow:
+
+- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/deploy-examples.yml  (click "Run workflow" and select the `release` branch)
+- **From GitHub CLI**:
+
+  ```bash
+  # Deploy with latest Wasp version
+  gh workflow run deploy-examples.yml --ref release
+
+  # Deploy with specific Wasp version
+  gh workflow run deploy-examples.yml --ref release -f version=0.13.2
+  ```
+
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
 
 We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will check that everything is all right, create appropriate tag and push it, therefore triggering CI to create new release on Github.
@@ -451,6 +466,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
 - 👉 Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
+- Deploy the example apps to Fly.io by running the [deploy-examples workflow](/.github/workflows/deploy-examples.yml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If you published new docs, rerun the Algolia Crawler to update the search index. If you published a new version of the docs, the search won't work until you do this.
   - To do this, go to https://crawler.algolia.com/admin and click "Restart crawling" under the "wasp-lang" crawler.
