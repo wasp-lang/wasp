@@ -1,6 +1,8 @@
+import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
+
 export interface CommonOptions {
-  waspExe: string;
-  waspProjectDir: string;
+  waspExe: WaspCliExe;
+  waspProjectDir: WaspProjectDir;
   flyTomlDir?: string;
   org?: string;
 }
