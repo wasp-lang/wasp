@@ -67,6 +67,6 @@ jobs:
         id: app-info
         working-directory: ${{ matrix.app-dir }}
         run: |
-          echo "url=https://$(fly status -c fly-client.toml --json | jq -r .Hostname)" >> $GITHUB_OUTPUT
+          echo "url=https://$(flyctl status -c fly-client.toml --json | jq -r .Hostname)" >> $GITHUB_OUTPUT
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
