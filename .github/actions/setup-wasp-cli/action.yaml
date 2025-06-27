@@ -1,7 +1,7 @@
 name: Setup Wasp CLI
 description: |
   Sets up a complete Wasp development environment by installing and configuring all required dependencies.
-  
+
   This composite action performs the following steps:
   1. Sets up Haskell (GHC and Cabal) with caching for faster builds
   2. Installs Node.js for TypeScript compilation
