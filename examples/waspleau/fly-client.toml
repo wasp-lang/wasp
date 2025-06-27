@@ -4,7 +4,7 @@
 #
 
 app = "waspleau-app-client"
-primary_region = "mad"
+primary_region = "cdg"
 
 [build]
 
