@@ -4,7 +4,7 @@
 #
 
 app = "wasp-ai-server"
-primary_region = "mad"
+primary_region = "cdg"
 
 [http_service]
   internal_port = 8080
