@@ -656,6 +656,7 @@ test-suite waspc-test
     AppSpec.ValidTest
     AppSpec.FromJSONTest
     AppSpec.EntityTest
+    EnvTest
     ErrorTest
     FilePath.ExtraTest
     Fixtures
