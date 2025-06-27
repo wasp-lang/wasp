@@ -380,16 +380,7 @@ function extractBlogPostTitle(attributes, filename) {
  */
 function constructBlogUrl(filename) {
   const fileNoExt = filename.replace(/\.(mdx|md)$/, '')
-  const fileParts = fileNoExt.split('-')
-
-  if (fileParts.length < 4) {
-    return null // Invalid format
-  }
-
-  const year = fileParts[0]
-  const month = fileParts[1]
-  const day = fileParts[2]
-  const slug = fileParts.slice(3).join('-')
+  const [year, month, day, slug] = fileNoExt.split('-', 4)
   const blogPath = `${WASP_BASE_URL}blog/${year}/${month}/${day}/${slug}`
   return blogPath.replace(/\\/g, '/')
 }
