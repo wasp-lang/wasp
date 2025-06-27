@@ -33,36 +33,40 @@ jobs:
   deploy:
     strategy:
       matrix:
-        projects:
-          - name: waspleau
-            dir: examples/waspleau
-            url: https://waspleau-app-client.fly.dev/
+        app-dir:
+          - examples/waspleau
+          - examples/websockets-realtime-voting
 
-          - name: websockets-realtime-voting
-            dir: examples/websockets-realtime-voting
-            url: https://websockets-voting-client.fly.dev/
-
-    name: Deploy ${{ matrix.projects.name }}
+    name: Deploy ${{ matrix.app-dir }}
 
     runs-on: ubuntu-latest
 
     environment:
-      name: ${{ matrix.projects.name }}-production
-      url: ${{ matrix.projects.url }}
+      name: ${{ matrix.app-dir }}-production
+      url: ${{ steps.app-info.outputs.url }}
 
     steps:
       - name: Install Wasp
-        run:
-          curl -sSfL https://get.wasp.sh/installer.sh | sh -- ${{ inputs.version
-          && format('-v {0}', inputs.version) || '' }}
+        run: |
+          curl -sSfL https://get.wasp.sh/installer.sh | sh -- ${{ inputs.version && format('-v {0}', inputs.version) || '' }}
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Deploy
-        working-directory: ${{ matrix.projects.dir }}
-        run: wasp deploy fly deploy --org wasp
+        working-directory: ${{ matrix.app-dir }}
+        run: |
+          wasp deploy fly deploy --org wasp
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Get deployed app info
+        id: app-info
+        working-directory: ${{ matrix.app-dir }}
+        run: |
+          echo "url=https://$(fly status -c fly-client.toml --json | jq -r .Hostname)" >> $GITHUB_OUTPUT
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
