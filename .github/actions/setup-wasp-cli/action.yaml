@@ -1,0 +1,77 @@
+name: Setup Wasp CLI
+description: |
+  Sets up a complete Wasp development environment by installing and configuring all required dependencies.
+  
+  This composite action performs the following steps:
+  1. Sets up Haskell (GHC and Cabal) with caching for faster builds
+  2. Installs Node.js for TypeScript compilation
+  3. Compiles TypeScript packages and integrates them into the Cabal build system
+  4. Builds all Wasp dependencies and the Wasp CLI itself
+  5. Installs the Wasp CLI binary, making it available for subsequent workflow steps
+
+inputs:
+  node-version:
+    description: |
+      The version of Node to install.
+    required: false
+    default: "lts/*"
+
+  # Inherited from setup-haskell, without default values.
+  ghc-version:
+    description: |
+      The version of GHC to install.
+    required: false
+
+  cabal-version:
+    description: |
+      The version of Cabal to install.
+    required: false
+
+  cabal-project-dir:
+    description: |
+      The working directory for the action.
+    required: false
+
+  extra-cache-key-segment:
+    description: |
+      An extra key to use for the Haskell cache. Mainly used to keep glibc and musl
+      caches separate, as they are not compatible.
+    required: false
+
+runs:
+  using: composite
+
+  steps:
+    - name: Set up Haskell
+      uses: ./.github/actions/setup-haskell
+      with:
+        ghc-version: ${{ inputs.ghc-version }}
+        cabal-version: ${{ inputs.cabal-version }}
+        cabal-project-dir: ${{ inputs.cabal-project-dir }}
+        extra-cache-key-segment: ${{ inputs.extra-cache-key-segment }}
+
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Compile TS packages and move it into the Cabal data dir
+      shell: bash
+      working-directory: waspc
+      run: tools/install_packages_to_data_dir.sh
+
+    - name: Build external dependencies
+      shell: bash
+      working-directory: waspc
+      run: cabal build --enable-tests --enable-benchmarks --only-dependencies
+
+    - name: Build wasp code
+      shell: bash
+      working-directory: waspc
+      run: cabal build all
+
+    - name: Install Wasp CLI
+      shell: bash
+      working-directory: waspc
+      id: headless-install-wasp-cli
+      run: cabal install
