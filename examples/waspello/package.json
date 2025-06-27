@@ -1,6 +1,10 @@
 {
   "name": "waspello",
   "type": "module",
+  "scripts": {
+    "env:pull": "npx dotenv-vault@latest pull development .env.server",
+    "env:push": "npx dotenv-vault@latest push development .env.server"
+  },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
     "classnames": "2.3.1",

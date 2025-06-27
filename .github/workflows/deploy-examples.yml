@@ -34,6 +34,7 @@ jobs:
     strategy:
       matrix:
         app-dir:
+          - examples/waspello
           - examples/waspleau
           - examples/websockets-realtime-voting
 
