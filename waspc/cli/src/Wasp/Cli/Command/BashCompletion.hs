@@ -64,7 +64,7 @@ printBashCompletionInstruction =
     unlines
       [ "Run the following command to generate bash completion script for wasp on your machine:",
         "",
-        "wasp completion:generate > <your-chosen-directory>/wasp-completion",
+        "wasp completion:generate >> <your-chosen-directory>/wasp-completion",
         "",
         "After that, depending on your system, you will need to edit your bash profile:",
         "- on MacOS (OSX): you will normally want to edit ~/.bashrc",
