@@ -14,6 +14,10 @@ migrations/
 .waspignore
 .wasproot
 tsconfig.json
+!/skeleton/**/.gitignore
+!/skeleton/**/.waspignore
+!/skeleton/**/.wasproot
+!/skeleton/**/tsconfig.json
 
 # Ignore all dotenv files by default to prevent accidentally committing any secrets.
 # To include specific dotenv files, use the `!` operator or adjust these rules.
