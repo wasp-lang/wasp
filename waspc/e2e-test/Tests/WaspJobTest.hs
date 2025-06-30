@@ -9,7 +9,7 @@ import ShellCommands
     createFile,
     setDbToPSQL,
     waspCliCompile,
-    waspCliNew,
+    waspCliNewMinimalStarter,
   )
 import Util ((<++>))
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -68,7 +68,7 @@ waspJob = do
 
   makeGoldenTest "waspJob" $
     sequence
-      [ waspCliNew,
+      [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,
         setDbToPSQL,
         appendToWaspFile simpleJobDecl,
