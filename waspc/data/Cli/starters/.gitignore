@@ -9,15 +9,19 @@ migrations/
 # MacOS specific files.
 .DS_Store
 
-# Files handled by wasp template skeleton.
-*/.gitignore
+# Files handled by the `skeleton` template.
 .waspignore
 .wasproot
 tsconfig.json
+favicon.ico
+vite-env.d.ts
+
 !/skeleton/**/.gitignore
 !/skeleton/**/.waspignore
 !/skeleton/**/.wasproot
 !/skeleton/**/tsconfig.json
+!/skeleton/**/favicon.ico
+!/skeleton/**/vite-env.d.ts
 
 # Ignore all dotenv files by default to prevent accidentally committing any secrets.
 # To include specific dotenv files, use the `!` operator or adjust these rules.
