@@ -47,7 +47,8 @@ That's it 🎉 You have successfully created and served a new full-stack web app
 :::
 
 :::tip Having trouble running Wasp?
-  If you've verified Wasp is installed and Wasp is failing to start, try running `wasp clean` - this is the Wasp equivalent of "turning it off and on again"!
+  If you get stuck with a weird error while developing with Wasp, try running `wasp clean` - this is the Wasp equivalent of "turning it off and on again"!
+  Do however let us know about the issue on our GitHub repo or Discord server.
 :::
 
 
