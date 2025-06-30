@@ -145,7 +145,7 @@ npmDepsForWasp _spec =
             ("@types/react-dom", "^18.0.11"),
             -- @vitejs/plugin-react is pinned down to an older version to
             -- prevent NPM from installing Vite 7 as its transient dependency (this
-            -- breaks Wasp with Node older than 20.19)
+            -- breaks Wasp with Node older than 20.19).
             -- TODO: Remove after figuring out our dependency story.
             -- Fix explanation: https://github.com/wasp-lang/wasp/pull/2865
             -- Core issue: https://github.com/wasp-lang/wasp/issues/2726
