@@ -105,7 +105,7 @@ basicStarterTemplate =
     DirBasedTemplateMetadata
       { _path = [reldir|basic|],
         _name = "basic",
-        _description = "Basic starter template to get you started quickly. Features examples for most common use cases.",
+        _description = "A basic starter template designed to help you get up and running quickly, with examples covering the most common use cases.",
         _buildStartingInstructions = \projectDirName ->
           unlines
             [ styleText $ "To run your new app, do:",
