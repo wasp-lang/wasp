@@ -84,38 +84,38 @@ defaultStarterTemplate = basicStarterTemplate
 
 minimalStarterTemplate :: StarterTemplate
 minimalStarterTemplate =
-  simpleGhRepoTemplate
-    ("starters", [reldir|minimal|])
-    ( "minimal",
-      "Minimal starter template with a single page."
-    )
-    ( \projectDirName ->
-        unlines
-          [ styleText $ "To run your new app, do:",
-            styleCode $ "    cd " <> projectDirName,
-            styleCode $ "    wasp start"
-          ]
-    )
+  LocalStarterTemplate $
+    DirBasedTemplateMetadata
+      { _path = [reldir|minimal|],
+        _name = "minimal",
+        _description = "Minimal starter template with a single page.",
+        _buildStartingInstructions = \projectDirName ->
+          unlines
+            [ styleText $ "To run your new app, do:",
+              styleCode $ "    cd " <> projectDirName,
+              styleCode $ "    wasp start"
+            ]
+      }
 
 {- HLINT ignore basicStarterTemplate "Redundant $" -}
 
 basicStarterTemplate :: StarterTemplate
 basicStarterTemplate =
-  simpleGhRepoTemplate
-    ("starters", [reldir|basic|])
-    ( "basic",
-      "Basic starter template to get you started quickly."
-    )
-    ( \projectDirName ->
-        unlines
-          [ styleText $ "To run your new app, do:",
-            styleCode $ "    cd " ++ projectDirName,
-            styleCode $ "    wasp db migrate-dev",
-            styleCode $ "    wasp start",
-            styleText $ "",
-            styleText $ "Check the README for additional guidance!"
-          ]
-    )
+  LocalStarterTemplate $
+    DirBasedTemplateMetadata
+      { _path = [reldir|basic|],
+        _name = "basic",
+        _description = "Basic starter template to get you started quickly. Features examples for most common use cases.",
+        _buildStartingInstructions = \projectDirName ->
+          unlines
+            [ styleText $ "To run your new app, do:",
+              styleCode $ "    cd " <> projectDirName,
+              styleCode $ "    wasp db migrate-dev",
+              styleCode $ "    wasp start",
+              styleText $ "",
+              styleText $ "Check the README for additional guidance!"
+            ]
+      }
 
 {- HLINT ignore openSaasStarterTemplate "Redundant $" -}
 
@@ -194,6 +194,6 @@ findTemplateByString templates query = find ((== query) . show) templates
 
 readWaspProjectSkeletonFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
 readWaspProjectSkeletonFiles = do
-  skeletonFilesDir <- (</> [reldir|Cli/templates/skeleton|]) <$> Data.getAbsDataDirPath
+  skeletonFilesDir <- (</> [reldir|Cli/starters/skeleton|]) <$> Data.getAbsDataDirPath
   skeletonFilePaths <- listDirectoryDeep skeletonFilesDir
   mapM (\path -> (path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths

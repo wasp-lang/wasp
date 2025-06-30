@@ -44,12 +44,17 @@ data-files:
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
   Cli/bash-completion
-  Cli/templates/**/*.json
-  Cli/templates/**/*.ts
-  Cli/templates/skeleton/.gitignore
-  Cli/templates/skeleton/.wasproot
-  Cli/templates/skeleton/.waspignore
-  Cli/templates/skeleton/public/favicon.ico
+  Cli/starters/**/*.css
+  Cli/starters/**/*.json
+  Cli/starters/**/*.jsx
+  Cli/starters/**/*.png
+  Cli/starters/**/*.ts
+  Cli/starters/basic/schema.prisma
+  Cli/starters/basic/main.wasp
+  Cli/starters/skeleton/.gitignore
+  Cli/starters/skeleton/.wasproot
+  Cli/starters/skeleton/.waspignore
+  Cli/starters/skeleton/public/favicon.ico
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts
   Lsp/templates/**/*.jsx

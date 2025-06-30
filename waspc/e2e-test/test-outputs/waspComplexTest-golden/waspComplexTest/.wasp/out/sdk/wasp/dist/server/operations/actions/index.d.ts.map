@@ -1,1 +1,0 @@
-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../../server/operations/actions/index.ts"],"names":[],"mappings":"AAEA,OAAO,EAGL,KAAK,yBAAyB,EAE/B,MAAM,gBAAgB,CAAA;AACvB,OAAO,EAAE,GAAG,IAAI,OAAO,EAAE,MAAM,6BAA6B,CAAA;AAG5D,MAAM,MAAM,mBAAmB,GAAG,OAAO,OAAO,CAAA;AAGhD,eAAO,MAAM,eAAe,EAAE,yBAAyB,CAAC,mBAAmB,CAMxE,CAAA"}
