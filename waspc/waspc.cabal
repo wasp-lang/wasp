@@ -49,8 +49,8 @@ data-files:
   Cli/starters/**/*.jsx
   Cli/starters/**/*.png
   Cli/starters/**/*.ts
-  Cli/starters/basic/schema.prisma
-  Cli/starters/basic/main.wasp
+  Cli/starters/**/*.schema.prisma
+  Cli/starters/**/*.main.wasp
   Cli/starters/skeleton/.gitignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/.waspignore
