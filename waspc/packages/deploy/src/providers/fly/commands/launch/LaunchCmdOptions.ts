@@ -1,12 +1,12 @@
 import {
-  CommonOptions,
+  CommonCmdOptions,
   DbOptions,
   LocalBuildOptions,
   SecretsOptions,
-} from "../../CommonOptions.js";
+} from "../../CommonCmdOptions.js";
 
-export interface LaunchOptions
-  extends CommonOptions,
+export interface LaunchCmdOptions
+  extends CommonCmdOptions,
     DbOptions,
     LocalBuildOptions,
     SecretsOptions {}

@@ -7,16 +7,16 @@ import {
 import { createDb } from "../createDb/createDb.js";
 import { deploy } from "../deploy/deploy.js";
 import { setup } from "../setup/setup.js";
-import { LaunchOptions } from "./LaunchOptions.js";
+import { LaunchCmdOptions } from "./LaunchCmdOptions.js";
 
 export async function launch(
   basename: string,
   region: string,
-  options: LaunchOptions,
+  cmdOptions: LaunchCmdOptions,
 ): Promise<void> {
   waspSays("Launching your Wasp app to Fly.io!");
 
-  const tomlFilePaths = getTomlFilePaths(options);
+  const tomlFilePaths = getTomlFilePaths(cmdOptions);
   if (
     serverTomlExistsInProject(tomlFilePaths) ||
     clientTomlExistsInProject(tomlFilePaths)
@@ -26,9 +26,9 @@ export async function launch(
     );
   }
 
-  await setup(basename, region, options);
+  await setup(basename, region, cmdOptions);
 
-  await createDb(region, options);
+  await createDb(region, cmdOptions);
 
-  await deploy(options);
+  await deploy(cmdOptions);
 }

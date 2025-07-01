@@ -36,6 +36,8 @@ export function createDeploymentInstructions<
   });
 }
 
+// These common cmd options are similar to the ones for the Fly provider:
+// We use both the Wasp CLI, Wasp project directory, and the provider CLI (Railway CLI).
 export interface CommonCmdOptions {
   waspExe: WaspCliExe;
   railwayExe: RailwayCliExe;

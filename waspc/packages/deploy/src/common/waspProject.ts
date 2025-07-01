@@ -31,18 +31,21 @@ export function assertWaspProjectDirIsAbsoluteAndPresent(
   assertDirIsAbsoluteAndPresent(waspProjectDir, "Wasp project directory");
 }
 
-export async function ensureWaspProjectIsBuilt(options: {
+export async function ensureWaspProjectIsBuilt({
+  waspProjectDir,
+  waspExe,
+}: {
   waspProjectDir: WaspProjectDir;
   waspExe: WaspCliExe;
 }): Promise<void> {
   // NOTE: we assume that existance of the build directory means
   // that the project has been built.
-  if (buildDirExists(options.waspProjectDir)) {
+  if (buildDirExists(waspProjectDir)) {
     return;
   }
 
   waspSays("Building your Wasp app...");
-  const waspCli = createCommandWithCwd(options.waspExe, options.waspProjectDir);
+  const waspCli = createCommandWithCwd(waspExe, waspProjectDir);
   await waspCli(["build"]);
 }
 

@@ -8,7 +8,10 @@ import {
   cdToServerBuildDir,
   ensureWaspProjectIsBuilt,
 } from "../../../../common/waspProject.js";
-import { createDeploymentInfo, DeploymentInfo } from "../../DeploymentInfo.js";
+import {
+  createDeploymentInstructions,
+  DeploymentInstructions,
+} from "../../DeploymentInstructions.js";
 import { createFlyDbCommand } from "../../index.js";
 import {
   clientTomlExistsInProject,
@@ -20,7 +23,7 @@ import {
   replaceLineInLocalToml,
   serverTomlExistsInProject,
 } from "../../tomlFile.js";
-import { SetupOptions } from "./SetupOptions.js";
+import { SetupCmdOptions } from "./SetupCmdOptions.js";
 
 const internalPortOptionRegex = /internal_port = \d+/g;
 const serverAppPort = 8080;
@@ -29,30 +32,30 @@ const clientAppPort = 8043;
 export async function setup(
   baseName: string,
   region: string,
-  options: SetupOptions,
+  cmdOptions: SetupCmdOptions,
 ): Promise<void> {
   waspSays("Setting up your Wasp app with Fly.io!");
 
-  await ensureWaspProjectIsBuilt(options);
+  await ensureWaspProjectIsBuilt(cmdOptions);
 
-  const tomlFilePaths = getTomlFilePaths(options);
-  const deploymentInfo = createDeploymentInfo(
+  const tomlFilePaths = getTomlFilePaths(cmdOptions);
+  const deploymentInstructions = createDeploymentInstructions(
     baseName,
     region,
-    options,
+    cmdOptions,
     tomlFilePaths,
   );
 
   if (serverTomlExistsInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.serverTomlPath} exists. Skipping server setup.`);
   } else {
-    await setupServer(deploymentInfo);
+    await setupServer(deploymentInstructions);
   }
 
   if (clientTomlExistsInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.clientTomlPath} exists. Skipping client setup.`);
   } else {
-    await setupClient(deploymentInfo);
+    await setupClient(deploymentInstructions);
   }
 
   waspSays(
@@ -60,21 +63,25 @@ export async function setup(
   );
 }
 
-async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
-  waspSays(`Setting up server app with name ${deploymentInfo.serverName}`);
+async function setupServer(
+  deploymentInstructions: DeploymentInstructions<SetupCmdOptions>,
+) {
+  waspSays(
+    `Setting up server app with name ${deploymentInstructions.serverName}`,
+  );
 
-  cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
+  cdToServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
   deleteLocalToml();
 
   const launchArgs = [
     "--name",
-    deploymentInfo.serverName,
+    deploymentInstructions.serverName,
     "--region",
-    deploymentInfo.region,
+    deploymentInstructions.region,
   ];
 
-  if (deploymentInfo.options.org) {
-    launchArgs.push("--org", deploymentInfo.options.org);
+  if (deploymentInstructions.cmdOptions.org) {
+    launchArgs.push("--org", deploymentInstructions.cmdOptions.org);
   }
 
   // This creates the fly.toml file, but does not attempt to deploy.
@@ -121,7 +128,7 @@ Press any key to continue or Ctrl+C to cancel.`);
     );
   }
 
-  copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
+  copyLocalServerTomlToProject(deploymentInstructions.tomlFilePaths);
 
   const jwtSecret = generateRandomString();
 
@@ -130,12 +137,12 @@ Press any key to continue or Ctrl+C to cancel.`);
     // NOTE: Normally these would just be envars, but flyctl
     // doesn't provide a way to set envars that persist to fly.toml.
     `PORT=${serverAppPort}`,
-    `WASP_WEB_CLIENT_URL=${deploymentInfo.clientUrl}`,
-    `WASP_SERVER_URL=${deploymentInfo.serverUrl}`,
+    `WASP_WEB_CLIENT_URL=${deploymentInstructions.clientUrl}`,
+    `WASP_SERVER_URL=${deploymentInstructions.serverUrl}`,
   ];
 
-  if (deploymentInfo.options.serverSecret.length > 0) {
-    deploymentInfo.options.serverSecret.forEach((secret) => {
+  if (deploymentInstructions.cmdOptions.serverSecret.length > 0) {
+    deploymentInstructions.cmdOptions.serverSecret.forEach((secret) => {
       secretsArgs.push(secret);
     });
   }
@@ -146,21 +153,25 @@ Press any key to continue or Ctrl+C to cancel.`);
   waspSays("Server setup complete!");
 }
 
-async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
-  waspSays(`Setting up client app with name ${deploymentInfo.clientName}`);
+async function setupClient(
+  deploymentInstructions: DeploymentInstructions<SetupCmdOptions>,
+) {
+  waspSays(
+    `Setting up client app with name ${deploymentInstructions.clientName}`,
+  );
 
-  cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
+  cdToClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
   deleteLocalToml();
 
   const launchArgs = [
     "--name",
-    deploymentInfo.clientName,
+    deploymentInstructions.clientName,
     "--region",
-    deploymentInfo.region,
+    deploymentInstructions.region,
   ];
 
-  if (deploymentInfo.options.org) {
-    launchArgs.push("--org", deploymentInfo.options.org);
+  if (deploymentInstructions.cmdOptions.org) {
+    launchArgs.push("--org", deploymentInstructions.cmdOptions.org);
   }
 
   // This creates the fly.toml file, but does not attempt to deploy.
@@ -186,10 +197,10 @@ Press any key to continue or Ctrl+C to cancel.`);
     );
   }
 
-  copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
+  copyLocalClientTomlToProject(deploymentInstructions.tomlFilePaths);
 
-  if (deploymentInfo.options.clientSecret.length > 0) {
-    await $`flyctl secrets set ${deploymentInfo.options.clientSecret}`;
+  if (deploymentInstructions.cmdOptions.clientSecret.length > 0) {
+    await $`flyctl secrets set ${deploymentInstructions.cmdOptions.clientSecret}`;
   }
 
   waspSays("Client setup complete!");

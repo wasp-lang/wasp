@@ -11,7 +11,10 @@ import {
   cdToServerBuildDir,
   ensureWaspProjectIsBuilt,
 } from "../../../../common/waspProject.js";
-import { createDeploymentInfo, DeploymentInfo } from "../../DeploymentInfo.js";
+import {
+  createDeploymentInstructions,
+  DeploymentInstructions,
+} from "../../DeploymentInstructions.js";
 import { secretExists } from "../../flyCli.js";
 import { flySetupCommand } from "../../index.js";
 import {
@@ -25,14 +28,14 @@ import {
   getTomlFilePaths,
   serverTomlExistsInProject,
 } from "../../tomlFile.js";
-import { DeployOptions } from "./DeployOptions.js";
+import { DeployCmdOptions } from "./DeployCmdOptions.js";
 
-export async function deploy(options: DeployOptions): Promise<void> {
+export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
   waspSays("Deploying your Wasp app to Fly.io!");
 
-  await ensureWaspProjectIsBuilt(options);
+  await ensureWaspProjectIsBuilt(cmdOptions);
 
-  const tomlFilePaths = getTomlFilePaths(options);
+  const tomlFilePaths = getTomlFilePaths(cmdOptions);
 
   // NOTE: Below, it would be nice if we could store the client, server, and DB names somewhere.
   // For now we just rely on the suffix naming convention and infer from toml files.
@@ -44,17 +47,17 @@ export async function deploy(options: DeployOptions): Promise<void> {
         flySetupCommand,
       )}" first?`,
     );
-  } else if (options.skipServer) {
+  } else if (cmdOptions.skipServer) {
     waspSays("Skipping server deploy due to CLI option.");
   } else {
     const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
-    const deploymentInfo = createDeploymentInfo(
+    const deploymentInstructions = createDeploymentInstructions(
       inferredBaseName,
       undefined,
-      options,
+      cmdOptions,
       tomlFilePaths,
     );
-    await deployServer(deploymentInfo, options);
+    await deployServer(deploymentInstructions, cmdOptions);
   }
 
   if (!clientTomlExistsInProject(tomlFilePaths)) {
@@ -65,28 +68,28 @@ export async function deploy(options: DeployOptions): Promise<void> {
         flySetupCommand,
       )}" first?`,
     );
-  } else if (options.skipClient) {
+  } else if (cmdOptions.skipClient) {
     waspSays("Skipping client deploy due to CLI option.");
   } else {
     const inferredBaseName = getInferredBasenameFromClientToml(tomlFilePaths);
-    const deploymentInfo = createDeploymentInfo(
+    const deploymentInstructions = createDeploymentInstructions(
       inferredBaseName,
       undefined,
-      options,
+      cmdOptions,
       tomlFilePaths,
     );
-    await deployClient(deploymentInfo, options);
+    await deployClient(deploymentInstructions, cmdOptions);
   }
 }
 
 async function deployServer(
-  deploymentInfo: DeploymentInfo<DeployOptions>,
-  { buildLocally }: DeployOptions,
+  deploymentInstructions: DeploymentInstructions<DeployCmdOptions>,
+  { buildLocally }: DeployCmdOptions,
 ) {
   waspSays("Deploying your server now...");
 
-  cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
-  copyProjectServerTomlLocally(deploymentInfo.tomlFilePaths);
+  cdToServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  copyProjectServerTomlLocally(deploymentInstructions.tomlFilePaths);
 
   // Make sure we have a DATABASE_URL present. If not, they need to create/attach their DB first.
   const databaseUrlSet = await secretExists("DATABASE_URL");
@@ -102,21 +105,24 @@ async function deployServer(
   // NOTE: Deploy is not expected to update the toml file, but doing this just in case.
   // However, if it does and we fail to copy it back, we would be in an inconsistent state.
   // TOOD: Consider how to best handle this situation across all operations.
-  copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
+  copyLocalServerTomlToProject(deploymentInstructions.tomlFilePaths);
 
   waspSays("Server has been deployed!");
 }
 
 async function deployClient(
-  deploymentInfo: DeploymentInfo<DeployOptions>,
-  { buildLocally }: DeployOptions,
+  deploymentInstructions: DeploymentInstructions<DeployCmdOptions>,
+  { buildLocally }: DeployCmdOptions,
 ) {
   waspSays("Deploying your client now...");
 
-  cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
-  copyProjectClientTomlLocally(deploymentInfo.tomlFilePaths);
+  cdToClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
 
-  await buildClient(deploymentInfo.serverUrl, deploymentInfo.options);
+  await buildClient(
+    deploymentInstructions.serverUrl,
+    deploymentInstructions.cmdOptions,
+  );
 
   // Creates the necessary Dockerfile for deploying static websites to Fly.io.
   // Adds dummy .dockerignore to supress CLI question.
@@ -132,10 +138,10 @@ async function deployClient(
   const deployArgs = [buildLocally ? "--local-only" : "--remote-only"];
   await $`flyctl deploy ${deployArgs}`;
 
-  copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
+  copyLocalClientTomlToProject(deploymentInstructions.tomlFilePaths);
 
   displayWaspRocketImage();
   waspSays(
-    `Client has been deployed! Your Wasp app is accessible at: ${deploymentInfo.clientUrl}`,
+    `Client has been deployed! Your Wasp app is accessible at: ${deploymentInstructions.clientUrl}`,
   );
 }

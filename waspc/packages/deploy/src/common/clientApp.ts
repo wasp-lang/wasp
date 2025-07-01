@@ -7,14 +7,14 @@ export const serverUrlEnvVarName = "REACT_APP_API_URL";
 
 export async function buildClient(
   defaultServerAppUrl: string,
-  options: { waspProjectDir: WaspProjectDir },
+  { waspProjectDir }: { waspProjectDir: WaspProjectDir },
 ): Promise<void> {
   waspSays("Building web client for production...");
   waspSays(
     `If you configured a custom domain for the server, you should run the command with an env variable: ${serverUrlEnvVarName}=https://serverUrl.com wasp deploy railway deploy`,
   );
 
-  const clientBuildDir = getClientBuildDir(options.waspProjectDir);
+  const clientBuildDir = getClientBuildDir(waspProjectDir);
   const npmCli = createCommandWithCwd("npm", clientBuildDir);
 
   await npmCli(["install"]);

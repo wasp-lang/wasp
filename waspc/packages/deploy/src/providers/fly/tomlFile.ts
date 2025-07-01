@@ -2,15 +2,15 @@ import fs from "fs";
 import path from "node:path";
 import toml from "toml";
 import { assertDirIsAbsoluteAndPresent } from "../../common/validation.js";
-import { CommonOptions } from "./CommonOptions.js";
+import { CommonCmdOptions } from "./CommonCmdOptions.js";
 
 export interface TomlFilePaths {
   serverTomlPath: string;
   clientTomlPath: string;
 }
 
-export function getTomlFilePaths(options: CommonOptions): TomlFilePaths {
-  const baseDir = options.flyTomlDir || options.waspProjectDir;
+export function getTomlFilePaths(cmdOptions: CommonCmdOptions): TomlFilePaths {
+  const baseDir = cmdOptions.flyTomlDir || cmdOptions.waspProjectDir;
   return {
     serverTomlPath: path.join(baseDir, "fly-server.toml"),
     clientTomlPath: path.join(baseDir, "fly-client.toml"),

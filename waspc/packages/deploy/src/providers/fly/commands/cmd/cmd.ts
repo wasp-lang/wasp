@@ -8,28 +8,28 @@ import {
   getTomlFilePaths,
   localTomlExists,
 } from "../../tomlFile.js";
-import { CmdOptions } from "./CmdOptions.js";
+import { CmdCmdOptions } from "./CmdCmdOptions.js";
 
 // Runs a command by copying down the project toml files, executing it, and copying it back up (just in case).
 // If the toml file does not exist, some commands will not run with additional args (e.g. -a <appname>).
 export async function cmd(
   flyctlArgs: string[],
-  options: CmdOptions,
+  cmdOptions: CmdCmdOptions,
 ): Promise<void> {
-  if (options.org) {
-    flyctlArgs.push("--org", options.org);
+  if (cmdOptions.org) {
+    flyctlArgs.push("--org", cmdOptions.org);
   }
 
   waspSays(
-    `Running ${options.context} command: flyctl ${flyctlArgs.join(" ")}`,
+    `Running ${cmdOptions.context} command: flyctl ${flyctlArgs.join(" ")}`,
   );
 
-  await ensureWaspProjectIsBuilt(options);
+  await ensureWaspProjectIsBuilt(cmdOptions);
 
-  const tomlFilePaths = getTomlFilePaths(options);
+  const tomlFilePaths = getTomlFilePaths(cmdOptions);
   const commonOps = getCommonOps(
-    options.context,
-    options.waspProjectDir,
+    cmdOptions.context,
+    cmdOptions.waspProjectDir,
     tomlFilePaths,
   );
 

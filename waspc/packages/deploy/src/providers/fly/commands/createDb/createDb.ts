@@ -2,22 +2,22 @@ import { $, ProcessOutput, question } from "zx";
 
 import { getCommandName } from "../../../../common/commander.js";
 import { waspSays } from "../../../../common/terminal.js";
-import { createDeploymentInfo } from "../../DeploymentInfo.js";
+import { createDeploymentInstructions } from "../../DeploymentInstructions.js";
 import { flyDeployCommand, flySetupCommand } from "../../index.js";
 import {
   getInferredBasenameFromServerToml,
   getTomlFilePaths,
   serverTomlExistsInProject,
 } from "../../tomlFile.js";
-import { CreateDbOptions } from "./CreateDbOptions.js";
+import { CreateDbCmdOptions } from "./CreateDbCmdOptions.js";
 
 export async function createDb(
   region: string,
-  options: CreateDbOptions,
+  cmdOptions: CreateDbCmdOptions,
 ): Promise<void> {
   waspSays("Creating your DB on Fly.io!");
 
-  const tomlFilePaths = getTomlFilePaths(options);
+  const tomlFilePaths = getTomlFilePaths(cmdOptions);
 
   if (!serverTomlExistsInProject(tomlFilePaths)) {
     throw new Error(
@@ -30,10 +30,10 @@ export async function createDb(
   }
 
   const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
-  const deploymentInfo = createDeploymentInfo(
+  const deploymentInstructions = createDeploymentInstructions(
     inferredBaseName,
     region,
-    options,
+    cmdOptions,
     tomlFilePaths,
   );
 
@@ -41,24 +41,24 @@ export async function createDb(
   // The attachment process shares the DATABASE_URL secret.
   const createArgs = [
     "--name",
-    deploymentInfo.dbName,
+    deploymentInstructions.dbName,
     "--region",
-    deploymentInfo.region,
+    deploymentInstructions.region,
     "--vm-size",
-    options.vmSize,
+    cmdOptions.vmSize,
     "--initial-cluster-size",
-    options.initialClusterSize,
+    cmdOptions.initialClusterSize,
     "--volume-size",
-    options.volumeSize,
+    cmdOptions.volumeSize,
   ];
 
-  if (deploymentInfo.options.org) {
-    createArgs.push("--org", deploymentInfo.options.org);
+  if (deploymentInstructions.cmdOptions.org) {
+    createArgs.push("--org", deploymentInstructions.cmdOptions.org);
   }
 
   try {
     await $`flyctl postgres create ${createArgs}`;
-    await $`flyctl postgres attach ${deploymentInfo.dbName} -a ${deploymentInfo.serverName}`;
+    await $`flyctl postgres attach ${deploymentInstructions.dbName} -a ${deploymentInstructions.serverName}`;
   } catch (error) {
     if (error instanceof ProcessOutput) {
       throw new Error(error.stderr.trim());
