@@ -1,17 +1,17 @@
 import { waspSays } from "../../../../common/terminal.js";
 import { getServerArtefactsDir } from "../../../../common/waspProject.js";
-import { DeploymentInfo } from "../../DeploymentInfo.js";
+import { DeploymentInstructions } from "../../DeploymentInstructions.js";
 
 import {
   deployServiceWithStreamingLogs,
   ServiceDeploymentStatus,
 } from "./common.js";
-import { DeployOptions } from "./DeployOptions.js";
+import { DeployCmdOptions } from "./DeployCmdOptions.js";
 
 export async function deployServer({
-  options,
+  cmdOptions: options,
   serverServiceName,
-}: DeploymentInfo<DeployOptions>): Promise<void> {
+}: DeploymentInstructions<DeployCmdOptions>): Promise<void> {
   waspSays("Deploying your server now...");
 
   const serverArtefactsDir = getServerArtefactsDir(options.waspProjectDir);

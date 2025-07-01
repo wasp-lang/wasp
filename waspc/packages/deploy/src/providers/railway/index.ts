@@ -117,6 +117,10 @@ function makeRailwayDeployCommand(): Command {
     .addProjectNameArgument()
     .option("--skip-client", "do not deploy the web client")
     .option("--skip-server", "do not deploy the server")
+    .option(
+      "--existing-project-id [projectId]",
+      "use existing project for deployment",
+    )
     .action(deployFn);
 }
 

@@ -2,6 +2,7 @@ import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
 import {
   ClientServiceName,
+  Port,
   RailwayCliExe,
   ServerServiceName,
 } from "../brandedTypes.js";
@@ -14,7 +15,7 @@ export enum ServiceUrlStatus {
 
 export async function generateServiceUrl(
   serviceName: ClientServiceName | ServerServiceName,
-  port: number,
+  port: Port,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;

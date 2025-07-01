@@ -7,17 +7,17 @@ import {
 const railwayPublicDomainEnvVarName = "RAILWAY_PUBLIC_DOMAIN";
 const railwayDatabaseUrlEnvVarName = "DATABASE_URL";
 
-export function getRailwayPublicUrlReferenceForService(
+export function getRailwayPublicUrlEnvVarForService(
   serviceName?: ClientServiceName | ServerServiceName,
 ): string {
   return `https://${getRailwayEnvVarReference(`${serviceName}.${railwayPublicDomainEnvVarName}`)}`;
 }
 
-export function getRailwayPublicUrlReferenceForSelf(): string {
+export function getRailwayPublicUrlEnvVarForSelf(): string {
   return `https://${getRailwayEnvVarReference(railwayPublicDomainEnvVarName)}`;
 }
 
-export function getRailwayDatabaseUrlReference(
+export function getRailwayDatabaseUrlEnvVar(
   serviceName: DbServiceName,
 ): string {
   return getRailwayEnvVarReference(

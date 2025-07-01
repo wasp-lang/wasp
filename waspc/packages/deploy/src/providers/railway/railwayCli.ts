@@ -7,6 +7,7 @@ import {
   RailwayProjectName,
   SemverVersion,
 } from "./brandedTypes.js";
+import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
 // Railway CLI version 4.0.1 includes a change that is needed for
 // Wasp deploy command to work with Railway properly:
@@ -17,21 +18,8 @@ export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,
 ): Promise<void> {
   const railwayCliVersion = await getRailwayCliVersion(railwayExe);
-  if (railwayCliVersion === null) {
-    const message = [
-      "The Railway CLI is not available on this system.",
-      "Read how to install the Railway CLI here: https://docs.railway.com/guides/cli",
-    ].join("\n");
-    throw new Error(message);
-  }
+  assertUsingMinimumSupportedRailwayCliVersion(railwayCliVersion);
 
-  if (!isUsingMinimumSupportedRailwayCliVersion(railwayCliVersion!)) {
-    const message = [
-      `Wasp expects at least Railway CLI version ${minSupportedRailwayCliVersion}.`,
-      "Read how to update the Railway CLI here: https://docs.railway.com/guides/cli",
-    ].join("\n");
-    throw new Error(message);
-  }
   await ensureUserLoggedIn(railwayExe);
 }
 
@@ -41,7 +29,7 @@ async function ensureUserLoggedIn(railwayExe: RailwayCliExe): Promise<void> {
     return;
   }
 
-  await confirmWithUserTheyWantToLogin();
+  await confirmUserWantsToLogin();
   await loginToRailway(railwayExe);
 }
 
@@ -52,7 +40,7 @@ async function isUserLoggedIn(railwayExe: RailwayCliExe): Promise<boolean> {
   return result.exitCode === 0;
 }
 
-async function confirmWithUserTheyWantToLogin(): Promise<void> {
+async function confirmUserWantsToLogin(): Promise<void> {
   const wantsToLogin = await confirm({
     message: "You are not logged into Railway. Would you like to log in now?",
   });
@@ -71,20 +59,32 @@ async function loginToRailway(railwayExe: RailwayCliExe): Promise<void> {
 
 async function getRailwayCliVersion(
   railwayExe: RailwayCliExe,
-): Promise<SemverVersion | null> {
+): Promise<SemverVersion> {
   const result = await $`${railwayExe} -V`;
   const match = result.stdout.match(/railway(?:app)? (\d+\.\d+\.\d+)/);
-  if (match !== null) {
-    return match[1] as SemverVersion;
-  } else {
-    return null;
+
+  if (match === null) {
+    const message = [
+      "Unable to determine Railway CLI version.",
+      "This is likely because the Railway CLI is not installed on your system.",
+      "Read how to install the Railway CLI here: https://docs.railway.com/guides/cli",
+    ].join("\n");
+    throw new Error(message);
   }
+
+  return match[1] as SemverVersion;
 }
 
-function isUsingMinimumSupportedRailwayCliVersion(
+function assertUsingMinimumSupportedRailwayCliVersion(
   railwayCliVersion: SemverVersion,
-): boolean {
-  return semver.gte(railwayCliVersion, minSupportedRailwayCliVersion);
+): void {
+  if (!semver.gte(railwayCliVersion, minSupportedRailwayCliVersion)) {
+    const message = [
+      `Wasp expects at least Railway CLI version ${minSupportedRailwayCliVersion}.`,
+      "Read how to update the Railway CLI here: https://docs.railway.com/guides/cli",
+    ].join("\n");
+    throw new Error(message);
+  }
 }
 
 export function assertRailwayProjectNameIsValid(
@@ -103,8 +103,12 @@ function getMaximumProjectNameLength(): number {
   // Railway has a limit of 32 characters for the service name.
   // https://docs.railway.com/reference/services#constraints
   const maximumServiceNameLength = 32;
-  // We construct service names by appending suffixes to the project name.
-  const suffixes = ["-server", "-client", "-db"];
-  const maximumSuffixLength = Math.max(...suffixes.map((s) => s.length));
-  return maximumServiceNameLength - maximumSuffixLength;
+
+  // We construct service names by appending suffixes to the project name:
+  // ServiceNameLength = ProjectNameLength + SuffixLength.
+  return maximumServiceNameLength - getMaximumServiceSuffixLength();
+}
+
+function getMaximumServiceSuffixLength(): number {
+  return Math.max(...Object.values(serviceNameSuffixes).map((s) => s.length));
 }

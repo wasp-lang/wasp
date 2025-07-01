@@ -3,9 +3,7 @@ import { $ } from "zx";
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
-import { RailwayCliExe } from "../brandedTypes.js";
-import { SetupOptions } from "../commands/setup/SetupOptions.js";
-import { DeploymentInfo } from "../DeploymentInfo.js";
+import { RailwayCliExe, RailwayProjectName } from "../brandedTypes.js";
 import {
   RailwayCliProjectSchema,
   RailwayProjectListSchema,
@@ -14,23 +12,25 @@ import { RailwayProject } from "./RailwayProject.js";
 
 export async function initRailwayProject({
   projectName,
-  options,
-}: DeploymentInfo<SetupOptions>): Promise<RailwayProject> {
-  const railwayCli = createCommandWithCwd(
-    options.railwayExe,
-    options.waspProjectDir,
-  );
+  railwayExe,
+  waspProjectDir,
+}: {
+  projectName: RailwayProjectName;
+  railwayExe: RailwayCliExe;
+  waspProjectDir: WaspProjectDir;
+}): Promise<RailwayProject> {
+  const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
   await railwayCli(["init", "--name", projectName], {
     // If there are multiple workspaces, the user needs to select **interactively**
     // which one to use. We need to allow users to select the workspace interactively.
-    // There is no way to pass it as a command line argument.
+    // Railway CLI doesn't accept it as a command line argument, only interactively.
     stdio: "inherit",
   });
 
   // Check if the project was created successfully...
   const newRailwayProject = await getRailwayProjectForDirectory(
-    options.railwayExe,
-    options.waspProjectDir,
+    railwayExe,
+    waspProjectDir,
   );
   if (newRailwayProject === null) {
     throw new Error("Railway project creation failed.");
@@ -42,12 +42,15 @@ export async function initRailwayProject({
 
 export async function linkRailwayProjectToWaspProjectDir(
   project: RailwayProject,
-  { options }: DeploymentInfo<SetupOptions>,
+  {
+    railwayExe,
+    waspProjectDir,
+  }: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<RailwayProject> {
-  const railwayCli = createCommandWithCwd(
-    options.railwayExe,
-    options.waspProjectDir,
-  );
+  const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
 
   // Railway CLI quirk, if the project has services, we need to specify one of them,
   // otherwise Railway will ask for it interactively. (Even though we are linking
@@ -59,8 +62,8 @@ export async function linkRailwayProjectToWaspProjectDir(
   // Sometimes linking fails silently, so we need to check if the project
   // was linked successfully.
   const linkedRailwayProject = await getRailwayProjectForDirectory(
-    options.railwayExe,
-    options.waspProjectDir,
+    railwayExe,
+    waspProjectDir,
   );
   if (linkedRailwayProject === null) {
     throw new Error("Railway project linking failed.");
@@ -78,8 +81,6 @@ export async function getRailwayProjectForDirectory(
   const result = await railwayCli(["status", "--json"], {
     verbose: false,
     nothrow: true,
-    // Ignoring stdin and stderr to stop error output from Railway CLI
-    stdio: ["ignore", "pipe", "ignore"],
   });
   if (result.exitCode === 0) {
     return new RailwayProject(RailwayCliProjectSchema.parse(result.json()));

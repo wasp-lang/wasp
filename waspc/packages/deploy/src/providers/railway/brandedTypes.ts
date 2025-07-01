@@ -10,3 +10,5 @@ export type ServerServiceName = Branded<string, "ServerServiceName">;
 export type DbServiceName = Branded<string, "DbServiceName">;
 
 export type SemverVersion = Branded<string, "SemverVersion">;
+
+export type Port = Branded<number, "Port">;

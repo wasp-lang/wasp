@@ -1,65 +1,33 @@
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
-import { waspSays } from "../../../common/terminal.js";
-import { DeploymentInfo } from "../DeploymentInfo.js";
 import {
   RailwayCliExe,
   RailwayProjectId,
   RailwayProjectName,
 } from "../brandedTypes.js";
-import { SetupOptions } from "../commands/setup/SetupOptions.js";
 import { RailwayProject } from "./RailwayProject.js";
 import {
   getRailwayProjectById,
   getRailwayProjectByName,
   getRailwayProjectForDirectory,
-  initRailwayProject,
-  linkRailwayProjectToWaspProjectDir,
 } from "./cli.js";
 
-enum ProjectStatus {
+export enum ProjectStatus {
   EXISTING_PROJECT_ALREADY_LINKED = "EXISTING_PROJECT_ALREADY_LINKED",
   EXISTING_PROJECT_SHOULD_BE_LINKED = "EXISTING_PROJECT_SHOULD_BE_LINKED",
   MISSING_PROJECT = "MISSING_PROJECT",
 }
 
-export async function ensureRailwayProjectForDirectory(
-  waspProjectDirPath: WaspProjectDir,
-  deploymentInfo: DeploymentInfo<SetupOptions>,
-): Promise<RailwayProject> {
-  const { projectName, options } = deploymentInfo;
-
-  const { status, project } = await getRailwayProjectStatus(
-    projectName,
-    waspProjectDirPath,
-    options,
-  );
-
-  switch (status) {
-    case ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED:
-      waspSays(
-        `Project with name "${projectName}" already linked. Skipping project creation.`,
-      );
-      return project;
-
-    case ProjectStatus.EXISTING_PROJECT_SHOULD_BE_LINKED:
-      waspSays(`Linking project with name "${project.name}" to this directory`);
-      return linkRailwayProjectToWaspProjectDir(project, deploymentInfo);
-
-    case ProjectStatus.MISSING_PROJECT:
-      waspSays(`Setting up Railway project with name "${projectName}"`);
-      return initRailwayProject(deploymentInfo);
-
-    default:
-      status satisfies never;
-      throw new Error(`Unhandled status: ${status}`);
-  }
-}
-
-async function getRailwayProjectStatus(
-  projectName: RailwayProjectName,
-  waspProjectDirPath: WaspProjectDir,
-  options: SetupOptions,
-): Promise<
+export async function getRailwayProjectStatus({
+  projectName,
+  waspProjectDir,
+  railwayExe,
+  existingProjectId,
+}: {
+  projectName: RailwayProjectName;
+  waspProjectDir: WaspProjectDir;
+  railwayExe: RailwayCliExe;
+  existingProjectId: RailwayProjectId | null;
+}): Promise<
   | {
       status: ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED;
       project: RailwayProject;
@@ -74,8 +42,8 @@ async function getRailwayProjectStatus(
     }
 > {
   const projectLinkedToDir = await getRailwayProjectForDirectory(
-    options.railwayExe,
-    waspProjectDirPath,
+    railwayExe,
+    waspProjectDir,
   );
 
   if (projectLinkedToDir !== null) {
@@ -90,10 +58,10 @@ async function getRailwayProjectStatus(
     };
   }
 
-  if (options.existingProjectId) {
+  if (existingProjectId) {
     const existingProject = await getExistingProjectById(
-      options.railwayExe,
-      options.existingProjectId,
+      railwayExe,
+      existingProjectId,
     );
 
     return {
@@ -102,7 +70,7 @@ async function getRailwayProjectStatus(
     };
   }
 
-  await assertUniqueProjectName(options.railwayExe, projectName);
+  await assertUniqueProjectName(railwayExe, projectName);
   return {
     status: ProjectStatus.MISSING_PROJECT,
     project: null,

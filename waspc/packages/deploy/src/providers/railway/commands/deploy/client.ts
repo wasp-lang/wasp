@@ -4,20 +4,20 @@ import {
   waspSays,
 } from "../../../../common/terminal.js";
 import { getClientArtefactsDir } from "../../../../common/waspProject.js";
-import { DeploymentInfo } from "../../DeploymentInfo.js";
+import { DeploymentInstructions } from "../../DeploymentInstructions.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
-import { DeployOptions } from "./DeployOptions.js";
+import { DeployCmdOptions } from "./DeployCmdOptions.js";
 import {
   deployServiceWithStreamingLogs,
   ServiceDeploymentStatus,
 } from "./common.js";
 
 export async function deployClient({
-  options,
+  cmdOptions: options,
   serverServiceName,
   clientServiceName,
-}: DeploymentInfo<DeployOptions>): Promise<void> {
+}: DeploymentInstructions<DeployCmdOptions>): Promise<void> {
   waspSays("Deploying your client now...");
 
   const serverServiceUrl = await generateServiceUrl(
