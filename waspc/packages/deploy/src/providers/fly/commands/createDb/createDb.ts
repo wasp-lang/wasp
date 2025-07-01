@@ -30,12 +30,12 @@ export async function createDb(
   }
 
   const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
-  const deploymentInstructions = createDeploymentInstructions(
-    inferredBaseName,
+  const deploymentInstructions = createDeploymentInstructions({
+    baseName: inferredBaseName,
     region,
     cmdOptions,
     tomlFilePaths,
-  );
+  });
 
   // Creates a DB, waits for it to come up, then links it to the app.
   // The attachment process shares the DATABASE_URL secret.

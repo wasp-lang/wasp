@@ -16,12 +16,17 @@ export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
 
 export function createDeploymentInstructions<
   CmdOptions extends CommonCmdOptions,
->(
-  baseName: string,
-  region: string | undefined,
-  cmdOptions: CmdOptions,
-  tomlFilePaths: TomlFilePaths,
-): DeploymentInstructions<CmdOptions> {
+>({
+  baseName,
+  cmdOptions,
+  tomlFilePaths,
+  region,
+}: {
+  baseName: string;
+  region?: string;
+  cmdOptions: CmdOptions;
+  tomlFilePaths: TomlFilePaths;
+}): DeploymentInstructions<CmdOptions> {
   return Object.freeze({
     baseName,
     region,

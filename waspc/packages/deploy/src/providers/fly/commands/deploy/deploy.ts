@@ -51,12 +51,11 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
     waspSays("Skipping server deploy due to CLI option.");
   } else {
     const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
-    const deploymentInstructions = createDeploymentInstructions(
-      inferredBaseName,
-      undefined,
+    const deploymentInstructions = createDeploymentInstructions({
+      baseName: inferredBaseName,
       cmdOptions,
       tomlFilePaths,
-    );
+    });
     await deployServer(deploymentInstructions, cmdOptions);
   }
 
@@ -72,12 +71,11 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
     waspSays("Skipping client deploy due to CLI option.");
   } else {
     const inferredBaseName = getInferredBasenameFromClientToml(tomlFilePaths);
-    const deploymentInstructions = createDeploymentInstructions(
-      inferredBaseName,
-      undefined,
+    const deploymentInstructions = createDeploymentInstructions({
+      baseName: inferredBaseName,
       cmdOptions,
       tomlFilePaths,
-    );
+    });
     await deployClient(deploymentInstructions, cmdOptions);
   }
 }

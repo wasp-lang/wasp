@@ -39,12 +39,12 @@ export async function setup(
   await ensureWaspProjectIsBuilt(cmdOptions);
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
-  const deploymentInstructions = createDeploymentInstructions(
+  const deploymentInstructions = createDeploymentInstructions({
     baseName,
     region,
     cmdOptions,
     tomlFilePaths,
-  );
+  });
 
   if (serverTomlExistsInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.serverTomlPath} exists. Skipping server setup.`);
