@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.7
+
+### 🐞 Bug fixes
+
+- Make Wasp work with Node older than 20.19.0 by pinning down the version of `@vitejs/plugin-react` to `4.5.1`. This prevents Vite 7 from being installed and clashing with Node ([2865]https://github.com/wasp-lang/wasp/pull/2865))
+
 ## 0.16.6
 
 ### 🐞 Bug fixes
