@@ -17,7 +17,7 @@ export function JobsPage() {
   return (
     <FeatureContainer>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold mb-4">Async Jobs</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Async Jobs</h2>
 
         <CreateRequestForm />
         <RequestsList />
@@ -77,7 +77,7 @@ function CreateRequestForm() {
         >
           Submit Job
         </Button>
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="mb-4 text-sm text-gray-500">
           There is an artificial delay of 2 seconds in the job processing to
           simulate a real-world scenario where jobs might take time to complete.
         </p>
@@ -92,20 +92,20 @@ function RequestsList() {
   });
   return (
     <div className="card">
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="max-h-96 space-y-3 overflow-y-auto">
         {requests && requests.length > 0 ? (
           requests.map((request) => (
             <div
               key={request.id}
-              className="border border-gray-200 p-4 rounded-xl shadow-sm bg-white"
+              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
               data-testid="job-request"
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
-                    <div className="text-sm text-gray-600 mb-1">Input:</div>
+                    <div className="mb-1 text-sm text-gray-600">Input:</div>
                     <div
-                      className="text-gray-900 font-medium break-words"
+                      className="break-words font-medium text-gray-900"
                       data-testid="input"
                     >
                       "{request.input}"
@@ -116,9 +116,9 @@ function RequestsList() {
 
                 {request.output && (
                   <div className="border-t border-gray-100 pt-3">
-                    <div className="text-sm text-gray-600 mb-1">Output:</div>
+                    <div className="mb-1 text-sm text-gray-600">Output:</div>
                     <div
-                      className="text-gray-900 font-semibold break-words"
+                      className="break-words font-semibold text-gray-900"
                       data-testid="output"
                     >
                       "{request.output}"
@@ -129,9 +129,9 @@ function RequestsList() {
             </div>
           ))
         ) : (
-          <div className="p-8 rounded-xl shadow-sm text-center">
+          <div className="rounded-xl p-8 text-center shadow-sm">
             <span className="text-sm">No requests found.</span>
-            <p className="text-gray-500 text-xs mt-1">
+            <p className="mt-1 text-xs text-gray-500">
               Submit your first job to see it here!
             </p>
           </div>

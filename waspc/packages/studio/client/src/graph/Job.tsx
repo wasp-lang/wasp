@@ -5,13 +5,13 @@ export const JobNode = ({
   isConnectable,
   sourcePosition = Position.Right,
 }: NodeProps) => (
-  <div className="py-3 px-6 rounded bg-violet-900 text-white text-center">
+  <div className="rounded bg-violet-900 px-6 py-3 text-center text-white">
     <Handle
       type="source"
       position={sourcePosition}
       isConnectable={isConnectable}
     />
-    <div className="text-xs bg-violet-300 text-violet-900 rounded px-1 absolute -top-1 left-1/2 -translate-x-1/2 flex items-center">
+    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded bg-violet-300 px-1 text-xs text-violet-900">
       <span className="mr-1">Job</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +19,7 @@ export const JobNode = ({
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-3 h-3"
+        className="h-3 w-3"
       >
         <path
           strokeLinecap="round"
@@ -30,8 +30,8 @@ export const JobNode = ({
     </div>
     <div className="font-bold">{data?.label}</div>
     {data.schedule && (
-      <div className="flex justify-center items-center mt-2">
-        <div className="text-xs bg-foreground text-background rounded px-1">
+      <div className="mt-2 flex items-center justify-center">
+        <div className="bg-foreground text-background rounded px-1 text-xs">
           <span>Schedule: {data.schedule}</span>
         </div>
       </div>

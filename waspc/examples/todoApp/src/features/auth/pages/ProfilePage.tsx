@@ -18,9 +18,9 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
     <FeatureContainer>
       <div className="space-y-4">
         <h2 className="feature-title">User Profile</h2>
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           <div className="card" data-testid="user-profile">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <h2 className="mb-4 flex items-center text-xl font-semibold text-gray-900">
               User Authentication
             </h2>
             <div className="space-y-3">
@@ -37,10 +37,10 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
                   <span className="text-gray-600">Email Status:</span>
                   <span
                     className={cn(
-                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
                       user.identities.email?.isEmailVerified
-                        ? "bg-green-100 text-green-800 border border-green-200"
-                        : "bg-amber-100 text-amber-800 border border-amber-200",
+                        ? "border border-green-200 bg-green-100 text-green-800"
+                        : "border border-amber-200 bg-amber-100 text-amber-800",
                     )}
                     data-testid="email-status"
                   >
@@ -54,7 +54,7 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
           </div>
 
           <div className="card">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <h2 className="mb-4 flex items-center text-xl font-semibold text-gray-900">
               Hook Status
             </h2>
             <div className="space-y-3">
@@ -91,10 +91,10 @@ const HookStatus = ({
         className="flex items-center justify-between"
         data-testid={`hook-status-${hookName}`}
       >
-        <span className="text-gray-600 text-sm">{hookName}</span>
+        <span className="text-sm text-gray-600">{hookName}</span>
         <span
           className={cn(
-            "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
             isCalled && "bg-green-100 text-green-800",
             !isCalled && "bg-gray-100 text-gray-800",
           )}
@@ -108,5 +108,5 @@ const HookStatus = ({
 };
 
 const SimpleCard = ({ children }: React.PropsWithChildren<{}>) => {
-  return <div className="border p-3 rounded-lg shadow-sm">{children}</div>;
+  return <div className="rounded-lg border p-3 shadow-sm">{children}</div>;
 };

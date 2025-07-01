@@ -58,7 +58,7 @@ const Todo = () => {
         )}
       </div>
 
-      <div className="text-sm text-gray-600 mt-4">
+      <div className="mt-4 text-sm text-gray-600">
         {getTotalTaskCountMessage(numTasks)}
       </div>
     </div>
@@ -79,7 +79,7 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
 
   return (
     <div className="flex items-center justify-between border-t pt-4">
-      <div className="text-sm py-3">{numUncompletedTasks} item(s) left</div>
+      <div className="py-3 text-sm">{numUncompletedTasks} item(s) left</div>
 
       <div>
         <Button
@@ -141,7 +141,7 @@ const TaskView = ({ task }: { task: TaskWithUser }) => {
 
   return (
     <div
-      className="flex items-center gap-4 py-4 border-b last:border-b-0"
+      className="flex items-center gap-4 border-b py-4 last:border-b-0"
       data-testid="task-view"
     >
       <div>
@@ -150,7 +150,7 @@ const TaskView = ({ task }: { task: TaskWithUser }) => {
           id={String(task.id)}
           checked={task.isDone}
           onChange={handleTaskIsDoneChange}
-          className="cursor-pointer h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:border-gray-200 disabled:opacity-50"
+          className="text-primary-600 focus:ring-primary-500 h-4 w-4 cursor-pointer rounded border-gray-300 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:opacity-50"
         />
       </div>
       <div>
@@ -163,7 +163,7 @@ const TaskView = ({ task }: { task: TaskWithUser }) => {
           {task.description}
         </Link>
         {email && (
-          <p className="text-sm text-gray-500 mt-1" data-testid="created-by">
+          <p className="mt-1 text-sm text-gray-500" data-testid="created-by">
             Created by {email}
           </p>
         )}
