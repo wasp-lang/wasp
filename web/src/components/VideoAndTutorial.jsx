@@ -22,12 +22,7 @@ const VideoAndTutorial = () => {
           </div>
 
           <Link to="/docs/tutorial/create">
-            <div
-              className={`
-                text-md text-neutral-500
-                hover:text-neutral-400
-              `}
-            >
+            <div className={`text-md text-neutral-500 hover:text-neutral-400`}>
               <span className="underline decoration-neutral-500">
                 Want to jump in and try it yourself? Take our tutorial!
               </span>

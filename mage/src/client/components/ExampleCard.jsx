@@ -10,21 +10,21 @@ export function ExampleCard({ idea, useIdea }) {
       scale={1.05}
     >
       <div
-        className="bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center cursor-pointer hover:shadow-lg transition-all"
+        className="mt-2 flex cursor-pointer flex-col items-center rounded-xl bg-slate-50 p-8 transition-all hover:shadow-lg"
         onClick={() => useIdea(idea)}
       >
         <div className="idea w-full">
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-xl font-semibold text-slate-700 mb-1">
+          <div className="mb-4 flex items-center justify-between">
+            <h4 className="mb-1 text-xl font-semibold text-slate-700">
               <span
-                className="inline-block w-4 h-4 rounded-full mr-2"
+                className="mr-2 inline-block h-4 w-4 rounded-full"
                 style={{ backgroundColor: idea.color.color }}
               ></span>
               {idea.name}
             </h4>
             <button className="button sm gray">Use this idea</button>
           </div>
-          <div className="text-base leading-relaxed text-slate-500 line-clamp-[10]">
+          <div className="line-clamp-[10] text-base leading-relaxed text-slate-500">
             {idea.description.split("\n").map((str) => (
               <p key={str}>{str}</p>
             ))}

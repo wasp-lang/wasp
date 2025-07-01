@@ -12,7 +12,7 @@ export function ApisPage() {
       <div className="space-y-4">
         <h2 className="feature-title">Custom APIs</h2>
         <div className="card" data-testid="authenticated-api">
-          <h2 className="text-xl font-medium mb-2">/foo/bar</h2>
+          <h2 className="mb-2 text-xl font-medium">/foo/bar</h2>
           {authenticatedApi.isLoading && (
             <div className="text-gray-500">Loading...</div>
           )}
@@ -28,7 +28,7 @@ export function ApisPage() {
           )}
         </div>
         <div className="card" data-testid="unauthenticated-api">
-          <h2 className="text-xl font-medium mb-2">/bar/baz</h2>
+          <h2 className="mb-2 text-xl font-medium">/bar/baz</h2>
           {unauthenticatedApi.isLoading && (
             <div className="text-gray-500">Loading...</div>
           )}

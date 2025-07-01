@@ -206,14 +206,7 @@ const Testimonials = () => {
       {numOfItemsToShow < testimonials.length && (
         <div className="flex justify-center">
           <button
-            className={`
-              inline-flex items-center space-x-2
-              rounded border border-yellow-500
-              bg-yellow-500 px-3 py-2 text-sm
-              leading-4 text-white transition
-              duration-200
-              ease-out hover:border-yellow-400 hover:bg-yellow-400
-            `}
+            className={`inline-flex items-center space-x-2 rounded border border-yellow-500 bg-yellow-500 px-3 py-2 text-sm leading-4 text-white transition duration-200 ease-out hover:border-yellow-400 hover:bg-yellow-400`}
             onClick={() => setLoadMoreCount(loadMoreCount + 1)}
           >
             🐝 Load more

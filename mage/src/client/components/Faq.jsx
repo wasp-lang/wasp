@@ -13,7 +13,7 @@ function l(title, overrideTitle) {
   return (
     <a
       href={links[title]}
-      className="underline decoration-2 decoration-yellow-500"
+      className="underline decoration-yellow-500 decoration-2"
     >
       {overrideTitle || title}
     </a>
@@ -120,7 +120,7 @@ const faqs = [
         To run Wasp AI (Mage) locally, make sure you have wasp installed and
         just run:
         <br />
-        <span className="bg-slate-800 text-slate-200 p-1 rounded">
+        <span className="rounded bg-slate-800 p-1 text-slate-200">
           wasp new
         </span>
         <br />
@@ -131,7 +131,7 @@ const faqs = [
         There is also a command for running the same thing programmatically,
         without interactive questions:
         <br />
-        <span className="bg-slate-800 text-slate-200 p-1 rounded">
+        <span className="rounded bg-slate-800 p-1 text-slate-200">
           wasp new:ai
         </span>
         <br />
@@ -148,7 +148,7 @@ function FaqItem({ keyP, faq }) {
     <div className="py-6">
       <dt key={keyP} className="text-base text-neutral-700">
         <button
-          className="text-left w-full flex items-center justify-between"
+          className="flex w-full items-center justify-between text-left"
           onClick={() => {
             setIsExpanded(!isExpanded);
           }}
@@ -173,14 +173,14 @@ export function Faq() {
     <>
       <div className="grid grid-cols-12" id="faq">
         <div className="col-span-12 text-center">
-          <h2 className="text-xl lg:text-2xl text-neutral-700 mb-4">
+          <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
             Frequently asked questions
           </h2>
           <p className="text-neutral-500">
             For anything not covered here, join&nbsp;
             <a
               href="https://discord.gg/rzdnErX"
-              className="underline decoration-2 decoration-yellow-500 font-medium"
+              className="font-medium underline decoration-yellow-500 decoration-2"
             >
               our Discord
             </a>
@@ -189,7 +189,7 @@ export function Faq() {
         </div>
       </div>
 
-      <dl className="mt-6 max-w-3xl mx-auto divide-y divide-neutral-300">
+      <dl className="mx-auto mt-6 max-w-3xl divide-y divide-neutral-300">
         {faqs.map((faq, idx) => (
           <FaqItem keyP={idx} key={idx} faq={faq} />
         ))}

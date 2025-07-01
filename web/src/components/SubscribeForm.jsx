@@ -50,27 +50,14 @@ const SubscribeForm = ({ className, inputBgColor }) => {
             autoComplete="email"
             placeholder="you@awesomedev.com"
             className={
-              `
-              w-full appearance-none
-              rounded-md
-              border
-              border-yellow-500 px-4
-              py-2 text-sm placeholder:text-neutral-400
-              focus:outline-none focus:ring-2 focus:ring-yellow-400
-            ` + ` ${inputBgColor}`
+              `w-full appearance-none rounded-md border border-yellow-500 px-4 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 ` +
+              ` ${inputBgColor}`
             }
           />
           <div className="mt-3 rounded-md sm:ml-3 sm:mt-0">
             <button
               type="submit"
-              className={`
-                w-full
-                rounded-md border border-transparent bg-yellow-500
-                px-4 py-2
-                text-sm text-white
-                transition
-                duration-200 ease-out hover:bg-yellow-400
-              `}
+              className={`w-full rounded-md border border-transparent bg-yellow-500 px-4 py-2 text-sm text-white transition duration-200 ease-out hover:bg-yellow-400`}
             >
               Subscribe
             </button>
