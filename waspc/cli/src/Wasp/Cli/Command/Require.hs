@@ -84,8 +84,8 @@ instance Requirable InWaspProject where
 
 data FromOutDir = FromOutDir deriving (Typeable)
 
--- TODO(carlos): Create a `FromBuildDir` instance of `DbConnectionEstablished`
--- as well. (#2858)
+-- TODO: Create a `FromBuildDir` instance of `DbConnectionEstablished` as well
+-- (#2858)
 --
 -- We can't run our Prisma functions from the `.wasp/build` dir, because some of
 -- the files they expect present are not generated as part of `wasp build` (only

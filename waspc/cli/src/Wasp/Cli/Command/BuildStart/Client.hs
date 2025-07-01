@@ -6,9 +6,8 @@ where
 
 import Data.Function ((&))
 import StrongPath ((</>))
-import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, clientPortAndUrl)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
@@ -37,7 +36,7 @@ startClient config =
       "preview", -- `preview` launches a static file server for the built client.
       "--",
       "--port",
-      show defaultClientPort,
+      show $ fst $ clientPortAndUrl config,
       "--strictPort" -- This will make it fail if the port is already in use.
     ]
     J.WebApp

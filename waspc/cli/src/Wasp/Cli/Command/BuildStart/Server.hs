@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
-{-# HLINT ignore "Use fewer imports" #-}
 module Wasp.Cli.Command.BuildStart.Server
   ( buildServer,
     startServer,
@@ -16,18 +13,19 @@ import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runProcessAsJob)
+import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util.Random (genRandomAsciiAlphaNumsIO)
 
 buildServer :: BuildStartConfig -> ExceptJob
 buildServer config =
   runProcessAsJob
-    (proc "docker" ["build", "--tag", dockerImageName, contextPath])
+    (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
     J.Server
     & toExceptJob (("Building the server failed with exit code: " <>) . show)
   where
     buildDir = Config.buildDir config
-    contextPath = SP.fromAbsDir buildDir -- The folder with the Dockerfile and the files it needs to build.
+    dockerContextDir = SP.fromAbsDir buildDir
     dockerImageName = Config.dockerImageName config
 
 startServer :: BuildStartConfig -> ExceptJob
@@ -52,12 +50,13 @@ startServer config =
               "WASP_SERVER_URL=" <> serverUrl,
               "--env",
               "JWT_SECRET=" <> jwtSecret,
-              -- We specifically pass `DATABASE_URL` from the current
-              -- execution to the server container because Prisma will need
-              -- it, and it is not set in the .env file (wasp start
-              -- complains if so).
+              -- We specifically pass `DATABASE_URL` from the current execution
+              -- to the server container because Prisma will need it, and it is
+              -- not set in the .env file (wasp start complains if so). We pass
+              -- it without a value so that it is inherited from the current
+              -- environment.
               "--env",
-              "DATABASE_URL",
+              databaseUrlEnvVarName,
               dockerImageName
             ]
         )
@@ -69,7 +68,7 @@ startServer config =
     projectDir = Config.projectDir config
     envFilePath = SP.fromAbsFile $ projectDir </> dotEnvServer
 
-    clientUrl = Config.clientUrl config
+    (_, clientUrl) = Config.clientPortAndUrl config
     serverUrl = Config.serverUrl config
     dockerContainerName = Config.dockerContainerName config
     dockerImageName = Config.dockerImageName config

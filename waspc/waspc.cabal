@@ -550,9 +550,6 @@ library cli-lib
     , temporary ^>=1.3
   other-modules:
     Paths_waspc
-    Wasp.Cli.Command.BuildStart.Client
-    Wasp.Cli.Command.BuildStart.Config
-    Wasp.Cli.Command.BuildStart.Server
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
@@ -560,6 +557,9 @@ library cli-lib
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.BuildStart
+    Wasp.Cli.Command.BuildStart.Client
+    Wasp.Cli.Command.BuildStart.Config
+    Wasp.Cli.Command.BuildStart.Server
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean
     Wasp.Cli.Command.Uninstall
