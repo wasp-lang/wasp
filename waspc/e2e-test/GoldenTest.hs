@@ -43,6 +43,7 @@ runGoldenTest goldenTest = do
   let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
   let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
   let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
+  let expectedFilesListAbsFp = currentOutputDirAbsFp FP.</> expectedFilesListFileName
 
   -- Remove existing current output files from a prior test run.
   callCommand $ "rm -rf " ++ currentOutputDirAbsFp
@@ -62,13 +63,13 @@ runGoldenTest goldenTest = do
   -- TODO: Save stdout/error as log file for "contains" checks.
   callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
-  currentOutputAbsFps <- listRelevantTestOutputFiles currentOutputDirAbsFp
-  reformatPackageJsonFiles currentOutputAbsFps
+  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentOutputDirAbsFp
+  writeExpectedFilesList currentOutputDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp
 
-  let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
-  writeFileManifest currentOutputDirAbsFp currentOutputAbsFps manifestAbsFp
+  filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
+  reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
   return $
     testGroup
@@ -79,31 +80,46 @@ runGoldenTest goldenTest = do
           goldenOutputAbsFp
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentOutputAbsFp <- manifestAbsFp : currentOutputAbsFps,
-          let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
+        | currentOutputAbsFp <- filesForCheckingContentAbsFps,
+          let goldenOutputAbsFp = remapCurrentToGoldenFilePath currentOutputAbsFp
       ]
   where
-    listRelevantTestOutputFiles :: FilePath -> IO [FilePath]
-    listRelevantTestOutputFiles dirToFilterAbsFp =
-      getDirFiltered (return <$> isTestOutputFileTestable) dirToFilterAbsFp >>= filterM doesFileExist
+    expectedFilesListFileName :: String
+    expectedFilesListFileName = "expected-files.manifest"
 
-    isTestOutputFileTestable :: FilePath -> Bool
-    isTestOutputFileTestable fp =
-      takeFileName fp
-        `notElem` [ ".waspinfo",
-                    "node_modules",
-                    "dev.db",
-                    "dev.db-journal",
-                    "package-lock.json",
-                    ".gitignore",
-                    ".DS_Store",
-                    "tsconfig.tsbuildinfo"
+    getFilesForCheckingExistence :: FilePath -> IO [FilePath]
+    getFilesForCheckingExistence dirToFilterAbsFp =
+      getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist
+
+    getFilesForCheckingContent :: FilePath -> IO [FilePath]
+    getFilesForCheckingContent dirToFilterAbsFp =
+      getDirFiltered (return <$> shouldCheckFileContents) dirToFilterAbsFp >>= filterM doesFileExist
+
+    shouldCheckFileExistence :: FilePath -> Bool
+    shouldCheckFileExistence filePath =
+      takeFileName filePath
+        `notElem` [ ".DS_Store",
+                    "node_modules"
                   ]
 
-    writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
-    writeFileManifest baseAbsFp filePaths manifestAbsFp = do
-      let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
-      writeFile manifestAbsFp sortedRelativeFilePaths
+    shouldCheckFileContents :: FilePath -> Bool
+    shouldCheckFileContents filePath =
+      takeFileName filePath
+        `notElem` [ ".DS_Store",
+                    "dev.db",
+                    "dev.db-journal",
+                    ".gitignore",
+                    ".waspinfo",
+                    "package-lock.json",
+                    "node_modules",
+                    "tsconfig.tsbuildinfo",
+                    "dist"
+                  ]
+
+    writeExpectedFilesList :: String -> [FilePath] -> FilePath -> IO ()
+    writeExpectedFilesList baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
+      let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
+      writeFile expectedFilesListAbsFp sortedRelativeFilePaths
 
     -- While Wasp deterministically produces package.json files in the generated code,
     -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
@@ -111,8 +127,8 @@ runGoldenTest goldenTest = do
     -- All of this can result in e2e flagging these files as being different when it should not.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
-    reformatPackageJsonFiles allOutputFilePaths = do
-      let packageJsonFilePaths = filter isPathToPackageJson allOutputFilePaths
+    reformatPackageJsonFiles filePaths = do
+      let packageJsonFilePaths = filter isPathToPackageJson filePaths
       mapM_ reformatJson packageJsonFilePaths
       where
         isPathToPackageJson :: FilePath -> Bool

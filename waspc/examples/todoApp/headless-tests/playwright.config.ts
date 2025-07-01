@@ -2,6 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 const HEADLESS_TEST_MODE = process.env.HEADLESS_TEST_MODE ?? "dev";
 
+export const WASP_SERVER_PORT = 3001;
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -48,7 +50,7 @@ export default defineConfig({
   webServer: {
     command: `run-wasp-app ${HEADLESS_TEST_MODE} --path-to-app=../ --wasp-cli-cmd=wasp-cli`,
     // Wait for the backend to start
-    url: "http://localhost:3001",
+    url: `http://localhost:${WASP_SERVER_PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180 * 1000,
     gracefulShutdown: { signal: "SIGTERM", timeout: 500 },
