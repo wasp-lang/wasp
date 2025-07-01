@@ -30,7 +30,7 @@ export const ChatPage = () => {
   return (
     <FeatureContainer>
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h2 className="feature-title">Chat Room</h2>
           <div className="flex items-center gap-2">
             <div
@@ -45,17 +45,17 @@ export const ChatPage = () => {
           </div>
         </div>
         <div className="card">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 h-80 overflow-y-auto mb-4">
+          <div className="mb-4 h-80 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
             {messages.length > 0 ? (
               <div className="space-y-3">
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className="bg-white rounded-lg p-3 shadow-sm border border-gray-100"
+                    className="rounded-lg border border-gray-100 bg-white p-3 shadow-sm"
                     data-testid="message"
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-primary-600 text-sm">
+                    <div className="mb-1 flex items-center justify-between">
+                      <span className="text-primary-600 text-sm font-medium">
                         {msg.username}
                       </span>
                       <span className="text-xs text-gray-400">
@@ -67,7 +67,7 @@ export const ChatPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center">
+              <div className="flex h-full items-center justify-center">
                 <div className="text-center">
                   <p className="text-gray-500">
                     No messages yet. Test the chat by sending a message.

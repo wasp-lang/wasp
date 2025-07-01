@@ -59,7 +59,7 @@ const SignupPage = () => {
 
         <GoogleAuthButton />
 
-        <div className="w-full text-center mt-6 pt-3 border-t border-neutral-300">
+        <div className="mt-6 w-full border-t border-neutral-300 pt-3 text-center">
           <p className="text-sm text-yellow-600">
             <Link to="/login">Already have an Waspello account? Log in.</Link>
           </p>

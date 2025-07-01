@@ -37,7 +37,7 @@ const MainPage = () => {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-8">
+    <div className="mx-auto w-full max-w-2xl p-8">
       <h1 className="text-2xl font-bold">{poll?.question ?? "Loading..."}</h1>
       {poll && (
         <p className="leading-relaxed text-gray-500">
@@ -49,7 +49,7 @@ const MainPage = () => {
           {poll.options.map((option) => (
             <Card
               key={option.id}
-              className="relative transition-all duration-300 min-h-[130px] card"
+              className="card relative min-h-[130px] transition-all duration-300"
             >
               <div className="z-10">
                 <div className="mb-2">
@@ -65,7 +65,7 @@ const MainPage = () => {
                   {!user}
                 </div>
                 {option.votes.length > 0 && (
-                  <div className="mt-2 flex gap-2 flex-wrap max-w-[75%]">
+                  <div className="mt-2 flex max-w-[75%] flex-wrap gap-2">
                     {option.votes.map((username, idx) => {
                       if (idx > TRUNCATE_SIZE) {
                         return undefined;
@@ -73,9 +73,9 @@ const MainPage = () => {
                       return (
                         <div
                           key={username}
-                          className="py-1 px-3 bg-gray-100 rounded-lg flex items-center justify-center shadow text-sm username"
+                          className="username flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow"
                         >
-                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          <div className="mr-2 h-2 w-2 rounded-full bg-green-500"></div>
                           <div className="text-gray-700">{username}</div>
                         </div>
                       );
@@ -84,8 +84,8 @@ const MainPage = () => {
                       <div className="text-gray-700">{`...`}</div>
                     )}
                     {option.votes.length > TRUNCATE_SIZE + 1 && (
-                      <div className="py-1 px-3 bg-gray-100 rounded-lg flex items-center justify-center shadow text-sm">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <div className="flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow">
+                        <div className="mr-2 h-2 w-2 rounded-full bg-green-500"></div>
                         <div className="text-gray-700">
                           {option.votes[option.votes.length - 1]}
                         </div>
@@ -94,11 +94,11 @@ const MainPage = () => {
                   </div>
                 )}
               </div>
-              <div className="absolute top-5 right-5 p-2 text-sm font-semibold bg-gray-100 rounded-lg z-10 votes-count">
+              <div className="votes-count absolute right-5 top-5 z-10 rounded-lg bg-gray-100 p-2 text-sm font-semibold">
                 {option.votes.length} / {totalVotes}
               </div>
               <div
-                className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-75 rounded-lg transition-all duration-300"
+                className="absolute inset-0 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
                 style={{
                   width: `${
                     totalVotes > 0
