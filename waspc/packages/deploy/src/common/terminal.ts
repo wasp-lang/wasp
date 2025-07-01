@@ -1,7 +1,11 @@
 import { chalk } from "zx";
 
 export function waspSays(str: string): void {
-  console.log(chalk.yellow(`🚀 ${str}`));
+  const formattedStr = str
+    .split("\n")
+    .map((line) => `🚀 ${line}`)
+    .join("\n");
+  console.log(chalk.yellow(formattedStr));
 }
 
 export function displayWaspRocketImage(): void {
