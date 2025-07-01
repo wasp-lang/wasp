@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Wasp.Cli.Command.Require
   ( -- * Asserting Requirements
 
@@ -23,8 +25,9 @@ module Wasp.Cli.Command.Require
 
     -- * Requirables
     Requirable (checkRequirement),
-    DbConnectionEstablished (DbConnectionEstablished),
     InWaspProject (InWaspProject),
+    DbConnectionEstablished (DbConnectionEstablished),
+    FromOutDir (FromOutDir),
   )
 where
 
@@ -40,30 +43,6 @@ import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequireme
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
-
-data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
-
-instance Requirable DbConnectionEstablished where
-  checkRequirement = do
-    -- NOTE: 'InWaspProject' does not depend on this requirement, so this
-    -- call to 'require' will not result in an infinite loop.
-    InWaspProject waspProjectDir <- require
-    let outDir =
-          waspProjectDir
-            SP.</> Project.Common.dotWaspDirInWaspProjectDir
-            SP.</> Project.Common.generatedCodeDirInDotWaspDir
-    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
-
-    if dbIsRunning
-      then return DbConnectionEstablished
-      else throwError noDbError
-    where
-      noDbError =
-        CommandError
-          "Can not connect to database"
-          ( "The database needs to be running in order to execute this command."
-              ++ " You can easily start a managed dev database with `wasp start db`."
-          )
 
 -- | Require a Wasp project to exist near the current directory. Get the
 -- project directory by pattern matching on the result of 'require':
@@ -99,4 +78,39 @@ instance Requirable InWaspProject where
           "Wasp command failed"
           ( "Couldn't find wasp project root - make sure"
               ++ " you are running this command from a Wasp project."
+          )
+
+data FromOutDir = FromOutDir deriving (Typeable)
+
+-- TODO(carlos): Create a `FromBuildDir` instance of `DbConnectionEstablished`
+-- as well. (#2858)
+--
+-- We can't run our Prisma functions from the `.wasp/build` dir, because some of
+-- the files they expect present are not generated as part of `wasp build` (only
+-- as part of `wasp start`, which runs in `.wasp/out`). We should refactor our
+-- Prisma functions to not depend on these files so we can run them inside
+-- `.wasp/build`. Check #2858 for more details.
+
+data DbConnectionEstablished fromDir = DbConnectionEstablished fromDir deriving (Typeable)
+
+instance Requirable (DbConnectionEstablished FromOutDir) where
+  checkRequirement = do
+    -- NOTE: 'InWaspProject' does not depend on this requirement, so this
+    -- call to 'require' will not result in an infinite loop.
+    InWaspProject waspProjectDir <- require
+    let outDir =
+          waspProjectDir
+            SP.</> Project.Common.dotWaspDirInWaspProjectDir
+            SP.</> Project.Common.generatedCodeDirInDotWaspDir
+    dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
+
+    if dbIsRunning
+      then return $ DbConnectionEstablished FromOutDir
+      else throwError noDbError
+    where
+      noDbError =
+        CommandError
+          "Can not connect to database"
+          ( "The database needs to be running in order to execute this command."
+              ++ " You can easily start a managed dev database with `wasp start db`."
           )

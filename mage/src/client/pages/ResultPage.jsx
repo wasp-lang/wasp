@@ -241,7 +241,7 @@ export const ResultPage = () => {
       />
 
       {isError && (
-        <div className="mb-4 bg-red-50 p-8 rounded-xl">
+        <div className="mb-4 rounded-xl bg-red-50 p-8">
           <div className="text-red-500">
             We couldn't find the app generation result. Maybe the link is
             incorrect or the app generation has failed.
@@ -254,8 +254,8 @@ export const ResultPage = () => {
 
       {isLoading && (
         <>
-          <header className="big-box mt-4 mb-4 flex justify-between items-flex-start">
-            <div className="flex-shrink-0 mr-3">
+          <header className="big-box items-flex-start mb-4 mt-4 flex justify-between">
+            <div className="mr-3 flex-shrink-0">
               <Loader />
             </div>
             <pre className="flex-1">Fetching the app...</pre>
@@ -264,9 +264,9 @@ export const ResultPage = () => {
       )}
 
       {appGenerationResult?.project.status.includes("deleted") ? (
-        <div className="flex flex-col items-center justify-center gap-1 mb-4 bg-red-50 text-gray-700 p-8 rounded-xl">
+        <div className="mb-4 flex flex-col items-center justify-center gap-1 rounded-xl bg-red-50 p-8 text-gray-700">
           <span>This app has been deleted. </span>
-          <Link className="underline sm inline-block" to="/">
+          <Link className="sm inline-block underline" to="/">
             &#x2190; Go back and generate a new app
           </Link>
         </div>
@@ -274,21 +274,12 @@ export const ResultPage = () => {
         <Logs logs={logs} status={currentStatus.status} onRetry={retry} />
       )}
 
-      <div
-        className="overflow-hidden
-          flex-row
-          space-x-3
-          "
-      >
+      <div className="flex-row space-x-3 overflow-hidden">
         <div
-          className={`
-            mx-auto flex items-center justify-center divide-white p-3
-            text-sm font-medium
-            lg:container lg:divide-x lg:px-16 xl:px-20
-          `}
+          className={`mx-auto flex items-center justify-center divide-white p-3 text-sm font-medium lg:container lg:divide-x lg:px-16 xl:px-20`}
         >
           <span
-            className="item-center flex gap-2 p-1 px-2 cursor-pointer text-pink-800 bg-pink-200 rounded"
+            className="item-center flex cursor-pointer gap-2 rounded bg-pink-200 p-1 px-2 text-pink-800"
             onClick={() => window.open("https://github.com/wasp-lang/wasp")}
           >
             <span>
@@ -315,13 +306,13 @@ export const ResultPage = () => {
             </h2>
           </div>
           <button
-            className="button gray block w-full mb-4 md:hidden"
+            className="button gray mb-4 block w-full md:hidden"
             onClick={toggleMobileFileBrowser}
           >
             {isMobileFileBrowserOpen ? "Close" : "Open"} file browser (
             {interestingFilePaths.length} files)
           </button>
-          <div className="grid gap-4 md:grid-cols-[320px_1fr] mt-4 overflow-x-auto md:overflow-x-visible">
+          <div className="mt-4 grid gap-4 overflow-x-auto md:grid-cols-[320px_1fr] md:overflow-x-visible">
             <aside className={isMobileFileBrowserOpen ? "" : "hidden md:block"}>
               <div className="mb-2">
                 <RunTheAppModal
@@ -330,7 +321,7 @@ export const ResultPage = () => {
                 />
               </div>
               {currentStatus.status !== "success" && (
-                <small className="text-gray-500 text-center block my-2">
+                <small className="my-2 block text-center text-gray-500">
                   The app is still being generated.
                 </small>
               )}
@@ -344,7 +335,7 @@ export const ResultPage = () => {
                 onActivePathSelect={setActiveFilePath}
                 freshlyUpdatedPaths={freshlyUpdatedFilePaths}
               />
-              <p className="text-gray-500 text-sm my-4 leading-relaxed hidden md:block">
+              <p className="my-4 hidden text-sm leading-relaxed text-gray-500 md:block">
                 <strong>User provided prompt: </strong>
                 {appGenerationResult?.project?.description}
               </p>
@@ -355,17 +346,14 @@ export const ResultPage = () => {
                 className={isMobileFileBrowserOpen ? "hidden md:block" : ""}
               >
                 <div
-                  className={`
-                    font-bold text-sm bg-slate-200 text-slate-700 p-3 rounded rounded-b-none
-                    flex items-center md:justify-between
-                  `}
+                  className={`flex items-center rounded rounded-b-none bg-slate-200 p-3 text-sm font-bold text-slate-700 md:justify-between`}
                 >
                   <span className="mr-3">{activeFilePath}:</span>
                   <Feedback projectId={appId} />
                 </div>
                 <div
                   key={activeFilePath}
-                  className="py-4 bg-slate-100 rounded rounded-t-none"
+                  className="rounded rounded-t-none bg-slate-100 py-4"
                 >
                   <CodeHighlight
                     language={language}
@@ -377,17 +365,17 @@ export const ResultPage = () => {
               </main>
             )}
             {!activeFilePath && (
-              <main className="p-8 bg-slate-100 rounded grid place-content-center">
+              <main className="grid place-content-center rounded bg-slate-100 p-8">
                 <div className="text-center">
                   <div className="font-bold">Select a file to view</div>
-                  <div className="text-gray-500 text-sm">
+                  <div className="text-sm text-gray-500">
                     (click on a file in the file tree)
                   </div>
                 </div>
               </main>
             )}
           </div>
-          <p className="text-gray-500 text-sm my-4 leading-relaxed md:hidden">
+          <p className="my-4 text-sm leading-relaxed text-gray-500 md:hidden">
             <strong>User provided prompt: </strong>
             {appGenerationResult?.project?.description}
           </p>
@@ -482,7 +470,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
 
   function FormattedText({ children }) {
     return (
-      <span className="py-1 px-2 font-semibold text-pink-800 rounded">
+      <span className="rounded px-2 py-1 font-semibold text-pink-800">
         {children}
       </span>
     );
@@ -511,7 +499,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
           <span className="font-semibold">free</span> and cover all the costs 😇
         </p>
         {numTokensSpent > 0 && (
-          <table className="bg-slate-50 rounded-lg divide-y divide-gray-100 w-full leading-relaxed text-gray-500 text-sm">
+          <table className="w-full divide-y divide-gray-100 rounded-lg bg-slate-50 text-sm leading-relaxed text-gray-500">
             <tbody>
               <tr>
                 <td className="p-2 text-gray-600">
@@ -558,9 +546,9 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
         <a
           href="https://github.com/wasp-lang/wasp"
           target="_blank"
-          className="flex items-center justify-center underline text-pink-600 "
+          className="flex items-center justify-center text-pink-600 underline"
         >
-          <div className="py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
+          <div className="flex w-full items-center justify-center rounded-lg bg-pink-50 px-2 py-4 font-semibold tracking-wide text-pink-800">
             <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on
             GitHub <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
           </div>
@@ -582,7 +570,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
     <>
       <button
         className={`button flex items-center justify-center gap-1 w-full${
-          !disabled ? " animate-jumping" : ""
+          !disabled ? "animate-jumping" : ""
         }`}
         disabled={disabled}
         onClick={() => setShowModal(true)}
@@ -623,8 +611,8 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Now, let's get the app running!
           </p>
 
-          <div className="mt-6 bg-slate-100 rounded-lg p-4 text-base text-slate-800">
-            <h2 className="font-bold flex items-center space-x-1">
+          <div className="mt-6 rounded-lg bg-slate-100 p-4 text-base text-slate-800">
+            <h2 className="flex items-center space-x-1 font-bold">
               <span>1. Install Wasp CLI (Linux / Mac / Win+WSL)</span>
               <a
                 href="https://wasp.sh/docs/quick-start#installation-1"
@@ -636,27 +624,27 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               </a>
               :
             </h2>
-            <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
+            <pre className="mt-2 rounded-lg bg-slate-800 p-4 text-sm text-slate-200">
               curl -sSL https://get.wasp.sh/installer.sh | sh
             </pre>
 
-            <h2 className="font-bold mt-4">
+            <h2 className="mt-4 font-bold">
               {" "}
               2. Download the generated app files and unzip them:{" "}
             </h2>
             <button
-              className="button flex items-center justify-center gap-1 w-full mt-2"
+              className="button mt-2 flex w-full items-center justify-center gap-1"
               onClick={onDownloadZip}
             >
               Download ZIP{" "}
               <PiDownloadDuotone className="inline-block" size={20} />
             </button>
 
-            <h2 className="font-bold mt-4">
+            <h2 className="mt-4 font-bold">
               {" "}
               3. Position into the unzipped dir and run the app:{" "}
             </h2>
-            <pre className="mt-2 bg-slate-800 p-4 rounded-lg text-sm text-slate-200">
+            <pre className="mt-2 rounded-lg bg-slate-800 p-4 text-sm text-slate-200">
               cd {"<your-app-name>"}
               <br />
               wasp db migrate-dev
@@ -669,12 +657,12 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Congratulations, you are now running your app! 🎉
           </p>
 
-          <div className="bg-pink-50 text-pink-800 p-4 rounded">
+          <div className="rounded bg-pink-50 p-4 text-pink-800">
             If you like this project,{" "}
             <a
               href="https://github.com/wasp-lang/wasp"
               target="_blank"
-              className="underline text-pink-600"
+              className="text-pink-600 underline"
             >
               star us on GitHub
             </a>{" "}
@@ -688,10 +676,10 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
 
 function WarningAboutAI() {
   return (
-    <div className="bg-yellow-50 text-yellow-700 p-4 rounded">
+    <div className="rounded bg-yellow-50 p-4 text-yellow-700">
       <div className="flex">
         <div className="ml-3">
-          <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
+          <p className="text-sm font-medium leading-5">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
               Since this is a GPT generated app, it might contain some mistakes,
@@ -701,7 +689,7 @@ function WarningAboutAI() {
                 href="https://wasp.sh/docs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
+                className="font-medium text-yellow-600 underline transition duration-150 ease-in-out hover:text-yellow-500"
               >
                 Wasp docs
               </a>{" "}
@@ -711,7 +699,7 @@ function WarningAboutAI() {
                 href="https://discord.gg/rzdnErX"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-yellow-600 hover:text-yellow-500 transition ease-in-out duration-150 underline"
+                className="font-medium text-yellow-600 underline transition duration-150 ease-in-out hover:text-yellow-500"
               >
                 Discord
               </a>
@@ -749,15 +737,7 @@ function Feedback({ projectId }) {
   return (
     <div>
       <button
-        className={`
-          text-gray-500          
-          border border-gray-500
-          py-1 px-2 rounded-md mb-1
-          flex items-center space-x-2 justify-center
-          font-bold
-          transition duration-150
-          hover:bg-gray-300
-        `}
+        className={`mb-1 flex items-center justify-center space-x-2 rounded-md border border-gray-500 px-2 py-1 font-bold text-gray-500 transition duration-150 hover:bg-gray-300`}
         onClick={() => setIsModalOpened(true)}
       >
         <span>💬 Give us feedback!</span>
@@ -768,7 +748,7 @@ function Feedback({ projectId }) {
         title={<span>Let us know how it went!</span>}
       >
         <form onSubmit={handleSubmit}>
-          <label className="text-slate-700 block mb-2 mt-8">
+          <label className="mb-2 mt-8 block text-slate-700">
             How likely are you to recommend this tool to a friend?{" "}
             <span className="text-red-500">*</span>
           </label>
@@ -779,18 +759,11 @@ function Feedback({ projectId }) {
                   <RadioGroup.Option key={option} value={option}>
                     {({ active, checked }) => (
                       <div
-                        className={`
-                              ${
-                                active
-                                  ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
-                                  : ""
-                              }
-
-
-                              ${checked ? "bg-sky-900 bg-opacity-75 text-white" : ""}
-                              cursor-pointer px-3 py-2 shadow-md focus:outline-none
-                              rounded-md
-                            `}
+                        className={` ${
+                          active
+                            ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                            : ""
+                        } ${checked ? "bg-sky-900 bg-opacity-75 text-white" : ""} cursor-pointer rounded-md px-3 py-2 shadow-md focus:outline-none`}
                       >
                         {option}
                       </div>
@@ -803,7 +776,7 @@ function Feedback({ projectId }) {
 
           <label
             htmlFor="feedbackText"
-            className="text-slate-700 block mb-2 mt-8"
+            className="mb-2 mt-8 block text-slate-700"
           >
             How did it go? <span className="text-red-500">*</span>
           </label>
@@ -836,7 +809,7 @@ function ShareButton() {
 
   return (
     <button
-      className="button light-blue flex items-center justify-center gap-1 w-full mb-2"
+      className="button light-blue mb-2 flex w-full items-center justify-center gap-1"
       onClick={copy}
       disabled={copying}
     >

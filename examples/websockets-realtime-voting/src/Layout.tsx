@@ -27,7 +27,7 @@ export const Layout = () => {
             </span>
           </Navbar.Brand>
           {user && (
-            <div className="flex md:order-2 user-dropdown">
+            <div className="user-dropdown flex md:order-2">
               <Dropdown
                 inline
                 label={
@@ -62,7 +62,7 @@ export const Layout = () => {
             <Navbar.Link href="#">Contact</Navbar.Link>
           </Navbar.Collapse> */}
         </Navbar>
-        <div className="grid place-items-center mt-8">
+        <div className="mt-8 grid place-items-center">
           <Outlet />
         </div>
       </div>

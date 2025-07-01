@@ -198,10 +198,10 @@ const MainPage = () => {
         setIsOpen={setIsAskForStarsModalOpen}
       />
 
-      <form onSubmit={startGenerating} className="bg-slate-50 p-8 rounded-xl">
+      <form onSubmit={startGenerating} className="rounded-xl bg-slate-50 p-8">
         <div className="mb-6 flex flex-col gap-3">
           <div>
-            <label htmlFor="appName" className="text-slate-700 block mb-2">
+            <label htmlFor="appName" className="mb-2 block text-slate-700">
               App name <span className="text-red-500">*</span>
             </label>
             <input
@@ -215,7 +215,7 @@ const MainPage = () => {
             />
           </div>
           <div>
-            <label htmlFor="appDesc" className="text-slate-700 block mb-2">
+            <label htmlFor="appDesc" className="mb-2 block text-slate-700">
               Description <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -231,11 +231,11 @@ The simpler and more specific the app is, the better the generated app will be."
               disabled={currentStatus.status === "inProgress"}
             />
           </div>
-          <div className="grid md:grid-cols-3 gap-3">
+          <div className="grid gap-3 md:grid-cols-3">
             <div>
               <label
                 htmlFor="appPrimaryColor"
-                className="text-slate-700 block mb-2"
+                className="mb-2 block text-slate-700"
               >
                 App brand color
               </label>
@@ -248,7 +248,7 @@ The simpler and more specific the app is, the better the generated app will be."
             <div>
               <label
                 htmlFor="creativityLevel"
-                className="text-slate-700 block mb-2"
+                className="mb-2 block text-slate-700"
               >
                 Creativity level
               </label>
@@ -261,7 +261,7 @@ The simpler and more specific the app is, the better the generated app will be."
             <div>
               <label
                 htmlFor="appAuthMethod"
-                className="text-slate-700 block mb-2"
+                className="mb-2 block text-slate-700"
               >
                 Auth method
               </label>
@@ -277,11 +277,11 @@ The simpler and more specific the app is, the better the generated app will be."
           className="button mr-2"
           disabled={currentStatus.status === "inProgress"}
         >
-          Generate the app <PiMagicWandDuotone className="inline-block ml-1" />
+          Generate the app <PiMagicWandDuotone className="ml-1 inline-block" />
         </button>
       </form>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4 text-slate-800">
+        <h3 className="mb-4 text-xl font-semibold text-slate-800">
           Some example ideas
         </h3>
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 lg:gap-4">
@@ -317,9 +317,9 @@ export function AskForStarsModal({ isOpen, setIsOpen }) {
         <a
           href="https://github.com/wasp-lang/wasp"
           target="_blank"
-          className="flex items-center justify-center underline text-pink-600 "
+          className="flex items-center justify-center text-pink-600 underline"
         >
-          <div className="mt-4 py-4 px-2 flex items-center justify-center bg-pink-50 text-pink-800 rounded-lg font-semibold tracking-wide w-full">
+          <div className="mt-4 flex w-full items-center justify-center rounded-lg bg-pink-50 px-2 py-4 font-semibold tracking-wide text-pink-800">
             <PiStarDuotone size="1.35rem" className="mr-3" /> Star Wasp on
             GitHub <PiGithubLogoDuotone size="1.35rem" className="ml-3" />
           </div>
@@ -336,8 +336,8 @@ export function LoginModal({ isOpen, setIsOpen }) {
       onClose={() => setIsOpen(false)}
       title={<span>Sign in to your GitHub account</span>}
     >
-      <div className="mt-6 space-y-5 ">
-        <p className="text-base leading-relaxed text-center text-gray-500">
+      <div className="mt-6 space-y-5">
+        <p className="text-center text-base leading-relaxed text-gray-500">
           This tool is completely <span className="font-semibold">free</span>.
           <br /> Just sign in with your GitHub Account.
         </p>

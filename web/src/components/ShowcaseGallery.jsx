@@ -21,10 +21,7 @@ const ShowcaseGallery = () => {
       </div>
 
       <div
-        className={`
-          mx-auto grid max-w-lg gap-8
-          lg:max-w-none lg:grid-cols-3 lg:gap-12
-        `}
+        className={`mx-auto grid max-w-lg gap-8 lg:max-w-none lg:grid-cols-3 lg:gap-12`}
       >
         <ShowcaseItem
           url="/blog/2022/10/28/farnance-hackathon-winner"
@@ -80,10 +77,7 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
       <div className="group inline-block min-w-full">
         <div className="flex flex-col space-y-3 pb-8 md:pb-0">
           <div
-            className={`
-              relative mb-4 h-60 w-full overflow-auto overflow-y-hidden
-              rounded-lg border border-neutral-300 shadow-lg
-            `}
+            className={`relative mb-4 h-60 w-full overflow-auto overflow-y-hidden rounded-lg border border-neutral-300 shadow-lg`}
           >
             <img src={thumb} className="object-cover" />
           </div>
