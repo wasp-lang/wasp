@@ -1,1 +1,0 @@
-{"version":3,"file":"returnHello.d.ts","sourceRoot":"","sources":["../../../../src/server/jobs/returnHello.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,cAAc,EAAE,MAAM,kBAAkB,CAAA;AACjD,eAAO,MAAM,WAAW,EAAE,cAAc,CAAC;IAAE,IAAI,EAAE,MAAM,CAAA;CAAE,EAAE,MAAM,CAEhE,CAAA"}

@@ -1,6 +1,33 @@
-import type { Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-export async function performSignup(
+export function setupTestUser() {
+  const credentials = { email: generateRandomEmail(), password: "12345678" };
+
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+
+    await performSignupAndVerifyEmail(page, credentials);
+
+    await page.close();
+  });
+
+  return credentials;
+}
+
+async function performSignupAndVerifyEmail(
+  page: Page,
+  { email, password }: { email: string; password: string },
+) {
+  await submitSignupForm(page, { email, password });
+
+  await expect(page.locator("body")).toContainText(
+    `You've signed up successfully! Check your email for the confirmation link.`,
+  );
+
+  await performEmailVerification(page, email);
+}
+
+export async function submitSignupForm(
   page: Page,
   { email, password }: { email: string; password: string },
 ) {
@@ -11,7 +38,7 @@ export async function performSignup(
   await page.locator("input[type='email']").fill(email);
   await page.locator("input[type='password']").fill(password);
   await page.locator("input[name='address']").fill("Dummy address");
-  await page.locator("button").click();
+  await page.getByRole("button", { name: "Sign up" }).click();
 }
 
 /*
@@ -27,7 +54,7 @@ export async function performEmailVerification(
   page: Page,
   sentToEmail: string,
 ) {
-  if (process.env.HEADLESS_TEST_MODE === "dev") {
+  if (isRunningInDevMode()) {
     // This relies on having the SKIP_EMAIL_VERIFICATION_IN_DEV=true in the
     // .env.server file. This is the default value in the .env.server.headless file.
     return;
@@ -36,6 +63,16 @@ export async function performEmailVerification(
   // Wait for the email to be sent
   await page.waitForTimeout(1000);
 
+  const link = await getEmailVerificationLink(page, sentToEmail);
+
+  await page.goto(link);
+  await page.waitForSelector("text=Your email has been verified");
+}
+
+export async function getEmailVerificationLink(
+  page: Page,
+  sentToEmail: string,
+): Promise<string> {
   const mailcrabApiUrl = "http://localhost:1080";
   const messagesResponse = await page.request.get(
     `${mailcrabApiUrl}/api/messages`,
@@ -63,12 +100,24 @@ export async function performEmailVerification(
     throw new Error("No verification link found");
   }
 
-  const link = linkMatch[0];
-  await page.goto(link);
-  await page.waitForSelector("text=Your email has been verified");
+  return linkMatch[0];
+}
+
+export function isRunningInDevMode() {
+  const testMode = process.env.HEADLESS_TEST_MODE ?? "dev";
+  return testMode === "dev";
 }
 
 export async function performLogin(
+  page: Page,
+  { email, password }: { email: string; password: string },
+) {
+  await submitLoginForm(page, { email, password });
+
+  await expect(page).toHaveURL("/");
+}
+
+export async function submitLoginForm(
   page: Page,
   {
     email,
@@ -87,12 +136,6 @@ export async function performLogin(
   await page.getByRole("button", { name: "Log in" }).click();
 }
 
-export function generateRandomCredentials(): {
-  email: string;
-  password: string;
-} {
-  return {
-    email: `test${Math.random().toString(36).substring(7)}@test.com`,
-    password: "12345678",
-  };
+export function generateRandomEmail(): string {
+  return `test${Math.random().toString(36).substring(7)}@test.com`;
 }

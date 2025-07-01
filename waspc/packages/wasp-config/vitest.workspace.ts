@@ -13,4 +13,14 @@ export default defineWorkspace([
       include: ["**/__tests__/**/*.integration.test.ts"],
     },
   },
+  {
+    test: {
+      name: "type",
+      include: ["**/__tests__/**/*.test-d.ts"],
+      typecheck: {
+        enabled: true,
+        only: true,
+      },
+    },
+  },
 ]);

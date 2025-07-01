@@ -87,9 +87,7 @@ you if you forget something). Here are all the properties you must change:
     "skipLibCheck": true,
     "outDir": ".wasp/out/user"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
 ```
 

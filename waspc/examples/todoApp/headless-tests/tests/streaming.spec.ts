@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("streaming", () => {
-  test.describe.configure({ mode: "serial" });
-
   test("text streams over time", async ({ page }) => {
     await page.goto("/streaming");
 
