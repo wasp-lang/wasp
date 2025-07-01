@@ -3,7 +3,7 @@ import tailwindColors from "tailwindcss/colors";
 export function Color({ value }) {
   return (
     <div
-      className="w-5 h-5 rounded-full"
+      className="h-5 w-5 rounded-full"
       style={{
         backgroundColor: value,
       }}

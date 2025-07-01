@@ -32,10 +32,10 @@ export function TaskDetailView({
         <div data-testid="status">
           <span
             className={cn(
-              "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
               task.isDone
-                ? "bg-green-100 text-green-800 border border-green-200"
-                : "bg-gray-100 text-gray-800 border border-gray-200",
+                ? "border border-green-200 bg-green-100 text-green-800"
+                : "border border-gray-200 bg-gray-100 text-gray-800",
             )}
           >
             {task.isDone ? "Completed" : "Pending"}

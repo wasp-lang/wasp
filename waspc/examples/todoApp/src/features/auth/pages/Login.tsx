@@ -8,7 +8,7 @@ import { customisationProps } from "./auth-ui";
 const Login = () => {
   return (
     <FeatureContainer>
-      <div className="max-w-sm mx-auto">
+      <div className="mx-auto max-w-sm">
         <LoginForm {...customisationProps} />
         <br />
         <span className="text-sm font-medium text-gray-900">

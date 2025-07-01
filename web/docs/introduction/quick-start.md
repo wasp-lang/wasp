@@ -46,6 +46,11 @@ Try out [Wasp AI](../wasp-ai/creating-new-app.md) 🤖 to generate a new Wasp ap
 Give Wasp a spin in the browser with GitHub Codespaces by following the intructions in our [Tutorial App README](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp)
 :::
 
+:::tip Having trouble running Wasp?
+  If you get stuck with a weird error while developing with Wasp, try running `wasp clean` - this is the Wasp equivalent of "turning it off and on again"!
+  Do however let us know about the issue on our GitHub repo or Discord server.
+:::
+
 ### What next?
 
 - [ ] 👉 **Check out the [Todo App tutorial](../tutorial/01-create.md), which will take you through all the core features of Wasp!** 👈

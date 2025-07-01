@@ -25,20 +25,10 @@ const JoinOurCommunityCard = () => {
   return (
     <div
       id={DISCORD_CARD_ID}
-      className={`
-        flex flex-col items-start
-        space-y-3 rounded-lg
-        border border-yellow-500/25 bg-yellow-500/5
-        p-8
-      `}
+      className={`flex flex-col items-start space-y-3 rounded-lg border border-yellow-500/25 bg-yellow-500/5 p-8`}
     >
       <span
-        className={`
-          h-20
-          rounded-full border
-          border-yellow-500/25 bg-white px-4
-          py-5 text-neutral-800
-        `}
+        className={`h-20 rounded-full border border-yellow-500/25 bg-white px-4 py-5 text-neutral-800`}
       >
         <DiscordIcon />
       </span>
@@ -72,11 +62,7 @@ const JoinOurCommunityButton = () => {
 
   return (
     <Link to="https://discord.gg/rzdnErX" id={DISCORD_LINK_ID}>
-      <span
-        className={`
-          cursor-pointer
-        `}
-      >
+      <span className={`cursor-pointer`}>
         <div className="group inline-flex items-center gap-1">
           <span>Join our Discord 👾</span>
           <div className="transition-all group-hover:ml-0.5">
@@ -91,21 +77,10 @@ const JoinOurCommunityButton = () => {
 const JoinNewsletterCard = () => {
   return (
     <div
-      className={`
-        flex flex-col items-start
-        space-y-3 rounded-lg
-        border border-yellow-500/25 bg-yellow-500/20
-        p-8
-      `}
+      className={`flex flex-col items-start space-y-3 rounded-lg border border-yellow-500/25 bg-yellow-500/20 p-8`}
     >
       <span
-        className={`
-          h-20
-          rounded-full border
-          border-yellow-500/25 bg-white px-5
-          py-5 text-4xl
-          text-neutral-800
-        `}
+        className={`h-20 rounded-full border border-yellow-500/25 bg-white px-5 py-5 text-4xl text-neutral-800`}
       >
         📫
       </span>

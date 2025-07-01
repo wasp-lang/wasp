@@ -15,33 +15,15 @@ export default function BlogPostItems({
 
   return (
     <>
-      <section
-        className={`
-          bg-yellow-500 py-20 pb-20
-          md:py-36
-        `}
-      >
-        <div
-          className={`
-            container mx-auto
-          `}
-        >
+      <section className={`bg-yellow-500 py-20 pb-20 md:py-36`}>
+        <div className={`container mx-auto`}>
           <article
-            className={`
-              relative grid-cols-2 items-stretch gap-5 md:px-20
-              lg:grid
-              lg:px-24
-            `}
+            className={`relative grid-cols-2 items-stretch gap-5 md:px-20 lg:grid lg:px-24`}
           >
             {/* Content - left col */}
             <div className="self-center lg:pr-16">
               <span
-                className={`
-                  mb-6 flex items-center
-                  justify-between text-[11px] font-semibold
-                  uppercase tracking-wider
-                  text-neutral-600
-                `}
+                className={`mb-6 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-neutral-600`}
               >
                 <span>By {featuredItem.content.metadata.authors[0].name}</span>
                 <div className="mx-2 h-px flex-1 bg-neutral-600/20"></div>
@@ -60,10 +42,7 @@ export default function BlogPostItems({
               {/* Read more button */}
               <div className="mt-24">
                 <span
-                  className={`
-                    rounded-md bg-neutral-600
-                    px-3 py-1.5 text-white
-                  `}
+                  className={`rounded-md bg-neutral-600 px-3 py-1.5 text-white`}
                 >
                   <div className="group inline-flex items-center gap-1">
                     <span>Read more</span>
@@ -77,11 +56,7 @@ export default function BlogPostItems({
             <img
               loading="lazy"
               src={coverImgSrc}
-              className={`
-                  mb-6
-                  hidden rounded-2xl
-                  object-cover lg:flex
-                `}
+              className={`mb-6 hidden rounded-2xl object-cover lg:flex`}
             />
 
             <Link
@@ -102,38 +77,18 @@ export default function BlogPostItems({
             return (
               <article
                 key={item.content.metadata.permalink}
-                className={`
-                  relative
-                  flex
-
-                  flex-col
-                  rounded-2xl
-                  border border-neutral-200/20
-                  bg-[--custom-blog-card-background-color] p-8
-
-                  shadow-sm shadow-yellow-500/25
-                  transition-all hover:shadow-lg
-                  hover:shadow-yellow-500/25
-                `}
+                className={`relative flex flex-col rounded-2xl border border-neutral-200/20 bg-[--custom-blog-card-background-color] p-8 shadow-sm shadow-yellow-500/25 transition-all hover:shadow-lg hover:shadow-yellow-500/25`}
               >
                 {/* Image */}
                 <img
                   loading="lazy"
                   src={coverImgSrc}
-                  className={`
-                      mb-6
-                      h-64 rounded-xl
-                      object-cover md:-mx-6 md:-mt-6 md:max-w-none
-                    `}
+                  className={`mb-6 h-64 rounded-xl object-cover md:-mx-6 md:-mt-6 md:max-w-none`}
                 />
 
                 {/* Written by + time to read */}
                 <span
-                  className={`
-                    flex items-center
-                    text-[11px] font-semibold uppercase
-                    tracking-wider text-[--custom-blog-card-timestamp-color]
-                  `}
+                  className={`flex items-center text-[11px] font-semibold uppercase tracking-wider text-[--custom-blog-card-timestamp-color]`}
                 >
                   <span className="truncate">
                     By {item.content.metadata.authors[0].name}
