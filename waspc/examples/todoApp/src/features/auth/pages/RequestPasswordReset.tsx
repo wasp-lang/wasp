@@ -5,7 +5,7 @@ import { customisationProps } from "./auth-ui";
 export function RequestPasswordReset() {
   return (
     <FeatureContainer>
-      <div className="max-w-sm mx-auto">
+      <div className="mx-auto max-w-sm">
         <ForgotPasswordForm {...customisationProps} />
       </div>
     </FeatureContainer>

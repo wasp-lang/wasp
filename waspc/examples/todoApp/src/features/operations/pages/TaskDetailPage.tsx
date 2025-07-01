@@ -71,7 +71,7 @@ export const TaskDetailPage = () => {
             <div className="space-y-4">
               <TaskDetailView task={task} />
 
-              <div className="pt-4 border-t border-gray-200">
+              <div className="border-t border-gray-200 pt-4">
                 <Button onClick={() => toggleIsDone(task)} variant="primary">
                   Mark as {task.isDone ? "pending" : "completed"}
                 </Button>
