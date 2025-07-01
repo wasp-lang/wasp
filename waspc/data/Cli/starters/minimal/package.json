@@ -2,15 +2,15 @@
   "name": "__waspAppName__",
   "type": "module",
   "dependencies": {
-    "wasp": "file:.wasp/out/sdk/wasp",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.26.2"
+    "react-router-dom": "^6.26.2",
+    "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
-    "typescript": "^5.1.0",
-    "vite": "^4.3.9",
     "@types/react": "^18.0.37",
-    "prisma": "5.19.1"
+    "prisma": "5.19.1",
+    "typescript": "^5.1.0",
+    "vite": "^4.3.9"
   }
 }
