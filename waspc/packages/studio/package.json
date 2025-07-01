@@ -8,14 +8,12 @@
   "main": "index.js",
   "keywords": [],
   "scripts": {
-    "build": "npm run build:client && rm -rf ./client/node_modules && rm -rf dist && tsc && cp -r ./public ./dist/public",
+    "build": "npm run build:client && rm -rf dist && tsc && cp -r ./public ./dist/public",
     "build:client": "npm --prefix ./client install && npm --prefix ./client run copy",
     "dev": "tsx --watch ./src/index.ts",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
-    "@tsconfig/node20": "^20.1.6",
-    "@types/node": "^20.19.1",
     "commander": "^14.0.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
@@ -26,6 +24,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
+    "@types/node": "^20.19.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
