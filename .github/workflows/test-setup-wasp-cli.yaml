@@ -73,7 +73,7 @@ jobs:
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: Set up Wasp CLI
+      - name: Set up Wasp CLI
         uses: ./.github/actions/setup-wasp-cli
         with:
           ghc-version: ${{ matrix.ghc }}
