@@ -81,19 +81,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cabal-project-dir: waspc
 
-      # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
-      # The fix will be propagated in a few days, so we can remove this workaround then.
-      # https://github.com/actions/runner-images/issues/7061
-      # - name: Workaround runner image issue
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   run: sudo chown -R $USER /usr/local/.ghcup
-
-      - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
+      - name: Test Installation
         run: |
-          cd packages/ts-inspect
-          npm ci
-          npm test
-
-      - name: Run unit tests
-        run: cabal test cli-test waspc-test waspls-test
+          wasp-cli version
