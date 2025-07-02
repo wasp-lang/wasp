@@ -32,7 +32,7 @@ inputs:
       The working directory for the action.
     required: false
 
-  extra-cache-key-segment:
+  cabal-extra-cache-key-segment:
     description: |
       An extra key to use for the Haskell cache. Mainly used to keep glibc and musl
       caches separate, as they are not compatible.
@@ -48,7 +48,7 @@ runs:
         ghc-version: ${{ inputs.ghc-version }}
         cabal-version: ${{ inputs.cabal-version }}
         cabal-project-dir: ${{ inputs.cabal-project-dir }}
-        extra-cache-key-segment: ${{ inputs.extra-cache-key-segment }}
+        cabal-extra-cache-key-segment: ${{ inputs.cabal-extra-cache-key-segment }}
 
     - name: Set up Node
       uses: actions/setup-node@v4

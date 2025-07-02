@@ -50,7 +50,7 @@ jobs:
           - macos-13
           - windows-latest
         node-version:
-          - "latest"
+          - "lts/*"
         ghc:
           - "8.10.7"
         cabal:
