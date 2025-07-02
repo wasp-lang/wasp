@@ -1,4 +1,4 @@
-name: WASPC-CI
+name: Test Setup Wasp CLI
 
 on:
   workflow_call:
@@ -88,18 +88,6 @@ jobs:
       #   if: matrix.os == 'ubuntu-22.04'
       #   run: sudo chown -R $USER /usr/local/.ghcup
 
-      # - name: Set up Haskell
-      #   uses: ./.github/actions/setup-haskell
-      #   with:
-      #     ghc-version: ${{ matrix.ghc }}
-      #     cabal-version: ${{ matrix.cabal }}
-      #     cabal-project-dir: waspc
-
-      # - name: Set up Node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: ${{ matrix.node-version }}
-
       - name: packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: |
@@ -107,99 +95,5 @@ jobs:
           npm ci
           npm test
 
-      # - name: Compile TS packages and move it into the Cabal data dir
-      #   if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
-      #   run: ./tools/install_packages_to_data_dir.sh
-
-      # - name: Build external dependencies
-      #   run: cabal build --enable-tests --enable-benchmarks --only-dependencies
-
-      # - name: Build wasp code
-      #   run: cabal build all
-
-      - name: On MacOS, skip e2e tests with Docker since it is not installed
-        if: matrix.os == 'macos-13'
-        run: export WASP_E2E_TESTS_SKIP_DOCKER=1
-
       - name: Run unit tests
         run: cabal test cli-test waspc-test waspls-test
-
-      # - name: Ensure examples/todoApp compiles and builds
-      #   if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
-      #   run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
-
-      # - name: Headless - Cache Node Modules
-      #   id: headless-cache-node-modules
-      #   uses: actions/cache@v4
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   with:
-      #     path: ~/.npm
-      #     key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
-
-      # - name: Headless - Install wasp-cli for testing
-      #   id: headless-install-wasp-cli
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   run: cabal install
-
-      # - name: Headless - Setup the Wasp app runner
-      #   id: headless-setup-wasp-app-runner
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   run: |
-      #     cd ../wasp-app-runner
-      #     npm ci
-      #     # Installs the wasp-app-runner globally so that it can be used in the tests
-      #     npm run install:global
-
-      # - name: Headless - Install Dependencies
-      #   id: headless-install-dependencies
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   run: |
-      #     cd examples/todoApp
-      #     npm ci
-
-      # - name: Headless - Store Playwright's Version
-      #   id: headless-store-playwright-version
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   run: |
-      #     cd examples/todoApp
-      #     PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
-      #     echo "Playwright's Version: $PLAYWRIGHT_VERSION"
-      #     echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
-
-      # - name: Headless - Cache Playwright Browsers for Playwright's Version
-      #   id: headless-cache-playwright-browsers
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.cache/ms-playwright
-      #     key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
-
-      # - name: Headless - Setup Playwright
-      #   id: headless-setup-playwright
-      #   if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
-      #   run: |
-      #     cd examples/todoApp
-      #     npx playwright install --with-deps
-
-      # - name: Headless - Run Playwright Tests (dev)
-      #   id: headless-run-playwright-tests-dev
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   run: |
-      #     cd examples/todoApp
-      #     # Prepare the environment for the tests
-      #     cp .env.server.headless .env.server
-      #     # Runs the tests with the debug flag so that we can see Wasp output
-      #     DEBUG=pw:webserver HEADLESS_TEST_MODE=dev npx playwright test --config headless-tests/
-
-      # - name: Headless - Run Playwright Tests (build)
-      #   id: headless-run-playwright-tests-build
-      #   if: matrix.os == 'ubuntu-22.04'
-      #   run: |
-      #     cd examples/todoApp
-      #     # Prepare the environment for the tests
-      #     cp .env.server.headless .env.server
-      #     # Runs the tests with the debug flag so that we can see Wasp output
-      #     DEBUG=pw:webserver HEADLESS_TEST_MODE=build npx playwright test --config headless-tests/
-
-      - name: Run e2e tests
-        run: cabal test e2e-test

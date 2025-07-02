@@ -2,20 +2,20 @@ name: WASPC-CI
 
 on:
   workflow_call:
-  # workflow_dispatch:
-  # push:
-  #   paths:
-  #     - "waspc/**"
-  #   branches:
-  #     - main
-  #     - release
-  # pull_request:
-  #   paths:
-  #     - "waspc/**"
-  # schedule:
-  #   # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
-  #   # (GH deletes it after 7 days of not using it).
-  #   - cron: "0 0 * * 0"
+  workflow_dispatch:
+  push:
+    paths:
+      - "waspc/**"
+    branches:
+      - main
+      - release
+  pull_request:
+    paths:
+      - "waspc/**"
+  schedule:
+    # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
+    # (GH deletes it after 7 days of not using it).
+    - cron: "0 0 * * 0"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
