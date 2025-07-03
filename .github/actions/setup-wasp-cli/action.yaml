@@ -55,6 +55,10 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
+    - name: Test NPM
+      shell: bash
+      run: npm --version
+
     - name: Compile TS packages and move it into the Cabal data dir
       shell: bash
       working-directory: waspc
