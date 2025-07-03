@@ -65,8 +65,10 @@ install_latest_wasp_app_runner() {
     return 1
   fi
 
-  # Ensure cleanup of the temporary directory on exit, error, or interrupt
-  # shellcheck disable=SC2064
+  # Ensure cleanup of the temporary directory on exit, error, or interruption.
+  # shellcheck disable=SC2064 # Shellcheck wants us to use single quotes here.
+  # We intentionally use double quotes to capture the variable's current value,
+  # instead of deferring the expansion until the trap runs (which single quotes would do).
   trap "rm -rf $tmp_installation_dir >/dev/null 2>&1" EXIT TERM INT
 
   if ! git clone --depth 1 --quiet https://github.com/wasp-lang/runner-action.git "$tmp_installation_dir"; then
