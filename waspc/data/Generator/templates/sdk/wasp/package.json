@@ -8,6 +8,8 @@
       "test": "echo \"Error: no test specified\" && exit 1",
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
+  {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
+  {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
@@ -16,6 +18,8 @@
       "./core/stitches.config": "./dist/core/stitches.config.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./core/serialization": "./dist/core/serialization.js",
       "./core/auth": "./dist/core/auth.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
@@ -54,6 +58,8 @@
       "./universal/types": "./dist/universal/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
+      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      "./universal/ansiColors": "./dist/universal/ansiColors.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -61,7 +67,7 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./client/test/*": "./dist/client/test/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./server/crud/*": "./dist/server/crud/*",
+      "./server/crud/*": "./dist/server/crud/*.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./server/email/core/types": "./dist/server/email/core/types.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
@@ -97,6 +103,7 @@
       "./server/webSocket": "./dist/server/webSocket/index.js",
       "./entities": "./dist/entities/index.js",
       "./auth": "./dist/auth/index.js",
+      "./auth/providers": "./dist/auth/providers/index.js",
       "./client/auth": "./dist/client/auth/index.js",
       "./client/operations": "./dist/client/operations/index.js",
       "./server/auth": "./dist/server/auth/index.js",
@@ -110,15 +117,17 @@
       "./client": "./dist/client/index.js",
       "./dev": "./dist/dev/index.js",
       "./env": "./dist/env/index.js",
+      {=! Private: [client] =}
+      "./env/validation": "./dist/env/validation.js",
+      {=! Private: [client, sdk] =}
+      "./client/env/schema": "./dist/client/env/schema.js",
 
       {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
       {=! Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
       "./client/operations/rpc": "./dist/client/operations/rpc.js",
-      "./server/crud/Tasks": "./dist/server/crud/Tasks.js",
       "./server/operations/actions":  "./dist/server/operations/actions/index.js",
       "./server/operations/queries": "./dist/server/operations/queries/index.js",
-      "./server/_types": "./dist/server/_types/index.js",
-      "./server/_types/serialization": "./dist/server/_types/serialization.js"
+      "./server/_types": "./dist/server/_types/index.js"
 
    },
    {=!

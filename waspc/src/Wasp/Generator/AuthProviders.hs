@@ -47,6 +47,14 @@ emailAuthProvider =
       E._displayName = "Email and password"
     }
 
+slackAuthProvider :: OA.OAuthAuthProvider
+slackAuthProvider =
+  OA.OAuthAuthProvider
+    { OA._providerId = fromJust $ makeProviderId "slack",
+      OA._displayName = "Slack",
+      OA._requiredScope = ["openid"]
+    }
+
 discordAuthProvider :: OA.OAuthAuthProvider
 discordAuthProvider =
   OA.OAuthAuthProvider
@@ -58,7 +66,8 @@ discordAuthProvider =
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getEnabledAuthProvidersJson auth =
   object
-    [ "isDiscordAuthEnabled" .= AS.Auth.isDiscordAuthEnabled auth,
+    [ "isSlackAuthEnabled" .= AS.Auth.isSlackAuthEnabled auth,
+      "isDiscordAuthEnabled" .= AS.Auth.isDiscordAuthEnabled auth,
       "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
       "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,

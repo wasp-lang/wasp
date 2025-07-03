@@ -4,7 +4,7 @@
 #
 
 app = 'websockets-voting-server'
-primary_region = 'mia'
+primary_region = 'cdg'
 
 [build]
 

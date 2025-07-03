@@ -1,6 +1,8 @@
 name: WASPC-CI
 
 on:
+  workflow_call:
+  workflow_dispatch:
   push:
     paths:
       - "waspc/**"
@@ -10,7 +12,6 @@ on:
   pull_request:
     paths:
       - "waspc/**"
-  create: { tags: [v*] }
   schedule:
     # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
     # (GH deletes it after 7 days of not using it).
@@ -24,17 +25,11 @@ defaults:
     shell: bash
     working-directory: waspc
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  cancel:
-    name: Cancel redundant actions already in progress
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Cancel actions in progress of same workflow and same branch
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
-
   build:
     name: Build Wasp
     runs-on: ${{ matrix.os }}
@@ -52,7 +47,7 @@ jobs:
           # and link the binaries statically:
           # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
-          - macos-latest
+          - macos-13
           - windows-latest
         node-version:
           - "latest"
@@ -84,7 +79,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: "actions/checkout@v3"
+      - uses: "actions/checkout@v4"
         with:
           # Workaround for a Github Checkout action bug
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
@@ -98,55 +93,26 @@ jobs:
         run: sudo chown -R $USER /usr/local/.ghcup
 
       - name: Set up Haskell
-        id: setup-haskell-cabal
-        uses: haskell/actions/setup@v2
+        uses: ./.github/actions/setup-haskell
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
-
-      - name: Verify Haskell setup
-        run: |
-          ghc --version
-          cabal --version
+          cabal-project-dir: waspc
 
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-          # TODO: Right now, actions/cache updates cache only if cache was not fe
-          #   This is not ideal for us, because we would ideally update cache even if it
-          #   was fetched, because we want to cache any newly installed packages.
-          #   This was working normally on Travis and Appveyor.
-          #   There is an issue for this, and for now we are using proposed "fix" from it,
-          #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
-          #   which mitigates the problem by creating new cache for each job and then using
-          #   the feature of restore-keys which makes sure that next cache picked is the
-          #   latest one. However, this keeps creating new cache each time which is not
-          #   ideal because caches keep getting evicted, so for example if Win job
-          #   fails multiple times while others don't, its cache will likely get evicted,
-          #   making it even slower to test and fix (uffff).
-          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-          key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
-          restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
-
-      - name: Check Haskell code formatting
-        if: matrix.os == 'ubuntu-22.04'
-        run: ./run ormolu:check
-
       - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: |
           cd packages/ts-inspect
           npm ci
           npm test
 
       - name: Compile TS packages and move it into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: ./tools/install_packages_to_data_dir.sh
 
       - name: Build external dependencies
@@ -156,23 +122,37 @@ jobs:
         run: cabal build all
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-13'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run unit tests
         run: cabal test cli-test waspc-test waspls-test
 
       - name: Ensure examples/todoApp compiles and builds
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
 
       - name: Headless - Cache Node Modules
         id: headless-cache-node-modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         if: matrix.os == 'ubuntu-22.04'
         with:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
+
+      - name: Headless - Install wasp-cli for testing
+        id: headless-install-wasp-cli
+        if: matrix.os == 'ubuntu-22.04'
+        run: cabal install
+
+      - name: Headless - Setup the Wasp app runner
+        id: headless-setup-wasp-app-runner
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          cd ../wasp-app-runner
+          npm ci
+          # Installs the wasp-app-runner globally so that it can be used in the tests
+          npm run install:global
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
@@ -193,7 +173,7 @@ jobs:
       - name: Headless - Cache Playwright Browsers for Playwright's Version
         id: headless-cache-playwright-browsers
         if: matrix.os == 'ubuntu-22.04'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
@@ -205,31 +185,25 @@ jobs:
           cd examples/todoApp
           npx playwright install --with-deps
 
-      - name: Headless - Run Playwright Tests
-        id: headless-run-playwright-tests
+      - name: Headless - Run Playwright Tests (dev)
+        id: headless-run-playwright-tests-dev
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
+          # Prepare the environment for the tests
+          cp .env.server.headless .env.server
           # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver npx playwright test --config headless-tests/
+          DEBUG=pw:webserver HEADLESS_TEST_MODE=dev npx playwright test --config headless-tests/
+
+      - name: Headless - Run Playwright Tests (build)
+        id: headless-run-playwright-tests-build
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          cd examples/todoApp
+          # Prepare the environment for the tests
+          cp .env.server.headless .env.server
+          # Runs the tests with the debug flag so that we can see Wasp output
+          DEBUG=pw:webserver HEADLESS_TEST_MODE=build npx playwright test --config headless-tests/
 
       - name: Run e2e tests
         run: cabal test e2e-test
-
-      - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
-        run: |
-          OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
-          mkdir artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
-
-      - name: Create Github release
-        uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
-        with:
-          draft: true
-          allowUpdates: true
-          artifacts: "waspc/artifacts/*"
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
-          token: ${{ secrets.GITHUB_TOKEN }}

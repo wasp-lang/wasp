@@ -10,9 +10,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    source="img/gpt-wasp/thumbnail-yellow.png"
-/>
+<ImgWithCaption source="img/gpt-wasp/thumbnail-yellow.png" />
 
 This project started out as an experiment - we were interested if, given a short description, GPT can generate a full-stack web app in React & Node.js. The results went beyond our expectations!
 
@@ -20,19 +18,17 @@ This project started out as an experiment - we were interested if, given a short
 
 All you have to do in order to use [GPT Web App Generator](https://usemage.ai/) is **provide a short description of your app idea in plain English**. You can optionally select your app's brand color and the preferred authentication method (more methods coming soon).
 
-<ImgWithCaption
-    source="img/gpt-wasp/how-it-works.gif"
-    caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀"
-/>
+<ImgWithCaption source="img/gpt-wasp/how-it-works.gif" caption="1. Describe your app 2. Pick the color 3. Generate your app 🚀" />
 
 That's it - in a matter of minutes, a full-stack web app codebase, written in React, Node.js, Prisma, and Wasp, will be generated right in front of you, and available for you to download, run it locally and deploy with a single CLI command!
 
 See a full one-minute demo here:
-<div className='flex justify-center'>
-    <iframe width="700" height="400" src="https://www.youtube.com/embed/u0MVsPb2MP8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<div className="flex justify-center">
+  <iframe width="700" height="400" src="https://www.youtube.com/embed/u0MVsPb2MP8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 </div>
 
-<br/>
+<br />
 
 Check out [this blog post](https://wasp.sh/blog/2023/07/17/how-we-built-gpt-web-app-generator) if you are interested in technical details of how implemented the Generator!
 
@@ -47,6 +43,7 @@ Besides React & Node.js, GPT Web App Generator uses [Prisma](https://www.prisma.
 Additionaly, all the code behind GPT Web App Generator is completely open-source: [web app](https://github.com/wasp-lang/wasp/tree/main/mage), [GPT code agent](https://github.com/wasp-lang/wasp/tree/main/waspc/src/Wasp/AI).
 
 ## What kind of apps can I build with it?
+
 :::caution
 
 Since this is a GPT-powered project, it's output is not 100% deterministic and small mistakes will sometimes occur in the generated code. For the typical examples of web apps (as seen below) they are usually very minor and straightforward to fix.
@@ -58,9 +55,7 @@ The generated apps are full-stack and consist of front-end, back-end and databas
 
 ### My Plants - track your plants' watering schedule 🌱🚰
 
-<ImgWithCaption
-    source="img/gpt-wasp/my-plants.png"
-/>
+<ImgWithCaption source="img/gpt-wasp/my-plants.png" />
 
 - See the generated code and run it yourself [here](https://usemage.ai/result/3bb5dca2-f134-4f96-89d6-0812deab6e0c)
 
@@ -72,9 +67,7 @@ You can see and download the [entire source code](https://usemage.ai/result/3bb5
 
 ### ToDo app - a classic ✅
 
-<ImgWithCaption
-    source="img/gpt-wasp/todo-app.png"
-/>
+<ImgWithCaption source="img/gpt-wasp/todo-app.png" />
 
 - See the generated code and run it yourself [here](https://usemage.ai/result/07ed440a-3155-4969-b3f5-2031fb1f622f)
 
@@ -96,6 +89,7 @@ In order to reduce the complexity and therefore mistakes GPT makes, for this fir
 As mentioned above, our goal was to test whether GPT can be effectively used to generate full-stack web applications with React & Node.js. While it's now obvious it can, we have lot of ideas for new features and improvements.
 
 ### Challenges
+
 While we were expecting the main issue to be the size of context that GPT has, it turned out to be that the bigger issue is its “smarts”, which determine things like its planning capabilities, capacity to follow provided instructions (we had quite some laughs observing how it sometimes ignores our instructions), and capacity to not do silly mistakes. We saw GPT4 give better results than GPT3.5, but both still make mistakes, and GPT4 is also quite slow/expensive. Therefore we are quite excited about the further developments in the field of AI / LLMs, as they will directly affect the quality of the output for the tools like our Generator.
 
 ### Next features wishlist

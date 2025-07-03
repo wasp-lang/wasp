@@ -1,38 +1,32 @@
 {{={= =}=}}
-import { Request, Response, NextFunction } from 'express'
+import { Response, RequestHandler } from 'express'
 
 {=# isAuthEnabled =}
 import { type AuthUserData } from './auth/user.js'
 {=/ isAuthEnabled =}
 
-type RequestWithExtraFields = Request & {
-  {=# isAuthEnabled =}
-  user: AuthUserData | null;
-  sessionId: string | null;
-  {=/ isAuthEnabled =}
+// This is explicitly how Express expects extensions to their
+// Request and Response objects to be done.
+// https://github.com/DefinitelyTyped/DefinitelyTyped/blob/5d29b9be383902b0399f26072b4590ac61ca72c5/types/express-serve-static-core/index.d.ts#L6-L15
+declare global {
+  namespace Express {
+    interface Request {
+      {=# isAuthEnabled =}
+      user?: AuthUserData | null;
+      sessionId?: string | null;
+      {=/ isAuthEnabled =}
+    }
+  }
 }
 
 /**
- * Decorator for async express middleware that handles promise rejections.
- * @param {Func} middleware - Express middleware function.
- * @returns Express middleware that is exactly the same as the given middleware but,
- *   if given middleware returns promise, reject of that promise will be correctly handled,
- *   meaning that error will be forwarded to next().
+ * Simple helper to give the correct types for Express handlers.
+ * We define it in the same file as our extension to Request
+ * so that it is picked up by TypeScript.
  */
-export const handleRejection = (
-  middleware: (
-    req: RequestWithExtraFields,
-    res: Response,
-    next: NextFunction
-  ) => any
-) =>
-async (req: RequestWithExtraFields, res: Response, next: NextFunction) => {
-  try {
-    await middleware(req, res, next)
-  } catch (error) {
-    next(error)
-  }
-}
+export const defineHandler = <T extends RequestHandler>(
+  middleware: T
+): T => middleware
 
 export const sleep = (ms: number): Promise<unknown> => new Promise((r) => setTimeout(r, ms))
 

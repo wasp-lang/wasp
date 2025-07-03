@@ -26,10 +26,10 @@ Let's walk through enabling Google authentication, explain some of the default s
 Enabling Google Authentication comes down to a series of steps:
 
 1. Enabling Google authentication in the Wasp file.
-1. Adding the `User` entity.
-1. Creating a Google OAuth app.
-1. Adding the necessary Routes and Pages
-1. Using Auth UI components in our Pages.
+2. Adding the `User` entity.
+3. Creating a Google OAuth app.
+4. Adding the necessary Routes and Pages
+5. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
 
@@ -37,9 +37,6 @@ Enabling Google Authentication comes down to a series of steps:
 
 Let's start by properly configuring the Auth object:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
@@ -60,41 +57,12 @@ app myApp {
 }
 ```
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    // 1. Specify the User entity (we'll define it next)
-    // highlight-next-line
-    userEntity: User,
-    methods: {
-      // 2. Enable Google Auth
-      // highlight-next-line
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-</Tabs>
-
-`userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
+`userEntity` is explained in [the social auth overview](./overview.md#user-entity).
 
 ### 2. Adding the User Entity
 
 Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```prisma title="schema.prisma"
 // 3. Define the user entity
 model User {
@@ -104,83 +72,80 @@ model User {
   // ...
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```prisma title="schema.prisma"
-// 3. Define the user entity
-model User {
-  // highlight-next-line
-  id Int @id @default(autoincrement())
-  // Add your own fields below
-  // ...
-}
-```
-
-</TabItem>
-</Tabs>
 
 ### 3. Creating a Google OAuth App
 
 To use Google as an authentication method, you'll first need to create a Google project and provide Wasp with your client key and secret. Here's how you do it:
 
 1. Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
-2. Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard
+2. Create and configure a new Google project here: https://console.cloud.google.com/projectcreate
 
-![Google Console Screenshot 1](/img/integrations-google-1.jpg)
+    ![Google Console Screenshot 1](/img/integrations-google-v2-1.png)
 
-![Google Console Screenshot 2](/img/integrations-google-2.jpg)
+    ![Google Console Screenshot 2](/img/integrations-google-v2-2.png)
 
-3. Search for **OAuth** in the top bar, click on **OAuth consent screen**.
+3. Search for **Google Auth** in the top bar (1), click on **Google Auth Platform** (2). Then click on **Get Started** (3).
 
-![Google Console Screenshot 3](/img/integrations-google-3.jpg)
+    ![Google Console Screenshot 3](/img/integrations-google-v2-3.png)
 
-- Select what type of app you want, we will go with **External**.
+    ![Google Console Screenshot 4](/img/integrations-google-v2-4.png)
 
-  ![Google Console Screenshot 4](/img/integrations-google-4.jpg)
+4. Fill out you app information. For the **Audience** field, we will go with **External**. When you're done, click **Create**.
 
-- Fill out applicable information on Page 1.
+    ![Google Console Screenshot 5](/img/integrations-google-v2-5.png)
 
-  ![Google Console Screenshot 5](/img/integrations-google-5.jpg)
+    ![Google Console Screenshot 6](/img/integrations-google-v2-6.png)
 
-- On Page 2, Scopes, you should select `userinfo.profile`. You can optionally search for other things, like `email`.
+5. You should now be in the **OAuth Overview** page. Click on **Create OAuth Client** (1).
 
-  ![Google Console Screenshot 6](/img/integrations-google-6.jpg)
+    ![Google Console Screenshot 7](/img/integrations-google-v2-7.png)
 
-  ![Google Console Screenshot 7](/img/integrations-google-7.jpg)
+6. Fill out the form. These are the values for a typical Wasp application:
 
-  ![Google Console Screenshot 8](/img/integrations-google-8.jpg)
+    | # | Field                    | Value                                        |
+    | - | ------------------------ | -------------------------------------------- |
+    | 1 | Application type         | Web application                              |
+    | 2 | Name                     | (your wasp app name)                         |
+    | 3 | Authorized redirect URIs | `http://localhost:3001/auth/google/callback` |
 
-- Add any test users you want on Page 3.
+    :::note
+    Once you know on which URL(s) your API server will be deployed, also add those URL(s) to the **Authorized redirect URIs**.\
+    For example: `https://your-server-url.com/auth/google/callback`
+    :::
 
-  ![Google Console Screenshot 9](/img/integrations-google-9.jpg)
+    ![Google Console Screenshot 8](/img/integrations-google-v2-8.png)
 
-4. Next, click **Credentials**.
+    Then click on **Create** (4).
 
-![Google Console Screenshot 10](/img/integrations-google-10.jpg)
+7. You will see a box saying **OAuth client created**. Click on **OK**.
 
-- Select **Create Credentials**.
-- Select **OAuth client ID**.
+    ![Google Console Screenshot 9](/img/integrations-google-v2-9.png)
 
-  ![Google Console Screenshot 11](/img/integrations-google-11.jpg)
+8. Click on the name of your newly-created app.
 
-- Complete the form
+    ![Google Console Screenshot 10](/img/integrations-google-v2-10.png)
 
-  ![Google Console Screenshot 12](/img/integrations-google-12.jpg)
+9. On the right-hand side, you will see your **Client ID** (1) and **Client secret** (2). **Copy them somewhere safe, as you will need them for your app.**
 
-- Under Authorized redirect URIs, put in: `http://localhost:3001/auth/google/callback`
+    ![Google Console Screenshot 11](/img/integrations-google-v2-11.png)
 
-  ![Google Console Screenshot 13](/img/integrations-google-13.jpg)
+    :::info
+    These are the credentials your app will use to authenticate with Google. Do not share them anywhere publicly, as anyone with these credentials can impersonate your app and access user data.
+    :::
 
-  - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
-    - For example: `https://your-server-url.com/auth/google/callback`
+10. Click on **Data Access** (1) in the left-hand menu, then click on **Add or remove scopes** (2). You should select `userinfo.profile` (3), and optionally `userinfo.email` (4), or any other scopes you want to use. Remember to click **Update** and **Save** when done.
 
-- When you save, you can click the Edit icon and your credentials will be shown.
+    ![Google Console Screenshot 12](/img/integrations-google-v2-12.png)
 
-  ![Google Console Screenshot 14](/img/integrations-google-14.jpg)
+    ![Google Console Screenshot 13](/img/integrations-google-v2-13.png)
 
-5. Copy your Client ID and Client secret as you will need them in the next step.
+11. Go to **Audience** (1) in the left-hand menu, and add any test users you want (2). This is useful for testing your app before going live. You can add any email addresses you want to test with.
+
+    ![Google Console Screenshot 14](/img/integrations-google-v2-14.png)
+
+12. Finally, you can go to **Branding** (1) in the left-hand menu, and customize your app's branding in the Google login page. _This is optional_, but recommended if you want to make your app look more professional.
+
+    ![Google Console Screenshot 15](/img/integrations-google-v2-15.png)
 
 ### 4. Adding Environment Variables
 
@@ -197,32 +162,14 @@ Let's define the necessary authentication Routes and Pages.
 
 Add the following code to your `main.wasp` file:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 // ...
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { Login } from "@src/pages/auth.jsx"
+  component: import { Login } from "@src/pages/auth"
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-// ...
-
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth.tsx"
-}
-```
-
-</TabItem>
-</Tabs>
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
 
@@ -235,10 +182,8 @@ We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read m
 Let's now create a `auth.{jsx,tsx}` file in the `src/pages`.
 It should have the following code:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```tsx title="src/pages/auth.jsx"
+```tsx title="src/pages/auth.tsx" auto-js
+import type { ReactNode } from 'react'
 import { LoginForm } from 'wasp/client/auth'
 
 export function Login() {
@@ -250,7 +195,7 @@ export function Login() {
 }
 
 // A layout component to center the content
-export function Layout({ children }) {
+export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="h-full w-full bg-white">
       <div className="flex min-h-[75vh] min-w-full items-center justify-center">
@@ -262,37 +207,6 @@ export function Layout({ children }) {
   )
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="src/pages/auth.tsx"
-import { LoginForm } from 'wasp/client/auth'
-
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="h-full w-full bg-white">
-      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-        <div className="h-full w-full max-w-sm bg-white p-5">
-          <div>{children}</div>
-        </div>
-      </div>
-    </div>
-  )
-}
-```
-
-</TabItem>
-</Tabs>
 
 :::info Auth UI
 Our pages use an automatically-generated Auth UI component. Read more about Auth UI components [here](../../auth/ui).
@@ -311,10 +225,7 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 Add `google: {}` to the `auth.methods` dictionary to use it with default settings:
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title=main.wasp
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "{latestWaspVersion}"
@@ -330,29 +241,6 @@ app myApp {
   },
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      // highlight-next-line
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-</Tabs>
 
 <DefaultBehaviour />
 
@@ -386,17 +274,13 @@ The data received from Google is an object which can contain the following field
 The fields you receive depend on the scopes you request. The default scope is set to `profile` only. If you want to get the user's email, you need to specify the `email` scope in the `configFn` function.
 
 <small>
-
-For an up to date info about the data received from Google, please refer to the [Google API documentation](https://developers.google.com/identity/openid-connect/openid-connect#an-id-tokens-payload).
+  For an up to date info about the data received from Google, please refer to the [Google API documentation](https://developers.google.com/identity/openid-connect/openid-connect#an-id-tokens-payload).
 </small>
 
 ### Using the Data Received From Google
 
 <OverrideExampleIntro />
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
@@ -408,9 +292,9 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
+        configFn: import { getConfig } from "@src/auth/google",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/google"
       }
     },
     onAuthFailedRedirectTo: "/login"
@@ -428,54 +312,7 @@ model User {
 // ...
 ```
 
-```js title=src/auth/google.js
-export const userSignupFields = {
-  username: () => 'hardcoded-username',
-  displayName: (data) => data.profile.name,
-}
-
-export function getConfig() {
-  return {
-    scopes: ['profile', 'email'],
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-```prisma title="schema.prisma"
-model User {
-  id          Int    @id @default(autoincrement())
-  username    String @unique
-  displayName String
-}
-
-// ...
-```
-
-```ts title=src/auth/google.ts
+```ts title="src/auth/google.ts" auto-js
 import { defineUserSignupFields } from 'wasp/server/auth'
 
 export const userSignupFields = defineUserSignupFields({
@@ -492,9 +329,6 @@ export function getConfig() {
 
 <GetUserFieldsType />
 
-</TabItem>
-</Tabs>
-
 ## Using Auth
 
 <UsingAuthNote />
@@ -509,9 +343,6 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 <ApiReferenceIntro />
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```wasp title="main.wasp"
 app myApp {
   wasp: {
@@ -523,42 +354,15 @@ app myApp {
     methods: {
       google: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
+        configFn: import { getConfig } from "@src/auth/google",
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+        userSignupFields: import { userSignupFields } from "@src/auth/google"
       }
     },
     onAuthFailedRedirectTo: "/login"
   },
 }
 ```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-</Tabs>
 
 The `google` dict has the following properties:
 
@@ -566,30 +370,13 @@ The `google` dict has the following properties:
 
   This function must return an object with the scopes for the OAuth provider.
 
-  <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-
-  ```js title=src/auth/google.js
+  ```ts title="src/auth/google.ts" auto-js
   export function getConfig() {
     return {
       scopes: ['profile', 'email'],
     }
   }
   ```
-
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
-
-  ```ts title=src/auth/google.ts
-  export function getConfig() {
-    return {
-      scopes: ['profile', 'email'],
-    }
-  }
-  ```
-
-  </TabItem>
-  </Tabs>
 
 - #### `userSignupFields: ExtImport`
 

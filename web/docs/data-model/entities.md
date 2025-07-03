@@ -31,43 +31,39 @@ The language is declarative and very intuitive. We'll also go through an example
 A Prisma `model` declaration in the `schema.prisma` file represents a Wasp Entity.
 
 <details>
-<summary>
-Entity vs Model
-</summary>
+  <summary>
+    Entity vs Model
+  </summary>
 
-You might wonder why we distinguish between a **Wasp Entity** and a **Prisma model** if they're essentially the same thing right now.
+  You might wonder why we distinguish between a **Wasp Entity** and a **Prisma model** if they're essentially the same thing right now.
 
-While defining a Prisma model is currently the only way to create an Entity in Wasp, the Entity concept is a higher-level abstraction. We plan to expand on Entities in the future, both in terms of how you can define them and what you can do with them.
+  While defining a Prisma model is currently the only way to create an Entity in Wasp, the Entity concept is a higher-level abstraction. We plan to expand on Entities in the future, both in terms of how you can define them and what you can do with them.
 
-So, think of an Entity as a Wasp concept and a model as a Prisma concept. For now, all Prisma models are Entities and vice versa, but this relationship might evolve as Wasp grows.
-
+  So, think of an Entity as a Wasp concept and a model as a Prisma concept. For now, all Prisma models are Entities and vice versa, but this relationship might evolve as Wasp grows.
 </details>
 
 Here's how you could define an Entity that represents a Task:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```prisma title="schema.prisma"
+    model Task {
+      id          String  @id @default(uuid())
+      description String
+      isDone      Boolean @default(false)
+    }
+    ```
+  </TabItem>
 
-```prisma title="schema.prisma"
-model Task {
-  id          String  @id @default(uuid())
-  description String
-  isDone      Boolean @default(false)
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```prisma title="schema.prisma"
-model Task {
-  id          String  @id @default(uuid())
-  description String
-  isDone      Boolean @default(false)
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```prisma title="schema.prisma"
+    model Task {
+      id          String  @id @default(uuid())
+      description String
+      isDone      Boolean @default(false)
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 The above Prisma `model` definition tells Wasp to create a table for storing Tasks where each task has three fields (i.e., the `tasks` table has three columns):
@@ -77,44 +73,43 @@ The above Prisma `model` definition tells Wasp to create a table for storing Tas
 - `isDone` - A boolean value indicating the task's completion status. If you don't set it when creating a new task, the database sets it to `false` by default.
 
 <ShowForTs>
+  Wasp also exposes a type for working with the created Entity. You can import and use it like this:
 
-Wasp also exposes a type for working with the created Entity. You can import and use it like this:
-```ts
-import { Task } from 'wasp/entities'
+  ```ts
+  import { Task } from 'wasp/entities'
 
-const task: Task = { ... }
+  const task: Task = { ... }
 
-// You can also define functions for working with entities
-function getInfoMessage(task: Task): string {
-  const isDoneText = task.isDone ? "is done" : "is not done"
-  return `Task '${task.description}' is ${isDoneText}.`
-}
-```
-
-Using the `Task` type in `getInfoMessageInfo`'s definition connects the argument's type with the `Task` entity.
-
-This coupling removes duplication and ensures the function keeps the correct signature even if you change the entity. Of course, the function might throw type errors depending on how you change it, but that's precisely what you want!
-
-Entity types are available everywhere, including the client code:
-```ts
-import { Task } from "wasp/entities"
-
-export function ExamplePage() {
-  const task: Task = {
-    id: 123,
-    description: "Some random task",
-    isDone: false,
+  // You can also define functions for working with entities
+  function getInfoMessage(task: Task): string {
+    const isDoneText = task.isDone ? "is done" : "is not done"
+    return `Task '${task.description}' is ${isDoneText}.`
   }
-  return <div>{task.description}</div>
-}
-```
+  ```
 
-The mentioned type safety mechanisms also apply here: changing the task entity in our `schema.prisma` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
+  Using the `Task` type in `getInfoMessageInfo`'s definition connects the argument's type with the `Task` entity.
 
-You'll learn even more about Entity types when you start using [them with operations](#using-entities-in-operations).
+  This coupling removes duplication and ensures the function keeps the correct signature even if you change the entity. Of course, the function might throw type errors depending on how you change it, but that's precisely what you want!
 
+  Entity types are available everywhere, including the client code:
+
+  ```ts
+  import { Task } from "wasp/entities"
+
+  export function ExamplePage() {
+    const task: Task = {
+      id: 123,
+      description: "Some random task",
+      isDone: false,
+    }
+    return <div>{task.description}</div>
+  }
+  ```
+
+  The mentioned type safety mechanisms also apply here: changing the task entity in our `schema.prisma` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
+
+  You'll learn even more about Entity types when you start using [them with operations](#using-entities-in-operations).
 </ShowForTs>
-
 
 ### Working with Entities
 
@@ -134,31 +129,29 @@ Most of the time, you will be working with Entities within the context of [Opera
 If you need more control, you can directly interact with Entities by importing and using the [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud). We recommend sticking with conventional Wasp-provided mechanisms, only resorting to directly using the Prisma client only if you need a feature Wasp doesn't provide.
 
 You can only use the Prisma Client in your Wasp server code. You can import it like this:
+
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    import { prisma } from 'wasp/server'
 
-```js
-import { prisma } from 'wasp/server'
+    prisma.task.create({
+        description: "Read the Entities doc",
+        isDone: true // almost :)
+    })
+    ```
+  </TabItem>
 
-prisma.task.create({
-    description: "Read the Entities doc",
-    isDone: true // almost :)
-})
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import { prisma } from 'wasp/server'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts
-import { prisma } from 'wasp/server'
-
-prisma.task.create({
-    description: "Read the Entities doc",
-    isDone: true // almost :)
-})
-```
-
-</TabItem>
+    prisma.task.create({
+        description: "Read the Entities doc",
+        isDone: true // almost :)
+    })
+    ```
+  </TabItem>
 </Tabs>
 
 :::note Available Prisma features in the client
@@ -169,7 +162,6 @@ type definitions (notably, `enum`s).
 You can see more information in the overview of [supported Prisma Schema features](./prisma-file.md#the-enum-blocks).
 
 :::
-
 
 ### Next steps
 

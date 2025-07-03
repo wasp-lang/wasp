@@ -17,436 +17,433 @@ Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flow
 Below you can find a starting point for making your own UI in the client code. This example has all the necessary components to handle login, signup, email verification, and the password reset flow. You can customize any of its look and behaviour, just make sure to call the functions imported from `wasp/client/auth`.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/pages/auth.jsx"
+    import {
+      login,
+      requestPasswordReset,
+      resetPassword,
+      signup,
+      verifyEmail,
+    } from 'wasp/client/auth'
 
-```jsx title="src/pages/auth.jsx"
-import {
-  login,
-  requestPasswordReset,
-  resetPassword,
-  signup,
-  verifyEmail,
-} from 'wasp/client/auth'
+    import { useState } from 'react'
+    import { useNavigate } from 'react-router-dom'
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+    // This will be shown when the user wants to log in
+    export function Login() {
+      const [email, setEmail] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState(null)
+      const navigate = useNavigate()
 
-// This will be shown when the user wants to log in
-export function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+      async function handleSubmit(event) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await login({ email, password })
+          navigate('/')
+        } catch (error) {
+          setError(error)
+        }
+      }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await login({ email, password })
-      navigate('/')
-    } catch (error) {
-      setError(error)
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Log In</button>
+        </form>
+      )
     }
-  }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+    // This will be shown when the user wants to sign up
+    export function Signup() {
+      const [email, setEmail] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState(null)
+      const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Log In</button>
-    </form>
-  )
-}
+      async function handleSubmit(event) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await signup({ email, password })
+          setNeedsConfirmation(true)
+        } catch (error) {
+          console.error('Error during signup:', error)
+          setError(error)
+        }
+      }
 
-// This will be shown when the user wants to sign up
-export function Signup() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const [needsConfirmation, setNeedsConfirmation] = useState(false)
+      if (needsConfirmation) {
+        return (
+          <p>
+            Check your email for the confirmation link. If you don't see it, check
+            spam/junk folder.
+          </p>
+        )
+      }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await signup({ email, password })
-      setNeedsConfirmation(true)
-    } catch (error) {
-      console.error('Error during signup:', error)
-      setError(error)
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Sign Up</button>
+        </form>
+      )
     }
-  }
 
-  if (needsConfirmation) {
-    return (
-      <p>
-        Check your email for the confirmation link. If you don't see it, check
-        spam/junk folder.
-      </p>
-    )
-  }
+    // This will be shown has clicked on the link in their
+    // email to verify their email address
+    export function EmailVerification() {
+      const [error, setError] = useState(null)
+      const navigate = useNavigate()
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+      async function handleClick() {
+        setError(null)
+        try {
+          // The token is passed as a query parameter
+          const token = new URLSearchParams(window.location.search).get('token')
+          if (!token) throw new Error('Token not found in URL')
+          await verifyEmail({ token })
+          navigate('/')
+        } catch (error) {
+          console.error('Error during email verification:', error)
+          setError(error)
+        }
+      }
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Sign Up</button>
-    </form>
-  )
-}
+      return (
+        <>
+          {error && <p>Error: {error.message}</p>}
 
-// This will be shown has clicked on the link in their
-// email to verify their email address
-export function EmailVerification() {
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
-
-  async function handleClick() {
-    setError(null)
-    try {
-      // The token is passed as a query parameter
-      const token = new URLSearchParams(window.location.search).get('token')
-      if (!token) throw new Error('Token not found in URL')
-      await verifyEmail({ token })
-      navigate('/')
-    } catch (error) {
-      console.error('Error during email verification:', error)
-      setError(error)
+          <button onClick={handleClick}>Verify email</button>
+        </>
+      )
     }
-  }
 
-  return (
-    <>
-      {error && <p>Error: {error.message}</p>}
+    // This will be shown when the user wants to reset their password
+    export function RequestPasswordReset() {
+      const [email, setEmail] = useState('')
+      const [error, setError] = useState(null)
+      const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      <button onClick={handleClick}>Verify email</button>
-    </>
-  )
-}
+      async function handleSubmit(event) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await requestPasswordReset({ email })
+          setNeedsConfirmation(true)
+        } catch (error) {
+          console.error('Error during requesting reset:', error)
+          setError(error)
+        }
+      }
 
-// This will be shown when the user wants to reset their password
-export function RequestPasswordReset() {
-  const [email, setEmail] = useState('')
-  const [error, setError] = useState(null)
-  const [needsConfirmation, setNeedsConfirmation] = useState(false)
+      if (needsConfirmation) {
+        return (
+          <p>
+            Check your email for the confirmation link. If you don't see it, check
+            spam/junk folder.
+          </p>
+        )
+      }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await requestPasswordReset({ email })
-      setNeedsConfirmation(true)
-    } catch (error) {
-      console.error('Error during requesting reset:', error)
-      setError(error)
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+
+          <button type="submit">Send password reset</button>
+        </form>
+      )
     }
-  }
 
-  if (needsConfirmation) {
-    return (
-      <p>
-        Check your email for the confirmation link. If you don't see it, check
-        spam/junk folder.
-      </p>
-    )
-  }
+    // This will be shown when the user clicks on the link in their
+    // email to reset their password
+    export function PasswordReset() {
+      const [error, setError] = useState(null)
+      const [newPassword, setNewPassword] = useState('')
+      const navigate = useNavigate()
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+      async function handleSubmit(event) {
+        event.preventDefault()
+        setError(null)
+        try {
+          // The token is passed as a query parameter
+          const token = new URLSearchParams(window.location.search).get('token')
+          if (!token) throw new Error('Token not found in URL')
+          await resetPassword({ token, password: newPassword })
+          navigate('/')
+        } catch (error) {
+          console.error('Error during password reset:', error)
+          setError(error)
+        }
+      }
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
 
-      <button type="submit">Send password reset</button>
-    </form>
-  )
-}
+          <input
+            type="password"
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="New password"
+          />
 
-// This will be shown when the user clicks on the link in their
-// email to reset their password
-export function PasswordReset() {
-  const [error, setError] = useState(null)
-  const [newPassword, setNewPassword] = useState('')
-  const navigate = useNavigate()
-
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError(null)
-    try {
-      // The token is passed as a query parameter
-      const token = new URLSearchParams(window.location.search).get('token')
-      if (!token) throw new Error('Token not found in URL')
-      await resetPassword({ token, password: newPassword })
-      navigate('/')
-    } catch (error) {
-      console.error('Error during password reset:', error)
-      setError(error)
+          <button type="submit">Reset password</button>
+        </form>
+      )
     }
-  }
+    ```
+  </TabItem>
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/auth.tsx"
+    import {
+      login,
+      requestPasswordReset,
+      resetPassword,
+      signup,
+      verifyEmail,
+    } from 'wasp/client/auth'
 
-      <input
-        type="password"
-        autoComplete="new-password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        placeholder="New password"
-      />
+    import { useState } from 'react'
+    import { useNavigate } from 'react-router-dom'
 
-      <button type="submit">Reset password</button>
-    </form>
-  )
-}
-```
+    // This will be shown when the user wants to log in
+    export function Login() {
+      const [email, setEmail] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState<Error | null>(null)
+      const navigate = useNavigate()
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await login({ email, password })
+          navigate('/')
+        } catch (error: unknown) {
+          setError(error as Error)
+        }
+      }
 
-```tsx title="src/pages/auth.tsx"
-import {
-  login,
-  requestPasswordReset,
-  resetPassword,
-  signup,
-  verifyEmail,
-} from 'wasp/client/auth'
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-// This will be shown when the user wants to log in
-export function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await login({ email, password })
-      navigate('/')
-    } catch (error: unknown) {
-      setError(error as Error)
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Log In</button>
+        </form>
+      )
     }
-  }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+    // This will be shown when the user wants to sign up
+    export function Signup() {
+      const [email, setEmail] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState<Error | null>(null)
+      const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Log In</button>
-    </form>
-  )
-}
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await signup({ email, password })
+          setNeedsConfirmation(true)
+        } catch (error: unknown) {
+          console.error('Error during signup:', error)
+          setError(error as Error)
+        }
+      }
 
-// This will be shown when the user wants to sign up
-export function Signup() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const [needsConfirmation, setNeedsConfirmation] = useState(false)
+      if (needsConfirmation) {
+        return (
+          <p>
+            Check your email for the confirmation link. If you don't see it, check
+            spam/junk folder.
+          </p>
+        )
+      }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await signup({ email, password })
-      setNeedsConfirmation(true)
-    } catch (error: unknown) {
-      console.error('Error during signup:', error)
-      setError(error as Error)
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Sign Up</button>
+        </form>
+      )
     }
-  }
 
-  if (needsConfirmation) {
-    return (
-      <p>
-        Check your email for the confirmation link. If you don't see it, check
-        spam/junk folder.
-      </p>
-    )
-  }
+    // This will be shown has clicked on the link in their
+    // email to verify their email address
+    export function EmailVerification() {
+      const [error, setError] = useState<Error | null>(null)
+      const navigate = useNavigate()
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+      async function handleClick() {
+        setError(null)
+        try {
+          // The token is passed as a query parameter
+          const token = new URLSearchParams(window.location.search).get('token')
+          if (!token) throw new Error('Token not found in URL')
+          await verifyEmail({ token })
+          navigate('/')
+        } catch (error: unknown) {
+          console.error('Error during email verification:', error)
+          setError(error as Error)
+        }
+      }
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Sign Up</button>
-    </form>
-  )
-}
+      return (
+        <>
+          {error && <p>Error: {error.message}</p>}
 
-// This will be shown has clicked on the link in their
-// email to verify their email address
-export function EmailVerification() {
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleClick() {
-    setError(null)
-    try {
-      // The token is passed as a query parameter
-      const token = new URLSearchParams(window.location.search).get('token')
-      if (!token) throw new Error('Token not found in URL')
-      await verifyEmail({ token })
-      navigate('/')
-    } catch (error: unknown) {
-      console.error('Error during email verification:', error)
-      setError(error as Error)
+          <button onClick={handleClick}>Verify email</button>
+        </>
+      )
     }
-  }
 
-  return (
-    <>
-      {error && <p>Error: {error.message}</p>}
+    // This will be shown when the user wants to reset their password
+    export function RequestPasswordReset() {
+      const [email, setEmail] = useState('')
+      const [error, setError] = useState<Error | null>(null)
+      const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      <button onClick={handleClick}>Verify email</button>
-    </>
-  )
-}
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await requestPasswordReset({ email })
+          setNeedsConfirmation(true)
+        } catch (error: unknown) {
+          console.error('Error during requesting reset:', error)
+          setError(error as Error)
+        }
+      }
 
-// This will be shown when the user wants to reset their password
-export function RequestPasswordReset() {
-  const [email, setEmail] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const [needsConfirmation, setNeedsConfirmation] = useState(false)
+      if (needsConfirmation) {
+        return (
+          <p>
+            Check your email for the confirmation link. If you don't see it, check
+            spam/junk folder.
+          </p>
+        )
+      }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await requestPasswordReset({ email })
-      setNeedsConfirmation(true)
-    } catch (error: unknown) {
-      console.error('Error during requesting reset:', error)
-      setError(error as Error)
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+
+          <button type="submit">Send password reset</button>
+        </form>
+      )
     }
-  }
 
-  if (needsConfirmation) {
-    return (
-      <p>
-        Check your email for the confirmation link. If you don't see it, check
-        spam/junk folder.
-      </p>
-    )
-  }
+    // This will be shown when the user clicks on the link in their
+    // email to reset their password
+    export function PasswordReset() {
+      const [error, setError] = useState<Error | null>(null)
+      const [newPassword, setNewPassword] = useState('')
+      const navigate = useNavigate()
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setError(null)
+        try {
+          // The token is passed as a query parameter
+          const token = new URLSearchParams(window.location.search).get('token')
+          if (!token) throw new Error('Token not found in URL')
+          await resetPassword({ token, password: newPassword })
+          navigate('/')
+        } catch (error: unknown) {
+          console.error('Error during password reset:', error)
+          setError(error as Error)
+        }
+      }
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
 
-      <button type="submit">Send password reset</button>
-    </form>
-  )
-}
+          <input
+            type="password"
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="New password"
+          />
 
-// This will be shown when the user clicks on the link in their
-// email to reset their password
-export function PasswordReset() {
-  const [error, setError] = useState<Error | null>(null)
-  const [newPassword, setNewPassword] = useState('')
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    try {
-      // The token is passed as a query parameter
-      const token = new URLSearchParams(window.location.search).get('token')
-      if (!token) throw new Error('Token not found in URL')
-      await resetPassword({ token, password: newPassword })
-      navigate('/')
-    } catch (error: unknown) {
-      console.error('Error during password reset:', error)
-      setError(error as Error)
+          <button type="submit">Reset password</button>
+        </form>
+      )
     }
-  }
-
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
-
-      <input
-        type="password"
-        autoComplete="new-password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        placeholder="New password"
-      />
-
-      <button type="submit">Reset password</button>
-    </form>
-  )
-}
-```
-
-</TabItem>
+    ```
+  </TabItem>
 </Tabs>
 
 ## API Reference

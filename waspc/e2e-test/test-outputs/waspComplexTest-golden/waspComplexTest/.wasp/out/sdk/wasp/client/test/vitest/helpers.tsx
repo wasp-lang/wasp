@@ -1,5 +1,4 @@
 import { ReactElement, ReactNode } from 'react'
-import { serialize as superjsonSerialize } from 'superjson'
 import { rest, type ResponseResolver, type RestContext } from 'msw'
 import { setupServer, type SetupServer } from 'msw/node'
 import { BrowserRouter as Router } from 'react-router-dom'
@@ -9,6 +8,7 @@ import { beforeAll, afterEach, afterAll } from 'vitest'
 import { Query } from 'wasp/client/operations/rpc'
 import { config } from 'wasp/client'
 import { HttpMethod, Route } from 'wasp/client'
+import { serialize } from 'wasp/core/serialization'
 
 // PRIVATE API
 export type MockQuery = <Input, Output, MockOutput extends Output>(
@@ -58,7 +58,7 @@ export function mockServer(): {
   const mockQuery: MockQuery = (query, mockData) => {
     const route = (query as unknown as { route: Route }).route
     mockRoute(server, route, (_req, res, ctx) =>
-      res(ctx.json(superjsonSerialize(mockData)))
+      res(ctx.json(serialize(mockData)))
     )
   }
 

@@ -11,6 +11,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
+    slackAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
@@ -120,6 +121,7 @@ genLoginSignupForm auth =
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
           "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
           "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,

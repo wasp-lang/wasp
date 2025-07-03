@@ -1,7 +1,8 @@
 import { validProjectBrandColors } from "../components/Color";
 
 export function getTailwindClassNameForProjectBrandColor(colorName) {
-  return validProjectBrandColors.find((color) => color.name === colorName).color;
+  return validProjectBrandColors.find((color) => color.name === colorName)
+    .color;
 }
 
 export function getTailwindClassNameForProjectStatus(status) {

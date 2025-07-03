@@ -91,6 +91,8 @@ export const LoginSignupForm = ({
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
+
+
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
 
 

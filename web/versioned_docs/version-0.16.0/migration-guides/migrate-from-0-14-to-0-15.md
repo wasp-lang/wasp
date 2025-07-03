@@ -57,255 +57,240 @@ app MyApp {
    }
    ```
 
-1. If you have `@types/react-router-dom` in your `package.json`, you can remove it as it is no longer needed.
+2. If you have `@types/react-router-dom` in your `package.json`, you can remove it as it is no longer needed.
 
 ### 3. Use the latest React Router APIs
 
 Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
 
-1.  If you used the `useHistory()` hook, you should now use the `useNavigate()` hook.
+1. If you used the `useHistory()` hook, you should now use the `useNavigate()` hook.
 
-      <Tabs>
-      <TabItem value="before" label="Before">
+   <Tabs>
+     <TabItem value="before" label="Before">
+       ```tsx title="src/SomePage.tsx"
+       import { useHistory } from 'react-router-dom'
 
-    ```tsx title="src/SomePage.tsx"
-    import { useHistory } from 'react-router-dom'
+       export function SomePage() {
+         const history = useHistory()
+         const handleClick = () => {
+           // highlight-next-line
+           history.push('/new-route')
+         }
+         return <button onClick={handleClick}>Go to new route</button>
+       }
+       ```
+     </TabItem>
 
-    export function SomePage() {
-      const history = useHistory()
-      const handleClick = () => {
-        // highlight-next-line
-        history.push('/new-route')
-      }
-      return <button onClick={handleClick}>Go to new route</button>
-    }
-    ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/SomePage.tsx"
+       import { useNavigate } from 'react-router-dom'
 
-      </TabItem>
-      <TabItem value="after" label="After">
+       export function SomePage() {
+         const navigate = useNavigate()
+         const handleClick = () => {
+           // highlight-next-line
+           navigate('/new-route')
+         }
+         return <button onClick={handleClick}>Go to new route</button>
+       }
+       ```
+     </TabItem>
+   </Tabs>
 
-    ```tsx title="src/SomePage.tsx"
-    import { useNavigate } from 'react-router-dom'
+   Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-navigate#optionsreplace) for more information on the `useNavigate()` hook.
 
-    export function SomePage() {
-      const navigate = useNavigate()
-      const handleClick = () => {
-        // highlight-next-line
-        navigate('/new-route')
-      }
-      return <button onClick={handleClick}>Go to new route</button>
-    }
-    ```
+2. If you used the `<Redirect />` component, you should now use the `<Navigate />` component.
 
-      </TabItem>
-      </Tabs>
+   The default behaviour changed from `replace` to `push` in v6, so if you want to keep the old behaviour, you should add the `replace` prop.
 
-    Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-navigate#optionsreplace) for more information on the `useNavigate()` hook.
+   <Tabs>
+     <TabItem value="before" label="Before">
+       ```tsx title="src/SomePage.tsx"
+       import { Redirect } from 'react-router-dom'
 
-1.  If you used the `<Redirect />` component, you should now use the `<Navigate />` component.
+       export function SomePage() {
+         return (
+           // highlight-next-line
+           <Redirect to="/new-route" />
+         )
+       }
+       ```
+     </TabItem>
 
-    The default behaviour changed from `replace` to `push` in v6, so if you want to keep the old behaviour, you should add the `replace` prop.
+     <TabItem value="after" label="After">
+       ```tsx title="src/SomePage.tsx"
+       import { Navigate } from 'react-router-dom'
 
-      <Tabs>
-      <TabItem value="before" label="Before">
+       export function SomePage() {
+         return (
+           // highlight-next-line
+           <Navigate to="/new-route" replace />
+         )
+       }
+       ```
+     </TabItem>
+   </Tabs>
 
-    ```tsx title="src/SomePage.tsx"
-    import { Redirect } from 'react-router-dom'
+   Check the [React Router 6 docs](https://reactrouter.com/en/main/components/navigate) for more information on the `<Navigate />` component.
 
-    export function SomePage() {
-      return (
-        // highlight-next-line
-        <Redirect to="/new-route" />
-      )
-    }
-    ```
+3. If you accessed the route params using `props.match.params`, you should now use the `useParams()` hook.
 
-      </TabItem>
-      <TabItem value="after" label="After">
+   <Tabs>
+     <TabItem value="before" label="Before">
+       ```tsx title="src/SomePage.tsx"
+       import { RouteComponentProps } from 'react-router-dom'
 
-    ```tsx title="src/SomePage.tsx"
-    import { Navigate } from 'react-router-dom'
+       export function SomePage(props: RouteComponentProps) {
+         // highlight-next-line
+         const { id } = props.match.params
+         return (
+           <div>
+             <h1>Item {id}</h1>
+           </div>
+         )
+       }
+       ```
+     </TabItem>
 
-    export function SomePage() {
-      return (
-        // highlight-next-line
-        <Navigate to="/new-route" replace />
-      )
-    }
-    ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/SomePage.tsx"
+       import { useParams } from 'react-router-dom'
 
-      </TabItem>
-      </Tabs>
+       export function SomePage() {
+         // highlight-next-line
+         const { id } = useParams()
+         return (
+           <div>
+             <h1>Item {id}</h1>
+           </div>
+         )
+       }
+       ```
+     </TabItem>
+   </Tabs>
 
-    Check the [React Router 6 docs](https://reactrouter.com/en/main/components/navigate) for more information on the `<Navigate />` component.
+   Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-params) for more information on the `useParams()` hook.
 
-1.  If you accessed the route params using `props.match.params`, you should now use the `useParams()` hook.
+4. If you used the `<NavLink />` component and its `isActive` prop to set the active link state, you should now set the `className` prop directly.
 
-      <Tabs>
-      <TabItem value="before" label="Before">
+   <Tabs>
+     <TabItem value="before" label="Before">
+       ```tsx title="src/SomePage.tsx"
+       import { NavLink } from 'react-router-dom'
 
-    ```tsx title="src/SomePage.tsx"
-    import { RouteComponentProps } from 'react-router-dom'
+       export function SomePage() {
+         return (
+           <NavLink
+             to="/new-route"
+             // highlight-start
+             isActive={(_match, location) => {
+               return location.pathname === '/new-route'
+             }}
+             // highlight-end
+             className={(isActive) =>
+               cn('text-blue-500', {
+                 underline: isActive,
+               })
+             }
+           >
+             Go to new route
+           </NavLink>
+         )
+       }
+       ```
+     </TabItem>
 
-    export function SomePage(props: RouteComponentProps) {
-      // highlight-next-line
-      const { id } = props.match.params
-      return (
-        <div>
-          <h1>Item {id}</h1>
-        </div>
-      )
-    }
-    ```
+     <TabItem value="after" label="After">
+       ```tsx title="src/SomePage.tsx"
+       import { NavLink, useLocation } from 'react-router-dom'
 
-      </TabItem>
-      <TabItem value="after" label="After">
+       export function SomePage() {
+         // highlight-next-line
+         const location = useLocation()
+         return (
+           <NavLink
+             to="/new-route"
+             className={() =>
+               cn('text-blue-500', {
+                 // highlight-next-line
+                 underline: location.pathname === '/new-route',
+               })
+             }
+           >
+             Go to new route
+           </NavLink>
+         )
+       }
+       ```
+     </TabItem>
+   </Tabs>
 
-    ```tsx title="src/SomePage.tsx"
-    import { useParams } from 'react-router-dom'
-
-    export function SomePage() {
-      // highlight-next-line
-      const { id } = useParams()
-      return (
-        <div>
-          <h1>Item {id}</h1>
-        </div>
-      )
-    }
-    ```
-
-      </TabItem>
-      </Tabs>
-
-    Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-params) for more information on the `useParams()` hook.
-
-1.  If you used the `<NavLink />` component and its `isActive` prop to set the active link state, you should now set the `className` prop directly.
-
-      <Tabs>
-      <TabItem value="before" label="Before">
-
-    ```tsx title="src/SomePage.tsx"
-    import { NavLink } from 'react-router-dom'
-
-    export function SomePage() {
-      return (
-        <NavLink
-          to="/new-route"
-          // highlight-start
-          isActive={(_match, location) => {
-            return location.pathname === '/new-route'
-          }}
-          // highlight-end
-          className={(isActive) =>
-            cn('text-blue-500', {
-              underline: isActive,
-            })
-          }
-        >
-          Go to new route
-        </NavLink>
-      )
-    }
-    ```
-
-      </TabItem>
-      <TabItem value="after" label="After">
-
-    ```tsx title="src/SomePage.tsx"
-    import { NavLink, useLocation } from 'react-router-dom'
-
-    export function SomePage() {
-      // highlight-next-line
-      const location = useLocation()
-      return (
-        <NavLink
-          to="/new-route"
-          className={() =>
-            cn('text-blue-500', {
-              // highlight-next-line
-              underline: location.pathname === '/new-route',
-            })
-          }
-        >
-          Go to new route
-        </NavLink>
-      )
-    }
-    ```
-
-      </TabItem>
-      </Tabs>
-
-    Check the [React Router 6 docs](https://reactrouter.com/en/main/components/nav-link#navlink) for more information on the `<NavLink />` component.
+   Check the [React Router 6 docs](https://reactrouter.com/en/main/components/nav-link#navlink) for more information on the `<NavLink />` component.
 
 ### 4. Update your root component
 
 The `client.rootComponent` now requires rendering `<Outlet />` instead the `children` prop.
 
 <Tabs>
-<TabItem value="before" label="Before">
+  <TabItem value="before" label="Before">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      client: {
+        rootComponent: import { App } from "@src/App.tsx",
+      }
+    }
+    ```
 
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  // ...
-  client: {
-    rootComponent: import { App } from "@src/App.tsx",
-  }
-}
-```
+    ```tsx title="src/App.tsx"
+    export function App({ children }: { children: React.ReactNode }) {
+      return (
+        <div>
+          <header>
+            <h1>My App</h1>
+          </header>
+          // highlight-next-line
+          {children}
+          <footer>
+            <p>My App footer</p>
+          </footer>
+        </div>
+      )
+    }
+    ```
+  </TabItem>
 
-```tsx title="src/App.tsx"
-export function App({ children }: { children: React.ReactNode }) {
-  return (
-    <div>
-      <header>
-        <h1>My App</h1>
-      </header>
-      // highlight-next-line
-      {children}
-      <footer>
-        <p>My App footer</p>
-      </footer>
-    </div>
-  )
-}
-```
+  <TabItem value="after" label="After">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      client: {
+        rootComponent: import { App } from "@src/App.tsx",
+      }
+    }
+    ```
 
-</TabItem>
-<TabItem value="after" label="After">
+    ```tsx title="src/App.tsx"
+    import { Outlet } from 'react-router-dom'
 
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  // ...
-  client: {
-    rootComponent: import { App } from "@src/App.tsx",
-  }
-}
-```
-
-```tsx title="src/App.tsx"
-import { Outlet } from 'react-router-dom'
-
-export function App() {
-  return (
-    <div>
-      <header>
-        <h1>My App</h1>
-      </header>
-      // highlight-next-line
-      <Outlet />
-      <footer>
-        <p>My App footer</p>
-      </footer>
-    </div>
-  )
-}
-```
-
-</TabItem>
+    export function App() {
+      return (
+        <div>
+          <header>
+            <h1>My App</h1>
+          </header>
+          // highlight-next-line
+          <Outlet />
+          <footer>
+            <p>My App footer</p>
+          </footer>
+        </div>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 That's it!

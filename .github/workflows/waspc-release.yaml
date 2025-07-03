@@ -1,0 +1,34 @@
+name: Build and upload Wasp CLI binaries to release
+
+on:
+  create:
+    tags:
+      - v*
+
+jobs:
+  ci:
+    uses: ./.github/workflows/waspc-ci.yaml
+
+  build:
+    uses: ./.github/workflows/waspc-build.yaml
+
+  create-release:
+    needs: [ci, build]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wasp-cli-*
+
+      - name: Create Github release
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          allowUpdates: true
+          artifacts: "./wasp-*"
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true

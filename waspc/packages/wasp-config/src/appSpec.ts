@@ -6,221 +6,224 @@
 
 export type Decl = {
   [Type in keyof DeclTypeToValue]: {
-    declType: Type
-    declName: string
-    declValue: DeclTypeToValue[Type]
-  }
-}[keyof DeclTypeToValue]
+    declType: Type;
+    declName: string;
+    declValue: DeclTypeToValue[Type];
+  };
+}[keyof DeclTypeToValue];
 
 export type DeclTypeToValue = {
-  App: App
-  Page: Page
-  Route: Route
-  Query: Query
-  Action: Action
-  Job: Job
-  Api: Api
-  ApiNamespace: ApiNamespace
-  Crud: Crud
-}
+  App: App;
+  Page: Page;
+  Route: Route;
+  Query: Query;
+  Action: Action;
+  Job: Job;
+  Api: Api;
+  ApiNamespace: ApiNamespace;
+  Crud: Crud;
+};
 
-export type GetDeclForType<T extends Decl['declType']> = Extract<
+export type GetDeclForType<T extends Decl["declType"]> = Extract<
   Decl,
   { declType: T }
->
+>;
 
 // NOTE: Entities are defined in the schema.prisma file, but they can still be
 // referenced.
-export type DeclType = Decl['declType'] | 'Entity'
+export type DeclType = Decl["declType"] | "Entity";
 
 export type Page = {
-  component: ExtImport
-  authRequired: Optional<boolean>
-}
+  component: ExtImport;
+  authRequired: Optional<boolean>;
+};
 
 export type Route = {
-  path: string
-  to: Ref<'Page'>
-}
+  path: string;
+  to: Ref<"Page">;
+};
 
 export type Action = {
-  fn: ExtImport
-  entities: Optional<Ref<'Entity'>[]>
-  auth: Optional<boolean>
-}
+  fn: ExtImport;
+  entities: Optional<Ref<"Entity">[]>;
+  auth: Optional<boolean>;
+};
 
 export type Query = {
-  fn: ExtImport
-  entities: Optional<Ref<'Entity'>[]>
-  auth: Optional<boolean>
-}
+  fn: ExtImport;
+  entities: Optional<Ref<"Entity">[]>;
+  auth: Optional<boolean>;
+};
 
 export type Job = {
-  executor: JobExecutor
-  perform: Perform
-  schedule: Optional<Schedule>
-  entities: Optional<Ref<'Entity'>[]>
-}
+  executor: JobExecutor;
+  perform: Perform;
+  schedule: Optional<Schedule>;
+  entities: Optional<Ref<"Entity">[]>;
+};
 export type Schedule = {
-  cron: string
-  args: Optional<object>
-  executorOptions: Optional<ExecutorOptions>
-}
+  cron: string;
+  args: Optional<object>;
+  executorOptions: Optional<ExecutorOptions>;
+};
 
 export type Perform = {
-  fn: ExtImport
-  executorOptions: Optional<ExecutorOptions>
-}
+  fn: ExtImport;
+  executorOptions: Optional<ExecutorOptions>;
+};
 
 export type Api = {
-  fn: ExtImport
-  middlewareConfigFn: Optional<ExtImport>
-  entities: Optional<Ref<'Entity'>[]>
-  httpRoute: HttpRoute
-  auth: Optional<boolean>
-}
+  fn: ExtImport;
+  middlewareConfigFn: Optional<ExtImport>;
+  entities: Optional<Ref<"Entity">[]>;
+  httpRoute: HttpRoute;
+  auth: Optional<boolean>;
+};
 
 export type ApiNamespace = {
-  middlewareConfigFn: ExtImport
-  path: string
-}
+  middlewareConfigFn: ExtImport;
+  path: string;
+};
 
 export type Crud = {
-  entity: Ref<'Entity'>
-  operations: CrudOperations
-}
+  entity: Ref<"Entity">;
+  operations: CrudOperations;
+};
 
 export type App = {
-  wasp: Wasp
-  title: string
-  head: Optional<string[]>
-  auth: Optional<Auth>
-  server: Optional<Server>
-  client: Optional<Client>
-  db: Optional<Db>
-  emailSender: Optional<EmailSender>
-  webSocket: Optional<WebSocket>
-}
+  wasp: Wasp;
+  title: string;
+  head: Optional<string[]>;
+  auth: Optional<Auth>;
+  server: Optional<Server>;
+  client: Optional<Client>;
+  db: Optional<Db>;
+  emailSender: Optional<EmailSender>;
+  webSocket: Optional<WebSocket>;
+};
 
+export type ExtImportKind = "named" | "default";
 export type ExtImport = {
-  kind: 'named' | 'default'
-  name: string
-  path: `@src/${string}`
-}
+  kind: ExtImportKind;
+  name: string;
+  path: `@src/${string}`;
+};
 
-export type JobExecutor = 'PgBoss'
+export type JobExecutor = "PgBoss";
 
 export type ExecutorOptions = {
-  pgBoss: Optional<object>
-}
+  pgBoss: Optional<object>;
+};
 
-export type HttpMethod = 'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE'
+export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
 
-export type HttpRoute = [HttpMethod, string]
+export type HttpRoute = [HttpMethod, string];
 
 export type CrudOperations = {
-  get: Optional<CrudOperationOptions>
-  getAll: Optional<CrudOperationOptions>
-  create: Optional<CrudOperationOptions>
-  update: Optional<CrudOperationOptions>
-  delete: Optional<CrudOperationOptions>
-}
+  get: Optional<CrudOperationOptions>;
+  getAll: Optional<CrudOperationOptions>;
+  create: Optional<CrudOperationOptions>;
+  update: Optional<CrudOperationOptions>;
+  delete: Optional<CrudOperationOptions>;
+};
 
 export type CrudOperationOptions = {
-  isPublic: Optional<boolean>
-  overrideFn: Optional<ExtImport>
-}
+  isPublic: Optional<boolean>;
+  overrideFn: Optional<ExtImport>;
+};
 
 export type Wasp = {
-  version: string
-}
+  version: string;
+};
 
 export type Auth = {
-  userEntity: Ref<'Entity'>
-  externalAuthEntity: Optional<Ref<'Entity'>>
-  methods: AuthMethods
-  onAuthFailedRedirectTo: string
-  onAuthSucceededRedirectTo: Optional<string>
-  onBeforeSignup: Optional<ExtImport>
-  onAfterSignup: Optional<ExtImport>
-  onBeforeOAuthRedirect: Optional<ExtImport>
-  onBeforeLogin: Optional<ExtImport>
-  onAfterLogin: Optional<ExtImport>
-}
+  userEntity: Ref<"Entity">;
+  externalAuthEntity: Optional<Ref<"Entity">>;
+  methods: AuthMethods;
+  onAuthFailedRedirectTo: string;
+  onAuthSucceededRedirectTo: Optional<string>;
+  onBeforeSignup: Optional<ExtImport>;
+  onAfterSignup: Optional<ExtImport>;
+  onAfterEmailVerified: Optional<ExtImport>;
+  onBeforeOAuthRedirect: Optional<ExtImport>;
+  onBeforeLogin: Optional<ExtImport>;
+  onAfterLogin: Optional<ExtImport>;
+};
 
 export type AuthMethods = {
-  usernameAndPassword: Optional<UsernameAndPasswordConfig>
-  discord: Optional<ExternalAuthConfig>
-  google: Optional<ExternalAuthConfig>
-  gitHub: Optional<ExternalAuthConfig>
-  keycloak: Optional<ExternalAuthConfig>
-  email: Optional<EmailAuthConfig>
-}
+  usernameAndPassword: Optional<UsernameAndPasswordConfig>;
+  discord: Optional<ExternalAuthConfig>;
+  google: Optional<ExternalAuthConfig>;
+  gitHub: Optional<ExternalAuthConfig>;
+  keycloak: Optional<ExternalAuthConfig>;
+  email: Optional<EmailAuthConfig>;
+};
 
 export type UsernameAndPasswordConfig = {
-  userSignupFields: Optional<ExtImport>
-}
+  userSignupFields: Optional<ExtImport>;
+};
 
 export type ExternalAuthConfig = {
-  configFn: Optional<ExtImport>
-  userSignupFields: Optional<ExtImport>
-}
+  configFn: Optional<ExtImport>;
+  userSignupFields: Optional<ExtImport>;
+};
 
 export type EmailAuthConfig = {
-  userSignupFields: Optional<ExtImport>
-  fromField: EmailFromField
-  emailVerification: EmailVerificationConfig
-  passwordReset: PasswordResetConfig
-}
+  userSignupFields: Optional<ExtImport>;
+  fromField: EmailFromField;
+  emailVerification: EmailVerificationConfig;
+  passwordReset: PasswordResetConfig;
+};
 
 export type EmailSender = {
-  provider: EmailProvider
-  defaultFrom: Optional<EmailFromField>
-}
+  provider: EmailProvider;
+  defaultFrom: Optional<EmailFromField>;
+};
 
-export type EmailProvider = 'SMTP' | 'SendGrid' | 'Mailgun' | 'Dummy'
+export type EmailProvider = "SMTP" | "SendGrid" | "Mailgun" | "Dummy";
 
 export type EmailFromField = {
-  name: Optional<string>
-  email: string
-}
+  name: Optional<string>;
+  email: string;
+};
 
 export type EmailVerificationConfig = {
-  getEmailContentFn: Optional<ExtImport>
-  clientRoute: Ref<'Route'>
-}
+  getEmailContentFn: Optional<ExtImport>;
+  clientRoute: Ref<"Route">;
+};
 
 export type PasswordResetConfig = {
-  getEmailContentFn: Optional<ExtImport>
-  clientRoute: Ref<'Route'>
-}
+  getEmailContentFn: Optional<ExtImport>;
+  clientRoute: Ref<"Route">;
+};
 
 export type Ref<T extends DeclType> = {
-  name: string
-  declType: T
-}
+  name: string;
+  declType: T;
+};
 
 export type Server = {
-  setupFn: Optional<ExtImport>
-  middlewareConfigFn: Optional<ExtImport>
-  envValidationSchema: Optional<ExtImport>
-}
+  setupFn: Optional<ExtImport>;
+  middlewareConfigFn: Optional<ExtImport>;
+  envValidationSchema: Optional<ExtImport>;
+};
 
 export type Client = {
-  setupFn: Optional<ExtImport>
-  rootComponent: Optional<ExtImport>
-  baseDir: Optional<`/${string}`>
-  envValidationSchema: Optional<ExtImport>
-}
+  setupFn: Optional<ExtImport>;
+  rootComponent: Optional<ExtImport>;
+  baseDir: Optional<`/${string}`>;
+  envValidationSchema: Optional<ExtImport>;
+};
 
 export type Db = {
-  seeds: Optional<ExtImport[]>
-}
+  seeds: Optional<ExtImport[]>;
+  prismaSetupFn: Optional<ExtImport>;
+};
 
 export type WebSocket = {
-  fn: ExtImport
-  autoConnect: Optional<boolean>
-}
+  fn: ExtImport;
+  autoConnect: Optional<boolean>;
+};
 
 /**
  * We use this type for fields that are optional (Maybe) in AppSpec.
@@ -256,4 +259,4 @@ export type WebSocket = {
  * Explicitly setting optional fields to `undefined` doesn't impact JSON
  * serialization since fields set to `undefined` are treated as missing fields.
  */
-type Optional<T> = T | undefined
+type Optional<T> = T | undefined;

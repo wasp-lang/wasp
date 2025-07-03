@@ -10,11 +10,10 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-<img alt="How Todo App will work once it is done"
-src={useBaseUrl('img/todo-app-tutorial-intro.gif')}
-style={{ border: "1px solid black" }}
-/>
+<img alt="How Todo App will work once it is done" src={useBaseUrl('img/todo-app-tutorial-intro.gif')} style={{ border: "1px solid black" }} />
+
 <br />
+
 <br />
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
@@ -42,12 +41,10 @@ $ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder page:
 
-<img alt="Screenshot of new Wasp app"
-src={useBaseUrl('img/wasp-new-screenshot.png')}
-height="400px"
-style={{ border: "1px solid black" }}
-/>
+<img alt="Screenshot of new Wasp app" src={useBaseUrl('img/wasp-new-screenshot.png')} height="400px" style={{ border: "1px solid black" }} />
+
 <br />
+
 <br />
 
 Wasp has generated for you the full front-end and back-end code the app! Next, we'll take a closer look at how the project is structured.

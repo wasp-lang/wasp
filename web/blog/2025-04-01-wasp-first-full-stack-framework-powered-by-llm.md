@@ -22,21 +22,13 @@ For those of you who are new here, we have been building a **full-stack, batteri
 
 Still, with the recent developments in the LLM-powered code generation, we realised our current approach simply isn’t feasible anymore. We decided that instead of implementing and maintaning our own compiler, we can simply outsource that to an LLM.
 
-<ImgWithCaption
-    alt="Wasp AI-first diagram"
-    source="img/wasp-llm/wasp-ai-first-diagram.png"
-    caption="Let's get these vibes a'goin'."
-/>
+<ImgWithCaption alt="Wasp AI-first diagram" source="img/wasp-llm/wasp-ai-first-diagram.png" caption="Let's get these vibes a'goin'." />
 
 Here's why it makes much more sense and completely changes the game:
 
 ## Nobody looks at the generated code anymore
 
-<ImgWithCaption
-    alt="jQuery code example"
-    source="img/wasp-llm/jquery-code-example.png"
-    caption="Let's face it - this is what it's gonna be."
-/>
+<ImgWithCaption alt="jQuery code example" source="img/wasp-llm/jquery-code-example.png" caption="Let's face it - this is what it's gonna be." />
 
 Gone are the days when we as developers argue about which is the best UI or state management library. No more asking our colleagues or on Reddit "what is everyone using nowadays," just to figure out there's a cool new thing you now have to learn.
 
@@ -55,11 +47,7 @@ There are two obvious benefits to this:
 
 ## Prompts are the new code, but with less hassle
 
-<ImgWithCaption
-    alt="prompts > coe"
-    source="img/wasp-llm/give-me-auth.png"
-    caption="Code is so 2024. Embrace the prompt."
-/>
+<ImgWithCaption alt="prompts > coe" source="img/wasp-llm/give-me-auth.png" caption="Code is so 2024. Embrace the prompt." />
 
 With these fundamental changes, Wasp will move from the classical notion of the framework to **the novel AI-first, prompt-based system for building full-stack experiences**. Wasp will preserve a certain degree of backward compatibility with the previous versions and let developers define their own components, and even the backend logic, but we recommend everyone to start transitioning towards the new paradigm.
 

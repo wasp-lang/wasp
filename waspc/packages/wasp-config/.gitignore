@@ -1,4 +1,6 @@
 node_modules/
+coverage/
 dist/
 .env
 .vscode/
+tsconfig.vitest-temp.json

@@ -12,7 +12,7 @@ import { HttpError } from 'wasp/server';
 export async function resetPassword(
     req: Request<{ token: string; password: string; }>,
     res: Response,
-): Promise<Response<{ success: true }>> {
+): Promise<void> {
     const args = req.body ?? {};
     ensureValidArgs(args);
 
@@ -27,7 +27,7 @@ export async function resetPassword(
     if (!authIdentity) {
         throw new HttpError(400, "Password reset failed, invalid token");
     }
-    
+
     const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
 
     await updateAuthIdentityProviderData(providerId, providerData, {
@@ -38,7 +38,7 @@ export async function resetPassword(
         hashedPassword: password,
     });
 
-    return res.json({ success: true });
+    res.json({ success: true });
 };
 
 function ensureValidArgs(args: object): void {

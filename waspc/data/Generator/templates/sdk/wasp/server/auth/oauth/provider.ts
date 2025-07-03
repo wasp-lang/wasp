@@ -1,13 +1,14 @@
 import { OAuth2Provider, OAuth2ProviderWithPKCE } from "arctic";
 
 export function defineProvider<
-  OAuthClient extends OAuth2Provider | OAuth2ProviderWithPKCE
+  OAuthClient extends OAuth2Provider | OAuth2ProviderWithPKCE,
+  const Id extends string
 >({
   id,
   displayName,
   oAuthClient,
 }: {
-  id: string;
+  id: Id;
   displayName: string;
   oAuthClient: OAuthClient;
 }) {

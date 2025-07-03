@@ -26,15 +26,14 @@ Feel free to [open a
 PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/advanced/deployment/manually.md)
 if you'd like to write one yourself :)
 
-
 ## Deploying a Wasp App
 
 Deploying a Wasp app comes down to the following:
 
 1. Generating deployable code.
-1. Deploying the API server (backend).
-1. Deploying the web client (frontend).
-1. Deploying a PostgreSQL database and keeping it running.
+2. Deploying the API server (backend).
+3. Deploying the web client (frontend).
+4. Deploying a PostgreSQL database and keeping it running.
 
 Let's go through each of these steps.
 
@@ -84,7 +83,6 @@ Here are the environment variables your server will be looking for:
 - `PORT`
 
   The server's HTTP port number. This is where the server listens for requests (default: `3001`).
-
 
 <AddExternalAuthEnvVarsReminder />
 
@@ -168,14 +166,18 @@ If your attempts to initiate a new app fail for whatever reason, then you should
   <summary>
     What does it look like when your DB is deployed correctly?
   </summary>
+
   <div>
     <p>When your DB is deployed correctly, you'll see it in the <a href="https://fly.io/dashboard">Fly.io dashboard</a>:</p>
+
     <img width="662" alt="image" src="/img/deploying/fly-db.png" />
   </div>
 </details>
+
 :::
-  
+
 Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
+
 ```shell
 cp fly.toml ../../
 ```
@@ -207,7 +209,7 @@ flyctl deploy --remote-only --config ../../fly.toml
 
 This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
-Now, if you haven't, you can deploy your client and add the client URL by running `flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](#netlify) for your client, but you can use any static hosting provider.
+Now, if you haven't, you can deploy your client and add the client URL by running `flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](#netlify-client) for your client, but you can use any static hosting provider.
 
 Additionally, some useful `flyctl` commands:
 
@@ -225,11 +227,11 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 1. Copy the `fly.toml` file to a versioned directory, like your Wasp project dir.
 
-  From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
+From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
 
 1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after.
 
-  When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
+When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
@@ -252,9 +254,7 @@ netlify deploy
 ```
 
 <small>
-
-Carefully follow the instructions i.e. do you want to create a new app or use an existing one, the team under which your app will reside etc.
-
+  Carefully follow the instructions i.e. do you want to create a new app or use an existing one, the team under which your app will reside etc.
 </small>
 
 The final step is to run:
@@ -282,9 +282,9 @@ To get started, follow these steps:
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
 2. Create a [Railway](https://railway.app/) account
 
-  :::tip Free Tier
-  Sign up with your GitHub account to be eligible for the free tier
-  :::
+:::tip Free Tier
+Sign up with your GitHub account to be eligible for the free tier
+:::
 
 3. Install the [Railway CLI](https://docs.railway.app/develop/cli#installation)
 4. Run `railway login` and a browser tab will open to authenticate you.
@@ -317,15 +317,15 @@ Let's deploy our server first:
 
 1. Move into your app's `.wasp/build/` directory:
 
-  ```shell
-  cd .wasp/build
-  ```
+```shell
+cd .wasp/build
+```
 
 2. Link your app build to your newly created Railway project:
 
-  ```shell
-  railway link
-  ```
+```shell
+railway link
+```
 
 3. Go into the Railway dashboard and set up the required env variables:
 
@@ -352,21 +352,21 @@ Railway will now locate the Dockerfile and deploy your server 👍
 
 1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
 
-  ```shell
-  cd web-app
-  ```
+```shell
+cd web-app
+```
 
 2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
 
-  ```shell
-  npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-  ```
+```shell
+npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+```
 
 3. Next, we want to link this specific frontend directory to our project as well:
 
-  ```shell
-  railway link
-  ```
+```shell
+railway link
+```
 
 4. We need to configure Railway's static hosting for our client.
 
@@ -396,59 +396,59 @@ Railway will now locate the Dockerfile and deploy your server 👍
    You'll need to repeat these steps **each time** you run `wasp build` as it will remove the `.wasp/build/web-app` directory.
 
    <details>
-   <summary>
-   Here's a useful shell script to do the process
-   </summary>
+     <summary>
+       Here's a useful shell script to do the process
+     </summary>
 
-   If you want to automate the process, save the following as `deploy_client.sh` in the root of your project:
+     If you want to automate the process, save the following as `deploy_client.sh` in the root of your project:
 
-   ```bash title="deploy_client.sh"
-   #!/usr/bin/env bash
+     ```bash title="deploy_client.sh"
+     #!/usr/bin/env bash
 
-   if [ -z "$REACT_APP_API_URL" ]
-   then
-     echo "REACT_APP_API_URL is not set"
-     exit 1
-   fi
+     if [ -z "$REACT_APP_API_URL" ]
+     then
+       echo "REACT_APP_API_URL is not set"
+       exit 1
+     fi
 
-   wasp build
-   cd .wasp/build/web-app
+     wasp build
+     cd .wasp/build/web-app
 
-   npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
+     npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
 
-   cp -r build dist
+     cp -r build dist
 
-   dockerfile_contents=$(cat <<EOF
-   FROM pierrezemb/gostatic
-   CMD [ "-fallback", "index.html" ]
-   COPY ./dist/ /srv/http/
-   EOF
-   )
+     dockerfile_contents=$(cat <<EOF
+     FROM pierrezemb/gostatic
+     CMD [ "-fallback", "index.html" ]
+     COPY ./dist/ /srv/http/
+     EOF
+     )
 
-   dockerignore_contents=$(cat <<EOF
-   node_modules/
-   EOF
-   )
+     dockerignore_contents=$(cat <<EOF
+     node_modules/
+     EOF
+     )
 
-   echo "$dockerfile_contents" > Dockerfile
-   echo "$dockerignore_contents" > .dockerignore
+     echo "$dockerfile_contents" > Dockerfile
+     echo "$dockerignore_contents" > .dockerignore
 
-   railway up
-   ```
+     railway up
+     ```
 
-   Make it executable with:
+     Make it executable with:
 
-   ```shell
-   chmod +x deploy_client.sh
-   ```
+     ```shell
+     chmod +x deploy_client.sh
+     ```
 
-   You can run it with:
+     You can run it with:
 
-   ```shell
-   REACT_APP_API_URL=<url_to_wasp_backend> ./deploy_client.sh
-   ```
-
+     ```shell
+     REACT_APP_API_URL=<url_to_wasp_backend> ./deploy_client.sh
+     ```
    </details>
+
    :::
 
 5. Set the `PORT` environment variable to `8043` under the `Variables` tab.
@@ -480,7 +480,7 @@ We will show how to deploy the server and provision a database for it on Heroku.
 :::note
 Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
 
-As such, we recommend using an alternative provider like [Fly.io](#flyio) for your first apps.
+As such, we recommend using an alternative provider like [Fly.io](#flyio-server-and-database) for your first apps.
 :::
 
 You will need Heroku account, `heroku` [CLI](https://devcenter.heroku.com/articles/heroku-cli) and `docker` CLI installed to follow these instructions.

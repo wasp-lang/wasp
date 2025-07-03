@@ -1,1 +1,0 @@
-export { buildAndRegisterQuery } from './core';

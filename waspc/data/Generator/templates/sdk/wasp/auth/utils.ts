@@ -41,6 +41,7 @@ export type PossibleProviderData = {
   email: EmailProviderData;
   username: UsernameProviderData;
   discord: OAuthProviderData;
+  slack: OAuthProviderData;
   google: OAuthProviderData;
   keycloak: OAuthProviderData;
   github: OAuthProviderData;
@@ -95,6 +96,7 @@ export function normalizeProviderUserId(providerName: ProviderName, providerUser
     case 'github':
     case 'discord':
     case 'keycloak':
+    case 'slack':
       return providerUserId;
     /*
       Why the default case?

@@ -1,7 +1,7 @@
 {{={= =}=}}
 import express from 'express'
 import { prisma } from 'wasp/server'
-import { handleRejection } from 'wasp/server/utils'
+import { defineHandler } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from 'wasp/core/auth'
@@ -43,7 +43,7 @@ router.{= routeMethod =}(
   {=^ usesAuth =}
   {= apiName =}Middleware,
   {=/ usesAuth =}
-  handleRejection(
+  defineHandler(
     (
       req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: AuthUserData | null }{=/ usesAuth =},
       res: Parameters<typeof {= importIdentifier =}>[1],

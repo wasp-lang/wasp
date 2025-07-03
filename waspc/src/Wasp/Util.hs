@@ -80,9 +80,9 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
 kebabToCamelCase :: String -> String
 kebabToCamelCase = concat . capitalizeAllWordsExceptForTheFirstOne . wordsBy (== '-')
   where
-    capitalizeAllWordsExceptForTheFirstOne :: [String] -> [String]
-    capitalizeAllWordsExceptForTheFirstOne [] = []
-    capitalizeAllWordsExceptForTheFirstOne (firstWord : otherWords) = firstWord : map toUpperFirst otherWords
+    capitalizeAllWordsExceptForTheFirstOne = \case
+      [] -> []
+      (firstWord : otherWords) -> firstWord : map toUpperFirst otherWords
 
 -- | Applies given function to the first element of the list.
 --   If list is empty, returns empty list.

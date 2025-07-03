@@ -1,7 +1,7 @@
 // Converted from the TextMate definition at https://github.com/wasp-lang/vscode-wasp/blob/main/syntaxes/wasp.tmLanguage.yaml
 module.exports = (Prism) => {
   Prism.languages.wasp = {
-    'prisma-closure': {
+    "prisma-closure": {
       pattern: /{=psl[\s\S]*?psl=}/,
       inside: {
         prisma: {
@@ -14,7 +14,7 @@ module.exports = (Prism) => {
       pattern: /\/\/.*|\/\*[\s\S]*?\*\//,
       greedy: true,
     },
-    'json-closure': {
+    "json-closure": {
       pattern: /{=json[\s\S]*?json=}/,
       inside: {
         punctuation: /[{}[\],]/,
@@ -33,11 +33,11 @@ module.exports = (Prism) => {
         boolean: /\b(?:false|true)\b/,
         null: {
           pattern: /\bnull\b/,
-          alias: 'keyword',
+          alias: "keyword",
         },
       },
     },
-    'js-import': {
+    "js-import": {
       pattern: /import.*",?/,
       inside: Prism.languages.javascript,
     },
@@ -50,24 +50,24 @@ module.exports = (Prism) => {
     enum: {
       pattern:
         /\b(EmailAndPassword|PostgreSQL|SQLite|Simple|PgBoss|SMTP|SendGrid|Mailgun)\b/,
-      alias: 'constant',
+      alias: "constant",
     },
-    'dict-key': {
+    "dict-key": {
       pattern: /[a-zA-Z]+(?=:)/,
-      alias: 'plain',
+      alias: "plain",
     },
-    'declaration-type': {
+    "declaration-type": {
       pattern:
         /\b(action|apiNamespace|api|app|entity|job|page|query|route|crud)\b/,
-      alias: 'keyword',
+      alias: "keyword",
     },
-    'class-name': {
+    "class-name": {
       pattern: /[a-zA-Z][0-9a-zA-Z]*/,
-      alias: 'variable',
+      alias: "variable",
     },
-    'http-method': {
+    "http-method": {
       pattern: /\b(ALL|GET|POST|PUT|DELETE)\b/,
-      alias: 'constant',
+      alias: "constant",
     },
     array: {
       pattern: /\[[\s\S]*?\]/,
@@ -75,10 +75,10 @@ module.exports = (Prism) => {
         punctuation: /[{}[\],]/,
         value: {
           pattern: /[^,\s\]]+/,
-          alias: 'variable',
+          alias: "variable",
         },
       },
     },
     punctuation: /[{}[\],]/,
-  }
-}
+  };
+};

@@ -19,8 +19,6 @@ import './jobs/core/allJobs.js'
 import { init as initWebSocket } from './webSocket/initialization.js'
 {=/ userWebSocketFn.isDefined =}
 
-import './polyfill.js'
-
 const startServer = async () => {
   {=# isPgBossJobExecutorUsed =}
   await startPgBoss()

@@ -1,7 +1,7 @@
-import toml from 'toml';
-import fs from 'fs';
-import path from 'node:path';
-import { CommonOptions } from '../CommonOptions.js';
+import fs from "fs";
+import path from "node:path";
+import toml from "toml";
+import { CommonOptions } from "../CommonOptions.js";
 
 export interface TomlFilePaths {
   serverTomlPath: string;
@@ -11,8 +11,8 @@ export interface TomlFilePaths {
 export function getTomlFilePaths(options: CommonOptions): TomlFilePaths {
   const baseDir = options.flyTomlDir || options.waspProjectDir;
   return {
-    serverTomlPath: path.join(baseDir, 'fly-server.toml'),
-    clientTomlPath: path.join(baseDir, 'fly-client.toml'),
+    serverTomlPath: path.join(baseDir, "fly-server.toml"),
+    clientTomlPath: path.join(baseDir, "fly-client.toml"),
   };
 }
 
@@ -21,11 +21,11 @@ export function serverTomlExistsInProject(paths: TomlFilePaths): boolean {
 }
 
 export function copyLocalServerTomlToProject(paths: TomlFilePaths): void {
-  fs.copyFileSync('fly.toml', paths.serverTomlPath);
+  fs.copyFileSync("fly.toml", paths.serverTomlPath);
 }
 
 export function copyProjectServerTomlLocally(paths: TomlFilePaths): void {
-  fs.copyFileSync(paths.serverTomlPath, 'fly.toml');
+  fs.copyFileSync(paths.serverTomlPath, "fly.toml");
 }
 
 export function clientTomlExistsInProject(paths: TomlFilePaths): boolean {
@@ -33,46 +33,55 @@ export function clientTomlExistsInProject(paths: TomlFilePaths): boolean {
 }
 
 export function copyLocalClientTomlToProject(paths: TomlFilePaths): void {
-  fs.copyFileSync('fly.toml', paths.clientTomlPath);
+  fs.copyFileSync("fly.toml", paths.clientTomlPath);
 }
 
 export function copyProjectClientTomlLocally(paths: TomlFilePaths): void {
-  fs.copyFileSync(paths.clientTomlPath, 'fly.toml');
+  fs.copyFileSync(paths.clientTomlPath, "fly.toml");
 }
 
 export function localTomlExists(): boolean {
-  return fs.existsSync('fly.toml');
+  return fs.existsSync("fly.toml");
 }
 
 export function deleteLocalToml(): void {
   if (localTomlExists()) {
-    fs.unlinkSync('fly.toml');
+    fs.unlinkSync("fly.toml");
   }
 }
 
 export function getAppNameFromToml(path: string): string {
-  const content = fs.readFileSync(path, 'utf8');
+  const content = fs.readFileSync(path, "utf8");
   const data = toml.parse(content);
   return data.app;
 }
 
-export function getInferredBasenameFromServerToml(paths: TomlFilePaths): string {
+export function getInferredBasenameFromServerToml(
+  paths: TomlFilePaths,
+): string {
   const serverName = getAppNameFromToml(paths.serverTomlPath);
-  return serverName.replace('-server', '');
+  return serverName.replace("-server", "");
 }
 
-export function getInferredBasenameFromClientToml(paths: TomlFilePaths): string {
+export function getInferredBasenameFromClientToml(
+  paths: TomlFilePaths,
+): string {
   const clientName = getAppNameFromToml(paths.clientTomlPath);
-  return clientName.replace('-client', '');
+  return clientName.replace("-client", "");
 }
 
-export function replaceLineInLocalToml(searchValue: string | RegExp, replaceValue: string): void {
-  const content = fs.readFileSync('fly.toml', 'utf8');
+export function replaceLineInLocalToml(
+  searchValue: string | RegExp,
+  replaceValue: string,
+): void {
+  const content = fs.readFileSync("fly.toml", "utf8");
   const updatedContent = content.replace(searchValue, replaceValue);
-  fs.writeFileSync('fly.toml', updatedContent);
+  fs.writeFileSync("fly.toml", updatedContent);
 }
 
-export function doesLocalTomlContainLine(searchValue: string | RegExp): boolean {
-  const content = fs.readFileSync('fly.toml', 'utf8');
+export function doesLocalTomlContainLine(
+  searchValue: string | RegExp,
+): boolean {
+  const content = fs.readFileSync("fly.toml", "utf8");
   return content.search(searchValue) !== -1;
 }

@@ -10,15 +10,14 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
@@ -39,7 +38,7 @@ genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSo
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "userWebSocketFn" .= GJI.jsImportToImportJson (extImportToJsImport <$> mayebWebSocketFn),
+          "userWebSocketFn" .= extImportToImportJson mayebWebSocketFn,
           "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
         ]
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
@@ -52,7 +51,7 @@ genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocke
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
 
-depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec =
   if AS.WS.areWebSocketsUsed spec
     then AS.WS.sdkDepsRequiredForWebSockets

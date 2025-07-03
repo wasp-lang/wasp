@@ -1,29 +1,19 @@
 import { googleSignInUrl } from "wasp/client/auth";
 
-import googleLogo from './google-logo.svg'
+import googleLogo from "./google-logo.svg";
 
 const GoogleAuthButton = () => (
-  <div className='w-full mt-3 text-center'>
+  <div className="mt-3 w-full text-center">
     <a
       href={googleSignInUrl}
-      className={`
-        flex items-center
-        block w-full border border-neutral-200
-        h-10
-        text-sm font-bold
-        rounded-sm shadow-md
-        transition ease-out duration-200
-        hover:bg-neutral-100
-      `}
+      className={`block flex h-10 w-full items-center rounded-sm border border-neutral-200 text-sm font-bold shadow-md transition duration-200 ease-out hover:bg-neutral-100`}
     >
-      <img src={googleLogo}
-        className={`h-5 pl-2`}
-      />
-      <div className='w-full flex justify-center items-center pr-2'>
+      <img src={googleLogo} className={`h-5 pl-2`} />
+      <div className="flex w-full items-center justify-center pr-2">
         Continue with Google
       </div>
     </a>
   </div>
-)
+);
 
-export default GoogleAuthButton
+export default GoogleAuthButton;

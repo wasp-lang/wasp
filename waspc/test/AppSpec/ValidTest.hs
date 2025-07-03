@@ -31,7 +31,8 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import qualified Wasp.ExternalConfig.PackageJson as EC.PackageJson
+import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
+import qualified Wasp.ExternalConfig.TsConfig as T
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -44,7 +45,7 @@ spec_AppSpecValid = do
   describe "validateAppSpec" $ do
     describe "should validate that AppSpec has exactly 1 'app' declaration." $ do
       it "returns no error if there is exactly 1 'app' declaration." $ do
-        ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl]}) `shouldBe` []
+        ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
       it "returns an error if there is no 'app' declaration." $ do
         ASV.validateAppSpec (basicAppSpec {AS.decls = []})
           `shouldBe` [ Valid.GenericValidationError
@@ -71,12 +72,13 @@ spec_AppSpecValid = do
         let basicAppSpecWithVersionRange versionRange =
               basicAppSpec
                 { AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $ basicAppWithVersionRange versionRange
+                    [ AS.Decl.makeDecl "TestApp" $ basicAppWithVersionRange versionRange,
+                      basicRouteDecl
                     ]
                 }
 
         it "returns no error if waspVersion is compatible" $ do
-          ASV.validateAppSpec basicAppSpec `shouldBe` []
+          ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
 
         it "returns an error if 'waspVersion' has an incorrect format" $ do
           ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
@@ -116,6 +118,7 @@ spec_AppSpecValid = do
                   AS.Auth.AuthMethods
                     { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
                       AS.Auth.discord = Nothing,
+                      AS.Auth.slack = Nothing,
                       AS.Auth.google = Nothing,
                       AS.Auth.gitHub = Nothing,
                       AS.Auth.keycloak = Nothing,
@@ -125,6 +128,7 @@ spec_AppSpecValid = do
                 AS.Auth.onAuthSucceededRedirectTo = Nothing,
                 AS.Auth.onBeforeSignup = Nothing,
                 AS.Auth.onAfterSignup = Nothing,
+                AS.Auth.onAfterEmailVerified = Nothing,
                 AS.Auth.onBeforeOAuthRedirect = Nothing,
                 AS.Auth.onBeforeLogin = Nothing,
                 AS.Auth.onAfterLogin = Nothing
@@ -138,7 +142,8 @@ spec_AppSpecValid = do
                         basicApp {AS.App.auth = appAuth},
                       AS.Decl.makeDecl "TestPage" $
                         basicPage {AS.Page.authRequired = pageAuthRequired},
-                      AS.Decl.makeDecl userEntityName validUserEntity
+                      AS.Decl.makeDecl userEntityName validUserEntity,
+                      basicRouteDecl
                     ]
                 }
 
@@ -173,6 +178,7 @@ spec_AppSpecValid = do
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
                                     AS.Auth.onAfterSignup = Nothing,
+                                    AS.Auth.onAfterEmailVerified = Nothing,
                                     AS.Auth.onBeforeOAuthRedirect = Nothing,
                                     AS.Auth.onBeforeLogin = Nothing,
                                     AS.Auth.onAfterLogin = Nothing
@@ -210,7 +216,7 @@ spec_AppSpecValid = do
                 }
 
         it "returns no error if app.auth is not set" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
 
         it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
           ASV.validateAppSpec
@@ -222,6 +228,7 @@ spec_AppSpecValid = do
                             { AS.Auth.userSignupFields = Nothing
                             },
                       discord = Nothing,
+                      slack = Nothing,
                       google = Nothing,
                       keycloak = Nothing,
                       gitHub = Nothing,
@@ -231,7 +238,7 @@ spec_AppSpecValid = do
                 validUserEntity
             )
             `shouldBe` []
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
 
         it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
           ASV.validateAppSpec
@@ -242,6 +249,7 @@ spec_AppSpecValid = do
                           AS.Auth.UsernameAndPasswordConfig
                             { AS.Auth.userSignupFields = Nothing
                             },
+                      slack = Nothing,
                       discord = Nothing,
                       google = Nothing,
                       keycloak = Nothing,
@@ -259,7 +267,8 @@ spec_AppSpecValid = do
                 { AS.decls =
                     [ AS.Decl.makeDecl "TestApp" $
                         basicApp {AS.App.auth = appAuth},
-                      AS.Decl.makeDecl userEntityName (userEntity :: AS.Entity.Entity)
+                      AS.Decl.makeDecl userEntityName (userEntity :: AS.Entity.Entity),
+                      basicRouteDecl
                     ]
                 }
         let invalidUserEntityWithoutIdField =
@@ -332,13 +341,14 @@ spec_AppSpecValid = do
                               Just
                                 AS.Auth.Auth
                                   { AS.Auth.methods =
-                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing},
+                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing},
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
                                     AS.Auth.onAfterSignup = Nothing,
+                                    AS.Auth.onAfterEmailVerified = Nothing,
                                     AS.Auth.onBeforeOAuthRedirect = Nothing,
                                     AS.Auth.onBeforeLogin = Nothing,
                                     AS.Auth.onAfterLogin = Nothing
@@ -412,7 +422,7 @@ spec_AppSpecValid = do
       let testDuplicateDecls decls declTypeName expectedErrorMessage = it ("returns an error if there are duplicate " ++ declTypeName ++ " declarations") $ do
             ASV.validateAppSpec
               ( basicAppSpec
-                  { AS.decls = decls,
+                  { AS.decls = decls ++ [basicRouteDecl],
                     AS.prismaSchema = getPrismaSchemaWithConfig ""
                   }
               )
@@ -427,6 +437,15 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, crudDecl, crudDecl, entityDecl] "crud" "There are duplicate crud declarations with name 'testCrud'."
       testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
+
+    describe "should validate that there's at least one 'route' declaration" $ do
+      it "returns no error if there is at least one 'route' declaration" $ do
+        ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
+      it "returns an error if there are no 'route' declarations" $ do
+        ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl]})
+          `shouldBe` [ Valid.GenericValidationError
+                         "You must have at least one route in your app. You can add it using the 'route' declaration."
+                     ]
   where
     makeIdField name typ =
       Psl.Model.Field
@@ -458,7 +477,8 @@ spec_AppSpecValid = do
           AS.App.db =
             Just $
               AS.Db.Db
-                { AS.Db.seeds = Nothing
+                { AS.Db.seeds = Nothing,
+                  AS.Db.prismaSetupFn = Nothing
                 },
           AS.App.server = Nothing,
           AS.App.client = Nothing,
@@ -478,20 +498,40 @@ spec_AppSpecValid = do
           AS.externalCodeFiles = [],
           AS.externalPublicFiles = [],
           AS.packageJson =
-            EC.PackageJson.PackageJson
-              { EC.PackageJson.name = "testApp",
-                EC.PackageJson.dependencies = M.empty,
-                EC.PackageJson.devDependencies = M.empty
+            Npm.PackageJson.PackageJson
+              { Npm.PackageJson.name = "testApp",
+                Npm.PackageJson.dependencies = M.empty,
+                Npm.PackageJson.devDependencies = M.empty
               },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.devEnvVarsClient = [],
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
-          AS.configFiles = [],
+          AS.tailwindConfigFilesRelocators = [],
           AS.devDatabaseUrl = Nothing,
           AS.customViteConfigPath = Nothing,
-          AS.srcTsConfigPath = [relfile|tsconfig.json|]
+          AS.srcTsConfigPath = [relfile|tsconfig.json|],
+          AS.srcTsConfig =
+            T.TsConfig
+              { T.compilerOptions =
+                  T.CompilerOptions
+                    { T._module = Just "esnext",
+                      T.composite = Just True,
+                      T.target = Just "esnext",
+                      T.moduleResolution = Just "bundler",
+                      T.jsx = Just "preserve",
+                      T.strict = Just True,
+                      T.esModuleInterop = Just True,
+                      T.isolatedModules = Just True,
+                      T.moduleDetection = Just "force",
+                      T.lib = Just ["dom", "dom.iterable", "esnext"],
+                      T.skipLibCheck = Just True,
+                      T.allowJs = Just True,
+                      T.outDir = Just ".wasp/out/user"
+                    },
+                T.include = Just ["src"]
+              }
         }
 
     getPrismaSchemaWithConfig restOfPrismaSource =

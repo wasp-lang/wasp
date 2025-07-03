@@ -7,10 +7,7 @@ tags: [startup, wasp]
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <p align="center">
-  <img alt="Martin & Matija at YCombinator HQ"
-      src={useBaseUrl('img/us-at-ycombinator.jpg')}
-      height="400px"
-  />
+  <img alt="Martin & Matija at YCombinator HQ" src={useBaseUrl('img/us-at-ycombinator.jpg')} height="400px" />
 </p>
 
 Wasp became part of Winter 2021 YCombinator batch!

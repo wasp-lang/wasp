@@ -77,9 +77,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- not needed for every command, but checking for every command was decided
   -- to be more robust than trying to only check for commands that require it.
   -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
-  NodeVersion.getAndCheckUserNodeVersion >>= \case
+  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
     NodeVersion.VersionCheckFail errorMsg -> do
-      cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
+      cliSendMessage $ Message.Failure "Node/NPM requirement not met" errorMsg
       exitFailure
     NodeVersion.VersionCheckSuccess -> pure ()
 

@@ -22,11 +22,7 @@ Since Wasp knows so much about your database, that puts us in a good position to
 1. Wasp running the dev database for you with no config needed → **Fully Managed Dev Database** 🚀
 2. Wasp helping you to initialize the database with some data → **Db Seeding** 🌱
 
-<ImgWithCaption
-    caption="Wasp now has `wasp start db` and `wasp db seed`!"
-    alt="strong wasp database"
-    source="img/db-start-and-seed/wasp-db-improvements.png"
-/>
+<ImgWithCaption caption="Wasp now has `wasp start db` and `wasp db seed`!" alt="strong wasp database" source="img/db-start-and-seed/wasp-db-improvements.png" />
 
 <!--truncate-->
 
@@ -35,7 +31,6 @@ Since Wasp knows so much about your database, that puts us in a good position to
 You might have asked yourself:
 
 > If Wasp already knows so much about my database, why do I need to bother running it on my own!?
-> 
 
 Ok, when you start a new Wasp project it is easy because you are using an SQLite database, but once you switch to Postgres, it falls onto you to take care of it: run it, provide its URL to Wasp via env var, handle multiple databases if you have multiple Wasp apps, … .
 
@@ -43,15 +38,11 @@ This can get tedious quickly, especially if you are visiting your Wasp project t
 
 This is where `wasp start db` comes in!
 
-<ImgWithCaption
-    caption="wasp start db in action, running a posgtres dev db for you"
-    alt="wasp start db running in terminal"
-    source="img/db-start-and-seed/wasp-start-db-terminal.png"
-/>
+<ImgWithCaption caption="wasp start db in action, running a posgtres dev db for you" alt="wasp start db running in terminal" source="img/db-start-and-seed/wasp-start-db-terminal.png" />
 
 Now, all you need to do to run the development database, is run `wasp start db`, and Wasp will run it for you and will know how to connect to it during development.
 
-No env var setting, no remembering how to run the db. The only requirement is that you have `Docker` installed on your machine. Data from your database will be persisted on the disk between the runs, and each Wasp app will have its own database assigned. 
+No env var setting, no remembering how to run the db. The only requirement is that you have `Docker` installed on your machine. Data from your database will be persisted on the disk between the runs, and each Wasp app will have its own database assigned.
 
 Btw, you can still use a custom database that you ran on your own if you want, the same way it was done before in Wasp: by setting env var `DATABASE_URL`.
 
@@ -70,11 +61,7 @@ There is one big drawback to both of the approaches I mentioned above though: th
 
 This is where `wasp db seed` comes in! Now, Wasp allows you to write a JS/TS function, import any server logic (including Actions) into it as you wish, and then seed the database with it.
 
-<ImgWithCaption
-    caption="wasp db seed in action, initializing the db with dev data"
-    alt="wasp db seed running in terminal"
-    source="img/db-start-and-seed/wasp-db-seed-terminal.png"
-/>
+<ImgWithCaption caption="wasp db seed in action, initializing the db with dev data" alt="wasp db seed running in terminal" source="img/db-start-and-seed/wasp-db-seed-terminal.png" />
 
 Registering seed functions in Wasp is easy:
 

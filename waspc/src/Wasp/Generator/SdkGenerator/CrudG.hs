@@ -18,10 +18,9 @@ import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity, isAuthEnabled)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.JsImport (extImportToJsImport)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
 genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =
@@ -67,4 +66,4 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
         operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
         operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
           where
-            importJson = GJI.jsImportToImportJson $ extImportToJsImport <$> AS.Crud.overrideFn options
+            importJson = extImportToImportJson $ AS.Crud.overrideFn options

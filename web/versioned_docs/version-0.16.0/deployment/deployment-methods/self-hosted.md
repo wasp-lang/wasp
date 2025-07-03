@@ -28,13 +28,10 @@ To self-host your Wasp app, you need to follow these general steps:
    - We'll use [Docker](https://docs.docker.com/engine/install/) to run the server app and the database, but you can run them without Docker if you prefer.
 
 3. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
+
 4. Configure the **env variables** on your server for the server app.
 
-<ImgWithCaption
-  source="/img/deploying/self-hosting.png"
-  alt="One of many possible self-hosting setups"
-  caption="One of possible self-hosting setups"
-/>
+<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One of possible self-hosting setups" />
 
 ## Deployment methods
 
@@ -62,7 +59,7 @@ On your server:
 6. Build the **client app** into static files.
    - Wasp outputs the client app in the `.wasp/build/web-app` directory.
    <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
-   - You should [build the client app](/deployment/deployment-methods/paas.md#3-deploying-the-web-client-frontend) into static files.
+   - You should [build the client app](/deployment/deployment-methods/paas.md#3-deploying-the-web-client-) into static files.
 7. Install and set up a **reverse proxy** to serve your client and server apps.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
    - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.

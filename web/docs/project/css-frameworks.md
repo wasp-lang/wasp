@@ -6,94 +6,79 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Tailwind
 
-To enable support for Tailwind in your project, you need to add two config files — [`tailwind.config.cjs`](https://tailwindcss.com/docs/configuration#configuration-options) and `postcss.config.cjs` — to the root directory.
+Wasp works great with [Tailwind CSS](https://v3.tailwindcss.com/), a utility-first CSS framework. Currently, Wasp supports Tailwind CSS v3, but we are [working on supporting v4](https://github.com/wasp-lang/wasp/issues/2483) as well. You can use Tailwind CSS in your Wasp project by following the steps below.
 
-With these files present, Wasp installs the necessary dependencies and copies your configuration to the generated project. You can then use [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) in your CSS and Tailwind classes on your React components.
-
-```bash title="tree ."
-.
-├── main.wasp
-├── package.json
-├── src
-│   ├── Main.css
-│   ├── MainPage.jsx
-│   ├── vite-env.d.ts
-│   └── waspLogo.png
-├── public
-├── tsconfig.json
-├── vite.config.ts
-# highlight-start
-├── postcss.config.cjs
-└── tailwind.config.cjs
-# highlight-end
-```
-
-:::tip Tailwind not working?
-If you can not use Tailwind after adding the required config files, make sure to restart `wasp start`. This is sometimes needed to ensure that Wasp picks up the changes and enables Tailwind integration.
-:::
-
-### Enabling Tailwind Step-by-Step
+### Adding Tailwind to your Wasp project
 
 :::caution
-Make sure to use the `.cjs` extension for these config files, if you name them with a `.js` extension, Wasp will not detect them.
+Make sure to use the `.cjs` extension for the Tailwind CSS and PostCSS config files, if you name them with a `.js` extension, Wasp will not detect them.
 :::
 
-1. Add `./tailwind.config.cjs`.
+1. Install Tailwind as a development dependency.
 
-  ```js title="./tailwind.config.cjs"
-  const { resolveProjectPath } = require('wasp/dev')
+```bash
+npm install -D tailwindcss@3.2.7
+```
 
-  /** @type {import('tailwindcss').Config} */
-  module.exports = {
-    content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
-    theme: {
-      extend: {},
-    },
-    plugins: [],
-  }
-  ```
+2. Add `./tailwind.config.cjs`.
 
-2. Add `./postcss.config.cjs`.
+```js title="./tailwind.config.cjs"
+const { resolveProjectPath } = require('wasp/dev')
 
-  ```js title="./postcss.config.cjs"
-  module.exports = {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  }
-  ```
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
 
-3. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
+:::note The `resolveProjectPath` function
 
-  ```css title="./src/Main.css" {1-3}
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+Because Wasp copies the configuration files to the generated project, you must wrap any paths in the `content` array with the `resolveProjectPath` function. This function resolves the path to the generated project, so that Tailwind can find your source files.
 
-  /* ... */
-  ```
+:::
 
-4. Start using Tailwind 🥳
-  
-  ```jsx title="./src/MainPage.jsx"
-  // ...
+3. Add `./postcss.config.cjs`.
 
-  <h1 className="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+```js title="./postcss.config.cjs"
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
 
-  // ...
-  ```
+4. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
+
+```css title="./src/Main.css" {1-3}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ... */
+```
+
+5. Start using Tailwind 🥳
+
+```jsx title="./src/MainPage.jsx"
+// ...
+
+<h1 className="text-3xl font-bold underline">
+  Hello world!
+</h1>
+
+// ...
+```
 
 ### Adding Tailwind Plugins
 
 To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the plugins list in your `tailwind.config.cjs` file:
 
 ```shell
-# Wasp requires you to have Tailwind ^3.2.7 written in your package.json, you
-# must explicitly install it.
-npm install -D tailwindcss@3.2.7
 npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
 ```

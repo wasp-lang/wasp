@@ -10,6 +10,7 @@ import StrongPath (relfileP)
 import Test.Tasty.Hspec
 import Wasp.AppSpec (Ref)
 import qualified Wasp.AppSpec.Action as Action
+import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
@@ -271,6 +272,7 @@ spec_AppSpecFromJSON = do
       "\"Dummy\"" `shouldDecodeTo` Just EmailSender.Dummy
     it "fails to parse an invalid EmailProvider JSON" $ do
       "IMadeThisUp" `shouldDecodeTo` (Nothing :: Maybe EmailSender.EmailProvider)
+
   describe "EmailSender" $ do
     it "parses a valid EmailSender JSON with defaultFrom" $ do
       [trimming|
@@ -291,6 +293,20 @@ spec_AppSpecFromJSON = do
                       { EmailSender.name = Just "John Doe",
                         EmailSender.email = "something"
                       }
+              }
+          )
+  describe "Db" $ do
+    it "parses a valid Db JSON" $ do
+      [trimming|
+          {
+            "seeds": [${extNamedImportJson}],
+            "prismaSetupFn": ${extNamedImportJson}
+          }
+      |]
+        `shouldDecodeTo` Just
+          ( Db.Db
+              { Db.seeds = Just [fromJust $ decodeJson extNamedImportJson],
+                Db.prismaSetupFn = decodeJson extNamedImportJson
               }
           )
   where

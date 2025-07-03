@@ -6,7 +6,7 @@
   "type": "module",
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "scripts": {
-    "bundle": "rollup --config --silent",
+    "bundle": "tsc --build && rollup --config --silent",
     "start": "node --enable-source-maps -r dotenv/config bundle/server.js",
     "bundle-and-start": "npm run bundle && npm run start",
     "watch": "nodemon --exec 'npm run bundle-and-start || exit 1'",

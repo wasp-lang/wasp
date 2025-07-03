@@ -53,7 +53,6 @@ Error: Migrate dev failed: Migrate (dev) failed with exit code: 1
 
 The fix was to add a dummy migration just to get past the Prisma error.
 
-
 | Bug captured here: https://github.com/wasp-lang/wasp/issues/398 |
 | --------------------------------------------------------------- |
 
@@ -68,6 +67,7 @@ CallStack (from HasCallStack):
 ```
 
 The fix was to use the exact same version Wasp uses, as specified by the error message:
+
 ```
 dependencies {=json
   "axios": "^0.21.1"
@@ -94,15 +94,16 @@ json=}
 ------
 executor failed running [/bin/sh -c apk add --no-cache build-base libtool autoconf automake python]: exit code: 1
  ▸    Error: docker build exited with Error: 1
- ```
+```
 
- Solution was to change base `python` to `python3`.
+Solution was to change base `python` to `python3`.
 
 ### Next errors: Prisma openssl related for M1
 
 To bypass all of that, I had to manually build exclusively for x86 first like so: `docker buildx build --platform linux/amd64 . -t web`
 
 I could then run:
+
 ```
 docker tag web registry.heroku.com/waspleau/web
 docker push registry.heroku.com/waspleau/web

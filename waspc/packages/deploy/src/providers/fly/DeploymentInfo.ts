@@ -1,5 +1,5 @@
-import { TomlFilePaths } from './helpers/tomlFileHelpers.js';
-import { CommonOptions } from './CommonOptions.js';
+import { CommonOptions } from "./CommonOptions.js";
+import { TomlFilePaths } from "./helpers/tomlFileHelpers.js";
 
 export type DeploymentInfo<CommandOptions extends CommonOptions> = Readonly<{
   baseName: string;

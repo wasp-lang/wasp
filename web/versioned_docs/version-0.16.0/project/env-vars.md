@@ -22,24 +22,21 @@ Client environment variables are injected into the client Javascript code during
 You can read them from the client code like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/App.js"
+    import { env } from 'wasp/client'
 
-```js title="src/App.js"
-import { env } from 'wasp/client'
+    console.log(env.REACT_APP_SOME_VAR_NAME)
+    ```
+  </TabItem>
 
-console.log(env.REACT_APP_SOME_VAR_NAME)
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/App.ts"
+    import { env } from 'wasp/client'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/App.ts"
-import { env } from 'wasp/client'
-
-console.log(env.REACT_APP_SOME_VAR_NAME)
-```
-
-</TabItem>
+    console.log(env.REACT_APP_SOME_VAR_NAME)
+    ```
+  </TabItem>
 </Tabs>
 
 Read more about the `env` object in the [API reference](#client-env-vars-1).
@@ -52,34 +49,34 @@ Here are the client env vars that Wasp defines:
 
 These are some general env variables used for various Wasp features:
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "REACT_APP_API_URL", type: "URL", isRequired: false, defaultValue: "http://localhost:3001", note: "The client uses this as the server URL." }
-]} />
+]}
+/>
 
 ## Server Env Vars
 
 You can store secret values (e.g. secret API keys) in the server env variables since they are not publicly readable. You can define them without any special prefix, such as `SOME_VAR_NAME=...`.
 
 You can read the env vars from server code like this:
+
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    import { env } from 'wasp/server'
 
-```js
-import { env } from 'wasp/server'
+    console.log(env.SOME_VAR_NAME)
+    ```
+  </TabItem>
 
-console.log(env.SOME_VAR_NAME)
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import { env } from 'wasp/server'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts
-import { env } from 'wasp/server'
-
-console.log(env.SOME_VAR_NAME)
-```
-
-</TabItem>
+    console.log(env.SOME_VAR_NAME)
+    ```
+  </TabItem>
 </Tabs>
 
 Read more about the `env` object in the [API reference](#server-env-vars-1).
@@ -90,68 +87,81 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 These are some general env variables used for various Wasp features:
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
 { name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: "Server uses this value as your client URL in various features e.g. linking to your app in e-mails." },
 { name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: "Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub." },
 { name: "JWT_SECRET", type: "String", isRequired: true, note: <span>Needed to generate secure tokens. <a href="https://jwtsecret.com/generate" target="_blank" rel="noreferrer">Generate</a> a random string at least 32 characters long.</span> },
 { name: "PORT", type: "Integer", isRequired: false, defaultValue: "3001", note: "This is where the server listens for requests." }
-]} />
+]}
+/>
 
 #### SMTP Email Sender
 
 If you are using `SMTP` as your email sender, you need to provide the following environment variables:
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "SMTP_HOST", type: "String", isRequired: true, note: "The SMTP server host." },
 { name: "SMTP_PORT", type: "Integer", isRequired: true, note: "The SMTP server port." },
 { name: "SMTP_USERNAME", type: "String", isRequired: true, note: "The SMTP server username." },
 { name: "SMTP_PASSWORD", type: "String", isRequired: true, note: "The SMTP server password." }
-]} />
+]}
+/>
 
 #### SendGrid Email Sender
 
 If you are using `SendGrid` as your email sender, you need to provide the following environment variables:
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "SENDGRID_API_KEY", type: "String", isRequired: true, note: "The SendGrid API key." }
-]} />
+]}
+/>
 
 #### Mailgun Email Sender
 
 If you are using `Mailgun` as your email sender, you need to provide the following environment variables:
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "MAILGUN_API_KEY", type: "String", isRequired: true, note: "The Mailgun API key." },
 { name: "MAILGUN_DOMAIN", type: "String", isRequired: true, note: "The Mailgun domain." },
 { name: "MAILGUN_API_URL", type: "URL", isRequired: false, note: <span>Useful if you want to use the EU API endpoint (<code>https://api.eu.mailgun.net</code>).</span> }
-]} />
+]}
+/>
 
 #### OAuth Providers
 
 If you are using OAuth, you need to provide the following environment variables:
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "<PROVIDER_NAME>_CLIENT_ID", type: "String", isRequired: true, note: "The client ID provided by the OAuth provider." },
 { name: "<PROVIDER_NAME>_CLIENT_SECRET", type: "String", isRequired: true, note: "The client secret provided by the OAuth provider." }
-]} />
+]}
+/>
 
 <small>
-
-\* `<PROVIDER_NAME>` is the uppercase name of the provider you are using. For example, if you are using Google OAuth, you need to provide the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables.
+  \* `<PROVIDER_NAME>` is the uppercase name of the provider you are using. For example, if you are using Google OAuth, you need to provide the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables.
 </small>
 
 If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to provide one extra environment variable:
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "KEYCLOAK_REALM_URL", type: "URL", isRequired: true, note: "The URL of the Keycloak realm." }
-]} />
+]}
+/>
 
 #### Jobs
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>It's parsed as JSON. Enables you to provide <a href="../advanced/jobs#declaring-jobs">custom config</a> for PgBoss.</span> }
-]} />
+]}
+/>
 
 #### Development
 
@@ -159,9 +169,11 @@ We provide some helper env variables in development:
 
 <!-- TODO: this not really Boolean, it's really a string that accepts "true" as only true value -->
 
-<EnvVarsTable envVars={[
+<EnvVarsTable
+  envVars={[
 { name: "SKIP_EMAIL_VERIFICATION_IN_DEV", type: "Boolean", isRequired: false, defaultValue: "false", note: "If set to true, automatically sets user emails as verified in development." }
-]} />
+]}
+/>
 
 ## Defining Env Vars in Development
 
@@ -195,7 +207,7 @@ SOME_VAR_NAME=somevalue
   REACT_APP_SOME_VAR_NAME=somevalue
   ```
 
-   <ClientEnvVarsNote />
+  <ClientEnvVarsNote />
 
 `.env.server` should not be committed to version control as it can contain secrets, while `.env.client` can be versioned as it must not contain any secrets.
 By default, in the `.gitignore` file that comes with a new Wasp app, we ignore all dotenv files.
@@ -233,54 +245,51 @@ If your code requires some environment variables, you usually want to ensure tha
 Take a look at an example of defining env vars validation:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/env.js"
+    import * as z from 'zod'
 
-```js title="src/env.js"
-import * as z from 'zod'
+    import { defineEnvValidationSchema } from 'wasp/env'
 
-import { defineEnvValidationSchema } from 'wasp/env'
+    export const serverEnvValidationSchema = defineEnvValidationSchema(
+      z.object({
+        STRIPE_API_KEY: z.string({
+          required_error: 'STRIPE_API_KEY is required.',
+        }),
+      })
+    )
 
-export const serverEnvValidationSchema = defineEnvValidationSchema(
-  z.object({
-    STRIPE_API_KEY: z.string({
-      required_error: 'STRIPE_API_KEY is required.',
-    }),
-  })
-)
+    export const clientEnvValidationSchema = defineEnvValidationSchema(
+      z.object({
+        REACT_APP_NAME: z.string().default('TODO App'),
+      })
+    )
+    ```
+  </TabItem>
 
-export const clientEnvValidationSchema = defineEnvValidationSchema(
-  z.object({
-    REACT_APP_NAME: z.string().default('TODO App'),
-  })
-)
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/env.ts"
+    import * as z from 'zod'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    import { defineEnvValidationSchema } from 'wasp/env'
 
-```ts title="src/env.ts"
-import * as z from 'zod'
+    export const serverEnvValidationSchema = defineEnvValidationSchema(
+      z.object({
+        STRIPE_API_KEY: z.string({
+          required_error: 'STRIPE_API_KEY is required.',
+        }),
+      })
+    )
 
-import { defineEnvValidationSchema } from 'wasp/env'
+    export const clientEnvValidationSchema = defineEnvValidationSchema(
+      z.object({
+        REACT_APP_NAME: z.string().default('TODO App'),
+      })
+    )
+    ```
 
-export const serverEnvValidationSchema = defineEnvValidationSchema(
-  z.object({
-    STRIPE_API_KEY: z.string({
-      required_error: 'STRIPE_API_KEY is required.',
-    }),
-  })
-)
-
-export const clientEnvValidationSchema = defineEnvValidationSchema(
-  z.object({
-    REACT_APP_NAME: z.string().default('TODO App'),
-  })
-)
-```
-
-The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-
-</TabItem>
+    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
+  </TabItem>
 </Tabs>
 
 ```wasp title="main.wasp"
@@ -318,42 +327,39 @@ There are **Wasp-defined** and **user-defined** env vars. Wasp already comes wit
 You can define your client env vars validation like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/env.js"
+    import * as z from 'zod'
 
-```js title="src/env.js"
-import * as z from 'zod'
+    import { defineEnvValidationSchema } from 'wasp/env'
 
-import { defineEnvValidationSchema } from 'wasp/env'
+    export const envValidationSchema = defineEnvValidationSchema(
+      z.object({
+        REACT_APP_ANALYTICS_ID: z.string({
+          required_error: 'REACT_APP_ANALYTICS_ID is required.',
+        }),
+      })
+    )
+    ```
+  </TabItem>
 
-export const envValidationSchema = defineEnvValidationSchema(
-  z.object({
-    REACT_APP_ANALYTICS_ID: z.string({
-      required_error: 'REACT_APP_ANALYTICS_ID is required.',
-    }),
-  })
-)
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/env.ts"
+    import * as z from 'zod'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    import { defineEnvValidationSchema } from 'wasp/env'
 
-```ts title="src/env.ts"
-import * as z from 'zod'
+    export const envValidationSchema = defineEnvValidationSchema(
+      z.object({
+        REACT_APP_ANALYTICS_ID: z.string({
+          required_error: 'REACT_APP_ANALYTICS_ID is required.',
+        }),
+      })
+    )
+    ```
 
-import { defineEnvValidationSchema } from 'wasp/env'
-
-export const envValidationSchema = defineEnvValidationSchema(
-  z.object({
-    REACT_APP_ANALYTICS_ID: z.string({
-      required_error: 'REACT_APP_ANALYTICS_ID is required.',
-    }),
-  })
-)
-```
-
-The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-
-</TabItem>
+    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
+  </TabItem>
 </Tabs>
 
 ```wasp title="main.wasp"
@@ -372,32 +378,29 @@ Wasp merges your env validation schemas with the built-in env vars validation sc
 You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/App.js"
+    import { env } from 'wasp/client'
 
-```js title="src/App.js"
-import { env } from 'wasp/client'
+    // Wasp-defined
+    const apiUrl = env.REACT_APP_API_URL
 
-// Wasp-defined
-const apiUrl = env.REACT_APP_API_URL
+    // User-defined
+    const analyticsId = env.REACT_APP_ANALYTICS_ID
+    ```
+  </TabItem>
 
-// User-defined
-const analyticsId = env.REACT_APP_ANALYTICS_ID
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/App.ts"
+    import { env } from 'wasp/client'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    // Wasp-defined
+    const apiUrl = env.REACT_APP_API_URL
 
-```ts title="src/App.ts"
-import { env } from 'wasp/client'
-
-// Wasp-defined
-const apiUrl = env.REACT_APP_API_URL
-
-// User-defined
-const analyticsId = env.REACT_APP_ANALYTICS_ID
-```
-
-</TabItem>
+    // User-defined
+    const analyticsId = env.REACT_APP_ANALYTICS_ID
+    ```
+  </TabItem>
 </Tabs>
 
 You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We don't recommend this since `import.meta.env` isn't validated and missing env vars can cause runtime errors.
@@ -409,42 +412,39 @@ You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We 
 You can define your env vars validation like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/env.js"
+    import * as z from 'zod'
 
-```js title="src/env.js"
-import * as z from 'zod'
+    import { defineEnvValidationSchema } from 'wasp/env'
 
-import { defineEnvValidationSchema } from 'wasp/env'
+    export const envValidationSchema = defineEnvValidationSchema(
+      z.object({
+        STRIPE_API_KEY: z.string({
+          required_error: 'STRIPE_API_KEY is required.',
+        }),
+      })
+    )
+    ```
+  </TabItem>
 
-export const envValidationSchema = defineEnvValidationSchema(
-  z.object({
-    STRIPE_API_KEY: z.string({
-      required_error: 'STRIPE_API_KEY is required.',
-    }),
-  })
-)
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/env.ts"
+    import * as z from 'zod'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    import { defineEnvValidationSchema } from 'wasp/env'
 
-```ts title="src/env.ts"
-import * as z from 'zod'
+    export const envValidationSchema = defineEnvValidationSchema(
+      z.object({
+        STRIPE_API_KEY: z.string({
+          required_error: 'STRIPE_API_KEY is required.',
+        }),
+      })
+    )
+    ```
 
-import { defineEnvValidationSchema } from 'wasp/env'
-
-export const envValidationSchema = defineEnvValidationSchema(
-  z.object({
-    STRIPE_API_KEY: z.string({
-      required_error: 'STRIPE_API_KEY is required.',
-    }),
-  })
-)
-```
-
-The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-
-</TabItem>
+    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
+  </TabItem>
 </Tabs>
 
 ```wasp title="main.wasp"
@@ -463,32 +463,29 @@ Wasp merges your env validation schemas with the built-in env vars validation sc
 You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/stripe.js"
+    import { env } from 'wasp/server'
 
-```js title="src/stripe.js"
-import { env } from 'wasp/server'
+    // Wasp-defined
+    const serverUrl = env.WASP_SERVER_URL
 
-// Wasp-defined
-const serverUrl = env.WASP_SERVER_URL
+    // User-defined
+    const stripeApiKey = env.STRIPE_API_KEY
+    ```
+  </TabItem>
 
-// User-defined
-const stripeApiKey = env.STRIPE_API_KEY
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/stripe.ts"
+    import { env } from 'wasp/server'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    // Wasp-defined
+    const serverUrl = env.WASP_SERVER_URL
 
-```ts title="src/stripe.ts"
-import { env } from 'wasp/server'
-
-// Wasp-defined
-const serverUrl = env.WASP_SERVER_URL
-
-// User-defined
-const stripeApiKey = env.STRIPE_API_KEY
-```
-
-</TabItem>
+    // User-defined
+    const stripeApiKey = env.STRIPE_API_KEY
+    ```
+  </TabItem>
 </Tabs>
 
 You can use `process.env.SOME_SECRET` directly in your code. We don't recommend this since `process.env` isn't validated and missing env vars can cause runtime errors.

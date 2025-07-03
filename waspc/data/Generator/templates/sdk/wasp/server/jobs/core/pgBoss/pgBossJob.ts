@@ -1,7 +1,7 @@
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
-import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization'
+import type { JSONValue, JSONObject } from 'wasp/core/serialization'
 import { PrismaDelegate } from 'wasp/server/_types'
 import type { JobFn } from 'wasp/server/jobs/core/pgBoss'
 
@@ -102,7 +102,7 @@ export function registerJob<
  * It is not yet submitted until the caller invokes `submit()` on an instance.
  * The caller can make as many calls to `submit()` as they wish.
  */
-class PgBossJob<
+export class PgBossJob<
   Input extends JSONObject,
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>

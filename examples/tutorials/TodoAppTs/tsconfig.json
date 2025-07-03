@@ -22,11 +22,7 @@
     "strict": true,
     // Allow default imports.
     "esModuleInterop": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "allowJs": true,
     "typeRoots": [
@@ -36,13 +32,11 @@
       "node_modules/@testing-library",
       // Specifying type roots overrides the default behavior of looking at the
       // node_modules/@types folder so we had to list it explicitly.
-      // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots 
+      // Source 1: https://www.typescriptlang.org/tsconfig#typeRoots
       // Source 2: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
       "node_modules/@types"
     ],
     "outDir": ".wasp/out/user"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

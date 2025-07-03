@@ -1,5 +1,14 @@
-import { $, cd, question } from 'zx';
-import crypto from 'crypto';
+import crypto from "crypto";
+import { $, cd, question } from "zx";
+import { createDeploymentInfo, DeploymentInfo } from "../DeploymentInfo.js";
+import {
+  boldText,
+  cdToClientBuildDir,
+  cdToServerBuildDir,
+  getCommandHelp,
+  makeIdempotent,
+  waspSays,
+} from "../helpers/helpers.js";
 import {
   clientTomlExistsInProject,
   copyLocalClientTomlToProject,
@@ -9,18 +18,9 @@ import {
   getTomlFilePaths,
   replaceLineInLocalToml,
   serverTomlExistsInProject,
-} from '../helpers/tomlFileHelpers.js';
-import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
-import { SetupOptions } from './SetupOptions.js';
-import {
-  cdToClientBuildDir,
-  cdToServerBuildDir,
-  makeIdempotent,
-  getCommandHelp,
-  waspSays,
-  boldText,
-} from '../helpers/helpers.js';
-import { createFlyDbCommand } from '../index.js';
+} from "../helpers/tomlFileHelpers.js";
+import { createFlyDbCommand } from "../index.js";
+import { SetupOptions } from "./SetupOptions.js";
 
 const internalPortOptionRegex = /internal_port = \d+/g;
 const serverAppPort = 8080;
@@ -31,16 +31,21 @@ export async function setup(
   region: string,
   options: SetupOptions,
 ): Promise<void> {
-  waspSays('Setting up your Wasp app with Fly.io!');
+  waspSays("Setting up your Wasp app with Fly.io!");
 
   const buildWasp = makeIdempotent(async () => {
-    waspSays('Building your Wasp app...');
+    waspSays("Building your Wasp app...");
     cd(options.waspProjectDir);
     await $`${options.waspExe} build`;
   });
 
   const tomlFilePaths = getTomlFilePaths(options);
-  const deploymentInfo = createDeploymentInfo(baseName, region, options, tomlFilePaths);
+  const deploymentInfo = createDeploymentInfo(
+    baseName,
+    region,
+    options,
+    tomlFilePaths,
+  );
 
   if (serverTomlExistsInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.serverTomlPath} exists. Skipping server setup.`);
@@ -67,10 +72,15 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
   cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
   deleteLocalToml();
 
-  const launchArgs = ['--name', deploymentInfo.serverName, '--region', deploymentInfo.region];
+  const launchArgs = [
+    "--name",
+    deploymentInfo.serverName,
+    "--region",
+    deploymentInfo.region,
+  ];
 
   if (deploymentInfo.options.org) {
-    launchArgs.push('--org', deploymentInfo.options.org);
+    launchArgs.push("--org", deploymentInfo.options.org);
   }
 
   // This creates the fly.toml file, but does not attempt to deploy.
@@ -81,8 +91,8 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
   if (!doesLocalTomlContainLine(minMachinesOptionRegex)) {
     await question(`\n⚠️  There was a possible issue setting up your server app.
 We tried modifying your server fly.toml to set ${boldText(
-      'min_machines_running = 1',
-    )}, but couldn't find the option ${boldText('min_machines_running')} in the fly.toml.
+      "min_machines_running = 1",
+    )}, but couldn't find the option ${boldText("min_machines_running")} in the fly.toml.
 
 We advise that you additionaly check what is the value for "minimal number of machines running" on Fly
 for this server app and confirm that it is set to the value you are OK with.
@@ -96,14 +106,14 @@ Contact the Wasp Team at our Discord server if you need help with this: https://
 
 Press any key to continue or Ctrl+C to cancel.`);
   } else {
-    replaceLineInLocalToml(minMachinesOptionRegex, 'min_machines_running = 1');
+    replaceLineInLocalToml(minMachinesOptionRegex, "min_machines_running = 1");
   }
 
   if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
     await question(`\n⚠️  There was an issue setting up your server app.
 We tried modifying your server fly.toml to set ${boldText(
       `internal_port = ${serverAppPort}`,
-    )}, but couldn't find the option ${boldText('internal_port')} in the fly.toml.
+    )}, but couldn't find the option ${boldText("internal_port")} in the fly.toml.
 
 This means your server app might not be accessible.
 
@@ -111,12 +121,15 @@ Contact the Wasp Team at our Discord server if you need help with this: https://
 
 Press any key to continue or Ctrl+C to cancel.`);
   } else {
-    replaceLineInLocalToml(internalPortOptionRegex, `internal_port = ${serverAppPort}`);
+    replaceLineInLocalToml(
+      internalPortOptionRegex,
+      `internal_port = ${serverAppPort}`,
+    );
   }
 
   copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
 
-  const randomString = crypto.randomBytes(32).toString('hex');
+  const randomString = crypto.randomBytes(32).toString("hex");
 
   const secretsArgs = [
     `JWT_SECRET=${randomString}`,
@@ -135,8 +148,8 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   await $`flyctl secrets set ${secretsArgs}`;
 
-  console.log(''); // `flyctl secrets` does not produce it's own newline.
-  waspSays('Server setup complete!');
+  console.log(""); // `flyctl secrets` does not produce it's own newline.
+  waspSays("Server setup complete!");
 }
 
 async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
@@ -145,10 +158,15 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
   cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
   deleteLocalToml();
 
-  const launchArgs = ['--name', deploymentInfo.clientName, '--region', deploymentInfo.region];
+  const launchArgs = [
+    "--name",
+    deploymentInfo.clientName,
+    "--region",
+    deploymentInfo.region,
+  ];
 
   if (deploymentInfo.options.org) {
-    launchArgs.push('--org', deploymentInfo.options.org);
+    launchArgs.push("--org", deploymentInfo.options.org);
   }
 
   // This creates the fly.toml file, but does not attempt to deploy.
@@ -158,7 +176,7 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
     await question(`\n⚠️  There was an issue setting up your client app.
 We tried modifying your client fly.toml to set ${boldText(
       `internal_port = ${clientAppPort}`,
-    )}, but couldn't find the option ${boldText('internal_port')} in the fly.toml.
+    )}, but couldn't find the option ${boldText("internal_port")} in the fly.toml.
 
 This means your client app might not be accessible.
 
@@ -168,7 +186,10 @@ Press any key to continue or Ctrl+C to cancel.`);
   } else {
     // goStatic listens on port 8043 by default, but the default fly.toml
     // assumes port 8080 (or 3000, depending on flyctl version).
-    replaceLineInLocalToml(internalPortOptionRegex, `internal_port = ${clientAppPort}`);
+    replaceLineInLocalToml(
+      internalPortOptionRegex,
+      `internal_port = ${clientAppPort}`,
+    );
   }
 
   copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
@@ -177,5 +198,5 @@ Press any key to continue or Ctrl+C to cancel.`);
     await $`flyctl secrets set ${deploymentInfo.options.clientSecret}`;
   }
 
-  waspSays('Client setup complete!');
+  waspSays("Client setup complete!");
 }

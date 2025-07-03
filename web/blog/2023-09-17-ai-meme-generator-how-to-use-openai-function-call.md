@@ -3,35 +3,19 @@ title: "Build your own AI Meme Generator & learn how to use OpenAI's function ca
 authors: [vinny]
 image: /img/memerator-banner-tall.gif
 tags: [ai, meme, openai, function calling, react, full-stack, generate]
+toc_max_heading_level: 4
 ---
+
+import TOCInline from '@theme/TOCInline';
 
 ## Table of Contents
 
-- [TL;DR](#tldr)
-- [Intro](#intro)
-    - [Call Me, Maybe](#intro)
-    - [Let's Build](#lets-build)
-- [Part 1](#config)
-    - [Configuration](#config)
-        - [Project Set Up](#setup)
-        - [Database Set up](#db)
-        - [Environment Variables](#env)
-        - [Start Your App](#start)
-    - [Generating Memes](#generate-meme)
-        - [Server-Side Code](#generate-server)
-        - [Client-Side Code](#generate-client)
-- [Part 2](#part-two)
-    - [Fetching & Updating Templates w/ Cron Jobs](#templates)
-        - [Defining our Daily Cron Job](#cron)
-        - [Testing](#cron-test)
-    - [Editing Memes](#edit)
-        - [Server-Side Code](#server)
-        - [Client-Side Code](#client)
-    - [Deleting Memes](#delete)
-- [Conclusion](#conclusion)
+<TOCInline 
+  toc={toc.filter((node) => node.id !== "table-of-contents")} 
+  maxHeadingLevel={4}
+/>
 
-<a name='tldr' href='#tldr'></a>
-# TL;DR
+## TL;DR
 
 In this two-part tutorial, we’re going to build a full-stack instant Meme Generator app using:
 
@@ -39,16 +23,15 @@ In this two-part tutorial, we’re going to build a full-stack instant Meme Gene
 - OpenAI’s [Function Calling API](https://platform.openai.com/docs/guides/gpt/function-calling)
 - ImgFlip.com’s [meme creator API](https://imgflip.com/api)
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/4rTXljsphQ8?si=Lny4ruPRNJu3-zwL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4rTXljsphQ8?si=Lny4ruPRNJu3-zwL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
 You check out a deployed version of the app we’re going to build here: [The Memerator](https://damemerator.netlify.app)
 
 If you just want to see the code for the finished app, check out the [Memerator’s GitHub Repo](https://github.com/vincanger/memerator)
 
-<a name='intro' href='#intro'></a>
-# Intro
+## Intro {#intro}
 
-## Call Me, Maybe
+### Call Me, Maybe
 
 With [OpenAI’s chat completions API](https://platform.openai.com/docs/guides/gpt), developers are now able to do some really cool stuff. It basically enables ChatGPT functionality, but in the form of a callable API you can integrate into any app.
 
@@ -64,8 +47,7 @@ So what better way to learn how to use GPT’s function calling feature than to 
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0a0bc9uxabyg8cue2axu.png)
 
-<a name='lets-build' href='#lets-build'></a>
-## Let’s Build
+### Let’s Build
 
 In this two-part tutorial, we’re going to build a full-stack React/NodeJS app with:
 
@@ -79,28 +61,24 @@ In this two-part tutorial, we’re going to build a full-stack React/NodeJS app 
 
 I already deployed a working version of this app that you can try out here: [https://damemerator.netlify.app](https://damemerator.netlify.app) — so give it a go and let’s get… going.
 
-In Part 1 of this tutorial, we will get the app set up and generating and displaying memes. 
+In Part 1 of this tutorial, we will get the app set up and generating and displaying memes.
 
 In Part 2, we will add more functionality, like recurring cron jobs to fetch more meme templates, and the ability to edit and delete memes.
 
 BTW, two quick tips:
 
-1. if you need to reference the app’s finished code at any time to help you with this tutorial, you can check out the app’s [GitHub Repo here](https://github.com/vincanger/memerator). 
+1. if you need to reference the app’s finished code at any time to help you with this tutorial, you can check out the app’s [GitHub Repo here](https://github.com/vincanger/memerator).
 2. if you have any questions, feel free to hop into the [Wasp Discord Server](https://discord.gg/rzdnErX) and ask us!
 
-# Part 1
+## Part 1
 
-<a name='config' href='#config'></a>
-
-## Configuration
+### Configuration
 
 We’re going to make this a full-stack React/NodeJS web app so we need to get that set up first. But don’t worry, it won’t take long AT ALL, because we will be using [Wasp](https://wasp.sh) as the framework.
 
 Wasp does all the heavy lifting for us. You’ll see what I mean in a second.
 
-<a name='setup' href='#setup'></a>
-
-### Set up your Wasp project
+#### Set up your Wasp project
 
 First, install Wasp by running this in your terminal:
 
@@ -224,16 +202,14 @@ You might have also noticed this `{=psl psl=}` syntax in the entities above. Thi
 
 Also, make sure you install the [Wasp VS code extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) so that you get nice syntax highlighting and the best overall dev experience.
 
-<a name='db' href='#db'></a>
+#### Setting up the Database
 
-### Setting up the Database
-
-We still need to get a Postgres database setup. 
+We still need to get a Postgres database setup.
 
 Usually this can be pretty annoying, but with Wasp it’s really easy.
 
-1. just have [Docker Deskop](https://www.docker.com/products/docker-desktop/) installed and running, 
-2. open up **a separate terminal tab/window,** 
+1. just have [Docker Deskop](https://www.docker.com/products/docker-desktop/) installed and running,
+2. open up **a separate terminal tab/window,**
 3. `cd` into the `Memerator` directory, and then run
 
 ```bash
@@ -252,9 +228,7 @@ wasp db migrate-dev
 
 and make sure to give your database migration a name, like `init`.
 
-<a name='env' href='#env'></a>
-
-### Environment Variables
+#### Environment Variables
 
 In the root of your project, you’ll find a `.env.server.example` file that looks like this:
 
@@ -277,25 +251,21 @@ Rename this file to `.env.server` and follow the instructions in it to get your:
 
 as we will need them to generate our memes 🤡
 
-<a name='start' href='#start'></a>
+#### Start your App
 
-### Start your App
-
-With everything setup correctly, you should now be able to run 
+With everything setup correctly, you should now be able to run
 
 ```bash
 wasp start
 ```
 
-When running `wasp start`, Wasp will install all the necessary npm packages, start our NodeJS server on port 3001, and our React client on port 3000. 
+When running `wasp start`, Wasp will install all the necessary npm packages, start our NodeJS server on port 3001, and our React client on port 3000.
 
 Head to [localhost:3000](http://localhost:3000/) in your browser to check it out. We should have the basis for our app that looks like this:
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/l1541hswduhm7d2bm8oz.png)
 
-<a name='generate-meme' href='#generate-meme'></a>
-
-## Generating a Meme
+### Generating a Meme
 
 The boilerplate code already has the client-side form set up for generating memes based on:
 
@@ -304,13 +274,11 @@ The boilerplate code already has the client-side form set up for generating meme
 
 This is the info we will send to the backend to call the OpenAI API using function calls. We then send this info to the [imglfip.com API](https://imgflip.com/api) to generate the meme.
 
-But the **/caption_image** endpoint of the imgflip API needs the meme template id. And to get that ID we first need to fetch the available meme templates from imgflip’s **/get_memes** endpoint
+But the **/caption\_image** endpoint of the imgflip API needs the meme template id. And to get that ID we first need to fetch the available meme templates from imgflip’s **/get\_memes** endpoint
 
 So let’s set that up now.
 
-<a name='generate-server' href='#generate-server'></a>
-
-### Server-Side Code
+#### Server-Side Code
 
 Create a new file in `src/server/` called `utils.ts`:
 
@@ -368,7 +336,7 @@ export const generateMemeImage = async (args: GenerateMemeArgs) => {
 
 This gives us some utility functions to help us fetch all the meme templates that we can possibly generate meme images with.
 
-Notice that the POST request to the **/caption_image** endpoint takes the following data:
+Notice that the POST request to the **/caption\_image** endpoint takes the following data:
 
 - our imgflip **username** and **password**
 - **ID** of the meme template we will use
@@ -379,7 +347,7 @@ Notice that the POST request to the **/caption_image** endpoint takes the follow
 
 The text0 and text1 arguments will generated for us by our lovely friend, ChatGPT. But in order for GPT to do that, we have to set up its API call, too.
 
-To do that, create a new file in `src/server/` called `actions.ts`. 
+To do that, create a new file in `src/server/` called `actions.ts`.
 
 Then go back to your `main.wasp` config file and add the following Wasp Action at the bottom of the file:
 
@@ -415,7 +383,7 @@ export const createMeme: CreateMeme<CreateMemeInput, CreateMemeOutput> = async (
 
 You can see that it imports the Action types for you as well.
 
-Because we will be sending the `topics` array and the intended `audience` string for the meme from our front-end form, and in the end we will return the newly created `Meme` entity, that’s what we should define our types as. 
+Because we will be sending the `topics` array and the intended `audience` string for the meme from our front-end form, and in the end we will return the newly created `Meme` entity, that’s what we should define our types as.
 
 Remember, the `Meme` entity is the database model we defined in our `main.wasp` config file.
 
@@ -593,7 +561,7 @@ At this point, the code above should be pretty self-explanatory, but I want to h
 
 Great! But once we start generating memes, we will need a way to display them on our front end.
 
-So let’s now create a Wasp Query. A Query works just like an Action, except it’s only for *reading* data.
+So let’s now create a Wasp Query. A Query works just like an Action, except it’s only for _reading_ data.
 
 Go to `src/server` and create a new file called `queries.ts`.
 
@@ -626,11 +594,9 @@ export const getAllMemes: GetAllMemes<void, Meme[]> = async (_args, context) => 
 };
 ```
 
-<a name='generate-client' href='#generate-client'></a>
+#### Client-Side Code
 
-### Client-Side Code
-
-Now that we’ve got the `createMeme` and `getAllMemes` code implemented server-side, let’s hook it up to our client. 
+Now that we’ve got the `createMeme` and `getAllMemes` code implemented server-side, let’s hook it up to our client.
 
 Wasp makes it really easy to import the Operations we just created and call them on our front end.
 
@@ -675,7 +641,7 @@ export function HomePage() {
 //...
 ```
 
-As you can see, we’ve imported `createMeme` and `getAllMemes` (😎). 
+As you can see, we’ve imported `createMeme` and `getAllMemes` (😎).
 
 For `getAllMemes`, we wrap it in the `useQuery` hook so that we can fetch and cache the data. On the other hand, our `createMeme` Action gets called in `handleGenerateMeme` which we will call when submit our form.
 
@@ -836,9 +802,7 @@ Now wouldn’t it be cool though if we could edit and delete our memes? And what
 
 Yes, it would be. So let’s do that.
 
-<a name="part-two" href="#part-two"></a>
-
-# Part 2.
+## Part 2.
 
 So we’ve got ourselves a really good basis for an app at this point.
 
@@ -848,9 +812,7 @@ This allows us to be certain GPT’s result will be usable in further parts of o
 
 If you think about it, we’ve basically got ourselves a really simple Meme generating “agent”. How cool is that?!
 
-<a name="templates" href="#templates"></a>
-
-## Fetching & Updating Templates with Cron Jobs
+### Fetching & Updating Templates with Cron Jobs
 
 To be able to generate our meme images via [ImgFlip’s API](https://imgflip.com/api), we have to choose and send a meme template `id` to the API, along with the text arguments we want to fill it in with.
 
@@ -859,26 +821,22 @@ For example, the `Grandma Finds Internet` meme template has the following `id`:
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/zoo4uainls9jxq7fzysv.png)
 
 But the only way for us to get available meme templates from ImgFlip is to send a `GET` request to
-[https://api.imgflip.com/get_memes](https://api.imgflip.com/get_memes). And according to ImgFlip, the **/get-memes** endpoint works like this:
+[https://api.imgflip.com/get\_memes](https://api.imgflip.com/get_memes). And according to ImgFlip, the **/get-memes** endpoint works like this:
 
 > Gets an array of popular memes that may be captioned with this API. The size of this array and the order of memes may change at any time. When this description was written, it returned 100 memes ordered by how many times they were captioned in the last 30 days
-> 
 
 So it returns a list of the top 100 memes from the last 30 days. And as this is always changing, we can run a daily cron job to fetch the list and update our database with any new templates that don’t already exist in it.
 
 We know this will work because the ImgFlip docs for the **/caption-image** endpoint — which we use to create a meme image — says this:
 
-> *key:* template_id
-*value:* A template ID as returned by the **get_memes** response. Any ID that was ever returned from the **get_memes** response should work for this parameter…
-> 
+> _key:_ template\_id
+> _value:_ A template ID as returned by the **get\_memes** response. Any ID that was ever returned from the **get\_memes** response should work for this parameter…
 
 Awesome!
 
-<a name="cron" href="#cron"></a>
+#### Defining our Daily Cron Job
 
-### Defining our Daily Cron Job
-
-Now, to create an automatically [recurring cron job in Wasp](https://wasp.sh/docs/advanced/jobs) is really easy. 
+Now, to create an automatically [recurring cron job in Wasp](https://wasp.sh/docs/advanced/jobs) is really easy.
 
 First, go to your `main.wasp` file and add:
 
@@ -935,11 +893,9 @@ You can see that we send a `GET` request to the proper endpoint, then we loop th
 
 Notice that we use Prisma’s `upsert` method here. This allows us to create a new entity in the database if it doesn’t already exist. If it does, we don’t do anything, which is why `update` is left blank.
 
-We use `[Promise.all()` to call that array of promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all) correctly.
+We use `[Promise.all()` to call that array of promises]\(https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/Promise/all) correctly.
 
-<a name="cron-test" href="#cron-test"></a>
-
-### Testing
+#### Testing
 
 Now, assuming you’ve got your app running with `wasp start`, you will see the cron job run in the console every day at 7 a.m.
 
@@ -979,9 +935,7 @@ wasp db studio
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yldqge5186hegvzjyo30.png)
 
-<a name="edit" href="#edit"></a>
-
-## Editing Memes
+### Editing Memes
 
 Unfortunately, sometimes GPT’s results have some mistakes. Or sometimes the idea is really good, but we want to further modify it to make it even better.
 
@@ -993,9 +947,7 @@ So let’s set do that by setting up a dedicated page where we:
 - display a form to allow the user to edit the meme `text`
 - send that info to a server-side Action which calls the ImgFlip API, generates a new image URL, and updates our `Meme` entity in the DB.
 
-<a name="server" href="#server"></a>
-
-### Server-Side Code
+#### Server-Side Code
 
 To make sure we can fetch the individual meme we want to edit, we first need to set up a Query that does this.
 
@@ -1007,7 +959,6 @@ query getMeme {
   entities: [Meme]
 }
 ```
-
 
 Now go to `src/server/queries.ts` and add the following function:
 
@@ -1105,9 +1056,7 @@ We then `update` the database to save the new URL to our Meme.
 
 Awesome!
 
-<a name="client" href="#client"></a>
-
-### Client-Side Code
+#### Client-Side Code
 
 Let’s start by adding a new route and page to our `main.wasp` file:
 
@@ -1238,7 +1187,7 @@ Some things to notice here are:
 
 1. because we’re using dynamic routes (`/meme/:id`), we pull the URL paramater `id` from the url with `useParams` hook.
 2. we then pass that `id` within the `getMemes` Query to fetch that specific meme to edit: `useQuery(getMeme, { id: id })`
-    1. remember, our server-side action depends on this `id` in order to fetch the meme from our database
+  1. remember, our server-side action depends on this `id` in order to fetch the meme from our database
 
 The rest of the page is just our form for calling the `editMeme` Action, as well as displaying the meme we want to edit.
 
@@ -1246,7 +1195,7 @@ That’s great!
 
 Now that we have that `EditMemePage`, we need a way to navigate to it from the home page.
 
-To do that, go back to the `Home.tsx` file, add the following imports at the top, and find the comment that says `{/* TODO: implement edit and delete meme features */}` and replace it with the following code: 
+To do that, go back to the `Home.tsx` file, add the following imports at the top, and find the comment that says `{/* TODO: implement edit and delete meme features */}` and replace it with the following code:
 
 ```tsx
 import { Link } from '@wasp/router';
@@ -1273,11 +1222,9 @@ And with that, so long as the authenticated user was the creator of the meme (or
 
 Give it a try now. It should look like this:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/ymSr2eRXz9c?si=BI9s2WEHnRiPtC3G" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ymSr2eRXz9c?si=BI9s2WEHnRiPtC3G" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
-<a name="delete" href="#delete"></a>
-
-## Deleting Memes
+### Deleting Memes
 
 Ok. When I initially started writing this tutorial, I thought I’d also explain how to add `delete` meme functionality to the app as well.
 
@@ -1292,12 +1239,10 @@ So I’ll leave you guide as to how to implement it yourself. Think of it as a b
 
 If you get stuck, you can use the `editMeme` section as a guide. Or you can check out the [finished app’s GitHub repo](https://github.com/vincanger/memerator/) for the completed code!
 
-<a name="conclusion" href="#conclusion"></a>
-
-# Conclusion
+## Conclusion
 
 There you have it! Your own instant meme generator 🤖😆
 
-BTW, If you found this useful, **please show us your support by [giving us a star on GitHub](https://github.com/wasp-lang/wasp)**! It will help us continue to make more stuff just like it. 
+BTW, If you found this useful, **please show us your support by [giving us a star on GitHub](https://github.com/wasp-lang/wasp)**! It will help us continue to make more stuff just like it.
 
-![https://res.cloudinary.com/practicaldev/image/fetch/s--tnDxibZC--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_66%2Cw_800/https://res.cloudinary.com/practicaldev/image/fetch/s--OCpry2p9--/c_limit%252Cf_auto%252Cfl_progressive%252Cq_66%252Cw_800/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bky8z46ii7ayejprrqw3.gif](https://res.cloudinary.com/practicaldev/image/fetch/s--tnDxibZC--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_66%2Cw_800/https://res.cloudinary.com/practicaldev/image/fetch/s--OCpry2p9--/c_limit%252Cf_auto%252Cfl_progressive%252Cq_66%252Cw_800/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bky8z46ii7ayejprrqw3.gif)
+![https://res.cloudinary.com/practicaldev/image/fetch/s--tnDxibZC--/c\_limit%2Cf\_auto%2Cfl\_progressive%2Cq\_66%2Cw\_800/https://res.cloudinary.com/practicaldev/image/fetch/s--OCpry2p9--/c\_limit%252Cf\_auto%252Cfl\_progressive%252Cq\_66%252Cw\_800/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bky8z46ii7ayejprrqw3.gif](https://res.cloudinary.com/practicaldev/image/fetch/s--tnDxibZC--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_66%2Cw_800/https://res.cloudinary.com/practicaldev/image/fetch/s--OCpry2p9--/c_limit%252Cf_auto%252Cfl_progressive%252Cq_66%252Cw_800/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/bky8z46ii7ayejprrqw3.gif)

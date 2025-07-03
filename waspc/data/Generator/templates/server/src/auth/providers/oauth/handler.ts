@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { handleRejection, redirect } from 'wasp/server/utils'
+import { defineHandler, redirect } from 'wasp/server/utils'
 import { rethrowPossibleAuthError } from 'wasp/auth/utils'
 import {
   type UserSignupFields,
@@ -65,7 +65,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
 
   router.get(
     `/${loginPath}`,
-    handleRejection(async (req, res) => {
+    defineHandler(async (req, res) => {
       const oAuthState = generateAndStoreOAuthState({
         oAuthType,
         provider,
@@ -77,13 +77,13 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
         url: redirectUrl,
         oauth: { uniqueRequestId: oAuthState.state }
       })
-      return redirect(res, redirectUrlAfterHook.toString())
+      redirect(res, redirectUrlAfterHook.toString())
     }),
   )
 
   router.get(
     `/${callbackPath}`,
-    handleRejection(async (req, res) => {
+    defineHandler(async (req, res) => {
       try {
         const oAuthState = validateAndGetOAuthState({
           oAuthType,
@@ -91,7 +91,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
           req,
         })
         const tokens = await getProviderTokens(oAuthState)
-  
+
         const { providerProfile, providerUserId } = await getProviderInfo(tokens)
         try {
           const redirectUri = await finishOAuthFlowAndGetRedirectUri({
@@ -113,7 +113,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
             },
           })
           // Redirect to the client with the one time code
-          return redirect(res, redirectUri.toString())
+          redirect(res, redirectUri.toString())
         } catch (e) {
           rethrowPossibleAuthError(e)
         }
@@ -121,7 +121,7 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
         console.error(e)
         const redirectUri = handleOAuthErrorAndGetRedirectUri(e)
         // Redirect to the client with the error
-        return redirect(res, redirectUri.toString())
+        redirect(res, redirectUri.toString())
       }
     }),
   )

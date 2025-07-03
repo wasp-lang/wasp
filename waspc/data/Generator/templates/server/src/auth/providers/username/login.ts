@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { createInvalidCredentialsError } from 'wasp/auth/utils'
-import { handleRejection } from 'wasp/server/utils'
+import { defineHandler } from 'wasp/server/utils'
 import { verifyPassword } from 'wasp/auth/password'
 
 import {
@@ -13,7 +13,7 @@ import { createSession } from 'wasp/auth/session'
 import { ensureValidUsername, ensurePasswordIsPresent } from 'wasp/auth/validation'
 import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
 
-export default handleRejection(async (req, res) => {
+export default defineHandler(async (req, res) => {
   const fields = req.body ?? {}
   ensureValidArgs(fields)
 
@@ -33,7 +33,7 @@ export default handleRejection(async (req, res) => {
 
   const auth = await findAuthWithUserBy({
     id: authIdentity.authId
-  }) 
+  })
 
   if (auth === null) {
     throw createInvalidCredentialsError()
@@ -53,7 +53,7 @@ export default handleRejection(async (req, res) => {
     user: auth.user,
   })
 
-  return res.json({
+  res.json({
       sessionId: session.id,
   })
 })

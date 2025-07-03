@@ -9,65 +9,60 @@ Auth is an essential piece of any serious application. Coincidentally, Wasp prov
 
 Here's a 1-minute tour of how full-stack auth works in Wasp:
 
-<div className='video-container'>
-    <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<div className="video-container">
+  <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 </div>
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of the `app` declaration.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      //...
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
+        methods: {
+          usernameAndPassword: {}, // use this or email, not both
+          email: {}, // use this or usernameAndPassword, not both
+          google: {},
+          gitHub: {},
+        },
+        onAuthFailedRedirectTo: "/someRoute"
+      }
+    }
 
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  //...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      usernameAndPassword: {}, // use this or email, not both
-      email: {}, // use this or usernameAndPassword, not both
-      google: {},
-      gitHub: {},
-    },
-    onAuthFailedRedirectTo: "/someRoute"
-  }
-}
+    //...
+    ```
+  </TabItem>
 
-//...
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      //...
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
+        methods: {
+          usernameAndPassword: {}, // use this or email, not both
+          email: {}, // use this or usernameAndPassword, not both
+          google: {},
+          gitHub: {},
+        },
+        onAuthFailedRedirectTo: "/someRoute"
+      }
+    }
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  //...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      usernameAndPassword: {}, // use this or email, not both
-      email: {}, // use this or usernameAndPassword, not both
-      google: {},
-      gitHub: {},
-    },
-    onAuthFailedRedirectTo: "/someRoute"
-  }
-}
-
-//...
-```
-
-</TabItem>
+    //...
+    ```
+  </TabItem>
 </Tabs>
 
 <small>
-
-Read more about the `auth` field options in the [API Reference](#api-reference) section.
-
+  Read more about the `auth` field options in the [API Reference](#api-reference) section.
 </small>
 
 We will provide a quick overview of auth in Wasp and link to more detailed documentation for each auth method.
@@ -93,26 +88,23 @@ When declaring a page, you can set the `authRequired` property.
 If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `app.auth.onAuthFailedRedirectTo` field.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    page MainPage {
+      component: import Main from "@client/pages/Main.jsx",
+      authRequired: true
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-page MainPage {
-  component: import Main from "@client/pages/Main.jsx",
-  authRequired: true
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-page MainPage {
-  component: import Main from "@client/pages/Main.tsx",
-  authRequired: true
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    page MainPage {
+      component: import Main from "@client/pages/Main.tsx",
+      authRequired: true
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 :::caution Requires auth method
@@ -126,28 +118,25 @@ If `authRequired` is set to `true`, the page's React component (specified by the
 We provide an action for logging out the user. Here's how you can use it:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="client/components/LogoutButton.jsx"
+    import logout from '@wasp/auth/logout'
 
-```jsx title="client/components/LogoutButton.jsx"
-import logout from '@wasp/auth/logout'
+    const LogoutButton = () => {
+      return <button onClick={logout}>Logout</button>
+    }
+    ```
+  </TabItem>
 
-const LogoutButton = () => {
-  return <button onClick={logout}>Logout</button>
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="client/components/LogoutButton.tsx"
+    import logout from '@wasp/auth/logout'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="client/components/LogoutButton.tsx"
-import logout from '@wasp/auth/logout'
-
-const LogoutButton = () => {
-  return <button onClick={logout}>Logout</button>
-}
-```
-
-</TabItem>
+    const LogoutButton = () => {
+      return <button onClick={logout}>Logout</button>
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Accessing the logged-in user
@@ -166,63 +155,60 @@ There are two ways to access the `user` object on the client:
 If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    // ...
 
-```wasp title="main.wasp"
-// ...
+    page AccountPage {
+      component: import Account from "@client/pages/Account.jsx",
+      authRequired: true
+    }
+    ```
 
-page AccountPage {
-  component: import Account from "@client/pages/Account.jsx",
-  authRequired: true
-}
-```
+    ```jsx title="client/pages/Account.jsx"
+    import Button from './Button'
+    import logout from '@wasp/auth/logout'
 
-```jsx title="client/pages/Account.jsx"
-import Button from './Button'
-import logout from '@wasp/auth/logout'
+    const AccountPage = ({ user }) => {
+      return (
+        <div>
+          <Button onClick={logout}>Logout</Button>
+          {JSON.stringify(user, null, 2)}
+        </div>
+      )
+    }
 
-const AccountPage = ({ user }) => {
-  return (
-    <div>
-      <Button onClick={logout}>Logout</Button>
-      {JSON.stringify(user, null, 2)}
-    </div>
-  )
-}
+    export default AccountPage
+    ```
+  </TabItem>
 
-export default AccountPage
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    // ...
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    page AccountPage {
+      component: import Account from "@client/pages/Account.tsx",
+      authRequired: true
+    }
+    ```
 
-```wasp title="main.wasp"
-// ...
+    ```tsx title="client/pages/Account.tsx"
+    import type { User } from '@wasp/entities'
+    import Button from './Button'
+    import logout from '@wasp/auth/logout'
 
-page AccountPage {
-  component: import Account from "@client/pages/Account.tsx",
-  authRequired: true
-}
-```
+    const AccountPage = ({ user }: { user: User }) => {
+      return (
+        <div>
+          <Button onClick={logout}>Logout</Button>
+          {JSON.stringify(user, null, 2)}
+        </div>
+      )
+    }
 
-```tsx title="client/pages/Account.tsx"
-import type { User } from '@wasp/entities'
-import Button from './Button'
-import logout from '@wasp/auth/logout'
-
-const AccountPage = ({ user }: { user: User }) => {
-  return (
-    <div>
-      <Button onClick={logout}>Logout</Button>
-      {JSON.stringify(user, null, 2)}
-    </div>
-  )
-}
-
-export default AccountPage
-```
-
-</TabItem>
+    export default AccountPage
+    ```
+  </TabItem>
 </Tabs>
 
 #### Using the `useAuth` hook
@@ -232,65 +218,62 @@ Wasp provides a React hook you can use in the client components - `useAuth`.
 This hook is a thin wrapper over Wasp's `useQuery` hook and returns data in the same format.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/client/pages/MainPage.jsx"
+    import useAuth from '@wasp/auth/useAuth'
+    import { Link } from 'react-router-dom'
+    import logout from '@wasp/auth/logout'
+    import Todo from '../Todo'
 
-```jsx title="src/client/pages/MainPage.jsx"
-import useAuth from '@wasp/auth/useAuth'
-import { Link } from 'react-router-dom'
-import logout from '@wasp/auth/logout'
-import Todo from '../Todo'
+    export function Main() {
+      const { data: user } = useAuth()
 
-export function Main() {
-  const { data: user } = useAuth()
+      if (!user) {
+        return (
+          <span>
+            Please <Link to="/login">login</Link> or{' '}
+            <Link to="/signup">sign up</Link>.
+          </span>
+        )
+      } else {
+        return (
+          <>
+            <button onClick={logout}>Logout</button>
+            <Todo />
+          </>
+        )
+      }
+    }
+    ```
+  </TabItem>
 
-  if (!user) {
-    return (
-      <span>
-        Please <Link to="/login">login</Link> or{' '}
-        <Link to="/signup">sign up</Link>.
-      </span>
-    )
-  } else {
-    return (
-      <>
-        <button onClick={logout}>Logout</button>
-        <Todo />
-      </>
-    )
-  }
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/client/pages/MainPage.tsx"
+    import useAuth from '@wasp/auth/useAuth'
+    import { Link } from 'react-router-dom'
+    import logout from '@wasp/auth/logout'
+    import Todo from '../Todo'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export function Main() {
+      const { data: user } = useAuth()
 
-```tsx title="src/client/pages/MainPage.tsx"
-import useAuth from '@wasp/auth/useAuth'
-import { Link } from 'react-router-dom'
-import logout from '@wasp/auth/logout'
-import Todo from '../Todo'
-
-export function Main() {
-  const { data: user } = useAuth()
-
-  if (!user) {
-    return (
-      <span>
-        Please <Link to='/login'>login</Link> or <Link to='/signup'>sign up</Link>.
-      </span>
-    )
-  } else {
-    return (
-      <>
-        <button onClick={logout}>Logout</button>
-        <Todo />
-      < />
-    )
-  }
-}
-```
-
-</TabItem>
+      if (!user) {
+        return (
+          <span>
+            Please <Link to='/login'>login</Link> or <Link to='/signup'>sign up</Link>.
+          </span>
+        )
+      } else {
+        return (
+          <>
+            <button onClick={logout}>Logout</button>
+            <Todo />
+          < />
+        )
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 :::tip
@@ -304,59 +287,56 @@ Since the `user` prop is only available in a page's React component: use the `us
 When authentication is enabled, all [queries and actions](../data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields, except for the password.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/server/actions.js"
+    import HttpError from '@wasp/core/HttpError.js'
 
-```js title="src/server/actions.js"
-import HttpError from '@wasp/core/HttpError.js'
+    export const createTask = async (task, context) => {
+      if (!context.user) {
+        throw new HttpError(403)
+      }
 
-export const createTask = async (task, context) => {
-  if (!context.user) {
-    throw new HttpError(403)
-  }
+      const Task = context.entities.Task
+      return Task.create({
+        data: {
+          description: task.description,
+          user: {
+            connect: { id: context.user.id },
+          },
+        },
+      })
+    }
+    ```
+  </TabItem>
 
-  const Task = context.entities.Task
-  return Task.create({
-    data: {
-      description: task.description,
-      user: {
-        connect: { id: context.user.id },
-      },
-    },
-  })
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/server/actions.ts"
+    import type { Task } from '@wasp/entities'
+    import type { CreateTask } from '@wasp/actions/types'
+    import HttpError from '@wasp/core/HttpError.js'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    type CreateTaskPayload = Pick<Task, 'description'>
 
-```ts title="src/server/actions.ts"
-import type { Task } from '@wasp/entities'
-import type { CreateTask } from '@wasp/actions/types'
-import HttpError from '@wasp/core/HttpError.js'
+    export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+      args,
+      context
+    ) => {
+      if (!context.user) {
+        throw new HttpError(403)
+      }
 
-type CreateTaskPayload = Pick<Task, 'description'>
-
-export const createTask: CreateTask<CreateTaskPayload, Task> = async (
-  args,
-  context
-) => {
-  if (!context.user) {
-    throw new HttpError(403)
-  }
-
-  const Task = context.entities.Task
-  return Task.create({
-    data: {
-      description: args.description,
-      user: {
-        connect: { id: context.user.id },
-      },
-    },
-  })
-}
-```
-
-</TabItem>
+      const Task = context.entities.Task
+      return Task.create({
+        data: {
+          description: args.description,
+          user: {
+            connect: { id: context.user.id },
+          },
+        },
+      })
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
@@ -371,44 +351,41 @@ You don't need to worry about hashing the password yourself. Even when directly 
 For example, if you need to update a user's password, you can safely use the Prisma client to do so, e.g., inside an Action:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/server/actions.js"
+    export const updatePassword = async (args, context) => {
+      return context.entities.User.update({
+        where: { id: args.userId },
+        data: {
+          password: 'New pwd which will be hashed automatically!',
+        },
+      })
+    }
+    ```
+  </TabItem>
 
-```js title="src/server/actions.js"
-export const updatePassword = async (args, context) => {
-  return context.entities.User.update({
-    where: { id: args.userId },
-    data: {
-      password: 'New pwd which will be hashed automatically!',
-    },
-  })
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/server/actions.ts"
+    import type { UpdatePassword } from '@wasp/actions/types'
+    import type { User } from '@wasp/entities'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    type UpdatePasswordPayload = {
+      userId: User['id']
+    }
 
-```ts title="src/server/actions.ts"
-import type { UpdatePassword } from '@wasp/actions/types'
-import type { User } from '@wasp/entities'
-
-type UpdatePasswordPayload = {
-  userId: User['id']
-}
-
-export const updatePassword: UpdatePassword<
-  UpdatePasswordPayload,
-  User
-> = async (args, context) => {
-  return context.entities.User.update({
-    where: { id: args.userId },
-    data: {
-      password: 'New pwd which will be hashed automatically!',
-    },
-  })
-}
-```
-
-</TabItem>
+    export const updatePassword: UpdatePassword<
+      UpdatePasswordPayload,
+      User
+    > = async (args, context) => {
+      return context.entities.User.update({
+        where: { id: args.userId },
+        data: {
+          password: 'New pwd which will be hashed automatically!',
+        },
+      })
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ### Default validations
@@ -446,46 +423,43 @@ This is a bug in Wasp that is being tracked [here](https://github.com/wasp-lang/
 To disable/enable default validations, or add your own, modify your custom signup function:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    const newUser = context.entities.User.create({
+      data: {
+        username: args.username,
+        password: args.password, // password hashed automatically by Wasp! 🐝
+      },
+      _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
+      _waspCustomValidations: [
+        {
+          validates: 'password',
+          message: 'password must contain an uppercase letter',
+          validator: (password) => /[A-Z]/.test(password),
+        },
+      ],
+    })
+    ```
+  </TabItem>
 
-```js
-const newUser = context.entities.User.create({
-  data: {
-    username: args.username,
-    password: args.password, // password hashed automatically by Wasp! 🐝
-  },
-  _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
-  _waspCustomValidations: [
-    {
-      validates: 'password',
-      message: 'password must contain an uppercase letter',
-      validator: (password) => /[A-Z]/.test(password),
-    },
-  ],
-})
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts
-const newUser = context.entities.User.create({
-  data: {
-    username: args.username,
-    password: args.password, // password hashed automatically by Wasp! 🐝
-  },
-  _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
-  _waspCustomValidations: [
-    {
-      validates: 'password',
-      message: 'password must contain an uppercase letter',
-      validator: (password) => /[A-Z]/.test(password),
-    },
-  ],
-})
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    const newUser = context.entities.User.create({
+      data: {
+        username: args.username,
+        password: args.password, // password hashed automatically by Wasp! 🐝
+      },
+      _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
+      _waspCustomValidations: [
+        {
+          validates: 'password',
+          message: 'password must contain an uppercase letter',
+          validator: (password) => /[A-Z]/.test(password),
+        },
+      ],
+    })
+    ```
+  </TabItem>
 </Tabs>
 
 :::info
@@ -500,36 +474,33 @@ The validation process stops on the first `validator` to return false. If enable
 When creating, updating, or deleting entities, you may wish to handle validation errors. Wasp exposes a class called `AuthError` for this purpose.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/server/actions.js"
+    try {
+      await context.entities.User.update(...)
+    } catch (e) {
+      if (e instanceof AuthError) {
+        throw new HttpError(422, 'Validation failed', { message: e.message })
+      } else {
+        throw e
+      }
+    }
+    ```
+  </TabItem>
 
-```js title="src/server/actions.js"
-try {
-  await context.entities.User.update(...)
-} catch (e) {
-  if (e instanceof AuthError) {
-    throw new HttpError(422, 'Validation failed', { message: e.message })
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/server/actions.ts"
-try {
-  await context.entities.User.update(...)
-} catch (e) {
-  if (e instanceof AuthError) {
-    throw new HttpError(422, 'Validation failed', { message: e.message })
-  } else {
-    throw e
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/server/actions.ts"
+    try {
+      await context.entities.User.update(...)
+    } catch (e) {
+      if (e instanceof AuthError) {
+        throw new HttpError(422, 'Validation failed', { message: e.message })
+      } else {
+        throw e
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Customizing the Signup Process
@@ -552,108 +523,103 @@ If we want to **save** some extra fields in our signup process, we need to tell 
 We do that by defining an object where the keys represent the field name, and the values are functions that receive the data sent from the client\* and return the value of the field.
 
 <small>
-
-\* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
+  \* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
 First, we add the `auth.signup.additionalFields` field in our `main.wasp` file:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title="main.wasp" {9-11}
-app crudTesting {
-  // ...
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
-  },
-}
-
-entity User {=psl
-  id Int @id @default(autoincrement())
-  username String @unique
-  password String
-  address String?
-psl=}
-```
-
-Then we'll define and export the `fields` object from the `server/auth/signup.js` file:
-
-```ts title="server/auth/signup.js"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
-
-export const fields = defineAdditionalSignupFields({
-  address: async (data) => {
-    const address = data.address
-    if (typeof address !== 'string') {
-      throw new Error('Address is required')
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp" {9-11}
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login",
+        signup: {
+          additionalFields: import { fields } from "@server/auth/signup.js",
+        },
+      },
     }
-    if (address.length < 5) {
-      throw new Error('Address must be at least 5 characters long')
+
+    entity User {=psl
+      id Int @id @default(autoincrement())
+      username String @unique
+      password String
+      address String?
+    psl=}
+    ```
+
+    Then we'll define and export the `fields` object from the `server/auth/signup.js` file:
+
+    ```ts title="server/auth/signup.js"
+    import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+
+    export const fields = defineAdditionalSignupFields({
+      address: async (data) => {
+        const address = data.address
+        if (typeof address !== 'string') {
+          throw new Error('Address is required')
+        }
+        if (address.length < 5) {
+          throw new Error('Address must be at least 5 characters long')
+        }
+        return address
+      },
+    })
+    ```
+  </TabItem>
+
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp" {9-11}
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login",
+        signup: {
+          additionalFields: import { fields } from "@server/auth/signup.js",
+        },
+      },
     }
-    return address
-  },
-})
-```
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    entity User {=psl
+      id Int @id @default(autoincrement())
+      username String @unique
+      password String
+      address String?
+    psl=}
+    ```
 
-```wasp title="main.wasp" {9-11}
-app crudTesting {
-  // ...
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
-  },
-}
+    Then we'll export the `fields` object from the `server/auth/signup.ts` file:
 
-entity User {=psl
-  id Int @id @default(autoincrement())
-  username String @unique
-  password String
-  address String?
-psl=}
-```
+    ```ts title="server/auth/signup.ts"
+    import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
 
-Then we'll export the `fields` object from the `server/auth/signup.ts` file:
-
-```ts title="server/auth/signup.ts"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
-
-export const fields = defineAdditionalSignupFields({
-  address: async (data) => {
-    const address = data.address
-    if (typeof address !== 'string') {
-      throw new Error('Address is required')
-    }
-    if (address.length < 5) {
-      throw new Error('Address must be at least 5 characters long')
-    }
-    return address
-  },
-})
-```
-
-</TabItem>
+    export const fields = defineAdditionalSignupFields({
+      address: async (data) => {
+        const address = data.address
+        if (typeof address !== 'string') {
+          throw new Error('Address is required')
+        }
+        if (address.length < 5) {
+          throw new Error('Address must be at least 5 characters long')
+        }
+        return address
+      },
+    })
+    ```
+  </TabItem>
 </Tabs>
 
 <small>
-
-Read more about the `fields` object in the [API Reference](#signup-fields-customization).
+  Read more about the `fields` object in the [API Reference](#signup-fields-customization).
 </small>
 
 Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity.
@@ -665,58 +631,55 @@ The field function will receive the data sent from the client and it needs to re
 You can use any validation library you want to validate the fields. For example, you can use `zod` like this:
 
 <details>
-<summary>Click to see the code</summary>
+  <summary>Click to see the code</summary>
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <Tabs groupId="js-ts">
+    <TabItem value="js" label="JavaScript">
+      ```js title="server/auth/signup.js"
+      import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+      import * as z from 'zod'
 
-```js title="server/auth/signup.js"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
-import * as z from 'zod'
-
-export const fields = defineAdditionalSignupFields({
-  address: (data) => {
-    const AddressSchema = z
-      .string({
-        required_error: 'Address is required',
-        invalid_type_error: 'Address must be a string',
+      export const fields = defineAdditionalSignupFields({
+        address: (data) => {
+          const AddressSchema = z
+            .string({
+              required_error: 'Address is required',
+              invalid_type_error: 'Address must be a string',
+            })
+            .min(10, 'Address must be at least 10 characters long')
+          const result = AddressSchema.safeParse(data.address)
+          if (result.success === false) {
+            throw new Error(result.error.issues[0].message)
+          }
+          return result.data
+        },
       })
-      .min(10, 'Address must be at least 10 characters long')
-    const result = AddressSchema.safeParse(data.address)
-    if (result.success === false) {
-      throw new Error(result.error.issues[0].message)
-    }
-    return result.data
-  },
-})
-```
+      ```
+    </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    <TabItem value="ts" label="TypeScript">
+      ```ts title="server/auth/signup.ts"
+      import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+      import * as z from 'zod'
 
-```ts title="server/auth/signup.ts"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
-import * as z from 'zod'
-
-export const fields = defineAdditionalSignupFields({
-  address: (data) => {
-    const AddressSchema = z
-      .string({
-        required_error: 'Address is required',
-        invalid_type_error: 'Address must be a string',
+      export const fields = defineAdditionalSignupFields({
+        address: (data) => {
+          const AddressSchema = z
+            .string({
+              required_error: 'Address is required',
+              invalid_type_error: 'Address must be a string',
+            })
+            .min(10, 'Address must be at least 10 characters long')
+          const result = AddressSchema.safeParse(data.address)
+          if (result.success === false) {
+            throw new Error(result.error.issues[0].message)
+          }
+          return result.data
+        },
       })
-      .min(10, 'Address must be at least 10 characters long')
-    const result = AddressSchema.safeParse(data.address)
-    if (result.success === false) {
-      throw new Error(result.error.issues[0].message)
-    }
-    return result.data
-  },
-})
-```
-
-</TabItem>
-</Tabs>
+      ```
+    </TabItem>
+  </Tabs>
 </details>
 
 :::
@@ -738,7 +701,7 @@ Read more about using the signup actions for:
 
 - email auth [here](../auth/email#fields-in-the-email-dict) <!-- TODO: these docs are not great at explaining using signup and login actions: https://github.com/wasp-lang/wasp/issues/1438 -->
 - username & password auth [here](../auth/username-and-pass#customizing-the-auth-flow)
-:::
+  :::
 
 If you are using Wasp's Auth UI, you can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
 
@@ -752,111 +715,107 @@ Inside the list, there can be either **objects** or **render functions** (you ca
 2. Render functions can be used to render any UI you want, but they require a bit more code. The render functions receive the `react-hook-form` object and the form state object as arguments.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="client/SignupPage.jsx"
+    import { SignupForm } from '@wasp/auth/forms/Signup'
+    import {
+      FormError,
+      FormInput,
+      FormItemGroup,
+      FormLabel,
+    } from '@wasp/auth/forms/internal/Form'
 
-```jsx title="client/SignupPage.jsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import {
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from '@wasp/auth/forms/internal/Form'
+    export const SignupPage = () => {
+      return (
+        <SignupForm
+          additionalFields={[
+            /* The address field is defined using an object */
+            {
+              name: 'address',
+              label: 'Address',
+              type: 'input',
+              validations: {
+                required: 'Address is required',
+              },
+            },
+            /* The phone number is defined using a render function */
+            (form, state) => {
+              return (
+                <FormItemGroup>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormInput
+                    {...form.register('phoneNumber', {
+                      required: 'Phone number is required',
+                    })}
+                    disabled={state.isLoading}
+                  />
+                  {form.formState.errors.phoneNumber && (
+                    <FormError>
+                      {form.formState.errors.phoneNumber.message}
+                    </FormError>
+                  )}
+                </FormItemGroup>
+              )
+            },
+          ]}
+        />
+      )
+    }
+    ```
+  </TabItem>
 
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        /* The address field is defined using an object */
-        {
-          name: 'address',
-          label: 'Address',
-          type: 'input',
-          validations: {
-            required: 'Address is required',
-          },
-        },
-        /* The phone number is defined using a render function */
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register('phoneNumber', {
-                  required: 'Phone number is required',
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          )
-        },
-      ]}
-    />
-  )
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="client/SignupPage.tsx"
+    import { SignupForm } from '@wasp/auth/forms/Signup'
+    import {
+      FormError,
+      FormInput,
+      FormItemGroup,
+      FormLabel,
+    } from '@wasp/auth/forms/internal/Form'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="client/SignupPage.tsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import {
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from '@wasp/auth/forms/internal/Form'
-
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        /* The address field is defined using an object */
-        {
-          name: 'address',
-          label: 'Address',
-          type: 'input',
-          validations: {
-            required: 'Address is required',
-          },
-        },
-        /* The phone number is defined using a render function */
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register('phoneNumber', {
-                  required: 'Phone number is required',
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          )
-        },
-      ]}
-    />
-  )
-}
-```
-
-</TabItem>
+    export const SignupPage = () => {
+      return (
+        <SignupForm
+          additionalFields={[
+            /* The address field is defined using an object */
+            {
+              name: 'address',
+              label: 'Address',
+              type: 'input',
+              validations: {
+                required: 'Address is required',
+              },
+            },
+            /* The phone number is defined using a render function */
+            (form, state) => {
+              return (
+                <FormItemGroup>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormInput
+                    {...form.register('phoneNumber', {
+                      required: 'Phone number is required',
+                    })}
+                    disabled={state.isLoading}
+                  />
+                  {form.formState.errors.phoneNumber && (
+                    <FormError>
+                      {form.formState.errors.phoneNumber.message}
+                    </FormError>
+                  )}
+                </FormItemGroup>
+              )
+            },
+          ]}
+        />
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <small>
-
-Read more about the extra fields in the [API Reference](#signupform-customization).
+  Read more about the extra fields in the [API Reference](#signupform-customization).
 </small>
 
 #### Using a Single Render Function
@@ -864,61 +823,57 @@ Read more about the extra fields in the [API Reference](#signupform-customizatio
 Instead of passing in a list of extra fields, you can pass in a render function which will receive the `react-hook-form` object and the form state object as arguments. What ever the render function returns, will be rendered below the default fields.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="client/SignupPage.jsx"
+    import { SignupForm } from '@wasp/auth/forms/Signup'
+    import { FormItemGroup } from '@wasp/auth/forms/internal/Form'
 
-```jsx title="client/SignupPage.jsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import { FormItemGroup } from '@wasp/auth/forms/internal/Form'
+    export const SignupPage = () => {
+      return (
+        <SignupForm
+          additionalFields={(form, state) => {
+            const username = form.watch('username')
+            return (
+              username && (
+                <FormItemGroup>
+                  Hello there <strong>{username}</strong> 👋
+                </FormItemGroup>
+              )
+            )
+          }}
+        />
+      )
+    }
+    ```
+  </TabItem>
 
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={(form, state) => {
-        const username = form.watch('username')
-        return (
-          username && (
-            <FormItemGroup>
-              Hello there <strong>{username}</strong> 👋
-            </FormItemGroup>
-          )
-        )
-      }}
-    />
-  )
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="client/SignupPage.tsx"
+    import { SignupForm } from '@wasp/auth/forms/Signup'
+    import { FormItemGroup } from '@wasp/auth/forms/internal/Form'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="client/SignupPage.tsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import { FormItemGroup } from '@wasp/auth/forms/internal/Form'
-
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={(form, state) => {
-        const username = form.watch('username')
-        return (
-          username && (
-            <FormItemGroup>
-              Hello there <strong>{username}</strong> 👋
-            </FormItemGroup>
-          )
-        )
-      }}
-    />
-  )
-}
-```
-
-</TabItem>
+    export const SignupPage = () => {
+      return (
+        <SignupForm
+          additionalFields={(form, state) => {
+            const username = form.watch('username')
+            return (
+              username && (
+                <FormItemGroup>
+                  Hello there <strong>{username}</strong> 👋
+                </FormItemGroup>
+              )
+            )
+          }}
+        />
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <small>
-
-Read more about the render function in the [API Reference](#signupform-customization).
+  Read more about the render function in the [API Reference](#signupform-customization).
 </small>
 
 ## API Reference
@@ -926,53 +881,50 @@ Read more about the render function in the [API Reference](#signupform-customiza
 ### Auth Fields
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+      title: "My app",
+      //...
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
+        methods: {
+          usernameAndPassword: {}, // use this or email, not both
+          email: {}, // use this or usernameAndPassword, not both
+          google: {},
+          gitHub: {},
+        },
+        onAuthFailedRedirectTo: "/someRoute",
+        signup: { ... }
+      }
+    }
 
-```wasp title="main.wasp"
-  title: "My app",
-  //...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      usernameAndPassword: {}, // use this or email, not both
-      email: {}, // use this or usernameAndPassword, not both
-      google: {},
-      gitHub: {},
-    },
-    onAuthFailedRedirectTo: "/someRoute",
-    signup: { ... }
-  }
-}
+    //...
+    ```
+  </TabItem>
 
-//...
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      //...
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
+        methods: {
+          usernameAndPassword: {}, // use this or email, not both
+          email: {}, // use this or usernameAndPassword, not both
+          google: {},
+          gitHub: {},
+        },
+        onAuthFailedRedirectTo: "/someRoute",
+        signup: { ... }
+      }
+    }
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  //...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      usernameAndPassword: {}, // use this or email, not both
-      email: {}, // use this or usernameAndPassword, not both
-      google: {},
-      gitHub: {},
-    },
-    onAuthFailedRedirectTo: "/someRoute",
-    signup: { ... }
-  }
-}
-
-//...
-```
-
-</TabItem>
+    //...
+    ```
+  </TabItem>
 </Tabs>
 
 `app.auth` is a dictionary with the following fields:
@@ -986,60 +938,57 @@ The entity representing the user. Its mandatory fields depend on your chosen aut
 Wasp requires you to set the field `auth.externalAuthEntity` for all authentication methods relying on an external authorizatino provider (e.g., Google). You also need to tweak the Entity referenced by `auth.userEntity`, as shown below.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp {4,14} title="main.wasp"
-//...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-//...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
+  <TabItem value="js" label="JavaScript">
+    ```wasp {4,14} title="main.wasp"
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp {4,14} title="main.wasp"
-//...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-//...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
     //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
 
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-```
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        //...
+        externalAuthAssociations  SocialLogin[]
+    psl=}
 
-</TabItem>
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
+    ```
+  </TabItem>
+
+  <TabItem value="ts" label="TypeScript">
+    ```wasp {4,14} title="main.wasp"
+    //...
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
+    //...
+
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        //...
+        externalAuthAssociations  SocialLogin[]
+    psl=}
+
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
+    ```
+  </TabItem>
 </Tabs>
 
 :::note
@@ -1077,82 +1026,79 @@ Read more about the signup process customization API in the [Signup Fields Custo
 If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.signup.additionalFields` field in your `main.wasp` file.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title="main.wasp" {9-11}
-app crudTesting {
-  // ...
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
-  },
-}
-```
-
-Then we'll export the `fields` object from the `server/auth/signup.js` file:
-
-```ts title="server/auth/signup.js"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
-
-export const fields = defineAdditionalSignupFields({
-  address: async (data) => {
-    const address = data.address
-    if (typeof address !== 'string') {
-      throw new Error('Address is required')
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp" {9-11}
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login",
+        signup: {
+          additionalFields: import { fields } from "@server/auth/signup.js",
+        },
+      },
     }
-    if (address.length < 5) {
-      throw new Error('Address must be at least 5 characters long')
+    ```
+
+    Then we'll export the `fields` object from the `server/auth/signup.js` file:
+
+    ```ts title="server/auth/signup.js"
+    import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
+
+    export const fields = defineAdditionalSignupFields({
+      address: async (data) => {
+        const address = data.address
+        if (typeof address !== 'string') {
+          throw new Error('Address is required')
+        }
+        if (address.length < 5) {
+          throw new Error('Address must be at least 5 characters long')
+        }
+        return address
+      },
+    })
+    ```
+  </TabItem>
+
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp" {9-11}
+    app crudTesting {
+      // ...
+      auth: {
+        userEntity: User,
+        methods: {
+          usernameAndPassword: {},
+        },
+        onAuthFailedRedirectTo: "/login",
+        signup: {
+          additionalFields: import { fields } from "@server/auth/signup.js",
+        },
+      },
     }
-    return address
-  },
-})
-```
+    ```
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    Then we'll export the `fields` object from the `server/auth/signup.ts` file:
 
-```wasp title="main.wasp" {9-11}
-app crudTesting {
-  // ...
-  auth: {
-    userEntity: User,
-    methods: {
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login",
-    signup: {
-      additionalFields: import { fields } from "@server/auth/signup.js",
-    },
-  },
-}
-```
+    ```ts title="server/auth/signup.ts"
+    import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
 
-Then we'll export the `fields` object from the `server/auth/signup.ts` file:
-
-```ts title="server/auth/signup.ts"
-import { defineAdditionalSignupFields } from '@wasp/auth/index.js'
-
-export const fields = defineAdditionalSignupFields({
-  address: async (data) => {
-    const address = data.address
-    if (typeof address !== 'string') {
-      throw new Error('Address is required')
-    }
-    if (address.length < 5) {
-      throw new Error('Address must be at least 5 characters long')
-    }
-    return address
-  },
-})
-```
-
-</TabItem>
+    export const fields = defineAdditionalSignupFields({
+      address: async (data) => {
+        const address = data.address
+        if (typeof address !== 'string') {
+          throw new Error('Address is required')
+        }
+        if (address.length < 5) {
+          throw new Error('Address must be at least 5 characters long')
+        }
+        return address
+      },
+    })
+    ```
+  </TabItem>
 </Tabs>
 
 The `fields` object is an object where the keys represent the field name, and the values are functions which receive the data sent from the client\* and return the value of the field.
@@ -1160,8 +1106,7 @@ The `fields` object is an object where the keys represent the field name, and th
 If the field value is invalid, the function should throw an error.
 
 <small>
-
-\* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
+  \* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
 ### `SignupForm` Customization
@@ -1169,102 +1114,99 @@ If the field value is invalid, the function should throw an error.
 To customize the `SignupForm` component, you need to pass in the `additionalFields` prop. It can be either a list of extra fields or a render function.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="client/SignupPage.jsx"
+    import { SignupForm } from '@wasp/auth/forms/Signup'
+    import {
+      FormError,
+      FormInput,
+      FormItemGroup,
+      FormLabel,
+    } from '@wasp/auth/forms/internal/Form'
 
-```jsx title="client/SignupPage.jsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import {
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from '@wasp/auth/forms/internal/Form'
+    export const SignupPage = () => {
+      return (
+        <SignupForm
+          additionalFields={[
+            {
+              name: 'address',
+              label: 'Address',
+              type: 'input',
+              validations: {
+                required: 'Address is required',
+              },
+            },
+            (form, state) => {
+              return (
+                <FormItemGroup>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormInput
+                    {...form.register('phoneNumber', {
+                      required: 'Phone number is required',
+                    })}
+                    disabled={state.isLoading}
+                  />
+                  {form.formState.errors.phoneNumber && (
+                    <FormError>
+                      {form.formState.errors.phoneNumber.message}
+                    </FormError>
+                  )}
+                </FormItemGroup>
+              )
+            },
+          ]}
+        />
+      )
+    }
+    ```
+  </TabItem>
 
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        {
-          name: 'address',
-          label: 'Address',
-          type: 'input',
-          validations: {
-            required: 'Address is required',
-          },
-        },
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register('phoneNumber', {
-                  required: 'Phone number is required',
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          )
-        },
-      ]}
-    />
-  )
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="client/SignupPage.tsx"
+    import { SignupForm } from '@wasp/auth/forms/Signup'
+    import {
+      FormError,
+      FormInput,
+      FormItemGroup,
+      FormLabel,
+    } from '@wasp/auth/forms/internal/Form'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title="client/SignupPage.tsx"
-import { SignupForm } from '@wasp/auth/forms/Signup'
-import {
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from '@wasp/auth/forms/internal/Form'
-
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        {
-          name: 'address',
-          label: 'Address',
-          type: 'input',
-          validations: {
-            required: 'Address is required',
-          },
-        },
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register('phoneNumber', {
-                  required: 'Phone number is required',
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          )
-        },
-      ]}
-    />
-  )
-}
-```
-
-</TabItem>
+    export const SignupPage = () => {
+      return (
+        <SignupForm
+          additionalFields={[
+            {
+              name: 'address',
+              label: 'Address',
+              type: 'input',
+              validations: {
+                required: 'Address is required',
+              },
+            },
+            (form, state) => {
+              return (
+                <FormItemGroup>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormInput
+                    {...form.register('phoneNumber', {
+                      required: 'Phone number is required',
+                    })}
+                    disabled={state.isLoading}
+                  />
+                  {form.formState.errors.phoneNumber && (
+                    <FormError>
+                      {form.formState.errors.phoneNumber.message}
+                    </FormError>
+                  )}
+                </FormItemGroup>
+              )
+            },
+          ]}
+        />
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 The extra fields can be either **objects** or **render functions** (you can combine them):
@@ -1275,6 +1217,7 @@ The extra fields can be either **objects** or **render functions** (you can comb
 
    - `name` <Required />
      - the name of the field
+
    - `label` <Required />
 
      - the label of the field (used in the UI)

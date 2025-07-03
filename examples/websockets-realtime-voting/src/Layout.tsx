@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { logout, useAuth } from "wasp/client/auth";
 import "./Main.css";
 
-import { Flowbite, Dropdown, Navbar, Avatar } from "flowbite-react";
+import { Avatar, Dropdown, Flowbite, Navbar } from "flowbite-react";
 import Logo from "./logo.png";
 
 const customTheme = {
@@ -27,7 +27,7 @@ export const Layout = () => {
             </span>
           </Navbar.Brand>
           {user && (
-            <div className="flex md:order-2">
+            <div className="user-dropdown flex md:order-2">
               <Dropdown
                 inline
                 label={
@@ -62,7 +62,7 @@ export const Layout = () => {
             <Navbar.Link href="#">Contact</Navbar.Link>
           </Navbar.Collapse> */}
         </Navbar>
-        <div className="grid place-items-center mt-8">
+        <div className="mt-8 grid place-items-center">
           <Outlet />
         </div>
       </div>

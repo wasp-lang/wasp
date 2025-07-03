@@ -1,5 +1,6 @@
 ---
 title: Create your own UI
+title-llm: Create your own UI for Username & Password Auth
 ---
 
 import { Required } from '@site/src/components/Tag'
@@ -19,209 +20,203 @@ Below you can find a starting point for making your own UI in the client code. Y
 ### Sign-up
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/pages/auth.jsx"
+    import { login, signup } from 'wasp/client/auth'
 
-```jsx title="src/pages/auth.jsx"
-import { login, signup } from 'wasp/client/auth'
+    import { useState } from 'react'
+    import { useNavigate } from 'react-router-dom'
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+    export function Signup() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState(null)
+      const navigate = useNavigate()
 
-export function Signup() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+      async function handleSubmit(event) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await signup({ username, password })
+          await login({ username, password })
+          navigate('/')
+        } catch (error) {
+          setError(error)
+        }
+      }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await signup({ username, password })
-      await login(username, password)
-      navigate('/')
-    } catch (error) {
-      setError(error)
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
+
+          <input
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Sign Up</button>
+        </form>
+      )
     }
-  }
+    ```
+  </TabItem>
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/auth.tsx"
+    import { login, signup } from 'wasp/client/auth'
 
-      <input
-        type="text"
-        autoComplete="username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Sign Up</button>
-    </form>
-  )
-}
-```
+    import { useState } from 'react'
+    import { useNavigate } from 'react-router-dom'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export function Signup() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState<Error | null>(null)
+      const navigate = useNavigate()
 
-```tsx title="src/pages/auth.tsx"
-import { login, signup } from 'wasp/client/auth'
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await signup({ username, password })
+          await login({ username, password })
+          navigate('/')
+        } catch (error: unknown) {
+          setError(error as Error)
+        }
+      }
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
 
-export function Signup() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await signup({ username, password })
-      await login(username, password)
-      navigate('/')
-    } catch (error: unknown) {
-      setError(error as Error)
+          <input
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Sign Up</button>
+        </form>
+      )
     }
-  }
-
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
-
-      <input
-        type="text"
-        autoComplete="username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Sign Up</button>
-    </form>
-  )
-}
-```
-
-</TabItem>
+    ```
+  </TabItem>
 </Tabs>
 
 ### Login
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/pages/auth.jsx"
+    import { login } from 'wasp/client/auth'
 
-```jsx title="src/pages/auth.jsx"
-import { login } from 'wasp/client/auth'
+    import { useState } from 'react'
+    import { useNavigate } from 'react-router-dom'
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+    export function Login() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState(null)
+      const navigate = useNavigate()
 
-export function Login() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+      async function handleSubmit(event) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await login({ username, password })
+          navigate('/')
+        } catch (error) {
+          setError(error)
+        }
+      }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await login(username, password)
-      navigate('/')
-    } catch (error) {
-      setError(error)
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
+
+          <input
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Sign Up</button>
+        </form>
+      )
     }
-  }
+    ```
+  </TabItem>
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/auth.tsx"
+    import { login } from 'wasp/client/auth'
 
-      <input
-        type="text"
-        autoComplete="username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Sign Up</button>
-    </form>
-  )
-}
-```
+    import { useState } from 'react'
+    import { useNavigate } from 'react-router-dom'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export function Login() {
+      const [username, setUsername] = useState('')
+      const [password, setPassword] = useState('')
+      const [error, setError] = useState<Error | null>(null)
+      const navigate = useNavigate()
 
-```tsx title="src/pages/auth.tsx"
-import { login } from 'wasp/client/auth'
+      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setError(null)
+        try {
+          await login({ username, password })
+          navigate('/')
+        } catch (error: unknown) {
+          setError(error as Error)
+        }
+      }
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+      return (
+        <form onSubmit={handleSubmit}>
+          {error && <p>Error: {error.message}</p>}
 
-export function Login() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<Error | null>(null)
-  const navigate = useNavigate()
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    try {
-      await login(username, password)
-      navigate('/')
-    } catch (error: unknown) {
-      setError(error as Error)
+          <input
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+          <button type="submit">Sign Up</button>
+        </form>
+      )
     }
-  }
-
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>Error: {error.message}</p>}
-
-      <input
-        type="text"
-        autoComplete="username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button type="submit">Sign Up</button>
-    </form>
-  )
-}
-```
-
-</TabItem>
+    ```
+  </TabItem>
 </Tabs>
 
 ## API Reference
@@ -232,15 +227,15 @@ You can import the following functions from `wasp/client/auth`:
 
 An action for logging in the user.
 
-It takes two arguments:
+It takes one argument:
 
-- `username: string` <Required />
+- `data: object` <Required />
 
-  Username of the user logging in.
+  It has the following fields:
 
-- `password: string` <Required />
+  - `username: string` <Required />
 
-  Password of the user logging in.
+  - `password: string` <Required />
 
 :::note
 When using the exposed `login()` function, make sure to implement your redirect on success login logic (e.g. redirecting to home).
@@ -252,7 +247,7 @@ An action for signing up the user. This action does not log in the user, you sti
 
 It takes one argument:
 
-- `userFields: object` <Required />
+- `data: object` <Required />
 
   It has the following fields:
 

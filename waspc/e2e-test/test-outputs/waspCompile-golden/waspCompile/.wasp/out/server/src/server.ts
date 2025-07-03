@@ -6,8 +6,6 @@ import { config } from 'wasp/server'
 
 
 
-import './polyfill.js'
-
 const startServer = async () => {
 
   const port = normalizePort(config.port)

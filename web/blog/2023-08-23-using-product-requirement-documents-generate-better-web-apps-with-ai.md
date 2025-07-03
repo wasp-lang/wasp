@@ -4,6 +4,7 @@ authors: [vinny]
 image: /img/prd/outsmarting-ai-1600.gif
 tags: [ai, prd, product requirement, react, full-stack, generate, hack]
 ---
+
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import ImgWithCaption from './components/ImgWithCaption'
@@ -38,7 +39,7 @@ There are the obvious tools at the moment, like using ChatGPT and Copilot within
 
 I’ve gotten a chance to try out some of them, and I even wrote a long-form comparison piece where I put [two such tools to the test](https://dev.to/wasp/smol-ai-vs-wasp-ai-which-is-the-better-ai-junior-developer-4fcb), so check that out if you’re interested.
 
-**But there’s a major problem with these tools**: even though they’re able to generate some good boilerplate code, they often include a lot of errors and don’t make the developer's job *that* much easier in the end.
+**But there’s a major problem with these tools**: even though they’re able to generate some good boilerplate code, they often include a lot of errors and don’t make the developer's job _that_ much easier in the end.
 
 # Where the problem lies
 
@@ -48,11 +49,11 @@ On one hand, we have tools like ChatGPT and Copilot, which aid you with refactor
 
 But coding isn't just about filling the next available space; it’s about **envisioning the entire picture**, understanding the broader system and how different pieces interrelate.
 
-![https://media3.giphy.com/media/SrnCKS6s02XT2tw6kz/giphy.gif?cid=7941fdc6b01lfcj3taubztyp823itz03hhy9qx8p0mslbtij&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media3.giphy.com/media/SrnCKS6s02XT2tw6kz/giphy.gif?cid=7941fdc6b01lfcj3taubztyp823itz03hhy9qx8p0mslbtij&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media3.giphy.com/media/SrnCKS6s02XT2tw6kz/giphy.gif?cid=7941fdc6b01lfcj3taubztyp823itz03hhy9qx8p0mslbtij\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media3.giphy.com/media/SrnCKS6s02XT2tw6kz/giphy.gif?cid=7941fdc6b01lfcj3taubztyp823itz03hhy9qx8p0mslbtij\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 AI-assisted coding tools that behave more like agents have the potential to understand this broader context needed to generate larger codebases, but it’s easier said than done. Currently, most of the tools out there end up generating code that comes full of errors.
 
-Worst of all, some of the code they output can be so messy it actually means *more* work for you.
+Worst of all, some of the code they output can be so messy it actually means _more_ work for you.
 
 # How to fix it
 
@@ -60,14 +61,13 @@ AI assistants, much like novice apprentices, need a comprehensive understanding 
 
 You essentially want to be taking on the role of a Product Manager/Designer and be giving the AI a **Product Requirement Document (PRD)**, i.e. an authoritative document that clearly outlines the
 
-* purpose,
-    
-* features,
-    
-* functionality,
-    
-* and behavior
-    
+- purpose,
+
+- features,
+
+- functionality,
+
+- and behavior
 
 of the product to be developed.
 
@@ -87,24 +87,23 @@ How does it do this? Well, the full answer lies in how [Wasp](https://wasp.sh/) 
 
 It’s beyond the scope of this article to [explain it in full detail](https://wasp.sh/docs), but the TL;DR is that Wasp has a compiler that helps build your app based on a config file. The config file is like a set of **instructions** that its compiler understands and uses to piece together the different parts of the full-stack app for you.
 
-![https://media1.giphy.com/media/heVoZxS2qAGk4Ay5E5/giphy.gif?cid=7941fdc6x2abm5omkgd1d79rz6dt5kzaead3mxu8xt4xuwc2&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media1.giphy.com/media/heVoZxS2qAGk4Ay5E5/giphy.gif?cid=7941fdc6x2abm5omkgd1d79rz6dt5kzaead3mxu8xt4xuwc2&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media1.giphy.com/media/heVoZxS2qAGk4Ay5E5/giphy.gif?cid=7941fdc6x2abm5omkgd1d79rz6dt5kzaead3mxu8xt4xuwc2\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media1.giphy.com/media/heVoZxS2qAGk4Ay5E5/giphy.gif?cid=7941fdc6x2abm5omkgd1d79rz6dt5kzaead3mxu8xt4xuwc2\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 This is what makes it easier for the AI to get all the pieces of the app right! Once it writes the fundamental client and server code, along with the main config file, the Wasp compiler takes over and pieces it all together, removing a lot of potential possibilities for errors!
 
 In the end, you get a React/NodeJS codebase with features like:
 
 1. full-stack auth
-    
+
 2. server config and API routes
-    
+
 3. tailwind CSS config and styles
-    
+
 4. cron jobs and queues
-    
+
 5. email sending
-    
+
 6. deployment
-    
 
 What’s cool too is that this tool doesn't require you to be highly explicit, [because the specifics are baked into the tool itself](https://dev.to/wasp/how-we-built-a-gpt-code-agent-that-generates-full-stack-web-apps-in-react-nodejs-explained-simply-4f9). In other words, **it saves you tons of time and energy without compromising on the quality or coherence of the end product.**
 
