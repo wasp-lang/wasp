@@ -1,4 +1,4 @@
-import {
+import type {
   SidebarConfig,
   SidebarItemConfig,
 } from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
@@ -6,6 +6,7 @@ import fm from "front-matter";
 import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
+
 import docsSidebarConfig from "../sidebars.js";
 
 const SITE_ROOT = process.cwd();
@@ -33,7 +34,7 @@ const OVERVIEW_MISC_SECTION_CONTENT = `
 - [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
 `;
 
-(async () => await generateFiles())();
+generateFiles();
 
 /**
  * Main function to generate the LLM-friendly doc files.
@@ -68,22 +69,20 @@ async function generateFiles() {
  * Processes all documentation files based on the sidebar configuration's order.
  * It builds a map of document IDs to file paths, processes each document,
  * and generates both a summarized overview and a full concatenated string of the content.
- * @param {object[]} sidebarConfigDocs - The `docs` array from the sidebars.js configuration.
- * @returns {{overviewDocsSection: string, fullConcatContent: string}} - An object containing the generated overview section and the full concatenated content.
  */
 async function processDocumentationFiles(
-  sidebarConfigDocs: SidebarItemConfig[],
+  docsSidebarItems: SidebarItemConfig[],
 ): Promise<{ overviewDocsSection: string; fullConcatContent: string }> {
   let overviewDocsSection = "";
   let fullConcatContent = "";
 
-  const orderedDocIds = flattenSidebarItemsToDocIds(sidebarConfigDocs);
+  const orderedDocIds = flattenSidebarItemsToDocIds(docsSidebarItems);
   console.log(
     `Found ${orderedDocIds.length} document IDs in sidebar order for processing.`,
   );
 
   const sidebarOverviewStructure =
-    getDocsSidebarCategoryStructure(sidebarConfigDocs);
+    getDocsSidebarCategoryStructure(docsSidebarItems);
 
   const docIdToPathMap = buildDocIdToPathMap(DOCS_DIR);
 
@@ -127,8 +126,6 @@ async function processDocumentationFiles(
 /**
  * Scans a directory for markdown files, normalizes their paths to create doc IDs,
  * and returns a map from each unique doc ID to its relative file path.
- * @param {string} directory - The directory to scan for documentation files (e.g., DOCS_DIR).
- * @returns {Map<string, string>} A map where keys are normalized doc IDs and values are the original file paths.
  */
 function buildDocIdToPathMap(directory: string): Map<string, string> {
   console.log(`Gathering and processing source files from: ${directory}...`);
@@ -161,10 +158,6 @@ type DocDetails = {
  * processes its content, and returns a map containing the processed information for each document.
  * This loop ensures that we process the files in the exact order specified in sidebars.js,
  * regardless of how the filesystem returns them.
- * @param {string[]} orderedDocIds - An array of doc IDs in the desired order.
- * @param {Map<string, string>} docIdToPathMap - A map from doc IDs to their file paths.
- * @returns {Promise<Map<string, DocDetails>>} A promise that resolves to a map where keys are doc IDs
- * and values are objects containing the title, processedBody, and path information.
  */
 async function populateDocInfoMap(
   orderedDocIds: string[],
@@ -211,11 +204,8 @@ async function populateDocInfoMap(
  * Normalizes a file path into a standardized document ID.
  * e.g., 'tutorial/01-create.mdx' becomes 'tutorial/create'
  * e.g., 'data-model/entities/index.md' becomes 'data-model/entities'
- * @param {string} filePath - The relative file path to normalize.
- * @returns {string} The normalized doc ID.
  */
 function normalizePathToDocId(filePath: string): string {
-  // This function converts a file path like 'tutorial/01-create.mdx' into a docId like 'tutorial/create'
   const docIdWithoutExtAndIndex = filePath
     .replace(/\.(mdx|md)$/, "")
     .replace(/\/index$/, "");
@@ -244,26 +234,26 @@ type StructuredOverview = {
  * Returns an ordered structure of the sidebar categories and their docIds.
  * This is used for generating the overview section of the LLM files.
  * It ignores categories that are not relevant for the LLM context (e.g., 'Miscellaneous').
- * @param {SidebarItemConfig[]} sidebarTopLevelItems - The top-level items from the sidebar config.
- * @returns {StructuredOverview[]} A structured array of objects, each containing a categoryLabel and its array of docIds.
  */
 function getDocsSidebarCategoryStructure(
-  sidebarConfigDocs: SidebarItemConfig[],
+  docsSidebarItems: SidebarItemConfig[],
 ): StructuredOverview[] {
   const structuredOverview: StructuredOverview[] = [];
 
-  for (const topItem of sidebarConfigDocs) {
+  for (const topLvlItem of docsSidebarItems) {
     if (
-      typeof topItem !== "string" &&
-      topItem.type === "category" &&
-      topItem.label &&
-      topItem.items &&
-      !CATEGORIES_TO_IGNORE.includes(topItem.label)
+      typeof topLvlItem !== "string" &&
+      topLvlItem.type === "category" &&
+      topLvlItem.label &&
+      topLvlItem.items &&
+      !CATEGORIES_TO_IGNORE.includes(topLvlItem.label)
     ) {
-      const docIdsWithinCategory = flattenSidebarItemsToDocIds(topItem.items);
+      const docIdsWithinCategory = flattenSidebarItemsToDocIds(
+        topLvlItem.items,
+      );
       if (docIdsWithinCategory.length > 0) {
         structuredOverview.push({
-          categoryLabel: topItem.label,
+          categoryLabel: topLvlItem.label,
           docIds: docIdsWithinCategory,
         });
       }
@@ -274,18 +264,15 @@ function getDocsSidebarCategoryStructure(
 
 /**
  * Recursively traverses the sidebar configuration to produce a flat, ordered list of document IDs.
- * @param {SidebarItemConfig[]} items - An array of sidebar items (strings or objects).
- * @returns {string[]} A flat array of doc ID strings.
  */
-function flattenSidebarItemsToDocIds(sidebarConfig: SidebarConfig): string[] {
+function flattenSidebarItemsToDocIds(sidebarItems: SidebarConfig): string[] {
   let paths = [];
-  if (!sidebarConfig) return paths;
-  // We need to iterate over the sidebarConfig, but it can be an array or an object.
-  // The types are defined in a weird way so that `items` can be an object (but we don't use that here).
-  if (!Array.isArray(sidebarConfig)) {
+  // `SidebarConfig` type can be a list or an object - we handle only the list
+  // case here, as the sidebar is expected to be an array of items.
+  if (!Array.isArray(sidebarItems)) {
     return paths;
   }
-  for (const item of sidebarConfig) {
+  for (const item of sidebarItems) {
     if (typeof item === "string") {
       paths.push(item);
     } else if (item.type === "category" && item.items) {
@@ -299,37 +286,40 @@ function flattenSidebarItemsToDocIds(sidebarConfig: SidebarConfig): string[] {
   return paths;
 }
 
+type BlogPost = {
+  title: string;
+  fileDate: string;
+  linkPath: string;
+};
+
 /**
  * Processes all blog post files, extracting their title, date, and URL.
  * It returns a markdown-formatted string of the blog posts, sorted by date.
- * @returns {Promise<string>} A promise that resolves to a markdown string listing the blog posts.
  */
 async function processBlogFiles(): Promise<string> {
-  let blogSectionContent = `## Blogposts\n`;
   const blogPostFiles = globSync("*.{md,mdx}", {
     cwd: BLOG_DIR,
     nodir: true,
     ignore: ["_*.md", "_*.mdx", "authors.yml", "components/**"],
   });
 
-  const blogPostsData = [];
+  const blogPosts: BlogPost[] = [];
 
   for (const file of blogPostFiles) {
-    const dateMatch = validateBlogFileDate(file);
-    if (!dateMatch) {
+    const fileDate = parseBlogFileDate(file);
+    if (!fileDate) {
       continue;
     }
-    const dateString = dateMatch[1];
     const absoluteFilePath = path.join(BLOG_DIR, file);
     try {
       const rawContent = await fs.readFile(absoluteFilePath, "utf8");
       const { attributes } = fm(rawContent);
 
-      const title = extractBlogPostTitle(attributes as { title: string }, file);
+      const title = extractBlogPostTitle(attributes, file);
       const linkPath = constructBlogUrl(file);
 
       if (linkPath) {
-        blogPostsData.push({ title, dateString, linkPath });
+        blogPosts.push({ title, fileDate, linkPath });
       } else {
         console.warn(
           `Skipping blog post ${file}, does not match YYYY-MM-DD-name.md(x) naming convention`,
@@ -345,10 +335,11 @@ async function processBlogFiles(): Promise<string> {
     }
   }
 
-  blogPostsData.sort((a, b) => b.dateString.localeCompare(a.dateString));
+  blogPosts.sort((a, b) => b.fileDate.localeCompare(a.fileDate));
 
-  if (blogPostsData.length > 0) {
-    for (const post of blogPostsData) {
+  let blogSectionContent = `## Blogposts\n`;
+  if (blogPosts.length > 0) {
+    for (const post of blogPosts) {
       blogSectionContent += `- [${post.title}](${post.linkPath})\n`;
     }
     return blogSectionContent.trim();
@@ -358,15 +349,13 @@ async function processBlogFiles(): Promise<string> {
 }
 
 /**
- * Validates a blog post filename against the 'YYYY-MM-DD-slug' format.
+ * Tries to parse a blog post filename against the 'YYYY-MM-DD-slug' format.
  * Logs a warning for files that don't match and aren't explicitly ignored.
- * @param {string} file - The filename to validate.
- * @returns {RegExpMatchArray | null} The result of the match, or null if it doesn't match.
  */
-function validateBlogFileDate(file: string): RegExpMatchArray | null {
+function parseBlogFileDate(file: string): string | null {
   const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})-.*\.(mdx|md)$/);
-  if (dateMatch) {
-    return dateMatch;
+  if (dateMatch !== null) {
+    return dateMatch[1];
   }
 
   // If it doesn't match, check if it's a file type we should warn about.
@@ -387,15 +376,9 @@ function validateBlogFileDate(file: string): RegExpMatchArray | null {
  * Extracts the title for a blog post.
  * It first checks for a title in the front-matter attributes. If not found,
  * it generates a title from the filename.
- * @param {object} attributes - The front-matter attributes from the blog post file.
- * @param {string} filename - The filename of the blog post.
- * @returns {string} The extracted or generated title.
  */
-function extractBlogPostTitle(
-  attributes: { title: string },
-  filename: string,
-): string {
-  if (attributes.title) {
+function extractBlogPostTitle(attributes: unknown, filename: string): string {
+  if (isAttributesWithTitle(attributes)) {
     return attributes.title;
   }
 
@@ -410,13 +393,17 @@ function extractBlogPostTitle(
     .join(" ");
 }
 
+function isAttributesWithTitle(
+  attributes: unknown,
+): attributes is { title: string } {
+  return typeof attributes === "object" && "title" in attributes;
+}
+
 /**
  * Constructs the absolute URL for a blog post based on its filename.
  * The filename is expected to follow the 'YYYY-MM-DD-slug' format.
- * @param {string} filename - The filename of the blog post.
- * @returns {string|null} The full URL to the blog post, or null if the filename format is invalid.
  */
-function constructBlogUrl(filename: string): string | null {
+function constructBlogUrl(filename: string): string {
   const fileNoExt = filename.replace(/\.(mdx|md)$/, "");
   const [year, month, day, ...slugParts] = fileNoExt.split("-");
   const slug = slugParts.join("-");
@@ -426,8 +413,6 @@ function constructBlogUrl(filename: string): string | null {
 
 /**
  * Writes the LLM-friendly content to their respective output files.
- * @param {string} llmsTxtContent - The content for the overview file (llms.txt).
- * @param {string} llmsFullTxtContent - The content for the full concatenated file (llms-full.txt).
  */
 async function writeOutputFiles(
   llmsTxtContent: string,
@@ -450,8 +435,6 @@ async function writeOutputFiles(
  * Cleans the raw markdown content of a document to make it more suitable for an LLM.
  * This involves removing React/HTML components, import statements, comments, and other non-content elements.
  * It also adjusts heading levels to be consistent with the overall document structure.
- * @param {string} content - The raw markdown string.
- * @returns {string} The cleaned markdown string.
  */
 function cleanDocContent(content: string): string {
   if (!content) return "";
@@ -466,9 +449,9 @@ function cleanDocContent(content: string): string {
 
   // Helper to extract actual component names (including aliases)
   // Defined inside cleanContent to be self-contained
-  function extractNames(specifier) {
-    const names = [];
-    specifier = specifier.trim();
+  function extractNames(rawSpecifier: string): string[] {
+    const names: string[] = [];
+    const specifier = rawSpecifier.trim();
     if (specifier.startsWith("{") && specifier.endsWith("}")) {
       const inner = specifier.substring(1, specifier.length - 1).trim();
       if (inner) {
