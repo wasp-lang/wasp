@@ -1,12 +1,12 @@
 .directory {
-  @apply p-5 font-mono text-base bg-slate-900 text-white rounded;
+  @apply rounded bg-slate-900 p-5 font-mono text-base text-white;
   user-select: none;
 }
 
 .directory .tree,
 .directory .tree-node,
 .directory .tree-node-group {
-  @apply p-0 m-0 list-none;
+  @apply m-0 list-none p-0;
 }
 
 .directory .tree-branch-wrapper,
@@ -29,7 +29,7 @@
 }
 
 .directory .tree .tree-node--selected {
-  @apply text-white rounded-sm bg-slate-700;
+  @apply rounded-sm bg-slate-700 text-white;
 }
 
 .tree-node__branch,
@@ -39,7 +39,7 @@
 }
 
 .directory .icon {
-  @apply w-6 h-6 pr-2;
+  @apply h-6 w-6 pr-2;
 }
 
 @keyframes flash-background-quickly {

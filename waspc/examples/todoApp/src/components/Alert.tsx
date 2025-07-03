@@ -22,7 +22,7 @@ export function Alert({
   return (
     <div
       className={cn(
-        "border rounded-lg px-4 py-3",
+        "rounded-lg border px-4 py-3",
         "text-sm font-medium",
         variantStyles[variant],
         className,

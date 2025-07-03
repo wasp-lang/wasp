@@ -35,15 +35,15 @@ export function MyDialog({ isOpen, onClose, title, children }) {
                 >
                   {title}
                 </Dialog.Title>
-                <div className="absolute top-0 right-0 pt-4 pr-4">
+                <div className="absolute right-0 top-0 pr-4 pt-4">
                   <button
                     type="button"
-                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+                    className="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"
                     onClick={onClose}
                   >
                     <svg
                       aria-hidden="true"
-                      className="w-5 h-5"
+                      className="h-5 w-5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"

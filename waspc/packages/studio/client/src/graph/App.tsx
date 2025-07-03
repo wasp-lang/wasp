@@ -6,13 +6,13 @@ export const AppNode = ({
   targetPosition = Position.Left,
   sourcePosition = Position.Right,
 }: NodeProps) => (
-  <div className="py-3 px-6 rounded bg-cyan-900 text-white text-center">
+  <div className="rounded bg-cyan-900 px-6 py-3 text-center text-white">
     <Handle
       type="target"
       position={targetPosition}
       isConnectable={isConnectable}
     />
-    <div className="text-xs bg-cyan-300 text-cyan-900 rounded px-1 absolute -top-1 left-1/2 -translate-x-1/2 flex items-center">
+    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded bg-cyan-300 px-1 text-xs text-cyan-900">
       <span className="mr-1">App</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +20,7 @@ export const AppNode = ({
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-3 h-3"
+        className="h-3 w-3"
       >
         <path
           strokeLinecap="round"
@@ -35,14 +35,14 @@ export const AppNode = ({
       position={sourcePosition}
       isConnectable={isConnectable}
     />
-    <div className="flex justify-center flex-col items-center mt-2 gap-2">
-      <div className="text-xs bg-foreground text-background rounded px-1">
+    <div className="mt-2 flex flex-col items-center justify-center gap-2">
+      <div className="bg-foreground text-background rounded px-1 text-xs">
         <span>{data.db?.system || "SQLite"}</span>
       </div>
       {data.auth &&
         data.auth.methods.map((method: string) => (
           <div
-            className="text-xs bg-foreground text-background rounded px-1"
+            className="bg-foreground text-background rounded px-1 text-xs"
             key={method}
           >
             <span>Auth: {method}</span>

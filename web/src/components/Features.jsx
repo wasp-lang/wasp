@@ -26,12 +26,7 @@ const Feature = ({ Icon, title, description, url }) => (
   <div className="mb-10 space-y-4 md:mb-0">
     <div className="flex items-center">
       <div
-        className={`
-          inline-flex h-8 w-8 items-center
-          justify-center rounded-md
-          bg-neutral-700 text-yellow-500
-          
-        `}
+        className={`inline-flex h-8 w-8 items-center justify-center rounded-md bg-neutral-700 text-yellow-500`}
       >
         <Icon size={20} />
       </div>
@@ -46,10 +41,7 @@ const Feature = ({ Icon, title, description, url }) => (
 const TextLink = ({ url, label }) => (
   <Link to={url}>
     <span
-      className={`
-        mt-3 block cursor-pointer text-sm
-        text-neutral-500 hover:text-neutral-400
-      `}
+      className={`mt-3 block cursor-pointer text-sm text-neutral-500 hover:text-neutral-400`}
     >
       <div className="group flex items-center gap-1">
         <span>{label}</span>

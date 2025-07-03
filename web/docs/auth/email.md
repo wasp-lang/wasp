@@ -1,5 +1,6 @@
 ---
 title: Overview
+title-llm: Email Auth Overview
 ---
 
 import { Required } from '@site/src/components/Tag';

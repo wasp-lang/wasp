@@ -6,13 +6,13 @@ export function CatchAllPage() {
 
   return (
     <FeatureContainer>
-      <div className="grid place-items-center card">
-        <h1 className="text-2xl font-bold mb-4" data-testid="not-found-title">
+      <div className="card grid place-items-center">
+        <h1 className="mb-4 text-2xl font-bold" data-testid="not-found-title">
           Not found
         </h1>
         <p className="text-gray-500" data-testid="not-found-message">
           We couldn't find anything at the{" "}
-          <code className="text-gray-700 font-mono bg-gray-200 rounded px-2">
+          <code className="rounded bg-gray-200 px-2 font-mono text-gray-700">
             {location.pathname}
           </code>{" "}
           location.
