@@ -1,4 +1,5 @@
-import { Prisma } from '@prisma/client'
+
+
 import { deserialize, registerCustom, serialize } from 'superjson'
 
 export type Payload = void | SuperJSONValue
@@ -32,7 +33,6 @@ export type SerializableJSONValue =
   | bigint
   | Date
   | RegExp
-  | Decimal
 
 // Here's where we excluded `ClassInstance` (which was `any`) from the union.
 export type SuperJSONValue =
@@ -47,46 +47,6 @@ export interface SuperJSONObject {
   [key: string]: SuperJSONValue
 }
 
-/*
-  == ADDING SUPPORT FOR PRISMA DECIMAL TYPE ==
-  We add support for the Decima Prisma type as listed here:
-  https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types
-*/
-
-/*
-  == Why this strange declaration? ==
-
-  You can usually get `Decimal` from Prisma in two ways:
-  a. `import("@prisma/client").Prisma.Decimal`
-  b. `import("@prisma/client/runtime/library").Decimal`
-
-  The problem is that (a) is only available in the case that the Prisma schema is using Decimal
-  somewhere, and doesn't exist at all otherwise, not even as `undefined`. And (b) is always
-  available, but the code at `@prisma/client/runtime/library` fails when imported from the
-  client (and this file can be imported from either client or server).
-
-  What we do here is tell TypeScript that `Prisma` (option a) can have an optional `Decimal`
-  property, and give it the `Decimal` type that we take from option (b). Importantly, we only
-  do a type import from (b) so we don't trigger the runtime error when importing from the client.
-*/
-type Decimal = import("@prisma/client/runtime/library").Decimal
-const Decimal = (Prisma as { Decimal?: typeof Decimal }).Decimal;
-
-/*
-  And finally, if we have the `Decimal` type because the Prisma schema is using it,
-  we register it as a custom type with SuperJSON.
-  Based on https://github.com/flightcontrolhq/superjson/blob/v2.2.2/README.md#decimaljs--prismadecimal
-*/
-if (Decimal) {
-  registerCustom<Decimal, string>(
-    {
-      isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
-      serialize: (v) => v.toJSON(),
-      deserialize: (v) => new Decimal(v),
-    },
-    "prisma.decimal"
-  );
-}
 
 export { deserialize, serialize }
 

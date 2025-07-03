@@ -382,7 +382,7 @@
             "file",
             "../out/sdk/wasp/core/serialization.ts"
         ],
-        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
+        "be163b5ab878475c1af675b571281dca27ec026d30f4d5e84710c0aa2078db54"
     ],
     [
         [
@@ -1348,7 +1348,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
+        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
     ],
     [
         [
