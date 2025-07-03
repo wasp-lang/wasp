@@ -399,13 +399,13 @@ We also have a workflow for deploying example apps to Fly.io (`deploy-examples.y
 
 You can run this workflow:
 
-- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/deploy-examples.yml  (click "Run workflow" and select the `release` branch)
+- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/deploy-examples.yml (click "Run workflow" and select the `release` branch)
 - **From GitHub CLI**:
 
   ```bash
   # Deploy with latest Wasp version
   gh workflow run deploy-examples.yml --ref release
-
+  
   # Deploy with specific Wasp version
   gh workflow run deploy-examples.yml --ref release -f version=0.13.2
   ```
