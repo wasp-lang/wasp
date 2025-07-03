@@ -55,11 +55,11 @@ export interface SuperJSONObject {
 }
 
 {=# entitiesExist =}
-/*
+{=!
   This section is only included if there are (Prisma) entities in the app spec,
   as it needs a non-empty Prisma client to work.
   TODO: Check if we can remove this  conditional when we upgrade Prisma (#2504)
-*/
+=}
 
 /*
   == ADDING SUPPORT FOR PRISMA DECIMAL TYPE ==
