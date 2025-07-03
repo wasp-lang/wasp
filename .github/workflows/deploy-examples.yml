@@ -21,11 +21,6 @@ on:
         required: false
         default: "" # We are relying on the install script treating the empty string as the latest version
 
-  # TODO: REMOVE THIS BEFORE MERGING, JUST FOR TESTING
-  push:
-    branches:
-      - 2831-automatically-deploy-all-example-apps-on-release
-
 concurrency:
   group: "deploy-examples"
   cancel-in-progress: true
