@@ -47,14 +47,17 @@ serverUrl :: BuildStartConfig -> String
 serverUrl _ = defaultDevServerUrl
 
 dockerImageName :: BuildStartConfig -> String
-dockerImageName config = appUniqueId config <> "-server"
+dockerImageName config =
+  map toLower $ -- Lowercase because Docker image names require it.
+    appUniqueId config <> "-server"
 
 dockerContainerName :: BuildStartConfig -> String
-dockerContainerName config = appUniqueId config <> "-server-container"
+dockerContainerName config =
+  map toLower $ -- Lowercase because Docker container names require it.
+    appUniqueId config <> "-server-container"
 
 appUniqueId :: BuildStartConfig -> String
 appUniqueId config =
-  map toLower $ -- Lowercase because Docker image names require it.
-    makeAppUniqueId (projectDir config) appName
+  makeAppUniqueId (projectDir config) appName
   where
     (appName, _) = ASV.getApp $ appSpec config
