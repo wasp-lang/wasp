@@ -44,6 +44,18 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - `userSignupFields` types are now correctly propagated to client auth methods. ([#2641](https://github.com/wasp-lang/wasp/pull/2641))
 - The generated server code is now type-checked before building ([#2778](https://github.com/wasp-lang/wasp/pull/2778))
 
+## 0.16.7
+
+### 🐞 Bug fixes
+
+- Make Wasp work with Node older than 20.19.0 by pinning down the version of `@vitejs/plugin-react` to `4.5.1`. This prevents Vite 7 from being installed and clashing with Node ([2865]https://github.com/wasp-lang/wasp/pull/2865))
+
+## 0.16.6
+
+### 🐞 Bug fixes
+
+- Stops lowercasing user IDs received from OAuth providers.
+
 ## 0.16.5
 
 ### 🐞 Bug fixes
