@@ -3,7 +3,6 @@
 # This script ensures wasp-app-runner is installed and up-to-date.
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-PROJECT_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
 WASP_APP_RUNNER_COMMAND="run-wasp-app"
 
@@ -69,7 +68,7 @@ get_latest_wasp_app_runner_version_from_github() {
 
 install_latest_wasp_app_runner() {
   local tmp_installation_dir
-  if ! tmp_installation_dir=$(mktemp -d "${PROJECT_ROOT}/wasp-app-runner.XXXXXXXXXX"); then
+  if ! tmp_installation_dir=$(mktemp -d "${SCRIPT_DIR}/wasp-app-runner.XXXXXXXXXX"); then
     echo_error "Failed to create temporary directory for runner installation."
     return 1
   fi
