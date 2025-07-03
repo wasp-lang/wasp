@@ -24,6 +24,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EC
+import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -251,7 +252,7 @@ genCoreSerializationFile spec = return $ C.mkTmplFdWithData relCoreSerialization
       object
         [ "entitiesExist" .= entitiesExist
         ]
-    entitiesExist = not . null $ getEntities spec
+    entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData

@@ -17,6 +17,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Generator.Common (ProjectRootDir)
@@ -190,7 +191,7 @@ warnIfDbNeedsMigration spec projectRootDir = do
   where
     dbSchemaFp = projectRootDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInProjectRootDir
     dbSchemaChecksumFp = projectRootDir </> Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
-    entitiesExist = not . null $ getEntities spec
+    entitiesExist = hasEntities spec
 
 warnIfSchemaDiffersFromChecksum ::
   Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) ->
@@ -259,10 +260,10 @@ generatePrismaClient spec projectRootDir = do
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
+        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
       | otherwise = return Nothing
 
-    entitiesExist = not . null $ getEntities spec
+    entitiesExist = hasEntities spec
 
 checksumFileExistsAndMatchesSchema ::
   Path' Abs (Dir ProjectRootDir) ->
