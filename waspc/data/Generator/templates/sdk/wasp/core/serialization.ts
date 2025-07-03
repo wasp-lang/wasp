@@ -1,4 +1,9 @@
+{{={= =}=}}
+
+{=# entitiesExist =}
 import { Prisma } from '@prisma/client'
+{=/ entitiesExist =}
+
 import { deserialize, registerCustom, serialize } from 'superjson'
 
 export type Payload = void | SuperJSONValue
@@ -32,7 +37,9 @@ export type SerializableJSONValue =
   | bigint
   | Date
   | RegExp
+  {=# entitiesExist =}
   | Decimal
+  {=/ entitiesExist =}
 
 // Here's where we excluded `ClassInstance` (which was `any`) from the union.
 export type SuperJSONValue =
@@ -46,6 +53,13 @@ export interface SuperJSONArray extends Array<SuperJSONValue> {}
 export interface SuperJSONObject {
   [key: string]: SuperJSONValue
 }
+
+{=# entitiesExist =}
+/*
+  This section is only included if there are (Prisma) entities in the app spec,
+  as it needs a non-empty Prisma client to work.
+  TODO: Check if we can remove this  conditional when we upgrade Prisma (#2504)
+*/
 
 /*
   == ADDING SUPPORT FOR PRISMA DECIMAL TYPE ==
@@ -87,6 +101,7 @@ if (Decimal) {
     "prisma.decimal"
   );
 }
+{=/ entitiesExist =}
 
 export { deserialize, serialize }
 

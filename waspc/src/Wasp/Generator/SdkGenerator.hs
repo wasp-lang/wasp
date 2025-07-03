@@ -100,7 +100,6 @@ genSdk spec =
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/serialization.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
@@ -108,6 +107,7 @@ genSdk spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genFileCopy [relfile|client/config.ts|],
+      genCoreSerializationFile spec,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -242,6 +242,16 @@ depsRequiredForTesting =
       ("@testing-library/jest-dom", "^6.3.0"),
       ("msw", "^1.1.0")
     ]
+
+genCoreSerializationFile :: AppSpec -> Generator FileDraft
+genCoreSerializationFile spec = return $ C.mkTmplFdWithData relCoreSerializationPath tmplData
+  where
+    relCoreSerializationPath = [relfile|core/serialization.ts|]
+    tmplData =
+      object
+        [ "entitiesExist" .= entitiesExist
+        ]
+    entitiesExist = not . null $ getEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
