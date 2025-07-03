@@ -19,6 +19,7 @@ on:
       version:
         description: "Wasp version to use for deployment (default to latest)"
         required: false
+        default: "" # We are relying on the install script treating the empty string as the latest version
 
   # TODO: REMOVE THIS BEFORE MERGING, JUST FOR TESTING
   push:
@@ -49,7 +50,7 @@ jobs:
     steps:
       - name: Install Wasp
         run: |
-          curl -sSfL https://get.wasp.sh/installer.sh | sh -- ${{ inputs.version && format('-v {0}', inputs.version) || '' }}
+          curl -sSfL https://get.wasp.sh/installer.sh | sh -- -v ${{  inputs.version }}
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
