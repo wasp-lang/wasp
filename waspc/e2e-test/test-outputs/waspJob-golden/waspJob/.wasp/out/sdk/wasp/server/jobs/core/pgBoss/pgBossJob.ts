@@ -102,7 +102,7 @@ export function registerJob<
  * It is not yet submitted until the caller invokes `submit()` on an instance.
  * The caller can make as many calls to `submit()` as they wish.
  */
-class PgBossJob<
+export class PgBossJob<
   Input extends JSONObject,
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
