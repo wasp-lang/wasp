@@ -19,7 +19,7 @@
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./core/serialization": "./dist/core/serialization.js",
+      "./core/serialization": "./dist/core/serialization/index.js",
       "./core/auth": "./dist/core/auth.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",

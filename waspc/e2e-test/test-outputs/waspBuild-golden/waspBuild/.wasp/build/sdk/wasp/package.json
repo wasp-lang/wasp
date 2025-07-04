@@ -49,7 +49,7 @@
     "./client/webSocket": "./dist/client/webSocket/index.js",
     "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
     "./core/auth": "./dist/core/auth.js",
-    "./core/serialization": "./dist/core/serialization.js",
+    "./core/serialization": "./dist/core/serialization/index.js",
     "./core/stitches.config": "./dist/core/stitches.config.js",
     "./core/storage": "./dist/core/storage.js",
     "./dev": "./dist/dev/index.js",

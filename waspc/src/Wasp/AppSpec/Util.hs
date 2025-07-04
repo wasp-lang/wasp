@@ -1,6 +1,7 @@
 module Wasp.AppSpec.Util
   ( isPgBossJobExecutorUsed,
     getRoutePathFromRef,
+    hasEntities,
   )
 where
 
@@ -18,3 +19,6 @@ getRoutePathFromRef spec ref = path
   where
     route = AS.resolveRef spec ref
     path = AS.Route.path . snd $ route
+
+hasEntities :: AppSpec -> Bool
+hasEntities spec = not . null $ AS.getEntities spec

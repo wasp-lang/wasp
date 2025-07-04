@@ -163,9 +163,16 @@
     [
         [
             "file",
-            "../out/sdk/wasp/core/serialization.ts"
+            "../out/sdk/wasp/core/serialization/custom-register.ts"
         ],
-        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
+        "38f1a0116cfb33532872d3b5cbb47bd2b695ff59197832758d049151d40c138c"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/index.ts"
+        ],
+        "76793a820deb474b105bccdeb69b5395d7522c53a790b0ed430533fa5158461c"
     ],
     [
         [
@@ -207,7 +214,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "443f873bd27fbcef23b199c7de960321e09c0e3f35a3ec6572ce9d663df56661"
+        "47cd40b318e10a5664136f0e613df254c1c95cef4d54050eba673f8ec361ae15"
     ],
     [
         [
@@ -690,7 +697,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
+        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
     ],
     [
         [
