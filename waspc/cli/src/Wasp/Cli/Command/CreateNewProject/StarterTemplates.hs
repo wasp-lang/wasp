@@ -88,7 +88,7 @@ minimalStarterTemplate =
     DirBasedTemplateMetadata
       { _path = [reldir|minimal|],
         _name = "minimal",
-        _description = "Minimal starter template with a single page.",
+        _description = "A minimal starter template that features just a single page.",
         _buildStartingInstructions = \projectDirName ->
           unlines
             [ styleText $ "To run your new app, do:",
@@ -105,7 +105,7 @@ basicStarterTemplate =
     DirBasedTemplateMetadata
       { _path = [reldir|basic|],
         _name = "basic",
-        _description = "A basic starter template designed to help you get up and running quickly, with examples covering the most common use cases.",
+        _description = "A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.",
         _buildStartingInstructions = \projectDirName ->
           unlines
             [ styleText $ "To run your new app, do:",
@@ -113,7 +113,7 @@ basicStarterTemplate =
               styleCode $ "    wasp db migrate-dev",
               styleCode $ "    wasp start",
               styleText $ "",
-              styleText $ "Check the README for additional guidance!"
+              styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
             ]
       }
 
