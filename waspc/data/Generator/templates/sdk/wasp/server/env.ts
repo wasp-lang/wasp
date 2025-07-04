@@ -107,24 +107,24 @@ const waspServerCommonSchema = z.object({
 
 const serverUrlSchema = z
   .string({
-    required_error: 'WASP_SERVER_URL is required',
+    required_error: '{= serverUrlEnvVarName =} is required',
   })
   .url({
-    message: 'WASP_SERVER_URL must be a valid URL',
+    message: '{= serverUrlEnvVarName =} must be a valid URL',
   })
 
 const clientUrlSchema = z
   .string({
-    required_error: 'WASP_WEB_CLIENT_URL is required',
+    required_error: '{= clientUrlEnvVarName =} is required',
   })
   .url({
-    message: 'WASP_WEB_CLIENT_URL must be a valid URL',
+    message: '{= clientUrlEnvVarName =} must be a valid URL',
   })
 
 {=# isAuthEnabled =}
 const jwtTokenSchema = z
   .string({
-    required_error: 'JWT_SECRET is required',
+    required_error: '{= jwtSecretEnvVarName =} is required',
   })
 {=/ isAuthEnabled =}
 
@@ -132,22 +132,22 @@ const jwtTokenSchema = z
 // to make the development process easier.
 const serverDevSchema = z.object({
   NODE_ENV: z.literal('development'),
-  WASP_SERVER_URL: serverUrlSchema
+  "{= serverUrlEnvVarName =}": serverUrlSchema
     .default('{= defaultServerUrl =}'),
-  WASP_WEB_CLIENT_URL: clientUrlSchema
+  "{= clientUrlEnvVarName =}": clientUrlSchema
     .default('{= defaultClientUrl =}'),
   {=# isAuthEnabled =}
-  JWT_SECRET: jwtTokenSchema
+  "{= jwtSecretEnvVarName =}": jwtTokenSchema
     .default('DEVJWTSECRET'),
   {=/ isAuthEnabled =}
 })
 
 const serverProdSchema = z.object({
   NODE_ENV: z.literal('production'),
-  WASP_SERVER_URL: serverUrlSchema,
-  WASP_WEB_CLIENT_URL: clientUrlSchema,
+  "{= serverUrlEnvVarName =}": serverUrlSchema,
+  "{= clientUrlEnvVarName =}": clientUrlSchema,
   {=# isAuthEnabled =}
-  JWT_SECRET: jwtTokenSchema,
+  "{= jwtSecretEnvVarName =}": jwtTokenSchema,
   {=/ isAuthEnabled =}
 })
 
