@@ -82,14 +82,11 @@ instance Requirable InWaspProject where
 
 data FromOutDir = FromOutDir deriving (Typeable)
 
--- TODO(carlos): Create a `FromBuildDir` instance of `DbConnectionEstablished`
--- as well. (#2858)
---
--- We can't run our Prisma functions from the `.wasp/build` dir, because some of
--- the files they expect present are not generated as part of `wasp build` (only
--- as part of `wasp start`, which runs in `.wasp/out`). We should refactor our
--- Prisma functions to not depend on these files so we can run them inside
--- `.wasp/build`. Check #2858 for more details.
+-- TODO: Implement a `FromBuildDir` instance of `DbConnectionEstablished` as well. (#2858)
+-- The reason why we haven't implemented it already is because `.wasp/build` dir
+-- by design does not have some files like `.env` or `prisma.schema`, which
+-- makes it tricky to determine the database location. See the linked issue for
+-- more details.
 
 data DbConnectionEstablished fromDir = DbConnectionEstablished fromDir deriving (Typeable)
 
