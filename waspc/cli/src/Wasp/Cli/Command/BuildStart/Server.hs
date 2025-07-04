@@ -10,6 +10,8 @@ import qualified StrongPath as SP
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
+import Wasp.Generator.ServerGenerator.AuthG (jwtSecretEnvVarName)
+import Wasp.Generator.ServerGenerator.Common (clientUrlFromServerEnvVarName, serverUrlFromServerEnvVarName)
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runProcessAsJob)
@@ -45,11 +47,11 @@ startServer config =
               "--network",
               "host",
               "--env",
-              "WASP_WEB_CLIENT_URL=" <> clientUrl,
+              clientUrlFromServerEnvVarName <> "=" <> clientUrl,
               "--env",
-              "WASP_SERVER_URL=" <> serverUrl,
+              serverUrlFromServerEnvVarName <> "=" <> serverUrl,
               "--env",
-              "JWT_SECRET=" <> jwtSecret,
+              jwtSecretEnvVarName <> "=" <> jwtSecret,
               -- We specifically pass `DATABASE_URL` from the current execution
               -- to the server container because Prisma will need it, and it is
               -- not set in the .env file (wasp start complains if so). We pass
