@@ -585,7 +585,8 @@ waspComplexTest/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/types/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/server/utils.ts
 waspComplexTest/.wasp/out/sdk/wasp/src/Main.css
-waspComplexTest/.wasp/out/sdk/wasp/src/MainPage.jsx
+waspComplexTest/.wasp/out/sdk/wasp/src/MainPage.tsx
+waspComplexTest/.wasp/out/sdk/wasp/src/assets/logo.svg
 waspComplexTest/.wasp/out/sdk/wasp/src/auth/hooks.ts
 waspComplexTest/.wasp/out/sdk/wasp/src/client/App.jsx
 waspComplexTest/.wasp/out/sdk/wasp/src/client/myClientSetupCode.js
@@ -597,7 +598,6 @@ waspComplexTest/.wasp/out/sdk/wasp/src/server/jobs/returnHello.ts
 waspComplexTest/.wasp/out/sdk/wasp/src/server/myServerSetupCode.js
 waspComplexTest/.wasp/out/sdk/wasp/src/server/queries/bar.js
 waspComplexTest/.wasp/out/sdk/wasp/src/vite-env.d.ts
-waspComplexTest/.wasp/out/sdk/wasp/src/waspLogo.png
 waspComplexTest/.wasp/out/sdk/wasp/tsconfig.json
 waspComplexTest/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspComplexTest/.wasp/out/sdk/wasp/universal/predicates.ts
@@ -682,7 +682,8 @@ waspComplexTest/package.json
 waspComplexTest/public/favicon.ico
 waspComplexTest/schema.prisma
 waspComplexTest/src/Main.css
-waspComplexTest/src/MainPage.jsx
+waspComplexTest/src/MainPage.tsx
+waspComplexTest/src/assets/logo.svg
 waspComplexTest/src/auth/hooks.ts
 waspComplexTest/src/client/App.jsx
 waspComplexTest/src/client/myClientSetupCode.js
@@ -694,6 +695,5 @@ waspComplexTest/src/server/jobs/returnHello.ts
 waspComplexTest/src/server/myServerSetupCode.js
 waspComplexTest/src/server/queries/bar.js
 waspComplexTest/src/vite-env.d.ts
-waspComplexTest/src/waspLogo.png
 waspComplexTest/tsconfig.json
 waspComplexTest/vite.config.ts

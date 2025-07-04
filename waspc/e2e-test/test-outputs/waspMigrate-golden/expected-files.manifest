@@ -269,9 +269,9 @@ waspMigrate/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspMigrate/.wasp/out/sdk/wasp/server/types/index.ts
 waspMigrate/.wasp/out/sdk/wasp/server/utils.ts
 waspMigrate/.wasp/out/sdk/wasp/src/Main.css
-waspMigrate/.wasp/out/sdk/wasp/src/MainPage.jsx
+waspMigrate/.wasp/out/sdk/wasp/src/MainPage.tsx
+waspMigrate/.wasp/out/sdk/wasp/src/assets/logo.svg
 waspMigrate/.wasp/out/sdk/wasp/src/vite-env.d.ts
-waspMigrate/.wasp/out/sdk/wasp/src/waspLogo.png
 waspMigrate/.wasp/out/sdk/wasp/tsconfig.json
 waspMigrate/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspMigrate/.wasp/out/sdk/wasp/universal/predicates.ts
@@ -332,8 +332,8 @@ waspMigrate/package.json
 waspMigrate/public/favicon.ico
 waspMigrate/schema.prisma
 waspMigrate/src/Main.css
-waspMigrate/src/MainPage.jsx
+waspMigrate/src/MainPage.tsx
+waspMigrate/src/assets/logo.svg
 waspMigrate/src/vite-env.d.ts
-waspMigrate/src/waspLogo.png
 waspMigrate/tsconfig.json
 waspMigrate/vite.config.ts

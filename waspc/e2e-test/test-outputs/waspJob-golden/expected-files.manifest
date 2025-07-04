@@ -313,10 +313,10 @@ waspJob/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspJob/.wasp/out/sdk/wasp/server/types/index.ts
 waspJob/.wasp/out/sdk/wasp/server/utils.ts
 waspJob/.wasp/out/sdk/wasp/src/Main.css
-waspJob/.wasp/out/sdk/wasp/src/MainPage.jsx
+waspJob/.wasp/out/sdk/wasp/src/MainPage.tsx
+waspJob/.wasp/out/sdk/wasp/src/assets/logo.svg
 waspJob/.wasp/out/sdk/wasp/src/server/jobs/bar.js
 waspJob/.wasp/out/sdk/wasp/src/vite-env.d.ts
-waspJob/.wasp/out/sdk/wasp/src/waspLogo.png
 waspJob/.wasp/out/sdk/wasp/tsconfig.json
 waspJob/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspJob/.wasp/out/sdk/wasp/universal/predicates.ts
@@ -379,9 +379,9 @@ waspJob/package.json
 waspJob/public/favicon.ico
 waspJob/schema.prisma
 waspJob/src/Main.css
-waspJob/src/MainPage.jsx
+waspJob/src/MainPage.tsx
+waspJob/src/assets/logo.svg
 waspJob/src/server/jobs/bar.js
 waspJob/src/vite-env.d.ts
-waspJob/src/waspLogo.png
 waspJob/tsconfig.json
 waspJob/vite.config.ts
