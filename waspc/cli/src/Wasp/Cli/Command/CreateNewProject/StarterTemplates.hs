@@ -22,6 +22,9 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import qualified Wasp.Util.Terminal as Term
 
+-- More on how starter templates work in Wasp, including the development process,
+-- can be found in the `waspc/data/Cli/starters/README.md` file.
+
 data StarterTemplate
   = -- | Template from a Github repo.
     GhRepoStarterTemplate !GhRepo.GithubRepoRef !DirBasedTemplateMetadata

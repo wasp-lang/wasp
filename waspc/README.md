@@ -229,6 +229,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - cli/exe/ -> thin executable wrapper around cli library code
 - test/, e2e-test/, cli/test/ -> tests
 - data/Generator/templates/ -> mustache templates for the generated client/server.
+- data/Cli/starters/ -> starter templates for new projects
 - examples/ -> example apps
 
 ### Typescript packages
