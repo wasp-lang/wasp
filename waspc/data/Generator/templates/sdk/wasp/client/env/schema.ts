@@ -10,10 +10,10 @@ const userClientEnvSchema = z.object({})
 {=/ envValidationSchema.isDefined =}
 
 const waspClientEnvSchema = z.object({
-  REACT_APP_API_URL: z
+  "{= serverUrlEnvVarName =}": z
   .string()
   .url({
-    message: 'REACT_APP_API_URL must be a valid URL',
+    message: '{= serverUrlEnvVarName =} must be a valid URL',
   })
   .default('{= defaultServerUrl =}'),
 })
