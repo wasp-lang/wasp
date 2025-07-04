@@ -240,7 +240,16 @@ In general, you only need to worry about changes to the `req` and `res` objects 
 The breaking changes are mostly edge cases and most code should work without any updates.
 :::
 
-### 8. Enjoy your updated Wasp app
+### 8. Check your compatibility with Vite 7
+
+Wasp now uses Vite 7 for better performance and stability. This includes some breaking changes, but
+we don't expect Wasp apps to be affected by them. If you are using Vite features directly in your
+app, you should check the migration guides for [Vite 5](https://v5.vite.dev/guide/migration.html),
+[Vite 6](https://v6.vite.dev/guide/migration.html), and [Vite
+7](https://v7.vite.dev/guide/migration.html). We expect most Wasp apps to be unaffected by these
+changes.
+
+### 9. Enjoy your updated Wasp app
 
 That's it!
 
