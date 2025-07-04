@@ -1,8 +1,12 @@
+import {
+  WaspInternal_CustomSerialization_Register,
+  deserialize,
+  serialize,
+} from "superjson"
+import "./base"
 
 
-import { deserialize, registerCustom, serialize } from 'superjson'
-
-export type Payload = void | SuperJSONValue
+export type Payload = void | SuperJSONValue;
 
 // The part below was copied from SuperJSON and slightly modified:
 // https://github.com/blitz-js/superjson/blob/ae7dbcefe5d3ece5b04be0c6afe6b40f3a44a22a/src/types.ts
@@ -14,18 +18,18 @@ export type Payload = void | SuperJSONValue
 //      https://github.com/blitz-js/superjson/pull/36#issuecomment-669239876
 //
 // We changed the code as little as possible to make future comparisons easier.
-export type JSONValue = PrimitiveJSONValue | JSONArray | JSONObject
+export type JSONValue = PrimitiveJSONValue | JSONArray | JSONObject;
 
 export interface JSONObject {
-  [key: string]: JSONValue
+  [key: string]: JSONValue;
 }
 
-type PrimitiveJSONValue = string | number | boolean | undefined | null
+type PrimitiveJSONValue = string | number | boolean | undefined | null;
 
 export interface JSONArray extends Array<JSONValue> {}
 
-// Added the `Decimal` type to the union (see below)
 // Removed `Symbol` since we don't explicitly register any symbol to be serialized
+// Added custom types from `WaspInternal_CustomSerialization_Register`
 export type SerializableJSONValue =
   | Set<SuperJSONValue>
   | Map<SuperJSONValue, SuperJSONValue>
@@ -33,20 +37,20 @@ export type SerializableJSONValue =
   | bigint
   | Date
   | RegExp
+  | WaspInternal_CustomSerialization_Register[keyof WaspInternal_CustomSerialization_Register];
 
 // Here's where we excluded `ClassInstance` (which was `any`) from the union.
 export type SuperJSONValue =
   | JSONValue
   | SerializableJSONValue
   | SuperJSONArray
-  | SuperJSONObject
+  | SuperJSONObject;
 
 export interface SuperJSONArray extends Array<SuperJSONValue> {}
 
 export interface SuperJSONObject {
-  [key: string]: SuperJSONValue
+  [key: string]: SuperJSONValue;
 }
-
 
 export { deserialize, serialize }
 

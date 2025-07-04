@@ -13,7 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe)
+import Data.Maybe (isJust, mapMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -108,7 +108,6 @@ genSdk spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genFileCopy [relfile|client/config.ts|],
-      genCoreSerializationFile spec,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -122,6 +121,7 @@ genSdk spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genCoreSerializationDir spec
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
@@ -244,15 +244,23 @@ depsRequiredForTesting =
       ("msw", "^1.1.0")
     ]
 
-genCoreSerializationFile :: AppSpec -> Generator FileDraft
-genCoreSerializationFile spec = return $ C.mkTmplFdWithData relCoreSerializationPath tmplData
+genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
+genCoreSerializationDir spec =
+  return $
+    [ C.mkTmplFd [relfile|core/serialization/base.ts|],
+      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+    ]
+      ++ maybeToList prismaSerializationFile
   where
-    relCoreSerializationPath = [relfile|core/serialization.ts|]
+    entitiesExist = hasEntities spec
     tmplData =
       object
         [ "entitiesExist" .= entitiesExist
         ]
-    entitiesExist = hasEntities spec
+
+    prismaSerializationFile
+      | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
+      | otherwise = Nothing
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData

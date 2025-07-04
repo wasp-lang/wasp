@@ -163,9 +163,23 @@
     [
         [
             "file",
-            "../out/sdk/wasp/core/serialization.ts"
+            "../out/sdk/wasp/core/serialization/base.ts"
         ],
-        "d49ee33c708eab490516b6040bfc67d1b5f57ca3bf88a35b091b528d7cbc83e6"
+        "0c577cc214000062228030e3830b055f00f4706dc3f7668b3be0b29cb1ac47fc"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/index.ts"
+        ],
+        "ac528d03aeec064c1ae127e138371a67351cf7ebc18e01801836efc795bd21d4"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/prisma.ts"
+        ],
+        "9fa2e00c171bcad2b775012ecbfd98c91ee5c0215a17aa8301c9be947829003f"
     ],
     [
         [
@@ -207,7 +221,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "443f873bd27fbcef23b199c7de960321e09c0e3f35a3ec6572ce9d663df56661"
+        "47cd40b318e10a5664136f0e613df254c1c95cef4d54050eba673f8ec361ae15"
     ],
     [
         [
