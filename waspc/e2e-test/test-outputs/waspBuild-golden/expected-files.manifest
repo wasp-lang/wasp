@@ -265,9 +265,9 @@ waspBuild/.wasp/build/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/build/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/utils.ts
 waspBuild/.wasp/build/sdk/wasp/src/Main.css
-waspBuild/.wasp/build/sdk/wasp/src/MainPage.jsx
+waspBuild/.wasp/build/sdk/wasp/src/MainPage.tsx
+waspBuild/.wasp/build/sdk/wasp/src/assets/logo.svg
 waspBuild/.wasp/build/sdk/wasp/src/vite-env.d.ts
-waspBuild/.wasp/build/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/build/sdk/wasp/tsconfig.json
 waspBuild/.wasp/build/sdk/wasp/universal/ansiColors.ts
 waspBuild/.wasp/build/sdk/wasp/universal/predicates.ts
@@ -291,9 +291,9 @@ waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts
 waspBuild/.wasp/build/server/tsconfig.json
 waspBuild/.wasp/build/src/Main.css
-waspBuild/.wasp/build/src/MainPage.jsx
+waspBuild/.wasp/build/src/MainPage.tsx
+waspBuild/.wasp/build/src/assets/logo.svg
 waspBuild/.wasp/build/src/vite-env.d.ts
-waspBuild/.wasp/build/src/waspLogo.png
 waspBuild/.wasp/build/tsconfig.json
 waspBuild/.wasp/build/web-app/.gitignore
 waspBuild/.wasp/build/web-app/.npmrc
@@ -579,9 +579,9 @@ waspBuild/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 waspBuild/.wasp/out/sdk/wasp/server/types/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/utils.ts
 waspBuild/.wasp/out/sdk/wasp/src/Main.css
-waspBuild/.wasp/out/sdk/wasp/src/MainPage.jsx
+waspBuild/.wasp/out/sdk/wasp/src/MainPage.tsx
+waspBuild/.wasp/out/sdk/wasp/src/assets/logo.svg
 waspBuild/.wasp/out/sdk/wasp/src/vite-env.d.ts
-waspBuild/.wasp/out/sdk/wasp/src/waspLogo.png
 waspBuild/.wasp/out/sdk/wasp/tsconfig.json
 waspBuild/.wasp/out/sdk/wasp/universal/ansiColors.ts
 waspBuild/.wasp/out/sdk/wasp/universal/predicates.ts
@@ -597,8 +597,8 @@ waspBuild/package.json
 waspBuild/public/favicon.ico
 waspBuild/schema.prisma
 waspBuild/src/Main.css
-waspBuild/src/MainPage.jsx
+waspBuild/src/MainPage.tsx
+waspBuild/src/assets/logo.svg
 waspBuild/src/vite-env.d.ts
-waspBuild/src/waspLogo.png
 waspBuild/tsconfig.json
 waspBuild/vite.config.ts
