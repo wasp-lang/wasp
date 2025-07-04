@@ -61,7 +61,7 @@ waspComplexTest/.wasp/out/sdk/wasp/client/router/types.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/test/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 waspComplexTest/.wasp/out/sdk/wasp/core/auth.ts
-waspComplexTest/.wasp/out/sdk/wasp/core/serialization/base.ts
+waspComplexTest/.wasp/out/sdk/wasp/core/serialization/custom-register.ts
 waspComplexTest/.wasp/out/sdk/wasp/core/serialization/index.ts
 waspComplexTest/.wasp/out/sdk/wasp/core/serialization/prisma.ts
 waspComplexTest/.wasp/out/sdk/wasp/core/stitches.config.ts
@@ -283,10 +283,10 @@ waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.js
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/auth.js.map
-waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/base.d.ts
-waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/base.d.ts.map
-waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/base.js
-waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/base.js.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts.map
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js
+waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts.map
 waspComplexTest/.wasp/out/sdk/wasp/dist/core/serialization/index.js

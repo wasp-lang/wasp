@@ -163,16 +163,16 @@
     [
         [
             "file",
-            "../out/sdk/wasp/core/serialization/base.ts"
+            "../out/sdk/wasp/core/serialization/custom-register.ts"
         ],
-        "0c577cc214000062228030e3830b055f00f4706dc3f7668b3be0b29cb1ac47fc"
+        "38f1a0116cfb33532872d3b5cbb47bd2b695ff59197832758d049151d40c138c"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/core/serialization/index.ts"
         ],
-        "37418111a5467269828463f5d800986b2aeb51dc28d533531a8de61d788f4a33"
+        "76793a820deb474b105bccdeb69b5395d7522c53a790b0ed430533fa5158461c"
     ],
     [
         [

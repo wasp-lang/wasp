@@ -1,10 +1,6 @@
 {{={= =}=}}
-import {
-  WaspInternal_CustomSerialization_Register,
-  deserialize,
-  serialize,
-} from "superjson"
-import "./base"
+import { deserialize, serialize } from "superjson"
+import { CustomSerializableJSONValue } from "./custom-register"
 
 {=# entitiesExist =}
 import "./prisma"
@@ -33,7 +29,7 @@ type PrimitiveJSONValue = string | number | boolean | undefined | null;
 export interface JSONArray extends Array<JSONValue> {}
 
 // Removed `Symbol` since we don't explicitly register any symbol to be serialized
-// Added custom types from `WaspInternal_CustomSerialization_Register`
+// Added custom types from `CustomSerializableJSONValue`
 export type SerializableJSONValue =
   | Set<SuperJSONValue>
   | Map<SuperJSONValue, SuperJSONValue>
@@ -41,7 +37,7 @@ export type SerializableJSONValue =
   | bigint
   | Date
   | RegExp
-  | WaspInternal_CustomSerialization_Register[keyof WaspInternal_CustomSerialization_Register];
+  | CustomSerializableJSONValue;
 
 // Here's where we excluded `ClassInstance` (which was `any`) from the union.
 export type SuperJSONValue =

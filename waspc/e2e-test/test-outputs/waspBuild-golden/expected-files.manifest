@@ -30,7 +30,7 @@ waspBuild/.wasp/build/sdk/wasp/client/router/linkHelpers.ts
 waspBuild/.wasp/build/sdk/wasp/client/router/types.ts
 waspBuild/.wasp/build/sdk/wasp/client/test/index.ts
 waspBuild/.wasp/build/sdk/wasp/client/test/vitest/helpers.tsx
-waspBuild/.wasp/build/sdk/wasp/core/serialization/base.ts
+waspBuild/.wasp/build/sdk/wasp/core/serialization/custom-register.ts
 waspBuild/.wasp/build/sdk/wasp/core/serialization/index.ts
 waspBuild/.wasp/build/sdk/wasp/core/storage.ts
 waspBuild/.wasp/build/sdk/wasp/dev/index.ts
@@ -126,10 +126,10 @@ waspBuild/.wasp/build/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 waspBuild/.wasp/build/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspBuild/.wasp/build/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
-waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/base.d.ts
-waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/base.d.ts.map
-waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/base.js
-waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/base.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/custom-register.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/custom-register.d.ts.map
+waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/custom-register.js
+waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/custom-register.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/index.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/index.d.ts.map
 waspBuild/.wasp/build/sdk/wasp/dist/core/serialization/index.js
@@ -349,7 +349,7 @@ waspBuild/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspBuild/.wasp/out/sdk/wasp/client/router/types.ts
 waspBuild/.wasp/out/sdk/wasp/client/test/index.ts
 waspBuild/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
-waspBuild/.wasp/out/sdk/wasp/core/serialization/base.ts
+waspBuild/.wasp/out/sdk/wasp/core/serialization/custom-register.ts
 waspBuild/.wasp/out/sdk/wasp/core/serialization/index.ts
 waspBuild/.wasp/out/sdk/wasp/core/storage.ts
 waspBuild/.wasp/out/sdk/wasp/dev/index.ts
@@ -445,10 +445,10 @@ waspBuild/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 waspBuild/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspBuild/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
-waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/base.d.ts
-waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/base.d.ts.map
-waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/base.js
-waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/base.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts.map
+waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js
+waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts.map
 waspBuild/.wasp/out/sdk/wasp/dist/core/serialization/index.js

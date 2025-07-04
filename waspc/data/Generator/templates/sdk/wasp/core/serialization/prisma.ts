@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client"
 import { registerCustom } from "superjson"
-import "./base"
+import "./custom-register"
 
 // This file is only added if there are (Prisma) entities in the AppSpec.
 
@@ -47,7 +47,7 @@ if (Decimal) {
 
 // We add the `Decimal` to this interface so that it is registered as a custom serialization type
 declare module "superjson" {
-  interface WaspInternal_CustomSerialization_Register {
+  interface WaspInternal_CustomSerializableJSONValue_Register {
     Decimal: Decimal;
   }
 }

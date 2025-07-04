@@ -29,7 +29,7 @@ waspJob/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspJob/.wasp/out/sdk/wasp/client/router/types.ts
 waspJob/.wasp/out/sdk/wasp/client/test/index.ts
 waspJob/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
-waspJob/.wasp/out/sdk/wasp/core/serialization/base.ts
+waspJob/.wasp/out/sdk/wasp/core/serialization/custom-register.ts
 waspJob/.wasp/out/sdk/wasp/core/serialization/index.ts
 waspJob/.wasp/out/sdk/wasp/core/storage.ts
 waspJob/.wasp/out/sdk/wasp/dev/index.ts
@@ -125,10 +125,10 @@ waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspJob/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
-waspJob/.wasp/out/sdk/wasp/dist/core/serialization/base.d.ts
-waspJob/.wasp/out/sdk/wasp/dist/core/serialization/base.d.ts.map
-waspJob/.wasp/out/sdk/wasp/dist/core/serialization/base.js
-waspJob/.wasp/out/sdk/wasp/dist/core/serialization/base.js.map
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts.map
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js
+waspJob/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js.map
 waspJob/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/core/serialization/index.js

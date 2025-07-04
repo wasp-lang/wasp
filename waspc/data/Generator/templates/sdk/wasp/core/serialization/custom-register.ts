@@ -1,4 +1,4 @@
-import "superjson"
+import type { WaspInternal_CustomSerializableJSONValue_Register } from "superjson"
 
 /*
   This is a workaround for declaring custom types through side-effects in
@@ -15,5 +15,7 @@ import "superjson"
   https://github.com/TanStack/router/blob/v1.124.1/docs/router/framework/react/guide/creating-a-router.md#router-type-safety
 */
 declare module "superjson" {
-  interface WaspInternal_CustomSerialization_Register {}
+  interface WaspInternal_CustomSerializableJSONValue_Register {}
 }
+
+export type CustomSerializableJSONValue = WaspInternal_CustomSerializableJSONValue_Register[keyof WaspInternal_CustomSerializableJSONValue_Register]

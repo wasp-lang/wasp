@@ -247,12 +247,11 @@ depsRequiredForTesting =
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [ C.mkTmplFd [relfile|core/serialization/base.ts|],
+    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
       C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
     ]
       ++ maybeToList prismaSerializationFile
   where
-    entitiesExist = hasEntities spec
     tmplData =
       object
         [ "entitiesExist" .= entitiesExist
@@ -261,6 +260,8 @@ genCoreSerializationDir spec =
     prismaSerializationFile
       | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
       | otherwise = Nothing
+
+    entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
