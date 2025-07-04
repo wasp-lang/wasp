@@ -1,0 +1,17 @@
+{
+  "name": "headless-tests",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "main": "index.js",
+  "keywords": [],
+  "scripts": {
+    "test": "for starter in basic minimal; do ./run-starter-headless-tests.sh $starter wasp || exit 1; done",
+    "test:dev": "for starter in basic minimal; do ./run-starter-headless-tests.sh $starter wasp-cli || exit 1; done"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.0",
+    "@types/node": "^24.0.1"
+  }
+}
