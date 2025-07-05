@@ -1,7 +1,7 @@
 import { $ } from "zx";
 
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
-import { generateRandomString } from "../../../../common/random.js";
+import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import {
   ensureWaspProjectIsBuilt,
@@ -151,7 +151,7 @@ async function setupServer({
   const clientUrl = getRailwayPublicUrlEnvVarForService(clientServiceName);
   const databaseUrl = getRailwayDatabaseUrlEnvVar(dbServiceName);
   const serverUrl = getRailwayPublicUrlEnvVarForSelf();
-  const jwtSecret = generateRandomString();
+  const jwtSecret = generateRandomHexString();
   await railwayCli(
     [
       "add",

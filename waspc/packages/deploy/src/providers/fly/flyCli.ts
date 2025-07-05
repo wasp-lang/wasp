@@ -1,6 +1,6 @@
 import { confirm } from "@inquirer/prompts";
 import { $ } from "zx";
-import { getCommandName } from "../../common/commander.js";
+import { getFullCommandName } from "../../common/commander.js";
 import { executeFlyCommand } from "./index.js";
 import {
   FlyRegionListSchema,
@@ -60,12 +60,10 @@ export async function ensureFlyReady(): Promise<void> {
 export async function assertRegionIsValid(region: string): Promise<void> {
   const validRegion = await regionExists(region);
   if (!validRegion) {
+    const flyRegionsCommand = `${getFullCommandName(executeFlyCommand)} platform regions --context server`;
     const message = [
       `Invalid region code ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`,
-      `You can also run "${getCommandName(executeFlyCommand).replace(
-        "<cmd...>",
-        "platform regions --context server",
-      )}".`,
+      `You can also run "${flyRegionsCommand}".`,
     ].join("\n");
     throw new Error(message);
   }

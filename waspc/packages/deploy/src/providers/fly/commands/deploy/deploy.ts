@@ -1,7 +1,7 @@
 import { $, fs } from "zx";
 
 import { buildClient } from "../../../../common/clientApp.js";
-import { getCommandName } from "../../../../common/commander.js";
+import { getFullCommandName } from "../../../../common/commander.js";
 import {
   displayWaspRocketImage,
   waspSays,
@@ -15,6 +15,7 @@ import {
   createDeploymentInstructions,
   DeploymentInstructions,
 } from "../../DeploymentInstructions.js";
+import { getFlyAppUrl } from "../../flyAppUrl.js";
 import { secretExists } from "../../flyCli.js";
 import { flySetupCommand } from "../../index.js";
 import {
@@ -43,7 +44,7 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
     waspSays(
       `${
         tomlFilePaths.serverTomlPath
-      } missing. Skipping server deploy. Perhaps you need to run "${getCommandName(
+      } missing. Skipping server deploy. Perhaps you need to run "${getFullCommandName(
         flySetupCommand,
       )}" first?`,
     );
@@ -63,7 +64,7 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
     waspSays(
       `${
         tomlFilePaths.clientTomlPath
-      } missing. Skipping client deploy. Perhaps you need to run "${getCommandName(
+      } missing. Skipping client deploy. Perhaps you need to run "${getFullCommandName(
         flySetupCommand,
       )}" first?`,
     );
@@ -117,10 +118,9 @@ async function deployClient(
   cdToClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
   copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
 
-  await buildClient(
-    deploymentInstructions.serverUrl,
-    deploymentInstructions.cmdOptions,
-  );
+  const serverFlyAppUrl = getFlyAppUrl(deploymentInstructions.serverFlyAppName);
+
+  await buildClient(serverFlyAppUrl, deploymentInstructions.cmdOptions);
 
   // Creates the necessary Dockerfile for deploying static websites to Fly.io.
   // Adds dummy .dockerignore to supress CLI question.
@@ -140,6 +140,6 @@ async function deployClient(
 
   displayWaspRocketImage();
   waspSays(
-    `Client has been deployed! Your Wasp app is accessible at: ${deploymentInstructions.clientUrl}`,
+    `Client has been deployed! Your Wasp app is accessible at: ${getFlyAppUrl(deploymentInstructions.clientFlyAppName)}`,
   );
 }

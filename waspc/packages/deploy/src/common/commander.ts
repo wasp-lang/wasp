@@ -1,7 +1,9 @@
-import { Command, Help } from "commander";
+import { Command } from "commander";
 
-const help = new Help();
-
-export function getCommandName(command: Command): string {
-  return help.commandUsage(command).replace(" [options]", "").trim();
+export function getFullCommandName(command: Command): string {
+  const fullCommandNameParts = [command.name()];
+  for (let parent = command.parent; parent; parent = parent.parent) {
+    fullCommandNameParts.unshift(parent.name());
+  }
+  return fullCommandNameParts.join(" ");
 }

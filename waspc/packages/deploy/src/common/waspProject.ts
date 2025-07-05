@@ -4,7 +4,7 @@ import path from "node:path";
 import { cd } from "zx";
 import { WaspCliExe, WaspProjectDir } from "./brandedTypes.js";
 import { waspSays } from "./terminal.js";
-import { assertDirIsAbsoluteAndPresent } from "./validation.js";
+import { assertDirExists, assertDirPathIsAbsolute } from "./validation.js";
 import { createCommandWithCwd } from "./zx.js";
 
 export async function assertValidWaspProject(
@@ -28,7 +28,9 @@ export async function assertValidWaspProject(
 export function assertWaspProjectDirIsAbsoluteAndPresent(
   waspProjectDir: WaspProjectDir,
 ): void {
-  assertDirIsAbsoluteAndPresent(waspProjectDir, "Wasp project directory");
+  const dirNameInError = "Wasp project directory";
+  assertDirPathIsAbsolute(waspProjectDir, dirNameInError);
+  assertDirExists(waspProjectDir, dirNameInError);
 }
 
 export async function ensureWaspProjectIsBuilt({
@@ -63,11 +65,15 @@ export function cdToClientBuildDir(waspProjectDir: WaspProjectDir): void {
   cd(clientBuildDir);
 }
 
-export function getServerArtefactsDir(waspProjectDir: WaspProjectDir): string {
+export function getServerBuildArtefactsDir(
+  waspProjectDir: WaspProjectDir,
+): string {
   return getServerBuildDir(waspProjectDir);
 }
 
-export function getClientArtefactsDir(waspProjectDir: WaspProjectDir): string {
+export function getClientBuildArtefactsDir(
+  waspProjectDir: WaspProjectDir,
+): string {
   const clientBuildDir = getClientBuildDir(waspProjectDir);
   return path.join(clientBuildDir, "build");
 }

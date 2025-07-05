@@ -1,7 +1,7 @@
 import { $, chalk, question } from "zx";
 
-import { getCommandName } from "../../../../common/commander.js";
-import { generateRandomString } from "../../../../common/random.js";
+import { getFullCommandName } from "../../../../common/commander.js";
+import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import {
   cdToClientBuildDir,
@@ -12,6 +12,7 @@ import {
   createDeploymentInstructions,
   DeploymentInstructions,
 } from "../../DeploymentInstructions.js";
+import { getFlyAppUrl } from "../../flyAppUrl.js";
 import { createFlyDbCommand } from "../../index.js";
 import {
   clientTomlExistsInProject,
@@ -59,7 +60,7 @@ export async function setup(
   }
 
   waspSays(
-    `Don't forget to create your database by running "${getCommandName(createFlyDbCommand)}".`,
+    `Don't forget to create your database by running "${getFullCommandName(createFlyDbCommand)}".`,
   );
 }
 
@@ -67,7 +68,7 @@ async function setupServer(
   deploymentInstructions: DeploymentInstructions<SetupCmdOptions>,
 ) {
   waspSays(
-    `Setting up server app with name ${deploymentInstructions.serverName}`,
+    `Setting up server app with name ${deploymentInstructions.serverFlyAppName}`,
   );
 
   cdToServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
@@ -75,7 +76,7 @@ async function setupServer(
 
   const launchArgs = [
     "--name",
-    deploymentInstructions.serverName,
+    deploymentInstructions.serverFlyAppName,
     "--region",
     deploymentInstructions.region,
   ];
@@ -130,15 +131,15 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   copyLocalServerTomlToProject(deploymentInstructions.tomlFilePaths);
 
-  const jwtSecret = generateRandomString();
+  const jwtSecret = generateRandomHexString();
 
   const secretsArgs = [
     `JWT_SECRET=${jwtSecret}`,
     // NOTE: Normally these would just be envars, but flyctl
     // doesn't provide a way to set envars that persist to fly.toml.
     `PORT=${serverAppPort}`,
-    `WASP_WEB_CLIENT_URL=${deploymentInstructions.clientUrl}`,
-    `WASP_SERVER_URL=${deploymentInstructions.serverUrl}`,
+    `WASP_WEB_CLIENT_URL=${getFlyAppUrl(deploymentInstructions.clientFlyAppName)}`,
+    `WASP_SERVER_URL=${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}`,
   ];
 
   if (deploymentInstructions.cmdOptions.serverSecret.length > 0) {
@@ -157,7 +158,7 @@ async function setupClient(
   deploymentInstructions: DeploymentInstructions<SetupCmdOptions>,
 ) {
   waspSays(
-    `Setting up client app with name ${deploymentInstructions.clientName}`,
+    `Setting up client app with name ${deploymentInstructions.clientFlyAppName}`,
   );
 
   cdToClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
@@ -165,7 +166,7 @@ async function setupClient(
 
   const launchArgs = [
     "--name",
-    deploymentInstructions.clientName,
+    deploymentInstructions.clientFlyAppName,
     "--region",
     deploymentInstructions.region,
   ];

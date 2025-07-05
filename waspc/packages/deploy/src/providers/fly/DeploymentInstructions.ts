@@ -7,10 +7,8 @@ export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
     region?: string;
     cmdOptions: CmdOptions;
     tomlFilePaths: TomlFilePaths;
-    clientName: string;
-    clientUrl: string;
-    serverName: string;
-    serverUrl: string;
+    clientFlyAppName: string;
+    serverFlyAppName: string;
     dbName: string;
   }>;
 
@@ -32,10 +30,8 @@ export function createDeploymentInstructions<
     region,
     cmdOptions,
     tomlFilePaths,
-    clientName: `${baseName}-client`,
-    clientUrl: `https://${baseName}-client.fly.dev`,
-    serverName: `${baseName}-server`,
-    serverUrl: `https://${baseName}-server.fly.dev`,
+    clientFlyAppName: `${baseName}-client`,
+    serverFlyAppName: `${baseName}-server`,
     dbName: `${baseName}-db`,
   });
 }

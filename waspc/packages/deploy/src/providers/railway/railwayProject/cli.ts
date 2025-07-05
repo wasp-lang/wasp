@@ -75,9 +75,9 @@ export async function linkRailwayProjectToWaspProjectDir(
 
 export async function getRailwayProjectForDirectory(
   railwayExe: RailwayCliExe,
-  waspProjectDir: WaspProjectDir,
+  directoryPath: string,
 ): Promise<RailwayProject | null> {
-  const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
+  const railwayCli = createCommandWithCwd(railwayExe, directoryPath);
   const result = await railwayCli(["status", "--json"], {
     verbose: false,
     nothrow: true,

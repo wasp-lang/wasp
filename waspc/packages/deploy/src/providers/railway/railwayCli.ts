@@ -34,9 +34,7 @@ async function ensureUserLoggedIn(railwayExe: RailwayCliExe): Promise<void> {
 }
 
 async function isUserLoggedIn(railwayExe: RailwayCliExe): Promise<boolean> {
-  const result = await $({
-    nothrow: true,
-  })`${railwayExe} whoami`;
+  const result = await $({ nothrow: true })`${railwayExe} whoami`;
   return result.exitCode === 0;
 }
 

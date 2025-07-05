@@ -1,7 +1,10 @@
 import fs from "fs";
 import path from "node:path";
 import toml from "toml";
-import { assertDirIsAbsoluteAndPresent } from "../../common/validation.js";
+import {
+  assertDirExists,
+  assertDirPathIsAbsolute,
+} from "../../common/validation.js";
 import { CommonCmdOptions } from "./CommonCmdOptions.js";
 
 export interface TomlFilePaths {
@@ -60,15 +63,15 @@ export function getAppNameFromToml(path: string): string {
 export function getInferredBasenameFromServerToml(
   paths: TomlFilePaths,
 ): string {
-  const serverName = getAppNameFromToml(paths.serverTomlPath);
-  return serverName.replace("-server", "");
+  const serverFlyAppName = getAppNameFromToml(paths.serverTomlPath);
+  return serverFlyAppName.replace("-server", "");
 }
 
 export function getInferredBasenameFromClientToml(
   paths: TomlFilePaths,
 ): string {
-  const clientName = getAppNameFromToml(paths.clientTomlPath);
-  return clientName.replace("-client", "");
+  const clientFlyAppName = getAppNameFromToml(paths.clientTomlPath);
+  return clientFlyAppName.replace("-client", "");
 }
 
 export function replaceLineInLocalToml(
@@ -90,5 +93,7 @@ export function doesLocalTomlContainLine(
 export function assertFlyTomlDirIsAbsoluteAndPresent(
   flyTomlDirPath: string,
 ): void {
-  assertDirIsAbsoluteAndPresent(flyTomlDirPath, "TOML directory");
+  const dirNameInError = "TOML directory";
+  assertDirPathIsAbsolute(flyTomlDirPath, dirNameInError);
+  assertDirExists(flyTomlDirPath, dirNameInError);
 }

@@ -3,7 +3,7 @@ import {
   displayWaspRocketImage,
   waspSays,
 } from "../../../../common/terminal.js";
-import { getClientArtefactsDir } from "../../../../common/waspProject.js";
+import { getClientBuildArtefactsDir } from "../../../../common/waspProject.js";
 import { DeploymentInstructions } from "../../DeploymentInstructions.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
@@ -27,7 +27,7 @@ export async function deployClient({
   );
   await buildClient(serverServiceUrl, options);
 
-  const webAppArtefactsDir = getClientArtefactsDir(options.waspProjectDir);
+  const webAppArtefactsDir = getClientBuildArtefactsDir(options.waspProjectDir);
 
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {

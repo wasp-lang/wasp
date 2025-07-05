@@ -1,5 +1,5 @@
 import { waspSays } from "../../../../common/terminal.js";
-import { getServerArtefactsDir } from "../../../../common/waspProject.js";
+import { getServerBuildArtefactsDir } from "../../../../common/waspProject.js";
 import { DeploymentInstructions } from "../../DeploymentInstructions.js";
 
 import {
@@ -14,7 +14,7 @@ export async function deployServer({
 }: DeploymentInstructions<DeployCmdOptions>): Promise<void> {
   waspSays("Deploying your server now...");
 
-  const serverArtefactsDir = getServerArtefactsDir(options.waspProjectDir);
+  const serverArtefactsDir = getServerBuildArtefactsDir(options.waspProjectDir);
 
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {

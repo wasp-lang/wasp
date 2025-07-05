@@ -1,6 +1,6 @@
 import { $, ProcessOutput, question } from "zx";
 
-import { getCommandName } from "../../../../common/commander.js";
+import { getFullCommandName } from "../../../../common/commander.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { createDeploymentInstructions } from "../../DeploymentInstructions.js";
 import { flyDeployCommand, flySetupCommand } from "../../index.js";
@@ -23,7 +23,7 @@ export async function createDb(
     throw new Error(
       `${
         tomlFilePaths.serverTomlPath
-      } missing. Skipping DB creation. Perhaps you need to run "${getCommandName(
+      } missing. Skipping DB creation. Perhaps you need to run "${getFullCommandName(
         flySetupCommand,
       )}" first?`,
     );
@@ -58,7 +58,7 @@ export async function createDb(
 
   try {
     await $`flyctl postgres create ${createArgs}`;
-    await $`flyctl postgres attach ${deploymentInstructions.dbName} -a ${deploymentInstructions.serverName}`;
+    await $`flyctl postgres attach ${deploymentInstructions.dbName} -a ${deploymentInstructions.serverFlyAppName}`;
   } catch (error) {
     if (error instanceof ProcessOutput) {
       throw new Error(error.stderr.trim());
@@ -72,6 +72,6 @@ export async function createDb(
   );
 
   waspSays(
-    `Don't forget to deploy your app by running "${getCommandName(flyDeployCommand)}".`,
+    `Don't forget to deploy your app by running "${getFullCommandName(flyDeployCommand)}".`,
   );
 }
