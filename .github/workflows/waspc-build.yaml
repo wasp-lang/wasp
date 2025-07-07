@@ -84,7 +84,7 @@ jobs:
               # Cabal dependencies
               apk add zlib-dev zlib-static
 
-          - name: darwin-x86_64
+          - name: macos-x86_64
             runner: macos-13 # Latest image still based on Intel architecture that can be used for free
 
             # macOS's syscalls are private and change between versions, so we
@@ -93,7 +93,7 @@ jobs:
             # fine depending on it.
             static: false
 
-          - name: darwin-aarch64
+          - name: macos-aarch64
             runner: macos-latest # Latest macOS images are already Apple Silicon-based
             static: false # Check the comment above for why we can't statically link on macOS
             install-deps: |
@@ -146,15 +146,15 @@ jobs:
       - name: Download macOS binaries
         uses: actions/download-artifact@v4
         with:
-          pattern: wasp-cli-darwin-*
+          pattern: wasp-cli-macos-*
 
       - name: Unpack, create universal binary and pack
         run: |
           set -ex # Fail on error and print each command
 
           input_arch=(
-            darwin-x86_64
-            darwin-aarch64
+            macos-x86_64
+            macos-aarch64
           )
 
           # Extract each architecture
@@ -170,9 +170,9 @@ jobs:
           cp -R "arch-${input_arch[0]}/data" universal/
 
           # Pack back up
-          tar -czf wasp-darwin-universal.tar.gz -C universal .
+          tar -czf wasp-macos-universal.tar.gz -C universal .
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wasp-cli-darwin-universal
-          path: ./wasp-darwin-universal.tar.gz
+          name: wasp-cli-macos-universal
+          path: ./wasp-macos-universal.tar.gz
