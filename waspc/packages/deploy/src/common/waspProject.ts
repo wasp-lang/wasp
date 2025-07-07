@@ -17,11 +17,12 @@ export async function assertValidWaspProject(
     nothrow: true,
   });
   if (result.exitCode !== 0) {
-    const message = [
-      "The supplied Wasp directory does not appear to be a valid Wasp project.",
-      "Please double check your Wasp project directory.",
-    ].join("\n");
-    throw new Error(message);
+    throw new Error(
+      [
+        "The supplied Wasp directory does not appear to be a valid Wasp project.",
+        "Please double check your Wasp project directory.",
+      ].join("\n"),
+    );
   }
 }
 

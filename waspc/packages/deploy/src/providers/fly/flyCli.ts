@@ -61,11 +61,12 @@ export async function assertRegionIsValid(region: string): Promise<void> {
   const validRegion = await regionExists(region);
   if (!validRegion) {
     const flyRegionsCommand = `${getFullCommandName(executeFlyCommand)} platform regions --context server`;
-    const message = [
-      `Invalid region code ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`,
-      `You can also run "${flyRegionsCommand}".`,
-    ].join("\n");
-    throw new Error(message);
+    throw new Error(
+      [
+        `Invalid region code ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`,
+        `You can also run "${flyRegionsCommand}".`,
+      ].join("\n"),
+    );
   }
 }
 

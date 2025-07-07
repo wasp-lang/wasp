@@ -1,25 +1,20 @@
-import semver from "semver";
+import semver, { SemVer } from "semver";
 import { $ } from "zx";
 
 import { confirm } from "@inquirer/prompts";
-import {
-  RailwayCliExe,
-  RailwayProjectName,
-  SemverVersion,
-} from "./brandedTypes.js";
+import { RailwayCliExe, RailwayProjectName } from "./brandedTypes.js";
 import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
 // Railway CLI version 4.0.1 includes a change that is needed for
 // Wasp deploy command to work with Railway properly:
 // https://github.com/railwayapp/cli/pull/596
-const minSupportedRailwayCliVersion = "4.0.1" as SemverVersion;
+const minSupportedRailwayCliVersion = new SemVer("4.0.1");
 
 export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,
 ): Promise<void> {
   const railwayCliVersion = await getRailwayCliVersion(railwayExe);
   assertUsingMinimumSupportedRailwayCliVersion(railwayCliVersion);
-
   await ensureUserLoggedIn(railwayExe);
 }
 
@@ -48,7 +43,7 @@ async function confirmUserWantsToLogin(): Promise<void> {
 }
 
 async function loginToRailway(railwayExe: RailwayCliExe): Promise<void> {
-  // Login comand requires **interactive** terminal
+  // Login comand requires **interactive** terminal.
   const loginCmdOptions = {
     stdio: "inherit",
   } as const;
@@ -57,24 +52,37 @@ async function loginToRailway(railwayExe: RailwayCliExe): Promise<void> {
 
 async function getRailwayCliVersion(
   railwayExe: RailwayCliExe,
-): Promise<SemverVersion> {
-  const result = await $`${railwayExe} -V`;
-  const match = result.stdout.match(/railway(?:app)? (\d+\.\d+\.\d+)/);
+): Promise<SemVer> {
+  const result = await $({ nothrow: true })`${railwayExe} -V`;
 
-  if (match === null) {
-    const message = [
-      "Unable to determine Railway CLI version.",
-      "This is likely because the Railway CLI is not installed on your system.",
-      "Read how to install the Railway CLI here: https://docs.railway.com/guides/cli",
-    ].join("\n");
-    throw new Error(message);
+  if (result.exitCode !== 0) {
+    throw new Error(
+      [
+        "Failed to get Railway CLI version. Most likely the Railway CLI is not installed.",
+        "Read how to install the Railway CLI here: https://docs.railway.com/guides/cli",
+      ].join("\n"),
+    );
   }
 
-  return match[1] as SemverVersion;
+  const match = result.stdout.match(/railway(?:app)? (.*)/);
+
+  if (match === null) {
+    throw new Error(
+      `Failed to get Railway CLI version from output "${result.stdout.trim()}".`,
+    );
+  }
+
+  const version = semver.parse(match[1]);
+
+  if (version === null) {
+    throw new Error(`Unable to parse Railway CLI version "${match[1]}".`);
+  }
+
+  return version;
 }
 
 function assertUsingMinimumSupportedRailwayCliVersion(
-  railwayCliVersion: SemverVersion,
+  railwayCliVersion: SemVer,
 ): void {
   if (!semver.gte(railwayCliVersion, minSupportedRailwayCliVersion)) {
     const message = [
