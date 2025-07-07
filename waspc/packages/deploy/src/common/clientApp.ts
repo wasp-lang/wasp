@@ -1,6 +1,9 @@
 import { WaspProjectDir } from "./brandedTypes.js";
 import { waspSays } from "./terminal.js";
-import { getClientBuildDir } from "./waspProject.js";
+import {
+  getClientBuildArtefactsDir,
+  getClientBuildDir,
+} from "./waspProject.js";
 import { createCommandWithCwd } from "./zx.js";
 
 export const serverUrlEnvVarName = "REACT_APP_API_URL";
@@ -8,7 +11,7 @@ export const serverUrlEnvVarName = "REACT_APP_API_URL";
 export async function buildClient(
   defaultServerAppUrl: string,
   { waspProjectDir }: { waspProjectDir: WaspProjectDir },
-): Promise<void> {
+): Promise<string> {
   waspSays("Building web client for production...");
   waspSays(
     `If you configured a custom domain for the server, you should run the command with an env variable: ${serverUrlEnvVarName}=https://serverUrl.com <command>`,
@@ -26,6 +29,8 @@ export async function buildClient(
       [serverUrlEnvVarName]: serverUrl,
     },
   });
+
+  return getClientBuildArtefactsDir(waspProjectDir);
 }
 
 // We allow users to specify the server URL that the client will connect to

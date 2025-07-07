@@ -11,13 +11,13 @@ import {
 
 export enum ServiceDeploymentStatus {
   SUCCESS = "SUCCESS",
-  FAILED_STREAMING_LOGS = "FAILED_STREAMING_LOGS",
+  FAILED_TO_STREAM_LOGS = "FAILED_TO_STREAM_LOGS",
 }
 
 export async function deployServiceWithStreamingLogs(
   service: {
     name: ClientServiceName | ServerServiceName;
-    artefactsDirectory: string;
+    dirToDeploy: string;
   },
   options: {
     railwayExe: RailwayCliExe;
@@ -31,7 +31,7 @@ export async function deployServiceWithStreamingLogs(
     );
     await railwayCli([
       "up",
-      service.artefactsDirectory,
+      service.dirToDeploy,
       "--service",
       service.name,
       "--no-gitignore",
@@ -44,12 +44,12 @@ export async function deployServiceWithStreamingLogs(
     return ServiceDeploymentStatus.SUCCESS;
   } catch (e: unknown) {
     if (isFailedToStreamLogsError(e)) {
-      // The deployment didn't fail, but we couldn't stream the logs.
+      // The deployment most likely didn't fail, we only failed to stream the logs.
       // This can happen with the Railway CLI, and the deployment might still be successful.
       waspSays(
         `Failed to stream build log for service "${service.name}". This sometimes happens with the Railway CLI. Please check the Railway dashboard for build logs.`,
       );
-      return ServiceDeploymentStatus.FAILED_STREAMING_LOGS;
+      return ServiceDeploymentStatus.FAILED_TO_STREAM_LOGS;
     }
 
     throw new Error(

@@ -14,19 +14,21 @@ export async function deployServer({
 }: DeploymentInstructions<DeployCmdOptions>): Promise<void> {
   waspSays("Deploying your server now...");
 
-  const serverArtefactsDir = getServerBuildArtefactsDir(options.waspProjectDir);
+  const serverBuildArtefactsDir = getServerBuildArtefactsDir(
+    options.waspProjectDir,
+  );
 
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {
       name: serverServiceName,
-      artefactsDirectory: serverArtefactsDir,
+      dirToDeploy: serverBuildArtefactsDir,
     },
     options,
   );
 
   const messages: Record<ServiceDeploymentStatus, string> = {
     [ServiceDeploymentStatus.SUCCESS]: "Server has been deployed!",
-    [ServiceDeploymentStatus.FAILED_STREAMING_LOGS]:
+    [ServiceDeploymentStatus.FAILED_TO_STREAM_LOGS]:
       "Server deployment started, but failed to stream build logs. Please check the Railway dashboard for build logs.",
   };
 

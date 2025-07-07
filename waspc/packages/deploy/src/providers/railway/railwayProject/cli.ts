@@ -8,8 +8,13 @@ import {
   RailwayCliProjectSchema,
   RailwayProjectListSchema,
 } from "../jsonOutputSchemas.js";
-import { RailwayProject } from "./RailwayProject.js";
+import { createRailwayProject, RailwayProject } from "./RailwayProject.js";
 
+/**
+ * Initializing a Railway project means creating a new project
+ * in Railway platform and linking it to the current
+ * Wasp project directory.
+ */
 export async function initRailwayProject({
   projectName,
   railwayExe,
@@ -40,6 +45,10 @@ export async function initRailwayProject({
   return newRailwayProject;
 }
 
+/**
+ * Linking a Railway project means associating an existing
+ * Railway project with the current Wasp project directory.
+ */
 export async function linkRailwayProjectToWaspProjectDir(
   project: RailwayProject,
   {
@@ -65,7 +74,7 @@ export async function linkRailwayProjectToWaspProjectDir(
     railwayExe,
     waspProjectDir,
   );
-  if (linkedRailwayProject === null) {
+  if (linkedRailwayProject === null || linkedRailwayProject.id !== project.id) {
     throw new Error("Railway project linking failed.");
   }
 
@@ -83,7 +92,7 @@ export async function getRailwayProjectForDirectory(
     nothrow: true,
   });
   if (result.exitCode === 0) {
-    return new RailwayProject(RailwayCliProjectSchema.parse(result.json()));
+    return createRailwayProject(RailwayCliProjectSchema.parse(result.json()));
   } else {
     return null;
   }
@@ -117,6 +126,6 @@ async function getRailwayProjects(
   const projects = RailwayProjectListSchema.parse(JSON.parse(result.stdout));
 
   return projects.map((cliProject) => {
-    return new RailwayProject(cliProject);
+    return createRailwayProject(cliProject);
   });
 }

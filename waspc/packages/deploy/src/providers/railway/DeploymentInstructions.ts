@@ -7,9 +7,9 @@ import {
   ServerServiceName,
 } from "./brandedTypes.js";
 import {
-  generateRailwayClientServiceName,
-  generateRailwayDbServiceName,
-  generateRailwayServerServiceName,
+  createRailwayClientServiceName,
+  createRailwayDbServiceName,
+  createRailwayServerServiceName,
 } from "./railwayService/nameGenerator.js";
 
 export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
@@ -30,9 +30,9 @@ export function createDeploymentInstructions<
   return Object.freeze({
     projectName,
     cmdOptions,
-    clientServiceName: generateRailwayClientServiceName(projectName),
-    serverServiceName: generateRailwayServerServiceName(projectName),
-    dbServiceName: generateRailwayDbServiceName(),
+    clientServiceName: createRailwayClientServiceName(projectName),
+    serverServiceName: createRailwayServerServiceName(projectName),
+    dbServiceName: createRailwayDbServiceName(),
   });
 }
 

@@ -5,25 +5,25 @@ import {
   ServerServiceName,
 } from "../brandedTypes";
 
-export function generateRailwayClientServiceName(
+export function createRailwayClientServiceName(
   projectName: RailwayProjectName,
 ): ClientServiceName {
-  return generateRailwayServiceName(
+  return createRailwayServiceName(
     projectName,
     ServiceWithSuffixedName.Client,
   ) as ClientServiceName;
 }
 
-export function generateRailwayServerServiceName(
+export function createRailwayServerServiceName(
   projectName: RailwayProjectName,
 ): ServerServiceName {
-  return generateRailwayServiceName(
+  return createRailwayServiceName(
     projectName,
     ServiceWithSuffixedName.Server,
   ) as ServerServiceName;
 }
 
-function generateRailwayServiceName(
+function createRailwayServiceName(
   projectName: RailwayProjectName,
   service: ServiceWithSuffixedName,
 ): string {
@@ -41,7 +41,7 @@ export const serviceNameSuffixes: Record<ServiceWithSuffixedName, string> = {
   [ServiceWithSuffixedName.Server]: "-server",
 };
 
-export function generateRailwayDbServiceName(): DbServiceName {
+export function createRailwayDbServiceName(): DbServiceName {
   // Railway doesn't allow us to choose the database service name.
   return "Postgres" as DbServiceName;
 }

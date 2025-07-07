@@ -3,7 +3,6 @@ import {
   displayWaspRocketImage,
   waspSays,
 } from "../../../../common/terminal.js";
-import { getClientBuildArtefactsDir } from "../../../../common/waspProject.js";
 import { DeploymentInstructions } from "../../DeploymentInstructions.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
@@ -25,29 +24,26 @@ export async function deployClient({
     serverAppPort,
     options,
   );
-  await buildClient(serverServiceUrl, options);
-
-  const webAppArtefactsDir = getClientBuildArtefactsDir(options.waspProjectDir);
+  const clientBuildArtefactsDir = await buildClient(serverServiceUrl, options);
 
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {
       name: clientServiceName,
-      artefactsDirectory: webAppArtefactsDir,
+      dirToDeploy: clientBuildArtefactsDir,
     },
     options,
   );
+
+  displayWaspRocketImage();
 
   const clientUrl = await generateServiceUrl(
     clientServiceName,
     clientAppPort,
     options,
   );
-
-  displayWaspRocketImage();
-
   const messages: Record<ServiceDeploymentStatus, string> = {
     [ServiceDeploymentStatus.SUCCESS]: `Client has been deployed! Your Wasp app is accessible at: ${clientUrl}`,
-    [ServiceDeploymentStatus.FAILED_STREAMING_LOGS]: `Client deployment started, but failed to stream build logs. Your Wasp app should be accessible at: ${clientUrl}`,
+    [ServiceDeploymentStatus.FAILED_TO_STREAM_LOGS]: `Client deployment started, but failed to stream build logs. Your Wasp app should be accessible at: ${clientUrl}`,
   };
   waspSays(messages[deploymentStatus]);
 }

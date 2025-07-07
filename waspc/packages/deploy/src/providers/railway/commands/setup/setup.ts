@@ -28,11 +28,6 @@ import {
   ProjectStatus,
 } from "../../railwayProject/index.js";
 import { RailwayProject } from "../../railwayProject/RailwayProject.js";
-import {
-  getRailwayDatabaseUrlEnvVar,
-  getRailwayPublicUrlEnvVarForSelf,
-  getRailwayPublicUrlEnvVarForService,
-} from "../../railwayService/env.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
 import { SetupCmdOptions } from "./SetupCmdOptions.js";
 
@@ -49,9 +44,9 @@ export async function setup(
 
   const project = await setupRailwayProjectForDirectory({
     projectName,
+    existingProjectId: options.existingProjectId,
     waspProjectDir: options.waspProjectDir,
     railwayExe: options.railwayExe,
-    existingProjectId: options.existingProjectId,
   });
 
   await ensureWaspProjectIsBuilt(options);
@@ -148,9 +143,12 @@ async function setupServer({
   const serverBuildDir = getServerBuildDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(options.railwayExe, serverBuildDir);
 
-  const clientUrl = getRailwayPublicUrlEnvVarForService(clientServiceName);
-  const databaseUrl = getRailwayDatabaseUrlEnvVar(dbServiceName);
-  const serverUrl = getRailwayPublicUrlEnvVarForSelf();
+  const clientUrl = `https://${getRailwayEnvVarValueReference(`${clientServiceName}.RAILWAY_PUBLIC_DOMAIN`)}`;
+  // If we reference the service URL in its OWN env variables, we don't prefix it with the service name.
+  const serverUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN")}`;
+  const databaseUrl = getRailwayEnvVarValueReference(
+    `${dbServiceName}.DATABASE_URL`,
+  );
   const jwtSecret = generateRandomHexString();
   await railwayCli(
     [
@@ -194,4 +192,8 @@ async function setupClient({
   );
 
   waspSays("Client setup complete!");
+}
+
+function getRailwayEnvVarValueReference(name: string): string {
+  return "${{" + name + "}}";
 }
