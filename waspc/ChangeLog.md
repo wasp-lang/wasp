@@ -37,6 +37,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 
 - Fixes an OAuth logic race condition where a valid session ID was cleared and users would be logged out. ([#2684](https://github.com/wasp-lang/wasp/pull/2684))
 - Calling `useAuth()` when the user is not logged in will not fail the request, only return `null` ([#2689](https://github.com/wasp-lang/wasp/pull/2689))
+- Fixes a bug where a Prisma file with no models defined would cause the app not to render in the browser. ([#2902](https://github.com/wasp-lang/wasp/pull/2902))
 
 ### 🔧 Small improvements
 
