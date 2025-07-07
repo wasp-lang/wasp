@@ -11,7 +11,7 @@ export async function buildClient(
 ): Promise<void> {
   waspSays("Building web client for production...");
   waspSays(
-    `If you configured a custom domain for the server, you should run the command with an env variable: ${serverUrlEnvVarName}=https://serverUrl.com wasp deploy railway deploy`,
+    `If you configured a custom domain for the server, you should run the command with an env variable: ${serverUrlEnvVarName}=https://serverUrl.com <command>`,
   );
 
   const clientBuildDir = getClientBuildDir(waspProjectDir);

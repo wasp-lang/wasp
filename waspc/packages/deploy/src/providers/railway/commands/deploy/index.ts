@@ -1,4 +1,5 @@
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
+import { getFullCommandName } from "../../../../common/commander.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspProject.js";
 import {
@@ -7,6 +8,7 @@ import {
   RailwayProjectName,
 } from "../../brandedTypes.js";
 import { createDeploymentInstructions } from "../../DeploymentInstructions.js";
+import { railwaySetupCommand } from "../../index.js";
 import { linkRailwayProjectToWaspProjectDir } from "../../railwayProject/cli.js";
 import {
   getRailwayProjectStatus,
@@ -85,7 +87,7 @@ async function ensureRailwayProjectForDirectory({
 
     case ProjectStatus.MISSING_PROJECT:
       throw new Error(
-        'No Railway project found. Run "wasp deploy railway setup" first or provide an existing project ID with "--existing-project-id" option.',
+        `No Railway project found. Run ${getFullCommandName(railwaySetupCommand)} first or provide an existing project ID with "--existing-project-id" option.`,
       );
 
     default:
