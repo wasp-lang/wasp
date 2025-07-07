@@ -37,14 +37,13 @@ export async function generateServiceUrl(
   }
 
   if (result.stdout.includes("Domains already exists on the service:")) {
-    return matchServiceUrl(result.stdout);
+    return extractUrlFromString(result.stdout);
   } else {
-    const { domain } = RailwayCliDomainSchema.parse(result.json());
-    return domain;
+    return RailwayCliDomainSchema.parse(result.json()).domain;
   }
 }
 
-function matchServiceUrl(text: string): string {
+function extractUrlFromString(text: string): string {
   const match = text.match(/https:\/\/[^\s]*/);
   if (match === null) {
     throw new Error("Failed to get service domain");
