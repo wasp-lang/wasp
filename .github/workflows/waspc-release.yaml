@@ -29,6 +29,6 @@ jobs:
         with:
           draft: true
           allowUpdates: true
-          artifacts: "./wasp-*"
+          artifacts: "./wasp-cli-*/*"
           artifactErrorsFailBuild: true
           replacesArtifacts: true
