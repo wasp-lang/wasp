@@ -1,4 +1,6 @@
-## title: Migration from 0.16.X to 0.17.X
+---
+title: Migration from 0.16.X to 0.17.X
+---
 
 ## What's new in 0.17.0?
 
@@ -18,18 +20,18 @@ the way of calling it:
 <TabItem value="before" label="Before">
 
 ```ts
-import { login } from 'wasp/client/auth'
+import { login } from "wasp/client/auth";
 
-await login(usernameValue, passwordValue)
+await login(usernameValue, passwordValue);
 ```
 
 </TabItem>
 <TabItem value="after" label="After">
 
 ```ts
-import { login } from 'wasp/client/auth'
+import { login } from "wasp/client/auth";
 
-await login({ username: usernameValue, password: passwordValue })
+await login({ username: usernameValue, password: passwordValue });
 ```
 
 </TabItem>
@@ -66,40 +68,40 @@ change its parameters from `login(usernameValue, passwordValue)` to
 <TabItem value="before" label="Before">
 
 ```tsx title="src/components/MyLoginForm.tsx"
-import { login } from 'wasp/client/auth'
+import { login } from "wasp/client/auth";
 
 export const MyLoginForm = () => {
-  const [usernameValue, setUsernameValue] = useState('')
-  const [passwordValue, setPasswordValue] = useState('')
+  const [usernameValue, setUsernameValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    await login(usernameValue, passwordValue)
+    e.preventDefault();
+    await login(usernameValue, passwordValue);
     // ...
-  }
+  };
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
+};
 ```
 
 </TabItem>
 <TabItem value="after" label="After">
 
 ```tsx title="src/components/MyLoginForm.tsx"
-import { login } from 'wasp/client/auth'
+import { login } from "wasp/client/auth";
 
 export const MyLoginForm = () => {
-  const [usernameValue, setUsernameValue] = useState('')
-  const [passwordValue, setPasswordValue] = useState('')
+  const [usernameValue, setUsernameValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    await login({ username: usernameValue, password: passwordValue })
+    e.preventDefault();
+    await login({ username: usernameValue, password: passwordValue });
     // ...
-  }
+  };
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
-}
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
+};
 ```
 
 </TabItem>
@@ -110,6 +112,7 @@ If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
 this change is already handled for you.
 
 ### 2. Update your `tsconfig.json`
+
 To ensure your project works correctly with Wasp 0.17.0, you must also update your
 `tsconfig.json` file.
 
@@ -121,6 +124,7 @@ If you have made changes to your `tsconfig.json` file, we recommend taking the
 new version of the file and reapplying them.
 
 Here's the new version of `tsconfig.json`:
+
 ```json title="tsconfig.json"
 // =============================== IMPORTANT =================================
 // This file is mainly used for Wasp IDE support.
@@ -153,6 +157,7 @@ Here's the new version of `tsconfig.json`:
 ```
 
 ### 3. Tell Wasp about `jest-dom` types
+
 If you're using (or planning to use) Wasp's [client tests](../project/testing.md) with `jest-dom`,
 update your `src/vite-env.d.ts` file:
 
@@ -163,7 +168,7 @@ update your `src/vite-env.d.ts` file:
 // Types for jest-dom are not recognized automatically and Typescript complains
 // about missing types e.g. when using `toBeInTheDocument` and other matchers.
 // Reference: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
-import '@testing-library/jest-dom'
+import "@testing-library/jest-dom";
 ```
 
 ### 4. Add a `favicon.ico` to the `public` directory
@@ -194,14 +199,13 @@ app MyApp {
 You should change your `package.json` to use v5 of `express`
 and `@types/express`:
 
-
 <Tabs>
 <TabItem value="before" label="Before">
 
 ```json title="package.json"
 {
   "dependencies": {
-    "express": "~4.21.0",
+    "express": "~4.21.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.13"
@@ -215,7 +219,7 @@ and `@types/express`:
 ```json title="package.json"
 {
   "dependencies": {
-    "express": "~5.1.0",
+    "express": "~5.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0"
