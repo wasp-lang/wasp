@@ -176,7 +176,7 @@ import "@testing-library/jest-dom";
 This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
 If so, you should add a `favicon.ico` to your `public` folder.
 
-If you want to keep the default, you can [download it here](https://github.com/wasp-lang/wasp/tree/main/waspc/data/Cli/templates/skeleton/public/favicon.ico).
+If you want to keep the default, you can [download it here](https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/main/waspc/data/Cli/starters/skeleton/public/favicon.ico).
 
 If you want to generate a `favicon.ico` and all its possible variants, check out [RealFaviconGenerator](https://realfavicongenerator.net/), a handy open-source tool for creating favicons.
 
