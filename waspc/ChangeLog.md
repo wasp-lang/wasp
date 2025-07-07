@@ -126,9 +126,9 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 
 #### Env variables validation with Zod
 
-Wasp now uses Zod to validate environment variables, allowing it to fail faster if something is misconfigured. This means you’ll get more relevant error messages when running your app with incorrect env variables.
+Wasp now uses Zod to validate environment variables, allowing it to fail faster if something is misconfigured. This means you'll get more relevant error messages when running your app with incorrect env variables.
 
-You can also use Zod to validate your own environment variables. Here’s an example:
+You can also use Zod to validate your own environment variables. Here's an example:
 
 ```ts
 // src/env.ts
@@ -155,7 +155,7 @@ app myApp {
 
 ### Deployment docs upgrade
 
-Based on feedback from our Discord community, we’ve revamped our deployment docs to make it simpler to deploy your app to production. We focused on explaining key deployment concepts, regardless of the deployment method you choose. We’ve added guides on hosting Wasp apps on your own servers, for example, how to use Coolify and Caprover for self-hosting. The Env Variables section now includes a comprehensive list of all available Wasp env variables and provides clearer instructions on how to set them up in a deployed app.
+Based on feedback from our Discord community, we've revamped our deployment docs to make it simpler to deploy your app to production. We focused on explaining key deployment concepts, regardless of the deployment method you choose. We've added guides on hosting Wasp apps on your own servers, for example, how to use Coolify and Caprover for self-hosting. The Env Variables section now includes a comprehensive list of all available Wasp env variables and provides clearer instructions on how to set them up in a deployed app.
 
 Check the updated deployment docs here: https://wasp.sh/docs/deployment/intro
 
@@ -956,7 +956,7 @@ Check below for details on each of them!
 
 ### ⚠️ Breaking changes
 
-- Wasp's **signup action** `import signup from '@wasp/auth/signup` now accepts only the user entity fields relevant to the auth process (e.g. `username` and `password`).
+- Wasp's **signup action** `import signup from '@wasp/auth/signup' now accepts only the user entity fields relevant to the auth process (e.g. `username` and `password`).
   This ensures no unexpected data can be inserted into the database during signup, but it also means you can't any more set any user entity fields via signup action (e.g. `age` or `address`).
   Instead, those should be set in the separate step after signup, or via a custom signup action of your own.
 - Wasp now uses **React 18**! Check the following upgrade guide for details: https://react.dev/blog/2022/03/08/react-18-upgrade-guide .
@@ -1921,3 +1921,5 @@ For exact details about new syntax, check https://wasp.sh/docs/language/syntax .
 - and more!
 
 ## Unreleased changes
+
+- Wasp apps now expose Chrome DevTools Automatic Workspace Folders metadata in dev mode, so the browser automatically maps edited files to your real project directory. The Vite dev-server serves /.well-known/appspecific/com.chrome.devtools.json with per-project UUID caching and Windows/WSL/Docker path handling.

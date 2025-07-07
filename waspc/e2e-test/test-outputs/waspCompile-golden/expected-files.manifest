@@ -321,6 +321,7 @@ waspCompile/.wasp/out/web-app/tsconfig.json
 waspCompile/.wasp/out/web-app/tsconfig.vite.json
 waspCompile/.wasp/out/web-app/vite.config.ts
 waspCompile/.wasp/out/web-app/vite/detectServerImports.ts
+waspCompile/.wasp/out/web-app/vite/devToolsJson.ts
 waspCompile/.wasp/out/web-app/vite/validateEnv.ts
 waspCompile/.waspignore
 waspCompile/.wasproot
