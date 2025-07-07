@@ -380,9 +380,23 @@
     [
         [
             "file",
-            "../out/sdk/wasp/core/serialization.ts"
+            "../out/sdk/wasp/core/serialization/custom-register.ts"
         ],
-        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
+        "38f1a0116cfb33532872d3b5cbb47bd2b695ff59197832758d049151d40c138c"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/index.ts"
+        ],
+        "f36812afeb3afac66bca99dd8764a45f8def73374f696ed502280223f6677161"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/prisma.ts"
+        ],
+        "be7c5a762dc78240ae458e6077048caa48aa5b59ba1ca95bb079c8836a026059"
     ],
     [
         [
@@ -431,7 +445,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "b0e0f7e2bd3b5ab6ff0c8f07e7e65d37353e6991506ef97804a355b08f3f4341"
+        "1bbcb5007f3e77cd89f0da632152d35f38cf8b38c0d59c13210435e09c460d4c"
     ],
     [
         [
@@ -1348,7 +1362,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
+        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
     ],
     [
         [
