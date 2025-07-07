@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.17.0
 
 ### ⚠️ Breaking Changes
 
@@ -8,7 +8,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 
 - In the `usernameAndPassword` authentication method, the function `login()` imported from `wasp/client/auth` now accepts an object with `username` and `password` instead of two separate arguments ([#2598](https://github.com/wasp-lang/wasp/pull/2598))
 - We've made some improvements to our TypeScript setup that require you to
-  update the `tsconfig.json` file. The migration guide will lead you through
+  update the `tsconfig.json` file. The [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-16-to-0-17) will lead you through
   them, but here are all the non-cosmetic ones:
   ```diff
    {
@@ -27,22 +27,27 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 
 ### 🎉 New Features
 
-- Wasp now supports `onAfterEmailVerified` auth hooks! You can use this hook to run custom logic after a user has verified their email.
-- Auth: you can now use Slack as a social auth provider (by @scorpil).
+- Wasp now includes a `onAfterEmailVerified` auth hook. You can use this hook to run custom logic after a user has verified their email. ([#2602](https://github.com/wasp-lang/wasp/pull/2602))
+- Wasp now supports Slack as an auth provider (by @scorpil). ([#2764](https://github.com/wasp-lang/wasp/pull/2764))
 - You can now return Prisma `Decimal`s from your Queries and Actions. ([#2701](https://github.com/wasp-lang/wasp/pull/2701))
+- Added build-time client env variable validation. ([#2392](https://github.com/wasp-lang/wasp/pull/2392))
+- Added `prismaSetupFn` hook to database config to allow users to run custom Prisma setup code. ([#2693](https://github.com/wasp-lang/wasp/pull/2693))
 
 ### 🐞 Bug fixes
 
 - Fixes an OAuth logic race condition where a valid session ID was cleared and users would be logged out. ([#2684](https://github.com/wasp-lang/wasp/pull/2684))
 - Calling `useAuth()` when the user is not logged in will not fail the request, only return `null` ([#2689](https://github.com/wasp-lang/wasp/pull/2689))
+- Fixes a bug where a Prisma file with no models defined would cause the app not to render in the browser. ([#2902](https://github.com/wasp-lang/wasp/pull/2902))
 
 ### 🔧 Small improvements
 
-- Show a friendlier error when there are no routes defined in the wasp file ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
-- Modernized our TypeScript support for bundlers ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
-- Added support for jump-to-definition for Wasp symbols ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+- Show a friendlier error when there are no routes defined in the Wasp file. ([#2643](https://github.com/wasp-lang/wasp/pull/2643))
+- Modernized our TypeScript support for bundlers. ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
+- Added support for jump-to-definition for Wasp symbols. ([#2656](https://github.com/wasp-lang/wasp/pull/2656))
 - `userSignupFields` types are now correctly propagated to client auth methods. ([#2641](https://github.com/wasp-lang/wasp/pull/2641))
-- The generated server code is now type-checked before building ([#2778](https://github.com/wasp-lang/wasp/pull/2778))
+- The generated server code is now type-checked before building. ([#2778](https://github.com/wasp-lang/wasp/pull/2778))
+- App name in `package.json` is now in kebab case (by @0xTaneja) ([#2588](https://github.com/wasp-lang/wasp/pull/2588))
+- Improved error handling when `npm` doesn't satisfy the minimum version requirement .([#2549](https://github.com/wasp-lang/wasp/pull/2549))
 
 ## 0.16.7
 

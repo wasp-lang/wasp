@@ -11,7 +11,7 @@ module ShellCommands
     appendToPrismaFile,
     createFile,
     setDbToPSQL,
-    waspCliNew,
+    waspCliNewMinimalStarter,
     waspCliCompile,
     waspCliMigrate,
     waspCliBuild,
@@ -96,10 +96,11 @@ replaceLineInFile fileName lineNumber line =
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
 
-waspCliNew :: ShellCommandBuilder ShellCommand
-waspCliNew = do
+waspCliNewMinimalStarter :: ShellCommandBuilder ShellCommand
+waspCliNewMinimalStarter = do
   context <- ask
-  return $ "wasp-cli new " ++ _ctxtCurrentProjectName context
+  return $
+    "wasp-cli new " ++ _ctxtCurrentProjectName context ++ " -t minimal"
 
 waspCliCompile :: ShellCommandBuilder ShellCommand
 waspCliCompile = return "wasp-cli compile"

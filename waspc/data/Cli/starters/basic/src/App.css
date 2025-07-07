@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-neutral-200 bg-white shadow-sm transition-all duration-200;
+  }
+
+  .label {
+    @apply text-sm font-medium text-neutral-700;
+  }
+}
