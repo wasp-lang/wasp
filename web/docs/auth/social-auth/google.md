@@ -78,62 +78,74 @@ model User {
 To use Google as an authentication method, you'll first need to create a Google project and provide Wasp with your client key and secret. Here's how you do it:
 
 1. Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
-2. Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard
+2. Create and configure a new Google project here: https://console.cloud.google.com/projectcreate
 
-![Google Console Screenshot 1](/img/integrations-google-1.jpg)
+    ![Google Console Screenshot 1](/img/integrations-google-v2-1.png)
 
-![Google Console Screenshot 2](/img/integrations-google-2.jpg)
+    ![Google Console Screenshot 2](/img/integrations-google-v2-2.png)
 
-3. Search for **OAuth** in the top bar, click on **OAuth consent screen**.
+3. Search for **Google Auth** in the top bar (1), click on **Google Auth Platform** (2). Then click on **Get Started** (3).
 
-![Google Console Screenshot 3](/img/integrations-google-3.jpg)
+    ![Google Console Screenshot 3](/img/integrations-google-v2-3.png)
 
-- Select what type of app you want, we will go with **External**.
+    ![Google Console Screenshot 4](/img/integrations-google-v2-4.png)
 
-  ![Google Console Screenshot 4](/img/integrations-google-4.jpg)
+4. Fill out you app information. For the **Audience** field, we will go with **External**. When you're done, click **Create**.
 
-- Fill out applicable information on Page 1.
+    ![Google Console Screenshot 5](/img/integrations-google-v2-5.png)
 
-  ![Google Console Screenshot 5](/img/integrations-google-5.jpg)
+    ![Google Console Screenshot 6](/img/integrations-google-v2-6.png)
 
-- On Page 2, Scopes, you should select `userinfo.profile`. You can optionally search for other things, like `email`.
+5. You should now be in the **OAuth Overview** page. Click on **Create OAuth Client** (1).
 
-  ![Google Console Screenshot 6](/img/integrations-google-6.jpg)
+    ![Google Console Screenshot 7](/img/integrations-google-v2-7.png)
 
-  ![Google Console Screenshot 7](/img/integrations-google-7.jpg)
+6. Fill out the form. These are the values for a typical Wasp application:
 
-  ![Google Console Screenshot 8](/img/integrations-google-8.jpg)
+    | # | Field                    | Value                                        |
+    | - | ------------------------ | -------------------------------------------- |
+    | 1 | Application type         | Web application                              |
+    | 2 | Name                     | (your wasp app name)                         |
+    | 3 | Authorized redirect URIs | `http://localhost:3001/auth/google/callback` |
 
-- Add any test users you want on Page 3.
+    :::note
+    Once you know on which URL(s) your API server will be deployed, also add those URL(s) to the **Authorized redirect URIs**.\
+    For example: `https://your-server-url.com/auth/google/callback`
+    :::
 
-  ![Google Console Screenshot 9](/img/integrations-google-9.jpg)
+    ![Google Console Screenshot 8](/img/integrations-google-v2-8.png)
 
-4. Next, click **Credentials**.
+    Then click on **Create** (4).
 
-![Google Console Screenshot 10](/img/integrations-google-10.jpg)
+7. You will see a box saying **OAuth client created**. Click on **OK**.
 
-- Select **Create Credentials**.
+    ![Google Console Screenshot 9](/img/integrations-google-v2-9.png)
 
-- Select **OAuth client ID**.
+8. Click on the name of your newly-created app.
 
-  ![Google Console Screenshot 11](/img/integrations-google-11.jpg)
+    ![Google Console Screenshot 10](/img/integrations-google-v2-10.png)
 
-- Complete the form
+9. On the right-hand side, you will see your **Client ID** (1) and **Client secret** (2). **Copy them somewhere safe, as you will need them for your app.**
 
-  ![Google Console Screenshot 12](/img/integrations-google-12.jpg)
+    ![Google Console Screenshot 11](/img/integrations-google-v2-11.png)
 
-- Under Authorized redirect URIs, put in: `http://localhost:3001/auth/google/callback`
+    :::info
+    These are the credentials your app will use to authenticate with Google. Do not share them anywhere publicly, as anyone with these credentials can impersonate your app and access user data.
+    :::
 
-  ![Google Console Screenshot 13](/img/integrations-google-13.jpg)
+10. Click on **Data Access** (1) in the left-hand menu, then click on **Add or remove scopes** (2). You should select `userinfo.profile` (3), and optionally `userinfo.email` (4), or any other scopes you want to use. Remember to click **Update** and **Save** when done.
 
-  - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
-    - For example: `https://your-server-url.com/auth/google/callback`
+    ![Google Console Screenshot 12](/img/integrations-google-v2-12.png)
 
-- When you save, you can click the Edit icon and your credentials will be shown.
+    ![Google Console Screenshot 13](/img/integrations-google-v2-13.png)
 
-  ![Google Console Screenshot 14](/img/integrations-google-14.jpg)
+11. Go to **Audience** (1) in the left-hand menu, and add any test users you want (2). This is useful for testing your app before going live. You can add any email addresses you want to test with.
 
-5. Copy your Client ID and Client secret as you will need them in the next step.
+    ![Google Console Screenshot 14](/img/integrations-google-v2-14.png)
+
+12. Finally, you can go to **Branding** (1) in the left-hand menu, and customize your app's branding in the Google login page. _This is optional_, but recommended if you want to make your app look more professional.
+
+    ![Google Console Screenshot 15](/img/integrations-google-v2-15.png)
 
 ### 4. Adding Environment Variables
 

@@ -5,7 +5,7 @@ export function LoginPage() {
   return (
     <div>
       <LoginForm />
-      <div className="text-center mt-4">
+      <div className="mt-4 text-center">
         <Link to="/signup">Sign up instead</Link>
       </div>
     </div>

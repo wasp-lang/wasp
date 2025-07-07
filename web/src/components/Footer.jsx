@@ -67,10 +67,7 @@ const Segment = ({ title, links }) => (
           <li key={idx}>
             <a
               href={l.url}
-              className={`
-                text-sm text-neutral-500 transition-colors
-                hover:text-neutral-400
-              `}
+              className={`text-sm text-neutral-500 transition-colors hover:text-neutral-400`}
             >
               {l.text}
             </a>

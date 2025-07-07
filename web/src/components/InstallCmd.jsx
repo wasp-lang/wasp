@@ -16,11 +16,7 @@ const InstallCmd = () => {
       data-event-off="click"
       data-delay-hide="2000"
     >
-      <pre
-        className={`
-          flex justify-between gap-4
-        `}
-      >
+      <pre className={`flex justify-between gap-4`}>
         <strong>
           <code>
             <span className="select-none">$ </span>

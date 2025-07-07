@@ -2,8 +2,8 @@ module Tests.WaspNewTest (waspNew) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( waspCliNew,
+  ( waspCliNewMinimalStarter,
   )
 
 waspNew :: GoldenTest
-waspNew = makeGoldenTest "waspNew" (pure <$> waspCliNew)
+waspNew = makeGoldenTest "waspNew" (pure <$> waspCliNewMinimalStarter)

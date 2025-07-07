@@ -41,7 +41,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
           className="block text-sm font-medium text-gray-700"
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
 

@@ -7,11 +7,7 @@ import SectionContainer from "./Layouts/SectionContainer";
 const GhIssueLink = ({ url, label }) => (
   <Link to={url}>
     <span
-      className={`
-        cursor-pointer rounded-full
-        bg-neutral-600 px-2.5
-        py-1 text-xs text-white
-      `}
+      className={`cursor-pointer rounded-full bg-neutral-600 px-2.5 py-1 text-xs text-white`}
     >
       <div className="group inline-flex items-center gap-1">
         <span>{label}</span>
@@ -63,10 +59,7 @@ const Roadmap = () => (
 
     <div className="grid grid-cols-1 md:gap-16 lg:grid-cols-2">
       <div
-        className={`
-            rounded-lg border border-yellow-500/25
-            bg-yellow-500/5 p-5
-          `}
+        className={`rounded-lg border border-yellow-500/25 bg-yellow-500/5 p-5`}
       >
         <div className="mb-6 text-center font-bold text-neutral-700">
           Right behind the corner
@@ -84,11 +77,7 @@ const Roadmap = () => (
       </div>
 
       <div
-        className={`
-            mt-6 rounded-lg border
-            border-yellow-500/25 bg-yellow-500/20
-            p-5 lg:mt-0
-          `}
+        className={`mt-6 rounded-lg border border-yellow-500/25 bg-yellow-500/20 p-5 lg:mt-0`}
       >
         <div className="mb-6 text-center font-bold text-neutral-700">
           Further down the road

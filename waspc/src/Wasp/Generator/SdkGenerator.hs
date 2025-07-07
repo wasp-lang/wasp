@@ -13,7 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe)
+import Data.Maybe (isJust, mapMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -24,6 +24,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EC
+import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -100,7 +101,6 @@ genSdk spec =
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/serialization.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
@@ -121,6 +121,7 @@ genSdk spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genCoreSerializationDir spec
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
@@ -242,6 +243,25 @@ depsRequiredForTesting =
       ("@testing-library/jest-dom", "^6.3.0"),
       ("msw", "^1.1.0")
     ]
+
+genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
+genCoreSerializationDir spec =
+  return $
+    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
+      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+    ]
+      ++ maybeToList prismaSerializationFile
+  where
+    tmplData =
+      object
+        [ "entitiesExist" .= entitiesExist
+        ]
+
+    prismaSerializationFile
+      | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
+      | otherwise = Nothing
+
+    entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
