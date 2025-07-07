@@ -697,14 +697,14 @@
             "file",
             "web-app/tsconfig.vite.json"
         ],
-        "d73bf64453727c005983dea11c1b38ab9db2f6b4e7b5c266f731835d4bf8eb37"
+        "72f6503f03f7244657b81892b99c4acb5af9807c233aa354d26b1f23b7ae2fe1"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
+        "707147db4c79eb79f6d4a8308bf805be9d69976a026695cbdc0beaa1d626b02f"
     ],
     [
         [
@@ -712,6 +712,13 @@
             "web-app/vite/detectServerImports.ts"
         ],
         "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite/devToolsJson.ts"
+        ],
+        "50dd3e0f43ee4f82ccce8577a36678a98ebb3c4f2e4fed1378059806594fb01b"
     ],
     [
         [

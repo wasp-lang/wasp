@@ -5,6 +5,7 @@ import { defaultExclude } from "vitest/config"
 import { detectServerImports } from "./vite/detectServerImports"
 import { validateEnv } from "./vite/validateEnv.js";
 import path from "node:path"
+import devToolsJsonPlugin from "./vite/devToolsJson";
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
 // @ts-ignore
@@ -17,6 +18,7 @@ const defaultViteConfig = {
     validateEnv(),
     react(),
     detectServerImports(),
+    devToolsJsonPlugin(),
   ],
   optimizeDeps: {
     exclude: ['wasp']
