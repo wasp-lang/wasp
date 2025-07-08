@@ -164,6 +164,10 @@ Using the Wasp CLI, you can easily deploy a new app to [Railway](https://railway
 wasp deploy railway launch my-wasp-app
 ```
 
+<small>
+  Please do not CTRL-C or exit your terminal while the commands are running.
+</small>
+
 :::caution Unique Name
 Your app name (e.g. `my-wasp-app`) must be unique across all your Railway projects or deployment will fail.
 This is a current limitation of the Wasp CLI and Railway integration ([#2926](https://github.com/wasp-lang/wasp/issues/2926)).
@@ -172,10 +176,6 @@ This is a current limitation of the Wasp CLI and Railway integration ([#2926](ht
 :::note Specifying Org
 If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
 :::
-
-<small>
-  Please do not CTRL-C or exit your terminal while the commands are running.
-</small>
 
 Under the covers, this runs the equivalent of the following commands:
 
@@ -189,7 +189,11 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow us to name the database service using the Railway CLI, so it will always be named `Postgres`.
+Railway doesn't allow setting the database service name using the Railway CLI, so it will always be named `Postgres`.
+
+Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically, such as `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, and `WASP_SERVER_URL`.
+
+If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#railway-environment-variables).
 
 ### Using a Custom Domain For Your App {#railway-custom-domain}
 
@@ -515,7 +519,7 @@ You should only run `setup` once per app. Wasp CLI will skip creating the servic
 - `--server-secret <serverSecret>` - secret to set on the server app (of form FOO=BAR)
 - `--client-secret <clientSecret>` - secret to set on the client app (of form FOO=BAR)
 
-#### Environment Variables 
+#### Environment Variables {#railway-environment-variables}
 
 ##### Server Secrets
 
