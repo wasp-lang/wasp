@@ -171,7 +171,6 @@ function makeFlySetupCommand(): Command {
 function makeFlyDeployCommand(): Command {
   return new FlyCommand("deploy")
     .description("(Re-)Deploy existing app to Fly.io")
-    .option("--skip-build", "do not run `wasp build` before deploying")
     .option("--skip-client", "do not deploy the web client")
     .option("--skip-server", "do not deploy the server")
     .addLocalBuildOption()

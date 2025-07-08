@@ -79,7 +79,6 @@ export function createRailwayCommand(): Command {
           .hideHelp()
           .default("railway"),
       )
-      .option("--skip-build", "do not run `wasp build` before the command")
       .hook("preAction", async (cmd) => {
         const { waspProjectDir, waspExe, railwayExe } = cmd.opts<{
           waspProjectDir: WaspProjectDir;
