@@ -32,6 +32,7 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 - You can now return Prisma `Decimal`s from your Queries and Actions. ([#2701](https://github.com/wasp-lang/wasp/pull/2701))
 - Added build-time client env variable validation. ([#2392](https://github.com/wasp-lang/wasp/pull/2392))
 - Added `prismaSetupFn` hook to database config to allow users to run custom Prisma setup code. ([#2693](https://github.com/wasp-lang/wasp/pull/2693))
+- Added support for one-line deployment with Railway to `wasp deploy` command. ([#2578](https://github.com/wasp-lang/wasp/pull/2578))
 
 ### 🐞 Bug fixes
 
