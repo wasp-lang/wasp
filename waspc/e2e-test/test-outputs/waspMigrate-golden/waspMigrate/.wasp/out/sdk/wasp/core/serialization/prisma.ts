@@ -26,8 +26,9 @@ import "./custom-register"
   property, and give it the `Decimal` type that we take from option (b). Importantly, we only
   do a type import from (b) so we don't trigger the runtime error when importing from the client.
 */
-type Decimal = import("@prisma/client/runtime/library").Decimal;
-const Decimal = (Prisma as { Decimal?: typeof Decimal }).Decimal;
+type DecimalClass = typeof import("@prisma/client/runtime/library").Decimal;
+type DecimalInstance = InstanceType<DecimalClass>;
+const Decimal = (Prisma as { Decimal?: DecimalClass }).Decimal;
 
 /*
   And finally, if we have the `Decimal` type because the Prisma schema is using it,
@@ -35,9 +36,9 @@ const Decimal = (Prisma as { Decimal?: typeof Decimal }).Decimal;
   Based on https://github.com/flightcontrolhq/superjson/blob/v2.2.2/README.md#decimaljs--prismadecimal
 */
 if (Decimal) {
-  registerCustom<Decimal, string>(
+  registerCustom<DecimalInstance, string>(
     {
-      isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
+      isApplicable: (v): v is DecimalInstance => Decimal.isDecimal(v),
       serialize: (v) => v.toJSON(),
       deserialize: (v) => new Decimal(v),
     },
@@ -48,6 +49,6 @@ if (Decimal) {
 // We add the `Decimal` to this interface so that it is registered as a custom serialization type
 declare module "superjson" {
   interface WaspInternal_CustomSerializableJSONValue_Register {
-    Decimal: Decimal;
+    Decimal: DecimalInstance;
   }
 }
