@@ -53,6 +53,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Setup Wasp TS Config (if needed)
+        run: |
+          if [ -f *.wasp.ts ]; then
+            wasp ts-setup
+          fi
+
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}
         run: |
