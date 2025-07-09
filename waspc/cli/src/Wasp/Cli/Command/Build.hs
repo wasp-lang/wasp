@@ -14,9 +14,8 @@ import Data.List (isSuffixOf)
 import Data.Text (Text, unpack)
 import StrongPath (Abs, Dir, Path', basename, castRel, (</>))
 import qualified System.FilePath as FP
-import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Compile (analyze, compileIOWithOptions, printCompilationResult)
+import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Message (cliSendMessage)
@@ -25,17 +24,8 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common
-  ( CompileError,
-    CompileWarning,
-    WaspProjectDir,
-    buildDirInDotWaspDir,
-    dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
-    packageJsonInWaspProjectDir,
-    packageLockJsonInWaspProjectDir,
-    srcDirInWaspProjectDir,
-  )
+import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, getSrcTsConfigInWaspProjectDir, packageJsonInWaspProjectDir, packageLockJsonInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
 
@@ -49,7 +39,6 @@ import Wasp.Util.Json (updateJsonFile)
 build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
-  appSpec <- analyze waspProjectDir
 
   let buildDir =
         waspProjectDir </> dotWaspDirInWaspProjectDir
@@ -78,14 +67,17 @@ build = do
     throwError $
       CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found."
 
-  liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir appSpec buildDir) >>= \case
+  liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
 
   cliSendMessageC $
     Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
   where
-    prepareFilesNecessaryForDockerBuild waspProjectDir appSpec buildDir = runExceptT $ do
+    prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
+      waspFilePath <- ExceptT $ findWaspFile waspProjectDir
+      let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/build directory.
       -- We chose this approach for 0.12.0 (instead of building from the project root) because:
@@ -130,8 +122,6 @@ build = do
       -- We should remove this code once we implement a proper solution.
       ExceptT $ updateJsonFile removeWaspConfigFromDevDependenciesArray packageJsonInBuildDir
       ExceptT $ updateJsonFile removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonInBuildDir
-      where
-        srcTsConfigPath = AS.srcTsConfigPath appSpec
 
     removeAllMentionsOfWaspConfigInPackageLockJson :: Value -> Value
     removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonObject =
