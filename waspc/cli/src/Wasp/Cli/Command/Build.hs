@@ -12,7 +12,7 @@ import Data.Aeson.Lens
 import qualified Data.HashMap.Strict as HM
 import Data.List (isSuffixOf)
 import Data.Text (Text, unpack)
-import StrongPath (Abs, Dir, Path', basename, castRel, (</>))
+import StrongPath (Abs, Dir, Path', castRel, (</>))
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
