@@ -1,6 +1,3 @@
-# Cancel starters root `.gitignore`.
-!package-lock.json
-
 # Name used by script to generate temporary starter projects.
 temp-project-*
 
