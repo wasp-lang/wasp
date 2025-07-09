@@ -227,8 +227,8 @@ It also gives you a way to redeploy (update) your app with a single command.
 To get started, follow these steps:
 
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
-1. Create a [Railway](https://railway.com/) account
-1. Install the [Railway CLI](https://docs.railway.com/develop/cli#installation)
+1. Create a [Railway](https://railway.com/) account.
+1. Install the [Railway CLI](https://docs.railway.com/develop/cli#installation).
 1. Run `railway login` and a browser tab will open to authenticate you.
 
 ### Create New Project
@@ -236,9 +236,9 @@ To get started, follow these steps:
 Let's create our Railway project:
 
 1. Go to your [Railway dashboard](https://railway.com/dashboard), click on **New Project**, and select `Deploy PostgreSQL` from the dropdown menu.
-1. Once it initializes, left-click on the **Create** button in the top right corner and select **Empty Service**.
-1. Once it initializes, click on it, and change the name to `server`
-1. Go ahead and create another empty service and name it `client`
+1. Once the project is created, left-click on the **Create** button in the top right corner and select **Empty Service**.
+1. Click on the new service, and change the name to `server`.
+1. Go ahead and create another empty service and name it `client`.
 1. Deploy the changes by pressing the **Deploy** button on top.
 
 ### Deploy Your App to Railway
@@ -254,7 +254,7 @@ We'll need the domains for both the `server` and `client` services:
 
 #### Deploying the Server
 
-Let's deploy our server first:
+You'll deploy the server first:
 
 1. Move into your app's `.wasp/build/` directory:
 
@@ -262,7 +262,7 @@ Let's deploy our server first:
     cd .wasp/build
     ```
 
-2. Link your app build to your newly created Railway project:
+2. Link your the `build` directory to your newly created Railway project:
 
     ```shell
     railway link
@@ -274,12 +274,12 @@ Let's deploy our server first:
 
 3. Go into the Railway dashboard and set up the required env variables:
 
-   Open the `Settings` and go to the `Variables` tab:
+   Click on the `server` serice go to the `Variables` tab:
 
-   - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-   - add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
-   - add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
-   - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+   1. Click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
+   1. Add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
+   1. Add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
+   1. Add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
      <AddExternalAuthEnvVarsReminder />
 
@@ -294,11 +294,11 @@ Let's deploy our server first:
     We used the `--ci` flag to only stream the build logs and not the logs that happen after the server is deployed.
     </small>
 
-Railway will now locate the Dockerfile and deploy your server.
+    Railway will now locate the `Dockerfile` and deploy your server.
 
 #### Deploying the Client
 
-1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
+1. Next, go into your app's frontend build directory `.wasp/build/web-app`:
 
     ```shell
     cd web-app
@@ -344,9 +344,9 @@ Back in your [Railway dashboard](https://railway.com/dashboard), click on your p
 
 When you make updates and need to redeploy:
 
-- run `wasp build` to rebuild your app
-- run `railway up` in the `.wasp/build` directory (server)
-- repeat all the steps in the `.wasp/build/web-app` directory (client)
+- Run `wasp build` to rebuild your app.
+- Run `railway up --ci` in the `.wasp/build` directory to redeploy the server.
+- Rebuild the client using `npm` and run `railway up --ci` in the `.wasp/build/web-app/build` directory.
 
 ## Heroku <Server /> <Database /> {#heroku}
 

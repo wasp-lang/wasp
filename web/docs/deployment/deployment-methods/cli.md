@@ -40,11 +40,11 @@ wasp deploy fly launch my-wasp-app mia
 
 Two things to keep in mind:
 
-1. Your app name (e.g. `my-wasp-app`) must be **unique** across all of Fly or deployment will fail.
+1. Your app name (for example `my-wasp-app`) must be **unique** across all of Fly or deployment will fail.
 
-1. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names(slugs) of your organizations by running `fly orgs list`.
+1. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names (slugs) of your organizations by running `fly orgs list`.
 
-Under the covers, `wasp deploy fly launch` is same as running:
+Under the covers, `wasp deploy fly launch` is the same as running:
 
 ```shell
 wasp deploy fly setup my-wasp-app mia
@@ -52,7 +52,7 @@ wasp deploy fly create-db mia
 wasp deploy fly deploy
 ```
 
-The commands above use the app basename `my-wasp-app` and deploy it to the _Miami, Florida (US) region_. Read more about Fly.io regions [here](#flyio-regions).
+The commands above use the app basename `my-wasp-app` and deploy it to the `mia` region (`mia` is short for _Miami, Florida (US)_). Read more about Fly.io regions [here](#flyio-regions).
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -69,8 +69,7 @@ You should include these files in your version control so that you can deploy yo
 
 Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically, such as `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, and `WASP_SERVER_URL`.
 
-If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#flyio-cli-environment-variables).
-
+If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables).
 
 ### Using a Custom Domain For Your App {#fly-custom-domain}
 
@@ -116,11 +115,11 @@ wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://myc
   We need to do this to keep our CORS configuration up to date.
 </small>
 
-That's it, your app should be available at `https://mycoolapp.com`! 🎉
+That's it, your app should be available at `https://mycoolapp.com`!
 
 #### Adding a `www` Subdomain
 
-If you'd like to also access your app at `https://www.mycoolapp.com`, you can generate certs for the `www` subdomain.
+If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
 
 ```shell
 wasp deploy fly cmd --context client certs create www.mycoolapp.com
@@ -147,18 +146,17 @@ Using the `www` and `non-www` domains at the same time will require you to updat
 
 ### Prerequisites
 
-You'll need a [Railway](https://railway.com/) account to deploy your Wasp app to Railway.
-
+To deploy your apps to Railway, you'll need a [Railway](https://railway.com/) account.
 
 :::info Railway CLI
 
-You will need the [`railway` CLI](https://docs.railway.com/guides/cli#installing-the-cli) installed on your machine before you can deploy to Railway using the Wasp CLI.
+Before you can use Wasp CLI to deploy to Railway, you need to install the [`railway` CLI](https://docs.railway.com/guides/cli#installing-the-cli) on your machine.
 
 :::
 
 ### Deploying
 
-Using the Wasp CLI, you can easily deploy a new app to [Railway](https://railway.com) with just a single command:
+Using the Wasp CLI, you can easily deploy a new app to Railway with a single command:
 
 ```shell
 wasp deploy railway launch my-wasp-app
@@ -168,16 +166,13 @@ wasp deploy railway launch my-wasp-app
   Please do not CTRL-C or exit your terminal while the commands are running.
 </small>
 
-:::caution Unique Name
-Your app name (e.g. `my-wasp-app`) must be unique across all your Railway projects or deployment will fail.
-This is a current limitation of the Wasp CLI and Railway integration ([#2926](https://github.com/wasp-lang/wasp/issues/2926)).
-:::
+Keep in mind that:
 
-:::note Specifying Org
-If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
-:::
+1. Your project name (for example `my-wasp-app`) must be unique across all your Railway projects or deployment will fail. This is a current limitation of the Wasp CLI and Railway integration ([#2926](https://github.com/wasp-lang/wasp/issues/2926)).
 
-Under the covers, this runs the equivalent of the following commands:
+1. If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
+
+Under the covers, `wasp deploy railway launch` is the same as running:
 
 ```shell
 wasp deploy railway setup my-wasp-app
@@ -202,25 +197,26 @@ Setting up a custom domain is a three-step process:
 1. You need to add your domain to your Railway client service:
 
     - Go into the [Railway dashboard](https://railway.app/dashboard).
-    - Select your project (e.g. `my-wasp-app`).
-    - Click on the client service (e.g. `my-wasp-app-client`).
+    - Select your project (for example `my-wasp-app`).
+    - Click on the client service (for example `my-wasp-app-client`).
     - Go to the `Settings` tab and click `Custom Domain`.
-    - Enter your domain name (e.g. `mycoolapp.com`) and port `8080`.
+    - Enter your domain name (for example `mycoolapp.com`) and port `8080`.
     - Click `Add Domain`.
-
 
 2. You need to add the DNS records for your domain:
 
-   _This will depend on your domain provider, but it should be a matter of adding an CNAME record with the values provided by Railway._
+   _This will depend on your domain provider, but it should be a matter of adding a CNAME record with the values provided by Railway._
 
-3. You need to set your new client URL as the `WASP_WEB_CLIENT_URL` environment variable (e.g. `https://mycoolapp.com`) for your **server service** in the Railway dashboard.
+3. You need to set your new client URL as the `WASP_WEB_CLIENT_URL` environment variable (for example `https://mycoolapp.com`) for your **server service** in the Railway dashboard.
 
-    <small>
-      We need to do this to keep our CORS configuration up to date.
-    </small>
+    - Go into the [Railway dashboard](https://railway.app/dashboard).
+    - Select your project (for example `my-wasp-app`).
+    - Click on the server service (for example `my-wasp-app-server`).
+    - Go to the `Variables` tab.
 
-That's it, your app should be available at `https://mycoolapp.com`! 🎉
+    We need to update the `WASP_WEB_CLIENT_URL` env variable to keep our CORS configuration up to date.
 
+That's it, your app should be available at `https://mycoolapp.com`!
 
 ## API Reference
 
@@ -261,7 +257,7 @@ wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --
 
 ###### Client
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `launch` command, e.g.:
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `launch` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
@@ -269,7 +265,7 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
 
 #### `setup` command
 
-`setup` will create your client and server apps on Fly, and add some secrets, but does _not_ deploy them.
+`setup` will create your client and server apps on Fly, and add some secrets. It does _not_ deploy the client or server apps.
 
 ```shell
 wasp deploy fly setup <app-name> <region>
@@ -317,7 +313,7 @@ You should only run `create-db` once per app. If you run it multiple times, it w
 wasp deploy fly deploy
 ```
 
-`deploy` pushes your client and server live.
+The `deploy` command pushes your client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
@@ -325,7 +321,7 @@ Run this command whenever you want to **update your deployed app** with the late
 wasp deploy fly deploy
 ```
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `deploy` command, e.g.:
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `deploy` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
@@ -335,7 +331,7 @@ Make sure to add your client-side environment variables every time you redeploy 
 
 #### `cmd` command
 
-If you want to run arbitrary Fly commands (e.g. `flyctl secrets list` for your server app), here's how to do it:
+If you want to run arbitrary Fly commands (for example `flyctl secrets list` for your server app), here's how to do it:
 
 ```shell
 wasp deploy fly cmd secrets list --context server
@@ -347,7 +343,7 @@ wasp deploy fly cmd secrets list --context server
 
 If your app requires any other server-side environment variables (like social auth secrets), you can set them:
 
-1. initially in the `launch` command with the [`--server-secret` option](#fly-launch-environment-variables),\
+1. initially in the `launch` or `setup` commands with the [`--server-secret` option](#fly-launch-environment-variables),\
    or
 2. after the app has already been deployed by using the `secrets set` command:
 
@@ -357,7 +353,7 @@ wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...
 
 ##### Client Environment Variables
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running a deployment command, e.g.:
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running a deployment command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
@@ -369,7 +365,7 @@ or
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
-Please note, you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
+Please note, that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
 
 ```json title="package.json"
 {
@@ -430,9 +426,9 @@ wasp deploy railway setup <project-name>
 wasp deploy railway deploy <project-name>
 ```
 
-##### Using an Existing Project
+##### Explicitly providing the Railway project ID
 
-You can use an existing project you have created on Railway (e.g. useful when deploying in the CI) by passing the `--existing-project-id [projectId]` option.
+Wasp CLI tries to create a new Railway project named `<project-name>`, but you can use an existing project you have created on Railway by passing the `--existing-project-id [projectId]` option.
 
 ##### Environment Variables {#railway-launch-environment-variables}
 
@@ -446,7 +442,7 @@ wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --
 
 ###### Client
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `launch` command, e.g.:
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `launch` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
@@ -454,7 +450,7 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 
 #### `deploy` command
 
-`deploy` pushes your client and server live to Railway.
+The `deploy` command deploys your client and server apps to Railway.
 
 ```shell
 wasp deploy railway deploy <project-name>
@@ -470,16 +466,18 @@ Run this command whenever you want to **update your deployed app** with the late
 wasp deploy railway deploy my-wasp-app
 ```
 
-##### Using an Existing Project
+##### Explicitly providing the Railway project ID
 
-You can use an existing project you have created on Railway (e.g. useful when deploying in the CI) by passing the `--existing-project-id [projectId]` option.
+When you run the `deploy` command, Wasp CLI will use the Railway project that's linked to the Wasp project directory. If no Railway project is linked, the command will fail asking you to run the `setup` command first.
+
+If you are deploying your Railway app in the CI, you can pass the `--existing-project-id [projectId]` option to tell Wasp CLI the Railway project ID to use for the deployment.
 
 ##### Other Available Options
 
 - `--skip-client` - do not deploy the web client
 - `--skip-server` - do not deploy the server
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `deploy` command, e.g.:
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running the `deploy` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy my-wasp-app
@@ -489,7 +487,7 @@ Make sure to add your client-side environment variables every time you redeploy 
 
 #### `setup` command
 
-`setup` will create your client, server and database services on Railway, and configure environment variables, but it does _not_ deploy them.
+`setup` will create your client, server, and database services on Railway, and configure environment variables. It does _not_ deploy the client or server services.
 
 ```shell
 wasp deploy railway setup <project-name>
@@ -506,18 +504,13 @@ The project name is used as a base for your server and client service names on R
 
 Railway will also create a PostgreSQL database service named `Postgres`.
 
-##### Using an Existing Project
+##### Explicitly providing the Railway project ID
 
-You can use an existing project you have created on Railway (e.g. useful when deploying in the CI) by passing the `--existing-project-id [projectId]` option.
+You can use an existing project you have created on Railway by passing the `--existing-project-id [projectId]` option.
 
 :::caution Execute Only Once
 You should only run `setup` once per app. Wasp CLI will skip creating the services if they already exist.
 :::
-
-##### Other Available Options
-
-- `--server-secret <serverSecret>` - secret to set on the server app (of form FOO=BAR)
-- `--client-secret <clientSecret>` - secret to set on the client app (of form FOO=BAR)
 
 #### Environment Variables {#railway-environment-variables}
 
@@ -525,13 +518,13 @@ You should only run `setup` once per app. Wasp CLI will skip creating the servic
 
 If your app requires any other server-side environment variables (like social auth secrets), you can set them:
 
-1. initially in the `launch` command with the [`--server-secret` option](#railway-launch-environment-variables),\
+1. initially in the `launch` or `setup` commands with the [`--server-secret` option](#railway-launch-environment-variables),\
    or
-2. after the app has already been deployed by going into the Railway dashboard and setting them in the `Variables` tab of your server service.
+2. after the app has already been deployed go into the Railway dashboard and set them in the `Variables` tab of your server service.
 
 ##### Client Environment Variables
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running a deployment command, e.g.:
+If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, make sure to pass them to the terminal session before running a deployment command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
@@ -543,7 +536,7 @@ or
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy
 ```
 
-Please note, you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
+Please note, that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
 
 ```json title="package.json"
 {
