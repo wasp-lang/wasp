@@ -99,7 +99,7 @@ build = do
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
-      let tsconfigJsonInBuildDir = buildDir </> basename srcTsConfigPath
+      let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigPath
 
       liftIO $
         copyFile
