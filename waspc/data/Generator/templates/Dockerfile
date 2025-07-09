@@ -33,7 +33,7 @@ WORKDIR /app
 COPY src ./src
 COPY package.json .
 COPY package-lock.json .
-COPY tsconfig.json .
+COPY tsconfig*.json .
 COPY server .wasp/build/server
 COPY sdk .wasp/out/sdk
 # Install npm packages, resulting in node_modules/.
