@@ -163,9 +163,16 @@
     [
         [
             "file",
-            "../out/sdk/wasp/core/serialization.ts"
+            "../out/sdk/wasp/core/serialization/custom-register.ts"
         ],
-        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
+        "38f1a0116cfb33532872d3b5cbb47bd2b695ff59197832758d049151d40c138c"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/index.ts"
+        ],
+        "76793a820deb474b105bccdeb69b5395d7522c53a790b0ed430533fa5158461c"
     ],
     [
         [
@@ -207,7 +214,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "43e075ce742564fdf97b6a196d1c9eed991dfb8648b6353174c34f866cfa4779"
+        "7a9eef14b7a8593c83ba29aeae286855a4ca240d60e45c5826373c662457e6d5"
     ],
     [
         [
@@ -291,7 +298,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "0e20fd18dd406be71588df7c17bdac8dd03e06c36f4e39bd63d53c839f60df15"
+        "f146f6dc8d21e6ddd1a37f34b990ed52088a47f564a86ace6d7c732ae1000869"
     ],
     [
         [
@@ -403,14 +410,21 @@
             "file",
             "../out/sdk/wasp/src/Main.css"
         ],
-        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
+        "05a725d9aa060e2972bf91ed825502667c9b8aeb0893110c493818efc0c9ffa9"
     ],
     [
         [
             "file",
-            "../out/sdk/wasp/src/MainPage.jsx"
+            "../out/sdk/wasp/src/MainPage.tsx"
         ],
-        "3ebb438164084ff90e72f3f081f6165fb8acc0d89076c3a6e225a26d76728a86"
+        "8b411885c41164a60e135c7e191d23095dfda51c3d7968539a7e7f62e8f12940"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/assets/logo.svg"
+        ],
+        "563d907afcd4f7860194dc46eeed2ad85e9933dd8cc5dd8c93563a3bb43b0daa"
     ],
     [
         [
@@ -424,14 +438,7 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "b90babdd0169eb18ced65b50573272e671ca0b432506fbc16050bd07e502a0cc"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+        "7ed6a5aae2db6666937b6b8ce6f941d5ab477f25734e39f310cefde82a634838"
     ],
     [
         [
@@ -683,7 +690,7 @@
             "file",
             "web-app/package.json"
         ],
-        "4f645ef6e14c0562c3b45527cfdcd835448ef538d89e4d0f1a1dfe4a6cb40808"
+        "9c87ad694e90989357cbaafc2cbb04a0df5e48653aeab396aaadc237cf644435"
     ],
     [
         [
@@ -802,7 +809,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
+        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
     ],
     [
         [

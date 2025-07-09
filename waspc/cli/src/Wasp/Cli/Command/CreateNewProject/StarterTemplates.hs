@@ -22,6 +22,9 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import qualified Wasp.Util.Terminal as Term
 
+-- More on how starter templates work in Wasp, including the development process,
+-- can be found in the `waspc/data/Cli/starters/README.md` file.
+
 data StarterTemplate
   = -- | Template from a Github repo.
     GhRepoStarterTemplate !GhRepo.GithubRepoRef !DirBasedTemplateMetadata
@@ -88,7 +91,7 @@ minimalStarterTemplate =
     DirBasedTemplateMetadata
       { _path = [reldir|minimal|],
         _name = "minimal",
-        _description = "Minimal starter template with a single page.",
+        _description = "A minimal starter template that features just a single page.",
         _buildStartingInstructions = \projectDirName ->
           unlines
             [ styleText $ "To run your new app, do:",
@@ -105,7 +108,7 @@ basicStarterTemplate =
     DirBasedTemplateMetadata
       { _path = [reldir|basic|],
         _name = "basic",
-        _description = "A basic starter template designed to help you get up and running quickly, with examples covering the most common use cases.",
+        _description = "A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.",
         _buildStartingInstructions = \projectDirName ->
           unlines
             [ styleText $ "To run your new app, do:",
@@ -113,7 +116,7 @@ basicStarterTemplate =
               styleCode $ "    wasp db migrate-dev",
               styleCode $ "    wasp start",
               styleText $ "",
-              styleText $ "Check the README for additional guidance!"
+              styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
             ]
       }
 
@@ -187,7 +190,7 @@ waspGhOrgName = "wasp-lang"
 --   By tagging templates for each version of Wasp CLI, we ensure that each release of
 --   Wasp CLI uses correct version of templates, that work with it.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = "wasp-v0.16-template"
+waspVersionTemplateGitTag = "wasp-v0.17-template"
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates
