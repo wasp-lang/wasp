@@ -40,17 +40,14 @@ main() {
 }
 
 cleanup_test_environment() {
-  echo "Cleaning up ${TEMPLATE_NAME} project: ${TEMP_PROJECT_NAME}"
   rm -rf "${TEMP_PROJECT_NAME}"
 }
 
 initialize_test_environment() {
   echo "Starting E2E tests for ${TEMPLATE_NAME} template..."
 
-  echo "Cleaning up any pre-existing temporary project directory: ${TEMP_PROJECT_NAME}"
   rm -rf "${TEMP_PROJECT_NAME}"
 
-  echo "Generating ${TEMPLATE_NAME} project: ${TEMP_PROJECT_NAME}"
   ${WASP_CLI_CMD} new "${TEMP_PROJECT_NAME}" -t "${TEMPLATE_NAME}"
 }
 
@@ -68,7 +65,7 @@ template_uses_sqlite() {
 
 run_dev_e2e_tests() {
   echo "Running DEV tests for ${TEMPLATE_NAME} project..."
-  DEBUG=pw:webserver E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD=${WASP_CLI_CMD} HEADLESS_TEST_MODE=dev npx playwright test
+  E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD=${WASP_CLI_CMD} HEADLESS_TEST_MODE=dev npx playwright test
 }
 
 run_prod_e2e_tests() {
