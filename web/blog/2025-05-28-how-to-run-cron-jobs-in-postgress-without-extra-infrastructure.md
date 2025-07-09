@@ -5,11 +5,6 @@ image: /img/cron-jobs/boi-postgress.webp
 tags: [webdev, wasp, prisma, database]
 ---
 
-import Link from '@docusaurus/Link';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-
-import InBlogCta from './components/InBlogCta';
-import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
 I had the pleasure to spend nearly 3 years working on live video infrastructure at TV2 Norway. As you know, when it comes to infrastructure, time *IS* money. Everything needs to be just-in-time, especially when it comes to provisioning costly components like encoders. For example, if there's a major live sports match scheduled, you want to ensure the streaming infrastructure is set up just minutes before kickoff, and torn down shortly after the final whistle blows.
