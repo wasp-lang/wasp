@@ -14,6 +14,7 @@
     "module": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
+    "declaration": true,
     "sourceMap": true,
     "lib": ["es2022"]
   },
