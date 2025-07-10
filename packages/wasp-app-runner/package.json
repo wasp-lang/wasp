@@ -1,23 +1,23 @@
 {
-  "version": "0.0.5",
   "name": "wasp-app-runner",
+  "version": "0.0.5",
+  "type": "module",
   "description": "CLI tool for running Wasp applications for headless testing",
-  "author": "Wasp Team <info@wasp-lang.dev> (https://wasp.sh)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git"
   },
   "homepage": "https://github.com/wasp-lang/wasp#readme",
   "bugs": "https://github.com/wasp-lang/wasp/issues",
+  "author": "Wasp Team <info@wasp-lang.dev> (https://wasp.sh)",
   "license": "MIT",
-  "type": "module",
   "bin": {
     "run-wasp-app": "bin/index.js"
   },
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node ./bin/index.js",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "start": "npm run build && node ./bin/index.js"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^13.1.0",

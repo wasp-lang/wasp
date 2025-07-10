@@ -7,7 +7,7 @@ A robust script to run your Wasp application, including automated database setup
 
 When installed, it provides a `npx run-wasp-app` command that can be used to run your Wasp app.
 
-## Usage 
+## Usage
 
 As a global dependency:
 
@@ -33,7 +33,7 @@ npx wasp-app-runner dev
 
 ### Options
 
-```bash
+```
 npx run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 

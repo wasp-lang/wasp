@@ -17,8 +17,8 @@ export function parseArgs(): {
     .version(packageJson.version)
     .addArgument(
       new Argument("mode", "The run mode")
-      .argRequired()
-      .choices(["dev", "build"])
+        .argRequired()
+        .choices(["dev", "build"]),
     )
     .option("--path-to-app <path>", "Path to the Wasp application", ".")
     .option("--wasp-cli-cmd <command>", "Wasp CLI command to use", "wasp")

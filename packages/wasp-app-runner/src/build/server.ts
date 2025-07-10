@@ -1,16 +1,16 @@
 import * as path from "path";
 
-import { spawnWithLog } from "../process.js";
+import type { PathToApp } from "../args.js";
 import {
   createAppSpecificServerBuildDockerNames,
   ServerBuildContainerName,
   ServerBuildImageName,
 } from "../docker.js";
-import { EnvVars } from "../types.js";
-import { createLogger } from "../logging.js";
 import { doesFileExits } from "../files.js";
+import { createLogger } from "../logging.js";
+import { spawnWithLog } from "../process.js";
+import { EnvVars } from "../types.js";
 import type { AppName } from "../waspCli.js";
-import type { PathToApp } from "../args.js";
 
 const serverAppDir = ".wasp/build";
 

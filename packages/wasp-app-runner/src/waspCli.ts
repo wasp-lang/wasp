@@ -92,7 +92,7 @@ export async function waspInfo({
 
   const appNameMatch = stdoutDataWithoutAnsiChars.match(/Name: (.*)$/m);
   const dbTypeMatch = stdoutDataWithoutAnsiChars.match(
-    /Database system: (.*)$/m
+    /Database system: (.*)$/m,
   );
 
   if (appNameMatch === null) {
@@ -137,7 +137,7 @@ export async function waspTsSetup({
 
 function ensureRegexMatch(
   match: RegExpMatchArray | null,
-  name: string
+  name: string,
 ): string {
   const logger = createLogger("ensure-regex-match");
   if (match === null) {

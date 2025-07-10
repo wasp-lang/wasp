@@ -51,7 +51,7 @@ async function runWaspApp({
   }
 
   logger.info(
-    `Starting "${appName}" app (mode: ${mode}) using "${waspCliCmd}" command`
+    `Starting "${appName}" app (mode: ${mode}) using "${waspCliCmd}" command`,
   );
 
   switch (mode) {
