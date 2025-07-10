@@ -17,6 +17,6 @@
     "prisma": "5.19.1",
     "typescript": "^5.1.0",
     "vite": "^4.3.9",
-    "wasp-app-runner-test": "^0.0.4"
+    "@wasp.sh/wasp-app-runner": "^0.0.5"
   }
 }
