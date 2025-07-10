@@ -13,6 +13,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: "cache-evict"
+  cancel-in-progress: true
+
 jobs:
   evict-cache:
     runs-on: ubuntu-latest
