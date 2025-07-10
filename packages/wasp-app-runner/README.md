@@ -75,7 +75,7 @@ When using the `dev` mode:
 
 When using the `build` mode:
 
-- `npx run-wasp-app` will use the `.env.server` file when running the server container with Docker locally (which is not done usually by Wasp).
+- `run-wasp-app` will use the `.env.server` file when running the server container with Docker locally (which is not done usually by Wasp).
 - `.env.client` will not be used when building the client, the `REACT_APP_API_URL` is hard-coded to `http://localhost:3001`.
 
 ## Development
