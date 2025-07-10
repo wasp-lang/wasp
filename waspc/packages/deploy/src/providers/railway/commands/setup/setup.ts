@@ -3,8 +3,8 @@ import { $ } from "zx";
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
+import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  ensureWaspProjectIsBuilt,
   getClientBuildDir,
   getServerBuildDir,
 } from "../../../../common/waspProject.js";
