@@ -5,7 +5,7 @@ A robust script to run your Wasp application, including automated database setup
 - `dev`: Runs the Wasp app in development mode using `wasp start`.
 - `build`: Builds the Wasp app for production using `wasp build` and runs it.
 
-When installed, it provides a `npx run-wasp-app` command that can be used to run your Wasp app.
+When installed, it provides a `run-wasp-app` command that can be used to run your Wasp app.
 
 ## Usage
 
