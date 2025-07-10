@@ -1,0 +1,21 @@
+name: Restart Algolia Crawler
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - deploy-web
+
+jobs:
+  restart-crawler:
+    name: Restart Algolia Crawler
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restart Algolia Crawler
+        uses: algolia/algoliasearch-crawler-github-actions@v1
+        id: crawler_push
+        with:
+          crawler-user-id: ${{ secrets.ALGOLIA_CRAWLER_USER_ID }}
+          crawler-api-key: ${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
+          algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
+          crawler-name: wasp-lang
