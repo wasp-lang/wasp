@@ -78,7 +78,7 @@ When using the `build` mode:
 - `npx run-wasp-app` will use the `.env.server` file when running the server container with Docker locally (which is not done usually by Wasp).
 - `.env.client` will not be used when building the client, the `REACT_APP_API_URL` is hard-coded to `http://localhost:3001`.
 
-### Development
+## Development
 
 When developing, you can run the script directly from the local directory without installing it globally:
 
@@ -88,3 +88,35 @@ npm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 `npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.
+
+## Publishing
+
+To publish a new version of `wasp-app-runner`, follow these steps:
+
+### 1. Update Package Version
+
+**Using npm version command:**
+```bash
+# For patch releases (bug fixes)
+npm version patch
+
+# For minor releases (new features)
+npm version minor
+
+# For major releases (breaking changes)
+npm version major
+```
+
+### 2. Authenticate with npm
+
+```bash
+# Login to npm with an account that has access to the @wasp.sh organization
+npm login
+```
+
+### 3. Publish to npm Registry
+
+```bash
+# Publish the package publicly
+npm publish --access public
+```
