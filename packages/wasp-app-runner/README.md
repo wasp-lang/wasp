@@ -63,18 +63,3 @@ npm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 `npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.
-
-## GitHub Action
-
-This repository also provides a [GitHub Action](https://docs.github.com/en/actions) for setting up the Wasp App Runner in your workflows.
-
-### Prerequisites
-
-**You must set up Node.js before using this action.**  
-e.g. by using `actions/setup-node` action
-
-```yaml
-- uses: actions/setup-node@v4
-  with:
-    node-version: 20
-```
