@@ -26,6 +26,7 @@ npx run-wasp-app dev
 ```
 
 You can use it without the `npx` prefix inside of the `package.json`'s `scripts` field:
+
 ```jsonc
 {
   // ...
@@ -96,6 +97,7 @@ To publish a new version of `wasp-app-runner`, follow these steps:
 ### 1. Update Package Version
 
 **Using npm version command:**
+
 ```bash
 # For patch releases (bug fixes)
 npm version patch

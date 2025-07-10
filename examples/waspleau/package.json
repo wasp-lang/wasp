@@ -14,9 +14,9 @@
   "devDependencies": {
     "@playwright/test": "1.51.1",
     "@types/react": "^18.0.37",
+    "@wasp.sh/wasp-app-runner": "^0.0.5",
     "prisma": "5.19.1",
     "typescript": "^5.1.0",
-    "vite": "^4.3.9",
-    "@wasp.sh/wasp-app-runner": "^0.0.5"
+    "vite": "^4.3.9"
   }
 }
