@@ -1,12 +1,12 @@
-import * as fs from "fs";
 import * as path from "path";
+import * as fs from "fs";
 
-import { parse } from "dotenv";
-import type { PathToApp } from "../args.js";
-import { doesFileExits } from "../files.js";
-import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
+import { createLogger } from "../logging.js";
 import { EnvVars } from "../types.js";
+import { parse } from "dotenv";
+import { doesFileExits } from "../files.js";
+import type { PathToApp } from "../args.js";
 
 const clientAppDir = ".wasp/build/web-app";
 const clientAppBuildOutputDir = path.join(clientAppDir, "build");

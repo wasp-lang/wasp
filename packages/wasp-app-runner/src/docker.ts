@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
-import type { PathToApp } from "./args.js";
 import { Branded } from "./types.js";
+import type { PathToApp } from "./args.js";
 import type { AppName } from "./waspCli.js";
 
 export type DbContainerName = Branded<string, "ContainerName">;
