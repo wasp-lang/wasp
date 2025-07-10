@@ -9,7 +9,7 @@ When installed, it provides a `npx run-wasp-app` command that can be used to run
 
 ## Usage
 
-As a global dependency:
+### Global dependency:
 
 ```bash
 npm install -g wasp-app-runner
@@ -17,7 +17,7 @@ npm install -g wasp-app-runner
 run-wasp-app dev
 ```
 
-As a local dependency:
+### Local dependency:
 
 ```bash
 npm i -D wasp-app-runner
@@ -25,7 +25,20 @@ npm i -D wasp-app-runner
 npx run-wasp-app dev
 ```
 
-One time usage:
+You can use it without the `npx` prefix inside of the `package.json`'s `scripts` field:
+```jsonc
+{
+  // ...
+  "scripts": {
+    "run": "run-wasp-app dev",
+  },
+  // ...
+}
+```
+
+The same is true for `playwright`'s webserver command.
+
+### One time usage:
 
 ```bash
 npx wasp-app-runner dev
