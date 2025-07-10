@@ -2,7 +2,7 @@
   "name": "websocketsRealtimeVoting",
   "type": "module",
   "dependencies": {
-    "@playwright/test": "^1.51.1",
+    "@playwright/test": "1.51.1",
     "express": "~5.1.0",
     "flowbite": "1.6.6",
     "flowbite-react": "0.4.9",
