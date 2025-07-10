@@ -1,5 +1,5 @@
 {
-  "version": "0.0.4",
+  "version": "0.0.5",
   "name": "wasp-app-runner",
   "description": "CLI tool for running Wasp applications for headless testing",
   "author": "Wasp Team <info@wasp-lang.dev> (https://wasp.sh)",
