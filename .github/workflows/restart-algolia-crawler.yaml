@@ -23,4 +23,4 @@ jobs:
           crawler-api-key: ${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
           algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
           algolia-api-key: ${{ secrets.ALGOLIA_API_KEY }}
-          site-url: 'https://wasp.sh'
+          site-url: "https://wasp.sh"
