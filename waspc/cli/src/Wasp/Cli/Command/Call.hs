@@ -11,7 +11,7 @@ data Call
   | Compile
   | Db Arguments -- db args
   | Build
-  | BuildStart
+  | BuildStart Arguments
   | Version
   | Telemetry
   | Deps

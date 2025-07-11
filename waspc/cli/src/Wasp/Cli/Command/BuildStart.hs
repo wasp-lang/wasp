@@ -7,10 +7,13 @@ import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
+import Data.Function ((&))
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (parseBuildStartArgs)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
@@ -19,8 +22,12 @@ import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 
-buildStart :: Command ()
-buildStart = do
+buildStart :: Arguments -> Command ()
+buildStart args = do
+  buildStartArgs <-
+    parseBuildStartArgs args
+      & either (throwError . CommandError "Parsing build start arguments failed") return
+
   BuildDirExists _ <- require
 
   InWaspProject waspProjectDir <- require
@@ -33,7 +40,7 @@ buildStart = do
   -- the server starts if the DB is not running anyway, and with a very clear
   -- error message that we print.
 
-  let config = makeBuildStartConfig appSpec waspProjectDir
+  let config = makeBuildStartConfig appSpec waspProjectDir buildStartArgs
 
   buildAndStartServerAndClient config
   cliSendMessageC $ Msg.Success "Build and start completed successfully."

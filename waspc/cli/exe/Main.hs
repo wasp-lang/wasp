@@ -59,7 +59,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["uninstall"] -> Command.Call.Uninstall
         ["version"] -> Command.Call.Version
         ["build"] -> Command.Call.Build
-        ["build", "start"] -> Command.Call.BuildStart
+        ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
@@ -113,7 +113,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
-    Command.Call.BuildStart -> runCommand buildStart
+    Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile

@@ -158,7 +158,6 @@ library
     , dotenv                ^>= 0.10.0
     , network               ^>= 3.1.2
     , neat-interpolation    ^>=0.5.1.3
-    , random
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -445,7 +444,6 @@ library
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
-    Wasp.Util.Random
     Wasp.Util.StrongPath
     Wasp.Util.Terminal
     Wasp.Util.TH
@@ -562,6 +560,7 @@ library cli-lib
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.BuildStart
+    Wasp.Cli.Command.BuildStart.ArgumentsParser
     Wasp.Cli.Command.BuildStart.Client
     Wasp.Cli.Command.BuildStart.Config
     Wasp.Cli.Command.BuildStart.Server

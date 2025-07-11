@@ -7,6 +7,8 @@ module Wasp.Cli.Command.BuildStart.Config
     dockerImageName,
     makeBuildStartConfig,
     projectDir,
+    serverEnvironmentFiles,
+    serverEnvironmentVariables,
     serverUrl,
   )
 where
@@ -16,6 +18,8 @@ import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
+import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
@@ -23,10 +27,11 @@ import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWa
 
 data BuildStartConfig = BuildStartConfig
   { appSpec :: AppSpec,
-    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
+    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir),
+    _args :: BuildStartArgs
   }
 
-makeBuildStartConfig :: AppSpec -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> BuildStartConfig
+makeBuildStartConfig :: AppSpec -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> BuildStartArgs -> BuildStartConfig
 makeBuildStartConfig = BuildStartConfig
 
 buildDir :: BuildStartConfig -> SP.Path' SP.Abs (SP.Dir ProjectRootDir)
@@ -45,6 +50,12 @@ clientPortAndUrl config =
 
 serverUrl :: BuildStartConfig -> String
 serverUrl _ = defaultDevServerUrl
+
+serverEnvironmentVariables :: BuildStartConfig -> [String]
+serverEnvironmentVariables = Args.serverEnvironmentVariables . _args
+
+serverEnvironmentFiles :: BuildStartConfig -> [FilePath]
+serverEnvironmentFiles = Args.serverEnvironmentFiles . _args
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
