@@ -18,4 +18,5 @@ jobs:
           crawler-user-id: ${{ secrets.ALGOLIA_CRAWLER_USER_ID }}
           crawler-api-key: ${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
           algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
-          crawler-name: wasp-lang
+          algolia-api-key: ${{ secrets.ALGOLIA_API_KEY }}
+          site-url: 'https://wasp.sh'
