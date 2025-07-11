@@ -25,19 +25,19 @@ npm i -D @wasp.sh/wasp-app-runner
 npx run-wasp-app dev
 ```
 
-You can use it without the `npx` prefix inside of the `package.json`'s `scripts` field:
+You can also use it in `npm` scripts without the `npx` prefix, since `node_modules/.bin` is automatically added to the PATH:
+
+Example `package.json`:
 
 ```jsonc
 {
   // ...
   "scripts": {
-    "run": "run-wasp-app dev",
+    "run-dev": "run-wasp-app dev",
   },
   // ...
 }
 ```
-
-The same is true for `playwright`'s webserver command.
 
 ### One time usage:
 
