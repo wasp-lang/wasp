@@ -26,7 +26,7 @@ main() {
   echo "Starting E2E tests for ${TEMPLATE_NAME} template..."
   initialize_test_environment
   run_dev_headless_tests
-  run_prod_headless_tests
+  run_build_headless_tests
   echo "Finished E2E tests for ${TEMPLATE_NAME} template"
 }
 
@@ -45,7 +45,7 @@ run_dev_headless_tests() {
   DEBUG=pw:webserver E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD="${WASP_CLI_CMD}" HEADLESS_TEST_MODE=dev npx playwright test
 }
 
-run_prod_headless_tests() {
+run_build_headless_tests() {
   if template_uses_sqlite; then
     echo "Skipping BUILD tests for ${TEMPLATE_NAME} project (sqlite detected in schema.prisma)."
     return
