@@ -2,6 +2,8 @@
 
 # Script to run E2E tests for a given Wasp template.
 
+set -e
+
 if [ -z "$1" ]; then
   echo "Error: Template name argument is missing."
   echo "Usage: $0 <template_name> <wasp_cli_command>"
@@ -19,36 +21,38 @@ WASP_CLI_CMD="$2"
 TEMP_PROJECT_NAME="temp-project-${TEMPLATE_NAME}"
 
 main() {
-  # Ensure cleanup runs even if tests fail
   trap cleanup_test_environment EXIT
 
-  # Group the main sequence of operations whose collective exit status needs to be captured
-  local exit_code=0
-  (
-    initialize_test_environment \
-      && run_dev_e2e_tests \
-      && if template_uses_sqlite; then
-        echo "Skipping BUILD tests for ${TEMPLATE_NAME} project (sqlite detected in schema.prisma)."
-      else
-        run_prod_e2e_tests
-      fi
-  )
-  exit_code=$?
+  echo "Starting E2E tests for ${TEMPLATE_NAME} template..."
+  initialize_test_environment
+  run_dev_headless_tests
+  run_prod_headless_tests
+  echo "Finished E2E tests for ${TEMPLATE_NAME} template"
+}
 
-  echo "Finished E2E tests for ${TEMPLATE_NAME} template with exit code ${exit_code}"
-  exit "${exit_code}"
+initialize_test_environment() {
+  cleanup_test_environment
+
+  ${WASP_CLI_CMD} new "${TEMP_PROJECT_NAME}" -t "${TEMPLATE_NAME}"
 }
 
 cleanup_test_environment() {
   rm -rf "${TEMP_PROJECT_NAME}"
 }
 
-initialize_test_environment() {
-  echo "Starting E2E tests for ${TEMPLATE_NAME} template..."
+run_dev_headless_tests() {
+  echo "Running DEV headless tests for ${TEMPLATE_NAME} project..."
+  DEBUG=pw:webserver E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD="${WASP_CLI_CMD}" HEADLESS_TEST_MODE=dev npx playwright test
+}
 
-  rm -rf "${TEMP_PROJECT_NAME}"
+run_prod_headless_tests() {
+  if template_uses_sqlite; then
+    echo "Skipping BUILD tests for ${TEMPLATE_NAME} project (sqlite detected in schema.prisma)."
+    return
+  fi
 
-  ${WASP_CLI_CMD} new "${TEMP_PROJECT_NAME}" -t "${TEMPLATE_NAME}"
+  echo "Running BUILD headless tests for ${TEMPLATE_NAME} project..."
+  DEBUG=pw:webserver E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD="${WASP_CLI_CMD}" HEADLESS_TEST_MODE=build npx playwright test
 }
 
 template_uses_sqlite() {
@@ -61,16 +65,6 @@ template_uses_sqlite() {
   fi
 
   grep -q 'provider = "sqlite"' "$prisma_schema_file"
-}
-
-run_dev_e2e_tests() {
-  echo "Running DEV tests for ${TEMPLATE_NAME} project..."
-  E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD=${WASP_CLI_CMD} HEADLESS_TEST_MODE=dev npx playwright test
-}
-
-run_prod_e2e_tests() {
-  echo "Running BUILD tests for ${TEMPLATE_NAME} project..."
-  E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD=${WASP_CLI_CMD} HEADLESS_TEST_MODE=build npx playwright test
 }
 
 main "$@"

@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.53.0",
-    "@types/node": "^24.0.1"
+    "@types/node": "^24.0.1",
+    "@wasp.sh/wasp-app-runner": "^0.0.7"
   }
 }
