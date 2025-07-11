@@ -25,6 +25,9 @@ concurrency:
   group: "deploy-examples"
   cancel-in-progress: true
 
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
 jobs:
   deploy:
     strategy:

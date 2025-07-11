@@ -1,0 +1,18 @@
+name: Keeps build cache warm
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub evicts unused caches after 7 days, so we run this every 6 days
+    - cron: "0 0 */6 * *"
+
+concurrency:
+  group: "cache-warm"
+  cancel-in-progress: false
+
+jobs:
+  warm-cache-build:
+    uses: ./.github/workflows/waspc-build.yaml
+
+  warm-cache-ci:
+    uses: ./.github/workflows/waspc-ci.yaml
