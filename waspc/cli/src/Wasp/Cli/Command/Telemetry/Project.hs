@@ -209,7 +209,7 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
 -- NOTE: If you update the list of keywords here, make sure to also update them in the official docs
 --   on our webpage, under Telemetry.
 extractKeyDeployArgs :: [String] -> [String]
-extractKeyDeployArgs = intersect ["fly", "setup", "create-db", "deploy", "cmd"]
+extractKeyDeployArgs = intersect ["fly", "railway", "setup", "create-db", "deploy", "cmd", "launch"]
 
 sendTelemetryData :: ProjectTelemetryData -> IO ()
 sendTelemetryData telemetryData = do

@@ -87,24 +87,19 @@ We'll cover a few different deployment providers below:
 
 ## Fly.io <Server /> <Database /> {#flyio}
 
-We will show how to deploy the server and provision a database for it on Fly.io.
+We recommend that you use [Wasp CLI](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
-:::tip We automated this process for you
-If you want to do all of the work below with one command, you can use the [Wasp CLI](./cli.md#flyio).
+### Introduction
 
-Wasp CLI deploys the server, deploys the client, and sets up a database.
-It also gives you a way to redeploy (update) your app with a single command.
-:::
+In this section, we'll show how to deploy your server and provision a database for it on Fly.io using the `flyctl` CLI.
 
-Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
+To get started, follow these steps:
 
-:::note
-Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducibility, we will default to the use of a remote Fly.io builder.
+1. Create a [Fly.io](https://fly.io/) account,
+1. Install the [`flyctl` CLI](https://fly.io/docs/flyctl/install/),
+1. Log in with the `flyctl` CLI.
 
-Additionally, `fly` is a symlink for `flyctl` on most systems and they can be used interchangeably.
-:::
-
-Make sure you are logged in with `flyctl` CLI. You can check if you are logged in with `flyctl auth whoami`, and if you are not, you can log in with `flyctl auth login`.
+You can check if you are logged in with `flyctl auth whoami`, and if you are not, you can log in with `flyctl auth login`.
 
 ### Set Up a Fly.io App
 
@@ -213,34 +208,28 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 ## Railway <Server /> <Client /> <Database /> {#railway}
 
-We will show how to deploy the client, the server, and provision a database on Railway.
+We recommend that you use [Wasp CLI](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
 
-Railway is a simple and great way to host your server and database. It's also possible to deploy your entire app: database, server, and client. You can use the platform for free for a limited time, or if you meet certain eligibility requirements. See their [plans page](https://docs.railway.app/reference/pricing/plans) for more info.
+### Introduction
 
-### Prerequisites
+In this section, we'll show how to deploy the client, the server, and provision a database on Railway.
 
 To get started, follow these steps:
 
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
-2. Create a [Railway](https://railway.app/) account
-
-:::tip Free Tier
-Sign up with your GitHub account to be eligible for the free tier
-:::
-
-3. Install the [Railway CLI](https://docs.railway.app/develop/cli#installation)
-4. Run `railway login` and a browser tab will open to authenticate you.
+1. Create a [Railway](https://railway.com/) account.
+1. Install the [Railway CLI](https://docs.railway.com/develop/cli#installation).
+1. Run `railway login` and a browser tab will open to authenticate you.
 
 ### Create New Project
 
 Let's create our Railway project:
 
-1. Go to your [Railway dashboard](https://railway.app/dashboard), click on **New Project**, and select `Provision PostgreSQL` from the dropdown menu.
-2. Once it initializes, right-click on the **New** button in the top right corner and select **Empty Service**.
-3. Once it initializes, click on it, go to **Settings > General** and change the name to `server`
-4. Go ahead and create another empty service and name it `client`
-
-![Changing the name](/img/deploying/railway-rename.png)
+1. Go to your [Railway dashboard](https://railway.com/dashboard), click on **New Project**, and select `Deploy PostgreSQL` from the dropdown menu.
+1. Once the project is created, left-click on the **Create** button in the top right corner and select **Empty Service**.
+1. Click on the new service, and change the name to `server`.
+1. Go ahead and create another empty service and name it `client`.
+1. Deploy the changes by pressing the **Deploy** button on top.
 
 ### Deploy Your App to Railway
 
@@ -249,175 +238,113 @@ Let's create our Railway project:
 We'll need the domains for both the `server` and `client` services:
 
 1. Go to the `server` instance's `Settings` tab, and click `Generate Domain`.
-2. Do the same under the `client`'s `Settings`.
-
-Copy the domains as we will need them later.
+1. Enter `8080` as the port and click **Generate Domain**.
+1. Do the same under the `client`'s `Settings`.
+1. Copy the domains as we will need them later.
 
 #### Deploying the Server
 
-Let's deploy our server first:
+You'll deploy the server first:
 
 1. Move into your app's `.wasp/build/` directory:
 
-```shell
-cd .wasp/build
-```
+    ```shell
+    cd .wasp/build
+    ```
 
-2. Link your app build to your newly created Railway project:
+2. Link your the `build` directory to your newly created Railway project:
 
-```shell
-railway link
-```
+    ```shell
+    railway link
+    ```
 
-<!-- TOPIC: env vars -->
+    Select `server` when prompted with `Select Service`.
+
+  <!-- TOPIC: env vars -->
 
 3. Go into the Railway dashboard and set up the required env variables:
 
-   Open the `Settings` and go to the `Variables` tab:
+   Click on the `server` serice go to the `Variables` tab:
 
-   - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-   - add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
-   - add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
-   - add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+   1. Click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
+   1. Add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
+   1. Add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
+   1. Add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
      <AddExternalAuthEnvVarsReminder />
 
 4. Push and deploy the project:
 
-```shell
-railway up
-```
+    ```shell
+    railway up --ci
+    ```
 
-Select `server` when prompted with `Select Service`.
+    <small>
 
-Railway will now locate the Dockerfile and deploy your server 👍
+    We used the `--ci` flag to only stream the build logs and not the logs that happen after the server is deployed.
+    </small>
+
+    Railway will now locate the `Dockerfile` and deploy your server.
 
 #### Deploying the Client
 
-1. Next, change into your app's frontend build directory `.wasp/build/web-app`:
+:::caution Make sure to enable Railpack
 
-```shell
-cd web-app
-```
+These instructions assume that Railpack is used as the deployment builder. If you don't use Railpack, the client routing will not work as expected. 
+
+You can go to your [Railway account settings](https://railway.com/account/feature-flags) and enable "Default to Railpack" or adjust the client service to use Railpack in the `Settings`.
+
+:::
+
+1. Next, go into your app's frontend build directory `.wasp/build/web-app`:
+
+    ```shell
+    cd web-app
+    ```
 
 2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
 
-```shell
-npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-```
+    ```shell
+    npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+    ```
 
-3. Next, we want to link this specific frontend directory to our project as well:
+3. Next, we want to link the client build directory to the `client` service:
 
-```shell
-railway link
-```
+    ```shell
+    cd build
+    railway link
+    ```
 
 <!-- TOPIC: client deployment -->
+    
+4. Next, deploy the client build to Railway:
 
-4. We need to configure Railway's static hosting for our client.
+    ```shell
+    railway up --ci
+    ```
 
-   :::info Setting Up Static Hosting
+    <small>
 
-   Copy the `build` folder within the `web-app` directory to `dist`:
+    We used the `--ci` flag to only stream the build logs and not the logs that happen after the client is deployed.
+    </small>
 
-   ```shell
-   cp -r build dist
-   ```
 
-   We'll need to create the following files:
+    Select `client` when prompted with `Select Service`. 
+    
+    Railway will detect the `index.html` file and deploy the client as a static site using [Railpack](https://railpack.com/languages/staticfile#root-directory-resolution).
 
-   - `Dockerfile` with:
 
-     ```Dockerfile title="Dockerfile"
-     FROM pierrezemb/gostatic
-     CMD [ "-fallback", "index.html" ]
-     COPY ./dist/ /srv/http/
-     ```
+And now your Wasp should be deployed!
 
-   - `.dockerignore` with:
-     ```bash title=".dockerignore"
-     node_modules/
-     ```
-
-   You'll need to repeat these steps **each time** you run `wasp build` as it will remove the `.wasp/build/web-app` directory.
-
-   <details>
-     <summary>
-       Here's a useful shell script to do the process
-     </summary>
-
-     If you want to automate the process, save the following as `deploy_client.sh` in the root of your project:
-
-     ```bash title="deploy_client.sh"
-     #!/usr/bin/env bash
-
-     if [ -z "$REACT_APP_API_URL" ]
-     then
-       echo "REACT_APP_API_URL is not set"
-       exit 1
-     fi
-
-     wasp build
-     cd .wasp/build/web-app
-
-     npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
-
-     cp -r build dist
-
-     dockerfile_contents=$(cat <<EOF
-     FROM pierrezemb/gostatic
-     CMD [ "-fallback", "index.html" ]
-     COPY ./dist/ /srv/http/
-     EOF
-     )
-
-     dockerignore_contents=$(cat <<EOF
-     node_modules/
-     EOF
-     )
-
-     echo "$dockerfile_contents" > Dockerfile
-     echo "$dockerignore_contents" > .dockerignore
-
-     railway up
-     ```
-
-     Make it executable with:
-
-     ```shell
-     chmod +x deploy_client.sh
-     ```
-
-     You can run it with:
-
-     ```shell
-     REACT_APP_API_URL=<url_to_wasp_backend> ./deploy_client.sh
-     ```
-   </details>
-
-   :::
-
-5. Set the `PORT` environment variable to `8043` under the `Variables` tab.
-
-6. Once set, deploy the client and select `client` when prompted with `Select Service`:
-
-```shell
-railway up
-```
-
-#### Conclusion
-
-And now your Wasp should be deployed! 🐝 🚂 🚀
-
-Back in your [Railway dashboard](https://railway.app/dashboard), click on your project and you should see your newly deployed services: PostgreSQL, Server, and Client.
+Back in your [Railway dashboard](https://railway.com/dashboard), click on your project and you should see your newly deployed services: PostgreSQL, Server, and Client.
 
 ### Updates & Redeploying
 
 When you make updates and need to redeploy:
 
-- run `wasp build` to rebuild your app
-- run `railway up` in the `.wasp/build` directory (server)
-- repeat all the steps in the `.wasp/build/web-app` directory (client)
+- Run `wasp build` to rebuild your app.
+- Run `railway up --ci` in the `.wasp/build` directory to redeploy the server.
+- Rebuild the client using `npm` and run `railway up --ci` in the `.wasp/build/web-app/build` directory.
 
 ## Heroku <Server /> <Database /> {#heroku}
 

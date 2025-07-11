@@ -125,7 +125,7 @@ $ wasp clean
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
-Currently, Wasp offers support for [Fly.io](https://fly.io). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
+Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
 
 Read more about automatic deployment [here](../deployment/deployment-methods/cli.md).
 

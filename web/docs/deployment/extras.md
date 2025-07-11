@@ -20,7 +20,8 @@ It's usually a two-step process, and it's the same for both the client and the s
 
 :::note Using Wasp CLI?
 
-Check out how to do it for [Fly with Wasp CLI](./deployment-methods/cli.md#using-a-custom-domain-for-your-app) if you are using Wasp CLI to deploy your app.
+Check out how to do it with [Fly](./deployment-methods/cli.md#fly-custom-domain) if you are using Fly.io or [Railway](./deployment-methods/cli.md#railway-custom-domain) if you are using Railway.
+
 :::
 
 2. Set up the **environment variables** for the app.
