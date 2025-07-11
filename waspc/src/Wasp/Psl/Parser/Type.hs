@@ -5,6 +5,7 @@ where
 
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Type as Psl.Type
+import Wasp.Psl.Parser.AttachedComment (withAttachedComments)
 import Wasp.Psl.Parser.Common
   ( braces,
     identifier,
@@ -26,7 +27,7 @@ import Wasp.Psl.Parser.Model (body)
 -- `body` parser from `Model` to parse the body
 -- of the type block.
 typeBlock :: Parser Psl.Type.Type
-typeBlock = do
+typeBlock = withAttachedComments $ do
   reserved "type"
   typeName <- identifier
   Psl.Type.Type typeName <$> braces body

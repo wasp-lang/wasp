@@ -76,5 +76,5 @@ getDbUrlFromPrismaSchema =
 -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
 getAllDatasourceKeyValuePairs :: Psl.Schema.Schema -> [Psl.ConfigBlock.KeyValuePair]
 getAllDatasourceKeyValuePairs =
-  concatMap (\(Psl.ConfigBlock.ConfigBlock _type _name keyValuePairs) -> keyValuePairs)
+  concatMap (\(Psl.ConfigBlock.ConfigBlock _type _name keyValuePairs _) -> keyValuePairs)
     . Psl.Schema.getDatasources

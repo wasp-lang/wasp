@@ -42,10 +42,10 @@ getEnums :: Schema -> [Enum]
 getEnums (Schema blocks) = [enum | EnumBlock enum <- blocks]
 
 getDatasources :: Schema -> [ConfigBlock]
-getDatasources schema = [datasource | datasource@((Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Datasource _ _)) <- getConfigBlocks schema]
+getDatasources schema = [datasource | datasource@((Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Datasource _ _ _)) <- getConfigBlocks schema]
 
 getGenerators :: Schema -> [ConfigBlock]
-getGenerators schema = [generator | generator@((Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Generator _ _)) <- getConfigBlocks schema]
+getGenerators schema = [generator | generator@((Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Generator _ _ _)) <- getConfigBlocks schema]
 
 getConfigBlocks :: Schema -> [ConfigBlock]
 getConfigBlocks (Schema blocks) = [configBlock | ConfigBlock configBlock <- blocks]

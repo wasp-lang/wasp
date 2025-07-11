@@ -5,6 +5,7 @@ where
 
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.View as Psl.View
+import Wasp.Psl.Parser.AttachedComment (withAttachedComments)
 import Wasp.Psl.Parser.Common
   ( braces,
     identifier,
@@ -25,7 +26,7 @@ import Wasp.Psl.Parser.Model (body)
 -- `body` parser from `Model` to parse the body
 -- of the type block.
 view :: Parser Psl.View.View
-view = do
+view = withAttachedComments $ do
   reserved "view"
   viewName <- identifier
   Psl.View.View viewName <$> braces body

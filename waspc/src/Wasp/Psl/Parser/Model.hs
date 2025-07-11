@@ -16,6 +16,7 @@ import Text.Parsec
 import qualified Text.Parsec as Parsec
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import Wasp.Psl.Parser.AttachedComment (withAttachedComments)
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
   ( SourceCode,
@@ -43,7 +44,7 @@ parseBody = Parsec.parse (whiteSpace >> body) ""
 --     @@index([name])
 --   }
 model :: Parser Psl.Model.Model
-model = do
+model = withAttachedComments $ do
   reserved "model"
   modelName <- identifier
   Psl.Model.Model modelName <$> braces body
@@ -62,18 +63,21 @@ element =
     ]
 
 field :: Parser Psl.Model.Field
-field = do
+field = withAttachedComments $ do
   name <- identifier
   type' <- fieldType
   maybeTypeModifier <- fieldTypeModifier
   attrs <- many (try attribute)
-  return $
-    Psl.Model.Field
-      { Psl.Model._name = name,
-        Psl.Model._type = type',
-        Psl.Model._typeModifiers = maybeToList maybeTypeModifier,
-        Psl.Model._attrs = attrs
-      }
+  return
+    ( \attachedComments ->
+        Psl.Model.Field
+          { Psl.Model._name = name,
+            Psl.Model._type = type',
+            Psl.Model._typeModifiers = maybeToList maybeTypeModifier,
+            Psl.Model._attrs = attrs,
+            Psl.Model._attachedComments = attachedComments
+          }
+    )
   where
     fieldType :: Parser Psl.Model.FieldType
     fieldType =
