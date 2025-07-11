@@ -39,5 +39,5 @@ generatePrismaModelSources schema =
   [ ( name,
       Psl.Model.Generator.generateModelBody body
     )
-    | (Psl.Model.Model name body) <- Psl.Schema.getModels schema
+    | (Psl.Model.Model name body _) <- Psl.Schema.getModels schema
   ]

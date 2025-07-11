@@ -13,7 +13,6 @@ import Data.List (nubBy)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import Wasp.Psl.Ast.AttachedComment (AttachedComment)
 import Wasp.Psl.Ast.Common (Name)
-import Wasp.Psl.Ast.Model (Field (_attachedComments))
 
 -- | Represents a config block in the PSL.
 --   For example, in the following PSL:

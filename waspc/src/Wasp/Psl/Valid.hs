@@ -64,7 +64,7 @@ validateGenerators = validate . Psl.Schema.getGenerators
       where
         isTherePrismaClientJsGenerator =
           any
-            ( \(Psl.ConfigBlock.ConfigBlock _type _name keyValues) ->
+            ( \(Psl.ConfigBlock.ConfigBlock _type _name keyValues _) ->
                 findPrismaConfigBlockKeyValuePair "provider" keyValues == Just (Psl.Argument.StringExpr "prisma-client-js")
             )
             generators'
