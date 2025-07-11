@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/wasp-app-runner",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "description": "CLI tool for running Wasp applications for headless testing",
   "repository": {
