@@ -25,7 +25,7 @@ npm i -D @wasp.sh/wasp-app-runner
 npx run-wasp-app dev
 ```
 
-You can also use it in `npm` scripts without the `npx` prefix, since `node_modules/.bin` is automatically added to the PATH:
+You can also use it in `npm` scripts without the `npx` prefix, since `node_modules/.bin` is automatically added to the `PATH` inside `scripts`:
 
 Example `package.json`:
 

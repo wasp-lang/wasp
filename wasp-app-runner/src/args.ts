@@ -31,7 +31,7 @@ export function parseArgs(): {
   const [mode] = parsedProgram.processedArgs;
 
   return {
-    mode: mode,
+    mode,
     pathToApp: options.pathToApp as PathToApp,
     waspCliCmd: options.waspCliCmd as WaspCliCmd,
   };

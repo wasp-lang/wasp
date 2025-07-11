@@ -14,8 +14,8 @@
     "module": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
-    "declaration": true,
-    "sourceMap": true,
+    // "declaration": true,
+    // "sourceMap": true,
     "lib": ["es2022"]
   },
   "include": ["src"]
