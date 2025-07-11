@@ -9,7 +9,7 @@ import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
-import Wasp.Cli.Command.BuildStart.ArgumentsParser (parseBuildStartArgs)
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
@@ -17,6 +17,7 @@ import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
+import Wasp.Cli.Util.Parser (parseArguments)
 import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
@@ -25,8 +26,8 @@ import qualified Wasp.Message as Msg
 buildStart :: Arguments -> Command ()
 buildStart args = do
   buildStartArgs <-
-    parseBuildStartArgs args
-      & either (throwError . CommandError "Parsing build start arguments failed") return
+    parseArguments "wasp build start" buildStartArgsParser args
+      & either (throwError . CommandError "Parsing arguments failed") return
 
   BuildDirExists _ <- require
 

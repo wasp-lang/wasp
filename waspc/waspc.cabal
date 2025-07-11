@@ -605,6 +605,7 @@ library cli-lib
     Wasp.Cli.Message
     Wasp.Cli.Interactive
     Wasp.Cli.GithubRepo
+    Wasp.Cli.Util.Parser
 
 executable wasp-cli
   import: common-all, common-exe
