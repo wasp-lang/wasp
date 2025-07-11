@@ -87,24 +87,19 @@ We'll cover a few different deployment providers below:
 
 ## Fly.io <Server /> <Database /> {#flyio}
 
-We will show how to deploy the server and provision a database for it on Fly.io.
+**We recommend that you use [Wasp CLI](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.**
 
-:::tip We automated this process for you
-If you want to do all of the work below with one command, you can use the [Wasp CLI](./cli.md#flyio).
+In this section, we'll show how to deploy your server and provision a database for it on Fly.io using the `flyctl` CLI.
 
-Wasp CLI deploys the server, deploys the client, and sets up a database.
-It also gives you a way to redeploy (update) your app with a single command.
-:::
+### Prerequisites
 
-Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
+Before you start, make sure you:
 
-:::note
-Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducibility, we will default to the use of a remote Fly.io builder.
+1. Create a [Fly.io](https://fly.io/) account,
+1. Install the [`flyctl` CLI](https://fly.io/docs/flyctl/install/),
+1. Log in with the `flyctl` CLI.
 
-Additionally, `fly` is a symlink for `flyctl` on most systems and they can be used interchangeably.
-:::
-
-Make sure you are logged in with `flyctl` CLI. You can check if you are logged in with `flyctl auth whoami`, and if you are not, you can log in with `flyctl auth login`.
+You can check if you are logged in with `flyctl auth whoami`, and if you are not, you can log in with `flyctl auth login`.
 
 ### Set Up a Fly.io App
 
@@ -213,14 +208,9 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 ## Railway <Server /> <Client /> <Database /> {#railway}
 
-We will show how to deploy the client, the server, and provision a database on Railway.
+**We recommend that you use [Wasp CLI](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.**
 
-:::tip We automated this process for you
-If you want to do all of the work below with one command, you can use the [Wasp CLI](./cli.md#railway).
-
-Wasp CLI deploys the server, deploys the client, and sets up a database.
-It also gives you a way to redeploy (update) your app with a single command.
-:::
+In this section, we'll show how to deploy the client, the server, and provision a database on Railway.
 
 ### Prerequisites
 

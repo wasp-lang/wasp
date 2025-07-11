@@ -44,7 +44,7 @@ Two things to keep in mind:
 
 1. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names (slugs) of your organizations by running `fly orgs list`.
 
-Under the covers, `wasp deploy fly launch` is the same as running:
+Under the hood, `wasp deploy fly launch` is the same as running:
 
 ```shell
 wasp deploy fly setup my-wasp-app mia
@@ -67,7 +67,7 @@ You'll notice that Wasp creates two new files in your project root directory:
 
 You should include these files in your version control so that you can deploy your app with a single command in the future.
 
-Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically, such as `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, and `WASP_SERVER_URL`.
+When you run the `launch` command, Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically.
 
 If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables).
 
@@ -172,7 +172,7 @@ Keep in mind that:
 
 1. If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
 
-Under the covers, `wasp deploy railway launch` is the same as running:
+Under the hood, `wasp deploy railway launch` is the same as running:
 
 ```shell
 wasp deploy railway setup my-wasp-app
@@ -186,7 +186,7 @@ The project name is used as a base for your server and client service names on R
 
 Railway doesn't allow setting the database service name using the Railway CLI, so it will always be named `Postgres`.
 
-Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically, such as `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, and `WASP_SERVER_URL`.
+When you run the `launch` command, Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically.
 
 If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#railway-environment-variables).
 
