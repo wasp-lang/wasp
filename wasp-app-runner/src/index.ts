@@ -79,8 +79,6 @@ async function runWaspApp({
 }
 
 async function isWaspTypescriptConfigProject(pathToApp: PathToApp) {
-  const logger = createLogger("wasp-ts-config");
-
   try {
     const files = await readdir(pathToApp);
     return files.some((file) => file.endsWith(".wasp.ts"));
