@@ -87,13 +87,13 @@ We'll cover a few different deployment providers below:
 
 ## Fly.io <Server /> <Database /> {#flyio}
 
-**We recommend that you use [Wasp CLI](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.**
+We recommend that you use [Wasp CLI](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+
+### Introduction
 
 In this section, we'll show how to deploy your server and provision a database for it on Fly.io using the `flyctl` CLI.
 
-### Prerequisites
-
-Before you start, make sure you:
+To get started, follow these steps:
 
 1. Create a [Fly.io](https://fly.io/) account,
 1. Install the [`flyctl` CLI](https://fly.io/docs/flyctl/install/),
@@ -208,11 +208,11 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 ## Railway <Server /> <Client /> <Database /> {#railway}
 
-**We recommend that you use [Wasp CLI](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.**
+We recommend that you use [Wasp CLI](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+
+### Introduction
 
 In this section, we'll show how to deploy the client, the server, and provision a database on Railway.
-
-### Prerequisites
 
 To get started, follow these steps:
 
@@ -287,6 +287,14 @@ You'll deploy the server first:
     Railway will now locate the `Dockerfile` and deploy your server.
 
 #### Deploying the Client
+
+:::caution Make sure to enable Railpack
+
+These instructions assume that Railpack is used as the deployment builder. If you don't use Railpack, the client routing will not work as expected. 
+
+You can go to your [Railway account settings](https://railway.com/account/feature-flags) and enable "Default to Railpack" or adjust the client service to use Railpack in the `Settings`.
+
+:::
 
 1. Next, go into your app's frontend build directory `.wasp/build/web-app`:
 
