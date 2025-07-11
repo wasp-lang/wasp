@@ -52,19 +52,19 @@ const jwtTokenSchema = z
 // to make the development process easier.
 const serverDevSchema = z.object({
   NODE_ENV: z.literal('development'),
-  WASP_SERVER_URL: serverUrlSchema
+  "WASP_SERVER_URL": serverUrlSchema
     .default('http://localhost:3001'),
-  WASP_WEB_CLIENT_URL: clientUrlSchema
+  "WASP_WEB_CLIENT_URL": clientUrlSchema
     .default('http://localhost:3000/'),
-  JWT_SECRET: jwtTokenSchema
+  "JWT_SECRET": jwtTokenSchema
     .default('DEVJWTSECRET'),
 })
 
 const serverProdSchema = z.object({
   NODE_ENV: z.literal('production'),
-  WASP_SERVER_URL: serverUrlSchema,
-  WASP_WEB_CLIENT_URL: clientUrlSchema,
-  JWT_SECRET: jwtTokenSchema,
+  "WASP_SERVER_URL": serverUrlSchema,
+  "WASP_WEB_CLIENT_URL": clientUrlSchema,
+  "JWT_SECRET": jwtTokenSchema,
 })
 
 const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
