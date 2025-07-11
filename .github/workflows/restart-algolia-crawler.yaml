@@ -2,7 +2,7 @@ name: Restart Algolia Crawler
 
 on:
   workflow_dispatch:
-  # TEMP SO I CAN ACTUALLY TEST THIS!
+  # TEMP SO I CAN ACTUALLY TEST THIS!!
   pull_request:
     branches:
       - main
