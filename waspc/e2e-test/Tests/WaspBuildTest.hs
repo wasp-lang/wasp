@@ -6,14 +6,14 @@ import ShellCommands
     dockerBuild,
     setDbToPSQL,
     waspCliBuild,
-    waspCliNew,
+    waspCliNewMinimalStarter,
   )
 
 waspBuild :: GoldenTest
 waspBuild =
   makeGoldenTest "waspBuild" $
     sequence
-      [ waspCliNew,
+      [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,
         setDbToPSQL,
         waspCliBuild,

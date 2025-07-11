@@ -11,7 +11,7 @@ import ShellCommands
     insertCodeIntoFileAtLineNumber,
     setDbToPSQL,
     waspCliCompile,
-    waspCliNew,
+    waspCliNewMinimalStarter,
   )
 import Util ((<++>))
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -20,7 +20,7 @@ waspComplexTest :: GoldenTest
 waspComplexTest = do
   makeGoldenTest "waspComplexTest" $
     sequence
-      [ waspCliNew,
+      [ waspCliNewMinimalStarter,
         cdIntoCurrentProject
       ]
       <++> addServerEnvFile
