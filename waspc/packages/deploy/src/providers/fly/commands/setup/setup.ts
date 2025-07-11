@@ -3,10 +3,10 @@ import { $, chalk, question } from "zx";
 import { getFullCommandName } from "../../../../common/commander.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
+import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   cdToClientBuildDir,
   cdToServerBuildDir,
-  ensureWaspProjectIsBuilt,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,

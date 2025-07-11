@@ -6,10 +6,10 @@ import {
   displayWaspRocketImage,
   waspSays,
 } from "../../../../common/terminal.js";
+import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   cdToClientBuildDir,
   cdToServerBuildDir,
-  ensureWaspProjectIsBuilt,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,

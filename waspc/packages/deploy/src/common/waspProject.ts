@@ -3,7 +3,6 @@ import path from "node:path";
 
 import { cd } from "zx";
 import { WaspCliExe, WaspProjectDir } from "./brandedTypes.js";
-import { waspSays } from "./terminal.js";
 import { assertDirExists, assertDirPathIsAbsolute } from "./validation.js";
 import { createCommandWithCwd } from "./zx.js";
 
@@ -32,24 +31,6 @@ export function assertWaspProjectDirIsAbsoluteAndPresent(
   const dirNameInError = "Wasp project directory";
   assertDirPathIsAbsolute(waspProjectDir, dirNameInError);
   assertDirExists(waspProjectDir, dirNameInError);
-}
-
-export async function ensureWaspProjectIsBuilt({
-  waspProjectDir,
-  waspExe,
-}: {
-  waspProjectDir: WaspProjectDir;
-  waspExe: WaspCliExe;
-}): Promise<void> {
-  // NOTE: we assume that existance of the build directory means
-  // that the project has been built.
-  if (buildDirExists(waspProjectDir)) {
-    return;
-  }
-
-  waspSays("Building your Wasp app...");
-  const waspCli = createCommandWithCwd(waspExe, waspProjectDir);
-  await waspCli(["build"]);
 }
 
 export function buildDirExists(waspProjectDir: WaspProjectDir): boolean {

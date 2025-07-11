@@ -1,7 +1,7 @@
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
 import { getFullCommandName } from "../../../../common/commander.js";
 import { waspSays } from "../../../../common/terminal.js";
-import { ensureWaspProjectIsBuilt } from "../../../../common/waspProject.js";
+import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   RailwayCliExe,
   RailwayProjectId,
