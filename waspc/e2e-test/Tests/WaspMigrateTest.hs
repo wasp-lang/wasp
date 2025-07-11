@@ -6,7 +6,7 @@ import ShellCommands
     cdIntoCurrentProject,
     waspCliCompile,
     waspCliMigrate,
-    waspCliNew,
+    waspCliNewMinimalStarter,
   )
 
 waspMigrate :: GoldenTest
@@ -22,7 +22,7 @@ waspMigrate = do
 
   makeGoldenTest "waspMigrate" $
     sequence
-      [ waspCliNew,
+      [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,
         waspCliCompile,
         appendToPrismaFile taskModel,

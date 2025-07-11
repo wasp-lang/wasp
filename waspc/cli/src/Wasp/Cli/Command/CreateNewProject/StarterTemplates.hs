@@ -22,6 +22,9 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import qualified Wasp.Util.Terminal as Term
 
+-- More on how starter templates work in Wasp, including the development process,
+-- can be found in the `waspc/data/Cli/starters/README.md` file.
+
 data StarterTemplate
   = -- | Template from a Github repo.
     GhRepoStarterTemplate !GhRepo.GithubRepoRef !DirBasedTemplateMetadata
@@ -71,15 +74,31 @@ getTemplateStartingInstructions projectDirName = \case
 
 getStarterTemplates :: [StarterTemplate]
 getStarterTemplates =
-  [ defaultStarterTemplate,
-    todoTsStarterTemplate,
+  [ basicStarterTemplate,
+    minimalStarterTemplate,
     openSaasStarterTemplate,
-    embeddingsStarterTemplate,
     AiGeneratedStarterTemplate
   ]
 
 defaultStarterTemplate :: StarterTemplate
 defaultStarterTemplate = basicStarterTemplate
+
+{- HLINT ignore minimalStarterTemplate "Redundant $" -}
+
+minimalStarterTemplate :: StarterTemplate
+minimalStarterTemplate =
+  LocalStarterTemplate $
+    DirBasedTemplateMetadata
+      { _path = [reldir|minimal|],
+        _name = "minimal",
+        _description = "A minimal starter template that features just a single page.",
+        _buildStartingInstructions = \projectDirName ->
+          unlines
+            [ styleText $ "To run your new app, do:",
+              styleCode $ "    cd " <> projectDirName,
+              styleCode $ "    wasp start"
+            ]
+      }
 
 {- HLINT ignore basicStarterTemplate "Redundant $" -}
 
@@ -89,12 +108,15 @@ basicStarterTemplate =
     DirBasedTemplateMetadata
       { _path = [reldir|basic|],
         _name = "basic",
-        _description = "Simple starter template with a single page.",
+        _description = "A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.",
         _buildStartingInstructions = \projectDirName ->
           unlines
             [ styleText $ "To run your new app, do:",
               styleCode $ "    cd " <> projectDirName,
-              styleCode $ "    wasp start"
+              styleCode $ "    wasp db migrate-dev",
+              styleCode $ "    wasp start",
+              styleText $ "",
+              styleText $ "Check the " <> styleCode "README.md" <> " for additional guidance!"
             ]
       }
 
@@ -133,26 +155,6 @@ openSaasStarterTemplate =
           ]
     )
 
-{- HLINT ignore todoTsStarterTemplate "Redundant $" -}
-
-todoTsStarterTemplate :: StarterTemplate
-todoTsStarterTemplate =
-  simpleGhRepoTemplate
-    ("starters", [reldir|todo-ts|])
-    ( "todo-ts",
-      "Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety."
-    )
-    ( \projectDirName ->
-        unlines
-          [ styleText $ "To run your new app, do:",
-            styleCode $ "    cd " ++ projectDirName,
-            styleCode $ "    wasp db migrate-dev",
-            styleCode $ "    wasp start",
-            styleText $ "",
-            styleText $ "Check the README for additional guidance!"
-          ]
-    )
-
 {- Functions for styling instructions. Their names are on purpose of same length, for nicer code formatting. -}
 
 styleCode :: String -> String
@@ -162,44 +164,6 @@ styleText :: String -> String
 styleText = id
 
 {- -}
-
-{- HLINT ignore embeddingsStarterTemplate "Redundant $" -}
-
-embeddingsStarterTemplate :: StarterTemplate
-embeddingsStarterTemplate =
-  simpleGhRepoTemplate
-    ("starters", [reldir|embeddings|])
-    ( "embeddings",
-      "Comes with code for generating vector embeddings and performing vector similarity search."
-    )
-    ( \projectDirName ->
-        unlines
-          [ styleText $ "To run your new app, follow the instructions below:",
-            styleText $ "",
-            styleText $ "  1. Position into app's root directory:",
-            styleCode $ "    cd " <> projectDirName,
-            styleText $ "",
-            styleText $ "  2. Create initial dot env file from the template and fill in your API keys:",
-            styleCode $ "    cp .env.server.example .env.server",
-            styleText $ "    Fill in your API keys!",
-            styleText $ "",
-            styleText $ "  3. Run the development database (and leave it running):",
-            styleCode $ "    wasp db start",
-            styleText $ "",
-            styleText $ "  4. Open new terminal window (or tab) in that same dir and continue in it.",
-            styleText $ "",
-            styleText $ "  5. Apply initial database migrations:",
-            styleCode $ "    wasp db migrate-dev",
-            styleText $ "",
-            styleText $ "  6. Run wasp seed script that will generate embeddings from the text files in src/shared/docs:",
-            styleCode $ "    wasp db seed",
-            styleText $ "",
-            styleText $ "  7. Last step: run the app!",
-            styleCode $ "    wasp start",
-            styleText $ "",
-            styleText $ "Check the README for more detailed instructions and additional guidance!"
-          ]
-    )
 
 simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
 simpleGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) buildStartingInstructions =
@@ -226,13 +190,13 @@ waspGhOrgName = "wasp-lang"
 --   By tagging templates for each version of Wasp CLI, we ensure that each release of
 --   Wasp CLI uses correct version of templates, that work with it.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = "wasp-v0.16-template"
+waspVersionTemplateGitTag = "wasp-v0.17-template"
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates
 
 readWaspProjectSkeletonFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
 readWaspProjectSkeletonFiles = do
-  skeletonFilesDir <- (</> [reldir|Cli/templates/skeleton|]) <$> Data.getAbsDataDirPath
+  skeletonFilesDir <- (</> [reldir|Cli/starters/skeleton|]) <$> Data.getAbsDataDirPath
   skeletonFilePaths <- listDirectoryDeep skeletonFilesDir
   mapM (\path -> (path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths

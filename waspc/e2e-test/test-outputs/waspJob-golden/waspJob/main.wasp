@@ -1,6 +1,6 @@
 app waspJob {
   wasp: {
-    version: "^0.16.7"
+    version: "^0.17.0"
   },
   title: "waspJob",
   head: [

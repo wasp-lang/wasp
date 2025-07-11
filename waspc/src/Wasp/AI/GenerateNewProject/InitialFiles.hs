@@ -158,7 +158,7 @@ generatePackageJson newProjectDetails =
           "tailwindcss": "^3.2.7"
         },
         "devDependencies": {
-          "typescript": "^5.1.0",
+          "typescript": "5.8.2",
           "vite": "^4.3.9",
           "@types/react": "^18.0.37",
           "prisma": "5.19.1"
