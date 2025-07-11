@@ -12,14 +12,16 @@ module Wasp.Psl.Ast.Model
 where
 
 import Data.Data (Data)
+import Wasp.Psl.Ast.AttachedComment (AttachedComment)
 import Wasp.Psl.Ast.Attribute (Attribute)
 import Wasp.Psl.Ast.Common (Name)
 import Prelude hiding (Enum)
 
-data Model
-  = Model
-      Name
-      Body
+data Model = Model
+  { _modelName :: Name,
+    _modelBody :: Body,
+    _modelAttachedComments :: [AttachedComment]
+  }
   deriving (Show, Eq)
 
 newtype Body = Body [Element]
@@ -37,7 +39,8 @@ data Field = Field
   { _name :: String,
     _type :: FieldType,
     _typeModifiers :: [FieldTypeModifier],
-    _attrs :: [Attribute]
+    _attrs :: [Attribute],
+    _attachedComments :: [AttachedComment]
   }
   deriving (Show, Eq, Data)
 
@@ -61,4 +64,4 @@ data FieldTypeModifier
   deriving (Show, Eq, Data)
 
 getName :: Model -> Name
-getName (Model name _) = name
+getName = _modelName

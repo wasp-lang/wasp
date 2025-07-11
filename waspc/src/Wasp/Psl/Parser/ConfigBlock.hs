@@ -14,6 +14,7 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Parser.Argument (expression)
+import Wasp.Psl.Parser.AttachedComment (withAttachedComments)
 import Wasp.Psl.Parser.Common
   ( braces,
     identifier,
@@ -28,7 +29,7 @@ import Wasp.Psl.Parser.Common
 --   extensions = [hstore(schema: "myHstoreSchema"), pg_trgm, postgis(version: "2.1")]
 -- }
 configBlock :: Parser Psl.ConfigBlock.ConfigBlock
-configBlock = do
+configBlock = withAttachedComments $ do
   configBlockType <-
     choice
       [ try (reserved "datasource" >> return Psl.ConfigBlock.Datasource),
@@ -45,7 +46,7 @@ configBlockBody = braces (many keyValuePair)
 -- provider = "postgresql"
 -- It works for both datasources and generators.
 keyValuePair :: Parser Psl.ConfigBlock.KeyValuePair
-keyValuePair = do
+keyValuePair = withAttachedComments $ do
   key <- identifier
   reserved "="
   value <- expression
