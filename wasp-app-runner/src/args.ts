@@ -1,4 +1,8 @@
-import { Argument, program } from "@commander-js/extra-typings";
+import {
+  Argument,
+  program,
+} from "../node_modules/@commander-js/extra-typings/index.js";
+import packageJson from "../package.json" with { type: "json" };
 import { Branded } from "./types.js";
 
 export type Mode = "dev" | "build";
@@ -13,24 +17,21 @@ export function parseArgs(): {
   const parsedProgram = program
     .name("run-wasp-app")
     .description("Run the Wasp application")
+    .version(packageJson.version)
     .addArgument(
-      new Argument("<mode>", "The run mode").choices(["dev", "build"]),
+      new Argument("mode", "The run mode")
+        .argRequired()
+        .choices(["dev", "build"]),
     )
     .option("--path-to-app <path>", "Path to the Wasp application", ".")
     .option("--wasp-cli-cmd <command>", "Wasp CLI command to use", "wasp")
     .parse();
 
-  if (process.argv.length === 2) {
-    program.help();
-  }
-
-  program.parse();
-
   const options = parsedProgram.opts();
-  const args = parsedProgram.processedArgs;
+  const [mode] = parsedProgram.processedArgs;
 
   return {
-    mode: args[0],
+    mode,
     pathToApp: options.pathToApp as PathToApp,
     waspCliCmd: options.waspCliCmd as WaspCliCmd,
   };
