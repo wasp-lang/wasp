@@ -1,7 +1,4 @@
-import {
-  Argument,
-  program,
-} from "../node_modules/@commander-js/extra-typings/index.js";
+import { Argument, program } from "@commander-js/extra-typings";
 import packageJson from "../package.json" with { type: "json" };
 import { Branded } from "./types.js";
 
