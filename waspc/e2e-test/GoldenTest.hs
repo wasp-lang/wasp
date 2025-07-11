@@ -64,9 +64,9 @@ runGoldenTest goldenTest = do
   callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
   filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentOutputDirAbsFp
-  writeExpectedFilesList currentOutputDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp
-
   filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
+
+  writeExpectedFilesList currentOutputDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
   let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)

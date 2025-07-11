@@ -196,8 +196,7 @@ app MyApp {
 
 ### 6. Upgrade Express dependencies
 
-You should change your `package.json` to use v5 of `express`
-and `@types/express`:
+If you had `express` or `@types/express` in your `package.json`, you should change them to use version 5:
 
 <Tabs>
 <TabItem value="before" label="Before">

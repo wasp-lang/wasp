@@ -5,10 +5,12 @@
   "description": "Wasp TS SDK",
   "author": "wasp",
   "license": "MIT",
-  "bin": "./dist/run.js",
-  "main": "dist/run.js",
+  "bin": "./dist/src/run.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
   },
   "scripts": {
     "build": "tsc",

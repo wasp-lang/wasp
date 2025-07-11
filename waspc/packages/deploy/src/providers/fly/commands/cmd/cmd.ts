@@ -1,7 +1,7 @@
 import { $ } from "zx";
 
 import { waspSays } from "../../../../common/terminal.js";
-import { ensureWaspProjectIsBuilt } from "../../../../common/waspProject.js";
+import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import { CommonOps, getCommonOps } from "../../CommonOps.js";
 import {
   deleteLocalToml,
