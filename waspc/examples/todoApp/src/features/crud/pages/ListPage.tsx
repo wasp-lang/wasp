@@ -65,7 +65,7 @@ export const ListPage = () => {
 
         <div className="space-y-2">
           {isLoading && (
-            <div className="card text-center py-8 text-gray-500">
+            <div className="card py-8 text-center text-gray-500">
               Loading...
             </div>
           )}
@@ -90,7 +90,7 @@ export const ListPage = () => {
 
           {tasks?.length === 0 && (
             <div
-              className="card text-center py-8 text-gray-500"
+              className="card py-8 text-center text-gray-500"
               data-testid="no-tasks-message"
             >
               No tasks yet. Create your first task below.
@@ -99,7 +99,7 @@ export const ListPage = () => {
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">
             Create New Task
           </h2>
           <TaskCreateForm onCreate={handleCreateTask} />
@@ -124,17 +124,17 @@ function TaskView({
         <Link
           to="/crud/:id"
           params={{ id: task.id }}
-          className="text-lg font-medium text-gray-900 hover:text-primary-600 transition-colors"
+          className="hover:text-primary-600 text-lg font-medium text-gray-900 transition-colors"
           data-testid="text"
         >
           {task.description}
         </Link>
-        <p className="text-sm text-gray-500 mt-1" data-testid="created-by">
+        <p className="mt-1 text-sm text-gray-500" data-testid="created-by">
           Created by {getEmail(task.user) ?? "(no email)"}
         </p>
       </div>
 
-      <div className="flex gap-2 pt-2 border-t border-gray-100">
+      <div className="flex gap-2 border-t border-gray-100 pt-2">
         <Button onClick={onEdit} variant="secondary">
           Edit
         </Button>

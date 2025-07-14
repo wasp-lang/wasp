@@ -5,7 +5,7 @@ import { cn } from "../cn";
 
 export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
   return (
-    <div className="flex z-50">
+    <div className="z-50 flex">
       <FeatureListMenu />
 
       <main className="flex-1 lg:ml-0">
@@ -27,7 +27,7 @@ function FeatureListMenu() {
 
 function DesktopFeatureListMenu() {
   return (
-    <div className="hidden lg:block w-80 bg-white border-r border-gray-200 overflow-y-auto">
+    <div className="hidden w-80 overflow-y-auto border-r border-gray-200 bg-white lg:block">
       <div className="p-6">
         <nav className="space-y-2">
           {features.map((feature) => (
@@ -46,11 +46,11 @@ function MobileFeatureListMenu() {
     <>
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 bg-white border-t border-gray-200 lg:hidden transition-transform duration-300",
+          "fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white transition-transform duration-300 lg:hidden",
           isMobileMenuOpen ? "translate-y-0" : "translate-y-full",
         )}
       >
-        <div className="p-6 overflow-y-auto">
+        <div className="overflow-y-auto p-6">
           <nav className="space-y-2">
             {features.map((feature) => (
               <FeatureCard {...feature} key={feature.to} />
@@ -61,18 +61,18 @@ function MobileFeatureListMenu() {
 
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 z-30 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="fixed bottom-6 right-6 z-50 lg:hidden bg-white p-3 rounded-xl shadow-lg border border-gray-200"
+        className="fixed bottom-6 right-6 z-50 rounded-xl border border-gray-200 bg-white p-3 shadow-lg lg:hidden"
       >
         <div className="flex items-center gap-2 text-gray-700">
           <svg
-            className="w-6 h-6"
+            className="h-6 w-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -147,16 +147,16 @@ function FeatureCard({ title, isPublic, ...routeProps }: Feature) {
     <Link
       {...routeProps}
       className={cn(
-        "group relative block p-3 rounded-lg transition-all duration-200 hover:bg-gray-50 border border-transparent",
+        "group relative block rounded-lg border border-transparent p-3 transition-all duration-200 hover:bg-gray-50",
         isActive
-          ? "bg-gray-50 border-gray-200 text-gray-900 hover:bg-gray-50"
+          ? "border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-50"
           : "text-gray-700 hover:text-gray-900",
       )}
     >
       <div className="flex items-center gap-2">
-        <h3 className="font-medium text-sm leading-tight">{title}</h3>
+        <h3 className="text-sm font-medium leading-tight">{title}</h3>
         {isPublic && (
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">
+          <span className="inline-flex items-center rounded bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700">
             Public
           </span>
         )}

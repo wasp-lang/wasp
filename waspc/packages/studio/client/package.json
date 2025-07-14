@@ -17,7 +17,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.8.3",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

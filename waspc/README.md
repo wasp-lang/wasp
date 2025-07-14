@@ -156,7 +156,7 @@ When done, new tab in your browser should open and you will see a Todo App!
    - NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
-   Rinse and repeat. If you're an internal team member, posptpone updating e2e tests until approval (see [here](#note-for-team-members)).
+   Rinse and repeat. If you're an internal team member, postpone updating e2e tests until approval (see [here](#note-for-team-members)).
 4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `./run test` to confirm that all the tests are passing (unit + integration + e2e). If needed, accept changes in the e2e golden/snapshot tests with `./run test:e2e:accept-all`. Check "Tests" for more info.
@@ -168,7 +168,15 @@ When done, new tab in your browser should open and you will see a Todo App!
 
 ### Note for team members
 
-Don't update e2e tests until someone approves the PR. They slow down the UI and create noise for the reviewers.
+Do not update e2e tests until your PR is approved.
+
+Running the e2e tests and accepting them prematurely:
+
+- Slows down the UI.
+- Creates noise for the reviewers.
+- Makes it less likely that you'll thoroughly check the final diffs after all review iterations.
+
+**Carefully review e2e test diffs before accepting them** (see [End-to-end (e2e) tests](#end-to-end-e2e-tests) for more details).
 
 ## Design docs (aka RFCs)
 
@@ -221,6 +229,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - cli/exe/ -> thin executable wrapper around cli library code
 - test/, e2e-test/, cli/test/ -> tests
 - data/Generator/templates/ -> mustache templates for the generated client/server.
+- data/Cli/starters/ -> starter templates for new projects
 - examples/ -> example apps
 
 ### Typescript packages
@@ -277,7 +286,7 @@ To run Playwright/headless tests on the example apps, you can do `/run test:head
 Besides unit tests, we have e2e tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
 
 This means that when you make a change in your code that modifies the generated code, e2e tests will fail while showing a diff between the new generated code and the previous (golden) one.
-This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. If you notice something unexpected or weird, you have an opportunity to fix it.
+This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. **It is the PR author's (or the reviewers for outside contributions) responsibility to carefully review these diffs.** Do not blindly accept changes, ensure they align with your intended modifications. If you notice something unexpected or weird, you have an opportunity to fix it.
 Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass. Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
 Easiest way to do this is to go to `e2e-test/test-outputs/` dir, delete all the directories ending with `-golden/`, and then re-run e2e tests -> since there are no golden outputs, the new outputs will be used as new golden outputs and that is it. After that you commit that to git and you are done.
 
@@ -387,6 +396,21 @@ During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
 If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
 
+We also have a workflow for deploying example apps to Fly.io (`deploy-examples.yml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
+
+You can run this workflow:
+
+- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/deploy-examples.yml (click "Run workflow" and select the `release` branch)
+- **From GitHub CLI**:
+
+  ```bash
+  # Deploy with latest Wasp version
+  gh workflow run deploy-examples.yml --ref release
+  
+  # Deploy with specific Wasp version
+  gh workflow run deploy-examples.yml --ref release -f version=0.13.2
+  ```
+
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
 
 We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will check that everything is all right, create appropriate tag and push it, therefore triggering CI to create new release on Github.
@@ -424,6 +448,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
 - 👉 Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
+- Deploy the example apps to Fly.io by running the [deploy-examples workflow](/.github/workflows/deploy-examples.yml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If you published new docs, rerun the Algolia Crawler to update the search index. If you published a new version of the docs, the search won't work until you do this.
   - To do this, go to https://crawler.algolia.com/admin and click "Restart crawling" under the "wasp-lang" crawler.

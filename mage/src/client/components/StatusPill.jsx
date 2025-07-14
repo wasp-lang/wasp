@@ -12,11 +12,11 @@ export function StatusPill({ children, status, className = "", sm = false }) {
   return (
     <div className={`flex items-center ${className}`}>
       <span
-        className={`text-center inline-flex items-center rounded-lg shadow-md ${statusToClassName[status]} ${
+        className={`inline-flex items-center rounded-lg text-center shadow-md ${statusToClassName[status]} ${
           sm ? "py-1 pl-2 pr-2" : "py-2 pl-3 pr-4"
         }`}
       >
-        <span className="w-1.5 h-1.5 rounded-full mr-2 bg-current"></span>
+        <span className="mr-2 h-1.5 w-1.5 rounded-full bg-current"></span>
         {children}
       </span>
     </div>

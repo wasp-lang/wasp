@@ -22,10 +22,7 @@ const Feature = ({ title, description, url }) => (
 const TextLink = ({ url, label }) => (
   <Link to={url}>
     <span
-      className={`
-        mt-3 block cursor-pointer text-sm
-        text-neutral-600 hover:text-neutral-500
-      `}
+      className={`mt-3 block cursor-pointer text-sm text-neutral-600 hover:text-neutral-500`}
     >
       <div className="group flex items-center gap-1">
         <span>{label}</span>

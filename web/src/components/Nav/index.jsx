@@ -29,12 +29,7 @@ const Nav = () => {
       href={url}
       target="_blank"
       rel="noreferrer"
-      className={`
-        hidden
-        border-b-2 border-transparent py-5 text-neutral-700
-        hover:border-yellow-500 hover:text-yellow-500
-        hover:opacity-75 lg:flex
-      `}
+      className={`hidden border-b-2 border-transparent py-5 text-neutral-700 hover:border-yellow-500 hover:text-yellow-500 hover:opacity-75 lg:flex`}
     >
       <Icon />
     </a>
@@ -66,21 +61,10 @@ const Nav = () => {
       href="https://github.com/wasp-lang/wasp"
       target="_blank"
       rel="noreferrer"
-      className={`
-        group hidden items-center
-        space-x-2
-        rounded px-2.5 py-1
-        text-xs transition duration-200 ease-out hover:bg-neutral-200
-        lg:flex
-      `}
+      className={`group hidden items-center space-x-2 rounded px-2.5 py-1 text-xs transition duration-200 ease-out hover:bg-neutral-200 lg:flex`}
     >
       <div
-        className={`
-          flex h-3 w-3 items-center justify-center
-          text-neutral-700 group-hover:h-4
-          group-hover:w-4
-          group-hover:text-yellow-500
-        `}
+        className={`flex h-3 w-3 items-center justify-center text-neutral-700 group-hover:h-4 group-hover:w-4 group-hover:text-yellow-500`}
       >
         <Star strokeWidth={2} />
       </div>
@@ -94,11 +78,7 @@ const Nav = () => {
       onClick={() => toggleFlyOut()}
     >
       <button
-        className={`
-          inline-flex items-center rounded-md
-          p-2 hover:bg-gray-50
-          focus:outline-none focus:ring-2 focus:ring-inset focus:ring-yellow-500
-        `}
+        className={`inline-flex items-center rounded-md p-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-yellow-500`}
       >
         <span className="sr-only">Open menu</span>
 
@@ -129,23 +109,9 @@ const Nav = () => {
       <div className="sticky top-0 z-50">
         <div className="absolute top-0 h-full w-full bg-[#f5f4f0] opacity-80"></div>
         <nav className="border-b backdrop-blur-sm">
-          <div
-            className="
-              relative mx-auto
-              flex h-16
-              justify-between
-              lg:container lg:px-16 xl:px-20
-            "
-          >
+          <div className="relative mx-auto flex h-16 justify-between lg:container lg:px-16 xl:px-20">
             <HamburgerButton toggleFlyOut={() => setOpen(true)} />
-            <div
-              className="
-                flex flex-1
-                items-center justify-center
-                sm:items-stretch
-                lg:justify-between
-              "
-            >
+            <div className="flex flex-1 items-center justify-center sm:items-stretch lg:justify-between">
               <div className="flex items-center">
                 {" "}
                 {/* Navbar left side */}
@@ -156,13 +122,7 @@ const Nav = () => {
                   {/* Docs */}
                   <Link to="/docs">
                     <span
-                      className={`
-                        border-b-solid border-b-2
-                        border-transparent
-                        px-1 py-5
-                        text-sm font-semibold text-neutral-700
-                        hover:border-yellow-500 hover:text-yellow-500
-                      `}
+                      className={`border-b-solid border-b-2 border-transparent px-1 py-5 text-sm font-semibold text-neutral-700 hover:border-yellow-500 hover:text-yellow-500`}
                     >
                       Docs
                     </span>
@@ -170,13 +130,7 @@ const Nav = () => {
                   {/* Blog */}
                   <Link to="/blog">
                     <span
-                      className={`
-                        border-b-2 border-transparent
-                        px-1
-                        py-5 text-sm
-                        font-semibold text-neutral-700
-                        hover:border-yellow-500 hover:text-yellow-500
-                      `}
+                      className={`border-b-2 border-transparent px-1 py-5 text-sm font-semibold text-neutral-700 hover:border-yellow-500 hover:text-yellow-500`}
                     >
                       Blog
                     </span>
@@ -184,13 +138,7 @@ const Nav = () => {
                   {/* FAQ */}
                   <Link to="#faq">
                     <span
-                      className={`
-                        border-b-2 border-transparent
-                        px-1
-                        py-5 text-sm
-                        font-medium text-neutral-700
-                        hover:border-yellow-500 hover:text-yellow-500
-                      `}
+                      className={`border-b-2 border-transparent px-1 py-5 text-sm font-medium text-neutral-700 hover:border-yellow-500 hover:text-yellow-500`}
                     >
                       FAQ
                     </span>
@@ -198,17 +146,10 @@ const Nav = () => {
                   {/* Join newsletter */}
                   <Link to="#signup">
                     <span
-                      className={`
-                        border-b-2 border-transparent
-                        px-1 py-5
-                        text-sm font-medium
-                      `}
+                      className={`border-b-2 border-transparent px-1 py-5 text-sm font-medium`}
                     >
                       <span
-                        className={`
-                          rounded
-                          bg-yellow-500/25 px-2 py-1 text-neutral-700 hover:bg-yellow-500/10
-                        `}
+                        className={`rounded bg-yellow-500/25 px-2 py-1 text-neutral-700 hover:bg-yellow-500/10`}
                       >
                         📬 Join the list
                       </span>
@@ -232,13 +173,7 @@ const Nav = () => {
                 <GitHubButton />
                 <Link to="/docs/quick-start">
                   <button
-                    className={`
-                      hidden rounded bg-yellow-500
-                      px-2.5 py-1 text-xs
-                      text-white transition
-                      duration-200
-                      ease-out hover:bg-yellow-400 lg:block
-                    `}
+                    className={`hidden rounded bg-yellow-500 px-2.5 py-1 text-xs text-white transition duration-200 ease-out hover:bg-yellow-400 lg:block`}
                   >
                     Get Started
                   </button>
@@ -274,19 +209,14 @@ const Nav = () => {
           >
             <div
               ref={navSidebarRef}
-              className={`
-                fixed -inset-y-0 z-50 h-screen w-screen transform overflow-y-scroll bg-white p-4 md:p-8
-              `}
+              className={`fixed -inset-y-0 z-50 h-screen w-screen transform overflow-y-scroll bg-white p-4 md:p-8`}
             >
               <div className="absolute right-4 top-4 items-center justify-between">
                 <div className="-mr-2">
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className={`
-                      inline-flex items-center justify-center rounded-md bg-white
-                      p-2 text-neutral-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset
-                    `}
+                    className={`inline-flex items-center justify-center rounded-md bg-white p-2 text-neutral-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset`}
                   >
                     <span className="sr-only">Close menu</span>
                     <svg
@@ -340,10 +270,7 @@ const Nav = () => {
                 <div className="space-y-1 pb-4 pt-2">
                   <Link to="#signup" onClick={() => setOpen(false)}>
                     <span
-                      className={`
-                        block rounded bg-yellow-500/25 px-2 py-1 pl-3
-                        pr-4 text-base font-medium text-neutral-700 hover:bg-yellow-500/10
-                    `}
+                      className={`block rounded bg-yellow-500/25 px-2 py-1 pl-3 pr-4 text-base font-medium text-neutral-700 hover:bg-yellow-500/10`}
                     >
                       📬 Join the list
                     </span>

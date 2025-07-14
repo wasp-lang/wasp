@@ -8,7 +8,7 @@ import { customisationProps } from "./auth-ui";
 const Signup = () => {
   return (
     <FeatureContainer>
-      <div className="max-w-sm mx-auto">
+      <div className="mx-auto max-w-sm">
         <SignupForm
           {...customisationProps}
           additionalFields={[
