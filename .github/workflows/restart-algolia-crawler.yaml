@@ -2,6 +2,7 @@ name: Restart Algolia Crawler
 
 on:
   workflow_dispatch:
+  # TEMP SO I CAN ACTUALLY TEST THIS!!!
   pull_request:
     branches:
       - main
@@ -16,9 +17,23 @@ jobs:
     steps:
       - name: Restart Algolia Crawler
         run: |
+          # Check if secrets are available
+          if [ -z "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}" ] || [ -z "${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" ] || [ -z "${{ secrets.ALGOLIA_CRAWLER_ID }}" ]; then
+            echo "Error: Missing required secrets"
+            exit 1
+          fi
+          
           AUTH_TOKEN=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
           
-          curl -X POST \
+          # Test connectivity first
+          echo "Testing connectivity to Algolia API..."
+          curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "https://crawler.algolia.com" || echo "Connection test failed"
+          
+          # Make the API request with better error handling
+          echo "Sending reindex request..."
+          curl -v -X POST \
+            --connect-timeout 30 \
+            --max-time 60 \
             -H "Authorization: Basic $AUTH_TOKEN" \
             -H "Content-Type: application/json" \
             -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
