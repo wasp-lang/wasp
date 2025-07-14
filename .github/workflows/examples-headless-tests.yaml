@@ -140,7 +140,6 @@ jobs:
       - name: Debug Provider Value
         run: |
           echo "Provider output: '${{ steps.extract-db-provider.outputs.provider }}'"
-          echo "Length: ${{ length(steps.extract-db-provider.outputs.provider) }}"
           echo "Equals sqlite: ${{ steps.extract-db-provider.outputs.provider == 'sqlite' }}"
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
