@@ -112,9 +112,16 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+              "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
+  where
+    dependencyOverrides =
+      Npm.Dependency.fromList
+        [ -- TODO: remove this once Rollup fixes their lastest version https://github.com/rollup/rollup/issues/6012
+          ("rollup", "4.44.0")
+        ]
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
