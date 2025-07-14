@@ -2,9 +2,9 @@ import { LinkGrid } from "@site/src/components/LinkGrid";
 
 const deploymentMethods = [
   {
-    title: "Wasp CLI",
+    title: "Wasp Deploy",
     description: "One command deployment & redeployment",
-    linkTo: "./cli",
+    linkTo: "./wasp-deploy/overview",
   },
   {
     title: "Platform as a Service (PaaS)",
