@@ -123,8 +123,9 @@ jobs:
           DATABASE_PROVIDER=$(wasp-cli info \
             | grep "Database system" \
             | sed 's/.*: //' \
-            | sed -e 's/\x1b\[[0-9;]*m//g' \
+            | sed -e 's/\x1b\[[0-9;]*m//g' \  # Strip ANSI escape codes
             | tr '[:upper:]' '[:lower:]')
+
           if [ -z "$DATABASE_PROVIDER" ]; then
             echo "ERROR: Could not determine database system from wasp-cli info"
             exit 1
