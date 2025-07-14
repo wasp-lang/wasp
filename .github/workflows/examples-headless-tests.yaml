@@ -68,7 +68,7 @@ jobs:
     name: Setup and Cache Wasp CLI
     runs-on: ubuntu-22.04
     outputs:
-      wasp-cli-cache-key: wasp-cli-${{ runner.os }}-${{ hashFiles('waspc/**/*.hs', 'waspc/**/*.cabal', 'waspc/cabal.project', 'waspc/data/**') }}
+      wasp-cli-cache-key: ${{ steps.cache-wasp-artifacts.outputs.cache-primary-key }}
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -120,6 +120,10 @@ jobs:
           # Workaround for a Github Checkout action bug
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Debug cache key
+        run: |
+          echo "Cache key: '${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}'"
 
       - name: Restore Wasp CLI Artifacts
         uses: actions/cache/restore@v4
