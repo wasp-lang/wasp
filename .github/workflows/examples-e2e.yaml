@@ -32,6 +32,12 @@ jobs:
     outputs:
       playwright-version: ${{ steps.get-playwright-version.outputs.version }}
     steps:
+      - uses: "actions/checkout@v4"
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
