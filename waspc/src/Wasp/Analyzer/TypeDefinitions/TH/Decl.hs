@@ -188,7 +188,7 @@ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
           { dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
             dtBodyType = $bodyTypeE,
             dtEvaluate = \typeDefs bindings declName declBodyExpr ->
-              makeDecl @ $(conT typeName) declName <$> declEvaluate typeDefs bindings declBodyExpr
+              $(appTypeE' [|makeDecl|] (ConT typeName)) declName <$> declEvaluate typeDefs bindings declBodyExpr
           }
         |],
     genVal 'declEvaluate evaluateE
@@ -199,6 +199,12 @@ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
 type WaspTypeExpQ = ExpQ
 
 type EvaluationExpQ = ExpQ
+
+-- | Helper function to create type applications in Template Haskell
+appTypeE' :: ExpQ -> Type -> ExpQ
+appTypeE' expr typ = appTypeE'' <$> expr <*> pure typ
+  where
+    appTypeE'' e t = AppTypeE e t
 
 -- | For a given Haskell type @typ@, generates two TH expressions:
 -- one that is a Wasp @Type@, and another that is @Evaluation@ that evaluates from that Wasp @Type@
@@ -218,19 +224,19 @@ genWaspTypeAndEvaluationForHaskellType typ =
     KJSON -> return ([|T.QuoterType "json"|], [|E.json|])
     KDeclRef t ->
       return
-        ( [|T.DeclType $ dtName $ declType @ $(pure t)|],
-          [|E.declRef @ $(pure t)|]
+        ( [|T.DeclType $ dtName $ $(appTypeE' [|declType|] t)|],
+          [|$(appTypeE' [|E.declRef|] t)|]
         )
     KEnum ->
       return
-        ( [|T.EnumType $ etName $ enumType @ $(pure typ)|],
-          [|E.enum @ $(pure typ)|]
+        ( [|T.EnumType $ etName $ $(appTypeE' [|enumType|] typ)|],
+          [|$(appTypeE' [|E.enum|] typ)|]
         )
     KRecord dataConName fields -> genDictWaspTypeAndEvaluationForRecord dataConName fields
     KCustomEvaluation ->
       return
-        ( [|HasCustomEvaluation.waspType @ $(pure typ)|],
-          [|HasCustomEvaluation.evaluation @ $(pure typ)|]
+        ( [|$(appTypeE' [|HasCustomEvaluation.waspType|] typ)|],
+          [|$(appTypeE' [|HasCustomEvaluation.evaluation|] typ)|]
         )
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
