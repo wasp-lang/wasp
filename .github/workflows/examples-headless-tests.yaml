@@ -77,9 +77,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: ./.github/actions/setup-haskell
-        ghc-version: "8.10.7"
-        cabal-version: "3.6.2.0"
-        cabal-project-dir: waspc
+        with:
+          ghc-version: "8.10.7"
+          cabal-version: "3.6.2.0"
+          cabal-project-dir: waspc
 
       - uses: actions/setup-node@v4
         with:
