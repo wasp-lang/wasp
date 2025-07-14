@@ -6,6 +6,7 @@ module Wasp.Env
     EnvVarValue,
     parseDotEnvFile,
     envVarsToDotEnvContent,
+    formatEnvVarValue,
   )
 where
 
@@ -32,18 +33,16 @@ parseDotEnvFile envFile =
     `catch` \(ErrorCall msg) -> throwIO $ userError $ "Failed to parse dot env file: " <> msg
 
 -- | Formats environment variables for .env file content.
--- Only quotes values when necessary (e.g., when they contain spaces).
--- This preserves JSON strings and other values without unnecessary escaping.
 envVarsToDotEnvContent :: [EnvVar] -> T.Text
 envVarsToDotEnvContent vars =
   T.pack $ intercalate "\n" $ map formatEnvVar vars
   where
-    formatEnvVar (name, value) = name <> "=" <> formatEnvValue value
+    formatEnvVar (name, value) = name <> "=" <> formatEnvVarValue value
 
-    formatEnvValue value
-      | needsQuoting value = "\"" <> value <> "\""
-      | otherwise = value
-
-    -- Only quote values that contain spaces (but not empty values)
-    -- This preserves JSON strings, URLs, and other complex values
-    needsQuoting value = ' ' `elem` value
+formatEnvVarValue :: EnvVarValue -> EnvVarValue
+formatEnvVarValue rawValue
+  | needsQuoting rawValue = concat ["\"", rawValue, "\""]
+  | otherwise = rawValue
+  where
+    needsQuoting :: String -> Bool
+    needsQuoting val = ' ' `elem` val
