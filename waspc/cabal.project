@@ -1,4 +1,4 @@
-with-compiler: ghc-9.0.2
+with-compiler: ghc-9.6.7
 
 packages: .
 
@@ -23,10 +23,11 @@ test-show-details: direct
 tests: True
 
 -- WARNING: Run cabal update if your local package index is older than this date.
-index-state: 2025-01-01T00:00:00Z
+index-state: 2024-12-01T00:00:00Z
 
--- Allow newer versions of stm-hamt to work around GHC 9.0.2 compatibility issues
-allow-newer: stm-hamt:base, strong-path:hashable
+-- Allow newer versions of packages for GHC 9.6.7 compatibility
+allow-newer: *:base, *:template-haskell, *:ghc-boot-th, strong-path:hashable, mustache:aeson
 
 constraints: 
-  stm-hamt == 1.2.1
+  stm-hamt == 1.2.1,
+  hashable >= 1.3.5.0
