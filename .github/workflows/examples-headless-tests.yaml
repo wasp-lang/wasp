@@ -38,10 +38,6 @@ jobs:
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-
       - name: Get Playwright Version from Waspello Example App
         id: get-playwright-version
         working-directory: examples/waspello
@@ -57,6 +53,11 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ steps.get-playwright-version.outputs.version }}
           lookup-only: true
+
+      - uses: actions/setup-node@v4
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+        with:
+          node-version: lts/*
 
       - name: Setup Playwright
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
@@ -119,16 +120,6 @@ jobs:
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-
-      - name: Restore Playwright Browsers Cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
-
       - name: Restore Wasp CLI Artifacts
         uses: actions/cache/restore@v4
         with:
@@ -142,6 +133,16 @@ jobs:
           chmod +x wasp-bin
           ln -s wasp-bin wasp-cli
           echo "$PWD" >> $GITHUB_PATH
+
+      - name: Restore Playwright Browsers Cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
 
       - name: Set up Wasp App runner
         run: npm i -g @wasp.sh/wasp-app-runner
