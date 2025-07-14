@@ -105,8 +105,8 @@ export const serverMiddlewareFn = (middlewareConfig) => {
 }
 ```
 </TabItem>
-<TabItem value="ts" label="TypeScript">
 
+<TabItem value="ts" label="TypeScript">
 
 ```wasp {6} title=main.wasp
 app todoApp {
@@ -132,6 +132,9 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
 </TabItem>
 </Tabs>
 
+You are able to manipulate the `middlewareConfig` `Map` here as much as you want: delete entries, add entries, ... . Or construct a completely new Map. But keep in mind that you could easily mess up how the Wasp app works, as some of the middleware is expected and required. Check above for more info on each preset middleware.
+
+Middleware from the `middlewareConfig` `Map` will be applied in the order of `Map` entries iteration, which is the order of entry insertion.
 
 ## 2. Customize `api`-specific Middleware
 
