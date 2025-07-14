@@ -128,10 +128,6 @@ jobs:
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Debug cache key
-        run: |
-          echo "Cache key: '${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}'"
-
       - name: Restore Wasp CLI Artifacts
         uses: actions/cache/restore@v4
         with:
@@ -143,7 +139,7 @@ jobs:
           cd waspc/artifacts
           tar -xzf wasp.tar.gz
           chmod +x wasp-bin
-          ln -s wasp-bin wasp-cli
+          cp wasp-bin wasp-cli
           echo "$PWD" >> $GITHUB_PATH
 
       - name: Restore Playwright Browsers Cache
