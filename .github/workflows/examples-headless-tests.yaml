@@ -64,11 +64,19 @@ jobs:
         run: |
           npx playwright install --with-deps
 
-  setup-and-cache-wasp-cli:
-    name: Setup and Cache Wasp CLI
+  test-example-apps:
+    name: Test Example Apps
     runs-on: ubuntu-22.04
-    outputs:
-      wasp-cli-cache-key: ${{ steps.generate-cache-key.outputs.cache-key }}
+    needs: setup-and-cache-playwright
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - tutorials/TodoApp
+          - tutorials/TodoAppTs
+          - waspello
+          - waspleau
+          - websockets-realtime-voting
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -86,71 +94,17 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Generate Cache Key
-        id: generate-cache-key
-        run: |
-          CACHE_KEY="wasp-cli-${{ runner.os }}-${{ hashFiles('waspc/**/*.hs', 'waspc/**/*.cabal', 'waspc/cabal.project', 'waspc/data/**') }}"
-          echo "cache-key=$CACHE_KEY" >> $GITHUB_OUTPUT
-
-      - name: Cache Wasp CLI Artifacts
-        id: cache-wasp-artifacts
-        uses: actions/cache@v4
-        with:
-          path: waspc/artifacts
-          key: ${{ steps.generate-cache-key.outputs.cache-key }}
-          lookup-only: true
-
       - name: Build and package
         if: steps.cache-wasp-artifacts.outputs.cache-hit != 'true'
         working-directory: waspc
         run: |
-          ./run build:all
-          mkdir -p artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp.tar.gz"
-
-  test-example-apps:
-    name: Test Example Apps
-    runs-on: ubuntu-22.04
-    needs: [setup-and-cache-playwright, setup-and-cache-wasp-cli]
-    strategy:
-      fail-fast: false
-      matrix:
-        example:
-          - tutorials/TodoApp
-          - tutorials/TodoAppTs
-          - waspello
-          - waspleau
-          - websockets-realtime-voting
-    steps:
-      - uses: "actions/checkout@v4"
-        with:
-          # Workaround for a Github Checkout action bug
-          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Restore Wasp CLI Artifacts
-        uses: actions/cache/restore@v4
-        with:
-          key: ${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}
-          path: waspc/artifacts
-
-      - name: Setup Wasp CLI
-        run: |
-          cd waspc/artifacts
-          tar -xzf wasp.tar.gz
-          chmod +x wasp-bin
-          cp wasp-bin wasp-cli
-          echo "$PWD" >> $GITHUB_PATH
+          ./run install
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
         with:
           key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
           path: ~/.cache/ms-playwright
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
 
       - name: Set up Wasp App runner
         run: npm i -g @wasp.sh/wasp-app-runner
