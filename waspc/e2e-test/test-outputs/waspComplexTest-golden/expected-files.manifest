@@ -663,6 +663,7 @@ waspComplexTest/.wasp/out/web-app/index.html
 waspComplexTest/.wasp/out/web-app/netlify.toml
 waspComplexTest/.wasp/out/web-app/package-lock.json
 waspComplexTest/.wasp/out/web-app/package.json
+waspComplexTest/.wasp/out/web-app/public/.gitkeep
 waspComplexTest/.wasp/out/web-app/public/favicon.ico
 waspComplexTest/.wasp/out/web-app/public/manifest.json
 waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCallback.tsx
@@ -689,6 +690,7 @@ waspComplexTest/.wasproot
 waspComplexTest/main.wasp
 waspComplexTest/package-lock.json
 waspComplexTest/package.json
+waspComplexTest/public/.gitkeep
 waspComplexTest/public/favicon.ico
 waspComplexTest/schema.prisma
 waspComplexTest/src/Main.css
