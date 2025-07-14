@@ -22,6 +22,8 @@
     "strict": true,
     // Allow default imports.
     "esModuleInterop": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
     "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "allowJs": true,

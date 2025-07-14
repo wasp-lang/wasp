@@ -8,11 +8,15 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
+    "dev": "npx tsc --watch",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.5.3",
     "commander": "^13.1.0",
+    "semver": "^7.7.2",
     "toml": "^3.0.0",
+    "zod": "^3.24.4",
     "zx": "^8.3.2"
   },
   "devDependencies": {

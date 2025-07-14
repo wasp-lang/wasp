@@ -41,8 +41,10 @@ test.describe("auth and cast a vote", () => {
 
     await page.locator("button:has-text('Vote')").first().click();
 
-    const card = await page.locator(".card").first();
-    await expect(card.locator(".username").last()).toContainText(username);
+    const card = page.locator(".card").first();
+    await expect(
+      card.locator(".username").filter({ hasText: username }),
+    ).toBeVisible();
     await expect(card.locator("button")).toHaveText("Voted");
     await expect(card.locator("button")).toBeDisabled();
     await expect(card.locator(".votes-count")).not.toContainText("0 / 0");

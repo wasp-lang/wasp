@@ -10,10 +10,10 @@ import { Title } from "./Title";
 
 export function Header({ children, currentStatus }) {
   return (
-    <div className="mb-4 bg-slate-50 p-8 rounded-xl md:flex justify-between items-center">
+    <div className="mb-4 items-center justify-between rounded-xl bg-slate-50 p-8 md:flex">
       <Title />
       <div className="flex flex-col items-end gap-2">
-        <div className="flex items-center gap-3 m-1">{children}</div>
+        <div className="m-1 flex items-center gap-3">{children}</div>
         {!!currentStatus && (
           <StatusPill status={currentStatus.status} className="hidden md:flex">
             {currentStatus.message}
@@ -42,7 +42,7 @@ export function ProfileButton({ setIsLoginModalOpen }) {
 
   return (
     <button
-      className="relative group"
+      className="group relative"
       onClick={() => {
         if (!user) {
           setIsLoginModalOpen(true);
@@ -51,7 +51,7 @@ export function ProfileButton({ setIsLoginModalOpen }) {
         }
       }}
     >
-      <BiSolidUser className="w-5 h-5 text-slate-600" />
+      <BiSolidUser className="h-5 w-5 text-slate-600" />
       <ToolTip>Profile</ToolTip>
     </button>
   );
@@ -59,9 +59,9 @@ export function ProfileButton({ setIsLoginModalOpen }) {
 
 export function HomeButton() {
   return (
-    <button className="relative group">
+    <button className="group relative">
       <Link to="/">
-        <BiSolidHome className="w-5 h-5 text-slate-600" />
+        <BiSolidHome className="h-5 w-5 text-slate-600" />
         <ToolTip>Home</ToolTip>
       </Link>
     </button>
@@ -70,7 +70,7 @@ export function HomeButton() {
 
 function ToolTip({ children }) {
   return (
-    <div className="absolute text-center whitespace-nowrap bg-slate-600 text-white text-xs rounded py-1 px-4 bottom-100 left-1/2 transform -translate-x-1/2 translate-y-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all ease-in-out duration-275">
+    <div className="bottom-100 duration-275 invisible absolute left-1/2 -translate-x-1/2 translate-y-1 transform whitespace-nowrap rounded bg-slate-600 px-4 py-1 text-center text-xs text-white opacity-0 transition-all ease-in-out group-hover:visible group-hover:opacity-100">
       {children}
     </div>
   );

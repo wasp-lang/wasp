@@ -38,16 +38,12 @@ const EmailAndPassForm = (props) => {
           onChange={(e) => setPass(e.target.value)}
         />
         {errorMessage && (
-          <div className="w-full text-center mt-4 border border-red-500 bg-red-100 text-red-700 rounded px-2 py-1">
+          <div className="mt-4 w-full rounded border border-red-500 bg-red-100 px-2 py-1 text-center text-red-700">
             {errorMessage}
           </div>
         )}
         <input
-          className={`
-            bg-yellow-500 h-10 mt-3
-            text-white text-sm font-bold
-            hover:bg-yellow-400
-          `}
+          className={`mt-3 h-10 bg-yellow-500 text-sm font-bold text-white hover:bg-yellow-400`}
           type="submit"
           value={submitButtonLabel}
         />

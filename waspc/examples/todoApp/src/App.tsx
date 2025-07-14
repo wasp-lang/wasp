@@ -19,7 +19,7 @@ export function App() {
   const { data: user } = useAuth();
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] min-h-screen bg-gray-50">
+    <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-gray-50">
       <Header user={user} />
 
       <Outlet />
@@ -33,11 +33,11 @@ function Header({ user }: { user: AuthUser | null | undefined }) {
   const appName = env.REACT_APP_NAME;
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
               <Link
                 to="/"
                 className="hover:text-primary-600 transition-colors duration-200"
@@ -72,9 +72,9 @@ function Footer() {
   const { isConnected } = useSocket();
 
   return (
-    <footer className="bg-white border-t border-gray-200">
+    <footer className="border-t border-gray-200 bg-white">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+        <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
           <div className="flex items-center space-x-2">
             <span className="text-gray-600">Created with</span>
             <a
@@ -113,13 +113,13 @@ function UserMenu({ user }: { user: AuthUser }) {
   const name = getName(user);
   return (
     <div className="flex items-center space-x-4">
-      <div className="hidden md:flex items-center space-x-2">
+      <div className="hidden items-center space-x-2 md:flex">
         <UserAvatar user={user} />
         <div className="flex flex-col">
           <span className="text-sm text-gray-600">Welcome back,</span>
           <Link
             to="/profile"
-            className="text-sm font-medium text-gray-900 hover:text-primary-600 transition-colors"
+            className="hover:text-primary-600 text-sm font-medium text-gray-900 transition-colors"
           >
             {name}
           </Link>
@@ -148,11 +148,11 @@ function UserAvatar({
   return (
     <div
       className={cn(
-        "w-8 h-8 bg-primary-100 border border-primary-300 rounded-full flex items-center justify-center",
+        "bg-primary-100 border-primary-300 flex h-8 w-8 items-center justify-center rounded-full border",
         className,
       )}
     >
-      <span className="text-primary-600 font-medium text-sm">
+      <span className="text-primary-600 text-sm font-medium">
         {name?.charAt(0).toUpperCase()}
       </span>
     </div>
@@ -171,7 +171,7 @@ function StatusInfo({
       <div className="flex items-center space-x-2">
         <div
           className={cn(
-            "w-2 h-2 rounded-full",
+            "h-2 w-2 rounded-full",
             isConnected && "bg-green-500",
             !isConnected && "bg-red-500",
           )}

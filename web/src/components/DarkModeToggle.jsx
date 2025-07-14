@@ -14,23 +14,12 @@ const DarkModeToggle = () => {
       <button
         type="button"
         aria-pressed="false"
-        className={`
-          relative mx-3
-          inline-flex h-6 w-11 flex-shrink-0 cursor-pointer
-          rounded-full border-2 border-transparent
-          bg-neutral-500
-          transition-colors duration-200 ease-in-out focus:outline-none
-        `}
+        className={`relative mx-3 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-neutral-500 transition-colors duration-200 ease-in-out focus:outline-none`}
         onClick={() => toggleDarkMode()}
       >
         <span
           aria-hidden="true"
-          className={`
-            ${isDarkMode ? "translate-x-5" : "translate-x-0"}
-            inline-block h-5 w-5
-            transform rounded-full bg-white shadow-lg
-            ring-0 transition duration-200 ease-in-out
-          `}
+          className={` ${isDarkMode ? "translate-x-5" : "translate-x-0"} inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
         />
       </button>
 

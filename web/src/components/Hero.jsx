@@ -30,14 +30,7 @@ const ActionButtons = () => (
   <div className="flex items-center gap-2">
     <Link to="/docs/quick-start">
       <button
-        className={`
-          inline-flex items-center space-x-2
-          rounded border border-yellow-500
-          bg-yellow-500 px-3 py-2 text-sm
-          leading-4 text-white transition
-          duration-200
-          ease-out hover:border-yellow-400 hover:bg-yellow-400
-        `}
+        className={`inline-flex items-center space-x-2 rounded border border-yellow-500 bg-yellow-500 px-3 py-2 text-sm leading-4 text-white transition duration-200 ease-out hover:border-yellow-400 hover:bg-yellow-400`}
       >
         <Terminal size={16} />
         <span>{"Get Started"}</span>
@@ -46,15 +39,7 @@ const ActionButtons = () => (
 
     <Link to="/docs">
       <button
-        className={`
-          inline-flex items-center space-x-2
-          rounded border border-neutral-500
-          px-3 py-2
-          text-sm leading-4
-          text-neutral-700
-          transition duration-200
-          ease-out hover:border-neutral-400 hover:text-neutral-400
-        `}
+        className={`inline-flex items-center space-x-2 rounded border border-neutral-500 px-3 py-2 text-sm leading-4 text-neutral-700 transition duration-200 ease-out hover:border-neutral-400 hover:text-neutral-400`}
       >
         <BookOpen size={16} />
         <span>Documentation</span>
@@ -106,10 +91,7 @@ query getTasks {
           {/* Hero title and subtitle */}
           <div>
             <h1
-              className={`
-                text-4xl font-extrabold text-neutral-700
-                lg:text-5xl lg:leading-tight
-              `}
+              className={`text-4xl font-extrabold text-neutral-700 lg:text-5xl lg:leading-tight`}
             >
               Develop full-stack web apps{" "}
               <span className="underline decoration-yellow-500">faster</span>.
@@ -219,10 +201,7 @@ function FileViewer({ fileName, fileExplanation, link, children }) {
       <div className="flex h-6 w-full items-center justify-between rounded-t-md bg-[#F3EDE0] px-2">
         <Link to={link}>
           <span
-            className={`
-          flex items-center space-x-1 text-sm text-neutral-500 transition
-          duration-200 ease-out hover:text-neutral-400
-        `}
+            className={`flex items-center space-x-1 text-sm text-neutral-500 transition duration-200 ease-out hover:text-neutral-400`}
           >
             <span>{fileName}</span>
             <ArrowUpRight size={14} />

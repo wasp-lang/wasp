@@ -7,7 +7,7 @@ import { customisationProps } from "./auth-ui";
 export function EmailVerification() {
   return (
     <FeatureContainer>
-      <div className="max-w-sm mx-auto">
+      <div className="mx-auto max-w-sm">
         <VerifyEmailForm {...customisationProps} />
         <br />
         <span className="text-sm font-medium text-gray-900">

@@ -15,11 +15,7 @@ const Benefit = ({ Icon, title, description }) => (
   <div className="mb-10 space-y-4 md:mb-0">
     <div className="flex items-center">
       <div
-        className={`
-          inline-flex h-8 w-8 items-center
-          justify-center rounded-md
-          bg-neutral-700 text-yellow-500
-        `}
+        className={`inline-flex h-8 w-8 items-center justify-center rounded-md bg-neutral-700 text-yellow-500`}
       >
         <Icon size={20} />
       </div>

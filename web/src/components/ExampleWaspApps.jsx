@@ -40,14 +40,7 @@ const examples = [
 const SeeTheCodeButton = ({ repoUrl }) => (
   <Link to={repoUrl}>
     <button
-      className={`
-        flex items-center
-        rounded
-        border border-yellow-500 bg-transparent
-        px-2.5 py-1 text-xs text-neutral-500
-        transition
-        duration-200 ease-out hover:text-neutral-400
-      `}
+      className={`flex items-center rounded border border-yellow-500 bg-transparent px-2.5 py-1 text-xs text-neutral-500 transition duration-200 ease-out hover:text-neutral-400`}
     >
       <span>See the code</span>
       <ArrowUpRight className="ml-2" size={14} />
@@ -58,14 +51,7 @@ const SeeTheCodeButton = ({ repoUrl }) => (
 const DemoButton = ({ demoUrl }) => (
   <Link to={demoUrl}>
     <button
-      className={`
-        flex items-center
-        rounded
-        bg-yellow-500 px-2.5 py-1
-        text-xs text-white
-        transition
-        duration-200 ease-out hover:bg-yellow-400
-      `}
+      className={`flex items-center rounded bg-yellow-500 px-2.5 py-1 text-xs text-white transition duration-200 ease-out hover:bg-yellow-400`}
     >
       <span>Demo</span>
       <Monitor className="ml-2" size={14} />
@@ -77,14 +63,7 @@ const ExampleCard = (props) => (
   <>
     {/* Top half */}
     <div
-      className={`
-        flex
-        h-40 flex-col rounded rounded-b-none
-        border-l border-r
-        border-t border-yellow-500/25
-        bg-yellow-500/5
-        p-5
-      `}
+      className={`flex h-40 flex-col rounded rounded-b-none border-l border-r border-t border-yellow-500/25 bg-yellow-500/5 p-5`}
     >
       <div className="mb-4">
         <h4 className="mb-4 text-neutral-700">{props.title}</h4>
@@ -104,13 +83,7 @@ const ExampleCard = (props) => (
 
     {/* Bottom half */}
     <div
-      className={`
-        flex
-        flex-col rounded rounded-t-none border-b
-        border-l border-r
-        border-yellow-500/25 bg-yellow-500/20
-        p-5
-      `}
+      className={`flex flex-col rounded rounded-t-none border-b border-l border-r border-yellow-500/25 bg-yellow-500/20 p-5`}
     >
       <Link to={props.repoUrl}>
         <span className="flex items-center text-sm text-neutral-500 hover:text-neutral-400">
@@ -159,13 +132,7 @@ const ExampleWaspApps = () => {
       <div className="flex justify-center">
         <Link to="https://github.com/wasp-lang/wasp/tree/release/examples">
           <span
-            className={`
-              flex
-              items-center font-medium text-neutral-500 underline
-              decoration-yellow-500
-              decoration-2 transition duration-200
-              ease-out hover:text-neutral-400
-            `}
+            className={`flex items-center font-medium text-neutral-500 underline decoration-yellow-500 decoration-2 transition duration-200 ease-out hover:text-neutral-400`}
           >
             <span>See all examples</span>
             <ArrowUpRight className="ml-1" size={14} />

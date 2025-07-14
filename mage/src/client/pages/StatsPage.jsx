@@ -96,7 +96,7 @@ export function Stats() {
         <HomeButton />
       </Header>
       <div className="big-box">
-        <div className="flex justify-between items-center mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <h1 className="text-3xl font-semibold text-slate-800">Stats</h1>
           <div>
             <button className="button sm" onClick={logout}>
@@ -111,7 +111,7 @@ export function Stats() {
 
         {projects.projects.length > 0 && (
           <>
-            <div className="mb-3 flex justify-between items-end">
+            <div className="mb-3 flex items-end justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-slate-800">
                   Projects over time
@@ -138,9 +138,9 @@ export function Stats() {
               </ParentSize>
             </div>
 
-            <div className="py-2 flex justify-between items-center">
+            <div className="flex items-center justify-between py-2">
               <div className="flex gap-3">
-                <div className="flex items-center mb-4">
+                <div className="mb-4 flex items-center">
                   <input
                     id="filter"
                     type="checkbox"
@@ -148,7 +148,7 @@ export function Stats() {
                     onChange={(event) =>
                       setFilterOutExampleApps(event.target.checked)
                     }
-                    className="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500"
+                    className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-sky-600 focus:ring-sky-500"
                   />
                   <label
                     htmlFor="filter"
@@ -160,14 +160,14 @@ export function Stats() {
               </div>
 
               {stats && (
-                <p className="text-sm text-slate-800 flex gap-2">
-                  <span className="bg-slate-100 rounded-md px-2 py-1">
+                <p className="flex gap-2 text-sm text-slate-800">
+                  <span className="rounded-md bg-slate-100 px-2 py-1">
                     Generated:{" "}
                     <strong className="text-slate-800">
                       {stats.totalGenerated}
                     </strong>
                   </span>
-                  <span className="bg-slate-100 rounded-md px-2 py-1">
+                  <span className="rounded-md bg-slate-100 px-2 py-1">
                     Downloaded:{" "}
                     <strong className="text-slate-800">{`${stats.totalDownloaded} (${stats.downloadedPercentage}%)`}</strong>
                   </span>
@@ -176,8 +176,8 @@ export function Stats() {
             </div>
 
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-              <table className="w-full text-sm text-left text-slate-500">
-                <thead className="text-xs text-slate-700 uppercase bg-gray-50">
+              <table className="w-full text-left text-sm text-slate-500">
+                <thead className="bg-gray-50 text-xs uppercase text-slate-700">
                   <tr>
                     <th scope="col" className="px-6 py-3">
                       App Name
@@ -199,10 +199,10 @@ export function Stats() {
                 </thead>
                 <tbody>
                   {filteredProjects.map((project) => (
-                    <tr className="bg-white border-b" key={project.id}>
+                    <tr className="border-b bg-white" key={project.id}>
                       <th
                         scope="row"
-                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center gap-2"
+                        className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900"
                       >
                         <Color
                           value={getTailwindClassNameForProjectBrandColor(
@@ -216,17 +216,17 @@ export function Stats() {
                           {project.user && (
                             <span
                               title={project.user.email}
-                              className="w-5 h-5 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-800 border border-yellow-200"
+                              className="flex h-5 w-5 items-center justify-center rounded-full border border-yellow-200 bg-yellow-100 text-yellow-800"
                             >
-                              <PiUserDuotone className="w-3 h-3" />
+                              <PiUserDuotone className="h-3 w-3" />
                             </span>
                           )}
                           {project.zipDownloadedAt && (
                             <span
                               title={`Downloaded ${format(project.zipDownloadedAt)}`}
-                              className="w-5 h-5 bg-sky-100 rounded-full flex items-center justify-center text-sky-800 border border-sky-200"
+                              className="flex h-5 w-5 items-center justify-center rounded-full border border-sky-200 bg-sky-100 text-sky-800"
                             >
-                              <PiDownloadDuotone className="w-3 h-3" />
+                              <PiDownloadDuotone className="h-3 w-3" />
                             </span>
                           )}
                         </span>
@@ -268,7 +268,7 @@ export function Stats() {
                   ))}
                 </tbody>
               </table>
-              <div className="relative px-6 py-3 bg-gray-50 text-sm text-slate-500 text-center">
+              <div className="relative bg-gray-50 px-6 py-3 text-center text-sm text-slate-500">
                 Showing only the latest 1000 projects
               </div>
             </div>

@@ -1,17 +1,21 @@
 {
-  "name": "TodoApp",
+  "name": "todo-app",
   "type": "module",
+  "scripts": {
+    "test": "DEBUG=pw:webserver playwright test --config headless-tests/"
+  },
   "dependencies": {
-    "@playwright/test": "^1.51.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.26.2",
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
+    "@playwright/test": "1.51.1",
     "@types/react": "^18.0.37",
+    "@wasp.sh/wasp-app-runner": "^0.0.7",
     "prisma": "5.19.1",
-    "typescript": "^5.1.0",
+    "typescript": "5.8.2",
     "vite": "^4.3.9"
   }
 }
