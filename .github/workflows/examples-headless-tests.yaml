@@ -123,7 +123,6 @@ jobs:
           DATABASE_PROVIDER=$(wasp-cli info \
             | grep "Database system" \
             | sed 's/.*: //' \
-            # Remove ANSI color codes
             | sed -e 's/\x1b\[[0-9;]*m//g' \
             | tr '[:upper:]' '[:lower:]')
           if [ -z "$DATABASE_PROVIDER" ]; then
