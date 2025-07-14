@@ -131,16 +131,22 @@ jobs:
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
       - name: Run Headless DEV Tests for ${{ matrix.example }}
-        working-directory: examples/${{ matrix.example }}/headless-tests
+        working-directory: examples/${{ matrix.example }}
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: dev
         run: |
           npm run test
 
+      - name: Debug Provider Value
+          run: |
+            echo "Provider output: '${{ steps.extract-db-provider.outputs.provider }}'"
+            echo "Length: ${{ length(steps.extract-db-provider.outputs.provider) }}"
+            echo "Equals sqlite: ${{ steps.extract-db-provider.outputs.provider == 'sqlite' }}"
+
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
         if: steps.extract-db-provider.outputs.provider != 'sqlite'
-        working-directory: examples/${{ matrix.example }}/headless-tests
+        working-directory: examples/${{ matrix.example }}
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: build
