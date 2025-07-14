@@ -17,9 +17,43 @@ jobs:
     steps:
       - name: Restart Algolia Crawler
         run: |
-          basic_authentication_credentials=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
-          curl -v -X POST \
-            -H "Authorization: Basic $basic_authentication_credentials" \
+          algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
+          
+          # Make API request and capture both response and status
+          crawler_response=$(curl --silent \
+            --write-out "HTTPSTATUS:%{http_code}" \
+            --connect-timeout 30 \
+            --max-time 60 \
+            -X POST \
+            -H "Authorization: Basic $algolia_authentication_token" \
             -H "Content-Type: application/json" \
             -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
-            "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
+            "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex")
+          
+          # Extract status code and response body
+          http_status_code=$(echo "$crawler_response" | grep -o "HTTPSTATUS:[0-9]*" | cut -d: -f2)
+          response_body=$(echo "$crawler_response" | sed 's/HTTPSTATUS:[0-9]*$//')
+          
+          echo "📊 HTTP Status Code: $http_status_code"
+          echo "📄 Response Body: $response_body"
+          
+          # Validate successful response
+          if [[ "$http_status_code" -eq 200 ]]; then
+            # Extract task ID from response for verification
+            task_id=$(echo "$response_body" | grep -o '"taskId":"[^"]*"' | cut -d'"' -f4)
+            if [[ -n "$task_id" ]]; then
+              echo "✅ Algolia crawler reindex initiated successfully"
+              echo "🆔 Task ID: $task_id"
+            else
+              echo "⚠️  Request succeeded but no task ID found in response"
+            fi
+          elif [[ "$http_status_code" -ge 400 && "$http_status_code" -lt 500 ]]; then
+            echo "❌ Client error: Check authentication credentials and crawler ID"
+            exit 1
+          elif [[ "$http_status_code" -ge 500 ]]; then
+            echo "❌ Server error: Algolia service may be temporarily unavailable"
+            exit 1
+          else
+            echo "❌ Unexpected response status: $http_status_code"
+            exit 1
+          fi
