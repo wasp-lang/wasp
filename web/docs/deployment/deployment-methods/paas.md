@@ -87,7 +87,7 @@ We'll cover a few different deployment providers below:
 
 ## Fly.io <Server /> <Database /> {#flyio}
 
-We recommend that you use [Wasp CLI](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp CLI](./wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
 ### Introduction
 
@@ -208,7 +208,7 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 ## Railway <Server /> <Client /> <Database /> {#railway}
 
-We recommend that you use [Wasp CLI](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp CLI](./wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
 
 ### Introduction
 
