@@ -118,14 +118,14 @@ jobs:
         id: extract-db-provider
         working-directory: examples/${{ matrix.example }}
         run: |
-          if [ -f "schema.prisma" ]; then
-            DB_PROVIDER=$(grep -E "^\s*provider\s*=" schema.prisma | sed 's/.*provider\s*=\s*"\([^"]*\)".*/\1/' | tr -d ' ')
-            echo "Database provider: $DB_PROVIDER"
-            echo "provider=$DB_PROVIDER" >> $GITHUB_OUTPUT
-          else
-            echo "ERROR: No schema.prisma found in examples/${{ matrix.example }}"
+          DATABASE_PROVIDER=$(wasp-cli info | grep "Database system:" | sed 's/Database system: //' | tr '[:upper:]' '[:lower:]')
+          if [ -z "$DATABASE_PROVIDER" ]; then
+            echo "ERROR: Could not determine database system from wasp-cli info"
             exit 1
           fi
+          
+          echo "Database provider: $DATABASE_PROVIDER"
+          echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
       - name: Run Headless DEV Tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}/headless-tests
