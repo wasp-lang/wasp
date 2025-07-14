@@ -23,7 +23,7 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
         <div className="flex flex-col space-y-3 pb-8 md:pb-0">
           <div
             className={`
-              relative mb-4 h-60 w-full overflow-auto overflow-y-hidden
+              relative mb-4 h-40 w-full overflow-auto overflow-y-hidden
               rounded-lg border border-neutral-300 shadow-lg
             `}
           >
@@ -62,45 +62,49 @@ const ShowcaseGallery = () => {
         `}
       >
         <ShowcaseItem
-          url="/blog/2022/10/28/farnance-hackathon-winner"
-          thumb="img/lp/showcase/farnance-dashboard.webp"
-          title="Farnance: SaaS marketplace for farmers"
-          description="See how Julian won HackLBS 2021 among 250 participants and why Wasp was instrumental for the team's victory."
+          url="https://searchcraft.io"
+          thumb="img/lp/showcase/searchcraft.webp"
+          title="Searchcraft"
+          description="Fast, easy search tools for frontend developers."
         >
           <Tag
-            text="hackathon"
+            text="developer-tools"
             className="border-yellow-600 bg-yellow-50 text-yellow-600"
           />
           <Tag
-            text="material-ui"
+            text="startup"
+            className="border-slate-500 bg-slate-50 text-slate-500"
+          />
+        </ShowcaseItem>
+
+        <ShowcaseItem
+          url="https://www.promptpanda.io/"
+          thumb="img/lp/showcase/promptpanda.webp"
+          title="Prompt Panda"
+          description="AI-powered prompt management system designed to streamline and enhance the use of AI prompts."
+        >
+          <Tag
+            text="ai-tools"
+            className="border-green-600 bg-green-50 text-green-600"
+          />
+          <Tag
+            text="saas"
             className="border-blue-500 bg-slate-50 text-blue-500"
           />
         </ShowcaseItem>
 
         <ShowcaseItem
-          url="/blog/2022/11/26/michael-curry-usecase"
-          thumb="img/lp/showcase/grabbit-hero.webp"
-          title="Grabbit: Easily manage dev environments"
-          description="See how Michael built and deployed an internal tool for managing dev resources at StudentBeans."
+          url="https://scribeist.com/"
+          thumb="img/lp/showcase/scribeist.webp"
+          title="Scribeist"
+          description="Create and publish high-quality, SEO-optimized blog posts with AI."
         >
           <Tag
-            text="internal-tools"
-            className="border-green-600 bg-green-50 text-green-600"
-          />
-        </ShowcaseItem>
-
-        <ShowcaseItem
-          url="/blog/2022/11/26/erlis-amicus-usecase"
-          thumb="img/lp/showcase/amicus-landing.webp"
-          title="Amicus: Task and workflow management for legal teams"
-          description="See how Erlis rolled out fully-fledged SaaS as a team of one in record time and got first paying customers."
-        >
-          <Tag
-            text="startup"
-            className="border-fuchsia-600 bg-fuchsia-50 text-fuchsia-600"
+            text="marketing"
+            className="border-red-600 bg-red-50 text-red-600"
           />
           <Tag
-            text="material-ui"
+            text="saas"
             className="border-blue-500 bg-slate-50 text-blue-500"
           />
         </ShowcaseItem>

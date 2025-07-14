@@ -69,10 +69,10 @@ const Index = () => {
             <Hero />
             <Features />
             <HowItWorks />
-            <ExampleWaspApps />
+            <ShowcaseGallery />
             <Testimonials />
             <LightsTwo />
-            <ShowcaseGallery />
+            <ExampleWaspApps />
             <Newsletter />
             <Roadmap />
             <Faq />
