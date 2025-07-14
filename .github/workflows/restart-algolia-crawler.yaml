@@ -15,21 +15,11 @@ jobs:
     name: Restart Algolia Crawler
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Algolia Crawler Reindex
+      - name: Restart Algolia Crawler
         run: |
           algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
-          response=$(curl -w "%{http_code}" -o response.json --retry 3 --retry-delay 2 \
+          curl -X POST \
             -H "Authorization: Basic $algolia_authentication_token" \
             -H "Content-Type: application/json" \
             -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
-            -X POST \
-            "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex")
-          
-          if [ "$response" = "200" ]; then
-            echo "Successfully triggered reindex"
-            cat response.json
-          else
-            echo "Request failed with HTTP code: $response"
-            cat response.json
-            exit 1
-          fi
+            "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
