@@ -105,7 +105,6 @@ jobs:
     name: Test Example Apps
     runs-on: ubuntu-22.04
     needs: [setup-and-cache-playwright, setup-and-cache-wasp-cli]
-
     strategy:
       fail-fast: false
       matrix:
@@ -115,7 +114,6 @@ jobs:
           - waspello
           - waspleau
           - websockets-realtime-voting
-
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -126,8 +124,8 @@ jobs:
       - name: Restore Wasp CLI Artifacts
         uses: actions/cache/restore@v4
         with:
-          path: waspc/artifacts
           key: ${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}
+          path: waspc/artifacts
 
       - name: Setup Wasp CLI
         run: |
@@ -140,8 +138,8 @@ jobs:
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
         with:
-          path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
+          path: ~/.cache/ms-playwright
 
       - uses: actions/setup-node@v4
         with:
