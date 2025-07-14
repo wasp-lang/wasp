@@ -58,6 +58,7 @@ data-files:
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/public/favicon.ico
+  Cli/starters/skeleton/public/.gitkeep
   Cli/starters/basic/.prettierrc
   Cli/starters/basic/.prettierignore
   Lsp/templates/**/*.js
