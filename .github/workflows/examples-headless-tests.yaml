@@ -120,7 +120,12 @@ jobs:
         id: extract-db-provider
         working-directory: examples/${{ matrix.example }}
         run: |
-          DATABASE_PROVIDER=$(wasp-cli info | grep "Database system" | sed 's/.*: //' | tr '[:upper:]' '[:lower:]' | tr -d ' \t\n\r')
+          DATABASE_PROVIDER=$(wasp-cli info \
+            | grep "Database system" \
+            | sed 's/.*: //' \
+            # Remove ANSI color codes
+            | sed -e 's/\x1b\[[0-9;]*m//g' \
+            | tr '[:upper:]' '[:lower:]')
           if [ -z "$DATABASE_PROVIDER" ]; then
             echo "ERROR: Could not determine database system from wasp-cli info"
             exit 1
