@@ -68,7 +68,7 @@ jobs:
     name: Setup and Cache Wasp CLI
     runs-on: ubuntu-22.04
     outputs:
-      wasp-cli-cache-key: ${{ steps.cache-wasp-artifacts.outputs.cache-primary-key }}
+      wasp-cli-cache-key: ${{ steps.generate-cache-key.outputs.cache-key }}
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -86,12 +86,18 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Generate Cache Key
+        id: generate-cache-key
+        run: |
+          CACHE_KEY="wasp-cli-${{ runner.os }}-${{ hashFiles('waspc/**/*.hs', 'waspc/**/*.cabal', 'waspc/cabal.project', 'waspc/data/**') }}"
+          echo "cache-key=$CACHE_KEY" >> $GITHUB_OUTPUT
+
       - name: Cache Wasp CLI Artifacts
         id: cache-wasp-artifacts
         uses: actions/cache@v4
         with:
           path: waspc/artifacts
-          key: wasp-cli-${{ runner.os }}-${{ hashFiles('waspc/**/*.hs', 'waspc/**/*.cabal', 'waspc/cabal.project', 'waspc/data/**') }}
+          key: ${{ steps.generate-cache-key.outputs.cache-key }}
           lookup-only: true
 
       - name: Build and package
