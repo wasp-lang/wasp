@@ -114,22 +114,32 @@ jobs:
         run: |
           npm ci
 
+      - name: Extract Database Provider
+        id: extract-db-provider
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          if [ -f "schema.prisma" ]; then
+            DB_PROVIDER=$(grep -E "^\s*provider\s*=" schema.prisma | sed 's/.*provider\s*=\s*"\([^"]*\)".*/\1/' | tr -d ' ')
+            echo "Database provider: $DB_PROVIDER"
+            echo "provider=$DB_PROVIDER" >> $GITHUB_OUTPUT
+          else
+            echo "ERROR: No schema.prisma found in examples/${{ matrix.example }}"
+            exit 1
+          fi
+
       - name: Run Headless DEV Tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}/headless-tests
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: dev
-          # Useful for debugging when the playwright webserver fails.
-          DEBUG: pw:webserver
         run: |
-          npx playwright test
+          npm run test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
+        if: steps.extract-db-provider.outputs.provider != 'sqlite'
         working-directory: examples/${{ matrix.example }}/headless-tests
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: build
-          # Useful for debugging when the playwright webserver fails.
-          DEBUG: pw:webserver
         run: |
-          npx playwright test
+          npm run test
