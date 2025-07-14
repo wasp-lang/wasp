@@ -64,11 +64,11 @@ jobs:
         run: |
           npx playwright install --with-deps
 
-  setup-and-cache-wasp:
+  setup-and-cache-wasp-cli:
     name: Setup and Cache Wasp CLI
     runs-on: ubuntu-22.04
     outputs:
-      wasp-cache-key: ${{ steps.cache-wasp-artifacts.outputs.cache-primary-key }}
+      wasp-cli-cache-key: ${{ steps.cache-wasp-artifacts.outputs.cache-primary-key }}
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -77,6 +77,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: ./.github/actions/setup-haskell
+        ghc-version: "8.10.7"
+        cabal-version: "3.6.2.0"
+        cabal-project-dir: waspc
 
       - uses: actions/setup-node@v4
         with:
@@ -101,7 +104,7 @@ jobs:
   test-example-apps:
     name: Test Example Apps
     runs-on: ubuntu-22.04
-    needs: [setup-and-cache-playwright, setup-and-cache-wasp]
+    needs: [setup-and-cache-playwright, setup-and-cache-wasp-cli]
 
     strategy:
       fail-fast: false
@@ -124,7 +127,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: waspc/artifacts
-          key: ${{ needs.setup-and-cache-wasp.outputs.wasp-cache-key }}
+          key: ${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}
 
       - name: Setup Wasp CLI
         run: |
