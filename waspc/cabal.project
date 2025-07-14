@@ -21,3 +21,9 @@ test-show-details: direct
 
 -- WARNING: Run cabal update if your local package index is older than this date.
 index-state: 2025-01-01T00:00:00Z
+
+-- Allow newer versions of stm-hamt to work around GHC 9.0.2 compatibility issues
+allow-newer: stm-hamt:base, strong-path:hashable
+
+constraints: 
+  stm-hamt == 1.2.1

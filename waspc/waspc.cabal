@@ -144,7 +144,7 @@ library
     , path-io               ^>= 1.6.3
     , pretty-simple         ^>= 4.1.2
     , regex-tdfa            ^>= 1.3.1
-    , strong-path           ^>= 1.1.4
+    , strong-path           >= 1.1.4
     , unliftio              ^>= 0.2.20
     , utf8-string           ^>= 1.0.2
     , cryptonite            ^>= 0.29
@@ -499,7 +499,7 @@ library waspls
     , lsp-types ^>=1.4.0.1
     , stm ^>=2.5.1.0
     , stm-containers ^>=1.2
-    , hashable ^>=1.3.5.0
+    , hashable >= 1.3.5.0
     , unordered-containers
     , strong-path
     , path
