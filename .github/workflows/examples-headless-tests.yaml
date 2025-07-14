@@ -4,14 +4,14 @@ on:
   workflow_call:
   workflow_dispatch:
   push:
-    # paths:
-    #   - "examples/**"
-    # branches:
-    #   - main
-    #   - release
+    paths:
+      - "examples/**"
+    branches:
+      - main
+      - release
   pull_request:
-    # paths:
-    #   - "examples/**"
+    paths:
+      - "examples/**"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
