@@ -113,6 +113,9 @@ jobs:
         working-directory: examples/${{ matrix.example }}
         run: |
           npm ci
+          if [ -f ".env.server.headless" ]; then
+            cp .env.server.headless .env.server
+          fi
 
       - name: Extract Database Provider
         id: extract-db-provider
@@ -123,7 +126,7 @@ jobs:
             echo "ERROR: Could not determine database system from wasp-cli info"
             exit 1
           fi
-          
+
           echo "Database provider: $DATABASE_PROVIDER"
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
