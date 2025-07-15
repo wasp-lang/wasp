@@ -13,12 +13,13 @@ jobs:
     steps:
       - name: Wait for Wasp web to finish deploying
         env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 75c37602a6b75c790961219411cb1b92
+          CLOUDFLARE_PROJECT_NAME: wasp-docs
         run: |
           set -e
 
           while true; do
-            response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/75c37602a6b75c790961219411cb1b92/pages/projects/wasp-docs/deployments?per_page=1&page=1&env=production" \
+            response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CLOUDFLARE_PROJECT_NAME/deployments?per_page=1&page=1&env=production" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_READ_PAGES_API_TOKEN }}" \
               -H "Content-Type: application/json")
 
@@ -43,9 +44,8 @@ jobs:
       - name: Restart Algolia crawler
         run: |
           # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
-          algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64 -w 0)
           curl -X POST \
-            -H "Authorization: Basic $algolia_authentication_token" \
+            --user "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" \
             -H "Content-Type: application/json" \
             -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
             "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
