@@ -3,6 +3,7 @@ waspNew/.waspignore
 waspNew/.wasproot
 waspNew/main.wasp
 waspNew/package.json
+waspNew/public/.gitkeep
 waspNew/public/favicon.ico
 waspNew/schema.prisma
 waspNew/src/Main.css
