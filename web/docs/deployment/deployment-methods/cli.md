@@ -3,6 +3,8 @@ title: Wasp CLI
 ---
 
 import { Required } from '@site/src/components/Tag';
+import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
+
 
 Wasp CLI can deploy your full-stack application with only a single command.
 The command automates the manual deployment process and is the recommended way of deploying Wasp apps.
@@ -59,8 +61,9 @@ You'll notice that Wasp creates two new files in your project root directory:
 
 You should include these files in your version control so that you can deploy your app with a single command in the future.
 
-When you run the `launch` command, Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically.
-If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables).
+<LaunchCommandEnvVars />
+
+If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
 
 ### Using a Custom Domain For Your App {#fly-custom-domain}
 
@@ -170,7 +173,9 @@ The project name is used as a base for your server and client service names on R
 
 Railway doesn't allow setting the database service name using the Railway CLI, so it will always be named `Postgres`.
 
-When you run the `launch` command, Wasp CLI sets some [required environment variables](../../project/env-vars.md#wasp-server-env-vars) in the server app automatically. If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#railway-environment-variables).
+<LaunchCommandEnvVars />
+
+If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#railway-environment-variables) section.
 
 ### Using a Custom Domain For Your App {#railway-custom-domain}
 
@@ -248,7 +253,7 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
 
 #### The `setup` command
 
-`setup` will register your client and server apps on Fly, and setup needed environment variables.
+The `setup` command registers your client and server apps on Fly, and sets up needed environment variables.
 It only needs to be run once, when initially creating the app. It does _not_ trigger a deploy for the client or server apps.
 
 ```shell
@@ -485,7 +490,7 @@ You must specify your client-side environment variables every time you redeploy 
 
 #### The `setup` command
 
-The `setup` command creates your client, server, and database services on Railway, and configure environment variables. It does _not_ deploy the client or server services.
+The `setup` command creates your client, server, and database services on Railway. It also configures environment variables. It does _not_ deploy the client or server services.
 
 ```shell
 wasp deploy railway setup <project-name>
