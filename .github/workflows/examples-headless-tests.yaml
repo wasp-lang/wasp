@@ -63,10 +63,60 @@ jobs:
         run: |
           npx playwright install --with-deps
 
+  setup-and-cache-wasp-cli:
+    name: Setup and Cache Wasp CLI
+    runs-on: ubuntu-22.04
+    outputs:
+      wasp-cli-cache-key: ${{ steps.generate-cache-key.outputs.cache-key }}
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Generate Cache Key
+        id: generate-cache-key
+        run: |
+          CACHE_KEY="wasp-cli-${{ runner.os }}-${{ hashFiles('waspc/**/*.hs', 'waspc/**/*.cabal', 'waspc/cabal.project', 'waspc/data/**') }}"
+          echo "cache-key=$CACHE_KEY" >> $GITHUB_OUTPUT
+
+      - name: Cache Wasp CLI
+        id: cache-wasp-cli
+        uses: actions/cache@v4
+        with:
+          path: waspc/.bin
+          key: ${{ steps.generate-cache-key.outputs.cache-key }}
+          lookup-only: true
+
+      - uses: ./.github/actions/setup-haskell
+        if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
+        with:
+          ghc-version: "8.10.7"
+          cabal-version: "3.6.2.0"
+          cabal-project-dir: waspc
+
+      - uses: actions/setup-node@v4
+        if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
+        with:
+          node-version: lts/*
+
+      - name: Build and package
+        if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
+        working-directory: waspc
+        run: |
+          ./run build:alln
+          cabal install --installdir=.bin
+
+      - uses: actions/setup-node@v4
+        if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
+        with:
+          node-version: lts/*
+
   test-example-apps:
     name: Test Example Apps
     runs-on: ubuntu-22.04
-    needs: setup-and-cache-playwright
+    needs: [setup-and-cache-playwright, setup-and-cache-wasp-cli]
     strategy:
       fail-fast: false
       matrix:
@@ -83,21 +133,15 @@ jobs:
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: ./.github/actions/setup-haskell
+      - name: Restore Wasp CLI Cache
+        uses: actions/cache/restore@v4
         with:
-          ghc-version: "8.10.7"
-          cabal-version: "3.6.2.0"
-          cabal-project-dir: waspc
+          key: ${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}
+          path: waspc/.bin
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-
-      - name: Build and package
-        if: steps.cache-wasp-artifacts.outputs.cache-hit != 'true'
-        working-directory: waspc
+      - name: Symlink Wasp CLI
         run: |
-          ./run install
+          ln -s "$(realpath .bin/wasp-cli)" ~/.local/bin/wasp-cli
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
@@ -105,8 +149,9 @@ jobs:
           key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
           path: ~/.cache/ms-playwright
 
-      - name: Set up Wasp App runner
-        run: npm i -g @wasp.sh/wasp-app-runner
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
 
       - name: Install Dependencies for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
