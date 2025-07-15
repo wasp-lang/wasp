@@ -640,7 +640,7 @@ test-suite waspc-test
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
-    , tasty-hspec           >= 1.1
+    , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
     , tasty-golden          ^>= 2.3.5
   other-modules:
@@ -723,7 +723,7 @@ test-suite waspls-test
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
-    , tasty-hspec           >= 1.1
+    , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-golden          ^>= 2.3.5
     , bytestring
     , filepath
@@ -746,7 +746,7 @@ test-suite cli-test
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
-    , tasty-hspec           >= 1.1
+    , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
   other-modules:
     DbMigrateTest
@@ -775,7 +775,7 @@ test-suite e2e-test
     , process
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
-    , tasty-hspec           >= 1.1
+    , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-golden          ^>= 2.3.5
   other-modules:
     Common
