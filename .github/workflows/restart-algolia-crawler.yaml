@@ -2,10 +2,6 @@ name: Restart Algolia crawler
 
 on:
   workflow_dispatch:
-  # TEMP SO I CAN ACTUALLY TEST THIS!!!
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - deploy-web
