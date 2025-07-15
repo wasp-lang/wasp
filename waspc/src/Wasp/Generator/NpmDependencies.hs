@@ -14,6 +14,7 @@ module Wasp.Generator.NpmDependencies
     NpmDepsForWasp (..),
     NpmDepsForUser (..),
     buildWaspFrameworkNpmDeps,
+    getDependencyOverridesPackageJsonEntry,
   )
 where
 
@@ -198,6 +199,9 @@ getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "depende
 -- | Construct devDependencies entry in package.json
 getDevDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devDependencies" . devDependencies
+
+getDependencyOverridesPackageJsonEntry :: [D.Dependency] -> String
+getDependencyOverridesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "overrides"
 
 dependenciesToPackageJsonEntryWithKey :: String -> [D.Dependency] -> String
 dependenciesToPackageJsonEntryWithKey key deps =
