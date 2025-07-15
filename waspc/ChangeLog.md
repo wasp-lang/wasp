@@ -27,12 +27,12 @@ Follow the [the official migration guide](https://wasp.sh/docs/migration-guides/
 
 ### 🎉 New Features
 
+- Added support for one-line deployment with Railway to `wasp deploy` command. ([#2578](https://github.com/wasp-lang/wasp/pull/2578))
 - Wasp now includes a `onAfterEmailVerified` auth hook. You can use this hook to run custom logic after a user has verified their email. ([#2602](https://github.com/wasp-lang/wasp/pull/2602))
 - Wasp now supports Slack as an auth provider (by @scorpil). ([#2764](https://github.com/wasp-lang/wasp/pull/2764))
 - You can now return Prisma `Decimal`s from your Queries and Actions. ([#2701](https://github.com/wasp-lang/wasp/pull/2701))
 - Added build-time client env variable validation. ([#2392](https://github.com/wasp-lang/wasp/pull/2392))
 - Added `prismaSetupFn` hook to database config to allow users to run custom Prisma setup code. ([#2693](https://github.com/wasp-lang/wasp/pull/2693))
-- Added support for one-line deployment with Railway to `wasp deploy` command. ([#2578](https://github.com/wasp-lang/wasp/pull/2578))
 
 ### 🐞 Bug fixes
 

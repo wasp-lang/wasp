@@ -23,7 +23,7 @@ Fly requires you to add your credit card information before you can deploy your 
 You can add the required credit card information on the [account's billing page](https://fly.io/dashboard/personal/billing).
 
 :::info Fly.io CLI
-You will need the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/) installed on your machine before you can deploy to Fly.io.
+You will need the [`fly` CLI](https://fly.io/docs/hands-on/install-flyctl/) installed on your machine before you can deploy to Fly.io.
 :::
 
 ### Deploying
@@ -337,7 +337,7 @@ Make sure to add your client-side environment variables every time you redeploy 
 
 #### `cmd` command
 
-If you want to run arbitrary Fly commands (for example `flyctl secrets list` for your server app), here's how to do it:
+If you want to run arbitrary Fly commands (for example `fly secrets list` for your server app), here's how to do it:
 
 ```shell
 wasp deploy fly cmd secrets list --context server
@@ -394,7 +394,7 @@ Then you can run `npm run deploy` to deploy your app.
 You can find the list of all available Fly regions by running:
 
 ```shell
-flyctl platform regions
+fly platform regions
 ```
 
 #### Multiple Fly.io Organizations
