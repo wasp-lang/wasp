@@ -7,7 +7,7 @@ const Announcement = () => {
   let history = useHistory();
 
   const handleLink = () => {
-    history.push("/blog/2025/01/09/wasp-launch-week-8");
+    history.push("/blog/2025/07/07/wasp-launch-week-10");
   };
 
   return (
@@ -23,7 +23,7 @@ const Announcement = () => {
       >
         <span className="item-center flex gap-2 px-3">
           <span>
-            <b>🐝 Wasp v0.16 is here! 🐝</b>
+            <b>🐝 Launch Week #10 starts on Jul 14! 🐝</b>
           </span>
         </span>
 
@@ -32,7 +32,7 @@ const Announcement = () => {
             className={`cursor-pointer rounded-full bg-neutral-700 px-2.5 py-1 text-xs hover:bg-neutral-600`}
           >
             {/* Generate your app 🤖 → */}
-            See what's new ⚙️ →
+            See what's coming ⚙️ →
           </span>
         </span>
       </div>

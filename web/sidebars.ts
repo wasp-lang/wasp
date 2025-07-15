@@ -179,6 +179,11 @@ const sidebars: SidebarsConfig = {
       ],
     },
     {
+      type: 'link',
+      label: 'Roadmap',
+      href: 'https://github.com/orgs/wasp-lang/projects/5',
+    },
+    {
       type: "category",
       label: "Migration guides",
       collapsed: true,
