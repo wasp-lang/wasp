@@ -12,7 +12,6 @@ on:
   push:
     branches:
       - main
-      - cprecioso/2919-ensure-warm-cache-for-ci
 
 concurrency:
   group: "cache-evict"

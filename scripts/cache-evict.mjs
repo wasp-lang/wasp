@@ -21,8 +21,7 @@ function deleteOrphanedCaches(/** @type {string} */ githubRepository) {
   for (const { key, ref } of cachesToDelete) {
     try {
       console.group(`Deleting cache "${key}" for ref "${ref}"`);
-      // runCmd("gh", ["cache", "delete", key], { collectStdout: false });
-      console.log("Dry run!", "gh", ["cache", "delete", key]);
+      runCmd("gh", ["cache", "delete", key], { collectStdout: false });
       console.log(`Done`);
     } catch (e) {
       console.warn(`::warning::Failed to delete cache key ${key}`);
