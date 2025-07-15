@@ -42,7 +42,7 @@ jobs:
               echo "Deployment failed or in unexpected state: stage=$latest_name, status=$latest_status"
               exit 1
             fi
-          does
+          done
 
       - name: Restart Algolia crawler
         run: |
