@@ -15,23 +15,20 @@ jobs:
     name: Restart Algolia Crawler
     runs-on: ubuntu-latest
     steps:
-    - name: Wait for Wasp web to finish deploying
-      id: cf-pages
-      uses: WalshyDev/cf-pages-await@v1
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_READ_PAGES_API_TOKEN }}
-        accountId: '75c37602a6b75c790961219411cb1b92'
-        project: 'wasp-docs'
+      - name: Wait for Wasp web to finish deploying
+        id: cf-pages
+        uses: WalshyDev/cf-pages-await@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_READ_PAGES_API_TOKEN }}
+          accountId: "75c37602a6b75c790961219411cb1b92"
+          project: "wasp-docs"
 
-    name: Restart Algolia Crawler
-    runs-on: ubuntu-latest
-    steps:
-    - name: Restart Algolia crawler
-      run: |
-        # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
-        algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64 -w 0)
-        curl -X POST \
-          -H "Authorization: Basic $algolia_authentication_token" \
-          -H "Content-Type: application/json" \
-          -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
-          "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
+      - name: Restart Algolia crawler
+        run: |
+          # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
+          algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64 -w 0)
+          curl -X POST \
+            -H "Authorization: Basic $algolia_authentication_token" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
+            "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
