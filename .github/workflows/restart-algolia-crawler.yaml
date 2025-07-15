@@ -24,4 +24,5 @@ jobs:
           -H "Authorization: Basic $algolia_authentication_token" \
           -H "Content-Type: application/json" \
           -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
+          -d '{}' \
           "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
