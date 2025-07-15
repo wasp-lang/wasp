@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - main
+      - cprecioso/2919-ensure-warm-cache-for-ci
 
 concurrency:
   group: "cache-evict"
@@ -22,36 +23,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Evict caches
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-
-        # This script lists all caches for the repository, lists all remote refs
-        # for the repository, and then finds the caches that are not present in
-        # the remote refs. It then deletes those caches.
-        #
-        # For that, it uses the `gh` CLI to list and delete caches, and `git` to
-        # list remote refs. It also uses `jq` to manipulate the data as JSON.
-        # (It's surprisingly difficult to find a shell command to check if a
-        # string is inside a given array, that's why we use `jq`.)
-        run: |
-          (
-            # Input 0: List all caches for the repository
-            gh cache list --limit 100 --json key,ref
-
-            # Input 1: List all remote refs for the repository, do some string
-            # manipulation to get the ref names (second column) as a JSON array
-            git ls-remote "https://github.com/$GITHUB_REPOSITORY.git" |
-              awk '{print $2}' |
-              jq --raw-input --compact-output '.' |
-              jq --slurp '.'
-          ) |
-            # Find cache refs not present in the remote refs, and extract their keys
-            jq --slurp --raw-output \
-              '.[0] as $caches | .[1] as $remote_refs | $caches.[] | select([.ref] | inside($remote_refs) | not) | .key' |
-            while read -r key; do
-              # Delete those cache keys
-              gh cache delete "$key" ||
-                echo "::warning::Failed to delete cache key $key"
-            done
+        run: node ./scripts/cache-evict.mjs
