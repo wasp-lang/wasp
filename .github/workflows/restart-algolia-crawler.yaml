@@ -18,10 +18,7 @@ jobs:
     - name: Restart Algolia crawler
       run: |
         # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
-        algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
-        echo -n "Algolia crawler user id: "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}
-        echo -n "Algolia crawler API key: "${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
-        echo -n "Algolia authentication token: $algolia_authentication_token"
+        algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64 -w 0)
         curl -X POST \
           --http1.1 \
           -H "Authorization: Basic $algolia_authentication_token" \
