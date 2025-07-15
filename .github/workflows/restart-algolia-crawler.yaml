@@ -1,4 +1,4 @@
-name: Restart Algolia Crawler
+name: Restart Algolia crawler
 
 on:
   workflow_dispatch:
@@ -15,11 +15,13 @@ jobs:
     name: Restart Algolia Crawler
     runs-on: ubuntu-latest
     steps:
-      - name: Restart Algolia Crawler
-        run: |
-          algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
-          curl -X POST \
-            -H "Authorization: Basic $algolia_authentication_token" \
-            -H "Content-Type: application/json" \
-            -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
-            "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
+    - name: Restart Algolia crawler
+      run: |
+        # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
+        algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
+        curl -X POST \
+          --http1.1 \
+          -H "Authorization: Basic $algolia_authentication_token" \
+          -H "Content-Type: application/json" \
+          -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
+          "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
