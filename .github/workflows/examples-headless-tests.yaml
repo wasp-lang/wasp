@@ -134,9 +134,9 @@ jobs:
           key: ${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}
           path: waspc/.bin
 
-      - name: Symlink Wasp CLI
+      - name: Add Wasp CLI to PATH
         run: |
-          ln -s "$(realpath .bin/wasp-cli)" ~/.local/bin/wasp-cli
+          echo "$(pwd)/waspc/.bin" >> $GITHUB_PATH
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
