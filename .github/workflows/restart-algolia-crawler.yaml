@@ -20,9 +20,7 @@ jobs:
         # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
         algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64 -w 0)
         curl -X POST \
-          --http1.1 \
           -H "Authorization: Basic $algolia_authentication_token" \
           -H "Content-Type: application/json" \
           -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
-          -d '{}' \
           "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
