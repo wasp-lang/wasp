@@ -19,6 +19,8 @@ jobs:
       run: |
         # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
         algolia_authentication_token=$(echo -n "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" | base64)
+        echo -n "Algolia crawler user id: "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}
+        echo -n "Algolia crawler API key: "${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
         echo -n "Algolia authentication token: $algolia_authentication_token"
         curl -X POST \
           --http1.1 \
