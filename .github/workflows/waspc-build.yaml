@@ -7,7 +7,7 @@ on:
     inputs:
       ghc-version:
         description: "GHC version to use"
-        default: "9.6.7"
+        default: "9.2.8"
         required: false
       node-version:
         description: "Node.js version to use"
@@ -17,7 +17,7 @@ on:
     inputs:
       ghc-version:
         description: "GHC version to use"
-        default: "9.6.7"
+        default: "9.2.8"
         type: string
         required: false
       node-version:
