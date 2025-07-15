@@ -87,11 +87,16 @@ We'll cover a few different deployment providers below:
 
 ## Fly.io <Server /> <Database /> {#flyio}
 
-We recommend that you use [Wasp CLI](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
-### Introduction
+In this section, we'll show how to deploy your server and provision a database for it on Fly.io.
 
-In this section, we'll show how to deploy your server and provision a database for it on Fly.io using the `fly` CLI.
+:::info One command deploy
+
+We recommend that you use [Wasp Deploy](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+
+:::
+
+### Prerequisites
 
 To get started, follow these steps:
 
@@ -208,11 +213,16 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 ## Railway <Server /> <Client /> <Database /> {#railway}
 
-We recommend that you use [Wasp CLI](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
-
-### Introduction
 
 In this section, we'll show how to deploy the client, the server, and provision a database on Railway.
+
+:::info One command deploy
+
+We recommend that you use [Wasp Deploy](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+
+:::
+
+### Prerequisites
 
 To get started, follow these steps:
 
@@ -220,15 +230,16 @@ To get started, follow these steps:
 1. Create a [Railway](https://railway.com/) account.
 1. Install the [Railway CLI](https://docs.railway.com/develop/cli#installation).
 1. Run `railway login` and a browser tab will open to authenticate you.
+1. Go to your [Railway account settings](https://railway.com/account/feature-flags) and enable **Railpack** as the default deployment builder. This is required for the client routing to work correctly.
 
 ### Create New Project
 
 Let's create our Railway project:
 
-1. Go to your [Railway dashboard](https://railway.com/dashboard), click on **New Project**, and select `Deploy PostgreSQL` from the dropdown menu.
+1. Go to your [Railway dashboard](https://railway.com/dashboard), click on **New Project**, and select **Deploy PostgreSQL** from the dropdown menu.
 1. Once the project is created, left-click on the **Create** button in the top right corner and select **Empty Service**.
 1. Click on the new service, and change the name to `server`.
-1. Go ahead and create another empty service and name it `client`.
+1. Create another empty service and name it `client`.
 1. Deploy the changes by pressing the **Deploy** button on top.
 
 ### Deploy Your App to Railway
@@ -237,39 +248,42 @@ Let's create our Railway project:
 
 We'll need the domains for both the `server` and `client` services:
 
-1. Go to the `server` instance's `Settings` tab, and click `Generate Domain`.
+1. Go to the `server` instance's **Settings** tab, and click **Generate Domain**.
 1. Enter `8080` as the port and click **Generate Domain**.
-1. Do the same under the `client`'s `Settings`.
-1. Copy the domains as we will need them later.
+1. Do the same under the `client`'s **Settings**.
+1. Copy both domains, as we will need them later.
 
 #### Deploying the Server
 
 You'll deploy the server first:
 
-1. Move into your app's `.wasp/build/` directory:
+1. Move into the `.wasp/build` directory:
 
     ```shell
     cd .wasp/build
     ```
 
-2. Link your the `build` directory to your newly created Railway project:
+2. Link the `.wasp/build` directory to your newly created Railway project:
 
     ```shell
     railway link
     ```
 
-    Select `server` when prompted with `Select Service`.
+    Select `server` when prompted to select a service.
 
   <!-- TOPIC: env vars -->
 
 3. Go into the Railway dashboard and set up the required env variables:
 
-   Click on the `server` serice go to the `Variables` tab:
+   Click on the `server` service and go to the **Variables** tab:
 
    1. Click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-   1. Add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
-   1. Add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
-   1. Add `JWT_SECRET` - enter a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+
+   1. Add `WASP_WEB_CLIENT_URL` with the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
+
+   1. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
+
+   1. Add `JWT_SECRET` with a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
 
      <AddExternalAuthEnvVarsReminder />
 
@@ -281,20 +295,12 @@ You'll deploy the server first:
 
     <small>
 
-    We used the `--ci` flag to only stream the build logs and not the logs that happen after the server is deployed.
+    We use the `--ci` flag to limit the log output to only the build process.
     </small>
 
-    Railway will now locate the `Dockerfile` and deploy your server.
+    Railway will locate the `Dockerfile` in `.wasp/build` and deploy your server.
 
 #### Deploying the Client
-
-:::caution Make sure to enable Railpack
-
-These instructions assume that Railpack is used as the deployment builder. If you don't use Railpack, the client routing will not work as expected. 
-
-You can go to your [Railway account settings](https://railway.com/account/feature-flags) and enable "Default to Railpack" or adjust the client service to use Railpack in the `Settings`.
-
-:::
 
 1. Next, go into your app's frontend build directory `.wasp/build/web-app`:
 
@@ -323,13 +329,7 @@ You can go to your [Railway account settings](https://railway.com/account/featur
     railway up --ci
     ```
 
-    <small>
-
-    We used the `--ci` flag to only stream the build logs and not the logs that happen after the client is deployed.
-    </small>
-
-
-    Select `client` when prompted with `Select Service`. 
+    Select `client` when prompted to select a service.
     
     Railway will detect the `index.html` file and deploy the client as a static site using [Railpack](https://railpack.com/languages/staticfile#root-directory-resolution).
 
@@ -342,9 +342,25 @@ Back in your [Railway dashboard](https://railway.com/dashboard), click on your p
 
 When you make updates and need to redeploy:
 
-- Run `wasp build` to rebuild your app.
-- Run `railway up --ci` in the `.wasp/build` directory to redeploy the server.
-- Rebuild the client using `npm` and run `railway up --ci` in the `.wasp/build/web-app/build` directory.
+1. Run `wasp build` to rebuild your app.
+1. Go into the `.wasp/build` directory and:
+
+    Deploy the server with:
+    ```shell
+    railway up --ci
+    ```
+1. Go into the `.wasp/build/web-app` directory and:
+
+    Rebuild the client with:
+    ```shell
+    npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+    ```
+    And then deploy the client with:
+    ```shell
+    cd build
+    railway up --ci
+    ```
+
 
 ## Heroku <Server /> <Database /> {#heroku}
 
