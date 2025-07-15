@@ -105,7 +105,7 @@ jobs:
         if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
         working-directory: waspc
         run: |
-          ./run build:alln
+          ./run build:all
           cabal install --installdir=.bin
 
       - uses: actions/setup-node@v4
