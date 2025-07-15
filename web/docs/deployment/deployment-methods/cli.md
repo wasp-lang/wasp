@@ -144,9 +144,9 @@ To deploy to Railway using Wasp CLI:
 
 1. Create a [Railway](https://railway.com/) account,
 
-1. Install the [`railway` CLI](https://docs.railway.com/guides/cli#installing-the-cli) on your machine.
-
 1. Wasp CLI requires that Railpack is set as the default deployment builder **for client routing to work correctly**. Go to your [Railway account settings](https://railway.com/account/feature-flags) and enable "Default to Railpack".
+
+1. Install the [`railway` CLI](https://docs.railway.com/guides/cli#installing-the-cli) on your machine.
 
 ### Deploying
 
@@ -162,7 +162,7 @@ wasp deploy railway launch my-wasp-app
 
 Keep in mind that:
 
-1. Your project name (for example `my-wasp-app`) must be unique across all your Railway projects or deployment will fail. (This is a current limitation of the Wasp CLI and Railway integration [#2926](https://github.com/wasp-lang/wasp/issues/2926))
+1. Your project name (for example `my-wasp-app`) must be unique across all your Railway projects or deployment will fail (his is a current limitation of the Wasp CLI and Railway integration [#2926](https://github.com/wasp-lang/wasp/issues/2926)).
 
 1. If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
 
@@ -171,7 +171,7 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI, so it will always be named `Postgres`.
+Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`.
 
 <LaunchCommandEnvVars />
 
