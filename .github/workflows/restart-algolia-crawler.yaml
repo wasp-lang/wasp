@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - deploy-web
+  pull_request:
 
 jobs:
   restart-crawler:
