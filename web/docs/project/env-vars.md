@@ -93,18 +93,10 @@ These are some general env variables used for various Wasp features:
 { name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
 { name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: "Server uses this value as your client URL in various features e.g. linking to your app in e-mails." },
 { name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: "Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub." },
-{ name: "JWT_SECRET", type: "String", isRequired: true, note: <span>Needed to generate secure tokens. Use the <a href="#jwt-secret-generator">Secret&nbsp;Generator</a> below to quickly create a random string at least 32 characters long.</span> },
+{ name: "JWT_SECRET", type: "String", isRequired: true, note: <><span>Needed to generate secure tokens. </span><SecretGeneratorBlock /></> },
 { name: "PORT", type: "Integer", isRequired: false, defaultValue: "3001", note: "This is where the server listens for requests." }
 ]}
 />
-
-#### Secret Generator {#jwt-secret-generator}
-
-Need a cryptographically-secure 64-character secret for `JWT_SECRET`?
-
-<SecretGeneratorBlock varName="JWT_SECRET" />
-
-The value is auto-copied to your clipboard when generated and will be visible here for five seconds.
 
 #### SMTP Email Sender
 
