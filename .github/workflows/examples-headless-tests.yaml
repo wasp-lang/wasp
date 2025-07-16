@@ -85,7 +85,7 @@ jobs:
         id: cache-wasp-cli
         uses: actions/cache@v4
         with:
-          path: waspc/.bin
+          path: ~/.cabal
           key: ${{ steps.generate-cache-key.outputs.cache-key }}
           lookup-only: true
 
@@ -106,7 +106,7 @@ jobs:
         working-directory: waspc
         run: |
           ./run build:all
-          cabal install --installdir=.bin --install-method=copy
+          cabal install
 
   test-example-apps:
     name: Test Example Apps
@@ -131,18 +131,18 @@ jobs:
       - name: Restore Wasp CLI Cache
         uses: actions/cache/restore@v4
         with:
+          path: ~/.cabal
           key: ${{ needs.setup-and-cache-wasp-cli.outputs.wasp-cli-cache-key }}
-          path: waspc/.bin
 
       - name: Add Wasp CLI to PATH
         run: |
-          echo "$(pwd)/waspc/.bin" >> $GITHUB_PATH
+          echo "~/.cabal/bin" >> $GITHUB_PATH
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
         with:
-          key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
           path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
 
       - uses: actions/setup-node@v4
         with:
