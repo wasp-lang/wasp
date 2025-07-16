@@ -106,7 +106,6 @@ jobs:
         working-directory: waspc
         run: |
           ./run build:all
-          # mkdir -p ~/.cabal/bin
           cabal install --installdir=$HOME/.cabal/bin --install-method=copy
 
 
@@ -139,6 +138,11 @@ jobs:
       - name: Add Wasp CLI to PATH
         run: |
           echo "~/.cabal/bin" >> $GITHUB_PATH
+
+      - name: Check Wasp CLI
+        run: |
+          ls "~/.cabal/bin"
+          wasp-cli --version
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
