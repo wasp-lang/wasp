@@ -1,5 +1,5 @@
 ---
-title: "Why 3 SaaS Founders Chose Wasp"
+title: "Why 3 SaaS Founders Chose Wasp As Their React & NodeJS Full-Stack Framework"
 authors: [vinny]
 image: /img/case-studies/saas-w-wasp.png
 tags: [wasp, saas, indiehackers, boilerplate]
