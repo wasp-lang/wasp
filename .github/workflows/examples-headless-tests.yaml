@@ -182,6 +182,8 @@ jobs:
           HEADLESS_TEST_MODE: dev
           DEBUG: "*"
         run: |
+          wasp-cli db migrate-dev
+
           npm run test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
