@@ -39,7 +39,7 @@ jobs:
           echo "Region -> $FLY_REGION"
           echo "Github run ID -> $GITHUB_RUN_ID"
           echo "github run number -> $GITHUB_RUN_NUMBER"
-          echo "Github sha" -> $GITHUB_SHA
+          echo "Github sha -> $GITHUB_SHA"
 
       - name: Deploy App
         run: |
