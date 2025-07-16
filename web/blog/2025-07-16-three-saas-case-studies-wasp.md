@@ -23,7 +23,7 @@ But don't take our word for it. Here are three founders, in their own words, tha
 Data analysis is messy. Dimitris, one of Kivo's co-founders, was tired of juggling countless tools (Excel for data, Python for analysis, and Word for reporting). He knew they could simplify the whole data analysis pipeline.
 
 ### The Solution
-[Kivo](httpss://kivo.com) is a beautiful, unified platform for creating data-driven reports. Think Notion, but with powerful, AI-assisted data editing capabilities built right in. You upload a file, Kivo helps you clean it, and you can generate full reports, charts, and more using prompt-based tools.
+[Kivo](https://kivo.dev) is a beautiful, unified platform for creating data-driven reports. Think Notion, but with powerful, AI-assisted data editing capabilities built right in. You upload a file, Kivo helps you clean it, and you can generate full reports, charts, and more using prompt-based tools.
 
 ### How Wasp Helped
 For Kivo, speed was everything. They needed to build a complex, data-intensive application with a small team.
