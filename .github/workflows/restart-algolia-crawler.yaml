@@ -1,0 +1,49 @@
+name: Restart Algolia crawler
+
+# Based on https://github.com/wasp-lang/wasp/tree/main/web#deployment.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - deploy-web
+
+jobs:
+  restart-crawler:
+    name: Restart Algolia Crawler
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Wasp web to finish deploying
+        env:
+          CLOUDFLARE_ACCOUNT_ID: 75c37602a6b75c790961219411cb1b92
+          CLOUDFLARE_PROJECT_NAME: wasp-docs
+        run: |
+          while true; do
+            response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CLOUDFLARE_PROJECT_NAME/deployments?per_page=1&page=1&env=production" \
+              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_READ_PAGES_API_TOKEN }}" \
+              -H "Content-Type: application/json")
+
+            latest_name=$(echo "$response" | jq -r '.result[0].latest_stage.name')
+            latest_status=$(echo "$response" | jq -r '.result[0].latest_stage.status')
+
+            echo "Latest stage: $latest_name, status: $latest_status"
+
+            if [[ "$latest_status" == "active" ]]; then
+              echo "Deployment is still active, waiting 5 seconds..."
+              sleep 5
+              continue
+            elif [[ "$latest_name" == "deploy" && "$latest_status" == "success" ]]; then
+              echo "Deployment succeeded!"
+              break
+            else
+              echo "Deployment failed or in unexpected state: stage=$latest_name, status=$latest_status"
+              exit 1
+            fi
+          done
+
+      - name: Restart Algolia crawler
+        run: |
+          # Based on Algolia API: https://www.algolia.com/doc/rest-api/crawler/#tag/actions/operation/startReindex
+          curl -X POST \
+            --user "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
