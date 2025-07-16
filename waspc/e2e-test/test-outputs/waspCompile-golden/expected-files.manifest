@@ -302,6 +302,7 @@ waspCompile/.wasp/out/web-app/index.html
 waspCompile/.wasp/out/web-app/netlify.toml
 waspCompile/.wasp/out/web-app/package-lock.json
 waspCompile/.wasp/out/web-app/package.json
+waspCompile/.wasp/out/web-app/public/.gitkeep
 waspCompile/.wasp/out/web-app/public/favicon.ico
 waspCompile/.wasp/out/web-app/public/manifest.json
 waspCompile/.wasp/out/web-app/src/components/DefaultRootErrorBoundary.tsx
@@ -326,6 +327,7 @@ waspCompile/.wasproot
 waspCompile/main.wasp
 waspCompile/package-lock.json
 waspCompile/package.json
+waspCompile/public/.gitkeep
 waspCompile/public/favicon.ico
 waspCompile/schema.prisma
 waspCompile/src/Main.css

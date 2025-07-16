@@ -145,15 +145,6 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
-      - name: Headless - Setup the Wasp app runner
-        id: headless-setup-wasp-app-runner
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          cd ../wasp-app-runner
-          npm ci
-          # Installs the wasp-app-runner globally so that it can be used in the tests
-          npm run install:global
-
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
         if: matrix.os == 'ubuntu-22.04'
@@ -192,8 +183,7 @@ jobs:
           cd examples/todoApp
           # Prepare the environment for the tests
           cp .env.server.headless .env.server
-          # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver HEADLESS_TEST_MODE=dev npx playwright test --config headless-tests/
+          HEADLESS_TEST_MODE=dev npm run test
 
       - name: Headless - Run Playwright Tests (build)
         id: headless-run-playwright-tests-build
@@ -202,8 +192,7 @@ jobs:
           cd examples/todoApp
           # Prepare the environment for the tests
           cp .env.server.headless .env.server
-          # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver HEADLESS_TEST_MODE=build npx playwright test --config headless-tests/
+          HEADLESS_TEST_MODE=build npm run test
 
       - name: Run e2e tests
         run: cabal test e2e-test

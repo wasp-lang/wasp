@@ -690,7 +690,14 @@
             "file",
             "web-app/package.json"
         ],
-        "9c87ad694e90989357cbaafc2cbb04a0df5e48653aeab396aaadc237cf644435"
+        "5f82c47c99523900b638bde2706d1ce09fb9351ae9269f50761a753c1f43a31f"
+    ],
+    [
+        [
+            "file",
+            "web-app/public/.gitkeep"
+        ],
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [

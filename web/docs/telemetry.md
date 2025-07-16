@@ -15,6 +15,7 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
 
 - Information is sent via HTTPS request when `wasp` CLI command is invoked.
   Information is sent no more than twice in a period of 12 hours (sending is paused for 12 hours after last invocation, separately for `wasp build` command and for all other commands). Exact information as it is sent:
+
   ```json
   {
     // Randomly generated, non-identifiable UUID representing a user.
@@ -24,7 +25,7 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
     // True if command was `wasp build`, false otherwise.
     "is_build": true,
     // Captures `wasp deploy ...` args, but only those from the limited, pre-defined list of keywords.
-    // Those are "fly", "setup", "create-db", "deploy" and "cmd". Everything else is ommited.
+    // Those are "fly", "railway", "setup", "create-db", "deploy", "cmd", and "launch". Everything else is ommited.
     "deploy_cmd_args": "fly;deploy",
     "wasp_version": "0.1.9.1",
     "os": "linux",

@@ -11,7 +11,7 @@ export const getTasks: GetTasks<void, TaskWithTags[]> = (_args, context) => {
 
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
-    orderBy: { id: "asc" },
+    orderBy: { createdAt: "desc" },
     include: {
       tags: {
         orderBy: { name: "asc" },
