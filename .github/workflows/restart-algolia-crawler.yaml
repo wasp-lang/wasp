@@ -17,8 +17,6 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: 75c37602a6b75c790961219411cb1b92
           CLOUDFLARE_PROJECT_NAME: wasp-docs
         run: |
-          set -e
-
           while true; do
             response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CLOUDFLARE_PROJECT_NAME/deployments?per_page=1&page=1&env=production" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_READ_PAGES_API_TOKEN }}" \
