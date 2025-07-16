@@ -81,10 +81,6 @@ jobs:
           CACHE_KEY="wasp-cli-${{ runner.os }}-${{ hashFiles('waspc/**/*.hs', 'waspc/**/*.cabal', 'waspc/cabal.project', 'waspc/data/**') }}"
           echo "cache-key=$CACHE_KEY" >> $GITHUB_OUTPUT
 
-      - name: Generate cabal bin folder
-        run: |
-          mkdir -p ~/.cabal/bin
-
       - name: Cache Wasp CLI
         id: cache-wasp-cli
         uses: actions/cache@v4
@@ -104,6 +100,11 @@ jobs:
         if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
         with:
           node-version: lts/*
+      
+      - name: Generate cabal bin folder
+        if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.cabal/bin
 
       - name: Build, package and install Wasp CLI
         if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
