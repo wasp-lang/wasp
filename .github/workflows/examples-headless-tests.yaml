@@ -185,7 +185,6 @@ jobs:
           wasp-cli version
           npm list
           npx run-wasp-app
-
           npm run test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
