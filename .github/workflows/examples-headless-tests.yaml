@@ -141,13 +141,19 @@ jobs:
 
       - name: Check Wasp CLI
         run: |
+          echo "HOME"
           ls $HOME
+          echo "HOME/.cabal"
           ls $HOME/.cabal
+          echo "HOME/.cabal/bin"
           ls $HOME/.cabal/bin
+          echo "~"
           ls ~
+          echo "~/.cabal"
           ls ~/.cabal
+          echo "~/.cabal/bin"
           ls ~/.cabal/bin
-          wasp-cli --version
+          wasp-cli version
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
