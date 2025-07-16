@@ -180,9 +180,8 @@ jobs:
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: dev
-          DEBUG: pw:webserver,pw:browser*
+          DEBUG: *
         run: |
-          npm i -g @wasp.sh/wasp-app-runner
           npm run test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
@@ -191,5 +190,6 @@ jobs:
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: build
+          DEBUG: *
         run: |
           npm run test
