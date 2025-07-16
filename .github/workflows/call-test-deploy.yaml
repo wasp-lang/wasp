@@ -1,0 +1,11 @@
+# TODO: Remove this before merge
+name: Test deploy workflow
+
+on:
+  push:
+    branches:
+      - filip-automatic-deploy-test
+
+jobs:
+  call-reusable:
+    uses: ./.github/workflows/reusable-workflow.yml
