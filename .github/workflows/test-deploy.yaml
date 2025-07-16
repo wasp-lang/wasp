@@ -3,7 +3,6 @@ name: Test Wasp Deploy
 on:
   workflow_call:
     secrets:
-      # TODO: Is this the convention? deploy-examples uses capital letters
       FLY_API_TOKEN:
         description: "Fly API token for deploying apps"
         required: true
@@ -14,16 +13,28 @@ jobs:
     env:
       # TODO: When exactly does this get passed in automatically? I'm guessing whenever the workflow is called on its own (and not as a reusable workflow).
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      FLY_REGION: mia
     steps:
+      - name: Generate unique prefix
+        id: generate_prefix
+        run: echo "PREFIX=ci-$(openssl rand -hex 4)" >> $GITHUB_ENV
+
       - name: Secret sanity check
-        run: |
-          echo Passed in secret: $FLY_API_TOKEN
+        run: echo "Passed in secret -> $FLY_API_TOKEN"
 
       - name: Echo Deploying
-        run: echo "Deploying with FLY_API_TOKEN -> $FLY_API_TOKEN"
+        run: |
+          echo "Deploying with FLY_API_TOKEN -> $FLY_API_TOKEN"
+          echo "Using prefix -> $PREFIX"
+          echo "Region -> $FLY_REGION"
+
+      - name: Deploy App
+        run: |
+          echo Running wasp deploy fly launch $PREFIX $REGION --org wasp
 
       - name: Echo Testing
         run: echo "Testing"
 
-      - name: Echo Destroying
-        run: echo "Destroying"
+      - name: Destroy Apps
+        run: |
+          echo Running fly apps list -q | grep $PREFIX | xargs fly apps destroy -y
