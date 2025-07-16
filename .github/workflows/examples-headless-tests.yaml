@@ -141,7 +141,12 @@ jobs:
 
       - name: Check Wasp CLI
         run: |
-          ls "~/.cabal/bin"
+          ls $HOME
+          ls $HOME/.cabal
+          ls $HOME/.cabal/bin
+          ls ~
+          ls ~/.cabal
+          ls ~/.cabal/bin
           wasp-cli --version
 
       - name: Restore Playwright Browsers Cache
