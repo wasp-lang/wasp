@@ -19,4 +19,4 @@ jobs:
     uses: ./.github/workflows/test-deploy.yaml
 
     secrets:
-       token: ${{ secrets.FLY_API_TOKEN }}
+       fly-token: ${{ secrets.FLY_API_TOKEN }}
