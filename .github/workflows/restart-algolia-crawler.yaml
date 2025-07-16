@@ -47,5 +47,4 @@ jobs:
           curl -X POST \
             --user "${{ secrets.ALGOLIA_CRAWLER_USER_ID }}:${{ secrets.ALGOLIA_CRAWLER_API_KEY }}" \
             -H "Content-Type: application/json" \
-            -H "User-Agent: algolia_crawler_github_actions/1.0.0" \
             "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex"
