@@ -49,3 +49,26 @@ export type _Parameters<T extends (...args: any) => any> = T extends (
 ) => any
   ? [FirstParam, ...Rest]
   : Parameters<T>;
+
+/**
+ * 
+ * Exact ensures a type has exactly the properties of another type.
+ * Helps with simulating excess property checking for generics in function definitions.
+ * 
+ * Inspired by: https://stackoverflow.com/questions/49580725/is-it-possible-to-restrict-typescript-object-to-contain-only-properties-define
+ * 
+ * @template T - The base type that defines the allowed properties
+ * @template U - The type to be constrained (must extend T)
+ * 
+ * @example
+ * // User can no longer add properties outside of UserSignupFields to T
+ * function defineUserSignupFields<T extends UserSignupFields>(
+ *   fields: Exact<UserSignupFields, T>
+ * ): T {
+ *   return fields
+ * }
+ */
+export type Exact<T, U extends T = T> = U & {
+  [P in Exclude<keyof U, keyof T>]: never;
+}
+

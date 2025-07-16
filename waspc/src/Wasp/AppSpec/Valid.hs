@@ -69,7 +69,8 @@ validateAppSpec spec =
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
-          validateUserNodeVersionRange spec
+          validateUserNodeVersionRange spec,
+          validateAtLeastOneRoute spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -383,6 +384,17 @@ validateUserNodeVersionRange spec =
                 <> " we recommend you narrow down your Node version range to not allow breaking changes."
           ]
         else []
+
+validateAtLeastOneRoute :: AppSpec -> [ValidationError]
+validateAtLeastOneRoute spec =
+  if null routes
+    then
+      [ GenericValidationError
+          "You must have at least one route in your app. You can add it using the 'route' declaration."
+      ]
+    else []
+  where
+    routes = AS.getRoutes spec
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

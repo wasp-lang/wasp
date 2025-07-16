@@ -1,5 +1,5 @@
 import { prisma } from 'wasp/server'
-import type { JSONValue, JSONObject } from 'wasp/server/_types/serialization'
+import type { JSONValue, JSONObject } from 'wasp/core/serialization'
 import { type JobFn, createJobDefinition } from 'wasp/server/jobs/core/pgBoss'
 
 const entities = {

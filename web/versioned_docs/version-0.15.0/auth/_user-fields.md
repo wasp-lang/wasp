@@ -1,6 +1,7 @@
 import { Required } from '@site/src/components/Tag';
 
 The user entity needs to have the following fields:
+
 - `id` <Required />
 
   It can be of any type, but it needs to be marked with `@id`

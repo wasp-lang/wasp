@@ -7,46 +7,41 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 You can configure the behavior of the server via the `server` field of `app` declaration:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      server: {
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  // ...
-  server: {
-    setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-    middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  // ...
-  server: {
-    setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-    middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      server: {
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ## Setup Function
 
-  <ShowForTs>
-
-`setupFn` declares a Typescript function that will be executed on server start.
+<ShowForTs>
+  `setupFn` declares a Typescript function that will be executed on server start.
 </ShowForTs>
 
-  <ShowForJs>
-
-`setupFn` declares a Javascript function that will be executed on server start.
+<ShowForJs>
+  `setupFn` declares a Javascript function that will be executed on server start.
 </ShowForJs>
 
 ### Adding a Custom Route
@@ -54,39 +49,36 @@ app MyApp {
 As an example, adding a custom route would look something like:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/myServerSetupCode.ts"
+    export const mySetupFunction = async ({ app }) => {
+      addCustomRoute(app)
+    }
 
-```js title="src/myServerSetupCode.ts"
-export const mySetupFunction = async ({ app }) => {
-  addCustomRoute(app)
-}
+    function addCustomRoute(app) {
+      app.get('/customRoute', (_req, res) => {
+        res.send('I am a custom route')
+      })
+    }
+    ```
+  </TabItem>
 
-function addCustomRoute(app) {
-  app.get('/customRoute', (_req, res) => {
-    res.send('I am a custom route')
-  })
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/myServerSetupCode.ts"
+    import { ServerSetupFn } from 'wasp/server'
+    import { Application } from 'express'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export const mySetupFunction: ServerSetupFn = async ({ app }) => {
+      addCustomRoute(app)
+    }
 
-```ts title="src/myServerSetupCode.ts"
-import { ServerSetupFn } from 'wasp/server'
-import { Application } from 'express'
-
-export const mySetupFunction: ServerSetupFn = async ({ app }) => {
-  addCustomRoute(app)
-}
-
-function addCustomRoute(app: Application) {
-  app.get('/customRoute', (_req, res) => {
-    res.send('I am a custom route')
-  })
-}
-```
-
-</TabItem>
+    function addCustomRoute(app: Application) {
+      app.get('/customRoute', (_req, res) => {
+        res.send('I am a custom route')
+      })
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ### Storing Some Values for Later Use
@@ -96,63 +88,60 @@ In case you want to store some values for later use, or to be accessed by the [O
 Dummy example of such function and its usage:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/myServerSetupCode.js"
+    let someResource = undefined
 
-```js title="src/myServerSetupCode.js"
-let someResource = undefined
+    export const mySetupFunction = async () => {
+      // Let's pretend functions setUpSomeResource and startSomeCronJob
+      // are implemented below or imported from another file.
+      someResource = await setUpSomeResource()
+      startSomeCronJob()
+    }
 
-export const mySetupFunction = async () => {
-  // Let's pretend functions setUpSomeResource and startSomeCronJob
-  // are implemented below or imported from another file.
-  someResource = await setUpSomeResource()
-  startSomeCronJob()
-}
+    export const getSomeResource = () => someResource
+    ```
 
-export const getSomeResource = () => someResource
-```
+    ```js title="src/queries.js"
+    import { getSomeResource } from './myServerSetupCode.js'
 
-```js title="src/queries.js"
-import { getSomeResource } from './myServerSetupCode.js'
+    ...
 
-...
+    export const someQuery = async (args, context) => {
+      const someResource = getSomeResource()
+      return queryDataFromSomeResource(args, someResource)
+    }
+    ```
+  </TabItem>
 
-export const someQuery = async (args, context) => {
-  const someResource = getSomeResource()
-  return queryDataFromSomeResource(args, someResource)
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/myServerSetupCode.ts"
+    import { type ServerSetupFn } from 'wasp/server'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    let someResource = undefined
 
-```ts title="src/myServerSetupCode.ts"
-import { type ServerSetupFn } from 'wasp/server'
+    export const mySetupFunction: ServerSetupFn = async () => {
+      // Let's pretend functions setUpSomeResource and startSomeCronJob
+      // are implemented below or imported from another file.
+      someResource = await setUpSomeResource()
+      startSomeCronJob()  
+    }
 
-let someResource = undefined
+    export const getSomeResource = () => someResource
+    ```
 
-export const mySetupFunction: ServerSetupFn = async () => {
-  // Let's pretend functions setUpSomeResource and startSomeCronJob
-  // are implemented below or imported from another file.
-  someResource = await setUpSomeResource()
-  startSomeCronJob()  
-}
+    ```ts title="src/queries.ts"
+    import { type SomeQuery } from 'wasp/server/operations'
+    import { getSomeResource } from './myServerSetupCode.js'
 
-export const getSomeResource = () => someResource
-```
+    ...
 
-```ts title="src/queries.ts"
-import { type SomeQuery } from 'wasp/server/operations'
-import { getSomeResource } from './myServerSetupCode.js'
-
-...
-
-export const someQuery: SomeQuery<...> = async (args, context) => {
-  const someResource = getSomeResource()
-  return queryDataFromSomeResource(args, someResource)
-}
-```
-
-</TabItem>
+    export const someQuery: SomeQuery<...> = async (args, context) => {
+      const someResource = getSomeResource()
+      return queryDataFromSomeResource(args, someResource)
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 :::note
@@ -172,34 +161,31 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
 ## API Reference
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      server: {
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  // ...
-  server: {
-    setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-    middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  // ...
-  server: {
-    setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-    middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      server: {
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 `app.server` is a dictionary with the following fields:
@@ -213,37 +199,34 @@ app MyApp {
   The `setupFn` function receives the `express.Application` and the `http.Server` instances as part of its context. They can be useful for setting up any custom server logic.
 
   <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
+    <TabItem value="js" label="JavaScript">
+      ```js title="src/myServerSetupCode.js"
+      export const mySetupFunction = async () => {
+        await setUpSomeResource()
+      }
+      ```
+    </TabItem>
 
-  ```js title="src/myServerSetupCode.js"
-  export const mySetupFunction = async () => {
-    await setUpSomeResource()
-  }
-  ```
+    <TabItem value="ts" label="TypeScript">
+      Types for the setup function and its context are as follows:
 
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
+      ```ts title="wasp/server"
+      export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
 
-  Types for the setup function and its context are as follows:
+      export type ServerSetupFnContext = {
+        app: Application // === express.Application
+        server: Server // === http.Server
+      }
+      ```
 
-  ```ts title="wasp/server"
-  export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
+      ```ts title="src/myServerSetupCode.ts"
+      import { type ServerSetupFn } from 'wasp/server'
 
-  export type ServerSetupFnContext = {
-    app: Application // === express.Application
-    server: Server // === http.Server
-  }
-  ```
-
-  ```ts title="src/myServerSetupCode.ts"
-  import { type ServerSetupFn } from 'wasp/server'
-
-  export const mySetupFunction: ServerSetupFn = async () => {
-    await setUpSomeResource()
-  }
-  ```
-
-  </TabItem>
+      export const mySetupFunction: ServerSetupFn = async () => {
+        await setUpSomeResource()
+      }
+      ```
+    </TabItem>
   </Tabs>
 
 - #### `middlewareConfigFn: ExtImport`

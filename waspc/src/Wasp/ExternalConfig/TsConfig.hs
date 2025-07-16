@@ -28,12 +28,13 @@ data CompilerOptions = CompilerOptions
     composite :: !(Maybe Bool),
     skipLibCheck :: !(Maybe Bool),
     moduleResolution :: !(Maybe String),
+    moduleDetection :: !(Maybe String),
+    isolatedModules :: !(Maybe Bool),
     jsx :: !(Maybe String),
     strict :: !(Maybe Bool),
     esModuleInterop :: !(Maybe Bool),
     lib :: !(Maybe [String]),
     allowJs :: !(Maybe Bool),
-    typeRoots :: !(Maybe [String]),
     outDir :: !(Maybe String)
   }
   deriving (Show, Generic)

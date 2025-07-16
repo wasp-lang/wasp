@@ -1,27 +1,39 @@
 {
   "name": "wasp-config",
-  "license": "MIT",
-  "author": "wasp",
   "version": "1.0.0",
-  "description": "Wasp TS SDK",
   "type": "module",
-  "main": "dist/run.js",
+  "description": "Wasp TS SDK",
+  "author": "wasp",
+  "license": "MIT",
+  "bin": "./dist/src/run.js",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon ./src/index.ts"
+    "coverage": "vitest run --coverage",
+    "dev": "nodemon ./src/index.ts",
+    "test": "vitest --reporter=verbose",
+    "test:integration": "vitest --reporter=verbose --project integration",
+    "test:type": "vitest --reporter=verbose --project type",
+    "test:unit": "vitest --reporter=verbose --project unit"
   },
-  "bin": "./dist/run.js",
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/node": "^22.4.1",
+    "@vitest/coverage-v8": "^3.1.2",
     "eslint": "^9.9.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
-    "prettier": "3.3.3",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.1.0"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.1.0",
+    "vitest": "3.1.2"
   },
-  "exports": {
-    ".": "./dist/index.js"
-  }
+  "//": [
+    "We pin `vitest` version because type tests are an experimental feature,",
+    "and changes to API are not breaking changes."
+  ]
 }

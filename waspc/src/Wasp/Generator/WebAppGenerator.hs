@@ -25,22 +25,22 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.Common (typescriptVersion)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.DepVersions (typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
-import Wasp.Generator.WebAppGenerator.Common
+import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
     reactQueryVersion,
     reactRouterVersion,
     reactVersion,
   )
-import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.WebAppGenerator.Vite (genVite)
@@ -112,9 +112,16 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+              "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
+  where
+    dependencyOverrides =
+      Npm.Dependency.fromList
+        [ -- TODO: remove this once Rollup fixes their lastest version https://github.com/rollup/rollup/issues/6012
+          ("rollup", "4.44.0")
+        ]
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
@@ -128,7 +135,7 @@ npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp _spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("axios", show axiosVersion),
             ("react", show reactVersion),
             -- React and ReactDOM versions should always match.
@@ -137,7 +144,7 @@ npmDepsForWasp _spec =
             ("react-router-dom", show reactRouterVersion)
           ],
       N.waspDevDependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", show typescriptVersion),
@@ -168,13 +175,11 @@ genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec =
   return $
     extPublicFileDrafts
-      ++ ifUserDidntProvideFile genFaviconFd
-      ++ ifUserDidntProvideFile genManifestFd
+      ++ ifUserDidntProvideFile manifestFd
   where
     publicFiles = AS.externalPublicFiles spec
     extPublicFileDrafts = map C.mkPublicFileDraft publicFiles
-    genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
-    genManifestFd = C.mkTmplFdWithData tmplFile tmplData
+    manifestFd = C.mkTmplFdWithData tmplFile tmplData
       where
         tmplData = object ["appName" .= (fst (getApp spec) :: String)]
         tmplFile = C.asTmplFile [relfile|public/manifest.json|]

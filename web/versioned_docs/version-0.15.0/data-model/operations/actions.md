@@ -38,43 +38,38 @@ Once these two steps are completed, you can use the Action from anywhere in your
 To create an Action in Wasp, we begin with an `action` declaration. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    // ...
 
-```wasp title="main.wasp"
-// ...
+    action createTask {
+      fn: import { createTask } from "@src/actions.js"
+    }
 
-action createTask {
-  fn: import { createTask } from "@src/actions.js"
-}
+    action markTaskAsDone {
+      fn: import { markTaskAsDone } from "@src/actions.js"
+    }
 
-action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@src/actions.js"
-}
+    ```
+  </TabItem>
 
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    // ...
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    action createTask {
+      fn: import { createTask } from "@src/actions.js"
+    }
 
-```wasp title="main.wasp"
-// ...
-
-action createTask {
-  fn: import { createTask } from "@src/actions.js"
-}
-
-action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@src/actions.js"
-}
-```
-
-</TabItem>
+    action markTaskAsDone {
+      fn: import { markTaskAsDone } from "@src/actions.js"
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <small>
-
-If you want to know about all supported options for the `action` declaration, take a look at the [API Reference](#api-reference).
-
+  If you want to know about all supported options for the `action` declaration, take a look at the [API Reference](#api-reference).
 </small>
 
 The names of Wasp Actions and their implementations don't necessarily have to match. However, to avoid confusion, we'll keep them the same.
@@ -103,160 +98,159 @@ Now that we've declared the Action, what remains is to implement it. We've instr
 Here's how you might implement the previously declared Actions `createTask` and `markTaskAsDone`:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/actions.js"
+    // our "database"
+    let nextId = 4
+    const tasks = [
+      { id: 1, description: 'Buy some eggs', isDone: true },
+      { id: 2, description: 'Make an omelette', isDone: false },
+      { id: 3, description: 'Eat breakfast', isDone: false },
+    ]
 
-```js title="src/actions.js"
-// our "database"
-let nextId = 4
-const tasks = [
-  { id: 1, description: 'Buy some eggs', isDone: true },
-  { id: 2, description: 'Make an omelette', isDone: false },
-  { id: 3, description: 'Eat breakfast', isDone: false },
-]
+    // You don't need to use the arguments if you don't need them
+    export const createTask = (args) => {
+      const newTask = {
+        id: nextId,
+        isDone: false,
+        description: args.description,
+      }
+      nextId += 1
+      tasks.push(newTask)
+      return newTask
+    }
 
-// You don't need to use the arguments if you don't need them
-export const createTask = (args) => {
-  const newTask = {
-    id: nextId,
-    isDone: false,
-    description: args.description,
-  }
-  nextId += 1
-  tasks.push(newTask)
-  return newTask
-}
+    // The 'args' object is something sent by the caller (most often from the client)
+    export const markTaskAsDone = (args) => {
+      const task = tasks.find((task) => task.id === args.id)
+      if (!task) {
+        // We'll show how to properly handle such errors later
+        return
+      }
+      task.isDone = true
+    }
+    ```
 
-// The 'args' object is something sent by the caller (most often from the client)
-export const markTaskAsDone = (args) => {
-  const task = tasks.find((task) => task.id === args.id)
-  if (!task) {
-    // We'll show how to properly handle such errors later
-    return
-  }
-  task.isDone = true
-}
-```
+    <SuperjsonNote />
+  </TabItem>
 
-<SuperjsonNote />
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/actions.ts"
+    import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    type Task = {
+      id: number
+      description: string
+      isDone: boolean
+    }
 
-```ts title="src/actions.ts"
-import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
+    // our "database"
+    let nextId = 4
+    const tasks = [
+      { id: 1, description: 'Buy some eggs', isDone: true },
+      { id: 2, description: 'Make an omelette', isDone: false },
+      { id: 3, description: 'Eat breakfast', isDone: false },
+    ]
 
-type Task = {
-  id: number
-  description: string
-  isDone: boolean
-}
+    // You don't need to use the arguments if you don't need them
+    export const createTask: CreateTask<Pick<Task, 'description'>, Task> = (
+      args
+    ) => {
+      const newTask = {
+        id: nextId,
+        isDone: false,
+        description: args.description,
+      }
+      nextId += 1
+      tasks.push(newTask)
+      return newTask
+    }
 
-// our "database"
-let nextId = 4
-const tasks = [
-  { id: 1, description: 'Buy some eggs', isDone: true },
-  { id: 2, description: 'Make an omelette', isDone: false },
-  { id: 3, description: 'Eat breakfast', isDone: false },
-]
+    // The 'args' object is something sent by the caller (most often from the client)
+    export const markTaskAsDone: MarkTaskAsDone<Pick<Task, 'id'>, void> = (
+      args
+    ) => {
+      const task = tasks.find((task) => task.id === args.id)
+      if (!task) {
+        // We'll show how to properly handle such errors later
+        return
+      }
+      task.isDone = true
+    }
+    ```
 
-// You don't need to use the arguments if you don't need them
-export const createTask: CreateTask<Pick<Task, 'description'>, Task> = (
-  args
-) => {
-  const newTask = {
-    id: nextId,
-    isDone: false,
-    description: args.description,
-  }
-  nextId += 1
-  tasks.push(newTask)
-  return newTask
-}
+    <SuperjsonNote />
 
-// The 'args' object is something sent by the caller (most often from the client)
-export const markTaskAsDone: MarkTaskAsDone<Pick<Task, 'id'>, void> = (
-  args
-) => {
-  const task = tasks.find((task) => task.id === args.id)
-  if (!task) {
-    // We'll show how to properly handle such errors later
-    return
-  }
-  task.isDone = true
-}
-```
+    #### Type support for Actions
 
-<SuperjsonNote />
+    Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp file:
 
-#### Type support for Actions
+    - `CreateTask` is a generic type that Wasp automatically generated based on the Action declaration for `createTask`.
+    - `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action declaration for `markTaskAsDone`.
 
-Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp file:
+    Use these types to type the Action's implementation.
+    It's optional but very helpful since doing so properly types the Action's context.
 
-- `CreateTask` is a generic type that Wasp automatically generated based on the Action declaration for `createTask`.
-- `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action declaration for `markTaskAsDone`.
+    In this case, TypeScript will know the `context.entities` object must include the `Task` entity.
+    TypeScript also knows whether the `context` object includes user information (it depends on whether your Action uses auth).
 
-Use these types to type the Action's implementation.
-It's optional but very helpful since doing so properly types the Action's context.
+    The generated types are generic and accept two optional type arguments: `Input` and `Output`.
 
-In this case, TypeScript will know the `context.entities` object must include the `Task` entity.
-TypeScript also knows whether the `context` object includes user information (it depends on whether your Action uses auth).
+    1. `Input` - The argument (the payload) received by the Action function.
+    2. `Output` - The Action function's return type.
 
-The generated types are generic and accept two optional type arguments: `Input` and `Output`.
+    Use these type arguments to type the Action's inputs and outputs.
 
-1. `Input` - The argument (the payload) received by the Action function.
-2. `Output` - The Action function's return type.
+    <details>
+      <summary>Explanation for the example above</summary>
 
-Use these type arguments to type the Action's inputs and outputs.
+      The above code says that the Action `createTask` expects an object with the new task's description (its input type is `Pick<Task, 'description'>`) and returns the new task (its output type is `Task`).
 
-<details>
-<summary>Explanation for the example above</summary>
+      On the other hand, the Action `markTaskAsDone` expects an object of type `Pick<Task, 'id'>`. This type is derived from the `Task` entity type.
 
-The above code says that the Action `createTask` expects an object with the new task's description (its input type is `Pick<Task, 'description'>`) and returns the new task (its output type is `Task`).
+      If you don't care about typing the Action's inputs and outputs, you can omit both type arguments.
+      TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
 
-On the other hand, the Action `markTaskAsDone` expects an object of type `Pick<Task, 'id'>`. This type is derived from the `Task` entity type.
+      Specifying `Input` or `Output` is completely optional, but we highly recommended it. Doing so gives you:
 
-If you don't care about typing the Action's inputs and outputs, you can omit both type arguments.
-TypeScript will then infer the most general types (`never` for the input and `unknown` for the output).
+      - Type support for the arguments and the return value inside the implementation.
+      - **Full-stack type safety**. We'll explore what this means when we discuss calling the Action from the client.
+    </details>
 
-Specifying `Input` or `Output` is completely optional, but we highly recommended it. Doing so gives you:
-  - Type support for the arguments and the return value inside the implementation.
-  - **Full-stack type safety**. We'll explore what this means when we discuss calling the Action from the client.
+    Read more about type support for implementing Actions in the [API Reference](#implementing-actions).
 
-</details>
+    :::tip Inferring the return type
 
-Read more about type support for implementing Actions in the [API Reference](#implementing-actions).
+    If don't want to explicitly type the Action's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
 
-:::tip Inferring the return type
+    ```typescript
+    const createFoo = (async (_args, context) => {
+      const foo = await context.entities.Foo.create()
+      return {
+        newFoo: foo,
+        message: "Here's your foo!",
+        returnedAt: new Date(),
+      }
+    }) satisfies GetFoo
+    ```
 
-If don't want to explicitly type the Action's return value, the `satisfies` keyword tells TypeScript to infer it automatically:
-```typescript
-const createFoo = (async (_args, context) => {
-  const foo = await context.entities.Foo.create()
-  return {
-    newFoo: foo,
-    message: "Here's your foo!",
-    returnedAt: new Date(),
-  }
-}) satisfies GetFoo
-```
-From the snippet above, TypeScript knows:
-1. The correct type for `context`. 
-2. The Action's return type is `{ newFoo: Foo, message: string, returnedAt: Date }`.
+    From the snippet above, TypeScript knows:
 
-If you don't need the context, you can skip specifying the Action's type (and arguments):
-```typescript
-const createFoo = () => {{ name: 'Foo', date: new Date() }}
-```
+    1. The correct type for `context`.
+    2. The Action's return type is `{ newFoo: Foo, message: string, returnedAt: Date }`.
 
-:::
+    If you don't need the context, you can skip specifying the Action's type (and arguments):
 
-</TabItem>
+    ```typescript
+    const createFoo = () => {{ name: 'Foo', date: new Date() }}
+    ```
+
+    :::
+  </TabItem>
 </Tabs>
 
 <small>
-
-For a detailed explanation of the Action definition API (more precisely, its arguments and return values), check the [API Reference](#api-reference).
-
+  For a detailed explanation of the Action definition API (more precisely, its arguments and return values), check the [API Reference](#api-reference).
 </small>
 
 ### Using Actions
@@ -269,154 +263,145 @@ The usage doesn't depend on whether the Action is authenticated or not.
 Wasp authenticates the logged-in user in the background.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    import { createTask, markTaskAsDone } from 'wasp/client/operations'
 
-```js
-import { createTask, markTaskAsDone } from 'wasp/client/operations'
+    // ...
 
-// ...
+    const newTask = await createTask({ description: 'Learn TypeScript' })
+    await markTaskAsDone({ id: 1 })
+    ```
+  </TabItem>
 
-const newTask = await createTask({ description: 'Learn TypeScript' })
-await markTaskAsDone({ id: 1 })
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import { createTask, markTaskAsDone } from 'wasp/client/operations'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    // TypeScript automatically infers the return values and type-checks
+    // the payloads.
+    const newTask = await createTask({ description: 'Keep learning TypeScript' })
+    await markTaskAsDone({ id: 1 })
+    ```
 
-```ts
-import { createTask, markTaskAsDone } from 'wasp/client/operations'
-
-// TypeScript automatically infers the return values and type-checks
-// the payloads.
-const newTask = await createTask({ description: 'Keep learning TypeScript' })
-await markTaskAsDone({ id: 1 })
-```
-
-Wasp supports **automatic full-stack type safety**.
-You only need to specify the Action's type in its server-side definition, and the client code will automatically know its API payload types.
-
-</TabItem>
+    Wasp supports **automatic full-stack type safety**.
+    You only need to specify the Action's type in its server-side definition, and the client code will automatically know its API payload types.
+  </TabItem>
 </Tabs>
 
 When using Actions on the client, you'll most likely want to use them inside a component:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/pages/Task.jsx"
+    import React from 'react'
+    // highlight-next-line
+    import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
 
-```jsx title=src/pages/Task.jsx
-import React from 'react'
-// highlight-next-line
-import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
+    export const TaskPage = ({ id }) => {
+      const { data: task } = useQuery(getTask, { id })
 
-export const TaskPage = ({ id }) => {
-  const { data: task } = useQuery(getTask, { id })
+      if (!task) {
+        return <h1>"Loading"</h1>
+      }
 
-  if (!task) {
-    return <h1>"Loading"</h1>
-  }
+      const { description, isDone } = task
+      return (
+        <div>
+          <p>
+            <strong>Description: </strong>
+            {description}
+          </p>
+          <p>
+            <strong>Is done: </strong>
+            {isDone ? 'Yes' : 'No'}
+          </p>
+          {isDone || (
+            // highlight-next-line
+            <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
+          )}
+        </div>
+      )
+    }
+    ```
+  </TabItem>
 
-  const { description, isDone } = task
-  return (
-    <div>
-      <p>
-        <strong>Description: </strong>
-        {description}
-      </p>
-      <p>
-        <strong>Is done: </strong>
-        {isDone ? 'Yes' : 'No'}
-      </p>
-      {isDone || (
-        // highlight-next-line
-        <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
-      )}
-    </div>
-  )
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/Task.tsx"
+    import React from 'react'
+    // highlight-next-line
+    import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export const TaskPage = ({ id }: { id: number }) => {
+      const { data: task } = useQuery(getTask, { id })
 
-```tsx title=src/pages/Task.tsx
-import React from 'react'
-// highlight-next-line
-import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
+      if (!task) {
+        return <h1>"Loading"</h1>
+      }
 
-export const TaskPage = ({ id }: { id: number }) => {
-  const { data: task } = useQuery(getTask, { id })
-
-  if (!task) {
-    return <h1>"Loading"</h1>
-  }
-
-  const { description, isDone } = task
-  return (
-    <div>
-      <p>
-        <strong>Description: </strong>
-        {description}
-      </p>
-      <p>
-        <strong>Is done: </strong>
-        {isDone ? 'Yes' : 'No'}
-      </p>
-      {isDone || (
-        // highlight-next-line
-        <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
-      )}
-    </div>
-  )
-}
-```
-
-</TabItem>
+      const { description, isDone } = task
+      return (
+        <div>
+          <p>
+            <strong>Description: </strong>
+            {description}
+          </p>
+          <p>
+            <strong>Is done: </strong>
+            {isDone ? 'Yes' : 'No'}
+          </p>
+          {isDone || (
+            // highlight-next-line
+            <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
+          )}
+        </div>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [API Reference](#api-reference).
-
 
 #### Using Actions on the server
 
 Calling an Action on the server is similar to calling it on the client.
 
 Here's what you have to do differently:
- - Import Actions from `wasp/server/operations` instead of `wasp/client/operations`.
- - Make sure you pass in a context object with the user to authenticated Actions.
+
+- Import Actions from `wasp/server/operations` instead of `wasp/client/operations`.
+- Make sure you pass in a context object with the user to authenticated Actions.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    import { createTask, markTaskAsDone } from 'wasp/server/operations'
 
-```js
-import { createTask, markTaskAsDone } from 'wasp/server/operations'
+    const user = // Get an AuthUser object, e.g., from context.user
 
-const user = // Get an AuthUser object, e.g., from context.user
+    const newTask = await createTask(
+      { description: 'Learn TypeScript' },
+      { user },
+    )
+    await markTaskAsDone({ id: 1 }, { user })
+    ```
+  </TabItem>
 
-const newTask = await createTask(
-  { description: 'Learn TypeScript' },
-  { user },
-)
-await markTaskAsDone({ id: 1 }, { user })
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import { createTask, markTaskAsDone } from 'wasp/server/operations'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    const user = // Get an AuthUser object, e.g., from context.user
 
-```ts
-import { createTask, markTaskAsDone } from 'wasp/server/operations'
-
-const user = // Get an AuthUser object, e.g., from context.user
-
-// TypeScript automatically infers the return values and type-checks
-// the payloads.
-const newTask = await createTask(
-  { description: 'Keep learning TypeScript' },
-  { user },
-)
-await markTaskAsDone({ id: 1 }, { user })
-```
-
-</TabItem>
+    // TypeScript automatically infers the return values and type-checks
+    // the payloads.
+    const newTask = await createTask(
+      { description: 'Keep learning TypeScript' },
+      { user },
+    )
+    await markTaskAsDone({ id: 1 }, { user })
+    ```
+  </TabItem>
 </Tabs>
 
 ### Error Handling
@@ -427,37 +412,34 @@ Hiding error details by default helps against accidentally leaking possibly sens
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/actions.js"
+    import { HttpError } from 'wasp/server'
 
-```js title=src/actions.js
-import { HttpError } from 'wasp/server'
+    export const createTask = async (args, context) => {
+      throw new HttpError(
+        403, // status code
+        "You can't do this!", // message
+        { foo: 'bar' } // data
+      )
+    }
+    ```
+  </TabItem>
 
-export const createTask = async (args, context) => {
-  throw new HttpError(
-    403, // status code
-    "You can't do this!", // message
-    { foo: 'bar' } // data
-  )
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/actions.ts"
+    import { type CreateTask } from 'wasp/server/operations'
+    import { HttpError } from 'wasp/server'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title=src/actions.ts
-import { type CreateTask } from 'wasp/server/operations'
-import { HttpError } from 'wasp/server'
-
-export const createTask: CreateTask = async (args, context) => {
-  throw new HttpError(
-    403, // status code
-    "You can't do this!", // message
-    { foo: 'bar' } // data
-  )
-}
-```
-
-</TabItem>
+    export const createTask: CreateTask = async (args, context) => {
+      throw new HttpError(
+        403, // status code
+        "You can't do this!", // message
+        { foo: 'bar' } // data
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ### Using Entities in Actions
@@ -466,101 +448,95 @@ In most cases, resources used in Actions will be [Entities](../../data-model/ent
 To use an Entity in your Action, add it to the `action` declaration in Wasp:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp {4,9} title="main.wasp"
 
-```wasp {4,9} title="main.wasp"
+    action createTask {
+      fn: import { createTask } from "@src/actions.js",
+      entities: [Task]
+    }
 
-action createTask {
-  fn: import { createTask } from "@src/actions.js",
-  entities: [Task]
-}
+    action markTaskAsDone {
+      fn: import { markTaskAsDone } from "@src/actions.js",
+      entities: [Task]
+    }
+    ```
+  </TabItem>
 
-action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@src/actions.js",
-  entities: [Task]
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp {4,9} title="main.wasp"
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    action createTask {
+      fn: import { createTask } from "@src/actions.js",
+      entities: [Task]
+    }
 
-```wasp {4,9} title="main.wasp"
-
-action createTask {
-  fn: import { createTask } from "@src/actions.js",
-  entities: [Task]
-}
-
-action markTaskAsDone {
-  fn: import { markTaskAsDone } from "@src/actions.js",
-  entities: [Task]
-}
-```
-
-</TabItem>
+    action markTaskAsDone {
+      fn: import { markTaskAsDone } from "@src/actions.js",
+      entities: [Task]
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API.
 Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/actions.js"
+    // The 'args' object is the payload sent by the caller (most often from the client)
+    export const createTask = async (args, context) => {
+      const newTask = await context.entities.Task.create({
+        data: {
+          description: args.description,
+          isDone: false,
+        },
+      })
+      return newTask
+    }
 
-```js title="src/actions.js"
-// The 'args' object is the payload sent by the caller (most often from the client)
-export const createTask = async (args, context) => {
-  const newTask = await context.entities.Task.create({
-    data: {
-      description: args.description,
-      isDone: false,
-    },
-  })
-  return newTask
-}
+    export const markTaskAsDone = async (args, context) => {
+      await context.entities.Task.update({
+        where: { id: args.id },
+        data: { isDone: true },
+      })
+    }
+    ```
+  </TabItem>
 
-export const markTaskAsDone = async (args, context) => {
-  await context.entities.Task.update({
-    where: { id: args.id },
-    data: { isDone: true },
-  })
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/actions.ts"
+    import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
+    import { type Task } from 'wasp/entities'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    // The 'args' object is the payload sent by the caller (most often from the client)
+    export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
+      args,
+      context
+    ) => {
+      const newTask = await context.entities.Task.create({
+        data: {
+          description: args.description,
+          isDone: false,
+        },
+      })
+      return newTask
+    }
 
-```ts title="src/actions.ts"
-import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
-import { type Task } from 'wasp/entities'
+    export const markTaskAsDone: MarkTaskAsDone<Pick<Task, 'id'>, void> = async (
+      args,
+      context
+    ) => {
+      await context.entities.Task.update({
+        where: { id: args.id },
+        data: { isDone: true },
+      })
+    }
+    ```
 
-// The 'args' object is the payload sent by the caller (most often from the client)
-export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
-  args,
-  context
-) => {
-  const newTask = await context.entities.Task.create({
-    data: {
-      description: args.description,
-      isDone: false,
-    },
-  })
-  return newTask
-}
-
-export const markTaskAsDone: MarkTaskAsDone<Pick<Task, 'id'>, void> = async (
-  args,
-  context
-) => {
-  await context.entities.Task.update({
-    where: { id: args.id },
-    data: { isDone: true },
-  })
-}
-```
-
-Again, annotating the Actions is optional, but greatly improves **full-stack type safety**.
-
-</TabItem>
+    Again, annotating the Actions is optional, but greatly improves **full-stack type safety**.
+  </TabItem>
 </Tabs>
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
@@ -610,56 +586,53 @@ The `action` declaration supports the following fields:
 #### Example
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    Declaring the Action:
 
-Declaring the Action:
+    ```wasp
+    query createFoo {
+        fn: import { createFoo } from "@src/actions.js"
+        entities: [Foo]
+    }
+    ```
 
-```wasp
-query createFoo {
-    fn: import { createFoo } from "@src/actions.js"
-    entities: [Foo]
-}
-```
+    Enables you to import and use it anywhere in your code (on the server or the client):
 
-Enables you to import and use it anywhere in your code (on the server or the client):
+    ```js
+    // Use it on the client
+    import { createFoo } from 'wasp/client/operations'
 
-```js
-// Use it on the client
-import { createFoo } from 'wasp/client/operations'
+    // Use it on the server
+    import { createFoo } from 'wasp/server/operations'
+    ```
+  </TabItem>
 
-// Use it on the server
-import { createFoo } from 'wasp/server/operations'
-```
+  <TabItem value="ts" label="TypeScript">
+    Declaring the Action:
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    ```wasp
+    query createFoo {
+        fn: import { createFoo } from "@src/actions.js"
+        entities: [Foo]
+    }
+    ```
 
-Declaring the Action:
+    Enables you to import and use it anywhere in your code (on the server or the client):
 
-```wasp
-query createFoo {
-    fn: import { createFoo } from "@src/actions.js"
-    entities: [Foo]
-}
-```
+    ```ts
+    // Use it on the client
+    import { createFoo } from 'wasp/client/operations'
 
-Enables you to import and use it anywhere in your code (on the server or the client):
+    // Use it on the server
+    import { createFoo } from 'wasp/server/operations'
+    ```
 
-```ts
-// Use it on the client
-import { createFoo } from 'wasp/client/operations'
+    As well as the following type import on the server:
 
-// Use it on the server
-import { createFoo } from 'wasp/server/operations'
-```
-
-As well as the following type import on the server:
-
-```ts
-import { type CreateFoo } from 'wasp/server/operations'
-```
-
-</TabItem>
+    ```ts
+    import { type CreateFoo } from 'wasp/server/operations'
+    ```
+  </TabItem>
 </Tabs>
 
 ### Implementing Actions
@@ -677,79 +650,74 @@ Since both arguments are positional, you can name the parameters however you wan
    An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth section](../../auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
+  After you [declare the Action](#declaring-actions), Wasp generates a generic type you can use when defining its implementation.
+  For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
 
-After you [declare the Action](#declaring-actions), Wasp generates a generic type you can use when defining its implementation.
-For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
+  ```ts
+  import { type CreateSomething } from 'wasp/server/operations'
+  ```
 
-```ts
-import { type CreateSomething } from 'wasp/server/operations'
-```
+  It expects two (optional) type arguments:
 
-It expects two (optional) type arguments:
+  1. `Input`
 
-1.  `Input`
+     The type of the `args` object (the Action's input payload). The default value is `never`.
 
-    The type of the `args` object (the Action's input payload). The default value is `never`.
+  2. `Output`
 
-2.  `Output`
+     The type of the Action's return value (the Action's output payload). The default value is `unknown`.
 
-    The type of the Action's return value (the Action's output payload). The default value is `unknown`.
-
-The defaults were chosen to make the type signature as permissive as possible. If don't want your Action to take/return anything, use `void` as a type argument.
-
+  The defaults were chosen to make the type signature as permissive as possible. If don't want your Action to take/return anything, use `void` as a type argument.
 </ShowForTs>
 
 #### Example
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    The following Action:
 
-The following Action:
+    ```wasp
+    action createFoo {
+        fn: import { createFoo } from "@src/actions.js"
+        entities: [Foo]
+    }
+    ```
 
-```wasp
-action createFoo {
-    fn: import { createFoo } from "@src/actions.js"
-    entities: [Foo]
-}
-```
+    Expects to find a named export `createfoo` from the file `src/actions.js`
 
-Expects to find a named export `createfoo` from the file `src/actions.js`
+    ```js title="actions.js"
+    export const createFoo = (args, context) => {
+      // implementation
+    }
+    ```
+  </TabItem>
 
-```js title=actions.js
-export const createFoo = (args, context) => {
-  // implementation
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    The following Action:
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    ```wasp
+    action createFoo {
+        fn: import { createFoo } from "@src/actions.js"
+        entities: [Foo]
+    }
+    ```
 
-The following Action:
+    Expects to find a named export `createfoo` from the file `src/actions.js`
 
-```wasp
-action createFoo {
-    fn: import { createFoo } from "@src/actions.js"
-    entities: [Foo]
-}
-```
+    You can use the generated type `CreateFoo` and specify the Action's inputs and outputs using its type arguments.
 
-Expects to find a named export `createfoo` from the file `src/actions.js`
+    ```ts title="actions.ts"
+    import { type CreateFoo } from 'wasp/server/operations'
 
-You can use the generated type `CreateFoo` and specify the Action's inputs and outputs using its type arguments.
+    type Foo = // ...
 
-```ts title=actions.ts
-import { type CreateFoo } from 'wasp/server/operations'
+    export const createFoo: CreateFoo<{ bar: string }, Foo> = (args, context) => {
+      // implementation
+    };
+    ```
 
-type Foo = // ...
-
-export const createFoo: CreateFoo<{ bar: string }, Foo> = (args, context) => {
-  // implementation
-};
-```
-
-In this case, the Action expects to receive an object with a `bar` field of type `string` (this is the type of `args`), and return a value of type `Foo` (this must match the type of the Action's return value).
-
-</TabItem>
+    In this case, the Action expects to receive an object with a `bar` field of type `string` (this is the type of `args`), and return a value of type `Foo` (this must match the type of the Action's return value).
+  </TabItem>
 </Tabs>
 
 ### The `useAction` Hook and Optimistic Updates
@@ -795,114 +763,111 @@ Finally, your implementation of the `updateQuery` function should work correctly
 Here's an example showing how to configure the Action `markTaskAsDone` that toggles a task's `isDone` status to perform an optimistic update:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="src/pages/Task.jsx"
+    import React from 'react'
+    import {
+      useQuery,
+      useAction,
+      getTask,
+      markTaskAsDone,
+    } from 'wasp/client/operations'
 
-```jsx title=src/pages/Task.jsx
-import React from 'react'
-import {
-  useQuery,
-  useAction,
-  getTask,
-  markTaskAsDone,
-} from 'wasp/client/operations'
+    const TaskPage = ({ id }) => {
+      const { data: task } = useQuery(getTask, { id })
+      // highlight-start
+      const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
+        optimisticUpdates: [
+          {
+            getQuerySpecifier: ({ id }) => [getTask, { id }],
+            updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
+          },
+        ],
+      })
+      // highlight-end
 
-const TaskPage = ({ id }) => {
-  const { data: task } = useQuery(getTask, { id })
-  // highlight-start
-  const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
-    optimisticUpdates: [
-      {
-        getQuerySpecifier: ({ id }) => [getTask, { id }],
-        updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
-      },
-    ],
-  })
-  // highlight-end
+      if (!task) {
+        return <h1>"Loading"</h1>
+      }
 
-  if (!task) {
-    return <h1>"Loading"</h1>
-  }
+      const { description, isDone } = task
+      return (
+        <div>
+          <p>
+            <strong>Description: </strong>
+            {description}
+          </p>
+          <p>
+            <strong>Is done: </strong>
+            {isDone ? 'Yes' : 'No'}
+          </p>
+          {isDone || (
+            <button onClick={() => markTaskAsDoneOptimistically({ id })}>
+              Mark as done.
+            </button>
+          )}
+        </div>
+      )
+    }
 
-  const { description, isDone } = task
-  return (
-    <div>
-      <p>
-        <strong>Description: </strong>
-        {description}
-      </p>
-      <p>
-        <strong>Is done: </strong>
-        {isDone ? 'Yes' : 'No'}
-      </p>
-      {isDone || (
-        <button onClick={() => markTaskAsDoneOptimistically({ id })}>
-          Mark as done.
-        </button>
-      )}
-    </div>
-  )
-}
+    export default TaskPage
+    ```
+  </TabItem>
 
-export default TaskPage
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/Task.tsx"
+    import React from 'react'
+    import {
+      useQuery,
+      useAction,
+      type OptimisticUpdateDefinition,
+      getTask,
+      markTaskAsDone,
+    } from 'wasp/client/operations'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    type TaskPayload = Pick<Task, "id">;
 
-```tsx title=src/pages/Task.tsx
-import React from 'react'
-import {
-  useQuery,
-  useAction,
-  type OptimisticUpdateDefinition,
-  getTask,
-  markTaskAsDone,
-} from 'wasp/client/operations'
+    const TaskPage = ({ id }: { id: number }) => {
+      const { data: task } = useQuery(getTask, { id });
+      // Typescript automatically type-checks the payload type.
+      // highlight-start
+      const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
+        optimisticUpdates: [
+          {
+            getQuerySpecifier: ({ id }) => [getTask, { id }],
+            updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
+          } as OptimisticUpdateDefinition<TaskPayload, Task>,
+        ],
+      });
+      // highlight-end
 
-type TaskPayload = Pick<Task, "id">;
+      if (!task) {
+        return <h1>"Loading"</h1>;
+      }
 
-const TaskPage = ({ id }: { id: number }) => {
-  const { data: task } = useQuery(getTask, { id });
-  // Typescript automatically type-checks the payload type.
-  // highlight-start
-  const markTaskAsDoneOptimistically = useAction(markTaskAsDone, {
-    optimisticUpdates: [
-      {
-        getQuerySpecifier: ({ id }) => [getTask, { id }],
-        updateQuery: (_payload, oldData) => ({ ...oldData, isDone: true }),
-      } as OptimisticUpdateDefinition<TaskPayload, Task>,
-    ],
-  });
-  // highlight-end
+      const { description, isDone } = task;
+      return (
+        <div>
+          <p>
+            <strong>Description: </strong>
+            {description}
+          </p>
+          <p>
+            <strong>Is done: </strong>
+            {isDone ? "Yes" : "No"}
+          </p>
+          {isDone || (
+            <button onClick={() => markTaskAsDoneOptimistically({ id })}>
+              Mark as done.
+            </button>
+          )}
+        </div>
+      );
+    };
 
-  if (!task) {
-    return <h1>"Loading"</h1>;
-  }
-
-  const { description, isDone } = task;
-  return (
-    <div>
-      <p>
-        <strong>Description: </strong>
-        {description}
-      </p>
-      <p>
-        <strong>Is done: </strong>
-        {isDone ? "Yes" : "No"}
-      </p>
-      {isDone || (
-        <button onClick={() => markTaskAsDoneOptimistically({ id })}>
-          Mark as done.
-        </button>
-      )}
-    </div>
-  );
-};
-
-export default TaskPage;
-```
-
-</TabItem>
+    export default TaskPage;
+    ```
+  </TabItem>
 </Tabs>
 
 #### Advanced usage
@@ -914,22 +879,19 @@ Wasp's optimistic update API is deliberately small and focuses exclusively on up
 If you decide to use _react-query_'s API directly, you will need access to Query cache key. Wasp internally uses this key but abstracts it from the programmer. Still, you can easily obtain it by accessing the `queryCacheKey` property on any Query:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    import { getTasks } from 'wasp/client/operations'
 
-```js
-import { getTasks } from 'wasp/client/operations'
+    const queryKey = getTasks.queryCacheKey
+    ```
+  </TabItem>
 
-const queryKey = getTasks.queryCacheKey
-```
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import { getTasks } from 'wasp/client/operations'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts
-import { getTasks } from 'wasp/client/operations'
-
-const queryKey = getTasks.queryCacheKey
-```
-
-</TabItem>
+    const queryKey = getTasks.queryCacheKey
+    ```
+  </TabItem>
 </Tabs>

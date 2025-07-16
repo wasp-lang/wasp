@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { handleRejection } from 'wasp/server/utils'
+import { defineHandler } from 'wasp/server/utils'
 import {
   createProviderId,
   createUser,
@@ -12,7 +12,7 @@ import {
   ensureValidPassword,
 } from 'wasp/auth/validation'
 import { validateAndGetUserFields } from 'wasp/auth/utils'
-import { type UserSignupFields } from 'wasp/auth/providers/types'
+import type { UserSignupFields } from 'wasp/auth/providers/types'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
 export function getSignupRoute({
@@ -20,20 +20,20 @@ export function getSignupRoute({
 }: {
   userSignupFields?: UserSignupFields;
 }) {
-  return handleRejection(async function signup(req, res) {
+  return defineHandler(async function signup(req, res) {
     const fields = req.body ?? {}
     ensureValidArgs(fields)
-  
+
     const userFields = await validateAndGetUserFields(
       fields,
       userSignupFields,
     );
-  
+
     const providerId = createProviderId('username', fields.username)
     const providerData = await sanitizeAndSerializeProviderData<'username'>({
       hashedPassword: fields.password,
     })
-  
+
     try {
       await onBeforeSignupHook({ req, providerId })
       const user = await createUser(
@@ -47,8 +47,8 @@ export function getSignupRoute({
     } catch (e: unknown) {
       rethrowPossibleAuthError(e)
     }
-  
-    return res.json({ success: true })
+
+    res.json({ success: true })
   })
 }
 

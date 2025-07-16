@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../server/email/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,GAAG,EAAE,MAAM,WAAW,CAAC;AAChC,OAAO,EAAE,eAAe,EAAE,MAAM,iBAAiB,CAAC;AAGlD,MAAM,aAAa,GAAG;IACpB,IAAI,EAAE,UAAU;IAChB,MAAM,EAAE,GAAG,CAAC,gBAAgB;CACpB,CAAC;AAEX,aAAa;AACb,MAAM,CAAC,MAAM,WAAW,GAAgB,eAAe,CAAC,aAAa,CAAC,CAAC"}

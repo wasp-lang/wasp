@@ -72,6 +72,7 @@ spec_Analyzer = do
                 "  },",
                 "  db: {",
                 "    seeds: [ import { devSeedSimple } from \"@src/dbSeeds.js\" ],",
+                "    prismaSetupFn: import { setUpPrisma } from \"@src/setUpPrisma.js\",",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -142,6 +143,7 @@ spec_Analyzer = do
                                       Auth.UsernameAndPasswordConfig
                                         { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup.js")
                                         },
+                                  Auth.slack = Nothing,
                                   Auth.discord = Nothing,
                                   Auth.google = Nothing,
                                   Auth.keycloak = Nothing,
@@ -152,6 +154,7 @@ spec_Analyzer = do
                             Auth.onAuthSucceededRedirectTo = Nothing,
                             Auth.onBeforeSignup = Nothing,
                             Auth.onAfterSignup = Nothing,
+                            Auth.onAfterEmailVerified = Nothing,
                             Auth.onBeforeOAuthRedirect = Nothing,
                             Auth.onBeforeLogin = Nothing,
                             Auth.onAfterLogin = Nothing
@@ -187,7 +190,12 @@ spec_Analyzer = do
                                 [ ExtImport
                                     (ExtImportField "devSeedSimple")
                                     (fromJust $ SP.parseRelFileP "dbSeeds.js")
-                                ]
+                                ],
+                            Db.prismaSetupFn =
+                              Just $
+                                ExtImport
+                                  (ExtImportField "setUpPrisma")
+                                  (fromJust $ SP.parseRelFileP "setUpPrisma.js")
                           },
                     App.emailSender =
                       Just

@@ -1,0 +1,14 @@
+app __waspAppName__ {
+  wasp: {
+    version: "__waspVersion__"
+  },
+  title: "__waspProjectName__",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { MainPage } from "@src/MainPage"
+}

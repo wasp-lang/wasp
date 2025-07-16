@@ -14,10 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 We’re excited to announce that Wasp actions now feature native support for optimistic updates!
 Continue reading to to find out what optimistic updates are and how Wasp implements them.
 
-<ImgWithCaption
-    alt="Wasp TS support"
-    source="img/opt-updates-banner.png"
-/>
+<ImgWithCaption alt="Wasp TS support" source="img/opt-updates-banner.png" />
 
 <!--truncate-->
 
@@ -32,9 +29,9 @@ All these small actions play out in the same manner. Let's look at Reddit upvote
 3. The server saves your upvote to the database and sends a successful response to your browser
 4. Your browser receives the successful response and reflects the change in the UI (i.e., you see your upvote)
 
-The client *waits* for the server's confirmation *before* updating the UI because actions can sometimes fail. Well, at least that was the original idea.
+The client _waits_ for the server's confirmation _before_ updating the UI because actions can sometimes fail. Well, at least that was the original idea.
 
-These days, many popular websites update their UIs *without waiting* for servers' responses. Most of the time, everything goes as expected: you click on an upvote, and the server returns a successful response a couple of seconds later (depending on how fast your connection is). Since programmers want their users to have a snappier experience, instead of waiting for a confirmation, they update the UI immediately (as if the action were successful) and then roll back if the server doesn't return a successful response (which rarely happens). This pattern of optimistically updating the UI before receiving the confirmation of success is called, you guessed it, an **Optimistic Update**.
+These days, many popular websites update their UIs _without waiting_ for servers' responses. Most of the time, everything goes as expected: you click on an upvote, and the server returns a successful response a couple of seconds later (depending on how fast your connection is). Since programmers want their users to have a snappier experience, instead of waiting for a confirmation, they update the UI immediately (as if the action were successful) and then roll back if the server doesn't return a successful response (which rarely happens). This pattern of optimistically updating the UI before receiving the confirmation of success is called, you guessed it, an **Optimistic Update**.
 
 Most popular modern websites use optimistic updates to some degree. As mentioned, Reddit uses them for upvotes and downvotes, Youtube uses them for likes, and Trello uses them when moving cards between lists.
 
@@ -48,7 +45,8 @@ To honor the tradition of demonstrating UIs using Todo apps, We'll show you how 
 Before looking at our todo app in action, let's see how we've implemented it in Wasp.
 
 These are the relevant declarations in our `.wasp` file:
-```wasp title=main.wasp
+
+```wasp title="main.wasp"
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -68,14 +66,18 @@ action updateTask {
   entities: [Task]
 }
 ```
+
 This is the query we use to fetch the tasks (together with their statuses):
-```js title=queries.js
+
+```js title="queries.js"
 export const getTasks = async (args, context) => {
   return context.entities.Task.findMany()
 }
 ```
+
 Here's the action we use to update a task’s status:
-```js title=actions.js
+
+```js title="actions.js"
 export const updateTask = async ({ id, isDone }, context) => {
   return context.entities.Task.updateMany({
     where: { id },
@@ -83,8 +85,10 @@ export const updateTask = async ({ id, isDone }, context) => {
   })
 }
 ```
+
 Finally, this is how our client uses this action to update a task:
-```jsx title=MainPage.js
+
+```jsx title="MainPage.js"
 import updateTask from '@wasp/queries'
 
 // ...
@@ -104,19 +108,14 @@ function Task({ id, isDone, description }) {
   )
 }
 ```
+
 Let's first see how updating a task looks when everything works as expected (i.e., we're on a fast connection):
 
-<ImgWithCaption
-    alt="Normal todo list"
-    source="img/optimistic-update-feature-announcement-normal.gif"
-/>
+<ImgWithCaption alt="Normal todo list" source="img/optimistic-update-feature-announcement-normal.gif" />
 
 So far, so good! But what happens when our connection is not as fast?
 
-<ImgWithCaption
-    alt="Todo list with lag"
-    source="img/optimistic-update-feature-announcement-lag.gif"
-/>
+<ImgWithCaption alt="Todo list with lag" source="img/optimistic-update-feature-announcement-lag.gif" />
 
 Hmm, this isn't quite as smooth as we'd like it to be.
 The user has to wait for several seconds before seeing their their changes reflected by the UI.
@@ -124,8 +123,10 @@ The user has to wait for several seconds before seeing their their changes refle
 How can we improve it? Well, of course, we can optimistically update the checkbox!
 
 ## Performing a Wasp Action Optimistically
+
 To perform the `updateTask` action optimistically, all we need to do is decorate the calling code on the client:
-```jsx {6-16,25} title=MainPage.js 
+
+```jsx {6-16,25} title="MainPage.js"
 import updateTask from '@wasp/queries'
 
 // ...
@@ -157,20 +158,19 @@ function Task({ id, isDone, description }) {
   )
 }
 ```
+
 Those are all the changes we need, the rest of the code (i.e., `main.wasp`, `queries.js` and `actions.js`) remains the same. We won't describe the API in detail, but if you're curious, everything is covered by [our official docs](/docs/data-model/operations/actions#the-useaction-hook-and-optimistic-updates).
 
 Finally, let's see how this version of the app looks in action:
 
-<ImgWithCaption
-    alt="Optimistically updated todo list"
-    source="img/optimistic-update-feature-announcement-fixed.gif"
-/>
-
+<ImgWithCaption alt="Optimistically updated todo list" source="img/optimistic-update-feature-announcement-fixed.gif" />
 
 Our app no longer waits for the server before rendering the changes. Instead, it updates the cache optimistically, continues waiting for the response, and rolls back the changes if the action fails (Wasp internally handles all of this). As previously mentioned, simple changes such as this one rarely fail. Therefore, most of the time, the user enjoys their snappier experience without ever knowing anything special is happening in the background.
 
-## What Makes Optimistic Updates Difficult 
+## What Makes Optimistic Updates Difficult
+
 There's an old software engineering joke you're probably familiar with:
+
 > There are only two hard things in Computer Science: cache invalidation and naming things.
 
 Optimistically updating a query involves plenty of meddling with the client-side cache, which is bound to come with a few gotchas. Examples include the answers to questions such as:

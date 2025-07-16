@@ -1,13 +1,13 @@
+import { logout } from "wasp/client/auth";
 import {
-  updateTask,
   createTask,
   getTasks,
+  updateTask,
   useQuery,
-} from 'wasp/client/operations'
-import { logout } from 'wasp/client/auth'
+} from "wasp/client/operations";
 
 export const MainPage = () => {
-  const { data: tasks, isLoading, error } = useQuery(getTasks)
+  const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
     <div>
@@ -15,13 +15,13 @@ export const MainPage = () => {
 
       {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && 'Loading...'}
-      {error && 'Error: ' + error}
+      {isLoading && "Loading..."}
+      {error && "Error: " + error}
 
       <button onClick={logout}>Logout</button>
     </div>
-  )
-}
+  );
+};
 
 const TaskView = ({ task }) => {
   const handleIsDoneChange = async (event) => {
@@ -29,11 +29,11 @@ const TaskView = ({ task }) => {
       await updateTask({
         id: task.id,
         isDone: event.target.checked,
-      })
+      });
     } catch (error) {
-      window.alert('Error while updating task: ' + error.message)
+      window.alert("Error while updating task: " + error.message);
     }
-  }
+  };
 
   return (
     <div>
@@ -45,11 +45,11 @@ const TaskView = ({ task }) => {
       />
       {task.description}
     </div>
-  )
-}
+  );
+};
 
 const TasksList = ({ tasks }) => {
-  if (!tasks?.length) return <div>No tasks</div>
+  if (!tasks?.length) return <div>No tasks</div>;
 
   return (
     <div>
@@ -57,26 +57,26 @@ const TasksList = ({ tasks }) => {
         <TaskView task={task} key={idx} />
       ))}
     </div>
-  )
-}
+  );
+};
 
 const NewTaskForm = () => {
   const handleSubmit = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
     try {
-      const target = event.target
-      const description = target.description.value
-      target.reset()
-      await createTask({ description })
+      const target = event.target;
+      const description = target.description.value;
+      target.reset();
+      await createTask({ description });
     } catch (err) {
-      window.alert('Error: ' + err.message)
+      window.alert("Error: " + err.message);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       <input name="description" type="text" defaultValue="" />
       <input type="submit" value="Create task" />
     </form>
-  )
-}
+  );
+};

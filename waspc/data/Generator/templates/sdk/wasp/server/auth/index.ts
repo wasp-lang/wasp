@@ -28,6 +28,7 @@ export {
 export type {
   OnBeforeSignupHook,
   OnAfterSignupHook,
+  OnAfterEmailVerifiedHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeLoginHook,
   OnAfterLoginHook,

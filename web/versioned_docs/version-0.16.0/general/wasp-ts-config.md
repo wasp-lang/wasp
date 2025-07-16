@@ -5,7 +5,7 @@ title: Wasp TypeScript config (*.wasp.ts)
 import DiscordLink from '@site/blog/components/DiscordLink';
 
 :::caution Requires Wasp >= 0.15
-This document assumes your app works with Wasp >= 0.15.  
+This document assumes your app works with Wasp >= 0.15.\
 If you haven't migrated your app yet, follow the [migration instructions](../migration-guides/migrate-from-0-14-to-0-15.md) and verify everything works. After that, come back here and try out the new Wasp TS config.
 :::
 
@@ -30,84 +30,90 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 ## How to switch from the Wasp DSL config to the Wasp TS config
 
 1. Go into the Wasp project you want to switch to the Wasp TS config (or create a new Wasp project if you want to try it out like that). Make sure you are on Wasp >= 0.15 and your project is working.
+
 2. Rename `tsconfig.json` file to `tsconfig.src.json` and add `"include": ["src"]` entry to the top level (next to `compilerOptions`, not in them!):
 
-    ```json title="tsconfig.src.json"
-    {
-      "compilerOptions": {
-        ...
-      },
-      ...
-      "include": ["src"]
-    }
-    ```
+   ```json title="tsconfig.src.json"
+   {
+     "compilerOptions": {
+       ...
+     },
+     ...
+     "include": ["src"]
+   }
+   ```
 
 3. Create a new `tsconfig.json` file with the following content:
 
-    ```json title="tsconfig.json"
-    {
-      "files": [],
-      "references": [
-        { "path": "./tsconfig.src.json" },
-        { "path": "./tsconfig.wasp.json" }
-      ]
-    }
-    ```
+   ```json title="tsconfig.json"
+   {
+     "files": [],
+     "references": [
+       { "path": "./tsconfig.src.json" },
+       { "path": "./tsconfig.wasp.json" }
+     ]
+   }
+   ```
 
 4. Create a new `tsconfig.wasp.json` file with the following content:
 
-    ```json title="tsconfig.wasp.json"
-    {
-      "compilerOptions": {
-        "skipLibCheck": true,
-        "target": "ES2022",
-        "isolatedModules": true,
-        "moduleDetection": "force",
+   ```json title="tsconfig.wasp.json"
+   {
+     "compilerOptions": {
+       "skipLibCheck": true,
+       "target": "ES2022",
+       "isolatedModules": true,
+       "moduleDetection": "force",
 
-        // linting
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
+       "strict": true,
+       "noUnusedLocals": true,
+       "noUnusedParameters": true,
 
-        "module": "NodeNext",
-        "noEmit": true,
+       "module": "NodeNext",
+       "noEmit": true,
 
-        "lib": ["ES2023"],
-      },
-      "include": ["main.wasp.ts"]
-    }
-    ```
+       "lib": ["ES2023"]
+     },
+     "include": ["main.wasp.ts"]
+   }
+   ```
 
 5. Add `"type": "module"` to the top level of your `package.json`, if you don't have it yet:
 
-    ```json title="package.json"
-    {
-      "type": "module",
-      ...
-    }
-    ```
+   ```json title="package.json"
+   {
+     "type": "module",
+     ...
+   }
+   ```
 
 6. Rename the `main.wasp` file to `main.wasp.old`. You'll want to use it as a reference while writing `main.wasp.ts`.
+
 7. Run `wasp clean` and `rm package-lock.json`. This ensures you start from a clean state.
+
 8. Run `wasp ts-setup`. This command will add the `wasp-config` package to your `package.json`'s `devDependencies`.
+
 9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
 
    Check out the [reference main.wasp.ts file](#reference-mainwaspts-file) below for details on what the TypeScript API for configuring Wasp looks like.
    In short, you'll have to:
+
    1. Import `App` from `wasp-config`
    2. Create a new `app` object with `new App()`.
    3. Use the `app` object to define parts of your web app like `auth`, `pages`, `query`, `api`...
    4. Export the `app` from your file using a default export.
 
    You can manually do the rewrite using the reference file and TS types as guides (IDE support should work for you in `main.wasp.ts`), or you can (and we recommend it!) give the reference main.wasp.ts file to the LLM of your choice and tell it to rewrite your `main.wasp` while following the format in the reference file: we had great results with this!
+
 10. Run `wasp start` to run your app! If you got everything right, your app should work exactly like it did before. The only difference is that it's now reading the Wasp config from `main.wasp.ts` instead of `main.wasp`.
     :::tip
-      Don't forget, during `wasp start`, to have the database running or do the db migrations if needed, as you would normally when running your app in development.
+    Don't forget, during `wasp start`, to have the database running or do the db migrations if needed, as you would normally when running your app in development.
     :::
+
 11. That is it, you are now using Wasp TS config! You can delete `main.wasp.old` file now if you still have it around.
 
 :::caution
-  If you run `wasp clean` or remove `node_modules` on  your own, you will have to rerun `wasp ts-setup`!
+If you run `wasp clean` or remove `node_modules` on  your own, you will have to rerun `wasp ts-setup`!
 :::
 
 Got stuck on any of these steps? Let us know in our <DiscordLink /> and we will help!

@@ -1,6 +1,6 @@
 app waspComplexTest {
   wasp: {
-    version: "^0.16.7"
+    version: "^0.17.0"
   },
   auth: {
     userEntity: User,
@@ -30,7 +30,10 @@ app waspComplexTest {
     },
   },
 
-  title: "waspComplexTest"
+  title: "waspComplexTest",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }

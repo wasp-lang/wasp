@@ -1,39 +1,21 @@
-import { test, expect } from '@playwright/test'
-import { generateRandomCredentials, performSignup } from './helpers'
+import { expect, test } from "@playwright/test";
+import { performLogin, setupTestUser } from "./helpers";
 
-test.describe('user API', () => {
-  const { email, password } = generateRandomCredentials()
+test.describe("user API", () => {
+  const credentials = setupTestUser();
 
-  test.describe.configure({ mode: 'serial' })
+  test("user API works on the client", async ({ page }) => {
+    await performLogin(page, credentials);
 
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage()
+    await page.goto("/profile");
 
-    await performSignup(page, {
-      email,
-      password,
-    })
+    await expect(page).toHaveURL("/profile");
 
-    await expect(page.locator('body')).toContainText(
-      `You've signed up successfully! Check your email for the confirmation link.`
-    )
-  })
-
-  test('user API works on the client', async ({ page }) => {
-    await page.goto('/login')
-
-    await page.waitForSelector('text=Log in to your account')
-
-    await page.locator("input[type='email']").fill(email)
-    await page.locator("input[type='password']").fill(password)
-    await page.getByRole('button', { name: 'Log in' }).click()
-
-    await page.waitForSelector('text=User Auth Fields Demo')
-
-    await expect(page.locator('body')).toContainText(
-      `Hello ${email}! Your status is verfied`
-    )
-
-    await expect(page.locator('a[href="/profile"]')).toContainText(email)
-  })
-})
+    await expect(
+      page.getByTestId("user-profile").getByTestId("user-id"),
+    ).toContainText(credentials.email);
+    await expect(
+      page.getByTestId("user-profile").getByTestId("email-status"),
+    ).toContainText("Verified");
+  });
+});

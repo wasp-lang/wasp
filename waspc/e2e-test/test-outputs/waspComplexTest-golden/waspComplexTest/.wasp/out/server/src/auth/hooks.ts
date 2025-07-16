@@ -1,6 +1,7 @@
 import { prisma } from 'wasp/server'
 import type {
   OnAfterSignupHook,
+  OnAfterEmailVerifiedHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
   OnBeforeLoginHook,
@@ -31,6 +32,11 @@ export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = (pa
     prisma,
     ...params,
   })
+
+/**
+ * This is a no-op function since the user didn't define the onAfterSignup hook.
+ */
+export const onAfterEmailVerifiedHook: InternalFunctionForHook<OnAfterEmailVerifiedHook> = async (_params) => {}
 
 export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = (params) =>
   onBeforeOAuthRedirectHook_ext({

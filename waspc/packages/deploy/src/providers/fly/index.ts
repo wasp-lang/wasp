@@ -1,32 +1,52 @@
-import { Command, Option } from 'commander';
-import { setup as setupFn } from './setup/setup.js';
-import { deploy as deployFn } from './deploy/deploy.js';
-import { createDb as createDbFn } from './createDb/createDb.js';
-import { cmd as cmdFn } from './cmd/cmd.js';
-import { launch as launchFn } from './launch/launch.js';
+import { Command, Option } from "commander";
+import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
 import {
-  ensureWaspDirLooksRight,
-  ensureDirsInCmdAreAbsoluteAndPresent,
-} from './helpers/helpers.js';
-import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js';
-import { ContextOption } from './helpers/CommonOps.js';
+  assertValidWaspProject,
+  assertWaspProjectDirIsAbsoluteAndPresent,
+} from "../../common/waspProject.js";
+import { cmd as cmdFn } from "./commands/cmd/cmd.js";
+import { createDb as createDbFn } from "./commands/createDb/createDb.js";
+import { deploy as deployFn } from "./commands/deploy/deploy.js";
+import { launch as launchFn } from "./commands/launch/launch.js";
+import { setup as setupFn } from "./commands/setup/setup.js";
+import { ContextOption } from "./CommonOps.js";
+import { assertRegionIsValid, ensureFlyReady } from "./flyCli.js";
+import { assertFlyTomlDirIsAbsoluteAndPresent } from "./tomlFile.js";
 
 class FlyCommand extends Command {
   addBasenameArgument(): this {
-    return this.argument('<basename>', 'base app name to use on Fly.io (must be unique)');
+    return this.argument(
+      "<basename>",
+      "base app name to use on Fly.io (must be unique)",
+    );
   }
   addRegionArgument(): this {
-    return this.argument('<region>', '3 letter deployment region to use on Fly.io');
+    return this.argument(
+      "<region>",
+      "3 letter deployment region to use on Fly.io",
+    );
   }
   addDbOptions(): this {
-    return this.option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
-      .option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
-      .option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
+    return this.option(
+      "--vm-size <vmSize>",
+      "flyctl postgres create option",
+      "shared-cpu-1x",
+    )
+      .option(
+        "--initial-cluster-size <initialClusterSize>",
+        "flyctl postgres create option",
+        "1",
+      )
+      .option(
+        "--volume-size <volumeSize>",
+        "flyctl postgres create option",
+        "1",
+      );
   }
   addLocalBuildOption(): this {
     return this.option(
-      '--build-locally',
-      'build Docker containers locally instead of remotely',
+      "--build-locally",
+      "build Docker containers locally instead of remotely",
       false,
     );
   }
@@ -35,13 +55,13 @@ class FlyCommand extends Command {
       return previous.concat([value]);
     }
     return this.option(
-      '--server-secret <serverSecret>',
-      'secret to set on the server app (of form FOO=BAR)',
+      "--server-secret <serverSecret>",
+      "secret to set on the server app (of form FOO=BAR)",
       collect,
       [],
     ).option(
-      '--client-secret <clientSecret>',
-      'secret to set on the client app (of form FOO=BAR)',
+      "--client-secret <clientSecret>",
+      "secret to set on the client app (of form FOO=BAR)",
       collect,
       [],
     );
@@ -58,10 +78,9 @@ export const flyDeployCommand = makeFlyDeployCommand();
 
 export const executeFlyCommand = makeExecuteFlyCommand();
 
-export function addFlyCommand(program: Command): void {
-  const fly = program
-    .command('fly')
-    .description('Create and deploy Wasp apps on Fly.io')
+export function createFlyCommand(): Command {
+  const fly = new Command("fly")
+    .description("Create and deploy Wasp apps on Fly.io")
     .addCommand(flyLaunchCommand)
     .addCommand(flySetupCommand)
     .addCommand(createFlyDbCommand)
@@ -76,37 +95,62 @@ export function addFlyCommand(program: Command): void {
   fly.commands.forEach((cmd) => {
     cmd
       .addOption(
-        new Option('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)')
+        new Option(
+          "--wasp-exe <path>",
+          "Wasp executable (either on PATH or absolute path)",
+        )
           .hideHelp()
           .makeOptionMandatory(),
       )
       .addOption(
-        new Option('--wasp-project-dir <dir>', 'absolute path to Wasp project dir')
+        new Option(
+          "--wasp-project-dir <dir>",
+          "absolute path to Wasp project dir",
+        )
           .hideHelp()
           .makeOptionMandatory(),
       )
-      .option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
-      .option('--org <org>', 'Fly org to use (with commands that support it)')
-      .hook('preAction', ensureFlyReady)
-      .hook('preAction', ensureDirsInCmdAreAbsoluteAndPresent)
-      .hook('preAction', ensureWaspDirLooksRight);
+      .option(
+        "--fly-toml-dir <dir>",
+        "absolute path to dir where fly.toml files live",
+      )
+      .option("--org <org>", "Fly org to use (with commands that support it)")
+      .hook("preAction", async (cmd) => {
+        const { waspProjectDir, waspExe, flyTomlDir } = cmd.opts<{
+          waspProjectDir: WaspProjectDir;
+          waspExe: WaspCliExe;
+          flyTomlDir?: string;
+        }>();
+
+        await ensureFlyReady();
+
+        assertWaspProjectDirIsAbsoluteAndPresent(waspProjectDir);
+        if (flyTomlDir !== undefined) {
+          assertFlyTomlDirIsAbsoluteAndPresent(flyTomlDir);
+        }
+        await assertValidWaspProject(waspProjectDir, waspExe);
+      });
   });
 
   // Add command-specific hooks.
-  flyLaunchCommand.hook('preAction', (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[1]),
+  flyLaunchCommand.hook("preAction", (_thisCommand, actionCommand) =>
+    assertRegionIsValid(actionCommand.args[1]),
   );
-  flySetupCommand.hook('preAction', (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[1]),
+  flySetupCommand.hook("preAction", (_thisCommand, actionCommand) =>
+    assertRegionIsValid(actionCommand.args[1]),
   );
-  createFlyDbCommand.hook('preAction', (_thisCommand, actionCommand) =>
-    ensureRegionIsValid(actionCommand.args[0]),
+  createFlyDbCommand.hook("preAction", (_thisCommand, actionCommand) =>
+    assertRegionIsValid(actionCommand.args[0]),
   );
+
+  return fly;
 }
 
 function makeFlyLaunchCommand(): Command {
-  return new FlyCommand('launch')
-    .description('Launch a new app on Fly.io (calls setup, create-db, and deploy)')
+  return new FlyCommand("launch")
+    .description(
+      "Launch a new app on Fly.io (calls setup, create-db, and deploy)",
+    )
     .addBasenameArgument()
     .addRegionArgument()
     .addDbOptions()
@@ -116,8 +160,8 @@ function makeFlyLaunchCommand(): Command {
 }
 
 function makeFlySetupCommand(): Command {
-  return new FlyCommand('setup')
-    .description('Set up a new app on Fly.io (this does not deploy it)')
+  return new FlyCommand("setup")
+    .description("Set up a new app on Fly.io (this does not deploy it)")
     .addBasenameArgument()
     .addRegionArgument()
     .addSecretsOptions()
@@ -125,21 +169,20 @@ function makeFlySetupCommand(): Command {
 }
 
 function makeFlyDeployCommand(): Command {
-  return new FlyCommand('deploy')
-    .description('(Re-)Deploy existing app to Fly.io')
-    .option('--skip-build', 'do not run `wasp build` before deploying')
-    .option('--skip-client', 'do not deploy the web client')
-    .option('--skip-server', 'do not deploy the server')
+  return new FlyCommand("deploy")
+    .description("(Re-)Deploy existing app to Fly.io")
+    .option("--skip-client", "do not deploy the web client")
+    .option("--skip-server", "do not deploy the server")
     .addLocalBuildOption()
     .action(deployFn);
 }
 
 function makeExecuteFlyCommand(): Command {
-  return new FlyCommand('cmd')
-    .description('Run arbitrary flyctl commands for server or client')
-    .argument('<cmd...>', 'flyctl command to run in server/client context')
+  return new FlyCommand("cmd")
+    .description("Run arbitrary flyctl commands for server or client")
+    .argument("<cmd...>", "flyctl command to run in server/client context")
     .addOption(
-      new Option('--context <context>', 'client or server context')
+      new Option("--context <context>", "client or server context")
         .choices(Object.values(ContextOption))
         .makeOptionMandatory(),
     )
@@ -148,8 +191,8 @@ function makeExecuteFlyCommand(): Command {
 }
 
 function makeCreateFlyDbCommand(): Command {
-  return new FlyCommand('create-db')
-    .description('Creates a Postgres DB and attaches it to the server app')
+  return new FlyCommand("create-db")
+    .description("Creates a Postgres DB and attaches it to the server app")
     .addRegionArgument()
     .addDbOptions()
     .action(createDbFn);

@@ -14,10 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 It’s almost here! After almost two years since our Alpha release, countless apps developed, React and Node versions upgraded, and PRs merged **we’re only a day away from Beta!**
 
-<ImgWithCaption
-    alt="Beta is coming"
-    source="img/beta-ann/beta-banner.png"
-/>
+<ImgWithCaption alt="Beta is coming" source="img/beta-ann/beta-banner.png" />
 
 We’re going to follow a launch week format, **which means our Beta launch will last for the whole week**! Starting with the Product Hunt launch this Sunday (we’ll let you know once we’re live, so sharpen your upvoting fingers!) **we’ll highlight a new feature every day**.
 
@@ -33,35 +30,23 @@ It will be held **on our Discord at 9:00 am EST / 15:00 CET** - [sign up here](h
 
 Join us to meet the team, attend a relaxed AMA session to learn everything about Wasp, from how it started to development challenges (having fun with Haskell, web dev and compilers) and ideas and plans for the future.
 
-<ImgWithCaption
-    alt="Beta launch party instructions"
-    source="img/beta-ann/launch-party.png"
-/>
+<ImgWithCaption alt="Beta launch party instructions" source="img/beta-ann/launch-party.png" />
 
 The first feature to announce will be authentication in Wasp! It’s easier and cooler than ever, supports 3rd party providers (hint: starts with “G”), and works smoother than a jar of peanut butter (not the crunchy one of course)!
 
 ## Monday, Nov 28 - TypeScript support!
 
-<ImgWithCaption
-    alt="TypeScript is here!"
-    source="img/beta-ann/thank-you-god.gif"
-/>
+<ImgWithCaption alt="TypeScript is here!" source="img/beta-ann/thank-you-god.gif" />
 
 When we asked you what was missing in Wasp during our [Alpha Testing Program](/blog/2022/11/16/alpha-testing-program-post-mortem), you were pretty clear:
 
-<ImgWithCaption
-    alt="TypeScript is wanted!"
-    source="img/beta-ann/ts-wanted.png"
-/>
+<ImgWithCaption alt="TypeScript is wanted!" source="img/beta-ann/ts-wanted.png" />
 
 We heard you (honestly we were missing it too) and now it’s here! You can write your code in TypeScript and enjoy all the goodies that types bring. Some things already work really well and there are a few for which we still have ideas on how to make them better, but more on that on Tuesday!
 
 ## Wednesday, Nov 29 - Tailwind support! 🐈 💨
 
-<ImgWithCaption
-    alt="Tailwind Nic Cage"
-    source="img/beta-ann/nic-cage-tailwind.gif"
-/>
+<ImgWithCaption alt="Tailwind Nic Cage" source="img/beta-ann/nic-cage-tailwind.gif" />
 
 It’s beautiful! Another highly anticipated featured that also comes with Beta - support for Tailwind CSS framework! Since it has an additional build step it didn’t work out-of-the-box with Alpha, but now it works like a breeze (see what I did here?)!
 
@@ -69,11 +54,7 @@ Honestly, having used it for designing our new Beta landing page I can really se
 
 ## Thursday, Nov 30 - Optimistic updates!
 
-<ImgWithCaption
-    alt="Without optimistic updates"
-    source="img/beta-ann/no-opt-updates.gif"
-    caption="Stop glitching, dang it!"
-/>
+<ImgWithCaption alt="Without optimistic updates" source="img/beta-ann/no-opt-updates.gif" caption="Stop glitching, dang it!" />
 
 You know that feeling when you move your Trello card “Try Wasp Beta” from “Todo” column to “Done” column and everything works super smoothly without any glitches? That’s because of optimistic updates! You may not need it often but if you needed and it wasn’t possible you’d feel really sad.
 
@@ -81,27 +62,17 @@ Well, that’s why Alpha is called Alpha and Beta is called Beta 😅. Long stor
 
 ## Friday, Dec 1 - Improved IDE support, tooling and Wasp LSP!
 
-<ImgWithCaption
-    alt="VS Code support for Wasp LSP"
-    source="img/beta-ann/wasp-loves-vscode.png"
-/>
+<ImgWithCaption alt="VS Code support for Wasp LSP" source="img/beta-ann/wasp-loves-vscode.png" />
 
 If you like types in TypeScript (and in general), then you will also enjoy Wasp! Our DSL is also a typed language which means it can report errors in compile time, e.g. in case you haven’t configured your route correctly. And now all that happens directly in your editor!
 
 **Beta brings LSP, Language Server for Wasp that works with VS Code** (support for other editors coming soon! I’m VIM user myself so take a guess :D). That means improved syntax highlighting, code autocompletion and live error reporting - everything you’d expect from a language!
 
-<ImgWithCaption
-    alt="Wasp Language Server in action"
-    source="img/beta-ann/wls-demo.gif"
-    caption="Wasp LSP in action!"
-/>
+<ImgWithCaption alt="Wasp Language Server in action" source="img/beta-ann/wls-demo.gif" caption="Wasp LSP in action!" />
 
 ## Saturday, Dec 2 - Grande Finale + #1 Wasp Hackathon!(Waspathon🐝 ?)
 
-<ImgWithCaption
-    alt="First Wasp hackathon"
-    source="img/beta-ann/hackathon-banner.gif"
-/>
+<ImgWithCaption alt="First Wasp hackathon" source="img/beta-ann/hackathon-banner.gif" />
 
 I don’t want to reveal too much in advance, but yep there will be a hackathon, yep there will be cool rewards (at least we think so) and yep it will be awesome! We’ll officially announce it as we end the launch week, and equipped with all the new features Beta brought we’ll switch into the hacking mode!
 

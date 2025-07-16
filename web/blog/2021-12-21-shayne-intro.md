@@ -17,6 +17,7 @@ Find Shayne on [Twitter](https://twitter.com/shayneczyzewski) and [GitHub](https
 <!--truncate-->
 
 <WaspIntro />
+
 <InBlogCta />
 
 **We are super excited to introduce Shayne, the first person to join the Wasp team!** Shayne is a battle-tested veteran engineer, with experiences ranging from leading teams at high-growth startups to working at enterprise giants such as Red Hat and NetApp. Along with that, he is super nice and incredibly pleasant to work with - we are beyond thrilled that he chose Wasp for his next adventure with him and can't wait for you to [meet him in our Discord community](https://discord.gg/rzdnErX)!
@@ -55,6 +56,6 @@ I default to whatever the language or codebase conventions are. Visually, I pref
 
 One of the biggest differentiators I have found between good and great engineers is that the great ones possess a continuous desire to learn and grow. They view challenges as fun opportunities to expand their knowledge and skills, recognizing that they always have room for improvement. The corollary is that impostor syndrome is real and never goes away, so try not to be too hard on yourself along the way!
 
-*This post was the first of several new hire announcements in the months to come, so stay tuned and reach out if you want to work with Martin, Shayne, and myself!*
+_This post was the first of several new hire announcements in the months to come, so stay tuned and reach out if you want to work with Martin, Shayne, and myself!_
 
 <InBlogCta />

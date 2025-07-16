@@ -36,8 +36,7 @@ Check out how to do it for [Fly with Wasp CLI](./deployment-methods/cli.md#using
    ```
 
    <small>
-
-   Learn more about client configuration in the [env vars section](../project/env-vars.md#client-general-configuration).
+     Learn more about client configuration in the [env vars section](../project/env-vars.md#client-general-configuration).
    </small>
 
    #### Server domain env vars
@@ -47,7 +46,7 @@ Check out how to do it for [Fly with Wasp CLI](./deployment-methods/cli.md#using
    - `WASP_WEB_CLIENT_URL`: Your client app's domain
    - `WASP_SERVER_URL`: Your server domain
 
-   <br/>
+   <br />
 
    ```bash
    WASP_WEB_CLIENT_URL=https://myapp.com
@@ -55,8 +54,7 @@ Check out how to do it for [Fly with Wasp CLI](./deployment-methods/cli.md#using
    ```
 
    <small>
-
-   Learn more about server env variables in the [env vars section](../project/env-vars.md#server-general-configuration).
+     Learn more about server env variables in the [env vars section](../project/env-vars.md#server-general-configuration).
    </small>
 
 ### DDoS protection and CDN recommendations

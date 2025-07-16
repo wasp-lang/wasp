@@ -1,8 +1,11 @@
 app waspCompile {
   wasp: {
-    version: "^0.16.7"
+    version: "^0.17.0"
   },
-  title: "waspCompile"
+  title: "waspCompile",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }

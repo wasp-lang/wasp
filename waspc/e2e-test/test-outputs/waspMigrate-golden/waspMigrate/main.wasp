@@ -1,8 +1,11 @@
 app waspMigrate {
   wasp: {
-    version: "^0.16.7"
+    version: "^0.17.0"
   },
-  title: "waspMigrate"
+  title: "waspMigrate",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }

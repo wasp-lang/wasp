@@ -1,14 +1,14 @@
 {
-  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
-    "module": "esnext",
-    "target": "es2017",
+    "lib": ["es2023"],
+    "module": "nodenext",
+    "target": "es2022",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16",
     "outDir": "dist",
-    "rootDir": "src",
-  },
-  "ts-node": {
-    "esm": true,
-    "swc": true,
+    "rootDir": "src"
   },
   "include": ["src"]
 }

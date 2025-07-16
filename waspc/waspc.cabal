@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.16.7
+version:        0.17.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -36,7 +36,6 @@ data-files:
   Generator/templates/**/*.css
   Generator/templates/**/*.ts
   Generator/templates/**/*.json
-  Generator/templates/**/*.ico
   Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
@@ -44,17 +43,23 @@ data-files:
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
   Cli/bash-completion
-  Cli/templates/**/*.css
-  Cli/templates/**/*.json
-  Cli/templates/**/*.jsx
-  Cli/templates/**/*.png
-  Cli/templates/**/*.ts
-  Cli/templates/basic/schema.prisma
-  Cli/templates/basic/main.wasp
-  Cli/templates/skeleton/.gitignore
-  Cli/templates/skeleton/.wasproot
-  Cli/templates/skeleton/.waspignore
-  Cli/templates/skeleton/public/.gitkeep
+  Cli/starters/**/*.js
+  Cli/starters/**/*.cjs
+  Cli/starters/**/*.ts
+  Cli/starters/**/*.tsx
+  Cli/starters/**/*.css
+  Cli/starters/**/*.md
+  Cli/starters/**/*.json
+  Cli/starters/**/*.svg
+  Cli/starters/**/*.prisma
+  Cli/starters/**/*.wasp
+  Cli/starters/skeleton/.gitignore
+  Cli/starters/skeleton/.wasproot
+  Cli/starters/skeleton/.waspignore
+  Cli/starters/skeleton/public/favicon.ico
+  Cli/starters/skeleton/public/.gitkeep
+  Cli/starters/basic/.prettierrc
+  Cli/starters/basic/.prettierignore
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts
   Lsp/templates/**/*.jsx
@@ -239,7 +244,6 @@ library
     Wasp.AppSpec.App.Client
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.EmailSender
-    Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
@@ -267,7 +271,8 @@ library
     Wasp.Db.Postgres
     Wasp.Error
     Wasp.Env
-    Wasp.ExternalConfig.PackageJson
+    Wasp.ExternalConfig.Npm.Dependency
+    Wasp.ExternalConfig.Npm.PackageJson
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -278,8 +283,9 @@ library
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
-    Wasp.Generator.ConfigFile
-    Wasp.Generator.ConfigFileGenerator
+    Wasp.Generator.DepVersions
+    Wasp.Generator.TailwindConfigFile
+    Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
@@ -288,9 +294,6 @@ library
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
-    Wasp.Generator.ExternalConfig.Common
-    Wasp.Generator.ExternalConfig.PackageJson
-    Wasp.Generator.ExternalConfig.TsConfig
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
@@ -317,6 +320,7 @@ library
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
+    Wasp.Generator.SdkGenerator.DepVersions
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.JsImport
@@ -335,8 +339,9 @@ library
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
-    Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.Common
+    Wasp.Generator.ServerGenerator.Db.Seed
+    Wasp.Generator.ServerGenerator.DepVersions
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
@@ -348,11 +353,15 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
+    Wasp.Generator.Valid
+    Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.TsConfig
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.DepVersions
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
@@ -368,8 +377,8 @@ library
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.Message
+    Wasp.Node.Internal
     Wasp.Node.Version
-    Wasp.NpmDependency
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
@@ -666,6 +675,7 @@ test-suite waspc-test
     Generator.JsImportTest
     Generator.CrudTest
     Generator.CommonTest
+    Node.InternalTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest

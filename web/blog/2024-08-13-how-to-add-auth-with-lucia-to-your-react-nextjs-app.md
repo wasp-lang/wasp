@@ -12,10 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    alt="How to Add Auth to Your App"
-    source="/img/lua-auth/lucia-auth-banner.png"
-/>
+<ImgWithCaption alt="How to Add Auth to Your App" source="/img/lua-auth/lucia-auth-banner.png" />
 
 Although authentication is one of the most common web app features, there are so many different ways to go about it, which makes it a very non-trivial task. In this post, I will share my personal experience using Lucia - a modern, framework-agnostic authentication library that has been getting, deservedly so, a lot of love from the community in recent months.
 
@@ -27,7 +24,7 @@ Secondly, we’ll see how to achieve the same with [Wasp](https://wasp.sh/) in j
 
 ## Why Lucia?
 
-When it comes to adding authentication to your applications, there are several popular solutions available. For instance, [Clerk](https://clerk.com/) offers a paid service, while [NextAuth.js](https://next-auth.js.org/) is an open-source solution alongside [Lucia](https://lucia-auth.com/), which has become quite popular recently. 
+When it comes to adding authentication to your applications, there are several popular solutions available. For instance, [Clerk](https://clerk.com/) offers a paid service, while [NextAuth.js](https://next-auth.js.org/) is an open-source solution alongside [Lucia](https://lucia-auth.com/), which has become quite popular recently.
 
 These tools provide robust features, but committing to third-party services — which not only adds another layer of complexity but also have paid tiers you have to keep an eye on — might be an overkill for a small project. In-house solutions keep things centralized but leave it to a developer to implement some of the mentioned features.
 
@@ -122,7 +119,7 @@ GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 
-After that, it’s a matter of adding login and signup functionalities to your pages, so, let’s do that real quick: 
+After that, it’s a matter of adding login and signup functionalities to your pages, so, let’s do that real quick:
 
 ```tsx title="login/page.tsx"
 import { validateRequest } from "@/lib/auth";
@@ -165,7 +162,7 @@ export async function GET(): Promise<Response> {
 }
 ```
 
- And finally, the callback (which is what we actually add in GitHub OAuth):
+And finally, the callback (which is what we actually add in GitHub OAuth):
 
 ```tsx title="login/github/callback/route.ts"
 import { github, lucia } from "@/lib/auth";
@@ -245,7 +242,7 @@ interface GitHubUser {
 }
 ```
 
-Other important thing here is that, now, we’re going with GitHub OAuth, but, generally, these libraries contain a bunch of different login providers (including simple username and password), so it’s usually just a pick and choose if you want to add other providers. 
+Other important thing here is that, now, we’re going with GitHub OAuth, but, generally, these libraries contain a bunch of different login providers (including simple username and password), so it’s usually just a pick and choose if you want to add other providers.
 
 ```tsx title="lib/auth.ts"
 import { Lucia } from "lucia";
@@ -258,8 +255,8 @@ import { GitHub } from "arctic";
 import type { Session, User } from "lucia";
 import type { DatabaseUser } from "./db";
 
-// these two lines here might be important if you have node.js 18 or lower. 
-// you can check Lucia's documentation in more detail if that's the case 
+// these two lines here might be important if you have node.js 18 or lower.
+// you can check Lucia's documentation in more detail if that's the case
 // (https://lucia-auth.com/getting-started/nextjs-app#polyfill)
 // import { webcrypto } from "crypto";
 // globalThis.crypto = webcrypto as Crypto;
@@ -365,7 +362,7 @@ interface ActionResult {
 }
 ```
 
-Piece of cake, isn’t it? Well, not really. 
+Piece of cake, isn’t it? Well, not really.
 
 Let’s recap which steps were necessary to actually make this happen:
 
@@ -378,7 +375,7 @@ Let’s recap which steps were necessary to actually make this happen:
 - Add Login and Sign up routes, with custom made components.
 - Finally, create a protected route.
 
-![https://media2.giphy.com/media/3ofSBnYbEPePeigIMg/giphy.gif?cid=7941fdc6x77sivlvr6hs2yu5aztvwjvhgugv6b718mjanr2h&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/3ofSBnYbEPePeigIMg/giphy.gif?cid=7941fdc6x77sivlvr6hs2yu5aztvwjvhgugv6b718mjanr2h&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media2.giphy.com/media/3ofSBnYbEPePeigIMg/giphy.gif?cid=7941fdc6x77sivlvr6hs2yu5aztvwjvhgugv6b718mjanr2h\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/3ofSBnYbEPePeigIMg/giphy.gif?cid=7941fdc6x77sivlvr6hs2yu5aztvwjvhgugv6b718mjanr2h\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 Honestly, when trying to create something cool **FAST**, repeating these steps and debugging a few logical problems here and there that always occur can feel a little bit frustrating. Soon, we’ll take a look at Wasp’s approach to solving that same problem and we’ll be able to compare how much easier Wasp’s auth implementation process is.
 
@@ -390,8 +387,8 @@ Now, let’s go through how we can achieve the same things with Wasp 🐝. Altho
 
 Before we just into it, in case you’re more of a visual learner, here’s a 1-minute video showcasing auth with wasp.
 
-<div className='video-container'>
-    <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=JVBcFAk5dnR3Q0PL" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<div className="video-container">
+  <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=JVBcFAk5dnR3Q0PL" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 </div>
 
 As seen in the video, Wasp is a framework for building apps with the benefits of using a configuration file to make development easier. It handles many repetitive tasks, allowing you to focus on creating unique features. In this tutorial, we’ll also learn more about the Wasp config file and see how it makes setting up authentication simpler.
@@ -447,7 +444,7 @@ wasp db migrate-dev
 
 ### Step 4: Get your GitHub OAuth credentials and app running
 
-This part is similar for both frameworks, you can follow the documentation GitHub provides here to do so: [Creating an OAuth app - GitHub Docs](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). For wasp app, the callback urls are: 
+This part is similar for both frameworks, you can follow the documentation GitHub provides here to do so: [Creating an OAuth app - GitHub Docs](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). For wasp app, the callback urls are:
 
 - While developing: `http://localhost:3001/auth/github/callback`
 - After deploying: `https://your-server-url.com/auth/github/callback`
@@ -521,7 +518,7 @@ page MainPage {
 If you’d like to check this example in more depth, feel free to check this repo here: [wasp/examples/todo-typescript at release · wasp-lang/wasp (github.com)](https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript).
 Other great place to check is their documentation, which can be found [here](https://wasp.sh/docs/auth/overview). It covers most of what I said here, and even more (e.g. the awesome new [hooks](https://wasp.sh/docs/auth/auth-hooks) that came with Wasp v0.14)
 
-![https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 Way easier, isn’t it? Let’s review the steps we took to get here:
 
@@ -540,7 +537,7 @@ For more detailed information on using Auth hooks with Wasp, visit the [Wasp doc
 
 ### Bonus Section: Adding Email/Password Login with Wasp and Customizing Auth
 
-Now let’s imagine we want to add email and password authentication — with all the usual features we’d expect that would follow this login method (e.g. reset password, email verification, etc.). 
+Now let’s imagine we want to add email and password authentication — with all the usual features we’d expect that would follow this login method (e.g. reset password, email verification, etc.).
 
 With Wasp, all we have to do is add a few lines to your main.wasp file, so, simply updating your Wasp configuration to include email/password authentication makes it work straight out of the box!
 
@@ -589,21 +586,20 @@ Implementing this in Next.js with Lucia would take a lot more work, involving a 
 
 The whole point here is the difference in time and developer experience in order to implement the same scenarios. For the Next.js project with Lucia, you will spend at least a few hours implementing everything if you’re going all by yourself. That same experience translates to no more than 1 hour with Wasp. What to do with the rest of the time? **Implement the important stuff your particular business requires!**
 
-
 ## Can you show us your support?
 
-![https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/l0MYAs5E2oIDCq9So/giphy.gif?cid=7941fdc6l6i66eq1dc7i5rz05nkl4mgjltyv206syb0o304g\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
-Are you interested in more content like this? Sign up for [our newsletter](https://wasp.sh/#signup) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
+Are you interested in more content like this? Sign up for [our newsletter](#newsletter-input) and give us [a star on GitHub](https://www.github.com/wasp-lang/wasp)! We need your support to keep pushing our projects forward 😀
 
 ### Conclusion
 
-![https://media2.giphy.com/media/l1AsKaVNyNXHKUkUw/giphy.gif?cid=7941fdc6u6vp4j2gpjfuizupxlvfdzskl03ncci2e7jq17zr&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media2.giphy.com/media/l1AsKaVNyNXHKUkUw/giphy.gif?cid=7941fdc6u6vp4j2gpjfuizupxlvfdzskl03ncci2e7jq17zr&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![https://media2.giphy.com/media/l1AsKaVNyNXHKUkUw/giphy.gif?cid=7941fdc6u6vp4j2gpjfuizupxlvfdzskl03ncci2e7jq17zr\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/l1AsKaVNyNXHKUkUw/giphy.gif?cid=7941fdc6u6vp4j2gpjfuizupxlvfdzskl03ncci2e7jq17zr\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
-I think that if you’re a developer who wants to get things done, you probably noted the significant difference in complexity levels of both of those implementations. 
+I think that if you’re a developer who wants to get things done, you probably noted the significant difference in complexity levels of both of those implementations.
 
 By reducing boilerplate and abstracting repetitive tasks, Wasp allows developers to focus more on building unique features rather than getting bogged down by authentication details. This can be especially beneficial for small teams or individual developers aiming to launch products quickly.
 
 Of course, generally when we talk abstractions, it always comes with the downside of losing the finesse of a more personal implementation. In this case, Wasp provides a bunch of stuff for you to implement around and uses Lucia on the background, so the scenario where there’s a mismatch of content implementation is highly unlikable to happen.
 
-In summary, while implementing your own authentication with Next.js and Lucia provides complete control and customization, it can be complex and time-consuming. On the other hand, using a solution like Wasp simplifies the process, reduces code length, and speeds up development. 
+In summary, while implementing your own authentication with Next.js and Lucia provides complete control and customization, it can be complex and time-consuming. On the other hand, using a solution like Wasp simplifies the process, reduces code length, and speeds up development.

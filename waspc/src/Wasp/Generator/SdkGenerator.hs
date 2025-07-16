@@ -13,7 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe)
+import Data.Maybe (isJust, mapMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -22,19 +22,20 @@ import Wasp.AppSpec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EC
-import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Util (hasEntities)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
+    WebAppRootDir,
     makeJsonWithEntityData,
-    prismaVersion,
-    superjsonVersion,
   )
-import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
+import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
@@ -46,7 +47,9 @@ import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as Clien
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
+import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -56,10 +59,13 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WebAppGenerator.Common
-  ( WebAppRootDir,
-    axiosVersion,
+import Wasp.Generator.ServerGenerator.DepVersions
+  ( expressTypesVersion,
+    expressVersionStr,
+  )
+import qualified Wasp.Generator.TailwindConfigFile as TCF
+import Wasp.Generator.WebAppGenerator.DepVersions
+  ( axiosVersion,
     reactQueryVersion,
     reactRouterVersion,
     reactVersion,
@@ -115,6 +121,7 @@ genSdk spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genCoreSerializationDir spec
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
@@ -137,7 +144,6 @@ genEntitiesAndServerTypesDirs spec =
   return
     [ entitiesIndexFileDraft,
       taggedEntitiesFileDraft,
-      serializationFileDraft,
       typesIndexFileDraft
     ]
   where
@@ -158,9 +164,6 @@ genEntitiesAndServerTypesDirs spec =
         [relfile|server/_types/taggedEntities.ts|]
         [relfile|server/_types/taggedEntities.ts|]
         (Just $ object ["entities" .= allEntities])
-    serializationFileDraft =
-      C.mkTmplFd
-        [relfile|server/_types/serialization.ts|]
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|server/_types/index.ts|]
@@ -191,12 +194,12 @@ npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
     { N.dependencies =
-        AS.Dependency.fromList
+        Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
             ("@tanstack/react-query", show reactQueryVersion),
             ("axios", show axiosVersion),
-            ("express", Server.expressVersionStr),
+            ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
             ("react-router-dom", show reactRouterVersion),
@@ -223,19 +226,16 @@ npmDepsForSdk spec =
           ++ depsRequiredByTailwind spec
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
-        AS.Dependency.fromList
-          [ ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-            -- Should @types/* go into their package.json?
-            ("@types/express", show Server.expressTypesVersion),
-            ("@types/express-serve-static-core", show Server.expressTypesVersion)
+        Npm.Dependency.fromList
+          [ -- Should @types/* go into their package.json?
+            ("@types/express", show expressTypesVersion),
+            ("@types/express-serve-static-core", show expressTypesVersion)
           ]
     }
-  where
-    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
-  AS.Dependency.fromList
+  Npm.Dependency.fromList
     [ ("vitest", "^1.2.1"),
       ("@vitest/ui", "^1.2.1"),
       ("jsdom", "^21.1.1"),
@@ -243,6 +243,25 @@ depsRequiredForTesting =
       ("@testing-library/jest-dom", "^6.3.0"),
       ("msw", "^1.1.0")
     ]
+
+genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
+genCoreSerializationDir spec =
+  return $
+    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
+      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+    ]
+      ++ maybeToList prismaSerializationFile
+  where
+    tmplData =
+      object
+        [ "entitiesExist" .= entitiesExist
+        ]
+
+    prismaSerializationFile
+      | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
+      | otherwise = Nothing
+
+    entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
@@ -268,12 +287,12 @@ genTsConfigJson = do
             ]
       )
 
-depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
     authDeps =
-      AS.Dependency.fromList
+      Npm.Dependency.fromList
         [ -- NOTE: If Stitches start being used outside of auth,
           -- we should include this dependency in the SDK deps.
           ("@stitches/react", "^1.2.8"),
@@ -281,12 +300,12 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
           ("@node-rs/argon2", "^1.8.3")
         ]
 
-depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByTailwind spec =
-  if G.CF.isTailwindUsed spec
+  if TCF.isTailwindUsed spec
     then
-      AS.Dependency.fromList
-        [ ("tailwindcss", "^3.2.7"),
+      Npm.Dependency.fromList
+        [ ("tailwindcss", show tailwindCssVersion),
           ("postcss", "^8.4.21"),
           ("autoprefixer", "^10.4.13")
         ]
@@ -334,7 +353,8 @@ genUniversalDir =
     [ C.mkTmplFd [relfile|universal/url.ts|],
       C.mkTmplFd [relfile|universal/types.ts|],
       C.mkTmplFd [relfile|universal/validators.ts|],
-      C.mkTmplFd [relfile|universal/predicates.ts|]
+      C.mkTmplFd [relfile|universal/predicates.ts|],
+      C.mkTmplFd [relfile|universal/ansiColors.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
@@ -357,12 +377,18 @@ genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
 
-  let tmplData = object ["areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined]
+  let tmplData =
+        object
+          [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
+            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+          ]
 
   return $
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
+  where
+    maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
 
 genDevIndex :: Generator FileDraft
 genDevIndex =

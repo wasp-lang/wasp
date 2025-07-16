@@ -12,10 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    alt="Beta is coming"
-    source="img/why-we-chose-prisma/wasp-loves-prisma.png"
-/>
+<ImgWithCaption alt="Beta is coming" source="img/why-we-chose-prisma/wasp-loves-prisma.png" />
 
 Wasp is a full-stack JS web dev framework, covering frontend, backend, and database. When choosing the solution to build our database layer on top, we chose Prisma, even though it was still somehwat new tech at that point, and we believe today we made a great choice -> read on to learn why!
 
@@ -89,7 +86,7 @@ entity User {=psl
   id          Int     @id @default(autoincrement())
   username    String  @unique
   password    String
-psl=} 
+psl=}
 
 // ... some Wasp code ...
 ```
@@ -102,20 +99,20 @@ Another great thing is that the PSL is at its core a pretty simple language, so 
 
 Besides PSL, there were plenty of other reasons why we felt Prisma is a great fit for us:
 
- -  It is targeting Javascript / Typescript.
- -  It takes care of migrations and has a nice workflow for doing it.
- -  It supports different databases: Mongo, PostgreSQL, CockroachDB, …, which is very important for Wasp since our vision is to support different stacks in the future.
- -  It has Prisma Studio - UI for inspecting your database, which we also make available to you via Wasp CLI.
- -  It keeps improving quickly and is very focused on a nice developer experience, which is also our focus here at Wasp.
- -  Community is extremely welcoming and the core team is super helpful - all of our questions and issues were answered super quickly!
+- It is targeting Javascript / Typescript.
+- It takes care of migrations and has a nice workflow for doing it.
+- It supports different databases: Mongo, PostgreSQL, CockroachDB, …, which is very important for Wasp since our vision is to support different stacks in the future.
+- It has Prisma Studio - UI for inspecting your database, which we also make available to you via Wasp CLI.
+- It keeps improving quickly and is very focused on a nice developer experience, which is also our focus here at Wasp.
+- Community is extremely welcoming and the core team is super helpful - all of our questions and issues were answered super quickly!
 
 ## Challenges
 
 While integrating Prisma into Wasp went really smoothly, there were a few hiccups:
 
- -  Getting Prisma CLI to provide interactive output while being called programmatically by Wasp was tricky, and in the end, we had to use a bit of a dirty approach to trick the Prisma CLI into thinking it is called interactively. We opened an issue for this with Prisma, so hopefully, we will be able to remove this once it is resolved: https://github.com/prisma/prisma/issues/7113.
- -  In the early days, there were some bugs, however, they were always quickly solved, so updating to the newest Prisma version was often the solution.
- -  It took us a bit of fiddling to get Prisma to work with its schema outside of the server’s root directory, but we did get it working in the end!
+- Getting Prisma CLI to provide interactive output while being called programmatically by Wasp was tricky, and in the end, we had to use a bit of a dirty approach to trick the Prisma CLI into thinking it is called interactively. We opened an issue for this with Prisma, so hopefully, we will be able to remove this once it is resolved: https://github.com/prisma/prisma/issues/7113.
+- In the early days, there were some bugs, however, they were always quickly solved, so updating to the newest Prisma version was often the solution.
+- It took us a bit of fiddling to get Prisma to work with its schema outside of the server’s root directory, but we did get it working in the end!
 
 Most of these were due to us stretching the boundaries of how Prisma was imagined to be used, but in total Prisma proved to be fairly flexible!
 
@@ -129,9 +126,9 @@ When we started using it, Prisma was still somewhat early, and it was certainly 
 
 Already, Prisma is playing a big role at Wasp, but there is still more that we plan and want to do:
 
- - support Prisma’s Enum and Type declarations
- - expose more of Prisma’s CLI commands, especially database seeding
- - add support in Wasp for multiple databases (which Prisma already supports)
- - improve IDE support for PSL within the Wasp language
+- support Prisma’s Enum and Type declarations
+- expose more of Prisma’s CLI commands, especially database seeding
+- add support in Wasp for multiple databases (which Prisma already supports)
+- improve IDE support for PSL within the Wasp language
 
 If you are interested in helping with any of these, reach out to us on this issue https://github.com/wasp-lang/wasp/issues/641, or in any case, join us on our [Discord server](https://discord.gg/rzdnErX)!

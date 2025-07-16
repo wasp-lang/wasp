@@ -2,6 +2,7 @@
 import { prisma } from 'wasp/server'
 import type {
   OnAfterSignupHook,
+  OnAfterEmailVerifiedHook,
   OnBeforeOAuthRedirectHook,
   OnBeforeSignupHook,
   OnBeforeLoginHook,
@@ -14,6 +15,9 @@ import type {
 {=# onAfterSignupHook.isDefined =}
 {=& onAfterSignupHook.importStatement =}
 {=/ onAfterSignupHook.isDefined =}
+{=# onAfterEmailVerifiedHook.isDefined =}
+{=& onAfterEmailVerifiedHook.importStatement =}
+{=/ onAfterEmailVerifiedHook.isDefined =}
 {=# onBeforeOAuthRedirectHook.isDefined =}
 {=& onBeforeOAuthRedirectHook.importStatement =}
 {=/ onBeforeOAuthRedirectHook.isDefined =}
@@ -60,6 +64,20 @@ export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = (pa
  */
 export const onAfterSignupHook: InternalFunctionForHook<OnAfterSignupHook> = async (_params) => {}
 {=/ onAfterSignupHook.isDefined =}
+
+{=# onAfterEmailVerifiedHook.isDefined =}
+export const onAfterEmailVerifiedHook: InternalFunctionForHook<OnAfterEmailVerifiedHook> = (params) =>
+  {= onAfterEmailVerifiedHook.importIdentifier =}({
+    prisma,
+    ...params,
+  })
+{=/ onAfterEmailVerifiedHook.isDefined =}
+{=^ onAfterEmailVerifiedHook.isDefined =}
+/**
+ * This is a no-op function since the user didn't define the onAfterSignup hook.
+ */
+export const onAfterEmailVerifiedHook: InternalFunctionForHook<OnAfterEmailVerifiedHook> = async (_params) => {}
+{=/ onAfterEmailVerifiedHook.isDefined =}
 
 {=# onBeforeOAuthRedirectHook.isDefined =}
 export const onBeforeOAuthRedirectHook: InternalFunctionForHook<OnBeforeOAuthRedirectHook> = (params) =>

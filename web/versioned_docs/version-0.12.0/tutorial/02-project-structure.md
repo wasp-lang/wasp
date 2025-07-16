@@ -62,57 +62,52 @@ The file is a list of _declarations_. Each declaration defines a part of your ap
 The default `main.wasp` file generated with `wasp new` on the previous page looks like this:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app TodoApp {
+      wasp: {
+        version: "^0.12.0" // Pins the version of Wasp to use.
+      },
+      title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+    }
 
-```wasp title="main.wasp"
-app TodoApp {
-  wasp: {
-    version: "^0.12.0" // Pins the version of Wasp to use.
-  },
-  title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
-}
+    route RootRoute { path: "/", to: MainPage }
+    page MainPage {
+      // We specify that the React implementation of the page is exported from
+      // `src/MainPage.jsx`. This statement uses standard JS import syntax.
+      // Use `@src` to reference files inside the `src` folder.
+      component: import { MainPage } from "@src/MainPage"
+    }
+    ```
+  </TabItem>
 
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  // We specify that the React implementation of the page is exported from
-  // `src/MainPage.jsx`. This statement uses standard JS import syntax.
-  // Use `@src` to reference files inside the `src` folder.
-  component: import { MainPage } from "@src/MainPage"
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app TodoApp {
+      wasp: {
+        version: "^0.12.0" // Pins the version of Wasp to use.
+      },
+      title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+    }
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app TodoApp {
-  wasp: {
-    version: "^0.12.0" // Pins the version of Wasp to use.
-  },
-  title: "TodoApp" // Used as the browser tab title. Note that all strings in Wasp are double quoted!
-}
-
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  // We specify that the React implementation of the page is exported from
-  // `src/MainPage.tsx`. This statement uses standard JS import syntax.
-  // Use `@src` to reference files inside the `src` folder.
-  component: import { MainPage } from "@src/MainPage"
-}
-```
-
-</TabItem>
+    route RootRoute { path: "/", to: MainPage }
+    page MainPage {
+      // We specify that the React implementation of the page is exported from
+      // `src/MainPage.tsx`. This statement uses standard JS import syntax.
+      // Use `@src` to reference files inside the `src` folder.
+      component: import { MainPage } from "@src/MainPage"
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <ShowForTs>
+  :::caution Using TypeScript
+  The default project uses JavaScript. To use TypeScript, you must rename the file
+  `src/MainPage.jsx` to `src/MainPage.tsx`.
 
-:::caution Using TypeScript
-The default project uses JavaScript. To use TypeScript, you must rename the file
-`src/MainPage.jsx` to `src/MainPage.tsx`.
-
-No updates to the `main.wasp` file are necessary - it stays the same regardless of the language you use.
-:::
-
+  No updates to the `main.wasp` file are necessary - it stays the same regardless of the language you use.
+  :::
 </ShowForTs>
 
 This file uses three declaration types:

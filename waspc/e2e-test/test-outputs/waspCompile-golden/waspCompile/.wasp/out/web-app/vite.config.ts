@@ -3,6 +3,7 @@ import { mergeConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { defaultExclude } from "vitest/config"
 import { detectServerImports } from "./vite/detectServerImports"
+import { validateEnv } from "./vite/validateEnv.js";
 import path from "node:path"
 
 // Ignoring the TS error because we are importing a file outside of TS root dir.
@@ -13,6 +14,7 @@ const _waspUserProvidedConfig = customViteConfig
 const defaultViteConfig = {
   base: "/",
   plugins: [
+    validateEnv(),
     react(),
     detectServerImports(),
   ],
@@ -37,6 +39,7 @@ const defaultViteConfig = {
       {
         // Vite doesn't look for `.prisma/client` imports in the `node_modules`
         // folder. We point it to the correct place here.
+        // TODO: Check if we can remove when updating Vite (#2867) and Prisma (#2504)
         find: /^\.prisma\/(.+)$/,
         replacement: path.join(
           "../../../",

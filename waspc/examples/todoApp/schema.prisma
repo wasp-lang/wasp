@@ -12,8 +12,9 @@ generator client {
 model User {
   id Int @id @default(autoincrement())
 
-  isOnAfterSignupHookCalled Boolean @default(false)
-  isOnAfterLoginHookCalled  Boolean @default(false)
+  isOnAfterSignupHookCalled        Boolean @default(false)
+  isOnAfterLoginHookCalled         Boolean @default(false)
+  isOnAfterEmailVerifiedHookCalled Boolean @default(false)
 
   tasks   Task[]
   address String?
@@ -42,4 +43,20 @@ model TaskVote {
   userId Int
   task   Task   @relation(fields: [taskId], references: [id])
   taskId Int
+}
+
+model UppercaseTextRequest {
+  id        String                    @id @default(cuid())
+  input     String
+  output    String?
+  user      User                      @relation(fields: [userId], references: [id])
+  userId    Int
+  state     UppercaseTextRequestState @default(PENDING)
+  createdAt DateTime                  @default(now())
+}
+
+enum UppercaseTextRequestState {
+  PENDING
+  SUCCESS
+  ERROR
 }

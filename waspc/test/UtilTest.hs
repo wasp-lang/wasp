@@ -26,6 +26,7 @@ spec_kebabToCamelCase = do
   "todo-App" ~> "todoApp"
   "TODO-app" ~> "TODOApp"
   "s3-folder" ~> "s3Folder"
+  "-s3--folder---" ~> "s3Folder"
   "foo---bar-baz" ~> "fooBarBaz"
   "-foo-" ~> "foo"
   "-" ~> ""

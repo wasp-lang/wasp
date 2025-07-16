@@ -24,10 +24,10 @@ Let's walk through enabling Google authentication, explain some of the default s
 Enabling Google Authentication comes down to a series of steps:
 
 1. Enabling Google authentication in the Wasp file.
-1. Adding the `User` entity.
-1. Creating a Google OAuth app.
-1. Adding the neccessary Routes and Pages
-1. Using Auth UI components in our Pages.
+2. Adding the `User` entity.
+3. Creating a Google OAuth app.
+4. Adding the neccessary Routes and Pages
+5. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
 
@@ -36,87 +36,81 @@ Enabling Google Authentication comes down to a series of steps:
 Let's start by properly configuring the Auth object:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        // 1. Specify the User entity (we'll define it next)
+        // highlight-next-line
+        userEntity: User,
+        methods: {
+          // 2. Enable Google Auth
+          // highlight-next-line
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    // 1. Specify the User entity (we'll define it next)
-    // highlight-next-line
-    userEntity: User,
-    methods: {
-      // 2. Enable Google Auth
-      // highlight-next-line
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    // 1. Specify the User entity (we'll define it next)
-    // highlight-next-line
-    userEntity: User,
-    methods: {
-      // 2. Enable Google Auth
-      // highlight-next-line
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        // 1. Specify the User entity (we'll define it next)
+        // highlight-next-line
+        userEntity: User,
+        methods: {
+          // 2. Enable Google Auth
+          // highlight-next-line
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
+  </TabItem>
 </Tabs>
 
-`userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
+`userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#user-entity).
 
 ### 2. Adding the User Entity
 
 Let's now define the `app.auth.userEntity` entity:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
     // ...
-psl=}
-```
+    // 3. Define the User entity
+    // highlight-next-line
+    entity User {=psl
+        id          Int     @id @default(autoincrement())
+        // ...
+    psl=}
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-// ...
-// 3. Define the User entity
-// highlight-next-line
-entity User {=psl
-    id          Int     @id @default(autoincrement())
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
     // ...
-psl=}
-```
-
-</TabItem>
+    // 3. Define the User entity
+    // highlight-next-line
+    entity User {=psl
+        id          Int     @id @default(autoincrement())
+        // ...
+    psl=}
+    ```
+  </TabItem>
 </Tabs>
 
 ### 3. Creating a Google OAuth App
@@ -159,6 +153,7 @@ To use Google as an authentication method, you'll first need to create a Google 
 ![Google Console Screenshot 10](/img/integrations-google-10.jpg)
 
 - Select **Create Credentials**.
+
 - Select **OAuth client ID**.
 
   ![Google Console Screenshot 11](/img/integrations-google-11.jpg)
@@ -196,32 +191,29 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp` file:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    // ...
 
-```wasp title="main.wasp"
-// ...
+    // 6. Define the routes
+    route LoginRoute { path: "/login", to: LoginPage }
+    page LoginPage {
+      component: import { Login } from "@src/pages/auth.jsx"
+    }
+    ```
+  </TabItem>
 
-// 6. Define the routes
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth.jsx"
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    // ...
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-// ...
-
-// 6. Define the routes
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth.tsx"
-}
-```
-
-</TabItem>
+    // 6. Define the routes
+    route LoginRoute { path: "/login", to: LoginPage }
+    page LoginPage {
+      component: import { Login } from "@src/pages/auth.tsx"
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -236,62 +228,59 @@ Let's now create a `auth.{jsx,tsx}` file in the `src/pages`.
 It should have the following code:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```tsx title="src/pages/auth.jsx"
+    import { LoginForm } from 'wasp/client/auth'
 
-```tsx title="src/pages/auth.jsx"
-import { LoginForm } from 'wasp/client/auth'
+    export function Login() {
+      return (
+        <Layout>
+          <LoginForm />
+        </Layout>
+      )
+    }
 
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }) {
-  return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
-          <div>{children}</div>
+    // A layout component to center the content
+    export function Layout({ children }) {
+      return (
+        <div className="w-full h-full bg-white">
+          <div className="min-w-full min-h-[75vh] flex items-center justify-center">
+            <div className="w-full h-full max-w-sm p-5 bg-white">
+              <div>{children}</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  )
-}
-```
+      )
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="src/pages/auth.tsx"
+    import { LoginForm } from 'wasp/client/auth'
 
-```tsx title="src/pages/auth.tsx"
-import { LoginForm } from 'wasp/client/auth'
+    export function Login() {
+      return (
+        <Layout>
+          <LoginForm />
+        </Layout>
+      )
+    }
 
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="w-full h-full bg-white">
-      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
-        <div className="w-full h-full max-w-sm p-5 bg-white">
-          <div>{children}</div>
+    // A layout component to center the content
+    export function Layout({ children }: { children: React.ReactNode }) {
+      return (
+        <div className="w-full h-full bg-white">
+          <div className="min-w-full min-h-[75vh] flex items-center justify-center">
+            <div className="w-full h-full max-w-sm p-5 bg-white">
+              <div>{children}</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  )
-}
-```
-
-</TabItem>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 :::info Auth UI
@@ -312,46 +301,43 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 Add `google: {}` to the `auth.methods` dictionary to use it with default settings:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          // highlight-next-line
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
+  </TabItem>
 
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      // highlight-next-line
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      // highlight-next-line
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          // highlight-next-line
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 <DefaultBehaviour />
@@ -365,104 +351,101 @@ app myApp {
 <OverrideExampleIntro />
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            configFn: import { getConfig } from "@src/auth/google.js",
+            // highlight-next-line
+            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+    entity User {=psl
+        id                        Int     @id @default(autoincrement())
+        username                  String  @unique
+        displayName               String
+    psl=}
+
+    // ...
+    ```
+
+    ```js title="src/auth/google.js"
+    export const userSignupFields = {
+      username: () => "hardcoded-username",
+      displayName: (data) => data.profile.displayName,
+    }
+
+    export function getConfig() {
+      return {
+        clientID, // look up from env or elsewhere
+        clientSecret, // look up from env or elsewhere
+        scope: ['profile', 'email'],
       }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
+    }
+    ```
+  </TabItem>
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    displayName               String
-psl=}
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            configFn: import { getConfig } from "@src/auth/google.js",
+            // highlight-next-line
+            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-// ...
-```
+    entity User {=psl
+        id                        Int     @id @default(autoincrement())
+        username                  String  @unique
+        displayName               String
+    psl=}
 
-```js title=src/auth/google.js
-export const userSignupFields = {
-  username: () => "hardcoded-username",
-  displayName: (data) => data.profile.displayName,
-}
+    // ...
+    ```
 
-export function getConfig() {
-  return {
-    clientID, // look up from env or elsewhere
-    clientSecret, // look up from env or elsewhere
-    scope: ['profile', 'email'],
-  }
-}
-```
+    ```ts title="src/auth/google.ts"
+    import { defineUserSignupFields } from 'wasp/server/auth'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export const userSignupFields = defineUserSignupFields({
+      username: () => "hardcoded-username",
+      displayName: (data) => data.profile.displayName,
+    })
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+    export function getConfig() {
+      return {
+        clientID, // look up from env or elsewhere
+        clientSecret, // look up from env or elsewhere
+        scope: ['profile', 'email'],
       }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
+    }
+    ```
 
-entity User {=psl
-    id                        Int     @id @default(autoincrement())
-    username                  String  @unique
-    displayName               String
-psl=}
-
-// ...
-```
-
-```ts title=src/auth/google.ts
-import { defineUserSignupFields } from 'wasp/server/auth'
-
-export const userSignupFields = defineUserSignupFields({
-  username: () => "hardcoded-username",
-  displayName: (data) => data.profile.displayName,
-})
-
-export function getConfig() {
-  return {
-    clientID, // look up from env or elsewhere
-    clientSecret, // look up from env or elsewhere
-    scope: ['profile', 'email'],
-  }
-}
-```
-
-<GetUserFieldsType />
-
-</TabItem>
+    <GetUserFieldsType />
+  </TabItem>
 </Tabs>
 
 ## Using Auth
@@ -474,54 +457,51 @@ export function getConfig() {
 <ApiReferenceIntro />
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            configFn: import { getConfig } from "@src/auth/google.js",
+            // highlight-next-line
+            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
+  </TabItem>
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google.js",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google.js"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        methods: {
+          google: {
+            // highlight-next-line
+            configFn: import { getConfig } from "@src/auth/google.js",
+            // highlight-next-line
+            userSignupFields: import { userSignupFields } from "@src/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 The `google` dict has the following properties:
@@ -531,35 +511,33 @@ The `google` dict has the following properties:
   This function must return an object with the Client ID, the Client Secret, and the scope for the OAuth provider.
 
   <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
+    <TabItem value="js" label="JavaScript">
+      ```js title="src/auth/google.js"
+      export function getConfig() {
+        return {
+          clientID, // look up from env or elsewhere
+          clientSecret, // look up from env or elsewhere
+          scope: ['profile', 'email'],
+        }
+      }
+      ```
+    </TabItem>
 
-  ```js title=src/auth/google.js
-  export function getConfig() {
-    return {
-      clientID, // look up from env or elsewhere
-      clientSecret, // look up from env or elsewhere
-      scope: ['profile', 'email'],
-    }
-  }
-  ```
-
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
-
-  ```ts title=src/auth/google.ts
-  export function getConfig() {
-    return {
-      clientID, // look up from env or elsewhere
-      clientSecret, // look up from env or elsewhere
-      scope: ['profile', 'email'],
-    }
-  }
-  ```
-
-  </TabItem>
+    <TabItem value="ts" label="TypeScript">
+      ```ts title="src/auth/google.ts"
+      export function getConfig() {
+        return {
+          clientID, // look up from env or elsewhere
+          clientSecret, // look up from env or elsewhere
+          scope: ['profile', 'email'],
+        }
+      }
+      ```
+    </TabItem>
   </Tabs>
 
 - #### `userSignupFields: ExtImport`
 
   <UserSignupFieldsExplainer />
+
   Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).

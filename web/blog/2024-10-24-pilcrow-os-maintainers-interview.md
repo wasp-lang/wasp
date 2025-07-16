@@ -12,7 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects they keep pushing. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an inspiring young dev from Japan, famous for his auth library Lucia and love for auth and security. 
+We're back with our series of posts in which we interview open-source maintainers and showcase their amazing projects they keep pushing. This week we've talked with [Pilcrow](https://github.com/pilcrowonpaper), an inspiring young dev from Japan, famous for his auth library Lucia and love for auth and security.
 
 [Lucia](https://github.com/lucia-auth/lucia) is one of the open-source tools that we use under-the-hood at Wasp. It grew to 9.5K stars on GitHub since October 2023. Although Lucia itself will be deprecated as a library in 2025 and converted into a [learning resource](https://github.com/lucia-auth/lucia/discussions/1714), Pilcrow is also working on other projects related to auth, such as Copenhagen and Oslo. You can learn more about his work and projects on his [blog](https://pilcrowonpaper.com/).
 
@@ -30,7 +30,7 @@ Over summer break, I decided to build a more leaner NextAuth for SvelteKit so I 
 
 Working on it got me hooked on library development, and I found designing APIs and even documenting them to be very enjoyable.
 
-:::tip[Would you star us on GitHub?]
+:::tip\[Would you star us on GitHub?]
 If you'd like to keep reading more about other open-source maintainers and help Wasp grow, could you please [star us on GitHub as a sign of your support](https://github.com/wasp-lang/wasp)? 🙏
 :::
 
@@ -38,7 +38,7 @@ If you'd like to keep reading more about other open-source maintainers and help 
 
 I honestly don't find anything about maintaining open-source projects specifically to be challenging. It just requires a lot of your time with answering questions on Discord and writing documentation. I've definitely changed my approach to library development from when I started though. I now put most of my effort into designing APIs and writing documentation over adding new features.
 
-![giphy applause](https://media.giphy.com/media/mGK1g88HZRa2FlKGbz/giphy.gif?cid=790b7611pf6oxpvnttw8a1ej43c0c8escbmkyvschhu7wr9f&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![giphy applause](https://media.giphy.com/media/mGK1g88HZRa2FlKGbz/giphy.gif?cid=790b7611pf6oxpvnttw8a1ej43c0c8escbmkyvschhu7wr9f\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
 - **You're also working on [The Copenhagen Book](https://github.com/pilcrowonpaper/copenhagen), which focuses on authentication guidelines. Why is authentication such a key area of interest for you?**
 
@@ -69,6 +69,7 @@ Maintaining various projects definitely helps with avoiding burnout. My projects
 I also see open source as just a hobby. I'll still try to address bugs quickly, but I don't rush myself to add new features.
 
 ![relax gif](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWF3ZGRwNjFmYmVzanM0d3ZydzNjd2w5bTlxMWlqd294aWwzNmZzMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/q10hztkXiFFmhBbH2l/giphy.gif)
+
 - **When collaborating on open-source, how do you manage community contributions and keep other developers involved in a meaningful way?**
 
 I don't think my projects are particularly good examples of open source collaborations. I usually ask people to open GitHub issues for new features and I'm not really open to pull requests except for bug and typo fixes. I like to take my time experimenting with various API designs and I personally find it easier if I do the initial design phase by myself. There's also a certain flavor of code I like and I really want to keep my code "beautiful" (yes, I know it sounds dumb).

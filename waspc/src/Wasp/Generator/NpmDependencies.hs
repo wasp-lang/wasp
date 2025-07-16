@@ -14,6 +14,7 @@ module Wasp.Generator.NpmDependencies
     NpmDepsForWasp (..),
     NpmDepsForUser (..),
     buildWaspFrameworkNpmDeps,
+    getDependencyOverridesPackageJsonEntry,
   )
 where
 
@@ -24,8 +25,8 @@ import qualified Data.Maybe as Maybe
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App.Dependency as D
-import qualified Wasp.ExternalConfig.PackageJson as EC.PackageJson
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
+import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
 data NpmDepsForFramework = NpmDepsForFramework
@@ -110,9 +111,9 @@ buildWaspFrameworkNpmDeps spec forServer forWebApp =
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
   NpmDepsForUser
-    { userDependencies = EC.PackageJson.getDependencies $ AS.packageJson spec,
+    { userDependencies = PJ.getDependencies $ AS.packageJson spec,
       -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-      userDevDependencies = EC.PackageJson.getDevDependencies $ AS.packageJson spec
+      userDevDependencies = PJ.getDevDependencies $ AS.packageJson spec
     }
 
 conflictErrorToMessage :: DependencyConflictError -> String
@@ -198,6 +199,9 @@ getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "depende
 -- | Construct devDependencies entry in package.json
 getDevDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devDependencies" . devDependencies
+
+getDependencyOverridesPackageJsonEntry :: [D.Dependency] -> String
+getDependencyOverridesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "overrides"
 
 dependenciesToPackageJsonEntryWithKey :: String -> [D.Dependency] -> String
 dependenciesToPackageJsonEntryWithKey key deps =

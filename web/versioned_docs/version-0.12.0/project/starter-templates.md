@@ -82,7 +82,7 @@ wasp new <project-name> -t todo-ts
 ### AI Generated Starter 🤖
 
 Using the same tech as used on https://usemage.ai/, Wasp generates your custom starter template based on your
-project description. It will automatically generate your data model, auth, queries, actions and React pages. 
+project description. It will automatically generate your data model, auth, queries, actions and React pages.
 
 _You will need to provide your own OpenAI API key to be able to use this template._
 

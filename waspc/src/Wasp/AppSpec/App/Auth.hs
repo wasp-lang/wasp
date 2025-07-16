@@ -11,6 +11,7 @@ module Wasp.AppSpec.App.Auth
     UsernameAndPasswordConfig (..),
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
+    isSlackAuthEnabled,
     isDiscordAuthEnabled,
     isGoogleAuthEnabled,
     isKeycloakAuthEnabled,
@@ -41,6 +42,7 @@ data Auth = Auth
     onAuthSucceededRedirectTo :: Maybe String,
     onBeforeSignup :: Maybe ExtImport,
     onAfterSignup :: Maybe ExtImport,
+    onAfterEmailVerified :: Maybe ExtImport,
     onBeforeOAuthRedirect :: Maybe ExtImport,
     onBeforeLogin :: Maybe ExtImport,
     onAfterLogin :: Maybe ExtImport
@@ -49,6 +51,7 @@ data Auth = Auth
 
 data AuthMethods = AuthMethods
   { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
+    slack :: Maybe ExternalAuthConfig,
     discord :: Maybe ExternalAuthConfig,
     google :: Maybe ExternalAuthConfig,
     gitHub :: Maybe ExternalAuthConfig,
@@ -84,11 +87,15 @@ isExternalAuthEnabled auth =
   any
     ($ auth)
     -- NOTE: Make sure to add new external auth methods here.
-    [ isDiscordAuthEnabled,
+    [ isSlackAuthEnabled,
+      isDiscordAuthEnabled,
       isGoogleAuthEnabled,
       isGitHubAuthEnabled,
       isKeycloakAuthEnabled
     ]
+
+isSlackAuthEnabled :: Auth -> Bool
+isSlackAuthEnabled = isJust . slack . methods
 
 isDiscordAuthEnabled :: Auth -> Bool
 isDiscordAuthEnabled = isJust . discord . methods

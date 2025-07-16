@@ -12,15 +12,13 @@ import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
 <p align="center">
-  <img alt="No login for you!"
-      src={useBaseUrl('img/auth-hero.png')}
-      width="300px"
-  />
+  <img alt="No login for you!" src={useBaseUrl('img/auth-hero.png')} width="300px" />
 </p>
 
 <!--truncate-->
 
 <WaspIntro />
+
 <InBlogCta />
 
 ## Prologue
@@ -29,7 +27,7 @@ We've all been there. Your app needs to support user authentication with social 
 
 Ok, surely you can just use a library, right? Open source software, baby! "Hmm, seems Library X, Y, and Z are all somewhat used, each with their pros/cons, nuances, and integration pain points. Oh wait, there are tutorials for each... but each says how hard they are to correctly set up and use. I scoped this feature for one day, not a one-week hair-pulling adventure (Dang scrum! Who likes it anyways? Oh yeah, PMs do. Dang PMs!)." Ok, something else. You need to brainstorm. `You instead start to surf Twitter and see an ad for some unicorn auth startup.`
 
-Eureka, you can go with a third-party SaaS offering! "We shouldn't have to pay for a while (I ~~think?~~ hope!), and it's just another dependency, no biggie... #microservices, right?" "But what about outages, data privacy, mapping users between systems, and all that implicit trust you are placing in them?" you think. "What happens when Elon buys them next?" You gasp as if you walked by a Patagonia vest covered in that hot new *Burnt Hair* cologne.
+Eureka, you can go with a third-party SaaS offering! "We shouldn't have to pay for a while (I ~~think?~~ hope!), and it's just another dependency, no biggie... #microservices, right?" "But what about outages, data privacy, mapping users between systems, and all that implicit trust you are placing in them?" you think. "What happens when Elon buys them next?" You gasp as if you walked by a Patagonia vest covered in that hot new _Burnt Hair_ cologne.
 
 "All I want is username and password auth with Google login support, why is that so hard in 2022?!? I miss Basic HTTP auth headers. I think I'll move off the grid and become a woodworker."
 

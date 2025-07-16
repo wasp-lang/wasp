@@ -27,7 +27,7 @@ export function getRequestPasswordResetRoute({
     return async function requestPasswordReset(
         req: Request<{ email: string; }>,
         res: Response,
-    ): Promise<Response<{ success: true }>> {
+    ): Promise<void> {
         const args = req.body ?? {};
         ensureValidEmail(args);
 
@@ -43,7 +43,8 @@ export function getRequestPasswordResetRoute({
 
         if (!authIdentity) {
             await doFakeWork();
-            return res.json({ success: true });
+            res.json({ success: true });
+            return
         }
 
         const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
@@ -68,6 +69,6 @@ export function getRequestPasswordResetRoute({
             throw new HttpError(500, "Failed to send password reset email.");
         }
     
-        return res.json({ success: true });
+        res.json({ success: true });
     };
 }

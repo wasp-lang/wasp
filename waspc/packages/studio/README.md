@@ -1,6 +1,7 @@
 # Wasp Studio
 
 Wasp Studio has two components:
+
 - the server
 - the client
 
@@ -17,14 +18,17 @@ npm install
 Running the server for some data file:
 
 ```bash
-npm run dev -- -- -d <path_to_data_file>
+npm run dev -- -d <path_to_data_file>
 ```
 
 For example, running the server with the data file from the `examples` directory:
 
 ```bash
-npm run dev -- -- -d ../../examples/crud-testing/.wasp/out/.wasp-studio-data.json
+npm run dev -- -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
 ```
+
+Wasp CLI generates the `.wasp-studio-data.json` file when the `wasp studio` command is run.
+You can run the `wasp studio` once to get the file generated, and then run the studio in development mode.
 
 ### Client
 

@@ -1,4 +1,3 @@
-import { getUsername } from "wasp/auth";
 import { type WebSocketDefinition } from "wasp/server/webSocket";
 
 type PollState = {
@@ -68,7 +67,7 @@ export const webSocketFn: WebSocketDefinition<
       // If user has already voted, remove their vote.
       poll.options.forEach((option) => {
         option.votes = option.votes.filter(
-          (username) => username !== connectionUsername
+          (username) => username !== connectionUsername,
         );
       });
       // And then add their vote to the new option.

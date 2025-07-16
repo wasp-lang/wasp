@@ -1,30 +1,30 @@
 import { Request, Response } from 'express'
-import { EmailFromField } from 'wasp/server/email/core/types'
+import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
-  createUser,
   createProviderId,
-  findAuthIdentity,
+  createUser,
   deleteUserByAuthId,
   doFakeWork,
+  findAuthIdentity,
   getProviderDataWithPassword,
-  sanitizeAndSerializeProviderData,
   rethrowPossibleAuthError,
+  sanitizeAndSerializeProviderData,
+  validateAndGetUserFields,
 } from 'wasp/auth/utils'
 import {
-  createEmailVerificationLink,
-  sendEmailVerificationEmail,
-  isEmailResendAllowed,
-} from 'wasp/server/auth/email/utils'
-import {
+  ensurePasswordIsPresent,
   ensureValidEmail,
   ensureValidPassword,
-  ensurePasswordIsPresent,
 } from 'wasp/auth/validation'
-import { GetVerificationEmailContentFn } from 'wasp/server/auth/email'
-import { validateAndGetUserFields } from 'wasp/auth/utils'
 import { HttpError } from 'wasp/server'
-import { type UserSignupFields } from 'wasp/auth/providers/types'
-import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js'
+import { GetVerificationEmailContentFn } from 'wasp/server/auth/email'
+import {
+  createEmailVerificationLink,
+  isEmailResendAllowed,
+  sendEmailVerificationEmail,
+} from 'wasp/server/auth/email/utils'
+import { EmailFromField } from 'wasp/server/email/core/types'
+import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
 
 export function getSignupRoute({
   userSignupFields,
@@ -42,7 +42,7 @@ export function getSignupRoute({
   return async function signup(
     req: Request<{ email: string; password: string }>,
     res: Response,
-  ): Promise<Response<{ success: true }>> {
+  ): Promise<void> {
     const fields = req.body
     ensureValidArgs(fields)
 
@@ -83,7 +83,8 @@ export function getSignupRoute({
       // the email!
       if (providerData.isEmailVerified) {
         await doFakeWork()
-        return res.json({ success: true })
+        res.json({ success: true })
+        return
       }
 
       // TODO: we are still leaking information here since when we are faking work
@@ -134,7 +135,8 @@ export function getSignupRoute({
     // Wasp allows for auto-verification of emails in development mode to
     // make writing e2e tests easier.
     if (isEmailAutoVerified) {
-      return res.json({ success: true })
+      res.json({ success: true })
+      return
     }
 
     const verificationLink = await createEmailVerificationLink(
@@ -152,7 +154,7 @@ export function getSignupRoute({
       throw new HttpError(500, 'Failed to send email verification email.')
     }
 
-    return res.json({ success: true })
+    res.json({ success: true })
   }
 }
 

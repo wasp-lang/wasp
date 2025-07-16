@@ -53,6 +53,7 @@ app MyApp {
 ```
 
 #### 1.1 Additional step for Wasp TS Config users
+
 If you're using [Wasp's new TS config](../general/wasp-ts-config.md), you must
 also rerun the `wasp ts-setup` command in your project. This command updates
 the path for the `wasp-config` package in your `package.json`.
@@ -71,28 +72,26 @@ Make sure to explicitly add `react-dom` and `react-router-dom` to your `package.
   }
 }
 ```
+
 ### 3. Update the `tsconfig.json` file
+
 Wasp now internally works with TypeScript project references, so you'll have to
 update your `tsconfig.json` (Wasp will validate your `tsconfig.json` and warn
 you if you forget something). Here are all the properties you must change:
 
-  ```json
-  {
-    "compilerOptions": {
-      // ...
-      "composite": true,
-      "skipLibCheck": true,
-      "outDir": ".wasp/out/user"
-    },
-    "include": [
-      "src"
-    ]
-  }
-  ```
-
+```json
+{
+  "compilerOptions": {
+    // ...
+    "composite": true,
+    "skipLibCheck": true,
+    "outDir": ".wasp/out/user"
+  },
+  "include": ["src"]
+}
+```
 
 ### 4. Enjoy your updated Wasp app
-
 
 That's it!
 

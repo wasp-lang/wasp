@@ -1,20 +1,17 @@
 module Wasp.Node.Version
-  ( getAndCheckUserNodeVersion,
-    VersionCheckResult (..),
+  ( VersionCheckResult (..),
+    oldestWaspSupportedNpmVersion,
     oldestWaspSupportedNodeVersion,
-    parseNodeVersionOutput,
     isRangeInWaspSupportedRange,
+    checkUserNodeAndNpmMeetWaspRequirements,
   )
 where
 
-import Control.Arrow (left)
 import Data.Conduit.Process.Typed (ExitCode (..))
-import Data.Function ((&))
 import System.IO.Error (catchIOError, isDoesNotExistError)
-import qualified System.Process as P
-import qualified Text.Parsec as P
+import System.Process (readProcessWithExitCode)
+import Wasp.Node.Internal (parseVersionFromCommandOutput)
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.SemanticVersion.Version as SV
 import qualified Wasp.SemanticVersion.VersionBound as SV
 import Wasp.Util (indent)
 
@@ -26,6 +23,9 @@ import Wasp.Util (indent)
 --   - /web/docs/introduction/getting-started.md -> "Requirements" section.
 oldestWaspSupportedNodeVersion :: SV.Version
 oldestWaspSupportedNodeVersion = SV.Version 20 0 0
+
+oldestWaspSupportedNpmVersion :: SV.Version
+oldestWaspSupportedNpmVersion = SV.Version 9 6 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =
@@ -39,79 +39,65 @@ data VersionCheckResult
 
 type ErrorMessage = String
 
--- | Gets the user's installed node version, if any is installed, and checks that it
--- meets Wasp's version requirement.
-getAndCheckUserNodeVersion :: IO VersionCheckResult
-getAndCheckUserNodeVersion =
-  getUserNodeVersion >>= \case
-    Left errorMsg -> return $ VersionCheckFail errorMsg
-    Right userNodeVersion ->
-      return $
-        if SV.isVersionInRange userNodeVersion $ SV.Range [SV.gte oldestWaspSupportedNodeVersion]
-          then VersionCheckSuccess
-          else VersionCheckFail $ makeNodeVersionMismatchMessage userNodeVersion
-
-makeNodeVersionMismatchMessage :: SV.Version -> String
-makeNodeVersionMismatchMessage nodeVersion =
-  unlines
-    [ "Your Node version does not meet Wasp's requirements! You are running Node " <> show nodeVersion <> ".",
-      "Wasp requires Node version " <> show oldestWaspSupportedNodeVersion <> " or higher."
-    ]
-
--- | Gets the installed node version, if any is installed, and returns it.
---
--- Returns a string representing the error condition if node's version could
--- not be found.
-getUserNodeVersion :: IO (Either ErrorMessage SV.Version)
-getUserNodeVersion = do
-  -- Node result is one of:
-  -- 1. @Left processError@, when an error occurs trying to run the process
-  -- 2. @Right (ExitCode, stdout, stderr)@, when the node process runs and terminates
-  nodeResult <-
-    (Right <$> P.readProcessWithExitCode "node" ["--version"] "")
-      `catchIOError` ( \e ->
-                         if isDoesNotExistError e
-                           then return $ Left nodeNotFoundMessage
-                           else return $ Left $ makeNodeUnknownErrorMessage e
-                     )
-  return $ case nodeResult of
-    Left procErr ->
-      Left
-        ( unlines
-            [ "Running `node --version` failed.",
-              indent 2 procErr,
-              "Make sure you have `node` installed and in your PATH."
-            ]
-        )
-    Right (ExitFailure code, _, stderr) ->
-      Left
-        ( unlines
-            [ "Running `node --version` failed (exit code " ++ show code ++ "):",
-              indent 2 stderr
-            ]
-        )
-    Right (ExitSuccess, stdout, _) ->
-      parseNodeVersionOutput stdout
-        & left
-          ( \e ->
-              "Wasp failed to the parse `node` version provided by `node --version`.\n"
-                <> (show e <> "\n")
-                <> "This is most likely a bug in Wasp, please file an issue."
-          )
-
--- | Extracts node version from the output of `node --version`.
-parseNodeVersionOutput :: String -> Either P.ParseError SV.Version
-parseNodeVersionOutput = P.parse nodeVersionParser ""
+checkUserNodeAndNpmMeetWaspRequirements :: IO VersionCheckResult
+checkUserNodeAndNpmMeetWaspRequirements = do
+  nodeResult <- checkUserNodeVersion
+  npmResult <- checkUserNpmVersion
+  return $ case (nodeResult, npmResult) of
+    (VersionCheckSuccess, VersionCheckSuccess) -> VersionCheckSuccess
+    (VersionCheckFail nodeError, _) -> VersionCheckFail nodeError
+    (_, VersionCheckFail npmError) -> VersionCheckFail npmError
   where
-    nodeVersionParser = skipAnyCharTillMatch SV.versionParser
-    skipAnyCharTillMatch p = P.manyTill P.anyChar (P.lookAhead $ P.try p) >> p
+    checkUserNodeVersion = checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion
+    checkUserNpmVersion = checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
 
-nodeNotFoundMessage :: String
-nodeNotFoundMessage = "`node` command not found!"
+checkUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
+checkUserToolVersion commandName commandArgs oldestSupportedToolVersion = do
+  userVersionOrError <- getToolVersionFromCommandOutput commandName commandArgs
+  return $ case userVersionOrError of
+    Left errorMsg -> VersionCheckFail errorMsg
+    Right userVersion
+      | userVersion >= oldestSupportedToolVersion -> VersionCheckSuccess
+      | otherwise -> VersionCheckFail $ makeVersionMismatchErrorMessage userVersion
+  where
+    makeVersionMismatchErrorMessage version =
+      unlines
+        [ "Your " ++ commandName ++ " version does not meet Wasp's requirements!",
+          "You are running " ++ commandName ++ " " ++ show version ++ ".",
+          "Wasp requires " ++ commandName ++ " version " ++ show oldestSupportedToolVersion ++ " or higher."
+        ]
 
-makeNodeUnknownErrorMessage :: IOError -> String
-makeNodeUnknownErrorMessage err =
-  unlines
-    [ "An unknown error occured while trying to run `node --version`:",
-      indent 2 $ show err
-    ]
+getToolVersionFromCommandOutput :: String -> [String] -> IO (Either ErrorMessage SV.Version)
+getToolVersionFromCommandOutput commandName commandArgs = do
+  commandOutput <- readCommandOutput commandName commandArgs
+  return $ commandOutput >>= parseVersionFromCommandOutput
+
+readCommandOutput :: String -> [String] -> IO (Either ErrorMessage String)
+readCommandOutput commandName commandArgs = do
+  commandResult <-
+    catchIOError
+      (Right <$> readProcessWithExitCode commandName commandArgs "")
+      (return . Left . wrapCommandIOErrorMessage . makeIOErrorMessage)
+  return $ case commandResult of
+    Left procErr -> Left procErr
+    Right (ExitFailure exitCode, _, stderr) -> Left $ wrapCommandExitCodeErrorMessage exitCode stderr
+    Right (ExitSuccess, stdout, _) -> Right stdout
+  where
+    makeIOErrorMessage ioErr
+      | isDoesNotExistError ioErr = "`" ++ fullCommand ++ "` command not found!"
+      | otherwise = show ioErr
+
+    wrapCommandIOErrorMessage innerErr =
+      unlines
+        [ "Running `" ++ fullCommand ++ "` failed.",
+          indent 2 innerErr,
+          "Make sure you have `" ++ commandName ++ "` installed and in your PATH."
+        ]
+
+    wrapCommandExitCodeErrorMessage exitCode commandErr =
+      unlines
+        [ "Running `" ++ fullCommand ++ "` failed (exit code " ++ show exitCode ++ "):",
+          indent 2 commandErr
+        ]
+
+    fullCommand = unwords $ commandName : commandArgs

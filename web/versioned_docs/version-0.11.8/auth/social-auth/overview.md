@@ -34,92 +34,87 @@ This tells Wasp which Entity represents the user's link with the social provider
 Both fields fall under `app.auth`. Here's what the full setup looks like:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        // highlight-next-line
+        userEntity: User,
+        // highlight-next-line
+        externalAuthEntity: SocialLogin,
+        methods: {
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
     // highlight-next-line
-    userEntity: User,
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        //...
+        externalAuthAssociations  SocialLogin[]
+    psl=}
+
     // highlight-next-line
-    externalAuthEntity: SocialLogin,
-    methods: {
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
+    ```
+  </TabItem>
 
-// highlight-next-line
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        // highlight-next-line
+        userEntity: User,
+        // highlight-next-line
+        externalAuthEntity: SocialLogin,
+        methods: {
+          google: {}
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
     // highlight-next-line
-    userEntity: User,
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        //...
+        externalAuthAssociations  SocialLogin[]
+    psl=}
+
     // highlight-next-line
-    externalAuthEntity: SocialLogin,
-    methods: {
-      google: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-
-// highlight-next-line
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// highlight-next-line
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-```
-
-</TabItem>
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
+    ```
+  </TabItem>
 </Tabs>
 
 <small>
-
-To learn more about what the fields on these entities represent, look at the [API Reference](#api-reference).
-
+  To learn more about what the fields on these entities represent, look at the [API Reference](#api-reference).
 </small>
 
 :::note
@@ -147,32 +142,29 @@ Let's go through both steps in more detail.
 #### 1. Adding the `isSignupComplete` Field to the `User` Entity
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        username                  String?       @unique
+        // highlight-next-line
+        isSignupComplete          Boolean       @default(false)
+        externalAuthAssociations  SocialLogin[]
+    psl=}
+    ```
+  </TabItem>
 
-```wasp title=main.wasp
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    username                  String?       @unique
-    // highlight-next-line
-    isSignupComplete          Boolean       @default(false)
-    externalAuthAssociations  SocialLogin[]
-psl=}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    username                  String?       @unique
-    // highlight-next-line
-    isSignupComplete          Boolean       @default(false)
-    externalAuthAssociations  SocialLogin[]
-psl=}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        username                  String?       @unique
+        // highlight-next-line
+        isSignupComplete          Boolean       @default(false)
+        externalAuthAssociations  SocialLogin[]
+    psl=}
+    ```
+  </TabItem>
 </Tabs>
 
 #### 2. Overriding the Default Behavior
@@ -180,80 +172,77 @@ psl=}
 Declare an import under `app.auth.methods.google.getUserFieldsFn` (the example assumes you're using Google):
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
+        methods: {
+          google: {
+            // highlight-next-line
+            getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      google: {
-        // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+    // ...
+    ```
+
+    And implement the imported function.
+
+    ```js title="src/server/auth/google.js"
+    export const getUserFields = async (_context, _args) => {
+      return {
+        isSignupComplete: false,
       }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
+    }
+    ```
+  </TabItem>
 
-// ...
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app myApp {
+      wasp: {
+        version: "^0.11.0"
+      },
+      title: "My App",
+      auth: {
+        userEntity: User,
+        externalAuthEntity: SocialLogin,
+        methods: {
+          google: {
+            // highlight-next-line
+            getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+          }
+        },
+        onAuthFailedRedirectTo: "/login"
+      },
+    }
 
-And implement the imported function.
+    // ...
+    ```
 
-```js title=src/server/auth/google.js
-export const getUserFields = async (_context, _args) => {
-  return {
-    isSignupComplete: false,
-  }
-}
-```
+    And implement the imported function:
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    ```ts title="src/server/auth/google.ts"
+    import { GetUserFieldsFn } from '@wasp/types'
 
-```wasp title=main.wasp
-app myApp {
-  wasp: {
-    version: "^0.11.0"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      google: {
-        // highlight-next-line
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+    export const getUserFields: GetUserFieldsFn = async (_context, _args) => {
+      return {
+        isSignupComplete: false,
       }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
+    }
+    ```
 
-// ...
-```
-
-And implement the imported function:
-
-```ts title=src/server/auth/google.ts
-import { GetUserFieldsFn } from '@wasp/types'
-
-export const getUserFields: GetUserFieldsFn = async (_context, _args) => {
-  return {
-    isSignupComplete: false,
-  }
-}
-```
-
-<GetUserFieldsType />
-
-</TabItem>
+    <GetUserFieldsType />
+  </TabItem>
 </Tabs>
 
 #### 3. Showing the Correct State on the Client
@@ -267,44 +256,41 @@ For example:
 2. If it's `false`, it means the user has started the signup process but hasn't yet chosen their username. Therefore, you can redirect them to `EditUserDetailsPage` where they can edit the `username` property.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="client/HomePage.jsx"
+    import useAuth from '@wasp/auth/useAuth'
+    import { Redirect } from 'react-router-dom'
 
-```jsx title=client/HomePage.jsx
-import useAuth from '@wasp/auth/useAuth'
-import { Redirect } from 'react-router-dom'
+    export function HomePage() {
+      const { data: user } = useAuth()
 
-export function HomePage() {
-  const { data: user } = useAuth()
+      if (user.isSignupComplete === false) {
+        return <Redirect to="/edit-user-details" />
+      }
 
-  if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />
-  }
+      // ...
+    }
+    ```
+  </TabItem>
 
-  // ...
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="client/HomePage.tsx"
+    import useAuth from '@wasp/auth/useAuth'
+    import { Redirect } from 'react-router-dom'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    export function HomePage() {
+      const { data: user } = useAuth()
 
-```tsx title=client/HomePage.tsx
-import useAuth from '@wasp/auth/useAuth'
-import { Redirect } from 'react-router-dom'
+      if (user.isSignupComplete === false) {
+        return <Redirect to="/edit-user-details" />
+      }
 
-export function HomePage() {
-  const { data: user } = useAuth()
+      // ...
+    }
+    ```
 
-  if (user.isSignupComplete === false) {
-    return <Redirect to="/edit-user-details" />
-  }
-
-  // ...
-}
-```
-
-The same general principle applies to more complex signup procedures, just change the boolean `isSignupComplete` property to a property like `currentSignupStep` that can hold more values.
-
-</TabItem>
+    The same general principle applies to more complex signup procedures, just change the boolean `isSignupComplete` property to a property like `currentSignupStep` that can hold more values.
+  </TabItem>
 </Tabs>
 
 ### Using the User's Provider Account Details
@@ -328,58 +314,55 @@ The UI helpers described below are lower-level and are useful for creating your 
 Wasp provides sign-in buttons and URLs for each of the supported social login providers.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```jsx title="client/LoginPage.jsx"
+    import {
+      SignInButton as GoogleSignInButton,
+      signInUrl as googleSignInUrl,
+    } from '@wasp/auth/helpers/Google'
+    import {
+      SignInButton as GitHubSignInButton,
+      signInUrl as gitHubSignInUrl,
+    } from '@wasp/auth/helpers/GitHub'
 
-```jsx title=client/LoginPage.jsx
-import {
-  SignInButton as GoogleSignInButton,
-  signInUrl as googleSignInUrl,
-} from '@wasp/auth/helpers/Google'
-import {
-  SignInButton as GitHubSignInButton,
-  signInUrl as gitHubSignInUrl,
-} from '@wasp/auth/helpers/GitHub'
+    export const LoginPage = () => {
+      return (
+        <>
+          <GoogleSignInButton />
+          <GitHubSignInButton />
+          {/* or */}
+          <a href={googleSignInUrl}>Sign in with Google</a>
+          <a href={gitHubSignInUrl}>Sign in with GitHub</a>
+        </>
+      )
+    }
+    ```
+  </TabItem>
 
-export const LoginPage = () => {
-  return (
-    <>
-      <GoogleSignInButton />
-      <GitHubSignInButton />
-      {/* or */}
-      <a href={googleSignInUrl}>Sign in with Google</a>
-      <a href={gitHubSignInUrl}>Sign in with GitHub</a>
-    </>
-  )
-}
-```
+  <TabItem value="ts" label="TypeScript">
+    ```tsx title="client/LoginPage.tsx"
+    import {
+      SignInButton as GoogleSignInButton,
+      signInUrl as googleSignInUrl,
+    } from '@wasp/auth/helpers/Google'
+    import {
+      SignInButton as GitHubSignInButton,
+      signInUrl as gitHubSignInUrl,
+    } from '@wasp/auth/helpers/GitHub'
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```tsx title=client/LoginPage.tsx
-import {
-  SignInButton as GoogleSignInButton,
-  signInUrl as googleSignInUrl,
-} from '@wasp/auth/helpers/Google'
-import {
-  SignInButton as GitHubSignInButton,
-  signInUrl as gitHubSignInUrl,
-} from '@wasp/auth/helpers/GitHub'
-
-export const LoginPage = () => {
-  return (
-    <>
-      <GoogleSignInButton />
-      <GitHubSignInButton />
-      {/* or */}
-      <a href={googleSignInUrl}>Sign in with Google</a>
-      <a href={gitHubSignInUrl}>Sign in with GitHub</a>
-    </>
-  )
-}
-```
-
-</TabItem>
+    export const LoginPage = () => {
+      return (
+        <>
+          <GoogleSignInButton />
+          <GitHubSignInButton />
+          {/* or */}
+          <a href={googleSignInUrl}>Sign in with Google</a>
+          <a href={gitHubSignInUrl}>Sign in with GitHub</a>
+        </>
+      )
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 If you need even more customization, you can create your custom components using `signInUrl`s.
@@ -404,44 +387,41 @@ This Entity holds the data relevant to the social provider.
 All social providers share the same Entity.
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp" {4-10}
+    // ...
 
-```wasp title=main.wasp {4-10}
-// ...
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
 
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
+    // ...
+    ```
+  </TabItem>
 
-// ...
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp" {4-10}
+    // ...
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
 
-```wasp title=main.wasp {4-10}
-// ...
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-
-// ...
-```
-
-</TabItem>
+    // ...
+    ```
+  </TabItem>
 </Tabs>
 
 :::info
@@ -464,34 +444,31 @@ Using Social login providers requires you to add one extra field to the Entity a
 - `externalAuthAssociations` - A relation to the `externalAuthEntity` (see [the `externalAuthEntity` section](#the-externalauthentity-and-its-fields) for more details).
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp" {6}
+    // ...
 
-```wasp title=main.wasp {6}
-// ...
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        //...
+        externalAuthAssociations  SocialLogin[]
+    psl=}
 
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
+    // ...
+    ```
+  </TabItem>
 
-// ...
-```
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp" {6}
+    // ...
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        //...
+        externalAuthAssociations  SocialLogin[]
+    psl=}
 
-```wasp title=main.wasp {6}
-// ...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    //...
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-// ...
-```
-
-</TabItem>
+    // ...
+    ```
+  </TabItem>
 </Tabs>

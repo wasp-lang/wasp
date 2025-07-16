@@ -2,7 +2,7 @@
 title: "New React docs pretend SPAs don't exist anymore"
 authors: [matijasos]
 image: /img/new-react-docs/evan-you-no-vite.png
-tags: [webdev, react] 
+tags: [webdev, react]
 ---
 
 import Link from '@docusaurus/Link';
@@ -12,10 +12,7 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-<ImgWithCaption
-    alt="Where is Vite"
-    source="/img/new-react-docs/evan-you-no-vite.png"
-/>
+<ImgWithCaption alt="Where is Vite" source="/img/new-react-docs/evan-you-no-vite.png" />
 
 React just released their new docs at [https://react.dev/](https://react.dev/). While it looks great and packs a lot of improvements, one section that caught the community’s attention is “[Start a New React Project](https://react.dev/learn/start-a-new-react-project)”. The strongly recommended way to start a new React project is to use a framework such as Next.js, while the traditional route of using bundlers like Vite or CRA is fairly strongly discouraged.
 
@@ -27,26 +24,17 @@ But what about typical Single Page Apps (SPAs)? Dashboard-like tools that live b
 
 ## The new React docs - use a framework unless your app has “unusual” constraints
 
-<ImgWithCaption
-    alt="react new project docs"
-    source="img/new-react-docs/react-new-project.png"
-/>
+<ImgWithCaption alt="react new project docs" source="img/new-react-docs/react-new-project.png" />
 
 The new docs make a pretty strong claim for using a framework when starting a new React project. Even if you read through the “Can I use React without a framework” section (hidden behind a collapsed toggle by default), you have to go through a wall of text convincing you why not using a framework is a bad idea, mainly due to the lack of SSR. Only then, in the end, comes the piece mentioning other options, such as Vite and Parcel:
 
-<ImgWithCaption
-    alt="use framework unless you app has unusual constraints"
-    source="img/new-react-docs/your-app-unusual.png"
-/>
+<ImgWithCaption alt="use framework unless you app has unusual constraints" source="img/new-react-docs/your-app-unusual.png" />
 
 Even then, first you’ll have to admit your app has unusual constraints (and no examples were given of what that could be) before you’re actually “allowed” not to use a framework. It feels very much like you’re doing it in spite of all the warnings and that there actually isn’t a case where you should do it.
 
 ## Why SPAs (still) matter
 
-<ImgWithCaption
-    alt="SPAs still have their place"
-    source="img/new-react-docs/spas-have-place.png"
-/>
+<ImgWithCaption alt="SPAs still have their place" source="img/new-react-docs/spas-have-place.png" />
 
 SSR/SSG has been getting a lot of attention lately and has been a flagship feature of most new frameworks built on top of React. And rightly so - it has solved a major issue of using React for static & SEO-facing sites where time to first content (FCP) is crucial.
 
@@ -70,6 +58,4 @@ That’s correct, but also it’s true that a buy-in into a whole framework is a
 
 But, both sides of the story should be presented, and the final call should be left to the developer. React is too useful, valuable, and popular a tool and community to allow itself to skip this step.
 
-
-*Want to stay in the loop? → [Join our newsletter!](/#signup)*
-
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

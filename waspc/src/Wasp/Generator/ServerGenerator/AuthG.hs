@@ -21,8 +21,8 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
     emailAuthProvider,
@@ -30,6 +30,7 @@ import Wasp.Generator.AuthProviders
     googleAuthProvider,
     keycloakAuthProvider,
     localAuthProvider,
+    slackAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
@@ -86,7 +87,8 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     providers =
       makeConfigImportJson
         <$> concat
-          [ [OAuthProvider.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
+          [ [OAuthProvider.providerId slackAuthProvider | AS.Auth.isSlackAuthEnabled auth],
+            [OAuthProvider.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
             [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
             [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
             [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
@@ -110,12 +112,14 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
       object
         [ "onBeforeSignupHook" .= onBeforeSignupHook,
           "onAfterSignupHook" .= onAfterSignupHook,
+          "onAfterEmailVerifiedHook" .= onAfterEmailVerifiedHook,
           "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook,
           "onBeforeLoginHook" .= onBeforeLoginHook,
           "onAfterLoginHook" .= onAfterLoginHook
         ]
     onBeforeSignupHook = extImportToAliasedImportJson "onBeforeSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeSignup auth
     onAfterSignupHook = extImportToAliasedImportJson "onAfterSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterSignup auth
+    onAfterEmailVerifiedHook = extImportToAliasedImportJson "onAfterEmailVerifiedHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterEmailVerified auth
     onBeforeOAuthRedirectHook = extImportToAliasedImportJson "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
     onBeforeLoginHook = extImportToAliasedImportJson "onBeforeLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeLogin auth
     onAfterLoginHook = extImportToAliasedImportJson "onAfterLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterLogin auth
@@ -123,12 +127,12 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|../|]
 
-depsRequiredByAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     authDeps =
-      AS.Dependency.fromList
+      Npm.Dependency.fromList
         [ ("lucia", "^3.0.1"),
           ("oslo", "^1.1.2"),
           ("@lucia-auth/adapter-prisma", "^4.0.0")

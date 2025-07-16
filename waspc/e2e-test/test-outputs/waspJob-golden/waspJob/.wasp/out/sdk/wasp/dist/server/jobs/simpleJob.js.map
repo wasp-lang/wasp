@@ -1,1 +1,0 @@
-{"version":3,"file":"simpleJob.js","sourceRoot":"","sources":["../../../server/jobs/simpleJob.ts"],"names":[],"mappings":"AAEA,OAAO,EAAc,mBAAmB,EAAE,MAAM,8BAA8B,CAAA;AAE9E,MAAM,QAAQ,GAAG,EAChB,CAAA;AAKD,MAAM,WAAW,GAAG,IAAI,CAAA;AAExB,aAAa;AACb,MAAM,CAAC,MAAM,SAAS,GAAG,mBAAmB,CAAC;IAC3C,OAAO,EAAE,WAAW;IACpB,iBAAiB,EAAE,EAAE;IACrB,WAAW;IACX,QAAQ;CACT,CAAC,CAAA"}

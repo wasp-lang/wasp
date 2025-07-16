@@ -1,11 +1,11 @@
 # Website
 
-This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
+This website is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
 
 It consists of three main parts:
- - Landing page ([src/pages/index.js](src/pages/index.js))
- - Blog ([blog/](blog/))
- - Docs ([docs/](docs/))
+  - Landing page ([src/pages/index.js](src/pages/index.js))
+  - Blog ([blog/](blog/))
+  - Docs ([docs/](docs/))
 
 
 ### Installation
@@ -23,6 +23,14 @@ $ npm start
 This command starts a local development server and opens up a browser window.
 Most changes are reflected live without having to restart the server.
 
+### Documentation
+
+We have a few guides on how to write documentation:
+
+- The [Writing Guide](https://wasp.sh/docs/writingguide) is our style guide.
+- The [Writing Docs](./WRITING-DOCS.md) contains information about the specifics of our Wasp documentation (our structure and helpful plugins).
+- The [Docusaurus docs](https://docusaurus.io/docs/markdown-features) contain information about the extra features that Docusaurus provides in MDX files.
+
 ### Build
 
 ```
@@ -39,36 +47,36 @@ We deploy the website to Cloudflare Pages. When you want to deploy changes from 
 
 1. Make sure you have the `release` branch ready with all the changes you want to deploy.
 2. Check out the `deploy-web` branch:
-   ```
-   git checkout deploy-web
-   ```
+```
+git checkout deploy-web
+```
 3. Merge the `release` branch into `deploy-web`:
-   ```
-   git merge release
-   ```
+```
+git merge release
+```
 4. Push the `deploy-web` branch to the remote:
-   ```
-   git push
-   ```
+```
+git push
+```
 5. Cloudflare Pages will automatically pick up the changes and deploy them.
 6. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
-   ```
-   git checkout release
-   ```
+```
+git checkout release
+```
 
-The website should be live within a few minutes at https://wasp.sh. 
+The website should be live within a few minutes at https://wasp.sh.
 
 You can track the deployment progress on Cloudflare Pages (https://dash.cloudflare.com/). Credentials are in the 1Password vault.
 
 ### Preview docs from the `main` branch
 
 We set up automatic deployment of docs from the `main` branch on Cloudflare Pages. This means that every time you push to the `main` branch, the docs will be built and deployed to https://wasp-docs-on-main.pages.dev.
- 
+
 ### Multiple documentation versions
 
 We maintain docs for multiple versions of Wasp.
 
-Docusaurus docs on this: https://docusaurus.io/docs/versioning .
+Docusaurus docs on this: https://docusaurus.io/docs/versioning.
 
 Docusaurus recognizes "current" docs, which are docs in ./docs dir, and also
 individual versioned docs, which are docs under versioned_docs/{version}/.

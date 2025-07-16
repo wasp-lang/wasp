@@ -31,10 +31,12 @@ import Wasp.Project.Common
     buildDirInDotWaspDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
+    getSrcTsConfigInWaspProjectDir,
     packageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
   )
+import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
 
@@ -48,6 +50,7 @@ import Wasp.Util.Json (updateJsonFile)
 build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
+
   let buildDir =
         waspProjectDir </> dotWaspDirInWaspProjectDir
           </> buildDirInDotWaspDir
@@ -83,6 +86,9 @@ build = do
     Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
+      waspFilePath <- ExceptT $ findWaspFile waspProjectDir
+      let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/build directory.
       -- We chose this approach for 0.12.0 (instead of building from the project root) because:
@@ -104,6 +110,7 @@ build = do
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
+      let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigPath
 
       liftIO $
         copyFile
@@ -114,6 +121,13 @@ build = do
         copyFile
           (waspProjectDir </> packageLockJsonInWaspProjectDir)
           packageLockJsonInBuildDir
+
+      -- We need the main tsconfig.json file since the built server's TS config
+      -- extends from it.
+      liftIO $
+        copyFile
+          (waspProjectDir </> srcTsConfigPath)
+          tsconfigJsonInBuildDir
 
       -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
       -- We should remove this code once we implement a proper solution.

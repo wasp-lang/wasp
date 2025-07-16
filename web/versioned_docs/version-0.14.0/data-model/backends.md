@@ -26,9 +26,7 @@ datasource db {
 ```
 
 <small>
-
-Read more about how Wasp uses the Prisma schema file in the [Prisma schema file](./prisma-file.md) section.
-
+  Read more about how Wasp uses the Prisma schema file in the [Prisma schema file](./prisma-file.md) section.
 </small>
 
 When you use the SQLite database, Wasp sets the `DATABASE_URL` environment variable for you.
@@ -55,9 +53,7 @@ datasource db {
 ```
 
 <small>
-
-Read more about how Wasp uses the Prisma schema file in the [Prisma schema file](./prisma-file.md) section.
-
+  Read more about how Wasp uses the Prisma schema file in the [Prisma schema file](./prisma-file.md) section.
 </small>
 
 You'll have to ensure a database instance is running during development to use PostgreSQL. Wasp needs access to your database for commands such as `wasp start` or `wasp db migrate-dev`.
@@ -121,26 +117,28 @@ This command seeds the data for a fresh staging or production database. Read mor
 To run your Wasp app in production, you'll need to switch from SQLite to PostgreSQL.
 
 1. Set the provider to `"postgresql"` in the `schema.prisma` file:
-   
-    ```prisma title="schema.prisma"
-    datasource db {
-      // highlight-next-line
-      provider = "postgresql"
-      url      = env("DATABASE_URL")
-    }
 
-    // ...
-    ```
+   ```prisma title="schema.prisma"
+   datasource db {
+     // highlight-next-line
+     provider = "postgresql"
+     url      = env("DATABASE_URL")
+   }
+
+   // ...
+   ```
 
 2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](../general/cli#project-commands):
 
-    ```bash
-    rm -r migrations/
-    wasp clean
-    ```
+   ```bash
+   rm -r migrations/
+   wasp clean
+   ```
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
+
 4. In a different terminal, run `wasp db migrate-dev` to apply the changes and create a new initial migration.
+
 5. That is it, you are all done!
 
 ## Seeding the Database
@@ -149,45 +147,42 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 Seeding is most commonly used for:
 
-1.  Getting the development database into a state convenient for working and testing.
-2.  Initializing any database (`dev`, `staging`, or `prod`) with essential data it requires to operate.
-    For example, populating the Currency table with default currencies, or the Country table with all available countries.
+1. Getting the development database into a state convenient for working and testing.
+2. Initializing any database (`dev`, `staging`, or `prod`) with essential data it requires to operate.
+   For example, populating the Currency table with default currencies, or the Country table with all available countries.
 
 ### Writing a Seed Function
 
 You can define as many **seed functions** as you want in an array under the `app.db.seeds` field:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      // ...
+      db: {
+        seeds: [
+          import { devSeedSimple } from "@src/dbSeeds.js",
+          import { prodSeed } from "@src/dbSeeds.js"
+        ]
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title=main.wasp
-app MyApp {
-  // ...
-  db: {
-    seeds: [
-      import { devSeedSimple } from "@src/dbSeeds.js",
-      import { prodSeed } from "@src/dbSeeds.js"
-    ]
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-app MyApp {
-  // ...
-  db: {
-    seeds: [
-      import { devSeedSimple } from "@src/dbSeeds.js",
-      import { prodSeed } from "@src/dbSeeds.js"
-    ]
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      // ...
+      db: {
+        seeds: [
+          import { devSeedSimple } from "@src/dbSeeds.js",
+          import { prodSeed } from "@src/dbSeeds.js"
+        ]
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 Each seed function must be an async function that takes one argument, `prisma`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance used to interact with the database.
@@ -198,107 +193,105 @@ Since a seed function falls under server-side code, it can import other server-s
 Here's an example of a seed function that imports an Action:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```js
+    import { createTask } from './actions.js'
+    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
 
-```js
-import { createTask } from './actions.js'
-import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
+    export const devSeedSimple = async (prisma) => {
+      const user = await createUser(prisma, {
+        username: 'RiuTheDog',
+        password: 'bark1234',
+      })
 
-export const devSeedSimple = async (prisma) => {
-  const user = await createUser(prisma, {
-    username: 'RiuTheDog',
-    password: 'bark1234',
-  })
+      await createTask(
+        { description: 'Chase the cat' },
+        { user, entities: { Task: prisma.task } }
+      )
+    }
 
-  await createTask(
-    { description: 'Chase the cat' },
-    { user, entities: { Task: prisma.task } }
-  )
-}
-
-async function createUser(prisma, data) {
-  const newUser = await prisma.user.create({
-    data: {
-      auth: {
-        create: {
-          identities: {
+    async function createUser(prisma, data) {
+      const newUser = await prisma.user.create({
+        data: {
+          auth: {
             create: {
-              providerName: 'username',
-              providerUserId: data.username,
-              providerData: sanitizeAndSerializeProviderData({
-                hashedPassword: data.password
-              }),
+              identities: {
+                create: {
+                  providerName: 'username',
+                  providerUserId: data.username,
+                  providerData: sanitizeAndSerializeProviderData({
+                    hashedPassword: data.password
+                  }),
+                },
+              },
             },
           },
         },
-      },
-    },
-  })
+      })
 
-  return newUser
-}
-```
+      return newUser
+    }
+    ```
+  </TabItem>
 
-</TabItem>
-<TabItem value="ts" label="TypeScript">
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import { createTask } from './actions.js'
+    import { type DbSeedFn } from 'wasp/server'
+    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
+    import { type AuthUser } from 'wasp/auth'
+    import { PrismaClient } from '@prisma/client'
 
-```ts
-import { createTask } from './actions.js'
-import { type DbSeedFn } from 'wasp/server'
-import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
-import { type AuthUser } from 'wasp/auth'
-import { PrismaClient } from '@prisma/client'
+    export const devSeedSimple: DbSeedFn = async (prisma) => {
+      const user = await createUser(prisma, {
+        username: 'RiuTheDog',
+        password: 'bark1234',
+      })
 
-export const devSeedSimple: DbSeedFn = async (prisma) => {
-  const user = await createUser(prisma, {
-    username: 'RiuTheDog',
-    password: 'bark1234',
-  })
+      await createTask(
+        { description: 'Chase the cat', isDone: false },
+        { user, entities: { Task: prisma.task } }
+      )
+    };
 
-  await createTask(
-    { description: 'Chase the cat', isDone: false },
-    { user, entities: { Task: prisma.task } }
-  )
-};
-
-async function createUser(
-  prisma: PrismaClient,
-  data: { username: string, password: string }
-): Promise<AuthUser> {
-  const newUser = await prisma.user.create({
-    data: {
-      auth: {
-        create: {
-          identities: {
+    async function createUser(
+      prisma: PrismaClient,
+      data: { username: string, password: string }
+    ): Promise<AuthUser> {
+      const newUser = await prisma.user.create({
+        data: {
+          auth: {
             create: {
-              providerName: 'username',
-              providerUserId: data.username,
-              providerData: sanitizeAndSerializeProviderData<'username'>({
-                hashedPassword: data.password
-              }),
+              identities: {
+                create: {
+                  providerName: 'username',
+                  providerUserId: data.username,
+                  providerData: sanitizeAndSerializeProviderData<'username'>({
+                    hashedPassword: data.password
+                  }),
+                },
+              },
             },
           },
         },
-      },
-    },
-  })
+      })
 
-  return newUser
-}
-```
+      return newUser
+    }
+    ```
 
-Wasp exports a type called `DbSeedFn` which you can use to easily type your seeding function.
-Wasp defines `DbSeedFn` like this:
+    Wasp exports a type called `DbSeedFn` which you can use to easily type your seeding function.
+    Wasp defines `DbSeedFn` like this:
 
-```typescript
-type DbSeedFn = (prisma: PrismaClient) => Promise<void>
-```
+    ```typescript
+    type DbSeedFn = (prisma: PrismaClient) => Promise<void>
+    ```
 
-Annotating the function `devSeedSimple` with this type tells TypeScript:
- - The seeding function's argument (`prisma`) is of type `PrismaClient`.
- - The seeding function's return value is `Promise<void>`.
+    Annotating the function `devSeedSimple` with this type tells TypeScript:
 
-</TabItem>
+    - The seeding function's argument (`prisma`) is of type `PrismaClient`.
+    - The seeding function's return value is `Promise<void>`.
+  </TabItem>
 </Tabs>
 
 ### Running seed functions
@@ -320,36 +313,33 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 ## API Reference
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      db: {
+        seeds: [
+          import devSeed from "@src/dbSeeds.js"
+        ],
+      }
+    }
+    ```
+  </TabItem>
 
-```wasp title=main.wasp
-app MyApp {
-  title: "My app",
-  // ...
-  db: {
-    seeds: [
-      import devSeed from "@src/dbSeeds.js"
-    ],
-  }
-}
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```wasp title=main.wasp
-app MyApp {
-  title: "My app",
-  // ...
-  db: {
-    seeds: [
-      import devSeed from "@src/dbSeeds.js"
-    ],
-  }
-}
-```
-
-</TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```wasp title="main.wasp"
+    app MyApp {
+      title: "My app",
+      // ...
+      db: {
+        seeds: [
+          import devSeed from "@src/dbSeeds.js"
+        ],
+      }
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 `app.db` is a dictionary with the following fields (all fields are optional):
@@ -373,36 +363,33 @@ Use one of the following commands to run the seed functions:
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
   <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-
-  ```wasp title=main.wasp
-  app MyApp {
-    // ...
-    db: {
-      seeds: [
+    <TabItem value="js" label="JavaScript">
+      ```wasp title="main.wasp"
+      app MyApp {
         // ...
-        import { devSeedSimple } from "@src/dbSeeds.js",
-      ]
-    }
-  }
-  ```
+        db: {
+          seeds: [
+            // ...
+            import { devSeedSimple } from "@src/dbSeeds.js",
+          ]
+        }
+      }
+      ```
+    </TabItem>
 
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
-
-  ```wasp title=main.wasp
-  app MyApp {
-    // ...
-    db: {
-      seeds: [
+    <TabItem value="ts" label="TypeScript">
+      ```wasp title="main.wasp"
+      app MyApp {
         // ...
-        import { devSeedSimple } from "@src/dbSeeds.js",
-      ]
-    }
-  }
-  ```
-
-  </TabItem>
+        db: {
+          seeds: [
+            // ...
+            import { devSeedSimple } from "@src/dbSeeds.js",
+          ]
+        }
+      }
+      ```
+    </TabItem>
   </Tabs>
 
   Use the following command:

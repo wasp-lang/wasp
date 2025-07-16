@@ -15,16 +15,11 @@ export function MyRadio({ options, value, onChange, label }) {
                 active
                   ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
                   : ""
-              }
-                  ${
-                    checked ? "bg-slate-900 bg-opacity-75 text-white" : "bg-white"
-                  }
-                  ${
-                    disabled
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }
-                    relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none flex-1`
+              } ${
+                checked ? "bg-slate-900 bg-opacity-75 text-white" : "bg-white"
+              } ${
+                disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              } relative flex flex-1 cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
             }
           >
             {({ active, checked }) => (
@@ -34,7 +29,7 @@ export function MyRadio({ options, value, onChange, label }) {
                     <div className="text-sm">
                       <RadioGroup.Label
                         as="p"
-                        className={`font-medium  ${
+                        className={`font-medium ${
                           checked ? "text-white" : "text-gray-900"
                         }`}
                       >

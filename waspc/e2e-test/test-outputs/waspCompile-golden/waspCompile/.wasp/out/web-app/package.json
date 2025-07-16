@@ -25,6 +25,9 @@
     "node": ">=20.0.0"
   },
   "name": "waspCompile",
+  "overrides": {
+    "rollup": "4.44.0"
+  },
   "private": true,
   "scripts": {
     "build": "tsc --build && vite build",

@@ -6,7 +6,7 @@
   --auth-pills-username-and-pass: #fce7f3;
 }
 
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   --auth-pills-color: #fff;
   --auth-pills-email: #0c4a6e;
   --auth-pills-github: #334155;

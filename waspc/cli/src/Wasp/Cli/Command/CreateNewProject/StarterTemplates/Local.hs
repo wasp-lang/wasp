@@ -21,9 +21,9 @@ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName templ
     copyLocalTemplateToNewProjectDir templateDir = do
       dataDir <- Data.getAbsDataDirPath
       let absLocalTemplateDir =
-            dataDir </> [reldir|Cli/templates|] </> templateDir
+            dataDir </> [reldir|Cli/starters|] </> templateDir
       let absSkeletonTemplateDir =
-            dataDir </> [reldir|Cli/templates/skeleton|]
+            dataDir </> [reldir|Cli/starters/skeleton|]
       -- First we copy skeleton files, which form the basis of any Wasp project,
       -- and then on top of that we add files specific to the specified local template.
       copyDirRecur (toPathAbsDir absSkeletonTemplateDir) (toPathAbsDir absWaspProjectDir)
