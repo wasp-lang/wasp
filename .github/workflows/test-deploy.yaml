@@ -28,27 +28,18 @@ jobs:
 
       - name: Generate unique prefix
         id: generate_prefix
-        run: echo "PREFIX=ci-$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_ENV
+        run: echo "APP_PREFIX=ci-$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_ENV
 
       - name: Secret sanity check
         run: echo "Passed in secret -> $FLY_API_TOKEN"
 
-      - name: Echo Deploying
-        run: |
-          echo "Deploying with FLY_API_TOKEN -> $FLY_API_TOKEN"
-          echo "Using prefix -> $PREFIX"
-          echo "Region -> $FLY_REGION"
-          echo "Github run ID -> $GITHUB_RUN_ID"
-          echo "github run number -> $GITHUB_RUN_NUMBER"
-          echo "Github sha -> $GITHUB_SHA"
-
       - name: Deploy App
         run: |
-          echo Running wasp deploy fly launch $PREFIX $FLY_REGION --org wasp
+          echo Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp
 
       - name: Echo Testing
         run: echo "Testing"
 
       - name: Destroy Apps
         run: |
-          echo "Running fly apps list -q | grep $PREFIX | xargs fly apps destroy -y"
+          echo "Running fly apps list -q | grep $APP_PREFIX | xargs fly apps destroy -y"
