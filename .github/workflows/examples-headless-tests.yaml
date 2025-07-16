@@ -108,7 +108,6 @@ jobs:
           ./run build:all
           cabal install --installdir=$HOME/.cabal/bin --install-method=copy
 
-
   test-example-apps:
     name: Test Example Apps
     runs-on: ubuntu-22.04
@@ -183,7 +182,6 @@ jobs:
           DEBUG: "*"
         run: |
           wasp-cli db migrate-dev
-
           npm run test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
