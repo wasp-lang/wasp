@@ -106,8 +106,8 @@ jobs:
         working-directory: waspc
         run: |
           ./run build:all
-          mkdir -p ~/.cabal/bin
-          cabal install --installdir=~/.cabal/bin --install-method=copy
+          # mkdir -p ~/.cabal/bin
+          cabal install --installdir=$HOME/.cabal/bin --install-method=copy
 
 
   test-example-apps:
