@@ -24,8 +24,8 @@ buildClient config =
     & toExceptJob (("Building the client failed with exit code: " <>) . show)
   where
     serverUrl = Config.serverUrl config
-    buildDir = Config.buildDir config
     webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir
+    buildDir = Config.buildDir config
 
 startClient :: BuildStartConfig -> ExceptJob
 startClient config =
