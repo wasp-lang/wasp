@@ -37,10 +37,13 @@ jobs:
           echo "Deploying with FLY_API_TOKEN -> $FLY_API_TOKEN"
           echo "Using prefix -> $PREFIX"
           echo "Region -> $FLY_REGION"
+          echo "Github run ID -> $GITHUB_RUN_ID"
+          echo "github run number -> $GITHUB_RUN_NUMBER"
+          echo "Github sha" -> $GITHUB_SHA
 
       - name: Deploy App
         run: |
-          echo Running wasp deploy fly launch $PREFIX $REGION --org wasp
+          echo Running wasp deploy fly launch $PREFIX $FLY_REGION --org wasp
 
       - name: Echo Testing
         run: echo "Testing"
