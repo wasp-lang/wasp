@@ -36,11 +36,13 @@ startClient config =
       "preview", -- `preview` launches a static file server for the built client.
       "--",
       "--port",
-      show $ fst $ clientPortAndUrl config,
+      port,
       "--strictPort" -- This will make it fail if the port is already in use.
     ]
     J.WebApp
     & toExceptJob (("Serving the client failed with exit code: " <>) . show)
   where
+    port = show $ fst $ Config.clientPortAndUrl config
+
     buildDir = Config.buildDir config
     webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir
