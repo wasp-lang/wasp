@@ -106,7 +106,8 @@ jobs:
         working-directory: waspc
         run: |
           ./run build:all
-          cabal install
+          cabal install --installdir=~/.cabal/bin --install-method=copy
+
 
   test-example-apps:
     name: Test Example Apps
