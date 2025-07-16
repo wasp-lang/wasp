@@ -139,22 +139,6 @@ jobs:
         run: |
           echo "~/.cabal/bin" >> $GITHUB_PATH
 
-      - name: Check Wasp CLI
-        run: |
-          echo "HOME"
-          ls $HOME
-          echo "HOME/.cabal"
-          ls $HOME/.cabal
-          echo "HOME/.cabal/bin"
-          ls $HOME/.cabal/bin
-          echo "~"
-          ls ~
-          echo "~/.cabal"
-          ls ~/.cabal
-          echo "~/.cabal/bin"
-          ls ~/.cabal/bin
-          wasp-cli version
-
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
         with:
@@ -196,7 +180,12 @@ jobs:
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: dev
+          DEBUG: pw:webserver,pw:browser*
         run: |
+          wasp-cli version
+          npm list
+          npx run-wasp-app
+
           npm run test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
