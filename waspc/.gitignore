@@ -16,6 +16,3 @@ module-graph.png
 
 # macOS related
 .DS_Store
-
-# cabal project local config
-cabal.project.local
