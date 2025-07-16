@@ -110,9 +110,8 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
   return actions;
 }
 
-function getStep(node: MdxJsxFlowElement): number | null {
-  const step = getAttributeValue(node, "step");
-  return step !== null ? parseInt(step, 10) : null;
+function getStep(node: MdxJsxFlowElement): string | null {
+  return getAttributeValue(node, "step");
 }
 
 function getAttributeValue(

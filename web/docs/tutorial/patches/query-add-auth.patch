@@ -1,0 +1,24 @@
+diff --git a/src/queries.ts b/src/queries.ts
+index 1738f22..92a513e 100644
+--- a/src/queries.ts
++++ b/src/queries.ts
+@@ -1,8 +1,13 @@
+-import type { Task } from 'wasp/entities'
+-import type { GetTasks } from 'wasp/server/operations'
++import type { Task } from "wasp/entities";
++import { HttpError } from "wasp/server";
++import type { GetTasks } from "wasp/server/operations";
+ 
+ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
++  if (!context.user) {
++    throw new HttpError(401);
++  }
+   return context.entities.Task.findMany({
+-    orderBy: { id: 'asc' },
+-  })
+-}
+\ No newline at end of file
++    where: { user: { id: context.user.id } },
++    orderBy: { id: "asc" },
++  });
++};

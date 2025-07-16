@@ -1,5 +1,12 @@
 import { chalk } from "zx";
-import { applyPatch, migrateDb, writeFile, type Action } from "../actions";
+import {
+  applyPatch,
+  commitStep,
+  ensurePatchExists,
+  migrateDb,
+  writeFile,
+  type Action,
+} from "../actions";
 import { log } from "../log";
 import { appDir, ensureDirExists, patchesDir } from "../paths";
 
@@ -8,11 +15,11 @@ export async function executeSteps(
   {
     untilStep,
   }: {
-    untilStep?: number;
+    untilStep?: Action;
   },
 ): Promise<void> {
   for (const action of actions) {
-    if (untilStep && action.step === untilStep) {
+    if (untilStep && action.step === untilStep.step) {
       log("info", `Stopping before step ${action.step}`);
       process.exit(0);
     }
@@ -26,6 +33,7 @@ export async function executeSteps(
     try {
       switch (kind) {
         case "diff":
+          await ensurePatchExists(appDir, action);
           await applyPatch(appDir, action);
           break;
         case "write":
@@ -41,5 +49,6 @@ export async function executeSteps(
       log("error", `Error in step ${action.step}:\n\n${err}`);
       process.exit(1);
     }
+    await commitStep(appDir, action);
   }
 }

@@ -97,9 +97,11 @@ Now that you've seen how Wasp deals with Routes and Pages, it's finally time to 
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
+<TutorialAction step="prepare-project" action="diff" />
+
 First, remove most of the code from the `MainPage` component:
 
-<TutorialAction step="1" action="write" path="src/MainPage.tsx">
+<TutorialAction step="initial-main-page" action="write" path="src/MainPage.tsx">
 
 ```tsx title="src/MainPage.tsx" auto-js
 export const MainPage = () => {
@@ -119,7 +121,7 @@ Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its `route` and `page` 
 
 Your Wasp file should now look like this:
 
-<TutorialAction step="2" action="write" path="main.wasp">
+<TutorialAction step="wasp-file-initial" action="write" path="main.wasp">
 
 ```wasp title="main.wasp"
 app TodoApp {

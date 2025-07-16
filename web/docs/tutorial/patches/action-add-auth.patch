@@ -1,38 +1,34 @@
 diff --git a/src/actions.ts b/src/actions.ts
-index d8372b9..b796bd2 100644
+index 973d821..b4a52e8 100644
 --- a/src/actions.ts
 +++ b/src/actions.ts
-@@ -1,4 +1,6 @@
- import type { Task } from 'wasp/entities'
-+// highlight-next-line
-+import { HttpError } from 'wasp/server'
- import type { CreateTask, UpdateTask } from 'wasp/server/operations'
+@@ -1,4 +1,5 @@
+ import type { Task } from "wasp/entities";
++import { HttpError } from "wasp/server";
+ import type { CreateTask, UpdateTask } from "wasp/server/operations";
  
- type CreateTaskPayload = Pick<Task, 'description'>
-@@ -7,21 +9,33 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+ type CreateTaskPayload = Pick<Task, "description">;
+@@ -7,21 +8,28 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
    args,
-   context
+   context,
  ) => {
-+  // highlight-start
 +  if (!context.user) {
-+    throw new HttpError(401)
++    throw new HttpError(401);
 +  }
-+  // highlight-end
    return context.entities.Task.create({
 -    data: { description: args.description },
 +    data: {
 +      description: args.description,
-+      // highlight-next-line
 +      user: { connect: { id: context.user.id } },
 +    },
-   })
- }
+   });
+ };
  
- type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
+ type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
  
 -export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
 -  { id, isDone },
--  context
+-  context,
 -) => {
 -  return context.entities.Task.update({
 -    where: { id },
@@ -43,13 +39,11 @@ index d8372b9..b796bd2 100644
 +  UpdateTaskPayload,
 +  { count: number }
 +> = async (args, context) => {
-+  // highlight-start
 +  if (!context.user) {
-+    throw new HttpError(401)
++    throw new HttpError(401);
 +  }
-+  // highlight-end
 +  return context.entities.Task.updateMany({
 +    where: { id: args.id, user: { id: context.user.id } },
 +    data: { isDone: args.isDone },
-   })
- }
+   });
+ };

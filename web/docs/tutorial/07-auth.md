@@ -24,7 +24,7 @@ Since Wasp manages authentication, it will create [the auth related entities](..
 
 You must only add the `User` Entity to keep track of who owns which tasks:
 
-<TutorialAction step="15" action="diff" />
+<TutorialAction step="prisma-user" action="diff" />
 
 ```prisma title="schema.prisma"
 // ...
@@ -38,7 +38,7 @@ model User {
 
 Next, tell Wasp to use full-stack [authentication](../auth/overview):
 
-<TutorialAction step="16" action="diff" />
+<TutorialAction step="wasp-file-auth" action="diff" />
 
 ```wasp title="main.wasp"
 app TodoApp {
@@ -65,7 +65,7 @@ app TodoApp {
 
 Don't forget to update the database schema by running:
 
-<TutorialAction step="17" action="migrate-db" />
+<TutorialAction step="migration-add-user" action="migrate-db" />
 
 ```sh
 wasp db migrate-dev
@@ -86,7 +86,7 @@ Wasp also supports authentication using [Google](../auth/social-auth/google), [G
 
 Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
 
-<TutorialAction step="18" action="diff" />
+<TutorialAction step="wasp-file-auth-routes" action="diff" />
 
 ```wasp title="main.wasp"
 // ...
@@ -106,7 +106,7 @@ Great, Wasp now knows these pages exist!
 
 Here's the React code for the pages you've just imported:
 
-<TutorialAction step="19" action="write" path="src/LoginPage.tsx">
+<TutorialAction step="login-page-initial" action="write" path="src/LoginPage.tsx">
 
 ```tsx title="src/LoginPage.tsx" auto-js
 import { Link } from 'react-router-dom'
@@ -129,7 +129,7 @@ export const LoginPage = () => {
 
 The signup page is very similar to the login page:
 
-<TutorialAction step="20" action="write" path="src/SignupPage.tsx">
+<TutorialAction step="signup-page-initial" action="write" path="src/SignupPage.tsx">
 
 ```tsx title="src/SignupPage.tsx" auto-js
 import { Link } from 'react-router-dom'
@@ -160,7 +160,7 @@ export const SignupPage = () => {
 
 We don't want users who are not logged in to access the main page, because they won't be able to create any tasks. So let's make the page private by requiring the user to be logged in:
 
-<TutorialAction step="21" action="diff" />
+<TutorialAction step="wasp-file-auth-required" action="diff" />
 
 ```wasp title="main.wasp"
 // ...
@@ -176,7 +176,7 @@ Now that auth is required for this page, unauthenticated users will be redirecte
 
 Additionally, when `authRequired` is `true`, the page's React component will be provided a `user` object as prop.
 
-<TutorialAction step="22" action="diff" />
+<TutorialAction step="main-page-add-auth" action="diff" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { AuthUser } from 'wasp/auth'
@@ -212,7 +212,7 @@ However, you will notice that if you try logging in as different users and creat
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
-<TutorialAction step="23" action="diff" />
+<TutorialAction step="prisma-connect-task-user" action="diff" />
 
 ```prisma title="schema.prisma"
 // ...
@@ -236,7 +236,7 @@ model Task {
 
 As always, you must migrate the database after changing the Entities:
 
-<TutorialAction step="24" action="migrate-db" />
+<TutorialAction step="migration-connect-task-user" action="migrate-db" />
 ```sh
 wasp db migrate-dev
 ```
@@ -253,7 +253,7 @@ Instead, we would do a data migration to take care of those tasks, even if it me
 
 Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged-in user's tasks:
 
-<TutorialAction step="25" action="diff" />
+<TutorialAction step="query-add-auth" action="diff" />
 
 ```ts title="src/queries.ts" auto-js
 import type { Task } from 'wasp/entities'
@@ -275,7 +275,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 }
 ```
 
-<TutorialAction step="26" action="diff" />
+<TutorialAction step="action-add-auth" action="diff" />
 
 ```ts title="src/actions.ts" auto-js
 import type { Task } from 'wasp/entities'
@@ -341,7 +341,7 @@ You will see that each user has their tasks, just as we specified in our code!
 
 Last, but not least, let's add the logout functionality:
 
-<TutorialAction step="27" action="diff" />
+<TutorialAction step="main-page-add-logout" action="diff" />
 
 ```tsx title="src/MainPage.tsx" auto-js with-hole
 // ...

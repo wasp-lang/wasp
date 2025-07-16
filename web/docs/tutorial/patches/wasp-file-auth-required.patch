@@ -1,5 +1,5 @@
 diff --git a/main.wasp b/main.wasp
-index 5e921a0..4f51c6f 100644
+index f2aa7ca..aa5eef1 100644
 --- a/main.wasp
 +++ b/main.wasp
 @@ -17,6 +17,7 @@ app TodoApp {

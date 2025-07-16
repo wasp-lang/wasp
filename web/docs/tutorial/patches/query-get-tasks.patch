@@ -1,8 +1,8 @@
 diff --git a/main.wasp b/main.wasp
-index 3a25ea9..ea22c79 100644
+index 6b4593c..c3df1d1 100644
 --- a/main.wasp
 +++ b/main.wasp
-@@ -8,4 +8,15 @@ app TodoApp {
+@@ -8,4 +8,14 @@ app TodoApp {
  route RootRoute { path: "/", to: MainPage }
  page MainPage {
    component: import { MainPage } from "@src/MainPage"
@@ -19,4 +19,3 @@ index 3a25ea9..ea22c79 100644
 +  // automatically update the results of this query when tasks are modified.
 +  entities: [Task]
 +}
-+

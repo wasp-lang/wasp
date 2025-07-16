@@ -11,7 +11,7 @@ Wasp uses Prisma to talk to the database, and you define Entities by defining Pr
 
 Since our Todo app is all about tasks, we'll define a Task entity by adding a Task model in the `schema.prisma` file:
 
-<TutorialAction step="3" action="diff" />
+<TutorialAction step="prisma-task" action="diff" />
 
 ```prisma title="schema.prisma"
 // ...
@@ -29,7 +29,7 @@ Read more about how Wasp Entities work in the [Entities](../data-model/entities.
 
 To update the database schema to include this entity, stop the `wasp start` process, if it's running, and run:
 
-<TutorialAction step="4" action="migrate-db" />
+<TutorialAction step="migration-add-task" action="migrate-db" />
 ```sh
 wasp db migrate-dev
 ```

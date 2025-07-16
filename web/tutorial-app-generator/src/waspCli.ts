@@ -11,5 +11,5 @@ export async function waspDbMigrate(
 }
 
 export async function waspNew(appDir: string): Promise<void> {
-  await $`wasp new ${appDir}`;
+  await $`wasp new ${appDir} -t minimal`;
 }

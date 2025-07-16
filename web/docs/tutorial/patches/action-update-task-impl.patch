@@ -1,0 +1,39 @@
+diff --git a/src/actions.ts b/src/actions.ts
+index a7c1b28..973d821 100644
+--- a/src/actions.ts
++++ b/src/actions.ts
+@@ -1,13 +1,27 @@
+-import type { Task } from 'wasp/entities'
+-import type { CreateTask } from 'wasp/server/operations'
++import type { Task } from "wasp/entities";
++import type { CreateTask, UpdateTask } from "wasp/server/operations";
+ 
+-type CreateTaskPayload = Pick<Task, 'description'>
++type CreateTaskPayload = Pick<Task, "description">;
+ 
+ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
+   args,
+-  context
++  context,
+ ) => {
+   return context.entities.Task.create({
+     data: { description: args.description },
+-  })
+-}
+\ No newline at end of file
++  });
++};
++
++type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
++
++export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
++  { id, isDone },
++  context,
++) => {
++  return context.entities.Task.update({
++    where: { id },
++    data: {
++      isDone: isDone,
++    },
++  });
++};

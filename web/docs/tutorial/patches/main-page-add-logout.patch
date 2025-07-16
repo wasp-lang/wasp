@@ -1,0 +1,19 @@
+diff --git a/src/MainPage.tsx b/src/MainPage.tsx
+index decefb6..ddc6fde 100644
+--- a/src/MainPage.tsx
++++ b/src/MainPage.tsx
+@@ -1,5 +1,6 @@
+ import type { ChangeEvent, FormEvent } from "react";
+ import type { AuthUser } from "wasp/auth";
++import { logout } from "wasp/client/auth";
+ import {
+   createTask,
+   getTasks,
+@@ -19,6 +20,7 @@ export const MainPage = ({ user }: { user: AuthUser }) => {
+ 
+       {isLoading && "Loading..."}
+       {error && "Error: " + error}
++      <button onClick={logout}>Logout</button>
+     </div>
+   );
+   // highlight-end
