@@ -1,13 +1,13 @@
-import React from 'react'
+import React from "react";
 
 export function TutorialAction({
   children,
   action,
 }: React.PropsWithChildren<{
-  action: 'diff' | 'write' | 'migrate-db'
+  action: "diff" | "write" | "migrate-db";
 }>) {
-  if (action === 'write') {
-    return children
+  if (action === "write") {
+    return children;
   }
-  return null
+  return null;
 }

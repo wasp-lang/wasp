@@ -1,13 +1,13 @@
-import type { Options } from 'mdast-util-to-markdown'
+import type { Options } from "mdast-util-to-markdown";
 
-declare module 'mdast' {
+declare module "mdast" {
   interface IdString extends Node {
-    type: 'idString'
-    value: string
+    type: "idString";
+    value: string;
   }
 
   interface RootContentMap {
-    idString: IdString
+    idString: IdString;
   }
 }
 
@@ -15,4 +15,4 @@ export const customHeadingId: Options = {
   handlers: {
     idString: (node) => `{#${node.value}}`,
   },
-}
+};
