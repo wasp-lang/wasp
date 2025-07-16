@@ -21,41 +21,37 @@ buildServer config =
     J.Server
     & toExceptJob (("Building the server failed with exit code: " <>) . show)
   where
-    buildDir = Config.buildDir config
     dockerContextDir = SP.fromAbsDir buildDir
+    buildDir = Config.buildDir config
     dockerImageName = Config.dockerImageName config
 
 startServer :: BuildStartConfig -> ExceptJob
 startServer config =
-  ( \chan -> do
-      runProcessAsJob
-        ( proc
-            "docker"
-            ( [ "run",
-                "--name",
-                dockerContainerName,
-                "--rm",
-                "--network",
-                "host",
-                "--env",
-                clientUrlFromServerEnvVarName <> "=" <> clientUrl,
-                "--env",
-                serverUrlFromServerEnvVarName <> "=" <> serverUrl
-              ]
-                <> extraEnvFileParamsFromConfig
-                <> extraEnvParamsFromConfig
-                <> [dockerImageName]
-            )
+  runProcessAsJob
+    ( proc
+        "docker"
+        ( [ "run",
+            "--name",
+            dockerContainerName,
+            "--rm",
+            "--network",
+            "host"
+          ]
+            <> allEnvVarArgs
+            <> [dockerImageName]
         )
-        J.Server
-        chan
-  )
+    )
+    J.Server
     & toExceptJob (("Running the server failed with exit code: " <>) . show)
   where
-    (_, clientUrl) = Config.clientPortAndUrl config
-    serverUrl = Config.serverUrl config
-    dockerContainerName = Config.dockerContainerName config
-    dockerImageName = Config.dockerImageName config
+    allEnvVarArgs =
+      [ "--env",
+        clientUrlFromServerEnvVarName <> "=" <> clientUrl,
+        "--env",
+        serverUrlFromServerEnvVarName <> "=" <> serverUrl
+      ]
+        <> extraEnvFileParamsFromConfig
+        <> extraEnvParamsFromConfig
 
     extraEnvParamsFromConfig =
       Config.serverEnvironmentVariables config
@@ -64,3 +60,8 @@ startServer config =
     extraEnvFileParamsFromConfig =
       Config.serverEnvironmentFiles config
         >>= \envFile -> ["--env-file", envFile]
+
+    (_, clientUrl) = Config.clientPortAndUrl config
+    serverUrl = Config.serverUrl config
+    dockerContainerName = Config.dockerContainerName config
+    dockerImageName = Config.dockerImageName config

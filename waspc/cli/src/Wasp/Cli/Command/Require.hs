@@ -127,6 +127,6 @@ instance Requirable BuildDirExists where
     unless doesBuildDirExist $ do
       throwError $
         CommandError
-          "Build directory does not exist"
-          "Run `wasp build` first."
+          "Built app does not exist"
+          "You can build the app with the `wasp build` command."
     return $ BuildDirExists buildDir
