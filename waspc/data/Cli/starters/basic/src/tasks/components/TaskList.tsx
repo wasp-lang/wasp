@@ -27,6 +27,10 @@ export function TaskList() {
     }
   }
 
+  if (tasks.length === 0) {
+    return <p className="text-neutral-500">No tasks found.</p>;
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <ul className="flex flex-col gap-2">

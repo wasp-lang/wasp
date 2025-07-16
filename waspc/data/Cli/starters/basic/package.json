@@ -1,5 +1,5 @@
 {
-  "name": "basic",
+  "name": "__waspAppName__",
   "type": "module",
   "dependencies": {
     "react": "^18.2.0",
