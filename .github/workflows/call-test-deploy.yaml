@@ -8,6 +8,7 @@ on:
 
 jobs:
   secert-sanity-check:
+    runs-on: ubuntu-latest
     steps:
       - name: Secret sanity check
         run: |
