@@ -180,7 +180,7 @@ jobs:
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: dev
-          DEBUG: *
+          DEBUG: "*"
         run: |
           npm run test
 
@@ -190,6 +190,6 @@ jobs:
         env:
           WASP_CLI_CMD: wasp-cli
           HEADLESS_TEST_MODE: build
-          DEBUG: *
+          DEBUG: "*"
         run: |
           npm run test
