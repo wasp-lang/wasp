@@ -44,34 +44,35 @@ buildStart args = do
   let config = makeBuildStartConfig appSpec waspProjectDir buildStartArgs
 
   buildAndStartServerAndClient config
-  cliSendMessageC $ Msg.Success "Build and start completed successfully."
 
 buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
-  runAndPrintJob $ buildClient config
+  runAndPrintJob "Building client failed." $
+    buildClient config
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
-  runAndPrintJob $ buildServer config
+  runAndPrintJob "Building server failed." $
+    buildServer config
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  runAndPrintJob $
+  runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_
       (startClient config)
       (startServer config)
   where
-    runAndPrintJob :: ExceptJob -> Command ()
-    runAndPrintJob exceptJob = do
-      liftIO (runAndPrintJobIO exceptJob)
-        >>= either (throwError . CommandError "Starting built Wasp failed") return
+    runAndPrintJob :: String -> ExceptJob -> Command ()
+    runAndPrintJob message job = do
+      liftIO (runAndPrintJobIO job)
+        >>= either (throwError . CommandError message) return
 
     runAndPrintJobIO :: ExceptJob -> IO (Either String ())
-    runAndPrintJobIO exceptJob = do
+    runAndPrintJobIO job = do
       chan <- newChan
       (result, _) <-
         concurrently
-          (runExceptT $ exceptJob chan)
+          (runExceptT $ job chan)
           (readJobMessagesAndPrintThemPrefixed chan)
       return result
