@@ -7,5 +7,13 @@ on:
       - filip-automatic-deploy-test
 
 jobs:
+  secert-sanity-check:
+    run: |
+      echo $TEST1
+    env:
+      TEST1: ${{ secrets.FLY_API_TOKEN }}
   call-reusable:
     uses: ./.github/workflows/test-deploy.yaml
+
+    secrets:
+       token: ${{ secrets.FLY_API_TOKEN }}

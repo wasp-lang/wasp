@@ -2,10 +2,10 @@ name: Test Wasp Deploy
 
 on:
   workflow_call:
-    # secrets:
-    #   FLY_API_TOKEN:
-    #     description: "Fly API token for deploying apps"
-    #     required: true
+    secrets:
+      token:
+        description: "Fly API token for deploying apps"
+        required: true
 
 jobs:
   echo_steps:
@@ -13,9 +13,9 @@ jobs:
     steps:
       - name: Echo Deploying
         run: |
-          echo Deploying with secret $FLY_API_TOKEN
+          echo Deploying with secret $TEST2
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          TEST2: ${{ secrets.token }}
 
       - name: Echo Testing
         run: echo "Testing"
