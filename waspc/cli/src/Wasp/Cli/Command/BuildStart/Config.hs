@@ -1,7 +1,8 @@
 module Wasp.Cli.Command.BuildStart.Config
   ( BuildStartConfig,
-    appSpec,
     buildDir,
+    clientEnvironmentFiles,
+    clientEnvironmentVariables,
     clientPortAndUrl,
     dockerContainerName,
     dockerImageName,
@@ -26,13 +27,31 @@ import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevCl
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
 
 data BuildStartConfig = BuildStartConfig
-  { appSpec :: AppSpec,
-    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir),
-    _args :: BuildStartArgs
+  { _appName :: String,
+    clientPortAndUrl :: (Int, String),
+    serverEnvironmentVariables :: [String],
+    serverEnvironmentFiles :: [FilePath],
+    clientEnvironmentVariables :: [String],
+    clientEnvironmentFiles :: [FilePath],
+    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
 
-makeBuildStartConfig :: AppSpec -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> BuildStartArgs -> BuildStartConfig
-makeBuildStartConfig = BuildStartConfig
+makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> BuildStartConfig
+makeBuildStartConfig appSpec args =
+  BuildStartConfig
+    appName
+    (clientPort, clientUrl)
+    (Args.serverEnvironmentVariables args)
+    (Args.serverEnvironmentFiles args)
+    (Args.clientEnvironmentVariables args)
+    (Args.clientEnvironmentFiles args)
+  where
+    (appName, _) = ASV.getApp appSpec
+
+    -- This assumes that `getDefaultDevClientUrl` uses `defaultClientPort` internally.
+    -- If that changes, we also need to change this.
+    clientPort = defaultClientPort
+    clientUrl = getDefaultDevClientUrl appSpec
 
 buildDir :: BuildStartConfig -> SP.Path' SP.Abs (SP.Dir ProjectRootDir)
 buildDir config =
@@ -42,20 +61,8 @@ buildDir config =
 -- we've hardcoded in the generator. In the future, we might want to make these
 -- configurable via the Wasp app spec or command line arguments.
 
-clientPortAndUrl :: BuildStartConfig -> (Int, String)
-clientPortAndUrl config =
-  -- This assumes that `getDefaultDevClientUrl` uses `defaultClientPort` internally.
-  -- If that changes, we also need to change this.
-  (defaultClientPort, getDefaultDevClientUrl $ appSpec config)
-
 serverUrl :: BuildStartConfig -> String
 serverUrl _ = defaultDevServerUrl
-
-serverEnvironmentVariables :: BuildStartConfig -> [String]
-serverEnvironmentVariables = Args.serverEnvironmentVariables . _args
-
-serverEnvironmentFiles :: BuildStartConfig -> [FilePath]
-serverEnvironmentFiles = Args.serverEnvironmentFiles . _args
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
@@ -69,6 +76,4 @@ dockerContainerName config =
 
 appUniqueId :: BuildStartConfig -> String
 appUniqueId config =
-  makeAppUniqueId (projectDir config) appName
-  where
-    (appName, _) = ASV.getApp $ appSpec config
+  makeAppUniqueId (projectDir config) (_appName config)
