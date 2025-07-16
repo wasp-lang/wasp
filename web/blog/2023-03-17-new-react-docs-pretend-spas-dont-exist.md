@@ -58,4 +58,4 @@ That’s correct, but also it’s true that a buy-in into a whole framework is a
 
 But, both sides of the story should be presented, and the final call should be left to the developer. React is too useful, valuable, and popular a tool and community to allow itself to skip this step.
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

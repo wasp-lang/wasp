@@ -7,7 +7,7 @@ const maxProjectsInProgress = process.env.MAX_PROJECTS_IN_PROGRESS
 
 export const checkForPendingApps: CheckPendingAppsJob<{}, void> = async (
   _args,
-  context
+  context,
 ) => {
   log("Checking for pending apps");
   const { Project } = context.entities;

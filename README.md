@@ -127,6 +127,7 @@ You can also:
 - :star: Star this repo to show your interest/support.
 - :mailbox: Stay updated by subscribing to our [email list](https://wasp.sh#signup).
 - :speech_balloon: Join the discussion at https://github.com/wasp-lang/wasp/discussions .
+- :eyes: Check out the [development roadmap](https://github.com/orgs/wasp-lang/projects/5).
 
 # Careers
 

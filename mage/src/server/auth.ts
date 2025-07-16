@@ -1,4 +1,4 @@
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth";
 
 export const googleUserSignupFields = defineUserSignupFields({
   email: async (data: any) => data.profile.email,
@@ -16,7 +16,7 @@ export const getGoogleAuthConfig = () => {
 export const gitHubUserSignupFields = defineUserSignupFields({
   email: async (data: any) => data.profile.email,
   username: async (data: any) => data.profile.login,
-})
+});
 
 export function getGitHubAuthConfig() {
   return {

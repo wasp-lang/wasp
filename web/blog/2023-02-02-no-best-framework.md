@@ -62,4 +62,4 @@ If you’ve done a bit of research and found a framework that suits your needs a
 
 <hr />
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

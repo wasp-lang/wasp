@@ -1,5 +1,5 @@
-import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { Mutex } from "async-mutex";
+import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 import { GenerateAppJob } from "wasp/server/jobs";
 
@@ -99,7 +99,8 @@ export const generateApp: GenerateAppJob<
           },
         },
         {
-          regex: /==== WASP AI: WRITE FILE ====\n([\s\S]*?)\n===\/ WASP AI: WRITE FILE ====/,
+          regex:
+            /==== WASP AI: WRITE FILE ====\n([\s\S]*?)\n===\/ WASP AI: WRITE FILE ====/,
           action: async (match: RegExpMatchArray) => {
             const text = match[1];
             const [filename, ...rest] = text.split("\n");
@@ -131,7 +132,9 @@ export const generateApp: GenerateAppJob<
       do {
         match = null;
         for (const pattern of patterns) {
-          const newMatch = pattern.regex.exec(appGenerationResults[appId].unconsumedStdout);
+          const newMatch = pattern.regex.exec(
+            appGenerationResults[appId].unconsumedStdout,
+          );
           if (newMatch && (!match || newMatch.index < match.index)) {
             match = {
               ...newMatch,

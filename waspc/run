@@ -3,7 +3,7 @@
 # This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
 
-SCRIPT_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
 COMMAND=${1:-watch}
 shift
@@ -21,6 +21,7 @@ WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
 BUILD_HS_CMD="cabal build all"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
 BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
+BUILD_ALL_STATIC_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD --enable-executable-static"
 
 INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 
@@ -29,207 +30,227 @@ TEST_CLI_CMD="cabal test cli-test"
 TEST_E2E_CMD="cabal test e2e-test"
 TEST_E2E_DELETE_GOLDENS="rm -rf $PROJECT_ROOT/e2e-test/test-outputs/*-golden"
 TEST_E2E_ACCEPT_ALL_CMD="$TEST_E2E_DELETE_GOLDENS && $TEST_E2E_CMD"
-TEST_INSTALL_WASP_APP_RUNNER="cd $PROJECT_ROOT/../wasp-app-runner && npm install && npm run install:global"
-TEST_HEADLESS_CMD="$TEST_INSTALL_WASP_APP_RUNNER && cd $PROJECT_ROOT/examples/todoApp && npm install && DEBUG=pw:webserver npx playwright test --config headless-tests"
+TEST_HEADLESS_CMD="cd $PROJECT_ROOT/examples/todoApp && npm install && npm run test"
 TEST_CMD="cabal test && echo 'Running headless tests' && $TEST_HEADLESS_CMD && echo 'ALL TESTS PASSED' || { echo 'SOME TESTS FAILED'; exit 1; }"
 
-RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli ${ARGS[@]}"
+RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
 
 # ghc version below should be the one from `cabal.project` file, `with-compiler` field.
 GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0.0"
 
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
-function install_dev_tool () {
-    echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
+function install_dev_tool() {
+  echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
 }
-function dev_tool_path () {
-    echo "$DEV_TOOLS_BIN/$1"
+function dev_tool_path() {
+  echo "$DEV_TOOLS_BIN/$1"
 }
 STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
 PRUNE_JUICE_CMD="$(install_dev_tool prune-juice) && $(dev_tool_path prune-juice) ${ARGS[@]}"
+PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run prettier:check)"
+PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run prettier:format)"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
 
-echo_and_eval () {
-    echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
-    eval $1
+echo_and_eval() {
+  echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n"
+  eval "$1"
 }
 
-echo_bold () { echo -e $"${BOLD}${1}${RESET}"; }
+echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
 
-print_usage () {
-    print_usage_cmd () {
-        echo -e $"    ${YELLOW}${BOLD}${1}${RESET}"
-        echo -e  "$2" | fold -s -w 80 | awk -v indent="        " '{print indent $0}'
-    }
+print_usage() {
+  print_usage_cmd() {
+    echo -e $"    ${YELLOW}${BOLD}${1}${RESET}"
+    echo -e "$2" | fold -s -w 80 | awk -v indent="        " '{print indent $0}'
+  }
 
-    echo_bold       "USAGE"
-    echo            "    run <command>"
-    echo            ""
+  echo_bold "USAGE"
+  echo "    run <command>"
+  echo ""
 
-    echo_bold       "COMMANDS"
+  echo_bold "COMMANDS"
 
-    print_usage_cmd "build" \
-                    "Builds the Haskell project."
-    print_usage_cmd "build:all" \
-                    "Builds the Haskell project + all sub-projects (i.e. TS packages)."
-    print_usage_cmd "build:packages" \
-                    "Builds the TypeScript projects under packages/."
-    echo            ""
-    print_usage_cmd "wasp-cli <args>" \
-                    "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
-    echo            ""
-    print_usage_cmd "install" \
-                    "Installs the wasp executable as 'wasp-cli' globally on the machine."
-    echo            ""
-    print_usage_cmd "test" \
-                    "Executes all tests (unit + e2e + headless). Builds the project first if needed."
-    print_usage_cmd "test:unit [pattern]" \
-                    "Executes only unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
-    print_usage_cmd "test:cli" \
-                    "Executes only cli unit tests. Builds the project first if needed."
-    print_usage_cmd "test:e2e" \
-                    "Executes only e2e tests. Builds the project first if needed."
-    print_usage_cmd "test:e2e:accept-all" \
-                    "Accepts any diffs in the generated code in e2e tests. Does so by deleting current golden output and re-running e2e tests to produce new golden output."
-    print_usage_cmd "test:headless" \
-                    "Executes headless tests, where example wasp apps are e2e tested using Playwright."
-    echo            ""
-    print_usage_cmd "ghcid" \
-                    "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
-    print_usage_cmd "ghcid-test" \
-                    "Runs ghcid on both source and tests."
-    echo            ""
-    print_usage_cmd "code-check" \
-                    "Checks code by running it through formatter, linter and static analysis."
-    print_usage_cmd "stan <args>" \
-                    "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
-    print_usage_cmd "hlint <args>" \
-                    "Runs linter on the codebase."
-    print_usage_cmd "prune-juice <args>" \
-                    "Runs prune-juice on the codebase, which detects unused dependencies."
-    print_usage_cmd "ormolu:check" \
-                    "Runs the code formatter and reports if code is correctly formatted or not."
-    print_usage_cmd "ormolu:format" \
-                    "Runs the code formatter and formats the code in place."
-    print_usage_cmd "module-graph" \
-                    "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
-    echo            ""
-    print_usage_cmd "ghcup-set" \
-                    "Sets the correct version of GHC and Cabal for this project (via GHCup)."
+  print_usage_cmd "build" \
+    "Builds the Haskell project."
+  print_usage_cmd "build:all" \
+    "Builds the Haskell project + all sub-projects (i.e. TS packages)."
+  print_usage_cmd "build:all:static" \
+    "Builds the Haskell project statically + all sub-projects (i.e. TS packages). Only useful for release builds. Needs to be run on a musl-based Linux distribution (e.g. Alpine)."
+  print_usage_cmd "build:packages" \
+    "Builds the TypeScript projects under packages/."
+  echo ""
+  print_usage_cmd "wasp-cli <args>" \
+    "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
+  echo ""
+  print_usage_cmd "install" \
+    "Installs the wasp executable as 'wasp-cli' globally on the machine."
+  echo ""
+  print_usage_cmd "test" \
+    "Executes all tests (unit + e2e + headless). Builds the project first if needed."
+  print_usage_cmd "test:unit [pattern]" \
+    "Executes only unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+  print_usage_cmd "test:cli" \
+    "Executes only cli unit tests. Builds the project first if needed."
+  print_usage_cmd "test:e2e" \
+    "Executes only e2e tests. Builds the project first if needed."
+  print_usage_cmd "test:e2e:accept-all" \
+    "Accepts any diffs in the generated code in e2e tests. Does so by deleting current golden output and re-running e2e tests to produce new golden output."
+  print_usage_cmd "test:headless" \
+    "Executes headless tests, where example wasp apps are e2e tested using Playwright."
+  echo ""
+  print_usage_cmd "ghcid" \
+    "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
+  print_usage_cmd "ghcid-test" \
+    "Runs ghcid on both source and tests."
+  echo ""
+  print_usage_cmd "code-check" \
+    "Checks code by running it through formatter, linter and static analysis."
+  print_usage_cmd "stan <args>" \
+    "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
+  print_usage_cmd "hlint <args>" \
+    "Runs linter on the codebase."
+  print_usage_cmd "prune-juice <args>" \
+    "Runs prune-juice on the codebase, which detects unused dependencies."
+  print_usage_cmd "ormolu:check" \
+    "Runs the Haskell code formatter and reports if code is correctly formatted or not."
+  print_usage_cmd "ormolu:format" \
+    "Runs the Haskell code formatter and formats the code in place."
+  print_usage_cmd "prettier:check" \
+    "Runs the repo-wide code formatter and reports if code is correctly formatted or not."
+  print_usage_cmd "prettier:format" \
+    "Runs the repo-wide code formatter and formats the code in place."
+  print_usage_cmd "module-graph" \
+    "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
+  echo ""
+  print_usage_cmd "ghcup-set" \
+    "Sets the correct version of GHC and Cabal for this project (via GHCup)."
 }
 
-exitStatusToString () {
-    if (( $1 == 0 )); then echo "${GREEN}OK${RESET}"; else echo "${RED}FAIL${RESET}"; fi
+exitStatusToString() {
+  if (($1 == 0)); then echo "${GREEN}OK${RESET}"; else echo "${RED}FAIL${RESET}"; fi
 }
 
 case $COMMAND in
-    build)
-        echo_and_eval "$BUILD_HS_CMD"
-        ;;
-    build:all)
-        echo_and_eval "$BUILD_ALL_CMD"
-        ;;
-    build:packages)
-        echo_and_eval "$WASP_PACKAGES_COMPILE"
-        ;;
+  build)
+    echo_and_eval "$BUILD_HS_CMD"
+    ;;
+  build:all)
+    echo_and_eval "$BUILD_ALL_CMD"
+    ;;
+  build:all:static)
+    echo_and_eval "$BUILD_ALL_STATIC_CMD"
+    ;;
+  build:packages)
+    echo_and_eval "$WASP_PACKAGES_COMPILE"
+    ;;
 
-    install)
-        echo_and_eval "$INSTALL_CMD"
-        ;;
+  install)
+    echo_and_eval "$INSTALL_CMD"
+    ;;
 
-    ghcid)
-        echo_and_eval "$GHCID_CMD"
-        ;;
-    ghcid-test)
-        # --color always is needed for Tasty to turn on the coloring.
-        # NOTE: I did not put this into variable because I was not able to put single quotes
-        #   around :main --color always that way and it was not working.
-        ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
-        ;;
+  ghcid)
+    echo_and_eval "$GHCID_CMD"
+    ;;
+  ghcid-test)
+    # --color always is needed for Tasty to turn on the coloring.
+    # NOTE: I did not put this into variable because I was not able to put single quotes
+    #   around :main --color always that way and it was not working.
+    ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
+    ;;
 
-    test)
-        echo_and_eval "$TEST_CMD"
-        ;;
-    test:unit)
-        TEST_PATTERN="${ARGS[0]}"
-        if [[ -z "$TEST_PATTERN" ]]
-        then
-            echo_and_eval "$TEST_UNIT_CMD"
-        else
-            echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
-        fi
+  test)
+    echo_and_eval "$TEST_CMD"
+    ;;
+  test:unit)
+    TEST_PATTERN="${ARGS[0]}"
+    if [[ -z "$TEST_PATTERN" ]]; then
+      echo_and_eval "$TEST_UNIT_CMD"
+    else
+      echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
+    fi
 
-        ;;
-    test:cli)
-        echo_and_eval "$TEST_CLI_CMD"
-        ;;
-    test:e2e)
-        echo_and_eval "$TEST_E2E_CMD"
-        ;;
-    test:e2e:accept-all)
-        echo_and_eval "$TEST_E2E_ACCEPT_ALL_CMD"
-        ;;
-    test:headless)
-        echo_and_eval "$TEST_HEADLESS_CMD"
-        ;;
+    ;;
+  test:cli)
+    echo_and_eval "$TEST_CLI_CMD"
+    ;;
+  test:e2e)
+    echo_and_eval "$TEST_E2E_CMD"
+    ;;
+  test:e2e:accept-all)
+    echo_and_eval "$TEST_E2E_ACCEPT_ALL_CMD"
+    ;;
+  test:headless)
+    echo_and_eval "$TEST_HEADLESS_CMD"
+    ;;
 
-    wasp-cli)
-        echo_and_eval "$RUN_CMD"
-        ;;
+  wasp-cli)
+    echo_and_eval "$RUN_CMD"
+    ;;
 
-    stan)
-        echo_and_eval "$STAN_CMD"
-        ;;
-    hlint)
-        echo_and_eval "$HLINT_CMD"
-        ;;
-    prune-juice)
-        echo_and_eval "$PRUNE_JUICE_CMD"
-        ;;
-    ormolu:check)
-        echo_and_eval "$ORMOLU_CHECK_CMD"
-        ;;
-    ormolu:format)
-        echo_and_eval "$ORMOLU_FORMAT_CMD"
-        ;;
-    code-check)
-        echo_and_eval "$ORMOLU_CHECK_CMD"
-        ORMOLU_RESULT=$?
+  stan)
+    echo_and_eval "$STAN_CMD"
+    ;;
+  hlint)
+    echo_and_eval "$HLINT_CMD"
+    ;;
+  prune-juice)
+    echo_and_eval "$PRUNE_JUICE_CMD"
+    ;;
+  ormolu:check)
+    echo_and_eval "$ORMOLU_CHECK_CMD"
+    ;;
+  ormolu:format)
+    echo_and_eval "$ORMOLU_FORMAT_CMD"
+    ;;
+  prettier:check)
+    echo_and_eval "$PRETTIER_CHECK_CMD"
+    ;;
+  prettier:format)
+    echo_and_eval "$PRETTIER_FORMAT_CMD"
+    ;;
+  code-check)
+    echo_and_eval "$PRETTIER_CHECK_CMD"
+    PRETTIER_RESULT=$?
 
-        echo_and_eval "$HLINT_CMD"
-        HLINT_RESULT=$?
+    echo_and_eval "$ORMOLU_CHECK_CMD"
+    ORMOLU_RESULT=$?
 
-        echo_and_eval "$STAN_CMD"
-        STAN_RESULT=$?
+    echo_and_eval "$HLINT_CMD"
+    HLINT_RESULT=$?
 
-        TOTAL_RESULT=$(($ORMOLU_RESULT || $HLINT_RESULT || $STAN_RESULT))
+    echo_and_eval "$STAN_CMD"
+    STAN_RESULT=$?
 
-        echo
-        echo
-        echo "======================================"
-        echo "               SUMMARY"
-        echo "======================================"
-        echo
-        echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
-        echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
-        echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
-        echo "-----------------------"
-        echo -e "All together: $(exitStatusToString $TOTAL_RESULT)"
+    TOTAL_RESULT=$((PRETTIER_RESULT || ORMOLU_RESULT || HLINT_RESULT || STAN_RESULT))
 
-        exit $TOTAL_RESULT
-        ;;
-    module-graph)
-        echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
-        ;;
+    echo
+    echo
+    echo "======================================"
+    echo "               SUMMARY"
+    echo "======================================"
+    echo
+    echo -e "Formatter (prettier): $(exitStatusToString $PRETTIER_RESULT)"
+    echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
+    echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
+    echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
+    echo "-----------------------"
+    echo -e "All together: $(exitStatusToString $TOTAL_RESULT)"
 
-    ghcup-set)
-        echo_and_eval "$GHCUP_SET"
-        ;;
-    *)
-        print_usage
-        exit 1
+    exit $TOTAL_RESULT
+    ;;
+  module-graph)
+    echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
+    ;;
+
+  ghcup-set)
+    echo_and_eval "$GHCUP_SET"
+    ;;
+  *)
+    print_usage
+    exit 1
+    ;;
 esac

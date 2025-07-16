@@ -6,13 +6,13 @@ export const RouteNode = ({
   sourcePosition = Position.Left,
   targetPosition = Position.Right,
 }: NodeProps) => (
-  <div className="py-3 px-6 rounded bg-rose-900 text-white text-center">
+  <div className="rounded bg-rose-900 px-6 py-3 text-center text-white">
     <Handle
       type="target"
       position={targetPosition}
       isConnectable={isConnectable}
     />
-    <div className="text-xs bg-rose-300 text-rose-900 rounded px-1 absolute -top-1 left-1/2 -translate-x-1/2 flex items-center">
+    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded bg-rose-300 px-1 text-xs text-rose-900">
       <span className="mr-1">Route</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +20,7 @@ export const RouteNode = ({
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="w-3 h-3"
+        className="h-3 w-3"
       >
         <path
           strokeLinecap="round"

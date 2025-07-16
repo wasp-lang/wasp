@@ -1,10 +1,8 @@
-import { testingAction, configureQueryClient } from 'wasp/client/operations'
-import { sayHi } from './util'
+import { configureQueryClient, testingAction } from "wasp/client/operations";
 
 export function setup() {
-  console.log('This was called from the client setup function')
-  testingAction()
-  sayHi()
+  console.log("This was called from the client setup function");
+  testingAction();
 
   // Configure the React Query client
   configureQueryClient({
@@ -13,5 +11,5 @@ export function setup() {
         refetchOnWindowFocus: false,
       },
     },
-  })
+  });
 }

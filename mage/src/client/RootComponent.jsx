@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from "react";
-import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
-import addWaspLangauge from "./prism/wasp";
+import { useEffect, useMemo } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import addPrismaLanguage from "./prism/prisma";
+import addWaspLangauge from "./prism/wasp";
 import { saveReferrerToLocalStorage } from "./storage";
 
 import "./Main.css";
@@ -19,7 +19,7 @@ export function RootComponent() {
       {
         search: "",
       },
-      { replace: true }
+      { replace: true },
     );
   }
 
@@ -49,18 +49,11 @@ export function RootComponent() {
     <>
       {shouldDisplayTopBanner && (
         <div
-          className="overflow-hidden
-            cursor-pointer flex-row
-            space-x-3
-            text-white bg-gradient-to-r from-pink-400 to-amber-400"
+          className="cursor-pointer flex-row space-x-3 overflow-hidden bg-gradient-to-r from-pink-400 to-amber-400 text-white"
           onClick={() => window.open("https://github.com/wasp-lang/wasp")}
         >
           <div
-            className={`
-            mx-auto flex items-center justify-center divide-white p-3
-            text-sm font-medium
-            lg:container lg:divide-x lg:px-16 xl:px-20
-          `}
+            className={`mx-auto flex items-center justify-center divide-white p-3 text-sm font-medium lg:container lg:divide-x lg:px-16 xl:px-20`}
           >
             <span className="item-center flex gap-2 px-3">
               <span>
@@ -89,7 +82,7 @@ export function RootComponent() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Outlet />
         <footer className="mt-8">
           <p className="text-center text-slate-800">
@@ -103,7 +96,7 @@ export function RootComponent() {
               Wasp {"=}"}
             </a>
           </p>
-          <p className="text-center text-slate-500 text-sm mt-2">
+          <p className="mt-2 text-center text-sm text-slate-500">
             This whole app is open-source, you can find the code{" "}
             <a
               href="https://github.com/wasp-lang/wasp/tree/main/mage"

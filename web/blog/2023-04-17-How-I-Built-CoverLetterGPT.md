@@ -36,7 +36,7 @@ Even though I did think it had potential as a SaaS app, I was approaching it mos
   </a>
 </div>
 
-So I started sharing my progress on Twitter, Reddit, and Indie Hackers. I made my first post about it on March 9th, and because I was just experimenting and trying my hand at a SaaS app for the first time, I also [open-sourced the app](https://github.com/vincanger/coverlettergpt) to share the code and what I was learning with others. This led to a lot of interest and great feedback, and I ended up getting featured in the [indiehackers newsletter](https://www.indiehackers.com/post/whats-new-don-t-build-things-no-one-wants-833ee752ba?utm_source=indie-hackers-emails\&utm_campaign=ih-newsletter\&utm_medium=email), which led to even more interest.
+So I started sharing my progress on Twitter, Reddit, and Indie Hackers. I made my first post about it on March 9th, and because I was just experimenting and trying my hand at a SaaS app for the first time, I also [open-sourced the app](https://github.com/vincanger/coverlettergpt) to share the code and what I was learning with others. This led to a lot of interest and great feedback, and I ended up getting featured in the [indiehackers newsletter](https://www.indiehackers.com/post/whats-new-don-t-build-things-no-one-wants-833ee752ba), which led to even more interest.
 
 Within the first month, I got over 1,000 sign-ups along with my first paying customers. Pretty surprising, to say the least!
 
@@ -46,4 +46,4 @@ As an extra bonus, I also give a quick introduction to the [free SaaS template](
 
 My hope is that others will learn something from my experience, and that it could inspire them to try out new technologies and build that app idea they've had in mind (and if they do, they should make sure to share it with me on Twitter [@hot\_town](https://twitter.com/hot_town) -- I'd love to see it!)
 
-_Want to stay in the loop? → [Join our newsletter!](https://wasp.sh/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

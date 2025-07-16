@@ -16,7 +16,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 We are developing an OSS web framework in a form of a config language (DSL) that works with React & Node.js. Getting developers to use a new tool (especially a web framework) is [a pretty hard thing to do](/blog/2022/09/29/journey-to-1000-gh-stars). We wished there were more stories of how today's mainstream tools got adopted that we could learn from, so that motivated us to document our own.
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_
 
 <!--truncate-->
 
@@ -115,4 +115,4 @@ Another big benefit we noticed from this type of launching is how much more prod
 
 I hope you found this post helpful or at least interesting! Creating a new web framework might be one of the most notorious things to do as a developer, but that shouldn't be a reason not to do it - where are the new frameworks going to come from otherwise?
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

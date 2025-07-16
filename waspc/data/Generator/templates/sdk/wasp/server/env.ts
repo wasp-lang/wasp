@@ -71,6 +71,14 @@ const waspServerCommonSchema = z.object({
     required_error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_SECRET'),
   }),
   {=/ enabledAuthProviders.isGitHubAuthEnabled =}
+  {=# enabledAuthProviders.isSlackAuthEnabled =}
+  SLACK_CLIENT_ID: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_ID'),
+  }),
+  SLACK_CLIENT_SECRET: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_SECRET'),
+  }),
+  {=/ enabledAuthProviders.isSlackAuthEnabled =}
   {=# enabledAuthProviders.isDiscordAuthEnabled =}
   DISCORD_CLIENT_ID: z.string({
     required_error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_ID'),

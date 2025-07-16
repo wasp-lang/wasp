@@ -53,7 +53,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "2625c4c99d8925586320492a69923c487764868f4461430672b09587408c0d08"
+        "69c6a1a89118fa450c9ded5bc10c8639818b857ca98ec15a94e5dd502ad567cd"
     ],
     [
         [
@@ -67,7 +67,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "0213fcb5830ea8e0ce94d6243c81894d05cceb68199c6ee190eb1b5eba57cabd"
+        "e701e6587b0966e58ca9ac5dbcd57ebe36002ac6acd25b021114659399b7f4b3"
     ],
     [
         [
@@ -172,7 +172,7 @@
             "file",
             "../out/sdk/wasp/auth/utils.ts"
         ],
-        "ceed4ab4ea541402f329e480db98cce0478a00a5aec75e9071c7dd4457893010"
+        "a6f1f6c48d7f6940c5ce8b615c5b625498a573913429397289b2b00517026570"
     ],
     [
         [
@@ -380,9 +380,23 @@
     [
         [
             "file",
-            "../out/sdk/wasp/core/serialization.ts"
+            "../out/sdk/wasp/core/serialization/custom-register.ts"
         ],
-        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
+        "38f1a0116cfb33532872d3b5cbb47bd2b695ff59197832758d049151d40c138c"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/index.ts"
+        ],
+        "f36812afeb3afac66bca99dd8764a45f8def73374f696ed502280223f6677161"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/prisma.ts"
+        ],
+        "bbfc1428c31642ddc87ec68b672e60219b3313eee66b75169c5cf2593e4893ab"
     ],
     [
         [
@@ -431,7 +445,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "f3d71ee6b64d05a0f3959840712bd333fb0d00fbbcfe7097fe4f4437648d48ed"
+        "1bbcb5007f3e77cd89f0da632152d35f38cf8b38c0d59c13210435e09c460d4c"
     ],
     [
         [
@@ -487,7 +501,7 @@
             "file",
             "../out/sdk/wasp/server/auth/oauth/index.ts"
         ],
-        "bc8cf4d3b89018a68704d30bc3183bbd58461c9db0796f603f3e13179d604630"
+        "4be7847071ca4ba20b6b5d11c30f37e977dcd9f572f6d9c95200c1c1b92b71ae"
     ],
     [
         [
@@ -550,7 +564,7 @@
             "file",
             "../out/sdk/wasp/server/dbClient.ts"
         ],
-        "c5f88f028ad62b4a2fd5d1206aa72165f74c6f46f96250512af6ae55a5354020"
+        "226fa8323e71ca4b57837f28db7b042e2a481d84bfff83585be3f161310f8f76"
     ],
     [
         [
@@ -599,7 +613,7 @@
             "file",
             "../out/sdk/wasp/server/index.ts"
         ],
-        "a8d2ffa7dfd0a13f7fb6135193bcdac1f860603bdd0ddc2843033fd4f6f6151f"
+        "8c8ad2b3979c6940d2ab90b789ff847c1af1c1bc8d8541438cd9d210f6ff6e25"
     ],
     [
         [
@@ -627,7 +641,7 @@
             "file",
             "../out/sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "0e20fd18dd406be71588df7c17bdac8dd03e06c36f4e39bd63d53c839f60df15"
+        "f146f6dc8d21e6ddd1a37f34b990ed52088a47f564a86ace6d7c732ae1000869"
     ],
     [
         [
@@ -732,14 +746,21 @@
             "file",
             "../out/sdk/wasp/src/Main.css"
         ],
-        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
+        "05a725d9aa060e2972bf91ed825502667c9b8aeb0893110c493818efc0c9ffa9"
     ],
     [
         [
             "file",
-            "../out/sdk/wasp/src/MainPage.jsx"
+            "../out/sdk/wasp/src/MainPage.tsx"
         ],
-        "3ebb438164084ff90e72f3f081f6165fb8acc0d89076c3a6e225a26d76728a86"
+        "8b411885c41164a60e135c7e191d23095dfda51c3d7968539a7e7f62e8f12940"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/src/assets/logo.svg"
+        ],
+        "563d907afcd4f7860194dc46eeed2ad85e9933dd8cc5dd8c93563a3bb43b0daa"
     ],
     [
         [
@@ -816,14 +837,7 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "b90babdd0169eb18ced65b50573272e671ca0b432506fbc16050bd07e502a0cc"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+        "7ed6a5aae2db6666937b6b8ce6f941d5ab477f25734e39f310cefde82a634838"
     ],
     [
         [
@@ -886,7 +900,7 @@
             "file",
             "Dockerfile"
         ],
-        "f9f1ca52eb9e344f4c9f6ddd151a31c17c355cc875fec44dc3bd537fdac504a6"
+        "814b4809b422a7b12c028aa759ed911060152a456185aa472744e50920d2ea97"
     ],
     [
         [
@@ -935,7 +949,7 @@
             "file",
             "server/package.json"
         ],
-        "bcc70dc10dbec4f941c00f709bab7c574d13af1eb6c9bdd68d07bb8cbeb47009"
+        "01e131d89fe777d750aae346a031de875ca6d12842e5a06684e9c60c535d1904"
     ],
     [
         [
@@ -1080,13 +1094,6 @@
     [
         [
             "file",
-            "server/src/polyfill.ts"
-        ],
-        "f62c2088c8ebf5889ab479bb937ffd8f0f96d3e85483a7b088edebb5ae598dca"
-    ],
-    [
-        [
-            "file",
             "server/src/queries/mySpecialQuery.ts"
         ],
         "c595702e1fc397f0682477048c13c73755345ba6eee224e6e4137c6629b78aaf"
@@ -1166,14 +1173,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "fd4a9cd212e14caefc41e916bc816594cd8b76a2565adfd5495c01a6bf5aa936"
+        "a2d9166fd4388d469305df03c0b93f865b8f9c4840aee38eab4e8430b79801a5"
     ],
     [
         [
             "file",
             "server/tsconfig.json"
         ],
-        "37091ead1cd4d4aed082857ee6ef2e2168eec9a37330c68e2ebe36c331c7c5c7"
+        "83c528671dab5859e8f73d1e1948359c1679057dcaedacae9889a1b2022e5e2e"
     ],
     [
         [
@@ -1222,7 +1229,14 @@
             "file",
             "web-app/package.json"
         ],
-        "2352cda526107792c1399ca931ac268d92827d1f08ed6db1a41b12d00abaa988"
+        "16d5d7a468e045233ff065edf6660f856009df2dab17485f39ee0c7b7c881df0"
+    ],
+    [
+        [
+            "file",
+            "web-app/public/.gitkeep"
+        ],
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
@@ -1355,7 +1369,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
+        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
     ],
     [
         [

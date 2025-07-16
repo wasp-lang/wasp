@@ -1,12 +1,12 @@
 {
   "name": "wasp-studio-client",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
     "copy": "npm run build && cp -r ./dist/* ../public",
+    "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -17,7 +17,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.8.3",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

@@ -80,7 +80,7 @@ Let's start by properly configuring the Auth object:
   </TabItem>
 </Tabs>
 
-The `userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#social-login-entity).
+The `userEntity` is explained in [the social auth overview](../../auth/social-auth/overview#user-entity).
 
 ### 2. Adding the User Entity
 

@@ -193,6 +193,20 @@ Our **local** and **production** database now looks like this:
 
 <ImgWithCaption alt="Updated database structure" source="img/database-migrations/Screenshot_2025-03-17_at_13.33.24.png" caption="Database structure after adding the isPublic field" />
 
+### Finding this article useful?
+
+[Wasp](https://wasp.sh/) team is working hard to create content like this, not to mention building a modern, open-source React/NodeJS framework.
+
+The easiest way to show your support is just to star Wasp repo! 🐝 Click on the button below to give Wasp a star and show your support!
+
+![https://dev-to-uploads.s3.amazonaws.com/uploads/articles/axqiv01tl1pha9ougp21.gif](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/axqiv01tl1pha9ougp21.gif)
+
+<div className="cta">
+  <a href="https://github.com/wasp-lang/wasp" target="_blank" rel="noopener noreferrer">
+    ⭐️ Thank You For Your Support 💪
+  </a>
+</div>
+
 ## Database Migration No.3: Breaking change with the score-keeping format
 
 And now for something completely different… a dangerous, complex, multi-step migration. Sounds fun? 😀 These kinds of migrations are usually quite stressful for me because they involve database schema changes that can cause data loss. They can potentially ruin our app and chase away our users.

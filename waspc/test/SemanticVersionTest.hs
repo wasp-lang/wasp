@@ -21,7 +21,7 @@ spec_SemanticVersion = do
         ( Range [lte (Version 1 3 6) <> backwardsCompatibleWith (Version 1 2 0)]
             <> Range [eq (Version 1 2 3)]
         )
-        `shouldBe` "<=1.3.6 ^1.2.0 || =1.2.3"
+        `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
   it "Concatenating version ranges produces union of their comparator sets" $ do
     let v1 = Version 1 0 0
     let v2 = Version 2 0 0

@@ -13,7 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe)
+import Data.Maybe (isJust, mapMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -22,7 +22,9 @@ import Wasp.AppSpec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EC
+import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -47,6 +49,7 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -98,7 +101,6 @@ genSdk spec =
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/serialization.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
@@ -119,6 +121,7 @@ genSdk spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genCoreSerializationDir spec
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
@@ -241,6 +244,25 @@ depsRequiredForTesting =
       ("msw", "^1.1.0")
     ]
 
+genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
+genCoreSerializationDir spec =
+  return $
+    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
+      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+    ]
+      ++ maybeToList prismaSerializationFile
+  where
+    tmplData =
+      object
+        [ "entitiesExist" .= entitiesExist
+        ]
+
+    prismaSerializationFile
+      | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
+      | otherwise = Nothing
+
+    entitiesExist = hasEntities spec
+
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
   where
@@ -355,12 +377,18 @@ genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
 
-  let tmplData = object ["areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined]
+  let tmplData =
+        object
+          [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
+            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+          ]
 
   return $
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
+  where
+    maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
 
 genDevIndex :: Generator FileDraft
 genDevIndex =

@@ -489,7 +489,7 @@ action updatePassword {
 
 When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](./ui.md) or if you use the provided auth actions.
 
-If you decide to create your [custom auth actions](./username-and-pass.md#2-creating-your-custom-sign-up-action), you'll need to run the validations yourself.
+If you decide to create your [custom auth actions](./advanced/custom-auth-actions.md), you'll need to run the validations yourself.
 
 Default validations depend on the auth method you use.
 

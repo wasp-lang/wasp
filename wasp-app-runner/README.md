@@ -9,20 +9,46 @@ When installed, it provides a `run-wasp-app` command that can be used to run you
 
 ## Usage
 
-```bash
-npm install
-# Installs wasp-app-runner globally from the local directory
-npm run install:global
+### Global dependency:
 
-# Use the `run-wasp-app` command to run your Wasp app
-cd /path/to/your/app
+```bash
+npm install -g @wasp.sh/wasp-app-runner
+
 run-wasp-app dev
+```
+
+### Local dependency:
+
+```bash
+npm i -D @wasp.sh/wasp-app-runner
+
+npx run-wasp-app dev
+```
+
+You can also use it in `npm` scripts without the `npx` prefix, since `node_modules/.bin` is automatically added to the `PATH` inside `scripts`:
+
+Example `package.json`:
+
+```jsonc
+{
+  // ...
+  "scripts": {
+    "run-dev": "run-wasp-app dev",
+  },
+  // ...
+}
+```
+
+### One time usage:
+
+```bash
+npx @wasp.sh/wasp-app-runner dev
 ```
 
 ### Options
 
-```bash
-run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+```
+npx run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 You must pass the `<mode>` as an argument, which can be either `dev` or `build`.
@@ -53,7 +79,7 @@ When using the `build` mode:
 - `run-wasp-app` will use the `.env.server` file when running the server container with Docker locally (which is not done usually by Wasp).
 - `.env.client` will not be used when building the client, the `REACT_APP_API_URL` is hard-coded to `http://localhost:3001`.
 
-### Development
+## Development
 
 When developing, you can run the script directly from the local directory without installing it globally:
 
@@ -63,3 +89,36 @@ npm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
 ```
 
 `npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.
+
+## Publishing
+
+To publish a new version of `wasp-app-runner`, follow these steps:
+
+### 1. Update Package Version
+
+**Using npm version command:**
+
+```bash
+# For patch releases (bug fixes)
+npm version patch
+
+# For minor releases (new features)
+npm version minor
+
+# For major releases (breaking changes)
+npm version major
+```
+
+### 2. Authenticate with npm
+
+```bash
+# Login to npm with an account that has access to the @wasp.sh organization
+npm login
+```
+
+### 3. Publish to npm Registry
+
+```bash
+# Publish the package publicly
+npm publish --access public
+```

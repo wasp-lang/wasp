@@ -6,6 +6,9 @@ export * from './email'
 {=# isUsernameAndPasswordAuthEnabled =}
 export * from './username'
 {=/ isUsernameAndPasswordAuthEnabled =}
+{=# isSlackAuthEnabled =}
+export * from './slack'
+{=/ isSlackAuthEnabled =}
 {=# isDiscordAuthEnabled =}
 export * from './discord'
 {=/ isDiscordAuthEnabled =}

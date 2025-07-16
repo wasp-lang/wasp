@@ -12,19 +12,22 @@
     ]
   },
   "dependencies": {
-    "@tanstack/react-query": "^4.29.0",
+    "@tanstack/react-query": "4.36.1",
     "axios": "^1.4.0"
   },
   "devDependencies": {
     "@tsconfig/vite-react": "^2.0.0",
     "@types/react-dom": "^18.0.11",
-    "@vitejs/plugin-react": "^4.2.1"
+    "@vitejs/plugin-react": "4.5.1"
   },
   "engineStrict": true,
   "engines": {
     "node": ">=20.0.0"
   },
   "name": "waspCompile",
+  "overrides": {
+    "rollup": "4.44.0"
+  },
   "private": true,
   "scripts": {
     "build": "tsc --build && vite build",

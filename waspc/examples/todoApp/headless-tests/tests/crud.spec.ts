@@ -1,98 +1,78 @@
-import { expect, type Page, test } from '@playwright/test'
-import {
-  generateRandomCredentials,
-  performLogin,
-  performEmailVerification,
-  performSignup,
-} from './helpers'
+import { expect, type Page, test } from "@playwright/test";
+import { performLogin, setupTestUser } from "./helpers";
 
-test.describe('CRUD test', () => {
-  const { email, password } = generateRandomCredentials()
+test.describe("CRUD test", () => {
+  const credentials = setupTestUser();
 
-  test.describe.configure({ mode: 'serial' })
+  test("crud list page", async ({ page }) => {
+    await performLogin(page, credentials);
 
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage()
-
-    await performSignup(page, {
-      email,
-      password,
-    })
-
-    await expect(page.locator('body')).toContainText(
-      `You've signed up successfully! Check your email for the confirmation link.`
-    )
-
-    await performEmailVerification(page, email)
-  })
-
-  test('crud list page', async ({ page }) => {
-    await performLogin(page, {
-      email,
-      password,
-    })
-
-    await expect(page).toHaveURL('/profile')
-
-    await page.goto('/crud')
-    // wait for idle
-    await page.waitForSelector('text=Tasks (CRUD feature)')
+    await page.goto("/crud");
+    await expect(page.getByTestId("crud-tasks")).toBeVisible();
 
     // Create a task
-    const taskDescription = 'first task'
-    await createTask(page, taskDescription)
+    const taskDescription = "first task";
+    await createTask(page, taskDescription);
 
-    await expect(page.locator('body')).toContainText(
-      `${taskDescription} by ${email}`
-    )
+    await expect(
+      page.getByTestId("task-view").getByTestId("text"),
+    ).toContainText(taskDescription);
+    await expect(
+      page.getByTestId("task-view").getByTestId("created-by"),
+    ).toContainText(`Created by ${credentials.email}`);
 
     // Edit the task
-    await page.getByRole('button', { name: 'Edit' }).click()
-    const editInput = page.getByTestId('edit-task-input')
-    const newTaskDescription = 'edited task'
+    await page.getByRole("button", { name: "Edit" }).click();
+    const editInput = page.getByTestId("edit-task-input");
+    const newTaskDescription = "edited task";
 
-    await expect(editInput).toHaveValue(taskDescription)
-    await editInput.fill(newTaskDescription)
-    await page.getByRole('button', { name: 'Update task' }).click()
-    await expect(page.locator('body')).toContainText(
-      `${newTaskDescription} by ${email}`
-    )
+    await expect(editInput).toHaveValue(taskDescription);
+    await editInput.fill(newTaskDescription);
+    await page.getByRole("button", { name: "Update task" }).click();
+    await expect(
+      page.getByTestId("task-view").getByTestId("text"),
+    ).toContainText(newTaskDescription);
+    await expect(
+      page.getByTestId("task-view").getByTestId("created-by"),
+    ).toContainText(`Created by ${credentials.email}`);
 
     // Delete the task
-    page.on('dialog', async (dialog) => {
+    page.on("dialog", async (dialog) => {
       expect(dialog.message()).toBe(
-        'Are you sure you want to delete this task?'
-      )
-      await dialog.accept()
-    })
-    await page.locator('button').filter({ hasText: 'Delete' }).click()
-    await page.waitForLoadState('networkidle')
-    await expect(page.locator('body')).not.toContainText(
-      `${newTaskDescription} by ${email}`
-    )
-    await expect(page.locator('body')).toContainText('No tasks yet.')
-  })
+        "Are you sure you want to delete this task?",
+      );
+      await dialog.accept();
+    });
+    await page.locator("button").filter({ hasText: "Delete" }).click();
+    await page.waitForLoadState("networkidle");
 
-  test('crud detail page', async ({ page }) => {
-    await performLogin(page, {
-      email,
-      password,
-    })
+    await expect(
+      page.getByTestId("task-view").getByTestId("text"),
+    ).not.toBeVisible();
+    await expect(
+      page.getByTestId("task-view").getByTestId("created-by"),
+    ).not.toBeVisible();
+    await expect(page.getByTestId("no-tasks-message")).toBeVisible();
+  });
 
-    await expect(page).toHaveURL('/profile')
+  test("crud detail page", async ({ page }) => {
+    await performLogin(page, credentials);
 
-    await page.goto('/crud')
+    await page.goto("/crud");
     // Create a task
-    await createTask(page, 'second task')
+    await createTask(page, "second task");
     // Go to the detail page of the task
-    await page.locator('a').filter({ hasText: 'second task' }).click()
-    await expect(page).toHaveURL(/\/crud\/\d+/)
+    await page.locator("a").filter({ hasText: "second task" }).click();
+    await expect(page).toHaveURL(/\/crud\/\d+/);
     // Check if the task is displayed
-    await expect(page.locator('body')).toContainText('second task')
-  })
-})
+    // await expect(page.locator("body")).toContainText("second task");
+    await expect(page.getByTestId("task-detail-view")).toContainText(
+      "second task",
+    );
+  });
+});
 
 async function createTask(page: Page, description: string) {
-  await page.getByRole('textbox').fill(description)
-  await page.getByRole('button', { name: 'Create task' }).click()
+  await page.getByRole("textbox").fill(description);
+  await page.getByRole("button", { name: "Create task" }).click();
 }

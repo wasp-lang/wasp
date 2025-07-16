@@ -1,6 +1,4 @@
 {
-    "watch": [
-        "./src/**/*.ts"
-    ],
-    "exec": "tsc || exit 1"
+  "watch": ["./src/**/*.ts"],
+  "exec": "tsc || exit 1"
 }

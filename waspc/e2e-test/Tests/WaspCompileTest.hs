@@ -4,14 +4,14 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( cdIntoCurrentProject,
     waspCliCompile,
-    waspCliNew,
+    waspCliNewMinimalStarter,
   )
 
 waspCompile :: GoldenTest
 waspCompile =
   makeGoldenTest "waspCompile" $
     sequence
-      [ waspCliNew,
+      [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,
         waspCliCompile
       ]

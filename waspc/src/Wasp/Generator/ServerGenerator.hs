@@ -37,6 +37,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
+import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -139,7 +140,7 @@ genPackageJson spec waspDependencies = do
             ]
       )
   where
-    hasEntities = not . null $ AS.getEntities spec
+    hasEntities = AS.Util.hasEntities spec
 
 getPackageJsonPrismaField :: AppSpec -> Aeson.Value
 getPackageJsonPrismaField spec = object $ [] <> seedEntry
@@ -209,8 +210,7 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genServerJs spec,
-      genFileCopy [relfile|polyfill.ts|]
+      genServerJs spec
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec

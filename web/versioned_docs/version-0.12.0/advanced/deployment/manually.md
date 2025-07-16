@@ -104,7 +104,7 @@ We'll cover a few different deployment providers below:
 - Railway (server, client and database)
 - Heroku (server and database)
 
-## Fly.io (server and database)
+## Fly.io (server and database) {#flyio}
 
 We will show how to deploy the server and provision a database for it on Fly.io.
 
@@ -227,7 +227,7 @@ When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify 
 
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
-## Netlify (client)
+## Netlify (client) {#netlify}
 
 We'll show how to deploy the client on Netlify.
 
@@ -261,7 +261,7 @@ That is it! Your client should be live at `https://<app-name>.netlify.app` ✨
 Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment (e.g., Fly.io or Heroku).
 :::
 
-## Railway (server, client and database)
+## Railway (server, client and database) {#railway}
 
 We will show how to deploy the client, the server, and provision a database on Railway.
 
@@ -464,7 +464,7 @@ When you make updates and need to redeploy:
 - run `railway up` in the `.wasp/build` directory (server)
 - repeat all the steps in the `.wasp/build/web-app` directory (client)
 
-## Heroku (server and database)
+## Heroku (server and database) {#heroku}
 
 We will show how to deploy the server and provision a database for it on Heroku.
 

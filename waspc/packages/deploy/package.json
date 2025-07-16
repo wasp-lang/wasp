@@ -1,18 +1,22 @@
 {
-  "author": "Wasp Team",
-  "license": "MIT",
   "name": "wasp-deploy",
   "version": "0.0.1",
-  "main": "dist/index.js",
-  "bin": "dist/index.js",
   "type": "module",
+  "author": "Wasp Team",
+  "license": "MIT",
+  "bin": "dist/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
+    "dev": "npx tsc --watch",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.5.3",
     "commander": "^13.1.0",
+    "semver": "^7.7.2",
     "toml": "^3.0.0",
+    "zod": "^3.24.4",
     "zx": "^8.3.2"
   },
   "devDependencies": {
@@ -20,7 +24,6 @@
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",
-    "prettier": "^3.5.0",
     "typescript": "^5.7.3"
   }
 }

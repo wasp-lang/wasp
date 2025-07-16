@@ -13,17 +13,17 @@ export function WaitingRoomContent(props) {
       Math.round(
         ((props.numberOfProjectsAheadInQueue - 1) /
           NUM_APPS_WE_CAN_GENERATE_IN_PARALLEL) *
-          AVG_APP_GENERATION_TIME_IN_MIN
-      )
+          AVG_APP_GENERATION_TIME_IN_MIN,
+      ),
     );
   }, [props.numberOfProjectsAheadInQueue]);
 
   return (
     <>
-      <header className="relative mb-4 bg-slate-50 p-8 rounded-xl text-gray-500">
+      <header className="relative mb-4 rounded-xl bg-slate-50 p-8 text-gray-500">
         {estimatedWaitingTimeInMinutes > 5 && (
           <>
-            <p className="bg-yellow-100 text-center text-yellow-700 rounded p-2">
+            <p className="rounded bg-yellow-100 p-2 text-center text-yellow-700">
               🚨 We are experiencing heavy load at the moment! 🚨
             </p>
             <br />
@@ -72,7 +72,7 @@ export function WaitingRoomContent(props) {
           Come back to this page to check the status of your app at any time!
         </p>
       </header>
-      <h3 className="text-xl font-semibold mb-4 text-slate-800">
+      <h3 className="mb-4 text-xl font-semibold text-slate-800">
         Examples of already generated apps:
       </h3>
 
@@ -122,23 +122,23 @@ export function ShowcaseCard({ name, specimenURL, description, color }) {
       scale={1.05}
     >
       <div
-        className="h-full bg-slate-50 p-8 rounded-xl mt-2 flex flex-col items-center cursor-pointer hover:shadow-lg transition-all"
+        className="mt-2 flex h-full cursor-pointer flex-col items-center rounded-xl bg-slate-50 p-8 transition-all hover:shadow-lg"
         onClick={() => {
           window.open(specimenURL, "_blank");
         }}
       >
         <div className="idea">
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-xl font-semibold text-slate-700 mb-1">
+          <div className="mb-4 flex items-center justify-between">
+            <h4 className="mb-1 text-xl font-semibold text-slate-700">
               <span
-                className="inline-block w-4 h-4 rounded-full mr-2"
+                className="mr-2 inline-block h-4 w-4 rounded-full"
                 style={{ backgroundColor: color.color }}
               ></span>
               {name}
             </h4>
             <button className="button sm gray">Check out the code</button>
           </div>
-          <div className="text-base leading-relaxed text-slate-500 line-clamp-[10]">
+          <div className="line-clamp-[10] text-base leading-relaxed text-slate-500">
             {description.split("\n").map((str) => (
               <p>{str}</p>
             ))}

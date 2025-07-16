@@ -14,7 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 <ImgWithCaption alt="Wasp Update May 23" source="img/update-may-23/banner.png" />
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_
 
 Hola Waspeteers 🐝,
 

@@ -11,9 +11,9 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-      sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 .container {
@@ -88,8 +88,15 @@ code {
   border-radius: 5px;
   padding: 0.2rem;
   background: #efefef;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-    Bitstream Vera Sans Mono, Courier New, monospace;
+  font-family:
+    Menlo,
+    Monaco,
+    Lucida Console,
+    Liberation Mono,
+    DejaVu Sans Mono,
+    Bitstream Vera Sans Mono,
+    Courier New,
+    monospace;
 }
 
 /* Global stuff */
@@ -104,7 +111,16 @@ textarea {
   outline: none;
   border: none;
 
-  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Noto Sans,Ubuntu,Droid Sans,Helvetica Neue,sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    Roboto,
+    Noto Sans,
+    Ubuntu,
+    Droid Sans,
+    Helvetica Neue,
+    sans-serif;
 
   box-sizing: border-box;
   display: block;
@@ -118,11 +134,15 @@ button {
   background: transparent;
 }
 
-button, input[type=button], input[type=submit] {
+button,
+input[type="button"],
+input[type="submit"] {
   cursor: pointer;
 }
 
-button, input, textarea {
+button,
+input,
+textarea {
   color: #172b4d;
   font-size: 14px !important;
   font-weight: 400;
@@ -133,7 +153,8 @@ input {
   padding: 6px 10px !important;
 }
 
-ol, ul {
+ol,
+ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -179,14 +200,14 @@ ol, ul {
 }
 
 .list-wrapper.mod-add.is-idle {
-  background-color: hsla(0,0%,100%,.24);
+  background-color: hsla(0, 0%, 100%, 0.24);
 }
 
 .list-name-input {
   outline: none;
   border: none;
   box-shadow: inset 0 0 0 2px #0079bf;
-  width: 100%
+  width: 100%;
 }
 
 .list-name-input:focus {
@@ -277,11 +298,10 @@ button.open-add-list {
 
 .dark-hover:hover {
   border-radius: 3px;
-  background-color: rgba(9,30,66,.08);
+  background-color: rgba(9, 30, 66, 0.08);
   color: #172b4d;
   cursor: pointer;
 }
-
 
 textarea.mod-list-name {
   background: transparent;
@@ -298,7 +318,7 @@ textarea.mod-list-name {
 
 textarea.mod-list-name:focus {
   background-color: #fff;
-  box-shadow: inset 0 0 0 2px  #0079bf;
+  box-shadow: inset 0 0 0 2px #0079bf;
 }
 
 /* List popover menu */
@@ -307,7 +327,9 @@ textarea.mod-list-name:focus {
   background: #fff;
   width: 304px;
   border-radius: 3px;
-  box-shadow: 0 8px 16px -4px rgb(9 30 66 / 25%), 0 0 0 1px rgb(9 30 66 / 8%);
+  box-shadow:
+    0 8px 16px -4px rgb(9 30 66 / 25%),
+    0 0 0 1px rgb(9 30 66 / 8%);
 }
 
 .popover-header {
@@ -319,7 +341,7 @@ textarea.mod-list-name:focus {
 
   margin: 0 8px 8px 8px;
   text-align: center;
-  border-bottom: 1px solid rgba(9,30,66,.13);
+  border-bottom: 1px solid rgba(9, 30, 66, 0.13);
 }
 
 .popover-header-item {
@@ -332,7 +354,9 @@ textarea.mod-list-name:focus {
   visibility: hidden;
 }
 
-.popover-header-item:last-child { margin-left: auto }
+.popover-header-item:last-child {
+  margin-left: auto;
+}
 
 .popover-header-title {
   display: block;
@@ -354,16 +378,16 @@ textarea.mod-list-name:focus {
   padding: 0 0 12px;
 }
 
-.popover-content-list li>button {
+.popover-content-list li > button {
   width: 100%;
   text-align: left;
 
-  padding: 6px 12px;;
+  padding: 6px 12px;
   line-height: 20px;
 }
 
-.popover-content-list li>button:hover {
-  background-color: rgba(9,30,66,.04);
+.popover-content-list li > button:hover {
+  background-color: rgba(9, 30, 66, 0.04);
 }
 
 /* Cards */
@@ -454,7 +478,6 @@ textarea.card-composer-textarea {
   margin-right: 5px;
   border-width: 1px;
   border-color: #000;
-
 }
 
 /* Board header */
@@ -468,4 +491,3 @@ textarea.card-composer-textarea {
   font-size: 18px;
   font-weight: 700;
 }
-

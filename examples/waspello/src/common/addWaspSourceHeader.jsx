@@ -1,15 +1,14 @@
-import React from 'react'
-import WaspSourceHeader from './WaspSourceHeader'
+import WaspSourceHeader from "./WaspSourceHeader";
 
 const addWaspSourceHeader = (Component) => {
   return function AddHeader(props) {
     return (
       <>
-        <WaspSourceHeader name="Waspello"/>
-        <Component { ...props } />
+        <WaspSourceHeader name="Waspello" />
+        <Component {...props} />
       </>
-    )
-  }
-}
+    );
+  };
+};
 
-export default addWaspSourceHeader
+export default addWaspSourceHeader;

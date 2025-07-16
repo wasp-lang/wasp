@@ -1,24 +1,25 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from 'fs'
-import { analyzeUserApp } from './appAnalyzer.js'
-import { parseProcessArgsOrThrow } from './cli.js'
+import { writeFileSync } from "fs";
+import { analyzeApp } from "./appAnalyzer.js";
+import { parseProcessArgsOrThrow } from "./cli.js";
 
-main(process.argv)
+main(process.argv);
 
 /**
  * Main function that processes command line arguments, analyzes the user app,
  * and writes the output to a file.
  */
 async function main(args: string[]): Promise<void> {
-  const { waspTsSpecPath, outputFilePath, entityNames } = parseProcessArgsOrThrow(args)
+  const { waspTsSpecPath, outputFilePath, entityNames } =
+    parseProcessArgsOrThrow(args);
 
-  const declsResult = await analyzeUserApp(waspTsSpecPath, entityNames)
+  const declsResult = await analyzeApp(waspTsSpecPath, entityNames);
 
-  if (declsResult.status === 'error') {
-    console.error(declsResult.error)
-    process.exit(1)
+  if (declsResult.status === "error") {
+    console.error(declsResult.error);
+    process.exit(1);
   }
 
-  writeFileSync(outputFilePath, JSON.stringify(declsResult.value))
+  writeFileSync(outputFilePath, JSON.stringify(declsResult.value));
 }

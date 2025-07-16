@@ -12,7 +12,7 @@ export const QueryNode = (props: NodeProps) => (
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="w-3 h-3"
+          className="h-3 w-3"
         >
           <path
             strokeLinecap="round"
@@ -38,7 +38,7 @@ export const ActionNode = (props: NodeProps) => (
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="w-3 h-3"
+          className="h-3 w-3"
         >
           <path
             strokeLinecap="round"
@@ -63,14 +63,14 @@ export const OperationNode = ({
   label?: React.ReactNode;
   color?: string;
 }) => (
-  <div className={`py-3 px-6 rounded bg-${color}-900 text-white`}>
+  <div className={`rounded px-6 py-3 bg-${color}-900 text-white`}>
     <Handle
       type="target"
       position={targetPosition}
       isConnectable={isConnectable}
     />
     <div
-      className={`text-xs bg-${color}-300 text-${color}-900 rounded px-1 absolute -top-1 left-1/2 -translate-x-1/2`}
+      className={`text-xs bg-${color}-300 text-${color}-900 absolute -top-1 left-1/2 -translate-x-1/2 rounded px-1`}
     >
       {label}
     </div>

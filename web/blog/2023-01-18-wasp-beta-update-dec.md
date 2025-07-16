@@ -14,7 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 <ImgWithCaption alt="Wasp Update Dec 22" source="img/update-dec-23/banner.png" />
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_
 
 Hey Wasp tribe 🐝 ,
 
@@ -103,4 +103,4 @@ Thanks for reading and see you in a month!
 Buzzity buzz, you got that pizzazz 🐝 🐝,
 Matija, Martin and the Wasp team
 
-_Want to stay in the loop? → [Join our newsletter!](/#signup)_
+_Want to stay in the loop? → [Join our newsletter!](#newsletter-input)_

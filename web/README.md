@@ -1,11 +1,11 @@
 # Website
 
-This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
+This website is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
 
 It consists of three main parts:
- - Landing page ([src/pages/index.js](src/pages/index.js))
- - Blog ([blog/](blog/))
- - Docs ([docs/](docs/))
+  - Landing page ([src/pages/index.js](src/pages/index.js))
+  - Blog ([blog/](blog/))
+  - Docs ([docs/](docs/))
 
 
 ### Installation
@@ -23,96 +23,13 @@ $ npm start
 This command starts a local development server and opens up a browser window.
 Most changes are reflected live without having to restart the server.
 
-### Writing docs
+### Documentation
 
-To write docs, you can use Markdown or MDX. The docs are located in the `docs` directory.
-Remember to refer to the [Writing Guide](https://wasp.sh/docs/writingguide) for an explanation
-of how we like to write docs. You can check
-[Docusaurus' documentation](https://docusaurus.io/docs/2.x/markdown-features) to see which special
-Markdown features available (e.g. line highlighting).
+We have a few guides on how to write documentation:
 
-#### Polyglot code blocks
-
-For examples that have a JavaScript and TypeScript version, add a `auto-js` meta attribute
-to the code block, like so:
-
-~~~mdx
-```ts title="src/apis.ts" auto-js
-export const validatePassword = (password: string) => password.length > 8;
-```
-~~~
-
-And it will automatically generate a JS and TS version with a selector to switch between them:
-
-~~~mdx
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```js title="src/apis.js"
-export const validatePassword = (password) => password.length > 8;
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/apis.ts"
-export const validatePassword = (password: string) => password.length > 8;
-```
-
-</TabItem>
-</Tabs>
-~~~
-
-> [!NOTE]
-> You can create a language switcher manually as described in
-> [Docusaurus docs](https://docusaurus.io/docs/2.x/markdown-features/code-blocks#multi-language-support-code-blocks).
-
-If you need to omit some part of the code in a code example, you can use the `with-hole` meta attribute
-which will add an ellipsis wherever you write the identifier `hole` in the code block, so you can keep
-it syntactically valid. You can combine it with the `auto-js` tag.
-
-For example, the following input:
-
-~~~mdx
-```ts title="src/apis.ts" auto-js with-hole
-export const validatePassword = (password: string) => password.length > 8 && hole;
-```
-~~~
-
-Will be transformed to:
-
-~~~mdx
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
-```js title="src/apis.js"
-export const validatePassword = (password) => password.length > 8 && ...;
-```
-
-</TabItem>
-<TabItem value="ts" label="TypeScript">
-
-```ts title="src/apis.ts"
-export const validatePassword = (password: string) => password.length > 8 && /* ... */;
-```
-
-</TabItem>
-</Tabs>
-
-##### Caveats
-
-The `auto-js` and `with-hole` meta attributes are custom Docusaurus plugins that we wrote, implemented at
-[./src/remark/auto-js-code.ts](./src/remark/auto-js-code.ts) and [./src/remark/code-with-hole.ts](./src/remark/code-with-hole.ts).
-
-`auto-js` specifically is backed by [ts-blank-space](https://github.com/bloomberg/ts-blank-space), which will _only_ remove the
-type annotations and not process anything else. Thus, some edge-cases can arise, so we recommend to run `npm run start` and
-check the output JS in the browser to see if everything looks good.
-
-Known caveats are:
-- Run `prettier` on the code before pasting it in the document, as `auto-js` will enforce it.
-- Remember to add a `type` specifier to `import`s we don't want to appear in the JS
-- `// highlight-next-line` comment before a TS-only line will hang around and highlight the wrong line. Use `// highlight-start` and `// highlight-end` instead.
-- It doesn't replace file names' extensions in clarification comments (this is mostly unique to the tutorial pages).
+- The [Writing Guide](https://wasp.sh/docs/writingguide) is our style guide.
+- The [Writing Docs](./WRITING-DOCS.md) contains information about the specifics of our Wasp documentation (our structure and helpful plugins).
+- The [Docusaurus docs](https://docusaurus.io/docs/markdown-features) contain information about the extra features that Docusaurus provides in MDX files.
 
 ### Build
 
@@ -130,22 +47,22 @@ We deploy the website to Cloudflare Pages. When you want to deploy changes from 
 
 1. Make sure you have the `release` branch ready with all the changes you want to deploy.
 2. Check out the `deploy-web` branch:
-   ```
-   git checkout deploy-web
-   ```
+```
+git checkout deploy-web
+```
 3. Merge the `release` branch into `deploy-web`:
-   ```
-   git merge release
-   ```
+```
+git merge release
+```
 4. Push the `deploy-web` branch to the remote:
-   ```
-   git push
-   ```
+```
+git push
+```
 5. Cloudflare Pages will automatically pick up the changes and deploy them.
 6. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
-   ```
-   git checkout release
-   ```
+```
+git checkout release
+```
 
 The website should be live within a few minutes at https://wasp.sh.
 
@@ -159,7 +76,7 @@ We set up automatic deployment of docs from the `main` branch on Cloudflare Page
 
 We maintain docs for multiple versions of Wasp.
 
-Docusaurus docs on this: https://docusaurus.io/docs/versioning .
+Docusaurus docs on this: https://docusaurus.io/docs/versioning.
 
 Docusaurus recognizes "current" docs, which are docs in ./docs dir, and also
 individual versioned docs, which are docs under versioned_docs/{version}/.

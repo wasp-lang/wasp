@@ -15,6 +15,7 @@ import StrongPath (File, File', Path', Rel, relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows)
 import Wasp.Generator.Common
   ( ProjectRootDir,
@@ -42,7 +43,7 @@ genDockerfile spec = do
       ([relfile|Dockerfile|] :: Path' (Rel TemplatesDir) File')
       ( Just $
           object
-            [ "usingPrisma" .= not (null $ AS.getEntities spec),
+            [ "usingPrisma" .= hasEntities spec,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeVersion" .= show (getLowestNodeVersionUserAllows spec),
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
