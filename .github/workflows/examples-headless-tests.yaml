@@ -182,9 +182,7 @@ jobs:
           HEADLESS_TEST_MODE: dev
           DEBUG: pw:webserver,pw:browser*
         run: |
-          wasp-cli version
-          npm list
-          npx run-wasp-app
+          npx playwright test --config headless-tests/
           npm run test
 
       - name: Run Headless BUILD Tests for ${{ matrix.example }}
