@@ -1,10 +1,12 @@
 name: Restart Algolia crawler
 
+
+# Based on https://github.com/wasp-lang/wasp/tree/main/web#deployment
 on:
   workflow_dispatch:
   push:
     branches:
-      - deploy-web
+      - deploy-web 
 
 jobs:
   restart-crawler:
