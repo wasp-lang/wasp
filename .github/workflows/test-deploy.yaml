@@ -15,6 +15,16 @@ jobs:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       FLY_REGION: mia
     steps:
+
+      - name: Install Wasp
+        # TODO: I should use the currently built version, check with Franjo and Carlos.
+        # This will do for now.
+        run: |
+          curl -sSfL https://get.wasp.sh/installer.sh | sh -s
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+
       - name: Generate unique prefix
         id: generate_prefix
         run: echo "PREFIX=ci-$(openssl rand -hex 4)" >> $GITHUB_ENV
@@ -37,4 +47,4 @@ jobs:
 
       - name: Destroy Apps
         run: |
-          echo Running fly apps list -q | grep $PREFIX | xargs fly apps destroy -y
+          echo "Running fly apps list -q | grep $PREFIX | xargs fly apps destroy -y"
