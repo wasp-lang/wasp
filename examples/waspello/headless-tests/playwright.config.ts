@@ -47,7 +47,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `run-wasp-app ${HEADLESS_TEST_MODE} --path-to-app=../ --wasp-cli-cmd=${WASP_CLI_CMD}`,
+    command: `npx run-wasp-app ${HEADLESS_TEST_MODE} --path-to-app=../ --wasp-cli-cmd=${WASP_CLI_CMD}`,
 
     // Wait for the backend to start
     url: "http://localhost:3001",
