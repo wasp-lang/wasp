@@ -3,7 +3,7 @@ name: Test Wasp Deploy
 on:
   workflow_call:
     secrets:
-      fly-token:
+      fly-api-token:
         description: "Fly API token for deploying apps"
         required: true
 
@@ -11,11 +11,15 @@ jobs:
   echo_steps:
     runs-on: ubuntu-latest
     steps:
-      - name: Echo Deploying
+      - name: Secret sanity check
         run: |
-          echo Deploying with secret $TEST2
+          echo Passed in secret: $FLY_API_TOKEN_1
+          echo Injected secret: $FLY_API_TOKEN_2
         env:
-          TEST2: ${{ secrets.token }}
+          FLY_API_TOKEN_1: ${{ secrets.fly-api-token }}
+          FLY_API_TOKEN_2: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Echo Deploying
 
       - name: Echo Testing
         run: echo "Testing"
