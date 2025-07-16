@@ -100,17 +100,13 @@ jobs:
         if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
         with:
           node-version: lts/*
-      
-      - name: Generate cabal bin folder
-        if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ~/.cabal/bin
 
       - name: Build, package and install Wasp CLI
         if: steps.cache-wasp-cli.outputs.cache-hit != 'true'
         working-directory: waspc
         run: |
           ./run build:all
+          mkdir -p ~/.cabal/bin
           cabal install --installdir=~/.cabal/bin --install-method=copy
 
 
