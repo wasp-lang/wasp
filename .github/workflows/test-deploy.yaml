@@ -30,6 +30,10 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
 
+      - name: Compile TS packages and move it into the Cabal data dir
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
+        run: ./run/install
+
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
