@@ -17,11 +17,11 @@ jobs:
       
     steps:
 
-      - name: Install Wasp
-        # TODO: I should use the currently built version, check with Franjo and Carlos.
-        # This will do for now.
-        run: |
-          curl -sSfL https://get.wasp.sh/installer.sh | sh -s
+      # - name: Install Wasp
+      #   # TODO: I should use the currently built version, check with Franjo and Carlos.
+      #   # This will do for now.
+      #   run: |
+      #     curl -sSfL https://get.wasp.sh/installer.sh | sh -s
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
@@ -57,6 +57,6 @@ jobs:
       - name: Destroy Apps
         run: |
           echo "prefix is $APP_PREFIX"
-          fly apps list -q
-          fly apps list -q | grep $APP_PREFIX
-          fly apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
+          flyctl apps list -q
+          flyctl apps list -q | grep $APP_PREFIX
+          flyctl apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
