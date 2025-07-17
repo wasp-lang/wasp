@@ -19,7 +19,7 @@ model User {
   tasks                Task[]
   address              String?
   votes                TaskVote[]
-  uppercaseTextRequest UppercaseTextRequest[]
+  uppercaseTextRequests UppercaseTextRequest[]
 }
 
 enum TaskVisibility {
