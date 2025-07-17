@@ -48,11 +48,12 @@ jobs:
         # Same problem with setting env var
         run: |
           echo "Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}"
-          echo "Fly token: ${{ secrets.FLY_API_TOKEN }}"
+          echo "Fly token: ${{ secrets.FLY_API_TOKEN }}, $FLY_API_TOKEN"
+          wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Echo Testing
         run: echo "Testing"
 
       - name: Destroy Apps
         run: |
-          echo "Running fly apps list -q | grep $APP_PREFIX | xargs fly apps destroy -y"
+          echo "Running fly apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y"
