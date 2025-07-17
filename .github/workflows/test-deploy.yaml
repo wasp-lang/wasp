@@ -30,8 +30,8 @@ jobs:
         id: generate_prefix
         run: echo "APP_PREFIX=ci-$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_ENV
 
-      # - name: Secret sanity check
-      #   run: echo "Passed in secret -> $FLY_API_TOKEN"
+      - name: Secret sanity check
+        run: echo "Passed in secret -> $FLY_API_TOKEN"
       #
       # - name: Checkout repo
       #   uses: actions/checkout@v4
