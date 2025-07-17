@@ -419,6 +419,8 @@ library
     Wasp.Psl.Parser.Argument
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
+    Wasp.Psl.Parser.Common.Language
+    Wasp.Psl.Parser.Common.Token
     Wasp.Psl.Parser.ConfigBlock
     Wasp.Psl.Parser.Enum
     Wasp.Psl.Parser.Model
