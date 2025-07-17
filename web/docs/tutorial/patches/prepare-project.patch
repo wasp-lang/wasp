@@ -1,3 +1,19 @@
+diff --git a/main.wasp b/main.wasp
+index 1b1bd08..a5f1899 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -2,10 +2,7 @@ app TodoApp {
+   wasp: {
+     version: "^0.17.0"
+   },
+-  title: "TodoApp",
+-  head: [
+-    "<link rel='icon' href='/favicon.ico' />",
+-  ]
++  title: "TodoApp"
+ }
+ 
+ route RootRoute { path: "/", to: MainPage }
 diff --git a/src/Main.css b/src/Main.css
 deleted file mode 100644
 index 9e93c7a..0000000
@@ -108,11 +124,10 @@ index 9e93c7a..0000000
 -    monospace;
 -}
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-deleted file mode 100644
-index bdb62b3..0000000
+index bdb62b3..144163a 100644
 --- a/src/MainPage.tsx
-+++ /dev/null
-@@ -1,37 +0,0 @@
++++ b/src/MainPage.tsx
+@@ -1,37 +1,3 @@
 -import Logo from "./assets/logo.svg";
 -import "./Main.css";
 -
@@ -150,6 +165,9 @@ index bdb62b3..0000000
 -    </main>
 -  );
 -}
++export const MainPage = () => {
++  return <div>Hello world!</div>;
++};
 diff --git a/src/assets/logo.svg b/src/assets/logo.svg
 deleted file mode 100644
 index faa99ae..0000000

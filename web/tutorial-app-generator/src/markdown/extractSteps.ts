@@ -64,7 +64,7 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
     }
 
     const commonActionData: ActionCommon = {
-      step,
+      stepName: step,
       markdownSourceFilePath: filePath,
     };
 

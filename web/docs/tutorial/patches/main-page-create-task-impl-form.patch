@@ -1,62 +1,18 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 556e1a2..eb804b9 100644
+index addc7ba..3f1732f 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -1,21 +1,21 @@
--import type { Task } from 'wasp/entities'
--// highlight-next-line
--import { getTasks, useQuery } from 'wasp/client/operations'
+@@ -1,4 +1,5 @@
+-import { getTasks, useQuery } from "wasp/client/operations";
 +import type { FormEvent } from "react";
 +import { createTask, getTasks, useQuery } from "wasp/client/operations";
-+import type { Task } from "wasp/entities";
+ import type { Task } from "wasp/entities";
  
  export const MainPage = () => {
-   // highlight-start
--  const { data: tasks, isLoading, error } = useQuery(getTasks)
-+  const { data: tasks, isLoading, error } = useQuery(getTasks);
- 
-   return (
-     <div>
-       {tasks && <TasksList tasks={tasks} />}
- 
--      {isLoading && 'Loading...'}
--      {error && 'Error: ' + error}
-+      {isLoading && "Loading..."}
-+      {error && "Error: " + error}
+@@ -34,3 +35,24 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
      </div>
--  )
-+  );
-   // highlight-end
--}
-+};
- 
- // highlight-start
- const TaskView = ({ task }: { task: Task }) => {
-@@ -24,11 +24,11 @@ const TaskView = ({ task }: { task: Task }) => {
-       <input type="checkbox" id={String(task.id)} checked={task.isDone} />
-       {task.description}
-     </div>
--  )
--}
-+  );
-+};
- 
- const TasksList = ({ tasks }: { tasks: Task[] }) => {
--  if (!tasks?.length) return <div>No tasks</div>
-+  if (!tasks?.length) return <div>No tasks</div>;
- 
-   return (
-     <div>
-@@ -36,6 +36,26 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
-         <TaskView task={task} key={idx} />
-       ))}
-     </div>
--  )
--}
--// highlight-end
-\ No newline at end of file
-+  );
-+};
+   );
+ };
 +
 +const NewTaskForm = () => {
 +  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

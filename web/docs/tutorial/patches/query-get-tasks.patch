@@ -1,14 +1,11 @@
 diff --git a/main.wasp b/main.wasp
-index 6b4593c..c3df1d1 100644
+index a5f1899..c3df1d1 100644
 --- a/main.wasp
 +++ b/main.wasp
-@@ -8,4 +8,14 @@ app TodoApp {
- route RootRoute { path: "/", to: MainPage }
+@@ -9,3 +9,13 @@ route RootRoute { path: "/", to: MainPage }
  page MainPage {
    component: import { MainPage } from "@src/MainPage"
--}
-\ No newline at end of file
-+}
+ }
 +
 +query getTasks {
 +  // Specifies where the implementation for the query function is.

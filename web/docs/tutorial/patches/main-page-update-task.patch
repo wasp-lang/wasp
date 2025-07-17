@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index cd11965..6c618ef 100644
+index 44c52c8..ec559d7 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,5 +1,10 @@
@@ -15,9 +15,9 @@ index cd11965..6c618ef 100644
  import type { Task } from "wasp/entities";
  
  export const MainPage = () => {
-@@ -20,9 +25,25 @@ export const MainPage = () => {
+@@ -17,9 +22,25 @@ export const MainPage = () => {
+ };
  
- // highlight-start
  const TaskView = ({ task }: { task: Task }) => {
 +  const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
 +    try {

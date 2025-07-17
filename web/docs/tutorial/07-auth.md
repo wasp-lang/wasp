@@ -106,7 +106,7 @@ Great, Wasp now knows these pages exist!
 
 Here's the React code for the pages you've just imported:
 
-<TutorialAction step="login-page-initial" action="write" path="src/LoginPage.tsx">
+<TutorialAction step="login-page-initial" action="diff" />
 
 ```tsx title="src/LoginPage.tsx" auto-js
 import { Link } from "react-router-dom";
@@ -125,11 +125,9 @@ export const LoginPage = () => {
 };
 ```
 
-</TutorialAction>
-
 The signup page is very similar to the login page:
 
-<TutorialAction step="signup-page-initial" action="write" path="src/SignupPage.tsx">
+<TutorialAction step="signup-page-initial" action="diff" />
 
 ```tsx title="src/SignupPage.tsx" auto-js
 import { Link } from "react-router-dom";
@@ -147,8 +145,6 @@ export const SignupPage = () => {
   );
 };
 ```
-
-</TutorialAction>
 
 <ShowForTs>
   :::tip Type-safe links

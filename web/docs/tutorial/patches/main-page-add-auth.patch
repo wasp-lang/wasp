@@ -1,5 +1,5 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 6c618ef..decefb6 100644
+index ec559d7..bc435c6 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,4 +1,5 @@
@@ -14,6 +14,6 @@ index 6c618ef..decefb6 100644
  
 -export const MainPage = () => {
 +export const MainPage = ({ user }: { user: AuthUser }) => {
-   // highlight-start
    const { data: tasks, isLoading, error } = useQuery(getTasks);
  
+   return (
