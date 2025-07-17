@@ -30,34 +30,28 @@ startServer config =
   runProcessAsJob
     ( proc
         "docker"
-        ( [ "run",
-            "--name",
-            dockerContainerName,
-            "--rm",
-            "--network",
-            "host"
-          ]
-            <> allEnvVarArgs
+        ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
+            <> envVarArgs
             <> [dockerImageName]
         )
     )
     J.Server
     & toExceptJob (("Running the server failed with exit code: " <>) . show)
   where
-    allEnvVarArgs =
+    envVarArgs =
       [ "--env",
         Server.clientUrlEnvVarName <> "=" <> clientUrl,
         "--env",
         Server.serverUrlEnvVarName <> "=" <> serverUrl
       ]
-        <> extraEnvFileParamsFromConfig
-        <> extraEnvParamsFromConfig
+        <> userDefinedEnvFileParams
+        <> userDefinedEnvParams
 
-    extraEnvParamsFromConfig =
+    userDefinedEnvParams =
       Config.serverEnvironmentVariables config
         >>= \envVar -> ["--env", envVar]
 
-    extraEnvFileParamsFromConfig =
+    userDefinedEnvFileParams =
       Config.serverEnvironmentFiles config
         >>= \envFile -> ["--env-file", envFile]
 
