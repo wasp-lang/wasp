@@ -17,11 +17,11 @@ jobs:
       
     steps:
 
-      # - name: Install Wasp
-      #   # TODO: I should use the currently built version, check with Franjo and Carlos.
-      #   # This will do for now.
-      #   run: |
-      #     curl -sSfL https://get.wasp.sh/installer.sh | sh -s
+      - name: Install Wasp
+        # TODO: I should use the currently built version, check with Franjo and Carlos.
+        # This will do for now.
+        run: |
+          curl -sSfL https://get.wasp.sh/installer.sh | sh -s
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
@@ -32,29 +32,31 @@ jobs:
 
       - name: Secret sanity check
         run: echo "Passed in secret -> $FLY_API_TOKEN"
-      #
-      # - name: Checkout repo
-      #   uses: actions/checkout@v4
-      #
-      # - name: Prepare Server Secrets
-      #   id: prepare_secrets
-      #   working-directory: waspc/examples/todoApp
-      #   run: |
-      #     echo "ENV_VARS=$(cat .env.server.headless | sed -E 's/#.*//' | awk 'NF {$1=$1;print}' | sed -E 's/^/--server-secret /' | paste -sd' ')" >> $GITHUB_ENV
-      #
-      # - name: Deploy Kitchen sink app
-      #   working-directory: waspc/examples/todoApp
-      #   # FIXME: Don't run this before sorting out the secret situation - it will output secrets (DB connection string).
-      #   # Same problem with setting env var
-      #   run: |
-      #     echo "Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}"
-      #     echo "Fly token: ${{ secrets.FLY_API_TOKEN }}, $FLY_API_TOKEN"
-      #     yes | wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Prepare Server Secrets
+        id: prepare_secrets
+        working-directory: waspc/examples/todoApp
+        run: |
+          echo "ENV_VARS=$(cat .env.server.headless | sed -E 's/#.*//' | awk 'NF {$1=$1;print}' | sed -E 's/^/--server-secret /' | paste -sd' ')" >> $GITHUB_ENV
+
+      - name: Deploy Kitchen sink app
+        working-directory: waspc/examples/todoApp
+        # FIXME: Don't run this before sorting out the secret situation - it will output secrets (DB connection string).
+        # Same problem with setting env var
+        run: |
+          echo "Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}"
+          echo "Fly token: ${{ secrets.FLY_API_TOKEN }}, $FLY_API_TOKEN"
+          yes | wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Echo Testing
-        run: echo "Testing"
+        run:
+          echo "Testing the app"
+          curl ${APP_PREFIX}-client.fly.dev
+          curl -X POST "https://${APP_PREFIX}-server.fly.dev/operations/get-date"
 
       - name: Destroy Apps
         run: |
-          PREFIX=ci-local
-          flyctl apps list -q | grep "$PREFIX" | xargs flyctl apps destroy -y
+          flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
