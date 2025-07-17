@@ -33,7 +33,21 @@ jobs:
       - name: Secret sanity check
         run: echo "Passed in secret -> $FLY_API_TOKEN"
 
-      - name: Deploy App
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Prepare Server Secrets
+        id: prepare_secrets
+        working-directory: waspc/examples/todoApp
+        run: |
+          echo "Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.SERVER_SECRETS }}"
+          echo "Fly token: ${{ secrets.FLY_API_TOKEN }}"
+          echo "ENV_VARS=$(cat .env.server.headless | sed -E 's/#.*//' | awk 'NF {$1=$1;print}' | sed -E 's/^/--server-secret /' | paste -sd' ')" >> $GITHUB_ENV
+
+      - name: Deploy Kitchen sink app
+        working-directory: waspc/examples/todoApp
+        # FIXME: Don't run this before sorting out the secret situation - it will output secrets (DB connection string).
+        # Same problem with setting env var
         run: |
           echo Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp
 
