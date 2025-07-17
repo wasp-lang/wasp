@@ -36,6 +36,7 @@ jobs:
         id: prepare_secrets
         working-directory: waspc/examples/todoApp
         run: |
+          # TODO: Explain the assumptinos and the fragility of this
           echo "ENV_VARS=$(cat .env.server.headless | sed -E 's/#.*//' | awk 'NF {$1=$1;print}' | sed -E 's/^/--server-secret /' | paste -sd' ')" >> $GITHUB_ENV
 
       - name: Deploy Kitchen sink app
