@@ -1,14 +1,22 @@
 import { chalk } from "zx";
 
+import type { AppDirPath, PatchesDirPath } from "../brandedTypes";
 import { ensureDirExists } from "../files";
 import { tagChanges } from "../git";
 import { log } from "../log";
-import { appDir, patchesDir } from "../project";
 import { waspDbMigrate } from "../waspCli";
 import { type Action } from "./actions";
 import { applyPatch, tryToFixPatch } from "./patch";
 
-export async function executeSteps(actions: Action[]): Promise<void> {
+export async function executeSteps({
+  appDir,
+  patchesDir,
+  actions,
+}: {
+  appDir: AppDirPath;
+  patchesDir: PatchesDirPath;
+  actions: Action[];
+}): Promise<void> {
   for (const action of actions) {
     const kind = action.kind;
     log("info", `${chalk.bold(`[step ${action.stepName}]`)} ${kind}`);

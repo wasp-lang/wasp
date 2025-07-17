@@ -2,21 +2,24 @@ import fs from "fs/promises";
 import path from "path";
 
 import Enquirer from "enquirer";
+import parseGitDiff from "parse-git-diff";
 import { $ } from "zx";
 
-import parseGitDiff from "parse-git-diff";
-
+import type { AppDirPath, PatchContentPath } from "../brandedTypes";
 import { doesFileExist } from "../files";
 import { generatePatchFromChanges } from "../git";
 import { log } from "../log";
 import type { ApplyPatchAction } from "./actions";
 
-export async function applyPatch(appDir: string, patchContentPath: string) {
+export async function applyPatch(
+  appDir: AppDirPath,
+  patchContentPath: PatchContentPath,
+) {
   await $({ cwd: appDir })`git apply ${patchContentPath} --verbose`.quiet(true);
 }
 
 export async function tryToFixPatch(
-  appDir: string,
+  appDir: AppDirPath,
   action: ApplyPatchAction,
 ): Promise<void> {
   log("info", `Trying to fix patch for step: ${action.stepName}`);
@@ -27,13 +30,16 @@ export async function tryToFixPatch(
     await fs.unlink(patchPath);
   }
 
-  await createPatchForStep(appDir, action);
+  await createPatchForStep({ appDir, action });
 }
 
-export async function createPatchForStep(
-  appDir: string,
-  action: ApplyPatchAction,
-) {
+export async function createPatchForStep({
+  appDir,
+  action,
+}: {
+  appDir: AppDirPath;
+  action: ApplyPatchAction;
+}) {
   await Enquirer.prompt({
     type: "confirm",
     name: "edit",

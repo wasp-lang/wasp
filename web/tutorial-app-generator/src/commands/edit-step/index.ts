@@ -4,7 +4,8 @@ import { Command, Option } from "@commander-js/extra-typings";
 import { $ } from "zx";
 
 import Enquirer from "enquirer";
-import type { Action } from "../../executeSteps/actions";
+import type { AppDirPath } from "../../brandedTypes";
+import type { Action, ApplyPatchAction } from "../../executeSteps/actions";
 import { getActionsFromTutorialFiles } from "../../extractSteps";
 import { getCommitPatch } from "../../git";
 import { log } from "../../log";
@@ -22,35 +23,56 @@ export const editStepCommand = new Command("edit-step")
       throw new Error(`Step with name "${stepName}" not found.`);
     }
 
-    const fixesBranchName = "fixes";
-    await $({
-      cwd: appDir,
-    })`git switch -c ${fixesBranchName} ${action.stepName}`;
+    if (action.kind !== "apply-patch") {
+      throw new Error(`Step "${stepName}" is not an editable step.`);
+    }
 
-    await Enquirer.prompt({
-      type: "confirm",
-      name: "edit",
-      message: `Apply edit for step "${action.stepName}" and press Enter`,
-      initial: true,
-    });
-
-    await $({ cwd: appDir })`git add .`;
-    await $({ cwd: appDir })`git commit --amend --no-edit`;
-    await $({ cwd: appDir })`git tag -f ${action.stepName}`;
-    await $({ cwd: appDir })`git switch ${mainBranchName}`;
-    await $({ cwd: appDir, throw: false })`git rebase ${fixesBranchName}`;
-
-    await Enquirer.prompt({
-      type: "confirm",
-      name: "issues",
-      message: `If there are any rebase issues, resolve them and press Enter to continue`,
-      initial: true,
-    });
+    await editStepPatch({ appDir, action });
 
     await extractCommitsIntoPatches(actions);
 
     log("success", `Edit completed for step ${action.stepName}!`);
   });
+
+async function editStepPatch({
+  appDir,
+  action,
+}: {
+  appDir: AppDirPath;
+  action: ApplyPatchAction;
+}): Promise<void> {
+  await $({ cwd: appDir })`git switch ${mainBranchName}`.quiet(true);
+
+  const fixesBranchName = "fixes";
+  // Clean up any existing fixes branch
+  await $({
+    cwd: appDir,
+    throw: false,
+  })`git branch --delete ${fixesBranchName}`;
+  await $({
+    cwd: appDir,
+  })`git switch -c ${fixesBranchName} ${action.stepName}`.quiet(true);
+
+  await Enquirer.prompt({
+    type: "confirm",
+    name: "edit",
+    message: `Apply edit for step "${action.stepName}" and press Enter`,
+    initial: true,
+  });
+
+  await $({ cwd: appDir })`git add .`;
+  await $({ cwd: appDir })`git commit --amend --no-edit`;
+  await $({ cwd: appDir })`git tag -f ${action.stepName}`;
+  await $({ cwd: appDir })`git switch ${mainBranchName}`;
+  await $({ cwd: appDir, throw: false })`git rebase ${fixesBranchName}`;
+
+  await Enquirer.prompt({
+    type: "confirm",
+    name: "issues",
+    message: `If there are any rebase issues, resolve them and press Enter to continue`,
+    initial: true,
+  });
+}
 
 async function extractCommitsIntoPatches(actions: Action[]): Promise<void> {
   for (const action of actions) {

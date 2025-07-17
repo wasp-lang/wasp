@@ -12,6 +12,7 @@ import {
   type Action,
   type ActionCommon,
 } from "../executeSteps/actions.js";
+import { log } from "../log.js";
 
 const componentName = "TutorialAction";
 
@@ -29,12 +30,12 @@ export async function getActionsFromTutorialFiles(): Promise<Action[]> {
     );
   const actions: Action[] = [];
   for (const file of files) {
-    console.log(`Processing file: ${file}`);
     const fileActions = await getActionsFromMarkdownFile(
       path.resolve("../docs/tutorial", file),
     );
     actions.push(...fileActions);
   }
+  log("success", `Found ${actions.length} actions in tutorial files.`);
   return actions;
 }
 

@@ -1,4 +1,5 @@
 import path from "path";
+import type { PatchContentPath } from "../brandedTypes";
 
 export type ActionCommon = {
   stepName: string;
@@ -7,7 +8,7 @@ export type ActionCommon = {
 
 export type ApplyPatchAction = {
   kind: "apply-patch";
-  patchContentPath: string;
+  patchContentPath: PatchContentPath;
 } & ActionCommon;
 
 export type MigrateDbAction = {
@@ -27,7 +28,7 @@ export function createApplyPatchAction(
     "../docs/tutorial",
     "patches",
     `${markdownFileWithoutExt}__${commonActionData.stepName}.patch`,
-  );
+  ) as PatchContentPath;
 
   return {
     ...commonActionData,
