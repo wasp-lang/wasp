@@ -57,10 +57,7 @@ jobs:
       - name: Destroy Apps
         run: |
           echo "prefix is $APP_PREFIX"
-          which flyctl
-          flyctl version
-          flyctl apps list
           flyctl apps list -q
-          flyctl apps list -q | grep $APP_PREFIX
-          flyctl apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
+          flyctl apps list -q | grep wasp
+          # flyctl apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
           echo "dobri smo"
