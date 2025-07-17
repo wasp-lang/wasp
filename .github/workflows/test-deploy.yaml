@@ -56,4 +56,4 @@ jobs:
 
       - name: Destroy Apps
         run: |
-          flyctl apps list -q | grep $PREFIX | xargs fly apps destroy -y
+          flyctl apps list -q | grep $PREFIX | xargs flyctl apps destroy -y
