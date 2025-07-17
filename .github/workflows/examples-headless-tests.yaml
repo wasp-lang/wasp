@@ -1,0 +1,152 @@
+name: Run headless tests on root example apps
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/**"
+    branches:
+      - main
+      - release
+  pull_request:
+    # paths:
+    #   - "examples/**"
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup-and-cache-playwright:
+    name: Setup and Cache Playwright
+    runs-on: ubuntu-22.04
+    outputs:
+      playwright-version: ${{ steps.get-playwright-version.outputs.version }}
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Get Playwright Version from Waspello Example App
+        id: get-playwright-version
+        working-directory: examples/waspello
+        run: |
+          PLAYWRIGHT_VERSION=$(jq -r '.devDependencies["@playwright/test"]' package.json)
+          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+          echo "version=$PLAYWRIGHT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright Browsers for Playwright's Version
+        id: cache-playwright-browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ steps.get-playwright-version.outputs.version }}
+          lookup-only: true
+
+      - uses: actions/setup-node@v4
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+        with:
+          node-version: lts/*
+
+      - name: Setup Playwright
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+        run: |
+          npx playwright install --with-deps
+
+  test-example-apps:
+    name: Test Example Apps
+    runs-on: ubuntu-22.04
+    needs: setup-and-cache-playwright
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - tutorials/TodoApp
+          - tutorials/TodoAppTs
+          - waspello
+          - waspleau
+          - websockets-realtime-voting
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup-haskell
+        with:
+          ghc-version: "8.10.7"
+          cabal-version: "3.6.2.0"
+          cabal-project-dir: waspc
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Build and package
+        if: steps.cache-wasp-artifacts.outputs.cache-hit != 'true'
+        working-directory: waspc
+        run: |
+          ./run install
+
+      - name: Restore Playwright Browsers Cache
+        uses: actions/cache/restore@v4
+        with:
+          key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
+          path: ~/.cache/ms-playwright
+
+      - name: Set up Wasp App runner
+        run: npm i -g @wasp.sh/wasp-app-runner
+
+      - name: Install Dependencies for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          npm ci
+          if [ -f ".env.server.headless" ]; then
+            cp .env.server.headless .env.server
+          fi
+
+      - name: Extract Database Provider
+        id: extract-db-provider
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          DATABASE_PROVIDER=$(wasp-cli info \
+            | grep "Database system" \
+            | sed 's/.*: //' \
+            | sed -e 's/\x1b\[[0-9;]*m//g' \
+            | tr '[:upper:]' '[:lower:]')
+
+          if [ -z "$DATABASE_PROVIDER" ]; then
+            echo "ERROR: Could not determine database system from wasp-cli info"
+            exit 1
+          fi
+
+          echo "Database provider: $DATABASE_PROVIDER"
+          echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
+
+      - name: Run Headless DEV Tests for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        env:
+          WASP_CLI_CMD: wasp-cli
+          HEADLESS_TEST_MODE: dev
+        run: |
+          npm run test
+
+      - name: Run Headless BUILD Tests for ${{ matrix.example }}
+        if: steps.extract-db-provider.outputs.provider != 'sqlite'
+        working-directory: examples/${{ matrix.example }}
+        env:
+          WASP_CLI_CMD: wasp-cli
+          HEADLESS_TEST_MODE: build
+        run: |
+          npm run test
