@@ -11,7 +11,10 @@ const app = express()
 // NOTE: Middleware are installed on a per-router or per-route basis.
 
 app.use('/', indexRouter)
-
+app.use((_req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  next()
+})
 // Custom error handler.
 app.use((err, _req, res, next) => {
   // As by expressjs documentation, when the headers have already
