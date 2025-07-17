@@ -25,12 +25,9 @@ jobs:
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - name: Generate unique prefix
+      - name: Generate unique prefix based on commit
         id: generate_prefix
         run: echo "APP_PREFIX=ci-$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_ENV
-
-      - name: Secret sanity check
-        run: echo "Passed in secret -> $FLY_API_TOKEN"
 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -60,12 +57,12 @@ jobs:
           echo "SERVER_HOSTNAME=$(get_hostname fly-server.toml)" >> $GITHUB_ENV
           echo "CLIENT_HOSTNAME=$(get_hostname fly-client.toml)" >> $GITHUB_ENV
 
-      - name: Echo Testing
+      - name: Verify app is functional
         run: |
           echo "Testing the app"
           curl -X POST https://$SERVER_HOSTNAME/operations/get-date
           curl https://$CLIENT_HOSTNAME
 
-      - name: Destroy Apps
+      - name: Clean up testing app
         run: |
           flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
