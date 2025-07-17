@@ -19,8 +19,8 @@ type Config = {
   {=/ isAuthEnabled =}
 }
 
-const frontendUrl = stripTrailingSlash(env.WASP_WEB_CLIENT_URL)
-const serverUrl = stripTrailingSlash(env.WASP_SERVER_URL)
+const frontendUrl = stripTrailingSlash(env["{= clientUrlEnvVarName =}"])
+const serverUrl = stripTrailingSlash(env["{= serverUrlEnvVarName =}"])
 
 const allowedCORSOriginsPerEnv: Record<NodeEnv, string | string[]> = {
   development: '*',
@@ -38,7 +38,7 @@ const config: Config = {
   databaseUrl: env.{= databaseUrlEnvVarName =},
   {=# isAuthEnabled =}
   auth: {
-    jwtSecret: env.JWT_SECRET
+    jwtSecret: env["{= jwtSecretEnvVarName =}"]
   }
   {=/ isAuthEnabled =}
 }
