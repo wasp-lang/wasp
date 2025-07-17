@@ -15,12 +15,20 @@ jobs:
       FLY_REGION: mia
 
     steps:
+      # - name: Install Wasp
+      #   # TODO: I should use the currently built version, check with Franjo and Carlos.
+      #   # This will do for now.
+      #   run: |
+      #     curl -sSfL https://get.wasp.sh/installer.sh | sh -s
 
-      - name: Install Wasp
-        # TODO: I should use the currently built version, check with Franjo and Carlos.
-        # This will do for now.
-        run: |
-          curl -sSfL https://get.wasp.sh/installer.sh | sh -s
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Haskell
+        uses: ./.github/actions/setup-haskell
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
@@ -28,9 +36,6 @@ jobs:
       - name: Generate unique prefix based on commit
         id: generate_prefix
         run: echo "APP_PREFIX=ci-$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_ENV
-
-      - name: Checkout repo
-        uses: actions/checkout@v4
 
       - name: Prepare Server Secrets
         id: prepare_secrets
@@ -43,9 +48,7 @@ jobs:
         working-directory: waspc/examples/todoApp
         # NOTE: Github knows not to output the db connection string, how?
         run: |
-          echo "Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}"
-          echo "Fly token: ${{ secrets.FLY_API_TOKEN }}, $FLY_API_TOKEN"
-          yes | wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
+          yes | ../../run wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Save deployed app info
         working-directory: waspc/examples/todoApp
