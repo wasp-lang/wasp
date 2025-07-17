@@ -56,4 +56,4 @@ jobs:
 
       - name: Destroy Apps
         run: |
-          echo "Running fly apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y"
+          fly apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
