@@ -1,11 +1,11 @@
+import { Command } from "@commander-js/extra-typings";
 import { $ } from "zx";
 
-import { Command } from "@commander-js/extra-typings";
 import { executeSteps } from "../../executeSteps";
 import type { Action } from "../../executeSteps/actions";
 import { getActionsFromTutorialFiles } from "../../extractSteps";
 import { log } from "../../log";
-import { appDir } from "../../paths";
+import { appDir, mainBranchName } from "../../project";
 import { waspNew } from "../../waspCli";
 
 export const generateAppCommand = new Command("generate-app")
@@ -22,5 +22,9 @@ async function prepareApp() {
   await $`rm -rf ${appDir}`;
   await waspNew(appDir);
   // Git needs to be initialized for patches to work
-  await $`cd ${appDir} && git init && git add . && git commit -m "Initial commit"`;
+  await $({ cwd: appDir })`git init`.quiet(true);
+  await $({ cwd: appDir })`git branch -m ${mainBranchName}`;
+  await $({ cwd: appDir })`git add .`;
+  await $({ cwd: appDir })`git commit -m "Initial commit"`;
+  log("info", "Tutorial app directory has been initialized");
 }

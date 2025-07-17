@@ -6,12 +6,13 @@ import { $ } from "zx";
 
 import parseGitDiff from "parse-git-diff";
 
+import { doesFileExist } from "../files";
 import { generatePatchFromChanges } from "../git";
 import { log } from "../log";
 import type { ApplyPatchAction } from "./actions";
 
 export async function applyPatch(appDir: string, patchContentPath: string) {
-  await $`cd ${appDir} && git apply ${patchContentPath} --verbose`.quiet(true);
+  await $({ cwd: appDir })`git apply ${patchContentPath} --verbose`.quiet(true);
 }
 
 export async function tryToFixPatch(
@@ -21,7 +22,7 @@ export async function tryToFixPatch(
   log("info", `Trying to fix patch for step: ${action.stepName}`);
 
   const patchPath = path.resolve(appDir, action.patchContentPath);
-  if (await fs.stat(patchPath).catch(() => false)) {
+  if (await doesFileExist(patchPath)) {
     log("info", `Removing existing patch file: ${patchPath}`);
     await fs.unlink(patchPath);
   }

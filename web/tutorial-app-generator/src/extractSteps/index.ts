@@ -7,7 +7,6 @@ import { mdxJsxFromMarkdown, type MdxJsxFlowElement } from "mdast-util-mdx-jsx";
 import { mdxJsx } from "micromark-extension-mdx-jsx";
 import { visit } from "unist-util-visit";
 
-import searchAndReplace from "../../../src/remark/search-and-replace.js";
 import {
   createApplyPatchAction,
   type Action,
@@ -31,7 +30,7 @@ export async function getActionsFromTutorialFiles(): Promise<Action[]> {
   const actions: Action[] = [];
   for (const file of files) {
     console.log(`Processing file: ${file}`);
-    const fileActions = await getActionsFromFile(
+    const fileActions = await getActionsFromMarkdownFile(
       path.resolve("../docs/tutorial", file),
     );
     actions.push(...fileActions);
@@ -39,7 +38,7 @@ export async function getActionsFromTutorialFiles(): Promise<Action[]> {
   return actions;
 }
 
-async function getActionsFromFile(filePath: string): Promise<Action[]> {
+async function getActionsFromMarkdownFile(filePath: string): Promise<Action[]> {
   const actions = [] as Action[];
   const doc = await fs.readFile(path.resolve(filePath));
 
@@ -47,10 +46,6 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
     extensions: [mdxJsx({ acorn, addResult: true })],
     mdastExtensions: [mdxJsxFromMarkdown()],
   });
-
-  // TODO: figure this out
-  // @ts-ignore
-  searchAndReplace.visitor(ast);
 
   visit(ast, "mdxJsxFlowElement", (node) => {
     if (node.name !== componentName) {

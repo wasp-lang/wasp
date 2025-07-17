@@ -1,8 +1,9 @@
 import { chalk } from "zx";
 
-import { commitAllChangesUnderTag } from "../git";
+import { ensureDirExists } from "../files";
+import { tagChanges } from "../git";
 import { log } from "../log";
-import { appDir, ensureDirExists, patchesDir } from "../paths";
+import { appDir, patchesDir } from "../project";
 import { waspDbMigrate } from "../waspCli";
 import { type Action } from "./actions";
 import { applyPatch, tryToFixPatch } from "./patch";
@@ -37,6 +38,6 @@ export async function executeSteps(actions: Action[]): Promise<void> {
       log("error", `Error in step ${action.stepName}:\n\n${err}`);
       process.exit(1);
     }
-    await commitAllChangesUnderTag(appDir, action.stepName);
+    await tagChanges(appDir, action.stepName);
   }
 }
