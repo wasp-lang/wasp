@@ -49,7 +49,7 @@ jobs:
         run: |
           echo "Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}"
           echo "Fly token: ${{ secrets.FLY_API_TOKEN }}, $FLY_API_TOKEN"
-          wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
+          yes | wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Echo Testing
         run: echo "Testing"
