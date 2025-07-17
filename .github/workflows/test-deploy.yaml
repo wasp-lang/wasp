@@ -11,10 +11,9 @@ jobs:
   echo_steps:
     runs-on: ubuntu-latest
     env:
-      # TODO: When exactly does this get passed in automatically? I'm guessing whenever the workflow is called on its own (and not as a reusable workflow).
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       FLY_REGION: mia
-      
+
     steps:
 
       - name: Install Wasp
@@ -51,7 +50,7 @@ jobs:
           yes | wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Save deployed app info
-        id: app-info
+        working-directory: waspc/examples/todoApp
         run: |
           get_hostname () { 
             local config_file="$1"
