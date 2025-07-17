@@ -19,12 +19,40 @@ export function TutorialAction({
 }>) {
   return process.env.NODE_ENV === "production" ? (
     children
-  ) : (
-    <div className="mb-4 flex flex-col gap-4 rounded border border-red-500 p-4">
-      <div>
-        Step <strong>{step}</strong> ({action})
+  ) : action === "write" ? (
+    <div className="relative mb-4 rounded border border-red-500 p-4">
+      <div className="absolute right-1 top-1">
+        <TutorialActionStep step={step} action={action} />
       </div>
-      {action === "write" && children}
+      {children}
+    </div>
+  ) : (
+    <div className="mb-4">
+      <TutorialActionStep step={step} action={action} />
+    </div>
+  );
+}
+
+function TutorialActionStep({
+  step,
+  action,
+}: {
+  step: string;
+  action: Action;
+}) {
+  return (
+    <div className="flex gap-2">
+      <div className="rounded bg-gray-500 px-2 py-1 text-xs font-bold text-white">
+        tutorial action: {action}
+      </div>
+      <div
+        className="cursor-pointer rounded bg-red-500 px-2 py-1 text-xs font-bold text-white active:bg-red-600"
+        onClick={() => {
+          navigator.clipboard.writeText(step);
+        }}
+      >
+        {step}
+      </div>
     </div>
   );
 }
