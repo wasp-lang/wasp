@@ -19,7 +19,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.ServerGenerator.AuthG (jwtSecretEnvVarName)
+import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
@@ -61,7 +61,7 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
         [ "isAuthEnabled" .= isJust maybeAuth,
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
-          "jwtSecretEnvVarName" .= jwtSecretEnvVarName,
+          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
