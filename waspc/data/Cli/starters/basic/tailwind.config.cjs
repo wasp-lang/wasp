@@ -1,4 +1,5 @@
-import { resolveProjectPath } from "wasp/dev";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { resolveProjectPath } = require('wasp/dev')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
