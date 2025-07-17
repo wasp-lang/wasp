@@ -44,18 +44,28 @@ jobs:
 
       - name: Deploy Kitchen sink app
         working-directory: waspc/examples/todoApp
-        # FIXME: Don't run this before sorting out the secret situation - it will output secrets (DB connection string).
-        # Same problem with setting env var
+        # NOTE: Github knows not to output the db connection string, how?
         run: |
           echo "Running wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}"
           echo "Fly token: ${{ secrets.FLY_API_TOKEN }}, $FLY_API_TOKEN"
           yes | wasp deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
+      - name: Save deployed app info
+        id: app-info
+        run: |
+          get_hostname () { 
+            local config_file="$1"
+            flyctl status -j -c "$config_file" | jq -r '.Hostname'
+          }
+
+          echo "SERVER_HOSTNAME=$(get_hostname fly-server.toml)" >> $GITHUB_ENV
+          echo "CLIENT_HOSTNAME=$(get_hostname fly-client.toml)" >> $GITHUB_ENV
+
       - name: Echo Testing
-        run:
+        run: |
           echo "Testing the app"
-          curl ${APP_PREFIX}-client.fly.dev
-          curl -X POST "https://${APP_PREFIX}-server.fly.dev/operations/get-date"
+          curl -X POST https://$SERVER_HOSTNAME/operations/get-date
+          curl https://$CLIENT_HOSTNAME
 
       - name: Destroy Apps
         run: |
