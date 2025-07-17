@@ -24,36 +24,48 @@ export type MigrateDbAction = {
 
 export type Action = ApplyPatchAction | MigrateDbAction;
 
-export async function ensurePatchExists(
+export async function tryToFixPatch(
+  appDir: string,
+  action: ApplyPatchAction,
+): Promise<void> {
+  log("info", `Trying to fix patch for step: ${action.stepName}`);
+
+  const patchPath = path.resolve(appDir, action.patchContentPath);
+  if (await fs.stat(patchPath).catch(() => false)) {
+    log("info", `Removing existing patch file: ${patchPath}`);
+    await fs.unlink(patchPath);
+  }
+
+  await createPatchForStep(appDir, action);
+}
+
+export async function createPatchForStep(
   appDir: string,
   action: ApplyPatchAction,
 ) {
-  const patchPath = path.resolve(appDir, action.patchContentPath);
-  if (!(await fs.stat(patchPath).catch(() => false))) {
-    await Enquirer.prompt({
-      type: "confirm",
-      name: "edit",
-      message: `Apply edit for ${action.stepName} and press Enter`,
-      initial: true,
-    });
-    await commitStep(appDir, action.stepName);
-    const patch = await generateGitPatch(appDir, action.stepName);
-    await fs.writeFile(action.patchContentPath, patch, "utf-8");
-    log("info", `Patch file created: ${action.patchContentPath}`);
-  }
+  await Enquirer.prompt({
+    type: "confirm",
+    name: "edit",
+    message: `Apply edit for ${action.stepName} and press Enter`,
+    initial: true,
+  });
+  const patch = await generatePatchFromChanges(appDir);
+  await fs.writeFile(action.patchContentPath, patch, "utf-8");
+  log("info", `Patch file created: ${action.patchContentPath}`);
+
   assertValidPatchFile(action.patchContentPath);
 }
 
-function undoChanges(appDir: string) {
-  return $`cd ${appDir} && git reset --hard HEAD && git clean -fd`.quiet(true);
-}
-
-export async function generateGitPatch(
+export async function generatePatchFromChanges(
   appDir: string,
-  stepName: string,
 ): Promise<string> {
-  const { stdout: patch } =
-    await $`cd ${appDir} && git show --format= ${stepName}`.verbose(false);
+  const temporaryTagName = "temporary-patch-tag";
+  const { stdout: patch } = await $`cd ${appDir} &&
+    git add . &&
+    git commit -m "${temporaryTagName}" &&
+    git show --format= ${temporaryTagName}
+    git reset --hard HEAD~1
+    `.verbose(false);
   return patch;
 }
 

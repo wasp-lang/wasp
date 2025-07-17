@@ -56,7 +56,7 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
     if (node.name !== componentName) {
       return;
     }
-    const step = getStep(node);
+    const step = getAttributeValue(node, "step");
     const action = getAttributeValue(node, "action");
 
     if (!step || !action) {
@@ -74,44 +74,18 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
         kind: "migrate-db",
       });
       return;
-    }
-
-    if (action === "diff") {
+    } else if (action === "diff") {
       const patchAction = createApplyPatchAction(commonActionData);
       actions.push(patchAction);
       return;
     }
 
-    if (node.children.length !== 1) {
-      throw new Error(`${componentName} must have exactly one child`);
-    }
-
-    const childCode = node.children[0];
-    if (childCode === undefined || childCode.type !== "code") {
-      throw new Error(`${componentName} must have a code child`);
-    }
-
-    const codeBlockCode = childCode.value;
-
-    if (action === "write") {
-      const path = getAttributeValue(node, "path");
-      if (!path) {
-        throw new Error("Path attribute is required for write action");
-      }
-      actions.push({
-        ...commonActionData,
-        kind: "write",
-        content: codeBlockCode,
-        path,
-      });
-    }
+    throw new Error(
+      `Unknown action type: ${action} in file: ${filePath}, step: ${step}`,
+    );
   });
 
   return actions;
-}
-
-function getStep(node: MdxJsxFlowElement): string | null {
-  return getAttributeValue(node, "step");
 }
 
 function getAttributeValue(

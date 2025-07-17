@@ -1,14 +1,11 @@
-import fs from "fs/promises";
-
 import { chalk } from "zx";
 
 import {
   applyPatch,
   commitStep,
-  ensurePatchExists,
   migrateDb,
+  tryToFixPatch,
   type Action,
-  type ApplyPatchAction,
 } from "../actions";
 import { log } from "../log";
 import { appDir, ensureDirExists, patchesDir } from "../paths";
@@ -26,7 +23,6 @@ export async function executeSteps(actions: Action[]): Promise<void> {
         case "diff":
           try {
             await applyPatch(appDir, action.patchContentPath);
-            await commitStep(appDir, action.stepName);
           } catch (err) {
             log(
               "error",
@@ -37,7 +33,6 @@ export async function executeSteps(actions: Action[]): Promise<void> {
           break;
         case "migrate-db":
           await migrateDb(appDir, `step-${action.stepName}`);
-          await commitStep(appDir, action.stepName);
           break;
         default:
           kind satisfies never;
@@ -46,14 +41,6 @@ export async function executeSteps(actions: Action[]): Promise<void> {
       log("error", `Error in step ${action.stepName}:\n\n${err}`);
       process.exit(1);
     }
+    await commitStep(appDir, action.stepName);
   }
-}
-
-async function tryToFixPatch(
-  appDir: string,
-  action: ApplyPatchAction,
-): Promise<void> {
-  log("info", `Trying to fix patch ${action.patchContentPath}...`);
-  await fs.unlink(action.patchContentPath).catch(() => {});
-  await ensurePatchExists(appDir, action);
 }
