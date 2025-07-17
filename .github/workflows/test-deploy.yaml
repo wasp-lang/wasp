@@ -58,6 +58,8 @@ jobs:
         run: |
           echo "prefix is $APP_PREFIX"
           flyctl apps list -q
-          flyctl apps list -q | grep "$FLY_REGION"
-          # flyctl apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
+          PREFIX="ci-local"
+          flyctl apps list -q | grep "$PREFIX"
+          echo "Tu smo"
+          flyctl apps list -q | grep $PREFIX | xargs echo fly apps destroy -y
           echo "dobri smo"
