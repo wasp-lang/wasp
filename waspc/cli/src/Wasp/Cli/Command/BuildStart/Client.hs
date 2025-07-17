@@ -21,7 +21,7 @@ buildClient config chan = do
   buildClientWithExtraEnvVars config envVars chan
 
 buildClientWithExtraEnvVars :: BuildStartConfig -> [EnvVar] -> ExceptJob
-buildClientWithExtraEnvVars config envVars =
+buildClientWithExtraEnvVars config userDefinedEnvVars =
   runNodeCommandAsJobWithExtraEnv
     allEnvVars
     webAppDir
@@ -30,7 +30,7 @@ buildClientWithExtraEnvVars config envVars =
     J.WebApp
     & toExceptJob (("Building the client failed with exit code: " <>) . show)
   where
-    allEnvVars = nubEnvVars $ [("REACT_APP_API_URL", serverUrl)] <> envVars
+    allEnvVars = nubEnvVars $ [("REACT_APP_API_URL", serverUrl)] <> userDefinedEnvVars
 
     serverUrl = Config.serverUrl config
     webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir

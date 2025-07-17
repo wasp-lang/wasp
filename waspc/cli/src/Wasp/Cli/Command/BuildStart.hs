@@ -64,9 +64,9 @@ buildAndStartServerAndClient config = do
       (startServer config)
   where
     runAndPrintJob :: String -> ExceptJob -> Command ()
-    runAndPrintJob message job = do
+    runAndPrintJob errorMessage job = do
       liftIO (runAndPrintJobIO job)
-        >>= either (throwError . CommandError message) return
+        >>= either (throwError . CommandError errorMessage) return
 
     runAndPrintJobIO :: ExceptJob -> IO (Either String ())
     runAndPrintJobIO job = do
