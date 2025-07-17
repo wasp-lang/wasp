@@ -60,6 +60,7 @@ jobs:
           which flyctl
           flyctl version
           flyctl apps list
+          flyctl apps list -q
           flyctl apps list -q | grep $APP_PREFIX
           flyctl apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
           echo "dobri smo"
