@@ -4,7 +4,7 @@ title: 7. Adding Authentication
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
-import { TutorialAction } from '@site/src/components/TutorialAction';
+import { TutorialAction } from './TutorialAction';
 
 Most modern apps need a way to create and authenticate users. Wasp makes this as easy as possible with its first-class auth support.
 
@@ -109,20 +109,20 @@ Here's the React code for the pages you've just imported:
 <TutorialAction step="login-page-initial" action="write" path="src/LoginPage.tsx">
 
 ```tsx title="src/LoginPage.tsx" auto-js
-import { Link } from 'react-router-dom'
-import { LoginForm } from 'wasp/client/auth'
+import { Link } from "react-router-dom";
+import { LoginForm } from "wasp/client/auth";
 
 export const LoginPage = () => {
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
       <LoginForm />
       <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
     </div>
-  )
-}
+  );
+};
 ```
 
 </TutorialAction>
@@ -132,20 +132,20 @@ The signup page is very similar to the login page:
 <TutorialAction step="signup-page-initial" action="write" path="src/SignupPage.tsx">
 
 ```tsx title="src/SignupPage.tsx" auto-js
-import { Link } from 'react-router-dom'
-import { SignupForm } from 'wasp/client/auth'
+import { Link } from "react-router-dom";
+import { SignupForm } from "wasp/client/auth";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
       <SignupForm />
       <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
     </div>
-  )
-}
+  );
+};
 ```
 
 </TutorialAction>
@@ -179,13 +179,13 @@ Additionally, when `authRequired` is `true`, the page's React component will be 
 <TutorialAction step="main-page-add-auth" action="diff" />
 
 ```tsx title="src/MainPage.tsx" auto-js
-import type { AuthUser } from 'wasp/auth'
+import type { AuthUser } from "wasp/auth";
 
 // highlight-next-line
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // Do something with the user
   // ...
-}
+};
 ```
 
 Ok, time to test this out. Navigate to the main page (`/`) of the app. You'll get redirected to `/login`, where you'll be asked to authenticate.
@@ -256,42 +256,42 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 <TutorialAction step="query-add-auth" action="diff" />
 
 ```ts title="src/queries.ts" auto-js
-import type { Task } from 'wasp/entities'
+import type { Task } from "wasp/entities";
 // highlight-next-line
-import { HttpError } from 'wasp/server'
-import type { GetTasks } from 'wasp/server/operations'
+import { HttpError } from "wasp/server";
+import type { GetTasks } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   // highlight-start
   if (!context.user) {
-    throw new HttpError(401)
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.findMany({
     // highlight-next-line
     where: { user: { id: context.user.id } },
-    orderBy: { id: 'asc' },
-  })
-}
+    orderBy: { id: "asc" },
+  });
+};
 ```
 
 <TutorialAction step="action-add-auth" action="diff" />
 
 ```ts title="src/actions.ts" auto-js
-import type { Task } from 'wasp/entities'
+import type { Task } from "wasp/entities";
 // highlight-next-line
-import { HttpError } from 'wasp/server'
-import type { CreateTask, UpdateTask } from 'wasp/server/operations'
+import { HttpError } from "wasp/server";
+import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
-type CreateTaskPayload = Pick<Task, 'description'>
+type CreateTaskPayload = Pick<Task, "description">;
 
 export const createTask: CreateTask<CreateTaskPayload, Task> = async (
   args,
-  context
+  context,
 ) => {
   // highlight-start
   if (!context.user) {
-    throw new HttpError(401)
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.create({
@@ -300,10 +300,10 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
       // highlight-next-line
       user: { connect: { id: context.user.id } },
     },
-  })
-}
+  });
+};
 
-type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
+type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
 
 export const updateTask: UpdateTask<
   UpdateTaskPayload,
@@ -311,14 +311,14 @@ export const updateTask: UpdateTask<
 > = async (args, context) => {
   // highlight-start
   if (!context.user) {
-    throw new HttpError(401)
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.updateMany({
     where: { id: args.id, user: { id: context.user.id } },
     data: { isDone: args.isDone },
-  })
-}
+  });
+};
 ```
 
 :::note
@@ -346,7 +346,7 @@ Last, but not least, let's add the logout functionality:
 ```tsx title="src/MainPage.tsx" auto-js with-hole
 // ...
 // highlight-next-line
-import { logout } from 'wasp/client/auth'
+import { logout } from "wasp/client/auth";
 //...
 
 const MainPage = () => {
@@ -357,8 +357,8 @@ const MainPage = () => {
       // highlight-next-line
       <button onClick={logout}>Logout</button>
     </div>
-  )
-}
+  );
+};
 ```
 
 This is it, we have a working authentication system, and our Todo app is multi-user!

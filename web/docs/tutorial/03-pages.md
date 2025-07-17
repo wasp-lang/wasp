@@ -6,7 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
-import { TutorialAction } from '@site/src/components/TutorialAction';
+import { TutorialAction } from './TutorialAction';
 
 In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
 
@@ -43,12 +43,12 @@ Together, these declarations tell Wasp that when a user navigates to `/`, it sho
 Let's take a look at the React component referenced by the page declaration:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import waspLogo from './waspLogo.png'
-import './Main.css'
+import waspLogo from "./waspLogo.png";
+import "./Main.css";
 
 export const MainPage = () => {
   // ...
-}
+};
 ```
 
 This is a regular functional React component. It also uses the CSS file and a logo image that sit next to it in the `src` folder.
@@ -75,12 +75,12 @@ page HelloPage {
 When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router-dom` to access the `name` parameter:
 
 ```tsx title="src/HelloPage.tsx" auto-js
-import { useParams } from 'react-router-dom'
+import { useParams } from "react-router-dom";
 
 export const HelloPage = () => {
-  const { name } = useParams<'name'>()
-  return <div>Here's {name}!</div>
-}
+  const { name } = useParams<"name">();
+  return <div>Here's {name}!</div>;
+};
 ```
 
 Now you can visit `/hello/johnny` and see "Here's johnny!"
@@ -105,8 +105,8 @@ First, remove most of the code from the `MainPage` component:
 
 ```tsx title="src/MainPage.tsx" auto-js
 export const MainPage = () => {
-  return <div>Hello world!</div>
-}
+  return <div>Hello world!</div>;
+};
 ```
 
 </TutorialAction>

@@ -3,7 +3,7 @@ title: 4. Database Entities
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { TutorialAction } from '@site/src/components/TutorialAction';
+import { TutorialAction } from './TutorialAction';
 
 Entities are one of the most important concepts in Wasp and are how you define what gets stored in the database.
 
