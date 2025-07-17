@@ -56,10 +56,4 @@ jobs:
 
       - name: Destroy Apps
         run: |
-          echo "prefix is $APP_PREFIX"
-          flyctl apps list -q
-          PREFIX="ci-local"
-          flyctl apps list -q | grep "$PREFIX"
-          echo "Tu smo"
-          flyctl apps list -q | grep $PREFIX | xargs echo fly apps destroy -y
-          echo "dobri smo"
+          flyctl apps list -q | grep $PREFIX | xargs fly apps destroy -y
