@@ -19,10 +19,14 @@ export type Action = ApplyPatchAction | MigrateDbAction;
 export function createApplyPatchAction(
   commonActionData: ActionCommon,
 ): ApplyPatchAction {
+  const markdownFileWithoutExt = path.basename(
+    commonActionData.markdownSourceFilePath,
+    path.extname(commonActionData.markdownSourceFilePath),
+  );
   const patchContentPath = path.resolve(
     "../docs/tutorial",
     "patches",
-    `${commonActionData.stepName}.patch`,
+    `${markdownFileWithoutExt}__${commonActionData.stepName}.patch`,
   );
 
   return {

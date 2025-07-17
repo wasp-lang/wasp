@@ -2,6 +2,7 @@ import { chalk } from "zx";
 
 const colors = {
   info: chalk.blue,
+  success: chalk.green,
   error: chalk.red,
 };
 
