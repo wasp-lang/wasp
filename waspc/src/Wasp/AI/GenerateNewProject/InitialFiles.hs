@@ -22,7 +22,6 @@ import Wasp.AI.GenerateNewProject.Common
   )
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
 import Wasp.Project (WaspProjectDir)
-import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
 
@@ -116,13 +115,12 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
 generateBasePrismaFile :: NewProjectDetails -> (File, [PlanRule])
 generateBasePrismaFile newProjectDetails = (("schema.prisma", content), planRules)
   where
-    databaseUrlEnvVarNameText = T.pack databaseUrlEnvVarName
     content =
       [trimming|
       datasource db {
         provider = "sqlite"
-        // Wasp requires that the url is set to the ${databaseUrlEnvVarNameText} environment variable.
-        url      = env("${databaseUrlEnvVarNameText}")
+        // Wasp requires that the url is set to the DATABASE_URL environment variable.
+        url      = env("DATABASE_URL")
       }
 
       // Wasp requires the `prisma-client-js` generator to be present.

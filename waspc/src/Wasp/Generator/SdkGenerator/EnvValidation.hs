@@ -19,7 +19,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.ServerGenerator.AuthG (jwtSecretEnvVarName)
+import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
@@ -59,9 +59,9 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
-          "clientUrlEnvVarName" .= Server.clientUrlFromServerEnvVarName,
-          "serverUrlEnvVarName" .= Server.serverUrlFromServerEnvVarName,
-          "jwtSecretEnvVarName" .= jwtSecretEnvVarName,
+          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
+          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
+          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
@@ -82,7 +82,7 @@ genClientEnvSchema spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlFromClientEnvVarName,
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]

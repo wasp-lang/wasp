@@ -58,7 +58,7 @@ import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
-import Wasp.Generator.ServerGenerator.AuthG (jwtSecretEnvVarName)
+import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.DepVersions
@@ -253,7 +253,7 @@ genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
     relConfigFilePath = [relfile|client/config.ts|]
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlFromClientEnvVarName
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
         ]
 
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
@@ -282,9 +282,9 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "clientUrlEnvVarName" .= Server.clientUrlFromServerEnvVarName,
-          "serverUrlEnvVarName" .= Server.serverUrlFromServerEnvVarName,
-          "jwtSecretEnvVarName" .= jwtSecretEnvVarName,
+          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
+          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
+          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
 
