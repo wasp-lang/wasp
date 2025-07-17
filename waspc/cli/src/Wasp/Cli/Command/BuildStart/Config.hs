@@ -7,7 +7,6 @@ module Wasp.Cli.Command.BuildStart.Config
     dockerContainerName,
     dockerImageName,
     makeBuildStartConfig,
-    projectDir,
     serverEnvironmentFiles,
     serverEnvironmentVariables,
     serverUrl,
@@ -27,35 +26,37 @@ import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevCl
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
 
 data BuildStartConfig = BuildStartConfig
-  { _appName :: String,
+  { appUniqueId :: String,
     clientPortAndUrl :: (Int, String),
     serverEnvironmentVariables :: [String],
     serverEnvironmentFiles :: [FilePath],
     clientEnvironmentVariables :: [String],
     clientEnvironmentFiles :: [FilePath],
-    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
+    buildDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir)
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> BuildStartConfig
-makeBuildStartConfig appSpec args =
+makeBuildStartConfig appSpec args projectDir =
   BuildStartConfig
-    appName
-    (clientPort, clientUrl)
-    (Args.serverEnvironmentVariables args)
-    (Args.serverEnvironmentFiles args)
-    (Args.clientEnvironmentVariables args)
-    (Args.clientEnvironmentFiles args)
+    { appUniqueId = appUniqueId',
+      clientPortAndUrl = (clientPort, clientUrl),
+      serverEnvironmentVariables = Args.serverEnvironmentVariables args,
+      serverEnvironmentFiles = Args.serverEnvironmentFiles args,
+      clientEnvironmentVariables = Args.clientEnvironmentVariables args,
+      clientEnvironmentFiles = Args.clientEnvironmentFiles args,
+      buildDir = buildDir'
+    }
   where
+    buildDir' = projectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
+
+    appUniqueId' = makeAppUniqueId projectDir appName
+
     (appName, _) = ASV.getApp appSpec
 
     -- This assumes that `getDefaultDevClientUrl` uses `defaultClientPort` internally.
     -- If that changes, we also need to change this.
     clientPort = defaultClientPort
     clientUrl = getDefaultDevClientUrl appSpec
-
-buildDir :: BuildStartConfig -> SP.Path' SP.Abs (SP.Dir ProjectRootDir)
-buildDir config =
-  projectDir config </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
 
 -- NOTE(carlos): For now, creating these URLs and ports uses the default values
 -- we've hardcoded in the generator. In the future, we might want to make these
@@ -73,7 +74,3 @@ dockerContainerName :: BuildStartConfig -> String
 dockerContainerName config =
   map toLower $ -- Lowercase because Docker container names require it.
     appUniqueId config <> "-server-container"
-
-appUniqueId :: BuildStartConfig -> String
-appUniqueId config =
-  makeAppUniqueId (projectDir config) (_appName config)
