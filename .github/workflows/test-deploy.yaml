@@ -57,9 +57,8 @@ jobs:
       - name: Destroy Apps
         run: |
           echo "prefix is $APP_PREFIX"
-          type wasp
-          type fly
-          type flyctl
+          type fly || echo "fly not found"
+          type flyctl || echo no fly ctl
           echo "dobri smo"
           # flyctl apps list -q | grep test 
           # flyctl apps list -q | grep $APP_PREFIX | xargs echo fly apps destroy -y
