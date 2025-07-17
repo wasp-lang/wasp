@@ -1,26 +1,22 @@
 import { chalk } from "zx";
 
-import {
-  applyPatch,
-  commitStep,
-  migrateDb,
-  tryToFixPatch,
-  type Action,
-} from "../actions";
+import { commitAllChangesUnderTag } from "../git";
 import { log } from "../log";
 import { appDir, ensureDirExists, patchesDir } from "../paths";
+import { waspDbMigrate } from "../waspCli";
+import { type Action } from "./actions";
+import { applyPatch, tryToFixPatch } from "./patch";
 
 export async function executeSteps(actions: Action[]): Promise<void> {
   for (const action of actions) {
     const kind = action.kind;
     log("info", `${chalk.bold(`[step ${action.stepName}]`)} ${kind}`);
 
-    // Prepare the patches directory
     await ensureDirExists(patchesDir);
 
     try {
       switch (kind) {
-        case "diff":
+        case "apply-patch":
           try {
             await applyPatch(appDir, action.patchContentPath);
           } catch (err) {
@@ -32,7 +28,7 @@ export async function executeSteps(actions: Action[]): Promise<void> {
           }
           break;
         case "migrate-db":
-          await migrateDb(appDir, `step-${action.stepName}`);
+          await waspDbMigrate(appDir, `step-${action.stepName}`);
           break;
         default:
           kind satisfies never;
@@ -41,6 +37,6 @@ export async function executeSteps(actions: Action[]): Promise<void> {
       log("error", `Error in step ${action.stepName}:\n\n${err}`);
       process.exit(1);
     }
-    await commitStep(appDir, action.stepName);
+    await commitAllChangesUnderTag(appDir, action.stepName);
   }
 }

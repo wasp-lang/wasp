@@ -1,6 +1,6 @@
 import React from "react";
 
-type Action = "diff" | "write" | "migrate-db";
+type Action = "apply-patch" | "write" | "migrate-db";
 
 /*
 

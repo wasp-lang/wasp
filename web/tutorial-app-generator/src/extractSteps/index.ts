@@ -12,7 +12,7 @@ import {
   createApplyPatchAction,
   type Action,
   type ActionCommon,
-} from "../actions/index";
+} from "../executeSteps/actions.js";
 
 const componentName = "TutorialAction";
 
@@ -74,7 +74,7 @@ async function getActionsFromFile(filePath: string): Promise<Action[]> {
         kind: "migrate-db",
       });
       return;
-    } else if (action === "diff") {
+    } else if (action === "apply-patch") {
       const patchAction = createApplyPatchAction(commonActionData);
       actions.push(patchAction);
       return;

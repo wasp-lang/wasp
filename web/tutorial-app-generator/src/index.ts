@@ -1,12 +1,11 @@
 import { $ } from "zx";
 
 import { program } from "@commander-js/extra-typings";
-import type { Action } from "./actions/index";
-import { getActionsFromTutorialFiles } from "./markdown/extractSteps";
+import type { Action } from "./executeSteps/actions";
+import { executeSteps } from "./executeSteps/index";
+import { getActionsFromTutorialFiles } from "./extractSteps/index";
 import { appDir } from "./paths";
 import { waspNew } from "./waspCli";
-
-import { executeSteps } from "./execute-steps";
 
 const actions: Action[] = await getActionsFromTutorialFiles();
 
@@ -32,19 +31,3 @@ async function prepareApp() {
 await prepareApp();
 
 await executeSteps(actions);
-
-// Commit -> patch
-// git format-patch -1 migration-connect-task-user --stdout
-
-// git switch -c fixes $step4commitSHA
-// git commit -a --fixup=$step4commitSHA
-// git switch main
-// git rebase fixes
-// git rebase --root --autosquash
-
-// You can't just change stuff... you need to have the old commits
-// ready first - then you execute "change step" and it will regenerate
-// the patches for you.
-
-// Do we just use Git for this workflow? Or we wrap the Git workflow
-// in this tutorial app generator CLI?
