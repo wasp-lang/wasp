@@ -59,8 +59,8 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
-          "clientUrlEnvVarName" .= Server.clientUrlFromServerEnvVarName,
-          "serverUrlEnvVarName" .= Server.serverUrlFromServerEnvVarName,
+          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
+          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
@@ -82,7 +82,7 @@ genClientEnvSchema spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlFromClientEnvVarName,
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]

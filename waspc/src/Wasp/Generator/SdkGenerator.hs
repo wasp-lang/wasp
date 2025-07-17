@@ -253,7 +253,7 @@ genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
     relConfigFilePath = [relfile|client/config.ts|]
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlFromClientEnvVarName
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
         ]
 
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
@@ -282,8 +282,8 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "clientUrlEnvVarName" .= Server.clientUrlFromServerEnvVarName,
-          "serverUrlEnvVarName" .= Server.serverUrlFromServerEnvVarName,
+          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
+          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]

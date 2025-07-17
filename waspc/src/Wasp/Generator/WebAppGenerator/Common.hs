@@ -24,7 +24,7 @@ module Wasp.Generator.WebAppGenerator.Common
     getBaseDir,
     getDefaultDevClientUrl,
     defaultClientPort,
-    serverUrlFromClientEnvVarName,
+    serverUrlEnvVarName,
   )
 where
 
@@ -146,8 +146,8 @@ getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
   where
     maybeBaseDir = SP.parseAbsDirP =<< (AS.App.Client.baseDir =<< AS.App.client (snd $ getApp spec))
 
-serverUrlFromClientEnvVarName :: String
-serverUrlFromClientEnvVarName = "REACT_APP_API_URL"
+serverUrlEnvVarName :: String
+serverUrlEnvVarName = "REACT_APP_API_URL"
 
 defaultClientPort :: Int
 defaultClientPort = 3000
