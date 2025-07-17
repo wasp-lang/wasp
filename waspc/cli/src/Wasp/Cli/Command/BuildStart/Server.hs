@@ -9,7 +9,7 @@ import qualified StrongPath as SP
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import Wasp.Generator.ServerGenerator.Common (clientUrlFromServerEnvVarName, serverUrlFromServerEnvVarName)
+import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runProcessAsJob)
@@ -46,9 +46,9 @@ startServer config =
   where
     allEnvVarArgs =
       [ "--env",
-        clientUrlFromServerEnvVarName <> "=" <> clientUrl,
+        Server.clientUrlEnvVarName <> "=" <> clientUrl,
         "--env",
-        serverUrlFromServerEnvVarName <> "=" <> serverUrl
+        Server.serverUrlEnvVarName <> "=" <> serverUrl
       ]
         <> extraEnvFileParamsFromConfig
         <> extraEnvParamsFromConfig
