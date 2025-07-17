@@ -1,5 +1,9 @@
 // @ts-check
 
+// This script is intended to be run in a GitHub Actions workflow to delete
+// orphaned caches that are no longer associated with any remote refs.
+// Called from `.github/workflows/cache-evict.yml`.
+
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 
@@ -7,27 +11,14 @@ const { repository } = assertGithubActionsEnv();
 deleteOrphanedCaches(repository);
 
 function deleteOrphanedCaches(/** @type {string} */ githubRepository) {
-  const ghCachesOutput = listGitHubCaches();
-  const lsRemoteOutput = listRemoteRefs(githubRepository);
+  const ghCaches = listGitHubCaches();
+  const remoteRefs = listRemoteRefs(githubRepository);
 
-  // Find refs that have caches but do not exist in the remote repository anymore.
-  const remoteRefs = new Set(lsRemoteOutput.map(([, ref]) => ref));
-  const cachesToDelete = ghCachesOutput.filter(
-    (cache) => !remoteRefs.has(cache.ref),
-  );
+  const cachesToDelete = ghCaches.filter((cache) => !remoteRefs.has(cache.ref));
   console.log(`Found ${cachesToDelete.length} caches to delete`);
 
-  // Delete those cache keys
   for (const { key, ref } of cachesToDelete) {
-    try {
-      console.group(`Deleting cache "${key}" for ref "${ref}"`);
-      runCmd("gh", ["cache", "delete", key], { collectStdout: false });
-      console.log(`Done`);
-    } catch (e) {
-      console.warn(`::warning::Failed to delete cache key ${key}`);
-    } finally {
-      console.groupEnd();
-    }
+    deleteGitHubCache(key, ref);
   }
 
   console.log("Done");
@@ -48,21 +39,36 @@ function listGitHubCaches() {
 }
 
 function listRemoteRefs(githubRepository) {
-  const lsRemoteOutput = /** @type {[objectId: string, ref: string][]} */ (
-    parseTabSeparatedLines(
-      runCmd(
-        // We use `git ls-remote` so we also receive refs such as `refs/pull/123/head`
-        // which are not downloaded by `git fetch` or `git pull`.
-        //
-        // According to https://git-scm.com/docs/git-ls-remote, the output is:
-        // <oid> TAB <ref> LF
-        "git",
-        ["ls-remote", `https://github.com/${githubRepository}.git`],
-      ),
-    )
+  const parsedLsRemoteOutput = parseGitRemoteOutput(
+    runCmd(
+      // We use `git ls-remote` so we also receive refs such as `refs/pull/123/head`
+      // which are not downloaded by `git fetch` or `git pull`.
+      "git",
+      ["ls-remote", `https://github.com/${githubRepository}.git`],
+    ),
   );
-  console.log(`Found ${lsRemoteOutput.length} remote refs`);
-  return lsRemoteOutput;
+
+  const remoteRefs = new Set(
+    parsedLsRemoteOutput.map(({ gitRefName }) => gitRefName),
+  );
+
+  console.log(`Found ${remoteRefs.size} remote refs`);
+  return remoteRefs;
+}
+
+function deleteGitHubCache(
+  /** @type {string} */ key,
+  /** @type {string} */ ref,
+) {
+  try {
+    console.group(`Deleting cache "${key}" for ref "${ref}"`);
+    runCmd("gh", ["cache", "delete", key], { collectStdout: false });
+    console.log(`Done`);
+  } catch (e) {
+    console.warn(`::warning::Failed to delete cache key ${key}`);
+  } finally {
+    console.groupEnd();
+  }
 }
 
 function assertGithubActionsEnv() {
@@ -97,9 +103,16 @@ function runCmd(
   });
 }
 
-function parseTabSeparatedLines(/** @type {string} */ str) {
+function parseGitRemoteOutput(/** @type {string} */ str) {
+  // According to https://git-scm.com/docs/git-ls-remote, the output is:
+  // <oid> TAB <ref> LF
+  // `oid` being the internal Git object ID, and `ref` the reference name
+
   return str
     .trim()
     .split("\n")
-    .map((line) => line.split("\t"));
+    .map((line) => {
+      const [gitObjectId, gitRefName] = line.split("\t");
+      return { gitObjectId, gitRefName };
+    });
 }
