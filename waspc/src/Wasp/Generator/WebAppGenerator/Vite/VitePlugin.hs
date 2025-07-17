@@ -14,7 +14,7 @@ import Wasp.Generator.WebAppGenerator.Common (WebAppTemplatesDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 
-data VitePluginName = DetectServerImports | ValidateEnv | DevToolsJson
+data VitePluginName = DetectServerImports | ValidateEnv
   deriving (Enum, Bounded)
 
 type TmplFilePath = Path' (Rel WebAppTemplatesDir) File'
@@ -32,7 +32,9 @@ vitePlugins =
     (\name -> (name, getTmplFilePathForVitePlugin name))
     vitePluginNames
   where
-    vitePluginNames = [minBound .. maxBound]
+    -- We intentionally exclude the legacy `DevToolsJson` plugin now that
+    -- Wasp relies on the upstream `vite-plugin-devtools-json` npm package.
+    vitePluginNames = [DetectServerImports, ValidateEnv]
 
 data WebAppVitePluginsDir
 
@@ -44,12 +46,10 @@ getTmplFilePathForVitePlugin pluginName = C.asTmplFile $ vitePluginsDirInWebAppD
   where
     pluginFilePathInPluginsDir DetectServerImports = [relfile|detectServerImports.ts|]
     pluginFilePathInPluginsDir ValidateEnv = [relfile|validateEnv.ts|]
-    pluginFilePathInPluginsDir DevToolsJson = [relfile|devToolsJson.ts|]
 
 genVitePlugin :: VitePlugin -> Generator FileDraft
 genVitePlugin (DetectServerImports, tmplFile) = genDetectServerImportsPlugin tmplFile
 genVitePlugin (ValidateEnv, tmplFile) = genValidateEnvPlugin tmplFile
-genVitePlugin (DevToolsJson,tmplFile) = return $ C.mkTmplFd tmplFile 
 
 genDetectServerImportsPlugin :: Path' (Rel WebAppTemplatesDir) File' -> Generator FileDraft
 genDetectServerImportsPlugin tmplFile = return $ C.mkTmplFdWithData tmplFile tmplData

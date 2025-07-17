@@ -332,7 +332,6 @@ waspMigrate/.wasp/out/web-app/tsconfig.json
 waspMigrate/.wasp/out/web-app/tsconfig.vite.json
 waspMigrate/.wasp/out/web-app/vite.config.ts
 waspMigrate/.wasp/out/web-app/vite/detectServerImports.ts
-waspMigrate/.wasp/out/web-app/vite/devToolsJson.ts
 waspMigrate/.wasp/out/web-app/vite/validateEnv.ts
 waspMigrate/.waspignore
 waspMigrate/.wasproot

@@ -7,11 +7,15 @@ import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
-import qualified StrongPath as SP
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.Job.Process (runNodeCommandAsJob)
 
 startWebApp :: Path' Abs (Dir ProjectRootDir) -> J.Job
 startWebApp projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-      envVars = [("WASP_PROJECT_ROOT", SP.fromAbsDir projectDir)]
-  runNodeCommandAsJobWithExtraEnv envVars webAppDir "npm" ["start"] J.WebApp
+  -- We previously passed the absolute project root via the WASP_PROJECT_ROOT
+  -- environment variable so the vendored DevToolsJson Vite plugin could
+  -- resolve the correct path at runtime.  That plugin has now been replaced
+  -- by the upstream `vite-plugin-devtools-json`, and the project root is
+  -- injected directly into `vite.config.ts` during code-generation, so the
+  -- extra environment variable is no longer required.
+  runNodeCommandAsJob webAppDir "npm" ["start"] J.WebApp

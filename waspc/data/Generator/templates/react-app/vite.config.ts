@@ -6,7 +6,7 @@ import { defaultExclude } from "vitest/config"
 import { detectServerImports } from "./vite/detectServerImports"
 import { validateEnv } from "./vite/validateEnv.js";
 import path from "node:path"
-import devToolsJsonPlugin from "./vite/devToolsJson";
+import devtoolsJson from "vite-plugin-devtools-json";
 
 {=# customViteConfig.isDefined =}
 // Ignoring the TS error because we are importing a file outside of TS root dir.
@@ -24,7 +24,13 @@ const defaultViteConfig = {
     validateEnv(),
     react(),
     detectServerImports(),
-    devToolsJsonPlugin(),
+    devtoolsJson({
+      // Relative path that resolves to the Wasp project root at runtime
+      // ("../../../" when evaluated from .wasp/out/web-app).
+      projectRoot: "{= projectDir =}",
+      // Keep UNC-path rewriting enabled (default) for WSL / Docker on Windows
+      normalizeForWindowsContainer: true,
+    }),
   ],
   optimizeDeps: {
     exclude: ['wasp']

@@ -158,6 +158,8 @@ npmDepsForWasp _spec =
             -- Core issue: https://github.com/wasp-lang/wasp/issues/2726
             -- Long term fix: https://github.com/wasp-lang/wasp/issues/1838
             ("@vitejs/plugin-react", "4.5.1"),
+            -- Provides Chrome DevTools workspace mapping via official plugin.
+            ("vite-plugin-devtools-json", "^0.3.0"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^2.0.0")

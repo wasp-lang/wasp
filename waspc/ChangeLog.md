@@ -956,8 +956,8 @@ Check below for details on each of them!
 
 ### ⚠️ Breaking changes
 
-- Wasp's **signup action** `import signup from '@wasp/auth/signup' now accepts only the user entity fields relevant to the auth process (e.g. `username` and `password`).
-  This ensures no unexpected data can be inserted into the database during signup, but it also means you can't any more set any user entity fields via signup action (e.g. `age` or `address`).
+- Wasp's **signup action** `import signup from '@wasp/auth/signup' now accepts only the user entity fields relevant to the auth process (e.g. `username`and`password`).
+This ensures no unexpected data can be inserted into the database during signup, but it also means you can't any more set any user entity fields via signup action (e.g. `age`or`address`).
   Instead, those should be set in the separate step after signup, or via a custom signup action of your own.
 - Wasp now uses **React 18**! Check the following upgrade guide for details: https://react.dev/blog/2022/03/08/react-18-upgrade-guide .
   The most obvious difference you might notice is that your `useEffect` hooks run twice on component mount.

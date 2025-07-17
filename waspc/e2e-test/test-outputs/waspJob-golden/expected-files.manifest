@@ -376,7 +376,6 @@ waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasp/out/web-app/tsconfig.vite.json
 waspJob/.wasp/out/web-app/vite.config.ts
 waspJob/.wasp/out/web-app/vite/detectServerImports.ts
-waspJob/.wasp/out/web-app/vite/devToolsJson.ts
 waspJob/.wasp/out/web-app/vite/validateEnv.ts
 waspJob/.waspignore
 waspJob/.wasproot
