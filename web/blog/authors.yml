@@ -4,6 +4,9 @@ martinsos:
   url: https://github.com/martinsos
   image_url: https://github.com/martinsos.png
   email: martin@wasp-lang.dev
+  socials:
+    github: https://github.com/martinsos
+    x: https://x.com/MartinSosic
 
 matijasos:
   name: Matija Sosic
@@ -11,12 +14,17 @@ matijasos:
   url: https://github.com/matijasos
   image_url: https://github.com/matijasos.png
   email: matija@wasp-lang.dev
+  socials:
+    github: https://github.com/matijasos
+    x: https://x.com/MatijaSosic
 
 shayneczyzewski:
   name: Shayne Czyzewski
   title: Founding Engineer @ Wasp
   url: https://github.com/shayneczyzewski
   image_url: https://github.com/shayneczyzewski.png
+  socials:
+    github: https://github.com/shayneczyzewski
 
 sodic:
   name: Filip Sodić
@@ -24,6 +32,9 @@ sodic:
   url: https://github.com/sodic
   image_url: https://github.com/sodic.png
   email: filip@wasp-lang.dev
+  socials:
+    github: https://github.com/sodic
+    x: https://x.com/filipsodic
 
 maksym36ua:
   name: Maksym Khamrovskyi
@@ -34,6 +45,8 @@ flreln:
   title: Content @ Wasp
   url: https://github.com/flreln
   image_url: https://github.com/flreln.png
+  socials:
+    github: https://github.com/flreln
 
 vinny:
   name: Vinny
@@ -41,6 +54,9 @@ vinny:
   url: https://vincanger.github.io
   image_url: https://vincanger.github.io/assets/vince_smiley.jpg
   email: vince@wasp-lang.dev
+  socials:
+    github: https://vincanger.github.io
+    x: https://x.com/hot_town
 
 miho:
   name: Mihovil Ilakovac
@@ -48,33 +64,56 @@ miho:
   url: https://ilakovac.com
   image_url: https://github.com/infomiho.png
   email: miho@wasp-lang.dev
+  socials:
+    github: https://github.com/infomiho
+    x: https://x.com/infomiho
 
 martinovicdev:
   name: Boris Martinović
   title: Contributor @ Wasp
   url: https://martinovic.dev
   image_url: https://github.com/martinovicdev.png
+  socials:
+    github: https://github.com/martinovicdev
 
 lucaslima:
   name: Lucas Lima do Nascimento
   title: Content contributor
   url: https://github.com/LLxD
   image_url: https://github.com/LLxD.png
+  socials:
+    github: https://github.com/LLxD
 
 sam:
   name: Sam Jakshtis
   title: Content contributor
   url: https://samjakshtis.com
   image_url: https://samjakshtis.com/static/media/profile.0cff8a5a83086bb3b00b.jpg
+  socials:
+    github: https://github.com/samjakshtis
 
 milica:
   name: Milica Maksimović
   title: Growth @wasp
   url: https://mmaksimovic.dev/
   image_url: https://github.com/mmaksimovic.png
+  socials:
+    github: https://github.com/mmaksimovic
 
 andrei:
   name: Andrei Gaspar
   title: Content contributor
   url: https://www.literally.dev/
   image_url: https://github.com/undrash.png
+  socials:
+    github: https://github.com/undrash
+
+cprecioso:
+  name: Carlos Precioso
+  title: Framework Engineer @ Wasp
+  url: https://github.com/cprecioso
+  image_url: https://github.com/cprecioso.png
+  socials:
+    bluesky: https://bsky.app/profile/precioso.design
+    github: https://github.com/cprecioso
+    twitter: https://twitter.com/_cprecioso
