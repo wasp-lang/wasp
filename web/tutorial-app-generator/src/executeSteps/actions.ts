@@ -1,14 +1,20 @@
 import path from "path";
-import type { PatchContentPath } from "../brandedTypes";
+import type {
+  MarkdownFilePath,
+  PatchFilePath,
+  StepName,
+} from "../brandedTypes";
+import { getFileNameWithoutExtension } from "../files";
+import { patchesDir } from "../project";
 
 export type ActionCommon = {
-  stepName: string;
-  markdownSourceFilePath: string;
+  stepName: StepName;
+  sourceFilePath: MarkdownFilePath;
 };
 
 export type ApplyPatchAction = {
   kind: "apply-patch";
-  patchContentPath: PatchContentPath;
+  patchFilePath: PatchFilePath;
 } & ActionCommon;
 
 export type MigrateDbAction = {
@@ -17,22 +23,28 @@ export type MigrateDbAction = {
 
 export type Action = ApplyPatchAction | MigrateDbAction;
 
-export function createApplyPatchAction(
-  commonActionData: ActionCommon,
-): ApplyPatchAction {
-  const markdownFileWithoutExt = path.basename(
-    commonActionData.markdownSourceFilePath,
-    path.extname(commonActionData.markdownSourceFilePath),
-  );
-  const patchContentPath = path.resolve(
-    "../docs/tutorial",
-    "patches",
-    `${markdownFileWithoutExt}__${commonActionData.stepName}.patch`,
-  ) as PatchContentPath;
-
+export function createMigrateDbAction(
+  commonData: ActionCommon,
+): MigrateDbAction {
   return {
-    ...commonActionData,
-    kind: "apply-patch",
-    patchContentPath,
+    ...commonData,
+    kind: "migrate-db",
   };
+}
+
+export function createApplyPatchAction(
+  commonData: ActionCommon,
+): ApplyPatchAction {
+  const patchFilePath = getPatchFilePath(commonData);
+  return {
+    ...commonData,
+    kind: "apply-patch",
+    patchFilePath,
+  };
+}
+
+function getPatchFilePath(action: ActionCommon): PatchFilePath {
+  const sourceFileName = getFileNameWithoutExtension(action.sourceFilePath);
+  const patchFileName = `${sourceFileName}__${action.stepName}.patch`;
+  return path.resolve(patchesDir, patchFileName) as PatchFilePath;
 }

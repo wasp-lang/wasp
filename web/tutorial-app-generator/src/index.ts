@@ -2,7 +2,7 @@ import { program } from "@commander-js/extra-typings";
 import { editStepCommand } from "./commands/edit-step";
 import { generateAppCommand } from "./commands/generate-app";
 
-const _args = program
+program
   .addCommand(generateAppCommand)
   .addCommand(editStepCommand)
   .parse(process.argv)

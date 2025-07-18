@@ -7,15 +7,15 @@ import Enquirer from "enquirer";
 import type { AppDirPath } from "../../brandedTypes";
 import type { Action, ApplyPatchAction } from "../../executeSteps/actions";
 import { getActionsFromTutorialFiles } from "../../extractSteps";
-import { getCommitPatch } from "../../git";
+import { generatePatchFromRevision } from "../../git";
 import { log } from "../../log";
-import { appDir, mainBranchName } from "../../project";
+import { appDir, mainBranchName, tutorialDir } from "../../project";
 
 export const editStepCommand = new Command("edit-step")
   .description("Edit a step in the tutorial app")
   .addOption(new Option("--step-name <stepName>", "Name of the step to edit"))
   .action(async ({ stepName }) => {
-    const actions: Action[] = await getActionsFromTutorialFiles();
+    const actions: Action[] = await getActionsFromTutorialFiles(tutorialDir);
 
     const action = actions.find((a) => a.stepName === stepName);
 
@@ -44,14 +44,10 @@ async function editStepPatch({
   await $({ cwd: appDir })`git switch ${mainBranchName}`.quiet(true);
 
   const fixesBranchName = "fixes";
-  // Clean up any existing fixes branch
   await $({
     cwd: appDir,
-    throw: false,
-  })`git branch --delete ${fixesBranchName}`;
-  await $({
-    cwd: appDir,
-  })`git switch -c ${fixesBranchName} ${action.stepName}`.quiet(true);
+    quiet: true,
+  })`git switch --force-create ${fixesBranchName} ${action.stepName}`;
 
   await Enquirer.prompt({
     type: "confirm",
@@ -75,13 +71,13 @@ async function editStepPatch({
 }
 
 async function extractCommitsIntoPatches(actions: Action[]): Promise<void> {
-  for (const action of actions) {
-    if (action.kind !== "apply-patch") {
-      continue;
-    }
+  const applyPatchActions = actions.filter(
+    (action) => action.kind === "apply-patch",
+  );
 
+  for (const action of applyPatchActions) {
     log("info", `Updating patch for step ${action.stepName}`);
-    const patch = await getCommitPatch(appDir, action.stepName);
-    await fs.writeFile(action.patchContentPath, patch, "utf-8");
+    const patch = await generatePatchFromRevision(appDir, action.stepName);
+    await fs.writeFile(action.patchFilePath, patch, "utf-8");
   }
 }

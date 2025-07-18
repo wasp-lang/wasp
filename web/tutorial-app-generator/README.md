@@ -1,34 +1,64 @@
 # Tutorial App Generator
 
-Generates a Wasp app by executing tutorial steps from markdown files.
+CLI tool that generates tutorial apps by parsing markdown files and applying patches.
+
+## Setup
+
+```bash
+npm install
+```
 
 ## Usage
 
-```bash
-npm run start
-```
+### Generate Tutorial App
 
-## Options
-
-- `-s, --until-step <step>` - Run until the given step number
-- `-e, --broken-diff <step>` - Edit mode for fixing diffs interactively
-
-## Examples
+Parses tutorial markdown files and generates a complete app with all steps applied:
 
 ```bash
-# Run all steps
-npm run start
-
-# Run until step 5
-npm run start -- -s 5
-
-# Edit diff at step 3
-npm run start -- -e 3
+npm start generate-app
 ```
 
-## What it does
+This will:
 
-1. Creates a new Wasp app in the output directory
-2. Parses tutorial markdown files to extract steps
-3. Executes diff actions and other steps sequentially
-4. Supports interactive editing of broken diffs
+1. Create a new Wasp app in `./TodoApp`
+1. Initialize git repo with tagged commits
+1. Parse tutorial files from `../docs/tutorial`
+1. Apply patches for each tutorial step
+
+### Edit Tutorial Step
+
+Edit an existing tutorial step and regenerate patches:
+
+```bash
+npm start edit-step --step-name <stepName>
+```
+
+This will:
+
+1. Switch to the step's git tag
+1. Open interactive edit session
+1. Update the patch file
+1. Rebase subsequent commits
+
+Make sure you first run the `generate-app` command to create the initial app structure.
+
+## File Structure
+
+- `src/extractSteps/` - Parses markdown files for `<TutorialAction>` components
+- `src/executeSteps/` - Applies patches and runs migrations
+- `src/commands/` - CLI command implementations
+- `../docs/tutorial` - Generated patch files for each tutorial step
+
+## Tutorial Markdown Format
+
+Use `<TutorialAction>` components in markdown:
+
+```jsx
+<TutorialAction step="create-user" action="apply-patch" />
+<TutorialAction step="setup-db" action="migrate-db" />
+```
+
+Supported actions:
+
+- `apply-patch` - Applies a git patch file
+- `migrate-db
