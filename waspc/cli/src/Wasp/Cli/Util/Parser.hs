@@ -1,16 +1,17 @@
 module Wasp.Cli.Util.Parser
   ( parseArguments,
+    envVarReader,
   )
 where
 
-import Options.Applicative (defaultPrefs, execParserPure)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Command.Call (Arguments)
+import Wasp.Env (EnvVar, envVarFromString)
 
 parseArguments :: String -> Opt.Parser a -> Arguments -> Either String a
 parseArguments cmdName parser args =
   parserResultToEither cmdName $
-    execParserPure defaultPrefs parserInfo args
+    Opt.execParserPure Opt.defaultPrefs parserInfo args
   where
     parserInfo = Opt.info (parser Opt.<**> Opt.helper) Opt.fullDesc
 
@@ -21,3 +22,6 @@ parserResultToEither cmdName (Opt.CompletionInvoked _) =
 parserResultToEither cmdName (Opt.Failure failure) = Left $ show help
   where
     (help, _, _) = Opt.execFailure failure cmdName
+
+envVarReader :: Opt.ReadM Wasp.Env.EnvVar
+envVarReader = Opt.eitherReader envVarFromString

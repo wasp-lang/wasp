@@ -58,9 +58,7 @@ startClient config =
 
 allClientEnvironmentVariables :: BuildStartConfig -> ExceptT String IO [EnvVar]
 allClientEnvironmentVariables config = do
-  envVarsFromStrings <-
-    liftEither $
-      mapM envVarFromString $ Config.clientEnvironmentVariables config
+  let envVarsFromStrings = Config.clientEnvironmentVariables config
 
   envVarsFromFiles <-
     liftIO $

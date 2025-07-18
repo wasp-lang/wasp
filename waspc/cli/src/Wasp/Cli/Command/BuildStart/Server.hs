@@ -9,6 +9,7 @@ import qualified StrongPath as SP
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
+import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
@@ -49,11 +50,14 @@ startServer config =
 
     userDefinedEnvParams =
       Config.serverEnvironmentVariables config
-        >>= \envVar -> ["--env", envVar]
+        >>= envVarToArg
 
     userDefinedEnvFileParams =
       Config.serverEnvironmentFiles config
         >>= \envFile -> ["--env-file", envFile]
+
+    envVarToArg :: EnvVar -> [String]
+    envVarToArg (name, value) = ["--env", name <> "=" <> value]
 
     (_, clientUrl) = Config.clientPortAndUrl config
     serverUrl = Config.serverUrl config

@@ -20,6 +20,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
@@ -28,9 +29,9 @@ import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWa
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
     clientPortAndUrl :: (Int, String),
-    serverEnvironmentVariables :: [String],
+    serverEnvironmentVariables :: [EnvVar],
     serverEnvironmentFiles :: [FilePath],
-    clientEnvironmentVariables :: [String],
+    clientEnvironmentVariables :: [EnvVar],
     clientEnvironmentFiles :: [FilePath],
     buildDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir)
   }
