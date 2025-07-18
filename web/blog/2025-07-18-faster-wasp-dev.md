@@ -1,5 +1,5 @@
 ---
-title: "Paying down DX debt to build a better framework"
+title: "Cleaning up 5 years of tech debt in a full-stack JS framework"
 authors: [cprecioso]
 image: /img/faster-wasp-dev/da-boi-in-a-fast-car.png
 tags: [wasp, launch-week, inside-wasp, open-source]
