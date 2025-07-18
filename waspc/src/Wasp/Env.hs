@@ -7,6 +7,7 @@ module Wasp.Env
     parseDotEnvFile,
     envVarsToDotEnvContent,
     nubEnvVars,
+    forceEnvVars,
   )
 where
 
@@ -14,6 +15,7 @@ import qualified Configuration.Dotenv as Dotenv
 import Control.Exception (ErrorCall (ErrorCall))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
 import UnliftIO.Exception (catch, throwIO)
@@ -39,3 +41,22 @@ envVarsToDotEnvContent vars =
 
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)
+
+-- | If the forced env vars already exist in the given list, returns `Left` of
+-- the list of duplicated env var names. Otherwise returns `Right` of the
+-- combined list.
+--
+-- This function is useful to add environment variables internally, to a list of
+-- user-defined ones. If the user has already defined an environment variable
+-- with the same name, we want to inform them so that the user doesn't get
+-- confused about which value is being used. If the user has not defined that
+-- environment variable, we just prepend it to the list and continue.
+forceEnvVars :: [EnvVar] -> [EnvVar] -> Either [String] [EnvVar]
+forceEnvVars forced existing =
+  if null duplicateNames
+    then Right (forced <> existing)
+    else Left duplicateNames
+  where
+    duplicateNames = filter (`Set.member` forcedNames) existingNames
+    forcedNames = Set.fromList $ map fst forced
+    existingNames = map fst existing
