@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Clean up Deployed App
     needs: [deploy_kitchen_sink_app_with_fly, smoke_test_kitchen_sink_app]
-    if: always()
+    if: false
 
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -162,4 +162,5 @@ jobs:
 
       - name: Clean up testing app from Fly.io
         run: |
-          flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
+          # FIXME: This destroyed all our apps, be careful
+          # flyctl apps list -q | grep "ci-$APP_PREFIX" | xargs flyctl apps destroy -y
