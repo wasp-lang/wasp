@@ -15,12 +15,6 @@ jobs:
       FLY_REGION: mia
 
     steps:
-      # - name: Install Wasp
-      #   # TODO: I should use the currently built version, check with Franjo and Carlos.
-      #   # This will do for now.
-      #   run: |
-      #     curl -sSfL https://get.wasp.sh/installer.sh | sh -s
-
       - uses: "actions/checkout@v4"
         with:
           # Workaround for a Github Checkout action bug
@@ -40,7 +34,7 @@ jobs:
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - name: Generate unique prefix based on commit
+      - name: Generate unique app prefix from commit SHA
         id: generate_prefix
         run: echo "APP_PREFIX=ci-$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_ENV
 
@@ -49,7 +43,12 @@ jobs:
         working-directory: waspc/examples/todoApp
         run: |
           # TODO: Explain the assumptinos and the fragility of this
-          echo "ENV_VARS=$(cat .env.server.headless | sed -E 's/#.*//' | awk 'NF {$1=$1;print}' | sed -E 's/^/--server-secret /' | paste -sd' ')" >> $GITHUB_ENV
+          echo "ENV_VARS=$(
+            cat .env.server.headless \
+          | sed -E 's/#.*//' \
+          | awk 'NF {$1=$1;print}' \
+          | sed -E 's/^/--server-secret /'\
+          | paste -sd' ')" >> $GITHUB_ENV
 
       - name: Deploy Kitchen sink app
         working-directory: waspc/examples/todoApp
@@ -68,10 +67,12 @@ jobs:
           echo "SERVER_HOSTNAME=$(get_hostname fly-server.toml)" >> $GITHUB_ENV
           echo "CLIENT_HOSTNAME=$(get_hostname fly-client.toml)" >> $GITHUB_ENV
 
-      - name: Verify app is functional
+      - name: Smoke test the server
         run: |
-          echo "Testing the app"
-          curl -X POST https://$SERVER_HOSTNAME/operations/get-date
+          curl --silent -X POST https://$SERVER_HOSTNAME/operations/get-date
+
+      - name: Smoke test the client
+        run: |
           curl https://$CLIENT_HOSTNAME
 
       - name: Clean up testing app
