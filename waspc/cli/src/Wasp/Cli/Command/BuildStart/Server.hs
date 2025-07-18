@@ -9,7 +9,6 @@ import qualified StrongPath as SP
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import Wasp.Env (EnvVar)
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runProcessAsJob)
