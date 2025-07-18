@@ -21,23 +21,28 @@ buildStartArgsParser =
     <*> Opt.many serverEnvironmentVariableParser
     <*> Opt.many serverEnvironmentFileParser
   where
-    clientEnvironmentVariableParser = makeEnvironmentVariableParser "client"
-    clientEnvironmentFileParser = makeEnvironmentFileParser "client"
-    serverEnvironmentVariableParser = makeEnvironmentVariableParser "server"
-    serverEnvironmentFileParser = makeEnvironmentFileParser "server"
+    clientEnvironmentVariableParser =
+      makeEnvironmentVariableParser "client" "client-env" 'c'
+    clientEnvironmentFileParser =
+      makeEnvironmentFileParser "client" "client-env-file"
 
-    makeEnvironmentVariableParser :: String -> Opt.Parser String
-    makeEnvironmentVariableParser prefix =
+    serverEnvironmentVariableParser =
+      makeEnvironmentVariableParser "server" "server-env" 's'
+    serverEnvironmentFileParser =
+      makeEnvironmentFileParser "server" "server-env-file"
+
+    makeEnvironmentVariableParser :: String -> String -> Char -> Opt.Parser String
+    makeEnvironmentVariableParser targetName longOptionName shortOptionName =
       Opt.strOption $
-        Opt.long (prefix <> "-env")
-          <> Opt.short (head prefix)
+        Opt.long longOptionName
+          <> Opt.short shortOptionName
           <> Opt.metavar "NAME=VALUE"
-          <> Opt.help ("Set an environment variable for the " <> prefix <> " (can be used multiple times)")
+          <> Opt.help ("Set an environment variable for the " <> targetName <> " (can be used multiple times)")
 
-    makeEnvironmentFileParser :: String -> Opt.Parser FilePath
-    makeEnvironmentFileParser prefix =
+    makeEnvironmentFileParser :: String -> String -> Opt.Parser FilePath
+    makeEnvironmentFileParser targetName longOptionName =
       Opt.strOption $
-        Opt.long (prefix <> "-env-file")
+        Opt.long longOptionName
           <> Opt.metavar "FILE_PATH"
-          <> Opt.help ("Load environment variables for the " <> prefix <> " from a file (can be used multiple times)")
+          <> Opt.help ("Load environment variables for the " <> targetName <> " from a file (can be used multiple times)")
           <> Opt.action "file"
