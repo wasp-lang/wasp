@@ -11,3 +11,4 @@ jobs:
     uses: ./.github/workflows/test-deploy.yaml
     secrets:
        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+       RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}

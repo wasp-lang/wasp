@@ -8,8 +8,9 @@ on:
         required: true
 
 jobs:
-  deploy_kitchen_sink_app:
-    name: Deploy Wasp Kitchen Sink App
+  deploy_kitchen_sink_app_with_fly:
+    name: Deploy Wasp kitchen Sink App
+    if: false
 
     runs-on: ubuntu-latest
     env:
@@ -59,7 +60,7 @@ jobs:
             | sed -E 's/^/--server-secret /' \
             | paste -sd' ')" >> $GITHUB_ENV
 
-      - name: Deploy Kitchen sink app to Fly.io
+      - name: Deploy kitchen sink app to Fly.io
         working-directory: waspc/examples/todoApp
         run: |
           # NOTE: Github knows not to output the db connection string, how?
@@ -73,8 +74,58 @@ jobs:
           echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
           echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
 
+  deploy_kitchen_sink_app_with_railway:
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Haskell
+        uses: ./.github/actions/setup-haskell
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install Wasp CLI
+        working-directory: waspc
+        run: ./run install
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Generate unique app prefix from commit SHA
+        id: generate_app_prefix
+        run: |
+          echo "app_prefix=$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare server secrets for deployment
+        id: prepare_secrets
+        working-directory: waspc/examples/todoApp
+        run: |
+          # TODO: Explain the assumptinos and the fragility of this
+          echo "ENV_VARS=$(
+            cat .env.server.headless \
+            | sed -E 's/#.*//' \
+            | awk 'NF {$1=$1;print}' \
+            | sed -E 's/^/--server-secret /' \
+            | paste -sd' ')" >> $GITHUB_ENV
+
+      - name: Deploy kitchen sink app to railway
+        working-directory: waspc/examples/todoApp
+        run: |
+          # NOTE: Github knows not to output the db connection string, how?
+          # NOTE:The `yes` command is necessary because the `fly launch` command prompts for confirmation 
+          yes | wasp-cli deploy railway launch ${{ steps.generate_app_prefix.outputs.app_prefix }} ${{ env.ENV_VARS }}
+
   smoke_test_kitchen_sink_app:
-    name: Run Smoke Tests on Wasp Kitchen Sink App
+    name: Run smoke tests on Wasp kitchen sink app
 
     runs-on: ubuntu-latest
     needs: deploy_kitchen_sink_app
@@ -90,12 +141,12 @@ jobs:
 
       - name: Smoke test the client
         run: |
-          curl --fail https://$CLIENT_HOSTNAME
+          curl --fail --silent https://$CLIENT_HOSTNAME
 
   clean_up_deployed_app:
     runs-on: ubuntu-latest
     name: Clean up Deployed App
-    needs: [deploy_kitchen_sink_app, smoke_test_kitchen_sink_app]
+    needs: [deploy_kitchen_sink_app_with_fly, smoke_test_kitchen_sink_app]
     if: always()
 
     env:
