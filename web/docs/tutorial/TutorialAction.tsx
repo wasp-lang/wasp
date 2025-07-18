@@ -1,35 +1,23 @@
-import React from "react";
-
-type Action = "apply-patch" | "write" | "migrate-db";
+type Action = "apply-patch" | "migrate-db";
 
 /*
-
 This component serves two purposes:
 1. It provides metadata for the `tutorial-app-generator` on how to execute tutorial steps programmatically.
-2. It renders tutorial steps in a visually distinct way during development so it's easier to debug.
-
+2. It renders tutorial step names during development for easier debugging.
 */
 export function TutorialAction({
-  children,
   action,
   step,
-}: React.PropsWithChildren<{
+}: {
   action: Action;
   step: string;
-}>) {
-  return process.env.NODE_ENV === "production" ? (
-    children
-  ) : action === "write" ? (
-    <div className="relative mb-4 rounded border border-red-500 p-4">
-      <div className="absolute right-1 top-1">
+}) {
+  return (
+    process.env.NODE_ENV !== "production" && (
+      <div style={{ marginBottom: "1rem" }}>
         <TutorialActionStep step={step} action={action} />
       </div>
-      {children}
-    </div>
-  ) : (
-    <div className="mb-4">
-      <TutorialActionStep step={step} action={action} />
-    </div>
+    )
   );
 }
 
@@ -41,17 +29,47 @@ function TutorialActionStep({
   action: Action;
 }) {
   return (
-    <div className="flex gap-2">
-      <div className="rounded bg-gray-500 px-2 py-1 text-xs font-bold text-white">
+    <div style={{ display: "flex", gap: "0.5rem" }}>
+      <div
+        style={{
+          borderRadius: "0.25rem",
+          backgroundColor: "#6b7280",
+          paddingLeft: "0.5rem",
+          paddingRight: "0.5rem",
+          paddingTop: "0.25rem",
+          paddingBottom: "0.25rem",
+          fontSize: "0.75rem",
+          fontWeight: "bold",
+          color: "white",
+        }}
+      >
         tutorial action: {action}
       </div>
       <div
-        className="cursor-pointer rounded bg-red-500 px-2 py-1 text-xs font-bold text-white active:bg-red-600"
-        onClick={() => {
-          navigator.clipboard.writeText(step);
+        style={{
+          borderRadius: "0.25rem",
+          backgroundColor: "#ef4444",
+          paddingLeft: "0.5rem",
+          paddingRight: "0.5rem",
+          paddingTop: "0.25rem",
+          paddingBottom: "0.25rem",
+          fontSize: "0.75rem",
+          fontWeight: "bold",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.25rem",
         }}
       >
         {step}
+        <span
+          style={{ fontSize: "0.6rem", cursor: "pointer" }}
+          onClick={() => {
+            navigator.clipboard.writeText(step);
+          }}
+        >
+          [copy]
+        </span>
       </div>
     </div>
   );
