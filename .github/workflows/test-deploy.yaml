@@ -102,6 +102,9 @@ jobs:
       APP_PREFIX: ${{ needs.deploy_kitchen_sink_app.outputs.app_prefix }}
 
     steps:
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+
       - name: Clean up testing app from Fly.io
         run: |
           flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
