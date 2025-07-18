@@ -4,29 +4,18 @@ module Wasp.Cli.Command.BuildStart.Client
   )
 where
 
-import Control.Monad.Except (MonadIO (liftIO))
 import Data.Function ((&))
 import StrongPath ((</>))
-import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, clientEnvVars)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import Wasp.Cli.Util.EnvVarArgument (readEnvVarFile)
-import Wasp.Env (EnvVar, nubEnvVars)
+import Wasp.Env (nubEnvVars)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 
 buildClient :: BuildStartConfig -> ExceptJob
-buildClient config chan = do
-  let envVarsFromArgs = Config.clientEnvironmentVariables config
-  envVarsFromFiles <-
-    liftIO $ mapM readEnvVarFile (Config.clientEnvironmentFiles config)
-  let allEnvVars = envVarsFromArgs <> concat envVarsFromFiles
-
-  buildClientWithUserDefinedEnvVars config allEnvVars chan
-
-buildClientWithUserDefinedEnvVars :: BuildStartConfig -> [EnvVar] -> ExceptJob
-buildClientWithUserDefinedEnvVars config userDefinedEnvVars =
+buildClient config =
   runNodeCommandAsJobWithExtraEnv
     allEnvVars
     webAppDir
@@ -35,7 +24,11 @@ buildClientWithUserDefinedEnvVars config userDefinedEnvVars =
     J.WebApp
     & toExceptJob (("Building the client failed with exit code: " <>) . show)
   where
-    allEnvVars = nubEnvVars $ [("REACT_APP_API_URL", serverUrl)] <> userDefinedEnvVars
+    allEnvVars =
+      nubEnvVars $
+        [("REACT_APP_API_URL", serverUrl)]
+          <> clientEnvVars config
+
     serverUrl = Config.serverUrl config
     webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir
     buildDir = Config.buildDir config

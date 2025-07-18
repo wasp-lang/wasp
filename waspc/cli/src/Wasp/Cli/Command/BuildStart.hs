@@ -41,7 +41,7 @@ buildStart args = do
   -- the server starts if the DB is not running anyway, and with a very clear
   -- error message that we print.
 
-  let config = makeBuildStartConfig appSpec buildStartArgs waspProjectDir
+  config <- liftIO $ makeBuildStartConfig appSpec buildStartArgs waspProjectDir
 
   buildAndStartServerAndClient config
 
