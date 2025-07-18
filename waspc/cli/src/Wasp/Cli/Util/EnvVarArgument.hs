@@ -5,21 +5,18 @@ module Wasp.Cli.Util.EnvVarArgument
     WorkingDir,
     envVarFileReader,
     readEnvVarFile,
-    forceEnvVarsM,
   )
 where
 
 import Control.Arrow (ArrowChoice (left))
-import Control.Monad.Except (MonadError (throwError))
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.List (intercalate)
 import Options.Applicative (ReadM, eitherReader)
 import qualified Path
 import StrongPath (Abs, File, Path', Rel, (</>))
 import qualified StrongPath.Path as SP.Path
 import Wasp.Cli.Util.Common (WorkingDir, getWorkingDir)
-import Wasp.Env (EnvVar, forceEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, parseDotEnvFile)
 
 envVarReader :: ReadM EnvVar
 envVarReader = eitherReader envVarFromString
@@ -58,9 +55,3 @@ readEnvVarFile arg = toStrongPath arg >>= parseDotEnvFile
     toStrongPath :: EnvVarFileArgument -> IO (Path' Abs (File ()))
     toStrongPath (AbsoluteEnvVarFile path) = return path
     toStrongPath (RelativeEnvVarFile path) = (</> path) <$> getWorkingDir
-
-forceEnvVarsM :: MonadError String m => (String -> String) -> [EnvVar] -> [EnvVar] -> m [EnvVar]
-forceEnvVarsM toErrorMessage forced existing =
-  case forceEnvVars forced existing of
-    Left duplicateNames -> throwError $ toErrorMessage $ intercalate ", " duplicateNames
-    Right combined -> return combined

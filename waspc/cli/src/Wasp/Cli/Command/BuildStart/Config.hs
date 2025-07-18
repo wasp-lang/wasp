@@ -11,18 +11,23 @@ module Wasp.Cli.Command.BuildStart.Config
   )
 where
 
+import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
 import Data.Char (toLower)
+import Data.List (intercalate)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.EnvVarArgument (EnvVarFileArgument, readEnvVarFile)
-import Wasp.Env (EnvVar, nubEnvVars)
+import Wasp.Env (EnvVar, forceEnvVars, nubEnvVars)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
+import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
 
 data BuildStartConfig = BuildStartConfig
@@ -33,19 +38,30 @@ data BuildStartConfig = BuildStartConfig
     buildDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir)
   }
 
-makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO BuildStartConfig
+makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir = do
-  serverEnvVars' <- readEnvVars (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
-  clientEnvVars' <- readEnvVars (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
-
   let config = makeBuildStartConfigWithoutEnvVars appSpec projectDir
-  let configWithEnvVars =
-        config
-          { serverEnvVars = serverEnvVars',
-            clientEnvVars = clientEnvVars'
-          }
 
-  return configWithEnvVars
+  serverEnvVars' <-
+    readAndForceEnvVars
+      [ (Server.clientUrlEnvVarName, show $ fst $ clientPortAndUrl config),
+        (Server.serverUrlEnvVarName, serverUrl config)
+      ]
+      (Args.serverEnvironmentVariables args)
+      (Args.serverEnvironmentFiles args)
+
+  clientEnvVars' <-
+    readAndForceEnvVars
+      [ (WebApp.serverUrlEnvVarName, serverUrl config)
+      ]
+      (Args.clientEnvironmentVariables args)
+      (Args.clientEnvironmentFiles args)
+
+  return $
+    config
+      { serverEnvVars = serverEnvVars',
+        clientEnvVars = clientEnvVars'
+      }
 
 makeBuildStartConfigWithoutEnvVars :: AppSpec -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> BuildStartConfig
 makeBuildStartConfigWithoutEnvVars appSpec projectDir =
@@ -88,3 +104,18 @@ readEnvVars pairs files = do
   pairsFromFiles <- mapM readEnvVarFile files
   let allEnvVars = pairs <> concat pairsFromFiles
   return $ nubEnvVars allEnvVars
+
+readAndForceEnvVars :: [EnvVar] -> [EnvVar] -> [EnvVarFileArgument] -> Command [EnvVar]
+readAndForceEnvVars forced existing files = do
+  readVars <- liftIO $ readEnvVars existing files
+  forceEnvVarsCommand forced readVars
+
+forceEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
+forceEnvVarsCommand forced existing =
+  case forceEnvVars forced existing of
+    Left duplicateNames ->
+      throwError $
+        CommandError "Duplicate environment variables" $
+          ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
+            intercalate ", " duplicateNames
+    Right combined -> return combined
