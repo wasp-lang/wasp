@@ -21,8 +21,11 @@ jobs:
       #   run: |
       #     curl -sSfL https://get.wasp.sh/installer.sh | sh -s
 
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: "actions/checkout@v4"
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Haskell
         uses: ./.github/actions/setup-haskell
@@ -31,6 +34,7 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install Wasp CLI
+        working-directory: waspc
         run: ./run install
 
       - name: Install Fly CLI
@@ -51,7 +55,7 @@ jobs:
         working-directory: waspc/examples/todoApp
         # NOTE: Github knows not to output the db connection string, how?
         run: |
-          yes | ../../run wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
+          yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Save deployed app info
         working-directory: waspc/examples/todoApp
