@@ -131,7 +131,7 @@ jobs:
     name: Run smoke tests on Wasp kitchen sink app
 
     runs-on: ubuntu-latest
-    needs: deploy_kitchen_sink_app
+    needs: deploy_kitchen_sink_app_with_fly
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       SERVER_HOSTNAME: ${{ needs.deploy_kitchen_sink_app.outputs.server_hostname }}
