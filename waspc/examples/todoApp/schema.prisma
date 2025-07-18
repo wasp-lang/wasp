@@ -16,9 +16,10 @@ model User {
   isOnAfterLoginHookCalled         Boolean @default(false)
   isOnAfterEmailVerifiedHookCalled Boolean @default(false)
 
-  tasks   Task[]
-  address String?
-  votes   TaskVote[]
+  tasks                Task[]
+  address              String?
+  votes                TaskVote[]
+  uppercaseTextRequests UppercaseTextRequest[]
 }
 
 enum TaskVisibility {
