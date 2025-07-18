@@ -16,6 +16,11 @@ jobs:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       FLY_REGION: mia
 
+    outputs:
+      server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
+      client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
+      app_prefix: ${{ steps.generate_app_prefix.outputs.app_prefix }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,16 +43,15 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Generate unique app prefix from commit SHA
-        id: generate_prefix
+        id: generate_app_prefix
         run: |
-          PREFIX="ci-$(echo $GITHUB_SHA | head -c 7)"
-          echo "APP_PREFIX=$PREFIX" >> $GITHUB_ENV
-          echo "app_prefix=$PREFIX" >> "$GITHUB_OUTPUT" # Add this line
+          echo "app_prefix=$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
 
       - name: Prepare server secrets for deployment
         id: prepare_secrets
         working-directory: waspc/examples/todoApp
         run: |
+          # TODO: Explain the assumptinos and the fragility of this
           echo "ENV_VARS=$(
             cat .env.server.headless \
             | sed -E 's/#.*//' \
@@ -58,7 +62,8 @@ jobs:
       - name: Deploy Kitchen sink app to Fly.io
         working-directory: waspc/examples/todoApp
         run: |
-          yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
+          # NOTE: Github knows not to output the db connection string, how?
+          yes | wasp-cli deploy fly launch ${{ steps.generate_app_prefix.outputs.app_prefix }} $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Save deployed app hostnames
         id: save_hostnames
@@ -76,7 +81,6 @@ jobs:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       SERVER_HOSTNAME: ${{ needs.deploy_kitchen_sink_app.outputs.server_hostname }}
       CLIENT_HOSTNAME: ${{ needs.deploy_kitchen_sink_app.outputs.client_hostname }}
-      APP_PREFIX: ${{ needs.deploy_kitchen_sink_app.outputs.app_prefix }}
 
     steps:
       - name: Smoke test the server
@@ -87,7 +91,16 @@ jobs:
         run: |
           curl --fail https://$CLIENT_HOSTNAME
 
+  clean_up_deployed_app:
+    name: Clean up Deployed App
+    needs: [deploy_kitchen_sink_app, smoke_test_kitchen_sink_app]
+    if: always()
+
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      APP_PREFIX: ${{ needs.deploy_kitchen_sink_app.outputs.app_prefix }}
+
+    steps:
       - name: Clean up testing app from Fly.io
-        if: always()
         run: |
           flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y

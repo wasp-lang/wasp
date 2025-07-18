@@ -7,16 +7,7 @@ on:
       - filip-automatic-deploy-test
 
 jobs:
-  secert-sanity-check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Secret sanity check
-        run: |
-          echo $TEST1
-        env:
-          TEST1: ${{ secrets.FLY_API_TOKEN }}
   call-reusable:
     uses: ./.github/workflows/test-deploy.yaml
-
     secrets:
        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
