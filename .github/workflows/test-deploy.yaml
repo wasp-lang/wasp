@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install Wasp CLI
-        run: ./run/install
+        run: ./run install
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
