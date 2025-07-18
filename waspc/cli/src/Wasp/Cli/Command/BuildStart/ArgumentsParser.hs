@@ -5,14 +5,14 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
 where
 
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.Parser (envVarReader)
+import Wasp.Cli.Util.EnvVarArgument (EnvVarFileArgument, envVarFileReader, envVarReader)
 import Wasp.Env (EnvVar)
 
 data BuildStartArgs = BuildStartArgs
   { clientEnvironmentVariables :: [EnvVar],
-    clientEnvironmentFiles :: [FilePath],
+    clientEnvironmentFiles :: [EnvVarFileArgument],
     serverEnvironmentVariables :: [EnvVar],
-    serverEnvironmentFiles :: [FilePath]
+    serverEnvironmentFiles :: [EnvVarFileArgument]
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
@@ -41,9 +41,9 @@ buildStartArgsParser =
           <> Opt.metavar "NAME=VALUE"
           <> Opt.help ("Set an environment variable for the " <> targetName <> " (can be used multiple times)")
 
-    makeEnvironmentFileParser :: String -> String -> Opt.Parser FilePath
+    makeEnvironmentFileParser :: String -> String -> Opt.Parser EnvVarFileArgument
     makeEnvironmentFileParser targetName longOptionName =
-      Opt.strOption $
+      Opt.option envVarFileReader $
         Opt.long longOptionName
           <> Opt.metavar "FILE_PATH"
           <> Opt.help ("Load environment variables for the " <> targetName <> " from a file (can be used multiple times)")

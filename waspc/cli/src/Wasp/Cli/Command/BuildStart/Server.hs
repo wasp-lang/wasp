@@ -4,12 +4,14 @@ module Wasp.Cli.Command.BuildStart.Server
   )
 where
 
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function ((&))
 import qualified StrongPath as SP
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import Wasp.Env (EnvVar)
+import Wasp.Cli.Util.EnvVarArgument (readEnvVarFile)
+import Wasp.Env (EnvVar, nubEnvVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
@@ -27,37 +29,37 @@ buildServer config =
     dockerImageName = Config.dockerImageName config
 
 startServer :: BuildStartConfig -> ExceptJob
-startServer config =
+startServer config chan = do
+  let envVarsFromArgs = Config.serverEnvironmentVariables config
+  envVarsFromFiles <-
+    liftIO $ mapM readEnvVarFile (Config.serverEnvironmentFiles config)
+  let allEnvVars = envVarsFromArgs <> concat envVarsFromFiles
+
+  startServerWithUserDefinedEnvVars config allEnvVars chan
+
+startServerWithUserDefinedEnvVars :: BuildStartConfig -> [EnvVar] -> ExceptJob
+startServerWithUserDefinedEnvVars config userDefinedEnvVars =
   runProcessAsJob
     ( proc
         "docker"
         ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
-            <> envVarArgs
+            <> envVarParams
             <> [dockerImageName]
         )
     )
     J.Server
     & toExceptJob (("Running the server failed with exit code: " <>) . show)
   where
-    envVarArgs =
-      [ "--env",
-        Server.clientUrlEnvVarName <> "=" <> clientUrl,
-        "--env",
-        Server.serverUrlEnvVarName <> "=" <> serverUrl
-      ]
-        <> userDefinedEnvFileParams
-        <> userDefinedEnvParams
+    envVarParams =
+      allEnvVars
+        >>= \(name, value) -> ["--env", name <> "=" <> value]
 
-    userDefinedEnvParams =
-      Config.serverEnvironmentVariables config
-        >>= envVarToArg
-
-    userDefinedEnvFileParams =
-      Config.serverEnvironmentFiles config
-        >>= \envFile -> ["--env-file", envFile]
-
-    envVarToArg :: EnvVar -> [String]
-    envVarToArg (name, value) = ["--env", name <> "=" <> value]
+    allEnvVars =
+      nubEnvVars $
+        [ (Server.clientUrlEnvVarName, clientUrl),
+          (Server.serverUrlEnvVarName, serverUrl)
+        ]
+          <> userDefinedEnvVars
 
     (_, clientUrl) = Config.clientPortAndUrl config
     serverUrl = Config.serverUrl config

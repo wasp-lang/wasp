@@ -5,9 +5,7 @@ module Wasp.Env
     EnvVarName,
     EnvVarValue,
     parseDotEnvFile,
-    parseDotEnvFilePath,
     envVarsToDotEnvContent,
-    envVarFromString,
     nubEnvVars,
   )
 where
@@ -26,14 +24,11 @@ type EnvVarName = String
 
 type EnvVarValue = String
 
-parseDotEnvFile :: Path' Abs (File ()) -> IO [EnvVar]
-parseDotEnvFile = parseDotEnvFilePath . fromAbsFile
-
 -- Reads the specified dotenv file and returns its values.
 -- Crashes if file doesn't exist or it can't parse it.
-parseDotEnvFilePath :: FilePath -> IO [EnvVar]
-parseDotEnvFilePath envFilePath =
-  Dotenv.parseFile envFilePath
+parseDotEnvFile :: Path' Abs (File ()) -> IO [EnvVar]
+parseDotEnvFile envFile =
+  Dotenv.parseFile (fromAbsFile envFile)
     -- Parse errors are returned from Dotenv.parseFile as ErrorCall, which Wasp compiler would
     -- report as a bug in compiler, so we instead convert these to IOExceptions.
     `catch` \(ErrorCall msg) -> throwIO $ userError $ "Failed to parse dot env file: " <> msg
@@ -41,17 +36,6 @@ parseDotEnvFilePath envFilePath =
 envVarsToDotEnvContent :: [EnvVar] -> T.Text
 envVarsToDotEnvContent vars =
   T.pack $ intercalate "\n" $ map (\(name, value) -> name <> "=" <> show value) vars
-
--- | Converts a string to an EnvVar, throwing an error if the string is not in
--- the correct format. The input format is expected to be "NAME=VALUE".
-envVarFromString :: String -> Either String EnvVar
-envVarFromString var =
-  case break (== '=') var of
-    ([], _) -> failure
-    (name, '=' : value) -> Right (name, value)
-    _ -> failure
-  where
-    failure = Left $ "Environment variable must be in the format NAME=VALUE: " ++ var
 
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)

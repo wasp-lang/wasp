@@ -4,12 +4,13 @@ module Wasp.Cli.Command.BuildStart.Client
   )
 where
 
-import Control.Monad.Except (ExceptT, MonadIO (liftIO), liftEither)
+import Control.Monad.Except (MonadIO (liftIO))
 import Data.Function ((&))
 import StrongPath ((</>))
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import Wasp.Env (EnvVar, envVarFromString, nubEnvVars, parseDotEnvFilePath)
+import Wasp.Cli.Util.EnvVarArgument (readEnvVarFile)
+import Wasp.Env (EnvVar, nubEnvVars)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
@@ -17,11 +18,15 @@ import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 
 buildClient :: BuildStartConfig -> ExceptJob
 buildClient config chan = do
-  envVars <- allClientEnvironmentVariables config
-  buildClientWithExtraEnvVars config envVars chan
+  let envVarsFromArgs = Config.clientEnvironmentVariables config
+  envVarsFromFiles <-
+    liftIO $ mapM readEnvVarFile (Config.clientEnvironmentFiles config)
+  let allEnvVars = envVarsFromArgs <> concat envVarsFromFiles
 
-buildClientWithExtraEnvVars :: BuildStartConfig -> [EnvVar] -> ExceptJob
-buildClientWithExtraEnvVars config userDefinedEnvVars =
+  buildClientWithUserDefinedEnvVars config allEnvVars chan
+
+buildClientWithUserDefinedEnvVars :: BuildStartConfig -> [EnvVar] -> ExceptJob
+buildClientWithUserDefinedEnvVars config userDefinedEnvVars =
   runNodeCommandAsJobWithExtraEnv
     allEnvVars
     webAppDir
@@ -31,7 +36,6 @@ buildClientWithExtraEnvVars config userDefinedEnvVars =
     & toExceptJob (("Building the client failed with exit code: " <>) . show)
   where
     allEnvVars = nubEnvVars $ [("REACT_APP_API_URL", serverUrl)] <> userDefinedEnvVars
-
     serverUrl = Config.serverUrl config
     webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir
     buildDir = Config.buildDir config
@@ -55,13 +59,3 @@ startClient config =
 
     buildDir = Config.buildDir config
     webAppDir = buildDir </> Common.webAppRootDirInProjectRootDir
-
-allClientEnvironmentVariables :: BuildStartConfig -> ExceptT String IO [EnvVar]
-allClientEnvironmentVariables config = do
-  let envVarsFromStrings = Config.clientEnvironmentVariables config
-
-  envVarsFromFiles <-
-    liftIO $
-      mapM parseDotEnvFilePath $ Config.clientEnvironmentFiles config
-
-  return $ nubEnvVars (envVarsFromStrings <> concat envVarsFromFiles)
