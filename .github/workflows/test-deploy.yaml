@@ -92,6 +92,7 @@ jobs:
           curl --fail https://$CLIENT_HOSTNAME
 
   clean_up_deployed_app:
+    runs-on: ubuntu-latest
     name: Clean up Deployed App
     needs: [deploy_kitchen_sink_app, smoke_test_kitchen_sink_app]
     if: always()
