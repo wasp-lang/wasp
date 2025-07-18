@@ -6,6 +6,9 @@ on:
       FLY_API_TOKEN:
         description: "Fly API token for deploying apps"
         required: true
+      RAILWAY_API_TOKEN:
+        description: "Railway API token for deploying apps"
+        required: true
 
 jobs:
   deploy_kitchen_sink_app_with_fly:
