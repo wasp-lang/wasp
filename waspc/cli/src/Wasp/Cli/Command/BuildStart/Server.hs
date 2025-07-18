@@ -31,16 +31,16 @@ startServer config =
     ( proc
         "docker"
         ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
-            <> toEnvVarParams envVars
+            <> envVarParams
             <> [dockerImageName]
         )
     )
     J.Server
     & toExceptJob (("Running the server failed with exit code: " <>) . show)
   where
-    toEnvVarParams list =
-      list >>= \(name, value) -> ["--env", name <> "=" <> value]
-
-    envVars = Config.serverEnvVars config
+    envVarParams = toEnvVarParams $ Config.serverEnvVars config
     dockerContainerName = Config.dockerContainerName config
     dockerImageName = Config.dockerImageName config
+
+    toEnvVarParams list =
+      list >>= \(name, value) -> ["--env", name <> "=" <> value]
