@@ -74,8 +74,6 @@ jobs:
     needs: deploy_kitchen_sink_app
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-    env:
       SERVER_HOSTNAME: ${{ needs.deploy_kitchen_sink_app.outputs.server_hostname }}
       CLIENT_HOSTNAME: ${{ needs.deploy_kitchen_sink_app.outputs.client_hostname }}
       APP_PREFIX: ${{ needs.deploy_kitchen_sink_app.outputs.app_prefix }}
