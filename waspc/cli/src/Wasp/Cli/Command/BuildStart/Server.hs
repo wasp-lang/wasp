@@ -38,11 +38,9 @@ startServer config =
     J.Server
     & toExceptJob (("Running the server failed with exit code: " <>) . show)
   where
+    toEnvVarParams list =
+      list >>= \(name, value) -> ["--env", name <> "=" <> value]
+
     envVars = Config.serverEnvVars config
     dockerContainerName = Config.dockerContainerName config
     dockerImageName = Config.dockerImageName config
-
-toEnvVarParams :: [EnvVar] -> [String]
-toEnvVarParams list =
-  list
-    >>= \(name, value) -> ["--env", name <> "=" <> value]
