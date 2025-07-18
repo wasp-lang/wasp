@@ -8,14 +8,17 @@ on:
         required: true
 
 jobs:
-  echo_steps:
+  deploy_kitchen_sink_app:
+    name: Deploy Wasp Kitchen Sink App
+
     runs-on: ubuntu-latest
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       FLY_REGION: mia
 
     steps:
-      - uses: "actions/checkout@v4"
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           # Workaround for a Github Checkout action bug
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
@@ -24,7 +27,7 @@ jobs:
       - name: Set up Haskell
         uses: ./.github/actions/setup-haskell
 
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
 
       - name: Install Wasp CLI
@@ -36,45 +39,57 @@ jobs:
 
       - name: Generate unique app prefix from commit SHA
         id: generate_prefix
-        run: echo "APP_PREFIX=ci-$(echo $GITHUB_SHA | head -c 7)" >> $GITHUB_ENV
+        run: |
+          PREFIX="ci-$(echo $GITHUB_SHA | head -c 7)"
+          echo "APP_PREFIX=$PREFIX" >> $GITHUB_ENV
+          echo "app_prefix=$PREFIX" >> "$GITHUB_OUTPUT" # Add this line
 
-      - name: Prepare Server Secrets
+      - name: Prepare server secrets for deployment
         id: prepare_secrets
         working-directory: waspc/examples/todoApp
         run: |
-          # TODO: Explain the assumptinos and the fragility of this
           echo "ENV_VARS=$(
             cat .env.server.headless \
-          | sed -E 's/#.*//' \
-          | awk 'NF {$1=$1;print}' \
-          | sed -E 's/^/--server-secret /'\
-          | paste -sd' ')" >> $GITHUB_ENV
+            | sed -E 's/#.*//' \
+            | awk 'NF {$1=$1;print}' \
+            | sed -E 's/^/--server-secret /' \
+            | paste -sd' ')" >> $GITHUB_ENV
 
-      - name: Deploy Kitchen sink app
+      - name: Deploy Kitchen sink app to Fly.io
         working-directory: waspc/examples/todoApp
-        # NOTE: Github knows not to output the db connection string, how?
         run: |
           yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
-      - name: Save deployed app info
+      - name: Save deployed app hostnames
+        id: save_hostnames
         working-directory: waspc/examples/todoApp
         run: |
-          get_hostname () { 
-            local config_file="$1"
-            flyctl status -j -c "$config_file" | jq -r '.Hostname'
-          }
+          echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
+          echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
 
-          echo "SERVER_HOSTNAME=$(get_hostname fly-server.toml)" >> $GITHUB_ENV
-          echo "CLIENT_HOSTNAME=$(get_hostname fly-client.toml)" >> $GITHUB_ENV
+  smoke_test_kitchen_sink_app:
+    name: Run Smoke Tests on Wasp Kitchen Sink App
 
+    runs-on: ubuntu-latest
+    needs: deploy_kitchen_sink_app
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    env:
+      SERVER_HOSTNAME: ${{ needs.deploy_kitchen_sink_app.outputs.server_hostname }}
+      CLIENT_HOSTNAME: ${{ needs.deploy_kitchen_sink_app.outputs.client_hostname }}
+      APP_PREFIX: ${{ needs.deploy_kitchen_sink_app.outputs.app_prefix }}
+
+    steps:
       - name: Smoke test the server
         run: |
-          curl --silent -X POST https://$SERVER_HOSTNAME/operations/get-date
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date
 
       - name: Smoke test the client
         run: |
-          curl https://$CLIENT_HOSTNAME
+          curl --fail https://$CLIENT_HOSTNAME
 
-      - name: Clean up testing app
+      - name: Clean up testing app from Fly.io
+        if: always()
         run: |
           flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
