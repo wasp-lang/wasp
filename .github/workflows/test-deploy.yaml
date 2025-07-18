@@ -63,6 +63,7 @@ jobs:
         working-directory: waspc/examples/todoApp
         run: |
           # NOTE: Github knows not to output the db connection string, how?
+          # NOTE:The `yes` command is necessary because the `fly launch` command prompts for confirmation 
           yes | wasp-cli deploy fly launch ${{ steps.generate_app_prefix.outputs.app_prefix }} $FLY_REGION --org wasp ${{ env.ENV_VARS }}
 
       - name: Save deployed app hostnames
