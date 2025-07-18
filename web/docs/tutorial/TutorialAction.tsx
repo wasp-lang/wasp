@@ -30,40 +30,14 @@ function TutorialActionStep({
 }) {
   return (
     <div style={{ display: "flex", gap: "0.5rem" }}>
-      <div
-        style={{
-          borderRadius: "0.25rem",
-          backgroundColor: "#6b7280",
-          paddingLeft: "0.5rem",
-          paddingRight: "0.5rem",
-          paddingTop: "0.25rem",
-          paddingBottom: "0.25rem",
-          fontSize: "0.75rem",
-          fontWeight: "bold",
-          color: "white",
-        }}
-      >
-        tutorial action: {action}
-      </div>
-      <div
-        style={{
-          borderRadius: "0.25rem",
-          backgroundColor: "#ef4444",
-          paddingLeft: "0.5rem",
-          paddingRight: "0.5rem",
-          paddingTop: "0.25rem",
-          paddingBottom: "0.25rem",
-          fontSize: "0.75rem",
-          fontWeight: "bold",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.25rem",
-        }}
-      >
+      <div style={tutorialActionPillStyle}>tutorial action: {action}</div>
+      <div style={stepPillStyle}>
         {step}
         <span
-          style={{ fontSize: "0.6rem", cursor: "pointer" }}
+          style={{
+            fontSize: "0.6rem",
+            cursor: "pointer",
+          }}
           onClick={() => {
             navigator.clipboard.writeText(step);
           }}
@@ -74,3 +48,27 @@ function TutorialActionStep({
     </div>
   );
 }
+
+const pillStyle: React.CSSProperties = {
+  borderRadius: "0.25rem",
+  paddingLeft: "0.5rem",
+  paddingRight: "0.5rem",
+  paddingTop: "0.25rem",
+  paddingBottom: "0.25rem",
+  fontSize: "0.75rem",
+  fontWeight: "bold",
+  color: "white",
+};
+
+const tutorialActionPillStyle: React.CSSProperties = {
+  ...pillStyle,
+  backgroundColor: "#6b7280",
+};
+
+const stepPillStyle: React.CSSProperties = {
+  ...pillStyle,
+  backgroundColor: "#ef4444",
+  display: "flex",
+  alignItems: "center",
+  gap: "0.25rem",
+};
