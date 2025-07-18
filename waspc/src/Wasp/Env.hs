@@ -42,6 +42,8 @@ envVarsToDotEnvContent :: [EnvVar] -> T.Text
 envVarsToDotEnvContent vars =
   T.pack $ intercalate "\n" $ map (\(name, value) -> name <> "=" <> show value) vars
 
+-- | Converts a string to an EnvVar, throwing an error if the string is not in
+-- the correct format. The input format is expected to be "NAME=VALUE".
 envVarFromString :: String -> Either String EnvVar
 envVarFromString var =
   case break (== '=') var of
