@@ -99,16 +99,16 @@ dockerContainerName config =
   map toLower $ -- Lowercase because Docker container names require it.
     appUniqueId config <> "-server-container"
 
+readAndForceEnvVars :: [EnvVar] -> [EnvVar] -> [EnvVarFileArgument] -> Command [EnvVar]
+readAndForceEnvVars forced existing files = do
+  readVars <- liftIO $ readEnvVars existing files
+  forceEnvVarsCommand forced readVars
+
 readEnvVars :: [EnvVar] -> [EnvVarFileArgument] -> IO [EnvVar]
 readEnvVars pairs files = do
   pairsFromFiles <- mapM readEnvVarFile files
   let allEnvVars = pairs <> concat pairsFromFiles
   return $ nubEnvVars allEnvVars
-
-readAndForceEnvVars :: [EnvVar] -> [EnvVar] -> [EnvVarFileArgument] -> Command [EnvVar]
-readAndForceEnvVars forced existing files = do
-  readVars <- liftIO $ readEnvVars existing files
-  forceEnvVarsCommand forced readVars
 
 forceEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
 forceEnvVarsCommand forced existing =
