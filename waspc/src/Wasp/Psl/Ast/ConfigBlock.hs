@@ -11,6 +11,7 @@ import Data.Function (on)
 import Data.Functor ((<&>))
 import Data.List (nubBy)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
+import Wasp.Psl.Ast.AttachedComment (AttachedComment)
 import Wasp.Psl.Ast.Common (Name)
 
 -- | Represents a config block in the PSL.
@@ -33,7 +34,8 @@ import Wasp.Psl.Ast.Common (Name)
 data ConfigBlock = ConfigBlock
   { _type :: ConfigBlockType,
     _name :: Name,
-    _keyValuePairs :: [KeyValuePair]
+    _keyValuePairs :: [KeyValuePair],
+    _configAttachedComments :: [AttachedComment]
   }
   deriving (Show, Eq)
 
@@ -50,18 +52,21 @@ type Identifier = String
 --  }
 --  ```
 --  The key-value pair would be `KeyValuePair "provider" "prisma-client-js"`.
-data KeyValuePair = KeyValuePair Identifier Psl.Argument.Expression
+data KeyValuePair = KeyValuePair
+  { _key :: Identifier,
+    _value :: Psl.Argument.Expression,
+    _attachedComments :: [AttachedComment]
+  }
   deriving (Show, Eq)
 
 overrideKeyValuePairs :: [(String, Psl.Argument.Expression)] -> ConfigBlock -> ConfigBlock
 overrideKeyValuePairs
   overridePairs
-  (ConfigBlock configBlockType name originalKeyValues) =
-    ConfigBlock configBlockType name overridenKeyValues
+  (ConfigBlock configBlockType name originalKeyValues attachedComments) =
+    ConfigBlock configBlockType name overridenKeyValues attachedComments
     where
-      configBlockPairs =
-        originalKeyValues
-          <&> (\(KeyValuePair key value) -> (key, value))
+      overrideKeyValues =
+        overridePairs <&> (\(key, value) -> KeyValuePair key value [])
+
       overridenKeyValues =
-        nubBy ((==) `on` fst) (overridePairs ++ configBlockPairs)
-          <&> uncurry KeyValuePair
+        nubBy ((==) `on` _key) (overrideKeyValues ++ originalKeyValues)

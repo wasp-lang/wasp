@@ -37,5 +37,5 @@ doesPslFieldHaveAttribute name Psl.Model.Field {_attrs = attrs} = any ((== name)
 
 findPrismaConfigBlockKeyValuePair :: Identifier -> [Psl.ConfigBlock.KeyValuePair] -> Maybe Psl.Argument.Expression
 findPrismaConfigBlockKeyValuePair searchKey =
-  fmap (\(Psl.ConfigBlock.KeyValuePair _ value) -> value)
-    . find (\(Psl.ConfigBlock.KeyValuePair key _) -> key == searchKey)
+  fmap (\(Psl.ConfigBlock.KeyValuePair _ value _) -> value)
+    . find (\(Psl.ConfigBlock.KeyValuePair key _ _) -> key == searchKey)

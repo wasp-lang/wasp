@@ -11,6 +11,7 @@ import Text.Parsec
   )
 import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
+import Wasp.Psl.Parser.AttachedComment (withAttachedComments)
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
   ( braces,
@@ -26,7 +27,7 @@ import Wasp.Psl.Parser.Common
 --     @@map("role")
 --   }
 enum :: Parser Psl.Enum.Enum
-enum = do
+enum = withAttachedComments $ do
   reserved "enum"
   enumName <- identifier
   Psl.Enum.Enum enumName <$> braces (many1 enumField)

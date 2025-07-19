@@ -400,6 +400,7 @@ library
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.WaspFile.WaspLang
     Wasp.Psl.Ast.Argument
+    Wasp.Psl.Ast.AttachedComment
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common
     Wasp.Psl.Ast.Schema
@@ -417,6 +418,7 @@ library
     Wasp.Psl.Generator.Model
     Wasp.Psl.Generator.Schema
     Wasp.Psl.Parser.Argument
+    Wasp.Psl.Parser.AttachedComment
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
     Wasp.Psl.Parser.ConfigBlock
