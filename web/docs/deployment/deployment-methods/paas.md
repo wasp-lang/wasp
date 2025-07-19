@@ -7,6 +7,7 @@ import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.m
 import BuildingTheWebClient from './\_building-the-web-client.md'
 import { Required } from '@site/src/components/Tag'
 import { Server, Client, Database } from './DeploymentTag'
+import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
 
 This document explains how to build and prepare your Wasp app for deployment.
 You can then deploy the built Wasp app wherever and however you want, as long as your provider/server supports Wasp's build format.
@@ -277,13 +278,10 @@ You'll deploy the server first:
 
    Click on the `server` service and go to the **Variables** tab:
 
-   1. Click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
-
-   1. Add `WASP_WEB_CLIENT_URL` with the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
-
-   1. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
-
-   1. Add `JWT_SECRET` with a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+   - click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
+   - add `WASP_WEB_CLIENT_URL` - enter the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
+   - add `WASP_SERVER_URL` - enter the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
+   - add `JWT_SECRET` - <>A random string of at least 32 characters.<br /><SecretGeneratorBlock /></>
 
      <AddExternalAuthEnvVarsReminder />
 
