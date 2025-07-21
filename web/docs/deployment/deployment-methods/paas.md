@@ -168,6 +168,8 @@ fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
 fly secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
 
+We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
+
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
 :::
@@ -322,7 +324,7 @@ You'll deploy the server first:
     ```
 
 <!-- TOPIC: client deployment -->
-    
+
 4. Next, deploy the client build to Railway:
 
     ```shell
@@ -330,7 +332,7 @@ You'll deploy the server first:
     ```
 
     Select `client` when prompted to select a service.
-    
+
     Railway will detect the `index.html` file and deploy the client as a static site using [Railpack](https://railpack.com/languages/staticfile#root-directory-resolution).
 
 
@@ -404,6 +406,8 @@ heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_charact
 heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
 heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
+
+We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
 
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
