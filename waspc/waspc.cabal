@@ -408,6 +408,7 @@ library
     Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Ast.Type
     Wasp.Psl.Ast.View
+    Wasp.Psl.Ast.OutputNode
     Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
@@ -415,6 +416,7 @@ library
     Wasp.Psl.Generator.ConfigBlock
     Wasp.Psl.Generator.Enum
     Wasp.Psl.Generator.Model
+    Wasp.Psl.Generator.OutputNode
     Wasp.Psl.Generator.Schema
     Wasp.Psl.Parser.Argument
     Wasp.Psl.Parser.Attribute
@@ -424,6 +426,7 @@ library
     Wasp.Psl.Parser.ConfigBlock
     Wasp.Psl.Parser.Enum
     Wasp.Psl.Parser.Model
+    Wasp.Psl.Parser.OutputNode
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Parser.Type
     Wasp.Psl.Parser.View
