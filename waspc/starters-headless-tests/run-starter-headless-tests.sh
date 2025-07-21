@@ -42,7 +42,11 @@ cleanup_test_environment() {
 
 run_dev_headless_tests() {
   echo "Running DEV headless tests for ${TEMPLATE_NAME} project..."
-  DEBUG=pw:webserver E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD="${WASP_CLI_CMD}" HEADLESS_TEST_MODE=dev npx playwright test
+  export DEBUG=pw:webserver
+  export E2E_APP_PATH="./${TEMP_PROJECT_NAME}"
+  export WASP_CLI_CMD="${WASP_CLI_CMD}"
+  export HEADLESS_TEST_MODE=dev
+  npx playwright test --grep "(@${TEMPLATE_NAME}|^(?!.*@).*)"
 }
 
 run_build_headless_tests() {
@@ -52,7 +56,11 @@ run_build_headless_tests() {
   fi
 
   echo "Running BUILD headless tests for ${TEMPLATE_NAME} project..."
-  DEBUG=pw:webserver E2E_APP_PATH="./${TEMP_PROJECT_NAME}" WASP_CLI_CMD="${WASP_CLI_CMD}" HEADLESS_TEST_MODE=build npx playwright test
+  export DEBUG=pw:webserver
+  export E2E_APP_PATH="./${TEMP_PROJECT_NAME}"
+  export WASP_CLI_CMD="${WASP_CLI_CMD}"
+  export HEADLESS_TEST_MODE=build
+  npx playwright test --grep "(@${TEMPLATE_NAME}|^(?!.*@).*)"
 }
 
 template_uses_sqlite() {
