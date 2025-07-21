@@ -689,6 +689,7 @@ test-suite waspc-test
     Psl.Parser.ConfigBlockTest
     Psl.Parser.EnumTest
     Psl.Parser.ModelTest
+    Psl.Parser.OutputNodeTest
     Psl.Parser.TypeTest
     Psl.Parser.ViewTest
     Psl.Parser.SchemaTest

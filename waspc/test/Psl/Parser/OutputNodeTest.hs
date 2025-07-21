@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Psl.Parser.SchemaTest where
+module Psl.Parser.OutputNodeTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
