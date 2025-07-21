@@ -664,7 +664,7 @@ makeTokenParser languageDef =
     lexeme p =
       do x <- p; whiteSpace; return x
 
-    --whiteSpace
+    -- whiteSpace
     whiteSpace = skipMany (simpleSpace <|> oneLineComment <?> "")
 
     simpleSpace =

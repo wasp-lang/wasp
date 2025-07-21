@@ -25,10 +25,10 @@ prop_generatePslSchema = mapSize (const 100) $ \schemaElementAst ->
 instance Arbitrary Psl.Schema.Block where
   arbitrary =
     oneof
-      [ Psl.Schema.ModelBlock <$> arbitrary,
-        Psl.Schema.ViewBlock <$> arbitrary,
-        Psl.Schema.TypeBlock <$> arbitrary,
-        Psl.Schema.EnumBlock <$> arbitrary,
+      [ Psl.Schema.ModelBlock . pure <$> arbitrary,
+        Psl.Schema.ViewBlock . pure <$> arbitrary,
+        Psl.Schema.TypeBlock . pure <$> arbitrary,
+        Psl.Schema.EnumBlock . pure <$> arbitrary,
         Psl.Schema.ConfigBlock <$> arbitrary
       ]
 
@@ -46,9 +46,9 @@ instance Arbitrary Psl.Type.Type where
 
 instance Arbitrary Psl.Model.Body where
   arbitrary = do
-    fieldElement <- Psl.Model.ElementField <$> arbitrary
-    elementsBefore <- scale (const 5) arbitrary
-    elementsAfter <- scale (const 5) arbitrary
+    fieldElement <- pure . Psl.Model.ElementField <$> arbitrary
+    elementsBefore <- map pure <$> scale (const 5) arbitrary
+    elementsAfter <- map pure <$> scale (const 5) arbitrary
     return $ Psl.Model.Body $ elementsBefore ++ [fieldElement] ++ elementsAfter
 
 instance Arbitrary Psl.Model.Element where
@@ -132,7 +132,7 @@ instance Arbitrary Psl.Argument.Expression where
 instance Arbitrary Psl.Enum.Enum where
   arbitrary = do
     name <- arbitraryIdentifier
-    values <- scale (const 5) (listOf1 arbitrary)
+    values <- map pure <$> scale (const 5) (listOf1 arbitrary)
     return $ Psl.Enum.Enum name values
 
 instance Arbitrary Psl.Enum.Element where

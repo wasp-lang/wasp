@@ -29,21 +29,26 @@ spec_parsePslView = do
             Psl.View.View
               "UserInfo"
               ( Psl.Model.Body
-                  [ Psl.Model.ElementField
-                      ( Psl.Model.Field "id" Psl.Model.Int [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "email" Psl.Model.String [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "name" Psl.Model.String [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "bio" Psl.Model.String [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementBlockAttribute
-                      ( Psl.Attribute.Attribute "ignore" []
-                      )
+                  [ pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field "id" Psl.Model.Int [Psl.Model.Optional] []
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field "email" Psl.Model.String [Psl.Model.Optional] []
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field "name" Psl.Model.String [Psl.Model.Optional] []
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field "bio" Psl.Model.String [Psl.Model.Optional] []
+                        ),
+                    pure $
+                      Psl.Model.ElementBlockAttribute
+                        ( Psl.Attribute.Attribute "ignore" []
+                        )
                   ]
               )
 
@@ -66,33 +71,37 @@ spec_parsePslView = do
             Psl.View.View
               "UserInfo"
               ( Psl.Model.Body
-                  [ Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "id"
-                          Psl.Model.Int
-                          [ Psl.Model.Optional
-                          ]
-                          []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "email"
-                          Psl.Model.String
-                          [ Psl.Model.Optional
-                          ]
-                          []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "bio"
-                          Psl.Model.String
-                          [ Psl.Model.Optional
-                          ]
-                          []
-                      ),
-                    Psl.Model.ElementBlockAttribute
-                      ( Psl.Attribute.Attribute "ignore" []
-                      )
+                  [ pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field
+                            "id"
+                            Psl.Model.Int
+                            [ Psl.Model.Optional
+                            ]
+                            []
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field
+                            "email"
+                            Psl.Model.String
+                            [ Psl.Model.Optional
+                            ]
+                            []
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field
+                            "bio"
+                            Psl.Model.String
+                            [ Psl.Model.Optional
+                            ]
+                            []
+                        ),
+                    pure $
+                      Psl.Model.ElementBlockAttribute
+                        ( Psl.Attribute.Attribute "ignore" []
+                        )
                   ]
               )
 

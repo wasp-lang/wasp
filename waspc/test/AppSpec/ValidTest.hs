@@ -107,7 +107,7 @@ spec_AppSpecValid = do
       let validUserEntity =
             AS.Entity.makeEntity
               ( Psl.Model.Body
-                  [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                  [ pure $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
                   ]
               )
       let validAppAuth =
@@ -279,18 +279,19 @@ spec_AppSpecValid = do
         let invalidUserEntityWithoutDefaultAttr =
               AS.Entity.makeEntity
                 ( Psl.Model.Body
-                    [ Psl.Model.ElementField $
-                        Psl.Model.Field
-                          { Psl.Model._name = "id",
-                            Psl.Model._type = Psl.Model.String,
-                            Psl.Model._typeModifiers = [],
-                            Psl.Model._attrs =
-                              [ Psl.Attribute.Attribute
-                                  { Psl.Attribute._attrName = "id",
-                                    Psl.Attribute._attrArgs = []
-                                  }
-                              ]
-                          }
+                    [ pure $
+                        Psl.Model.ElementField $
+                          Psl.Model.Field
+                            { Psl.Model._name = "id",
+                              Psl.Model._type = Psl.Model.String,
+                              Psl.Model._typeModifiers = [],
+                              Psl.Model._attrs =
+                                [ Psl.Attribute.Attribute
+                                    { Psl.Attribute._attrName = "id",
+                                      Psl.Attribute._attrArgs = []
+                                    }
+                                ]
+                            }
                     ]
                 )
 
@@ -358,7 +359,7 @@ spec_AppSpecValid = do
                       AS.Decl.makeDecl userEntityName $
                         AS.Entity.makeEntity
                           ( Psl.Model.Body
-                              [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                              [ pure $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
                               ]
                           ),
                       basicPageDecl,
@@ -639,7 +640,7 @@ spec_AppSpecValid = do
     makeBasicEntityDecl name =
       AS.Decl.makeDecl
         name
-        (AS.Entity.makeEntity $ Psl.Model.Body [Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
+        (AS.Entity.makeEntity $ Psl.Model.Body [pure $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
 
     makeBasicJobDecl name =
       AS.Decl.makeDecl

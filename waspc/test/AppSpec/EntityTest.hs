@@ -17,13 +17,13 @@ spec_AppSpecEntityTest = do
     entityWithIdField =
       Entity.makeEntity $
         Psl.Model.Body
-          [ Psl.Model.ElementField idField,
-            Psl.Model.ElementField someOtherField
+          [ pure $ Psl.Model.ElementField idField,
+            pure $ Psl.Model.ElementField someOtherField
           ]
     entityWithoutIdField =
       Entity.makeEntity $
         Psl.Model.Body
-          [ Psl.Model.ElementField someOtherField
+          [ pure $ Psl.Model.ElementField someOtherField
           ]
 
     idField =
