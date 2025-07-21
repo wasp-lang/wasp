@@ -20,53 +20,10 @@ defaults:
   run:
     shell: bash
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  setup-and-cache-playwright:
-    name: Setup and Cache Playwright
-    runs-on: ubuntu-22.04
-    outputs:
-      playwright-version: ${{ steps.get-playwright-version.outputs.version }}
-    steps:
-      - uses: "actions/checkout@v4"
-        with:
-          # Workaround for a Github Checkout action bug
-          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Get Playwright Version from Waspello Example App
-        id: get-playwright-version
-        working-directory: examples/waspello
-        run: |
-          PLAYWRIGHT_VERSION=$(jq -r '.devDependencies["@playwright/test"]' package.json)
-          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
-          echo "version=$PLAYWRIGHT_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Cache Playwright Browsers for Playwright's Version
-        id: cache-playwright-browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ steps.get-playwright-version.outputs.version }}
-          lookup-only: true
-
-      - uses: actions/setup-node@v4
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
-        with:
-          node-version: lts/*
-
-      - name: Setup Playwright
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
-        run: |
-          npx playwright install --with-deps
-
   test-example-apps:
     name: Test Example Apps
     runs-on: ubuntu-22.04
-    needs: setup-and-cache-playwright
     strategy:
       fail-fast: false
       matrix:
@@ -99,11 +56,10 @@ jobs:
         run: |
           ./run install
 
-      - name: Restore Playwright Browsers Cache
-        uses: actions/cache/restore@v4
-        with:
-          key: playwright-browsers-${{ needs.setup-and-cache-playwright.outputs.playwright-version }}
-          path: ~/.cache/ms-playwright
+      - name: Setup Playwright
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+        run: |
+          npx playwright install --with-deps
 
       - name: Set up Wasp App runner
         run: npm i -g @wasp.sh/wasp-app-runner
