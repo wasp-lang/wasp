@@ -60,7 +60,7 @@ jobs:
         run: |
           npm ci
           npx playwright install --with-deps
-          
+
           if [ -f ".env.server.headless" ]; then
             cp .env.server.headless .env.server
           fi
