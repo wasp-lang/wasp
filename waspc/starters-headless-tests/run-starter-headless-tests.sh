@@ -51,7 +51,7 @@ run_dev_headless_tests() {
 
 run_build_headless_tests() {
   if template_uses_sqlite; then
-    echo "Skipping BUILD tests for ${TEMPLATE_NAME} project (sqlite detected in schema.prisma)."
+    echo "Skipping BUILD tests for ${TEMPLATE_NAME} project"
     return
   fi
 
@@ -64,15 +64,19 @@ run_build_headless_tests() {
 }
 
 template_uses_sqlite() {
-  local -r prisma_schema_file="./${TEMP_PROJECT_NAME}/schema.prisma"
+  cd "${TEMP_PROJECT_NAME}"
+  DATABASE_PROVIDER=$(${WASP_CLI_CMD} info \
+    | grep "Database system" \
+    | sed 's/.*: //' \
+    | sed -e 's/\x1b\[[0-9;]*m//g' \
+    | tr '[:upper:]' '[:lower:]')
 
-  if [[ ! -f "$prisma_schema_file" ]]; then
-    echo "Error: schema.prisma file not found at $prisma_schema_file" >&2
-    echo "The project may not have been generated correctly." >&2
-    return 1
+  if [ -z "$DATABASE_PROVIDER" ]; then
+    echo "ERROR: Could not determine database system from ${WASP_CLI_CMD} info"
+    exit 1
   fi
 
-  grep -q 'provider = "sqlite"' "$prisma_schema_file"
+  [ "$DATABASE_PROVIDER" = "sqlite" ]
 }
 
 main "$@"
