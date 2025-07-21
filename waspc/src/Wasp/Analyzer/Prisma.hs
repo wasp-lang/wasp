@@ -6,6 +6,7 @@ where
 
 import Wasp.Analyzer.Parser as Parser
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import Wasp.Psl.Ast.OutputNode (getOutputNode)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Generator.Model as Psl.Model.Generator
 
@@ -36,8 +37,6 @@ makeEntityStmt (name, body) = wrapWithCtx $ Parser.Decl "entity" name $ wrapWith
 -- | Generates Prisma models source code so that it can be injected into Wasp AST.
 generatePrismaModelSources :: Psl.Schema.Schema -> [(ModelName, ModelBody)]
 generatePrismaModelSources schema =
-  [ ( name,
-      Psl.Model.Generator.generateModelBody body
-    )
-    | (Psl.Model.Model name body) <- Psl.Schema.getModels schema
+  [ (name, Psl.Model.Generator.generateModelBody body)
+    | (Psl.Model.Model name body) <- getOutputNode <$> Psl.Schema.getModels schema
   ]

@@ -36,6 +36,7 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
+import Wasp.Psl.Ast.OutputNode (getOutputNode)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Util (orElse)
 import Wasp.Util.Aeson (encodeToString)
@@ -146,7 +147,7 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
     ExitSuccess -> return $ Right absDeclsOutputFile
   where
     absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
-    allowedEntityNames = Psl.Schema.Model.getName <$> Psl.Schema.getModels prismaSchemaAst
+    allowedEntityNames = Psl.Schema.Model.getName . getOutputNode <$> Psl.Schema.getModels prismaSchemaAst
 
 readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
 readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
