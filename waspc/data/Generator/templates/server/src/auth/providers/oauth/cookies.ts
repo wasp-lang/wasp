@@ -1,13 +1,13 @@
+import { parseCookies } from "@wasp.sh/libs-auth";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
-} from 'express';
-import { parseCookies } from 'oslo/cookie';
+} from "express";
 
-import type { ProviderConfig } from 'wasp/auth/providers/types';
-import { config } from 'wasp/server';
+import type { ProviderConfig } from "wasp/auth/providers/types";
+import { config } from "wasp/server";
 
-import type { OAuthStateFieldName } from './state';
+import type { OAuthStateFieldName } from "./state";
 
 export function setOAuthCookieValue(
   provider: ProviderConfig,

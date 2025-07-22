@@ -369,6 +369,7 @@ library
     Wasp.Generator.WebAppGenerator.Vite
     Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
+    Wasp.Generator.WaspLibs
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
     Wasp.Job

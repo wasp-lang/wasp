@@ -19,6 +19,7 @@ module Wasp.Util.IO
     writeFileFromText,
     readFileBytes,
     writeFileBytes,
+    copyDirectoryIf,
   )
 where
 
@@ -29,7 +30,20 @@ import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import qualified Data.Text.IO as Text.IO
 import qualified Path.IO as PathIO
-import StrongPath (Abs, Dir, File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
+import StrongPath
+  ( Abs,
+    Dir,
+    File,
+    Path',
+    Rel,
+    basename,
+    castDir,
+    castRel,
+    parseRelDir,
+    parseRelFile,
+    toFilePath,
+    (</>),
+  )
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP.Path
 import qualified System.Directory as SD
@@ -133,6 +147,34 @@ removeDirectory = SD.removeDirectoryRecursive . SP.fromAbsDir
 
 copyDirectory :: Path' Abs (Dir d1) -> Path' Abs (Dir d2) -> IO ()
 copyDirectory src dst = PathIO.copyDirRecur (SP.Path.toPathAbsDir src) (SP.Path.toPathAbsDir dst)
+
+copyDirectoryIf ::
+  Path' Abs (Dir srcDir) ->
+  Path' Abs (Dir dstDir) ->
+  (Path' (Rel srcDir) (Dir subDir) -> Bool) ->
+  IO ()
+copyDirectoryIf srcDir dstDir shouldCopyDir = do
+  SD.createDirectoryIfMissing True (toFilePath dstDir)
+
+  (files, dirs) <- listDirectory srcDir
+
+  mapM_ copyFileToDestination files
+
+  -- Filter directories and copy them recursively
+  let dirsToProcess = filter shouldCopyDir dirs
+  mapM_ copyDirToDestination dirsToProcess
+  where
+    copyFileToDestination :: Path' (Rel r) (File f) -> IO ()
+    copyFileToDestination relFilePath = do
+      let srcFilePath = srcDir </> castRel relFilePath
+      let dstFilePath = dstDir </> castRel relFilePath
+      copyFile srcFilePath dstFilePath
+
+    copyDirToDestination :: Path' (Rel r) (Dir d) -> IO ()
+    copyDirToDestination relDirPath = do
+      let srcSubDir = castDir $ srcDir </> castRel relDirPath
+      let dstSubDir = dstDir </> castRel relDirPath
+      copyDirectoryIf srcSubDir dstSubDir shouldCopyDir
 
 tryReadFile :: FilePath -> IO (Maybe Text)
 tryReadFile fp =
