@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  deploy_kitchen_sink_app:
+  deploy_kitchen_sink_app_to_fly:
     name: Deploy Wasp Kitchen Sink App
 
     runs-on: ubuntu-latest
@@ -92,11 +92,10 @@ jobs:
         run: |
           curl --fail https://$CLIENT_HOSTNAME
 
-  clean_up_deployed_app:
+  clean_up_deployed_fly_app:
     runs-on: ubuntu-latest
-    name: Clean up Deployed App
-    needs: [deploy_kitchen_sink_app, smoke_test_kitchen_sink_app]
-    if: always()
+    name: Clean up Deployed Fly App
+    needs: [deploy_kitchen_sink_app_to_fly, smoke_test_kitchen_sink_app]
 
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
