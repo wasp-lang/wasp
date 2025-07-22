@@ -35,7 +35,7 @@ app todoApp {
         userSignupFields: import { userSignupFields } from "@src/features/auth/providers/email",
         fromField: {
           name: "ToDO App",
-          email: "mihovil@ilakovac.com"
+          email: "todoapp@mg.wasp.sh"
         },
         emailVerification: {
           getEmailContentFn: import { getVerificationEmailContent } from "@src/features/auth/providers/email",
@@ -75,7 +75,7 @@ app todoApp {
   emailSender: {
     provider: SMTP,
     defaultFrom: {
-      email: "mihovil@ilakovac.com"
+      email: "todoapp@mg.wasp.sh"
     },
   },
 }
