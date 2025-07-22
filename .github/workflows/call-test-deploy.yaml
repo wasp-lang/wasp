@@ -4,7 +4,7 @@ name: Test deploy workflow
 on:
   push:
     branches:
-      - filip-automatic-deploy-test
+      - filip-automatic-deploy-test-fly
 
 jobs:
   call-reusable:
