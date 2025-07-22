@@ -37,6 +37,7 @@ COMMANDS
     clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
     build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
+    build start [args]    Previews the built production app locally.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
@@ -122,6 +123,8 @@ $ wasp clean
 ```
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
+
+- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly.
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
