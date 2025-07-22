@@ -108,4 +108,5 @@ jobs:
 
       - name: Clean up testing app from Fly.io
         run: |
-          flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
+          echo "Destroying apps"
+          # flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
