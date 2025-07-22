@@ -159,7 +159,7 @@ If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to pro
 
 <EnvVarsTable
   envVars={[
-{ name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>It's parsed as JSON. Enables you to provide <a href="../advanced/jobs.md#pg_boss_new_options">custom config</a> for PgBoss.</span> }
+{ name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>It's parsed as JSON. Enables you to provide <a href="../advanced/jobs#pg_boss_new_options">custom config</a> for PgBoss.</span> }
 ]}
 />
 
