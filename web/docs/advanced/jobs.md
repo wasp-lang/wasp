@@ -193,7 +193,7 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 The `PgBoss` executor in Wasp does not (yet) support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads. This means that your server must be running whenever you want to process jobs. If you need to scale your job processing, you will need to run multiple instances of your web server, each with its own `PgBoss` instance.
 
-#### Customization {#PG_BOSS_NEW_OPTIONS}
+#### Customization {#pg_boss_new_options}
 
 If you need to customize the creation of the `PgBoss` instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing the initialization parameters. See the [pg-boss documentation](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions).
 
