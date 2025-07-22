@@ -12,4 +12,12 @@ export default defineConfig([
   eslintReact.configs.flat.recommended,
   eslintReact.configs.flat['jsx-runtime'],
   eslintPrettier,
+  // Overrides:
+  // `@typescript-eslint/no-require-imports` is enabled by default in `typescript-eslint/recommended` config.
+  {
+    files: ["*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": ["off"]
+    }
+  }
 ]);
