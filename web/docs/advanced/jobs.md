@@ -181,7 +181,7 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 ### `PgBoss` {#pgboss}
 
-[`PgBoss`](https://github.com/timgit/pg-boss/tree/8.4.2) is a lightweight job queue built on top of PostgreSQL. It is suitable for low-volume production use cases and does not require any additional infrastructure or complex management. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros with the infrastructure we already put in place for your project.
+[`PgBoss`](https://github.com/timgit/pg-boss/tree/8.4.2) is a lightweight job queue built on top of PostgreSQL. It is suitable for low-volume production use cases and does not require any additional infrastructure or complex management. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, you get many benefits of a traditional job queues on top of your existing Postgres database.
 
 #### Requirements
 
@@ -199,6 +199,11 @@ If you need to customize the creation of the `PgBoss` instance, you can set an e
 
 Please note that setting `PG_BOSS_NEW_OPTIONS` environment variable overwrites all Wasp defaults, so you must include the `connectionString` parameter inside it as well.
 
+For example, to set the connection string and change the job archival and deletion settings, you can set the environment variable like this:
+```bash
+PG_BOSS_NEW_OPTIONS={"connectionString":"postgresql://user:password@server:5432/database","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
+```
+
 #### Database setup
 
 :::tip You don't need to set up the database manually
@@ -207,7 +212,7 @@ When using `PgBoss`, the database setup is automatically taken care of by the Wa
 
 :::
 
-All job data will be stored in a separate database schema called `pgboss`. It has some internal tracking tables, such `job`, `archive`, and `schedule`. `PgBoss` tables have a `name` column in most tables that will correspond to your Job identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by `PgBoss`.
+All job data will be stored in a separate database schema called `pgboss`. It has some internal tracking tables, such as `job`, `archive`, and `schedule`. `PgBoss` tables have a `name` column in most tables that will correspond to your Job identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by `PgBoss`.
 
 The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
 
@@ -216,7 +221,7 @@ The job name/identifier in your `.wasp` file is the same name that will be used 
 By default, `PgJobs` keeps job data for 12 hours after completion or failure. After that, it moves the data to an archive table, where it is kept for 7 days before being deleted. If you want to change this behavior, you can configure the `PG_BOSS_NEW_OPTIONS` environment variable to set custom values for job archival ([`archivedCompletedAfterSeconds`/`archiveFailedAfterSeconds`](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~:text=v1%22%20or%20%22v4%22-,archiveCompletedAfterSeconds,-Specifies%20how%20long)) and removal ([`deleteAfterSeconds`/`deleteAfterMinutes`/etc](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~:text=the%20skew%20warnings.-,Archive%20options,-When%20jobs%20in)).
 
 ```bash
-PG_BOSS_NEW_OPTIONS='{"connectionString":"...your postgress connection url...","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}'
+PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
 ```
 
 ## API Reference
