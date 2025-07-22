@@ -6,6 +6,7 @@ module Wasp.Env
     EnvVarValue,
     parseDotEnvFile,
     envVarsToDotEnvContent,
+    formatEnvVarValue,
   )
 where
 
@@ -31,6 +32,17 @@ parseDotEnvFile envFile =
     -- report as a bug in compiler, so we instead convert these to IOExceptions.
     `catch` \(ErrorCall msg) -> throwIO $ userError $ "Failed to parse dot env file: " <> msg
 
+-- | Formats environment variables for .env file content.
 envVarsToDotEnvContent :: [EnvVar] -> T.Text
 envVarsToDotEnvContent vars =
-  T.pack $ intercalate "\n" $ map (\(name, value) -> name <> "=" <> show value) vars
+  T.pack $ intercalate "\n" $ map formatEnvVar vars
+  where
+    formatEnvVar (name, value) = name <> "=" <> formatEnvVarValue value
+
+formatEnvVarValue :: EnvVarValue -> EnvVarValue
+formatEnvVarValue rawValue
+  | needsQuoting rawValue = concat ["\"", rawValue, "\""]
+  | otherwise = rawValue
+  where
+    needsQuoting :: String -> Bool
+    needsQuoting val = ' ' `elem` val

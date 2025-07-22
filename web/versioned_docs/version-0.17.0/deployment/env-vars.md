@@ -44,10 +44,10 @@ Make sure to go through [all the required server env vars](../project/env-vars.m
 
 Setting server env variables up will highly depend on where you are deploying your server, but in general it comes down to defining the env vars via mechanisms that your hosting provider provides.
 
-For example, if you deploy your server to [Fly](https://fly.io), you can define them using the `flyctl` CLI tool:
+For example, if you deploy your server to [Fly](https://fly.io), you can define them using the `fly` CLI tool:
 
 ```shell
-flyctl secrets set SOME_VAR_NAME=somevalue
+fly secrets set SOME_VAR_NAME=somevalue
 ```
 
 We talk about specific providers in the [PaaS deployment section](./deployment-methods/paas.md) or the [self-hosted deployment section](./deployment-methods/self-hosted.md).

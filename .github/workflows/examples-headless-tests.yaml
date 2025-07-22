@@ -50,7 +50,7 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Build and package
+      - name: Install Wasp CLI
         working-directory: waspc
         run: |
           ./run install
