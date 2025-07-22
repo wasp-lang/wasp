@@ -14,6 +14,7 @@ import Wasp.Psl.Ast.ConfigBlock (ConfigBlock)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Ast.Enum (Enum)
 import Wasp.Psl.Ast.Model (Model)
+import Wasp.Psl.Ast.OutputNode (OutputNode)
 import Wasp.Psl.Ast.Type (Type)
 import Wasp.Psl.Ast.View (View)
 import Prelude hiding (Enum)
@@ -22,23 +23,23 @@ data Schema = Schema [Block]
   deriving (Show, Eq)
 
 data Block
-  = ModelBlock Model
-  | ViewBlock View
-  | TypeBlock Type
-  | EnumBlock Enum
+  = ModelBlock (OutputNode Model)
+  | ViewBlock (OutputNode View)
+  | TypeBlock (OutputNode Type)
+  | EnumBlock (OutputNode Enum)
   | ConfigBlock ConfigBlock
   deriving (Show, Eq)
 
-getModels :: Schema -> [Model]
+getModels :: Schema -> [OutputNode Model]
 getModels (Schema blocks) = [model | ModelBlock model <- blocks]
 
-getViews :: Schema -> [View]
+getViews :: Schema -> [OutputNode View]
 getViews (Schema blocks) = [view | ViewBlock view <- blocks]
 
-getTypes :: Schema -> [Type]
+getTypes :: Schema -> [OutputNode Type]
 getTypes (Schema blocks) = [typeBlock | TypeBlock typeBlock <- blocks]
 
-getEnums :: Schema -> [Enum]
+getEnums :: Schema -> [OutputNode Enum]
 getEnums (Schema blocks) = [enum | EnumBlock enum <- blocks]
 
 getDatasources :: Schema -> [ConfigBlock]

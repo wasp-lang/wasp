@@ -26,17 +26,19 @@ spec_parsePslEnum = do
           expectedAst =
             Psl.Enum.Enum
               "Role"
-              [ Psl.Enum.ElementValue "USER" [],
-                Psl.Enum.ElementValue
-                  "ADMIN"
-                  [ Psl.Attribute.Attribute
+              [ pure $ Psl.Enum.ElementValue "USER" [],
+                pure $
+                  Psl.Enum.ElementValue
+                    "ADMIN"
+                    [ Psl.Attribute.Attribute
+                        "map"
+                        [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "ADMIN_MAPPING"]
+                    ],
+                pure $
+                  Psl.Enum.ElementBlockAttribute $
+                    Psl.Attribute.Attribute
                       "map"
-                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "ADMIN_MAPPING"]
-                  ],
-                Psl.Enum.ElementBlockAttribute $
-                  Psl.Attribute.Attribute
-                    "map"
-                    [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
+                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
               ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
 
@@ -54,10 +56,11 @@ spec_parsePslEnum = do
           expectedAst =
             Psl.Enum.Enum
               "Role"
-              [ Psl.Enum.ElementValue "USER" [],
-                Psl.Enum.ElementBlockAttribute $
-                  Psl.Attribute.Attribute
-                    "map"
-                    [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
+              [ pure $ Psl.Enum.ElementValue "USER" [],
+                pure $
+                  Psl.Enum.ElementBlockAttribute $
+                    Psl.Attribute.Attribute
+                      "map"
+                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
               ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst

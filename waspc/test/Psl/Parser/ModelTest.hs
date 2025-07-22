@@ -53,24 +53,27 @@ spec_parsePslModel = do
           Psl.Model.Model
             "User"
             ( Psl.Model.Body
-                [ Psl.Model.ElementField
-                    ( Psl.Model.Field
-                        "id"
-                        Psl.Model.Int
-                        []
-                        [ Psl.Attribute.Attribute "id" [],
-                          Psl.Attribute.Attribute
-                            "default"
-                            [ Psl.Argument.ArgNamed "value" (Psl.Argument.FuncExpr "autoincrement" [])
-                            ]
-                        ]
-                    ),
-                  Psl.Model.ElementField
-                    ( Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
-                    ),
-                  Psl.Model.ElementField
-                    ( Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
-                    )
+                [ pure $
+                    Psl.Model.ElementField
+                      ( Psl.Model.Field
+                          "id"
+                          Psl.Model.Int
+                          []
+                          [ Psl.Attribute.Attribute "id" [],
+                            Psl.Attribute.Attribute
+                              "default"
+                              [ Psl.Argument.ArgNamed "value" (Psl.Argument.FuncExpr "autoincrement" [])
+                              ]
+                          ]
+                      ),
+                  pure $
+                    Psl.Model.ElementField
+                      ( Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
+                      ),
+                  pure $
+                    Psl.Model.ElementField
+                      ( Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
+                      )
                 ]
             )
 
@@ -93,14 +96,15 @@ spec_parsePslModel = do
         modelAst =
           Psl.Model.Model
             "User"
-            ( Psl.Model.Body
-                [ Psl.Model.ElementField (Psl.Model.Field "model" Psl.Model.Int [] []),
-                  Psl.Model.ElementField (Psl.Model.Field "type" Psl.Model.String [] []),
-                  Psl.Model.ElementField (Psl.Model.Field "view" Psl.Model.Boolean [] []),
-                  Psl.Model.ElementField (Psl.Model.Field "enum" Psl.Model.Float [] []),
-                  Psl.Model.ElementField (Psl.Model.Field "generator" Psl.Model.Decimal [] []),
-                  Psl.Model.ElementField (Psl.Model.Field "datasource" Psl.Model.String [] [])
-                ]
+            ( Psl.Model.Body $
+                pure
+                  <$> [ Psl.Model.ElementField (Psl.Model.Field "model" Psl.Model.Int [] []),
+                        Psl.Model.ElementField (Psl.Model.Field "type" Psl.Model.String [] []),
+                        Psl.Model.ElementField (Psl.Model.Field "view" Psl.Model.Boolean [] []),
+                        Psl.Model.ElementField (Psl.Model.Field "enum" Psl.Model.Float [] []),
+                        Psl.Model.ElementField (Psl.Model.Field "generator" Psl.Model.Decimal [] []),
+                        Psl.Model.ElementField (Psl.Model.Field "datasource" Psl.Model.String [] [])
+                      ]
             )
 
     it "Model is correctly parsed" $ do

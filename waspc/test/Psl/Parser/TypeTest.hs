@@ -27,31 +27,34 @@ spec_parsePslType = do
             Psl.Type.Type
               "Photo"
               ( Psl.Model.Body
-                  [ Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "height"
-                          Psl.Model.Int
-                          []
-                          [ Psl.Attribute.Attribute
-                              "default"
-                              [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
-                              ]
-                          ]
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "width"
-                          Psl.Model.Int
-                          []
-                          [ Psl.Attribute.Attribute
-                              "default"
-                              [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "100")
-                              ]
-                          ]
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "url" Psl.Model.String [] []
-                      )
+                  [ pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field
+                            "height"
+                            Psl.Model.Int
+                            []
+                            [ Psl.Attribute.Attribute
+                                "default"
+                                [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
+                                ]
+                            ]
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field
+                            "width"
+                            Psl.Model.Int
+                            []
+                            [ Psl.Attribute.Attribute
+                                "default"
+                                [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "100")
+                                ]
+                            ]
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field "url" Psl.Model.String [] []
+                        )
                   ]
               )
 
@@ -71,20 +74,22 @@ spec_parsePslType = do
             Psl.Type.Type
               "Photo"
               ( Psl.Model.Body
-                  [ Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "height"
-                          Psl.Model.Int
-                          []
-                          [ Psl.Attribute.Attribute
-                              "default"
-                              [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
-                              ]
-                          ]
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "url" Psl.Model.String [] []
-                      )
+                  [ pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field
+                            "height"
+                            Psl.Model.Int
+                            []
+                            [ Psl.Attribute.Attribute
+                                "default"
+                                [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
+                                ]
+                            ]
+                        ),
+                    pure $
+                      Psl.Model.ElementField
+                        ( Psl.Model.Field "url" Psl.Model.String [] []
+                        )
                   ]
               )
 

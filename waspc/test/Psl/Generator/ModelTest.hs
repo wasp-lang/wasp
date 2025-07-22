@@ -17,4 +17,4 @@ spec_generatePslModel = do
     let pslModelAst = Psl.Model.Model "User" sampleBodyAst
 
     it "parse(generate(sampleBodyAst)) == sampleBodyAst" $ do
-      Parsec.parse Psl.Parser.Model.model "" (generateSchemaBlock $ Psl.Schema.ModelBlock pslModelAst) `shouldBe` Right pslModelAst
+      Parsec.parse Psl.Parser.Model.model "" (generateSchemaBlock $ Psl.Schema.ModelBlock $ pure pslModelAst) `shouldBe` Right pslModelAst

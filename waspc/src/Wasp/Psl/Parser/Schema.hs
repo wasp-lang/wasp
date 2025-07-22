@@ -17,6 +17,7 @@ import Wasp.Psl.Parser.Common (SourceCode, whiteSpace)
 import Wasp.Psl.Parser.ConfigBlock (configBlock)
 import Wasp.Psl.Parser.Enum (enum)
 import Wasp.Psl.Parser.Model (model)
+import Wasp.Psl.Parser.OutputNode (outputNode)
 import Wasp.Psl.Parser.Type (typeBlock)
 import Wasp.Psl.Parser.View (view)
 
@@ -33,10 +34,10 @@ schema = do
   elements <-
     many $
       choice
-        [ Psl.Schema.ModelBlock <$> model,
-          Psl.Schema.ViewBlock <$> view,
-          Psl.Schema.TypeBlock <$> typeBlock,
-          Psl.Schema.EnumBlock <$> enum,
+        [ Psl.Schema.ModelBlock <$> outputNode model,
+          Psl.Schema.ViewBlock <$> outputNode view,
+          Psl.Schema.TypeBlock <$> outputNode typeBlock,
+          Psl.Schema.EnumBlock <$> outputNode enum,
           Psl.Schema.ConfigBlock <$> configBlock
         ]
   -- We want to throw and if there is any source code left after parsing the schema.

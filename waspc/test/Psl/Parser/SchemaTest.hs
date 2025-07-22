@@ -138,250 +138,280 @@ spec_parsePslSchema = do
                       Psl.Argument.ArrayExpr [Psl.Argument.StringExpr "postgresqlExtensions"]
                   ],
               Psl.Schema.ModelBlock $
-                Psl.Model.Model
-                  "User"
-                  ( Psl.Model.Body
-                      [ Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "id"
-                            Psl.Model.Int
-                            []
-                            [ Psl.Attribute.Attribute "id" [],
-                              Psl.Attribute.Attribute
-                                "default"
-                                [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "tasks"
-                            (Psl.Model.UserType "Task")
-                            [Psl.Model.List]
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "address"
-                            Psl.Model.String
-                            [Psl.Model.Optional]
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "votes"
-                            (Psl.Model.UserType "TaskVote")
-                            [Psl.Model.List]
-                            []
-                      ]
-                  ),
+                pure $
+                  Psl.Model.Model
+                    "User"
+                    ( Psl.Model.Body
+                        [ pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "id"
+                                Psl.Model.Int
+                                []
+                                [ Psl.Attribute.Attribute "id" [],
+                                  Psl.Attribute.Attribute
+                                    "default"
+                                    [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "tasks"
+                                (Psl.Model.UserType "Task")
+                                [Psl.Model.List]
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "address"
+                                Psl.Model.String
+                                [Psl.Model.Optional]
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "votes"
+                                (Psl.Model.UserType "TaskVote")
+                                [Psl.Model.List]
+                                []
+                        ]
+                    ),
               Psl.Schema.ModelBlock $
-                Psl.Model.Model
-                  "Task"
-                  ( Psl.Model.Body
-                      [ Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "id"
-                            Psl.Model.Int
-                            []
-                            [ Psl.Attribute.Attribute "id" [],
-                              Psl.Attribute.Attribute
-                                "default"
-                                [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
-                                ]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "description"
-                            Psl.Model.String
-                            []
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "isDone"
-                            Psl.Model.Boolean
-                            []
-                            [ Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.IdentifierExpr "false"]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "user"
-                            (Psl.Model.UserType "User")
-                            []
-                            [ Psl.Attribute.Attribute
-                                "relation"
-                                [ Psl.Argument.ArgNamed
-                                    "fields"
-                                    ( Psl.Argument.ArrayExpr
-                                        [ Psl.Argument.IdentifierExpr "userId"
-                                        ]
-                                    ),
-                                  Psl.Argument.ArgNamed
-                                    "references"
-                                    ( Psl.Argument.ArrayExpr
-                                        [ Psl.Argument.IdentifierExpr "id"
-                                        ]
-                                    )
-                                ]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "userId"
-                            Psl.Model.Int
-                            []
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "votes"
-                            (Psl.Model.UserType "TaskVote")
-                            [Psl.Model.List]
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "someField"
-                            Psl.Model.String
-                            [Psl.Model.List]
-                            [ Psl.Attribute.Attribute
-                                "default"
-                                [Psl.Argument.ArgUnnamed $ Psl.Argument.ArrayExpr []]
-                            ]
-                      ]
-                  ),
-              Psl.Schema.ModelBlock $
-                Psl.Model.Model
-                  "TaskVote"
-                  ( Psl.Model.Body
-                      [ Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "user"
-                            (Psl.Model.UserType "User")
-                            []
-                            [ Psl.Attribute.Attribute
-                                "relation"
-                                [ Psl.Argument.ArgNamed
-                                    "fields"
-                                    ( Psl.Argument.ArrayExpr
-                                        [ Psl.Argument.IdentifierExpr "userId"
-                                        ]
-                                    ),
-                                  Psl.Argument.ArgNamed
-                                    "references"
-                                    ( Psl.Argument.ArrayExpr
-                                        [ Psl.Argument.IdentifierExpr "id"
-                                        ]
-                                    )
-                                ]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "userId"
-                            Psl.Model.Int
-                            []
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "task"
-                            (Psl.Model.UserType "Task")
-                            []
-                            [ Psl.Attribute.Attribute
-                                "relation"
-                                [ Psl.Argument.ArgNamed
-                                    "fields"
-                                    ( Psl.Argument.ArrayExpr
-                                        [ Psl.Argument.IdentifierExpr "taskId"
-                                        ]
-                                    ),
-                                  Psl.Argument.ArgNamed
-                                    "references"
-                                    ( Psl.Argument.ArrayExpr
-                                        [ Psl.Argument.IdentifierExpr "id"
-                                        ]
-                                    )
-                                ]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "taskId"
-                            Psl.Model.Int
-                            []
-                            [],
-                        Psl.Model.ElementBlockAttribute $
-                          Psl.Attribute.Attribute
-                            "id"
-                            [ Psl.Argument.ArgUnnamed
-                                ( Psl.Argument.ArrayExpr
-                                    [ Psl.Argument.IdentifierExpr "userId",
-                                      Psl.Argument.IdentifierExpr "taskId"
+                pure $
+                  Psl.Model.Model
+                    "Task"
+                    ( Psl.Model.Body
+                        [ pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "id"
+                                Psl.Model.Int
+                                []
+                                [ Psl.Attribute.Attribute "id" [],
+                                  Psl.Attribute.Attribute
+                                    "default"
+                                    [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
                                     ]
-                                )
-                            ]
-                      ]
-                  ),
-              Psl.Schema.EnumBlock $
-                Psl.Enum.Enum
-                  "Role"
-                  [ Psl.Enum.ElementValue "USER" [],
-                    Psl.Enum.ElementValue "ADMIN" []
-                  ],
-              Psl.Schema.ViewBlock $
-                Psl.View.View
-                  "UserInfo"
-                  ( Psl.Model.Body
-                      [ Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "id"
-                            Psl.Model.Int
-                            [Psl.Model.Optional]
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "email"
-                            Psl.Model.String
-                            [Psl.Model.Optional]
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "name"
-                            Psl.Model.String
-                            [Psl.Model.Optional]
-                            [],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "bio"
-                            Psl.Model.String
-                            [Psl.Model.Optional]
-                            [],
-                        Psl.Model.ElementBlockAttribute $
-                          Psl.Attribute.Attribute "ignore" []
-                      ]
-                  ),
-              Psl.Schema.TypeBlock $
-                Psl.Type.Type
-                  "Photo"
-                  ( Psl.Model.Body
-                      [ Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "height"
-                            Psl.Model.Int
-                            []
-                            [ Psl.Attribute.Attribute
-                                "default"
-                                [ Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "200"
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "description"
+                                Psl.Model.String
+                                []
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "isDone"
+                                Psl.Model.Boolean
+                                []
+                                [ Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.IdentifierExpr "false"]
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "user"
+                                (Psl.Model.UserType "User")
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "relation"
+                                    [ Psl.Argument.ArgNamed
+                                        "fields"
+                                        ( Psl.Argument.ArrayExpr
+                                            [ Psl.Argument.IdentifierExpr "userId"
+                                            ]
+                                        ),
+                                      Psl.Argument.ArgNamed
+                                        "references"
+                                        ( Psl.Argument.ArrayExpr
+                                            [ Psl.Argument.IdentifierExpr "id"
+                                            ]
+                                        )
+                                    ]
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "userId"
+                                Psl.Model.Int
+                                []
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "votes"
+                                (Psl.Model.UserType "TaskVote")
+                                [Psl.Model.List]
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "someField"
+                                Psl.Model.String
+                                [Psl.Model.List]
+                                [ Psl.Attribute.Attribute
+                                    "default"
+                                    [Psl.Argument.ArgUnnamed $ Psl.Argument.ArrayExpr []]
                                 ]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "width"
-                            Psl.Model.Int
-                            []
-                            [ Psl.Attribute.Attribute
-                                "default"
-                                [Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "100"]
-                            ],
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            "url"
-                            Psl.Model.String
-                            []
-                            []
-                      ]
-                  )
+                        ]
+                    ),
+              Psl.Schema.ModelBlock $
+                pure $
+                  Psl.Model.Model
+                    "TaskVote"
+                    ( Psl.Model.Body
+                        [ pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "user"
+                                (Psl.Model.UserType "User")
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "relation"
+                                    [ Psl.Argument.ArgNamed
+                                        "fields"
+                                        ( Psl.Argument.ArrayExpr
+                                            [ Psl.Argument.IdentifierExpr "userId"
+                                            ]
+                                        ),
+                                      Psl.Argument.ArgNamed
+                                        "references"
+                                        ( Psl.Argument.ArrayExpr
+                                            [ Psl.Argument.IdentifierExpr "id"
+                                            ]
+                                        )
+                                    ]
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "userId"
+                                Psl.Model.Int
+                                []
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "task"
+                                (Psl.Model.UserType "Task")
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "relation"
+                                    [ Psl.Argument.ArgNamed
+                                        "fields"
+                                        ( Psl.Argument.ArrayExpr
+                                            [ Psl.Argument.IdentifierExpr "taskId"
+                                            ]
+                                        ),
+                                      Psl.Argument.ArgNamed
+                                        "references"
+                                        ( Psl.Argument.ArrayExpr
+                                            [ Psl.Argument.IdentifierExpr "id"
+                                            ]
+                                        )
+                                    ]
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "taskId"
+                                Psl.Model.Int
+                                []
+                                [],
+                          pure $
+                            Psl.Model.ElementBlockAttribute $
+                              Psl.Attribute.Attribute
+                                "id"
+                                [ Psl.Argument.ArgUnnamed
+                                    ( Psl.Argument.ArrayExpr
+                                        [ Psl.Argument.IdentifierExpr "userId",
+                                          Psl.Argument.IdentifierExpr "taskId"
+                                        ]
+                                    )
+                                ]
+                        ]
+                    ),
+              Psl.Schema.EnumBlock $
+                pure $
+                  Psl.Enum.Enum
+                    "Role"
+                    [ pure $ Psl.Enum.ElementValue "USER" [],
+                      pure $ Psl.Enum.ElementValue "ADMIN" []
+                    ],
+              Psl.Schema.ViewBlock $
+                pure $
+                  Psl.View.View
+                    "UserInfo"
+                    ( Psl.Model.Body
+                        [ pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "id"
+                                Psl.Model.Int
+                                [Psl.Model.Optional]
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "email"
+                                Psl.Model.String
+                                [Psl.Model.Optional]
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "name"
+                                Psl.Model.String
+                                [Psl.Model.Optional]
+                                [],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "bio"
+                                Psl.Model.String
+                                [Psl.Model.Optional]
+                                [],
+                          pure $
+                            Psl.Model.ElementBlockAttribute $
+                              Psl.Attribute.Attribute "ignore" []
+                        ]
+                    ),
+              Psl.Schema.TypeBlock $
+                pure $
+                  Psl.Type.Type
+                    "Photo"
+                    ( Psl.Model.Body
+                        [ pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "height"
+                                Psl.Model.Int
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "default"
+                                    [ Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "200"
+                                    ]
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "width"
+                                Psl.Model.Int
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "default"
+                                    [Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "100"]
+                                ],
+                          pure $
+                            Psl.Model.ElementField $
+                              Psl.Model.Field
+                                "url"
+                                Psl.Model.String
+                                []
+                                []
+                        ]
+                    )
             ]
 
     it "Prisma file is correctly parsed" $ do

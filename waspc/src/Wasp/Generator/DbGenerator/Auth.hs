@@ -103,7 +103,7 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
           providerUserId String
 
           providerData String @default("{}")
-              
+
           authId    ${authEntityIdTypeText}
           ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
 
@@ -189,4 +189,4 @@ injectAuthIntoUserEntity userEntityName entities =
                 [Psl.Model.Optional]
                 []
           ]
-        newPslBody = Psl.Model.Body $ existingPsl ++ relationToAuthEntity
+        newPslBody = Psl.Model.Body $ existingPsl ++ (pure <$> relationToAuthEntity)
