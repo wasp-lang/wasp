@@ -4,7 +4,7 @@
 
 ### 🎉 New Features
 
-- New command: `wasp build start`. It allows you to run your built Wasp app as it would run in your production server. Useful for testing your production build locally, and making sure of passing the correct environment variables. [#2796](https://github.com/wasp-lang/wasp/pull/2796)
+- New command: `wasp build start`. Lets you run your built Wasp app locally, just like in production. If required environment variables are missing, the command will show errors—helping you confirm which env vars you'll need to set in production. [#2796](https://github.com/wasp-lang/wasp/pull/2796)
 
 ## 0.17.0
 
