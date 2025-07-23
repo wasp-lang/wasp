@@ -762,6 +762,7 @@ test-suite cli-test
     TerminalTest
     Paths_waspc
     Wasp.Cli.Command.Telemetry.ProjectTest
+    Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite e2e-test
   import: common-all, common-exe

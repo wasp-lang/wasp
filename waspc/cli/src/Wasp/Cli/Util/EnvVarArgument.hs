@@ -1,5 +1,6 @@
 module Wasp.Cli.Util.EnvVarArgument
   ( envVarReader,
+    envVarFromString,
     EnvVarFileArgument (..),
     fromFilePath,
     WorkingDir,
@@ -48,6 +49,7 @@ fromFilePath str =
 data EnvVarFileArgument
   = AbsoluteEnvVarFile (Path' Abs (File ()))
   | RelativeEnvVarFile (Path' (Rel WorkingDir) (File ()))
+  deriving (Show, Eq)
 
 readEnvVarFile :: EnvVarFileArgument -> IO [EnvVar]
 readEnvVarFile arg = toStrongPath arg >>= parseDotEnvFile
