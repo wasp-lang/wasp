@@ -221,7 +221,21 @@ When using `PgBoss`, the database setup is automatically taken care of by the Wa
 
 All job data will be stored in a separate database schema called `pgboss`. It has some internal tracking tables, such as `job`, `archive`, and `schedule`. `PgBoss` tables have a `name` column in most tables that will correspond to your Job identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by `PgBoss`.
 
-The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
+#### Known issues
+
+- **Renaming scheduled jobs**
+
+    The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
+
+    For example, if you renamed a job from `emailReminder` to `sendEmailReminder`, you would need to remove the old scheduled job with the following SQL query:
+
+    ```sql
+    BEGIN;
+    DELETE FROM pgboss.schedule WHERE name = 'emailReminder';
+    COMMIT;
+    ```
+
+    **Important:** Only modify the database directly if you're comfortable with SQL operations. If you're unsure, consider keeping the old job name or restarting with a fresh database in development.
 
 #### Job data retention and cleanup
 
