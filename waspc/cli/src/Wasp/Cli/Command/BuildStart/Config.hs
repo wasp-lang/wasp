@@ -23,7 +23,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.EnvVarArgument (EnvVarFileArgument, readEnvVarFile)
-import Wasp.Env (EnvVar, forceEnvVars, nubEnvVars)
+import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -43,20 +43,22 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir = do
-  serverEnvVars' <-
-    readAndForceEnvVars
-      [ (Server.clientUrlEnvVarName, clientUrl'),
-        (Server.serverUrlEnvVarName, serverUrl')
-      ]
-      (Args.serverEnvironmentVariables args)
-      (Args.serverEnvironmentFiles args)
+  let waspServerEnvVars =
+        [ (Server.clientUrlEnvVarName, clientUrl'),
+          (Server.serverUrlEnvVarName, serverUrl')
+        ]
+  userServerEnvVars <-
+    liftIO $
+      combineEnvVarsWithEnvFiles (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
+  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
 
-  clientEnvVars' <-
-    readAndForceEnvVars
-      [ (WebApp.serverUrlEnvVarName, serverUrl')
-      ]
-      (Args.clientEnvironmentVariables args)
-      (Args.clientEnvironmentFiles args)
+  let waspClientEnvVars =
+        [ (WebApp.serverUrlEnvVarName, serverUrl')
+        ]
+  userClientEnvVars <-
+    liftIO $
+      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
+  clientEnvVars' <- overrideEnvVarsCommand waspClientEnvVars userClientEnvVars
 
   return $
     BuildStartConfig
@@ -95,23 +97,18 @@ dockerContainerName config =
   map toLower $ -- Lowercase because Docker container names require it.
     appUniqueId config <> "-server-container"
 
-readAndForceEnvVars :: [EnvVar] -> [EnvVar] -> [EnvVarFileArgument] -> Command [EnvVar]
-readAndForceEnvVars forced existing files = do
-  readVars <- liftIO $ readEnvVars existing files
-  forceEnvVarsCommand forced readVars
-
-readEnvVars :: [EnvVar] -> [EnvVarFileArgument] -> IO [EnvVar]
-readEnvVars pairs files = do
-  pairsFromFiles <- mapM readEnvVarFile files
-  let allEnvVars = pairs <> concat pairsFromFiles
-  return $ nubEnvVars allEnvVars
-
-forceEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
-forceEnvVarsCommand forced existing =
-  case forceEnvVars forced existing of
+overrideEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
+overrideEnvVarsCommand forced existing =
+  case forced `overrideEnvVars` existing of
     Left duplicateNames ->
       throwError $
         CommandError "Duplicate environment variables" $
           ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
             intercalate ", " duplicateNames
     Right combined -> return combined
+
+combineEnvVarsWithEnvFiles :: [EnvVar] -> [EnvVarFileArgument] -> IO [EnvVar]
+combineEnvVarsWithEnvFiles pairs files = do
+  pairsFromFiles <- mapM readEnvVarFile files
+  let allEnvVars = pairs <> concat pairsFromFiles
+  return $ nubEnvVars allEnvVars

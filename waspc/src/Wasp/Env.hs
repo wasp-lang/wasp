@@ -7,7 +7,7 @@ module Wasp.Env
     parseDotEnvFile,
     envVarsToDotEnvContent,
     nubEnvVars,
-    forceEnvVars,
+    overrideEnvVars,
     formatEnvVarValue,
   )
 where
@@ -54,21 +54,21 @@ formatEnvVarValue rawValue
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)
 
--- | If the forced env vars already exist in the given list, returns `Left` of
--- the list of duplicated env var names. Otherwise returns `Right` of the
--- combined list.
+-- | If any of the first env vars already exist in the second list, returns
+-- `Left` of the list of duplicated env var names. Otherwise returns `Right` of
+-- the combined list.
 --
--- This function is useful to add environment variables internally, to a list of
+-- This function is useful to add internal environment variables to a list of
 -- user-defined ones. If the user has already defined an environment variable
--- with the same name, we want to inform them so that the user doesn't get
+-- with the same name, we'll want to inform them so that the user doesn't get
 -- confused about which value is being used. If the user has not defined that
 -- environment variable, we just prepend it to the list and continue.
-forceEnvVars :: [EnvVar] -> [EnvVar] -> Either [String] [EnvVar]
-forceEnvVars forced existing =
+overrideEnvVars :: [EnvVar] -> [EnvVar] -> Either [EnvVarName] [EnvVar]
+left `overrideEnvVars` right =
   if null duplicateNames
-    then Right (forced <> existing)
+    then Right (left <> right)
     else Left duplicateNames
   where
-    duplicateNames = filter (`Set.member` forcedNames) existingNames
-    forcedNames = Set.fromList $ map fst forced
-    existingNames = map fst existing
+    duplicateNames = filter (`Set.member` leftNames) rightNames
+    leftNames = Set.fromList $ map fst left
+    rightNames = map fst right
