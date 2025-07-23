@@ -200,9 +200,16 @@ If you need to customize the creation of the `PgBoss` instance, you can set an e
 Please note that setting `PG_BOSS_NEW_OPTIONS` environment variable overwrites all Wasp defaults, so you must include the `connectionString` parameter inside it as well.
 
 For example, to set the connection string and change the job archival and deletion settings, you can set the environment variable like this:
+
 ```bash
+# In an .env file
 PG_BOSS_NEW_OPTIONS={"connectionString":"postgresql://user:password@server:5432/database","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
+
+# In the shell
+PG_BOSS_NEW_OPTIONS='{"connectionString":"postgresql://user:password@server:5432/database","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}'
 ```
+
+You can read more about escaping JSON in environment variables in the [JSON Env Vars documentation](../project/env-vars.md#json-env-vars).
 
 #### Database setup
 
