@@ -42,7 +42,7 @@ startClient config =
     J.WebApp
     & toExceptJob (("Serving the client failed with exit code: " <>) . show)
   where
-    port = show $ fst $ Config.clientPortAndUrl config
+    port = show $ Config.clientPort config
 
     buildDir = Config.buildDir config
     webAppDir = buildDir </> WebApp.webAppRootDirInProjectRootDir
