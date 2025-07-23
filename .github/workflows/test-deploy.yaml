@@ -74,7 +74,7 @@ jobs:
         run: |
           # NOTE: Github knows not to output the db connection string, how?
           # NOTE:The `yes` command is necessary because the `fly launch` command prompts for confirmation 
-          yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp ${{ env.ENV_VARS }}
+          yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp-testing ${{ env.ENV_VARS }}
 
       - name: Save deployed app hostnames
         id: save_hostnames
