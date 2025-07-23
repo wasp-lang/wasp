@@ -100,7 +100,7 @@ obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateNam
   where
     findTemplateOrThrow :: String -> Command StarterTemplate
     findTemplateOrThrow templateName = case findTemplateByString availableTemplates templateName of
-      Just x -> return x
+      Just template -> return template
       Nothing -> throwProjectCreationError $ makeInvalidTemplateNameError templateName
     makeInvalidTemplateNameError templateName =
       "The template '"
