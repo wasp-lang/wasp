@@ -69,18 +69,7 @@ jobs:
         id: extract-db-provider
         working-directory: examples/${{ matrix.example }}
         run: |
-          DATABASE_PROVIDER=$(wasp-cli info \
-            | grep "Database system" \
-            | sed 's/.*: //' \
-            | sed -e 's/\x1b\[[0-9;]*m//g' \
-            | tr '[:upper:]' '[:lower:]')
-
-          if [ -z "$DATABASE_PROVIDER" ]; then
-            echo "ERROR: Could not determine database system from wasp-cli info"
-            exit 1
-          fi
-
-          echo "Database provider: $DATABASE_PROVIDER"
+          DATABASE_PROVIDER=$($GITHUB_WORKSPACE/scripts/get-wasp-database-provider.sh wasp-cli)
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
       - name: Run Headless DEV Tests for ${{ matrix.example }}
