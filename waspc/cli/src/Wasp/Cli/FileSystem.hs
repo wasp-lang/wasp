@@ -1,11 +1,13 @@
 module Wasp.Cli.FileSystem
-  ( getUserCacheDir,
+  ( getWorkingDir,
+    getUserCacheDir,
     getWaspCacheDir,
     getHomeDir,
     waspInstallationDirInHomeDir,
     waspExecutableInHomeDir,
     getAbsPathToDirInCwd,
     withTempDir,
+    WorkingDir,
     UserCacheDir,
     WaspCacheDir,
   )
@@ -19,11 +21,16 @@ import qualified System.Directory as SD
 import qualified System.FilePath as FP
 import System.IO.Temp (withSystemTempDirectory)
 
+data WorkingDir
+
 data UserHomeDir
 
 data UserCacheDir
 
 data WaspCacheDir
+
+getWorkingDir :: IO (Path' Abs (SP.Dir WorkingDir))
+getWorkingDir = SD.getCurrentDirectory >>= SP.parseAbsDir
 
 getHomeDir :: IO (Path' Abs (Dir UserHomeDir))
 getHomeDir = fromJust . SP.parseAbsDir <$> SD.getHomeDirectory

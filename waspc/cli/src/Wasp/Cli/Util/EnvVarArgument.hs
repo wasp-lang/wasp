@@ -15,7 +15,7 @@ import Options.Applicative (ReadM, eitherReader)
 import qualified Path
 import StrongPath (Abs, File, Path', Rel, (</>))
 import qualified StrongPath.Path as SP.Path
-import Wasp.Cli.Util.Common (WorkingDir, getWorkingDir)
+import Wasp.Cli.FileSystem (WorkingDir, getWorkingDir)
 import Wasp.Env (EnvVar, parseDotEnvFile)
 
 envVarReader :: ReadM EnvVar
