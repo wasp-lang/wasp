@@ -21,8 +21,8 @@ jobs:
         run: |
           echo "app_prefix=ci-$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
 
-  deploy_kitchen_sink_app_to_fly:
-    name: Deploy Wasp Kitchen Sink App
+  deploy_app_to_fly:
+    name: Deploy Wasp app
 
     runs-on: ubuntu-latest
     needs: generate_uniqe_app_prefix
@@ -69,7 +69,7 @@ jobs:
             | sed -E 's/^/--server-secret /' \
             | paste -sd' ')" >> $GITHUB_ENV
 
-      - name: Deploy Kitchen sink app to Fly.io
+      - name: Deploy App to Fly.io
         working-directory: waspc/examples/todoApp
         run: |
           # NOTE: Github knows not to output the db connection string, how?
@@ -83,15 +83,15 @@ jobs:
           echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
           echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
 
-  smoke_test_kitchen_sink_app:
-    name: Run Smoke Tests on Wasp Kitchen Sink App
+  smoke_test_app:
+    name: Run smoke tests on deployed app
 
     runs-on: ubuntu-latest
-    needs: deploy_kitchen_sink_app_to_fly
+    needs: deploy_app_to_fly
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      SERVER_HOSTNAME: ${{ needs.deploy_kitchen_sink_app_to_fly.outputs.server_hostname }}
-      CLIENT_HOSTNAME: ${{ needs.deploy_kitchen_sink_app_to_fly.outputs.client_hostname }}
+      SERVER_HOSTNAME: ${{ needs.deploy_app_to_fly.outputs.server_hostname }}
+      CLIENT_HOSTNAME: ${{ needs.deploy_app_to_fly.outputs.client_hostname }}
 
     steps:
       - name: Smoke test the server
@@ -104,8 +104,8 @@ jobs:
 
   clean_up_deployed_fly_app:
     runs-on: ubuntu-latest
-    name: Clean up Deployed Fly App
-    needs: [generate_uniqe_app_prefix, deploy_kitchen_sink_app_to_fly, smoke_test_kitchen_sink_app]
+    name: Clean up deployed Fly app
+    needs: [generate_uniqe_app_prefix, deploy_app_to_fly, smoke_test_app]
 
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
