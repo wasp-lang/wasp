@@ -6,6 +6,7 @@
   "license": "ISC",
   "main": "index.js",
   "keywords": [],
+  "type": "module",
   "scripts": {
     "test": "for starter in minimal basic; do ./run-starter-headless-tests.sh $starter wasp || exit 1; done",
     "test:dev": "for starter in minimal basic; do ./run-starter-headless-tests.sh $starter wasp-cli || exit 1; done"
