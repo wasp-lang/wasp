@@ -8,6 +8,19 @@ on:
         required: true
 
 jobs:
+  generate_uniqe_app_prefix:
+    name: Generate unique deployment prefix
+    runs-on: ubuntu-latest
+
+    outputs:
+      app_prefix: ${{ steps.generate_app_prefix.outputs.app_prefix }}
+
+    steps:
+      - name: Generate unique app prefix from commit SHA
+        id: generate_app_prefix
+        run: |
+          echo "app_prefix=ci-$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
+
   deploy_kitchen_sink_app_to_fly:
     name: Deploy Wasp Kitchen Sink App
 
@@ -15,11 +28,11 @@ jobs:
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       FLY_REGION: mia
+      APP_PREFIX: ${{ needs.generate_uniqe_app_prefix.outputs.app_prefix }}
 
     outputs:
       server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
       client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
-      app_prefix: ${{ steps.generate_app_prefix.outputs.app_prefix }}
 
     steps:
       - name: Checkout repository
@@ -42,10 +55,6 @@ jobs:
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - name: Generate unique app prefix from commit SHA
-        id: generate_app_prefix
-        run: |
-          echo "app_prefix=$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
 
       - name: Prepare server secrets for deployment
         id: prepare_secrets
@@ -90,16 +99,16 @@ jobs:
 
       - name: Smoke test the client
         run: |
-          curl --fail https://$CLIENT_HOSTNAME
+          curl --fail --silent https://$CLIENT_HOSTNAME
 
   clean_up_deployed_fly_app:
     runs-on: ubuntu-latest
     name: Clean up Deployed Fly App
-    needs: [deploy_kitchen_sink_app_to_fly, smoke_test_kitchen_sink_app]
+    needs: [generate_uniqe_app_prefix, deploy_kitchen_sink_app_to_fly, smoke_test_kitchen_sink_app]
 
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      APP_PREFIX: ${{ needs.deploy_kitchen_sink_app_to_fly.outputs.app_prefix }}
+      APP_PREFIX: ${{ needs.generate_uniqe_app_prefix.outputs.app_prefix }}
 
     steps:
       - name: Install Fly CLI
@@ -108,4 +117,3 @@ jobs:
       - name: Clean up testing app from Fly.io
         run: |
           echo "Destroying apps"
-          # flyctl apps list -q | grep "$APP_PREFIX" | xargs flyctl apps destroy -y
