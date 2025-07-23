@@ -30,7 +30,7 @@ TEMP_PROJECT_NAME="temp-project-${TEMPLATE_NAME}"
 TEMP_WASP_PROJECT_PATH="${TEMP_PROJECT_NAME}${WASP_PROJECT_PATH}"
 
 main() {
-  trap cleanup_test_environment EXIT 
+  trap cleanup_test_environment EXIT INT TERM QUIT
 
   echo "Starting E2E tests for ${TEMPLATE_NAME} template..."
   initialize_test_environment
