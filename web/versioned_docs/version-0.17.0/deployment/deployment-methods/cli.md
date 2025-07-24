@@ -142,11 +142,11 @@ Using the `www` and `non-www` domains at the same time will require you to updat
 
 To deploy to Railway using Wasp CLI:
 
-1. Create a [Railway](https://railway.com/) account,
+1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account,
 
-1. Wasp CLI requires that Railpack is set as the default deployment builder **for client routing to work correctly**. Go to your [Railway account settings](https://railway.com/account/feature-flags) and enable "Default to Railpack".
+1. Wasp CLI requires that Railpack is set as the default deployment builder **for client routing to work correctly**. Go to your [Railway account settings](https://railway.com/account/feature-flags?utm_medium=integration&utm_source=docs&utm_campaign=wasp) and enable "Default to Railpack".
 
-1. Install the [`railway` CLI](https://docs.railway.com/guides/cli#installing-the-cli) on your machine.
+1. Install the [`railway` CLI](https://docs.railway.com/guides/cli#installing-the-cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp) on your machine.
 
 ### Deploying
 
