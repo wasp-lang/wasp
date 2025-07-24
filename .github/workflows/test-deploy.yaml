@@ -119,4 +119,4 @@ jobs:
 
       - name: Clean up testing app from Fly.io
         run: |
-          fly destroy -y $APP_PREFIX-{server,client,db}
+          flyctl destroy -y $APP_PREFIX-{server,client,db}
