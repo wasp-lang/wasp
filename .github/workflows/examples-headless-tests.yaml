@@ -1,8 +1,6 @@
 name: Run headless tests on root example apps
 
 on:
-  workflow_call:
-  workflow_dispatch:
   push:
     paths:
       - "examples/**"
@@ -32,9 +30,7 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
         with:
-          # Workaround for a Github Checkout action bug
-          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
-          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - uses: ./.github/actions/setup-haskell
         with:
