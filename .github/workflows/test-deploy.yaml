@@ -11,6 +11,10 @@ on:
       # TODO: Remove before merge
       - filip-automatic-deploy-test-fly
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   generate_uniqe_app_prefix:
     name: Generate unique deployment prefix
