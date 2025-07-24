@@ -1,7 +1,7 @@
 module Wasp.Cli.Util.EnvVarArgumentTest where
 
 import Test.Tasty.Hspec
-import Wasp.Cli.Util.EnvVarArgument (EnvVarFileArgument (..), envVarFromString, fromFilePath)
+import Wasp.Cli.Util.EnvVarArgument (envVarFromString)
 
 spec_envVarFromString :: Spec
 spec_envVarFromString = do
@@ -82,68 +82,3 @@ spec_envVarFromString = do
       it "parses variable with backslashes in value" $ do
         envVarFromString "PATH=C:\\Windows\\System32"
           `shouldBe` Right ("PATH", "C:\\Windows\\System32")
-
-spec_fromFilePath :: Spec
-spec_fromFilePath = do
-  describe "fromFilePath" $ do
-    describe "valid file paths" $ do
-      it "parses absolute Unix path" $ do
-        fromFilePath "/home/user/.env" `shouldSatisfy` isRight
-        case fromFilePath "/home/user/.env" of
-          Right (AbsoluteEnvVarFile _) -> return ()
-          _ -> error "Expected AbsoluteEnvVarFile"
-
-      it "parses absolute Windows path" $ do
-        fromFilePath "C:\\Users\\user\\.env" `shouldSatisfy` isRight
-        case fromFilePath "C:\\Users\\user\\.env" of
-          Right (AbsoluteEnvVarFile _) -> return ()
-          _ -> error "Expected AbsoluteEnvVarFile"
-
-      it "parses relative path" $ do
-        fromFilePath ".env" `shouldSatisfy` isRight
-        case fromFilePath ".env" of
-          Right (RelativeEnvVarFile _) -> return ()
-          _ -> error "Expected RelativeEnvVarFile"
-
-      it "parses relative path with subdirectory" $ do
-        fromFilePath "config/.env" `shouldSatisfy` isRight
-        case fromFilePath "config/.env" of
-          Right (RelativeEnvVarFile _) -> return ()
-          _ -> error "Expected RelativeEnvVarFile"
-
-      it "parses relative path with parent directory" $ do
-        fromFilePath "../.env" `shouldSatisfy` isRight
-        case fromFilePath "../.env" of
-          Right (RelativeEnvVarFile _) -> return ()
-          _ -> error "Expected RelativeEnvVarFile"
-
-      it "parses file with extension" $ do
-        fromFilePath "environment.txt" `shouldSatisfy` isRight
-
-      it "parses file without extension" $ do
-        fromFilePath "env" `shouldSatisfy` isRight
-
-    describe "invalid file paths" $ do
-      it "rejects empty string" $ do
-        fromFilePath "" `shouldSatisfy` isLeft
-
-      it "rejects invalid characters" $ do
-        fromFilePath "file\0name" `shouldSatisfy` isLeft
-
-    describe "edge cases" $ do
-      it "parses single character filename" $ do
-        fromFilePath "a" `shouldSatisfy` isRight
-
-      it "parses filename with spaces" $ do
-        fromFilePath "my file.env" `shouldSatisfy` isRight
-
-      it "parses filename with special characters" $ do
-        fromFilePath "file-name_123.env" `shouldSatisfy` isRight
-
-isRight :: Either a b -> Bool
-isRight (Right _) = True
-isRight (Left _) = False
-
-isLeft :: Either a b -> Bool
-isLeft (Left _) = True
-isLeft (Right _) = False

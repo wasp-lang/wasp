@@ -1,7 +1,7 @@
 module Wasp.Cli.Util.EnvVarArgument
   ( envVarReader,
     envVarFromString,
-    EnvVarFileArgument (..),
+    EnvVarFileArgument,
     fromFilePath,
     WorkingDir,
     envVarFileReader,
@@ -9,14 +9,11 @@ module Wasp.Cli.Util.EnvVarArgument
   )
 where
 
-import Control.Arrow (ArrowChoice (left))
-import Data.Function ((&))
-import Data.Functor ((<&>))
-import Options.Applicative (ReadM, eitherReader)
-import qualified Path
-import StrongPath (Abs, File, Path', Rel, (</>))
-import qualified StrongPath.Path as SP.Path
-import Wasp.Cli.FileSystem (WorkingDir, getWorkingDir)
+import Options.Applicative (ReadM, eitherReader, str)
+import StrongPath (Abs, File, Path')
+import StrongPath.FilePath (parseAbsFile)
+import System.Directory (makeAbsolute)
+import Wasp.Cli.FileSystem (WorkingDir)
 import Wasp.Env (EnvVar, parseDotEnvFile)
 
 envVarReader :: ReadM EnvVar
@@ -34,26 +31,17 @@ envVarFromString var =
     failure = Left $ "Environment variable must be in the format NAME=VALUE: " ++ var
 
 envVarFileReader :: ReadM EnvVarFileArgument
-envVarFileReader = eitherReader fromFilePath
+envVarFileReader = fromFilePath <$> str
 
-fromFilePath :: FilePath -> Either String EnvVarFileArgument
-fromFilePath str =
-  Path.parseSomeFile str
-    & left ((("Error while parsing path " <> str <> ": ") <>) . show)
-    <&> \case
-      Path.Abs absPath -> AbsoluteEnvVarFile $ SP.Path.fromPathAbsFile absPath
-      Path.Rel relPath -> RelativeEnvVarFile $ SP.Path.fromPathRelFile relPath
+fromFilePath :: FilePath -> EnvVarFileArgument
+fromFilePath filePath =
+  GetPathAction (makeAbsolute filePath >>= parseAbsFile)
 
--- Paths passed as arguments to a CLI are conventionally absolute paths, or
--- paths relative to the current working directory.
-data EnvVarFileArgument
-  = AbsoluteEnvVarFile (Path' Abs (File ()))
-  | RelativeEnvVarFile (Path' (Rel WorkingDir) (File ()))
-  deriving (Show, Eq)
+-- Paths passed as arguments to a CLI are conventionally either absolute paths,
+-- or paths relative to the current working directory. We need IO to resolve
+-- which kind of path it is, but don't want any unsafe transformations in the
+-- meantime; so we make this type opaque until we have access to the IO monad.
+newtype EnvVarFileArgument = GetPathAction (IO (Path' Abs (File ())))
 
 readEnvVarFile :: EnvVarFileArgument -> IO [EnvVar]
-readEnvVarFile arg = toStrongPath arg >>= parseDotEnvFile
-  where
-    toStrongPath :: EnvVarFileArgument -> IO (Path' Abs (File ()))
-    toStrongPath (AbsoluteEnvVarFile path) = return path
-    toStrongPath (RelativeEnvVarFile path) = (</> path) <$> getWorkingDir
+readEnvVarFile (GetPathAction getPath) = getPath >>= parseDotEnvFile
