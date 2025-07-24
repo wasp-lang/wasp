@@ -158,3 +158,16 @@
   height: 100%;
   border: 0;
 }
+
+/* Video player responsive styles */
+.video-player {
+  width: 100%;
+}
+
+/* Desktop styles */
+@media screen and (min-width: 768px) {
+  .video-player {
+    height: 80vh;
+    width: auto;
+  }
+}
