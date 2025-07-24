@@ -324,7 +324,7 @@ generateLayoutComponent newProjectDetails =
 
 generateTailwindConfigFile :: NewProjectDetails -> File
 generateTailwindConfigFile newProjectDetails =
-  ( "tailwind.config.cjs",
+  ( "tailwind.config.js",
     [trimming|
       const { resolveProjectPath } = require('wasp/dev')
       const colors = require('tailwindcss/colors')
@@ -361,7 +361,7 @@ generateTailwindConfigFile newProjectDetails =
 
 generatePostcssConfigFile :: File
 generatePostcssConfigFile =
-  ( "postcss.config.cjs",
+  ( "postcss.config.js",
     [trimming|
       module.exports = {
         plugins: {
