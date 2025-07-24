@@ -8,7 +8,7 @@ on:
     branches:
       - main
       - release
-      # TODO: Remove, this is temporary
+      # TODO: Remove before merge
       - filip-automatic-deploy-test-fly
 
 jobs:
@@ -67,7 +67,7 @@ jobs:
         run: |
           # NOTE: This assumes env var values don't contain:
           #   - The character `#`.
-          #   - An empty line (no multiline env values).
+          #   - An empty line (i.e., there are no multiline env values).
           echo "ENV_VARS=$(
             cat .env.server.headless \
             | sed -E 's/#.*//' \
@@ -78,7 +78,6 @@ jobs:
       - name: Deploy App to Fly.io
         working-directory: waspc/examples/todoApp
         run: |
-          # NOTE: Github knows not to output the db connection string, how?
           # NOTE:The `yes` command is necessary because the `fly launch` command prompts for confirmation 
           yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp-testing ${{ env.ENV_VARS }}
 
@@ -123,4 +122,5 @@ jobs:
 
       - name: Clean up testing app from Fly.io
         run: |
-          echo flyctl destroy -y $APP_PREFIX-{server,client,db}
+          # NOTE: We are relying on Wasp's naming conventions here
+          echo flyctl apps destroy -y $APP_PREFIX-{server,client,db}
