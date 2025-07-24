@@ -2,12 +2,13 @@ module Wasp.Cli.Util.EnvVarArgument
   ( envVarReader,
     envVarFromString,
     EnvVarFileArgument,
-    fromFilePath,
+    getEnvVarFilePath,
     envVarFileReader,
     readEnvVarFile,
   )
 where
 
+import Control.Monad ((>=>))
 import Options.Applicative (ReadM, eitherReader, str)
 import StrongPath (Abs, File, Path')
 import StrongPath.FilePath (parseAbsFile)
@@ -29,17 +30,18 @@ envVarFromString var =
     failure = Left $ "Environment variable must be in the format NAME=VALUE: " ++ var
 
 envVarFileReader :: ReadM EnvVarFileArgument
-envVarFileReader = fromFilePath <$> str
-
-fromFilePath :: FilePath -> EnvVarFileArgument
-fromFilePath filePath =
-  GetPathAction (makeAbsolute filePath >>= parseAbsFile)
+envVarFileReader = EnvVarFileArgument <$> str
 
 -- Paths passed as arguments to a CLI are conventionally either absolute paths,
 -- or paths relative to the current working directory. We need IO to resolve
--- which kind of path it is, but don't want any unsafe transformations in the
--- meantime; so we make this type opaque until we have access to the IO monad.
-newtype EnvVarFileArgument = GetPathAction (IO (Path' Abs (File ())))
+-- which kind of path it is, but we also don't want any unsafe transformations
+-- in the meantime; so we make this type opaque until we have access to the IO
+-- monad.
+newtype EnvVarFileArgument = EnvVarFileArgument FilePath
+  deriving (Show, Eq)
+
+getEnvVarFilePath :: EnvVarFileArgument -> IO (Path' Abs (File ()))
+getEnvVarFilePath (EnvVarFileArgument filePath) = makeAbsolute filePath >>= parseAbsFile
 
 readEnvVarFile :: EnvVarFileArgument -> IO [EnvVar]
-readEnvVarFile (GetPathAction getPath) = getPath >>= parseDotEnvFile
+readEnvVarFile = getEnvVarFilePath >=> parseDotEnvFile
