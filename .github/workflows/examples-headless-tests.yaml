@@ -16,10 +16,6 @@ on:
 env:
   WASP_TELEMETRY_DISABLE: 1
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   test-example-apps:
     name: Test Example Apps
