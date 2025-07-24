@@ -9,7 +9,8 @@
   {=& overridesChunk =},
   "scripts": {
     "start": "vite",
-    "build": "tsc --build && vite build"
+    "build": "tsc --build && vite build",
+    "preview": "vite preview"
   },
   "engineStrict": true,
   "engines": {
