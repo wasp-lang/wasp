@@ -4,7 +4,7 @@
 
 ### ⚠️ Breaking Changes
 
-- Wasp no longer uses CJS for Tailwind configuration files. ([#TODO]https://todo.com)
+- Wasp no longer uses CJS for Tailwind configuration files. ([#2998](https://github.com/wasp-lang/wasp/pull/2998))
 
 ## 0.17.0
 
