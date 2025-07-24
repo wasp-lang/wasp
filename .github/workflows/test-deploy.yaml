@@ -61,7 +61,9 @@ jobs:
         id: prepare_secrets
         working-directory: waspc/examples/todoApp
         run: |
-          # TODO: Explain the assumptinos and the fragility of this
+          # NOTE: This assumes env var values don't contain:
+          #   - The character `#`.
+          #   - An empty line (no multiline env values).
           echo "ENV_VARS=$(
             cat .env.server.headless \
             | sed -E 's/#.*//' \
@@ -117,4 +119,4 @@ jobs:
 
       - name: Clean up testing app from Fly.io
         run: |
-          echo fly destroy -y $APP_PREFIX-{server,client,database}
+          fly destroy -y $APP_PREFIX-{server,client,db}
