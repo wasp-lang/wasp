@@ -683,6 +683,7 @@ test-suite waspc-test
     Node.InternalTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
+    Psl.Generator.OutputNodeTest
     Psl.Generator.SchemaTest
     Psl.Parser.ArgumentTest
     Psl.Parser.AttributeTest
