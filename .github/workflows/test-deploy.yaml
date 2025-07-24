@@ -60,7 +60,6 @@ jobs:
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
-
       - name: Prepare server secrets for deployment
         id: prepare_secrets
         working-directory: waspc/examples/todoApp
