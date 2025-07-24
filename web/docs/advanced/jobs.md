@@ -173,6 +173,78 @@ In this example, you _don't_ need to invoke anything in <ShowForJs>JavaScript</S
 
 When you submit a job, you get a `SubmittedJob` object back. It has a `jobId` field, which you can use to get the job's result. -->
 
+## Job executors
+
+Wasp supports Jobs through the use of **job executors**. A job executor is responsible for handling the scheduling, monitoring, and execution of jobs.
+
+Currently, Wasp only has support for one job executor, `PgBoss`.
+
+### `PgBoss` {#pgboss}
+
+[`PgBoss`](https://github.com/timgit/pg-boss/tree/8.4.2) is a lightweight job queue built on top of PostgreSQL. It is suitable for low-volume production use cases and does not require any additional infrastructure or complex management. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, you get many benefits of a traditional job queue, on top of your existing Postgres database.
+
+#### Requirements
+
+`PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](../data-model/databases.md#postgresql).
+
+#### Limitations
+
+`PgBoss` runs together with your web server, whenever it is up. This means that it is not a separate process or service, but rather a part of your web server's application. As such, it is not suitable for CPU-heavy workloads, as it shares the CPU with your web server's application logic.
+
+The `PgBoss` executor in Wasp does not (yet) support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads. This means that your server must be running whenever you want to process jobs. If you need to scale your job processing, you will need to run multiple instances of your web server, each with its own `PgBoss` instance.
+
+#### Customization {#pg_boss_new_options}
+
+If you need to customize the creation of the `PgBoss` instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing the initialization parameters. See the [pg-boss documentation](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions).
+
+Please note that setting `PG_BOSS_NEW_OPTIONS` environment variable overwrites all Wasp defaults, so you must include the `connectionString` parameter inside it as well.
+
+For example, to set the connection string and change the job archival and deletion settings, you can set the environment variable like this:
+
+```bash
+# In an .env file
+PG_BOSS_NEW_OPTIONS={"connectionString":"postgresql://user:password@server:5432/database","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
+
+# In the shell
+PG_BOSS_NEW_OPTIONS='{"connectionString":"postgresql://user:password@server:5432/database","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}'
+```
+
+You can read more about escaping JSON in environment variables in the [JSON Env Vars documentation](../project/env-vars.md#json-env-vars).
+
+#### Database setup
+
+:::tip You don't need to set up the database manually
+
+When using `PgBoss`, the database setup is automatically taken care of by the Wasp server, and doesn't need to be reflected in your schemas or migrations. The following information is given for your reference, and is explained in more detail in [the `PgBoss` documentation](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md).
+
+:::
+
+All job data will be stored in a separate database schema called `pgboss`. It has some internal tracking tables, such as `job`, `archive`, and `schedule`. `PgBoss` tables have a `name` column in most tables that will correspond to your Job identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by `PgBoss`.
+
+#### Known issues
+
+- **Renaming scheduled jobs**
+
+    The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
+
+    For example, if you renamed a job from `emailReminder` to `sendEmailReminder`, you would need to remove the old scheduled job with the following SQL query:
+
+    ```sql
+    BEGIN;
+    DELETE FROM pgboss.schedule WHERE name = 'emailReminder';
+    COMMIT;
+    ```
+
+    **Important:** Only modify the database directly if you're comfortable with SQL operations. If you're unsure, consider keeping the old job name or restarting with a fresh database in development.
+
+#### Job data retention and cleanup
+
+By default, `PgBoss` keeps job data for 12 hours after completion or failure. After that, it moves the data to an archive table, where it is kept for 7 days before being deleted. If you want to change this behavior, you can configure the `PG_BOSS_NEW_OPTIONS` environment variable to set custom values for job archival ([`archivedCompletedAfterSeconds`/`archiveFailedAfterSeconds`](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~:text=v1%22%20or%20%22v4%22-,archiveCompletedAfterSeconds,-Specifies%20how%20long)) and removal ([`deleteAfterSeconds`/`deleteAfterMinutes`/etc](https://github.com/timgit/pg-boss/tree/8.4.2/docs#newoptions:~:text=the%20skew%20warnings.-,Archive%20options,-When%20jobs%20in)).
+
+```bash
+PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","archiveCompletedAfterSeconds":86400,"deleteAfterDays":30,"maintenanceIntervalMinutes":5}
+```
+
 ## API Reference
 
 ### Declaring Jobs
@@ -227,37 +299,7 @@ The Job declaration has the following fields:
 
 - `executor: JobExecutor` <Required />
 
-:::note Job executors
-Our jobs need job executors to handle the _scheduling, monitoring, and execution_.
-
-`PgBoss` is currently our only job executor, and is recommended for low-volume production use cases. It requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](../data-model/databases.md#postgresql).
-:::
-
-We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
-
-:::info
-Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details below for more information.
-
-<details>
-  <summary>pg-boss details</summary>
-
-  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.4.2/README.md).
-
-  When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your Job identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
-
-  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
-
-  ### pg-boss considerations
-
-  - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
-    - Wasp does not (yet) support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads.
-  - The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `schedule` table in the `pgboss` schema of your database.
-    - If you remove a `schedule` from a job, you will need to do the above as well.
-  - If you wish to deploy to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
-  - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
-</details>
-
-:::
+  The job executor to use for this job. Currently, the only supported executor is [`PgBoss`](#pgboss).
 
 - `perform: dict` <Required />
 
