@@ -18,7 +18,7 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( DirBasedTemplateMetadata (_path),
     StarterTemplate (..),
-    getStarterTemplates,
+    availableStarterTemplates,
     getTemplateStartingInstructions,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo (createProjectOnDiskFromGhRepoTemplate)
@@ -31,9 +31,7 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args & either Common.throwProjectCreationError return
-  let starterTemplates = getStarterTemplates
-
-  newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplates
+  newProjectDescription <- obtainNewProjectDescription newProjectArgs availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription

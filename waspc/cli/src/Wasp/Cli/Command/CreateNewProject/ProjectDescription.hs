@@ -105,8 +105,9 @@ obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateNam
     makeInvalidTemplateNameError templateName =
       "The template '"
         <> templateName
-        <> "' doesn't exist. Available templates are: "
+        <> "' doesn't exist. Available starter templates are: "
         <> intercalate ", " (map show availableTemplates)
+        <> "."
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
 obtainAvailableProjectDirPath projectName = do
