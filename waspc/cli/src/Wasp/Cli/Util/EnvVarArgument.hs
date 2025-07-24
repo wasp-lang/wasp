@@ -3,7 +3,6 @@ module Wasp.Cli.Util.EnvVarArgument
     envVarFromString,
     EnvVarFileArgument,
     fromFilePath,
-    WorkingDir,
     envVarFileReader,
     readEnvVarFile,
   )
@@ -13,7 +12,6 @@ import Options.Applicative (ReadM, eitherReader, str)
 import StrongPath (Abs, File, Path')
 import StrongPath.FilePath (parseAbsFile)
 import System.Directory (makeAbsolute)
-import Wasp.Cli.FileSystem (WorkingDir)
 import Wasp.Env (EnvVar, parseDotEnvFile)
 
 envVarReader :: ReadM EnvVar
