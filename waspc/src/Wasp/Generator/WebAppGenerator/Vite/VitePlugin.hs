@@ -32,7 +32,9 @@ vitePlugins =
     (\name -> (name, getTmplFilePathForVitePlugin name))
     vitePluginNames
   where
-    vitePluginNames = [minBound .. maxBound]
+    -- We intentionally exclude the legacy `DevToolsJson` plugin now that
+    -- Wasp relies on the upstream `vite-plugin-devtools-json` npm package.
+    vitePluginNames = [DetectServerImports, ValidateEnv]
 
 data WebAppVitePluginsDir
 
