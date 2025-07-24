@@ -12,6 +12,9 @@ on:
       - filip-automatic-deploy-test-fly
 
 concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # NOTE: We don't want to cancel this workflow because we always want to run
+  # the cleanup job.
   cancel-in-progress: false
 
 jobs:
