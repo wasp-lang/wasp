@@ -6,17 +6,17 @@ import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 
 
-### Prerequisites
+## Prerequisites
 
-Fly requires you to add your credit card information before you can deploy your apps. If you don't, the deployment will fail. Prices are usage based and can be [estimated here](https://fly.io/calculator).
+To deploy to Fly.io using Wasp CLI:
 
-You can add the required credit card information on the [account's billing page](https://fly.io/dashboard/personal/billing).
+1. Create a [Fly.io](https://fly.io/) account
 
-:::info Fly.io CLI
-You will need the [`fly` CLI](https://fly.io/docs/hands-on/install-flyctl/) installed on your machine before you can deploy to Fly.io.
-:::
+1. Fly requires you to add a payment method before you can deploy more than two Fly apps. To deploy Wasp apps, you need three Fly apps: the client, the server, and the database.
 
-### Deploying
+2. Install the [`fly` CLI](https://fly.io/docs/hands-on/install-flyctl/) on your machine.
+
+## Deploying
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
 
@@ -53,7 +53,7 @@ You should include these files in your version control so that you can deploy yo
 
 If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
 
-### Using a Custom Domain For Your App {#fly-custom-domain}
+## Using a Custom Domain For Your App {#fly-custom-domain}
 
 Setting up a custom domain is a three-step process:
 
@@ -99,7 +99,7 @@ wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://myc
 
 That's it, your app should be available at `https://mycoolapp.com`!
 
-#### Adding a `www` Subdomain
+### Adding a `www` Subdomain
 
 If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
 
