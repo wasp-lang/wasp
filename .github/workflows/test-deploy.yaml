@@ -123,4 +123,4 @@ jobs:
       - name: Clean up testing app from Fly.io
         run: |
           # NOTE: We are relying on Wasp's naming conventions here
-          echo flyctl apps destroy -y $APP_PREFIX-{server,client,db}
+          flyctl apps destroy -y $APP_PREFIX-{server,client,db}
