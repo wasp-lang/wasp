@@ -540,7 +540,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v4
           with:
-            node-version: '20'
+            node-version: '22'
 
         - name: Install Wasp
           run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
@@ -641,7 +641,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v4
           with:
-            node-version: '20'
+            node-version: '22'
 
         - name: Install Wasp
           run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
