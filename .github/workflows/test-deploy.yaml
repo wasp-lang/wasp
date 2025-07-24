@@ -1,13 +1,15 @@
 name: Test Wasp Deploy
 
-paths:
-  - "waspc/**"
-  - ".github/**"
-branches:
-  - main
-  - release
-  # TODO: Remove, this is temporary
-  - filip-automatic-deploy-test-fly
+on:
+  push:
+    paths:
+      - "waspc/**"
+      - ".github/**"
+    branches:
+      - main
+      - release
+      # TODO: Remove, this is temporary
+      - filip-automatic-deploy-test-fly
 
 jobs:
   generate_uniqe_app_prefix:
