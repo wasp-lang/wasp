@@ -117,4 +117,4 @@ jobs:
 
       - name: Clean up testing app from Fly.io
         run: |
-          echo "Destroying apps"
+          echo fly destroy -y $APP_PREFIX-{server,client,database}
