@@ -12,8 +12,11 @@ jobs:
   build:
     uses: ./.github/workflows/waspc-build.yaml
 
+  examples-headless-tests:
+    uses: ./.github/workflows/examples-headless-tests.yaml
+
   create-release:
-    needs: [ci, build]
+    needs: [ci, build, examples-headless-tests]
     runs-on: ubuntu-latest
 
     permissions:
