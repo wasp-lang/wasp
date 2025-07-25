@@ -1,0 +1,31 @@
+{
+  "name": "tutorial-app-generator",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "parse-markdown": "tsx ./src/markdown/index.ts",
+    "start": "tsx ./src/index.ts"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^14.0.0",
+    "acorn": "8.15.0",
+    "commander": "^14.0.0",
+    "dedent": "^1.6.0",
+    "enquirer": "^2.4.1",
+    "mdast-util-from-markdown": "^2.0.2",
+    "mdast-util-frontmatter": "^2.0.1",
+    "mdast-util-mdx": "^3.0.0",
+    "mdast-util-mdx-jsx": "^3.2.0",
+    "mdast-util-to-markdown": "^2.1.2",
+    "micromark-extension-mdx-jsx": "^3.0.2",
+    "parse-git-diff": "0.0.19",
+    "remark-comment": "^1.0.0",
+    "unist-util-visit": "^5.0.0",
+    "zx": "^8.5.3"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "tsx": "^4.19.4"
+  }
+}

@@ -3,12 +3,15 @@ title: 4. Database Entities
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { TutorialAction } from './TutorialAction';
 
 Entities are one of the most important concepts in Wasp and are how you define what gets stored in the database.
 
 Wasp uses Prisma to talk to the database, and you define Entities by defining Prisma models in the `schema.prisma` file.
 
 Since our Todo app is all about tasks, we'll define a Task entity by adding a Task model in the `schema.prisma` file:
+
+<TutorialAction step="prisma-task" action="apply-patch" />
 
 ```prisma title="schema.prisma"
 // ...
@@ -26,6 +29,7 @@ Read more about how Wasp Entities work in the [Entities](../data-model/entities.
 
 To update the database schema to include this entity, stop the `wasp start` process, if it's running, and run:
 
+<TutorialAction step="migration-add-task" action="migrate-db" />
 ```sh
 wasp db migrate-dev
 ```
