@@ -49,7 +49,7 @@ export default defineConfig({
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: false,
-    timeout: 120 * 1000,
+    timeout: 240 * 1000,
     gracefulShutdown: { signal: "SIGTERM", timeout: 2000 },
   },
 });

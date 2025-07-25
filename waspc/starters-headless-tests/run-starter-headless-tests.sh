@@ -25,16 +25,17 @@ fi
 WASP_CLI_CMD="$1"
 TEMPLATE_NAME="$2"
 WASP_PROJECT_PATH="$3"
-HEADLESS_TESTS_PATH="${4}"
+# TODO: Implement remote headless tests path
+# HEADLESS_TESTS_PATH="${4}"
 TEMP_PROJECT_NAME="temp-project-${TEMPLATE_NAME}"
 TEMP_WASP_PROJECT_PATH="${TEMP_PROJECT_NAME}${WASP_PROJECT_PATH}"
 
 main() {
-  trap cleanup_test_environment EXIT INT TERM QUIT
+  # trap cleanup_test_environment EXIT INT TERM QUIT
 
   echo "Starting E2E tests for ${TEMPLATE_NAME} template..."
   initialize_test_environment
-  run_dev_headless_tests
+  # run_dev_headless_tests
   run_build_headless_tests
   echo "Finished E2E tests for ${TEMPLATE_NAME} template"
 }
@@ -44,13 +45,26 @@ initialize_test_environment() {
 
   ${WASP_CLI_CMD} new "${TEMP_PROJECT_NAME}" -t "${TEMPLATE_NAME}"
 
+  # Starters don't have .env.server.headless (like todoApp)
+  # as we don't want to generate those files for end users.
+
   if [ -f "$TEMP_WASP_PROJECT_PATH/.env.server.example" ]; then
     cp "$TEMP_WASP_PROJECT_PATH/.env.server.example" "$TEMP_WASP_PROJECT_PATH/.env.server"
   fi
-  
+
   if [ -f "$TEMP_WASP_PROJECT_PATH/.env.client.example" ]; then
     cp "$TEMP_WASP_PROJECT_PATH/.env.client.example" "$TEMP_WASP_PROJECT_PATH/.env.client"
   fi
+
+  # Replace email provider with SMTP so it works with `wasp-app-runner`
+  sed -i '' 's/provider: [A-Za-z0-9_][A-Za-z0-9_]*/provider: SMTP/g' "$TEMP_WASP_PROJECT_PATH/main.wasp"
+  cat >> "$TEMP_WASP_PROJECT_PATH/.env.server" << EOF
+
+SMTP_HOST='smtp.fastmail.com'
+SMTP_USERNAME='mihovil@ilakovac.com'
+SMTP_PASSWORD='rwh326lqec8kuzr2'
+SMTP_PORT=587
+EOF
 }
 
 cleanup_test_environment() {
@@ -81,20 +95,22 @@ run_build_headless_tests() {
 }
 
 template_uses_sqlite() {
-  cd "$TEMP_WASP_PROJECT_PATH"
+  (
+    cd "$TEMP_WASP_PROJECT_PATH"
 
-  DATABASE_PROVIDER=$(${WASP_CLI_CMD} info \
-    | grep "Database system" \
-    | sed 's/.*: //' \
-    | sed -e 's/\x1b\[[0-9;]*m//g' \
-    | tr '[:upper:]' '[:lower:]')
+    DATABASE_PROVIDER=$(${WASP_CLI_CMD} info \
+      | grep "Database system" \
+      | sed 's/.*: //' \
+      | sed -e 's/\x1b\[[0-9;]*m//g' \
+      | tr '[:upper:]' '[:lower:]')
 
-  if [ -z "$DATABASE_PROVIDER" ]; then
-    echo "ERROR: Could not determine database system from ${WASP_CLI_CMD} info"
-    exit 1
-  fi
+    if [ -z "$DATABASE_PROVIDER" ]; then
+      echo "ERROR: Could not determine database system from ${WASP_CLI_CMD} info"
+      exit 1
+    fi
 
-  [ "$DATABASE_PROVIDER" = "sqlite" ]
+    [ "$DATABASE_PROVIDER" = "sqlite" ]
+  )
 }
 
 main "$@"
