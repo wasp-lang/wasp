@@ -1,0 +1,30 @@
+{
+  "name": "@wasp.sh/libs-auth",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "dev": "vitest dev",
+    "test": "npm run test:types && vitest run --coverage",
+    "test:types": "tsc --noEmit --skipLibCheck"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "oslo": "^1.1.2"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.1.4",
+    "typescript": "5.8.2",
+    "unbuild": "^3.5.0",
+    "vitest": "^3.1.4"
+  }
+}

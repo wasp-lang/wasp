@@ -27,6 +27,7 @@ import qualified Wasp.Generator.Start
 import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
+import Wasp.Generator.WaspLibs (setUpLibs)
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
@@ -52,8 +53,14 @@ writeWebAppCode spec dstDir sendMessage = do
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
           writeDotWaspInfo dstDir
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
-          return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
+          -- runSetup builds the SDK, so the libraries need to be ready before that.
+          libsSetupResult <- setUpLibs dstDir
+          case libsSetupResult of
+            libsSetupErrors@(_ : _) -> do
+              return (generatorWarnings, libsSetupErrors)
+            [] -> do
+              (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
+              return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
