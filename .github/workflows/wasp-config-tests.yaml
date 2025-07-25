@@ -1,6 +1,7 @@
 name: Run wasp-config tests
 
 on:
+  workflow_call:
   push:
     paths:
       - "waspc/packages/wasp-config/**"
