@@ -37,7 +37,7 @@ RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
 
 # ghc version below should be the one from `cabal.project` file, `with-compiler` field.
-GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0.0"
+GHCUP_SET="ghcup set ghc 9.2.8 && ghcup set hls 2.2.0.0"
 
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool() {
@@ -135,122 +135,122 @@ exitStatusToString() {
 }
 
 case $COMMAND in
-  build)
-    echo_and_eval "$BUILD_HS_CMD"
-    ;;
-  build:all)
-    echo_and_eval "$BUILD_ALL_CMD"
-    ;;
-  build:all:static)
-    echo_and_eval "$BUILD_ALL_STATIC_CMD"
-    ;;
-  build:packages)
-    echo_and_eval "$WASP_PACKAGES_COMPILE"
-    ;;
+build)
+  echo_and_eval "$BUILD_HS_CMD"
+  ;;
+build:all)
+  echo_and_eval "$BUILD_ALL_CMD"
+  ;;
+build:all:static)
+  echo_and_eval "$BUILD_ALL_STATIC_CMD"
+  ;;
+build:packages)
+  echo_and_eval "$WASP_PACKAGES_COMPILE"
+  ;;
 
-  install)
-    echo_and_eval "$INSTALL_CMD"
-    ;;
+install)
+  echo_and_eval "$INSTALL_CMD"
+  ;;
 
-  ghcid)
-    echo_and_eval "$GHCID_CMD"
-    ;;
-  ghcid-test)
-    # --color always is needed for Tasty to turn on the coloring.
-    # NOTE: I did not put this into variable because I was not able to put single quotes
-    #   around :main --color always that way and it was not working.
-    ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
-    ;;
+ghcid)
+  echo_and_eval "$GHCID_CMD"
+  ;;
+ghcid-test)
+  # --color always is needed for Tasty to turn on the coloring.
+  # NOTE: I did not put this into variable because I was not able to put single quotes
+  #   around :main --color always that way and it was not working.
+  ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
+  ;;
 
-  test)
-    echo_and_eval "$TEST_CMD"
-    ;;
-  test:unit)
-    TEST_PATTERN="${ARGS[0]}"
-    if [[ -z "$TEST_PATTERN" ]]; then
-      echo_and_eval "$TEST_UNIT_CMD"
-    else
-      echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
-    fi
+test)
+  echo_and_eval "$TEST_CMD"
+  ;;
+test:unit)
+  TEST_PATTERN="${ARGS[0]}"
+  if [[ -z "$TEST_PATTERN" ]]; then
+    echo_and_eval "$TEST_UNIT_CMD"
+  else
+    echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
+  fi
 
-    ;;
-  test:cli)
-    echo_and_eval "$TEST_CLI_CMD"
-    ;;
-  test:e2e)
-    echo_and_eval "$TEST_E2E_CMD"
-    ;;
-  test:e2e:accept-all)
-    echo_and_eval "$TEST_E2E_ACCEPT_ALL_CMD"
-    ;;
-  test:headless)
-    echo_and_eval "$TEST_HEADLESS_CMD"
-    ;;
+  ;;
+test:cli)
+  echo_and_eval "$TEST_CLI_CMD"
+  ;;
+test:e2e)
+  echo_and_eval "$TEST_E2E_CMD"
+  ;;
+test:e2e:accept-all)
+  echo_and_eval "$TEST_E2E_ACCEPT_ALL_CMD"
+  ;;
+test:headless)
+  echo_and_eval "$TEST_HEADLESS_CMD"
+  ;;
 
-  wasp-cli)
-    echo_and_eval "$RUN_CMD"
-    ;;
+wasp-cli)
+  echo_and_eval "$RUN_CMD"
+  ;;
 
-  stan)
-    echo_and_eval "$STAN_CMD"
-    ;;
-  hlint)
-    echo_and_eval "$HLINT_CMD"
-    ;;
-  prune-juice)
-    echo_and_eval "$PRUNE_JUICE_CMD"
-    ;;
-  ormolu:check)
-    echo_and_eval "$ORMOLU_CHECK_CMD"
-    ;;
-  ormolu:format)
-    echo_and_eval "$ORMOLU_FORMAT_CMD"
-    ;;
-  prettier:check)
-    echo_and_eval "$PRETTIER_CHECK_CMD"
-    ;;
-  prettier:format)
-    echo_and_eval "$PRETTIER_FORMAT_CMD"
-    ;;
-  code-check)
-    echo_and_eval "$PRETTIER_CHECK_CMD"
-    PRETTIER_RESULT=$?
+stan)
+  echo_and_eval "$STAN_CMD"
+  ;;
+hlint)
+  echo_and_eval "$HLINT_CMD"
+  ;;
+prune-juice)
+  echo_and_eval "$PRUNE_JUICE_CMD"
+  ;;
+ormolu:check)
+  echo_and_eval "$ORMOLU_CHECK_CMD"
+  ;;
+ormolu:format)
+  echo_and_eval "$ORMOLU_FORMAT_CMD"
+  ;;
+prettier:check)
+  echo_and_eval "$PRETTIER_CHECK_CMD"
+  ;;
+prettier:format)
+  echo_and_eval "$PRETTIER_FORMAT_CMD"
+  ;;
+code-check)
+  echo_and_eval "$PRETTIER_CHECK_CMD"
+  PRETTIER_RESULT=$?
 
-    echo_and_eval "$ORMOLU_CHECK_CMD"
-    ORMOLU_RESULT=$?
+  echo_and_eval "$ORMOLU_CHECK_CMD"
+  ORMOLU_RESULT=$?
 
-    echo_and_eval "$HLINT_CMD"
-    HLINT_RESULT=$?
+  echo_and_eval "$HLINT_CMD"
+  HLINT_RESULT=$?
 
-    echo_and_eval "$STAN_CMD"
-    STAN_RESULT=$?
+  echo_and_eval "$STAN_CMD"
+  STAN_RESULT=$?
 
-    TOTAL_RESULT=$((PRETTIER_RESULT || ORMOLU_RESULT || HLINT_RESULT || STAN_RESULT))
+  TOTAL_RESULT=$((PRETTIER_RESULT || ORMOLU_RESULT || HLINT_RESULT || STAN_RESULT))
 
-    echo
-    echo
-    echo "======================================"
-    echo "               SUMMARY"
-    echo "======================================"
-    echo
-    echo -e "Formatter (prettier): $(exitStatusToString $PRETTIER_RESULT)"
-    echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
-    echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
-    echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
-    echo "-----------------------"
-    echo -e "All together: $(exitStatusToString $TOTAL_RESULT)"
+  echo
+  echo
+  echo "======================================"
+  echo "               SUMMARY"
+  echo "======================================"
+  echo
+  echo -e "Formatter (prettier): $(exitStatusToString $PRETTIER_RESULT)"
+  echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
+  echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
+  echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
+  echo "-----------------------"
+  echo -e "All together: $(exitStatusToString $TOTAL_RESULT)"
 
-    exit $TOTAL_RESULT
-    ;;
-  module-graph)
-    echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
-    ;;
+  exit $TOTAL_RESULT
+  ;;
+module-graph)
+  echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
+  ;;
 
-  ghcup-set)
-    echo_and_eval "$GHCUP_SET"
-    ;;
-  *)
-    print_usage
-    exit 1
-    ;;
+ghcup-set)
+  echo_and_eval "$GHCUP_SET"
+  ;;
+*)
+  print_usage
+  exit 1
+  ;;
 esac

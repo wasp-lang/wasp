@@ -72,12 +72,14 @@ jobExecutors = enumFrom minBound :: [JobExecutor]
 -- Helpers to disambiguate duplicate field `executorOptions`.
 performExecutorOptionsJson :: Job -> Maybe JSON
 performExecutorOptionsJson job =
-  executorOptionsJson (executor job) (executorOptions (perform job :: Perform))
+  case perform job of
+    Perform {executorOptions = opts} -> executorOptionsJson (executor job) opts
 
 scheduleExecutorOptionsJson :: Job -> Maybe JSON
 scheduleExecutorOptionsJson job = do
   s <- schedule job
-  executorOptionsJson (executor job) (executorOptions (s :: Schedule))
+  case s of
+    Schedule {executorOptions = opts} -> executorOptionsJson (executor job) opts
 
 executorOptionsJson :: JobExecutor -> Maybe ExecutorOptions -> Maybe JSON
 executorOptionsJson PgBoss (Just ExecutorOptions {pgBoss = Just json}) = Just json
