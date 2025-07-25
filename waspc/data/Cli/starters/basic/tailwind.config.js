@@ -1,4 +1,4 @@
-import { resolveProjectPath } from "wasp/dev";
+const { resolveProjectPath } = require('wasp/dev')
 
 /** @type {import('tailwindcss').Config} */
 export default {
