@@ -8,8 +8,8 @@ on:
       - main
       - release
   pull_request:
-    # paths:
-    #   - "waspc/packages/wasp-config/**"
+    paths:
+      - "waspc/packages/wasp-config/**"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
