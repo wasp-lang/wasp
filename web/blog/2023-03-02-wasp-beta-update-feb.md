@@ -32,7 +32,7 @@ Let me cut to the chase and show you what's been cooking in Wasp pot for the pas
 
 This is the only command you need to run to deploy your full app (client, server, and database) to Fly.io! They also offer a generous free tier so you can deploy your v1 without any second thoughts.
 
-Check out our docs for more details: [Deploying your Wasp app to Fly.io](/docs/deployment/deployment-methods/cli#flyio)
+Check out our docs for more details: [Deploying your Wasp app to Fly.io](/docs/deployment/deployment-methods/wasp-deploy/fly)
 
 ## ✅ Full stack TypeScript support
 
