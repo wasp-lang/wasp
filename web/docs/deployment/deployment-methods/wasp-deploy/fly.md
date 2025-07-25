@@ -53,7 +53,7 @@ You should include these files in your version control so that you can deploy yo
 
 If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
 
-## Using a Custom Domain For Your App {#fly-custom-domain}
+## Using a Custom Domain For Your App {#custom-domain}
 
 Setting up a custom domain is a three-step process:
 

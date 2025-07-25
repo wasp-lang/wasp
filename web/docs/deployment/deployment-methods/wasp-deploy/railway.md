@@ -44,7 +44,7 @@ Railway doesn't allow setting the database service name using the Railway CLI. I
 
 If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#railway-environment-variables) section.
 
-## Using a Custom Domain For Your App {#railway-custom-domain}
+## Using a Custom Domain For Your App {#custom-domain}
 
 Setting up a custom domain is a three-step process:
 
