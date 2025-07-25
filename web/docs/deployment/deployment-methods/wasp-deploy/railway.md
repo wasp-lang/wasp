@@ -9,11 +9,11 @@ import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 
 To deploy to Railway using Wasp CLI:
 
-1. Create a [Railway](https://railway.com/) account,
+1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account,
 
-1. Wasp CLI requires that Railpack is set as the default deployment builder **for client routing to work correctly**. Go to your [Railway account settings](https://railway.com/account/feature-flags) and enable "Default to Railpack".
+1. Wasp CLI requires that Railpack is set as the default deployment builder **for client routing to work correctly**. Go to your [Railway account settings](https://railway.com/account/feature-flags?utm_medium=integration&utm_source=docs&utm_campaign=wasp) and enable "Default to Railpack".
 
-1. Install the [`railway` CLI](https://docs.railway.com/guides/cli#installing-the-cli) on your machine.
+1. Install the [`railway` CLI](https://docs.railway.com/guides/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli) on your machine.
 
 ## Deploying
 
@@ -50,7 +50,7 @@ Setting up a custom domain is a three-step process:
 
 1. Add your domain to the Railway client service:
 
-    - Go into the [Railway dashboard](https://railway.app/dashboard).
+    - Go into the [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp).
     - Select your project (for example `my-wasp-app`).
     - Click on the client service (for example `my-wasp-app-client`).
     - Go to the **Settings** tab and click **Custom Domain**.
@@ -61,7 +61,7 @@ Setting up a custom domain is a three-step process:
 
 3. To avoid [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) errors, you need to set your new client URL as the `WASP_WEB_CLIENT_URL` environment variable (for example `https://mycoolapp.com`) for your **server service** in the Railway dashboard.
 
-    - Go into the [Railway dashboard](https://railway.app/dashboard).
+    - Go into the [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp).
     - Select your project (for example `my-wasp-app`).
     - Click on the server service (for example `my-wasp-app-server`).
     - Go to the **Variables** tab.
