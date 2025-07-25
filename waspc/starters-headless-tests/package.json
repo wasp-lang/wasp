@@ -1,0 +1,19 @@
+{
+  "name": "headless-tests",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "main": "index.js",
+  "keywords": [],
+  "type": "module",
+  "scripts": {
+    "test": "for starter in minimal basic; do ./run-starter-headless-tests.sh $starter wasp || exit 1; done",
+    "test:dev": "for starter in minimal basic; do ./run-starter-headless-tests.sh $starter wasp-cli || exit 1; done"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.51.1",
+    "@types/node": "^24.0.1",
+    "@wasp.sh/wasp-app-runner": "^0.0.7"
+  }
+}
