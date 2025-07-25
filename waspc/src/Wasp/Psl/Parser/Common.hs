@@ -20,11 +20,13 @@ import Text.Parsec
   ( alphaNum,
     char,
     letter,
+    notFollowedBy,
+    string,
     (<|>),
   )
-import Text.Parsec.Language (emptyDef)
 import Text.Parsec.String (Parser)
-import qualified Text.Parsec.Token as T
+import Wasp.Psl.Parser.Common.Language (emptyDef)
+import qualified Wasp.Psl.Parser.Common.Token as T
 
 type SourceCode = String
 
@@ -71,8 +73,11 @@ lexer :: T.TokenParser ()
 lexer =
   T.makeTokenParser
     emptyDef
-      { T.commentLine = "//",
+      { T.commentLine = commentSymbol,
         T.caseSensitive = True,
         T.identStart = letter,
         T.identLetter = alphaNum <|> char '_'
       }
+  where
+    commentSymbol :: Parser ()
+    commentSymbol = string "//" >> notFollowedBy (char '/')
