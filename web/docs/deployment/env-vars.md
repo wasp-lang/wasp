@@ -10,7 +10,7 @@ However, when we are deploying our app, **`.env.client` and `.env.server` files 
 
 ![Env vars usage in development and production](/img/env/prod_dev_fade_2.svg)
 
-### Client Env Vars
+### Client Env Vars {#client-env-vars}
 
 During the build process, client env vars are injected into the client Javascript code, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
 

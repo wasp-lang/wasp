@@ -93,7 +93,7 @@ In this section, we'll show how to deploy your server and provision a database f
 
 :::info One command deploy
 
-We recommend that you use [Wasp Deploy](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](./wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
 :::
 
@@ -221,7 +221,7 @@ In this section, we'll show how to deploy the client, the server, and provision 
 
 :::info One command deploy
 
-We recommend that you use [Wasp Deploy](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](./wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
 
 :::
 

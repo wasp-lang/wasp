@@ -164,7 +164,7 @@ wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --
 
 ##### Client
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
+If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
@@ -232,13 +232,13 @@ Run this command whenever you want to **update your deployed app** with the late
 wasp deploy fly deploy
 ```
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
+If you've added any [client-side environment variables](../../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
-You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../project/env-vars#client-env-vars-1).
+You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
 #### The `cmd` command
 
@@ -263,7 +263,7 @@ If your app requires any other server-side environment variables (like social au
 
 #### Client Environment Variables
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia

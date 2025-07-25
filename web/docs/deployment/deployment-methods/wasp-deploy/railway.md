@@ -113,7 +113,7 @@ wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --
 
 ##### Client
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
+If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
@@ -154,13 +154,13 @@ wasp deploy railway deploy <project-name> --existing-project-id <railway-project
 - `--skip-client` - do not deploy the web client
 - `--skip-server` - do not deploy the server
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
+If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>
 ```
 
-You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../project/env-vars#client-env-vars-1).
+You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
 ### The `setup` command
 
@@ -206,7 +206,7 @@ If your app requires any other server-side environment variables (like social au
 
 #### Client Environment Variables
 
-If you've added any [client-side environment variables](../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
