@@ -1,0 +1,125 @@
+name: Test Wasp Deploy
+
+on:
+  push:
+    paths:
+      - "waspc/**"
+      - ".github/**"
+    branches:
+      - main
+      - release
+      # TODO: Remove before merge
+      - filip-automatic-deploy-test-fly
+
+jobs:
+  generate_uniqe_app_prefix:
+    name: Generate unique deployment prefix
+    runs-on: ubuntu-latest
+
+    outputs:
+      app_prefix: ${{ steps.generate_app_prefix.outputs.app_prefix }}
+
+    steps:
+      - name: Generate unique app prefix from commit SHA
+        id: generate_app_prefix
+        run: |
+          echo "app_prefix=ci-$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
+
+  deploy_app_to_fly:
+    name: Deploy Wasp app
+
+    runs-on: ubuntu-latest
+    needs: generate_uniqe_app_prefix
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
+      FLY_REGION: mia
+      APP_PREFIX: ${{ needs.generate_uniqe_app_prefix.outputs.app_prefix }}
+
+    outputs:
+      server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
+      client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Workaround for a Github Checkout action bug
+          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Haskell
+        uses: ./.github/actions/setup-haskell
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install Wasp CLI
+        working-directory: waspc
+        run: ./run install
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+
+      - name: Prepare server secrets for deployment
+        id: prepare_secrets
+        working-directory: waspc/examples/todoApp
+        run: |
+          # NOTE: This assumes env var values don't contain:
+          #   - The character `#`.
+          #   - An empty line (i.e., there are no multiline env values).
+          echo "ENV_VARS=$(
+            cat .env.server.headless \
+            | sed -E 's/#.*//' \
+            | awk 'NF {$1=$1;print}' \
+            | sed -E 's/^/--server-secret /' \
+            | paste -sd' ')" >> $GITHUB_ENV
+
+      - name: Deploy App to Fly.io
+        working-directory: waspc/examples/todoApp
+        run: |
+          # NOTE:The `yes` command is necessary because the `fly launch` command prompts for confirmation 
+          yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp-testing ${{ env.ENV_VARS }}
+
+      - name: Save deployed app hostnames
+        id: save_hostnames
+        working-directory: waspc/examples/todoApp
+        run: |
+          echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
+          echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
+
+  smoke_test_app:
+    name: Run smoke tests on deployed app
+
+    runs-on: ubuntu-latest
+    needs: deploy_app_to_fly
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
+      SERVER_HOSTNAME: ${{ needs.deploy_app_to_fly.outputs.server_hostname }}
+      CLIENT_HOSTNAME: ${{ needs.deploy_app_to_fly.outputs.client_hostname }}
+
+    steps:
+      - name: Smoke test the server
+        run: |
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date
+
+      - name: Smoke test the client
+        run: |
+          curl --fail --silent https://$CLIENT_HOSTNAME
+
+  clean_up_deployed_fly_app:
+    runs-on: ubuntu-latest
+    name: Clean up deployed Fly app
+    needs: [generate_uniqe_app_prefix, deploy_app_to_fly, smoke_test_app]
+
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
+      APP_PREFIX: ${{ needs.generate_uniqe_app_prefix.outputs.app_prefix }}
+
+    steps:
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+
+      - name: Clean up testing app from Fly.io
+        run: |
+          # NOTE: We are relying on Wasp's naming conventions here
+          flyctl apps destroy -y $APP_PREFIX-{server,client,db}
