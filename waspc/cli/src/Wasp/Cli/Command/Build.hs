@@ -9,7 +9,8 @@ import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value (..))
 import Data.Aeson.Lens
-import qualified Data.HashMap.Strict as HM
+import qualified Data.Aeson.KeyMap as KM
+import qualified Data.Aeson.Key as Key
 import Data.List (isSuffixOf)
 import Data.Text (Text, unpack)
 import StrongPath (Abs, Dir, Path', castRel, (</>))
@@ -148,8 +149,8 @@ build = do
       packageLockJsonObject
         & key "packages" . key "" %~ removeWaspConfigFromDevDependenciesArray
         & key "packages" . _Object
-          %~ HM.filterWithKey
-            (\packageLocation _ -> not $ isWaspConfigPackageLocation packageLocation)
+          %~ KM.filterWithKey
+            (\packageLocation _ -> not $ isWaspConfigPackageLocation (Key.toText packageLocation))
 
     isWaspConfigPackageLocation :: Text -> Bool
     isWaspConfigPackageLocation packageLocation =

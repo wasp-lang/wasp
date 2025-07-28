@@ -116,10 +116,10 @@ isEmailAuthEnabled = isJust . email . methods
 -- `userSignupFields` function (otherwise we need to use the DuplicateRecordFields
 -- extension in each module that uses them).
 userSignupFieldsForEmailAuth :: EmailAuthConfig -> Maybe ExtImport
-userSignupFieldsForEmailAuth = userSignupFields
+userSignupFieldsForEmailAuth EmailAuthConfig {userSignupFields = fields} = fields
 
 userSignupFieldsForUsernameAuth :: UsernameAndPasswordConfig -> Maybe ExtImport
-userSignupFieldsForUsernameAuth = userSignupFields
+userSignupFieldsForUsernameAuth UsernameAndPasswordConfig {userSignupFields = fields} = fields
 
 userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
-userSignupFieldsForExternalAuth = userSignupFields
+userSignupFieldsForExternalAuth ExternalAuthConfig {userSignupFields = fields} = fields
