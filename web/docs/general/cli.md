@@ -19,7 +19,7 @@ COMMANDS
     new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.
       OPTIONS:
         -t|--template <template-name>
-           Check out the templates list here: https://github.com/wasp-lang/starters
+           Available starter templates are: basic, minimal, saas, ai-generated.
 
     new:ai <app-name> <app-description> [<config-json>]
       Uses AI to create a new Wasp project just based on the app name and the description.
