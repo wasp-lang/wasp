@@ -1931,5 +1931,3 @@ For exact details about new syntax, check https://wasp.sh/docs/language/syntax .
 - Added delay on recompilation to avoid redundant recompiling.
 - Added `onAuthSucceededRedirectTo` field in `app`.
 - and more!
-
-## Unreleased changes
