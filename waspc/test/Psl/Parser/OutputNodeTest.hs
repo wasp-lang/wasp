@@ -20,13 +20,13 @@ spec_parsePslNode = do
             T.unpack
               [trimming|
                 model MyModel {
-                  /// Simple comment attached to `prop1`
+                  /// Doc comment attached to `prop1`
                   prop1    Int    @id @default(autoincrement())
-                  // Random comment that should be ignored
-                  prop2  String @unique /// Simple comment attached to `prop2`
-                  /// Multiline leading comments
+                  // Regular comment that should be ignored
+                  prop2  String @unique
+                  /// Multiline comments
                   /// For prop3
-                  prop3  String @unique /// And also trailing!
+                  prop3  String @unique
                 }
               |]
           expectedAst =
@@ -36,7 +36,7 @@ spec_parsePslNode = do
                     Psl.Model.Model
                       "MyModel"
                       ( Psl.Model.Body
-                          [ commentedNode [" Simple comment attached to `prop1`"] $
+                          [ commentedNode [" Doc comment attached to `prop1`"] $
                               Psl.Model.ElementField $
                                 Psl.Model.Field
                                   "prop1"
@@ -47,7 +47,7 @@ spec_parsePslNode = do
                                       "default"
                                       [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
                                   ],
-                            commentedNode [" Simple comment attached to `prop2`"] $
+                            pure $
                               Psl.Model.ElementField $
                                 Psl.Model.Field
                                   "prop2"
@@ -55,9 +55,8 @@ spec_parsePslNode = do
                                   []
                                   [Psl.Attribute.Attribute "unique" []],
                             commentedNode
-                              [ " Multiline leading comments",
-                                " For prop3",
-                                " And also trailing!"
+                              [ " Multiline comments",
+                                " For prop3"
                               ]
                               $ Psl.Model.ElementField $
                                 Psl.Model.Field
@@ -70,17 +69,21 @@ spec_parsePslNode = do
               ]
 
       Psl.Parser.parsePrismaSchema prismaSchema `shouldBe` Right expectedAst
-    it "Prisma-zod example 1" $ do
+    it "Prisma-zod example" $ do
       let prismaSchema =
             T.unpack
               [trimming|
                 model Post {
-                  id String @id @default(uuid()) /// @zod.uuid()
+                  /// The unique identifier for the post
+                  /// @zod.uuid()
+                  id String @id @default(uuid())
 
+                  /// A brief title that describes the contents of the post
                   /// @zod.max(255, { message: "The title must be shorter than 256 characters" })
                   title String
 
-                  contents String /// @zod.max(10240)
+                  /// @zod.max(10240)
+                  contents String
                 }
               |]
           expectedAst =
@@ -90,8 +93,11 @@ spec_parsePslNode = do
                     Psl.Model.Model
                       "Post"
                       ( Psl.Model.Body
-                          [ commentedNode [" @zod.uuid()"] $
-                              Psl.Model.ElementField $
+                          [ commentedNode
+                              [ " The unique identifier for the post",
+                                " @zod.uuid()"
+                              ]
+                              $ Psl.Model.ElementField $
                                 Psl.Model.Field
                                   "id"
                                   Psl.Model.String
@@ -101,8 +107,11 @@ spec_parsePslNode = do
                                       "default"
                                       [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
                                   ],
-                            commentedNode [" @zod.max(255, { message: \"The title must be shorter than 256 characters\" })"] $
-                              Psl.Model.ElementField $
+                            commentedNode
+                              [ " A brief title that describes the contents of the post",
+                                " @zod.max(255, { message: \"The title must be shorter than 256 characters\" })"
+                              ]
+                              $ Psl.Model.ElementField $
                                 Psl.Model.Field
                                   "title"
                                   Psl.Model.String
