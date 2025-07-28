@@ -58,12 +58,15 @@ import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
+import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
+import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.DepVersions
   ( expressTypesVersion,
     expressVersionStr,
   )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
     reactQueryVersion,
@@ -107,7 +110,7 @@ genSdk spec =
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
-      genFileCopy [relfile|client/config.ts|],
+      genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -244,6 +247,15 @@ depsRequiredForTesting =
       ("msw", "^1.1.0")
     ]
 
+genClientConfigFile :: Generator FileDraft
+genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+  where
+    relConfigFilePath = [relfile|client/config.ts|]
+    tmplData =
+      object
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
+        ]
+
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
@@ -270,6 +282,9 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
+          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
+          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
+          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
 
