@@ -1,5 +1,5 @@
-module Wasp.Psl.Parser.OutputNode
-  ( outputNode,
+module Wasp.Psl.Parser.WithCtx
+  ( withCtx,
     documentationComment,
   )
 where
@@ -11,20 +11,20 @@ import Text.Parsec
     try,
   )
 import Text.Parsec.String (Parser)
-import Wasp.Psl.Ast.OutputNode
+import Wasp.Psl.Ast.WithCtx
   ( DocumentationComment,
     NodeContext (NodeContext),
-    OutputNode (OutputNode),
+    WithCtx (WithCtx),
   )
 import Wasp.Psl.Parser.Common (lexeme)
 
-outputNode :: Parser node -> Parser (OutputNode node)
-outputNode nodeParser = do
+withCtx :: Parser node -> Parser (WithCtx node)
+withCtx nodeParser = do
   leadingComments <- many (try documentationComment)
   node <- nodeParser
   -- TODO: Handle trailing comments properly, right now we fail on them.
 
-  return $ OutputNode node (NodeContext leadingComments)
+  return $ WithCtx node (NodeContext leadingComments)
 
 documentationComment :: Parser DocumentationComment
 documentationComment =

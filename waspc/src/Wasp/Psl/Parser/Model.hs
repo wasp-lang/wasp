@@ -27,7 +27,7 @@ import Wasp.Psl.Parser.Common
     symbol,
     whiteSpace,
   )
-import Wasp.Psl.Parser.OutputNode (outputNode)
+import Wasp.Psl.Parser.WithCtx (withCtx)
 
 -- | This is used to parse the body of the PSL tags in the Wasp file.
 -- NOTE: We need to consume the leading whitespace specifically here, because we use the `body`
@@ -53,7 +53,7 @@ model = do
 -- which is everything besides model keyword, name and braces:
 --   `model User { <body> }`.
 body :: Parser Psl.Model.Body
-body = Psl.Model.Body <$> many1 (outputNode element)
+body = Psl.Model.Body <$> many1 (withCtx element)
 
 element :: Parser Psl.Model.Element
 element =

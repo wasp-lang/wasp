@@ -10,7 +10,7 @@ import Wasp.Generator.Monad (runGenerator)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import qualified Wasp.Psl.Ast.OutputNode
+import qualified Wasp.Psl.Ast.WithCtx
 
 data UserEntityIdField = UserEntityIdField
   { _type :: Psl.Model.FieldType,
@@ -126,7 +126,7 @@ spec_GeneratorAuthInjectionTest = do
               )
           )
 
-    makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Wasp.Psl.Ast.OutputNode.OutputNode Psl.Model.Element
+    makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Wasp.Psl.Ast.WithCtx.WithCtx Psl.Model.Element
     makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType =
       let userIdFieldAttributes = (Psl.Attribute.Attribute "unique" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
        in pure $

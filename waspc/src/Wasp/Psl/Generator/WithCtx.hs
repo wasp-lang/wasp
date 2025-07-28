@@ -1,14 +1,14 @@
-module Wasp.Psl.Generator.OutputNode
-  ( generateOutputNodeWith,
+module Wasp.Psl.Generator.WithCtx
+  ( generateWithCtx,
     generateNodeContext,
   )
 where
 
-import Wasp.Psl.Ast.OutputNode (NodeContext (NodeContext), OutputNode (OutputNode))
+import Wasp.Psl.Ast.WithCtx (NodeContext (NodeContext), WithCtx (WithCtx))
 import Wasp.Psl.Generator.Common (PslSource)
 
-generateOutputNodeWith :: (node -> PslSource) -> OutputNode node -> PslSource
-generateOutputNodeWith generateNode (OutputNode node context) =
+generateWithCtx :: (node -> PslSource) -> WithCtx node -> PslSource
+generateWithCtx generateNode (WithCtx node context) =
   generateNodeContext context (generateNode node)
 
 generateNodeContext :: NodeContext -> PslSource -> PslSource

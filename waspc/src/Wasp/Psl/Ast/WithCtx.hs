@@ -1,12 +1,12 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Wasp.Psl.Ast.OutputNode
-  ( OutputNode (..),
+module Wasp.Psl.Ast.WithCtx
+  ( WithCtx (..),
     NodeContext (..),
     DocumentationComment,
     DocumentationComments,
     commentedNode,
-    getOutputNode,
+    getNode,
   )
 where
 
@@ -15,8 +15,8 @@ import Data.Data (Data)
 -- | A PSL node that defines an output in the generated code. As such, it might
 -- have attached context, such as documentation comments, that must be preserved
 -- in the AST.
-data OutputNode node
-  = OutputNode node NodeContext
+data WithCtx node
+  = WithCtx node NodeContext
   deriving (Show, Eq, Data)
 
 data NodeContext = NodeContext
@@ -28,19 +28,19 @@ type DocumentationComments = [DocumentationComment]
 
 type DocumentationComment = String
 
-commentedNode :: [String] -> node -> OutputNode node
-commentedNode comments node = OutputNode node (NodeContext comments)
+commentedNode :: [String] -> node -> WithCtx node
+commentedNode comments node = WithCtx node (NodeContext comments)
 
-getOutputNode :: OutputNode node -> node
-getOutputNode (OutputNode node _) = node
+getNode :: WithCtx node -> node
+getNode (WithCtx node _) = node
 
-instance Functor OutputNode where
-  fmap f (OutputNode node context) = OutputNode (f node) context
+instance Functor WithCtx where
+  fmap f (WithCtx node context) = WithCtx (f node) context
 
-instance Applicative OutputNode where
-  pure node = OutputNode node (NodeContext [])
-  OutputNode f context <*> OutputNode node context' =
-    OutputNode (f node) (context <> context')
+instance Applicative WithCtx where
+  pure node = WithCtx node (NodeContext [])
+  WithCtx f context <*> WithCtx node context' =
+    WithCtx (f node) (context <> context')
 
 instance Semigroup NodeContext where
   (NodeContext comments1) <> (NodeContext comments2) =

@@ -17,7 +17,7 @@ import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import Wasp.Psl.Ast.OutputNode (getOutputNode)
+import qualified Wasp.Psl.Ast.WithCtx as WithCtx
 import Wasp.Psl.Util (findIdBlockAttribute, findIdField)
 
 data Entity = Entity
@@ -42,7 +42,7 @@ makeEntity body =
     makeEntityFieldsFromPslBody (Psl.Model.Body pslElements) =
       Field.pslFieldToEntityField
         <$> [ field
-              | (Psl.Model.ElementField field) <- getOutputNode <$> pslElements
+              | (Psl.Model.ElementField field) <- WithCtx.getNode <$> pslElements
             ]
 
 getFields :: Entity -> [Field]

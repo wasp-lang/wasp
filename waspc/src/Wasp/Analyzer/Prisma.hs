@@ -6,8 +6,8 @@ where
 
 import Wasp.Analyzer.Parser as Parser
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import Wasp.Psl.Ast.OutputNode (getOutputNode)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Ast.WithCtx as WithCtx
 import qualified Wasp.Psl.Generator.Model as Psl.Model.Generator
 
 injectEntitiesFromPrismaSchema :: Psl.Schema.Schema -> Parser.AST -> Either a Parser.AST
@@ -38,5 +38,5 @@ makeEntityStmt (name, body) = wrapWithCtx $ Parser.Decl "entity" name $ wrapWith
 generatePrismaModelSources :: Psl.Schema.Schema -> [(ModelName, ModelBody)]
 generatePrismaModelSources schema =
   [ (name, Psl.Model.Generator.generateModelBody body)
-    | (Psl.Model.Model name body) <- getOutputNode <$> Psl.Schema.getModels schema
+    | (Psl.Model.Model name body) <- WithCtx.getNode <$> Psl.Schema.getModels schema
   ]

@@ -4,16 +4,16 @@ module Wasp.Psl.Generator.Enum
 where
 
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
-import Wasp.Psl.Ast.OutputNode (OutputNode)
+import Wasp.Psl.Ast.WithCtx (WithCtx)
 import Wasp.Psl.Generator.Attribute (generateAttribute)
 import Wasp.Psl.Generator.Common (PslSource)
-import Wasp.Psl.Generator.OutputNode (generateOutputNodeWith)
+import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 
-generateEnumBody :: [OutputNode Psl.Enum.Element] -> PslSource
+generateEnumBody :: [WithCtx Psl.Enum.Element] -> PslSource
 generateEnumBody values =
   unlines $
     map ("  " ++) $
-      generateOutputNodeWith generateEnumElement <$> values
+      generateWithCtx generateEnumElement <$> values
 
 generateEnumElement :: Psl.Enum.Element -> PslSource
 generateEnumElement (Psl.Enum.ElementValue value attrs) =

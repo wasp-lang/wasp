@@ -6,10 +6,10 @@ where
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Generator.Attribute (generateAttribute)
 import Wasp.Psl.Generator.Common (PslSource)
-import Wasp.Psl.Generator.OutputNode (generateOutputNodeWith)
+import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 
 generateModelBody :: Psl.Model.Body -> PslSource
-generateModelBody (Psl.Model.Body elements) = unlines $ map (("  " ++) . generateOutputNodeWith generateModelElement) elements
+generateModelBody (Psl.Model.Body elements) = unlines $ map (("  " ++) . generateWithCtx generateModelElement) elements
 
 generateModelElement :: Psl.Model.Element -> PslSource
 generateModelElement (Psl.Model.ElementField field) =

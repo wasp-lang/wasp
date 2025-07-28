@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Psl.Generator.OutputNodeTest where
+module Psl.Generator.WithCtxTest where
 
 import Data.Function (on)
 import qualified Data.Text as T
@@ -9,8 +9,8 @@ import Test.Tasty.Hspec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import Wasp.Psl.Ast.OutputNode (commentedNode)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Psl.Ast.WithCtx (commentedNode)
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator
 
 spec_generatePslNode :: Spec

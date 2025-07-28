@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Psl.Parser.OutputNodeTest where
+module Psl.Parser.WithCtxTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
@@ -8,8 +8,8 @@ import Test.Tasty.Hspec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import Wasp.Psl.Ast.OutputNode (commentedNode)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import Wasp.Psl.Ast.WithCtx (commentedNode)
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 
 spec_parsePslNode :: Spec
