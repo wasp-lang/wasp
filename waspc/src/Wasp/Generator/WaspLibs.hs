@@ -1,6 +1,7 @@
 module Wasp.Generator.WaspLibs
   ( setUpLibs,
     waspLibsDeps,
+    libsRootDirInGeneratedCodeDir,
   )
 where
 
@@ -51,6 +52,9 @@ libsRootDirInProjectRootDir =
   [reldir|../|]
     </> basename generatedCodeDirInDotWaspDir
     </> [reldir|libs|]
+
+libsRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
+libsRootDirInGeneratedCodeDir = [reldir|libs|]
 
 libsDirPathInDataDir :: Path' (Rel Data.DataDir) (Dir LibsSourceDir)
 libsDirPathInDataDir = [reldir|Generator/libs|]

@@ -23,6 +23,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
+import Wasp.Generator.WaspLibs (libsRootDirInGeneratedCodeDir)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( CompileError,
@@ -107,6 +108,11 @@ build = do
         copyDirectory
           (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir)
           (buildDir </> sdkRootDirInGeneratedCodeDir)
+
+      liftIO $
+        copyDirectory
+          (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> libsRootDirInGeneratedCodeDir)
+          (buildDir </> libsRootDirInGeneratedCodeDir)
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
