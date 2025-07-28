@@ -1,48 +1,30 @@
 module Wasp.Psl.Parser.OutputNode
   ( outputNode,
+    documentationComment,
   )
 where
 
-import Data.Char (isSpace)
-import Data.Maybe (maybeToList)
 import Text.Parsec
   ( many,
-    optionMaybe,
     satisfy,
-    skipMany,
     string,
     try,
   )
 import Text.Parsec.String (Parser)
 import Wasp.Psl.Ast.OutputNode
   ( DocumentationComment,
-    DocumentationComments,
     NodeContext (NodeContext),
     OutputNode (OutputNode),
   )
-import Wasp.Psl.Parser.Common (whiteSpace)
-import Wasp.Util (trim)
+import Wasp.Psl.Parser.Common (lexeme)
 
 outputNode :: Parser node -> Parser (OutputNode node)
 outputNode nodeParser = do
-  leadingComments <- freestandingLeadingDocumentationComments
-
-  whiteSpace
+  leadingComments <- many (try documentationComment)
   node <- nodeParser
-  whiteSpace
+  -- TODO: Handle trailing comments properly, right now we fail on them.
 
-  trailingComment <- lineTrailingDocumentationComment
-
-  let allComments = leadingComments ++ maybeToList trailingComment
-  return $ OutputNode node (NodeContext allComments)
-
-freestandingLeadingDocumentationComments :: Parser DocumentationComments
-freestandingLeadingDocumentationComments = many (try documentationComment)
-
-lineTrailingDocumentationComment :: Parser (Maybe DocumentationComment)
-lineTrailingDocumentationComment = do
-  skipMany $ satisfy isSpaceExceptNewline
-  optionMaybe $ try documentationComment
+  return $ OutputNode node (NodeContext leadingComments)
 
 documentationComment :: Parser DocumentationComment
 documentationComment =
