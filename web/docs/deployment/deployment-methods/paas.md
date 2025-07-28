@@ -7,6 +7,7 @@ import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.m
 import BuildingTheWebClient from './\_building-the-web-client.md'
 import { Required } from '@site/src/components/Tag'
 import { Server, Client, Database } from './DeploymentTag'
+import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
 
 This document explains how to build and prepare your Wasp app for deployment.
 You can then deploy the built Wasp app wherever and however you want, as long as your provider/server supports Wasp's build format.
@@ -167,6 +168,8 @@ fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
 fly secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
 
+We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
+
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
 :::
@@ -282,8 +285,7 @@ You'll deploy the server first:
    1. Add `WASP_WEB_CLIENT_URL` with the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
 
    1. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
-
-   1. Add `JWT_SECRET` with a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+   1. Add `JWT_SECRET` with a random string at least 32 characters long<br /><SecretGeneratorBlock />
 
      <AddExternalAuthEnvVarsReminder />
 
@@ -322,7 +324,7 @@ You'll deploy the server first:
     ```
 
 <!-- TOPIC: client deployment -->
-    
+
 4. Next, deploy the client build to Railway:
 
     ```shell
@@ -330,7 +332,7 @@ You'll deploy the server first:
     ```
 
     Select `client` when prompted to select a service.
-    
+
     Railway will detect the `index.html` file and deploy the client as a static site using [Railpack](https://railpack.com/languages/staticfile#root-directory-resolution).
 
 
@@ -404,6 +406,8 @@ heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_charact
 heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
 heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
+
+We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
 
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
