@@ -45,11 +45,9 @@ lineTrailingDocumentationComment = do
   optionMaybe $ try documentationComment
 
 documentationComment :: Parser DocumentationComment
-documentationComment = do
-  _ <- string "///"
-  line <- many (satisfy (/= '\n'))
-  whiteSpace
-  return $ trim line
-
-isSpaceExceptNewline :: Char -> Bool
-isSpaceExceptNewline c = isSpace c && c /= '\n'
+documentationComment =
+  -- Given we're manually parsing on the character level here, we need to wrap
+  -- this in a `lexeme`, so that Parsec identifies it as a token and can
+  -- correctly handle whitespace around the comment.
+  lexeme $
+    string "///" >> many (satisfy (/= '\n'))

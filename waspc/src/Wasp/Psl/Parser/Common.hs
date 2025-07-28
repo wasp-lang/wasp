@@ -12,6 +12,7 @@ module Wasp.Psl.Parser.Common
     colon,
     float,
     integer,
+    lexeme,
     SourceCode,
   )
 where
@@ -68,6 +69,9 @@ float = T.float lexer
 
 integer :: Parser Integer
 integer = T.integer lexer
+
+lexeme :: Parser a -> Parser a
+lexeme = T.lexeme lexer
 
 lexer :: T.TokenParser ()
 lexer =

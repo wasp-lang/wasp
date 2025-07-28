@@ -13,4 +13,4 @@ generateOutputNodeWith generateNode (OutputNode node context) =
 
 generateNodeContext :: NodeContext -> PslSource -> PslSource
 generateNodeContext (NodeContext comments) content =
-  unlines (map ("/// " ++) comments ++ [content])
+  unlines (map ("///" ++) comments ++ [content])
