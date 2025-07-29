@@ -12,9 +12,6 @@ where
 
 import Data.Data (Data)
 
--- | A PSL node that defines an output in the generated code. As such, it might
--- have attached context, such as documentation comments, that must be preserved
--- in the AST.
 data WithCtx node
   = WithCtx node NodeContext
   deriving (Show, Eq, Data)
