@@ -3,8 +3,6 @@
 module Wasp.Psl.Ast.WithCtx
   ( WithCtx (..),
     NodeContext (..),
-    DocumentationComment,
-    DocumentationComments,
     commentedNode,
     getNode,
     empty,
@@ -12,6 +10,7 @@ module Wasp.Psl.Ast.WithCtx
 where
 
 import Data.Data (Data)
+import Wasp.Psl.Comments (DocumentationComments)
 
 data WithCtx node
   = WithCtx node NodeContext
@@ -21,10 +20,6 @@ data NodeContext = NodeContext
   { documentationComments :: DocumentationComments
   }
   deriving (Show, Eq, Data)
-
-type DocumentationComments = [DocumentationComment]
-
-type DocumentationComment = String
 
 commentedNode :: [String] -> node -> WithCtx node
 commentedNode comments node = WithCtx node (NodeContext {documentationComments = comments})

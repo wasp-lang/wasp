@@ -12,11 +12,10 @@ import Text.Parsec
   )
 import Text.Parsec.String (Parser)
 import Wasp.Psl.Ast.WithCtx
-  ( DocumentationComment,
-    NodeContext (NodeContext, documentationComments),
+  ( NodeContext (NodeContext, documentationComments),
     WithCtx (WithCtx),
   )
-import Wasp.Psl.Common (documentationCommentSymbol)
+import Wasp.Psl.Comments (DocumentationComment, documentationCommentSymbol)
 import Wasp.Psl.Parser.Common (lexeme)
 
 withCtx :: Parser node -> Parser (WithCtx node)
