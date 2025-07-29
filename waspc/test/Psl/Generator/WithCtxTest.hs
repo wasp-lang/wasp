@@ -43,8 +43,7 @@ spec_generatePslNode = do
                               [Psl.Attribute.Attribute "unique" []],
                         commentedNode
                           [ " Multiline leading comments",
-                            " For prop3",
-                            " And also trailing!"
+                            " For prop3"
                           ]
                           $ Psl.Model.ElementField $
                             Psl.Model.Field
@@ -67,7 +66,6 @@ spec_generatePslNode = do
 
                   /// Multiline leading comments
                   /// For prop3
-                  /// And also trailing!
                   prop3 String @unique
                 }
               |]
