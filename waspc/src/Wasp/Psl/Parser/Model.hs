@@ -5,9 +5,9 @@ module Wasp.Psl.Parser.Model
   )
 where
 
+import Control.Arrow (left)
 import Data.Maybe (maybeToList)
-import Data.Void (Void)
-import Text.Megaparsec (choice, many, optional, some, try)
+import Text.Megaparsec (choice, errorBundlePretty, many, optional, some, try)
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
@@ -27,8 +27,8 @@ import Wasp.Psl.Parser.Common
 -- NOTE: We need to consume the leading whitespace specifically here, because we use the `body`
 -- parser directly (meaning not as part of parsing the whole schema) which means that the
 -- leading whitespace is not consumed by the `schema` parser.
-parseBody :: SourceCode -> Either (Megaparsec.ParseErrorBundle SourceCode Void) Psl.Model.Body
-parseBody = Megaparsec.parse (whiteSpace >> body) ""
+parseBody :: SourceCode -> Either String Psl.Model.Body
+parseBody = left errorBundlePretty . Megaparsec.parse (whiteSpace >> body) ""
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:

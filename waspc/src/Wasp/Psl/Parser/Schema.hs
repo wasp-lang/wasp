@@ -5,8 +5,8 @@ module Wasp.Psl.Parser.Schema
   )
 where
 
-import Data.Void (Void)
-import Text.Megaparsec (choice, eof, many)
+import Control.Arrow (left)
+import Text.Megaparsec (choice, eof, errorBundlePretty, many)
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Parser.Common (Parser, SourceCode, whiteSpace)
@@ -16,8 +16,8 @@ import Wasp.Psl.Parser.Model (model)
 import Wasp.Psl.Parser.Type (typeBlock)
 import Wasp.Psl.Parser.View (view)
 
-parsePrismaSchema :: SourceCode -> Either (Megaparsec.ParseErrorBundle SourceCode Void) Psl.Schema.Schema
-parsePrismaSchema = Megaparsec.parse schema ""
+parsePrismaSchema :: SourceCode -> Either String Psl.Schema.Schema
+parsePrismaSchema = left errorBundlePretty . Megaparsec.parse schema ""
 
 schema :: Parser Psl.Schema.Schema
 schema = do
