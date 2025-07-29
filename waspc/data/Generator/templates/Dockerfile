@@ -37,6 +37,8 @@ COPY tsconfig*.json .
 COPY server .wasp/build/server
 COPY sdk .wasp/out/sdk
 COPY libs .wasp/out/libs
+# Run npm install for each lib
+RUN cd .wasp/out/libs/auth && npm install
 # Install npm packages, resulting in node_modules/.
 RUN npm install && cd .wasp/build/server && npm install
 {=# usingPrisma =}
