@@ -94,10 +94,14 @@ symbol :: String -> Parser String
 symbol = L.symbol whiteSpace
 
 float :: Parser Double
-float = lexeme L.float
+float = L.signed whiteSpace unsignedFloat
+  where
+    unsignedFloat = lexeme L.float
 
 integer :: Parser Integer
-integer = lexeme L.decimal
+integer = L.signed whiteSpace unsignedInteger
+  where
+    unsignedInteger = lexeme L.decimal
 
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme whiteSpace

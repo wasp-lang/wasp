@@ -66,15 +66,9 @@ arrayExpr =
   Psl.Argument.ArrayExpr
     <$> brackets (commaSep expression)
 
--- NOTE: For now we are not supporting negative numbers.
---   I couldn't figure out from Prisma docs if there could be the case
---   where these numbers could be negative.
---   Same goes for numberIntExpr below.
---   TODO: Probably we should take care of that case.
 numberFloatExpr :: Parser Psl.Argument.Expression
 numberFloatExpr = Psl.Argument.NumberExpr . show <$> float
 
--- NOTE/TODO: Check comment on numberFloatExpr.
 numberIntExpr :: Parser Psl.Argument.Expression
 numberIntExpr = Psl.Argument.NumberExpr . show <$> integer
 
