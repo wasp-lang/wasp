@@ -2,7 +2,6 @@
 
 module Psl.Generator.WithCtxTest where
 
-import Data.Function (on)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
@@ -69,8 +68,9 @@ spec_generatePslNode = do
                   prop3 String @unique
                 }
               |]
+              <> "\n"
 
-      Psl.Generator.generateSchemaBlock inputAst `shouldBe_ignoringWhitespace` expectedPrismaSchema
+      Psl.Generator.generateSchemaBlock inputAst `shouldBe` expectedPrismaSchema
 
     it "Prisma-zod example" $ do
       let inputAst =
@@ -121,12 +121,6 @@ spec_generatePslNode = do
                   contents String
                 }
               |]
+              <> "\n"
 
-      Psl.Generator.generateSchemaBlock inputAst `shouldBe_ignoringWhitespace` expectedPrismaSchema
-
-shouldBe_ignoringWhitespace :: String -> String -> Expectation
-shouldBe_ignoringWhitespace = shouldBe `on` removeWhitespace
-
--- | Removes leading indentation and empty lines from the string.
-removeWhitespace :: String -> String
-removeWhitespace = unlines . filter (not . null) . map (dropWhile (== ' ')) . lines
+      Psl.Generator.generateSchemaBlock inputAst `shouldBe` expectedPrismaSchema
