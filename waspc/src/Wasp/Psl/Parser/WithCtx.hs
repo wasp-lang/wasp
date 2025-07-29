@@ -16,6 +16,7 @@ import Wasp.Psl.Ast.WithCtx
     NodeContext (NodeContext, documentationComments),
     WithCtx (WithCtx),
   )
+import Wasp.Psl.Common (documentationCommentSymbol)
 import Wasp.Psl.Parser.Common (lexeme)
 
 withCtx :: Parser node -> Parser (WithCtx node)
@@ -32,4 +33,4 @@ documentationComment =
   -- this in a `lexeme`, so that Parsec identifies it as a token and can
   -- correctly handle whitespace around the comment.
   lexeme $
-    string "///" >> many (satisfy (/= '\n'))
+    string documentationCommentSymbol >> many (satisfy (/= '\n'))

@@ -409,6 +409,7 @@ library
     Wasp.Psl.Ast.Type
     Wasp.Psl.Ast.View
     Wasp.Psl.Ast.WithCtx
+    Wasp.Psl.Common
     Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
