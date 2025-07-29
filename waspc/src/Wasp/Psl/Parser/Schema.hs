@@ -15,6 +15,7 @@ import Wasp.Psl.Parser.Enum (enum)
 import Wasp.Psl.Parser.Model (model)
 import Wasp.Psl.Parser.Type (typeBlock)
 import Wasp.Psl.Parser.View (view)
+import Wasp.Psl.Parser.WithCtx (withCtx)
 
 parsePrismaSchema :: SourceCode -> Either String Psl.Schema.Schema
 parsePrismaSchema = left errorBundlePretty . Megaparsec.parse schema ""
@@ -29,10 +30,10 @@ schema = do
   elements <-
     many $
       choice
-        [ Psl.Schema.ModelBlock <$> model,
-          Psl.Schema.ViewBlock <$> view,
-          Psl.Schema.TypeBlock <$> typeBlock,
-          Psl.Schema.EnumBlock <$> enum,
+        [ Psl.Schema.ModelBlock <$> withCtx model,
+          Psl.Schema.ViewBlock <$> withCtx view,
+          Psl.Schema.TypeBlock <$> withCtx typeBlock,
+          Psl.Schema.EnumBlock <$> withCtx enum,
           Psl.Schema.ConfigBlock <$> configBlock
         ]
   -- We want to throw and if there is any source code left after parsing the schema.
