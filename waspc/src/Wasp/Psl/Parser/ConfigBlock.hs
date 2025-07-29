@@ -14,6 +14,7 @@ import Wasp.Psl.Parser.Common
     braces,
     identifier,
     reserved,
+    symbol,
   )
 
 -- | Parses a config block.
@@ -43,6 +44,6 @@ configBlockBody = braces (many keyValuePair)
 keyValuePair :: Parser Psl.ConfigBlock.KeyValuePair
 keyValuePair = do
   key <- identifier
-  reserved "="
+  _ <- symbol "="
   value <- expression
   return $ Psl.ConfigBlock.KeyValuePair key value

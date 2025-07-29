@@ -71,7 +71,7 @@ parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
 stringLiteral :: Parser String
-stringLiteral = quote >> manyTill L.charLiteral quote
+stringLiteral = lexeme $ quote >> manyTill L.charLiteral quote
   where
     quote = C.char '"'
 
