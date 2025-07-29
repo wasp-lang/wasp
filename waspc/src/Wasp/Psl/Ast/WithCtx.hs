@@ -38,7 +38,7 @@ instance Functor WithCtx where
   fmap f (WithCtx node context) = WithCtx (f node) context
 
 instance Applicative WithCtx where
-  pure node = WithCtx node (NodeContext [])
+  pure node = WithCtx node mempty
   WithCtx f context <*> WithCtx node context' =
     WithCtx (f node) (context <> context')
 
