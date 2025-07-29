@@ -5,23 +5,19 @@ module Wasp.Psl.Parser.Schema
   )
 where
 
-import Text.Parsec
-  ( choice,
-    eof,
-    many,
-  )
-import qualified Text.Parsec as Parsec
-import Text.Parsec.String (Parser)
+import Data.Void (Void)
+import Text.Megaparsec (choice, eof, many)
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Parser.Common (SourceCode, whiteSpace)
+import Wasp.Psl.Parser.Common (Parser, SourceCode, whiteSpace)
 import Wasp.Psl.Parser.ConfigBlock (configBlock)
 import Wasp.Psl.Parser.Enum (enum)
 import Wasp.Psl.Parser.Model (model)
 import Wasp.Psl.Parser.Type (typeBlock)
 import Wasp.Psl.Parser.View (view)
 
-parsePrismaSchema :: SourceCode -> Either Parsec.ParseError Psl.Schema.Schema
-parsePrismaSchema = Parsec.parse schema ""
+parsePrismaSchema :: SourceCode -> Either (Megaparsec.ParseErrorBundle SourceCode Void) Psl.Schema.Schema
+parsePrismaSchema = Megaparsec.parse schema ""
 
 schema :: Parser Psl.Schema.Schema
 schema = do

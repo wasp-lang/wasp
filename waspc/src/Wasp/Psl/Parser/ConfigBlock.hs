@@ -6,16 +6,12 @@ module Wasp.Psl.Parser.ConfigBlock
   )
 where
 
-import Text.Parsec
-  ( choice,
-    many,
-    try,
-  )
-import Text.Parsec.String (Parser)
+import Text.Megaparsec (choice, many, try)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Parser.Argument (expression)
 import Wasp.Psl.Parser.Common
-  ( braces,
+  ( Parser,
+    braces,
     identifier,
     reserved,
   )

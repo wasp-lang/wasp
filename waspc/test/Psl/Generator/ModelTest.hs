@@ -5,7 +5,7 @@ module Psl.Generator.ModelTest where
 
 import Psl.Common.ModelTest (sampleBodyAst)
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Generator.Schema (generateSchemaBlock)
@@ -17,4 +17,4 @@ spec_generatePslModel = do
     let pslModelAst = Psl.Model.Model "User" sampleBodyAst
 
     it "parse(generate(sampleBodyAst)) == sampleBodyAst" $ do
-      Parsec.parse Psl.Parser.Model.model "" (generateSchemaBlock $ Psl.Schema.ModelBlock pslModelAst) `shouldBe` Right pslModelAst
+      Megaparsec.parse Psl.Parser.Model.model "" (generateSchemaBlock $ Psl.Schema.ModelBlock pslModelAst) `shouldBe` Right pslModelAst

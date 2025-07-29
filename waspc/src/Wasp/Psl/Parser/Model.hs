@@ -6,19 +6,14 @@ module Wasp.Psl.Parser.Model
 where
 
 import Data.Maybe (maybeToList)
-import Text.Parsec
-  ( choice,
-    many,
-    many1,
-    optionMaybe,
-    try,
-  )
-import qualified Text.Parsec as Parsec
-import Text.Parsec.String (Parser)
+import Data.Void (Void)
+import Text.Megaparsec (choice, many, optional, some, try)
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
-  ( SourceCode,
+  ( Parser,
+    SourceCode,
     braces,
     identifier,
     parens,
@@ -32,8 +27,8 @@ import Wasp.Psl.Parser.Common
 -- NOTE: We need to consume the leading whitespace specifically here, because we use the `body`
 -- parser directly (meaning not as part of parsing the whole schema) which means that the
 -- leading whitespace is not consumed by the `schema` parser.
-parseBody :: SourceCode -> Either Parsec.ParseError Psl.Model.Body
-parseBody = Parsec.parse (whiteSpace >> body) ""
+parseBody :: SourceCode -> Either (Megaparsec.ParseErrorBundle SourceCode Void) Psl.Model.Body
+parseBody = Megaparsec.parse (whiteSpace >> body) ""
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:
@@ -52,7 +47,7 @@ model = do
 -- which is everything besides model keyword, name and braces:
 --   `model User { <body> }`.
 body :: Parser Psl.Model.Body
-body = Psl.Model.Body <$> many1 element
+body = Psl.Model.Body <$> some element
 
 element :: Parser Psl.Model.Element
 element =
@@ -109,7 +104,7 @@ field = do
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.
     fieldTypeModifier :: Parser (Maybe Psl.Model.FieldTypeModifier)
     fieldTypeModifier =
-      optionMaybe $
+      optional $
         choice
           [ try (symbol "[]" >> return Psl.Model.List),
             try (symbol "?" >> return Psl.Model.Optional)

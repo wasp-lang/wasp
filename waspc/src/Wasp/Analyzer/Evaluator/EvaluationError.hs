@@ -9,6 +9,8 @@ module Wasp.Analyzer.Evaluator.EvaluationError
 where
 
 import Data.List (intercalate)
+import Data.Void (Void)
+import qualified Text.Megaparsec as Megaparsec
 import qualified Text.Parsec
 import Wasp.Analyzer.ErrorMessage (makeFullErrorMsg)
 import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..))
@@ -53,6 +55,8 @@ data EvalErrorCtx
 data EvaluationParseError
   = -- | In case when evaluation includes parsing with Parsec and it fails.
     EvaluationParseErrorParsec Text.Parsec.ParseError
+  | -- | In case when evaluation includes parsing with Megaparse and it fails.
+    EvaluationParseErrorMegaparsec (Megaparsec.ParseErrorBundle String Void)
   | -- | In case when evaluation does some general parsing and it fails.
     EvaluationParseError String
   deriving (Show, Eq)
@@ -105,6 +109,7 @@ getErrorMsgAndErrorCtxMsgsAndParsingCtx (EvaluationError (WithCtx ctx evalError)
         ++ "Valid values: "
         ++ intercalate " | " validEnumVariants
   MissingDictField fieldName -> makeMainMsg $ "Missing dictionary field '" ++ fieldName ++ "'"
+  ParseError (EvaluationParseErrorMegaparsec e) -> makeMainMsg ("Parse error:\n" ++ indent 2 (show e))
   ParseError (EvaluationParseErrorParsec e) -> makeMainMsg ("Parse error:\n" ++ indent 2 (show e))
   ParseError (EvaluationParseError msg) -> makeMainMsg ("Parse error:\n" ++ indent 2 msg)
   WithEvalErrorCtx evalCtx subError -> second3 (evalCtxMsg evalCtx :) $ getErrorMsgAndErrorCtxMsgsAndParsingCtx subError

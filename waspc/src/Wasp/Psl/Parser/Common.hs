@@ -13,66 +13,101 @@ module Wasp.Psl.Parser.Common
     float,
     integer,
     SourceCode,
+    Parser,
   )
 where
 
-import Text.Parsec
-  ( alphaNum,
-    char,
-    letter,
+import Data.Functor (void)
+import Data.Void (Void)
+import Text.Megaparsec
+  ( Parsec,
+    between,
+    empty,
+    many,
+    manyTill,
+    notFollowedBy,
+    sepBy,
+    sepBy1,
+    takeWhileP,
+    try,
+    (<?>),
     (<|>),
   )
-import Text.Parsec.Language (emptyDef)
-import Text.Parsec.String (Parser)
-import qualified Text.Parsec.Token as T
+import qualified Text.Megaparsec.Char as C
+import qualified Text.Megaparsec.Char.Lexer as L
+
+type Parser = Parsec Void SourceCode
 
 type SourceCode = String
 
-whiteSpace :: Parser ()
-whiteSpace = T.whiteSpace lexer
-
 reserved :: String -> Parser ()
-reserved = T.reserved lexer
+reserved name =
+  lexeme $
+    try $
+      do
+        _ <- C.string name
+        notFollowedBy identLetter <?> ("end of " ++ show name)
 
 identifier :: Parser String
-identifier = T.identifier lexer
+identifier = lexeme $ try ident
+  where
+    ident =
+      do
+        c <- identStart
+        cs <- many identLetter
+        return (c : cs)
+        <?> "identifier"
+
+identStart :: Parser Char
+identStart = C.letterChar
+
+identLetter :: Parser Char
+identLetter = C.alphaNumChar <|> C.char '_'
 
 braces :: Parser a -> Parser a
-braces = T.braces lexer
-
-symbol :: String -> Parser String
-symbol = T.symbol lexer
+braces = between (symbol "{") (symbol "}")
 
 parens :: Parser a -> Parser a
-parens = T.parens lexer
+parens = between (symbol "(") (symbol ")")
 
 stringLiteral :: Parser String
-stringLiteral = T.stringLiteral lexer
+stringLiteral = quote >> manyTill L.charLiteral quote
+  where
+    quote = C.char '"'
 
 brackets :: Parser a -> Parser a
-brackets = T.brackets lexer
+brackets = between (symbol "[") (symbol "]")
 
 commaSep1 :: Parser a -> Parser [a]
-commaSep1 = T.commaSep1 lexer
+commaSep1 = flip sepBy1 comma
 
 commaSep :: Parser a -> Parser [a]
-commaSep = T.commaSep lexer
+commaSep = flip sepBy comma
+
+comma :: Parser String
+comma = symbol ","
 
 colon :: Parser String
-colon = T.colon lexer
+colon = symbol ":"
+
+symbol :: String -> Parser String
+symbol = L.symbol whiteSpace
 
 float :: Parser Double
-float = T.float lexer
+float = lexeme L.float
 
 integer :: Parser Integer
-integer = T.integer lexer
+integer = lexeme L.decimal
 
-lexer :: T.TokenParser ()
-lexer =
-  T.makeTokenParser
-    emptyDef
-      { T.commentLine = "//",
-        T.caseSensitive = True,
-        T.identStart = letter,
-        T.identLetter = alphaNum <|> char '_'
-      }
+lexeme :: Parser a -> Parser a
+lexeme = L.lexeme whiteSpace
+
+whiteSpace :: Parser ()
+whiteSpace =
+  L.space (void C.spaceChar) (void lineComment) empty
+
+lineComment :: Parser String
+lineComment =
+  C.string "//"
+    >> notFollowedBy (C.char '/')
+    >> takeWhileP (Just "character") (/= '\n')
