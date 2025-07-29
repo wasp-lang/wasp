@@ -13,7 +13,7 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import Wasp.Psl.Ast.WithCtx
   ( DocumentationComment,
-    NodeContext (NodeContext),
+    NodeContext (NodeContext, documentationComments),
     WithCtx (WithCtx),
   )
 import Wasp.Psl.Parser.Common (lexeme)
@@ -24,7 +24,7 @@ withCtx nodeParser = do
   node <- nodeParser
   -- TODO: Handle trailing comments properly, right now we fail on them.
 
-  return $ WithCtx node (NodeContext leadingComments)
+  return $ WithCtx node (NodeContext {documentationComments = leadingComments})
 
 documentationComment :: Parser DocumentationComment
 documentationComment =

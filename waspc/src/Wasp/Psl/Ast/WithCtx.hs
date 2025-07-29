@@ -29,7 +29,7 @@ type DocumentationComments = [DocumentationComment]
 type DocumentationComment = String
 
 commentedNode :: [String] -> node -> WithCtx node
-commentedNode comments node = WithCtx node (NodeContext comments)
+commentedNode comments node = WithCtx node (NodeContext {documentationComments = comments})
 
 getNode :: WithCtx node -> node
 getNode (WithCtx node _) = node
@@ -43,8 +43,8 @@ instance Applicative WithCtx where
     WithCtx (f node) (context <> context')
 
 instance Semigroup NodeContext where
-  (NodeContext comments1) <> (NodeContext comments2) =
-    NodeContext (comments1 <> comments2)
+  NodeContext {documentationComments = comments1} <> NodeContext {documentationComments = comments2} =
+    NodeContext {documentationComments = comments1 <> comments2}
 
 instance Monoid NodeContext where
-  mempty = NodeContext []
+  mempty = NodeContext {documentationComments = []}
