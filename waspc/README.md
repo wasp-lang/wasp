@@ -4,6 +4,8 @@ This directory contains source code of the `wasp` CLI/compiler (aka `waspc`), an
 
 If you are a Wasp user and not a contributor (yet 😉), you might want to look into the following resources instead ([**Project page**](https://wasp.sh), [**Docs**](https://wasp.sh/docs)).
 
+Trigger CI
+
 ## First time contributor checklist
 
 If you would like to make your first contribution, here is a handy checklist we made for you:
