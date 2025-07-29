@@ -49,6 +49,7 @@ import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Pls.Db
 import qualified Wasp.Psl.Format as Psl.Format
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
@@ -110,7 +111,7 @@ genPrismaSchema spec = do
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Schema.generateSchemaBlock $
-        Psl.Schema.ModelBlock $ pure $ Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
+        Psl.Schema.ModelBlock $ Psl.WithCtx.empty $ Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
     prismaSchemaAst = AS.prismaSchema spec
 
@@ -260,7 +261,7 @@ generatePrismaClient spec projectRootDir = do
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
+        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
       | otherwise = return Nothing
 
     entitiesExist = hasEntities spec

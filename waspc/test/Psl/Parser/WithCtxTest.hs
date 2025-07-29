@@ -10,6 +10,7 @@ import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Ast.WithCtx (commentedNode)
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 
 spec_parsePslNode :: Spec
@@ -32,7 +33,7 @@ spec_parsePslNode = do
           expectedAst =
             Psl.Schema.Schema
               [ Psl.Schema.ModelBlock $
-                  pure $
+                  Psl.WithCtx.empty $
                     Psl.Model.Model
                       "MyModel"
                       ( Psl.Model.Body
@@ -47,7 +48,7 @@ spec_parsePslNode = do
                                       "default"
                                       [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
                                   ],
-                            pure $
+                            Psl.WithCtx.empty $
                               Psl.Model.ElementField $
                                 Psl.Model.Field
                                   "prop2"
@@ -89,7 +90,7 @@ spec_parsePslNode = do
           expectedAst =
             Psl.Schema.Schema
               [ Psl.Schema.ModelBlock $
-                  pure $
+                  Psl.WithCtx.empty $
                     Psl.Model.Model
                       "Post"
                       ( Psl.Model.Body

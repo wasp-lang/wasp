@@ -7,6 +7,7 @@ module Wasp.Psl.Ast.WithCtx
     DocumentationComments,
     commentedNode,
     getNode,
+    empty,
   )
 where
 
@@ -31,11 +32,14 @@ commentedNode comments node = WithCtx node (NodeContext {documentationComments =
 getNode :: WithCtx node -> node
 getNode (WithCtx node _) = node
 
+empty :: node -> WithCtx node
+empty node = WithCtx node mempty
+
 instance Functor WithCtx where
   fmap f (WithCtx node context) = WithCtx (f node) context
 
 instance Applicative WithCtx where
-  pure node = WithCtx node mempty
+  pure = empty
   WithCtx f context <*> WithCtx node context' =
     WithCtx (f node) (context <> context')
 

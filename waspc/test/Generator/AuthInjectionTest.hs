@@ -10,7 +10,7 @@ import Wasp.Generator.Monad (runGenerator)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import qualified Wasp.Psl.Ast.WithCtx
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 
 data UserEntityIdField = UserEntityIdField
   { _type :: Psl.Model.FieldType,
@@ -41,7 +41,7 @@ spec_GeneratorAuthInjectionTest = do
           _nativeDbType = maybeUserEntityIdFieldNativeDbType
         } = do
         let userEntityIdField =
-              pure $
+              Psl.WithCtx.empty $
                 Psl.Model.ElementField $
                   Psl.Model.Field
                     "id"
@@ -54,7 +54,7 @@ spec_GeneratorAuthInjectionTest = do
                   Psl.Model.Body [userEntityIdField]
               )
         let authEntityRelation =
-              pure $
+              Psl.WithCtx.empty $
                 Psl.Model.ElementField $
                   Psl.Model.Field
                     "auth"
@@ -85,7 +85,7 @@ spec_GeneratorAuthInjectionTest = do
        in ( "Auth",
             AS.Entity.makeEntity
               ( Psl.Model.Body
-                  [ pure $
+                  [ Psl.WithCtx.empty $
                       Psl.Model.ElementField $
                         Psl.Model.Field
                           "id"
@@ -95,7 +95,7 @@ spec_GeneratorAuthInjectionTest = do
                             Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
                           ],
                     userIdField,
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField $
                         Psl.Model.Field
                           "user"
@@ -108,14 +108,14 @@ spec_GeneratorAuthInjectionTest = do
                                 Psl.Argument.ArgNamed "onDelete" (Psl.Argument.IdentifierExpr "Cascade")
                               ]
                           ],
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField $
                         Psl.Model.Field
                           "identities"
                           (Psl.Model.UserType "AuthIdentity")
                           [Psl.Model.List]
                           [],
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField $
                         Psl.Model.Field
                           "sessions"
@@ -126,10 +126,10 @@ spec_GeneratorAuthInjectionTest = do
               )
           )
 
-    makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Wasp.Psl.Ast.WithCtx.WithCtx Psl.Model.Element
+    makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Psl.WithCtx.WithCtx Psl.Model.Element
     makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType =
       let userIdFieldAttributes = (Psl.Attribute.Attribute "unique" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
-       in pure $
+       in Psl.WithCtx.empty $
             Psl.Model.ElementField $
               Psl.Model.Field
                 "userId"

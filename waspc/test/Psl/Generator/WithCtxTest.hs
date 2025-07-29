@@ -10,6 +10,7 @@ import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import Wasp.Psl.Ast.WithCtx (commentedNode)
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator
 
 spec_generatePslNode :: Spec
@@ -18,7 +19,7 @@ spec_generatePslNode = do
     it "Prisma file is correctly generated" $ do
       let inputAst =
             Psl.Schema.ModelBlock $
-              pure $
+              Psl.WithCtx.empty $
                 Psl.Model.Model
                   "MyModel"
                   ( Psl.Model.Body
@@ -75,7 +76,7 @@ spec_generatePslNode = do
     it "Prisma-zod example" $ do
       let inputAst =
             Psl.Schema.ModelBlock $
-              pure $
+              Psl.WithCtx.empty $
                 Psl.Model.Model
                   "Post"
                   ( Psl.Model.Body

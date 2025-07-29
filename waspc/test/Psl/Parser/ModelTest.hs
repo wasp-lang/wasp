@@ -9,6 +9,7 @@ import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import Wasp.Psl.Parser.Model (model, parseBody)
 
 spec_parsePslModel :: Spec
@@ -53,7 +54,7 @@ spec_parsePslModel = do
           Psl.Model.Model
             "User"
             ( Psl.Model.Body
-                [ pure $
+                [ Psl.WithCtx.empty $
                     Psl.Model.ElementField
                       ( Psl.Model.Field
                           "id"
@@ -66,11 +67,11 @@ spec_parsePslModel = do
                               ]
                           ]
                       ),
-                  pure $
+                  Psl.WithCtx.empty $
                     Psl.Model.ElementField
                       ( Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
                       ),
-                  pure $
+                  Psl.WithCtx.empty $
                     Psl.Model.ElementField
                       ( Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
                       )
@@ -97,7 +98,7 @@ spec_parsePslModel = do
           Psl.Model.Model
             "User"
             ( Psl.Model.Body $
-                pure
+                Psl.WithCtx.empty
                   <$> [ Psl.Model.ElementField (Psl.Model.Field "model" Psl.Model.Int [] []),
                         Psl.Model.ElementField (Psl.Model.Field "type" Psl.Model.String [] []),
                         Psl.Model.ElementField (Psl.Model.Field "view" Psl.Model.Boolean [] []),

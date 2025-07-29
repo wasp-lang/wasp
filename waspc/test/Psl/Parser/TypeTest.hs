@@ -8,6 +8,7 @@ import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Type as Psl.Type
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Parser.Type as Psl.Parser
 
 spec_parsePslType :: Spec
@@ -21,13 +22,13 @@ spec_parsePslType = do
                   height Int    @default(200)
                   width  Int    @default(100)
                   url    String
-                } 
+                }
               |]
           expectedAst =
             Psl.Type.Type
               "Photo"
               ( Psl.Model.Body
-                  [ pure $
+                  [ Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field
                             "height"
@@ -39,7 +40,7 @@ spec_parsePslType = do
                                 ]
                             ]
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field
                             "width"
@@ -51,7 +52,7 @@ spec_parsePslType = do
                                 ]
                             ]
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field "url" Psl.Model.String [] []
                         )
@@ -68,13 +69,13 @@ spec_parsePslType = do
                   height Int    @default(200)
                   // width  Int    @default(100)
                   url    String
-                } 
+                }
               |]
           expectedAst =
             Psl.Type.Type
               "Photo"
               ( Psl.Model.Body
-                  [ pure $
+                  [ Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field
                             "height"
@@ -86,7 +87,7 @@ spec_parsePslType = do
                                 ]
                             ]
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field "url" Psl.Model.String [] []
                         )

@@ -7,6 +7,7 @@ import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Parser.Enum as Psl.Parser
 
 spec_parsePslEnum :: Spec
@@ -26,15 +27,15 @@ spec_parsePslEnum = do
           expectedAst =
             Psl.Enum.Enum
               "Role"
-              [ pure $ Psl.Enum.ElementValue "USER" [],
-                pure $
+              [ Psl.WithCtx.empty $ Psl.Enum.ElementValue "USER" [],
+                Psl.WithCtx.empty $
                   Psl.Enum.ElementValue
                     "ADMIN"
                     [ Psl.Attribute.Attribute
                         "map"
                         [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "ADMIN_MAPPING"]
                     ],
-                pure $
+                Psl.WithCtx.empty $
                   Psl.Enum.ElementBlockAttribute $
                     Psl.Attribute.Attribute
                       "map"
@@ -56,8 +57,8 @@ spec_parsePslEnum = do
           expectedAst =
             Psl.Enum.Enum
               "Role"
-              [ pure $ Psl.Enum.ElementValue "USER" [],
-                pure $
+              [ Psl.WithCtx.empty $ Psl.Enum.ElementValue "USER" [],
+                Psl.WithCtx.empty $
                   Psl.Enum.ElementBlockAttribute $
                     Psl.Attribute.Attribute
                       "map"

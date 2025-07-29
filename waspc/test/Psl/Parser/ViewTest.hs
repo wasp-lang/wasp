@@ -7,6 +7,7 @@ import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.View as Psl.View
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Parser.View as Psl.Parser
 
 spec_parsePslView :: Spec
@@ -29,23 +30,23 @@ spec_parsePslView = do
             Psl.View.View
               "UserInfo"
               ( Psl.Model.Body
-                  [ pure $
+                  [ Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field "id" Psl.Model.Int [Psl.Model.Optional] []
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field "email" Psl.Model.String [Psl.Model.Optional] []
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field "name" Psl.Model.String [Psl.Model.Optional] []
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field "bio" Psl.Model.String [Psl.Model.Optional] []
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementBlockAttribute
                         ( Psl.Attribute.Attribute "ignore" []
                         )
@@ -65,13 +66,13 @@ spec_parsePslView = do
                   bio   String?
 
                   @@ignore
-                } 
+                }
               |]
           expectedAst =
             Psl.View.View
               "UserInfo"
               ( Psl.Model.Body
-                  [ pure $
+                  [ Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field
                             "id"
@@ -80,7 +81,7 @@ spec_parsePslView = do
                             ]
                             []
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field
                             "email"
@@ -89,7 +90,7 @@ spec_parsePslView = do
                             ]
                             []
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementField
                         ( Psl.Model.Field
                             "bio"
@@ -98,7 +99,7 @@ spec_parsePslView = do
                             ]
                             []
                         ),
-                    pure $
+                    Psl.WithCtx.empty $
                       Psl.Model.ElementBlockAttribute
                         ( Psl.Attribute.Attribute "ignore" []
                         )

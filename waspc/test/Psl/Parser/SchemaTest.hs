@@ -13,6 +13,7 @@ import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.Type as Psl.Type
 import qualified Wasp.Psl.Ast.View as Psl.View
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 
 spec_parsePslSchema :: Spec
@@ -138,11 +139,11 @@ spec_parsePslSchema = do
                       Psl.Argument.ArrayExpr [Psl.Argument.StringExpr "postgresqlExtensions"]
                   ],
               Psl.Schema.ModelBlock $
-                pure $
+                Psl.WithCtx.empty $
                   Psl.Model.Model
                     "User"
                     ( Psl.Model.Body
-                        [ pure $
+                        [ Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "id"
@@ -153,21 +154,21 @@ spec_parsePslSchema = do
                                     "default"
                                     [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "tasks"
                                 (Psl.Model.UserType "Task")
                                 [Psl.Model.List]
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "address"
                                 Psl.Model.String
                                 [Psl.Model.Optional]
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "votes"
@@ -177,11 +178,11 @@ spec_parsePslSchema = do
                         ]
                     ),
               Psl.Schema.ModelBlock $
-                pure $
+                Psl.WithCtx.empty $
                   Psl.Model.Model
                     "Task"
                     ( Psl.Model.Body
-                        [ pure $
+                        [ Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "id"
@@ -193,14 +194,14 @@ spec_parsePslSchema = do
                                     [ Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []
                                     ]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "description"
                                 Psl.Model.String
                                 []
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "isDone"
@@ -208,7 +209,7 @@ spec_parsePslSchema = do
                                 []
                                 [ Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.IdentifierExpr "false"]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "user"
@@ -230,21 +231,21 @@ spec_parsePslSchema = do
                                         )
                                     ]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "userId"
                                 Psl.Model.Int
                                 []
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "votes"
                                 (Psl.Model.UserType "TaskVote")
                                 [Psl.Model.List]
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "someField"
@@ -257,11 +258,11 @@ spec_parsePslSchema = do
                         ]
                     ),
               Psl.Schema.ModelBlock $
-                pure $
+                Psl.WithCtx.empty $
                   Psl.Model.Model
                     "TaskVote"
                     ( Psl.Model.Body
-                        [ pure $
+                        [ Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "user"
@@ -283,14 +284,14 @@ spec_parsePslSchema = do
                                         )
                                     ]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "userId"
                                 Psl.Model.Int
                                 []
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "task"
@@ -312,14 +313,14 @@ spec_parsePslSchema = do
                                         )
                                     ]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "taskId"
                                 Psl.Model.Int
                                 []
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementBlockAttribute $
                               Psl.Attribute.Attribute
                                 "id"
@@ -333,56 +334,56 @@ spec_parsePslSchema = do
                         ]
                     ),
               Psl.Schema.EnumBlock $
-                pure $
+                Psl.WithCtx.empty $
                   Psl.Enum.Enum
                     "Role"
-                    [ pure $ Psl.Enum.ElementValue "USER" [],
-                      pure $ Psl.Enum.ElementValue "ADMIN" []
+                    [ Psl.WithCtx.empty $ Psl.Enum.ElementValue "USER" [],
+                      Psl.WithCtx.empty $ Psl.Enum.ElementValue "ADMIN" []
                     ],
               Psl.Schema.ViewBlock $
-                pure $
+                Psl.WithCtx.empty $
                   Psl.View.View
                     "UserInfo"
                     ( Psl.Model.Body
-                        [ pure $
+                        [ Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "id"
                                 Psl.Model.Int
                                 [Psl.Model.Optional]
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "email"
                                 Psl.Model.String
                                 [Psl.Model.Optional]
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "name"
                                 Psl.Model.String
                                 [Psl.Model.Optional]
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "bio"
                                 Psl.Model.String
                                 [Psl.Model.Optional]
                                 [],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementBlockAttribute $
                               Psl.Attribute.Attribute "ignore" []
                         ]
                     ),
               Psl.Schema.TypeBlock $
-                pure $
+                Psl.WithCtx.empty $
                   Psl.Type.Type
                     "Photo"
                     ( Psl.Model.Body
-                        [ pure $
+                        [ Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "height"
@@ -393,7 +394,7 @@ spec_parsePslSchema = do
                                     [ Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "200"
                                     ]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "width"
@@ -403,7 +404,7 @@ spec_parsePslSchema = do
                                     "default"
                                     [Psl.Argument.ArgUnnamed $ Psl.Argument.NumberExpr "100"]
                                 ],
-                          pure $
+                          Psl.WithCtx.empty $
                             Psl.Model.ElementField $
                               Psl.Model.Field
                                 "url"

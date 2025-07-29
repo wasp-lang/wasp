@@ -36,6 +36,7 @@ import qualified Wasp.ExternalConfig.TsConfig as T
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Valid as Valid
 import qualified Wasp.Version as WV
@@ -107,7 +108,7 @@ spec_AppSpecValid = do
       let validUserEntity =
             AS.Entity.makeEntity
               ( Psl.Model.Body
-                  [ pure $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                  [ Psl.WithCtx.empty $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
                   ]
               )
       let validAppAuth =
@@ -279,7 +280,7 @@ spec_AppSpecValid = do
         let invalidUserEntityWithoutDefaultAttr =
               AS.Entity.makeEntity
                 ( Psl.Model.Body
-                    [ pure $
+                    [ Psl.WithCtx.empty $
                         Psl.Model.ElementField $
                           Psl.Model.Field
                             { Psl.Model._name = "id",
@@ -359,7 +360,7 @@ spec_AppSpecValid = do
                       AS.Decl.makeDecl userEntityName $
                         AS.Entity.makeEntity
                           ( Psl.Model.Body
-                              [ pure $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                              [ Psl.WithCtx.empty $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
                               ]
                           ),
                       basicPageDecl,
@@ -640,7 +641,7 @@ spec_AppSpecValid = do
     makeBasicEntityDecl name =
       AS.Decl.makeDecl
         name
-        (AS.Entity.makeEntity $ Psl.Model.Body [pure $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
+        (AS.Entity.makeEntity $ Psl.Model.Body [Psl.WithCtx.empty $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
 
     makeBasicJobDecl name =
       AS.Decl.makeDecl

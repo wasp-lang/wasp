@@ -5,6 +5,7 @@ import NeatInterpolation (trimming)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 
 -- | Corresponds to sampleBodyAst below.
 sampleBodySchema :: T.Text
@@ -24,7 +25,7 @@ sampleBodySchema =
 sampleBodyAst :: Psl.Model.Body
 sampleBodyAst =
   Psl.Model.Body
-    [ pure $
+    [ Psl.WithCtx.empty $
         Psl.Model.ElementField
           ( Psl.Model.Field
               { Psl.Model._name = "id",
@@ -44,7 +45,7 @@ sampleBodyAst =
                   ]
               }
           ),
-      pure $
+      Psl.WithCtx.empty $
         Psl.Model.ElementField
           ( Psl.Model.Field
               { Psl.Model._name = "username",
@@ -60,7 +61,7 @@ sampleBodyAst =
                   ]
               }
           ),
-      pure $
+      Psl.WithCtx.empty $
         Psl.Model.ElementField
           ( Psl.Model.Field
               { Psl.Model._name = "posts",
@@ -81,7 +82,7 @@ sampleBodyAst =
                   ]
               }
           ),
-      pure $
+      Psl.WithCtx.empty $
         Psl.Model.ElementField
           ( Psl.Model.Field
               { Psl.Model._name = "weirdType",
@@ -90,7 +91,7 @@ sampleBodyAst =
                 Psl.Model._attrs = []
               }
           ),
-      pure $
+      Psl.WithCtx.empty $
         Psl.Model.ElementField
           ( Psl.Model.Field
               { Psl.Model._name = "anotherId",
@@ -120,7 +121,7 @@ sampleBodyAst =
                   ]
               }
           ),
-      pure $
+      Psl.WithCtx.empty $
         Psl.Model.ElementField
           ( Psl.Model.Field
               { Psl.Model._name = "someField",
@@ -135,7 +136,7 @@ sampleBodyAst =
                   ]
               }
           ),
-      pure $
+      Psl.WithCtx.empty $
         Psl.Model.ElementBlockAttribute
           ( Psl.Attribute.Attribute
               { Psl.Attribute._attrName = "someattr",
