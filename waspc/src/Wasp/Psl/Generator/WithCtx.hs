@@ -12,4 +12,4 @@ generateWithCtx generateNode (WithCtx node context) =
   generateNodeContext context (generateNode node)
   where
     generateNodeContext NodeContext {documentationComments = comments} content =
-      unlines (map (documentationCommentSymbol ++) comments ++ [content])
+      unlines $ ((documentationCommentSymbol ++) <$> comments) <> [content]
