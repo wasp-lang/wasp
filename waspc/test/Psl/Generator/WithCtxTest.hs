@@ -13,8 +13,8 @@ import Wasp.Psl.Ast.WithCtx (commentedNode)
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator
 
-spec_generatePslNode :: Spec
-spec_generatePslNode = do
+spec_generatePslWithCtx :: Spec
+spec_generatePslWithCtx = do
   describe "Triple slash documentation comments" $ do
     it "Prisma file is correctly generated" $ do
       let inputAst =

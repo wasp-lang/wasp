@@ -13,8 +13,8 @@ import Wasp.Psl.Ast.WithCtx (commentedNode)
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 
-spec_parsePslNode :: Spec
-spec_parsePslNode = do
+spec_parsePslWithCtx :: Spec
+spec_parsePslWithCtx = do
   describe "Triple slash documentation comments" $ do
     it "Prisma file is correctly parsed" $ do
       let prismaSchema =
