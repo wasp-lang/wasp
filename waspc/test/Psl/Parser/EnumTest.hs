@@ -27,20 +27,19 @@ spec_parsePslEnum = do
           expectedAst =
             Psl.Enum.Enum
               "Role"
-              [ Psl.WithCtx.empty $ Psl.Enum.ElementValue "USER" [],
-                Psl.WithCtx.empty $
-                  Psl.Enum.ElementValue
-                    "ADMIN"
-                    [ Psl.Attribute.Attribute
-                        "map"
-                        [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "ADMIN_MAPPING"]
-                    ],
-                Psl.WithCtx.empty $
-                  Psl.Enum.ElementBlockAttribute $
-                    Psl.Attribute.Attribute
-                      "map"
-                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
-              ]
+              $ Psl.WithCtx.empty
+                <$> [ Psl.Enum.ElementValue "USER" [],
+                      Psl.Enum.ElementValue
+                        "ADMIN"
+                        [ Psl.Attribute.Attribute
+                            "map"
+                            [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "ADMIN_MAPPING"]
+                        ],
+                      Psl.Enum.ElementBlockAttribute $
+                        Psl.Attribute.Attribute
+                          "map"
+                          [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
+                    ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
@@ -57,11 +56,11 @@ spec_parsePslEnum = do
           expectedAst =
             Psl.Enum.Enum
               "Role"
-              [ Psl.WithCtx.empty $ Psl.Enum.ElementValue "USER" [],
-                Psl.WithCtx.empty $
-                  Psl.Enum.ElementBlockAttribute $
-                    Psl.Attribute.Attribute
-                      "map"
-                      [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
-              ]
+              $ Psl.WithCtx.empty
+                <$> [ Psl.Enum.ElementValue "USER" [],
+                      Psl.Enum.ElementBlockAttribute $
+                        Psl.Attribute.Attribute
+                          "map"
+                          [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
+                    ]
       Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst

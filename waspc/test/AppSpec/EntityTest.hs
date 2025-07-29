@@ -17,15 +17,17 @@ spec_AppSpecEntityTest = do
   where
     entityWithIdField =
       Entity.makeEntity $
-        Psl.Model.Body
-          [ Psl.WithCtx.empty $ Psl.Model.ElementField idField,
-            Psl.WithCtx.empty $ Psl.Model.ElementField someOtherField
-          ]
+        Psl.Model.Body $
+          Psl.WithCtx.empty
+            <$> [ Psl.Model.ElementField idField,
+                  Psl.Model.ElementField someOtherField
+                ]
     entityWithoutIdField =
       Entity.makeEntity $
-        Psl.Model.Body
-          [ Psl.WithCtx.empty $ Psl.Model.ElementField someOtherField
-          ]
+        Psl.Model.Body $
+          Psl.WithCtx.empty
+            <$> [ Psl.Model.ElementField someOtherField
+                ]
 
     idField =
       Psl.Model.Field

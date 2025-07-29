@@ -53,29 +53,27 @@ spec_parsePslModel = do
         modelAst =
           Psl.Model.Model
             "User"
-            ( Psl.Model.Body
-                [ Psl.WithCtx.empty $
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "id"
-                          Psl.Model.Int
-                          []
-                          [ Psl.Attribute.Attribute "id" [],
-                            Psl.Attribute.Attribute
-                              "default"
-                              [ Psl.Argument.ArgNamed "value" (Psl.Argument.FuncExpr "autoincrement" [])
+            ( Psl.Model.Body $
+                Psl.WithCtx.empty
+                  <$> [ Psl.Model.ElementField
+                          ( Psl.Model.Field
+                              "id"
+                              Psl.Model.Int
+                              []
+                              [ Psl.Attribute.Attribute "id" [],
+                                Psl.Attribute.Attribute
+                                  "default"
+                                  [ Psl.Argument.ArgNamed "value" (Psl.Argument.FuncExpr "autoincrement" [])
+                                  ]
                               ]
-                          ]
-                      ),
-                  Psl.WithCtx.empty $
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
-                      ),
-                  Psl.WithCtx.empty $
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
-                      )
-                ]
+                          ),
+                        Psl.Model.ElementField
+                          ( Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
+                          ),
+                        Psl.Model.ElementField
+                          ( Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
+                          )
+                      ]
             )
 
     it "Model is correctly parsed" $ do

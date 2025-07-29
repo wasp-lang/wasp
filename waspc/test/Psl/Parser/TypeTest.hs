@@ -27,36 +27,34 @@ spec_parsePslType = do
           expectedAst =
             Psl.Type.Type
               "Photo"
-              ( Psl.Model.Body
-                  [ Psl.WithCtx.empty $
-                      Psl.Model.ElementField
-                        ( Psl.Model.Field
-                            "height"
-                            Psl.Model.Int
-                            []
-                            [ Psl.Attribute.Attribute
-                                "default"
-                                [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
+              ( Psl.Model.Body $
+                  Psl.WithCtx.empty
+                    <$> [ Psl.Model.ElementField
+                            ( Psl.Model.Field
+                                "height"
+                                Psl.Model.Int
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "default"
+                                    [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
+                                    ]
                                 ]
-                            ]
-                        ),
-                    Psl.WithCtx.empty $
-                      Psl.Model.ElementField
-                        ( Psl.Model.Field
-                            "width"
-                            Psl.Model.Int
-                            []
-                            [ Psl.Attribute.Attribute
-                                "default"
-                                [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "100")
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field
+                                "width"
+                                Psl.Model.Int
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "default"
+                                    [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "100")
+                                    ]
                                 ]
-                            ]
-                        ),
-                    Psl.WithCtx.empty $
-                      Psl.Model.ElementField
-                        ( Psl.Model.Field "url" Psl.Model.String [] []
-                        )
-                  ]
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field "url" Psl.Model.String [] []
+                            )
+                        ]
               )
 
       Parsec.parse Psl.Parser.typeBlock "" source `shouldBe` Right expectedAst
@@ -74,24 +72,23 @@ spec_parsePslType = do
           expectedAst =
             Psl.Type.Type
               "Photo"
-              ( Psl.Model.Body
-                  [ Psl.WithCtx.empty $
-                      Psl.Model.ElementField
-                        ( Psl.Model.Field
-                            "height"
-                            Psl.Model.Int
-                            []
-                            [ Psl.Attribute.Attribute
-                                "default"
-                                [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
+              ( Psl.Model.Body $
+                  Psl.WithCtx.empty
+                    <$> [ Psl.Model.ElementField
+                            ( Psl.Model.Field
+                                "height"
+                                Psl.Model.Int
+                                []
+                                [ Psl.Attribute.Attribute
+                                    "default"
+                                    [ Psl.Argument.ArgUnnamed (Psl.Argument.NumberExpr "200")
+                                    ]
                                 ]
-                            ]
-                        ),
-                    Psl.WithCtx.empty $
-                      Psl.Model.ElementField
-                        ( Psl.Model.Field "url" Psl.Model.String [] []
-                        )
-                  ]
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field "url" Psl.Model.String [] []
+                            )
+                        ]
               )
 
       Parsec.parse Psl.Parser.typeBlock "" source `shouldBe` Right expectedAst

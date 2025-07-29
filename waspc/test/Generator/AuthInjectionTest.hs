@@ -84,58 +84,54 @@ spec_GeneratorAuthInjectionTest = do
       let userIdField = makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
        in ( "Auth",
             AS.Entity.makeEntity
-              ( Psl.Model.Body
-                  [ Psl.WithCtx.empty $
-                      Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "id"
-                          Psl.Model.String
-                          []
-                          [ Psl.Attribute.Attribute "id" [],
-                            Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
-                          ],
-                    userIdField,
-                    Psl.WithCtx.empty $
-                      Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "user"
-                          (Psl.Model.UserType "User")
-                          [Psl.Model.Optional]
-                          [ Psl.Attribute.Attribute
-                              "relation"
-                              [ Psl.Argument.ArgNamed "fields" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "userId"]),
-                                Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"]),
-                                Psl.Argument.ArgNamed "onDelete" (Psl.Argument.IdentifierExpr "Cascade")
-                              ]
-                          ],
-                    Psl.WithCtx.empty $
-                      Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "identities"
-                          (Psl.Model.UserType "AuthIdentity")
-                          [Psl.Model.List]
-                          [],
-                    Psl.WithCtx.empty $
-                      Psl.Model.ElementField $
-                        Psl.Model.Field
-                          "sessions"
-                          (Psl.Model.UserType "Session")
-                          [Psl.Model.List]
-                          []
-                  ]
+              ( Psl.Model.Body $
+                  Psl.WithCtx.empty
+                    <$> [ Psl.Model.ElementField $
+                            Psl.Model.Field
+                              "id"
+                              Psl.Model.String
+                              []
+                              [ Psl.Attribute.Attribute "id" [],
+                                Psl.Attribute.Attribute "default" [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
+                              ],
+                          userIdField,
+                          Psl.Model.ElementField $
+                            Psl.Model.Field
+                              "user"
+                              (Psl.Model.UserType "User")
+                              [Psl.Model.Optional]
+                              [ Psl.Attribute.Attribute
+                                  "relation"
+                                  [ Psl.Argument.ArgNamed "fields" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "userId"]),
+                                    Psl.Argument.ArgNamed "references" (Psl.Argument.ArrayExpr [Psl.Argument.IdentifierExpr "id"]),
+                                    Psl.Argument.ArgNamed "onDelete" (Psl.Argument.IdentifierExpr "Cascade")
+                                  ]
+                              ],
+                          Psl.Model.ElementField $
+                            Psl.Model.Field
+                              "identities"
+                              (Psl.Model.UserType "AuthIdentity")
+                              [Psl.Model.List]
+                              [],
+                          Psl.Model.ElementField $
+                            Psl.Model.Field
+                              "sessions"
+                              (Psl.Model.UserType "Session")
+                              [Psl.Model.List]
+                              []
+                        ]
               )
           )
 
-    makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Psl.WithCtx.WithCtx Psl.Model.Element
+    makeAuthEntityUserIdField :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> Psl.Model.Element
     makeAuthEntityUserIdField userEntityIdFieldType maybeUserEntityIdFieldNativeDbType =
       let userIdFieldAttributes = (Psl.Attribute.Attribute "unique" [] : maybeToList maybeUserEntityIdFieldNativeDbType)
-       in Psl.WithCtx.empty $
-            Psl.Model.ElementField $
-              Psl.Model.Field
-                "userId"
-                userEntityIdFieldType
-                [Psl.Model.Optional]
-                userIdFieldAttributes
+       in Psl.Model.ElementField $
+            Psl.Model.Field
+              "userId"
+              userEntityIdFieldType
+              [Psl.Model.Optional]
+              userIdFieldAttributes
 
     authIdentityEntity =
       makeEntity

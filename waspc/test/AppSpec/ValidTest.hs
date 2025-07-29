@@ -107,9 +107,10 @@ spec_AppSpecValid = do
       let userEntityName = "User"
       let validUserEntity =
             AS.Entity.makeEntity
-              ( Psl.Model.Body
-                  [ Psl.WithCtx.empty $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
-                  ]
+              ( Psl.Model.Body $
+                  Psl.WithCtx.empty
+                    <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                        ]
               )
       let validAppAuth =
             AS.Auth.Auth
@@ -279,21 +280,21 @@ spec_AppSpecValid = do
                 )
         let invalidUserEntityWithoutDefaultAttr =
               AS.Entity.makeEntity
-                ( Psl.Model.Body
-                    [ Psl.WithCtx.empty $
-                        Psl.Model.ElementField $
-                          Psl.Model.Field
-                            { Psl.Model._name = "id",
-                              Psl.Model._type = Psl.Model.String,
-                              Psl.Model._typeModifiers = [],
-                              Psl.Model._attrs =
-                                [ Psl.Attribute.Attribute
-                                    { Psl.Attribute._attrName = "id",
-                                      Psl.Attribute._attrArgs = []
-                                    }
-                                ]
-                            }
-                    ]
+                ( Psl.Model.Body $
+                    Psl.WithCtx.empty
+                      <$> [ Psl.Model.ElementField $
+                              Psl.Model.Field
+                                { Psl.Model._name = "id",
+                                  Psl.Model._type = Psl.Model.String,
+                                  Psl.Model._typeModifiers = [],
+                                  Psl.Model._attrs =
+                                    [ Psl.Attribute.Attribute
+                                        { Psl.Attribute._attrName = "id",
+                                          Psl.Attribute._attrArgs = []
+                                        }
+                                    ]
+                                }
+                          ]
                 )
 
         it "returns no error if app.auth is not set, regardless of shape of user entity" $ do
@@ -359,9 +360,10 @@ spec_AppSpecValid = do
                           },
                       AS.Decl.makeDecl userEntityName $
                         AS.Entity.makeEntity
-                          ( Psl.Model.Body
-                              [ Psl.WithCtx.empty $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
-                              ]
+                          ( Psl.Model.Body $
+                              Psl.WithCtx.empty
+                                <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                                    ]
                           ),
                       basicPageDecl,
                       basicRouteDecl
@@ -641,7 +643,7 @@ spec_AppSpecValid = do
     makeBasicEntityDecl name =
       AS.Decl.makeDecl
         name
-        (AS.Entity.makeEntity $ Psl.Model.Body [Psl.WithCtx.empty $ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
+        (AS.Entity.makeEntity $ Psl.Model.Body $ Psl.WithCtx.empty <$> [Psl.Model.ElementField $ makeIdField "id" Psl.Model.String])
 
     makeBasicJobDecl name =
       AS.Decl.makeDecl
