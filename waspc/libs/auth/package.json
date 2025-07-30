@@ -6,7 +6,22 @@
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.mjs"
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client/index.mjs",
+      "types": "./dist/client/index.d.ts"
+    }
+  },
+  "#typesVersionComment": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'.",
+  "typesVersions": {
+    "*": {
+      "client": [
+        "./dist/client/index.d.ts"
+      ]
+    }
   },
   "files": [
     "dist"
@@ -21,6 +36,7 @@
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
+    "cowsayjs": "^2.0.0",
     "oslo": "^1.1.2"
   },
   "devDependencies": {
