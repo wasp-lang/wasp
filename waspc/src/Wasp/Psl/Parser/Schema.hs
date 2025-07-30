@@ -23,9 +23,9 @@ parsePrismaSchema = left errorBundlePretty . Megaparsec.parse schema ""
 schema :: Parser Psl.Schema.Schema
 schema = do
   -- We need to ONLY consume the leading whitespace here, because we use
-  -- Parsec's lexeme parsers in the sub-parsers (model, enum, configBlock) which consume
-  -- the (trailing) whitespace themselves. It's a bit of an implict behaviour
-  -- that we need to be aware of.
+  -- Megaparsec's lexeme parsers in the sub-parsers (model, enum, configBlock)
+  -- which consume the (trailing) whitespace themselves. It's a bit of an
+  -- implict behaviour that we need to be aware of.
   whiteSpace
   elements <-
     many $
