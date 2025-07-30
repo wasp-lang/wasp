@@ -53,7 +53,7 @@ data EvalErrorCtx
 data EvaluationParseError
   = -- | In case when evaluation includes parsing with Parsec and it fails.
     EvaluationParseErrorParsec Text.Parsec.ParseError
-  | -- | In case when evaluation includes parsing with Megaparse and it fails.
+  | -- | In case when evaluation includes parsing with Megaparsec and it fails.
     EvaluationParseErrorMegaparsec String
   | -- | In case when evaluation does some general parsing and it fails.
     EvaluationParseError String
