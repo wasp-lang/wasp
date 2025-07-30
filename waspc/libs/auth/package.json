@@ -5,6 +5,13 @@
   "license": "MIT",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "client": [
+        "./dist/client/index.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -13,14 +20,6 @@
     "./client": {
       "import": "./dist/client/index.mjs",
       "types": "./dist/client/index.d.ts"
-    }
-  },
-  "#typesVersionComment": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'.",
-  "typesVersions": {
-    "*": {
-      "client": [
-        "./dist/client/index.d.ts"
-      ]
     }
   },
   "files": [
@@ -44,5 +43,6 @@
     "typescript": "^5.8.2",
     "unbuild": "^3.5.0",
     "vitest": "^3.1.4"
-  }
+  },
+  "typesVersionComment": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'."
 }
