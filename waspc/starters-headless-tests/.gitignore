@@ -1,5 +1,6 @@
 # Name used by script to generate temporary starter projects.
 temp-project-*
 
+dist
 test-results
 playwright-report
