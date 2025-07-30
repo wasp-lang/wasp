@@ -20,5 +20,3 @@ for lib in $(ls "$dir/../libs"); do
     npm run pack-and-copy
   fi
 done
-
-
