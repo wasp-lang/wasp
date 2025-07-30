@@ -42,8 +42,7 @@ data-files:
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
-  Generator/libs/**/*.ts
-  Generator/libs/**/*.json
+  Generator/libs/*.tgz
   Cli/bash-completion
   Cli/starters/**/*.js
   Cli/starters/**/*.cjs

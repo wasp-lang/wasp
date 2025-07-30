@@ -6,3 +6,4 @@ dist
 .eslintcache
 *.log*
 *.env*
+*.tgz
