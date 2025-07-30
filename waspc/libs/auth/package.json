@@ -29,7 +29,7 @@
   "scripts": {
     "build": "unbuild",
     "dev": "vitest dev",
-    "pack-and-copy": "rm *.tgz && npm pack && cp *.tgz ../../data/Generator/libs",
+    "pack-and-copy": "rm -f *.tgz && npm pack && cp *.tgz ../../data/Generator/libs",
     "prepare": "npm run build",
     "test": "npm run test:types && vitest run --coverage",
     "test:types": "tsc --noEmit --skipLibCheck"
