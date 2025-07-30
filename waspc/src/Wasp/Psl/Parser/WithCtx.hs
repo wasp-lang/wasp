@@ -4,8 +4,11 @@ module Wasp.Psl.Parser.WithCtx
   )
 where
 
+import Data.Maybe (maybeToList)
 import Text.Megaparsec
-  ( many,
+  ( label,
+    many,
+    optional,
     takeWhileP,
   )
 import qualified Text.Megaparsec.Char as C
@@ -14,21 +17,22 @@ import Wasp.Psl.Ast.WithCtx
     WithCtx (WithCtx),
   )
 import Wasp.Psl.Comments (DocumentationComment, documentationCommentSymbol)
-import Wasp.Psl.Parser.Common (Parser, lexeme)
+import Wasp.Psl.Parser.Common (Parser)
+import Wasp.Psl.Parser.Lexer (compulsoryNewline)
 
 withCtx :: Parser node -> Parser (WithCtx node)
 withCtx nodeParser = do
-  leadingComments <- many documentationComment
+  leadingComments <- many (documentationComment <* compulsoryNewline)
   node <- nodeParser
-  -- TODO: Handle trailing comments properly, right now we fail on them.
+  -- IMPORTANT: We do not consume the trailing newline here! Trailing comments
+  -- are only attached to the node if they are on the same line as it.
+  trailingComment <- optional documentationComment
 
-  return $ WithCtx node (NodeContext {documentationComments = leadingComments})
+  let allComments = leadingComments ++ maybeToList trailingComment
+  return $ WithCtx node (NodeContext {documentationComments = allComments})
 
 documentationComment :: Parser DocumentationComment
 documentationComment =
-  -- Given we're manually parsing on the character level here, we need to wrap
-  -- this in a `lexeme`, so that Parsec identifies it as a token and can
-  -- correctly handle whitespace around the comment.
-  lexeme $
+  label "documentation comment" $
     C.string documentationCommentSymbol
       >> takeWhileP (Just "character") (/= '\n')

@@ -6,12 +6,13 @@ module Wasp.Psl.Parser.Schema
 where
 
 import Control.Arrow (left)
-import Text.Megaparsec (choice, eof, errorBundlePretty, many)
+import Text.Megaparsec (choice, eof, errorBundlePretty, sepEndBy)
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
-import Wasp.Psl.Parser.Common (Parser, SourceCode, whiteSpace)
+import Wasp.Psl.Parser.Common (Parser, SourceCode)
 import Wasp.Psl.Parser.ConfigBlock (configBlock)
 import Wasp.Psl.Parser.Enum (enum)
+import Wasp.Psl.Parser.Lexer (compulsoryNewline, spaceConsumerNL)
 import Wasp.Psl.Parser.Model (model)
 import Wasp.Psl.Parser.Type (typeBlock)
 import Wasp.Psl.Parser.View (view)
@@ -26,9 +27,9 @@ schema = do
   -- Megaparsec's lexeme parsers in the sub-parsers (model, enum, configBlock)
   -- which consume the (trailing) whitespace themselves. It's a bit of an
   -- implict behaviour that we need to be aware of.
-  whiteSpace
+  spaceConsumerNL
   elements <-
-    many $
+    (`sepEndBy` compulsoryNewline) $
       choice
         [ Psl.Schema.ModelBlock <$> withCtx model,
           Psl.Schema.ViewBlock <$> withCtx view,

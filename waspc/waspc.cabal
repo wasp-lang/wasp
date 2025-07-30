@@ -425,9 +425,11 @@ library
     Wasp.Psl.Parser.Common
     Wasp.Psl.Parser.ConfigBlock
     Wasp.Psl.Parser.Enum
+    Wasp.Psl.Parser.Lexer
     Wasp.Psl.Parser.Model
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Parser.Type
+    Wasp.Psl.Parser.Tokens
     Wasp.Psl.Parser.View
     Wasp.Psl.Parser.WithCtx
     Wasp.Psl.Util

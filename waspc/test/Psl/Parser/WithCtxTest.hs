@@ -130,3 +130,57 @@ spec_parsePslWithCtx = do
               ]
 
       Psl.Parser.parsePrismaSchema prismaSchema `shouldBe` Right expectedAst
+
+    it "Prisma-zod example 2" $ do
+      let prismaSchema =
+            T.unpack
+              [trimming|
+                model Post {
+                  id String @id @default(uuid()) /// @zod.uuid()
+
+                  /// @zod.max(255, { message: "The title must be shorter than 256 characters" })
+                  title String
+
+                  contents String /// @zod.max(10240)
+                }
+
+              |]
+          expectedAst =
+            Psl.Schema.Schema
+              [ Psl.Schema.ModelBlock $
+                  Psl.WithCtx.empty $
+                    Psl.Model.Model
+                      "Post"
+                      ( Psl.Model.Body
+                          [ commentedNode [" @zod.uuid()"] $
+                              Psl.Model.ElementField $
+                                Psl.Model.Field
+                                  "id"
+                                  Psl.Model.String
+                                  []
+                                  [ Psl.Attribute.Attribute "id" [],
+                                    Psl.Attribute.Attribute
+                                      "default"
+                                      [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
+                                  ],
+                            commentedNode
+                              [ " @zod.max(255, { message: \"The title must be shorter than 256 characters\" })"
+                              ]
+                              $ Psl.Model.ElementField $
+                                Psl.Model.Field
+                                  "title"
+                                  Psl.Model.String
+                                  []
+                                  [],
+                            commentedNode [" @zod.max(10240)"] $
+                              Psl.Model.ElementField $
+                                Psl.Model.Field
+                                  "contents"
+                                  Psl.Model.String
+                                  []
+                                  []
+                          ]
+                      )
+              ]
+
+      Psl.Parser.parsePrismaSchema prismaSchema `shouldBe` Right expectedAst
