@@ -4,13 +4,15 @@ import { randomUUID } from "crypto";
 type Credentials = {
   email: string;
   password: string;
-} & UserSignupFields
+} & UserSignupFields;
 
 type UserSignupFields = {
   [userSignupField: string]: unknown;
-}
+};
 
-export function setupTestUser(userSignupFields?: UserSignupFields): Credentials {
+export function setupTestUser(
+  userSignupFields?: UserSignupFields,
+): Credentials {
   const credentials: Credentials = {
     ...userSignupFields,
     email: generateRandomEmail(),
@@ -48,7 +50,7 @@ async function submitSignupForm(page: Page, credentials: Credentials) {
   }
 
   await page.getByRole("button", { name: "Sign up" }).click();
-  }
+}
 /**
   When running the tests in **dev** mode, we rely on `SKIP_EMAIL_VERIFICATION_IN_DEV=true`
   environment variable to ensure that the email verification is done automatically.

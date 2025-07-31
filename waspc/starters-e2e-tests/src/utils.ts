@@ -1,7 +1,9 @@
 import { existsSync } from "fs";
 import { dirname, join } from "path";
 
-export function findNodeProjectRootDirectory(startingDirectory: string): string {
+export function findNodeProjectRootDirectory(
+  startingDirectory: string,
+): string {
   let currentDirectory = startingDirectory;
 
   while (currentDirectory !== dirname(currentDirectory)) {

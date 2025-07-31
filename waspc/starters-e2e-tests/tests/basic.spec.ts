@@ -99,7 +99,7 @@ test.describe(
         const tasksSection = getTasksSection(page);
         const taskCheckboxes = await tasksSection.getByRole("checkbox").all();
         for (const checkbox of taskCheckboxes) {
-          // We don't want to use `checkbox.check()` here because playwright 
+          // We don't want to use `checkbox.check()` here because playwright
           // fails the test if the checkbox is not checked right after.
           // We fail the test because we use controlled components, and
           // click on the checkbox stats an async request to the server instead.
