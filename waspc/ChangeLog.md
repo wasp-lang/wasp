@@ -4,7 +4,7 @@
 
 ### ⚠️ Breaking Changes
 
-- We've raised the Node.js requirement to >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
+- Wasp now requires Node.js version to be >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
 
 ### 🎉 New Features
 
