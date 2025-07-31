@@ -24,7 +24,7 @@ export default defineConfig({
     trace: "on-first-retry",
 
     /* If you want to debug what's happening in the browser during the tests, set this to false. */
-    headless: false,
+    headless: true,
   },
 
   /* Configure projects for major browsers */
