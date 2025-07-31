@@ -12,6 +12,7 @@ import {
 } from "./starter-tests.js";
 
 const SCRIPT_DIRECTORY = dirname(fileURLToPath(import.meta.url));
+const STARTERS_E2E_TEST_RUNNER_SCRIPT_NAME = "run-starter-e2e-tests.sh";
 
 try {
   await runAllStarterTests();
@@ -58,7 +59,7 @@ async function runStarterTest(
   const projectRootDirectory = findProjectRootDirectory(SCRIPT_DIRECTORY);
   const starterTestsRunnerPath = join(
     projectRootDirectory,
-    "run-starter-e2e-tests.sh",
+    STARTERS_E2E_TEST_RUNNER_SCRIPT_NAME,
   );
 
   const childProcess = spawn(starterTestsRunnerPath, starterTestsRunnerArgs, {

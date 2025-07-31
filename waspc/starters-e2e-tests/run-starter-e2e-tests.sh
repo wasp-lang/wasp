@@ -68,10 +68,7 @@ EOF
   sed -i '' 's/provider: [A-Za-z0-9_][A-Za-z0-9_]*/provider: SMTP/g' "$TEMP_WASP_PROJECT_PATH/main.wasp"
   cat >> "$TEMP_WASP_PROJECT_PATH/.env.server" << EOF
 
-SMTP_HOST='smtp.fastmail.com'
-SMTP_USERNAME='mihovil@ilakovac.com'
-SMTP_PASSWORD='rwh326lqec8kuzr2'
-SMTP_PORT=587
+TODO=soon
 EOF
 }
 

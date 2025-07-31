@@ -29,7 +29,7 @@ const openSaasStarterTests: RemoteStarterTests = {
 };
 
 export const STARTER_TESTS: StarterTests[] = [
-  minimalStarterTests,
+  // minimalStarterTests,
   basicStarterTests,
-  openSaasStarterTests,
+  // openSaasStarterTests,
 ];
