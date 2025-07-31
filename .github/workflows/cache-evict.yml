@@ -1,0 +1,31 @@
+name: Evict caches for merged PRs
+
+# Caches for merged PRs stay around until we bump against our cache limit.
+# They are also not shareable between branches. Therefore, once a PR is
+# merged, the cache for that branch is immediately not needed anymore, and we
+# can remove it. If we remove these caches, we can save space and be more sure
+# that the remaining caches are actually useful, and not at danger of being
+# evicted.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: "cache-evict"
+  cancel-in-progress: true
+
+jobs:
+  evict-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Evict caches
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node ./scripts/cache-evict.mjs
