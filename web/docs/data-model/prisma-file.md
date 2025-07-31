@@ -254,11 +254,6 @@ You can also access them from your client code:
   </TabItem>
 </Tabs>
 
-:::note Triple slash comments
-Wasp doesn't yet fully support `/// comment` syntax in the `schema.prisma` file. We are tracking it [here](https://github.com/wasp-lang/wasp/issues/2132), let us know if this is something you need.
-
-:::
-
 ## Prisma preview features
 
 Prisma is still in active development and some of its features are not yet stable. To enable various preview features in Prisma, you need to add the `previewFeatures` field to the `generator` block in the `schema.prisma` file.

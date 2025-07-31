@@ -16,29 +16,30 @@ import Wasp.Psl.Ast.Enum (Enum)
 import Wasp.Psl.Ast.Model (Model)
 import Wasp.Psl.Ast.Type (Type)
 import Wasp.Psl.Ast.View (View)
+import Wasp.Psl.Ast.WithCtx (WithCtx)
 import Prelude hiding (Enum)
 
 data Schema = Schema [Block]
   deriving (Show, Eq)
 
 data Block
-  = ModelBlock Model
-  | ViewBlock View
-  | TypeBlock Type
-  | EnumBlock Enum
+  = ModelBlock (WithCtx Model)
+  | ViewBlock (WithCtx View)
+  | TypeBlock (WithCtx Type)
+  | EnumBlock (WithCtx Enum)
   | ConfigBlock ConfigBlock
   deriving (Show, Eq)
 
-getModels :: Schema -> [Model]
+getModels :: Schema -> [WithCtx Model]
 getModels (Schema blocks) = [model | ModelBlock model <- blocks]
 
-getViews :: Schema -> [View]
+getViews :: Schema -> [WithCtx View]
 getViews (Schema blocks) = [view | ViewBlock view <- blocks]
 
-getTypes :: Schema -> [Type]
+getTypes :: Schema -> [WithCtx Type]
 getTypes (Schema blocks) = [typeBlock | TypeBlock typeBlock <- blocks]
 
-getEnums :: Schema -> [Enum]
+getEnums :: Schema -> [WithCtx Enum]
 getEnums (Schema blocks) = [enum | EnumBlock enum <- blocks]
 
 getDatasources :: Schema -> [ConfigBlock]

@@ -7,6 +7,7 @@ import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.View as Psl.View
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Parser.View as Psl.Parser
 
 spec_parsePslView :: Spec
@@ -28,23 +29,24 @@ spec_parsePslView = do
           expectedAst =
             Psl.View.View
               "UserInfo"
-              ( Psl.Model.Body
-                  [ Psl.Model.ElementField
-                      ( Psl.Model.Field "id" Psl.Model.Int [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "email" Psl.Model.String [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "name" Psl.Model.String [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field "bio" Psl.Model.String [Psl.Model.Optional] []
-                      ),
-                    Psl.Model.ElementBlockAttribute
-                      ( Psl.Attribute.Attribute "ignore" []
-                      )
-                  ]
+              ( Psl.Model.Body $
+                  Psl.WithCtx.empty
+                    <$> [ Psl.Model.ElementField
+                            ( Psl.Model.Field "id" Psl.Model.Int [Psl.Model.Optional] []
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field "email" Psl.Model.String [Psl.Model.Optional] []
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field "name" Psl.Model.String [Psl.Model.Optional] []
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field "bio" Psl.Model.String [Psl.Model.Optional] []
+                            ),
+                          Psl.Model.ElementBlockAttribute
+                            ( Psl.Attribute.Attribute "ignore" []
+                            )
+                        ]
               )
 
       Megaparsec.parse Psl.Parser.view "" source `shouldBe` Right expectedAst
@@ -65,35 +67,36 @@ spec_parsePslView = do
           expectedAst =
             Psl.View.View
               "UserInfo"
-              ( Psl.Model.Body
-                  [ Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "id"
-                          Psl.Model.Int
-                          [ Psl.Model.Optional
-                          ]
-                          []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "email"
-                          Psl.Model.String
-                          [ Psl.Model.Optional
-                          ]
-                          []
-                      ),
-                    Psl.Model.ElementField
-                      ( Psl.Model.Field
-                          "bio"
-                          Psl.Model.String
-                          [ Psl.Model.Optional
-                          ]
-                          []
-                      ),
-                    Psl.Model.ElementBlockAttribute
-                      ( Psl.Attribute.Attribute "ignore" []
-                      )
-                  ]
+              ( Psl.Model.Body $
+                  Psl.WithCtx.empty
+                    <$> [ Psl.Model.ElementField
+                            ( Psl.Model.Field
+                                "id"
+                                Psl.Model.Int
+                                [ Psl.Model.Optional
+                                ]
+                                []
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field
+                                "email"
+                                Psl.Model.String
+                                [ Psl.Model.Optional
+                                ]
+                                []
+                            ),
+                          Psl.Model.ElementField
+                            ( Psl.Model.Field
+                                "bio"
+                                Psl.Model.String
+                                [ Psl.Model.Optional
+                                ]
+                                []
+                            ),
+                          Psl.Model.ElementBlockAttribute
+                            ( Psl.Attribute.Attribute "ignore" []
+                            )
+                        ]
               )
 
       Megaparsec.parse Psl.Parser.view "" source `shouldBe` Right expectedAst

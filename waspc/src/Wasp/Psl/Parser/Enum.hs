@@ -12,6 +12,7 @@ import Wasp.Psl.Parser.Common
     identifier,
     reserved,
   )
+import Wasp.Psl.Parser.WithCtx (withCtx)
 
 -- | Parses PSL (Prisma Schema Language enum).
 -- Example of PSL enum:
@@ -24,7 +25,7 @@ enum :: Parser Psl.Enum.Enum
 enum = do
   reserved "enum"
   enumName <- identifier
-  Psl.Enum.Enum enumName <$> braces (some enumField)
+  Psl.Enum.Enum enumName <$> braces (some $ withCtx enumField)
 
 enumField :: Parser Psl.Enum.Element
 enumField =

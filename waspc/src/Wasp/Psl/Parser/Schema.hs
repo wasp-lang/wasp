@@ -15,6 +15,7 @@ import Wasp.Psl.Parser.Enum (enum)
 import Wasp.Psl.Parser.Model (model)
 import Wasp.Psl.Parser.Type (typeBlock)
 import Wasp.Psl.Parser.View (view)
+import Wasp.Psl.Parser.WithCtx (withCtx)
 
 parsePrismaSchema :: SourceCode -> Either String Psl.Schema.Schema
 parsePrismaSchema = left errorBundlePretty . Megaparsec.parse schema ""
@@ -22,17 +23,17 @@ parsePrismaSchema = left errorBundlePretty . Megaparsec.parse schema ""
 schema :: Parser Psl.Schema.Schema
 schema = do
   -- We need to ONLY consume the leading whitespace here, because we use
-  -- Parsec's lexeme parsers in the sub-parsers (model, enum, configBlock) which consume
-  -- the (trailing) whitespace themselves. It's a bit of an implict behaviour
-  -- that we need to be aware of.
+  -- Megaparsec's lexeme parsers in the sub-parsers (model, enum, configBlock)
+  -- which consume the (trailing) whitespace themselves. It's a bit of an
+  -- implict behaviour that we need to be aware of.
   whiteSpace
   elements <-
     many $
       choice
-        [ Psl.Schema.ModelBlock <$> model,
-          Psl.Schema.ViewBlock <$> view,
-          Psl.Schema.TypeBlock <$> typeBlock,
-          Psl.Schema.EnumBlock <$> enum,
+        [ Psl.Schema.ModelBlock <$> withCtx model,
+          Psl.Schema.ViewBlock <$> withCtx view,
+          Psl.Schema.TypeBlock <$> withCtx typeBlock,
+          Psl.Schema.EnumBlock <$> withCtx enum,
           Psl.Schema.ConfigBlock <$> configBlock
         ]
   -- We want to throw and if there is any source code left after parsing the schema.
