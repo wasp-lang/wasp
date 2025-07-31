@@ -36,8 +36,6 @@ import StrongPath
     Path',
     Rel,
     basename,
-    castDir,
-    castRel,
     parseRelDir,
     parseRelFile,
     toFilePath,

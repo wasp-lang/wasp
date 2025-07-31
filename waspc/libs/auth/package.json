@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/libs-auth",
-  "version": "0.0.0",
+  "version": "0.17.1",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.mjs",

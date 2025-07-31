@@ -66,7 +66,9 @@ import Wasp.Generator.ServerGenerator.DepVersions
     expressVersionStr,
   )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
-import Wasp.Generator.WaspLibs (waspLibsDeps)
+import Wasp.Generator.WaspLibs (waspLibs)
+import Wasp.Generator.WaspLibs.Common (libsDirFromSdkDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
@@ -229,7 +231,7 @@ npmDepsForSdk spec =
           -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
           ++ depsRequiredByTailwind spec
           ++ depsRequiredByEnvValidation
-          ++ waspLibsDeps,
+          ++ waspLibsNpmDeps,
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
@@ -237,6 +239,9 @@ npmDepsForSdk spec =
             ("@types/express-serve-static-core", show expressTypesVersion)
           ]
     }
+
+waspLibsNpmDeps :: [Npm.Dependency.Dependency]
+waspLibsNpmDeps = map (WaspLib.makeNpmDependencyForWaspLib libsDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

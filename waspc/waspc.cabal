@@ -274,6 +274,7 @@ library
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
+    Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -371,6 +372,8 @@ library
     Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WaspLibs
+    Wasp.Generator.WaspLibs.Common
+    Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
     Wasp.Job
@@ -713,7 +716,8 @@ test-suite waspc-test
     Project.WaspignoreTest
     Project.DbTest
     Paths_waspc
-    Generator.NpmDependenciesTest
+    ExternalConfig.Npm.NpmDependenciesTest
+    ExternalConfig.Npm.TarballTest
     JsImportTest
 
 test-suite waspls-test

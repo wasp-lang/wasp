@@ -23,7 +23,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
-import Wasp.Generator.WaspLibs (libsRootDirInGeneratedCodeDir)
+import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedCodeDir)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( CompileError,

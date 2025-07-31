@@ -11,14 +11,14 @@ import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
-import Wasp.Generator.WaspLibs (setUpLibs)
+import Wasp.Generator.WaspLibs (copyWaspLibs)
 import qualified Wasp.Message as Msg
 
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 runSetup spec projectRootDir sendMessage = do
   -- Libs need to be ready before running npm install, so we set them up first.
-  setUpLibs projectRootDir >>= \case
-    libsSetupErrors@(_ : _) -> return ([], libsSetupErrors)
+  copyWaspLibs projectRootDir >>= \case
+    waspLibsCopyErrors@(_ : _) -> return ([], waspLibsCopyErrors)
     [] -> do
       installNpmDependenciesWithInstallRecord spec projectRootDir >>= \case
         Right () -> do
