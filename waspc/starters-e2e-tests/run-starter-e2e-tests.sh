@@ -80,7 +80,7 @@ cleanup_test_environment() {
 run_dev_e2e_tests() {
   echo "Running DEV e2e tests for ${TEMPLATE_NAME} project..."
   # export DEBUG=pw:webserver
-  export E2E_APP_PATH="./$TEMP_WASP_PROJECT_PATH"
+  export E2E_APP_PATH="$TEMP_WASP_PROJECT_PATH"
   export WASP_CLI_CMD="${WASP_CLI_CMD}"
   export HEADLESS_TEST_MODE=dev
   npx playwright test --grep "(@${TEMPLATE_NAME}|^(?!.*@).*)"
@@ -94,7 +94,7 @@ run_build_e2e_tests() {
 
   echo "Running BUILD e2e tests for ${TEMPLATE_NAME} project..."
   # export DEBUG=pw:webserver
-  export E2E_APP_PATH="./$TEMP_WASP_PROJECT_PATH"
+  export E2E_APP_PATH="$TEMP_WASP_PROJECT_PATH"
   export WASP_CLI_CMD="${WASP_CLI_CMD}"
   export HEADLESS_TEST_MODE=build
   npx playwright test --grep "(@${TEMPLATE_NAME}|^(?!.*@).*)"

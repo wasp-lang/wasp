@@ -41,62 +41,59 @@ test.describe(
 
       test("should have state for no tasks", async ({ page }) => {
         await performLogin(page, credentials);
-
         const tasksSection = getTasksSection(page);
-        expect(tasksSection).toContainText("No tasks found.");
+
+        await expect(tasksSection.getByText("No tasks found.")).toBeVisible();
       });
 
       test("should be able to create a task without tags", async ({ page }) => {
         await performLogin(page, credentials);
-
         const taskForm = getTaskForm(page);
+        const tasksSection = getTasksSection(page);
+
         await taskForm
           .getByLabel("Description")
           .fill(taskWithoutTagDescription);
         await taskForm.getByRole("button", { name: "Create" }).click();
         await page.waitForLoadState("networkidle");
 
-        const tasksSection = getTasksSection(page);
-
-        expect(tasksSection).toContainText(taskWithoutTagDescription);
-        expect(tasksSection).toContainText("1 task");
-        expect(tasksSection).toContainText("0 completed");
+        await expect(tasksSection.getByText(taskWithoutTagDescription)).toBeVisible();
+        await expect(tasksSection.getByText("1 task")).toBeVisible();
+        await expect(tasksSection.getByText("0 completed")).toBeVisible();
       });
 
       test("should be able to create a tag", async ({ page }) => {
         await performLogin(page, credentials);
-
         const taskForm = getTaskForm(page);
-        await taskForm.getByRole("button", { name: "Add a Tag" }).click();
-
         const tagForm = getTagDialog(page);
+
+        await taskForm.getByRole("button", { name: "Add a Tag" }).click();
         await tagForm.getByLabel("Name").fill(tagName);
         await tagForm.getByRole("button", { name: "Create" }).click();
         await page.waitForLoadState("networkidle");
 
-        expect(taskForm).toContainText(tagName);
+        await expect(taskForm.getByRole("button", { name: tagName })).toBeVisible();
       });
 
       test("should be able to create task with a tag", async ({ page }) => {
         await performLogin(page, credentials);
-
         const taskForm = getTaskForm(page);
+        const tasksSection = getTasksSection(page);
+
         await taskForm.getByLabel("Description").fill(taskWithTagDescription);
         await taskForm.getByRole("button", { name: tagName }).click();
         await taskForm.getByRole("button", { name: "Create" }).click();
         await page.waitForLoadState("networkidle");
 
-        const tasksSection = getTasksSection(page);
-
-        expect(tasksSection).toContainText(taskWithTagDescription);
-        expect(tasksSection).toContainText("2 tasks");
-        expect(tasksSection).toContainText("0 completed");
+        await expect(tasksSection.getByText(taskWithTagDescription)).toBeVisible();
+        await expect(tasksSection.getByText("2 tasks")).toBeVisible();
+        await expect(tasksSection.getByText("0 completed")).toBeVisible();
       });
 
       test("should be able to check tasks", async ({ page }) => {
         await performLogin(page, credentials);
-
         const tasksSection = getTasksSection(page);
+
         const taskCheckboxes = await tasksSection.getByRole("checkbox").all();
         for (const checkbox of taskCheckboxes) {
           // We don't want to use `checkbox.check()` here because playwright
@@ -108,20 +105,20 @@ test.describe(
         }
         await page.waitForLoadState("networkidle");
 
-        expect(tasksSection).toContainText("2 tasks");
-        expect(tasksSection).toContainText("2 completed");
+        await expect(tasksSection.getByText("2 tasks")).toBeVisible();
+        await expect(tasksSection.getByText("2 completed")).toBeVisible();
       });
 
       test("should be able to clear completed tasks", async ({ page }) => {
         await performLogin(page, credentials);
-
         const tasksSection = getTasksSection(page);
+        
         await tasksSection
           .getByRole("button", { name: "Clear completed" })
           .click();
         await page.waitForLoadState("networkidle");
 
-        expect(tasksSection).toContainText("No tasks found.");
+        await expect(tasksSection.getByText("No tasks found.")).toBeVisible();
       });
     });
   },
