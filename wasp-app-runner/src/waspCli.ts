@@ -20,7 +20,14 @@ export function waspMigrateDb({
   return spawnWithLog({
     name: "wasp-migrate-db",
     cmd: waspCliCmd,
-    args: ["db", "migrate-dev"],
+    /**
+     * We use the --name flag because sometimes we run apps without a migrations directory,
+     * which causes Prisma to prompt for a migration name interactively. This would make
+     * the runner wait for input indefinitely.
+     * Prisma timestamps all migration filenames automatically.
+     * See: https://github.com/wasp-lang/runner-action/issues/7
+     */
+    args: ["db", "migrate-dev", "--name", "auto-migration"],
     cwd: pathToApp,
     extraEnv,
   });
@@ -105,6 +112,27 @@ export async function waspInfo({
         ? DbType.Postgres
         : DbType.Sqlite,
   };
+}
+
+export async function waspTsSetup({
+  waspCliCmd,
+  pathToApp,
+}: {
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
+}): Promise<void> {
+  const logger = createLogger("wasp-ts-setup");
+  const { stderrData, exitCode } = await spawnAndCollectOutput({
+    name: "wasp-ts-setup",
+    cmd: waspCliCmd,
+    args: ["ts-setup"],
+    cwd: pathToApp,
+  });
+
+  if (exitCode !== 0) {
+    logger.error(`Failed to set up Wasp TypeScript config: ${stderrData}`);
+    process.exit(1);
+  }
 }
 
 function ensureRegexMatch(

@@ -28,7 +28,8 @@ waspCompile/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 waspCompile/.wasp/out/sdk/wasp/client/router/types.ts
 waspCompile/.wasp/out/sdk/wasp/client/test/index.ts
 waspCompile/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
-waspCompile/.wasp/out/sdk/wasp/core/serialization.ts
+waspCompile/.wasp/out/sdk/wasp/core/serialization/custom-register.ts
+waspCompile/.wasp/out/sdk/wasp/core/serialization/index.ts
 waspCompile/.wasp/out/sdk/wasp/core/storage.ts
 waspCompile/.wasp/out/sdk/wasp/dev/index.ts
 waspCompile/.wasp/out/sdk/wasp/dist/api/events.d.ts
@@ -123,10 +124,14 @@ waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
 waspCompile/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx.map
-waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.d.ts
-waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.d.ts.map
-waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.js
-waspCompile/.wasp/out/sdk/wasp/dist/core/serialization.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts.map
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/index.d.ts.map
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/index.js
+waspCompile/.wasp/out/sdk/wasp/dist/core/serialization/index.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/core/storage.js
@@ -297,6 +302,7 @@ waspCompile/.wasp/out/web-app/index.html
 waspCompile/.wasp/out/web-app/netlify.toml
 waspCompile/.wasp/out/web-app/package-lock.json
 waspCompile/.wasp/out/web-app/package.json
+waspCompile/.wasp/out/web-app/public/.gitkeep
 waspCompile/.wasp/out/web-app/public/favicon.ico
 waspCompile/.wasp/out/web-app/public/manifest.json
 waspCompile/.wasp/out/web-app/src/components/DefaultRootErrorBoundary.tsx
@@ -321,6 +327,7 @@ waspCompile/.wasproot
 waspCompile/main.wasp
 waspCompile/package-lock.json
 waspCompile/package.json
+waspCompile/public/.gitkeep
 waspCompile/public/favicon.ico
 waspCompile/schema.prisma
 waspCompile/src/Main.css

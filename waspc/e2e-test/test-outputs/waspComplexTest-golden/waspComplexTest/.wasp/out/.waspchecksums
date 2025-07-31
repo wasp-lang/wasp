@@ -207,7 +207,7 @@
             "file",
             "../out/sdk/wasp/client/config.ts"
         ],
-        "4c5835ad64352cc87a4a17e41fd70333bc0d1eedd7339d7ad3d3507cdb64038d"
+        "c695d172b3264baecd7ec9c022e76a7b1c2c6cbeb9c7c2c66ca03310b2d3edaf"
     ],
     [
         [
@@ -242,7 +242,7 @@
             "file",
             "../out/sdk/wasp/client/env/schema.ts"
         ],
-        "8f4b1c6093a651270e7bb6a9fbd9135c5bf46403643bca236dfc4e6194fc980b"
+        "e6b18533680d55102a4dbffd5360a0b7fb7cd53c85033d0ef6bcf650f7eb44bd"
     ],
     [
         [
@@ -380,9 +380,23 @@
     [
         [
             "file",
-            "../out/sdk/wasp/core/serialization.ts"
+            "../out/sdk/wasp/core/serialization/custom-register.ts"
         ],
-        "309144be2a1ceacd40d548677fe32c88201b7dec4bb78f6c858e050fbac90c17"
+        "38f1a0116cfb33532872d3b5cbb47bd2b695ff59197832758d049151d40c138c"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/index.ts"
+        ],
+        "f36812afeb3afac66bca99dd8764a45f8def73374f696ed502280223f6677161"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/core/serialization/prisma.ts"
+        ],
+        "bbfc1428c31642ddc87ec68b672e60219b3313eee66b75169c5cf2593e4893ab"
     ],
     [
         [
@@ -431,7 +445,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "b0e0f7e2bd3b5ab6ff0c8f07e7e65d37353e6991506ef97804a355b08f3f4341"
+        "1bbcb5007f3e77cd89f0da632152d35f38cf8b38c0d59c13210435e09c460d4c"
     ],
     [
         [
@@ -529,7 +543,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "4a78cfcf41a4fa41fa61ee19404fb6f32d5c25a1f854008ad81fcd8c2191e5ab"
+        "2b97e6356358223ff1eb41a4a37b7d725d76b9ad02e4130f9a1e076eebba1adc"
     ],
     [
         [
@@ -592,7 +606,7 @@
             "file",
             "../out/sdk/wasp/server/env.ts"
         ],
-        "0ba8b3718008a44d946384cdf26f686d3ee1003bda7db2e68bec9201cd212ce6"
+        "2a7d6b3d23232f0140a207b6e5c11329e166a244e0ea35fe435accea4e3165e9"
     ],
     [
         [
@@ -886,7 +900,7 @@
             "file",
             "Dockerfile"
         ],
-        "5f260f7bbe676b188c546705718c0a50ebced44c5e0224995d737c49e42c9abf"
+        "814b4809b422a7b12c028aa759ed911060152a456185aa472744e50920d2ea97"
     ],
     [
         [
@@ -900,7 +914,7 @@
             "file",
             "server/.env"
         ],
-        "d9649485a674ce3c6b8d668a1253cde3bd8695cb3d2d3a6b7c573a3e2805c7ec"
+        "3f0f56b0b17b7cd2e814944089e896fe5b4398da5aa959e775e0c8c327ef742a"
     ],
     [
         [
@@ -1215,7 +1229,14 @@
             "file",
             "web-app/package.json"
         ],
-        "8a934fd3c835123e71d4b92f5f25839f96b063de740e28e5eaba3d30f2c69d2e"
+        "1c434519e4d07a1c3be3df9f0f1d82ae00138df211576e241d7f01d5b27965ae"
+    ],
+    [
+        [
+            "file",
+            "web-app/public/.gitkeep"
+        ],
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
@@ -1348,7 +1369,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "023b687e19aef38d0590449e76be4f4c5e3e613222feff4031a42456d5e52b41"
+        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
     ],
     [
         [

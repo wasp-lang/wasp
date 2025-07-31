@@ -19,6 +19,8 @@ module Wasp.Generator.ServerGenerator.Common
     ServerTemplatesSrcDir,
     defaultDevServerUrl,
     defaultServerPort,
+    clientUrlEnvVarName,
+    serverUrlEnvVarName,
   )
 where
 
@@ -126,6 +128,12 @@ toESModulesImportPath :: FilePath -> FilePath
 toESModulesImportPath = changeExtensionTo "js"
   where
     changeExtensionTo ext = (++ '.' : ext) . fst . splitExtension
+
+clientUrlEnvVarName :: String
+clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
+
+serverUrlEnvVarName :: String
+serverUrlEnvVarName = "WASP_SERVER_URL"
 
 defaultServerPort :: Int
 defaultServerPort = 3001

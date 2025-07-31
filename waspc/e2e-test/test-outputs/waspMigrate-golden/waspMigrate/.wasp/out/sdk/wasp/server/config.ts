@@ -13,8 +13,8 @@ type Config = {
   allowedCORSOrigins: string | string[];
 }
 
-const frontendUrl = stripTrailingSlash(env.WASP_WEB_CLIENT_URL)
-const serverUrl = stripTrailingSlash(env.WASP_SERVER_URL)
+const frontendUrl = stripTrailingSlash(env["WASP_WEB_CLIENT_URL"])
+const serverUrl = stripTrailingSlash(env["WASP_SERVER_URL"])
 
 const allowedCORSOriginsPerEnv: Record<NodeEnv, string | string[]> = {
   development: '*',

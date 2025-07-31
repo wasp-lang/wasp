@@ -14,6 +14,7 @@ where
 import Data.Foldable (find)
 import Data.Text (Text)
 import StrongPath (Dir', File', Path, Path', Rel, Rel', System, reldir, (</>))
+import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
@@ -190,7 +191,7 @@ waspGhOrgName = "wasp-lang"
 --   By tagging templates for each version of Wasp CLI, we ensure that each release of
 --   Wasp CLI uses correct version of templates, that work with it.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = "wasp-v0.16-template"
+waspVersionTemplateGitTag = "wasp-v0.17-template"
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates
@@ -198,5 +199,11 @@ findTemplateByString templates query = find ((== query) . show) templates
 readWaspProjectSkeletonFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
 readWaspProjectSkeletonFiles = do
   skeletonFilesDir <- (</> [reldir|Cli/starters/skeleton|]) <$> Data.getAbsDataDirPath
-  skeletonFilePaths <- listDirectoryDeep skeletonFilesDir
+  -- FIXME: We filter out the favicon because the program crashes when it tries
+  -- to read it as Text in the next line. This means that Wasp AI apps won't
+  -- have favicons until we properly fix this.
+  -- See the issue for details: https://github.com/wasp-lang/wasp/issues/2951
+  skeletonFilePaths <- filter (not . isFavicon) <$> listDirectoryDeep skeletonFilesDir
   mapM (\path -> (path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths
+  where
+    isFavicon path = SP.fromRelFile (SP.basename path) == "favicon.ico"

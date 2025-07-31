@@ -13,7 +13,7 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe)
+import Data.Maybe (isJust, mapMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -24,6 +24,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EC
+import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -57,12 +58,15 @@ import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
+import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
+import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.DepVersions
   ( expressTypesVersion,
     expressVersionStr,
   )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
     reactQueryVersion,
@@ -100,14 +104,13 @@ genSdk spec =
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/serialization.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
-      genFileCopy [relfile|client/config.ts|],
+      genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -121,6 +124,7 @@ genSdk spec =
     <++> genUniversalDir
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
+    <++> genCoreSerializationDir spec
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
@@ -243,6 +247,34 @@ depsRequiredForTesting =
       ("msw", "^1.1.0")
     ]
 
+genClientConfigFile :: Generator FileDraft
+genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+  where
+    relConfigFilePath = [relfile|client/config.ts|]
+    tmplData =
+      object
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
+        ]
+
+genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
+genCoreSerializationDir spec =
+  return $
+    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
+      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+    ]
+      ++ maybeToList prismaSerializationFile
+  where
+    tmplData =
+      object
+        [ "entitiesExist" .= entitiesExist
+        ]
+
+    prismaSerializationFile
+      | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
+      | otherwise = Nothing
+
+    entitiesExist = hasEntities spec
+
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
   where
@@ -250,6 +282,9 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
+          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
+          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
+          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
 

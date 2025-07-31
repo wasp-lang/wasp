@@ -1,6 +1,7 @@
 module Wasp.Generator.ServerGenerator.AuthG
   ( genAuth,
     depsRequiredByAuth,
+    jwtSecretEnvVarName,
   )
 where
 
@@ -137,3 +138,6 @@ depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
           ("oslo", "^1.1.2"),
           ("@lucia-auth/adapter-prisma", "^4.0.0")
         ]
+
+jwtSecretEnvVarName :: String
+jwtSecretEnvVarName = "JWT_SECRET"

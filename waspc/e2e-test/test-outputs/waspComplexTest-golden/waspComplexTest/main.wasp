@@ -1,6 +1,6 @@
 app waspComplexTest {
   wasp: {
-    version: "^0.16.7"
+    version: "^0.17.1"
   },
   auth: {
     userEntity: User,
