@@ -42,11 +42,7 @@ type SourceCode = String
 
 reserved :: String -> Parser ()
 reserved name =
-  lexeme $
-    try $
-      do
-        _ <- C.string name
-        notFollowedBy identLetter <?> ("end of " ++ show name)
+  lexeme $ try $ C.string name >> (notFollowedBy identLetter <?> ("end of " ++ show name))
 
 identifier :: Parser String
 identifier = lexeme $ try ident
