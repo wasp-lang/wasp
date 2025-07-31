@@ -179,7 +179,7 @@ jobs:
           cd examples/todoApp
           # Prepare the environment for the tests
           cp .env.server.headless .env.server
-          HEADLESS_TEST_MODE=dev npm run test
+          WASP_RUN_MODE=dev npm run test
 
       - name: Headless - Run Playwright Tests (build)
         id: headless-run-playwright-tests-build
@@ -188,7 +188,7 @@ jobs:
           cd examples/todoApp
           # Prepare the environment for the tests
           cp .env.server.headless .env.server
-          HEADLESS_TEST_MODE=build npm run test
+          WASP_RUN_MODE=build npm run test
 
       - name: Run e2e tests
         run: cabal test e2e-test

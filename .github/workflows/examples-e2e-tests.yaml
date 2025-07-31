@@ -69,7 +69,7 @@ jobs:
         working-directory: examples/${{ matrix.example }}
         env:
           WASP_CLI_CMD: wasp-cli
-          HEADLESS_TEST_MODE: dev
+          WASP_RUN_MODE: dev
         run: |
           npm run test
 
@@ -79,6 +79,6 @@ jobs:
         working-directory: examples/${{ matrix.example }}
         env:
           WASP_CLI_CMD: wasp-cli
-          HEADLESS_TEST_MODE: build
+          WASP_RUN_MODE: build
         run: |
           npm run test

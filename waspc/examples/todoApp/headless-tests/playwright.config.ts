@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const HEADLESS_TEST_MODE = process.env.HEADLESS_TEST_MODE ?? "dev";
+const WASP_RUN_MODE = process.env.WASP_RUN_MODE ?? "dev";
 
 export const WASP_SERVER_PORT = 3001;
 
@@ -48,7 +48,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `run-wasp-app ${HEADLESS_TEST_MODE} --path-to-app=../ --wasp-cli-cmd=wasp-cli`,
+    command: `run-wasp-app ${WASP_RUN_MODE} --path-to-app=../ --wasp-cli-cmd=wasp-cli`,
     // Wait for the backend to start
     url: `http://localhost:${WASP_SERVER_PORT}`,
     reuseExistingServer: !process.env.CI,

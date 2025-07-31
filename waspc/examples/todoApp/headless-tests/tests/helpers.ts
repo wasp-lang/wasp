@@ -104,7 +104,7 @@ export async function getEmailVerificationLink(
 }
 
 export function isRunningInDevMode() {
-  const testMode = process.env.HEADLESS_TEST_MODE ?? "dev";
+  const testMode = process.env.WASP_RUN_MODE ?? "dev";
   return testMode === "dev";
 }
 
