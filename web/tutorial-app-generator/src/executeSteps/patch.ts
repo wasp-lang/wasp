@@ -46,6 +46,8 @@ export async function createPatchForStep({
   appDir: AppDirPath;
   action: ApplyPatchAction;
 }) {
+  log("info", "Opening tutorial app in VS Code");
+  await $`code ${appDir}`;
   await Enquirer.prompt({
     type: "confirm",
     name: "edit",

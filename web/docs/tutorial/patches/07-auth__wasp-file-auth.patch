@@ -1,13 +1,13 @@
 diff --git a/main.wasp b/main.wasp
-index eed193e..5592563 100644
+index f761afe..d4798a4 100644
 --- a/main.wasp
 +++ b/main.wasp
-@@ -2,7 +2,17 @@ app TodoApp {
-   wasp: {
-     version: "^0.17.0"
-   },
--  title: "TodoApp"
-+  title: "TodoApp",
+@@ -5,7 +5,17 @@ app TodoApp {
+   title: "TodoApp",
+   head: [
+     "<link rel='icon' href='/favicon.ico' />",
+-  ]
++  ],
 +  auth: {
 +    // Tells Wasp which entity to use for storing users.
 +    userEntity: User,

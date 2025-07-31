@@ -33,6 +33,7 @@ export async function executeSteps({
               `Failed to apply patch for step ${action.stepName}:\n${err}`,
             );
             await tryToFixPatch({ appDir, action });
+            await applyPatch({ appDir, action });
           }
           break;
         case "migrate-db":

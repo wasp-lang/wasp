@@ -1,5 +1,5 @@
 import { $ } from "zx";
-import type { AppDirPath, AppName } from "./brandedTypes";
+import type { AppDirPath, AppName, AppParentDirPath } from "./brandedTypes";
 
 export async function waspDbMigrate(
   appDir: AppDirPath,
@@ -12,6 +12,14 @@ export async function waspDbMigrate(
   })`wasp db migrate-dev --name ${migrationName}`;
 }
 
-export async function waspNew(appName: AppName): Promise<void> {
-  await $`wasp new ${appName} -t minimal`;
+export async function waspNew({
+  appName,
+  appParentDir,
+}: {
+  appName: AppName;
+  appParentDir: AppParentDirPath;
+}): Promise<void> {
+  await $({
+    cwd: appParentDir,
+  })`wasp new ${appName} -t minimal`;
 }

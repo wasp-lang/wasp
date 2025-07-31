@@ -1,7 +1,7 @@
 import { Command } from "@commander-js/extra-typings";
 import { $ } from "zx";
 
-import type { AppDirPath, AppName } from "../../brandedTypes";
+import type { AppDirPath, AppName, AppParentDirPath } from "../../brandedTypes";
 import { executeSteps } from "../../executeSteps";
 import type { Action } from "../../executeSteps/actions";
 import { getActionsFromTutorialFiles } from "../../extractSteps";
@@ -10,6 +10,7 @@ import { log } from "../../log";
 import {
   appDir,
   appName,
+  appParentDir,
   mainBranchName,
   patchesDir,
   tutorialDir,
@@ -21,22 +22,24 @@ export const generateAppCommand = new Command("generate-app")
   .action(async () => {
     const actions: Action[] = await getActionsFromTutorialFiles(tutorialDir);
 
-    await prepareApp({ appDir, appName, mainBranchName });
+    await prepareApp({ appDir, appParentDir, appName, mainBranchName });
     await executeSteps({ appDir, patchesDir, actions });
     log("success", "Tutorial app has been successfully generated!");
   });
 
 async function prepareApp({
   appName,
+  appParentDir,
   appDir,
   mainBranchName,
 }: {
-  appDir: AppDirPath;
   appName: AppName;
+  appParentDir: AppParentDirPath;
+  appDir: AppDirPath;
   mainBranchName: string;
 }): Promise<void> {
   await $`rm -rf ${appDir}`;
-  await waspNew(appName);
+  await waspNew({ appName, appParentDir });
   await initGitRepo(appDir, mainBranchName);
-  log("info", "Tutorial app directory has been initialized");
+  log("info", `Tutorial app has been initialized in ${appDir}`);
 }
