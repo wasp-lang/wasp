@@ -24,20 +24,18 @@ fi
 
 WASP_CLI_CMD="$1"
 TEMPLATE_NAME="$2"
-WASP_PROJECT_PATH="$3"
+WASP_PROJECT_RELATIVE_PATH="$3"
 # TODO: Implement remote tests
-# HEADLESS_TESTS_PATH="${4}"
+# HEADLESS_TESTS_RELATIVE_PATH="${4}"
 TEMP_PROJECT_NAME="temp-project-${TEMPLATE_NAME}"
-TEMP_WASP_PROJECT_PATH="${TEMP_PROJECT_NAME}${WASP_PROJECT_PATH}"
+TEMP_WASP_PROJECT_PATH="${TEMP_PROJECT_NAME}${WASP_PROJECT_RELATIVE_PATH}"
 
 main() {
   trap cleanup_test_environment EXIT INT TERM QUIT
 
-  echo "Starting E2E tests for ${TEMPLATE_NAME} template..."
   initialize_test_environment
   run_dev_e2e_tests
   run_build_e2e_tests
-  echo "Finished E2E tests for ${TEMPLATE_NAME} template"
 }
 
 initialize_test_environment() {
@@ -68,7 +66,10 @@ EOF
   sed -i '' 's/provider: [A-Za-z0-9_][A-Za-z0-9_]*/provider: SMTP/g' "$TEMP_WASP_PROJECT_PATH/main.wasp"
   cat >> "$TEMP_WASP_PROJECT_PATH/.env.server" << EOF
 
-TODO=soon
+SMTP_HOST=localhost
+SMTP_USERNAME=any
+SMTP_PASSWORD=any
+SMTP_PORT=1025
 EOF
 }
 

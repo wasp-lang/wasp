@@ -1,38 +1,40 @@
 #!/usr/bin/env node
 
 import { spawn } from "child_process";
-import { existsSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs, type WaspCliCommand } from "./cli.js";
 import {
+  RemoteTestsRelativePath,
   STARTER_TESTS,
+  WaspProjectRelativePath,
   type StarterTemplateName,
   type StarterTests,
 } from "./starter-tests.js";
+import { findNodeProjectRootDirectory } from "./utils.js";
 
 const SCRIPT_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const STARTERS_E2E_TEST_RUNNER_SCRIPT_NAME = "run-starter-e2e-tests.sh";
 
 try {
-  await runAllStarterTests();
+  await runAllStartersE2ETests();
 } catch (error) {
   console.error("Error: ", error);
   process.exit(1);
 }
 
-async function runAllStarterTests(): Promise<void> {
+async function runAllStartersE2ETests(): Promise<void> {
   const { waspCliCommand } = parseArgs(process.argv);
 
   for (const starterTests of STARTER_TESTS) {
     try {
       console.log(`Running tests for ${starterTests.templateName}...`);
-      await runStarterTest({
+      await runStarterE2ETests({
         waspCliCommand,
         starterTests,
       });
       console.log(
-        `Tests for ${starterTests.templateName} completed successfully.`,
+        `Tests for ${starterTests.templateName} completed successfully!`,
       );
     } catch (error) {
       console.error(
@@ -49,30 +51,30 @@ type StarterTestsExecution = {
   starterTests: StarterTests;
 };
 
-async function runStarterTest(
+async function runStarterE2ETests(
   starterTestsExecution: StarterTestsExecution,
 ): Promise<void> {
   const starterTestsRunnerArgs = getStarterTestsRunnerArgs(
     starterTestsExecution,
   );
 
-  const projectRootDirectory = findProjectRootDirectory(SCRIPT_DIRECTORY);
+  const projectRootDirectory = findNodeProjectRootDirectory(SCRIPT_DIRECTORY);
   const starterTestsRunnerPath = join(
     projectRootDirectory,
     STARTERS_E2E_TEST_RUNNER_SCRIPT_NAME,
   );
 
-  const childProcess = spawn(starterTestsRunnerPath, starterTestsRunnerArgs, {
-    stdio: "inherit",
-    shell: true,
-  });
-
   return new Promise((resolve, reject) => {
+    const childProcess = spawn(starterTestsRunnerPath, starterTestsRunnerArgs, {
+      stdio: "inherit",
+      shell: true,
+    });
+
     childProcess.on("close", (code) => {
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`Tests failed with exit code ${code}`));
+        reject(new Error(`Starter tests failed with exit code ${code}`));
       }
     });
 
@@ -82,39 +84,28 @@ async function runStarterTest(
   });
 }
 
-function findProjectRootDirectory(startingDirectory: string): string {
-  let currentDirectory = startingDirectory;
-
-  while (currentDirectory !== dirname(currentDirectory)) {
-    if (existsSync(join(currentDirectory, "package.json"))) {
-      return currentDirectory;
-    }
-    currentDirectory = dirname(currentDirectory);
-  }
-  
-  throw new Error("Could not find project root directory");
-}
-
 type StarterTestsRunnerArgs =
-  | [WaspCliCommand, StarterTemplateName, string, string]
-  | [WaspCliCommand, StarterTemplateName, string];
+  | [
+      WaspCliCommand,
+      StarterTemplateName,
+      WaspProjectRelativePath,
+      RemoteTestsRelativePath,
+    ]
+  | [WaspCliCommand, StarterTemplateName, WaspProjectRelativePath];
 
 function getStarterTestsRunnerArgs({
   waspCliCommand,
-  starterTests: tests,
+  starterTests,
 }: StarterTestsExecution): StarterTestsRunnerArgs {
   const starterTestsRunnerArgs: StarterTestsRunnerArgs = [
     waspCliCommand,
-    tests.templateName,
-    tests.appRelativePath,
+    starterTests.templateName,
+    starterTests.waspProjectRelativePath,
   ];
 
-  if ("remoteTestsRelativePath" in tests) {
-    starterTestsRunnerArgs.push(tests.remoteTestsRelativePath);
+  if ("remoteTestsRelativePath" in starterTests) {
+    starterTestsRunnerArgs.push(starterTests.remoteTestsRelativePath);
   }
 
   return starterTestsRunnerArgs;
 }
-
-
-
