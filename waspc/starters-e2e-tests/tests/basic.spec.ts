@@ -57,7 +57,9 @@ test.describe(
         await taskForm.getByRole("button", { name: "Create" }).click();
         await page.waitForLoadState("networkidle");
 
-        await expect(tasksSection.getByText(taskWithoutTagDescription)).toBeVisible();
+        await expect(
+          tasksSection.getByText(taskWithoutTagDescription),
+        ).toBeVisible();
         await expect(tasksSection.getByText("1 task")).toBeVisible();
         await expect(tasksSection.getByText("0 completed")).toBeVisible();
       });
@@ -72,7 +74,9 @@ test.describe(
         await tagForm.getByRole("button", { name: "Create" }).click();
         await page.waitForLoadState("networkidle");
 
-        await expect(taskForm.getByRole("button", { name: tagName })).toBeVisible();
+        await expect(
+          taskForm.getByRole("button", { name: tagName }),
+        ).toBeVisible();
       });
 
       test("should be able to create task with a tag", async ({ page }) => {
@@ -85,7 +89,9 @@ test.describe(
         await taskForm.getByRole("button", { name: "Create" }).click();
         await page.waitForLoadState("networkidle");
 
-        await expect(tasksSection.getByText(taskWithTagDescription)).toBeVisible();
+        await expect(
+          tasksSection.getByText(taskWithTagDescription),
+        ).toBeVisible();
         await expect(tasksSection.getByText("2 tasks")).toBeVisible();
         await expect(tasksSection.getByText("0 completed")).toBeVisible();
       });
@@ -112,7 +118,7 @@ test.describe(
       test("should be able to clear completed tasks", async ({ page }) => {
         await performLogin(page, credentials);
         const tasksSection = getTasksSection(page);
-        
+
         await tasksSection
           .getByRole("button", { name: "Clear completed" })
           .click();
