@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "json5": "^2.2.3",
+    "prisma": "Prisma version here needs to be kept in sync with prisma version used in wasp-cli.",
     "prisma": "5.19.1",
+    "strip-ansi": "We are keeping strip-ansi at 6.0.0 because in v7 is switches to ecmascript modules, which is not supported directly by Jest.",
     "strip-ansi": "^6.0.0",
     "tmp-promise": "3.0.3"
   },
