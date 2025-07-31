@@ -6,16 +6,12 @@ module Wasp.Psl.Parser.Argument
   )
 where
 
-import Text.Parsec
-  ( char,
-    choice,
-    optionMaybe,
-    try,
-  )
-import Text.Parsec.String (Parser)
+import Text.Megaparsec (choice, optional, try)
+import qualified Text.Megaparsec.Char as C
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import Wasp.Psl.Parser.Common
-  ( brackets,
+  ( Parser,
+    brackets,
     colon,
     commaSep,
     float,
@@ -70,15 +66,9 @@ arrayExpr =
   Psl.Argument.ArrayExpr
     <$> brackets (commaSep expression)
 
--- NOTE: For now we are not supporting negative numbers.
---   I couldn't figure out from Prisma docs if there could be the case
---   where these numbers could be negative.
---   Same goes for numberIntExpr below.
---   TODO: Probably we should take care of that case.
 numberFloatExpr :: Parser Psl.Argument.Expression
 numberFloatExpr = Psl.Argument.NumberExpr . show <$> float
 
--- NOTE/TODO: Check comment on numberFloatExpr.
 numberIntExpr :: Parser Psl.Argument.Expression
 numberIntExpr = Psl.Argument.NumberExpr . show <$> integer
 
@@ -97,5 +87,5 @@ identifierExpr = Psl.Argument.IdentifierExpr <$> identifierStrParser
 identifierStrParser :: Parser String
 identifierStrParser = do
   first <- identifier
-  rest <- optionMaybe (char '.' >> identifierStrParser)
+  rest <- optional (C.char '.' >> identifierStrParser)
   return $ maybe first ((first ++ ".") ++) rest
