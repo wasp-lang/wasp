@@ -9,7 +9,7 @@ where
 
 import Data.Conduit.Process.Typed (ExitCode (..))
 import System.IO.Error (catchIOError, isDoesNotExistError)
-import System.Process (readProcessWithExitCode)
+import System.Process (readCreateProcessWithExitCode, shell)
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SV
@@ -76,7 +76,7 @@ readCommandOutput :: String -> [String] -> IO (Either ErrorMessage String)
 readCommandOutput commandName commandArgs = do
   commandResult <-
     catchIOError
-      (Right <$> readProcessWithExitCode commandName commandArgs "")
+      (Right <$> readCreateProcessWithExitCode (shell fullCommand) "")
       (return . Left . wrapCommandIOErrorMessage . makeIOErrorMessage)
   return $ case commandResult of
     Left procErr -> Left procErr

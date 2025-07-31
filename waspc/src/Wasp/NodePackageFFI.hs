@@ -124,4 +124,6 @@ packageCreateProcess ::
   String ->
   [String] ->
   P.CreateProcess
-packageCreateProcess packageDir cmd args = (P.proc cmd args) {P.cwd = Just $ fromAbsDir packageDir}
+packageCreateProcess packageDir cmd args = (P.shell fullCommand) {P.cwd = Just $ fromAbsDir packageDir}
+  where
+    fullCommand = unwords $ cmd : args

@@ -100,7 +100,7 @@ runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
     NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     NodeVersion.VersionCheckSuccess -> do
       envVars <- getAllEnvVars
-      let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+      let nodeCommandProcess = (P.shell fullCommand) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
       runProcessAsJob nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env
@@ -119,3 +119,4 @@ runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
             J._jobType = jobType
           }
       return exitCode
+    fullCommand = unwords $ command : args
