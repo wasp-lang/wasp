@@ -1,5 +1,5 @@
 # For Mage we are using the Debian Node.js image
-FROM node:20 AS node
+FROM node:22 AS node
 
 # We split Dockerfile into base, server-builder and server-production.
 # This way we have separate situations -> in server-builder we build all
