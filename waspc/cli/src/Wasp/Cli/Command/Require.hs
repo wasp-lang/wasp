@@ -26,6 +26,7 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
+    BuildDirExists (BuildDirExists),
     DbConnectionEstablished (DbConnectionEstablished),
     FromOutDir (FromOutDir),
   )
@@ -40,6 +41,7 @@ import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
@@ -111,3 +113,20 @@ instance Requirable (DbConnectionEstablished FromOutDir) where
           ( "The database needs to be running in order to execute this command."
               ++ " You can easily start a managed dev database with `wasp start db`."
           )
+
+data BuildDirExists = BuildDirExists (SP.Path' SP.Abs (SP.Dir ProjectRootDir)) deriving (Typeable)
+
+instance Requirable BuildDirExists where
+  checkRequirement = do
+    InWaspProject waspProjectDir <- require
+    let buildDir =
+          waspProjectDir
+            SP.</> Project.Common.dotWaspDirInWaspProjectDir
+            SP.</> Project.Common.buildDirInDotWaspDir
+    doesBuildDirExist <- liftIO $ doesPathExist $ SP.fromAbsDir buildDir
+    unless doesBuildDirExist $ do
+      throwError $
+        CommandError
+          "Built app does not exist"
+          "You can build the app with the `wasp build` command."
+    return $ BuildDirExists buildDir
