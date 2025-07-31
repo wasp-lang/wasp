@@ -63,7 +63,11 @@ SKIP_EMAIL_VERIFICATION_IN_DEV=true
 EOF
 
   # Replace email provider with SMTP so it works with `wasp-app-runner`
-  sed -i '' 's/provider: [A-Za-z0-9_][A-Za-z0-9_]*/provider: SMTP/g' "$TEMP_WASP_PROJECT_PATH/main.wasp"
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' 's/provider: [A-Za-z0-9_][A-Za-z0-9_]*/provider: SMTP/g' "$TEMP_WASP_PROJECT_PATH/main.wasp"
+  else
+    sed -i 's/provider: [A-Za-z0-9_][A-Za-z0-9_]*/provider: SMTP/g' "$TEMP_WASP_PROJECT_PATH/main.wasp"
+  fi
   cat >> "$TEMP_WASP_PROJECT_PATH/.env.server" << EOF
 
 SMTP_HOST=localhost
@@ -80,9 +84,9 @@ cleanup_test_environment() {
 run_dev_e2e_tests() {
   echo "Running DEV e2e tests for ${TEMPLATE_NAME} project..."
   # export DEBUG=pw:webserver
-  export E2E_APP_PATH="$TEMP_WASP_PROJECT_PATH"
+  export WASP_APP_PATH="$TEMP_WASP_PROJECT_PATH"
   export WASP_CLI_CMD="${WASP_CLI_CMD}"
-  export HEADLESS_TEST_MODE=dev
+  export WASP_RUN_MODE=dev
   npx playwright test --grep "(@${TEMPLATE_NAME}|^(?!.*@).*)"
 }
 
@@ -94,28 +98,22 @@ run_build_e2e_tests() {
 
   echo "Running BUILD e2e tests for ${TEMPLATE_NAME} project..."
   # export DEBUG=pw:webserver
-  export E2E_APP_PATH="$TEMP_WASP_PROJECT_PATH"
+  export WASP_APP_PATH="$TEMP_WASP_PROJECT_PATH"
   export WASP_CLI_CMD="${WASP_CLI_CMD}"
-  export HEADLESS_TEST_MODE=build
+  export WASP_RUN_MODE=build
   npx playwright test --grep "(@${TEMPLATE_NAME}|^(?!.*@).*)"
 }
 
 template_uses_sqlite() {
   (
+    script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    database_provider_script_path="${script_directory}/../../scripts/get-wasp-database-provider.sh"
+
     cd "$TEMP_WASP_PROJECT_PATH"
 
-    DATABASE_PROVIDER=$(${WASP_CLI_CMD} info \
-      | grep "Database system" \
-      | sed 's/.*: //' \
-      | sed -e 's/\x1b\[[0-9;]*m//g' \
-      | tr '[:upper:]' '[:lower:]')
+    database_provider=$("$database_provider_script_path" "${WASP_CLI_CMD}")
 
-    if [ -z "$DATABASE_PROVIDER" ]; then
-      echo "ERROR: Could not determine database system from ${WASP_CLI_CMD} info"
-      exit 1
-    fi
-
-    [ "$DATABASE_PROVIDER" = "sqlite" ]
+    [ "$database_provider" = "sqlite" ]
   )
 }
 

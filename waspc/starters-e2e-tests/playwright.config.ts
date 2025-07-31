@@ -45,7 +45,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `run-wasp-app ${process.env.HEADLESS_TEST_MODE} --path-to-app=${process.env.E2E_APP_PATH} --wasp-cli-cmd=${process.env.WASP_CLI_CMD}`,
+    command: `run-wasp-app ${process.env.WASP_RUN_MODE} --path-to-app=${process.env.WASP_APP_PATH} --wasp-cli-cmd=${process.env.WASP_CLI_CMD}`,
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: false,
