@@ -1,0 +1,21 @@
+{
+  "name": "starters-e2e-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "main": "index.js",
+  "keywords": [],
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/src/main.js",
+    "test": "npm run build && npm run start wasp",
+    "test:dev": "npm run build && npm run start wasp-cli"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.51.1",
+    "@types/node": "^24.0.1",
+    "@wasp.sh/wasp-app-runner": "^0.0.7"
+  }
+}
