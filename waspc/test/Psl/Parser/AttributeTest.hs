@@ -1,11 +1,11 @@
 module Psl.Parser.AttributeTest where
 
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
-import Text.Parsec.String (Parser)
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
+import Wasp.Psl.Parser.Common (Parser)
 
 spec_parseAttributePslPart :: Spec
 spec_parseAttributePslPart = do
@@ -106,5 +106,5 @@ spec_parseAttributePslPart = do
   where
     runTestsFor :: Parser Psl.Attribute.Attribute -> [(String, Psl.Attribute.Attribute)] -> Spec
     runTestsFor parser tests = do
-      let runTest (psl, expected) = it ("correctly parses " ++ psl) $ Parsec.parse parser "" psl `shouldBe` Right expected
+      let runTest (psl, expected) = it ("correctly parses " ++ psl) $ Megaparsec.parse parser "" psl `shouldBe` Right expected
       mapM_ runTest tests

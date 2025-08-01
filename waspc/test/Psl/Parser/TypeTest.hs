@@ -3,7 +3,7 @@ module Psl.Parser.TypeTest where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -21,7 +21,7 @@ spec_parsePslType = do
                   height Int    @default(200)
                   width  Int    @default(100)
                   url    String
-                } 
+                }
               |]
           expectedAst =
             Psl.Type.Type
@@ -55,7 +55,7 @@ spec_parsePslType = do
                   ]
               )
 
-      Parsec.parse Psl.Parser.typeBlock "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.typeBlock "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
       let source =
@@ -65,7 +65,7 @@ spec_parsePslType = do
                   height Int    @default(200)
                   // width  Int    @default(100)
                   url    String
-                } 
+                }
               |]
           expectedAst =
             Psl.Type.Type
@@ -88,4 +88,4 @@ spec_parsePslType = do
                   ]
               )
 
-      Parsec.parse Psl.Parser.typeBlock "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.typeBlock "" source `shouldBe` Right expectedAst

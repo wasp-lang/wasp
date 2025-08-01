@@ -1,7 +1,7 @@
 module Psl.Parser.ArgumentTest where
 
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import Wasp.Psl.Parser.Argument (argument)
 
@@ -42,5 +42,5 @@ spec_parseArgumentPslPart = do
             )
           ]
     let runTest (psl, expected) =
-          it ("correctly parses " ++ psl) $ Parsec.parse argument "" psl `shouldBe` Right expected
+          it ("correctly parses " ++ psl) $ Megaparsec.parse argument "" psl `shouldBe` Right expected
     mapM_ runTest tests
