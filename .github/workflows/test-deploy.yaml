@@ -11,6 +11,7 @@ on:
       - filip-automatic-deploy-test-fly
     tags:
       - v*
+  workflow_dispatch:
 
 env:
   APP_PREFIX: ci-${{ github.sha }}
