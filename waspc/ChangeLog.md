@@ -4,7 +4,7 @@
 
 ### ⚠️ Breaking Changes
 
-- Wasp now uses CommonJS (CJS) instead of ECMAScript Modules (ESM) for Tailwind configuration files. ([#2998](https://github.com/wasp-lang/wasp/pull/2998))
+- Wasp now uses ECMAScript Modules (ESM) instead of CommonJS (CJS) for Tailwind configuration files. ([#2998](https://github.com/wasp-lang/wasp/pull/2998))
 
 ## 0.17.0
 

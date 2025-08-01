@@ -13,13 +13,7 @@ This affects both the **import/export syntax** and **file extensions** (`.cjs` �
 
 To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
 
-### 1. Rename Tailwind Configuration Files
-
-Update the file extensions from `.cjs` to `.js`:
-- `tailwind.config.cjs` ➝ `tailwind.config.js`
-- `postcss.config.cjs` ➝ `postcss.config.js`
-
-### 2. Convert CJS Syntax to ESM
+### 1. Convert CJS Syntax to ESM
 
 Update your `tailwind.config.cjs` file to use ESM.
 
@@ -42,7 +36,7 @@ module.exports = {
 </TabItem>
 <TabItem value="after" label="After">
 
-```js title="tailwind.config.js"
+```js title="tailwind.config.cjs"
 import TailwindTypography from "@tailwindcss/typography";
 import { resolveProjectPath } from "wasp/dev";
 
@@ -58,3 +52,9 @@ export default {
 
 </TabItem>
 </Tabs>
+
+### 2. Rename Tailwind Configuration Files
+
+Update the Tailwind configuration files' extensions from `.cjs` to `.js`:
+- `tailwind.config.cjs` ➝ `tailwind.config.js`
+- `postcss.config.cjs` ➝ `postcss.config.js`
