@@ -9,7 +9,7 @@ on:
         description: "Wasp version to use for deployment (default to latest)"
         required: false
     secrets:
-      FLY_API_TOKEN:
+      FLY_GITHUB_PRODUCTION_TOKEN:
         description: "Fly API token for deploying apps"
         required: true
 
@@ -68,7 +68,7 @@ jobs:
         run: |
           wasp deploy fly deploy --org wasp
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_PRODUCTION_TOKEN }}
 
       - name: Get deployed app info
         id: app-info
@@ -76,4 +76,4 @@ jobs:
         run: |
           echo "url=https://$(flyctl status -c fly-client.toml --json | jq -r .Hostname)" >> $GITHUB_OUTPUT
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_PRODUCTION_TOKEN }}
