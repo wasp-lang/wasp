@@ -17,6 +17,8 @@
     // We're bundling all code in the end so this is the most appropriate option,
     // it's also important for autocomplete to work properly.
     "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "isolatedModules": true,
     // JSX support
     "jsx": "preserve",
     "strict": true,

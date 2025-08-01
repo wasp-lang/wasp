@@ -15,7 +15,7 @@ To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
 
 ### 1. Convert CJS Syntax to ESM
 
-Update your `tailwind.config.cjs` file to use ESM.
+Update your `tailwind.config.cjs` file to use ESM:
 
 <Tabs>
 <TabItem value="before" label="Before">
@@ -52,6 +52,36 @@ export default {
 
 </TabItem>
 </Tabs>
+
+Same for the `postcss.config.cjs` file:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```js title="postcss.config.cjs"
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```js title="postcss.config.cjs"
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
+
+</TabItem>
+</Tabs>
+
 
 ### 2. Rename Tailwind Configuration Files
 
