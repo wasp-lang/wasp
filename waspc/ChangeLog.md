@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.17.1
+
+### 🐞 Bug fixes
+
+- Fixes parsing of `app.client` and `app.server` options in `main.wasp.ts` ([#2999](https://github.com/wasp-lang/wasp/pull/2999))
+
 ## 0.17.0
 
 ### ⚠️ Breaking Changes
