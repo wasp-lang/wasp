@@ -7,9 +7,11 @@ on:
       - ".github/**"
     branches:
       - main
-      - release
       # TODO: Remove before merge
       - filip-automatic-deploy-test-fly
+    create:
+      tags:
+        - v*
 
 env:
   APP_PREFIX: ci-${{ github.sha }}
