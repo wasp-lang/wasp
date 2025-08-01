@@ -93,7 +93,7 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ./run test
 ```
 
-to ensure all the tests (unit, e2e, ...) are passing.
+to ensure all the tests (unit, integration, e2e) are passing.
 
 ### Run the `wasp` CLI
 
@@ -156,10 +156,10 @@ When done, new tab in your browser should open and you will see a Todo App!
    - NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
-   Rinse and repeat. If you're an internal team member, postpone updating e2e tests until approval (see [here](#note-for-team-members)).
+   Rinse and repeat. If you're an internal team member, postpone updating snapshot tests until approval (see [here](#note-for-team-members)).
 4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
-6. Run `./run test` to confirm that all the tests are passing (unit + integration + e2e). If needed, accept changes in the e2e golden/snapshot tests with `./run test:e2e:accept-all`. Check "Tests" for more info.
+6. Run `./run test` to confirm that all the tests are passing (unit, integration, e2e). If needed, accept changes in the snapshot tests with `./run test:snapshot:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
@@ -168,15 +168,15 @@ When done, new tab in your browser should open and you will see a Todo App!
 
 ### Note for team members
 
-Do not update e2e tests until your PR is approved.
+Do not update snapshot tests until your PR is approved.
 
-Running the e2e tests and accepting them prematurely:
+Running the snapshot tests and accepting them prematurely:
 
 - Slows down the UI.
 - Creates noise for the reviewers.
 - Makes it less likely that you'll thoroughly check the final diffs after all review iterations.
 
-**Carefully review e2e test diffs before accepting them** (see [End-to-end (e2e) tests](#end-to-end-e2e-tests) for more details).
+**Carefully review snapshot test diffs before accepting them** (see [Snapshot tests](#snapshot-tests) for more details).
 
 ## Design docs (aka RFCs)
 
@@ -277,20 +277,22 @@ To run individual unit test, you can do `./run test:unit "Some test description 
 
 To run cli tests only, you can do `./run test:cli`.
 
-To run end-to-end tests only, you can do `/run test:e2e`.
+To run e2e snapshot tests only, you can do `/run test:snapshot`.
 
-To run Playwright/headless tests on the example apps, you can do `/run test:headless`.
+To run Playwright e2e headless tests on the example apps, you can do `/run test:headless`.
 
 ### Snapshot tests
 
 Besides unit tests, we have e2e snapshot tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
 
 This means that when you make a change in your code that modifies the generated code, snapshot tests will fail while showing a diff between the new generated code and the previous (golden) one.
-This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. **It is the PR author's (or the reviewers for outside contributions) responsibility to carefully review these diffs.** Do not blindly accept changes, ensure they align with your intended modifications. If you notice something unexpected or weird, you have an opportunity to fix it.
-Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass. Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
-Easiest way to do this is to go to `snapshot-tests/test-outputs/` dir, delete all the directories ending with `-golden/`, and then re-run e2e tests -> since there are no golden outputs, the new outputs will be used as new golden outputs and that is it. After that you commit that to git and you are done.
-
-Instead of doing this manually, you can also use convenient command from the `./run` script:
+This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. 
+**It is the PR author's (or the reviewers for outside contributions) responsibility to carefully review these diffs.** 
+Do not blindly accept changes, ensure they align with your intended modifications. 
+If you notice something unexpected or weird, you have an opportunity to fix it.
+Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass. 
+Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
+Easiest way to do this is to use the convenient command from the `./run` script:
 
 ```
 ./run test:snapshot:accept-all
