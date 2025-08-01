@@ -16,28 +16,24 @@ jobs:
     name: Generate unique deployment prefix
     runs-on: ubuntu-latest
 
-    outputs:
-      app_prefix: ${{ steps.generate_app_prefix.outputs.app_prefix }}
-
     steps:
       - name: Generate unique app prefix from commit SHA
         id: generate_app_prefix
         run: |
           echo "app_prefix=ci-$(echo $GITHUB_SHA | head -c 7)" >> "$GITHUB_OUTPUT"
 
+    outputs:
+      app_prefix: ${{ steps.generate_app_prefix.outputs.app_prefix }}
+
   deploy_app_to_fly:
     name: Deploy Wasp app
 
     runs-on: ubuntu-latest
-    needs: generate_unique_app_prefix
+    needs: [generate_unique_app_prefix]
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
       FLY_REGION: mia
       APP_PREFIX: ${{ needs.generate_unique_app_prefix.outputs.app_prefix }}
-
-    outputs:
-      server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
-      client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
 
     steps:
       - name: Checkout repository
@@ -87,6 +83,10 @@ jobs:
           echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
           echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
 
+    outputs:
+      server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
+      client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
+
   smoke_test_app:
     name: Run smoke tests on deployed app
 
@@ -100,11 +100,11 @@ jobs:
     steps:
       - name: Smoke test the server
         run: |
-          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq '.json'
 
       - name: Smoke test the client
         run: |
-          curl --fail --silent https://$CLIENT_HOSTNAME
+          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'ToDo App'
 
   clean_up_deployed_fly_app:
     runs-on: ubuntu-latest
