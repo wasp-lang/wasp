@@ -46,6 +46,9 @@ jobs:
         uses: ./.github/actions/setup-haskell
 
       - uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version: "22"
 
       - name: Install Wasp CLI
         working-directory: waspc
