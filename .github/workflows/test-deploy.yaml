@@ -7,8 +7,6 @@ on:
       - ".github/**"
     branches:
       - main
-      # TODO: Remove before merge
-      - filip-automatic-deploy-test-fly
     tags:
       - v*
   workflow_dispatch:
