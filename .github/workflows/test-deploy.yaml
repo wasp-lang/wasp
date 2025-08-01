@@ -63,7 +63,7 @@ jobs:
 
           echo "Deploying with prefix: $APP_PREFIX"
           # NOTE: The `yes` command is necessary because the `fly launch` command prompts for confirmation 
-          eval yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing $ENV_VARS
+          yes | eval wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing $ENV_VARS
 
       - name: Save deployed app hostnames
         id: save_hostnames
