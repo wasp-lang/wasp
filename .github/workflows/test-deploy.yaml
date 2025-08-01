@@ -31,24 +31,23 @@ jobs:
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
           ref: ${{ github.event.pull_request.head.sha }}
 
-      # - name: Set up Haskell
-      #   uses: ./.github/actions/setup-haskell
-      #
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     cache: "npm"
-      #     node-version: "22"
-      #
-      # - name: Install Wasp CLI
-      #   working-directory: waspc
-      #   run: ./run install
+      - name: Set up Haskell
+        uses: ./.github/actions/setup-haskell
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version: "22"
+
+      - name: Install Wasp CLI
+        working-directory: waspc
+        run: ./run install
 
       - uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Deploy App to Fly.io
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
-          pwd
           set -e
 
           # NOTE: This assumes env var values don't contain:
