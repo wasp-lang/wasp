@@ -227,7 +227,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - src/ -> main source code, library
 - cli/src/ -> rest of the source code, cli, uses library
 - cli/exe/ -> thin executable wrapper around cli library code
-- test/, e2e-test/, cli/test/ -> tests
+- test/, snapshot-tests/, cli/test/ -> tests
 - data/Generator/templates/ -> mustache templates for the generated client/server.
 - data/Cli/starters/ -> starter templates for new projects
 - examples/ -> example apps
@@ -281,19 +281,19 @@ To run end-to-end tests only, you can do `/run test:e2e`.
 
 To run Playwright/headless tests on the example apps, you can do `/run test:headless`.
 
-### End-to-end (e2e) tests
+### Snapshot tests
 
-Besides unit tests, we have e2e tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
+Besides unit tests, we have e2e snapshot tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
 
-This means that when you make a change in your code that modifies the generated code, e2e tests will fail while showing a diff between the new generated code and the previous (golden) one.
+This means that when you make a change in your code that modifies the generated code, snapshot tests will fail while showing a diff between the new generated code and the previous (golden) one.
 This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. **It is the PR author's (or the reviewers for outside contributions) responsibility to carefully review these diffs.** Do not blindly accept changes, ensure they align with your intended modifications. If you notice something unexpected or weird, you have an opportunity to fix it.
 Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass. Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
-Easiest way to do this is to go to `e2e-test/test-outputs/` dir, delete all the directories ending with `-golden/`, and then re-run e2e tests -> since there are no golden outputs, the new outputs will be used as new golden outputs and that is it. After that you commit that to git and you are done.
+Easiest way to do this is to go to `snapshot-tests/test-outputs/` dir, delete all the directories ending with `-golden/`, and then re-run e2e tests -> since there are no golden outputs, the new outputs will be used as new golden outputs and that is it. After that you commit that to git and you are done.
 
 Instead of doing this manually, you can also use convenient command from the `./run` script:
 
 ```
-./run test:e2e:accept-all
+./run test:snapshot:accept-all
 ```
 
 ## Code analysis

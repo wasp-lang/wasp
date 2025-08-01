@@ -764,10 +764,10 @@ test-suite cli-test
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
-test-suite e2e-test
+test-suite snapshot-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: e2e-test
+  hs-source-dirs: snapshot-tests
   main-is: Main.hs
   build-tool-depends: waspc:wasp-cli
   build-depends:

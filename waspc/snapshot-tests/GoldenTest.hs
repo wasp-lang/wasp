@@ -5,7 +5,7 @@ module GoldenTest
   )
 where
 
-import Common (getTestOutputsDir)
+import Common (getSnapshotTestsOutputsDir)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -39,7 +39,7 @@ makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCo
 -- and then comparing all file outputs to the corresponding golden test output directory.
 runGoldenTest :: GoldenTest -> IO TestTree
 runGoldenTest goldenTest = do
-  testOutputsDirAbsSp <- getTestOutputsDir
+  testOutputsDirAbsSp <- getSnapshotTestsOutputsDir
   let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
   let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
   let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
@@ -124,7 +124,7 @@ runGoldenTest goldenTest = do
     -- While Wasp deterministically produces package.json files in the generated code,
     -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
     -- Also, different versions of npm may produce different (but semantically equivalent) package.json files.
-    -- All of this can result in e2e flagging these files as being different when it should not.
+    -- All of this can result in snapshot tests flagging these files as being different when it should not.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
     reformatPackageJsonFiles filePaths = do
