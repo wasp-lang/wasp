@@ -238,7 +238,7 @@ The main issue comes in the form of escaping quotes, and the different ways to d
 
 In `.env` files, you don't need to quote the full value, so you don't need to escape the quotes. For example, you can define a JSON object like this:
 
-```shell
+```shell title=".env.server"
 PG_BOSS_NEW_OPTIONS={"connectionString":"...db url...","jobExpirationInSeconds":60,"maxRetries":3}
 ```
 
