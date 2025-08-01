@@ -56,23 +56,19 @@ jobs:
 
       - uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - name: Prepare server secrets for deployment
-        id: prepare_secrets
+      - name: Deploy App to Fly.io
         working-directory: waspc/examples/todoApp
         run: |
           # NOTE: This assumes env var values don't contain:
           #   - The character `#`.
           #   - An empty line (i.e., there are no multiline env values).
-          echo "ENV_VARS=$(
+          ENV_VARS=$(
             cat .env.server.headless \
             | sed -E 's/#.*//' \
             | awk 'NF {$1=$1;print}' \
             | sed -E 's/^/--server-secret /' \
-            | paste -sd' ')" >> $GITHUB_ENV
+            | paste -sd' ')
 
-      - name: Deploy App to Fly.io
-        working-directory: waspc/examples/todoApp
-        run: |
           # NOTE:The `yes` command is necessary because the `fly launch` command prompts for confirmation 
           yes | wasp-cli deploy fly launch $APP_PREFIX $FLY_REGION --org wasp-testing ${{ env.ENV_VARS }}
 
@@ -124,4 +120,7 @@ jobs:
       - name: Clean up testing app from Fly.io
         run: |
           # NOTE: We are relying on Wasp's naming conventions here
-          flyctl apps destroy -y $APP_PREFIX-{server,client,db}
+          flyctl apps destroy -y $APP_PREFIX-server || true
+          flyctl apps destroy -y $APP_PREFIX-client || true
+          flyctl apps destroy -y $APP_PREFIX-db || true
+
