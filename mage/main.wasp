@@ -14,6 +14,7 @@ app waspAi {
     "<meta name=\"twitter:card\" content=\"summary_large_image\" />",
     "<script defer data-domain=\"usemage.ai\" data-api=\"/waspara/wasp/event\" src=\"/waspara/wasp/script.js\"></script>",
     "<script src=\"/piggy.js\"></script>",
+    "<link rel='icon' href='/favicon.ico' />",
   ],
   client: {
     rootComponent: import { RootComponent } from "@src/client/RootComponent.jsx",
