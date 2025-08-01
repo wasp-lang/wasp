@@ -108,6 +108,8 @@ jobs:
 
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@v1
+        with:
+          version: v0.3.164
 
       - name: Clean up testing app from Fly.io
         run: |
