@@ -1,6 +1,6 @@
 app waspAi {
   wasp: {
-    version: "^0.16.0"
+    version: "^0.17.1"
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
@@ -22,12 +22,12 @@ app waspAi {
     userEntity: User,
     methods: {
       gitHub: {
-        configFn: import { getGitHubAuthConfig } from "@src/server/auth.js",
-        userSignupFields: import { gitHubUserSignupFields } from "@src/server/auth.ts",
+        configFn: import { getGitHubAuthConfig } from "@src/server/auth",
+        userSignupFields: import { gitHubUserSignupFields } from "@src/server/auth",
       },
       google: {
-        configFn: import { getGoogleAuthConfig } from "@src/server/auth.js",
-        userSignupFields: import { googleUserSignupFields } from "@src/server/auth.ts",
+        configFn: import { getGoogleAuthConfig } from "@src/server/auth",
+        userSignupFields: import { googleUserSignupFields } from "@src/server/auth",
       },
     },
     onAuthFailedRedirectTo: "/",
