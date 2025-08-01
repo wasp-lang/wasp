@@ -2,7 +2,7 @@ module Common
   ( ProjectRoot,
     SnapshotTestsDir,
     GoldensDir,
-    getSnapshotTestsOutputsDir
+    getSnapshotTestsOutputsDir,
   )
 where
 
