@@ -5,7 +5,7 @@ module Psl.Generator.SchemaTest where
 
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
@@ -20,7 +20,7 @@ import qualified Wasp.Psl.Parser.Schema as Psl.Parser.Schema
 prop_generatePslSchema :: Property
 prop_generatePslSchema = mapSize (const 100) $ \schemaElementAst ->
   within 1000000 $
-    Parsec.parse Psl.Parser.Schema.schema "" (generateSchemaBlock schemaElementAst) `shouldBe` Right (Psl.Schema.Schema [schemaElementAst])
+    Megaparsec.parse Psl.Parser.Schema.schema "" (generateSchemaBlock schemaElementAst) `shouldBe` Right (Psl.Schema.Schema [schemaElementAst])
 
 instance Arbitrary Psl.Schema.Block where
   arbitrary =

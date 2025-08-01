@@ -57,11 +57,11 @@ jobs:
         # Ubuntu 20.04.
         include:
           - os: ubuntu-22.04
-            node-version: 20
+            node-version: 22
             ghc: "8.10.7"
             cabal: "3.10.2.0"
           - os: ubuntu-22.04
-            node-version: 22
+            node-version: 24
             ghc: "8.10.7"
             cabal: "3.10.2.0"
 

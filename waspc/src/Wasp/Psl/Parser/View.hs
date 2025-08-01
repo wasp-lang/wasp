@@ -3,10 +3,10 @@ module Wasp.Psl.Parser.View
   )
 where
 
-import Text.Parsec.String (Parser)
 import qualified Wasp.Psl.Ast.View as Psl.View
 import Wasp.Psl.Parser.Common
-  ( braces,
+  ( Parser,
+    braces,
     identifier,
     reserved,
   )
