@@ -341,7 +341,7 @@ generateTailwindConfigFile newProjectDetails =
           extend: {
             colors: {
               primary: {
-                ...colors.slate
+                ...${primaryColorObject}
               }
             }
           },
