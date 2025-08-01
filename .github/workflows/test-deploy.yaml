@@ -24,15 +24,15 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: fly-deploy-test
+
     steps:
       - uses: actions/checkout@v4
         with:
-          # Workaround for a Github Checkout action bug
-          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
-          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
-      - name: Set up Haskell
-        uses: ./.github/actions/setup-haskell
+      - uses: ./.github/actions/setup-haskell
 
       - uses: actions/setup-node@v4
         with:
@@ -62,7 +62,10 @@ jobs:
           )
 
           echo "Deploying with prefix: $APP_PREFIX"
-          # NOTE: The `yes` command is necessary because the `fly launch` command prompts for confirmation 
+          # NOTE:
+          # - The `yes` command is necessary because the `fly launch` command prompts for confirmation.
+          # - The `eval` is forces the shell to interpret `$ENV_VARS` as multiple arguments rather 
+          #   than pass it as a single string value.
           yes | eval wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing $ENV_VARS
 
       - name: Save deployed app hostnames
