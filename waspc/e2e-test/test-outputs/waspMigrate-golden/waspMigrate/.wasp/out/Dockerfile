@@ -2,7 +2,7 @@
 #   Because if not, we had situations where it would use the different version
 #   locally and on Github CI. This way we ensure exact version is used,
 #   and also have control over updating it (instead of update surprising us).
-FROM node:20.0.0-alpine3.17 AS node
+FROM node:22.12.0-alpine3.20 AS node
 
 
 # We split Dockerfile into base, server-builder and server-production.
