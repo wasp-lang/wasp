@@ -89,7 +89,7 @@ makeGoldenCompletionTest :: FilePath -> TestTree
 makeGoldenCompletionTest testInputFile =
   let goldenFile = replaceExtension testInputFile ".golden"
       testCaseName = takeBaseName testInputFile
-      diffCmd = \ref new -> ["diff", "-u", ref, new]
+      diffCmd = \ref new -> ["diff", "-u", "--strip-trailing-cr", ref, new]
       testOutput = BSC.pack . runCompletionTest <$> readTestInputFile testInputFile
    in goldenVsStringDiff
         testCaseName
@@ -147,11 +147,13 @@ runCompletionTest testInput =
 --
 -- See 'CompletionTestInput' for the format of the test input.
 parseCompletionInput :: CompletionTestInput -> (String, LSP.Position)
-parseCompletionInput (CompletionTestInput waspSourceWithCursor) =
+parseCompletionInput (CompletionTestInput waspSourceWithCursorWithCR) =
   if not (hasCompletionTestPreamble waspSourceWithCursor)
     then error missingCompletionTestPreambleMsg
     else (waspSourceCode, cursorPosition)
   where
+    -- Remove CR characters from waspSourceWithCursorWithCR.
+    waspSourceWithCursor = normalizeNewlines waspSourceWithCursorWithCR
     waspSourceCode =
       unlines . concat $
         [ linesBeforeCursor,
@@ -190,3 +192,10 @@ parseCompletionInput (CompletionTestInput waspSourceWithCursor) =
     missingCompletionTestPreambleMsg = "parseCompletionInput: missing preamble: " <> completionTestPreamble
 
     completionTestPreamble = "//! test/completion"
+
+    -- | Replaces all occurrences of "\r\n" with "\n" in a string.
+    -- | This is a pure function that handles line ending normalization.
+    normalizeNewlines :: String -> String
+    normalizeNewlines [] = []
+    normalizeNewlines ('\r':'\n':xs) = '\n' : normalizeNewlines xs
+    normalizeNewlines (x:xs) = x : normalizeNewlines xs

@@ -62,7 +62,7 @@ makeParseStatementsGoldenTest :: FilePath -> TestTree
 makeParseStatementsGoldenTest waspFile =
   let goldenAstFile = replaceExtension waspFile ".golden"
       testCaseName = takeBaseName waspFile
-      diffCmd = \ref new -> ["diff", "-u", ref, new]
+      diffCmd = \ref new -> ["diff", "-u", "--strip-trailing-cr", ref, new]
    in goldenVsStringDiff
         testCaseName
         diffCmd
