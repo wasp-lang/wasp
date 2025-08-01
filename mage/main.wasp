@@ -4,6 +4,7 @@ app waspAi {
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
+    "<link rel='icon' href='/favicon.ico' />",
     "<meta property=\"og:title\" content=\"MAGE GPT Web App Generator ✨ MageGPT\">",
     "<meta property=\"og:description\" content=\"Generate your full-stack React, Node.js and Prisma web app using the magic of GPT and the Wasp full-stack framework.\">",
     "<meta property=\"og:type\" content=\"website\">",
@@ -14,7 +15,6 @@ app waspAi {
     "<meta name=\"twitter:card\" content=\"summary_large_image\" />",
     "<script defer data-domain=\"usemage.ai\" data-api=\"/waspara/wasp/event\" src=\"/waspara/wasp/script.js\"></script>",
     "<script src=\"/piggy.js\"></script>",
-    "<link rel='icon' href='/favicon.ico' />",
   ],
   client: {
     rootComponent: import { RootComponent } from "@src/client/RootComponent.jsx",
