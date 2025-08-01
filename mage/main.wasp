@@ -4,6 +4,7 @@ app waspAi {
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
+    "<link rel='icon' href='/favicon.ico' />",
     "<meta property=\"og:title\" content=\"MAGE GPT Web App Generator ✨ MageGPT\">",
     "<meta property=\"og:description\" content=\"Generate your full-stack React, Node.js and Prisma web app using the magic of GPT and the Wasp full-stack framework.\">",
     "<meta property=\"og:type\" content=\"website\">",
