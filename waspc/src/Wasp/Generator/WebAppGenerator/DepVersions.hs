@@ -26,4 +26,4 @@ reactTypesVersion :: SV.ComparatorSet
 reactTypesVersion = SV.backwardsCompatibleWith $ SV.Version 18 0 37 -- follows React major version
 
 viteVersion :: SV.ComparatorSet
-viteVersion = SV.backwardsCompatibleWith $ SV.Version 4 3 9
+viteVersion = SV.backwardsCompatibleWith $ SV.Version 7 0 6
