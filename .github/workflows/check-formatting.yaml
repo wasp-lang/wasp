@@ -15,11 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           cache: "npm"
-          node-version: "20"
+          node-version: "22"
 
       - name: Run Prettier
         run: |
@@ -35,8 +37,21 @@ jobs:
           git config --global core.eol lf
 
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for Haskell file changes
+        id: haskell-changes
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E 'waspc/.*\.hs$'; then
+            echo "run=true" >> $GITHUB_OUTPUT
+          else
+            echo "run=false" >> $GITHUB_OUTPUT
+          fi
 
       - uses: ./.github/actions/setup-haskell
+        if: steps.haskell-changes.outputs.run == 'true'
 
       - working-directory: waspc
+        if: steps.haskell-changes.outputs.run == 'true'
         run: ./run ormolu:check
