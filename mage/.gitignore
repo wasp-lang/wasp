@@ -17,3 +17,7 @@
 **/.DS_Store
 # Emacs specific
 .projectile
+
+.env*
+.flaskenv*
+!.env.project
