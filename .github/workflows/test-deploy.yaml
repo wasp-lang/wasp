@@ -106,7 +106,7 @@ jobs:
   clean_up_deployed_fly_app:
     runs-on: ubuntu-latest
     name: Clean up deployed Fly app
-    needs: [generate_unique_app_prefix, deploy_app_to_fly]
+    needs: [generate_unique_app_prefix, deploy_app_to_fly, smoke_test_app]
     # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.
     if: needs.generate_unique_app_prefix.result == 'success'
