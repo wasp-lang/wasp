@@ -90,6 +90,6 @@ While the previously mentioned projects queried the GPT API directly, TweetBot m
 
 As you could see above, Wasp can be used to build pretty much any database-backed web application! It is especially well suited for so called "workflow-based" applications where you typically have a bunch of resources (e.g. your tasks, or tweets) that you want to manipulate in some way.
 
-With our built-in deployment support (e.g. you can [deploy to Fly.io for free with a single CLI command](https://wasp.sh/docs/deployment/deployment-methods/cli#flyio)) the whole development process is extremely streamlined.
+With our built-in deployment support (e.g. you can [deploy to Fly.io for free with a single CLI command](/docs/deployment/deployment-methods/wasp-deploy/fly)) the whole development process is extremely streamlined.
 
 We can't wait to see what you build next!

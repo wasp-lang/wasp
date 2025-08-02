@@ -41,6 +41,6 @@ In the following sections, we'll go through all the different things you need to
 
 - How [env variables](./env-vars.md) work in production - they are different than using .env files in development.
 - Production [database setup](./database.md) - how migrations work, how to connect to the database, etc.
-- Different deployment methods (using [Wasp's CLI](./deployment-methods/cli.md), [cloud services](./deployment-methods/paas.md), [self-hosting](./deployment-methods/self-hosted.md), etc.)
+- Different deployment methods (using [Wasp's CLI](./deployment-methods/wasp-deploy/overview.md), [cloud services](./deployment-methods/paas.md), [self-hosting](./deployment-methods/self-hosted.md), etc.)
 - How to [set up CI/CD](./ci-cd.md) for your app - automatically deploy your app when you push to your Git repository.
 - Some [extras](./extras.md) like custom domains, CDN, etc.
