@@ -73,11 +73,10 @@ This is how we can define our `webSocketFn` function:
   <TabItem value="js" label="JavaScript">
     ```ts title="src/webSocket.js"
     import { v4 as uuidv4 } from 'uuid'
-    import { getFirstProviderUserId } from 'wasp/auth'
 
     export const webSocketFn = (io, context) => {
       io.on('connection', (socket) => {
-        const username = getFirstProviderUserId(socket.data.user) ?? 'Unknown'
+        const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
         console.log('a user connected: ', username)
 
         socket.on('chatMessage', async (msg) => {
@@ -94,12 +93,11 @@ This is how we can define our `webSocketFn` function:
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/webSocket.ts"
     import { v4 as uuidv4 } from 'uuid'
-    import { getFirstProviderUserId } from 'wasp/auth'
     import { type WebSocketDefinition, type WaspSocketData } from 'wasp/server/webSocket'
 
     export const webSocketFn: WebSocketFn = (io, context) => {
       io.on('connection', (socket) => {
-        const username = getFirstProviderUserId(socket.data.user) ?? 'Unknown'
+        const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
         console.log('a user connected: ', username)
 
         socket.on('chatMessage', async (msg) => {
