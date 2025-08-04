@@ -1,2 +1,2 @@
-e2e-test/test-outputs/*-golden/** linguist-generated=true
+snapshot-tests/test-outputs/*-golden/** linguist-generated=true
 waspls/test/completionTests/*.golden linguist-generated=true
