@@ -6,18 +6,15 @@ module Wasp.Psl.Parser.ConfigBlock
   )
 where
 
-import Text.Parsec
-  ( choice,
-    many,
-    try,
-  )
-import Text.Parsec.String (Parser)
+import Text.Megaparsec (choice, many, try)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Parser.Argument (expression)
 import Wasp.Psl.Parser.Common
-  ( braces,
+  ( Parser,
+    braces,
     identifier,
     reserved,
+    symbol,
   )
 
 -- | Parses a config block.
@@ -47,6 +44,6 @@ configBlockBody = braces (many keyValuePair)
 keyValuePair :: Parser Psl.ConfigBlock.KeyValuePair
 keyValuePair = do
   key <- identifier
-  reserved "="
+  _ <- symbol "="
   value <- expression
   return $ Psl.ConfigBlock.KeyValuePair key value

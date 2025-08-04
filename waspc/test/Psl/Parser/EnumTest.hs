@@ -3,7 +3,7 @@ module Psl.Parser.EnumTest where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
@@ -38,7 +38,7 @@ spec_parsePslEnum = do
                     "map"
                     [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
               ]
-      Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
       let source =
@@ -60,4 +60,4 @@ spec_parsePslEnum = do
                     "map"
                     [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "enum_name"]
               ]
-      Parsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.enum "" source `shouldBe` Right expectedAst

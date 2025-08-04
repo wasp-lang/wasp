@@ -44,7 +44,6 @@ data-files:
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/starters/**/*.js
-  Cli/starters/**/*.cjs
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
   Cli/starters/**/*.css
@@ -157,7 +156,8 @@ library
     , extra                 ^>= 1.7.10
     , dotenv                ^>= 0.10.0
     , network               ^>= 3.1.2
-    , neat-interpolation    ^>=0.5.1.3
+    , neat-interpolation    ^>= 0.5.1.3
+    , megaparsec            ^>= 9.2.1
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -638,6 +638,7 @@ test-suite waspc-test
     , mtl
     , neat-interpolation
     , parsec
+    , megaparsec
     , path
     , split
     , strong-path
