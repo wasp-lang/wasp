@@ -20,10 +20,27 @@ Below you will find a starting point for creating your own actions. The given im
 ### Email
 
 ```wasp title="main.wasp"
+app myApp {
+  // ...
+  auth: {
+    // ...
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+  },
+}
+
 // ...
 
 action customSignup {
   fn: import { signup } from "@src/auth/signup",
+}
+```
+
+```ts title="src/auth/hooks.ts" auto-js
+import { HttpError } from 'wasp/server'
+
+// This disables Wasp's default sign-up action
+export const onBeforeSignup = async () => {
+  throw new HttpError(403, 'This sign-up method is disabled')
 }
 ```
 
@@ -141,10 +158,27 @@ export const signup: CustomSignup<
 ### Username and password
 
 ```wasp title="main.wasp"
+app myApp {
+  // ...
+  auth: {
+    // ...
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+  },
+}
+
 // ...
 
 action customSignup {
   fn: import { signup } from "@src/auth/signup",
+}
+```
+
+```ts title="src/auth/hooks.ts" auto-js
+import { HttpError } from 'wasp/server'
+
+// This disables Wasp's default sign-up action
+export const onBeforeSignup = async () => {
+  throw new HttpError(403, 'This sign-up method is disabled')
 }
 ```
 
