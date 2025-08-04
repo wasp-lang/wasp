@@ -11,6 +11,10 @@
 
 - New command: `wasp build start`. Lets you run your built Wasp app locally, just like in production. If required environment variables are missing, the command will show errors—helping you confirm which env vars you'll need to set in production. [#2796](https://github.com/wasp-lang/wasp/pull/2796)
 
+### 📖 Documentation
+
+- Added code examples on how to disable Wasp's default auth for custom auth actions. ([#3033](https://github.com/wasp-lang/wasp/pull/3033))
+
 ## 0.17.1
 
 ### 🐞 Bug fixes
