@@ -20,12 +20,17 @@ import { waspNew } from "../../waspCli";
 export const generateAppCommand = new Command("generate-app")
   .description("Generate a new Wasp app based on the tutorial steps")
   .action(async () => {
-    const actions: Action[] = await getActionsFromTutorialFiles(tutorialDir);
+    const actions = await getActionsFromTutorialFiles(tutorialDir);
+    log("success", `Found ${actions.length} actions in tutorial files.`);
 
-    await prepareApp({ appDir, appParentDir, appName, mainBranchName });
-    await executeSteps({ appDir, patchesDir, actions });
-    log("success", "Tutorial app has been successfully generated!");
+    await generateApp(actions);
   });
+
+export async function generateApp(actions: Action[]): Promise<void> {
+  await prepareApp({ appDir, appParentDir, appName, mainBranchName });
+  await executeSteps({ appDir, patchesDir, actions });
+  log("success", `Tutorial app has been successfully generated in ${appDir}`);
+}
 
 async function prepareApp({
   appName,

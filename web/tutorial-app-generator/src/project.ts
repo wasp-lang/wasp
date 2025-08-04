@@ -1,5 +1,4 @@
 import path from "path";
-import os from "os";
 
 import type {
   AppDirPath,
@@ -10,7 +9,7 @@ import type {
 } from "./brandedTypes";
 
 export const appName = "TodoApp" as AppName;
-export const appParentDir = path.resolve(os.tmpdir()) as AppParentDirPath;
+export const appParentDir = path.resolve("./") as AppParentDirPath;
 export const appDir = path.resolve(appParentDir, appName) as AppDirPath;
 export const tutorialDir = path.resolve("../docs/tutorial") as TutorialDirPath;
 export const patchesDir = path.resolve(

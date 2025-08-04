@@ -7,39 +7,39 @@ This component serves two purposes:
 */
 export function TutorialAction({
   action,
-  step,
+  id,
 }: {
   action: Action;
-  step: string;
+  id: string;
 }) {
   return (
     process.env.NODE_ENV !== "production" && (
       <div style={{ marginBottom: "1rem" }}>
-        <TutorialActionStep step={step} action={action} />
+        <TutorialActionStep id={id} action={action} />
       </div>
     )
   );
 }
 
 function TutorialActionStep({
-  step,
+  id,
   action,
 }: {
-  step: string;
+  id: string;
   action: Action;
 }) {
   return (
     <div style={{ display: "flex", gap: "0.5rem" }}>
       <div style={tutorialActionPillStyle}>tutorial action: {action}</div>
       <div style={stepPillStyle}>
-        {step}
+        {id}
         <span
           style={{
             fontSize: "0.6rem",
             cursor: "pointer",
           }}
           onClick={() => {
-            navigator.clipboard.writeText(step);
+            navigator.clipboard.writeText(id);
           }}
         >
           [copy]

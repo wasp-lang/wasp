@@ -1,7 +1,6 @@
-import { chalk } from "zx";
+import { chalk, fs } from "zx";
 
 import type { AppDirPath, PatchesDirPath } from "../brandedTypes";
-import { ensureDirExists } from "../files";
 import { tagAllChanges } from "../git";
 import { log } from "../log";
 import { waspDbMigrate } from "../waspCli";
@@ -18,9 +17,9 @@ export async function executeSteps({
   actions: Action[];
 }): Promise<void> {
   for (const action of actions) {
-    log("info", `${chalk.bold(`[step ${action.stepName}]`)} ${action.kind}`);
+    log("info", `${chalk.bold(`[step ${action.id}]`)} ${action.kind}`);
 
-    await ensureDirExists(patchesDir);
+    await fs.ensureDir(patchesDir);
 
     try {
       switch (action.kind) {
@@ -30,22 +29,22 @@ export async function executeSteps({
           } catch (err) {
             log(
               "error",
-              `Failed to apply patch for step ${action.stepName}:\n${err}`,
+              `Failed to apply patch for step ${action.displayName}:\n${err}`,
             );
             await tryToFixPatch({ appDir, action });
             await applyPatch({ appDir, action });
           }
           break;
         case "migrate-db":
-          await waspDbMigrate(appDir, action.stepName);
+          await waspDbMigrate(appDir, action.id);
           break;
         default:
           action satisfies never;
       }
     } catch (err) {
-      log("error", `Error in step ${action.stepName}:\n\n${err}`);
+      log("error", `Error in step with ID ${action.id}:\n\n${err}`);
       process.exit(1);
     }
-    await tagAllChanges(appDir, action.stepName);
+    await tagAllChanges(appDir, action.id);
   }
 }

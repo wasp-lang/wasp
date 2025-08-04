@@ -9,7 +9,7 @@ import { visit } from "unist-util-visit";
 
 import type {
   MarkdownFilePath,
-  StepName,
+  StepId,
   TutorialDirPath,
 } from "../brandedTypes.js";
 import {
@@ -18,7 +18,6 @@ import {
   type Action,
   type ActionCommon,
 } from "../executeSteps/actions.js";
-import { log } from "../log.js";
 
 export async function getActionsFromTutorialFiles(
   tutorialDir: TutorialDirPath,
@@ -31,7 +30,6 @@ export async function getActionsFromTutorialFiles(
     actions.push(...fileActions);
   }
 
-  log("success", `Found ${actions.length} actions in tutorial files.`);
   return actions;
 }
 
@@ -69,16 +67,24 @@ async function getActionsFromMarkdownFile(
     if (node.name !== tutorialComponentName) {
       return;
     }
-    const stepName = getAttributeValue(node, "step") as StepName | null;
+    const stepId = getAttributeValue(node, "id") as StepId | null;
     const actionName = getAttributeValue(node, "action");
 
-    if (!stepName || !actionName) {
-      throw new Error("Step and action attributes are required");
+    if (!stepId) {
+      throw new Error(
+        `TutorialAction component requires the 'id' attribute. File: ${sourceFilePath}`,
+      );
+    }
+
+    if (!actionName) {
+      throw new Error(
+        `TutorialAction component requires the 'action' attribute. File: ${sourceFilePath}`,
+      );
     }
 
     actions.push(
       createAction(actionName, {
-        stepName,
+        id: stepId,
         sourceFilePath,
       }),
     );

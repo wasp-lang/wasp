@@ -23,7 +23,7 @@ Creating an Action is very similar to creating a Query.
 
 We must first declare the Action in `main.wasp`:
 
-<TutorialAction step="action-create-task" action="apply-patch" />
+<TutorialAction id="action-create-task" action="apply-patch" />
 
 ```wasp title="main.wasp"
 // ...
@@ -38,7 +38,7 @@ action createTask {
 
 Let's now define a <ShowForJs>JavaScript</ShowForJs><ShowForTs>TypeScript</ShowForTs> function for our `createTask` Action:
 
-<TutorialAction step="action-create-task-impl" action="apply-patch" />
+<TutorialAction id="action-create-task-impl" action="apply-patch" />
 
 ```ts title="src/actions.ts" auto-js
 import type { Task } from "wasp/entities";
@@ -68,7 +68,7 @@ We put the function in a new file `src/actions.{js,ts}`, but we could have put i
 
 Start by defining a form for creating new tasks.
 
-<TutorialAction step="main-page-create-task-impl-form" action="apply-patch" />
+<TutorialAction id="main-page-create-task-impl-form" action="apply-patch" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { FormEvent } from "react";
@@ -114,7 +114,7 @@ Unlike Queries, you can call Actions directly (without wrapping them in a hook) 
 
 All that's left now is adding this form to the page component:
 
-<TutorialAction step="main-page-create-task-use-form" action="apply-patch" />
+<TutorialAction id="main-page-create-task-use-form" action="apply-patch" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { FormEvent } from "react";
@@ -171,7 +171,7 @@ Since we've already created one task together, try to create this one yourself. 
 <Collapse title="Solution">
   Declaring the Action in `main.wasp`:
 
-  <TutorialAction step="action-update-task" action="apply-patch" />
+  <TutorialAction id="action-update-task" action="apply-patch" />
 
 ```wasp title="main.wasp"
 // ...
@@ -182,7 +182,7 @@ action updateTask {
 }
 ```
 
-  <TutorialAction step="action-update-task-impl" action="apply-patch" />
+  <TutorialAction id="action-update-task-impl" action="apply-patch" />
 
 Implementing the Action on the server:
 
@@ -210,7 +210,7 @@ export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
 
 You can now call `updateTask` from the React component:
 
-<TutorialAction step="main-page-update-task" action="apply-patch" />
+<TutorialAction id="main-page-update-task" action="apply-patch" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { FormEvent, ChangeEvent } from "react";

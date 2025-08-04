@@ -4,15 +4,16 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "parse-markdown": "tsx ./src/markdown/index.ts",
-    "start": "tsx ./src/index.ts"
+    "generate-app": "tsx ./src/index.ts generate-app",
+    "edit-step": "tsx ./src/index.ts edit-step",
+    "list-steps": "tsx ./src/index.ts list-steps"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
+    "@inquirer/prompts": "^7.8.0",
     "acorn": "8.15.0",
     "commander": "^14.0.0",
     "dedent": "^1.6.0",
-    "enquirer": "^2.4.1",
     "mdast-util-from-markdown": "^2.0.2",
     "mdast-util-frontmatter": "^2.0.1",
     "mdast-util-mdx": "^3.0.0",
@@ -21,11 +22,12 @@
     "micromark-extension-mdx-jsx": "^3.0.2",
     "parse-git-diff": "0.0.19",
     "remark-comment": "^1.0.0",
+    "tsx": "^4.20.3",
     "unist-util-visit": "^5.0.0",
     "zx": "^8.5.3"
   },
   "devDependencies": {
-    "@types/mdast": "^4.0.4",
-    "tsx": "^4.19.4"
+    "@types/fs-extra": "^11.0.4",
+    "@types/mdast": "^4.0.4"
   }
 }

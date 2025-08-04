@@ -1,11 +1,8 @@
-import fs from "fs/promises";
-
-import Enquirer from "enquirer";
+import { confirm } from "@inquirer/prompts";
 import parseGitDiff from "parse-git-diff";
-import { $ } from "zx";
+import { $, fs } from "zx";
 
 import type { AppDirPath } from "../brandedTypes";
-import { doesFileExist } from "../files";
 import { generatePatchFromAllChanges } from "../git";
 import { log } from "../log";
 import type { ApplyPatchAction } from "./actions";
@@ -29,9 +26,9 @@ export async function tryToFixPatch({
   appDir: AppDirPath;
   action: ApplyPatchAction;
 }): Promise<void> {
-  log("info", `Trying to fix patch for step: ${action.stepName}`);
+  log("info", `Trying to fix patch for step: ${action.displayName}`);
 
-  if (await doesFileExist(action.patchFilePath)) {
+  if (await fs.pathExists(action.patchFilePath)) {
     log("info", `Removing existing patch file: ${action.patchFilePath}`);
     await fs.unlink(action.patchFilePath);
   }
@@ -48,11 +45,8 @@ export async function createPatchForStep({
 }) {
   log("info", "Opening tutorial app in VS Code");
   await $`code ${appDir}`;
-  await Enquirer.prompt({
-    type: "confirm",
-    name: "edit",
-    message: `Apply edit for ${action.stepName} and press Enter`,
-    initial: true,
+  await confirm({
+    message: `Apply edit for ${action.displayName} and press Enter`,
   });
 
   const patch = await generatePatchFromAllChanges(appDir);

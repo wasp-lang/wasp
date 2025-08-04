@@ -15,7 +15,7 @@ npm install
 Parses tutorial markdown files and generates a complete app with all steps applied:
 
 ```bash
-npm start generate-app
+npm run generate-app
 ```
 
 This will:
@@ -30,7 +30,7 @@ This will:
 Edit an existing tutorial step and regenerate patches:
 
 ```bash
-npm start edit-step --step-name <stepName>
+npm run edit-step --step-id <id>
 ```
 
 This will:
@@ -54,11 +54,11 @@ Make sure you first run the `generate-app` command to create the initial app str
 Use `<TutorialAction>` components in markdown:
 
 ```jsx
-<TutorialAction step="create-user" action="apply-patch" />
-<TutorialAction step="setup-db" action="migrate-db" />
+<TutorialAction id="create-user" action="apply-patch" />
+<TutorialAction id="setup-db" action="migrate-db" />
 ```
 
 Supported actions:
 
 - `apply-patch` - Applies a git patch file
-- `migrate-db
+- `migrate-db`

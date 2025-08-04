@@ -44,7 +44,7 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-  <TutorialAction step="query-get-tasks" action="apply-patch" />
+  <TutorialAction id="query-get-tasks" action="apply-patch" />
     ```wasp title="main.wasp"
     // ...
 
@@ -76,7 +76,7 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` declaration:
 </ShowForTs>
 
-<TutorialAction step="query-get-tasks-impl" action="apply-patch" />
+<TutorialAction id="query-get-tasks-impl" action="apply-patch" />
 
 ```ts title="src/queries.ts" auto-js
 import type { Task } from "wasp/entities";
@@ -122,7 +122,7 @@ While we implement Queries on the server, Wasp generates client-side functions t
 
 This makes it easy for us to use the `getTasks` Query we just created in our React component:
 
-<TutorialAction step="main-page-tasks" action="apply-patch" />
+<TutorialAction id="main-page-tasks" action="apply-patch" />
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { Task } from "wasp/entities";

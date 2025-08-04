@@ -1,19 +1,16 @@
-import path from "path";
-import type {
-  MarkdownFilePath,
-  PatchFilePath,
-  StepName,
-} from "../brandedTypes";
+import path, { basename } from "path";
+import type { MarkdownFilePath, PatchFilePath, StepId } from "../brandedTypes";
 import { getFileNameWithoutExtension } from "../files";
 import { patchesDir } from "../project";
 
 export type ActionCommon = {
-  stepName: StepName;
+  id: StepId;
   sourceFilePath: MarkdownFilePath;
 };
 
 export type ApplyPatchAction = {
   kind: "apply-patch";
+  displayName: string;
   patchFilePath: PatchFilePath;
 } & ActionCommon;
 
@@ -39,12 +36,13 @@ export function createApplyPatchAction(
   return {
     ...commonData,
     kind: "apply-patch",
+    displayName: `${basename(commonData.sourceFilePath)} / ${commonData.id}`,
     patchFilePath,
   };
 }
 
 function getPatchFilePath(action: ActionCommon): PatchFilePath {
   const sourceFileName = getFileNameWithoutExtension(action.sourceFilePath);
-  const patchFileName = `${sourceFileName}__${action.stepName}.patch`;
+  const patchFileName = `${sourceFileName}__${action.id}.patch`;
   return path.resolve(patchesDir, patchFileName) as PatchFilePath;
 }

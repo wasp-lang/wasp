@@ -4,7 +4,7 @@ import { log } from "./log";
 
 export async function tagAllChanges(gitRepoDir: string, tagName: string) {
   await commitAllChanges(gitRepoDir, `Changes for tag: ${tagName}`);
-  await $({ cwd: gitRepoDir })`git tag ${tagName}`;
+  await $({ cwd: gitRepoDir })`git tag ${tagName} -m ${tagName}`;
   log("info", `Tagged changes with "${tagName}"`);
 }
 
@@ -22,7 +22,7 @@ async function commitAllChanges(
   message: string,
 ): Promise<void> {
   await $({ cwd: gitRepoDir })`git add .`;
-  await $({ cwd: gitRepoDir })`git commit -m "${message}"`;
+  await $({ cwd: gitRepoDir })`git commit -m ${message}`;
 }
 
 async function removeLastCommit(gitRepoDir: string): Promise<void> {
