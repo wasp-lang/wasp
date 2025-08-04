@@ -1,0 +1,12 @@
+/* Auth.module.css - Replaces Auth.tsx Stitches styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerText {
+  font-size: 1.875rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.5rem !important;
+}
