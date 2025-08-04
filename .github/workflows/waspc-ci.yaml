@@ -190,5 +190,5 @@ jobs:
           cp .env.server.headless .env.server
           WASP_RUN_MODE=build npm run test
 
-      - name: Run snapshot tests tests
+      - name: Run snapshot tests
         run: cabal test snapshot-tests
