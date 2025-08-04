@@ -41,6 +41,18 @@ const defaultViteConfig = {
     // causes runtime errors (e.g., hook rule violation in react, QueryClient
     // instance error in react-query, Invariant Error in react-router-dom).
     dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router-dom"],
+    alias: [
+      {
+        // Vite doesn't look for `.prisma/client` imports in the `node_modules`
+        // folder. We point it to the correct place here.
+        // TODO: Check if we can remove when updating Prisma (#2504)
+        find: /^\.prisma\/(.+)$/,
+        replacement: path.join(
+          "{= projectDir =}",
+          "node_modules/.prisma/$1"
+        ),
+      },
+    ],
   },
   test: {
     globals: true,
