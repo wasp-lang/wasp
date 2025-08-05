@@ -152,7 +152,6 @@ parseCompletionInput (CompletionTestInput waspSourceWithCursor) =
     then error missingCompletionTestPreambleMsg
     else (waspSourceCode, cursorPosition)
   where
-    -- Replace CRLF characters to LF for running tests in Windows.
     waspSourceCode =
       unlines . concat $
         [ linesBeforeCursor,
