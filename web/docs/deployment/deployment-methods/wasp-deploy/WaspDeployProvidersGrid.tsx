@@ -3,12 +3,10 @@ import { LinkGrid } from "@site/src/components/LinkGrid";
 const deploymentMethods = [
   {
     title: "Fly.io",
-    description: "One command deployment & redeployment",
     linkTo: "./fly",
   },
   {
     title: "Railway",
-    description: "One command deployment & redeployment",
     linkTo: "./railway",
   },
 ];

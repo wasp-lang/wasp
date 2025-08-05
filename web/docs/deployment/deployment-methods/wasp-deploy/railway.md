@@ -6,6 +6,8 @@ title-llm: Automated Deployment to Railway with Wasp CLI
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 
+[Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) s a cloud development platform that streamlines building and deploying applications with built-in support for databases and services. It offers an intuitive interface and automates infrastructure.
+
 ## Prerequisites
 
 To deploy to Railway using Wasp CLI:
@@ -30,7 +32,7 @@ wasp deploy railway launch my-wasp-app
 
 Keep in mind that:
 
-1. Your project name (for example `my-wasp-app`) must be unique across all your Railway projects or deployment will fail (his is a current limitation of the Wasp CLI and Railway integration [#2926](https://github.com/wasp-lang/wasp/issues/2926)).
+1. Your project name (for example `my-wasp-app`) must be unique across all your Railway projects or deployment will fail (this is a current limitation of the Wasp CLI and Railway integration [#2926](https://github.com/wasp-lang/wasp/issues/2926)).
 
 1. If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
 
@@ -58,7 +60,7 @@ Setting up a custom domain is a three-step process:
     - Enter your domain name (for example `mycoolapp.com`) and port `8080`.
     - Click **Add Domain**.
 
-2. Update the DNS records for your domain, adding a CNAME record at the domain or subdomain you want, pointing to the address you've been given in the previous step. _This step depends on your domain provider, consult their documention in case of doubt._
+2. Update the DNS records for your domain, adding a CNAME record at the domain or subdomain you want, pointing to the address you've been given in the previous step. _This step depends on your domain provider, consult their documentation in case of doubt._
 
 3. To avoid [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) errors, you need to set your new client URL as the `WASP_WEB_CLIENT_URL` environment variable (for example `https://mycoolapp.com`) for your **server service** in the Railway dashboard.
 
@@ -87,7 +89,7 @@ It accepts the following arguments:
 
   The name of your project.
 
-Running `wasp deploy railway launch` is same as running the following commands:
+Running `wasp deploy railway launch` is the same as running the following commands:
 
 ```shell
 wasp deploy railway setup <project-name>
@@ -203,7 +205,7 @@ You should only run `setup` once per app. Wasp CLI skips creating the services i
 If your app requires any other server-side environment variables (like social auth secrets), you can set them:
 
 1. Initially in the `launch` or `setup` commands with the [`--server-secret` option](#railway-launch-environment-variables)
-2. After the app has already been deployed go into the Railway dashboard and set them in the **Variables** tab of your server service.
+2. After the app has already been deployed, go into the Railway dashboard and set them in the **Variables** tab of your server service.
 
 #### Client Environment Variables
 

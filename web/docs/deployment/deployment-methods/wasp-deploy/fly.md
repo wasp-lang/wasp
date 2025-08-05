@@ -6,6 +6,7 @@ title-llm: Automated Deployment to Fly.io with Wasp CLI
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 
+[Fly.io](https://fly.io/) is a platform for running containerized apps and microservices on servers around the world. It makes deploying and managing your apps straightforward with minimal setup.
 
 ## Prerequisites
 
@@ -145,7 +146,7 @@ It accepts the following arguments:
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
 
-Running `wasp deploy fly launch` is same as running the following commands:
+Running `wasp deploy fly launch` is the same as running the following commands:
 
 ```shell
 wasp deploy fly setup <app-name> <region>
@@ -255,7 +256,7 @@ wasp deploy fly cmd secrets list --context server
 
 If your app requires any other server-side environment variables (like social auth secrets), you can set them:
 
-1. Initially in the `launch` or `setup` commands with the [`--server-secret` option](#fly-launch-environment-variables)
+1. Initially, in the `launch` or `setup` commands with the [`--server-secret` option](#fly-launch-environment-variables)
 2. After the app has already been deployed by using the `secrets set` command:
 
     ```
