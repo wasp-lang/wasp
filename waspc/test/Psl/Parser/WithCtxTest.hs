@@ -31,43 +31,43 @@ spec_parsePslWithCtx = do
                 }
               |]
           expectedAst =
-            Psl.Schema.Schema
-              [ Psl.Schema.ModelBlock $
-                  Psl.WithCtx.empty $
-                    Psl.Model.Model
-                      "MyModel"
-                      ( Psl.Model.Body
-                          [ commentedNode [" Doc comment attached to `prop1`"] $
-                              Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "prop1"
-                                  Psl.Model.Int
-                                  []
-                                  [ Psl.Attribute.Attribute "id" [],
-                                    Psl.Attribute.Attribute
-                                      "default"
-                                      [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
-                                  ],
-                            Psl.WithCtx.empty $
-                              Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "prop2"
-                                  Psl.Model.String
-                                  []
-                                  [Psl.Attribute.Attribute "unique" []],
-                            commentedNode
-                              [ " Multiline comments",
-                                " For prop3"
+            Psl.Schema.Schema $
+              Psl.WithCtx.empty
+                <$> [ Psl.Schema.ModelBlock $
+                        Psl.Model.Model
+                          "MyModel"
+                          ( Psl.Model.Body
+                              [ commentedNode [" Doc comment attached to `prop1`"] $
+                                  Psl.Model.ElementField $
+                                    Psl.Model.Field
+                                      "prop1"
+                                      Psl.Model.Int
+                                      []
+                                      [ Psl.Attribute.Attribute "id" [],
+                                        Psl.Attribute.Attribute
+                                          "default"
+                                          [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "autoincrement" []]
+                                      ],
+                                Psl.WithCtx.empty $
+                                  Psl.Model.ElementField $
+                                    Psl.Model.Field
+                                      "prop2"
+                                      Psl.Model.String
+                                      []
+                                      [Psl.Attribute.Attribute "unique" []],
+                                commentedNode
+                                  [ " Multiline comments",
+                                    " For prop3"
+                                  ]
+                                  $ Psl.Model.ElementField $
+                                    Psl.Model.Field
+                                      "prop3"
+                                      Psl.Model.String
+                                      []
+                                      [Psl.Attribute.Attribute "unique" []]
                               ]
-                              $ Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "prop3"
-                                  Psl.Model.String
-                                  []
-                                  [Psl.Attribute.Attribute "unique" []]
-                          ]
-                      )
-              ]
+                          )
+                    ]
 
       Psl.Parser.parsePrismaSchema prismaSchema `shouldBe` Right expectedAst
     it "Prisma-zod example" $ do
@@ -88,45 +88,45 @@ spec_parsePslWithCtx = do
                 }
               |]
           expectedAst =
-            Psl.Schema.Schema
-              [ Psl.Schema.ModelBlock $
-                  Psl.WithCtx.empty $
-                    Psl.Model.Model
-                      "Post"
-                      ( Psl.Model.Body
-                          [ commentedNode
-                              [ " The unique identifier for the post",
-                                " @zod.uuid()"
+            Psl.Schema.Schema $
+              Psl.WithCtx.empty
+                <$> [ Psl.Schema.ModelBlock $
+                        Psl.Model.Model
+                          "Post"
+                          ( Psl.Model.Body
+                              [ commentedNode
+                                  [ " The unique identifier for the post",
+                                    " @zod.uuid()"
+                                  ]
+                                  $ Psl.Model.ElementField $
+                                    Psl.Model.Field
+                                      "id"
+                                      Psl.Model.String
+                                      []
+                                      [ Psl.Attribute.Attribute "id" [],
+                                        Psl.Attribute.Attribute
+                                          "default"
+                                          [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
+                                      ],
+                                commentedNode
+                                  [ " A brief title that describes the contents of the post",
+                                    " @zod.max(255, { message: \"The title must be shorter than 256 characters\" })"
+                                  ]
+                                  $ Psl.Model.ElementField $
+                                    Psl.Model.Field
+                                      "title"
+                                      Psl.Model.String
+                                      []
+                                      [],
+                                commentedNode [" @zod.max(10240)"] $
+                                  Psl.Model.ElementField $
+                                    Psl.Model.Field
+                                      "contents"
+                                      Psl.Model.String
+                                      []
+                                      []
                               ]
-                              $ Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "id"
-                                  Psl.Model.String
-                                  []
-                                  [ Psl.Attribute.Attribute "id" [],
-                                    Psl.Attribute.Attribute
-                                      "default"
-                                      [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
-                                  ],
-                            commentedNode
-                              [ " A brief title that describes the contents of the post",
-                                " @zod.max(255, { message: \"The title must be shorter than 256 characters\" })"
-                              ]
-                              $ Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "title"
-                                  Psl.Model.String
-                                  []
-                                  [],
-                            commentedNode [" @zod.max(10240)"] $
-                              Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "contents"
-                                  Psl.Model.String
-                                  []
-                                  []
-                          ]
-                      )
-              ]
+                          )
+                    ]
 
       Psl.Parser.parsePrismaSchema prismaSchema `shouldBe` Right expectedAst

@@ -3,6 +3,7 @@
 
 module Psl.Generator.SchemaTest where
 
+import Debug.Trace (traceM)
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Megaparsec as Megaparsec
@@ -15,21 +16,24 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.Type as Psl.Type
 import qualified Wasp.Psl.Ast.View as Psl.View
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
-import Wasp.Psl.Generator.Schema (generateSchemaBlock)
+import Wasp.Psl.Generator.Schema (generateSchema)
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser.Schema
 
 prop_generatePslSchema :: Property
 prop_generatePslSchema = mapSize (const 100) $ \schemaElementAst ->
-  within 1000000 $
-    Megaparsec.parse Psl.Parser.Schema.schema "" (generateSchemaBlock schemaElementAst) `shouldBe` Right (Psl.Schema.Schema [schemaElementAst])
+  within 1000000 $ do
+    let schemaAst = Psl.Schema.Schema [schemaElementAst]
+    parse (generateSchema schemaAst) `shouldBe` Right schemaAst
+  where
+    parse = Megaparsec.parse Psl.Parser.Schema.schema ""
 
 instance Arbitrary Psl.Schema.Block where
   arbitrary =
     oneof
-      [ Psl.Schema.ModelBlock . Psl.WithCtx.empty <$> arbitrary,
-        Psl.Schema.ViewBlock . Psl.WithCtx.empty <$> arbitrary,
-        Psl.Schema.TypeBlock . Psl.WithCtx.empty <$> arbitrary,
-        Psl.Schema.EnumBlock . Psl.WithCtx.empty <$> arbitrary,
+      [ Psl.Schema.ModelBlock <$> arbitrary,
+        Psl.Schema.ViewBlock <$> arbitrary,
+        Psl.Schema.TypeBlock <$> arbitrary,
+        Psl.Schema.EnumBlock <$> arbitrary,
         Psl.Schema.ConfigBlock <$> arbitrary
       ]
 
@@ -47,10 +51,12 @@ instance Arbitrary Psl.Type.Type where
 
 instance Arbitrary Psl.Model.Body where
   arbitrary = do
-    fieldElement <- Psl.WithCtx.empty . Psl.Model.ElementField <$> arbitrary
-    elementsBefore <- map Psl.WithCtx.empty <$> scale (const 5) arbitrary
-    elementsAfter <- map Psl.WithCtx.empty <$> scale (const 5) arbitrary
-    return $ Psl.Model.Body $ elementsBefore ++ [fieldElement] ++ elementsAfter
+    fieldElement <- Psl.Model.ElementField <$> arbitrary
+    elementsBefore <- scale (const 5) arbitrary
+    elementsAfter <- scale (const 5) arbitrary
+
+    elementsWithCtx <- mapM withArbitraryCtx (elementsBefore ++ [fieldElement] ++ elementsAfter)
+    return $ Psl.Model.Body elementsWithCtx
 
 instance Arbitrary Psl.Model.Element where
   arbitrary =
@@ -133,7 +139,7 @@ instance Arbitrary Psl.Argument.Expression where
 instance Arbitrary Psl.Enum.Enum where
   arbitrary = do
     name <- arbitraryIdentifier
-    values <- map Psl.WithCtx.empty <$> scale (const 5) (listOf1 arbitrary)
+    values <- scale (const 5) (listOf1 $ withArbitraryCtx =<< arbitrary)
     return $ Psl.Enum.Enum name values
 
 instance Arbitrary Psl.Enum.Element where
@@ -157,8 +163,26 @@ instance Arbitrary Psl.ConfigBlock.ConfigBlock where
 instance Arbitrary Psl.ConfigBlock.KeyValuePair where
   arbitrary = Psl.ConfigBlock.KeyValuePair <$> arbitraryIdentifier <*> arbitrary
 
+instance Arbitrary a => Arbitrary (Psl.WithCtx.WithCtx a) where
+  arbitrary = arbitrary >>= withArbitraryCtx
+
+withArbitraryCtx :: node -> Gen (Psl.WithCtx.WithCtx node)
+withArbitraryCtx node = Psl.WithCtx.WithCtx node <$> arbitrary
+
+instance Arbitrary Psl.WithCtx.NodeContext where
+  arbitrary = do
+    documentationComments <- scale (const 5) $ listOf arbitraryPrintableSingleLine
+
+    return $
+      Psl.WithCtx.NodeContext
+        { Psl.WithCtx.documentationComments = documentationComments
+        }
+
 arbitraryNonEmptyPrintableString :: Gen String
 arbitraryNonEmptyPrintableString = listOf1 arbitraryPrintableChar
+
+arbitraryPrintableSingleLine :: Gen String
+arbitraryPrintableSingleLine = listOf $ arbitraryAlphaNum `suchThat` (/= '\n')
 
 arbitraryAlpha :: Gen Char
 arbitraryAlpha = elements $ ['a' .. 'z'] ++ ['A' .. 'Z']

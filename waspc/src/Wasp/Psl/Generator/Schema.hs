@@ -1,5 +1,6 @@
 module Wasp.Psl.Generator.Schema
-  ( generateSchemaBlock,
+  ( generateSchema,
+    generateSchemaBlock,
   )
 where
 
@@ -16,12 +17,15 @@ import Wasp.Psl.Generator.Model (generateModelBody)
 import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 import Wasp.Util (indent, trim)
 
+generateSchema :: Psl.Schema.Schema -> PslSource
+generateSchema (Psl.Schema.Schema blocks) = unlines $ generateWithCtx generateSchemaBlock <$> blocks
+
 generateSchemaBlock :: Psl.Schema.Block -> PslSource
 generateSchemaBlock = \case
-  Psl.Schema.ModelBlock modelBlock -> generateWithCtx generateModel modelBlock
-  Psl.Schema.ViewBlock viewBlock -> generateWithCtx generateView viewBlock
-  Psl.Schema.TypeBlock typeBlock -> generateWithCtx generateType typeBlock
-  Psl.Schema.EnumBlock enumBlock -> generateWithCtx generateEnum enumBlock
+  Psl.Schema.ModelBlock modelBlock -> generateModel modelBlock
+  Psl.Schema.ViewBlock viewBlock -> generateView viewBlock
+  Psl.Schema.TypeBlock typeBlock -> generateType typeBlock
+  Psl.Schema.EnumBlock enumBlock -> generateEnum enumBlock
   Psl.Schema.ConfigBlock configBlock -> generateConfigBlock configBlock
 
 generateModel :: Psl.Model.Model -> PslSource

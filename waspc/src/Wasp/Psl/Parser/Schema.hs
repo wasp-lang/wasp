@@ -27,17 +27,19 @@ schema = do
   -- which consume the (trailing) whitespace themselves. It's a bit of an
   -- implict behaviour that we need to be aware of.
   whiteSpace
-  elements <-
-    many $
-      choice
-        [ Psl.Schema.ModelBlock <$> withCtx model,
-          Psl.Schema.ViewBlock <$> withCtx view,
-          Psl.Schema.TypeBlock <$> withCtx typeBlock,
-          Psl.Schema.EnumBlock <$> withCtx enum,
-          Psl.Schema.ConfigBlock <$> configBlock
-        ]
+  elements <- many $ withCtx block
   -- We want to throw and if there is any source code left after parsing the schema.
   -- If we don't do this, the parser sometimes returns an empty schema when there
   -- are some syntax errors in the schema.
   eof
   return $ Psl.Schema.Schema elements
+
+block :: Parser Psl.Schema.Block
+block =
+  choice
+    [ Psl.Schema.ModelBlock <$> model,
+      Psl.Schema.ViewBlock <$> view,
+      Psl.Schema.TypeBlock <$> typeBlock,
+      Psl.Schema.EnumBlock <$> enum,
+      Psl.Schema.ConfigBlock <$> configBlock
+    ]
