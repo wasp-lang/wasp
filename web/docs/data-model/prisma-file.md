@@ -254,6 +254,29 @@ You can also access them from your client code:
   </TabItem>
 </Tabs>
 
+:::note Triple slash comments
+Wasp only supports `///` in the _leading_ position:
+
+```prisma title="schema.prisma"
+model User {
+  // highlight-next-line
+  /// The unique identifier for the user.
+  id Int @id @default(autoincrement())
+}
+```
+
+However, Wasp does not support `///` comments in the _trailing_ position:
+
+```prisma title="schema.prisma"
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement()) /// The unique identifier for the user.
+}
+```
+
+We are aware of this issue and are tracking it at [#3041](https://github.com/wasp-lang/wasp/issues/3041), let us know if this is something you need.
+:::
+
 ## Prisma preview features
 
 Prisma is still in active development and some of its features are not yet stable. To enable various preview features in Prisma, you need to add the `previewFeatures` field to the `generator` block in the `schema.prisma` file.
