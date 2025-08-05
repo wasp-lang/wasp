@@ -13,7 +13,7 @@
 
 ### 🔧 Small improvements
 
-- We now support Prisma schemas with [triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
+- We now support Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
 
 ## 0.17.1
 
