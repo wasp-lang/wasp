@@ -4,16 +4,34 @@ title: Migration from 0.17.X to 0.18.X
 
 ## What's new in 0.18.0?
 
+### Wasp now requires Node.js >=22.12
+
+We've updated our Node.js version requirement to **Node.js 22.12 or higher**, ahead of [the upcoming LTS releases in October 2025](https://github.com/nodejs/Release/blob/755d5821ca9454b91d83f51736b4dddbd7a2600c/README.md).
+
+The jump from Node.js 20 to 22 brings significant [performance improvements](https://nodejs.org/en/blog/announcements/v21-release-announce#performance), new features (like [stable `fetch`](https://nodejs.org/en/blog/announcements/v21-release-announce#stable-fetchwebstreams) or [`require(esm)`](https://nodejs.org/en/blog/release/v22.12.0#requireesm-is-now-enabled-by-default)), and overall enhanced security.
+
+These releases are light on breaking changes and we expect the vast majority (if not all) of Wasp apps to run on the new version, unchanged.
+
 ### Wasp Tailwind Configuration Now Uses ESM
 
-Wasp has transitioned from CommonJS (CJS) to ECMAScript Modules (ESM) for Tailwind configuration files.  
+Wasp has transitioned from CommonJS (CJS) to ECMAScript Modules (ESM) for Tailwind configuration files.
 This affects both the **import/export syntax** and **file extensions** (`.cjs` ➝ `.js`).
 
 ## How to migrate?
 
 To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
 
-### 1. Convert CJS Syntax to ESM
+### 1. Install Node.js 22.12 or higher
+
+Make sure you have Node.js 22.12 or higher installed. You can check your current version with:
+
+```bash
+node -v
+```
+
+If you need to update your Node.js version, you can check their [official installation guide](https://nodejs.org/en/download/) for instructions on how to do so.
+
+### 2. Convert CJS Syntax to ESM
 
 Update your `tailwind.config.cjs` file to use ESM:
 
@@ -41,7 +59,7 @@ import TailwindTypography from "@tailwindcss/typography";
 import { resolveProjectPath } from "wasp/dev";
 
 /** @type {import('tailwindcss').Config} */
-export default {  
+export default {
   content: [resolveProjectPath("./src/**/*.{js,jsx,ts,tsx}")],
   theme: {
     extend: {},
@@ -83,8 +101,12 @@ export default {
 </Tabs>
 
 
-### 2. Rename Tailwind Configuration Files
+### 3. Rename Tailwind Configuration Files
 
 Update the Tailwind configuration files' extensions from `.cjs` to `.js`:
 - `tailwind.config.cjs` ➝ `tailwind.config.js`
 - `postcss.config.cjs` ➝ `postcss.config.js`
+
+### 4. Enjoy your updated Wasp app
+
+That's it!
