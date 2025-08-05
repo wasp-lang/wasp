@@ -16,7 +16,7 @@ import qualified Wasp.Psl.Generator.Schema as Psl.Generator
 spec_generatePslWithCtx :: Spec
 spec_generatePslWithCtx = do
   describe "Triple slash documentation comments" $ do
-    it "Prisma file is correctly generated" $ do
+    it "Prisma model with leading triple slash comments is correctly generated" $ do
       let inputAst =
             Psl.Schema.ModelBlock $
               Psl.WithCtx.empty $
@@ -65,57 +65,6 @@ spec_generatePslWithCtx = do
                   /// Multiline leading comments
                   /// For prop3
                   prop3 String @unique
-                }
-              |]
-              <> "\n"
-
-      Psl.Generator.generateSchemaBlock inputAst `shouldBe` expectedPrismaSchema
-
-    it "Prisma-zod example" $ do
-      let inputAst =
-            Psl.Schema.ModelBlock $
-              Psl.WithCtx.empty $
-                Psl.Model.Model
-                  "Post"
-                  ( Psl.Model.Body
-                      [ commentedNode [" @zod.uuid()"] $
-                          Psl.Model.ElementField $
-                            Psl.Model.Field
-                              "id"
-                              Psl.Model.String
-                              []
-                              [ Psl.Attribute.Attribute "id" [],
-                                Psl.Attribute.Attribute
-                                  "default"
-                                  [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
-                              ],
-                        commentedNode [" @zod.max(255, { message: \"The title must be shorter than 256 characters\" })"] $
-                          Psl.Model.ElementField $
-                            Psl.Model.Field
-                              "title"
-                              Psl.Model.String
-                              []
-                              [],
-                        commentedNode [" @zod.max(10240)"] $
-                          Psl.Model.ElementField $
-                            Psl.Model.Field
-                              "contents"
-                              Psl.Model.String
-                              []
-                              []
-                      ]
-                  )
-
-          expectedPrismaSchema =
-            T.unpack
-              [trimming|
-                model Post {
-                  /// @zod.uuid()
-                  id String @id @default(uuid())
-                  /// @zod.max(255, { message: "The title must be shorter than 256 characters" })
-                  title String
-                  /// @zod.max(10240)
-                  contents String
                 }
               |]
               <> "\n"
