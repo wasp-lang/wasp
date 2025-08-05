@@ -8,9 +8,7 @@ generator client {
 }
 
 model Task {
-  id Int @id @default(autoincrement())
-
+  id          Int     @id @default(autoincrement())
   description String
-
-  isDone Boolean @default(false)
+  isDone      Boolean @default(false)
 }
