@@ -108,7 +108,7 @@ readTestInputFile testInputFile =
 -- in the golden file associated with the test input.
 runCompletionTest :: CompletionTestInput -> String
 runCompletionTest testInput =
-  let (waspSource, cursorPosition) = parseCompletionInput testInput
+  let (waspSource, cursorPosition) = parseCompletionInput . normalizeCRLF $ testInput
       tokens = Lexer.lex waspSource
       parsedCST = snd $ parseCST tokens
       serverState =
@@ -147,13 +147,12 @@ runCompletionTest testInput =
 --
 -- See 'CompletionTestInput' for the format of the test input.
 parseCompletionInput :: CompletionTestInput -> (String, LSP.Position)
-parseCompletionInput (CompletionTestInput waspSourceWithCursorWithCR) =
+parseCompletionInput (CompletionTestInput waspSourceWithCursor) =
   if not (hasCompletionTestPreamble waspSourceWithCursor)
     then error missingCompletionTestPreambleMsg
     else (waspSourceCode, cursorPosition)
   where
-    -- Remove CR characters from waspSourceWithCursorWithCR.
-    waspSourceWithCursor = normalizeNewlines waspSourceWithCursorWithCR
+    -- Replace CRLF characters to LF for running tests in Windows.
     waspSourceCode =
       unlines . concat $
         [ linesBeforeCursor,
@@ -193,9 +192,11 @@ parseCompletionInput (CompletionTestInput waspSourceWithCursorWithCR) =
 
     completionTestPreamble = "//! test/completion"
 
-    -- | Replaces all occurrences of "\r\n" with "\n" in a string.
-    -- | This is a pure function that handles line ending normalization.
-    normalizeNewlines :: String -> String
-    normalizeNewlines [] = []
-    normalizeNewlines ('\r':'\n':xs) = '\n' : normalizeNewlines xs
-    normalizeNewlines (x:xs) = x : normalizeNewlines xs
+-- | Replaces all occurrences of "\r\n" with "\n" in a string.
+-- | This is a pure function that handles line ending normalization.
+normalizeCRLF :: String -> String
+normalizeCRLF = normalize
+  where
+    normalize [] = []
+    normalize ('\r' : '\n' : xs) = '\n' : normalize xs
+    normalize (x : xs) = x : normalize xs
