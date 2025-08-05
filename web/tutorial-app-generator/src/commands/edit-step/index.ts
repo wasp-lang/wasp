@@ -23,6 +23,7 @@ export const editStepCommand = new Command("edit-step")
   )
   .action(async ({ stepId, skipGeneratingApp }) => {
     const actions = await getActionsFromTutorialFiles(tutorialDir);
+    log("info", `Found ${actions.length} actions in tutorial files.`);
 
     const action = await ensureAction({
       actions,

@@ -21,7 +21,7 @@ export const generateAppCommand = new Command("generate-app")
   .description("Generate a new Wasp app based on the tutorial steps")
   .action(async () => {
     const actions = await getActionsFromTutorialFiles(tutorialDir);
-    log("success", `Found ${actions.length} actions in tutorial files.`);
+    log("info", `Found ${actions.length} actions in tutorial files.`);
 
     await generateApp(actions);
   });

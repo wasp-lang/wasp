@@ -45,18 +45,14 @@ function displayFileHeader(filename: string): void {
 }
 
 function displayActionsForFile(actions: Action[]): void {
-  type ActionKind = Action["kind"];
-  const kindConfig: Record<ActionKind, { color: (text: string) => string }> = {
-    "apply-patch": { color: chalk.green },
-    "migrate-db": { color: chalk.blue },
+  const kindColorMap: Record<Action["kind"], (text: string) => string> = {
+    "apply-patch": chalk.green,
+    "migrate-db": chalk.blue,
   };
 
   actions.forEach((action) => {
-    const config = kindConfig[action.kind];
-    const coloredKind = config.color(action.kind);
+    const kindColorFn = kindColorMap[action.kind];
 
-    console.log(
-      `- ${chalk.bold(action.id)} ${chalk.gray("(")}${coloredKind}${chalk.gray(")")}`,
-    );
+    console.log(`- ${chalk.bold(action.id)} (${kindColorFn(action.kind)})`);
   });
 }
