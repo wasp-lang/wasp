@@ -18,6 +18,7 @@ module Wasp.Psl.Parser.Common
   )
 where
 
+import Control.Applicative (liftA2)
 import Data.Functor (void)
 import Data.Void (Void)
 import Text.Megaparsec
@@ -43,24 +44,15 @@ type SourceCode = String
 
 reserved :: String -> Parser ()
 reserved name =
-  lexeme $
-    try $
-      do
-        _ <- C.string name
-        notFollowedBy identLetter <?> ("end of " ++ show name)
+  lexeme $ try $ C.string name >> (notFollowedBy identLetter <?> ("end of " ++ show name))
 
 identifier :: Parser String
-identifier = lexeme $ try ident
+identifier =
+  lexeme $ try (ident <?> "identifier")
   where
-    ident =
-      do
-        c <- identStart
-        cs <- many identLetter
-        return (c : cs)
-        <?> "identifier"
-
-identStart :: Parser Char
-identStart = C.letterChar
+    ident = liftA2 (:) identHead identTail
+    identHead = C.letterChar
+    identTail = many identLetter
 
 identLetter :: Parser Char
 identLetter = C.alphaNumChar <|> C.char '_'

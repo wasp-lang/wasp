@@ -9,7 +9,6 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
 import Path.IO (doesDirExist)
@@ -19,8 +18,7 @@ import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
 import Wasp.Cli.Command.CreateNewProject.Common
-  ( throwInvalidTemplateNameUsedError,
-    throwProjectCreationError,
+  ( throwProjectCreationError,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( StarterTemplate,
@@ -89,7 +87,6 @@ obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
   where
     askForTemplateName = Interactive.askToChoose "Choose a starter template" $ fromList availableTemplates
 
--- Common logic
 obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
   String ->
   Maybe String ->
@@ -102,9 +99,15 @@ obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateNam
   mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
   where
     findTemplateOrThrow :: String -> Command StarterTemplate
-    findTemplateOrThrow templateName =
-      findTemplateByString availableTemplates templateName
-        & maybe throwInvalidTemplateNameUsedError return
+    findTemplateOrThrow templateName = case findTemplateByString availableTemplates templateName of
+      Just template -> return template
+      Nothing -> throwProjectCreationError $ makeInvalidTemplateNameError templateName
+    makeInvalidTemplateNameError templateName =
+      "The template '"
+        <> templateName
+        <> "' doesn't exist. Available starter templates are: "
+        <> intercalate ", " (map show availableTemplates)
+        <> "."
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
 obtainAvailableProjectDirPath projectName = do
