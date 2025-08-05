@@ -3,7 +3,7 @@ import { LinkGrid } from "@site/src/components/LinkGrid";
 const deploymentMethods = [
   {
     title: "Wasp Deploy",
-    description: "One command deployment & redeployment",
+    description: "One-command deployment & redeployment",
     linkTo: "./wasp-deploy/overview",
   },
   {
