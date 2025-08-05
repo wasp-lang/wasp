@@ -60,10 +60,8 @@ spec_generatePslWithCtx = do
                 model MyModel {
                   /// Simple comment attached to `prop1`
                   prop1 Int @id @default(autoincrement())
-
                   /// Simple comment attached to `prop2`
                   prop2 String @unique
-
                   /// Multiline leading comments
                   /// For prop3
                   prop3 String @unique
@@ -114,10 +112,8 @@ spec_generatePslWithCtx = do
                 model Post {
                   /// @zod.uuid()
                   id String @id @default(uuid())
-
                   /// @zod.max(255, { message: "The title must be shorter than 256 characters" })
                   title String
-
                   /// @zod.max(10240)
                   contents String
                 }

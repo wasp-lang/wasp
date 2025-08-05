@@ -11,9 +11,7 @@ import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 
 generateEnumBody :: [WithCtx Psl.Enum.Element] -> PslSource
 generateEnumBody values =
-  unlines $
-    map ("  " ++) $
-      generateWithCtx generateEnumElement <$> values
+  unlines $ generateWithCtx generateEnumElement <$> values
 
 generateEnumElement :: Psl.Enum.Element -> PslSource
 generateEnumElement (Psl.Enum.ElementValue value attrs) =

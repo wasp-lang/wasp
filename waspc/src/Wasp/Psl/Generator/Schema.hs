@@ -14,7 +14,7 @@ import Wasp.Psl.Generator.ConfigBlock (generateConfigBlockKeyValuePairs)
 import Wasp.Psl.Generator.Enum (generateEnumBody)
 import Wasp.Psl.Generator.Model (generateModelBody)
 import Wasp.Psl.Generator.WithCtx (generateWithCtx)
-import Wasp.Util (trim)
+import Wasp.Util (indent, trim)
 
 generateSchemaBlock :: Psl.Schema.Block -> PslSource
 generateSchemaBlock = \case
@@ -49,9 +49,5 @@ generateBlock :: String -> String -> PslSource -> PslSource
 generateBlock blockType name body =
   unlines $
     [blockType ++ " " ++ name ++ " {"]
-      ++ map indentLine (lines $ trim body)
+      ++ [indent 2 $ trim body]
       ++ ["}"]
-  where
-    -- We don't indent empty lines, as editors will typically remove that indentation.
-    indentLine "" = ""
-    indentLine line = "  " ++ line

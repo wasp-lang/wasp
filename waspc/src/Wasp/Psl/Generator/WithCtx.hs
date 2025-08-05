@@ -9,6 +9,7 @@ import Wasp.Psl.Generator.Common (PslSource)
 
 generateWithCtx :: (node -> PslSource) -> WithCtx node -> PslSource
 generateWithCtx generateNode (WithCtx node NodeContext {documentationComments = comments}) =
-  unlines $
-    map (documentationCommentSymbol ++) comments
-      <> lines (generateNode node)
+  commentLines ++ codeLines
+  where
+    commentLines = unlines $ map (documentationCommentSymbol ++) comments
+    codeLines = generateNode node
