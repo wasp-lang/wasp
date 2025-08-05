@@ -115,6 +115,7 @@ const sidebars: SidebarsConfig = {
         "project/static-assets",
         "project/env-vars",
         "project/testing",
+        "project/build-preview",
         "project/dependencies",
         "project/css-frameworks",
         "project/custom-vite-config",
