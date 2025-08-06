@@ -4,8 +4,8 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "generate-app": "tsx ./src/index.ts generate-app",
     "edit-step": "tsx ./src/index.ts edit-step",
+    "generate-app": "tsx ./src/index.ts generate-app",
     "list-steps": "tsx ./src/index.ts list-steps"
   },
   "dependencies": {

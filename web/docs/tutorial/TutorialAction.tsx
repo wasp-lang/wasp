@@ -5,13 +5,7 @@ This component serves two purposes:
 1. It provides metadata for the `tutorial-app-generator` on how to execute tutorial steps programmatically.
 2. It renders tutorial step names during development for easier debugging.
 */
-export function TutorialAction({
-  action,
-  id,
-}: {
-  action: Action;
-  id: string;
-}) {
+export function TutorialAction({ action, id }: { action: Action; id: string }) {
   return (
     process.env.NODE_ENV !== "production" && (
       <div style={{ marginBottom: "1rem" }}>
@@ -21,13 +15,7 @@ export function TutorialAction({
   );
 }
 
-function TutorialActionStep({
-  id,
-  action,
-}: {
-  id: string;
-  action: Action;
-}) {
+function TutorialActionStep({ id, action }: { id: string; action: Action }) {
   return (
     <div style={{ display: "flex", gap: "0.5rem" }}>
       <div style={tutorialActionPillStyle}>tutorial action: {action}</div>
