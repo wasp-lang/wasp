@@ -35,7 +35,7 @@ Make sure you have Node.js 22.12 or higher installed. You can check your current
 node -v
 ```
 
-If you followed our [Quick Start tutorial](https://wasp.sh/docs/quick-start#requirements), you can use `nvm use 22` to upgrade your Node.js version.
+If you followed our [Quick Start tutorial](../quick-start.md#requirements), you can use `nvm use 22` to upgrade your Node.js version.
 If you installed Node.js some other way, you can check their [official installation guide](https://nodejs.org/en/download/) for more guidance. 
 
 ### 2. Convert CJS Syntax to ESM
