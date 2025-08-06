@@ -1,3 +1,4 @@
+// If you change it here, make sure to also update the types in `tutorial-app-generator/src/executeSteps/actions.ts`.
 type Action = "apply-patch" | "migrate-db";
 
 /*

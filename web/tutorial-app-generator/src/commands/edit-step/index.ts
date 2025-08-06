@@ -61,7 +61,7 @@ async function editStepPatch({
   })`git switch --force-create ${fixesBranchName} ${action.id}`;
 
   await confirm({
-    message: `Apply edit for step "${action.displayName}" and press Enter`,
+    message: `Do the step ${action.displayName} (go into the docs and read what needs to be done) and press Enter`,
   });
 
   await $({ cwd: appDir })`git add .`;

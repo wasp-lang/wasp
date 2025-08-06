@@ -43,17 +43,21 @@ export async function createPatchForStep({
   appDir: AppDirPath;
   action: ApplyPatchAction;
 }) {
-  log("info", "Opening tutorial app in VS Code");
-  await $`code ${appDir}`;
+  const wantsToOpenVSCode = await confirm({
+    message: `Do you want to open the app in VS Code to make changes for step "${action.displayName}"?`,
+  });
+  if (wantsToOpenVSCode) {
+    await $`code ${appDir}`;
+  }
   await confirm({
-    message: `Apply edit for ${action.displayName} and press Enter`,
+    message: `Do the step ${action.displayName} and press Enter`,
   });
 
   const patch = await generatePatchFromAllChanges(appDir);
   assertValidPatch(patch);
   await fs.writeFile(action.patchFilePath, patch, "utf-8");
 
-  log("info", `Patch file created: ${action.patchFilePath}`);
+  log("success", `Patch file created: ${action.patchFilePath}`);
 }
 
 export async function assertValidPatch(patch: string): Promise<void> {

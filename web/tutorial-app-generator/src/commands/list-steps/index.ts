@@ -20,7 +20,7 @@ function groupActionsBySourceFile(actions: Action[]): ActionsGroupedByFile {
   const groupedActions = new Map<string, Action[]>();
 
   for (const action of actions) {
-    const filename = basename(action.sourceFilePath);
+    const filename = basename(action.tutorialFilePath);
     const existingActions = groupedActions.get(filename) ?? [];
     groupedActions.set(filename, [...existingActions, action]);
   }

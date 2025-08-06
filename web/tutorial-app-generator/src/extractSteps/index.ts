@@ -52,10 +52,10 @@ async function getTutorialFilePaths(
 }
 
 async function getActionsFromMarkdownFile(
-  sourceFilePath: MarkdownFilePath,
+  tutorialFilePath: MarkdownFilePath,
 ): Promise<Action[]> {
   const actions: Action[] = [];
-  const fileContent = await fs.readFile(path.resolve(sourceFilePath));
+  const fileContent = await fs.readFile(path.resolve(tutorialFilePath));
 
   const ast = fromMarkdown(fileContent, {
     extensions: [mdxJsx({ acorn, addResult: true })],
@@ -72,20 +72,20 @@ async function getActionsFromMarkdownFile(
 
     if (!stepId) {
       throw new Error(
-        `TutorialAction component requires the 'id' attribute. File: ${sourceFilePath}`,
+        `TutorialAction component requires the 'id' attribute. File: ${tutorialFilePath}`,
       );
     }
 
     if (!actionName) {
       throw new Error(
-        `TutorialAction component requires the 'action' attribute. File: ${sourceFilePath}`,
+        `TutorialAction component requires the 'action' attribute. File: ${tutorialFilePath}`,
       );
     }
 
     actions.push(
       createAction(actionName, {
         id: stepId,
-        sourceFilePath,
+        tutorialFilePath,
       }),
     );
   });
