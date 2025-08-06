@@ -20,7 +20,7 @@ It's usually a two-step process, and it's the same for both the client and the s
 
 :::note Using `wasp deploy`?
 
-Check out how to set up custom domains with [Fly.io](./deployment-methods/wasp-deploy/fly.md#custom-domain)  or [Railway](./deployment-methods/wasp-deploy/railway.md#custom-domain).
+Check out how to set up custom domains with [Fly.io](./deployment-methods/wasp-deploy/fly.md#custom-domain) or [Railway](./deployment-methods/wasp-deploy/railway.md#custom-domain).
 
 :::
 
