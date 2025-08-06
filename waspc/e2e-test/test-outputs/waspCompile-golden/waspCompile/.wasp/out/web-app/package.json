@@ -16,9 +16,9 @@
     "axios": "^1.4.0"
   },
   "devDependencies": {
-    "@tsconfig/vite-react": "^2.0.0",
+    "@tsconfig/vite-react": "^7.0.0",
     "@types/react-dom": "^18.0.11",
-    "@vitejs/plugin-react": "4.5.1"
+    "@vitejs/plugin-react": "^4.7.0"
   },
   "engineStrict": true,
   "engines": {
