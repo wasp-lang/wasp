@@ -104,7 +104,7 @@ function getStarterTestsRunnerArgs({
     starterTests.waspProjectRelativePath,
   ];
 
-  if ("remoteTestsRelativePath" in starterTests) {
+  if ("includedTestsRelativePath" in starterTests) {
     starterTestsRunnerArgs.push(starterTests.includedTestsRelativePath);
   }
 
