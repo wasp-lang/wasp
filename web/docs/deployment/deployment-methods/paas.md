@@ -1,5 +1,5 @@
 ---
-title: Platform as a Service (PaaS)
+title: Cloud Providers
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -9,11 +9,10 @@ import { Required } from '@site/src/components/Tag'
 import { Server, Client, Database } from './DeploymentTag'
 import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
 
-This document explains how to build and prepare your Wasp app for deployment.
-You can then deploy the built Wasp app wherever and however you want, as long as your provider/server supports Wasp's build format.
+You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports Wasp's build format.
 
 After going through the general steps that apply to all deployments, you can
-follow step-by-step guides for deploying your Wasp app to the most popular
+follow step-by-step guides for deploying your Wasp app to some of the most popular
 providers:
 
 - [Fly.io](#flyio)

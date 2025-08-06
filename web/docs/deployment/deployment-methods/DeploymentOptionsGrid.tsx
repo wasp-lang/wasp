@@ -7,7 +7,7 @@ const deploymentMethods = [
     linkTo: "./wasp-deploy/overview",
   },
   {
-    title: "Platform as a Service (PaaS)",
+    title: "Cloud Providers",
     description: "Deploy your app manually to the cloud",
     linkTo: "./paas",
   },
