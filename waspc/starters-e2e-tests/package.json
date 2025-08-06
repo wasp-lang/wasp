@@ -2,11 +2,7 @@
   "name": "starters-e2e-tests",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
-  "author": "",
-  "license": "ISC",
-  "main": "index.js",
-  "keywords": [],
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/src/main.js",
@@ -17,5 +13,9 @@
     "@playwright/test": "1.51.1",
     "@types/node": "^24.0.1",
     "@wasp.sh/wasp-app-runner": "^0.0.7"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^14.0.0",
+    "commander": "^14.0.0"
   }
 }

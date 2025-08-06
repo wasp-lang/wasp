@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "crypto";
+import { getMailCrabEmailVerificationLink } from "./mailcrab.js";
 
 type Credentials = {
   email: string;
@@ -45,12 +46,14 @@ async function performSignup(page: Page, credentials: Credentials) {
 }
 
 async function submitSignupForm(page: Page, credentials: Credentials) {
-  for (const [key, value] of Object.entries(credentials)) {
-    await page.locator(`input[name='${key}']`).fill(String(value));
+  for (const [formFieldName, formFieldValue] of Object.entries(credentials)) {
+    await page
+      .locator(`input[name='${formFieldName}']`)
+      .fill(String(formFieldValue));
   }
-
   await page.getByRole("button", { name: "Sign up" }).click();
 }
+
 /**
   When running the tests in **dev** mode, we rely on `SKIP_EMAIL_VERIFICATION_IN_DEV=true`
   environment variable to ensure that the email verification is done automatically.
@@ -61,7 +64,7 @@ async function submitSignupForm(page: Page, credentials: Credentials) {
     to fetch the emails. 
     * `wasp-app-runner` starts a Mailcrab server on port 1080 by default.
 */
-async function performEmailVerification(page: Page, sentToEmail: string) {
+async function performEmailVerification(page: Page, email: string) {
   if (isRunningInDevMode()) {
     return;
   }
@@ -69,7 +72,7 @@ async function performEmailVerification(page: Page, sentToEmail: string) {
   // Wait for the email to be sent
   await page.waitForTimeout(1000);
 
-  const link = await getEmailVerificationLink(page, sentToEmail);
+  const link = await getMailCrabEmailVerificationLink(page, email);
 
   await page.goto(link);
   await page.waitForSelector("text=Your email has been verified");
@@ -78,49 +81,6 @@ async function performEmailVerification(page: Page, sentToEmail: string) {
 function isRunningInDevMode() {
   const testMode = process.env.HEADLESS_TEST_MODE ?? "dev";
   return testMode === "dev";
-}
-
-interface MailcrabMessage {
-  id: string;
-  to: { email: string }[];
-}
-
-interface MailcrabMessageDetails {
-  text: string;
-}
-
-async function getEmailVerificationLink(
-  page: Page,
-  testUserEmail: string,
-): Promise<string> {
-  const mailcrabApiUrl = "http://localhost:1080";
-
-  const mailcrabMessagesResponse = await page.request.get(
-    `${mailcrabApiUrl}/api/messages`,
-  );
-  const mailcrabMessages =
-    (await mailcrabMessagesResponse.json()) as MailcrabMessage[];
-
-  const testUserMailcrabMessage = mailcrabMessages.find(
-    (message) => message.to.at(0)?.email === testUserEmail,
-  );
-  if (!testUserMailcrabMessage) {
-    throw new Error("No test user mailcrab message found");
-  }
-
-  const testUserMailcrabMessageDetailsResponse = await page.request.get(
-    `${mailcrabApiUrl}/api/message/${testUserMailcrabMessage.id}`,
-  );
-  const testUserMailcrabMessageDetails =
-    (await testUserMailcrabMessageDetailsResponse.json()) as MailcrabMessageDetails;
-
-  const emailVerificationLinkMatch =
-    testUserMailcrabMessageDetails.text.match(/https?:\/\/[^\s]+/);
-  if (emailVerificationLinkMatch === null) {
-    throw new Error("No email verification link found");
-  }
-
-  return emailVerificationLinkMatch[0];
 }
 
 export async function performLogin(page: Page, credentials: Credentials) {

@@ -4,7 +4,7 @@
 
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { randomUUID } from "crypto";
-import { performLogin, setupTestUser } from "./auth.js";
+import { performLogin, setupTestUser } from "../auth.js";
 
 test.describe(
   "basic only",
@@ -34,10 +34,7 @@ test.describe(
       const credentials = setupTestUser({
         username: "Test User",
       });
-      // we use random UUIDs to ensure that the tasks are unique
-      const taskWithoutTagDescription = `Test task without tags: ${randomUUID()}`;
       const tagName = `Test tag: ${randomUUID()}`;
-      const taskWithTagDescription = `Test task with tag: ${randomUUID()}`;
 
       test("should have state for no tasks", async ({ page }) => {
         await performLogin(page, credentials);
@@ -47,6 +44,7 @@ test.describe(
       });
 
       test("should be able to create a task without tags", async ({ page }) => {
+        const taskWithoutTagDescription = `Test task without tags: ${randomUUID()}`;
         await performLogin(page, credentials);
         const taskForm = getTaskForm(page);
         const tasksSection = getTasksSection(page);
@@ -80,6 +78,7 @@ test.describe(
       });
 
       test("should be able to create task with a tag", async ({ page }) => {
+        const taskWithTagDescription = `Test task with tag: ${randomUUID()}`;
         await performLogin(page, credentials);
         const taskForm = getTaskForm(page);
         const tasksSection = getTasksSection(page);
@@ -105,7 +104,7 @@ test.describe(
           // We don't want to use `checkbox.check()` here because playwright
           // fails the test if the checkbox is not checked right after.
           // We fail the test because we use controlled components, and
-          // click on the checkbox stats an async request to the server instead.
+          // click on the checkbox starts an async request to the server instead.
           // Once the cache is revalidated, the checkbox will be checked.
           await checkbox.click();
         }

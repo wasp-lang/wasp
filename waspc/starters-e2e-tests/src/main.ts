@@ -13,8 +13,6 @@ import {
 } from "./starter-tests.js";
 import { findNodeProjectRootDirectory } from "./utils.js";
 
-const SCRIPT_DIRECTORY = dirname(fileURLToPath(import.meta.url));
-const STARTERS_E2E_TEST_RUNNER_SCRIPT_NAME = "run-starter-e2e-tests.sh";
 
 try {
   await runAllStartersE2ETests();
@@ -54,6 +52,9 @@ type StarterTestsExecution = {
 async function runStarterE2ETests(
   starterTestsExecution: StarterTestsExecution,
 ): Promise<void> {
+  const SCRIPT_DIRECTORY = dirname(fileURLToPath(import.meta.url));
+  const STARTERS_E2E_TEST_RUNNER_SCRIPT_NAME = "run-starter-e2e-tests.sh";
+
   const starterTestsRunnerArgs = getStarterTestsRunnerArgs(
     starterTestsExecution,
   );
@@ -104,7 +105,7 @@ function getStarterTestsRunnerArgs({
   ];
 
   if ("remoteTestsRelativePath" in starterTests) {
-    starterTestsRunnerArgs.push(starterTests.remoteTestsRelativePath);
+    starterTestsRunnerArgs.push(starterTests.includedTestsRelativePath);
   }
 
   return starterTestsRunnerArgs;

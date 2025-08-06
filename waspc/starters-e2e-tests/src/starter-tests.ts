@@ -3,32 +3,32 @@ export type StarterTemplateName = "minimal" | "basic" | "saas";
 export type WaspProjectRelativePath = `/${string}`;
 export type RemoteTestsRelativePath = `/${string}`;
 
-export type StarterTests = LocalStarterTests | RemoteStarterTests;
+export type StarterTests = StarterWithoutTests | StarterWithTests;
 
-export type LocalStarterTests = {
+export type StarterWithoutTests = {
   templateName: StarterTemplateName;
   waspProjectRelativePath: WaspProjectRelativePath;
 };
 
-export type RemoteStarterTests = LocalStarterTests & {
-  remoteTestsRelativePath: RemoteTestsRelativePath;
+export type StarterWithTests = StarterWithoutTests & {
+  includedTestsRelativePath: RemoteTestsRelativePath;
   // TODO: add other properties required for remote tests
 };
 
-const minimalStarterTests: LocalStarterTests = {
+const minimalStarterTests: StarterWithoutTests = {
   templateName: "minimal",
   waspProjectRelativePath: "/",
 };
 
-const basicStarterTests: LocalStarterTests = {
+const basicStarterTests: StarterWithoutTests = {
   templateName: "basic",
   waspProjectRelativePath: "/",
 };
 
-const openSaasStarterTests: RemoteStarterTests = {
+const openSaasStarterTests: StarterWithTests = {
   templateName: "saas",
   waspProjectRelativePath: "/app",
-  remoteTestsRelativePath: "/e2e-tests",
+  includedTestsRelativePath: "/e2e-tests",
 };
 
 export const STARTER_TESTS: StarterTests[] = [
