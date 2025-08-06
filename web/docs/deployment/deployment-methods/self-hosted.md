@@ -31,7 +31,7 @@ To self-host your Wasp app, you need to follow these general steps:
 
 4. Configure the **env variables** on your server for the server app.
 
-<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One of possible self-hosting setups" />
+<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup" />
 
 ## Deployment methods
 
