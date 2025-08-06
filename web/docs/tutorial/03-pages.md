@@ -42,8 +42,8 @@ Together, these declarations tell Wasp that when a user navigates to `/`, it sho
 Let's take a look at the React component referenced by the page declaration:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import Logo from "./assets/logo.svg";
-import "./Main.css";
+import Logo from './assets/logo.svg';
+import './Main.css';
 
 export function MainPage() {
   // ...
