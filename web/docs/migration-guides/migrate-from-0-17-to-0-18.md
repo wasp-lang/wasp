@@ -4,9 +4,15 @@ title: Migration from 0.17.X to 0.18.X
 
 ## What's new in 0.18.0?
 
+### Wasp now uses Vite 7
+
+Wasp has upgraded to Vite 7 internally, which brings performance improvements and improved compatibility. You can now also use newer plugins in your Vite configuration that take advantage of Vite 7 features.
+
+This upgrade contains no known breaking changes for Wasp apps and we expect most of them to upgrade without any code changes.
+
 ### Wasp Tailwind Configuration Now Uses ESM
 
-Wasp has transitioned from CommonJS (CJS) to ECMAScript Modules (ESM) for Tailwind configuration files.  
+Wasp has transitioned from CommonJS (CJS) to ECMAScript Modules (ESM) for Tailwind configuration files.
 This affects both the **import/export syntax** and **file extensions** (`.cjs` ➝ `.js`).
 
 ## How to migrate?
@@ -41,7 +47,7 @@ import TailwindTypography from "@tailwindcss/typography";
 import { resolveProjectPath } from "wasp/dev";
 
 /** @type {import('tailwindcss').Config} */
-export default {  
+export default {
   content: [resolveProjectPath("./src/**/*.{js,jsx,ts,tsx}")],
   theme: {
     extend: {},
@@ -88,3 +94,42 @@ export default {
 Update the Tailwind configuration files' extensions from `.cjs` to `.js`:
 - `tailwind.config.cjs` ➝ `tailwind.config.js`
 - `postcss.config.cjs` ➝ `postcss.config.js`
+
+### 3. Check your compatibility with Vite 7
+
+Wasp now uses Vite 7 for better performance and stability. This includes some breaking changes, but we don't expect Wasp apps to be affected by them. If you are using Vite features directly in your app, you should check the migration guides for [v5](https://v5.vite.dev/guide/migration.html), [v6](https://v6.vite.dev/guide/migration.html), and [v7](https://v7.vite.dev/guide/migration.html). We expect most Wasp apps to be unaffected by these changes.
+
+The only manual change you need to make is to update your `package.json` file:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  // ...
+  "devDependencies": {
+    // ...
+    "vite": "^4.3.9"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```json title="package.json"
+{
+  // ...
+  "devDependencies": {
+    // ...
+    "vite": "^7.0.6"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### 4. Enjoy your updated Wasp app
+
+That's it!
