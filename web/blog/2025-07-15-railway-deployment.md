@@ -72,6 +72,6 @@ If you want to deploy your app to Railway:
 
 That's it! Your application will be deployed to Railway, complete with database, server, and client services all properly configured and connected.
 
-For more details on deploying your Wasp apps with Railway, check out our [deployment documentation](/docs/deployment/deployment-methods/cli#railway).
+For more details on deploying your Wasp apps with Railway, check out our [deployment documentation](/docs/deployment/deployment-methods/wasp-deploy/railway).
 
 Use it today and speedrun your app deployment with Wasp. We can’t wait to see what you build next!
