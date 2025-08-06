@@ -6,6 +6,7 @@
 
 - Wasp now requires Node.js version to be >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
 - Wasp now uses ECMAScript Modules (ESM) instead of CommonJS (CJS) for Tailwind configuration files. ([#2998](https://github.com/wasp-lang/wasp/pull/2998))
+- Wasp now uses Vite 7. [#2914](https://github.com/wasp-lang/wasp/pull/2914)
 
 ### 🎉 New Features
 
