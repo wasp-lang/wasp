@@ -2,7 +2,7 @@
 title: Production Build Preview
 ---
 
-The `wasp build start` command allows you to preview your production build locally before deploying. This is essential for testing how your app behaves in production conditions and ensuring everything works correctly with your production configuration.
+The `wasp build start` command allows you to preview your production build locally before deploying. This helps you test how your app behaves in production conditions and verify that it works correctly with your production configuration.
 
 This command takes the output of `wasp build` and starts a local server to preview it. This runs your app with the same optimized build and very similar environment to how it will be deployed to your users.
 
