@@ -40,8 +40,11 @@ app TodoApp {
   wasp: {
     version: "{latestWaspVersion}"
   },
-  // highlight-start
   title: "TodoApp",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
+  // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.
     userEntity: User,
