@@ -65,7 +65,7 @@ Give Wasp a spin in the browser with GitHub Codespaces by following the intructi
 ### Requirements
 
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
-A version of Node.js must be >= 20.
+A version of Node.js must be >= 22.12.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -80,13 +80,13 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
     Then, install a version of Node.js that you need:
 
     ```shell
-    nvm install 20
+    nvm install 22
     ```
 
     Finally, whenever you need to ensure a specific version of Node.js is used, run:
 
     ```shell
-    nvm use 20
+    nvm use 22
     ```
 
     to set the Node.js version for the current shell session.

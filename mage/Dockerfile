@@ -1,5 +1,5 @@
 # For Mage we are using the Debian Node.js image
-FROM node:20 AS node
+FROM node:22 AS node
 
 # We split Dockerfile into base, server-builder and server-production.
 # This way we have separate situations -> in server-builder we build all
@@ -22,6 +22,7 @@ WORKDIR /app
 COPY src ./src
 COPY package.json .
 COPY package-lock.json .
+COPY tsconfig*.json .
 COPY server .wasp/build/server
 COPY sdk .wasp/out/sdk
 # Install npm packages, resulting in node_modules/.
@@ -34,16 +35,13 @@ RUN cd .wasp/build/server && npm run bundle
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.4
+RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.17.1
 ENV PATH "$PATH:/root/.local/bin"
 ENV NODE_ENV production
 WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages
 # necessary for migrating the database.
 COPY --from=server-builder /app/node_modules ./node_modules
-# Copying the SDK because the server bundle doesn't bundle the SDK
-# and references the 'wasp' package.
-COPY --from=server-builder /app/.wasp/out/sdk .wasp/out/sdk
 # Copying 'server/node_modules' because we require dotenv package to
 # load environment variables
 # TODO: replace dotenv with native Node.js environment variable loading

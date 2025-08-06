@@ -3,7 +3,7 @@ module Psl.Parser.ViewTest where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.View as Psl.View
@@ -47,7 +47,7 @@ spec_parsePslView = do
                   ]
               )
 
-      Parsec.parse Psl.Parser.view "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.view "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
       let source =
@@ -60,7 +60,7 @@ spec_parsePslView = do
                   bio   String?
 
                   @@ignore
-                } 
+                }
               |]
           expectedAst =
             Psl.View.View
@@ -96,4 +96,4 @@ spec_parsePslView = do
                   ]
               )
 
-      Parsec.parse Psl.Parser.view "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.view "" source `shouldBe` Right expectedAst

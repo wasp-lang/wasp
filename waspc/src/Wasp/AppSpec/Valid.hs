@@ -438,7 +438,7 @@ getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
--- Example: If user specified their node version range to be [18.2, 20), then this function will return 18.
+-- Example: If user specified their node version range to be [22.12, 24), then this function will return 22.12.
 getLowestNodeVersionUserAllows :: AppSpec -> SV.Version
 getLowestNodeVersionUserAllows spec =
   fromMaybe (error "This should never happen: user Node version range lower bound is Inf") $

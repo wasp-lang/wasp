@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.17.0
+version:        0.17.1
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -44,7 +44,6 @@ data-files:
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/starters/**/*.js
-  Cli/starters/**/*.cjs
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
   Cli/starters/**/*.css
@@ -157,7 +156,8 @@ library
     , extra                 ^>= 1.7.10
     , dotenv                ^>= 0.10.0
     , network               ^>= 3.1.2
-    , neat-interpolation    ^>=0.5.1.3
+    , neat-interpolation    ^>= 0.5.1.3
+    , megaparsec            ^>= 9.2.1
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -373,6 +373,7 @@ library
     Wasp.JsImport
     Wasp.Job
     Wasp.Job.Common
+    Wasp.Job.Except
     Wasp.Job.IO
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
@@ -384,7 +385,6 @@ library
     Wasp.Project.Analyze
     Wasp.Project.Common
     Wasp.Project.Db
-    Wasp.Project.Db.Dev
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Db.Migrations
@@ -444,9 +444,9 @@ library
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
+    Wasp.Util.StrongPath
     Wasp.Util.Terminal
     Wasp.Util.TH
-    Wasp.Util.StrongPath
     Wasp.Util.WebRouterPath
     Wasp.Valid
     Wasp.Version
@@ -551,13 +551,19 @@ library cli-lib
     , tar ^>=0.5.1.1
     , zlib ^>=0.6.3.0
     , temporary ^>=1.3
-  other-modules: Paths_waspc
+  other-modules:
+    Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
     Wasp.Cli.Archive
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
+    Wasp.Cli.Command.BuildStart
+    Wasp.Cli.Command.BuildStart.ArgumentsParser
+    Wasp.Cli.Command.BuildStart.Client
+    Wasp.Cli.Command.BuildStart.Config
+    Wasp.Cli.Command.BuildStart.Server
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean
     Wasp.Cli.Command.Uninstall
@@ -599,6 +605,8 @@ library cli-lib
     Wasp.Cli.Message
     Wasp.Cli.Interactive
     Wasp.Cli.GithubRepo
+    Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.Parser
 
 executable wasp-cli
   import: common-all, common-exe
@@ -630,6 +638,7 @@ test-suite waspc-test
     , mtl
     , neat-interpolation
     , parsec
+    , megaparsec
     , path
     , split
     , strong-path
@@ -754,6 +763,7 @@ test-suite cli-test
     TerminalTest
     Paths_waspc
     Wasp.Cli.Command.Telemetry.ProjectTest
+    Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite e2e-test
   import: common-all, common-exe
