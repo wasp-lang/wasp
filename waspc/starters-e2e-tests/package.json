@@ -9,13 +9,13 @@
     "test": "npm run build && npm run start wasp",
     "test:dev": "npm run build && npm run start wasp-cli"
   },
+  "dependencies": {
+    "@commander-js/extra-typings": "^14.0.0",
+    "commander": "^14.0.0"
+  },
   "devDependencies": {
     "@playwright/test": "1.51.1",
     "@types/node": "^24.0.1",
     "@wasp.sh/wasp-app-runner": "^0.0.7"
-  },
-  "dependencies": {
-    "@commander-js/extra-typings": "^14.0.0",
-    "commander": "^14.0.0"
   }
 }

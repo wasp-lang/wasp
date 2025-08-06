@@ -13,7 +13,6 @@ import {
 } from "./starter-tests.js";
 import { findNodeProjectRootDirectory } from "./utils.js";
 
-
 try {
   await runAllStartersE2ETests();
 } catch (error) {
