@@ -45,7 +45,7 @@ const defaultViteConfig = {
       {
         // Vite doesn't look for `.prisma/client` imports in the `node_modules`
         // folder. We point it to the correct place here.
-        // TODO: Check if we can remove when updating Vite (#2867) and Prisma (#2504)
+        // TODO: Check if we can remove when updating Prisma (#2504)
         find: /^\.prisma\/(.+)$/,
         replacement: path.join(
           "{= projectDir =}",

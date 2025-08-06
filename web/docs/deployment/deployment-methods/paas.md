@@ -1,5 +1,5 @@
 ---
-title: Platform as a Service (PaaS)
+title: Cloud Providers
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -7,12 +7,12 @@ import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.m
 import BuildingTheWebClient from './\_building-the-web-client.md'
 import { Required } from '@site/src/components/Tag'
 import { Server, Client, Database } from './DeploymentTag'
+import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
 
-This document explains how to build and prepare your Wasp app for deployment.
-You can then deploy the built Wasp app wherever and however you want, as long as your provider/server supports Wasp's build format.
+You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports Wasp's build format.
 
 After going through the general steps that apply to all deployments, you can
-follow step-by-step guides for deploying your Wasp app to the most popular
+follow step-by-step guides for deploying your Wasp app to some of the most popular
 providers:
 
 - [Fly.io](#flyio)
@@ -92,7 +92,7 @@ In this section, we'll show how to deploy your server and provision a database f
 
 :::info One command deploy
 
-We recommend that you use [Wasp Deploy](./cli.md#flyio) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](./wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
 :::
 
@@ -167,6 +167,8 @@ fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
 fly secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
 
+We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
+
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
 :::
@@ -218,7 +220,7 @@ In this section, we'll show how to deploy the client, the server, and provision 
 
 :::info One command deploy
 
-We recommend that you use [Wasp Deploy](./cli.md#railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](./wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
 
 :::
 
@@ -227,16 +229,16 @@ We recommend that you use [Wasp Deploy](./cli.md#railway) to deploy your Wasp ap
 To get started, follow these steps:
 
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
-1. Create a [Railway](https://railway.com/) account.
-1. Install the [Railway CLI](https://docs.railway.com/develop/cli#installation).
+1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account.
+1. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installation).
 1. Run `railway login` and a browser tab will open to authenticate you.
-1. Go to your [Railway account settings](https://railway.com/account/feature-flags) and enable **Railpack** as the default deployment builder. This is required for the client routing to work correctly.
+1. Go to your [Railway account settings](https://railway.com/account/feature-flags?utm_medium=integration&utm_source=docs&utm_campaign=wasp) and enable **Railpack** as the default deployment builder. This is required for the client routing to work correctly.
 
 ### Create New Project
 
 Let's create our Railway project:
 
-1. Go to your [Railway dashboard](https://railway.com/dashboard), click on **New Project**, and select **Deploy PostgreSQL** from the dropdown menu.
+1. Go to your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp), click on **New Project**, and select **Deploy PostgreSQL** from the dropdown menu.
 1. Once the project is created, left-click on the **Create** button in the top right corner and select **Empty Service**.
 1. Click on the new service, and change the name to `server`.
 1. Create another empty service and name it `client`.
@@ -282,8 +284,7 @@ You'll deploy the server first:
    1. Add `WASP_WEB_CLIENT_URL` with the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
 
    1. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
-
-   1. Add `JWT_SECRET` with a random string at least 32 characters long (use an [online generator](https://djecrety.ir/))
+   1. Add `JWT_SECRET` with a random string at least 32 characters long<br /><SecretGeneratorBlock />
 
      <AddExternalAuthEnvVarsReminder />
 
@@ -322,7 +323,7 @@ You'll deploy the server first:
     ```
 
 <!-- TOPIC: client deployment -->
-    
+
 4. Next, deploy the client build to Railway:
 
     ```shell
@@ -330,13 +331,13 @@ You'll deploy the server first:
     ```
 
     Select `client` when prompted to select a service.
-    
+
     Railway will detect the `index.html` file and deploy the client as a static site using [Railpack](https://railpack.com/languages/staticfile#root-directory-resolution).
 
 
 And now your Wasp should be deployed!
 
-Back in your [Railway dashboard](https://railway.com/dashboard), click on your project and you should see your newly deployed services: PostgreSQL, Server, and Client.
+Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp), click on your project and you should see your newly deployed services: PostgreSQL, Server, and Client.
 
 ### Updates & Redeploying
 
@@ -404,6 +405,8 @@ heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_charact
 heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
 heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
+
+We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
 
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
@@ -536,7 +539,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v4
           with:
-            node-version: '20'
+            node-version: '22'
 
         - name: Install Wasp
           run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
@@ -637,7 +640,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v4
           with:
-            node-version: '20'
+            node-version: '22'
 
         - name: Install Wasp
           run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version

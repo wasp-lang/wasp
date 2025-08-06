@@ -20,7 +20,7 @@
     "zx": "^8.3.2"
   },
   "devDependencies": {
-    "@types/node": "^18.11.18",
+    "@types/node": "^22.17.0",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",

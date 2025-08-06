@@ -19,7 +19,7 @@ COMMANDS
     new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.
       OPTIONS:
         -t|--template <template-name>
-           Check out the templates list here: https://github.com/wasp-lang/starters
+           Available starter templates are: basic, minimal, saas, ai-generated.
 
     new:ai <app-name> <app-description> [<config-json>]
       Uses AI to create a new Wasp project just based on the app name and the description.
@@ -37,6 +37,7 @@ COMMANDS
     clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
     build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
+    build start [args]    Previews the built production app locally.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
@@ -123,11 +124,13 @@ $ wasp clean
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
 
+- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly.
+
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
-Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
+Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
 
-Read more about automatic deployment [here](../deployment/deployment-methods/cli.md).
+Read more about automatic deployment [here](../deployment/deployment-methods/wasp-deploy/overview.md).
 
 - `wasp telemetry` displays the status of [telemetry](../telemetry.md).
 

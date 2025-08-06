@@ -13,11 +13,13 @@ import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
+import Wasp.Cli.Command.BuildStart (buildStart)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -58,6 +60,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["uninstall"] -> Command.Call.Uninstall
         ["version"] -> Command.Call.Version
         ["build"] -> Command.Call.Build
+        ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
@@ -111,6 +114,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
+    Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
@@ -161,7 +165,7 @@ printUsage =
         cmd   "    new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.",
               "      OPTIONS:",
               "        -t|--template <template-name>",
-              "           Check out the templates list here: https://github.com/wasp-lang/starters",
+              "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
         cmd   "    new:ai <app-name> <app-description> [<config-json>]",
               "      Uses AI to create a new Wasp project just based on the app name and the description.",
@@ -179,6 +183,7 @@ printUsage =
         cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
+        cmd   "    build start [args]    Previews the built production app locally.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
         cmd   "    telemetry             Prints telemetry status.",
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",

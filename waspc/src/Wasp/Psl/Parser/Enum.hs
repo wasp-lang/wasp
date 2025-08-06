@@ -3,17 +3,12 @@ module Wasp.Psl.Parser.Enum
   )
 where
 
-import Text.Parsec
-  ( choice,
-    many,
-    many1,
-    try,
-  )
-import Text.Parsec.String (Parser)
+import Text.Megaparsec (choice, many, some, try)
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
-  ( braces,
+  ( Parser,
+    braces,
     identifier,
     reserved,
   )
@@ -29,7 +24,7 @@ enum :: Parser Psl.Enum.Enum
 enum = do
   reserved "enum"
   enumName <- identifier
-  Psl.Enum.Enum enumName <$> braces (many1 enumField)
+  Psl.Enum.Enum enumName <$> braces (some enumField)
 
 enumField :: Parser Psl.Enum.Element
 enumField =

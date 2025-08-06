@@ -10,23 +10,19 @@ Wasp works great with [Tailwind CSS](https://v3.tailwindcss.com/), a utility-fir
 
 ### Adding Tailwind to your Wasp project
 
-:::caution
-Make sure to use the `.cjs` extension for the Tailwind CSS and PostCSS config files, if you name them with a `.js` extension, Wasp will not detect them.
-:::
-
 1. Install Tailwind as a development dependency.
 
 ```bash
 npm install -D tailwindcss@3.2.7
 ```
 
-2. Add `./tailwind.config.cjs`.
+2. Add `./tailwind.config.js`.
 
-```js title="./tailwind.config.cjs"
-const { resolveProjectPath } = require('wasp/dev')
+```js title="./tailwind.config.js"
+import { resolveProjectPath } from "wasp/dev";
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
   theme: {
     extend: {},
@@ -41,10 +37,10 @@ Because Wasp copies the configuration files to the generated project, you must w
 
 :::
 
-3. Add `./postcss.config.cjs`.
+3. Add `./postcss.config.js`.
 
-```js title="./postcss.config.cjs"
-module.exports = {
+```js title="./postcss.config.js"
+export default {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
@@ -76,7 +72,7 @@ module.exports = {
 
 ### Adding Tailwind Plugins
 
-To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the plugins list in your `tailwind.config.cjs` file:
+To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the plugins list in your `tailwind.config.js` file:
 
 ```shell
 npm install -D @tailwindcss/forms
@@ -84,14 +80,17 @@ npm install -D @tailwindcss/typography
 ```
 
 and also
+```js title="./tailwind.config.js" {5-6}
+// ...
+import TailwindTypography from "@tailwindcss/typography";
+import TailwindForms from "@tailwindcss/forms";
 
-```js title="./tailwind.config.cjs" {5-6}
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   // ...
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
+    TailwindTypography,
+    TailwindForms,
   ],
   // ...
 }

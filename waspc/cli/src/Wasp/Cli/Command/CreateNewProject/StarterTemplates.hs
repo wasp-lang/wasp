@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( getStarterTemplates,
+  ( availableStarterTemplates,
     StarterTemplate (..),
     DirBasedTemplateMetadata (..),
     findTemplateByString,
@@ -73,8 +73,8 @@ getTemplateStartingInstructions projectDirName = \case
         styleCode $ "    wasp start"
       ]
 
-getStarterTemplates :: [StarterTemplate]
-getStarterTemplates =
+availableStarterTemplates :: [StarterTemplate]
+availableStarterTemplates =
   [ basicStarterTemplate,
     minimalStarterTemplate,
     openSaasStarterTemplate,

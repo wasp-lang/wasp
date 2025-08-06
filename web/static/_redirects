@@ -18,3 +18,5 @@
 /docs/migrate-from-0-11-to-0-12    /docs/migration-guides/migrate-from-0-11-to-0-12    301
 /docs/migrate-from-0-12-to-0-13    /docs/migration-guides/migrate-from-0-12-to-0-13    301
 /docs/migrate-from-0-13-to-0-14    /docs/migration-guides/migrate-from-0-13-to-0-14    301
+
+/docs/deployment/deployment-methods/cli /docs/deployment/deployment-methods/wasp-deploy/overview 301

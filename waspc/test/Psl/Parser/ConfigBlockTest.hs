@@ -3,7 +3,7 @@ module Psl.Parser.ConfigBlockTest where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Parser.ConfigBlock as Psl.Parser
@@ -38,7 +38,7 @@ spec_parsePslConfigBlock = do
                       Psl.Argument.FuncExpr "postgis" [Psl.Argument.ArgNamed "version" $ Psl.Argument.StringExpr "2.1"]
                     ]
               ]
-      Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
       let source =
@@ -57,7 +57,7 @@ spec_parsePslConfigBlock = do
               [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "postgresql",
                 Psl.ConfigBlock.KeyValuePair "url" $ Psl.Argument.FuncExpr "env" [Psl.Argument.ArgUnnamed $ Psl.Argument.StringExpr "DATABASE_URL"]
               ]
-      Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
   describe "Generator parsing" $ do
     it "Basic example" $ do
@@ -79,7 +79,7 @@ spec_parsePslConfigBlock = do
                     [ Psl.Argument.StringExpr "postgresqlExtensions"
                     ]
               ]
-      Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
 
     it "Commented out fields" $ do
       let source =
@@ -96,4 +96,4 @@ spec_parsePslConfigBlock = do
               "client"
               [ Psl.ConfigBlock.KeyValuePair "provider" $ Psl.Argument.StringExpr "prisma-client-js"
               ]
-      Parsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst
+      Megaparsec.parse Psl.Parser.configBlock "" source `shouldBe` Right expectedAst

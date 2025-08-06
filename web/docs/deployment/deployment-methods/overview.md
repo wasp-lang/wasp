@@ -13,7 +13,7 @@ Wasp apps are full-stack apps that consist of:
 
 You can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
 
-To make deploying as smooth as possible, Wasp also offers a single-command deployment through the **Wasp CLI**.
+To make deploying as smooth as possible, Wasp also offers a single-command deployment called **Wasp Deploy**.
 
 <DeploymentOptionsGrid />
 
