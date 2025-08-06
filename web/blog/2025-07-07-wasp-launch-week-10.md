@@ -58,7 +58,7 @@ We'll explain everything in more detail next week, but you can already [give it 
 
 Who doesn't like a nice, cold integration after a long day at work? I sure do, pal, and I'm pretty sure y'all do, too. That's why we're bringing **Railway deployment via Wasp CLI and Slack Auth!**
 
-While we've had a [native CLI integration for Fly](/docs/deployment/deployment-methods/cli#flyio) for a while, Railway has proven to also be an amazing deployment platform. Besides the ease of use, their unique GUI approach to visualizing your resources is really cool!
+While we've had a [native CLI integration for Fly](/docs/deployment/deployment-methods/wasp-deploy/fly) for a while, Railway has proven to also be an amazing deployment platform. Besides the ease of use, their unique GUI approach to visualizing your resources is really cool!
 
 <ImgWithCaption
     alt="Railway PR merged"
