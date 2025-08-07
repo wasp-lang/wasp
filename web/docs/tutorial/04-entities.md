@@ -40,6 +40,6 @@ wasp db studio
 
 This will open a new page in your browser to view and edit the data in your database.
 
-<img alt="Todo App - Db studio showing Task schema" src={useBaseUrl('img/todo-app-db-studio-task-entity.png')} style={{ border: "1px solid black" }} />
+<img alt="Todo App - Db studio showing Task schema" src={useBaseUrl('img/todo-app-db-studio-task-entity.png')} className="tutorial-image" />
 
 Click on the `Task` entity and check out its fields! We don't have any data in our database yet, but we are about to change that.

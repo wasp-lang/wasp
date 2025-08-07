@@ -15,7 +15,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
     After creating a new Wasp project and renaming the `src/MainPage.tsx` file, your project should look like this:
 
-    ```
+    <!-- NOTE: Using python as language to get syntax highlighting for the comments -->
+    ```python
     .
     ├── .gitignore
     ├── main.wasp     # Your Wasp code goes here.
@@ -25,6 +26,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     │   └── favicon.ico
     ├── src           # Your source code (JS/React/Node.js) goes here.
     │   ├── Main.css
+    # highlight-next-line
     │   ├── MainPage.jsx
     │   ├── assets
     │   │   └── logo.svg
@@ -37,7 +39,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   <TabItem value="ts" label="TypeScript">
     After creating a new Wasp project, your project should look like this:
 
-    ```
+    ```python
     .
     ├── .gitignore
     ├── main.wasp     # Your Wasp code goes here.
