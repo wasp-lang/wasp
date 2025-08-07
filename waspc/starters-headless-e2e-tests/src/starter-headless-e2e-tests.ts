@@ -1,7 +1,7 @@
 type StarterTemplateName = "minimal" | "basic" | "saas";
 
-type WaspProjectRelativePath = `./${string}`;
-type IncludedTestsRelativePath = `./${string}`;
+type WaspProjectRelativePath = `.${string}`;
+type IncludedTestsRelativePath = `.${string}`;
 
 export type StarterHeadlessE2ETests =
   | StarterWithoutHeadlessE2ETests
