@@ -3,14 +3,14 @@ import packageJson from "../package.json" with { type: "json" };
 
 export type WaspCliCommand = string;
 
-type StartersE2ETestsArgs = {
+type StartersHeadlessE2ETestsArgs = {
   waspCliCommand: WaspCliCommand;
 };
 
-export function parseArgs(args: string[]): StartersE2ETestsArgs {
+export function parseArgs(args: string[]): StartersHeadlessE2ETestsArgs {
   const command = program
-    .name("starters-e2e-tests")
-    .description("Run end-to-end tests for Wasp starters")
+    .name("starters-headless-e2e-tests")
+    .description("Run headless end-to-end tests for Wasp starters (except ai)")
     .version(packageJson.version)
     .addArgument(
       new Argument(
