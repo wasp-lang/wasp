@@ -35,6 +35,7 @@ jobs:
           sender_login: ${{ github.event.sender.login }}
           github_org: ${{ github.repository.owner }}
           team_name: ${{ env.internal_team_name }}
+          GH_TOKEN: ${{ github.token }}
 
       - name: Label external PR
         if: steps.check_pr.outputs.pr_is_internal == 'false'
@@ -42,3 +43,4 @@ jobs:
         env:
           pr_number: ${{ github.event.pull_request.number }}
           label_name: ${{ env.external_label_name }}
+          GH_TOKEN: ${{ github.token }}
