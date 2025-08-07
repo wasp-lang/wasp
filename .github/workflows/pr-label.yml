@@ -9,7 +9,6 @@ on:
       - synchronize
 
 env:
-  internal_team_name: "eng"
   external_label_name: "external"
 
 jobs:
@@ -32,14 +31,15 @@ jobs:
           # Bash "strict mode" http://redsymbol.net/articles/unofficial-bash-strict-mode/
           set -euxo pipefail
 
+          gh api "/orgs/$github_org/members" | jq 'map(.login)'
+
           echo "pr_is_internal=$(
-            gh api "/orgs/$github_org/teams/$team_name/members" |
+            gh api "/orgs/$github_org/members" |
               jq "map(select(.login == \"$sender_login\")) | length > 0"
           )" >> "$GITHUB_OUTPUT"
         env:
           sender_login: ${{ github.event.sender.login }}
           github_org: ${{ github.repository_owner }}
-          team_name: ${{ env.internal_team_name }}
           GH_TOKEN: ${{ github.token }}
 
       - name: Label external PR
