@@ -15,6 +15,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
     After creating a new Wasp project and renaming the `src/MainPage.tsx` file, your project should look like this:
 
+    <!-- NOTE: Using python as language to get syntax highlighting for the comments -->
     ```python
     .
     ├── .gitignore
