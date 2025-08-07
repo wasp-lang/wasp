@@ -25,6 +25,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     │   └── favicon.ico
     ├── src           # Your source code (JS/React/Node.js) goes here.
     │   ├── Main.css
+    # highlight-next-line
     │   ├── MainPage.jsx
     │   ├── assets
     │   │   └── logo.svg
