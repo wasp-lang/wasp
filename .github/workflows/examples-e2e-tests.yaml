@@ -73,7 +73,7 @@ jobs:
         run: |
           npm run test
 
-      - name: Run hadless e2e BUILD tests for ${{ matrix.example }}
+      - name: Run headless e2e BUILD tests for ${{ matrix.example }}
         # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
         if: steps.extract-db-provider.outputs.provider != 'sqlite'
         working-directory: examples/${{ matrix.example }}
