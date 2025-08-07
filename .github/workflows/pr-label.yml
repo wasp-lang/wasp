@@ -5,6 +5,8 @@ on:
     types:
       - opened
       - reopened
+      # TODO: Remove before merging, using it for testing
+      - synchronize
 
 env:
   internal_team_name: "eng"
