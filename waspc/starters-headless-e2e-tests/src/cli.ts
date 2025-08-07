@@ -10,12 +10,12 @@ type StartersHeadlessE2ETestsArgs = {
 export function parseArgs(args: string[]): StartersHeadlessE2ETestsArgs {
   const command = program
     .name("starters-headless-e2e-tests")
-    .description("Run headless end-to-end tests for Wasp starters (except ai)")
+    .description("Run headless end-to-end tests for Wasp starter templates (except ai)")
     .version(packageJson.version)
     .addArgument(
       new Argument(
         "wasp-cli-command",
-        "Specify the Wasp CLI command to use",
+        "Path or command name for the Wasp CLI executable to test against",
       ).argRequired(),
     )
     .parse(args);
