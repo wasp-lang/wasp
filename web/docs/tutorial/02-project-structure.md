@@ -25,7 +25,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     │   └── favicon.ico
     ├── src           # Your source code (JS/React/Node.js) goes here.
     │   ├── Main.css
-    │   ├── MainPage.tsx
+    │   ├── MainPage.jsx
     │   ├── assets
     │   │   └── logo.svg
     │   └── vite-env.d.ts
