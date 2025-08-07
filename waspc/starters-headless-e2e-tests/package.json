@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
-    "commander": "^14.0.0"
+    "commander": "^14.0.0",
+    "zx": "^8.8.0"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",

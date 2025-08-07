@@ -8,8 +8,6 @@ type StartersE2ETestsArgs = {
 };
 
 export function parseArgs(args: string[]): StartersE2ETestsArgs {
-  const [_node, _script, ...userArgs] = args;
-
   const command = program
     .name("starters-e2e-tests")
     .description("Run end-to-end tests for Wasp starters")
@@ -20,7 +18,7 @@ export function parseArgs(args: string[]): StartersE2ETestsArgs {
         "Specify the Wasp CLI command to use",
       ).argRequired(),
     )
-    .parse(userArgs, { from: "user" });
+    .parse(args);
 
   const [waspCliCommand] = command.processedArgs;
 
