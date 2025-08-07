@@ -9,6 +9,7 @@ export async function setupWaspMailCrabConfiguration(
   waspProjectPath: string,
 ): Promise<void> {
   const waspServerEnvFilePath = path.join(waspProjectPath, ".env.server");
+  await fs.ensureFile(waspServerEnvFilePath);
   setupMailCrabEnvVariables(waspServerEnvFilePath);
 
   const waspAppSpecPath = path.join(waspProjectPath, "main.wasp");
