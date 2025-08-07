@@ -38,7 +38,7 @@ jobs:
           )" >> "$GITHUB_OUTPUT"
         env:
           sender_login: ${{ github.event.sender.login }}
-          github_org: ${{ github.repository.owner }}
+          github_org: ${{ github.repository_owner }}
           team_name: ${{ env.internal_team_name }}
           GH_TOKEN: ${{ github.token }}
 
