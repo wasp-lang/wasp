@@ -22,24 +22,29 @@ You can find the complete code of the app we're about to build [here](https://gi
 
 ## Creating a Project
 
-To setup a new Wasp project, run the following command in your terminal
+To setup a new Wasp project, run the following command in your terminal:
 
 ```sh
-$ wasp new TodoApp
+wasp new TodoApp -t minimal
 ```
+
+<small>
+
+We are using the `minimal` template because we're going to implement the app from scratch, instead of the more full-featured default template.
+</small>
 
 Enter the newly created directory and start the development server:
 
 ```sh
-$ cd TodoApp
-$ wasp start
+cd TodoApp
+wasp start
 ```
 
 `wasp start` will take a bit of time to start the server the first time you run it in a new project.
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder page:
 
-<img alt="Screenshot of new Wasp app" src={useBaseUrl('img/wasp-new-screenshot.png')} height="400px" style={{ border: "1px solid black" }} />
+<img alt="Screenshot of the Wasp minimal starter app" src={useBaseUrl('img/wasp-new-screenshot.png')} style={{ border: "1px solid black" }} />
 
 <br />
 
