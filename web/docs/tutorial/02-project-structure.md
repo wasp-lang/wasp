@@ -51,7 +51,6 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     │   └── vite-env.d.ts
     ├── tsconfig.json
     └── vite.config.ts
-
     ```
   </TabItem>
 </Tabs>
