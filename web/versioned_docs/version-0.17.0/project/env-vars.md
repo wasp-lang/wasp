@@ -159,7 +159,7 @@ If you are using [Keycloak](../auth/social-auth/keycloak.md), you'll need to pro
 
 <EnvVarsTable
   envVars={[
-{ name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>It's parsed as JSON. Enables you to provide <a href="../advanced/jobs#declaring-jobs">custom config</a> for PgBoss.</span> }
+{ name: "PG_BOSS_NEW_OPTIONS", type: "String", isRequired: false, note: <span>A <a href="#json-env-vars">JSON env var</a>. Enables you to provide <a href="../advanced/jobs#pg_boss_new_options">custom config</a> for PgBoss.</span> }
 ]}
 />
 
@@ -227,6 +227,34 @@ Defining environment variables in this way can be cumbersome even for a single p
 Defining env variables in production will depend on where you are deploying your Wasp project. In general, you will define them via mechanisms that your hosting provider provides.
 
 We talk about how to define env vars for each deployment option in the [deployment section](../deployment/env-vars.md).
+
+## JSON Env Vars {#json-env-vars}
+
+Some of the environment variables you pass to Wasp are parsed as JSON values. This is useful for features needing more in-depth configuration, but it comes with the caveat of ensuring that the JSON syntax is valid.
+
+The main issue comes in the form of escaping quotes, and the different ways to do it depending on where you are defining the env var.
+
+#### In `.env` files
+
+In `.env` files, you don't need to quote the full value, so you don't need to escape the quotes. For example, you can define a JSON object like this:
+
+```shell title=".env.server"
+PG_BOSS_NEW_OPTIONS={"connectionString":"...db url...","jobExpirationInSeconds":60,"maxRetries":3}
+```
+
+#### In the shell
+
+In the shell, you need to quote the full value and escape the quotes inside the JSON object. For example, you can define a JSON object like this:
+
+```shell
+PG_BOSS_NEW_OPTIONS="{\"connectionString\":\"...db url...\",\"jobExpirationInSeconds\":60,\"maxRetries\":3}"
+```
+
+As an alternative, you can use single quotes to avoid escaping the quotes inside the JSON object:
+
+```shell
+PG_BOSS_NEW_OPTIONS='{"connectionString":"...db url...","jobExpirationInSeconds":60,"maxRetries":3}'
+```
 
 ## Custom Env Var Validations
 
