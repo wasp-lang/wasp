@@ -89,7 +89,7 @@ makeGoldenCompletionTest :: FilePath -> TestTree
 makeGoldenCompletionTest testInputFile =
   let goldenFile = replaceExtension testInputFile ".golden"
       testCaseName = takeBaseName testInputFile
-      diffCmd = \ref new -> ["diff", "-u", ref, new]
+      diffCmd = \ref new -> ["diff", "-u", "--strip-trailing-cr", ref, new]
       testOutput = BSC.pack . runCompletionTest <$> readTestInputFile testInputFile
    in goldenVsStringDiff
         testCaseName
@@ -108,7 +108,7 @@ readTestInputFile testInputFile =
 -- in the golden file associated with the test input.
 runCompletionTest :: CompletionTestInput -> String
 runCompletionTest testInput =
-  let (waspSource, cursorPosition) = parseCompletionInput testInput
+  let (waspSource, cursorPosition) = parseCompletionInput . normalizeCRLF $ testInput
       tokens = Lexer.lex waspSource
       parsedCST = snd $ parseCST tokens
       serverState =
@@ -190,3 +190,12 @@ parseCompletionInput (CompletionTestInput waspSourceWithCursor) =
     missingCompletionTestPreambleMsg = "parseCompletionInput: missing preamble: " <> completionTestPreamble
 
     completionTestPreamble = "//! test/completion"
+
+-- | Replaces all occurrences of "\r\n" with "\n" in a string.
+-- | This is a pure function that handles line ending normalization.
+normalizeCRLF :: String -> String
+normalizeCRLF = normalize
+  where
+    normalize [] = []
+    normalize ('\r' : '\n' : xs) = '\n' : normalize xs
+    normalize (x : xs) = x : normalize xs

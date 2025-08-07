@@ -42,7 +42,8 @@ spec_envVarHelpers = do
               ("SIMPLE_VAR", "value")
             ]
       let expected =
-            [trimming|
+            T.replace "\r\n" "\n" $
+              [trimming|
               DATABASE_URL=postgresql://localhost:5432/mydb
               PG_BOSS_NEW_OPTIONS={"teamConcurrency":3,"retryLimit":2}
               SIMPLE_VAR=value

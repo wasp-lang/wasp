@@ -1,11 +1,13 @@
 module SemanticVersion.VersionBoundTest where
 
+import System.IO
 import Test.Tasty.Hspec
 import Wasp.SemanticVersion.Version
 import Wasp.SemanticVersion.VersionBound
 
 spec_SemanticVersionBound :: Spec
 spec_SemanticVersionBound = do
+  runIO $ hSetEncoding stdout utf8
   it "showInterval" $ do
     showInterval (Inclusive (Version 1 2 3), Exclusive (Version 2 3 4)) `shouldBe` "[1.2.3, 2.3.4)"
     showInterval (Exclusive (Version 1 2 3), Inclusive (Version 2 3 4)) `shouldBe` "(1.2.3, 2.3.4]"
