@@ -1,4 +1,4 @@
-import { fs } from "zx";
+import { fs, path } from "zx";
 
 /**
  * Configures the Wasp for MailCrab SMTP email server which is used by `wasp-app-runner`.
@@ -8,10 +8,10 @@ import { fs } from "zx";
 export async function setupWaspMailCrabConfiguration(
   waspProjectPath: string,
 ): Promise<void> {
-  const waspServerEnvFilePath = `${waspProjectPath}/.env.server`;
+  const waspServerEnvFilePath = path.join(waspProjectPath, ".env.server");
   setupMailCrabEnvVariables(waspServerEnvFilePath);
 
-  const waspAppSpecPath = `${waspProjectPath}/main.wasp`;
+  const waspAppSpecPath = path.join(waspProjectPath, "main.wasp");
   setupMailCrabWaspAppSpec(waspAppSpecPath);
 }
 
@@ -19,7 +19,6 @@ async function setupMailCrabEnvVariables(
   waspServerEnvFilePath: string,
 ): Promise<void> {
   const mailCrabSMTPEnvVars = `
-SKIP_EMAIL_VERIFICATION_IN_DEV=true
 SMTP_HOST=localhost
 SMTP_USERNAME=any
 SMTP_PASSWORD=any

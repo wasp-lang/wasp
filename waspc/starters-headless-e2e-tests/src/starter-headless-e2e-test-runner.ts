@@ -15,22 +15,14 @@ export async function runStarterHeadlessE2ETests(
   const { waspCliCommand, starterHeadlessE2ETests } = execution;
   const { starterName } = starterHeadlessE2ETests;
 
-  const tempWaspProjectPath = await spinner(
+  const waspProjectPath = await spinner(
     "Initializing test environment...",
     () => initializeTestEnvironment(execution),
   );
 
   // TODO: implement branching logic based on included tests or not
-  await runDevHeadlessE2ETests(
-    starterName,
-    tempWaspProjectPath,
-    waspCliCommand,
-  );
-  await runBuildHeadlessE2ETests(
-    starterName,
-    tempWaspProjectPath,
-    waspCliCommand,
-  );
+  await runDevHeadlessE2ETests(starterName, waspProjectPath, waspCliCommand);
+  await runBuildHeadlessE2ETests(starterName, waspProjectPath, waspCliCommand);
 }
 
 async function initializeTestEnvironment(
@@ -47,25 +39,21 @@ async function initializeTestEnvironment(
 
   const waspStarterProjectName = `wasp-starter-${starterName}`;
 
-  await within(async () => {
-    $.cwd = tempDirectoryPath;
-    await $`${waspCliCommand} new ${waspStarterProjectName} -t ${starterName}`;
-  });
+  await $({
+    cwd: tempDirectoryPath,
+  })`${waspCliCommand} new ${waspStarterProjectName} -t ${starterName}`;
 
-  const tempStarterProjectPath = path.join(
+  const waspProjectPath = path.join(
     tempDirectoryPath,
     waspStarterProjectName,
-  );
-  const tempWaspProjectPath = path.join(
-    tempStarterProjectPath,
     waspProjectRelativePath,
   );
 
-  await initializeServerEnvironment(tempWaspProjectPath);
-  await initializeClientEnvironment(tempWaspProjectPath);
-  await setupWaspMailCrabConfiguration(tempWaspProjectPath);
+  await initializeServerEnvironment(waspProjectPath);
+  await initializeClientEnvironment(waspProjectPath);
+  await setupWaspMailCrabConfiguration(waspProjectPath);
 
-  return tempWaspProjectPath;
+  return waspProjectPath;
 }
 
 async function cleanup(tempDirectoryPath: string): Promise<void> {
@@ -73,23 +61,34 @@ async function cleanup(tempDirectoryPath: string): Promise<void> {
 }
 
 async function initializeServerEnvironment(
-  tempWaspProjectPath: string,
+  waspProjectPath: string,
 ): Promise<void> {
-  const serverEnvFileExamplePath = `${tempWaspProjectPath}/.env.server.example`;
-  const serverEnvFilePath = `${tempWaspProjectPath}/.env.server`;
+  const serverEnvFileExamplePath = path.join(
+    waspProjectPath,
+    ".env.server.example",
+  );
+  const serverEnvFilePath = path.join(waspProjectPath, ".env.server");
 
   if (await fs.pathExists(serverEnvFileExamplePath)) {
     await fs.copy(serverEnvFileExamplePath, serverEnvFilePath);
   } else {
     await fs.ensureFile(serverEnvFilePath);
   }
+
+  await fs.appendFile(
+    serverEnvFilePath,
+    "\nSKIP_EMAIL_VERIFICATION_IN_DEV=true\n",
+  );
 }
 
 async function initializeClientEnvironment(
-  tempWaspProjectPath: string,
+  waspProjectPath: string,
 ): Promise<void> {
-  const clientEnvFileExamplePath = `${tempWaspProjectPath}/.env.client.example`;
-  const clientEnvFilePath = `${tempWaspProjectPath}/.env.client`;
+  const clientEnvFileExamplePath = path.join(
+    waspProjectPath,
+    ".env.client.example",
+  );
+  const clientEnvFilePath = path.join(waspProjectPath, ".env.client");
 
   if (await fs.pathExists(clientEnvFileExamplePath)) {
     await fs.copy(clientEnvFileExamplePath, clientEnvFilePath);
@@ -100,13 +99,13 @@ async function initializeClientEnvironment(
 
 async function runDevHeadlessE2ETests(
   templateName: string,
-  tempWaspProjectPath: string,
+  waspProjectPath: string,
   waspCliCommand: string,
 ): Promise<void> {
   console.log(`Running DEV headless e2e tests for ${templateName} starter...`);
   const waspAppRunnerDevEnv = {
     ...process.env,
-    WASP_APP_PATH: tempWaspProjectPath,
+    WASP_APP_PATH: waspProjectPath,
     WASP_CLI_CMD: waspCliCommand,
     WASP_RUN_MODE: "dev",
   };
