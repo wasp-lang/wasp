@@ -15,10 +15,8 @@
 
     "module": "NodeNext",
     "outDir": "dist",
-    "declarationMap": true,
-
-    "declaration": true,
-    "lib": ["es2022"]
+    "lib": ["es2022"],
+    "types": ["node"]
   },
-  "include": ["src", "__tests__"]
+  "include": ["src", "tests", "playwright.config.ts"]
 }

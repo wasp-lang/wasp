@@ -57,7 +57,6 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
        "isolatedModules": true,
        "moduleDetection": "force",
 
-       // linting
        "strict": true,
        "noUnusedLocals": true,
        "noUnusedParameters": true,
