@@ -106,7 +106,7 @@ export const MainPage = () => {
 
 At this point, the main page should look like this:
 
-<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} style={{ border: "1px solid black" }} />
+<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
 
 You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
