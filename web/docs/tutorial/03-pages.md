@@ -42,15 +42,15 @@ Together, these declarations tell Wasp that when a user navigates to `/`, it sho
 Let's take a look at the React component referenced by the page declaration:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import waspLogo from './waspLogo.png'
-import './Main.css'
+import Logo from './assets/logo.svg';
+import './Main.css';
 
-export const MainPage = () => {
+export function MainPage() {
   // ...
 }
 ```
 
-This is a regular functional React component. It also uses the CSS file and a logo image that sit next to it in the `src` folder.
+This is a regular functional React component. It also imports some CSS and a logo from the `assets` folder.
 
 That is all the code you need! Wasp takes care of everything else necessary to define, build, and run the web app.
 
@@ -106,9 +106,9 @@ export const MainPage = () => {
 
 At this point, the main page should look like this:
 
-<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} style={{ border: "1px solid black" }} />
+<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
 
-You can now delete redundant files: `src/Main.css`, `src/waspLogo.png`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
+You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its `route` and `page` declarations from the `main.wasp` file.
 
@@ -119,7 +119,10 @@ app TodoApp {
   wasp: {
     version: "{latestWaspVersion}"
   },
-  title: "TodoApp"
+  title: "TodoApp",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }
