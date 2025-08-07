@@ -1,0 +1,44 @@
+name: Label PRs
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+env:
+  internal_team_name: "eng"
+  external_label_name: "external"
+
+jobs:
+  label-external-pr:
+    name: Label external PRs
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      # We're dealing with untrusted input, so we pass inputs as environment
+      # variables instead of interpolation, following GitHub's advice:
+      # https://docs.github.com/en/actions/reference/security/secure-use#use-an-intermediate-environment-variable
+
+      - name: Check if PR is internal
+        id: check_pr
+        run: |
+          echo "pr_is_internal=$(
+            gh api "/orgs/$github_org/teams/$team_name/members" |
+              jq "map(select(.login == \"$sender_login\")) | length > 0"
+          )" >> "$GITHUB_OUTPUT"
+        env:
+          sender_login: ${{ github.event.sender.login }}
+          github_org: ${{ github.repository.owner }}
+          team_name: ${{ env.internal_team_name }}
+
+      - name: Label external PR
+        if: steps.check_pr.outputs.pr_is_internal == 'false'
+        run: gh pr edit "$pr_number" --add-label "$label_name"
+        env:
+          pr_number: ${{ github.event.pull_request.number }}
+          label_name: ${{ env.external_label_name }}
