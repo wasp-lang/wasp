@@ -29,11 +29,6 @@ jobs:
       - name: Check if PR is internal
         id: check_pr
         run: |
-          # Bash "strict mode" http://redsymbol.net/articles/unofficial-bash-strict-mode/
-          set -euxo pipefail
-
-          gh api "/orgs/$github_org/teams/$team_name/members" | jq 'map(.login)'
-
           echo "pr_is_internal=$(
             gh api "/orgs/$github_org/teams/$team_name/members" |
               jq "map(select(.login == \"$sender_login\")) | length > 0"
