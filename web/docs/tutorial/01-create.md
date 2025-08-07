@@ -39,7 +39,7 @@ wasp start
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, a new tab should open in your browser at `http://localhost:3000` with a simple placeholder page:
 
-<img alt="Screenshot the Wasp minimal starter app" src={useBaseUrl('img/wasp-new-screenshot.png')} style={{ border: "1px solid black" }} />
+<img alt="Screenshot of the Wasp minimal starter app" src={useBaseUrl('img/wasp-new-screenshot.png')} style={{ border: "1px solid black" }} />
 
 <br />
 
