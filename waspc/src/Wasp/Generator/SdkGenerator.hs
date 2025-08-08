@@ -308,10 +308,7 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
     authDeps =
       Npm.Dependency.fromList
-        [ -- NOTE: If Stitches start being used outside of auth,
-          -- we should include this dependency in the SDK deps.
-          ("@stitches/react", "^1.2.8"),
-          -- Argon2 is used for hashing passwords.
+        [ -- Argon2 is used for hashing passwords.
           ("@node-rs/argon2", "^1.8.3")
         ]
 

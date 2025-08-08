@@ -15,8 +15,6 @@
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
       {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./core/stitches.config": "./dist/core/stitches.config.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
       {=!  Used by our code, uncodumented (but accessible) for users. =}
       "./core/serialization": "./dist/core/serialization/index.js",

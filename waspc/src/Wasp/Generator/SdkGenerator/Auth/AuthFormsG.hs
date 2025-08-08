@@ -26,12 +26,8 @@ genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
     [ genAuthComponent auth,
+      genFileCopy [relfile|auth/forms/Auth.module.css|],
       genTypes auth,
-      -- TODO: Move Stitches to somewhere more meaningful.
-      -- Currently, they are used only when auth is used,
-      -- but that might change. Also, it feels wrong to
-      -- generate general styling config in auth generator.
-      genFileCopy [relfile|core/stitches.config.ts|],
       genFileCopy [relfile|auth/forms/Login.tsx|],
       genFileCopy [relfile|auth/forms/Signup.tsx|]
     ]
@@ -74,8 +70,12 @@ genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
   sequence
     [ copyInternalAuthComponent [relfile|Form.tsx|],
+      copyInternalAuthComponent [relfile|Form.module.css|],
       copyInternalAuthComponent [relfile|Message.tsx|],
-      genLoginSignupForm auth
+      copyInternalAuthComponent [relfile|Message.module.css|],
+      copyInternalAuthComponent [relfile|auth-styles.css|],
+      genLoginSignupForm auth,
+      copyInternalAuthComponent [relfile|common/LoginSignupForm.module.css|]
     ]
     <++> genEmailComponents
     <++> genUsernameAndPasswordComponents
@@ -98,7 +98,9 @@ genInternalAuthComponents auth =
       genConditionally isExternalAuthEnabled $
         sequence
           [ copyInternalAuthComponent [relfile|social/SocialButton.tsx|],
-            copyInternalAuthComponent [relfile|social/SocialIcons.tsx|]
+            copyInternalAuthComponent [relfile|social/SocialButton.module.css|],
+            copyInternalAuthComponent [relfile|social/SocialIcons.tsx|],
+            copyInternalAuthComponent [relfile|social/SocialIcons.module.css|]
           ]
 
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
