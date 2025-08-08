@@ -31,14 +31,14 @@ jobs:
         run: |
           pr_is_internal=$(
             gh api "/orgs/$GITHUB_ORG/teams/$TEAM_NAME/members" |
-              jq --arg author "$SENDER_LOGIN" 'map(.login) | contains([$author])'
+              jq --arg author "$AUTHOR_LOGIN" 'map(.login) | contains([$author])'
           )
 
           # Output is a JSON boolean
           echo "pr_is_internal=$pr_is_internal" >>"$GITHUB_OUTPUT"
 
         env:
-          SENDER_LOGIN: ${{ github.event.sender.login }}
+          AUTHOR_LOGIN: ${{ github.event.sender.login }}
           GITHUB_ORG: ${{ github.repository_owner }}
           TEAM_NAME: ${{ env.internal_team_name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN_READ_MEMBERS }}
