@@ -7,7 +7,6 @@ on:
       - ".github/**"
     branches:
       - main
-      - filip-automatic-deploy-test-fly
     tags:
       - v*
   workflow_dispatch:
