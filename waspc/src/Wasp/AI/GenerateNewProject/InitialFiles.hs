@@ -96,6 +96,9 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
             version: "${waspVersionRange}"
           },
           title: "${appTitle}",
+          head: [
+            "<link rel='icon' href='/favicon.ico' />",
+          ],
           client: {
             rootComponent: import { Layout } from "@src/Layout.jsx",
           },
@@ -157,7 +160,7 @@ generatePackageJson newProjectDetails =
         },
         "devDependencies": {
           "typescript": "5.8.2",
-          "vite": "^4.3.9",
+          "vite": "^7.0.6",
           "@types/react": "^18.0.37",
           "prisma": "5.19.1"
         }
@@ -324,13 +327,13 @@ generateLayoutComponent newProjectDetails =
 
 generateTailwindConfigFile :: NewProjectDetails -> File
 generateTailwindConfigFile newProjectDetails =
-  ( "tailwind.config.cjs",
+  ( "tailwind.config.js",
     [trimming|
-      const { resolveProjectPath } = require('wasp/dev')
-      const colors = require('tailwindcss/colors')
+      import colors from "tailwindcss/colors";
+      import { resolveProjectPath } from "wasp/dev";
 
       /** @type {import('tailwindcss').Config} */
-      module.exports = {
+      export default {
         content: [
           resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}'),
         ],
@@ -338,16 +341,7 @@ generateTailwindConfigFile newProjectDetails =
           extend: {
             colors: {
               primary: {
-                50:  ${primaryColorObject}[50],
-                100: ${primaryColorObject}[100],
-                200: ${primaryColorObject}[200],
-                300: ${primaryColorObject}[300],
-                400: ${primaryColorObject}[400],
-                500: ${primaryColorObject}[500],
-                600: ${primaryColorObject}[600],
-                700: ${primaryColorObject}[700],
-                800: ${primaryColorObject}[800],
-                900: ${primaryColorObject}[900],
+                ...${primaryColorObject}
               }
             }
           },
@@ -361,9 +355,9 @@ generateTailwindConfigFile newProjectDetails =
 
 generatePostcssConfigFile :: File
 generatePostcssConfigFile =
-  ( "postcss.config.cjs",
+  ( "postcss.config.js",
     [trimming|
-      module.exports = {
+      export default {
         plugins: {
           tailwindcss: {},
           autoprefixer: {},

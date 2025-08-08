@@ -28,10 +28,12 @@ jobs:
           - waspello
           - waspleau
           - websockets-realtime-voting
+        include:
+          - example: waspello
+            wasp-ts: true
+
     steps:
       - uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 0
 
       - uses: ./.github/actions/setup-haskell
         with:
@@ -57,6 +59,11 @@ jobs:
           if [ -f ".env.server.headless" ]; then
             cp .env.server.headless .env.server
           fi
+
+      - name: Setup Wasp TS support
+        run: wasp-cli ts-setup
+        working-directory: examples/${{ matrix.example }}
+        if: matrix.wasp-ts == true
 
       - name: Extract Database Provider
         id: extract-db-provider
