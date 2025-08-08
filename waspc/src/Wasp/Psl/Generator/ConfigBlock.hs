@@ -8,6 +8,6 @@ import Wasp.Psl.Generator.Argument (generateExpression)
 import Wasp.Psl.Generator.Common (PslSource)
 
 generateConfigBlockKeyValuePairs :: [Psl.ConfigBlock.KeyValuePair] -> PslSource
-generateConfigBlockKeyValuePairs keyValues = unlines . map ("  " ++) $ generateConfigBlockKeyValuePair <$> keyValues
+generateConfigBlockKeyValuePairs keyValues = unlines $ generateConfigBlockKeyValuePair <$> keyValues
   where
     generateConfigBlockKeyValuePair (Psl.ConfigBlock.KeyValuePair key value) = key ++ " = " ++ generateExpression value

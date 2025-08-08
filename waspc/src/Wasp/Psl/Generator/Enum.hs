@@ -4,11 +4,14 @@ module Wasp.Psl.Generator.Enum
 where
 
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
+import Wasp.Psl.Ast.WithCtx (WithCtx)
 import Wasp.Psl.Generator.Attribute (generateAttribute)
 import Wasp.Psl.Generator.Common (PslSource)
+import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 
-generateEnumBody :: [Psl.Enum.Element] -> PslSource
-generateEnumBody values = unlines $ map ("  " ++) $ generateEnumElement <$> values
+generateEnumBody :: [WithCtx Psl.Enum.Element] -> PslSource
+generateEnumBody values =
+  unlines $ generateWithCtx generateEnumElement <$> values
 
 generateEnumElement :: Psl.Enum.Element -> PslSource
 generateEnumElement (Psl.Enum.ElementValue value attrs) =

@@ -14,6 +14,7 @@ import Wasp.Project.Db
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Valid as Valid
@@ -53,7 +54,7 @@ validatePrismaSchema schema =
     datasourceValidationErrors = validateDatasources schema
 
 validateGenerators :: Psl.Schema.Schema -> [ValidationError]
-validateGenerators = validate . Psl.Schema.getGenerators
+validateGenerators = validate . map Psl.WithCtx.getNode . Psl.Schema.getGenerators
   where
     validate :: [Psl.ConfigBlock.ConfigBlock] -> [ValidationError]
     validate [] = [GenericValidationError "Prisma schema should have at least one generator defined."]
@@ -70,7 +71,7 @@ validateGenerators = validate . Psl.Schema.getGenerators
             generators'
 
 validateDatasources :: Psl.Schema.Schema -> [ValidationError]
-validateDatasources = validate . Psl.Schema.getDatasources
+validateDatasources = validate . map Psl.WithCtx.getNode . Psl.Schema.getDatasources
   where
     -- As per Prisma's docs there can be only ONE datasource block in the schema.
     -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks

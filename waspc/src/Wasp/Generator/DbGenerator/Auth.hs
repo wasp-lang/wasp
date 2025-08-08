@@ -21,6 +21,7 @@ import Wasp.Generator.Monad
   )
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Generator.Attribute as Psl.Generator.Attribute
 import qualified Wasp.Psl.Parser.Model as Psl.Parser.Model
 import qualified Wasp.Util as Util
@@ -103,7 +104,7 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
           providerUserId String
 
           providerData String @default("{}")
-              
+
           authId    ${authEntityIdTypeText}
           ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
 
@@ -189,4 +190,4 @@ injectAuthIntoUserEntity userEntityName entities =
                 [Psl.Model.Optional]
                 []
           ]
-        newPslBody = Psl.Model.Body $ existingPsl ++ relationToAuthEntity
+        newPslBody = Psl.Model.Body $ existingPsl ++ (Psl.WithCtx.empty <$> relationToAuthEntity)
