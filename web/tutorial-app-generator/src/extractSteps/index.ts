@@ -7,17 +7,17 @@ import { mdxJsxFromMarkdown, type MdxJsxFlowElement } from "mdast-util-mdx-jsx";
 import { mdxJsx } from "micromark-extension-mdx-jsx";
 import { visit } from "unist-util-visit";
 
-import type {
-  MarkdownFilePath,
-  StepId,
-  TutorialDirPath,
-} from "../brandedTypes.js";
 import {
   createApplyPatchAction,
   createMigrateDbAction,
   type Action,
   type ActionCommon,
-} from "../executeSteps/actions.js";
+} from "../actions/index.js";
+import type {
+  MarkdownFilePath,
+  StepId,
+  TutorialDirPath,
+} from "../brandedTypes.js";
 
 export async function getActionsFromTutorialFiles(
   tutorialDir: TutorialDirPath,

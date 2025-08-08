@@ -1,13 +1,20 @@
 import fs from "fs/promises";
 
 import { Command, Option } from "@commander-js/extra-typings";
-import { $, ProcessOutput } from "zx";
+import { ProcessOutput } from "zx";
 
 import { confirm, select } from "@inquirer/prompts";
+import type { Action, ApplyPatchAction } from "../../actions";
+import {
+  applyPatchForAction,
+  askUserToEditAndCreatePatch,
+  commitActionChanges,
+  createBranchFromActionCommit,
+  generatePatchForAction,
+} from "../../actions/git";
 import type { AppDirPath } from "../../brandedTypes";
-import type { Action, ApplyPatchAction } from "../../executeSteps/actions";
 import { getActionsFromTutorialFiles } from "../../extractSteps";
-import { generatePatchFromRevision } from "../../git";
+import { moveLastCommitChangesToStaging, rebaseBranch } from "../../git";
 import { log } from "../../log";
 import { appDir, mainBranchName, tutorialDir } from "../../project";
 import { generateApp } from "../generate-app";
@@ -39,37 +46,39 @@ export const editStepCommand = new Command("edit-step")
 
     log("info", `Editing step ${action.displayName}...`);
 
-    await editStepPatch({ appDir, action });
+    await editActionPatch({ appDir, action });
 
     await extractCommitsIntoPatches(actions);
 
     log("success", `Edit completed for step ${action.displayName}!`);
   });
 
-async function editStepPatch({
+async function editActionPatch({
   appDir,
   action,
 }: {
   appDir: AppDirPath;
   action: ApplyPatchAction;
 }): Promise<void> {
-  await $({ cwd: appDir })`git switch ${mainBranchName}`;
-
   const fixesBranchName = "fixes";
-  await $({
-    cwd: appDir,
-  })`git switch --force-create ${fixesBranchName} ${action.id}`;
 
-  await confirm({
-    message: `Do the step ${action.displayName} (go into the docs and read what needs to be done) and press Enter`,
+  await createBranchFromActionCommit({
+    appDir,
+    branchName: fixesBranchName,
+    action,
   });
 
-  await $({ cwd: appDir })`git add .`;
-  await $({ cwd: appDir })`git commit --amend --no-edit`;
-  await $({ cwd: appDir })`git tag -f ${action.id}`;
-  await $({ cwd: appDir })`git switch ${mainBranchName}`;
+  await moveLastCommitChangesToStaging(appDir);
+  await askUserToEditAndCreatePatch({ appDir, action });
+  await applyPatchForAction({ appDir, action });
+  await commitActionChanges({ appDir, action });
+
   try {
-    await $({ cwd: appDir, throw: false })`git rebase ${fixesBranchName}`;
+    await rebaseBranch({
+      gitRepoDir: appDir,
+      branchName: fixesBranchName,
+      baseBranchName: mainBranchName,
+    });
   } catch (error: unknown) {
     if (
       error instanceof ProcessOutput &&
@@ -91,7 +100,7 @@ async function extractCommitsIntoPatches(actions: Action[]): Promise<void> {
 
   for (const action of applyPatchActions) {
     log("info", `Updating patch for step ${action.displayName}`);
-    const patch = await generatePatchFromRevision(appDir, action.id);
+    const patch = await generatePatchForAction({ appDir, action });
     await fs.writeFile(action.patchFilePath, patch, "utf-8");
   }
 }

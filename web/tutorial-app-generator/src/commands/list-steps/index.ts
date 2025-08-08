@@ -2,7 +2,7 @@ import { Command } from "@commander-js/extra-typings";
 import { basename } from "path";
 import { chalk } from "zx";
 
-import type { Action } from "../../executeSteps/actions";
+import type { Action } from "../../actions";
 import { getActionsFromTutorialFiles } from "../../extractSteps";
 import { tutorialDir } from "../../project";
 

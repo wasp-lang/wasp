@@ -1,9 +1,8 @@
 import { Command } from "@commander-js/extra-typings";
-import { $ } from "zx";
+import { $, spinner } from "zx";
 
+import type { Action } from "../../actions";
 import type { AppDirPath, AppName, AppParentDirPath } from "../../brandedTypes";
-import { executeSteps } from "../../executeSteps";
-import type { Action } from "../../executeSteps/actions";
 import { getActionsFromTutorialFiles } from "../../extractSteps";
 import { initGitRepo } from "../../git";
 import { log } from "../../log";
@@ -16,6 +15,7 @@ import {
   tutorialDir,
 } from "../../project";
 import { waspNew } from "../../waspCli";
+import { executeSteps } from "./execute-steps";
 
 export const generateAppCommand = new Command("generate-app")
   .description("Generate a new Wasp app based on the tutorial steps")
@@ -27,12 +27,14 @@ export const generateAppCommand = new Command("generate-app")
   });
 
 export async function generateApp(actions: Action[]): Promise<void> {
-  await prepareApp({ appDir, appParentDir, appName, mainBranchName });
+  await spinner("Initializing the tutorial app...", () =>
+    initApp({ appDir, appParentDir, appName, mainBranchName }),
+  );
   await executeSteps({ appDir, patchesDir, actions });
   log("success", `Tutorial app has been successfully generated in ${appDir}`);
 }
 
-async function prepareApp({
+async function initApp({
   appName,
   appParentDir,
   appDir,
