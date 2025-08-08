@@ -29,20 +29,29 @@ jobs:
       - name: Check if PR is internal
         id: check_pr
         run: |
-          echo "pr_is_internal=$(
-            gh api "/orgs/$github_org/teams/$team_name/members" |
-              jq "map(select(.login == \"$sender_login\")) | length > 0"
-          )" >> "$GITHUB_OUTPUT"
+          pr_is_internal=$(
+            # Get usernames of team members
+            gh api "/orgs/$GITHUB_ORG/teams/$TEAM_NAME/members" |
+              jq \
+                `# Pass the author's username as a string with the name $author` \
+                --arg author "$SENDER_LOGIN" \
+                `# Check if the PR author is in the team members list` \
+                'map(.login) | contains([$author])'
+          )
+
+          # Output is a JSON boolean
+          echo "pr_is_internal=$pr_is_internal" >>"$GITHUB_OUTPUT"
+
         env:
-          sender_login: ${{ github.event.sender.login }}
-          github_org: ${{ github.repository_owner }}
-          team_name: ${{ env.internal_team_name }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN_READ_ORG }}
+          SENDER_LOGIN: ${{ github.event.sender.login }}
+          GITHUB_ORG: ${{ github.repository_owner }}
+          TEAM_NAME: ${{ env.internal_team_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN_READ_MEMBERS }}
 
       - name: Label external PR
         if: steps.check_pr.outputs.pr_is_internal == 'false'
-        run: gh pr edit "$pr_number" --add-label "$label_name"
+        run: gh pr edit "$PR_NUMBER" --add-label "$LABEL_NAME"
         env:
-          pr_number: ${{ github.event.pull_request.number }}
-          label_name: ${{ env.external_label_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          LABEL_NAME: ${{ env.external_label_name }}
           GH_TOKEN: ${{ github.token }}
