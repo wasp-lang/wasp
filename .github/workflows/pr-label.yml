@@ -30,13 +30,8 @@ jobs:
         id: check_pr
         run: |
           pr_is_internal=$(
-            # Get usernames of team members
             gh api "/orgs/$GITHUB_ORG/teams/$TEAM_NAME/members" |
-              jq \
-                `# Pass the author's username as a string with the name $author` \
-                --arg author "$SENDER_LOGIN" \
-                `# Check if the PR author is in the team members list` \
-                'map(.login) | contains([$author])'
+              jq --arg author "$SENDER_LOGIN" 'map(.login) | contains([$author])'
           )
 
           # Output is a JSON boolean
