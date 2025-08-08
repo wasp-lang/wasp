@@ -64,7 +64,7 @@ jobs:
           # NOTE:
           # - The `yes` command is necessary because the `fly launch` command
           # prompts for confirmation.
-          # - We use a bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
+          # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
           yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing "${ENV_VAR_ARGUMENTS[@]}"
