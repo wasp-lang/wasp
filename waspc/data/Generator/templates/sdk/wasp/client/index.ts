@@ -15,3 +15,7 @@ export { config, ClientConfig } from './config.js'
 
 // PUBLIC API
 export { env } from './env.js'
+
+import { cowsay } from "@wasp.sh/libs-auth/client"
+
+console.log(cowsay("Hello from Wasp SDK!"))
