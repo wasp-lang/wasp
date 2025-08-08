@@ -52,20 +52,21 @@ jobs:
           # NOTE: This assumes env var values don't contain:
           #   - The character `#`.
           #   - An empty line (i.e., there are no multiline env values).
-          ENV_VARS=$(
-            cat .env.server.headless \
-            | sed -E 's/#.*//' \
-            | awk 'NF {$1=$1;print}' \
-            | sed -E 's/^/--server-secret /' \
-            | paste -sd' '
+          mapfile -t ENV_VAR_ARGUMENTS < <(
+            cat .env.server.headless |
+            sed -E 's/#.*//' |
+            awk 'NF {$1=$1;print}' |
+            sed -E 's/^/--server-secret\n/'
           )
 
           echo "Deploying with prefix: $APP_PREFIX"
           # NOTE:
-          # - The `yes` command is necessary because the `fly launch` command prompts for confirmation.
-          # - The `eval` is forces the shell to interpret `$ENV_VARS` as multiple arguments rather 
-          #   than pass it as a single string value.
-          yes | eval wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing $ENV_VARS
+          # - The `yes` command is necessary because the `fly launch` command
+          # prompts for confirmation.
+          # - We use a bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
+          # word splitting (i.e., force Bash to interpret the flags separately
+          # instead of passing it as a single string value).
+          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Save deployed app hostnames
         id: save_hostnames
