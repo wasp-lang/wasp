@@ -42,6 +42,8 @@ jobs:
         working-directory: waspc
         run: ./run install
 
+        # NOTE: We tell users to install the latest version of Fly CLI,
+        # so we use it here too.
       - uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Deploy App to Fly.io
