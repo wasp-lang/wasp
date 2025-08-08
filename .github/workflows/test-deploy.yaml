@@ -28,8 +28,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: ./.github/actions/setup-haskell
 
@@ -71,7 +69,7 @@ jobs:
 
       - name: Save deployed app hostnames
         id: save_hostnames
-        working-directory: waspc/examples/todoApp
+        working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
           echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
