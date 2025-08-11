@@ -1,10 +1,9 @@
 {{={= =}=}}
-import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
 import { styled } from 'wasp/core/stitches.config'
 import { config } from 'wasp/client'
 
-import { AuthContext } from '../../Auth'
+import { useAuthContext } from '@wasp.sh/libs-auth/client'
 import {
   Form,
   FormInput,
@@ -146,7 +145,7 @@ export const LoginSignupForm = ({
     setErrorMessage,
     setSuccessMessage,
     setIsLoading,
-  } = useContext(AuthContext)
+  } = useAuthContext();
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}

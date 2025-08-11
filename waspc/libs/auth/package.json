@@ -37,10 +37,14 @@
     "oslo": "^1.1.2"
   },
   "devDependencies": {
+    "@types/react": "^18.2.0",
     "@vitest/coverage-v8": "^3.1.4",
     "typescript": "^5.8.2",
     "unbuild": "^3.5.0",
     "vitest": "^3.1.4"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
   },
   "typesVersionComment": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'."
 }

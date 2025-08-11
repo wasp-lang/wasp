@@ -2,11 +2,11 @@
 import { useState, createContext } from 'react'
 import { createTheme } from '@stitches/react'
 import { styled } from 'wasp/core/stitches.config'
+import { AuthContext, type ErrorMessage } from '@wasp.sh/libs-auth/client'
 
 import {
   type State,
   type CustomizationOptions,
-  type ErrorMessage,
   type AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
@@ -37,14 +37,6 @@ const HeaderText = styled('h2', {
   marginTop: '1.5rem !important'
 })
 
-
-// PRIVATE API
-export const AuthContext = createContext({
-  isLoading: false,
-  setIsLoading: (isLoading: boolean) => {},
-  setErrorMessage: (errorMessage: ErrorMessage | null) => {},
-  setSuccessMessage: (successMessage: string | null) => {},
-})
 
 function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additionalSignupFields }: {
     state: State;
