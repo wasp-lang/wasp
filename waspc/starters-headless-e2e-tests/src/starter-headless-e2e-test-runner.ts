@@ -103,6 +103,7 @@ async function runDevHeadlessE2ETests(
   console.log(`Running DEV headless e2e tests for ${templateName} starter...`);
   const waspAppRunnerDevEnv = {
     ...process.env,
+    DEBUG: "pw:webserver",
     WASP_APP_PATH: waspProjectPath,
     WASP_CLI_CMD: waspCliCommand,
     WASP_RUN_MODE: "dev",
@@ -132,6 +133,7 @@ async function runBuildHeadlessE2ETests(
   );
   const waspAppRunnerBuildEnv = {
     ...process.env,
+    DEBUG: "pw:webserver",
     WASP_APP_PATH: tempWaspProjectPath,
     WASP_CLI_CMD: waspCliCommand,
     WASP_RUN_MODE: "build",
