@@ -103,7 +103,6 @@ async function runDevHeadlessE2ETests(
   console.log(`Running DEV headless e2e tests for ${templateName} starter...`);
   const waspAppRunnerDevEnv = {
     ...process.env,
-    DEBUG: "pw:webserver",
     WASP_APP_PATH: waspProjectPath,
     WASP_CLI_CMD: waspCliCommand,
     WASP_RUN_MODE: "dev",
@@ -111,7 +110,7 @@ async function runDevHeadlessE2ETests(
   await $({
     env: waspAppRunnerDevEnv,
     stdio: "inherit",
-  })`npx playwright test --grep "(@${templateName}|^(?!.*@).*)"`;
+  })`npx playwright test --grep "${getStarterPlaywrightGrepRegex(templateName)}"`;
 }
 
 async function runBuildHeadlessE2ETests(
@@ -133,7 +132,6 @@ async function runBuildHeadlessE2ETests(
   );
   const waspAppRunnerBuildEnv = {
     ...process.env,
-    DEBUG: "pw:webserver",
     WASP_APP_PATH: tempWaspProjectPath,
     WASP_CLI_CMD: waspCliCommand,
     WASP_RUN_MODE: "build",
@@ -141,7 +139,16 @@ async function runBuildHeadlessE2ETests(
   await $({
     env: waspAppRunnerBuildEnv,
     stdio: "inherit",
-  })`npx playwright test --grep "(@${templateName}|^(?!.*@).*)"`;
+  })`npx playwright test --grep "${getStarterPlaywrightGrepRegex(templateName)}"`;
+}
+
+/**
+ * We search for Playwright tests with either:
+ *  - tag for that starter template
+ *  - no tag at all
+ */
+function getStarterPlaywrightGrepRegex(templateName: string): string {
+  return `(@${templateName}|^(?!.*@).*)`;
 }
 
 async function waspProjectUsesSqlite(
