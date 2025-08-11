@@ -10,6 +10,7 @@ describe("jwt helpers", () => {
         { sub: "test" },
         { expiresIn: new TimeSpan(2, "d") },
       );
+
       // JWT has 3 parts
       expect(token.split(".").length).toBe(3);
     });
@@ -21,11 +22,14 @@ describe("jwt helpers", () => {
         { sub: "test" },
         { expiresIn: new TimeSpan(2, "d") },
       );
+
       const payload = await validateJWT<{ sub: string }>(jwt);
+
       expect(payload.sub).toBe("test");
     });
     it("should throw an error for an invalid JWT", async () => {
       const invalidJWT = "invalid.jwt.token";
+
       await expect(validateJWT<{ sub: string }>(invalidJWT)).rejects.toThrow(
         /Unexpected token/,
       );

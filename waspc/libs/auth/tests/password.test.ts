@@ -5,31 +5,25 @@ describe("password utilities", () => {
   describe("hashPassword", () => {
     it("should hash a password and return a string", async () => {
       const password = "testPassword123";
+
       const hashedPassword = await hashPassword(password);
 
-      expect(hashedPassword).toBeDefined();
-      expect(typeof hashedPassword).toBe("string");
       expect(hashedPassword).not.toBe(password);
       expect(hashedPassword.length).toBeGreaterThan(0);
     });
 
     it("should produce different hashes for the same password (due to salt)", async () => {
       const password = "samePassword";
+
       const hash1 = await hashPassword(password);
       const hash2 = await hashPassword(password);
 
       expect(hash1).not.toBe(hash2);
     });
 
-    it("should handle empty string", async () => {
-      const hashedPassword = await hashPassword("");
-
-      expect(hashedPassword).toBeDefined();
-      expect(typeof hashedPassword).toBe("string");
-    });
-
     it("should handle special characters", async () => {
       const password = "pässwörd!@#$%^&*()";
+
       const hashedPassword = await hashPassword(password);
 
       expect(hashedPassword).toBeDefined();
@@ -38,6 +32,7 @@ describe("password utilities", () => {
 
     it("should handle unicode characters", async () => {
       const password = "パスワード🔒";
+
       const hashedPassword = await hashPassword(password);
 
       expect(hashedPassword).toBeDefined();
@@ -61,6 +56,7 @@ describe("password utilities", () => {
   describe("verifyPassword", () => {
     it("should verify a correct password", async () => {
       const password = "correctPassword123";
+
       const hashedPassword = await hashPassword(password);
 
       await expect(
@@ -71,6 +67,7 @@ describe("password utilities", () => {
     it("should reject an incorrect password", async () => {
       const correctPassword = "correctPassword123";
       const incorrectPassword = "wrongPassword456";
+
       const hashedPassword = await hashPassword(correctPassword);
 
       await expect(
@@ -87,6 +84,7 @@ describe("password utilities", () => {
 
     it("should handle empty password verification", async () => {
       const emptyPassword = "";
+
       const hashedPassword = await hashPassword(emptyPassword);
 
       await expect(
@@ -99,6 +97,7 @@ describe("password utilities", () => {
 
     it("should handle special characters verification", async () => {
       const password = "special!@#$%^&*()";
+
       const hashedPassword = await hashPassword(password);
 
       await expect(
@@ -111,6 +110,7 @@ describe("password utilities", () => {
 
     it("should handle unicode characters verification", async () => {
       const password = "パスワード🔒";
+
       const hashedPassword = await hashPassword(password);
 
       await expect(
@@ -123,6 +123,7 @@ describe("password utilities", () => {
 
     it("should be case sensitive", async () => {
       const password = "CaseSensitive";
+
       const hashedPassword = await hashPassword(password);
 
       await expect(
@@ -138,6 +139,7 @@ describe("password utilities", () => {
 
     it("should handle very long passwords", async () => {
       const longPassword = "a".repeat(1000);
+
       const hashedPassword = await hashPassword(longPassword);
 
       await expect(
