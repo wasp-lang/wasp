@@ -6,6 +6,7 @@ import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
 import searchAndReplace from "./src/remark/search-and-replace";
+import { tutorialActionToCodeblock } from "./src/remark/tutorial-action-to-codeblock";
 
 const lightCodeTheme = themes.github;
 
@@ -162,6 +163,7 @@ const config: Config = {
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
           remarkPlugins: [
             autoJSCode,
+            tutorialActionToCodeblock,
             autoImportTabs,
             fileExtSwitcher,
             searchAndReplace,
