@@ -31,6 +31,7 @@
     "clsx": "^1.2.1",
     "front-matter": "^4.0.2",
     "glob": "^11.0.2",
+    "parse-git-diff": "^0.0.19",
     "plugin-image-zoom": "github:flexanalytics/plugin-image-zoom",
     "postcss": "^8.4.19",
     "prism-react-renderer": "^2.4.1",
@@ -43,7 +44,8 @@
     "react-tooltip": "^4.5.1",
     "react-transition-group": "^4.4.5",
     "tailwindcss": "^3.2.4",
-    "ts-blank-space": "^0.6.1"
+    "ts-blank-space": "^0.6.1",
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.7.0",
