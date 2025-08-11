@@ -1,20 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "Preserve",
-    "moduleResolution": "bundler",
+    "target": "esnext",
+    "lib": ["es2023"],
     "moduleDetection": "force",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    "types": ["node"],
     "strict": true,
-    "verbatimModuleSyntax": true,
+    "noUnusedLocals": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "esModuleInterop": true,
     "isolatedModules": true,
-    "noUncheckedIndexedAccess": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowImportingTsExtensions": true,
-    "noImplicitOverride": true,
-    "noEmit": true
-  }
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
 }

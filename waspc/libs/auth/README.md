@@ -1,3 +1,3 @@
 # Wasp Auth Library
 
-Based on a `unbuild` template.
+Based on the default `tsdown` template.

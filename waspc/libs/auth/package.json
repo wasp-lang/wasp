@@ -3,48 +3,50 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
+      "index": [
+        "./dist/index.d.ts"
+      ],
       "client": [
-        "./dist/client/index.d.ts"
+        "./dist/client.d.ts"
       ]
     }
   },
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./client": {
-      "import": "./dist/client/index.mjs",
-      "types": "./dist/client/index.d.ts"
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "unbuild",
+    "build": "tsdown",
     "dev": "vitest dev",
     "prepare": "npm run build",
     "test": "npm run test:types && vitest run --coverage",
     "test:types": "tsc --noEmit --skipLibCheck"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
     "oslo": "^1.1.2"
   },
   "devDependencies": {
+    "@types/node": "^22.17.1",
     "@types/react": "^18.2.0",
     "@vitest/coverage-v8": "^3.1.4",
+    "tsdown": "^0.14.1",
     "typescript": "^5.8.2",
-    "unbuild": "^3.5.0",
     "vitest": "^3.1.4"
-  },
-  "peerDependencies": {
-    "react": "^18.2.0"
   },
   "typesVersionComment": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'."
 }
