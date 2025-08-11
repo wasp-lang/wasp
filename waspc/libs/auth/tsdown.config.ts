@@ -2,7 +2,9 @@ import { defineConfig, type Options } from "tsdown";
 
 const commonTsDownOptions: Options = {
   outDir: "dist",
-  dts: true,
+  dts: {
+    sourcemap: true,
+  },
   sourcemap: true,
 };
 

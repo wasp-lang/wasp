@@ -1,8 +1,9 @@
 # Testing Libs Locally
 
 Run `tools/install_libs_to_data_dir.sh` to compile the libs and copy
-them into `data/`. Then you can use `cabal run` as normal, or you can
-`cabal install` and then use `wasp-cli`.
+them into `data/`. Then you can use `./run wasp-cli` as normal. You can run
+`./run install` which will run the script before installing the
+Wasp CLI.
 
 # Adding a New Package
 
