@@ -92,8 +92,6 @@ async function initializeClientEnvironment(
 
   if (await fs.pathExists(clientEnvFileExamplePath)) {
     await fs.copy(clientEnvFileExamplePath, clientEnvFilePath);
-  } else {
-    await fs.ensureFile(clientEnvFilePath);
   }
 }
 
