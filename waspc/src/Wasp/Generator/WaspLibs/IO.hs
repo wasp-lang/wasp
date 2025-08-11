@@ -1,6 +1,6 @@
 module Wasp.Generator.WaspLibs.IO
   ( copyWaspLibs,
-    appendChecksumToWaspLibs,
+    setDstTarballVersionToChecksum,
   )
 where
 
@@ -23,48 +23,43 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (copyFile, deleteDirectoryIfExists)
 
+setDstTarballVersionToChecksum :: WaspLib.WaspLib -> IO WaspLib.WaspLib
+setDstTarballVersionToChecksum waspLib = do
+  tarballSrcPath <- (</> castRel (WaspLib.srcTarballPath waspLib)) <$> getAbsLibsSourceDirPath
+  tarballChecksum <- computeTarballChecksum tarballSrcPath
+
+  return $
+    waspLib
+      { WaspLib.dstTarballPath =
+          Npm.Tarball.makeTarballFilePath
+            (WaspLib.tarballName waspLib)
+            tarballChecksum
+      }
+  where
+    computeTarballChecksum tarballSrcPath = take 8 . hexToString <$> checksumFromFilePath tarballSrcPath
+
 copyWaspLibs :: Path' Abs (Dir ProjectRootDir) -> [WaspLib.WaspLib] -> IO (Maybe [GeneratorError])
 copyWaspLibs projectRootDir waspLibs = do
   libsSrcDirPath <- getAbsLibsSourceDirPath
-  libsDstDirPath <- ensureLibsDstDir projectRootDir
+  libsDstDirPath <- ensureLibsDstDir
 
   let copyWaspLib = copyWaspLibFromSrcToDst libsSrcDirPath libsDstDirPath
   (mapM_ copyWaspLib waspLibs >> return Nothing)
     `catch` (\e -> return $ Just [GenericGeneratorError $ show (e :: IOError)])
-
-ensureLibsDstDir :: Path' Abs (Dir ProjectRootDir) -> IO (Path' Abs (Dir LibsRootDir))
-ensureLibsDstDir projectRootDir = do
-  let libsDstDirPath = projectRootDir </> libsRootDirInProjectRootDir
-  -- Clean up old lib files
-  deleteDirectoryIfExists libsDstDirPath
-  createDirectory (fromAbsDir libsDstDirPath)
-  return libsDstDirPath
-
-copyWaspLibFromSrcToDst ::
-  Path' Abs (Dir LibsSourceDir) ->
-  Path' Abs (Dir LibsRootDir) ->
-  WaspLib.WaspLib ->
-  IO ()
-copyWaspLibFromSrcToDst srcDir dstDir waspLib = do
-  let srcPath = srcDir </> castRel (WaspLib.srcTarballPath waspLib)
-      dstPath = dstDir </> castRel (WaspLib.dstTarballPath waspLib)
-  copyFile srcPath dstPath
-
-appendChecksumToWaspLibs :: [WaspLib.WaspLib] -> IO [WaspLib.WaspLib]
-appendChecksumToWaspLibs = mapM appendChecksumToWaspLib
   where
-    appendChecksumToWaspLib waspLib = do
-      tarballSrcPath <- (</> castRel (WaspLib.srcTarballPath waspLib)) <$> getAbsLibsSourceDirPath
-      tarballChecksum <- take 8 . hexToString <$> checksumFromFilePath tarballSrcPath
+    ensureLibsDstDir :: IO (Path' Abs (Dir LibsRootDir))
+    ensureLibsDstDir = do
+      let libsDstDirPath = projectRootDir </> libsRootDirInProjectRootDir
+      -- Clean up old lib files
+      deleteDirectoryIfExists libsDstDirPath
+      createDirectory (fromAbsDir libsDstDirPath)
+      return libsDstDirPath
 
-      return $ appendChecksumToWaspLibTarballPath waspLib tarballChecksum
-
-    -- Converts <name>-<version>.tgz to <name>-<checksum>.tgz
-    appendChecksumToWaspLibTarballPath waspLib checksum = waspLib {WaspLib.dstTarballPath = dstTarballPath}
-      where
-        dstTarballPath = Npm.Tarball.makeTarballFilePath tarballName checksum
-        -- dstTarballName = Npm.Tarball.sanitizeForTarballFilename $ show tarballName <> "-" <> checksum
-        tarballName = WaspLib.tarballName waspLib
+    copyWaspLibFromSrcToDst :: Path' Abs (Dir LibsSourceDir) -> Path' Abs (Dir LibsRootDir) -> WaspLib.WaspLib -> IO ()
+    copyWaspLibFromSrcToDst srcDir dstDir waspLib = do
+      let srcPath = srcDir </> castRel (WaspLib.srcTarballPath waspLib)
+          dstPath = dstDir </> castRel (WaspLib.dstTarballPath waspLib)
+      copyFile srcPath dstPath
 
 getAbsLibsSourceDirPath :: IO (Path' Abs (Dir LibsSourceDir))
 getAbsLibsSourceDirPath = (</> libsDirPathInDataDir) <$> Data.getAbsDataDirPath

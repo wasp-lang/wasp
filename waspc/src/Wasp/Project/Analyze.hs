@@ -99,7 +99,7 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
   tailwindConfigFilesRelocators <- CF.discoverConfigFiles waspDir TCF.tailwindConfigRelocationMap
-  waspLibs <- WaspLibs.IO.appendChecksumToWaspLibs WaspLibs.waspLibs
+  waspLibs <- mapM WaspLibs.IO.setDstTarballVersionToChecksum WaspLibs.waspLibs
 
   let appSpec =
         AS.AppSpec
