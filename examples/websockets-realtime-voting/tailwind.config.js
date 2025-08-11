@@ -1,7 +1,8 @@
-const { resolveProjectPath } = require("wasp/dev");
+import FlowbitePlugin from "flowbite/plugin";
+import { resolveProjectPath } from "wasp/dev";
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     resolveProjectPath("./src/**/*.{js,jsx,ts,tsx}"),
     resolveProjectPath("node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}"),
@@ -9,5 +10,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [require("flowbite/plugin")],
+  plugins: [FlowbitePlugin],
 };

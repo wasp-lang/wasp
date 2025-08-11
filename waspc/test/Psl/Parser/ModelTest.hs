@@ -5,7 +5,7 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
 import Test.Tasty.Hspec
-import qualified Text.Parsec as Parsec
+import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -25,7 +25,7 @@ spec_parsePslModel = do
       parseBody (T.unpack sampleBodySchema) `shouldBe` Right sampleBodyAst
 
     it "Model parser correctly parses" $ do
-      Parsec.parse model "" (T.unpack pslModel) `shouldBe` Right (Psl.Model.Model "User" sampleBodyAst)
+      Megaparsec.parse model "" (T.unpack pslModel) `shouldBe` Right (Psl.Model.Model "User" sampleBodyAst)
 
   describe "Body parser" $ do
     describe "Fails if input is not valid PSL" $ do
@@ -75,7 +75,7 @@ spec_parsePslModel = do
             )
 
     it "Model is correctly parsed" $ do
-      Parsec.parse model "" (T.unpack modelPsl) `shouldBe` Right modelAst
+      Megaparsec.parse model "" (T.unpack modelPsl) `shouldBe` Right modelAst
 
   -- Prisma PSL allows for model fields to be named with decl keywords.
   describe "Model fields can be named with reserved names" $ do
@@ -104,4 +104,4 @@ spec_parsePslModel = do
             )
 
     it "Model is correctly parsed" $ do
-      Parsec.parse model "" (T.unpack modelPsl) `shouldBe` Right modelAst
+      Megaparsec.parse model "" (T.unpack modelPsl) `shouldBe` Right modelAst

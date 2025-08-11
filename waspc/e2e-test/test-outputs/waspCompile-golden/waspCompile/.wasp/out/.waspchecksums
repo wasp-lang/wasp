@@ -431,7 +431,7 @@
             "file",
             "Dockerfile"
         ],
-        "a49774b731faee32c2c25555b1f1364020ce88a9f1fa4445fd91160b18b0a925"
+        "5c9d66be7272242f3674404c32e84f87ca9dc6ddcdc2dd07539bb7d66f5c630c"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "server/package.json"
         ],
-        "e251aa3fe25a7636c4c26ecfbc46242e14c222eb694e50d4616e3e4164cbc3ac"
+        "c383ad9dc6a627391d43876d1548f2e475a54ded41e6d025b946041c2694d19d"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "83c528671dab5859e8f73d1e1948359c1679057dcaedacae9889a1b2022e5e2e"
+        "949371883586daa391e4c740deab221a2c96fa2be1f159e82eb5a129d4a5134a"
     ],
     [
         [
@@ -592,7 +592,7 @@
             "file",
             "web-app/package.json"
         ],
-        "1d6ab582061824b1d00149f1902e432830cf3e2932788fb9183d212f148aa912"
+        "0818cb3b58cb86b64d1dfe047eca3feccbac2e20932a84a9734cbbb792d6c7a0"
     ],
     [
         [
@@ -718,7 +718,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
+        "0771ae124347aaa7f22ccdf35bd3e3b4ff8faa41f27efc67f8e171c86ed9bce5"
     ],
     [
         [

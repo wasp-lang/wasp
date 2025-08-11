@@ -128,7 +128,7 @@ analyzePrismaSchema waspProjectDir = do
 
       case Psl.Parser.parsePrismaSchema prismaSchemaContent of
         Left err ->
-          return (Left [couldntParsePrismaSchemaMessage ++ "\n\n" ++ show err], [])
+          return (Left [couldntParsePrismaSchemaMessage ++ "\n\n" ++ err], [])
         Right parsedPrismaSchema -> return $ runValidation PslV.validatePrismaSchema parsedPrismaSchema
     Nothing -> return (Left [couldntFindPrismaSchemaMessage], [])
   where

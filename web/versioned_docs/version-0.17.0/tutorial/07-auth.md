@@ -40,8 +40,11 @@ app TodoApp {
   wasp: {
     version: "{latestWaspVersion}"
   },
-  // highlight-start
   title: "TodoApp",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
+  // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.
     userEntity: User,
@@ -177,7 +180,7 @@ Let's check out what the database looks like. Start the Prisma Studio:
 wasp db studio
 ```
 
-<img alt="Database demonstration - password hashing" src={useBaseUrl('img/wasp_user_in_db.gif')} style={{ border: "1px solid black" }} />
+<img alt="Database demonstration - password hashing" src={useBaseUrl('img/wasp_user_in_db.gif')} className="tutorial-image" />
 
 You'll notice that we now have a `User` entity in the database alongside the `Task` entity.
 
@@ -305,7 +308,7 @@ Try playing around, adding a few users and some tasks for each of them. Then ope
 wasp db studio
 ```
 
-<img alt="Database demonstration" src={useBaseUrl('img/wasp_db_demonstration.gif')} style={{ border: "1px solid black" }} />
+<img alt="Database demonstration" src={useBaseUrl('img/wasp_db_demonstration.gif')} className="tutorial-image" />
 
 You will see that each user has their tasks, just as we specified in our code!
 
