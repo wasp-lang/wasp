@@ -18,7 +18,7 @@ import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
-import Wasp.AppSpec
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -66,7 +66,6 @@ import Wasp.Generator.ServerGenerator.DepVersions
     expressVersionStr,
   )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
-import Wasp.Generator.WaspLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsDirFromSdkDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -239,9 +238,8 @@ npmDepsForSdk spec =
             ("@types/express-serve-static-core", show expressTypesVersion)
           ]
     }
-
-waspLibsNpmDeps :: [Npm.Dependency.Dependency]
-waspLibsNpmDeps = map (WaspLib.makeNpmDependencyForWaspLib libsDirFromSdkDir) waspLibs
+  where
+    waspLibsNpmDeps = map (WaspLib.makeNpmDependencyForWaspLib libsDirFromSdkDir) $ AS.waspLibs spec
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

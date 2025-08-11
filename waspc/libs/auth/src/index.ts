@@ -1,4 +1,4 @@
-export { TimeSpan, createCreateJWT, createValidateJWT } from "./jwt";
+export { TimeSpan, createJWTHelpers } from "./jwt";
 
 export { parseCookies } from "./cookies";
 

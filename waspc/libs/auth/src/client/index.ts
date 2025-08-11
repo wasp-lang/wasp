@@ -1,1 +1,3 @@
-export { cowsay } from "cowsayjs";
+export function cowsay(message: string): string {
+  return `🐄 ${message}`;
+}

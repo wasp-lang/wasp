@@ -48,6 +48,7 @@ import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.ExternalConfig.TsConfig (TsConfig)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLibs
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
@@ -91,7 +92,9 @@ data AppSpec = AppSpec
     devDatabaseUrl :: Maybe String,
     customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File'),
     srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
-    srcTsConfig :: TsConfig
+    srcTsConfig :: TsConfig,
+    -- | Wasp libs that are copied and used by the generated app (SDK, etc.).
+    waspLibs :: [WaspLibs.WaspLib]
   }
 
 -- TODO: Make this return "Named" declarations?

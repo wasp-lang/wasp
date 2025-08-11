@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/libs-auth",
-  "version": "0.17.1",
+  "version": "0.0.0",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.mjs",
@@ -34,7 +34,6 @@
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
-    "cowsayjs": "^2.0.0",
     "oslo": "^1.1.2"
   },
   "devDependencies": {

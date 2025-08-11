@@ -373,6 +373,7 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WaspLibs
     Wasp.Generator.WaspLibs.Common
+    Wasp.Generator.WaspLibs.IO
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
