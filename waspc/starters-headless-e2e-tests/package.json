@@ -1,5 +1,5 @@
 {
-  "name": "starters-e2e-tests",
+  "name": "starters-headless-e2e-tests",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
