@@ -1,3 +1,3 @@
 export function cowsay(message: string): string {
-  return `🐄 ${message}`;
+  return `Moo! ${message}`;
 }

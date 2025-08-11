@@ -12,6 +12,7 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator.Common
   ( WebAppTemplatesDir,
     webAppRootDirInProjectRootDir,
@@ -59,12 +60,14 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
           "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirWaspProjectDir,
           "defaultClientPort" .= C.defaultClientPort,
+          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
+    depsExcludedFromOptimization = "wasp" : map WaspLib.name (AS.waspLibs spec)
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir

@@ -25,7 +25,7 @@ const defaultViteConfig = {
     detectServerImports(),
   ],
   optimizeDeps: {
-    exclude: ['wasp']
+    exclude:  {=& depsExcludedFromOptimization =}
   },
   server: {
     port: {= defaultClientPort =},
