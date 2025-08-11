@@ -11,7 +11,8 @@
       "client": [
         "./dist/client.d.ts"
       ]
-    }
+    },
+    "//": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'."
   },
   "exports": {
     ".": {
@@ -47,6 +48,5 @@
     "tsdown": "^0.14.1",
     "typescript": "^5.8.2",
     "vitest": "^3.1.4"
-  },
-  "typesVersionComment": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'."
+  }
 }
