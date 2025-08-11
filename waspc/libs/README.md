@@ -6,8 +6,9 @@ them into `data/`. Then you can use `cabal run` as normal, or you can
 
 # Adding a New Package
 
-Create a directory in this folder to contain the new package. It should have a
-`pack-and-copy` script inside `package.json`.
+Create a directory in this folder to contain the new package. The package will be packaged
+using `npm pack` and the resulting tarball will be copied to `data/libs/` by the
+`tools/install_libs_to_data_dir.sh` script.
 
 # CI Builds/Release
 
