@@ -31,8 +31,8 @@
     "build": "tsdown",
     "dev": "vitest dev",
     "prepare": "npm run build",
-    "test": "npm run test:types && vitest run --coverage",
-    "test:types": "tsc --noEmit --skipLibCheck"
+    "test": "npm run typecheck && vitest run --coverage",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "react": "^18.2.0"

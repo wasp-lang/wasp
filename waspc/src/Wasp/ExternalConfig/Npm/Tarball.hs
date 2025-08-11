@@ -24,6 +24,7 @@ makeTarballFilePath name version =
           ".tgz"
         ]
 
+-- | Sanitizes the package name in the same way `npm pack` does.
 sanitizeForTarballFilename :: String -> SanitizedTarballName
 sanitizeForTarballFilename packageName =
   let withoutAt = if head packageName == '@' then tail packageName else packageName
