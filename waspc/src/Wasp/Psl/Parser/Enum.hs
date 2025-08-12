@@ -3,12 +3,13 @@ module Wasp.Psl.Parser.Enum
   )
 where
 
-import Text.Megaparsec (choice, many, some, try)
+import Text.Megaparsec (choice, many, sepEndBy1, try)
 import qualified Wasp.Psl.Ast.Enum as Psl.Enum
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
-import Wasp.Psl.Parser.Common
-  ( Parser,
-    braces,
+import Wasp.Psl.Parser.Common (Parser)
+import Wasp.Psl.Parser.Lexer (compulsoryNewline)
+import Wasp.Psl.Parser.Tokens
+  ( braces,
     identifier,
     reserved,
   )
@@ -25,7 +26,7 @@ enum :: Parser Psl.Enum.Enum
 enum = do
   reserved "enum"
   enumName <- identifier
-  Psl.Enum.Enum enumName <$> braces (some $ withCtx enumField)
+  Psl.Enum.Enum enumName <$> braces (withCtx enumField `sepEndBy1` compulsoryNewline)
 
 enumField :: Parser Psl.Enum.Element
 enumField =

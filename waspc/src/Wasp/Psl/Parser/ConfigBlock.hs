@@ -6,12 +6,13 @@ module Wasp.Psl.Parser.ConfigBlock
   )
 where
 
-import Text.Megaparsec (choice, many, try)
+import Text.Megaparsec (choice, sepEndBy, try)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Parser.Argument (expression)
-import Wasp.Psl.Parser.Common
-  ( Parser,
-    braces,
+import Wasp.Psl.Parser.Common (Parser)
+import Wasp.Psl.Parser.Lexer (compulsoryNewline)
+import Wasp.Psl.Parser.Tokens
+  ( braces,
     identifier,
     reserved,
     symbol,
@@ -35,7 +36,7 @@ configBlock = do
   Psl.ConfigBlock.ConfigBlock configBlockType name <$> configBlockBody
 
 configBlockBody :: Parser [Psl.ConfigBlock.KeyValuePair]
-configBlockBody = braces (many keyValuePair)
+configBlockBody = braces $ keyValuePair `sepEndBy` compulsoryNewline
 
 -- | Parses a key-value pair.
 -- Example of PSL key-value pair:
