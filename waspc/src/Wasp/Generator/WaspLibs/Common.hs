@@ -1,5 +1,5 @@
 module Wasp.Generator.WaspLibs.Common
-  ( libsRootDirInProjectRootDir,
+  ( libsRootDirNextToSdk,
     libsRootDirInGeneratedCodeDir,
     libsSrcDirPathInDataDir,
     libsRootDirFromSdkDir,
@@ -21,8 +21,8 @@ data LibsRootDir
 
 -- We are repeating the SDK hack here - becuase the libs needs to be next to
 -- the SDK.
-libsRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
-libsRootDirInProjectRootDir =
+libsRootDirNextToSdk :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
+libsRootDirNextToSdk =
   [reldir|../|]
     </> basename generatedCodeDirInDotWaspDir
     </> libsRootDirInGeneratedCodeDir

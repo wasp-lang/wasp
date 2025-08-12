@@ -18,7 +18,7 @@ import qualified Wasp.Message as Msg
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 runSetup spec projectRootDir sendMessage = do
   -- Libs need to be ready before running npm install, so we set them up first.
-  copyWaspLibs projectRootDir waspLibs >>= \case
+  copyWaspLibs spec projectRootDir waspLibs >>= \case
     Just waspLibsCopyErrors -> return ([], waspLibsCopyErrors)
     Nothing -> do
       installNpmDependenciesWithInstallRecord spec projectRootDir >>= \case
