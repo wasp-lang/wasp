@@ -18,6 +18,7 @@ import qualified Wasp.Project.Db.Dev.Sqlite as DevSqlite
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Psl.Db
 import Wasp.Psl.Generator.Argument (generateExpression)
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
@@ -76,5 +77,4 @@ getDbUrlFromPrismaSchema =
 -- https://www.prisma.io/docs/orm/reference/prisma-schema-reference#remarks
 getAllDatasourceKeyValuePairs :: Psl.Schema.Schema -> [Psl.ConfigBlock.KeyValuePair]
 getAllDatasourceKeyValuePairs =
-  concatMap (\(Psl.ConfigBlock.ConfigBlock _type _name keyValuePairs) -> keyValuePairs)
-    . Psl.Schema.getDatasources
+  concatMap ((\(Psl.ConfigBlock.ConfigBlock _type _name keyValuePairs) -> keyValuePairs) . Psl.WithCtx.getNode) . Psl.Schema.getDatasources
