@@ -127,9 +127,7 @@ async function runBuildE2ETests(
     return;
   }
 
-  console.log(
-    `Running BUILD e2e tests for ${templateName} starter...`,
-  );
+  console.log(`Running BUILD e2e tests for ${templateName} starter...`);
   const waspAppRunnerBuildEnv = {
     ...process.env,
     WASP_APP_PATH: tempWaspProjectPath,

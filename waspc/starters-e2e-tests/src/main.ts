@@ -17,9 +17,7 @@ async function runAllStartersE2ETests(): Promise<void> {
 
   for (const starterE2ETests of STARTERS_E2E_TESTS) {
     console.log(
-      chalk.bold(
-        `\nRunning tests for ${starterE2ETests.starterName} starter`,
-      ),
+      chalk.bold(`\nRunning tests for ${starterE2ETests.starterName} starter`),
     );
     await runStarterE2ETests({
       waspCliCommand,

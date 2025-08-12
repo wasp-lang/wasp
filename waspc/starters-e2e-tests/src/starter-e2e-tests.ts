@@ -3,9 +3,7 @@ type StarterTemplateName = "minimal" | "basic" | "saas";
 type WaspProjectRelativePath = `.${string}`;
 type IncludedTestsRelativePath = `.${string}`;
 
-export type StarterE2ETests =
-  | StarterWithoutE2ETests
-  | StarterWithE2ETests;
+export type StarterE2ETests = StarterWithoutE2ETests | StarterWithE2ETests;
 
 export type StarterWithoutE2ETests = {
   starterName: StarterTemplateName;
