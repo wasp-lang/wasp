@@ -21,7 +21,7 @@
     "prisma": "5.19.1",
     "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",
-    "vite": "^4.3.9",
+    "vite": "^7.0.6",
     "wasp-config": "file:../../waspc/data/packages/wasp-config"
   }
 }
