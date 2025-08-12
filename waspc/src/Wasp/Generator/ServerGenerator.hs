@@ -58,6 +58,8 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliase
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import Wasp.Generator.WaspLibs.Common (libsDirFromServerDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -160,7 +162,8 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("superjson", show superjsonVersion)
           ]
-          ++ depsRequiredByWebSockets spec,
+          ++ depsRequiredByWebSockets spec
+          ++ waspLibsNpmDeps,
       N.waspDevDependencies =
         Npm.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
@@ -179,6 +182,8 @@ npmDepsForWasp spec =
     }
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+    waspLibsNpmDeps = map (WaspLib.makeNpmDependencyForWaspLib libsDirFromServerDir) $ AS.waspLibs spec
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

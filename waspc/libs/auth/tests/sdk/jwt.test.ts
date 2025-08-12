@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createJWTHelpers, TimeSpan } from "../src/jwt";
+import { createJWTHelpers, TimeSpan } from "../../src/sdk/jwt";
 
 describe("jwt helpers", () => {
   const secret = new TextEncoder().encode("my-secret-key");

@@ -3,6 +3,7 @@ module Wasp.Generator.WaspLibs.Common
     libsRootDirInGeneratedCodeDir,
     libsDirPathInDataDir,
     libsDirFromSdkDir,
+    libsDirFromServerDir,
     LibsSourceDir,
     LibsRootDir,
   )
@@ -33,3 +34,6 @@ libsDirPathInDataDir = [reldir|Generator/libs|]
 
 libsDirFromSdkDir :: Path' Rel' Dir'
 libsDirFromSdkDir = [reldir|../../libs|]
+
+libsDirFromServerDir :: Path' Rel' Dir'
+libsDirFromServerDir = [reldir|../libs|]

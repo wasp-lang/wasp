@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hashPassword, verifyPassword } from "../src/password";
+import { hashPassword, verifyPassword } from "../../src/sdk/password";
 
 describe("password utilities", () => {
   describe("hashPassword", () => {

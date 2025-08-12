@@ -16,5 +16,5 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src", "tests/sdk/password.test.ts", "tests/sdk/jwt.test.ts"]
 }

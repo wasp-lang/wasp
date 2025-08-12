@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useAuthContext } from '@wasp.sh/libs-auth/client'
+import { useAuthContext } from '@wasp.sh/libs-auth/sdk/browser'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
 

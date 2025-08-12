@@ -8,19 +8,38 @@ const commonTsDownOptions: Options = {
   sourcemap: true,
 };
 
+function createNewEntry({
+  name,
+  entryPath,
+  platform,
+}: {
+  name: string;
+  entryPath: string;
+  platform: Options["platform"];
+}): Options {
+  return {
+    ...commonTsDownOptions,
+    entry: {
+      [name]: entryPath,
+    },
+    platform,
+  };
+}
+
 export default defineConfig([
-  {
-    ...commonTsDownOptions,
-    entry: {
-      index: "./src/index.ts",
-    },
+  createNewEntry({
+    name: "sdk",
+    entryPath: "./src/sdk/index.ts",
     platform: "neutral",
-  },
-  {
-    ...commonTsDownOptions,
-    entry: {
-      client: "./src/client/index.ts",
-    },
+  }),
+  createNewEntry({
+    name: "sdk-browser",
+    entryPath: "./src/sdk/browser/index.ts",
     platform: "browser",
-  },
+  }),
+  createNewEntry({
+    name: "server",
+    entryPath: "./src/server/index.ts",
+    platform: "node",
+  }),
 ]);

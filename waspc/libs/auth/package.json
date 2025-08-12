@@ -5,23 +5,30 @@
   "license": "MIT",
   "typesVersions": {
     "*": {
-      "index": [
-        "./dist/index.d.ts"
+      "sdk": [
+        "./dist/sdk.d.ts"
       ],
-      "client": [
-        "./dist/client.d.ts"
+      "sdk/browser": [
+        "./dist/sdk-browser.d.ts"
+      ],
+      "server": [
+        "./dist/server.d.ts"
       ]
     },
     "//": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'."
   },
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "./sdk": {
+      "types": "./dist/sdk.d.ts",
+      "import": "./dist/sdk.js"
     },
-    "./client": {
-      "types": "./dist/client.d.ts",
-      "import": "./dist/client.js"
+    "./sdk/browser": {
+      "types": "./dist/sdk-browser.d.ts",
+      "import": "./dist/sdk-browser.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
     }
   },
   "files": [

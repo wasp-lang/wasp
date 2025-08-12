@@ -1,4 +1,4 @@
-import { parseCookies } from "@wasp.sh/libs-auth";
+import { parseCookies } from "@wasp.sh/libs-auth/server";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,

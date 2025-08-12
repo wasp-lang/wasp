@@ -3,7 +3,7 @@ import { useForm, UseFormReturn } from 'react-hook-form'
 import { styled } from 'wasp/core/stitches.config'
 import { config } from 'wasp/client'
 
-import { useAuthContext } from '@wasp.sh/libs-auth/client'
+import { useAuthContext } from '@wasp.sh/libs-auth/sdk/browser'
 import {
   Form,
   FormInput,

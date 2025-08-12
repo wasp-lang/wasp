@@ -2,7 +2,7 @@
 import { useState, createContext } from 'react'
 import { createTheme } from '@stitches/react'
 import { styled } from 'wasp/core/stitches.config'
-import { AuthContext, type ErrorMessage } from '@wasp.sh/libs-auth/client'
+import { AuthContext, type ErrorMessage } from '@wasp.sh/libs-auth/sdk/browser'
 
 import {
   type State,
