@@ -8,7 +8,7 @@ where
 import Data.Maybe (fromJust)
 import StrongPath (File', Path', Rel', parseRelFile)
 
-data SanitizedTarballName = SanitizedTarballName String
+newtype SanitizedTarballName = SanitizedTarballName String
 
 instance Show SanitizedTarballName where
   show (SanitizedTarballName name) = name
