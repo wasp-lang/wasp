@@ -2,6 +2,7 @@
 
 module Psl.Parser.WithCtxTest where
 
+import Data.Either (isLeft)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Tasty.Hspec
@@ -70,6 +71,7 @@ spec_parsePslWithCtx = do
                     ]
 
       Psl.Parser.parsePrismaSchema prismaSchema `shouldBe` Right expectedAst
+
     it "Prisma-zod example" $ do
       let prismaSchema =
             T.unpack
@@ -130,3 +132,14 @@ spec_parsePslWithCtx = do
                     ]
 
       Psl.Parser.parsePrismaSchema prismaSchema `shouldBe` Right expectedAst
+
+    it "Trailing triple-slash comment fails to parse" $ do
+      let prismaSchema =
+            T.unpack
+              [trimming|
+                model MyModel {
+                  prop1 Int @id /// Trailing documentation comment
+                }
+              |]
+
+      Psl.Parser.parsePrismaSchema prismaSchema `shouldSatisfy` isLeft
