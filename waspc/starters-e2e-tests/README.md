@@ -1,4 +1,4 @@
-# Wasp starters headless E2E tests
+# Wasp starters E2E tests
 
 This project provides automated headless end-to-end testing for Wasp starter templates using Playwright.
 

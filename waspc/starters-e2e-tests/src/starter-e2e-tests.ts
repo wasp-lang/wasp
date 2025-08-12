@@ -3,31 +3,31 @@ type StarterTemplateName = "minimal" | "basic" | "saas";
 type WaspProjectRelativePath = `.${string}`;
 type IncludedTestsRelativePath = `.${string}`;
 
-export type StarterHeadlessE2ETests =
-  | StarterWithoutHeadlessE2ETests
-  | StarterWithHeadlessE2ETests;
+export type StarterE2ETests =
+  | StarterWithoutE2ETests
+  | StarterWithE2ETests;
 
-export type StarterWithoutHeadlessE2ETests = {
+export type StarterWithoutE2ETests = {
   starterName: StarterTemplateName;
   waspProjectRelativePath: WaspProjectRelativePath;
 };
 
-export type StarterWithHeadlessE2ETests = StarterWithoutHeadlessE2ETests & {
+export type StarterWithE2ETests = StarterWithoutE2ETests & {
   includedTestsRelativePath: IncludedTestsRelativePath;
 };
 
-export const STARTERS_HEADLESS_E2E_TESTS: StarterHeadlessE2ETests[] = [
+export const STARTERS_E2E_TESTS: StarterE2ETests[] = [
   {
     starterName: "minimal",
     waspProjectRelativePath: "./",
-  } satisfies StarterWithoutHeadlessE2ETests,
+  } satisfies StarterWithoutE2ETests,
   {
     starterName: "basic",
     waspProjectRelativePath: "./",
-  } satisfies StarterWithoutHeadlessE2ETests,
+  } satisfies StarterWithoutE2ETests,
   {
     starterName: "saas",
     waspProjectRelativePath: "./app",
     includedTestsRelativePath: "./e2e-tests",
-  } satisfies StarterWithHeadlessE2ETests,
+  } satisfies StarterWithE2ETests,
 ];

@@ -2,18 +2,18 @@ import { fileURLToPath } from "url";
 import { $, chalk, fs, path, spinner, tmpdir, within } from "zx";
 import { WaspCliCommand } from "./cli.js";
 import { setupWaspMailCrabConfiguration } from "./mailcrab.js";
-import { StarterHeadlessE2ETests } from "./starter-headless-e2e-tests.js";
+import { StarterE2ETests } from "./starter-e2e-tests.js";
 
 interface StarterTestsExecution {
   waspCliCommand: WaspCliCommand;
-  starterHeadlessE2ETests: StarterHeadlessE2ETests;
+  starterE2ETests: StarterE2ETests;
 }
 
-export async function runStarterHeadlessE2ETests(
+export async function runStarterE2ETests(
   execution: StarterTestsExecution,
 ): Promise<void> {
-  const { waspCliCommand, starterHeadlessE2ETests } = execution;
-  const { starterName } = starterHeadlessE2ETests;
+  const { waspCliCommand, starterE2ETests } = execution;
+  const { starterName } = starterE2ETests;
 
   const waspProjectPath = await spinner(
     "Initializing test environment...",
@@ -21,15 +21,15 @@ export async function runStarterHeadlessE2ETests(
   );
 
   // TODO: implement branching logic based on included tests or not
-  await runDevHeadlessE2ETests(starterName, waspProjectPath, waspCliCommand);
-  await runBuildHeadlessE2ETests(starterName, waspProjectPath, waspCliCommand);
+  await runDevE2ETests(starterName, waspProjectPath, waspCliCommand);
+  await runBuildE2ETests(starterName, waspProjectPath, waspCliCommand);
 }
 
 async function initializeTestEnvironment(
   execution: StarterTestsExecution,
 ): Promise<string> {
-  const { waspCliCommand, starterHeadlessE2ETests } = execution;
-  const { starterName, waspProjectRelativePath } = starterHeadlessE2ETests;
+  const { waspCliCommand, starterE2ETests } = execution;
+  const { starterName, waspProjectRelativePath } = starterE2ETests;
 
   const tempDirectoryPath = tmpdir();
   process.on("exit", () => cleanup(tempDirectoryPath));
@@ -95,12 +95,12 @@ async function initializeClientEnvironment(
   }
 }
 
-async function runDevHeadlessE2ETests(
+async function runDevE2ETests(
   templateName: string,
   waspProjectPath: string,
   waspCliCommand: string,
 ): Promise<void> {
-  console.log(`Running DEV headless e2e tests for ${templateName} starter...`);
+  console.log(`Running DEV e2e tests for ${templateName} starter...`);
   const waspAppRunnerDevEnv = {
     ...process.env,
     WASP_APP_PATH: waspProjectPath,
@@ -113,7 +113,7 @@ async function runDevHeadlessE2ETests(
   })`npx playwright test --grep "${getStarterPlaywrightGrepRegex(templateName)}"`;
 }
 
-async function runBuildHeadlessE2ETests(
+async function runBuildE2ETests(
   templateName: string,
   tempWaspProjectPath: string,
   waspCliCommand: string,
@@ -121,14 +121,14 @@ async function runBuildHeadlessE2ETests(
   if (await waspProjectUsesSqlite(tempWaspProjectPath, waspCliCommand)) {
     console.log(
       chalk.yellow(
-        `Skipping BUILD headless e2e tests for ${templateName} starter - uses SQLite`,
+        `Skipping BUILD e2e tests for ${templateName} starter - uses SQLite`,
       ),
     );
     return;
   }
 
   console.log(
-    `Running BUILD headless e2e tests for ${templateName} starter...`,
+    `Running BUILD e2e tests for ${templateName} starter...`,
   );
   const waspAppRunnerBuildEnv = {
     ...process.env,

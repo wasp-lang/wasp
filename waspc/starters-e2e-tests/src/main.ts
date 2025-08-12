@@ -2,8 +2,8 @@
 
 import { chalk } from "zx";
 import { parseArgs } from "./cli.js";
-import { runStarterHeadlessE2ETests } from "./starter-headless-e2e-test-runner.js";
-import { STARTERS_HEADLESS_E2E_TESTS } from "./starter-headless-e2e-tests.js";
+import { runStarterE2ETests } from "./starter-e2e-test-runner.js";
+import { STARTERS_E2E_TESTS } from "./starter-e2e-tests.js";
 
 try {
   await runAllStartersE2ETests();
@@ -15,15 +15,15 @@ try {
 async function runAllStartersE2ETests(): Promise<void> {
   const { waspCliCommand } = parseArgs(process.argv);
 
-  for (const starterHeadlessE2ETests of STARTERS_HEADLESS_E2E_TESTS) {
+  for (const starterE2ETests of STARTERS_E2E_TESTS) {
     console.log(
       chalk.bold(
-        `\nRunning tests for ${starterHeadlessE2ETests.starterName} starter`,
+        `\nRunning tests for ${starterE2ETests.starterName} starter`,
       ),
     );
-    await runStarterHeadlessE2ETests({
+    await runStarterE2ETests({
       waspCliCommand,
-      starterHeadlessE2ETests,
+      starterE2ETests,
     });
   }
 }

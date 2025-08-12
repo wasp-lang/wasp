@@ -3,15 +3,15 @@ import packageJson from "../package.json" with { type: "json" };
 
 export type WaspCliCommand = string;
 
-interface StartersHeadlessE2ETestsArgs {
+interface StartersE2ETestsArgs {
   waspCliCommand: WaspCliCommand;
 }
 
-export function parseArgs(args: string[]): StartersHeadlessE2ETestsArgs {
+export function parseArgs(args: string[]): StartersE2ETestsArgs {
   const command = program
-    .name("starters-headless-e2e-tests")
+    .name("starters-e2e-tests")
     .description(
-      "Run headless end-to-end tests for Wasp starter templates (except ai)",
+      "Run end-to-end tests for Wasp starter templates (except `ai`)",
     )
     .version(packageJson.version)
     .requiredOption(
