@@ -14,6 +14,7 @@ where
 import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
 import Wasp.Psl.Ast.Common (Name)
+import Wasp.Psl.Ast.WithCtx (WithCtx)
 import Prelude hiding (Enum)
 
 data Model
@@ -22,7 +23,7 @@ data Model
       Body
   deriving (Show, Eq)
 
-newtype Body = Body [Element]
+newtype Body = Body [WithCtx Element]
   deriving (Show, Eq, Data)
 
 data Element
