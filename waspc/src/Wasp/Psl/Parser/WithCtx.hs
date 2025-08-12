@@ -20,7 +20,7 @@ withCtx :: Parser node -> Parser (WithCtx node)
 withCtx nodeParser = do
   leadingComments <- many documentationComment
   node <- nodeParser
-  -- TODO: Handle trailing comments properly, right now we fail on them.
+  -- TODO: Handle trailing comments properly, right now we fail on them. (#3041)
 
   return $ WithCtx node (NodeContext {documentationComments = leadingComments})
 
