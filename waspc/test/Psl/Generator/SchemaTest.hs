@@ -3,7 +3,6 @@
 
 module Psl.Generator.SchemaTest where
 
-import Debug.Trace (traceM)
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Megaparsec as Megaparsec
