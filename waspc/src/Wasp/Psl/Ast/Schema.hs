@@ -10,7 +10,7 @@ module Wasp.Psl.Ast.Schema
   )
 where
 
-import Data.Maybe (mapMaybe)
+import Data.Maybe (catMaybes)
 import Wasp.Psl.Ast.ConfigBlock (ConfigBlock)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Ast.Enum (Enum)
@@ -32,38 +32,38 @@ data Block
   deriving (Show, Eq)
 
 getModels :: Schema -> [WithCtx Model]
-getModels = selectBlocks $ \case
+getModels = extractBlockOfType $ \case
   ModelBlock model -> Just model
   _ -> Nothing
 
 getViews :: Schema -> [WithCtx View]
-getViews = selectBlocks $ \case
+getViews = extractBlockOfType $ \case
   ViewBlock view -> Just view
   _ -> Nothing
 
 getTypes :: Schema -> [WithCtx Type]
-getTypes = selectBlocks $ \case
+getTypes = extractBlockOfType $ \case
   TypeBlock typeName -> Just typeName
   _ -> Nothing
 
 getEnums :: Schema -> [WithCtx Enum]
-getEnums = selectBlocks $ \case
+getEnums = extractBlockOfType $ \case
   EnumBlock enum -> Just enum
   _ -> Nothing
 
 getDatasources :: Schema -> [WithCtx ConfigBlock]
-getDatasources = selectBlocks $ \case
+getDatasources = extractBlockOfType $ \case
   ConfigBlock configBlock@(Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Datasource _ _) -> Just configBlock
   _ -> Nothing
 
 getGenerators :: Schema -> [WithCtx ConfigBlock]
-getGenerators = selectBlocks $ \case
+getGenerators = extractBlockOfType $ \case
   ConfigBlock configBlock@(Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Generator _ _) -> Just configBlock
   _ -> Nothing
 
-selectBlocks :: (Block -> Maybe a) -> Schema -> [WithCtx a]
-selectBlocks filterFn (Schema blocks) = mapMaybe (liftMaybe . fmap filterFn) blocks
+extractBlockOfType :: (Block -> Maybe a) -> Schema -> [WithCtx a]
+extractBlockOfType extractFn (Schema blocksWithCtx) =
+  catMaybes $ extractBlockMaybe <$> blocksWithCtx
   where
-    liftMaybe :: WithCtx (Maybe a) -> Maybe (WithCtx a)
-    liftMaybe (WithCtx (Just a) context) = Just $ WithCtx a context
-    liftMaybe (WithCtx Nothing _) = Nothing
+    extractBlockMaybe (WithCtx block context) =
+      (`WithCtx` context) <$> extractFn block
