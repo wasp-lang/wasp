@@ -4,11 +4,11 @@
 # It will then move it into the Cabal data dir (and thus, the installer archive in CI releases).
 
 # Gets the directory of where this script lives.
-dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+script_dir=$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)
 
-for package in $(ls "$dir/../packages"); do
-  package_dir="$dir/../packages/$package"
+for package_dir in "$script_dir"/../packages/*; do
   if [[ -d "$package_dir" ]]; then
+    package=$(basename "$package_dir")
     # We're only installing the dependencies here to verify that the build
     # works, that's why the node_modules folder is removed immediately after.
     # The real dependency installation happens in Haskell.
@@ -20,6 +20,6 @@ for package in $(ls "$dir/../packages"); do
   fi
 done
 
-cd "$dir/.."
+cd "$script_dir/.."
 rm -rf ./data/packages
 cp -R ./packages ./data
