@@ -105,7 +105,7 @@ whiteSpace =
 
 lineComment :: Parser String
 lineComment =
-  try doubleSlashSymbolParser
+  try doubleSlashSymbol
     >> takeWhileP (Just "character") (/= '\n')
   where
-    doubleSlashSymbolParser = C.string "//" >> notFollowedBy (C.char '/')
+    doubleSlashSymbol = C.string "//" >> notFollowedBy (C.char '/')
