@@ -270,7 +270,7 @@ However, Wasp does not support `///` comments in the _trailing_ position:
 ```prisma title="schema.prisma"
 model User {
   // highlight-next-line
-  id Int @id @default(autoincrement()) /// The unique identifier for the user.
+  id Int @id @default(autoincrement()) /// This is not supported
 }
 ```
 
