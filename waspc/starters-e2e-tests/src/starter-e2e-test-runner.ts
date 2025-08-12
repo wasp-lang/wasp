@@ -110,7 +110,7 @@ async function runDevE2ETests(
   await $({
     env: waspAppRunnerDevEnv,
     stdio: "inherit",
-  })`npx playwright test --grep "${getStarterPlaywrightGrepRegex(templateName)}"`;
+  })`npx playwright test --grep ${getStarterPlaywrightGrepRegex(templateName)}`;
 }
 
 async function runBuildE2ETests(
@@ -137,7 +137,7 @@ async function runBuildE2ETests(
   await $({
     env: waspAppRunnerBuildEnv,
     stdio: "inherit",
-  })`npx playwright test --grep "${getStarterPlaywrightGrepRegex(templateName)}"`;
+  })`npx playwright test --grep ${getStarterPlaywrightGrepRegex(templateName)}`;
 }
 
 /**
