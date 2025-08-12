@@ -1,4 +1,4 @@
-name: Run headless e2e tests on starter templates
+name: Run e2e tests on starter templates
 
 on:
   workflow_call:
