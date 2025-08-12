@@ -30,9 +30,9 @@ spec_createTarballFilenamesCorrectly = do
     itShouldSanitizePackageNameCorrectly :: String -> String -> Spec
     itShouldSanitizePackageNameCorrectly input expected = do
       it ("sanitizes " ++ input) $ do
-        Tarball.sanitizeForTarballFilename input `shouldBe` (Tarball.SanitizedTarballName expected)
+        Tarball.sanitizeForTarballFilename input `shouldBe` Tarball.SanitizedTarballName expected
 
     itShouldCreateValidTarballPath :: (String, String) -> String -> Spec
     itShouldCreateValidTarballPath (packageName, packageVersion) expected = do
       it ("pacakge " ++ packageName ++ " with version " ++ packageName) $ do
-        Tarball.makeTarballFilePath packageName packageVersion `shouldBe` fromJust (parseRelFile expected)
+        Tarball.makeTarballFilePath (Tarball.sanitizeForTarballFilename packageName) packageVersion `shouldBe` fromJust (parseRelFile expected)
