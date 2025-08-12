@@ -23,7 +23,6 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ConfigFile as CF
 import qualified Wasp.Generator.TailwindConfigFile as TCF
 import qualified Wasp.Generator.WaspLibs as WaspLibs
-import qualified Wasp.Generator.WaspLibs.IO as WaspLibs.IO
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
@@ -99,7 +98,7 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
   tailwindConfigFilesRelocators <- CF.discoverConfigFiles waspDir TCF.tailwindConfigRelocationMap
-  waspLibs <- mapM WaspLibs.IO.setDstTarballVersionToChecksum WaspLibs.waspLibs
+  waspLibs <- WaspLibs.getWaspLibs
 
   let appSpec =
         AS.AppSpec

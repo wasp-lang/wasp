@@ -1,11 +1,9 @@
 module Wasp.Generator.WaspLibs
-  ( waspLibs,
+  ( getWaspLibs,
   )
 where
 
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 
-waspLibs :: [WaspLib.WaspLib]
-waspLibs =
-  [ WaspLib.makeWaspLib "@wasp.sh/libs-auth"
-  ]
+getWaspLibs :: IO [WaspLib.WaspLib]
+getWaspLibs = sequence [WaspLib.makeWaspLib "@wasp.sh/libs-auth"]

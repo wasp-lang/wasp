@@ -1,15 +1,16 @@
 module Wasp.Generator.WaspLibs.Common
   ( libsRootDirInProjectRootDir,
     libsRootDirInGeneratedCodeDir,
-    libsDirPathInDataDir,
-    libsDirFromSdkDir,
-    libsDirFromServerDir,
+    libsSrcDirPathInDataDir,
+    libsRootDirFromSdkDir,
+    libsRootDirFromServerDir,
+    getAbsLibsSourceDirPath,
     LibsSourceDir,
     LibsRootDir,
   )
 where
 
-import StrongPath (Dir, Dir', Path', Rel, Rel', basename, reldir, (</>))
+import StrongPath (Abs, Dir, Path', Rel, Rel', basename, reldir, (</>))
 import qualified Wasp.Data as Data
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
@@ -24,16 +25,19 @@ libsRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
 libsRootDirInProjectRootDir =
   [reldir|../|]
     </> basename generatedCodeDirInDotWaspDir
-    </> [reldir|libs|]
+    </> libsRootDirInGeneratedCodeDir
 
 libsRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
 libsRootDirInGeneratedCodeDir = [reldir|libs|]
 
-libsDirPathInDataDir :: Path' (Rel Data.DataDir) (Dir LibsSourceDir)
-libsDirPathInDataDir = [reldir|Generator/libs|]
+libsSrcDirPathInDataDir :: Path' (Rel Data.DataDir) (Dir LibsSourceDir)
+libsSrcDirPathInDataDir = [reldir|Generator/libs|]
 
-libsDirFromSdkDir :: Path' Rel' Dir'
-libsDirFromSdkDir = [reldir|../../libs|]
+libsRootDirFromSdkDir :: Path' Rel' (Dir LibsRootDir)
+libsRootDirFromSdkDir = [reldir|../../|] </> libsRootDirInGeneratedCodeDir
 
-libsDirFromServerDir :: Path' Rel' Dir'
-libsDirFromServerDir = [reldir|../libs|]
+libsRootDirFromServerDir :: Path' Rel' (Dir LibsRootDir)
+libsRootDirFromServerDir = [reldir|../|] </> libsRootDirInGeneratedCodeDir
+
+getAbsLibsSourceDirPath :: IO (Path' Abs (Dir LibsSourceDir))
+getAbsLibsSourceDirPath = (</> libsSrcDirPathInDataDir) <$> Data.getAbsDataDirPath

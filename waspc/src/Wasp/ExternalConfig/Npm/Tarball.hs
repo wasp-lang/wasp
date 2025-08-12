@@ -6,7 +6,7 @@ module Wasp.ExternalConfig.Npm.Tarball
 where
 
 import Data.Maybe (fromJust)
-import StrongPath (File', Path', Rel', parseRelFile)
+import StrongPath (File', Path', Rel, parseRelFile)
 
 newtype SanitizedTarballName = SanitizedTarballName String
   deriving (Eq)
@@ -14,7 +14,7 @@ newtype SanitizedTarballName = SanitizedTarballName String
 instance Show SanitizedTarballName where
   show (SanitizedTarballName name) = name
 
-makeTarballFilePath :: SanitizedTarballName -> String -> Path' Rel' File'
+makeTarballFilePath :: SanitizedTarballName -> String -> Path' (Rel dir) File'
 makeTarballFilePath name version =
   fromJust $
     parseRelFile $

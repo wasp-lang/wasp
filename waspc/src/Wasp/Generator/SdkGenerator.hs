@@ -66,7 +66,7 @@ import Wasp.Generator.ServerGenerator.DepVersions
     expressVersionStr,
   )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
-import Wasp.Generator.WaspLibs.Common (libsDirFromSdkDir)
+import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WebAppGenerator.DepVersions
@@ -239,7 +239,7 @@ npmDepsForSdk spec =
           ]
     }
   where
-    waspLibsNpmDeps = map (WaspLib.makeNpmDependencyForWaspLib libsDirFromSdkDir) $ AS.waspLibs spec
+    waspLibsNpmDeps = map (WaspLib.makeNpmDependencyForWaspLib libsRootDirFromSdkDir) $ AS.waspLibs spec
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
