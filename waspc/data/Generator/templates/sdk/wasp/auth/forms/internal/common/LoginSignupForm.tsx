@@ -130,7 +130,7 @@ export const LoginSignupForm = ({
       {=# isSocialAuthEnabled =}
         <div className={styles.socialAuth}>
           <div className={styles.socialAuthLabel}>{cta} with</div>
-          <div className={`${styles.socialAuthButtons} ${styles[socialButtonsDirection]} ${styles.gapLarge}`}>
+          <div className={`${styles.socialAuthButtons} ${styles[socialButtonsDirection]}`}>
             {=# enabledProviders.isSlackAuthEnabled =}
               <SocialButton href={slackSignInUrl}><SocialIcons.Slack/></SocialButton>
             {=/ enabledProviders.isSlackAuthEnabled =}

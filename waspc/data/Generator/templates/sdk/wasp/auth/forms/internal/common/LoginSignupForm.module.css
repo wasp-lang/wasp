@@ -39,6 +39,7 @@
 }
 
 .socialAuthButtons {
+  gap: 16px;
   margin-top: 0.5rem;
   display: flex;
 }
@@ -51,16 +52,4 @@
 .socialAuthButtons.vertical {
   flex-direction: column;
   margin: 8px 0;
-}
-
-.socialAuthButtons.gapSmall {
-  gap: 4px;
-}
-
-.socialAuthButtons.gapMedium {
-  gap: 8px;
-}
-
-.socialAuthButtons.gapLarge {
-  gap: 16px;
 }
