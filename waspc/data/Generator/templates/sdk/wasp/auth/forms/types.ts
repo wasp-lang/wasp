@@ -19,7 +19,6 @@ export type CustomizationOptions = {
   socialLayout?: 'horizontal' | 'vertical'
   appearance?: {
     // ATTENTION: Keep this list in sync with the one at `./internal/auth-styles.css`
-
     colors?: {
       waspYellow?: string,
       gray700?: string,
