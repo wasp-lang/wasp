@@ -4,6 +4,7 @@ import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
 import { config } from 'wasp/client'
+import { clsx } from '../util'
 
 import { AuthContext } from '../../Auth'
 import {
@@ -130,7 +131,7 @@ export const LoginSignupForm = ({
       {=# isSocialAuthEnabled =}
         <div className={styles.socialAuth}>
           <div className={styles.socialAuthLabel}>{cta} with</div>
-          <div className={`${styles.socialAuthButtons} ${styles[socialButtonsDirection]}`}>
+            <div className={clsx(styles.socialAuthButtons, styles[socialButtonsDirection])}>
             {=# enabledProviders.isSlackAuthEnabled =}
               <SocialButton href={slackSignInUrl}><SocialIcons.Slack/></SocialButton>
             {=/ enabledProviders.isSlackAuthEnabled =}

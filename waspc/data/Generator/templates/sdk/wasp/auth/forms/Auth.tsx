@@ -2,6 +2,8 @@
 import { useState, createContext, useMemo } from 'react'
 import styles from './Auth.module.css'
 import './internal/auth-styles.css'
+import { tokenObjToCSSVars } from "./internal/util"
+import { CSSProperties } from "react"
 
 import {
   type State,
@@ -21,11 +23,6 @@ const logoStyle = {
   height: '3rem'
 }
 
-const themeToVars = (prefix: string, theme: Record<string, string>) =>
-  Object.fromEntries(
-    Object.entries(theme).map(([key, value]) => [`--${prefix}-${key}`, value])
-  )
-
 
 // PRIVATE API
 export const AuthContext = createContext({
@@ -44,9 +41,9 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const customStyle = useMemo(() => ({
-    ...themeToVars('color', appearance?.colors || {}),
-    ...themeToVars('font-size', appearance?.fontSizes || {}),
+  const customStyle = useMemo((): CSSProperties => ({
+    ...tokenObjToCSSVars('color', appearance?.colors || {}),
+    ...tokenObjToCSSVars('font-size', appearance?.fontSizes || {}),
   }), [appearance])
 
   const titles: Record<State, string> = {
