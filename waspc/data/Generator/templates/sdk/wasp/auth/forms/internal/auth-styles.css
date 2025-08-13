@@ -2,25 +2,25 @@
   /* ATTENTION: Keep this list in sync with the one at ../types.ts */
 
   /* Colors */
-  --color-wasp-yellow: #ffcc00;
+  --color-waspYellow: #ffcc00;
   --color-gray900: #1a202c;
   --color-gray700: #a1a5ab;
   --color-gray600: #d1d5db;
   --color-gray500: gainsboro;
   --color-gray400: #f0f0f0;
   --color-red: #FED7D7;
-  --color-dark-red: #fa3838;
+  --color-darkRed: #fa3838;
   --color-green: #C6F6D5;
 
   /* Semantic colors */
-  --color-brand: var(--color-wasp-yellow);
-  --color-brand-accent: #ffdb46;
-  --color-error-background: var(--color-red);
-  --color-error-text: #2D3748;
-  --color-success-background: var(--color-green);
-  --color-success-text: #2D3748;
-  --color-submit-button-text: black;
-  --color-form-error-text: var(--color-dark-red);
+  --color-brand: var(--color-waspYellow);
+  --color-brandAccent: #ffdb46;
+  --color-errorBackground: var(--color-red);
+  --color-errorText: #2D3748;
+  --color-successBackground: var(--color-green);
+  --color-successText: #2D3748;
+  --color-submitButtonText: black;
+  --color-formErrorText: var(--color-darkRed);
 
   /* Font sizes */
   --font-size-sm: 0.875rem;

@@ -56,7 +56,7 @@
   display: block;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--color-form-error-text);
+  color: var(--color-formErrorText);
   margin-top: 0.5rem;
 }
 
@@ -67,7 +67,7 @@
   border-width: 1px !important;
   border-color: var(--color-brand) !important;
   background-color: var(--color-brand) !important;
-  color: var(--color-submit-button-text) !important;
+  color: var(--color-submitButtonText) !important;
   padding: 0.5rem 0.75rem !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
   font-weight: 600 !important;
@@ -80,8 +80,8 @@
 }
 
 .submitButton:hover {
-  background-color: var(--color-brand-accent) !important;
-  border-color: var(--color-brand-accent) !important;
+  background-color: var(--color-brandAccent) !important;
+  border-color: var(--color-brandAccent) !important;
 }
 
 .submitButton:disabled {
