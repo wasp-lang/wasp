@@ -28,13 +28,14 @@ BUILD_ALL_STATIC_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD --enable-executabl
 INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 
 # Testing
-WASPC_UNIT_TEST_CMD="cabal test waspc-tests"
+WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"
+WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests"
+WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/*-golden"
+WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
 
-WASP_CLI_UNIT_TESTS_CMD="cabal test cli-unit-tests"
-WASP_CLI_E2E_TESTS_CMD="cabal test cli-e2e-tests"
-WASP_CLI_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/cli-e2e-tests/test-outputs/*-golden"
-WASP_CLI_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASP_CLI_E2E_TESTS_DELETE_GOLDEN && $WASP_CLI_E2E_TESTS_CMD"
-WASP_CLI_TESTS_CMD="$WASP_CLI_UNIT_TESTS_CMD && $WASP_CLI_E2E_TESTS_CMD"
+WASP_CLI_TESTS_CMD="cabal test cli-tests"
+
+WASPLS_TESTS_CMD="cabal test waspls-tests"
 
 TODO_APP_E2E_TESTS_CMD="cd $PROJECT_ROOT/examples/todoApp && npm install && npm run test"
 
@@ -126,23 +127,23 @@ print_usage() {
     "Installs the wasp executable as 'wasp-cli' globally on the machine."
   echo ""
   print_usage_cmd "test" \
-    "Executes all tests (waspc + Wasp CLI + todoApp + starters). Builds the project first if needed."
+    "Executes all tests (waspc + Wasp CLI + Wasp LS + todoApp + examples + starters). Builds the project first if needed."
   print_usage_cmd "test:waspc:unit [pattern]" \
     "Executes only waspc unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+  print_usage_cmd "test:waspc:e2e" \
+    "Executes only cli e2e tests. Builds the project first if needed."
+  print_usage_cmd "test:waspc:e2e:accept-all" \
+    "Accepts any diffs in the generated code in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
-  print_usage_cmd "test:cli:unit" \
-    "Executes only cli unit tests. Builds the project first if needed."
-  print_usage_cmd "test:cli:e2e" \
-    "Executes only cli e2e tests. Builds the project first if needed."
-  print_usage_cmd "test:cli:e2e:accept-all" \
-    "Accepts any diffs in the generated code in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+  print_usage_cmd "test:waspls" \
+    "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:todoApp" \
     "Executes only todoApp e2e tests. Installs deps first if needed."
   print_usage_cmd "test:examples" \
     "Executes only examples e2e tests. Installs deps first if needed."
   print_usage_cmd "test:starters" \
-    "Executes only starters e2e tests. Installs deps first if needed."
+    "Executes only starter templates e2e tests. Installs deps first if needed."
   echo ""
   print_usage_cmd "ghcid" \
     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
@@ -207,22 +208,22 @@ case $COMMAND in
   test:waspc:unit)
     TEST_PATTERN="${ARGS[0]}"
     if [[ -z "$TEST_PATTERN" ]]; then
-      echo_and_eval "$WASPC_UNIT_TEST_CMD"
+      echo_and_eval "$WASPC_UNIT_TESTS_CMD"
     else
-      echo_and_eval "$WASPC_UNIT_TEST_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
+      echo_and_eval "$WASPC_UNIT_TESTS_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
     fi
+    ;;
+  test:waspc:e2e)
+    echo_and_eval "$WASPC_E2E_TESTS_CMD"
+    ;;
+  test:waspc:e2e:accept-all)
+    echo_and_eval "$WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD"
     ;;
   test:cli)
     echo_and_eval "$WASP_CLI_TESTS_CMD"
     ;;
-  test:cli:unit)
-    echo_and_eval "$WASP_CLI_UNIT_TESTS_CMD"
-    ;;
-  test:cli:e2e)
-    echo_and_eval "$WASP_CLI_E2E_TESTS_CMD"
-    ;;
-  test:cli:e2e:accept-all)
-    echo_and_eval "$WASP_CLI_E2E_TESTS_ACCEPT_CURRENT_CMD"
+  test:waspls)
+    echo_and_eval "$WASPLS_TESTS_CMD"
     ;;
   test:todoApp)
     echo_and_eval "$TODO_APP_E2E_TESTS_CMD"
