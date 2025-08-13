@@ -3,13 +3,6 @@
 # This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
 
-echo_and_eval() {
-  echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n"
-  eval "$1"
-}
-
-echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
-
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
 REPOSITORY_ROOT=$(cd "$PROJECT_ROOT"/.. && pwd)
@@ -56,11 +49,11 @@ function run_examples_e2e_tests() {
     "examples/websockets-realtime-voting"
   )
 
-  for p in "${paths[@]}"; do
-    echo_and_eval "(cd $REPOSITORY_ROOT/$p && npm i && npm run test)"
+  for path in "${paths[@]}"; do
+    eval "(cd $REPOSITORY_ROOT/$path && npm i && npm run test)"
     local status=$?
     if [ $status -ne 0 ]; then
-      echo -e "${RED}E2E tests failed in $p${RESET}"
+      echo -e "${RED}E2E tests failed in $path${RESET}"
       return $status
     fi
   done
@@ -97,6 +90,13 @@ PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run prettier:format)"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
+
+echo_and_eval() {
+  echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n"
+  eval "$1"
+}
+
+echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
 
 print_usage() {
   print_usage_cmd() {
