@@ -224,13 +224,13 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 ## Important directories (in waspc/)
 
-- src/ -> main source code, library
-- cli/src/ -> rest of the source code, cli, uses library
-- cli/exe/ -> thin executable wrapper around cli library code
-- test/, snapshot-tests/, cli/test/ -> tests
-- data/Generator/templates/ -> mustache templates for the generated client/server.
-- data/Cli/starters/ -> starter templates for new projects
-- examples/ -> example apps
+- `src/` -> main source code, library
+- `cli/src/` -> rest of the source code, cli, uses library
+- `cli/exe/` -> thin executable wrapper around cli library code
+- `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
+- `data/Generator/templates/` -> mustache templates for the generated client/server.
+- `data/Cli/starters/` -> starter templates for new projects
+- `examples/todoApp/` -> our kitchen sink app
 
 ### Typescript packages
 
