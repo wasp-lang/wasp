@@ -5,6 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+      "build": "tsc && bash ./scripts/copy-assets.sh",
       "test": "echo \"Error: no test specified\" && exit 1",
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },

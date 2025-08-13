@@ -90,7 +90,7 @@ buildSdk projectRootDir = do
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob dstDir "npx" ["tsc"] J.Wasp chan)
+      (runNodeCommandAsJob dstDir "npm" ["run", "build"] J.Wasp chan)
   case exitCode of
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
@@ -102,6 +102,7 @@ genSdk spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
+      genFileCopy [relfile|scripts/copy-assets.sh|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],
