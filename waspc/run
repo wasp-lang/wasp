@@ -3,8 +3,16 @@
 # This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
 
-SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+echo_and_eval() {
+  echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n"
+  eval "$1"
+}
+
+echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
+REPOSITORY_ROOT=$(cd "$PROJECT_ROOT"/.. && pwd)
 COMMAND=${1:-watch}
 shift
 ARGS=("$@") # NOTE: This is a bash array!
@@ -29,20 +37,41 @@ INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 # Testing
 WASPC_UNIT_TEST_CMD="cabal test waspc-tests"
 
-WASP_CLI_UNIT_TEST_CMD="cabal test cli-unit-tests"
-WASP_CLI_E2E_TEST_CMD="cabal test cli-e2e-tests"
-WASP_CLI_E2E_TEST_DELETE_GOLDENS="rm -rf $PROJECT_ROOT/cli-e2e-tests/test-outputs/*-golden"
-WASP_CLI_E2E_TEST_ACCEPT_CURRENT_CMD="$WASP_CLI_E2E_TEST_DELETE_GOLDENS && $WASP_CLI_E2E_TEST_CMD"
-WASP_CLI_TEST_CMD="$WASP_CLI_UNIT_TEST_CMD && $WASP_CLI_E2E_TEST_CMD"
+WASP_CLI_UNIT_TESTS_CMD="cabal test cli-unit-tests"
+WASP_CLI_E2E_TESTS_CMD="cabal test cli-e2e-tests"
+WASP_CLI_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/cli-e2e-tests/test-outputs/*-golden"
+WASP_CLI_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASP_CLI_E2E_TESTS_DELETE_GOLDEN && $WASP_CLI_E2E_TESTS_CMD"
+WASP_CLI_TESTS_CMD="$WASP_CLI_UNIT_TESTS_CMD && $WASP_CLI_E2E_TESTS_CMD"
 
-TODO_APP_E2E_TEST_CMD="cd $PROJECT_ROOT/examples/todoApp && npm install && npm run test"
+TODO_APP_E2E_TESTS_CMD="cd $PROJECT_ROOT/examples/todoApp && npm install && npm run test"
 
-STARTERS_E2E_TEST_CMD="cd $PROJECT_ROOT/waspc/starters-e2e-tests && npm install && npm run test:dev"
+STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm install && npm run test:dev"
+
+function run_examples_e2e_tests() {
+  local paths=(
+    "examples/tutorials/todoApp"
+    "examples/tutorials/todoAppTs"
+    "examples/waspello"
+    "examples/waspleau"
+    "examples/websockets-realtime-voting"
+  )
+
+  for p in "${paths[@]}"; do
+    echo_and_eval "(cd $REPOSITORY_ROOT/$p && npm i && npm run test)"
+    local status=$?
+    if [ $status -ne 0 ]; then
+      echo -e "${RED}E2E tests failed in $p${RESET}"
+      return $status
+    fi
+  done
+}
+EXAMPLES_E2E_TESTS_CMD="run_examples_e2e_tests"
 
 TEST_CMD="cabal test && \
   echo 'Running e2e tests' && \
-  $TODO_APP_E2E_TEST_CMD && \
-  $STARTERS_E2E_TEST_CMD && \
+  $TODO_APP_E2E_TESTS_CMD && \
+  $STARTERS_E2E_TESTS_CMD && \
+  $EXAMPLES_E2E_TESTS_CMD && \
   echo 'ALL TESTS PASSED' || \
   { echo 'SOME TESTS FAILED'; exit 1; }"
 
@@ -68,13 +97,6 @@ PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run prettier:format)"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
-
-echo_and_eval() {
-  echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n"
-  eval "$1"
-}
-
-echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
 
 print_usage() {
   print_usage_cmd() {
@@ -117,6 +139,8 @@ print_usage() {
     "Accepts any diffs in the generated code in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:todoApp" \
     "Executes only todoApp e2e tests. Installs deps first if needed."
+  print_usage_cmd "test:examples" \
+    "Executes only examples e2e tests. Installs deps first if needed."
   print_usage_cmd "test:starters" \
     "Executes only starters e2e tests. Installs deps first if needed."
   echo ""
@@ -189,22 +213,25 @@ case $COMMAND in
     fi
     ;;
   test:cli)
-    echo_and_eval "$WASP_CLI_TEST_CMD"
+    echo_and_eval "$WASP_CLI_TESTS_CMD"
     ;;
   test:cli:unit)
-    echo_and_eval "$WASP_CLI_UNIT_TEST_CMD"
+    echo_and_eval "$WASP_CLI_UNIT_TESTS_CMD"
     ;;
   test:cli:e2e)
-    echo_and_eval "$WASP_CLI_E2E_TEST_CMD"
+    echo_and_eval "$WASP_CLI_E2E_TESTS_CMD"
     ;;
   test:cli:e2e:accept-all)
-    echo_and_eval "$WASP_CLI_E2E_TEST_ACCEPT_CURRENT_CMD"
+    echo_and_eval "$WASP_CLI_E2E_TESTS_ACCEPT_CURRENT_CMD"
     ;;
   test:todoApp)
-    echo_and_eval "$TODO_APP_E2E_TEST_CMD"
+    echo_and_eval "$TODO_APP_E2E_TESTS_CMD"
+    ;;
+  test:examples)
+    echo_and_eval "$EXAMPLES_E2E_TESTS_CMD"
     ;;
   test:starters)
-    echo_and_eval "$STARTERS_E2E_TEST_CMD"
+    echo_and_eval "$STARTERS_E2E_TESTS_CMD"
     ;;
   wasp-cli)
     echo_and_eval "$RUN_CMD"
