@@ -122,7 +122,7 @@ jobs:
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run unit tests
-        run: cabal test cli-test waspc-test waspls-test
+        run: cabal test cli-tests waspc-tests waspls-tests
 
       - name: Ensure examples/todoApp compiles and builds
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
@@ -179,7 +179,7 @@ jobs:
           cd examples/todoApp
           # Prepare the environment for the tests
           cp .env.server.headless .env.server
-          HEADLESS_TEST_MODE=dev npm run test
+          WASP_RUN_MODE=dev npm run test
 
       - name: Headless - Run Playwright Tests (build)
         id: headless-run-playwright-tests-build
@@ -188,7 +188,7 @@ jobs:
           cd examples/todoApp
           # Prepare the environment for the tests
           cp .env.server.headless .env.server
-          HEADLESS_TEST_MODE=build npm run test
+          WASP_RUN_MODE=build npm run test
 
-      - name: Run e2e tests
-        run: cabal test e2e-test
+      - name: Run `waspc` e2e tests
+        run: ./run test:waspc:e2e

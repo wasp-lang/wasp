@@ -1,4 +1,4 @@
-name: Run headless tests on root example apps
+name: Run e2e tests on example apps
 
 on:
   workflow_call:
@@ -50,7 +50,7 @@ jobs:
         run: |
           ./run install
 
-      - name: Install Dependencies for ${{ matrix.example }}
+      - name: Install dependencies for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         run: |
           npm ci
@@ -72,20 +72,20 @@ jobs:
           DATABASE_PROVIDER=$($GITHUB_WORKSPACE/scripts/get-wasp-database-provider.sh wasp-cli)
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
-      - name: Run Headless DEV Tests for ${{ matrix.example }}
+      - name: Run e2e DEV tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         env:
           WASP_CLI_CMD: wasp-cli
-          HEADLESS_TEST_MODE: dev
+          WASP_RUN_MODE: dev
         run: |
           npm run test
 
-      - name: Run Headless BUILD Tests for ${{ matrix.example }}
+      - name: Run e2e BUILD tests for ${{ matrix.example }}
         # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
         if: steps.extract-db-provider.outputs.provider != 'sqlite'
         working-directory: examples/${{ matrix.example }}
         env:
           WASP_CLI_CMD: wasp-cli
-          HEADLESS_TEST_MODE: build
+          WASP_RUN_MODE: build
         run: |
           npm run test
