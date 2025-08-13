@@ -122,7 +122,7 @@ jobs:
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run unit tests
-        run: cabal test cli-test waspc-test waspls-test
+        run: cabal test cli-tests waspc-tests waspls-tests
 
       - name: Ensure examples/todoApp compiles and builds
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
@@ -190,5 +190,5 @@ jobs:
           cp .env.server.headless .env.server
           WASP_RUN_MODE=build npm run test
 
-      - name: Run Wasp CLI e2e tests
-        run: ./run test:cli:e2e
+      - name: Run `waspc` e2e tests
+        run: ./run test:waspc:e2e
