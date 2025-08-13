@@ -93,7 +93,7 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ./run test
 ```
 
-to ensure all the tests (unit, integration, e2e) are passing.
+to ensure all the tests (`waspc` + Wasp CLI + Wasp LS + `todoApp` + examples + starters) are passing.
 
 ### Run the `wasp` CLI
 
@@ -159,7 +159,7 @@ When done, new tab in your browser should open and you will see a Todo App!
    Rinse and repeat. If you're an internal team member, postpone updating snapshot tests until approval (see [here](#note-for-team-members)).
 4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
-6. Run `./run test` to confirm that all the tests are passing (unit, integration, e2e). If needed, accept changes in the snapshot tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
+6. Run `./run test` to confirm that all the tests are passing (`waspc` + Wasp CLI + Wasp LS + `todoApp` + examples + starters). If needed, accept changes in the snapshot tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
