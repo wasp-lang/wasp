@@ -1,5 +1,9 @@
 :root {
   /* ATTENTION: Keep this list in sync with the one at ../types.ts */
+  /*
+    This is the list of CSS variables that are used in the auth forms, and that
+    the user can override.
+  */
 
   /* Colors */
   --color-waspYellow: #ffcc00;
