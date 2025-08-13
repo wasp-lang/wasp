@@ -31,12 +31,21 @@ copyWaspLibs :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> [WaspLib.WaspLib] -
 copyWaspLibs spec dstDirPath waspLibs = do
   libsSrcDirPath <- getAbsLibsSourceDirPath
 
+  -- We need to accomodate the SDK hacks with libs, so we copy the libs
+  -- differently depending on the context:
+  -- 1. When running `wasp start` - copy them only to the `.wasp/out` dir
+  -- 2. When running `wasp build` - copy them to the `.wasp/build` AND
+  --   `.wasp/out` dir.
+  let libsDstDirPaths =
+        if AS.isBuild spec
+          then [libsPathInGeneratedCodeDir, libsPathNextToSdk]
+          else [libsPathInGeneratedCodeDir]
+
   results <- mapM (copyWaspLibsFromSrcToDst waspLibs libsSrcDirPath) libsDstDirPaths
   return $ mconcat results
   where
-    libsDstDirPaths =
-      -- Always copy libs to the out dir and optionally to the build dir
-      dstDirPath </> libsRootDirNextToSdk : [dstDirPath </> libsRootDirInGeneratedCodeDir | AS.isBuild spec]
+    libsPathInGeneratedCodeDir = dstDirPath </> libsRootDirInGeneratedCodeDir
+    libsPathNextToSdk = dstDirPath </> libsRootDirNextToSdk
 
 copyWaspLibsFromSrcToDst :: [WaspLib.WaspLib] -> Path' Abs (Dir LibsSourceDir) -> Path' Abs (Dir LibsRootDir) -> IO (Maybe [GeneratorError])
 copyWaspLibsFromSrcToDst waspLibs libsSrcDirPath libsDstDirPath = do

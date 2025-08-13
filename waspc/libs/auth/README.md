@@ -14,6 +14,12 @@ The library has multiple exports:
 If you are writing browser-only code, make sure to put it in a `<name>/browser` export.
 For example, if writing browser-only code for the `sdk` export, put it in `sdk/browser`.
 
+### Lib version
+
+We are not versioning the library, we fixed the version to `0.0.0`. Wasp CLI will
+replace the `0.0.0` version with a checksum of the tarball when generating the Wasp app so that
+the library is not cached by npm.
+
 ## Development
 
 Install the dependencies:

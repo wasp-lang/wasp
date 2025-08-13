@@ -20,27 +20,25 @@ data WaspLib = WaspLib
 
 makeWaspLib :: String -> IO WaspLib
 makeWaspLib waspLibName = do
-  tarballChecksum <- computeTarballChecksum srcTarballPath'
+  tarballChecksum <- computeTarballChecksum tarballPath
 
   return $
     WaspLib
       { name = waspLibName,
-        srcTarballPath = srcTarballPath',
+        srcTarballPath = tarballPath,
         dstTarballPath = Npm.Tarball.makeTarballFilePath sanitizedTarballName tarballChecksum
       }
   where
-    srcTarballPath' = Npm.Tarball.makeTarballFilePath sanitizedTarballName waspLibVersion
+    tarballPath = Npm.Tarball.makeTarballFilePath sanitizedTarballName waspLibVersion
     sanitizedTarballName = Npm.Tarball.sanitizeForTarballFilename waspLibName
+    -- Use don't version the libs, so we use a dummy version here and in the
+    -- libs source directory.
+    waspLibVersion = show $ SV.Version 0 0 0
 
 computeTarballChecksum :: Path' (Rel dir) File' -> IO String
 computeTarballChecksum tarballPath = do
   tarballSrcPath <- (</> castRel tarballPath) <$> getAbsLibsSourceDirPath
   take 8 . hexToString <$> checksumFromFilePath tarballSrcPath
-
--- Hard coded version becuase the tarballPath will have the contents
--- checksum appended later
-waspLibVersion :: String
-waspLibVersion = show $ SV.Version 0 0 0
 
 makeNpmDependencyForWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
 makeNpmDependencyForWaspLib tarballRelDir waspLib =
