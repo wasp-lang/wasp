@@ -5,7 +5,7 @@ module GoldenTest
   )
 where
 
-import Common (getSnapshotTestsOutputsDir)
+import Common (getTestOutputsDir)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -39,7 +39,7 @@ makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCo
 -- and then comparing all file outputs to the corresponding golden test output directory.
 runGoldenTest :: GoldenTest -> IO TestTree
 runGoldenTest goldenTest = do
-  testOutputsDirAbsSp <- getSnapshotTestsOutputsDir
+  testOutputsDirAbsSp <- getTestOutputsDir
   let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
   let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
   let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
