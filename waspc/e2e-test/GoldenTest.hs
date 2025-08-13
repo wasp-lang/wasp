@@ -115,6 +115,7 @@ runGoldenTest goldenTest = do
                     "tsconfig.tsbuildinfo",
                     "dist"
                   ]
+        && not (isTgzFile filePath)
 
     writeExpectedFilesList :: String -> [FilePath] -> FilePath -> IO ()
     writeExpectedFilesList baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
@@ -150,3 +151,6 @@ runGoldenTest goldenTest = do
           where
             unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
             unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
+
+    isTgzFile :: FilePath -> Bool
+    isTgzFile filePath = ".tgz" `isSuffixOf` filePath
