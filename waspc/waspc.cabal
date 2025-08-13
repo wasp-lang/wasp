@@ -622,10 +622,10 @@ executable wasp-cli
   other-modules:
       Paths_waspc
 
-test-suite waspc-test
+test-suite waspc-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: test
+  hs-source-dirs: tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -743,10 +743,10 @@ test-suite waspls-test
     Wasp.LSP.DebouncerTest
     Wasp.LSP.SyntaxTest
 
-test-suite cli-test
+test-suite cli-unit-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: cli/test
+  hs-source-dirs: cli/unit-tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -766,10 +766,10 @@ test-suite cli-test
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
-test-suite snapshot-tests
+test-suite cli-e2e-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: snapshot-tests
+  hs-source-dirs: cli/e2e-tests
   main-is: Main.hs
   build-tool-depends: waspc:wasp-cli
   build-depends:

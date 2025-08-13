@@ -159,7 +159,7 @@ When done, new tab in your browser should open and you will see a Todo App!
    Rinse and repeat. If you're an internal team member, postpone updating snapshot tests until approval (see [here](#note-for-team-members)).
 4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
-6. Run `./run test` to confirm that all the tests are passing (unit, integration, e2e). If needed, accept changes in the snapshot tests with `./run test:snapshot:accept-all`. Check "Tests" for more info.
+6. Run `./run test` to confirm that all the tests are passing (unit, integration, e2e). If needed, accept changes in the snapshot tests with `./run test:cli:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
@@ -176,7 +176,7 @@ Running the snapshot tests and accepting them prematurely:
 - Creates noise for the reviewers.
 - Makes it less likely that you'll thoroughly check the final diffs after all review iterations.
 
-**Carefully review snapshot test diffs before accepting them** (see [Snapshot tests](#snapshot-tests) for more details).
+**Carefully review snapshot test diffs before accepting them** (see [Wasp CLI snapshot tests](#wasp-cli-snapshot-tests) for more details).
 
 ## Design docs (aka RFCs)
 
@@ -258,7 +258,7 @@ We can however still organize tests manually if we want in Tasty test trees, and
 Additionally, currently we limited tasty-discover to auto-detect only files ending with Test.hs (\*Test.hs glob).
 We might remove that requirement in the future if it proves to have no benefit.
 
-To summarize: If you are writing new tests, just put them in a file that ends with `Test.hs` in `test/` dir and that is it.
+To summarize: If you are writing new tests, just put them in a file that ends with `Test.hs` in `tests/` dir and that is it.
 
 For unit testing, we use **Hspec**.
 
@@ -266,24 +266,26 @@ For property testing, we use **Quickcheck**.
 
 We additionally use **doctest** for testing code examples in documentation.
 
-All tests go into `test/` directory.
+All tests go into `tests/` directory.
 This is convention for Haskell, opposite to mixing them with source code as in Javascript for example.
 Not only that, but Haskell build tools don't have a good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
 
-Tests are run with `./run test`. This will run all the tests: unit, integration, and e2e.
+Tests are run with `./run test`. This will run all the tests.
 
-To run unit tests only, you can do `./run test:unit`.
-To run individual unit test, you can do `./run test:unit "Some test description to match"`.
+To run `waspc` unit tests only, you can do `./run test:waspc:unit`.
+To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
 
-To run cli tests only, you can do `./run test:cli`.
+To run Wasp CLI tests only, you can do `./run test:cli`.
+To run Wasp CLI unit tests only, you can do `./run test:cli:unit`.
+To run Wasp CLI e2e tests only, you can do `./run test:cli:e2e`.
 
-To run e2e snapshot tests only, you can do `/run test:snapshot`.
+To run `todoApp` e2e tests, you can do `./run test:todoApp`.
 
-To run Playwright e2e headless tests on the example apps, you can do `/run test:headless`.
+To run starter templates e2e tests, you can do `./run test:starters`.
 
-### Snapshot tests
+### Wasp CLI snapshot tests
 
-Besides unit tests, we have e2e snapshot tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
+Inside of Wasp CLI e2e tests we have snapshot tests that run the Wasp CLI on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
 
 This means that when you make a change in your code that modifies the generated code, snapshot tests will fail while showing a diff between the new generated code and the previous (golden) one.
 This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them.
@@ -294,8 +296,8 @@ Once you are indeed happy with the changes in the generated code, you will want 
 Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
 Easiest way to do this is to use the convenient command from the `./run` script:
 
-```
-./run test:snapshot:accept-all
+```bash
+./run test:cli:e2e:accept-all
 ```
 
 ## Code analysis

@@ -28,7 +28,7 @@ getProjectRootPath = do
   SP.parseAbsDir absCwd
 
 snapshotTestsDirInProjectRoot :: Path' (Rel ProjectRoot) (Dir SnapshotTestsDir)
-snapshotTestsDirInProjectRoot = [reldir|snapshot-tests|]
+snapshotTestsDirInProjectRoot = [reldir|cli/e2e-tests|]
 
 getSnapshotTestsDir :: IO (Path' Abs (Dir SnapshotTestsDir))
 getSnapshotTestsDir = (</> snapshotTestsDirInProjectRoot) <$> getProjectRootPath

@@ -48,7 +48,7 @@ test_ParseStatements = do
   --
   -- When the golden file does not match the actual output, a diff will be shown
   -- in the terminal.
-  waspFiles <- findByExtension [".wasp"] "./test/Analyzer/ParserTest/parseStatementsTests"
+  waspFiles <- findByExtension [".wasp"] "./tests/Analyzer/ParserTest/parseStatementsTests"
   return $
     testGroup "Wasp.Analyzer.Parser.parseStatements" $
       makeParseStatementsGoldenTest <$> waspFiles
