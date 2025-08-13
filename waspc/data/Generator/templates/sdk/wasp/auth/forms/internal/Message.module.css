@@ -2,21 +2,21 @@
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   margin-top: 1rem;
-  background: var(--gray400);
+  background: var(--color-gray400);
 }
 
 .messageError {
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   margin-top: 1rem;
-  background: var(--error-background);
-  color: var(--error-text);
+  background: var(--color-error-background);
+  color: var(--color-error-text);
 }
 
 .messageSuccess {
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   margin-top: 1rem;
-  background: var(--success-background);
-  color: var(--success-text);
+  background: var(--color-success-background);
+  color: var(--color-success-text);
 }

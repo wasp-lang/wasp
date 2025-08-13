@@ -13,7 +13,7 @@
 .orContinueWithLine {
   width: 100%;
   border-top-width: 1px;
-  border-color: var(--gray500);
+  border-color: var(--color-gray500);
 }
 
 .orContinueWithTextContainer {

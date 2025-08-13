@@ -8,7 +8,7 @@
   background-color: #f0f0f0 !important;
   border-radius: 0.375rem !important;
   border-width: 1px !important;
-  border-color: var(--gray600) !important;
+  border-color: var(--color-gray600) !important;
   font-size: 13px !important;
   padding: 0.5rem 0.75rem !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
@@ -22,6 +22,6 @@
 }
 
 .socialButton:hover {
-  background-color: var(--gray500) !important;
+  background-color: var(--color-gray500) !important;
   color: inherit !important;
 }

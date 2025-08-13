@@ -1,24 +1,24 @@
 :root {
   /* Colors */
-  --wasp-yellow: #ffcc00;
-  --gray900: #1a202c;
-  --gray700: #a1a5ab;
-  --gray600: #d1d5db;
-  --gray500: gainsboro;
-  --gray400: #f0f0f0;
-  --red: #FED7D7;
-  --dark-red: #fa3838;
-  --green: #C6F6D5;
+  --color-wasp-yellow: #ffcc00;
+  --color-gray900: #1a202c;
+  --color-gray700: #a1a5ab;
+  --color-gray600: #d1d5db;
+  --color-gray500: gainsboro;
+  --color-gray400: #f0f0f0;
+  --color-red: #FED7D7;
+  --color-dark-red: #fa3838;
+  --color-green: #C6F6D5;
 
   /* Semantic colors */
-  --brand: var(--wasp-yellow);
-  --brand-accent: #ffdb46;
-  --error-background: var(--red);
-  --error-text: #2D3748;
-  --success-background: var(--green);
-  --success-text: #2D3748;
-  --submit-button-text: black;
-  --form-error-text: var(--dark-red);
+  --color-brand: var(--color-wasp-yellow);
+  --color-brand-accent: #ffdb46;
+  --color-error-background: var(--color-red);
+  --color-error-text: #2D3748;
+  --color-success-background: var(--color-green);
+  --color-success-text: #2D3748;
+  --color-submit-button-text: black;
+  --color-form-error-text: var(--color-dark-red);
 
   /* Font sizes */
   --font-size-sm: 0.875rem;

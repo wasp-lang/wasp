@@ -23,7 +23,7 @@
   line-height: 1.5rem !important;
   font-size: var(--font-size-sm) !important;
   border-width: 1px !important;
-  border-color: var(--gray600) !important;
+  border-color: var(--color-gray600) !important;
   background-color: #f8f4ff !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
   border-radius: 0.375rem !important;
@@ -38,7 +38,7 @@
 .formInput:focus,
 .formTextarea:focus {
   border-width: 1px !important;
-  border-color: var(--gray700) !important;
+  border-color: var(--color-gray700) !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
   outline: none;
 }
@@ -47,16 +47,16 @@
 .formTextarea:disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
-  background-color: var(--gray400) !important;
-  border-color: var(--gray400) !important;
-  color: var(--gray500) !important;
+  background-color: var(--color-gray400) !important;
+  border-color: var(--color-gray400) !important;
+  color: var(--color-gray500) !important;
 }
 
 .formError {
   display: block;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--form-error-text);
+  color: var(--color-form-error-text);
   margin-top: 0.5rem;
 }
 
@@ -65,9 +65,9 @@
   justify-content: center !important;
   width: 100% !important;
   border-width: 1px !important;
-  border-color: var(--brand) !important;
-  background-color: var(--brand) !important;
-  color: var(--submit-button-text) !important;
+  border-color: var(--color-brand) !important;
+  background-color: var(--color-brand) !important;
+  color: var(--color-submit-button-text) !important;
   padding: 0.5rem 0.75rem !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
   font-weight: 600 !important;
@@ -80,14 +80,14 @@
 }
 
 .submitButton:hover {
-  background-color: var(--brand-accent) !important;
-  border-color: var(--brand-accent) !important;
+  background-color: var(--color-brand-accent) !important;
+  border-color: var(--color-brand-accent) !important;
 }
 
 .submitButton:disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
-  background-color: var(--gray400) !important;
-  border-color: var(--gray400) !important;
-  color: var(--gray500) !important;
+  background-color: var(--color-gray400) !important;
+  border-color: var(--color-gray400) !important;
+  color: var(--color-gray500) !important;
 }
