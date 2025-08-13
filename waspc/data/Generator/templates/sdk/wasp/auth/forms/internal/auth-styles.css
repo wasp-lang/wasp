@@ -1,4 +1,6 @@
 :root {
+  /* ATTENTION: Keep this list in sync with the one at ../types.ts */
+
   /* Colors */
   --color-wasp-yellow: #ffcc00;
   --color-gray900: #1a202c;
