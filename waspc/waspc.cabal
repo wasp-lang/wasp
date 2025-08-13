@@ -44,7 +44,6 @@ data-files:
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/starters/**/*.js
-  Cli/starters/**/*.cjs
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
   Cli/starters/**/*.css
@@ -409,6 +408,8 @@ library
     Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Ast.Type
     Wasp.Psl.Ast.View
+    Wasp.Psl.Ast.WithCtx
+    Wasp.Psl.Comments
     Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
@@ -417,6 +418,7 @@ library
     Wasp.Psl.Generator.Enum
     Wasp.Psl.Generator.Model
     Wasp.Psl.Generator.Schema
+    Wasp.Psl.Generator.WithCtx
     Wasp.Psl.Parser.Argument
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
@@ -426,6 +428,7 @@ library
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Parser.Type
     Wasp.Psl.Parser.View
+    Wasp.Psl.Parser.WithCtx
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.Psl.Db
@@ -690,6 +693,7 @@ test-suite waspc-tests
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
+    Psl.Generator.WithCtxTest
     Psl.Parser.ArgumentTest
     Psl.Parser.AttributeTest
     Psl.Parser.ConfigBlockTest
@@ -698,6 +702,7 @@ test-suite waspc-tests
     Psl.Parser.TypeTest
     Psl.Parser.ViewTest
     Psl.Parser.SchemaTest
+    Psl.Parser.WithCtxTest
     Psl.ValidTest
     Test.Util
     Util.FibTest

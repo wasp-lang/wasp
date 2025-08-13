@@ -5,10 +5,16 @@
 ### ⚠️ Breaking Changes
 
 - Wasp now requires Node.js version to be >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
+- Wasp now uses ECMAScript Modules (ESM) instead of CommonJS (CJS) for Tailwind configuration files. ([#2998](https://github.com/wasp-lang/wasp/pull/2998))
+- Wasp now uses Vite 7. [#2914](https://github.com/wasp-lang/wasp/pull/2914)
 
 ### 🎉 New Features
 
 - New command: `wasp build start`. Lets you run your built Wasp app locally, just like in production. If required environment variables are missing, the command will show errors—helping you confirm which env vars you'll need to set in production. [#2796](https://github.com/wasp-lang/wasp/pull/2796)
+
+### 🔧 Small improvements
+
+- We now support Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
 
 ## 0.17.1
 

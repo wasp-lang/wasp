@@ -158,3 +158,8 @@
   height: 100%;
   border: 0;
 }
+
+.tutorial-image {
+  border: 1px solid #ccc;
+  border-radius: var(--custom-border-radius);
+}

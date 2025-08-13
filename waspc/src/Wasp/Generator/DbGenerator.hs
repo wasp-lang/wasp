@@ -49,9 +49,11 @@ import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Pls.Db
 import qualified Wasp.Psl.Format as Psl.Format
 import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
+import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
 
@@ -88,11 +90,11 @@ genPrismaSchema spec = do
     tmplSrcPath = Wasp.Generator.DbGenerator.Common.dbTemplatesDirInTemplatesDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInDbTemplatesDir
     dbSystem = ASV.getValidDbSystem spec
 
-    enumSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock <$> Psl.Schema.getEnums prismaSchemaAst
+    enumSchemas = generateWithCtx (Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.EnumBlock) <$> Psl.Schema.getEnums prismaSchemaAst
 
-    viewSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ViewBlock <$> Psl.Schema.getViews prismaSchemaAst
+    viewSchemas = generateWithCtx (Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ViewBlock) <$> Psl.Schema.getViews prismaSchemaAst
 
-    typeSchemas = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.TypeBlock <$> Psl.Schema.getTypes prismaSchemaAst
+    typeSchemas = generateWithCtx (Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.TypeBlock) <$> Psl.Schema.getTypes prismaSchemaAst
 
     generateConfigBlockSchema = Psl.Generator.Schema.generateSchemaBlock . Psl.Schema.ConfigBlock
 
@@ -100,17 +102,17 @@ genPrismaSchema spec = do
       Psl.Ast.ConfigBlock.overrideKeyValuePairs
         [("provider", Psl.Argument.StringExpr datasourceProvider), ("url", validDbUrlExprForPrismaSchema)]
         -- We validated the Prisma schema so we know there is exactly one datasource block.
-        (head $ Psl.Schema.getDatasources prismaSchemaAst)
+        (Psl.WithCtx.getNode $ head $ Psl.Schema.getDatasources prismaSchemaAst)
 
     generators =
       -- We are not overriding any values for now in the generator blocks.
-      Psl.Ast.ConfigBlock.overrideKeyValuePairs []
-        <$> Psl.Schema.getGenerators prismaSchemaAst
+      Psl.Ast.ConfigBlock.overrideKeyValuePairs [] . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Schema.generateSchemaBlock $
-        Psl.Schema.ModelBlock $ Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
+        Psl.Schema.ModelBlock $
+          Psl.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
     prismaSchemaAst = AS.prismaSchema spec
 
@@ -278,7 +280,7 @@ checksumFileExistsAndMatchesSchema projectRootDir schemaFileInProjectDir =
     dbSchemaFileAbs = projectRootDir </> schemaFileInProjectDir
     checksumFileAbs = projectRootDir </> Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
-checksumFileMatchesSchema :: Wasp.Generator.DbGenerator.Common.DbSchemaChecksumFile f => Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
+checksumFileMatchesSchema :: (Wasp.Generator.DbGenerator.Common.DbSchemaChecksumFile f) => Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
 checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs =
   ifM
     (IOUtil.doesFileExist dbSchemaFileAbs)

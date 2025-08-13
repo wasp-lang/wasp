@@ -438,7 +438,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "e03452a91a68ce7c08b5aca220dca1ad79a47d0d189761d3c45adfb7fbc930fa"
+        "f1a595c83f321669fe08d7fbf86243783dddaf751d4d1982419096d43b3b0ffd"
     ],
     [
         [
@@ -592,7 +592,7 @@
             "file",
             "web-app/package.json"
         ],
-        "973c1510daca3dce132072cb0ed966d26361cc81fc35705f3662ecbe19656bb3"
+        "0818cb3b58cb86b64d1dfe047eca3feccbac2e20932a84a9734cbbb792d6c7a0"
     ],
     [
         [
@@ -718,7 +718,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "4978521ed6bc33f15d8ce08ec77f5f0e812bb5bbeb430e37bdc6d41625c72de1"
+        "0771ae124347aaa7f22ccdf35bd3e3b4ff8faa41f27efc67f8e171c86ed9bce5"
     ],
     [
         [

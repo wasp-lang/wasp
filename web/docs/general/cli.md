@@ -19,7 +19,7 @@ COMMANDS
     new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.
       OPTIONS:
         -t|--template <template-name>
-           Check out the templates list here: https://github.com/wasp-lang/starters
+           Available starter templates are: basic, minimal, saas, ai-generated.
 
     new:ai <app-name> <app-description> [<config-json>]
       Uses AI to create a new Wasp project just based on the app name and the description.
@@ -128,9 +128,9 @@ $ wasp clean
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
-Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/). If you prefer a different hosting provider, feel free to let us know on Discord or submit a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
+Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
 
-Read more about automatic deployment [here](../deployment/deployment-methods/cli.md).
+Read more about automatic deployment [here](../deployment/deployment-methods/wasp-deploy/overview.md).
 
 - `wasp telemetry` displays the status of [telemetry](../telemetry.md).
 
