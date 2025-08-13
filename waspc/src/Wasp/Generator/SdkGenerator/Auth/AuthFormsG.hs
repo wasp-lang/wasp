@@ -74,6 +74,7 @@ genInternalAuthComponents auth =
       copyInternalAuthComponent [relfile|Message.tsx|],
       copyInternalAuthComponent [relfile|Message.module.css|],
       copyInternalAuthComponent [relfile|auth-styles.css|],
+      copyInternalAuthComponent [relfile|util.ts|],
       genLoginSignupForm auth,
       copyInternalAuthComponent [relfile|common/LoginSignupForm.module.css|]
     ]
