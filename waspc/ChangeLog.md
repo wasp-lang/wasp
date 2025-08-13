@@ -15,6 +15,7 @@
 ### 🔧 Small improvements
 
 - We now support Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
+- Dropped our dependency on Stitches for our Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
 
 ## 0.17.1
 
