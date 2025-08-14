@@ -1,21 +1,25 @@
-import { styled } from 'wasp/core/stitches.config'
+import type { ComponentProps } from 'react'
+import styles from './Message.module.css'
+import './auth-styles.css'
+import { clsx } from './util'
 
 // PRIVATE API
-export const Message = styled('div', {
-  padding: '0.5rem 0.75rem',
-  borderRadius: '0.375rem',
-  marginTop: '1rem',
-  background: '$gray400',
-})
+export const Message = ({ children, className, ...props }: ComponentProps<'div'>) => (
+  <div className={clsx(styles.message, className)} {...props}>
+    {children}
+  </div>
+)
 
 // PRIVATE API
-export const MessageError = styled(Message, {
-  background: '$errorBackground',
-  color: '$errorText',
-})
+export const MessageError = ({ children, className, ...props }: ComponentProps<'div'>) => (
+  <div className={clsx(styles.messageError, className)} {...props}>
+    {children}
+  </div>
+)
 
 // PRIVATE API
-export const MessageSuccess = styled(Message, {
-  background: '$successBackground',
-  color: '$successText',
-})
+export const MessageSuccess = ({ children, className, ...props }: ComponentProps<'div'>) => (
+  <div className={clsx(styles.messageSuccess, className)} {...props}>
+    {children}
+  </div>
+)

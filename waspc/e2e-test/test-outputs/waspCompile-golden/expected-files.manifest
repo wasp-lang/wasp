@@ -152,6 +152,10 @@ waspCompile/.wasp/out/sdk/wasp/dist/env/validation.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/env/validation.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/env/validation.js
 waspCompile/.wasp/out/sdk/wasp/dist/env/validation.js.map
+waspCompile/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
+waspCompile/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
+waspCompile/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
+waspCompile/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts
 waspCompile/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts.map
 waspCompile/.wasp/out/sdk/wasp/dist/server/HttpError.js
@@ -250,6 +254,7 @@ waspCompile/.wasp/out/sdk/wasp/env/index.ts
 waspCompile/.wasp/out/sdk/wasp/env/validation.ts
 waspCompile/.wasp/out/sdk/wasp/package.json
 waspCompile/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
+waspCompile/.wasp/out/sdk/wasp/scripts/copy-assets.js
 waspCompile/.wasp/out/sdk/wasp/server/HttpError.ts
 waspCompile/.wasp/out/sdk/wasp/server/_types/index.ts
 waspCompile/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
