@@ -9,9 +9,9 @@ where
 import Text.Megaparsec (choice, optional, try)
 import qualified Text.Megaparsec.Char as C
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
-import Wasp.Psl.Parser.Common
-  ( Parser,
-    brackets,
+import Wasp.Psl.Parser.Common (Parser)
+import Wasp.Psl.Parser.Tokens
+  ( brackets,
     colon,
     commaSep,
     float,

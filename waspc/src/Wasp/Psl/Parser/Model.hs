@@ -7,20 +7,22 @@ where
 
 import Control.Arrow (left)
 import Data.Maybe (maybeToList)
-import Text.Megaparsec (choice, errorBundlePretty, many, optional, some, try)
+import Text.Megaparsec (choice, errorBundlePretty, many, optional, sepEndBy1, try)
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Parser.Attribute (attribute, blockAttribute)
 import Wasp.Psl.Parser.Common
   ( Parser,
     SourceCode,
-    braces,
+  )
+import Wasp.Psl.Parser.Lexer (compulsoryNewline, spaceConsumerNL)
+import Wasp.Psl.Parser.Tokens
+  ( braces,
     identifier,
     parens,
     reserved,
     stringLiteral,
     symbol,
-    whiteSpace,
   )
 import Wasp.Psl.Parser.WithCtx (withCtx)
 
@@ -29,7 +31,7 @@ import Wasp.Psl.Parser.WithCtx (withCtx)
 -- parser directly (meaning not as part of parsing the whole schema) which means that the
 -- leading whitespace is not consumed by the `schema` parser.
 parseBody :: SourceCode -> Either String Psl.Model.Body
-parseBody = left errorBundlePretty . Megaparsec.parse (whiteSpace >> body) ""
+parseBody = left errorBundlePretty . Megaparsec.parse (spaceConsumerNL >> body) ""
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:
@@ -48,7 +50,7 @@ model = do
 -- which is everything besides model keyword, name and braces:
 --   `model User { <body> }`.
 body :: Parser Psl.Model.Body
-body = Psl.Model.Body <$> some (withCtx element)
+body = Psl.Model.Body <$> (withCtx element `sepEndBy1` compulsoryNewline)
 
 element :: Parser Psl.Model.Element
 element =
