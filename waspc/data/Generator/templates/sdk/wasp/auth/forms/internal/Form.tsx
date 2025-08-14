@@ -7,8 +7,8 @@ import { clsx } from "./util";
 export const Form = forwardRef<
   ComponentRef<"form">,
   ComponentPropsWithoutRef<"form">
->(({ children, className, ...props }) => (
-  <form className={clsx(styles.form, className)} {...props}>
+>(({ children, className, ...props }, ref) => (
+  <form className={clsx(styles.form, className)} {...props} ref={ref}>
     {children}
   </form>
 ));
@@ -17,8 +17,8 @@ export const Form = forwardRef<
 export const FormItemGroup = forwardRef<
   ComponentRef<"div">,
   ComponentPropsWithoutRef<"div">
->(({ children, className, ...props }) => (
-  <div className={clsx(styles.formItemGroup, className)} {...props}>
+>(({ children, className, ...props }, ref) => (
+  <div className={clsx(styles.formItemGroup, className)} {...props} ref={ref}>
     {children}
   </div>
 ));
@@ -27,8 +27,8 @@ export const FormItemGroup = forwardRef<
 export const FormLabel = forwardRef<
   ComponentRef<"label">,
   ComponentPropsWithoutRef<"label">
->(({ children, className, ...props }) => (
-  <label className={clsx(styles.formLabel, className)} {...props}>
+>(({ children, className, ...props }, ref) => (
+  <label className={clsx(styles.formLabel, className)} {...props} ref={ref}>
     {children}
   </label>
 ));
@@ -37,24 +37,28 @@ export const FormLabel = forwardRef<
 export const FormInput = forwardRef<
   ComponentRef<"input">,
   ComponentPropsWithoutRef<"input">
->(({ className, ...props }) => (
-  <input className={clsx(styles.formInput, className)} {...props} />
+>(({ className, ...props }, ref) => (
+  <input className={clsx(styles.formInput, className)} {...props} ref={ref} />
 ));
 
 // PUBLIC API)
 export const FormTextarea = forwardRef<
   ComponentRef<"textarea">,
   ComponentPropsWithoutRef<"textarea">
->(({ className, ...props }) => (
-  <textarea className={clsx(styles.formTextarea, className)} {...props} />
+>(({ className, ...props }, ref) => (
+  <textarea
+    className={clsx(styles.formTextarea, className)}
+    {...props}
+    ref={ref}
+  />
 ));
 
 // PUBLIC API)
 export const FormError = forwardRef<
   ComponentRef<"div">,
   ComponentPropsWithoutRef<"div">
->(({ children, className, ...props }) => (
-  <div className={clsx(styles.formError, className)} {...props}>
+>(({ children, className, ...props }, ref) => (
+  <div className={clsx(styles.formError, className)} {...props} ref={ref}>
     {children}
   </div>
 ));
@@ -63,8 +67,8 @@ export const FormError = forwardRef<
 export const SubmitButton = forwardRef<
   ComponentRef<"button">,
   ComponentPropsWithoutRef<"button">
->(({ children, className, ...props }) => (
-  <button className={clsx(styles.submitButton, className)} {...props}>
+>(({ children, className, ...props }, ref) => (
+  <button className={clsx(styles.submitButton, className)} {...props} ref={ref}>
     {children}
   </button>
 ));
