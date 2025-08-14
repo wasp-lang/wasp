@@ -17,6 +17,10 @@
 - We now support Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
 - We no longer use Stitches for our Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
 
+### 📖 Documentation
+
+- Added code examples on how to disable Wasp's default auth for custom auth actions. ([#3033](https://github.com/wasp-lang/wasp/pull/3033))
+
 ## 0.17.1
 
 ### 🐞 Bug fixes
