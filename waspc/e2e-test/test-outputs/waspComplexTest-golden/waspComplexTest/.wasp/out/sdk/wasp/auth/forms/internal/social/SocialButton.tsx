@@ -8,7 +8,7 @@ export const SocialButton = forwardRef<
   ComponentRef<"a">,
   ComponentPropsWithoutRef<"a">
 >(({ children, className, ...props }, ref) => (
-  <a className={clsx(styles.socialButton, className)} ref={ref} {...props}>
+  <a className={clsx(styles.socialButton, className)} {...props} ref={ref}>
     {children}
   </a>
 ));
