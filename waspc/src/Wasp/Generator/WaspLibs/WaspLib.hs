@@ -13,6 +13,15 @@ import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir, getAbsLibsSou
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (checksumFromFilePath, hexToString)
 
+{-
+  `WaspLib` represents internal Wasp npm packages that are located in the
+  ./libs directory. These packages contain code that is used in the generated
+  Wasp app. `WaspLib`s are packaged into npm tarballs which are copied to the
+  generated Wasp app and are installed as npm dependencies.
+
+  The filename of a npm tarball copied to the generated Wasp app contains the checksum of the
+  tarball, to avoid npm caching the tarball.
+-}
 data WaspLib = WaspLib
   { packageName :: String,
     dataDirTarball :: NpmTarball LibsSourceDir,
