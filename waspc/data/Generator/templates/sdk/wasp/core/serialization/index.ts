@@ -12,10 +12,10 @@ export type Payload = void | SuperJSONValue;
 // https://github.com/blitz-js/superjson/blob/ae7dbcefe5d3ece5b04be0c6afe6b40f3a44a22a/src/types.ts
 //
 // We couldn't use SuperJSON's types directly because:
-//   1. They aren't exported publicly.
-//   2. They have a weird quirk that turns `SuperJSONValue` into `any`.
+//   1. They have a weird quirk that turns `SuperJSONValue` into `any`.
 //      See why here:
 //      https://github.com/blitz-js/superjson/pull/36#issuecomment-669239876
+//   2. We need to add our own custom types to the serialization process.
 //
 // We changed the code as little as possible to make future comparisons easier.
 export type JSONValue = PrimitiveJSONValue | JSONArray | JSONObject;
