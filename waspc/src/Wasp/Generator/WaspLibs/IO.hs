@@ -4,7 +4,7 @@ module Wasp.Generator.WaspLibs.IO
 where
 
 import Control.Exception (catch)
-import Control.Monad (forM)
+import Control.Monad (forM, forM_)
 import StrongPath
   ( Abs,
     Dir,
@@ -30,7 +30,7 @@ import Wasp.Util.IO (copyFile, deleteDirectoryIfExists)
 
 copyWaspLibsToGeneratedProjectDir :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe [GeneratorError])
 copyWaspLibsToGeneratedProjectDir spec projectRootDir = do
-  sourceDirPath <- getAbsLibsSourceDirPath
+  libsSourceDirPath <- getAbsLibsSourceDirPath
 
   -- We need to accomodate the SDK hacks with libs, so we copy the libs
   -- differently depending on the context:
@@ -42,8 +42,7 @@ copyWaspLibsToGeneratedProjectDir spec projectRootDir = do
           then [libsPathInGeneratedCodeDir, libsPathNextToSdk]
           else [libsPathInGeneratedCodeDir]
 
-  results <- forM destinationDirPaths $ copyWaspLibs waspLibs sourceDirPath
-  return $ mconcat results
+  mconcat <$> forM destinationDirPaths (copyWaspLibs waspLibs libsSourceDirPath)
   where
     libsPathInGeneratedCodeDir = projectRootDir </> libsRootDirInGeneratedCodeDir
     libsPathNextToSdk = projectRootDir </> libsRootDirNextToSdk
@@ -51,18 +50,17 @@ copyWaspLibsToGeneratedProjectDir spec projectRootDir = do
     waspLibs = AS.waspLibs spec
 
 copyWaspLibs :: [WaspLib.WaspLib] -> Path' Abs (Dir LibsSourceDir) -> Path' Abs (Dir LibsRootDir) -> IO (Maybe [GeneratorError])
-copyWaspLibs waspLibs sourcePath destinationPath = do
-  ensureLibsDstDir
-
-  let copyWaspLib = copyWaspLibFromSrcToDst sourcePath destinationPath
-  (mapM_ copyWaspLib waspLibs >> return Nothing)
+copyWaspLibs waspLibs sourceDirPath destinationDirPath = do
+  ensureDestinationDir
+  let copyWaspLib = copyWaspLibFromSrcToDst sourceDirPath destinationDirPath
+  (forM_ waspLibs copyWaspLib >> return Nothing)
     `catch` (\e -> return $ Just [GenericGeneratorError $ show (e :: IOError)])
   where
-    ensureLibsDstDir :: IO ()
-    ensureLibsDstDir = do
-      -- Clean up old lib files
-      deleteDirectoryIfExists destinationPath
-      createDirectory (fromAbsDir destinationPath)
+    ensureDestinationDir :: IO ()
+    ensureDestinationDir = do
+      -- Clean up old lib files.
+      deleteDirectoryIfExists destinationDirPath
+      createDirectory (fromAbsDir destinationDirPath)
 
     copyWaspLibFromSrcToDst :: Path' Abs (Dir LibsSourceDir) -> Path' Abs (Dir LibsRootDir) -> WaspLib.WaspLib -> IO ()
     copyWaspLibFromSrcToDst srcDir dstDir waspLib = do

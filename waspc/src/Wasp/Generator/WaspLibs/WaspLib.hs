@@ -10,7 +10,6 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.ExternalConfig.Npm.Tarball (NpmTarball)
 import qualified Wasp.ExternalConfig.Npm.Tarball as Npm.Tarball
 import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir, getAbsLibsSourceDirPath)
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (checksumFromFilePath, hexToString)
 
 {-
@@ -30,20 +29,21 @@ data WaspLib = WaspLib
 
 makeWaspLib :: String -> IO WaspLib
 makeWaspLib waspLibPackageName = do
-  tarballChecksum <- computeTarballChecksum . (</> Npm.Tarball.filename tarball) =<< getAbsLibsSourceDirPath
+  -- Libs have a fixed version "0.0.0" which means we use the same version for the tarballs
+  -- in the data directory (e.g. lib-0.0.0.tgz). When the tarballs are copied to the generated project directory,
+  -- the tarball filename version is replaced with the checksum of the tarball (e.g. lib-<checksum>.tgz).
+  let dataDirTarball' = Npm.Tarball.makeNpmTarball sanitizedTarballName "0.0.0"
+  tarballChecksum <- computeTarballChecksum . (</> Npm.Tarball.filename dataDirTarball') =<< getAbsLibsSourceDirPath
+  let generatedCodeDirTarball' = Npm.Tarball.makeNpmTarball sanitizedTarballName tarballChecksum
 
   return $
     WaspLib
       { packageName = waspLibPackageName,
-        dataDirTarball = tarball,
-        generatedCodeDirTarball = Npm.Tarball.makeNpmTarball sanitizedTarballName tarballChecksum
+        dataDirTarball = dataDirTarball',
+        generatedCodeDirTarball = generatedCodeDirTarball'
       }
   where
-    tarball = Npm.Tarball.makeNpmTarball sanitizedTarballName waspLibVersion
     sanitizedTarballName = Npm.Tarball.sanitizePackageNameForTarballName waspLibPackageName
-    -- Use don't version the libs, so we use a dummy version here and in the
-    -- libs source directory.
-    waspLibVersion = show $ SV.Version 0 0 0
 
 computeTarballChecksum :: Path' Abs File' -> IO String
 computeTarballChecksum tarballPath = take 8 . hexToString <$> checksumFromFilePath tarballPath
