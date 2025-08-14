@@ -1,7 +1,6 @@
 # Auth Library
 
-This library exports code related to Wasp's auth. It's a result of migrating the auth code from
-Mustache templates to a proper npm package.
+This library exports code related to Wasp's auth which is used in the generated Wasp apps' code.
 
 ## What's inside
 
@@ -73,13 +72,39 @@ When you need to add a new entry point e.g. `@wasp.sh/libs-auth/web-app`:
    }
    ```
 
-### Coverage & type checking
+## Running checks
 
-To check the code coverage and typecheck the code, run:
+We have a few checks that we run to ensure the library is in good shape. You can run them all at once with:
 
 ```bash
-npm run test
+npm run check
 ```
+
+### Tests coverage
+
+To check the test coverage, run:
+
+```bash
+npm run check:coverage
+```
+
+### Type checking
+
+To type check the code, run:
+
+```bash
+npm run check:types
+```
+
+### Verifying type exports
+
+To check the type exports are okay and the library can be consumed, run:
+
+```bash
+npm run check:type-exports
+```
+
+You want to see `🟢` for all items and `⚠️ ESM (dynamic import only) ` for `node16`.
 
 ## Building the library
 
@@ -90,13 +115,3 @@ npm run build
 ```
 
 We are using `tsdown` to build the library which you can configure in `tsdown.config.ts`.
-
-### Verifying type exports
-
-To check the type exports are okay and the library can be consumed, run:
-
-```bash
-npx @arethetypeswrong/cli -P
-```
-
-You want to see `🟢` for all items and `⚠️ ESM (dynamic import only) ` for `node16`.

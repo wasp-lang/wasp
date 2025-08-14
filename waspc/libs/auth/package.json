@@ -38,8 +38,10 @@
     "build": "tsdown",
     "dev": "vitest dev",
     "prepare": "npm run build",
-    "test": "npm run typecheck && vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "check": "npm run check:types && npm run check:coverage && npm run check:type-exports",
+    "check:coverage": "vitest run --coverage",
+    "check:types": "tsc --noEmit",
+    "check:type-exports": "npx @arethetypeswrong/cli -P"
   },
   "peerDependencies": {
     "react": "^18.2.0"
