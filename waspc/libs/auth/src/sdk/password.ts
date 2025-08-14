@@ -26,7 +26,7 @@ export async function verifyPassword(
   }
 }
 
-// We are normalising the password to ensure that the password is always hashed in the same way
+// We are normalising the password to ensure that the password is always hashed in the same way.
 function normalizePassword(password: string): string {
   return password.normalize("NFKC");
 }

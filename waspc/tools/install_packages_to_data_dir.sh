@@ -5,8 +5,9 @@
 
 # Gets the directory of where this script lives.
 script_dir=$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)
+waspc_dir=$script_dir/..
 
-for package_dir in "$script_dir"/../packages/*; do
+for package_dir in "$waspc_dir"/packages/*; do
   if [[ -d "$package_dir" ]]; then
     package=$(basename "$package_dir")
     # We're only installing the dependencies here to verify that the build
@@ -20,6 +21,6 @@ for package_dir in "$script_dir"/../packages/*; do
   fi
 done
 
-cd "$script_dir/.."
+cd "$waspc_dir"
 rm -rf ./data/packages
 cp -R ./packages ./data

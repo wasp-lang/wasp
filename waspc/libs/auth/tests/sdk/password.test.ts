@@ -40,14 +40,14 @@ describe("password utilities", () => {
     });
 
     it("should normalize password before hashing", async () => {
-      // Test with characters that can be normalized differently
+      // Test with characters that can be normalized differently.
       const password1 = "café"; // composed é
       const password2 = "cafe\u0301"; // e + combining acute accent
 
       const hash1 = await hashPassword(password1);
       const hash2 = await hashPassword(password2);
 
-      // Both should verify against each other due to normalization
+      // Both should verify against each other due to normalization.
       await expect(verifyPassword(hash1, password2)).resolves.not.toThrow();
       await expect(verifyPassword(hash2, password1)).resolves.not.toThrow();
     });
