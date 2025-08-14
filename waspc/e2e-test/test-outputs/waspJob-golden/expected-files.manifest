@@ -153,6 +153,10 @@ waspJob/.wasp/out/sdk/wasp/dist/env/validation.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/env/validation.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/env/validation.js
 waspJob/.wasp/out/sdk/wasp/dist/env/validation.js.map
+waspJob/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
+waspJob/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
+waspJob/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
+waspJob/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js.map
 waspJob/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts
 waspJob/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts.map
 waspJob/.wasp/out/sdk/wasp/dist/server/HttpError.js
@@ -291,6 +295,7 @@ waspJob/.wasp/out/sdk/wasp/env/index.ts
 waspJob/.wasp/out/sdk/wasp/env/validation.ts
 waspJob/.wasp/out/sdk/wasp/package.json
 waspJob/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
+waspJob/.wasp/out/sdk/wasp/scripts/copy-assets.js
 waspJob/.wasp/out/sdk/wasp/server/HttpError.ts
 waspJob/.wasp/out/sdk/wasp/server/_types/index.ts
 waspJob/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts

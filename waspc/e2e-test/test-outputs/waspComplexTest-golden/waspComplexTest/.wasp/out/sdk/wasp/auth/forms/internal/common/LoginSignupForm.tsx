@@ -1,7 +1,9 @@
 import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
-import { styled } from 'wasp/core/stitches.config'
+import styles from './LoginSignupForm.module.css'
+import '../auth-styles.css'
 import { config } from 'wasp/client'
+import { clsx } from '../util'
 
 import { AuthContext } from '../../Auth'
 import {
@@ -22,43 +24,6 @@ import type {
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 
-const SocialAuth = styled('div', {
-    marginTop: '1.5rem'
-})
-
-const SocialAuthLabel = styled('div', {
-    fontWeight: '500',
-    fontSize: '$sm'
-})
-
-const SocialAuthButtons = styled('div', {
-    marginTop: '0.5rem',
-    display: 'flex',
-
-    variants: {
-        direction: {
-            horizontal: {
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(48px, 1fr))',
-            },
-            vertical: {
-                flexDirection: 'column',
-                margin: '8px 0',
-            }
-        },
-        gap: {
-            small: {
-                gap: '4px',
-            },
-            medium: {
-                gap: '8px',
-            },
-            large: {
-                gap: '16px',
-            }
-        }
-    }
-})
 const googleSignInUrl = `${config.apiUrl}/auth/google/login`
 
 // PRIVATE API
@@ -88,16 +53,16 @@ export const LoginSignupForm = ({
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
 
   return (<>
-        <SocialAuth>
-          <SocialAuthLabel>{cta} with</SocialAuthLabel>
-          <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
+        <div className={styles.socialAuth}>
+          <div className={styles.socialAuthLabel}>{cta} with</div>
+            <div className={clsx(styles.socialAuthButtons, styles[socialButtonsDirection])}>
 
 
               <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
 
 
-          </SocialAuthButtons>
-        </SocialAuth>
+          </div>
+        </div>
   </>)
 }
 
