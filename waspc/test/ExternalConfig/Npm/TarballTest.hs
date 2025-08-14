@@ -24,15 +24,15 @@ spec_createTarballFilenamesCorrectly = do
     itShouldSanitizePackageNameCorrectly "some.package.name" "some.package.name"
     itShouldSanitizePackageNameCorrectly "~package" "~package"
 
-  describe "makeTarballFilePath" $ do
+  describe "makeTarballFilename" $ do
     itShouldCreateValidTarballPath ("@wasp.sh/libs-auth", "1.0.0") "wasp.sh-libs-auth-1.0.0.tgz"
   where
     itShouldSanitizePackageNameCorrectly :: String -> String -> Spec
     itShouldSanitizePackageNameCorrectly input expected = do
       it ("sanitizes " ++ input) $ do
-        Tarball.sanitizeForTarballFilename input `shouldBe` Tarball.SanitizedTarballName expected
+        Tarball.sanitizePackageNameForTarballName input `shouldBe` Tarball.SanitizedTarballName expected
 
     itShouldCreateValidTarballPath :: (String, String) -> String -> Spec
     itShouldCreateValidTarballPath (packageName, packageVersion) expected = do
       it ("pacakge " ++ packageName ++ " with version " ++ packageName) $ do
-        Tarball.makeTarballFilePath (Tarball.sanitizeForTarballFilename packageName) packageVersion `shouldBe` fromJust (parseRelFile expected)
+        Tarball.makeTarballFilename (Tarball.sanitizePackageNameForTarballName packageName) packageVersion `shouldBe` fromJust (parseRelFile expected)

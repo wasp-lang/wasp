@@ -6,19 +6,18 @@ where
 import Control.Monad (when)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
-import Wasp.Generator.WaspLibs.IO (copyWaspLibs)
+import Wasp.Generator.WaspLibs.IO (copyWaspLibsToGeneratedProjectDir)
 import qualified Wasp.Message as Msg
 
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 runSetup spec projectRootDir sendMessage = do
   -- Libs need to be ready before running npm install, so we set them up first.
-  copyWaspLibs spec projectRootDir waspLibs >>= \case
+  copyWaspLibsToGeneratedProjectDir spec projectRootDir >>= \case
     Just waspLibsCopyErrors -> return ([], waspLibsCopyErrors)
     Nothing -> do
       installNpmDependenciesWithInstallRecord spec projectRootDir >>= \case
@@ -32,8 +31,6 @@ runSetup spec projectRootDir sendMessage = do
               return $ setUpDatabaseResults <> buildSdkResults
             setUpDatabaseResults -> return setUpDatabaseResults
         Left npmInstallError -> return ([], [npmInstallError])
-  where
-    waspLibs = AS.waspLibs spec
 
 setUpDatabase :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 setUpDatabase spec dstDir sendMessage = do

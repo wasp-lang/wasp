@@ -67,7 +67,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    depsExcludedFromOptimization = "wasp" : map WaspLib.name (AS.waspLibs spec)
+    depsExcludedFromOptimization = "wasp" : map WaspLib.packageName (AS.waspLibs spec)
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir

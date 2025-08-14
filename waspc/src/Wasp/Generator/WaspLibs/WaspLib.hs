@@ -5,44 +5,41 @@ module Wasp.Generator.WaspLibs.WaspLib
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, Rel', castRel, fromRelFile, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel', fromRelFile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.ExternalConfig.Npm.Tarball (NpmTarball)
 import qualified Wasp.ExternalConfig.Npm.Tarball as Npm.Tarball
 import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir, getAbsLibsSourceDirPath)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (checksumFromFilePath, hexToString)
 
 data WaspLib = WaspLib
-  { name :: String,
-    srcTarballPath :: Path' (Rel LibsSourceDir) File',
-    dstTarballPath :: Path' (Rel LibsRootDir) File'
+  { packageName :: String,
+    dataDirTarball :: NpmTarball LibsSourceDir,
+    generatedCodeDirTarball :: NpmTarball LibsRootDir
   }
 
 makeWaspLib :: String -> IO WaspLib
-makeWaspLib waspLibName = do
-  tarballChecksum <- computeTarballChecksum tarballPath
+makeWaspLib waspLibPackageName = do
+  tarballChecksum <- computeTarballChecksum . (</> Npm.Tarball.filename tarball) =<< getAbsLibsSourceDirPath
 
   return $
     WaspLib
-      { name = waspLibName,
-        srcTarballPath = tarballPath,
-        dstTarballPath = Npm.Tarball.makeTarballFilePath sanitizedTarballName tarballChecksum
+      { packageName = waspLibPackageName,
+        dataDirTarball = tarball,
+        generatedCodeDirTarball = Npm.Tarball.makeNpmTarball sanitizedTarballName tarballChecksum
       }
   where
-    tarballPath = Npm.Tarball.makeTarballFilePath sanitizedTarballName waspLibVersion
-    sanitizedTarballName = Npm.Tarball.sanitizeForTarballFilename waspLibName
+    tarball = Npm.Tarball.makeNpmTarball sanitizedTarballName waspLibVersion
+    sanitizedTarballName = Npm.Tarball.sanitizePackageNameForTarballName waspLibPackageName
     -- Use don't version the libs, so we use a dummy version here and in the
     -- libs source directory.
     waspLibVersion = show $ SV.Version 0 0 0
 
-computeTarballChecksum :: Path' (Rel dir) File' -> IO String
-computeTarballChecksum tarballPath = do
-  tarballSrcPath <- (</> castRel tarballPath) <$> getAbsLibsSourceDirPath
-  take 8 . hexToString <$> checksumFromFilePath tarballSrcPath
+computeTarballChecksum :: Path' Abs File' -> IO String
+computeTarballChecksum tarballPath = take 8 . hexToString <$> checksumFromFilePath tarballPath
 
 makeNpmDependencyForWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
-makeNpmDependencyForWaspLib tarballRelDir waspLib =
-  Npm.Dependency.make
-    (name waspLib, npmDepFilePath)
+makeNpmDependencyForWaspLib tarballRelDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
   where
-    npmDepFilePath = "file:" <> fromRelFile (tarballRelDir </> dstTarballPath waspLib)
+    npmDepFilePath = "file:" <> fromRelFile (tarballRelDir </> (Npm.Tarball.filename . generatedCodeDirTarball $ waspLib))
