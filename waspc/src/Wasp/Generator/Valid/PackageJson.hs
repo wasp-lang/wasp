@@ -8,6 +8,7 @@ import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
@@ -29,7 +30,7 @@ validatePackageJson packageJson =
 validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
 validateRuntimeDependencies packageJson =
   concat
-    [ validateRuntime ("wasp", "file:.wasp/out/sdk/wasp"),
+    [ validateRuntime (sdkPackageName, "file:.wasp/out/sdk/wasp"),
       validateRuntime ("react-router-dom", show reactRouterVersion),
       -- Installing the wrong version of "react-router-dom" can make users believe that they
       -- can use features that are not available in the version that Wasp supports.
