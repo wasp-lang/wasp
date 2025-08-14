@@ -10,29 +10,29 @@ spec_createTarballFilenamesCorrectly = do
   describe "sanitizeForTarballFilename" $ do
     -- Test cases based on the allowed npm package name regex and expected
     -- values generated using `npm pack` command.
-    itShouldSanitizePackageNameCorrectly "@scope/package" "scope-package"
-    itShouldSanitizePackageNameCorrectly "@my-org/my-package" "my-org-my-package"
-    itShouldSanitizePackageNameCorrectly "@scope/package-name.with.dots" "scope-package-name.with.dots"
-    itShouldSanitizePackageNameCorrectly "@test-scope/test_package" "test-scope-test_package"
-    itShouldSanitizePackageNameCorrectly "@*scope/package" "*scope-package"
-    itShouldSanitizePackageNameCorrectly "@~scope/package" "~scope-package"
-    itShouldSanitizePackageNameCorrectly "@scope*/package" "scope*-package"
-    itShouldSanitizePackageNameCorrectly "lodash" "lodash"
-    itShouldSanitizePackageNameCorrectly "my-package" "my-package"
-    itShouldSanitizePackageNameCorrectly "package_name" "package_name"
-    itShouldSanitizePackageNameCorrectly "package123" "package123"
-    itShouldSanitizePackageNameCorrectly "some.package.name" "some.package.name"
-    itShouldSanitizePackageNameCorrectly "~package" "~package"
+    "@scope/package" ~> "scope-package"
+    "@my-org/my-package" ~> "my-org-my-package"
+    "@scope/package-name.with.dots" ~> "scope-package-name.with.dots"
+    "@test-scope/test_package" ~> "test-scope-test_package"
+    "@*scope/package" ~> "*scope-package"
+    "@~scope/package" ~> "~scope-package"
+    "@scope*/package" ~> "scope*-package"
+    "lodash" ~> "lodash"
+    "my-package" ~> "my-package"
+    "package_name" ~> "package_name"
+    "package123" ~> "package123"
+    "some.package.name" ~> "some.package.name"
+    "~package" ~> "~package"
 
   describe "makeTarballFilename" $ do
     itShouldCreateValidTarballPath ("@wasp.sh/libs-auth", "1.0.0") "wasp.sh-libs-auth-1.0.0.tgz"
   where
-    itShouldSanitizePackageNameCorrectly :: String -> String -> Spec
-    itShouldSanitizePackageNameCorrectly input expected = do
+    (~>) :: String -> String -> Spec
+    (~>) input expected = do
       it ("sanitizes " ++ input) $ do
         Tarball.sanitizePackageNameForTarballName input `shouldBe` Tarball.SanitizedTarballName expected
 
     itShouldCreateValidTarballPath :: (String, String) -> String -> Spec
     itShouldCreateValidTarballPath (packageName, packageVersion) expected = do
-      it ("pacakge " ++ packageName ++ " with version " ++ packageName) $ do
+      it ("package " ++ packageName ++ " with version " ++ packageName) $ do
         Tarball.makeTarballFilename (Tarball.sanitizePackageNameForTarballName packageName) packageVersion `shouldBe` fromJust (parseRelFile expected)
