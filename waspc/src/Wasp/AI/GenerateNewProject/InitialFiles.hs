@@ -160,7 +160,7 @@ generatePackageJson newProjectDetails =
         },
         "devDependencies": {
           "typescript": "5.8.2",
-          "vite": "^4.3.9",
+          "vite": "^7.0.6",
           "@types/react": "^18.0.37",
           "prisma": "5.19.1"
         }

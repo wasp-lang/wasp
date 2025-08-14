@@ -6,56 +6,55 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    After creating a new Wasp project, you'll get a file structure that looks like this:
+    By default, Wasp will create a TypeScript project. We recommend using TypeScript in new projects, and you can always mix-and-match TypeScript and JavaScript files.
+    
+    To use JavaScript in the main page, you must manually rename the file
+    `src/MainPage.tsx` to `src/MainPage.jsx`. Restart `wasp start` after you do this.
 
-    ```
+    No updates to the `main.wasp` file are necessary - it stays the same regardless of the language you use.
+
+    After creating a new Wasp project and renaming the `src/MainPage.tsx` file, your project should look like this:
+
+    <!-- NOTE: Using python as language to get syntax highlighting for the comments -->
+    ```python
     .
     ├── .gitignore
-    ├── main.wasp          # Your Wasp code goes here.
-    ├── schema.prisma      # Your Prisma schema goes here.
-    ├── package.json       # Your dependencies and project info go here.
-    ├── public             # Your static files (e.g., images, favicon) go here.
+    ├── main.wasp     # Your Wasp code goes here.
+    ├── schema.prisma # Your database models go here.
+    ├── package.json  # Your dependencies and project info go here.
+    ├── public        # Your static files (e.g., images, favicon) go here.
     │   └── favicon.ico
-    ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
+    ├── src           # Your source code (JS/React/Node.js) goes here.
     │   ├── Main.css
+    # highlight-next-line
     │   ├── MainPage.jsx
-    │   ├── vite-env.d.ts
-    │   └── waspLogo.png
+    │   ├── assets
+    │   │   └── logo.svg
+    │   └── vite-env.d.ts
     ├── tsconfig.json
-    ├── vite.config.ts
-    ├── .waspignore
-    └── .wasproot
-
+    └── vite.config.ts
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    The default project uses JavaScript. To use TypeScript, you must manually rename the file
-    `src/MainPage.jsx` to `src/MainPage.tsx`. Restart `wasp start` after you do this.
+    After creating a new Wasp project, your project should look like this:
 
-    No updates to the `main.wasp` file are necessary - it stays the same regardless of the language you use.
-
-    After creating a new Wasp project and renaming the `src/MainPage.jsx` file, your project should look like this:
-
-    ```
+    ```python
     .
     ├── .gitignore
-    ├── main.wasp          # Your Wasp code goes here.
-    ├── schema.prisma      # Your Prisma schema goes here.
-    ├── package.json       # Your dependencies and project info go here.
-    ├── public             # Your static files (e.g., images, favicon) go here.
+    ├── main.wasp     # Your Wasp code goes here.
+    ├── schema.prisma # Your database models go here.
+    ├── package.json  # Your dependencies and project info go here.
+    ├── public        # Your static files (e.g., images, favicon) go here.
     │   └── favicon.ico
-    ├── src                # Your source code (TS/JS/CSS/HTML) goes here.
+    ├── src           # Your source code (TS/React/Node.js) goes here.
     │   ├── Main.css
-    // highlight-next-line
-    │   ├── MainPage.tsx   # Renamed from MainPage.jsx
-    │   ├── vite-env.d.ts
-    │   └── waspLogo.png
+    │   ├── MainPage.tsx
+    │   ├── assets
+    │   │   └── logo.svg
+    │   └── vite-env.d.ts
     ├── tsconfig.json
-    ├── vite.config.ts
-    ├── .waspignore
-    └── .wasproot
-
+    └── vite.config.ts
     ```
   </TabItem>
 </Tabs>
@@ -82,7 +81,7 @@ Let's take a closer look at `main.wasp`
 `main.wasp` is your app's definition file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
-:::tip Wasp TS config \[Early-preview feature]
+:::tip Wasp TS config \[Early-preview feature\]
 If you wish, you can alternatively define your [Wasp config in TS](../general/wasp-ts-config.md) (`main.wasp.ts`) instead of `main.wasp`.
 :::
 

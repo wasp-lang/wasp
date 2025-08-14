@@ -150,17 +150,10 @@ npmDepsForWasp _spec =
             ("typescript", show typescriptVersion),
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
-            -- @vitejs/plugin-react is pinned down to an older version to
-            -- prevent NPM from installing Vite 7 as its transient dependency (this
-            -- breaks Wasp with Node older than 20.19).
-            -- TODO: Remove after figuring out our dependency story.
-            -- Fix explanation: https://github.com/wasp-lang/wasp/pull/2865
-            -- Core issue: https://github.com/wasp-lang/wasp/issues/2726
-            -- Long term fix: https://github.com/wasp-lang/wasp/issues/1838
-            ("@vitejs/plugin-react", "4.5.1"),
+            ("@vitejs/plugin-react", "^4.7.0"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^2.0.0")
+            ("@tsconfig/vite-react", "^7.0.0")
           ]
     }
 
