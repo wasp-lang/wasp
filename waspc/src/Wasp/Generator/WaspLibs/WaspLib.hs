@@ -1,7 +1,7 @@
 module Wasp.Generator.WaspLibs.WaspLib
   ( WaspLib (..),
     makeWaspLib,
-    makeNpmDependencyForWaspLib,
+    waspLibAsNpmDependency,
   )
 where
 
@@ -48,7 +48,7 @@ makeWaspLib waspLibPackageName = do
 computeTarballChecksum :: Path' Abs File' -> IO String
 computeTarballChecksum tarballPath = take 8 . hexToString <$> checksumFromFilePath tarballPath
 
-makeNpmDependencyForWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
-makeNpmDependencyForWaspLib tarballRelDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
+waspLibAsNpmDependency :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
+waspLibAsNpmDependency tarballRelDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
   where
     npmDepFilePath = "file:" <> fromRelFile (tarballRelDir </> (Npm.Tarball.filename . generatedCodeDirTarball $ waspLib))
