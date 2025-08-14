@@ -1,14 +1,10 @@
-import { css } from '@stitches/react'
-
-const defaultStyles = css({
-  width: '1.25rem',
-  height: '1.25rem',
-})
+import '../auth-styles.css'
+import styles from './SocialIcons.module.css'
 
 // PRIVATE API
 export const Google = () => (
   <svg
-    className={defaultStyles()}
+    className={styles.icon}
     aria-hidden="true"
     fill="currentColor"
     viewBox="0 0 24 24"
@@ -26,7 +22,7 @@ export const Google = () => (
 
 export const Keycloak = () => (
   <svg
-    className={defaultStyles()}
+    className={styles.icon}
     aria-hidden="true"
     fill="currentColor"
     viewBox="0 0 559 466"
@@ -42,7 +38,7 @@ export const Keycloak = () => (
 // PRIVATE API
 export const GitHub = () => (
   <svg
-    className={defaultStyles()}
+    className={styles.icon}
     aria-hidden="true"
     fill="currentColor"
     viewBox="0 0 20 20"
@@ -57,7 +53,7 @@ export const GitHub = () => (
 
 export const Discord = () => (
   <svg
-    className={defaultStyles()}
+    className={styles.icon}
     aria-hidden="true"
     fill="currentColor"
     viewBox="0 0 16 16"
@@ -68,7 +64,7 @@ export const Discord = () => (
 
 export const Slack = () => (
   <svg
-    className={defaultStyles()}
+    className={styles.icon}
     aria-hidden="true"
     fill="currentColor"
     viewBox="0 0 24 24"

@@ -90,7 +90,7 @@ buildSdk projectRootDir = do
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob dstDir "npx" ["tsc"] J.Wasp chan)
+      (runNodeCommandAsJob dstDir "npm" ["run", "build"] J.Wasp chan)
   case exitCode of
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
@@ -102,6 +102,7 @@ genSdk spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
+      genFileCopy [relfile|scripts/copy-assets.js|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],
@@ -308,10 +309,7 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
     authDeps =
       Npm.Dependency.fromList
-        [ -- NOTE: If Stitches start being used outside of auth,
-          -- we should include this dependency in the SDK deps.
-          ("@stitches/react", "^1.2.8"),
-          -- Argon2 is used for hashing passwords.
+        [ -- Argon2 is used for hashing passwords.
           ("@node-rs/argon2", "^1.8.3")
         ]
 
