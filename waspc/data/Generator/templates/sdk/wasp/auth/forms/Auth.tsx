@@ -41,9 +41,9 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const customStyle = useMemo((): CSSProperties => ({
-    ...tokenObjToCSSVars('color', appearance?.colors || {}),
-    ...tokenObjToCSSVars('font-size', appearance?.fontSizes || {}),
+  const customStyle = useMemo(() => ({
+    ...tokenObjToCSSVars('color', appearance?.colors ?? {}),
+    ...tokenObjToCSSVars('font-size', appearance?.fontSizes ?? {}),
   }), [appearance])
 
   const titles: Record<State, string> = {
