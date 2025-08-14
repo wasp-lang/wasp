@@ -24,7 +24,7 @@ import ShellCommands
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
-import System.FilePath (makeRelative, takeFileName)
+import System.FilePath (isExtensionOf, makeRelative, takeFileName)
 import qualified System.FilePath as FP
 import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
@@ -153,4 +153,4 @@ runGoldenTest goldenTest = do
             unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
 
     isTgzFile :: FilePath -> Bool
-    isTgzFile filePath = ".tgz" `isSuffixOf` filePath
+    isTgzFile = (".tgz" `isExtensionOf`)
