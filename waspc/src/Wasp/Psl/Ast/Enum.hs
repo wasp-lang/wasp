@@ -9,9 +9,10 @@ where
 import Data.Data (Data)
 import Wasp.Psl.Ast.Attribute (Attribute)
 import Wasp.Psl.Ast.Common (Name)
+import Wasp.Psl.Ast.WithCtx (WithCtx)
 import Prelude hiding (Enum)
 
-data Enum = Enum Name [Element]
+data Enum = Enum Name [WithCtx Element]
   deriving (Show, Eq)
 
 data Element

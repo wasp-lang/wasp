@@ -10,15 +10,17 @@ module Wasp.Psl.Ast.Schema
   )
 where
 
+import Data.Maybe (catMaybes)
 import Wasp.Psl.Ast.ConfigBlock (ConfigBlock)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Ast.Enum (Enum)
 import Wasp.Psl.Ast.Model (Model)
 import Wasp.Psl.Ast.Type (Type)
 import Wasp.Psl.Ast.View (View)
+import Wasp.Psl.Ast.WithCtx (WithCtx (WithCtx))
 import Prelude hiding (Enum)
 
-data Schema = Schema [Block]
+data Schema = Schema [WithCtx Block]
   deriving (Show, Eq)
 
 data Block
@@ -29,23 +31,39 @@ data Block
   | ConfigBlock ConfigBlock
   deriving (Show, Eq)
 
-getModels :: Schema -> [Model]
-getModels (Schema blocks) = [model | ModelBlock model <- blocks]
+getModels :: Schema -> [WithCtx Model]
+getModels = extractBlockOfType $ \case
+  ModelBlock model -> Just model
+  _ -> Nothing
 
-getViews :: Schema -> [View]
-getViews (Schema blocks) = [view | ViewBlock view <- blocks]
+getViews :: Schema -> [WithCtx View]
+getViews = extractBlockOfType $ \case
+  ViewBlock view -> Just view
+  _ -> Nothing
 
-getTypes :: Schema -> [Type]
-getTypes (Schema blocks) = [typeBlock | TypeBlock typeBlock <- blocks]
+getTypes :: Schema -> [WithCtx Type]
+getTypes = extractBlockOfType $ \case
+  TypeBlock typeName -> Just typeName
+  _ -> Nothing
 
-getEnums :: Schema -> [Enum]
-getEnums (Schema blocks) = [enum | EnumBlock enum <- blocks]
+getEnums :: Schema -> [WithCtx Enum]
+getEnums = extractBlockOfType $ \case
+  EnumBlock enum -> Just enum
+  _ -> Nothing
 
-getDatasources :: Schema -> [ConfigBlock]
-getDatasources schema = [datasource | datasource@((Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Datasource _ _)) <- getConfigBlocks schema]
+getDatasources :: Schema -> [WithCtx ConfigBlock]
+getDatasources = extractBlockOfType $ \case
+  ConfigBlock configBlock@(Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Datasource _ _) -> Just configBlock
+  _ -> Nothing
 
-getGenerators :: Schema -> [ConfigBlock]
-getGenerators schema = [generator | generator@((Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Generator _ _)) <- getConfigBlocks schema]
+getGenerators :: Schema -> [WithCtx ConfigBlock]
+getGenerators = extractBlockOfType $ \case
+  ConfigBlock configBlock@(Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Generator _ _) -> Just configBlock
+  _ -> Nothing
 
-getConfigBlocks :: Schema -> [ConfigBlock]
-getConfigBlocks (Schema blocks) = [configBlock | ConfigBlock configBlock <- blocks]
+extractBlockOfType :: (Block -> Maybe a) -> Schema -> [WithCtx a]
+extractBlockOfType extractFn (Schema blocksWithCtx) =
+  catMaybes $ extractBlockMaybe <$> blocksWithCtx
+  where
+    extractBlockMaybe (WithCtx block context) =
+      (`WithCtx` context) <$> extractFn block

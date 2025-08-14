@@ -5,6 +5,7 @@ import Wasp.AppSpec.Entity (getIdField)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 
 spec_AppSpecEntityTest :: Spec
 spec_AppSpecEntityTest = do
@@ -16,15 +17,17 @@ spec_AppSpecEntityTest = do
   where
     entityWithIdField =
       Entity.makeEntity $
-        Psl.Model.Body
-          [ Psl.Model.ElementField idField,
-            Psl.Model.ElementField someOtherField
-          ]
+        Psl.Model.Body $
+          Psl.WithCtx.empty
+            <$> [ Psl.Model.ElementField idField,
+                  Psl.Model.ElementField someOtherField
+                ]
     entityWithoutIdField =
       Entity.makeEntity $
-        Psl.Model.Body
-          [ Psl.Model.ElementField someOtherField
-          ]
+        Psl.Model.Body $
+          Psl.WithCtx.empty
+            <$> [ Psl.Model.ElementField someOtherField
+                ]
 
     idField =
       Psl.Model.Field

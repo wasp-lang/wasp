@@ -12,6 +12,7 @@ module Wasp.Psl.Parser.Common
     colon,
     float,
     integer,
+    lexeme,
     SourceCode,
     Parser,
   )
@@ -104,6 +105,7 @@ whiteSpace =
 
 lineComment :: Parser String
 lineComment =
-  C.string "//"
-    >> notFollowedBy (C.char '/')
+  try doubleSlashSymbol
     >> takeWhileP (Just "character") (/= '\n')
+  where
+    doubleSlashSymbol = C.string "//" >> notFollowedBy (C.char '/')

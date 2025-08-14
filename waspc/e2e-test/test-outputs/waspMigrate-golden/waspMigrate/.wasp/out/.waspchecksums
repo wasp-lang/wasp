@@ -172,7 +172,7 @@
             "file",
             "../out/sdk/wasp/core/serialization/index.ts"
         ],
-        "f36812afeb3afac66bca99dd8764a45f8def73374f696ed502280223f6677161"
+        "daaf6d88944b11969bcf278b84409b3ca81dc2f3cc97037df3ebc7f293381a74"
     ],
     [
         [
@@ -445,7 +445,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "14de4dcdce3dac9fa61562f027abdbe16fd9344a64e7ad8d2d5f1e7b008894d8"
+        "970f67dfecedff17463aeff7ccf543a30f71f4365e568b241b7135ef82722f91"
     ],
     [
         [
