@@ -1,21 +1,34 @@
-import { styled } from 'wasp/core/stitches.config'
+import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from "react";
+import styles from "./Message.module.css";
+import "./auth-styles.css";
+import { clsx } from "./util";
 
 // PRIVATE API
-export const Message = styled('div', {
-  padding: '0.5rem 0.75rem',
-  borderRadius: '0.375rem',
-  marginTop: '1rem',
-  background: '$gray400',
-})
+export const Message = forwardRef<
+  ComponentRef<"div">,
+  ComponentPropsWithoutRef<"div">
+>(({ children, className, ...props }, ref) => (
+  <div className={clsx(styles.message, className)} {...props} ref={ref}>
+    {children}
+  </div>
+));
 
 // PRIVATE API
-export const MessageError = styled(Message, {
-  background: '$errorBackground',
-  color: '$errorText',
-})
+export const MessageError = forwardRef<
+  ComponentRef<"div">,
+  ComponentPropsWithoutRef<"div">
+>(({ children, className, ...props }, ref) => (
+  <div className={clsx(styles.messageError, className)} {...props} ref={ref}>
+    {children}
+  </div>
+));
 
 // PRIVATE API
-export const MessageSuccess = styled(Message, {
-  background: '$successBackground',
-  color: '$successText',
-})
+export const MessageSuccess = forwardRef<
+  ComponentRef<"div">,
+  ComponentPropsWithoutRef<"div">
+>(({ children, className, ...props }, ref) => (
+  <div className={clsx(styles.messageSuccess, className)} {...props} ref={ref}>
+    {children}
+  </div>
+));
