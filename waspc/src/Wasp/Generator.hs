@@ -27,6 +27,8 @@ import qualified Wasp.Generator.Start
 import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
+import qualified Wasp.Generator.WaspLibs as WaspLibs
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
@@ -45,21 +47,23 @@ writeWebAppCode spec dstDir sendMessage = do
   case validateAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
-      let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
+      waspLibs <- WaspLibs.getWaspLibs
+
+      let (generatorWarnings, generatorResult) = runGenerator $ genApp spec waspLibs
 
       case generatorResult of
         Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
           writeDotWaspInfo dstDir
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
+          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec waspLibs dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
-genApp :: AppSpec -> Generator [FileDraft]
-genApp spec =
-  genWebApp spec
-    <++> genServer spec
-    <++> genSdk spec
+genApp :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
+genApp spec waspLibs =
+  genWebApp spec waspLibs
+    <++> genServer spec waspLibs
+    <++> genSdk spec waspLibs
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genTailwindConfigFiles spec

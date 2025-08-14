@@ -535,8 +535,7 @@ spec_AppSpecValid = do
                       T.outDir = Just ".wasp/out/user"
                     },
                 T.include = Just ["src"]
-              },
-          AS.waspLibs = []
+              }
         }
 
     getPrismaSchemaWithConfig restOfPrismaSource =

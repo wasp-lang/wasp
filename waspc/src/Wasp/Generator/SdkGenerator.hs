@@ -99,8 +99,8 @@ buildSdk projectRootDir = do
   where
     dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
 
-genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec =
+genSdk :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
+genSdk spec waspLibs =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
@@ -117,7 +117,7 @@ genSdk spec =
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
-      genPackageJson spec,
+      genPackageJson spec waspLibs,
       genDbClient spec,
       genDevIndex
     ]
@@ -183,21 +183,23 @@ genEntitiesAndServerTypesDirs spec =
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
-genPackageJson :: AppSpec -> Generator FileDraft
-genPackageJson spec =
+genPackageJson :: AppSpec -> [WaspLib.WaspLib] -> Generator FileDraft
+genPackageJson spec waspLibs =
   return $
     C.mkTmplFdWithDstAndData
       [relfile|package.json|]
       [relfile|package.json|]
       ( Just $
           object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
+            [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps
             ]
       )
+  where
+    npmDeps = npmDepsForSdk spec waspLibs
 
-npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
-npmDepsForSdk spec =
+npmDepsForSdk :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsForPackage
+npmDepsForSdk spec waspLibs =
   N.NpmDepsForPackage
     { N.dependencies =
         Npm.Dependency.fromList
@@ -239,7 +241,7 @@ npmDepsForSdk spec =
           ]
     }
   where
-    waspLibsNpmDeps = map (WaspLib.waspLibAsNpmDependency libsRootDirFromSdkDir) $ AS.waspLibs spec
+    waspLibsNpmDeps = map (WaspLib.waspLibAsNpmDependency libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

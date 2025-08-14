@@ -28,8 +28,8 @@ import Wasp.Generator.WaspLibs.Common
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Util.IO (copyFile, deleteDirectoryIfExists)
 
-copyWaspLibsToGeneratedProjectDir :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe [GeneratorError])
-copyWaspLibsToGeneratedProjectDir spec projectRootDir = do
+copyWaspLibsToGeneratedProjectDir :: AppSpec -> [WaspLib.WaspLib] -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe [GeneratorError])
+copyWaspLibsToGeneratedProjectDir spec waspLibs projectRootDir = do
   libsSourceDirPath <- getAbsLibsSourceDirPath
 
   -- We need to accomodate the SDK hacks with libs, so we copy the libs
@@ -46,8 +46,6 @@ copyWaspLibsToGeneratedProjectDir spec projectRootDir = do
   where
     libsPathInGeneratedCodeDir = projectRootDir </> libsRootDirInGeneratedCodeDir
     libsPathNextToSdk = projectRootDir </> libsRootDirNextToSdk
-
-    waspLibs = AS.waspLibs spec
 
 copyWaspLibs :: [WaspLib.WaspLib] -> Path' Abs (Dir LibsSourceDir) -> Path' Abs (Dir LibsRootDir) -> IO (Maybe [GeneratorError])
 copyWaspLibs waspLibs sourceDirPath destinationDirPath = do

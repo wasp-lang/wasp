@@ -34,10 +34,10 @@ import Wasp.Project.Common
   )
 import Wasp.Util ((<++>))
 
-genVite :: AppSpec -> Generator [FileDraft]
-genVite spec =
+genVite :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
+genVite spec waspLibs =
   sequence
-    [ genViteConfig spec,
+    [ genViteConfig spec waspLibs,
       genViteTsconfigJson
     ]
     <++> genVitePlugins
@@ -52,8 +52,8 @@ relPathFromWebAppRootDirWaspProjectDir =
       FP.Extra.reversePosixPath $
         SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
-genViteConfig :: AppSpec -> Generator FileDraft
-genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
+genViteConfig :: AppSpec -> [WaspLib.WaspLib] -> Generator FileDraft
+genViteConfig spec wasplibs = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
   where
     tmplData =
       object
@@ -68,7 +68,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    depsExcludedFromOptimization = sdkPackageName : map WaspLib.packageName (AS.waspLibs spec)
+    depsExcludedFromOptimization = sdkPackageName : map WaspLib.packageName wasplibs
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir

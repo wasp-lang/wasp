@@ -66,13 +66,13 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-genServer :: AppSpec -> Generator [FileDraft]
-genServer spec =
+genServer :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
+genServer spec waspLibs =
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
       genTsConfigJson spec,
-      genPackageJson spec (npmDepsForWasp spec),
+      genPackageJson spec (npmDepsForWasp spec waspLibs),
       genNpmrc,
       genGitignore,
       genNodemon
@@ -149,8 +149,8 @@ getPackageJsonPrismaField spec = object $ [] <> seedEntry
   where
     seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
-npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
-npmDepsForWasp spec =
+npmDepsForWasp :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsForWasp
+npmDepsForWasp spec waspLibs =
   N.NpmDepsForWasp
     { N.waspDependencies =
         Npm.Dependency.fromList
@@ -183,7 +183,7 @@ npmDepsForWasp spec =
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-    waspLibsNpmDeps = map (WaspLib.waspLibAsNpmDependency libsRootDirFromServerDir) $ AS.waspLibs spec
+    waspLibsNpmDeps = map (WaspLib.waspLibAsNpmDependency libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

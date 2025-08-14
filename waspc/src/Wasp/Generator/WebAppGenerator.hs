@@ -33,6 +33,7 @@ import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.DepVersions
@@ -52,8 +53,8 @@ import Wasp.Project.Common
   )
 import Wasp.Util ((<++>))
 
-genWebApp :: AppSpec -> Generator [FileDraft]
-genWebApp spec = do
+genWebApp :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
+genWebApp spec waspLibs = do
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
@@ -67,7 +68,7 @@ genWebApp spec = do
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
-    <++> genVite spec
+    <++> genVite spec waspLibs
   where
     genFileCopy = return . C.mkTmplFd
 

@@ -87,8 +87,7 @@ spec_WebAppGenerator = do
                         T.outDir = Just ".wasp/out/user"
                       },
                   T.include = Just ["src"]
-                },
-            AS.waspLibs = []
+                }
           }
 
   describe "genWebApp" $ do
