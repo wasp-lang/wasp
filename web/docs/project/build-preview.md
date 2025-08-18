@@ -73,7 +73,7 @@ wasp build start --client-env-file .env.client.production
 ## Differences from `wasp start`
 
 | Aspect                                   | `wasp start`        | `wasp build start`                                            |
-| ---------------------------------------- | ------------------- | ------------------------------------------------------------- |
+|------------------------------------------|---------------------|---------------------------------------------------------------|
 | Runs your app for general production use | **No**              | **No** (check our [deployment guide](../deployment/intro.md)) |
 | Intended for                             | Local development   | Local production preview                                      |
 | Server environment                       | Node.js             | Node.js in a Docker container                                 |
@@ -81,6 +81,6 @@ wasp build start --client-env-file .env.client.production
 | Assets                                   | Served individually | Bundled and minified                                          |
 | React dev mode                           | Enabled             | Disabled                                                      |
 | Hot reload                               | Enabled             | Disabled                                                      |
-| Source maps                              | Full                | Optimized/minimal                                             |
+| Source maps                              | Enabled             | Disabled                                                      |
 | Debugging support                        | Full                | Limited                                                       |
 | Performance                              | Slower              | Normal                                                        |
