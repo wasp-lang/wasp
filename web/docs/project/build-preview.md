@@ -2,6 +2,8 @@
 title: Production Build Preview
 ---
 
+import { SecretGeneratorBlock } from './SecretGeneratorBlock'
+
 The `wasp build start` command allows you to preview your production build locally before deploying. This helps you test how your app behaves in production conditions and verify that it works correctly with your production configuration.
 
 This command takes the output of `wasp build` and starts a local server to preview it. This runs your app with the same optimized build and very similar environment to how it will be deployed to your users.
@@ -10,11 +12,21 @@ This command takes the output of `wasp build` and starts a local server to previ
 While this command uses your production build, it runs your app without many of the security and reliability guarantess that our [supported deployment methods](../deployment/intro.md) have. When you're ready to deploy your app to the world, check out our [deployment guide](../deployment/intro.md) for instructions and best practices.
 :::
 
-## Usage
+## Example
 
 ```bash
+# Start a local database, copy the connection URL
+wasp start db
+
+# Start the production build preview server
 wasp build start --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>
 ```
+
+:::tip
+For `JWT_SECRET`, you can generate a random secret here: <SecretGeneratorBlock />.
+
+You might need to pass other environment variables as well, depending on your app's configuration. Check our [Environment variables reference](./env-vars.md) for more details.
+:::
 
 This command will:
 
@@ -22,7 +34,7 @@ This command will:
 - Use the same bundled assets that would be deployed.
 - Run in production mode with optimizations enabled.
 
-## Environment Variables
+## Passing environment variables
 
 You have to manually specify any environment variables that your app needs to run in production. This is crucial because the production build may require different configurations than the development build. This helps you make sure of which environment variables you need to set in your deployment environment for your app to work correctly.
 
@@ -30,7 +42,7 @@ This includes database URLs, API keys, and any other configuration settings that
 
 The only exception are the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
 
-### Server Environment Variables
+### Server environment variables
 
 Use `--server-env` to specify environment variables for the server:
 
@@ -54,7 +66,7 @@ wasp build start --server-env-file .env.production
 Do not commit your `.env` files with sensitive information to your version control system. Use `.gitignore` to exclude them.
 :::
 
-### Client Environment Variables
+### Client environment variables
 
 Use `--client-env` to specify environment variables for the client:
 
