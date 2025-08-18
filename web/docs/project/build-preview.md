@@ -29,7 +29,7 @@ You have to manually specify any environment variables that your app needs to ru
 
 This includes database URLs, API keys, and any other configuration settings that are necessary for your app to function correctly. You can usually check out your [`.env` files](./env-vars.md#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](./env-vars.md).
 
-The only exception are the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL`). Because `wasp build start` know that it's running the app on your local workstation, it can fill them out for you automatically.
+The only exception are the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
 
 
 ### Server Environment Variables
