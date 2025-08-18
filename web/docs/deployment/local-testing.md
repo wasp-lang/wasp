@@ -21,6 +21,7 @@ While it's not identical to a real production environment, it's the closest you 
 wasp start db
 
 # Start the local production build server
+# (this is an example, you'll probably need to add more environment variables)
 wasp build start --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>
 ```
 
@@ -66,11 +67,11 @@ You should treat this command as the last check before deploying your app, confi
 
 ## Passing environment variables
 
-You have to manually specify any environment variables that your app needs to run in production. This is crucial because the production build may require different configurations than the development build. This helps you make sure of which environment variables you need to set in your deployment environment for your app to work correctly.
+You have to manually specify any environment variables that your app needs to run in production. This is crucial because the production build may require different configurations than the development build. This helps you make sure of which environment variables you need to set in your deployment provider for your app to work correctly.
 
 This includes database URLs, API keys, and any other configuration settings that are necessary for your app to function correctly. You can usually check out your [`.env` files](../project/env-vars.md#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](../project/env-vars.md).
 
-The only exception are the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
+The only exception are the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
 
 :::info Which values should I use when testing?
 
