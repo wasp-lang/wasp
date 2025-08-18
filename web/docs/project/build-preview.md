@@ -30,7 +30,6 @@ This includes database URLs, API keys, and any other configuration settings that
 
 The only exception are the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
 
-
 ### Server Environment Variables
 
 Use `--server-env` to specify environment variables for the server:
