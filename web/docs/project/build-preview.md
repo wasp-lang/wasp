@@ -4,12 +4,14 @@ title: Production Build Preview
 
 import { SecretGeneratorBlock } from './SecretGeneratorBlock'
 
-The `wasp build start` command allows you to preview your production build locally before deploying. This helps you test how your app will behave in production conditions and verify that it works correctly with your production configuration.
+`wasp build start` lets you test your production build locally before deploying, and make sure everything works correctly before you put it live.
 
-This command takes the output of `wasp build` and starts a local server to preview it. This runs your app with the same optimized build and very similar environment to how it will be deployed to your users.
+This command takes the output of `wasp build` and starts a local server to run it. That means that you can test using the same optimized code that would be deployed to production. You also configure it with the same environment variables you'd use in production, which helps you catch configuration issues before deploying.
+
+While it's not identical to a real production environment, it's the closest you can get to testing your deployed app without actually deploying it.
 
 :::warning This is not a deployment command
-While this command uses your production build, it runs your app without many of the security and reliability guarantess that our [supported deployment methods](../deployment/intro.md) have. When you're ready to deploy your app to the world, check out our [deployment guide](../deployment/intro.md) for instructions and best practices.
+`wasp build start` is only intended for testing your `wasp build` output locally, and is not designed for serving your app in production. For that, check out our [deployment guide](../deployment/intro.md).
 :::
 
 ## Example
@@ -30,7 +32,7 @@ You might need to pass other environment variables as well, depending on your ap
 
 This command will:
 
-- Start a local server serving your production build.
+- Start a local server serving your production build (the output of `wasp build`).
 - Use the same bundled assets that would be deployed.
 - Run in production mode with optimizations enabled.
 
