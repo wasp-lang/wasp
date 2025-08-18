@@ -115,7 +115,6 @@ const sidebars: SidebarsConfig = {
         "project/static-assets",
         "project/env-vars",
         "project/testing",
-        "project/build-preview",
         "project/dependencies",
         "project/css-frameworks",
         "project/custom-vite-config",
@@ -130,6 +129,7 @@ const sidebars: SidebarsConfig = {
         "deployment/intro",
         "deployment/env-vars",
         "deployment/database",
+        "deployment/local-testing",
         {
           type: "category",
           label: "Deployment Methods",
