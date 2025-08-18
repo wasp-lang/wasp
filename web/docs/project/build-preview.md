@@ -50,6 +50,10 @@ You can also point to an `.env` file to load environment variables:
 wasp build start --server-env-file .env.production
 ```
 
+:::warning
+Do not commit your `.env` files with sensitive information to your version control system. Use `.gitignore` to exclude them.
+:::
+
 ### Client Environment Variables
 
 Use `--client-env` to specify environment variables for the client:
@@ -69,6 +73,10 @@ You can also point to an `.env` file for client variables:
 ```bash
 wasp build start --client-env-file .env.client.production
 ```
+
+:::warning
+Do not commit your `.env` files with sensitive information to your version control system. Use `.gitignore` to exclude them.
+:::
 
 ## Differences from `wasp start`
 
