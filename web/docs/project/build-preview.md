@@ -17,7 +17,7 @@ wasp build start --server-env DATABASE_URL=<your-database-url> --server-env JWT_
 ```
 
 This command will:
-- Start a local server serving your production build
+- Start a local server serving your production build.
 - Use the same bundled assets that would be deployed
 - Run in production mode with optimizations enabled
 
