@@ -20,7 +20,6 @@ export async function runStarterE2ETests(
     () => initializeTestEnvironment(execution),
   );
 
-  // TODO: implement branching logic based on included tests or not
   await runDevE2ETests(starterName, waspProjectPath, waspCliCommand);
   await runBuildE2ETests(starterName, waspProjectPath, waspCliCommand);
 }
