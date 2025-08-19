@@ -17,6 +17,15 @@
         ]
       },
       "copy-packages": {
+        "cache": true,
+        "inputs": [
+          {
+            "dependentTasksOutputFiles": "**/*"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/data/packages"
+        ],
         "dependsOn": [
           "^build"
         ],

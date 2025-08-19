@@ -31,5 +31,15 @@
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "wasp-studio-client": "*"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   }
 }

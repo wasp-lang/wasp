@@ -39,5 +39,15 @@
   "//": [
     "We pin `vitest` version because type tests are an experimental feature,",
     "and changes to API are not breaking changes."
-  ]
+  ],
+  "nx": {
+    "targets": {
+      "build": {
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
+  }
 }

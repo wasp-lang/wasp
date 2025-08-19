@@ -32,5 +32,15 @@
   "//": [
     "typescript is purposefully a normal dependency, and not a dev dependency:",
     "the compiler is called at runtime to extract information from JS/TS files."
-  ]
+  ],
+  "nx": {
+    "targets": {
+      "build": {
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
+  }
 }
