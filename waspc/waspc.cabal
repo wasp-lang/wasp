@@ -62,25 +62,13 @@ data-files:
   Lsp/templates/**/*.js
   Lsp/templates/**/*.ts
   Lsp/templates/**/*.jsx
-  packages/deploy/dist/**/*.js
-  packages/deploy/package.json
-  packages/deploy/package-lock.json
-  packages/ts-inspect/dist/**/*.js
-  packages/ts-inspect/package.json
-  packages/ts-inspect/package-lock.json
-  packages/prisma/dist/**/*.js
-  packages/prisma/package.json
-  packages/prisma/package-lock.json
-  packages/studio/dist/**/*.js
-  packages/studio/dist/**/*.html
-  packages/studio/dist/**/*.css
-  packages/studio/package.json
-  packages/studio/package-lock.json
-  packages/wasp-config/dist/**/*.js
-  packages/wasp-config/dist/**/*.d.ts
-  packages/wasp-config/dist/**/*.map
-  packages/wasp-config/package.json
-  packages/wasp-config/package-lock.json
+  packages/**/*
+  packages/**/*.js
+  packages/**/*.json
+  packages/**/*.html
+  packages/**/*.css
+  packages/**/*.d.ts
+  packages/**/*.map
 data-dir: data/
 
 source-repository head

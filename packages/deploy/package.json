@@ -25,5 +25,8 @@
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",
     "typescript": "^5.7.3"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

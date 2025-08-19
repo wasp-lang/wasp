@@ -1,0 +1,27 @@
+{
+  "name": "waspc",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "wasp-config": "*",
+    "wasp-deploy": "*",
+    "wasp-prisma": "*",
+    "wasp-studio-server": "*",
+    "wasp-ts-inspect": "*"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "copy-packages"
+        ]
+      },
+      "copy-packages": {
+        "dependsOn": [
+          "^build"
+        ],
+        "command": "node {projectRoot}/tools/copy-packages.js"
+      }
+    }
+  }
+}

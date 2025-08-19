@@ -8,6 +8,9 @@
   "license": "ISC",
   "main": "index.js",
   "keywords": [],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "cp -r ../studio-client/dist ./public && tsc && cp -r ./public ./dist/public",
     "dev": "tsx --watch ./src/index.ts",
