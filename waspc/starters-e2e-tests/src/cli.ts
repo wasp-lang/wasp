@@ -11,7 +11,7 @@ export function parseArgs(args: string[]): StartersE2ETestsArgs {
   const command = program
     .name("starters-e2e-tests")
     .description(
-      "Run end-to-end tests for Wasp starter templates (except `ai`)",
+      "Run end-to-end tests for Wasp starter templates (except `ai` and `saas`)",
     )
     .version(packageJson.version)
     .requiredOption(
