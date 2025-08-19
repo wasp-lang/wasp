@@ -156,7 +156,38 @@ Here's the new version of `tsconfig.json`:
 }
 ```
 
-### 3. Tell Wasp about `jest-dom` types
+### 3. Update your `package.json`
+
+Wasp now requires `typescript` to be set to version `5.8.2`.
+
+Here’s the updated `package.json` snippet:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "typescript": "^5.1.0",
+  }
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "typescript": "5.8.2",
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### 4. Tell Wasp about `jest-dom` types
 
 If you're using (or planning to use) Wasp's [client tests](../project/testing.md) with `jest-dom`,
 update your `src/vite-env.d.ts` file:
@@ -171,7 +202,7 @@ update your `src/vite-env.d.ts` file:
 import "@testing-library/jest-dom";
 ```
 
-### 4. Add a `favicon.ico` to the `public` directory
+### 5. Add a `favicon.ico` to the `public` directory
 
 This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
 If so, you should add a `favicon.ico` to your `public` folder.
@@ -180,7 +211,7 @@ If you want to keep the default, you can [download it here](https://raw.githubus
 
 If you want to generate a `favicon.ico` and all its possible variants, check out [RealFaviconGenerator](https://realfavicongenerator.net/), a handy open-source tool for creating favicons.
 
-### 5. Add a `<link>` meta tag for `favicon.ico`
+### 6. Add a `<link>` meta tag for `favicon.ico`
 
 This step is required for all of the project's which use `favicon.ico`.
 Add the `<link>` meta tag to the `head` property in the `main.wasp`
@@ -194,7 +225,7 @@ app MyApp {
 }
 ```
 
-### 6. Upgrade Express dependencies
+### 7. Upgrade Express dependencies
 
 If you had `express` or `@types/express` in your `package.json`, you should change them to use version 5:
 
@@ -229,7 +260,7 @@ If you had `express` or `@types/express` in your `package.json`, you should chan
 </TabItem>
 </Tabs>
 
-### 7. Upgrade your `api` endpoints to Express 5
+### 8. Upgrade your `api` endpoints to Express 5
 
 Wasp now uses [Express v5](https://expressjs.com/2024/10/15/v5-release.html), which impacts
 [API Endpoints](../advanced/apis.md) (defined with `api` in your Wasp file).
@@ -243,7 +274,7 @@ In general, you only need to worry about changes to the `req` and `res` objects 
 The breaking changes are mostly edge cases and most code should work without any updates.
 :::
 
-### 8. Enjoy your updated Wasp app
+### 9. Enjoy your updated Wasp app
 
 That's it!
 
