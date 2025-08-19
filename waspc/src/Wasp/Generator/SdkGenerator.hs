@@ -18,7 +18,7 @@ import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
-import Wasp.AppSpec
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -66,6 +66,8 @@ import Wasp.Generator.ServerGenerator.DepVersions
     expressVersionStr,
   )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
+import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
@@ -97,8 +99,8 @@ buildSdk projectRootDir = do
   where
     dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
 
-genSdk :: AppSpec -> Generator [FileDraft]
-genSdk spec =
+genSdk :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
+genSdk spec waspLibs =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
@@ -115,7 +117,7 @@ genSdk spec =
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
-      genPackageJson spec,
+      genPackageJson spec waspLibs,
       genDbClient spec,
       genDevIndex
     ]
@@ -181,21 +183,23 @@ genEntitiesAndServerTypesDirs spec =
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
-genPackageJson :: AppSpec -> Generator FileDraft
-genPackageJson spec =
+genPackageJson :: AppSpec -> [WaspLib.WaspLib] -> Generator FileDraft
+genPackageJson spec waspLibs =
   return $
     C.mkTmplFdWithDstAndData
       [relfile|package.json|]
       [relfile|package.json|]
       ( Just $
           object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
+            [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps
             ]
       )
+  where
+    npmDeps = npmDepsForSdk spec waspLibs
 
-npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
-npmDepsForSdk spec =
+npmDepsForSdk :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsForPackage
+npmDepsForSdk spec waspLibs =
   N.NpmDepsForPackage
     { N.dependencies =
         Npm.Dependency.fromList
@@ -210,7 +214,6 @@ npmDepsForSdk spec =
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
           ]
-          ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
           -- lists prisma/client as a dependency.
@@ -228,7 +231,8 @@ npmDepsForSdk spec =
           -- we are running them from the project root dir and PostCSS and Tailwind
           -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
           ++ depsRequiredByTailwind spec
-          ++ depsRequiredByEnvValidation,
+          ++ depsRequiredByEnvValidation
+          ++ waspLibsNpmDeps,
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
@@ -236,6 +240,8 @@ npmDepsForSdk spec =
             ("@types/express-serve-static-core", show expressTypesVersion)
           ]
     }
+  where
+    waspLibsNpmDeps = map (WaspLib.waspLibAsNpmDependency libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
@@ -302,16 +308,6 @@ genTsConfigJson = do
             [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
-
-depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
-  where
-    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
-    authDeps =
-      Npm.Dependency.fromList
-        [ -- Argon2 is used for hashing passwords.
-          ("@node-rs/argon2", "^1.8.3")
-        ]
 
 depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByTailwind spec =

@@ -58,19 +58,21 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliase
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-genServer :: AppSpec -> Generator [FileDraft]
-genServer spec =
+genServer :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
+genServer spec waspLibs =
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
       genTsConfigJson spec,
-      genPackageJson spec (npmDepsForWasp spec),
+      genPackageJson spec (npmDepsForWasp spec waspLibs),
       genNpmrc,
       genGitignore,
       genNodemon
@@ -147,8 +149,8 @@ getPackageJsonPrismaField spec = object $ [] <> seedEntry
   where
     seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
-npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
-npmDepsForWasp spec =
+npmDepsForWasp :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsForWasp
+npmDepsForWasp spec waspLibs =
   N.NpmDepsForWasp
     { N.waspDependencies =
         Npm.Dependency.fromList
@@ -160,7 +162,8 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("superjson", show superjsonVersion)
           ]
-          ++ depsRequiredByWebSockets spec,
+          ++ depsRequiredByWebSockets spec
+          ++ waspLibsNpmDeps,
       N.waspDevDependencies =
         Npm.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
@@ -179,6 +182,8 @@ npmDepsForWasp spec =
     }
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+    waspLibsNpmDeps = map (WaspLib.waspLibAsNpmDependency libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

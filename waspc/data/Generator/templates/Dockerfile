@@ -36,7 +36,11 @@ COPY src ./src
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig*.json .
+# Server depends on the libs
+COPY libs .wasp/build/libs
 COPY server .wasp/build/server
+# SDK depends on the libs
+COPY libs .wasp/out/libs
 COPY sdk .wasp/out/sdk
 # Install npm packages, resulting in node_modules/.
 RUN npm install && cd .wasp/build/server && npm install
