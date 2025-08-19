@@ -158,9 +158,23 @@ Here's the new version of `tsconfig.json`:
 
 ### 3. Update your `package.json`
 
-Due to internal `tsconfig.json` changes, Wasp now requires `typescript` to be set to version `5.8.2`.
+Wasp now requires `typescript` to be set to version `5.8.2`.
 
 Here’s the updated `package.json` snippet:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "typescript": "^5.1.0",
+  }
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
 
 ```json title="package.json"
 {
@@ -169,6 +183,9 @@ Here’s the updated `package.json` snippet:
   }
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### 4. Tell Wasp about `jest-dom` types
 
