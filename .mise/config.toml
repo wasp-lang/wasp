@@ -1,4 +1,0 @@
-[env]
-'_'.path = [
-  "{{config_root}}/node_modules/.bin",
-]
