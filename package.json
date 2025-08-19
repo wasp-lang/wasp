@@ -10,6 +10,8 @@
     "prettier-plugin-pkg": "0.19.1",
     "prettier-plugin-sh": "0.17.4",
     "prettier-plugin-tailwindcss": "^0.6.13",
-    "typescript": "~5.8.3"
-  }
+    "typescript": "~5.8.3",
+    "nx": "21.4.0"
+  },
+  "nx": {}
 }
