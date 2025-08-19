@@ -25,7 +25,7 @@ export async function formatSchema(
     const process = spawn(
       "npx",
       ["prisma", "format", "--schema", tmpPrismaSchemaFile.path],
-      {},
+      {shell: true},
     );
     process.stderr.on("data", (data) => {
       stderr += data;
