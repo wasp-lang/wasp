@@ -46,7 +46,7 @@ bashCompletion = do
         "test",
         "studio"
       ]
-    dbSubCommands = ["migrate-dev", "studio"]
+    dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()
@@ -62,14 +62,23 @@ printBashCompletionInstruction :: Command ()
 printBashCompletionInstruction =
   liftIO . putStrLn $
     unlines
-      [ "Run the following command to generate bash completion script for wasp on your machine:",
+      [ "Setting up Bash auto-completion for Wasp",
         "",
-        "wasp completion:generate > <your-chosen-directory>/wasp-completion",
+        "1. Generate the completion script by running:",
+        "     wasp completion:generate > <file_path>",
+        "   (replace <file_path> with where you want to save the script, e.g. ~/.wasp_completion)",
         "",
-        "After that, depending on your system, you will need to edit your bash profile:",
-        "- on MacOS (OSX): you will normally want to edit ~/.bashrc",
-        "- on Linux: you will normally want to edit ~/.bash_profile",
-        "and add this line:",
-        "  source <your-chosen-directory>/wasp-completion",
-        "then reset your terminal session."
+        "2. Configure your shell to use the script:",
+        "   - Bash:",
+        "       * On macOS: edit ~/.bashrc",
+        "       * On Linux: edit ~/.bash_profile",
+        "   - Zsh: edit ~/.zshrc",
+        "   - Other: check your shell's documentation on how to source a script.",
+        "",
+        "   Add the following line to the end of the file:",
+        "     source <file_path>",
+        "",
+        "3. Save the file and restart your terminal.",
+        "",
+        "Done! Now you can use the TAB key to auto-complete Wasp commands in your shell."
       ]
