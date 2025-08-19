@@ -1,4 +1,12 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "nxCloudId": "68a449940c116c0a59ff2f5d"
+  "nxCloudId": "68a449940c116c0a59ff2f5d",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build", "build:check"]
+    },
+    "build:check": {
+      "dependsOn": ["^build"]
+    }
+  }
 }

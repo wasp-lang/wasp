@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
+  "private": true,
   "author": "",
   "license": "ISC",
   "main": "index.js",
   "keywords": [],
   "scripts": {
-    "build": "npm run build:client && rm -rf dist && tsc && cp -r ./public ./dist/public",
-    "build:client": "npm --prefix ./client install && npm --prefix ./client run copy",
+    "build": "cp -r ../studio-client/dist ./public && tsc && cp -r ./public ./dist/public",
     "dev": "tsx --watch ./src/index.ts",
     "start": "node ./dist/index.js"
   },
@@ -21,6 +21,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "wasp-studio-client": "*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",

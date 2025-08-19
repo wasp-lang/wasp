@@ -30,7 +30,7 @@
     "nodemon": "^3.1.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.1.0",
-    "vitest": "3.1.2"
+    "vitest": "3.2.4"
   },
   "//": [
     "We pin `vitest` version because type tests are an experimental feature,",

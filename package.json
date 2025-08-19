@@ -1,10 +1,16 @@
 {
   "name": "wasp-repo",
+  "private": true,
+  "workspaces": [
+    "./packages/*"
+  ],
   "scripts": {
     "prettier:check": "prettier --ignore-unknown --check --config .prettierrc .",
     "prettier:format": "prettier --ignore-unknown --write --config .prettierrc ."
   },
   "devDependencies": {
+    "@nx/js": "^21.4.0",
+    "@nx/plugin": "^21.4.0",
     "nx": "21.4.0",
     "prettier": "3.5.3",
     "prettier-plugin-organize-imports": "4.1.0",

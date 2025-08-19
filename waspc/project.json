@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "implicitDependencies": [
+    "wasp-deploy",
+    "wasp-prisma",
+    "wasp-studio-server",
+    "wasp-ts-inspect",
+    "wasp-config"
+  ]
+}

@@ -4,16 +4,19 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "tsc && vite build",
-    "copy": "npm run build && cp -r ./dist/* ../public",
+    "build": "vite build",
+    "build:check": "tsc --noEmit",
     "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
+  "exports": {
+    "./index.html": "./dist/index.html"
+  },
   "dependencies": {
     "@nextui-org/react": "^2.1.12",
     "elkjs": "^0.8.2",
-    "framer-motion": "^10.16.4",
+    "framer-motion": "^11.5.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.8.3",
