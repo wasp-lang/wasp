@@ -4,15 +4,15 @@
   "type": "module",
   "author": "Wasp Team",
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "npx tsc",
     "format": "npm start format",
     "start": "node ./dist/index.js",
     "test": "jest"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "json5": "^2.2.3",
     "prisma": "5.19.1",

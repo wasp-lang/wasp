@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "private": true,
   "author": "",
   "license": "ISC",
+  "private": true,
   "main": "index.js",
-  "keywords": [],
   "files": [
     "dist"
   ],
+  "keywords": [],
   "scripts": {
     "build": "cp -r ../studio-client/dist ./public && tsc && cp -r ./public ./dist/public",
     "dev": "tsx --watch ./src/index.ts",
@@ -24,12 +24,12 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "wasp-studio-client": "*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
     "@types/node": "^22.17.0",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "wasp-studio-client": "*"
   }
 }

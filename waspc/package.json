@@ -1,7 +1,7 @@
 {
   "name": "waspc",
-  "private": true,
   "type": "module",
+  "private": true,
   "dependencies": {
     "wasp-config": "*",
     "wasp-deploy": "*",

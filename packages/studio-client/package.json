@@ -10,9 +10,6 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "exports": {
-    "./index.html": "./dist/index.html"
-  },
   "dependencies": {
     "@nextui-org/react": "^2.1.12",
     "elkjs": "^0.8.2",

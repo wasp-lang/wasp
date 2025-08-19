@@ -6,14 +6,14 @@
   "license": "MIT",
   "bin": "dist/index.js",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "npx tsc",
     "start": "node ./dist/index.js",
     "test": "jest"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "json5": "^2.2.3",
     "typescript": "^5.1.3",
