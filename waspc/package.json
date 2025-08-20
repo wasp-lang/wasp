@@ -9,11 +9,18 @@
     "wasp-studio-server": "*",
     "wasp-ts-inspect": "*"
   },
+  "scripts": {
+    "build": "cabal build"
+  },
   "nx": {
     "targets": {
       "build": {
         "dependsOn": [
           "copy-packages"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist-newstyle"
         ]
       },
       "copy-packages": {
