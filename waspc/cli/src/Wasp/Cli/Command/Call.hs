@@ -19,7 +19,6 @@ data Call
   | Info
   | Studio
   | PrintBashCompletionInstruction
-  | GenerateBashCompletionScript
   | BashCompletionListCommands
   | WaspLS
   | Deploy Arguments -- deploy cmd passthrough args

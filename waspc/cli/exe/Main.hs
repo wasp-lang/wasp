@@ -11,7 +11,7 @@ import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
-import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
+import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
 import qualified Wasp.Cli.Command.Call as Command.Call
@@ -67,7 +67,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["info"] -> Command.Call.Info
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
-        ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
@@ -120,7 +119,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Dockerfile -> runCommand printDockerfile
     Command.Call.Info -> runCommand info
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
-    Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs

@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.BashCompletion
   ( bashCompletion,
-    generateBashCompletionScript,
     printBashCompletionInstruction,
   )
 where
@@ -8,7 +7,6 @@ where
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
-import Paths_waspc (getDataFileName)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
 
@@ -32,7 +30,6 @@ bashCompletion = do
         "version",
         "waspls",
         "completion",
-        "completion:generate",
         "uninstall",
         "start",
         "db",
@@ -46,30 +43,28 @@ bashCompletion = do
         "test",
         "studio"
       ]
-    dbSubCommands = ["migrate-dev", "studio"]
+    dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()
     listCommands cmdList = liftIO . putStrLn $ unlines cmdList
-
--- generate the bash completion script
-generateBashCompletionScript :: Command ()
-generateBashCompletionScript =
-  liftIO $ getDataFileName "Cli/bash-completion" >>= readFile >>= putStr
 
 -- return the bash completion instruction
 printBashCompletionInstruction :: Command ()
 printBashCompletionInstruction =
   liftIO . putStrLn $
     unlines
-      [ "Run the following command to generate bash completion script for wasp on your machine:",
+      [ "Setting up Bash auto-completion for Wasp",
         "",
-        "wasp completion:generate > <your-chosen-directory>/wasp-completion",
+        "1. Configure your shell to auto-complete Wasp commands:",
+        "   - Bash (default for most Linux and WSL): edit ~/.bash_profile",
+        "   - Zsh (default for macOS): edit ~/.zshrc",
+        "   - Other: check your shell's documentation on how to source a script.",
         "",
-        "After that, depending on your system, you will need to edit your bash profile:",
-        "- on MacOS (OSX): you will normally want to edit ~/.bashrc",
-        "- on Linux: you will normally want to edit ~/.bash_profile",
-        "and add this line:",
-        "  source <your-chosen-directory>/wasp-completion",
-        "then reset your terminal session."
+        "   Add the following line to the end of the file:",
+        "     complete -o default -o nospace -C \"wasp completion:list\" wasp",
+        "",
+        "2. Save the file and restart your terminal.",
+        "",
+        "Done! Now you can use the TAB key to auto-complete Wasp commands in your shell."
       ]
