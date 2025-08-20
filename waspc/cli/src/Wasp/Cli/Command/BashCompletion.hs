@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.BashCompletion
   ( bashCompletion,
-    generateBashCompletionScript,
     printBashCompletionInstruction,
   )
 where
@@ -8,7 +7,6 @@ where
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
-import Paths_waspc (getDataFileName)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
 
@@ -32,7 +30,6 @@ bashCompletion = do
         "version",
         "waspls",
         "completion",
-        "completion:generate",
         "uninstall",
         "start",
         "db",
@@ -52,11 +49,6 @@ bashCompletion = do
     listCommands :: [String] -> Command ()
     listCommands cmdList = liftIO . putStrLn $ unlines cmdList
 
--- generate the bash completion script
-generateBashCompletionScript :: Command ()
-generateBashCompletionScript =
-  liftIO $ getDataFileName "Cli/bash-completion" >>= readFile >>= putStr
-
 -- return the bash completion instruction
 printBashCompletionInstruction :: Command ()
 printBashCompletionInstruction =
@@ -64,21 +56,17 @@ printBashCompletionInstruction =
     unlines
       [ "Setting up Bash auto-completion for Wasp",
         "",
-        "1. Generate the completion script by running:",
-        "     wasp completion:generate > <file_path>",
-        "   (replace <file_path> with where you want to save the script, e.g. ~/.wasp_completion)",
-        "",
-        "2. Configure your shell to use the script:",
-        "   - Bash:",
+        "1. Configure your shell to use the script:",
+        "   - Bash (default for most Linux and WSL):",
         "       * On macOS: edit ~/.bashrc",
         "       * On Linux: edit ~/.bash_profile",
-        "   - Zsh: edit ~/.zshrc",
+        "   - Zsh (default for macOS): edit ~/.zshrc",
         "   - Other: check your shell's documentation on how to source a script.",
         "",
         "   Add the following line to the end of the file:",
-        "     source <file_path>",
+        "     complete -o default -o nospace -C \"wasp completion:list\" wasp",
         "",
-        "3. Save the file and restart your terminal.",
+        "2. Save the file and restart your terminal.",
         "",
         "Done! Now you can use the TAB key to auto-complete Wasp commands in your shell."
       ]
