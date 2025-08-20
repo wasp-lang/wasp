@@ -233,6 +233,7 @@ Add the `<link>` meta tag to the `head` property in the `main.wasp`
 app MyApp {
   // ...
   head: [
+    // highlight-next-line
     "<link rel='icon' href='/favicon.ico' />",
   ]
 }
