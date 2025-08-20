@@ -56,7 +56,7 @@ printBashCompletionInstruction =
     unlines
       [ "Setting up Bash auto-completion for Wasp",
         "",
-        "1. Configure your shell to use the script:",
+        "1. Configure your shell to auto-complete Wasp commands:",
         "   - Bash (default for most Linux and WSL): edit ~/.bash_profile",
         "   - Zsh (default for macOS): edit ~/.zshrc",
         "   - Other: check your shell's documentation on how to source a script.",
