@@ -51,7 +51,20 @@ New Wasp projects come with a default `favicon.ico` in the `public` directory an
 
 To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
 
-### 1. Change the parameters to the `login` function (username & password only)
+### 1. Bump the Wasp version
+
+Update the version field in your Wasp file to `^0.17.0`:
+
+```wasp title="main.wasp"
+app MyApp {
+  wasp: {
+    // highlight-next-line
+    version: "^0.17.0"
+  },
+}
+```
+
+### 2. Change the parameters to the `login` function (username & password only)
 
 :::info
 This change only affects you if you're using [username and password authentication](../auth/username-and-pass.md) with
@@ -111,7 +124,7 @@ It is possible that you were not using this function in your code.
 If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
 this change is already handled for you.
 
-### 2. Update your `tsconfig.json`
+### 3. Update your `tsconfig.json`
 
 To ensure your project works correctly with Wasp 0.17.0, you must also update your
 `tsconfig.json` file.
@@ -156,7 +169,7 @@ Here's the new version of `tsconfig.json`:
 }
 ```
 
-### 3. Update your `package.json`
+### 4. Update your `package.json`
 
 Wasp now requires `typescript` to be set to version `5.8.2`.
 
@@ -187,7 +200,7 @@ Here’s the updated `package.json` snippet:
 </TabItem>
 </Tabs>
 
-### 4. Tell Wasp about `jest-dom` types
+### 5. Tell Wasp about `jest-dom` types
 
 If you're using (or planning to use) Wasp's [client tests](../project/testing.md) with `jest-dom`,
 update your `src/vite-env.d.ts` file:
@@ -202,7 +215,7 @@ update your `src/vite-env.d.ts` file:
 import "@testing-library/jest-dom";
 ```
 
-### 5. Add a `favicon.ico` to the `public` directory
+### 6. Add a `favicon.ico` to the `public` directory
 
 This step is necessary only if you don't have a `favicon.ico` in your `public` folder.
 If so, you should add a `favicon.ico` to your `public` folder.
@@ -211,7 +224,7 @@ If you want to keep the default, you can [download it here](https://raw.githubus
 
 If you want to generate a `favicon.ico` and all its possible variants, check out [RealFaviconGenerator](https://realfavicongenerator.net/), a handy open-source tool for creating favicons.
 
-### 6. Add a `<link>` meta tag for `favicon.ico`
+### 7. Add a `<link>` meta tag for `favicon.ico`
 
 This step is required for all of the project's which use `favicon.ico`.
 Add the `<link>` meta tag to the `head` property in the `main.wasp`
@@ -220,12 +233,13 @@ Add the `<link>` meta tag to the `head` property in the `main.wasp`
 app MyApp {
   // ...
   head: [
+    // highlight-next-line
     "<link rel='icon' href='/favicon.ico' />",
   ]
 }
 ```
 
-### 7. Upgrade Express dependencies
+### 8. Upgrade Express dependencies
 
 If you had `express` or `@types/express` in your `package.json`, you should change them to use version 5:
 
@@ -260,7 +274,7 @@ If you had `express` or `@types/express` in your `package.json`, you should chan
 </TabItem>
 </Tabs>
 
-### 8. Upgrade your `api` endpoints to Express 5
+### 9. Upgrade your `api` endpoints to Express 5
 
 Wasp now uses [Express v5](https://expressjs.com/2024/10/15/v5-release.html), which impacts
 [API Endpoints](../advanced/apis.md) (defined with `api` in your Wasp file).
@@ -274,7 +288,7 @@ In general, you only need to worry about changes to the `req` and `res` objects 
 The breaking changes are mostly edge cases and most code should work without any updates.
 :::
 
-### 9. Enjoy your updated Wasp app
+### 10. Enjoy your updated Wasp app
 
 That's it!
 
