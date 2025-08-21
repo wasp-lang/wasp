@@ -47,9 +47,9 @@ waspComplexTest = do
 addClientSetup :: ShellCommandBuilder [ShellCommand]
 addClientSetup = do
   sequence
-    [ createFile rootComponentContent "./src/client" "App.jsx",
-      createFile clientSetupFnContent "./src/client" "myClientSetupCode.js",
-      insertCodeIntoWaspFileAfterVersion clientField
+    [ insertCodeIntoWaspFileAfterVersion clientField,
+      createFile rootComponentContent "./src/client" "App.jsx",
+      createFile clientSetupFnContent "./src/client" "myClientSetupCode.js"
     ]
   where
     clientField =
@@ -70,7 +70,6 @@ addClientSetup = do
           "  );",
           "}"
         ]
-
     clientSetupFnContent =
       unlines
         [ "export default function myClientSetupFunction() {",
@@ -81,8 +80,8 @@ addClientSetup = do
 addServerSetup :: ShellCommandBuilder [ShellCommand]
 addServerSetup = do
   sequence
-    [ createFile serverSetupFnContent "./src/server" "myServerSetupCode.js",
-      insertCodeIntoWaspFileAfterVersion serverField
+    [ insertCodeIntoWaspFileAfterVersion serverField,
+      createFile serverSetupFnContent "./src/server" "myServerSetupCode.js"
     ]
   where
     serverField =
@@ -114,7 +113,6 @@ addJob = do
           "  }",
           "}"
         ]
-
     jobFile =
       unlines
         [ "export const foo = async (args) => {",
@@ -139,7 +137,6 @@ addTsJob = do
           "  entities: [User],",
           "}"
         ]
-
     jobFile =
       unlines
         [ "import { ReturnHelloJob } from 'wasp/server/jobs'",
@@ -157,7 +154,7 @@ addServerEnvFile = do
         [ "GOOGLE_CLIENT_ID=google_client_id",
           "GOOGLE_CLIENT_SECRET=google_client_secret",
           -- NOTE: Since we are using PSQL in this test, if we don't set custom
-          -- database url in server/.env, Wasp will set its own, for managed dev db.
+          -- database url in `.env.server`, Wasp will set its own, for managed dev db.
           -- That is problematic because Wasp's db url depends on project's abs path,
           -- which is not something we have constant during e2e tests, it depends
           -- on the location where the tests are being run.
@@ -189,7 +186,6 @@ addAuth = do
           "    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from \"@src/auth/hooks.js\",",
           "  },"
         ]
-
     userModel =
       unlines
         [ "model User {",
@@ -238,7 +234,6 @@ addAction = do
           "  entities: [User],",
           "}"
         ]
-
     actionFile =
       unlines
         [ "export const foo = async (args) => {",
@@ -260,7 +255,6 @@ addQuery = do
           "  entities: [User],",
           "}"
         ]
-
     queryFile =
       unlines
         [ "export const foo = async (args) => {",
@@ -300,7 +294,6 @@ addApi = do
           "  auth: false",
           "}"
         ]
-
     apiFile =
       unlines
         [ "import { FooBar, FooBaz } from 'wasp/server/api'",
@@ -331,7 +324,6 @@ addApiNamespace = do
           "  path: \"/bar\"",
           "}"
         ]
-
     apiNamespaceFile =
       unlines
         [ "import { MiddlewareConfigFn } from 'wasp/server'",
@@ -372,7 +364,6 @@ addCrud = do
           "  isDone      Boolean @default(false)",
           "}"
         ]
-
     crudDecl =
       unlines
         [ "crud tasks {",
