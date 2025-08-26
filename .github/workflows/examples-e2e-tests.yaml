@@ -60,10 +60,28 @@ jobs:
             cp .env.server.example .env.server
           fi
 
-      - name: Setup Wasp TS support
-        run: wasp-cli ts-setup
+      - name: Check folders 1
         working-directory: examples/${{ matrix.example }}
         if: matrix.wasp-ts == true
+        run: |
+          echo "Binaries"
+          ls node_modules/.bin
+          echo "Dist"
+          ls node_modules/@wasp.sh/wasp-app-runner/dist
+
+      - name: Setup Wasp TS support
+        if: matrix.wasp-ts == true
+        working-directory: examples/${{ matrix.example }}
+        run: wasp-cli ts-setup
+
+      - name: Check folders 2
+        working-directory: examples/${{ matrix.example }}
+        if: matrix.wasp-ts == true
+        run: |
+          echo "Binaries"
+          ls node_modules/.bin
+          echo "Dist"
+          ls node_modules/@wasp.sh/wasp-app-runner/dist
 
       - name: Extract Database Provider
         id: extract-db-provider
@@ -71,6 +89,15 @@ jobs:
         run: |
           DATABASE_PROVIDER=$($GITHUB_WORKSPACE/scripts/get-wasp-database-provider.sh wasp-cli)
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
+
+      - name: Check folders 3
+        working-directory: examples/${{ matrix.example }}
+        if: matrix.wasp-ts == true
+        run: |
+          echo "Binaries"
+          ls node_modules/.bin
+          echo "Dist"
+          ls node_modules/@wasp.sh/wasp-app-runner/dist
 
       - name: Run e2e DEV tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
