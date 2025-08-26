@@ -64,11 +64,17 @@ jobs:
         working-directory: examples/${{ matrix.example }}
         if: matrix.wasp-ts == true
         run: |
-          echo "\nBinaries"
+          echo " "
+          echo "Waspello - package.json"
+          cat package.json
+          echo " "
+          echo "Binaries"
           ls node_modules/.bin
-          echo "\nWasp App Runner"
+          echo " "
+          echo "Wasp App Runner"
           ls node_modules/@wasp.sh/wasp-app-runner
-          echo "\nWasp App Runner - package.json"
+          echo " "
+          echo "Wasp App Runner - package.json"
           cat node_modules/@wasp.sh/wasp-app-runner/package.json
 
       - name: Setup Wasp TS support
