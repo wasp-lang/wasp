@@ -56,8 +56,8 @@ jobs:
           npm ci
           npx playwright install --with-deps
 
-          if [ -f ".env.server.headless" ]; then
-            cp .env.server.headless .env.server
+          if [ -f ".env.server.example" ]; then
+            cp .env.server.example .env.server
           fi
 
       - name: Setup Wasp TS support
