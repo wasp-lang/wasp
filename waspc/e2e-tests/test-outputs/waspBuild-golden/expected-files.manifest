@@ -154,6 +154,10 @@ waspBuild/.wasp/build/sdk/wasp/dist/env/validation.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/env/validation.d.ts.map
 waspBuild/.wasp/build/sdk/wasp/dist/env/validation.js
 waspBuild/.wasp/build/sdk/wasp/dist/env/validation.js.map
+waspBuild/.wasp/build/sdk/wasp/dist/scripts/copy-assets.d.ts
+waspBuild/.wasp/build/sdk/wasp/dist/scripts/copy-assets.d.ts.map
+waspBuild/.wasp/build/sdk/wasp/dist/scripts/copy-assets.js
+waspBuild/.wasp/build/sdk/wasp/dist/scripts/copy-assets.js.map
 waspBuild/.wasp/build/sdk/wasp/dist/server/HttpError.d.ts
 waspBuild/.wasp/build/sdk/wasp/dist/server/HttpError.d.ts.map
 waspBuild/.wasp/build/sdk/wasp/dist/server/HttpError.js
@@ -252,6 +256,7 @@ waspBuild/.wasp/build/sdk/wasp/env/index.ts
 waspBuild/.wasp/build/sdk/wasp/env/validation.ts
 waspBuild/.wasp/build/sdk/wasp/package.json
 waspBuild/.wasp/build/sdk/wasp/prisma-runtime-library.d.ts
+waspBuild/.wasp/build/sdk/wasp/scripts/copy-assets.js
 waspBuild/.wasp/build/sdk/wasp/server/HttpError.ts
 waspBuild/.wasp/build/sdk/wasp/server/_types/index.ts
 waspBuild/.wasp/build/sdk/wasp/server/_types/taggedEntities.ts
@@ -474,6 +479,10 @@ waspBuild/.wasp/out/sdk/wasp/dist/env/validation.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/env/validation.d.ts.map
 waspBuild/.wasp/out/sdk/wasp/dist/env/validation.js
 waspBuild/.wasp/out/sdk/wasp/dist/env/validation.js.map
+waspBuild/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
+waspBuild/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
+waspBuild/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
+waspBuild/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js.map
 waspBuild/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts
 waspBuild/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts.map
 waspBuild/.wasp/out/sdk/wasp/dist/server/HttpError.js
@@ -572,6 +581,7 @@ waspBuild/.wasp/out/sdk/wasp/env/index.ts
 waspBuild/.wasp/out/sdk/wasp/env/validation.ts
 waspBuild/.wasp/out/sdk/wasp/package.json
 waspBuild/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
+waspBuild/.wasp/out/sdk/wasp/scripts/copy-assets.js
 waspBuild/.wasp/out/sdk/wasp/server/HttpError.ts
 waspBuild/.wasp/out/sdk/wasp/server/_types/index.ts
 waspBuild/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
