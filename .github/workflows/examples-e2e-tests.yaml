@@ -98,8 +98,7 @@ jobs:
         env:
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
-        run: |
-          npm run test
+        run: npm run test
 
       - name: Run BUILD e2e tests for ${{ matrix.example }}
         # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
@@ -108,5 +107,4 @@ jobs:
         env:
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: build
-        run: |
-          npm run test
+        run: npm run test

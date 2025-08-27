@@ -173,12 +173,18 @@ jobs:
       - name: Run `todoApp` Playwright DEV tests
         if: matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
-        run: WASP_RUN_MODE=dev npm run test
+        env:
+          WASP_CLI_CMD: wasp-cli
+          WASP_RUN_MODE: dev
+        run: npm run test
 
       - name: Run `todoApp` Playwright BUILD tests
         if: matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
-        run: WASP_RUN_MODE=build npm run test
+        env:
+          WASP_CLI_CMD: wasp-cli
+          WASP_RUN_MODE: build
+        run: npm run test
 
       - name: Run `waspc` e2e tests
         run: ./run test:waspc:e2e
