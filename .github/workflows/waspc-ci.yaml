@@ -122,7 +122,7 @@ jobs:
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run unit tests
-        run: cabal test cli-tests waspc-tests waspls-tests
+        run: cabal test wasp-cli-tests waspc-tests waspls-tests
 
       - name: Ensure `todoApp` compiles and builds
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'

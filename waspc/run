@@ -33,7 +33,7 @@ WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests"
 WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/*-golden"
 WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
 
-WASP_CLI_TESTS_CMD="cabal test cli-tests"
+WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests"
 
 WASPLS_TESTS_CMD="cabal test waspls-tests"
 

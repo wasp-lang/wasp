@@ -748,7 +748,7 @@ test-suite waspls-tests
     Wasp.LSP.DebouncerTest
     Wasp.LSP.SyntaxTest
 
-test-suite cli-tests
+test-suite wasp-cli-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
   hs-source-dirs: cli/tests
