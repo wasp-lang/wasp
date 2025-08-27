@@ -61,30 +61,6 @@ jobs:
             cp .env.server.example .env.server
           fi
 
-      - name: Check folders 1
-        working-directory: examples/${{ matrix.example }}
-        if: matrix.example == 'waspello'
-        run: |
-          echo " "
-          echo "Waspello - package.json"
-          cat package.json
-          echo " "
-          echo "Binaries"
-          ls node_modules/.bin
-          echo " "
-          echo "Wasp App Runner"
-          ls node_modules/@wasp.sh/wasp-app-runner
-          echo " "
-          echo "Wasp App Runner - package.json"
-          cat node_modules/@wasp.sh/wasp-app-runner/package.json
-
-      - name: Upload `waspello` as an artifact
-        if: matrix.example == 'waspello'
-        uses: actions/upload-artifact@v4
-        with:
-          name: waspello-${{ github.run_id }}
-          path: examples/waspello
-
       - name: Extract Database Provider
         id: extract-db-provider
         working-directory: examples/${{ matrix.example }}
