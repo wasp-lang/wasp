@@ -28,9 +28,6 @@ jobs:
           - waspello
           - waspleau
           - websockets-realtime-voting
-        # include:
-        #   - example: waspello
-        #     wasp-ts: true
 
     steps:
       - uses: "actions/checkout@v4"
@@ -66,7 +63,7 @@ jobs:
 
       - name: Check folders 1
         working-directory: examples/${{ matrix.example }}
-        if: matrix.wasp-ts == true
+        if: matrix.example == 'waspello'
         run: |
           echo " "
           echo "Waspello - package.json"
@@ -81,10 +78,11 @@ jobs:
           echo "Wasp App Runner - package.json"
           cat node_modules/@wasp.sh/wasp-app-runner/package.json
 
-      # - name: Setup Wasp TS support
-      #   if: matrix.wasp-ts == true
-      #   working-directory: examples/${{ matrix.example }}
-      #   run: wasp-cli ts-setup
+      - name: Upload `waspello` as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: waspello
+          path: examples/waspello
 
       - name: Extract Database Provider
         id: extract-db-provider
