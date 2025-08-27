@@ -170,7 +170,7 @@ When done, new tab in your browser should open and you will see a Todo App!
 
 Do not update snapshot tests until your PR is approved.
 
-Running the snapshot tests and accepting them prematurely:
+Accepting snapshot tests prematurely:
 
 - Slows down the UI.
 - Creates noise for the reviewers.
@@ -267,24 +267,19 @@ For property testing, we use **Quickcheck**.
 We additionally use **doctest** for testing code examples in documentation.
 
 All tests go into `tests/` directory.
-This is convention for Haskell, opposite to mixing them with source code as in Javascript for example.
-Not only that, but Haskell build tools don't have a good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
+Haskell build tools don't have a good support for mixing them with source files.
 
-Tests are run with `./run test`. This will run all the tests.
+To run tests:
 
-To run `waspc` unit tests only, you can do `./run test:waspc:unit`.
-To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
-To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
-
-To run Wasp CLI tests only, you can do `./run test:cli`.
-
-To run Wasp LS tests only, you can do `./run test:waspls`.
-
-To run `todoApp` e2e tests, you can do `./run test:todoApp`.
-
-To run examples e2e tests, you can do `./run test:examples`.
-
-To run starter templates e2e tests, you can do `./run test:starters`.
+- To run all tests, you can do `./run test`
+- To run `waspc` unit tests only, you can do `./run test:waspc:unit`.
+- To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
+- To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
+- To run Wasp CLI tests only, you can do `./run test:cli`.
+- To run Wasp LS tests only, you can do `./run test:waspls`.
+- To run `todoApp` e2e tests, you can do `./run test:todoApp`.
+- To run examples e2e tests, you can do `./run test:examples`.
+- To run starter templates e2e tests, you can do `./run test:starters`.
 
 ### Wasp e2e snapshot tests
 
