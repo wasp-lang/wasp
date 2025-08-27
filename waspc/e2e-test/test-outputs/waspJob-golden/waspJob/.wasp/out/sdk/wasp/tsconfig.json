@@ -65,9 +65,14 @@
       - We want users to import stuff from the SDK with `wasp/something`, and we
         don't want to do extra processing on those imports (for now).
 
-       These requirements force us to bundle user code and, because we copy user
-       code into the SDK code, they force us to bundle the SDK too. Therefore,
-       we use `bundler` as the module resolution strategy.
+      These requirements force us to bundle user code and, because we copy user
+      code into the SDK code, they force us to bundle the SDK too.
+
+      We currently bundle the SDK in a very hacky way (indirectly while bundling
+      the server and client): https://github.com/wasp-lang/wasp/issues/2150
+      Regardless of how we do it, the SDK code is eventually bundled, so this
+      `tsconfig.json` file must reflect that (which means `moduleResolution:
+      bundler`).
     */
     "moduleResolution": "bundler",
     "types": [
