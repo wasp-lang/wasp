@@ -135,7 +135,7 @@ jobs:
           path: ~/.npm
           key: node-modules-${{ hashFiles('./waspc/examples/todoApp/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
-      - name: Install development Wasp CLI
+      - name: Install `wasp-cli`
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
