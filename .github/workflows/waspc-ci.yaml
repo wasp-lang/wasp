@@ -178,7 +178,7 @@ jobs:
         run: |
           cd examples/todoApp
           # Prepare the environment for the tests
-          cp env.server.example .env.server
+          cp .env.server.example .env.server
           WASP_RUN_MODE=dev npm run test
 
       - name: todoApp - Run Playwright Tests (build)
@@ -187,7 +187,7 @@ jobs:
         run: |
           cd examples/todoApp
           # Prepare the environment for the tests
-          cp env.server.example .env.server
+          cp .env.server.example .env.server
           WASP_RUN_MODE=build npm run test
 
       - name: Run `waspc` e2e tests
