@@ -56,7 +56,7 @@ export async function performEmailVerification(
 ) {
   if (isRunningInDevMode()) {
     // This relies on having the SKIP_EMAIL_VERIFICATION_IN_DEV=true in the
-    // .env.server file. This is the default value in the env.server.example file.
+    // .env.server file. This is the default value in the `.env.server.example` file.
     return;
   }
 
