@@ -102,8 +102,8 @@ jobs:
 
       - name: packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
-        working-directory: packages/ts-inspect
         run: |
+          cd packages/ts-inspect
           npm ci
           npm test
 
@@ -141,13 +141,14 @@ jobs:
 
       - name: Install `todoApp` dependencies
         if: matrix.os == 'ubuntu-22.04'
-        working-directory: examples/todoApp
-        run: npm ci
+        run: |
+          cd examples/todoApp
+          npm ci
 
       - name: Store `todoApp` Playwright version
         if: matrix.os == 'ubuntu-22.04'
-        working-directory: examples/todoApp
         run: |
+          cd examples/todoApp
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
@@ -162,29 +163,33 @@ jobs:
 
       - name: Install `todoApp` Playwright browsers
         if: steps.todoApp-cache-playwright-browsers.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
-        working-directory: examples/todoApp
-        run: npx playwright install --with-deps
+        run: |
+          cd examples/todoApp
+          npx playwright install --with-deps
 
       - name: Set up `todoApp` project environment
         if: matrix.os == 'ubuntu-22.04'
-        working-directory: examples/todoApp
-        run: cp .env.server.example .env.server
+        run: |
+          cd examples/todoApp
+          cp .env.server.example .env.server
 
       - name: Run `todoApp` Playwright DEV tests
         if: matrix.os == 'ubuntu-22.04'
-        working-directory: examples/todoApp
         env:
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
-        run: npm run test
+        run: |
+          cd examples/todoApp
+          npm run test
 
       - name: Run `todoApp` Playwright BUILD tests
         if: matrix.os == 'ubuntu-22.04'
-        working-directory: examples/todoApp
         env:
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: build
-        run: npm run test
+        run: |
+          cd examples/todoApp
+          npm run test
 
       - name: Run `waspc` e2e tests
         run: ./run test:waspc:e2e
