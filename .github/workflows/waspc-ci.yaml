@@ -124,11 +124,11 @@ jobs:
       - name: Run unit tests
         run: cabal test cli-tests waspc-tests waspls-tests
 
-      - name: Ensure examples/todoApp compiles and builds
+      - name: Ensure `todoApp` compiles and builds
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
 
-      - name: Cache todoApp Node modules
+      - name: Cache `todoApp` Node modules
         uses: actions/cache@v4
         if: matrix.os == 'ubuntu-22.04'
         with:
@@ -139,12 +139,12 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
-      - name: Install todoApp dependencies
+      - name: Install `todoApp` dependencies
         if: matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
         run: npm ci
 
-      - name: Store todoApp Playwright version
+      - name: Store `todoApp` Playwright version
         if: matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
         run: |
@@ -152,7 +152,7 @@ jobs:
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
-      - name: Cache todoApp Playwright browsers for Playwright version
+      - name: Cache `todoApp` Playwright browsers for Playwright version
         id: todoApp-cache-playwright-browsers
         if: matrix.os == 'ubuntu-22.04'
         uses: actions/cache@v4
@@ -160,22 +160,22 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
 
-      - name: Install todoApp Playwright browsers
+      - name: Install `todoApp` Playwright browsers
         if: steps.todoApp-cache-playwright-browsers.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
         run: npx playwright install --with-deps
 
-      - name: Set up todoApp project environment
+      - name: Set up `todoApp` project environment
         if: matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
         run: cp .env.server.example .env.server
 
-      - name: Run todoApp Playwright DEV tests
+      - name: Run `todoApp` Playwright DEV tests
         if: matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
         run: WASP_RUN_MODE=dev npm run test
 
-      - name: Run todoApp Playwright BUILD tests
+      - name: Run `todoApp` Playwright BUILD tests
         if: matrix.os == 'ubuntu-22.04'
         working-directory: examples/todoApp
         run: WASP_RUN_MODE=build npm run test
