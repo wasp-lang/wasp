@@ -1,0 +1,35 @@
+import { describe, expect, it } from "vitest";
+import { createJWTHelpers, TimeSpan } from "../../src/sdk/jwt";
+
+describe("jwt helpers", () => {
+  const secret = new TextEncoder().encode("my-secret-key");
+  const defaultOptions = {
+    expiresIn: new TimeSpan(1, "h"),
+  };
+  const { createJWT, validateJWT } = createJWTHelpers(secret, "HS256");
+  describe("createJWT", () => {
+    it("should create a JWT", async () => {
+      const token = await createJWT({ sub: "test" }, defaultOptions);
+
+      // JWT has 3 parts
+      expect(token.split(".").length).toBe(3);
+    });
+  });
+
+  describe("validateJWT", () => {
+    it("should validate a JWT", async () => {
+      const jwt = await createJWT({ sub: "test" }, defaultOptions);
+
+      const payload = await validateJWT<{ sub: string }>(jwt);
+
+      expect(payload.sub).toBe("test");
+    });
+    it("should throw an error for an invalid JWT", async () => {
+      const invalidJWT = "invalid.jwt.token";
+
+      await expect(validateJWT<{ sub: string }>(invalidJWT)).rejects.toThrow(
+        /Unexpected token/,
+      );
+    });
+  });
+});
