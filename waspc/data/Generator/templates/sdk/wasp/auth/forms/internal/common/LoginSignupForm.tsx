@@ -1,8 +1,10 @@
 {{={= =}=}}
 import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
-import { styled } from 'wasp/core/stitches.config'
+import styles from './LoginSignupForm.module.css'
+import '../auth-styles.css'
 import { config } from 'wasp/client'
+import { clsx } from '../util'
 
 import { AuthContext } from '../../Auth'
 import {
@@ -35,75 +37,8 @@ import { useEmail } from '../email/useEmail'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# areBothSocialAndPasswordBasedAuthEnabled =}
-const OrContinueWith = styled('div', {
-    position: 'relative',
-    marginTop: '1.5rem'
-})
-  
-const OrContinueWithLineContainer = styled('div', {
-    position: 'absolute',
-    inset: '0px',
-    display: 'flex',
-    alignItems: 'center'
-})
-
-const OrContinueWithLine = styled('div', {
-    width: '100%',
-    borderTopWidth: '1px',
-    borderColor: '$gray500'
-})
-
-const OrContinueWithTextContainer = styled('div', {
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'center',
-    fontSize: '$sm'
-})
-
-const OrContinueWithText = styled('span', {
-    backgroundColor: 'white',
-    paddingLeft: '0.5rem',
-    paddingRight: '0.5rem'
-})
 {=/ areBothSocialAndPasswordBasedAuthEnabled =}
 {=# isSocialAuthEnabled =}
-const SocialAuth = styled('div', {
-    marginTop: '1.5rem'
-})
-
-const SocialAuthLabel = styled('div', {
-    fontWeight: '500',
-    fontSize: '$sm'
-})
-
-const SocialAuthButtons = styled('div', {
-    marginTop: '0.5rem',
-    display: 'flex',
-
-    variants: {
-        direction: {
-            horizontal: {
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(48px, 1fr))',
-            },
-            vertical: {
-                flexDirection: 'column',
-                margin: '8px 0',
-            }
-        },
-        gap: {
-            small: {
-                gap: '4px',
-            },
-            medium: {
-                gap: '8px',
-            },
-            large: {
-                gap: '16px',
-            }
-        }
-    }
-})
 {=/ isSocialAuthEnabled =}
 {=# enabledProviders.isSlackAuthEnabled =}
 const slackSignInUrl = `${config.apiUrl}{= slackSignInPath =}`
@@ -194,9 +129,9 @@ export const LoginSignupForm = ({
 
   return (<>
       {=# isSocialAuthEnabled =}
-        <SocialAuth>
-          <SocialAuthLabel>{cta} with</SocialAuthLabel>
-          <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
+        <div className={styles.socialAuth}>
+          <div className={styles.socialAuthLabel}>{cta} with</div>
+            <div className={clsx(styles.socialAuthButtons, styles[socialButtonsDirection])}>
             {=# enabledProviders.isSlackAuthEnabled =}
               <SocialButton href={slackSignInUrl}><SocialIcons.Slack/></SocialButton>
             {=/ enabledProviders.isSlackAuthEnabled =}
@@ -216,18 +151,18 @@ export const LoginSignupForm = ({
             {=# enabledProviders.isGitHubAuthEnabled =}
               <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>
             {=/ enabledProviders.isGitHubAuthEnabled =}
-          </SocialAuthButtons>
-        </SocialAuth>
+          </div>
+        </div>
       {=/ isSocialAuthEnabled =}
       {=# areBothSocialAndPasswordBasedAuthEnabled =}
-        <OrContinueWith>
-          <OrContinueWithLineContainer>
-            <OrContinueWithLine/>
-          </OrContinueWithLineContainer>
-          <OrContinueWithTextContainer>
-            <OrContinueWithText>Or continue with</OrContinueWithText>
-          </OrContinueWithTextContainer>
-        </OrContinueWith>
+        <div className={styles.orContinueWith}>
+          <div className={styles.orContinueWithLineContainer}>
+            <div className={styles.orContinueWithLine}/>
+          </div>
+          <div className={styles.orContinueWithTextContainer}>
+            <span className={styles.orContinueWithText}>Or continue with</span>
+          </div>
+        </div>
       {=/ areBothSocialAndPasswordBasedAuthEnabled =}
       {=# isAnyPasswordBasedAuthEnabled =}
         <Form onSubmit={hookFormHandleSubmit(onSubmit)}>

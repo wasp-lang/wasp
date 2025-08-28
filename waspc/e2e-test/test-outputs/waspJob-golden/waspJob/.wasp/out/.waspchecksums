@@ -172,7 +172,7 @@
             "file",
             "../out/sdk/wasp/core/serialization/index.ts"
         ],
-        "76793a820deb474b105bccdeb69b5395d7522c53a790b0ed430533fa5158461c"
+        "cb3b769a74f5cadab1582df4e6e36cdeeebfe9f926faa2c9f40e2ddf46ddf75b"
     ],
     [
         [
@@ -214,7 +214,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "7a9eef14b7a8593c83ba29aeae286855a4ca240d60e45c5826373c662457e6d5"
+        "6330481e3ecdd1da6e63a4bd0c5cc9432be892df469b05464d86943243b8851e"
     ],
     [
         [
@@ -222,6 +222,13 @@
             "../out/sdk/wasp/prisma-runtime-library.d.ts"
         ],
         "063a149e73066606948a7be815239e2446048dd066b28d542efb405c78bb3b35"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/scripts/copy-assets.js"
+        ],
+        "d84b0074b363be634f5d46e8f85be4548f5d0d12e94ef88df09b0b6fc4757058"
     ],
     [
         [

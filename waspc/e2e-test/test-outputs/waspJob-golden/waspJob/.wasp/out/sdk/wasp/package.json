@@ -51,7 +51,6 @@
     "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
     "./core/auth": "./dist/core/auth.js",
     "./core/serialization": "./dist/core/serialization/index.js",
-    "./core/stitches.config": "./dist/core/stitches.config.js",
     "./core/storage": "./dist/core/storage.js",
     "./dev": "./dist/dev/index.js",
     "./entities": "./dist/entities/index.js",
@@ -92,6 +91,7 @@
   "name": "wasp",
   "private": true,
   "scripts": {
+    "build": "tsc && node ./scripts/copy-assets.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
   },

@@ -17,6 +17,7 @@
     "zx": "^8.8.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.1"
+    "@types/node": "^24.0.1",
+    "typescript": "^5.9.2"
   }
 }

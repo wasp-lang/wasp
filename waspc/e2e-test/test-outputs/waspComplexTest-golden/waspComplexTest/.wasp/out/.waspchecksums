@@ -16,9 +16,16 @@
     [
         [
             "file",
+            "../out/sdk/wasp/auth/forms/Auth.module.css"
+        ],
+        "b804d03ac790396cf152a5ca3290d018b03c8764f5edb78f45785013aae635d1"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/auth/forms/Auth.tsx"
         ],
-        "727f14712a4d81e07845f7099a22a5346859fed17e1946cf86a32948b9358dbd"
+        "19ee92c6d294fbb9bc9aa604e44d45f774d35781c0021425962cecd93be0ce87"
     ],
     [
         [
@@ -37,44 +44,93 @@
     [
         [
             "file",
+            "../out/sdk/wasp/auth/forms/internal/Form.module.css"
+        ],
+        "e49b449078e9b6e140194ce8e933ad56db5445816b292cc90bd42df298997596"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/auth/forms/internal/Form.tsx"
         ],
-        "1f317b7fb6e95372034016340aaeba54105da96918e07e07e2e25d0e5426fd1d"
+        "5978aa2474e051a44f5bd0de00daf1ecb2b324e42b40e6d0c01223dbaa7f394e"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/auth/forms/internal/Message.module.css"
+        ],
+        "b283ee90a6179fdb266253042990ab7e9fbe2385532ff12d60d7c3c744a2c2c0"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/Message.tsx"
         ],
-        "0975ace5bbd592d78097ea8891061346325bfd3d85f2980b52ea712d7207fcf8"
+        "97bfac81743b6a042d89dfda961c0a2a2e18732e34446d7acd4b7d2bf68bc766"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/auth/forms/internal/auth-styles.css"
+        ],
+        "65b666a82a23dee1970d80fafdff0e08ec55e210dc3fd3413ad059c2e5f719ad"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.module.css"
+        ],
+        "ceb7e900e700da20b71487c1ad65d0d3148747990c1e2d4540b18ec001ea2bcd"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "69c6a1a89118fa450c9ded5bc10c8639818b857ca98ec15a94e5dd502ad567cd"
+        "c30e645b7c5a03c28034510e77775060158a6aa3af2ece14623f6928cc680188"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/auth/forms/internal/social/SocialButton.module.css"
+        ],
+        "833da255bbeb0e37d33bfade98a6dcb03272acede1b7fd760bb5ac5d21d17269"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/social/SocialButton.tsx"
         ],
-        "5e059ed2bf38a6363b8f9420264f4c56b18674d4da59e08b42b3bbcee0709243"
+        "9ababf450d1b711d96a336e9f55fcda99d45d0e9eb02bec246a8099228fc3f3e"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/auth/forms/internal/social/SocialIcons.module.css"
+        ],
+        "6b90709d4b819aeeb7bbc9494d6c1204eedb6d9e8fbd8bd7ec68d028d0993ece"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "e701e6587b0966e58ca9ac5dbcd57ebe36002ac6acd25b021114659399b7f4b3"
+        "0bee13ba6f1218cad07372845c797b3e418de17f8556604b7429cbd32e319093"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/auth/forms/internal/util.ts"
+        ],
+        "fa426b618af2e95dd5dc1e5646cc302d85b04128db07b8c0f66aa75eaa227e27"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/types.ts"
         ],
-        "8069774aaf815ddaa9e13737b7e5741eb5d7c1e72a8be6574f8ba56a53931016"
+        "e3657c6b83b5dc1581108c34a5485dea354b201ac624ce346de59b7a43eec5eb"
     ],
     [
         [
@@ -389,7 +445,7 @@
             "file",
             "../out/sdk/wasp/core/serialization/index.ts"
         ],
-        "f36812afeb3afac66bca99dd8764a45f8def73374f696ed502280223f6677161"
+        "daaf6d88944b11969bcf278b84409b3ca81dc2f3cc97037df3ebc7f293381a74"
     ],
     [
         [
@@ -397,13 +453,6 @@
             "../out/sdk/wasp/core/serialization/prisma.ts"
         ],
         "bbfc1428c31642ddc87ec68b672e60219b3313eee66b75169c5cf2593e4893ab"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/core/stitches.config.ts"
-        ],
-        "000835b452959f40bbe568ff27a060a011ef936bc959007f27d29c5e4fe8f476"
     ],
     [
         [
@@ -445,7 +494,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "1bbcb5007f3e77cd89f0da632152d35f38cf8b38c0d59c13210435e09c460d4c"
+        "bfbbd2fcabd5d1da704ad280c137e8a722a5ad059afaf6c3dc77b45421bea8c2"
     ],
     [
         [
@@ -453,6 +502,13 @@
             "../out/sdk/wasp/prisma-runtime-library.d.ts"
         ],
         "063a149e73066606948a7be815239e2446048dd066b28d542efb405c78bb3b35"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/scripts/copy-assets.js"
+        ],
+        "d84b0074b363be634f5d46e8f85be4548f5d0d12e94ef88df09b0b6fc4757058"
     ],
     [
         [

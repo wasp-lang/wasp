@@ -5,6 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+      "build": "tsc && node ./scripts/copy-assets.js",
       "test": "echo \"Error: no test specified\" && exit 1",
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
@@ -14,32 +15,30 @@
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
-      "./core/stitches.config": "./dist/core/stitches.config.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/serialization": "./dist/core/serialization/index.js",
       "./core/auth": "./dist/core/auth.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/helpers/user": "./dist/auth/helpers/user.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/session": "./dist/auth/session.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/user": "./dist/auth/user.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/providers/types": "./dist/auth/providers/types.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/types": "./dist/auth/types.js",
       {=!  Used by users, documented. =}
       "./auth/utils": "./dist/auth/utils.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/password": "./dist/auth/password.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/jwt": "./dist/auth/jwt.js",
       {=!  Used by user, documented. =}
       "./auth/validation": "./dist/auth/validation.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
       {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
       "./api/events": "./dist/api/events.js",
@@ -50,31 +49,31 @@
       {=!  using relative imports inside SDK code (instead of library imports), =}
       {=!  but I didn't have time to implement it. =}
       "./src/*": "./dist/src/*.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./operations/*": "./dist/operations/*",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./universal/url": "./dist/universal/url.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./universal/types": "./dist/universal/types.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./universal/validators": "./dist/universal/validators.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./universal/ansiColors": "./dist/universal/ansiColors.js",
       {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
       "./server/utils": "./dist/server/utils.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./client/test/*": "./dist/client/test/*.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/crud/*": "./dist/server/crud/*.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/email/core/types": "./dist/server/email/core/types.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/jobs/*": "./dist/server/jobs/*.js",
-      {=!  Used by our code, uncodumented (but accessible) for users. =}
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
       "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
 
@@ -123,7 +122,7 @@
       "./client/env/schema": "./dist/client/env/schema.js",
 
       {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
-      {=! Used by our code (SDK for full-stack type safety), uncodumented (but accessible) for users. =}
+      {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}
       "./client/operations/rpc": "./dist/client/operations/rpc.js",
       "./server/operations/actions":  "./dist/server/operations/actions/index.js",
       "./server/operations/queries": "./dist/server/operations/queries/index.js",
