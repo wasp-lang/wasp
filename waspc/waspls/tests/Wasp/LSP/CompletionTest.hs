@@ -74,7 +74,7 @@ test_CompletionLists :: IO TestTree
 test_CompletionLists = do
   -- Path is relative to the root of the project, i.e. the directory containing
   -- waspc.cabal.
-  completionTestInputFiles <- findByExtension [".wasp"] "./waspls/test/Wasp/LSP/completionTests"
+  completionTestInputFiles <- findByExtension [".wasp"] "./waspls/tests/Wasp/LSP/completionTests"
   return $
     testGroup "Wasp.LSP.Completion.getCompletionsAtPosition" $
       makeGoldenCompletionTest <$> completionTestInputFiles
