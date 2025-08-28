@@ -34,16 +34,16 @@ jobs:
 
       - name: Install Wasp CLI
         working-directory: waspc
-        run: |
-          ./run install
+        run: ./run install
 
-      - name: Install dependencies
+      - name: Install node dependencies
         working-directory: waspc/starters-e2e-tests
-        run: |
-          npm ci
-          npx playwright install --with-deps
+        run: npm ci
+
+      - name: Install playwright dependencies
+        working-directory: waspc/starters-e2e-tests
+        run: npx playwright install --with-deps
 
       - name: Run headless E2E tests
         working-directory: waspc/starters-e2e-tests
-        run: |
-          npm run test:dev
+        run: npm run test:dev
