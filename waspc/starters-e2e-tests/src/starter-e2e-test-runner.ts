@@ -10,22 +10,21 @@ interface StarterTestConfiguration {
 }
 
 export async function runStarterE2ETests(
-  execution: StarterTestConfiguration,
+  configuration: StarterTestConfiguration,
 ): Promise<void> {
   const waspProjectPath = await spinner(
     "Initializing test environment...",
-    () => initializeTestEnvironment(execution),
+    () => initializeTestEnvironment(configuration),
   );
 
-  await runDevE2ETests({ ...execution, waspProjectPath });
-  await runBuildE2ETests({ ...execution, waspProjectPath });
+  await runDevE2ETests(waspProjectPath, configuration);
+  await runBuildE2ETests(waspProjectPath, configuration);
 }
 
-async function initializeTestEnvironment(
-  execution: StarterTestConfiguration,
-): Promise<string> {
-  const { waspCliCommand, starterName } = execution;
-
+async function initializeTestEnvironment({
+  waspCliCommand,
+  starterName,
+}: StarterTestConfiguration): Promise<string> {
   const tempDirectoryPath = tmpdir();
   process.on("exit", () => cleanup(tempDirectoryPath));
   process.on("SIGINT", () => cleanup(tempDirectoryPath));
@@ -90,11 +89,10 @@ interface StarterTestExecution extends StarterTestConfiguration {
   waspProjectPath: string;
 }
 
-async function runDevE2ETests({
-  starterName,
-  waspCliCommand,
-  waspProjectPath,
-}: StarterTestExecution): Promise<void> {
+async function runDevE2ETests(
+  waspProjectPath: string,
+  { starterName, waspCliCommand }: StarterTestConfiguration,
+): Promise<void> {
   console.log(`Running DEV e2e tests for ${starterName} starter...`);
   const waspAppRunnerDevEnv = {
     ...process.env,
@@ -108,11 +106,10 @@ async function runDevE2ETests({
   })`npx playwright test --grep ${getStarterPlaywrightGrepRegex(starterName)}`;
 }
 
-async function runBuildE2ETests({
-  waspProjectPath,
-  starterName,
-  waspCliCommand,
-}: StarterTestExecution): Promise<void> {
+async function runBuildE2ETests(
+  waspProjectPath: string,
+  { starterName, waspCliCommand }: StarterTestConfiguration,
+): Promise<void> {
   if (await waspProjectUsesSqlite(waspProjectPath, waspCliCommand)) {
     console.log(
       chalk.yellow(
