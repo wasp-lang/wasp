@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Install Wasp CLI
+      - name: Install `wasp-cli`
         working-directory: waspc
         run: ./run install
 
@@ -44,6 +44,6 @@ jobs:
         working-directory: waspc/starters-e2e-tests
         run: npx playwright install --with-deps
 
-      - name: Run headless E2E tests
+      - name: Run starters e2e tests
         working-directory: waspc/starters-e2e-tests
         run: npm run test:dev
