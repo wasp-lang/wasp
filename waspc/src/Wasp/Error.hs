@@ -8,7 +8,7 @@ import Wasp.Analyzer.Parser.Ctx (Ctx, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
 import Wasp.Project.Common (WaspLangFile)
-import Wasp.Util (indent, leftPad)
+import Wasp.Util (indent, insertAt, leftPad)
 import qualified Wasp.Util.Terminal as T
 
 -- | Transforms compiler error (error with parse context) into an informative, pretty String that
@@ -42,8 +42,8 @@ prettyShowSrcLinesOfErrorRgn :: String -> SourceRegion -> String
 prettyShowSrcLinesOfErrorRgn
   waspFileContent
   ( SourceRegion
-      (SourcePosition startLineNum _startColNum)
-      (SourcePosition endLineNum _endColNum)
+      (SourcePosition startLineNum startColNum)
+      (SourcePosition endLineNum endColNum)
     ) =
     let srcLines =
           zip [max 1 (startLineNum - numCtxLines) ..] $
@@ -54,7 +54,17 @@ prettyShowSrcLinesOfErrorRgn
           map
             ( \(lineNum, line) ->
                 let lineContainsError = lineNum >= startLineNum && lineNum <= endLineNum
-                 in (lineNum, if lineContainsError then T.applyStyles [T.Red] line else line)
+                    lineWithStylingStartAndEnd =
+                      if lineNum == startLineNum
+                        then insertAt stylingStart (startColNum - 1) lineWithStylingEnd
+                        else stylingStart ++ lineWithStylingEnd
+                    lineWithStylingEnd =
+                      if lineNum == endLineNum
+                        then insertAt stylingEnd endColNum line
+                        else line ++ stylingEnd
+                    stylingStart = T.ansiEscapeCode ++ T.getAnsiCodeFor T.Red
+                    stylingEnd = T.ansiEscapeCode ++ T.ansiResetCode
+                 in (lineNum, if lineContainsError then lineWithStylingStartAndEnd else line)
             )
             srcLines
         srcLinesWithMarkedErrorRgnAndLineNumber =

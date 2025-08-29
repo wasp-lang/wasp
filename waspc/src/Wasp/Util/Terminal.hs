@@ -2,6 +2,9 @@ module Wasp.Util.Terminal
   ( Style (..),
     styleCode,
     applyStyles,
+    getAnsiCodeFor,
+    ansiEscapeCode,
+    ansiResetCode,
   )
 where
 
