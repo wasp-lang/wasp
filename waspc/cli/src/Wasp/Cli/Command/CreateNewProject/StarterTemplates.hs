@@ -21,7 +21,7 @@ import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
-import qualified Wasp.Util.Terminal as Term
+import Wasp.Util.Terminal (styleCode)
 
 -- More on how starter templates work in Wasp, including the development process,
 -- can be found in the `waspc/data/Cli/starters/README.md` file.
@@ -156,15 +156,8 @@ openSaasStarterTemplate =
           ]
     )
 
-{- Functions for styling instructions. Their names are on purpose of same length, for nicer code formatting. -}
-
-styleCode :: String -> String
-styleCode = Term.applyStyles [Term.Bold]
-
 styleText :: String -> String
 styleText = id
-
-{- -}
 
 simpleGhRepoTemplate :: (String, Path' Rel' Dir') -> (String, String) -> StartingInstructionsBuilder -> StarterTemplate
 simpleGhRepoTemplate (repoName, tmplPathInRepo) (tmplDisplayName, tmplDescription) buildStartingInstructions =
