@@ -7,6 +7,10 @@ where
 
 import Data.List (foldl')
 
+-- | Applies the Wasp CLI standardized code styling to a string.
+styleCode :: String -> String
+styleCode = applyStyles [Bold]
+
 data Style
   = Black
   | Red
@@ -64,6 +68,3 @@ ansiEscapeCode = "\ESC"
 
 ansiResetCode :: String
 ansiResetCode = "[0m"
-
-styleCode :: String -> String
-styleCode = applyStyles [Bold]

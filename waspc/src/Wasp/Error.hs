@@ -8,7 +8,7 @@ import Wasp.Analyzer.Parser.Ctx (Ctx, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
 import Wasp.Project.Common (WaspLangFile)
-import Wasp.Util (indent, insertAt, leftPad)
+import Wasp.Util (indent, leftPad)
 import qualified Wasp.Util.Terminal as T
 
 -- | Transforms compiler error (error with parse context) into an informative, pretty String that
