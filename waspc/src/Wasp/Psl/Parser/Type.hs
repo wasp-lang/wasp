@@ -6,11 +6,13 @@ where
 import qualified Wasp.Psl.Ast.Type as Psl.Type
 import Wasp.Psl.Parser.Common
   ( Parser,
-    braces,
+  )
+import Wasp.Psl.Parser.Model (body)
+import Wasp.Psl.Parser.Tokens
+  ( braces,
     identifier,
     reserved,
   )
-import Wasp.Psl.Parser.Model (body)
 
 -- | Parses PSL (Prisma Schema Language) type.
 -- Example of PSL type:
