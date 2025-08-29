@@ -1,2 +1,5 @@
+* text eol=lf
+*.ps1 text eol=crlf
+*.png -text
 e2e-test/test-outputs/*-golden/** linguist-generated=true
 waspls/test/completionTests/*.golden linguist-generated=true
