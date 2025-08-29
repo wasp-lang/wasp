@@ -5,11 +5,14 @@
   "description": "",
   "author": "",
   "license": "ISC",
+  "private": true,
   "main": "index.js",
+  "files": [
+    "dist"
+  ],
   "keywords": [],
   "scripts": {
-    "build": "npm run build:client && rm -rf dist && tsc && cp -r ./public ./dist/public",
-    "build:client": "npm --prefix ./client install && npm --prefix ./client run copy",
+    "build": "cp -r ../studio-client/dist ./public && tsc && cp -r ./public ./dist/public",
     "dev": "tsx --watch ./src/index.ts",
     "start": "node ./dist/index.js"
   },
@@ -26,6 +29,17 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^22.17.0",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "wasp-studio-client": "*"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
   }
 }

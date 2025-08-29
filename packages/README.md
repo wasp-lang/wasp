@@ -1,6 +1,6 @@
 # Testing Packages Locally
 
-Run `tools/install_packages_to_data_dir.sh` to compile the packages and copy
+Run `nx build` to compile the packages and copy
 them into `data/`. Then you can use `cabal run` as normal, or you can
 `cabal install` and then use `wasp-cli`.
 
