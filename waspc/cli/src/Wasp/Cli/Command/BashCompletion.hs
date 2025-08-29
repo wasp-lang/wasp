@@ -9,6 +9,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
+import qualified Wasp.Util.Terminal as Term
 
 -- generate bash completion depending on commands input
 bashCompletion :: Command ()
@@ -49,22 +50,23 @@ bashCompletion = do
     listCommands :: [String] -> Command ()
     listCommands cmdList = liftIO . putStrLn $ unlines cmdList
 
--- return the bash completion instruction
 printBashCompletionInstruction :: Command ()
 printBashCompletionInstruction =
   liftIO . putStrLn $
     unlines
-      [ "Setting up Bash auto-completion for Wasp",
+      [ "Setting up Bash auto-completion for Wasp:",
         "",
-        "1. Configure your shell to auto-complete Wasp commands:",
-        "   - Bash (default for most Linux and WSL): edit ~/.bashrc",
-        "   - Zsh (default for macOS): edit ~/.zshrc",
-        "   - Other: check your shell's documentation on how to source a script.",
+        "1. Add the following line at the end of your shell configuration file:",
+        styleCode "     complete -o default -o nospace -C 'wasp completion:list' wasp",
         "",
-        "   Add the following line to the end of the file:",
-        "     complete -o default -o nospace -C \"wasp completion:list\" wasp",
+        "   Default shell configuration file locations:",
+        "   - Bash: " ++ styleCode "~/.bashrc",
+        "   - Zsh: " ++ styleCode "~/.zshrc",
         "",
         "2. Save the file and restart your terminal.",
         "",
         "Done! Now you can use the TAB key to auto-complete Wasp commands in your shell."
       ]
+
+styleCode :: String -> String
+styleCode = Term.applyStyles [Term.Bold]
