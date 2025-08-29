@@ -9,7 +9,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
-import qualified Wasp.Util.Terminal as Term
+import Wasp.Util.Terminal (styleCode)
 
 -- generate bash completion depending on commands input
 bashCompletion :: Command ()
@@ -67,6 +67,3 @@ printBashCompletionInstruction =
         "",
         "Done! Now you can use the TAB key to auto-complete Wasp commands in your shell."
       ]
-
-styleCode :: String -> String
-styleCode = Term.applyStyles [Term.Bold]

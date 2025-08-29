@@ -42,8 +42,8 @@ prettyShowSrcLinesOfErrorRgn :: String -> SourceRegion -> String
 prettyShowSrcLinesOfErrorRgn
   waspFileContent
   ( SourceRegion
-      (SourcePosition startLineNum startColNum)
-      (SourcePosition endLineNum endColNum)
+      (SourcePosition startLineNum _startColNum)
+      (SourcePosition endLineNum _endColNum)
     ) =
     let srcLines =
           zip [max 1 (startLineNum - numCtxLines) ..] $
@@ -54,17 +54,7 @@ prettyShowSrcLinesOfErrorRgn
           map
             ( \(lineNum, line) ->
                 let lineContainsError = lineNum >= startLineNum && lineNum <= endLineNum
-                    lineWithStylingStartAndEnd =
-                      if lineNum == startLineNum
-                        then insertAt stylingStart (startColNum - 1) lineWithStylingEnd
-                        else stylingStart ++ lineWithStylingEnd
-                    lineWithStylingEnd =
-                      if lineNum == endLineNum
-                        then insertAt stylingEnd endColNum line
-                        else line ++ stylingEnd
-                    stylingStart = T.escapeCode ++ T.styleCode T.Red
-                    stylingEnd = T.escapeCode ++ T.resetCode
-                 in (lineNum, if lineContainsError then lineWithStylingStartAndEnd else line)
+                 in (lineNum, if lineContainsError then T.applyStyles [T.Red] line else line)
             )
             srcLines
         srcLinesWithMarkedErrorRgnAndLineNumber =
