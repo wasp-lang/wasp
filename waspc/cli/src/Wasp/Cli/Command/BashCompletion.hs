@@ -17,7 +17,7 @@ bashCompletion = do
   -- COMP_LINE is exposed by the bash `complete` builtin (https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html)
   inputEntered <- liftIO (ENV.getEnv "COMP_LINE")
   let inputWords = words inputEntered
-  let inputArgs = assert (head inputArgs == "wasp") $ tail inputWords
+  let inputArgs = assert (not (null inputWords) && head inputWords == "wasp") $ tail inputWords
   case inputArgs of
     [] -> listCommands commands
     ["db"] -> listCommands dbSubCommands
