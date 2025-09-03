@@ -101,6 +101,11 @@ SMTP_PASSWORD=
 SMTP_PORT=
 ```
 
+:::caution SMTP ports might be blocked
+Some hosting providers (for example, Railway free tier, Hetzner, or Render) block outbound SMTP ports to prevent spam.  
+If you run into issues, consider using a dedicated provider integration like Mailgun or SendGrid instead of plain SMTP.
+:::
+
 Many transactional email providers (e.g. Mailgun, SendGrid but also others) can also use SMTP, so you can use them as well.
 
 ### Using the Mailgun Provider
