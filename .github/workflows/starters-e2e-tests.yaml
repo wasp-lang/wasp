@@ -3,14 +3,12 @@ name: Run e2e tests on starter templates
 on:
   workflow_call:
   push:
-    paths:
-      - "waspc/data/Cli/starters/**"
     branches:
       - main
       - release
   pull_request:
-    # paths:
-    #   - "waspc/data/Cli/starters/**"
+    paths:
+      - "waspc/data/Cli/starters/**"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
