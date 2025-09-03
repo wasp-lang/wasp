@@ -1,0 +1,43 @@
+{
+  "name": "waspc",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "wasp-config": "*",
+    "wasp-deploy": "*",
+    "wasp-prisma": "*",
+    "wasp-studio-server": "*",
+    "wasp-ts-inspect": "*"
+  },
+  "scripts": {
+    "build": "cabal build"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "copy-packages"
+        ],
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist-newstyle"
+        ]
+      },
+      "copy-packages": {
+        "cache": true,
+        "inputs": [
+          {
+            "dependentTasksOutputFiles": "**/*"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/data/packages"
+        ],
+        "dependsOn": [
+          "^build"
+        ],
+        "command": "node {projectRoot}/tools/copy-packages.js"
+      }
+    }
+  }
+}

@@ -68,7 +68,7 @@ scriptInPackageDir = [relfile|dist/index.js|]
 
 -- | Get a 'P.CreateProcess' for a particular package.
 --
--- These packages are built during CI/locally via the @tools/install_packages_to_data_dir.sh@
+-- These packages are built during CI/locally via the @tools/copy-packages.js@
 -- script.
 --
 -- If the package does not have its dependencies installed yet (for example,
