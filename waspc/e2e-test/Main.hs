@@ -23,11 +23,11 @@ tests =
   testGroup "Golden Tests"
     <$> mapM
       runGoldenTest
-      [ -- waspNewGoldenTest,
-        -- waspCompileGoldenTest,
-        -- waspMigrateGoldenTest,
-        -- waspBuildGoldenTest,
-        -- waspJobGoldenTest,
-        -- waspComplexGoldenTest,
+      [ waspNewGoldenTest,
+        waspCompileGoldenTest,
+        waspMigrateGoldenTest,
+        waspBuildGoldenTest,
+        waspJobGoldenTest,
+        waspComplexGoldenTest,
         kitchenSinkGoldenTest
       ]

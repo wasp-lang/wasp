@@ -17,7 +17,7 @@ module ShellCommands
     waspCliBuild,
     dockerBuild,
     insertCodeIntoFileAtLineNumber,
-    copyKitchenSinkGitTrackedFiles,
+    copyWaspAppGitTrackedFiles,
   )
 where
 
@@ -131,5 +131,12 @@ dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
 
-copyKitchenSinkGitTrackedFiles :: ShellCommandBuilder ShellCommand
-copyKitchenSinkGitTrackedFiles = return "echo \"$(pwd)\""
+copyWaspAppGitTrackedFiles :: FilePath -> ShellCommandBuilder ShellCommand
+copyWaspAppGitTrackedFiles waspAppPathFromRepoRoot = do
+  context <- ask
+  let projectName = _ctxtCurrentProjectName context
+      projectDirRelPath = "./" ++ projectName
+
+      createProjectDir = "mkdir -p " ++ projectDirRelPath
+      copyGitTrackedFiles = "git -C ../../../.. archive --format=tar HEAD:" ++ waspAppPathFromRepoRoot ++ " | tar -x -C " ++ projectDirRelPath
+   in return $ combineShellCommands [createProjectDir, copyGitTrackedFiles]

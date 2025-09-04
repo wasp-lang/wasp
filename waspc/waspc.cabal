@@ -798,9 +798,10 @@ test-suite e2e-test
     GoldenTest
     ShellCommands
     Util
-    Tests.WaspBuildTest
-    Tests.WaspCompileTest
-    Tests.WaspJobTest
-    Tests.WaspMigrateTest
-    Tests.WaspNewTest
-    Tests.WaspComplexTest
+    GoldenTests.WaspBuild
+    GoldenTests.WaspCompile
+    GoldenTests.WaspJob
+    GoldenTests.WaspMigrate
+    GoldenTests.WaspNew
+    GoldenTests.WaspComplex
+    GoldenTests.KitchenSink
