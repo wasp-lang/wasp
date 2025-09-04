@@ -61,10 +61,20 @@ jobs:
       - uses: ./.github/actions/setup-haskell
         if: steps.haskell-changes.outputs.haskell_files != ''
 
-      # cache ormolu?
+      - name: Cache ormolu
+        if: steps.haskell-changes.outputs.haskell_files != ''
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/waspc/.bin/ormolu
+          key: ${{ runner.os }}-ormolu-${{ hashFiles('dev-tool.project') }}
+          restore-keys: |
+            ${{ runner.os }}-ormolu-
+
+      - name: Install ormolu if not cached
+        if: steps.haskell-changes.outputs.haskell_files != '' && steps.cache-ormolu.outputs.cache-hit != 'true'
+        run: cabal --project-file=${{ github.workspace }}/waspc/dev-tool.project install --installdir=${{ github.workspace }}/waspc/.bin --install-method=copy ormolu
+
       - name: Run ormolu for changed Haskell files
         if: steps.haskell-changes.outputs.haskell_files != ''
         working-directory: waspc
-        run: |
-          cabal --project-file=${{ github.workspace }}/dev-tool.project install $1 --installdir=${{ github.workspace }}/.bin --install-method=copy ormolu
-          ./.bin/ormolu --color always --check-idempotence --mode check ${{ steps.haskell-changes.outputs.haskell_files }}
+        run: ./.bin/ormolu --color always --check-idempotence --mode check ${{ steps.haskell-changes.outputs.haskell_files }}
