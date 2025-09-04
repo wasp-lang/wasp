@@ -1,0 +1,4 @@
+# Ignore editor tmp files
+**/*~
+**/#*#
+.DS_Store

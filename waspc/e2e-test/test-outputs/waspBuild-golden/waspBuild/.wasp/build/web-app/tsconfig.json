@@ -1,0 +1,11 @@
+{
+  // Wasp's TS config arrangement is based on Vite's tsconfig arrangement, but
+  // we have an extra top-level file because the two projects are independent.
+  // The empty files array is necessary to allow `noEmit` in referenced
+  // projects.
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.vite.json" },
+  ]
+}
