@@ -41,15 +41,30 @@ jobs:
       - name: Check for Haskell file changes
         id: haskell-changes
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E 'waspc/.*\.hs$'; then
-            echo "run=true" >> $GITHUB_OUTPUT
-          else
-            echo "run=false" >> $GITHUB_OUTPUT
+          changed_files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E '^waspc/.*\.hs$' || true)
+
+          if [ -z "$changed_files" ]; then
+            exit 0
           fi
 
-      - uses: ./.github/actions/setup-haskell
-        if: steps.haskell-changes.outputs.run == 'true'
+          # strip leading "waspc/"
+          haskell_files=$(echo "$changed_files" | sed -E 's#^waspc/##')
 
-      - working-directory: waspc
-        if: steps.haskell-changes.outputs.run == 'true'
-        run: ./run ormolu:check
+          # write multiline output safely
+          echo "haskell_files<<EOF" >> $GITHUB_OUTPUT
+          printf '%s\n' "$haskell_files" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "Found Haskell files to check:"
+          printf '%s\n' "$haskell_files"
+
+      - uses: ./.github/actions/setup-haskell
+        if: steps.haskell-changes.outputs.haskell_files != ''
+
+      # cache ormolu?
+      - name: Run ormolu for changed Haskell files
+        if: steps.haskell-changes.outputs.haskell_files != ''
+        working-directory: waspc
+        run: |
+          cabal --project-file=${{ github.workspace }}/dev-tool.project install $1 --installdir=${{ github.workspace }}/.bin --install-method=copy ormolu
+          ./.bin/ormolu --color always --check-idempotence --mode check ${{ steps.haskell-changes.outputs.haskell_files }}
