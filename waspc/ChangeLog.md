@@ -7,6 +7,7 @@
 - Wasp now requires Node.js version to be >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
 - Wasp now uses ECMAScript Modules (ESM) instead of CommonJS (CJS) for Tailwind configuration files. ([#2998](https://github.com/wasp-lang/wasp/pull/2998))
 - Wasp now uses Vite 7. [#2914](https://github.com/wasp-lang/wasp/pull/2914)
+- Using Wasp Deploy for Railway now requires Railway CLI version 4.6.3 or greater. ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
 
 ### 🎉 New Features
 
@@ -16,6 +17,7 @@
 
 - We now support Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
 - We no longer use Stitches for our Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
+- You can now create your project in a specific Railway workspace when using Wasp Deploy with the `--workspace` option ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
 
 ### 📖 Documentation
 

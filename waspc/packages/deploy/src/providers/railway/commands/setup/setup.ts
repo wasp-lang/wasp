@@ -47,6 +47,7 @@ export async function setup(
     existingProjectId: options.existingProjectId,
     waspProjectDir: options.waspProjectDir,
     railwayExe: options.railwayExe,
+    workspace: options.workspace,
   });
 
   await ensureWaspProjectIsBuilt(options);
@@ -75,11 +76,13 @@ async function setupRailwayProjectForDirectory({
   projectName,
   waspProjectDir,
   existingProjectId,
+  workspace,
 }: {
   railwayExe: RailwayCliExe;
   projectName: RailwayProjectName;
   waspProjectDir: WaspProjectDir;
   existingProjectId: RailwayProjectId | null;
+  workspace: string | null;
 }): Promise<RailwayProject> {
   const { status, project } = await getRailwayProjectStatus({
     projectName,
@@ -108,6 +111,7 @@ async function setupRailwayProjectForDirectory({
         projectName,
         railwayExe,
         waspProjectDir,
+        workspace,
       });
 
     default:
