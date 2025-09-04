@@ -61,32 +61,20 @@
     "verbatimModuleSyntax": false,
     "moduleDetection": "force", // Assume all files are modules
     /*
-       The correct `moduleResolution` option is `bundler` because:
-         - We want to allow users to use extensionless and directory imports.
-         - We want users to import stuff from the SDK with `wasp/something`,
-           and we don't want to do extra processing on those imports (for now).
+      - We want to allow users to use extensionless and directory imports.
+      - We want users to import stuff from the SDK with `wasp/something`, and we
+        don't want to do extra processing on those imports (for now).
 
-       These requirements force us to bundle user code and, because we copy user
-       code into the SDK code, they force us to bundle the SDK too.
+      These requirements force us to bundle user code and, because we copy user
+      code into the SDK code, they force us to bundle the SDK too.
 
-       We currently bundle the SDK in a very hacky way (indirectly while bundling
-       the server and client): https://github.com/wasp-lang/wasp/issues/2150
-       Regardless of how we do it, the SDK code is eventually bundled, so this
-       `tsconfig.json` file must reflect that (which means `moduleResolution:
-        bundler`).
-
-       Unfortunately, setting `"moduleResolution": "bundler"` doesn't work due
-       to an issue with stitches: https://github.com/stitchesjs/stitches/issues/1160.
-
-       "node10" models the resolution of Node.js <= 12, but also happens to be a
-       passable approximation of how most bundlers do module resolution (and allows
-       all the bundler features we want to support).
-       Since we can't have "bundler", "node10" is the next best thing.
-       Source: https://www.typescriptlang.org/docs/handbook/modules/theory.html#module-resolution
-
-       TODO: Change "moduleResolution" to "bundler" when we move away from stitches.
+      We currently bundle the SDK in a very hacky way (indirectly while bundling
+      the server and client): https://github.com/wasp-lang/wasp/issues/2150
+      Regardless of how we do it, the SDK code is eventually bundled, so this
+      `tsconfig.json` file must reflect that (which means `moduleResolution:
+      bundler`).
     */
-    "moduleResolution": "node10",
+    "moduleResolution": "bundler",
     "types": [
       /*
          This is needed to properly support Vitest testing with jest-dom matchers.
