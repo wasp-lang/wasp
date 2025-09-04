@@ -2,11 +2,12 @@ module GoldenTests.KitchenSink (kitchenSinkGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( copyWaspAppGitTrackedFiles,
+  ( copyGitTrackedFilesFromRepo,
   )
 
 kitchenSinkGoldenTest :: GoldenTest
 kitchenSinkGoldenTest =
   makeGoldenTest "kitchen-sink" $
     sequence
-      [copyWaspAppGitTrackedFiles "waspc/examples/todoApp"]
+      [ copyGitTrackedFilesFromRepo "waspc/examples/todoApp"
+      ]
