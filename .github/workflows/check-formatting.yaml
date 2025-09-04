@@ -58,9 +58,6 @@ jobs:
           echo "Found Haskell files to check:"
           printf '%s\n' "$haskell_files"
 
-      - uses: ./.github/actions/setup-haskell
-        if: steps.haskell-changes.outputs.haskell_files != ''
-
       - name: Cache ormolu
         if: steps.haskell-changes.outputs.haskell_files != ''
         uses: actions/cache@v4
@@ -69,6 +66,9 @@ jobs:
           key: ${{ runner.os }}-ormolu-${{ hashFiles('dev-tool.project') }}
           restore-keys: |
             ${{ runner.os }}-ormolu-
+
+      - uses: ./.github/actions/setup-haskell
+        if: steps.haskell-changes.outputs.haskell_files != '' && steps.cache-ormolu.outputs.cache-hit != 'true'
 
       - name: Install ormolu if not cached
         if: steps.haskell-changes.outputs.haskell_files != '' && steps.cache-ormolu.outputs.cache-hit != 'true'
