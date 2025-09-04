@@ -15,11 +15,19 @@ jobs:
   examples-e2e-tests:
     uses: ./.github/workflows/examples-e2e-tests.yaml
 
+  starters-e2e-tests:
+    uses: ./.github/workflows/starters-e2e-tests.yaml
+
   wasp-config-tests:
     uses: ./.github/workflows/wasp-config-tests.yaml
 
   create-release:
-    needs: [ci, build, examples-e2e-tests, wasp-config-tests]
+    needs:
+      - ci
+      - build
+      - examples-e2e-tests
+      - starters-e2e-tests
+      - wasp-config-tests
     runs-on: ubuntu-latest
 
     permissions:

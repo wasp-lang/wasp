@@ -39,7 +39,7 @@ jobs:
           AUTHOR_LOGIN: ${{ github.event.sender.login }}
           GITHUB_ORG: ${{ github.repository_owner }}
           TEAM_NAME: ${{ env.internal_team_name }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN_READ_WASP_LANG_MEMBERS }}
+          GH_TOKEN: ${{ secrets.WASP_LANG_READ_MEMBERS }}
 
       - name: Label external PR
         if: steps.check_pr.outputs.pr_is_internal == 'false'
