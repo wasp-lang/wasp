@@ -106,7 +106,7 @@ wasp deploy railway launch <project-name> --existing-project-id <railway-project
 
 #### Explicitly providing the Railway Workspace
 
-By default, Wasp CLI will prompt you to select in which Railway workspace you want to create your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
+By default, Wasp CLI will prompt you to select a Railway workspace for your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
 
 ```shell
 wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>
