@@ -202,6 +202,14 @@ By default, Wasp CLI tries to create a new Railway project named `<project-name>
 wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>
 ```
 
+#### Explicitly providing the Railway Workspace
+
+By default, Wasp CLI will prompt you to select in which Railway workspace you want to create your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
+
+```shell
+wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>
+```
+
 :::caution Execute Only Once
 You should only run `setup` once per app. Wasp CLI skips creating the services if they already exist.
 :::
