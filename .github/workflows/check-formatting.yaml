@@ -55,6 +55,7 @@ jobs:
           echo "$haskell_files"
 
       - name: Cache ormolu
+        id: cache-ormolu
         if: steps.haskell-changes.outputs.haskell_files != ''
         uses: actions/cache@v4
         with:
