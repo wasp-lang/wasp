@@ -2,18 +2,19 @@ module GoldenTests.WaspMigrate (waspMigrateGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( appendToPrismaFile,
+  ( WaspStarter (Minimal),
+    appendToPrismaFile,
     cdIntoCurrentProject,
     waspCliCompile,
     waspCliMigrate,
-    waspCliNewMinimalStarter,
+    waspCliNewStarter,
   )
 
 waspMigrateGoldenTest :: GoldenTest
 waspMigrateGoldenTest =
   makeGoldenTest "wasp-migrate" $
     sequence
-      [ waspCliNewMinimalStarter,
+      [ waspCliNewStarter Minimal,
         cdIntoCurrentProject,
         waspCliCompile,
         appendToPrismaFile taskModel,

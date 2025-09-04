@@ -1,9 +1,11 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module ShellCommands
   ( ShellCommand,
     ShellCommandContext (..),
     ShellCommandBuilder (..),
+    WaspStarter (..),
     runShellCommandBuilder,
     combineShellCommands,
     cdIntoCurrentProject,
@@ -11,7 +13,7 @@ module ShellCommands
     appendToPrismaFile,
     createFile,
     setDbToPSQL,
-    waspCliNewMinimalStarter,
+    waspCliNewStarter,
     waspCliCompile,
     waspCliMigrate,
     waspCliBuild,
@@ -40,6 +42,12 @@ data ShellCommandContext = ShellCommandContext
   { _ctxtCurrentProjectName :: String
   }
   deriving (Show)
+
+data WaspStarter = Minimal | Basic
+
+instance Show WaspStarter where
+  show Minimal = "minimal"
+  show Basic = "basic"
 
 -- Used to construct shell commands, while still giving access to the context (if needed).
 newtype ShellCommandBuilder a = ShellCommandBuilder {_runShellCommandBuilder :: Reader ShellCommandContext a}
@@ -97,11 +105,11 @@ replaceLineInFile fileName lineNumber line =
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
 
-waspCliNewMinimalStarter :: ShellCommandBuilder ShellCommand
-waspCliNewMinimalStarter = do
+waspCliNewStarter :: WaspStarter -> ShellCommandBuilder ShellCommand
+waspCliNewStarter starterName = do
   context <- ask
   return $
-    "wasp-cli new " ++ _ctxtCurrentProjectName context ++ " -t minimal"
+    "wasp-cli new " ++ _ctxtCurrentProjectName context ++ " -t " ++ show starterName
 
 waspCliCompile :: ShellCommandBuilder ShellCommand
 waspCliCompile = return "wasp-cli compile"
@@ -134,8 +142,7 @@ dockerBuild =
 copyGitTrackedFilesFromRepo :: FilePath -> ShellCommandBuilder ShellCommand
 copyGitTrackedFilesFromRepo sourcePathFromGitRoot = do
   context <- ask
-  let projectName = _ctxtCurrentProjectName context
-      projectDirRelPath = "./" ++ projectName
+  let projectDirRelPath = "./" ++ _ctxtCurrentProjectName context
 
       createProjectDir = "mkdir -p " ++ projectDirRelPath
       copyGitTrackedFiles = "git -C ../../../.. archive --format=tar HEAD:" ++ sourcePathFromGitRoot ++ " | tar -x -C " ++ projectDirRelPath

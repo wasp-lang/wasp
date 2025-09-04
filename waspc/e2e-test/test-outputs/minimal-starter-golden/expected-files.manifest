@@ -1,0 +1,14 @@
+minimal-starter/.gitignore
+minimal-starter/.waspignore
+minimal-starter/.wasproot
+minimal-starter/main.wasp
+minimal-starter/package.json
+minimal-starter/public/.gitkeep
+minimal-starter/public/favicon.ico
+minimal-starter/schema.prisma
+minimal-starter/src/Main.css
+minimal-starter/src/MainPage.tsx
+minimal-starter/src/assets/logo.svg
+minimal-starter/src/vite-env.d.ts
+minimal-starter/tsconfig.json
+minimal-starter/vite.config.ts

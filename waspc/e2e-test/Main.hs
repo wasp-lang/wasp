@@ -1,11 +1,8 @@
 import GoldenTest (runGoldenTest)
+import GoldenTests.BasicStarter (basicStarterGoldenTest)
 import GoldenTests.KitchenSink (kitchenSinkGoldenTest)
-import GoldenTests.WaspBuild (waspBuildGoldenTest)
-import GoldenTests.WaspCompile (waspCompileGoldenTest)
-import GoldenTests.WaspComplex (waspComplexGoldenTest)
-import GoldenTests.WaspJob (waspJobGoldenTest)
+import GoldenTests.MinimalStarter (minimalStarterGoldenTest)
 import GoldenTests.WaspMigrate (waspMigrateGoldenTest)
-import GoldenTests.WaspNew (waspNewGoldenTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 
@@ -23,11 +20,8 @@ tests =
   testGroup "Golden Tests"
     <$> mapM
       runGoldenTest
-      [ waspNewGoldenTest,
-        waspCompileGoldenTest,
+      [ minimalStarterGoldenTest,
+        basicStarterGoldenTest,
         waspMigrateGoldenTest,
-        waspBuildGoldenTest,
-        waspJobGoldenTest,
-        waspComplexGoldenTest,
         kitchenSinkGoldenTest
       ]
