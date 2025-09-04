@@ -47,6 +47,7 @@ import qualified Prelude as P
 --
 -- Example: Imagine we have directory foo that contains test.txt and bar/test2.txt.
 -- If we call
+-- change!
 -- >>> listDirectoryDeep "foo/"
 -- we should get
 -- >>> ["test.txt", "bar/text2.txt"]
