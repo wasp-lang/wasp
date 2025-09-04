@@ -4,7 +4,7 @@ dist-newstyle/
 waspc/data/packages/
 waspc/data/*/templates/
 waspc/data/Cli/starters/
-waspc/e2e-test/test-outputs/
+waspc/e2e-tests/test-outputs/
 waspc/.bin
 web/.docusaurus
 web/build/

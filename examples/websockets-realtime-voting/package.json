@@ -2,7 +2,7 @@
   "name": "websockets-realtime-voting",
   "type": "module",
   "scripts": {
-    "test": "DEBUG=pw:webserver playwright test --config headless-tests/"
+    "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
   },
   "dependencies": {
     "express": "~5.1.0",

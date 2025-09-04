@@ -53,7 +53,7 @@ jobs:
           #   - The character `#`.
           #   - An empty line (i.e., there are no multiline env values).
           mapfile -t ENV_VAR_ARGUMENTS < <(
-            cat .env.server.headless |
+            cat .env.server.example |
             sed -E 's/#.*//' |
             awk 'NF {$1=$1;print}' |
             sed -E 's/^/--server-secret\n/'

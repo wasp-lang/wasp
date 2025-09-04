@@ -624,10 +624,10 @@ executable wasp-cli
   other-modules:
       Paths_waspc
 
-test-suite waspc-test
+test-suite waspc-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: test
+  hs-source-dirs: tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -720,10 +720,10 @@ test-suite waspc-test
     Generator.NpmDependenciesTest
     JsImportTest
 
-test-suite waspls-test
+test-suite waspls-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: waspls/test
+  hs-source-dirs: waspls/tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -747,10 +747,10 @@ test-suite waspls-test
     Wasp.LSP.DebouncerTest
     Wasp.LSP.SyntaxTest
 
-test-suite cli-test
+test-suite wasp-cli-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: cli/test
+  hs-source-dirs: cli/tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -770,10 +770,10 @@ test-suite cli-test
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
-test-suite e2e-test
+test-suite waspc-e2e-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: e2e-test
+  hs-source-dirs: e2e-tests
   main-is: Main.hs
   build-tool-depends: waspc:wasp-cli
   build-depends:
