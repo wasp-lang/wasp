@@ -139,7 +139,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
-      - name: Install `todoApp` dependencies
+      - name: Install `todoApp` node dependencies
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
