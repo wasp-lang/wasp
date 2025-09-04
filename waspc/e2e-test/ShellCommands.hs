@@ -1,5 +1,4 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE InstanceSigs #-}
 
 module ShellCommands
   ( ShellCommand,
@@ -19,12 +18,13 @@ module ShellCommands
     waspCliBuild,
     dockerBuild,
     insertCodeIntoFileAtLineNumber,
-    copyGitTrackedFilesFromRepo,
+    copyGitTrackedFilesFromRepoPath,
   )
 where
 
 import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import Data.List (intercalate)
+import StrongPath (Dir, Path', Rel, reldir, toFilePath)
 import System.FilePath (joinPath, (</>))
 
 -- NOTE: Should we consider separating shell parts, Wasp CLI parts, and test helper parts in the future?
@@ -39,18 +39,17 @@ type ShellCommand = String
 
 -- Each shell command gets access to the current project name, and maybe other things in future.
 data ShellCommandContext = ShellCommandContext
-  { _ctxtCurrentProjectName :: String
-  }
+  {_ctxtCurrentProjectName :: String}
   deriving (Show)
 
-data WaspStarter = Minimal | Basic
+data RepoRootDir
 
-instance Show WaspStarter where
-  show Minimal = "minimal"
-  show Basic = "basic"
+repoRootDirFromGoldenTestProjectDir :: Path' (Rel goldenTestProjectDir) (Dir RepoRootDir)
+repoRootDirFromGoldenTestProjectDir = [reldir|../../../../|]
 
 -- Used to construct shell commands, while still giving access to the context (if needed).
-newtype ShellCommandBuilder a = ShellCommandBuilder {_runShellCommandBuilder :: Reader ShellCommandContext a}
+newtype ShellCommandBuilder a = ShellCommandBuilder
+  {_runShellCommandBuilder :: Reader ShellCommandContext a}
   deriving (Functor, Applicative, Monad, MonadReader ShellCommandContext)
 
 runShellCommandBuilder :: ShellCommandBuilder a -> ShellCommandContext -> a
@@ -59,6 +58,9 @@ runShellCommandBuilder shellCommandBuilder context =
 
 combineShellCommands :: [ShellCommand] -> ShellCommand
 combineShellCommands = intercalate " && "
+
+pipeShellCommands :: [ShellCommand] -> ShellCommand
+pipeShellCommands = intercalate " | "
 
 cdIntoCurrentProject :: ShellCommandBuilder ShellCommand
 cdIntoCurrentProject = do
@@ -105,6 +107,12 @@ replaceLineInFile fileName lineNumber line =
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
 
+data WaspStarter = Minimal | Basic
+
+instance Show WaspStarter where
+  show Minimal = "minimal"
+  show Basic = "basic"
+
 waspCliNewStarter :: WaspStarter -> ShellCommandBuilder ShellCommand
 waspCliNewStarter starterName = do
   context <- ask
@@ -139,11 +147,16 @@ dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
 
-copyGitTrackedFilesFromRepo :: FilePath -> ShellCommandBuilder ShellCommand
-copyGitTrackedFilesFromRepo sourcePathFromGitRoot = do
+copyGitTrackedFilesFromRepoPath :: Path' (Rel RepoRootDir) (Dir repoDir) -> ShellCommandBuilder ShellCommand
+copyGitTrackedFilesFromRepoPath repoRelDirPath = do
   context <- ask
-  let projectDirRelPath = "./" ++ _ctxtCurrentProjectName context
+  let sourceDir = toFilePath repoRootDirFromGoldenTestProjectDir </> toFilePath repoRelDirPath
+      destinationDir = "./" ++ _ctxtCurrentProjectName context
 
-      createProjectDir = "mkdir -p " ++ projectDirRelPath
-      copyGitTrackedFiles = "git -C ../../../.. archive --format=tar HEAD:" ++ sourcePathFromGitRoot ++ " | tar -x -C " ++ projectDirRelPath
-   in return $ combineShellCommands [createProjectDir, copyGitTrackedFiles]
+      createDestinationDir = "mkdir -p " ++ destinationDir
+
+      listGitTrackedRepoRelDirFiles = "git -C " ++ toFilePath repoRootDirFromGoldenTestProjectDir ++ " ls-files " ++ toFilePath repoRelDirPath
+      filterRepoRelDirPath = "sed 's#^" ++ toFilePath repoRelDirPath ++ "##'"
+      copyFilesFromSourceToDestination = "rsync -a --files-from=- " ++ sourceDir ++ " " ++ destinationDir
+      copyRepoRelDirGitTrackedFiles = pipeShellCommands [listGitTrackedRepoRelDirFiles, filterRepoRelDirPath, copyFilesFromSourceToDestination]
+   in return $ combineShellCommands [createDestinationDir, copyRepoRelDirGitTrackedFiles]

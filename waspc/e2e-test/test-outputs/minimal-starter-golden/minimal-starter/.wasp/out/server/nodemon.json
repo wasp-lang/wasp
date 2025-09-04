@@ -1,0 +1,12 @@
+{
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "watch": [
+    "src/",
+    "../../../src/",
+    ".env"
+  ],
+  "comment-filip": "We now have to watch ../../../src/ because we're importing client files directly",
+  "ext": "ts,mts,js,mjs,json"
+}

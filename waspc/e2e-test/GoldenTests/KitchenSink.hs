@@ -5,17 +5,18 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     cdIntoCurrentProject,
-    copyGitTrackedFilesFromRepo,
+    copyGitTrackedFilesFromRepoPath,
     dockerBuild,
     waspCliBuild,
     waspCliCompile,
   )
+import StrongPath (reldir)
 
 kitchenSinkGoldenTest :: GoldenTest
 kitchenSinkGoldenTest =
   makeGoldenTest "kitchen-sink" $
     sequence
-      [ copyGitTrackedFilesFromRepo "waspc/examples/todoApp",
+      [ copyGitTrackedFilesFromRepoPath [reldir|waspc/examples/todoApp/|],
         cdIntoCurrentProject,
         copyEnvServerHeadless,
         waspCliCompile,
