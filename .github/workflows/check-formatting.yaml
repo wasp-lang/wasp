@@ -48,15 +48,11 @@ jobs:
           fi
 
           # strip leading "waspc/"
-          haskell_files=$(echo "$changed_files" | sed -E 's#^waspc/##')
-
-          # write multiline output safely
-          echo "haskell_files<<EOF" >> $GITHUB_OUTPUT
-          printf '%s\n' "$haskell_files" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          haskell_files=$(echo "$changed_files" | sed -E 's#^waspc/##' | xargs)
+          echo "haskell_files=$haskell_files" >> $GITHUB_OUTPUT
 
           echo "Found Haskell files to check:"
-          printf '%s\n' "$haskell_files"
+          echo "$haskell_files"
 
       - name: Cache ormolu
         if: steps.haskell-changes.outputs.haskell_files != ''
