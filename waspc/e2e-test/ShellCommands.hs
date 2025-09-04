@@ -147,7 +147,7 @@ dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
 
-copyGitTrackedFilesFromRepoPath :: Path' (Rel RepoRootDir) (Dir repoDir) -> ShellCommandBuilder ShellCommand
+copyGitTrackedFilesFromRepoPath :: Path' (Rel RepoRootDir) (Dir source) -> ShellCommandBuilder ShellCommand
 copyGitTrackedFilesFromRepoPath repoRelDirPath = do
   context <- ask
   let sourceDir = toFilePath repoRootDirFromGoldenTestProjectDir </> toFilePath repoRelDirPath
