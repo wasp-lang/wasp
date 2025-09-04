@@ -799,6 +799,5 @@ test-suite e2e-test
     ShellCommands
     Util
     GoldenTests.MinimalStarter
-    GoldenTests.BasicStarter
     GoldenTests.KitchenSink
     GoldenTests.WaspMigrate

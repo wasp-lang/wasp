@@ -1,5 +1,4 @@
 import GoldenTest (runGoldenTest)
-import GoldenTests.BasicStarter (basicStarterGoldenTest)
 import GoldenTests.KitchenSink (kitchenSinkGoldenTest)
 import GoldenTests.MinimalStarter (minimalStarterGoldenTest)
 import GoldenTests.WaspMigrate (waspMigrateGoldenTest)
@@ -21,7 +20,6 @@ tests =
     <$> mapM
       runGoldenTest
       [ minimalStarterGoldenTest,
-        basicStarterGoldenTest,
         waspMigrateGoldenTest,
         kitchenSinkGoldenTest
       ]
