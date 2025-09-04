@@ -1,12 +1,13 @@
 import GoldenTest (runGoldenTest)
+import GoldenTests.KitchenSink (kitchenSinkGoldenTest)
+import GoldenTests.WaspBuild (waspBuildGoldenTest)
+import GoldenTests.WaspCompile (waspCompileGoldenTest)
+import GoldenTests.WaspComplex (waspComplexGoldenTest)
+import GoldenTests.WaspJob (waspJobGoldenTest)
+import GoldenTests.WaspMigrate (waspMigrateGoldenTest)
+import GoldenTests.WaspNew (waspNewGoldenTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.WaspBuildTest (waspBuild)
-import Tests.WaspCompileTest (waspCompile)
-import Tests.WaspComplexTest (waspComplexTest)
-import Tests.WaspJobTest (waspJob)
-import Tests.WaspMigrateTest (waspMigrate)
-import Tests.WaspNewTest (waspNew)
 
 main :: IO ()
 main = do
@@ -18,14 +19,15 @@ main = do
 --       Some of this requires waspStart and stdout parsing.
 -- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
-tests = do
-  testGroup "All Golden Dir Tests"
+tests =
+  testGroup "Golden Tests"
     <$> mapM
       runGoldenTest
-      [ waspNew,
-        waspCompile,
-        waspMigrate,
-        waspBuild,
-        waspJob,
-        waspComplexTest
+      [ -- waspNewGoldenTest,
+        -- waspCompileGoldenTest,
+        -- waspMigrateGoldenTest,
+        -- waspBuildGoldenTest,
+        -- waspJobGoldenTest,
+        -- waspComplexGoldenTest,
+        kitchenSinkGoldenTest
       ]

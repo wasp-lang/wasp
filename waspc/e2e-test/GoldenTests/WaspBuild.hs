@@ -1,4 +1,4 @@
-module Tests.WaspBuildTest (waspBuild) where
+module GoldenTests.WaspBuild (waspBuildGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
@@ -9,9 +9,9 @@ import ShellCommands
     waspCliNewMinimalStarter,
   )
 
-waspBuild :: GoldenTest
-waspBuild =
-  makeGoldenTest "waspBuild" $
+waspBuildGoldenTest :: GoldenTest
+waspBuildGoldenTest =
+  makeGoldenTest "wasp-build" $
     sequence
       [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,

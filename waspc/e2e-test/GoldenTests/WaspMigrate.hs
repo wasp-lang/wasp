@@ -1,4 +1,4 @@
-module Tests.WaspMigrateTest (waspMigrate) where
+module GoldenTests.WaspMigrate (waspMigrateGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
@@ -9,9 +9,9 @@ import ShellCommands
     waspCliNewMinimalStarter,
   )
 
-waspMigrate :: GoldenTest
-waspMigrate =
-  makeGoldenTest "waspMigrate" $
+waspMigrateGoldenTest :: GoldenTest
+waspMigrateGoldenTest =
+  makeGoldenTest "wasp-migrate" $
     sequence
       [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,

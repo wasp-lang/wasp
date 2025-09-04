@@ -1,4 +1,4 @@
-module Tests.WaspComplexTest (waspComplexTest) where
+module GoldenTests.WaspComplex (waspComplexGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
@@ -16,9 +16,9 @@ import ShellCommands
 import Util ((<++>))
 import Wasp.Project.Db (databaseUrlEnvVarName)
 
-waspComplexTest :: GoldenTest
-waspComplexTest = do
-  makeGoldenTest "waspComplexTest" $
+waspComplexGoldenTest :: GoldenTest
+waspComplexGoldenTest = do
+  makeGoldenTest "wasp-complex" $
     sequence
       [ waspCliNewMinimalStarter,
         cdIntoCurrentProject

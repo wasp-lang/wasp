@@ -17,6 +17,7 @@ module ShellCommands
     waspCliBuild,
     dockerBuild,
     insertCodeIntoFileAtLineNumber,
+    copyKitchenSinkGitTrackedFiles,
   )
 where
 
@@ -129,3 +130,6 @@ dockerBuild :: ShellCommandBuilder ShellCommand
 dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
+
+copyKitchenSinkGitTrackedFiles :: ShellCommandBuilder ShellCommand
+copyKitchenSinkGitTrackedFiles = return "echo \"$(pwd)\""
