@@ -107,6 +107,10 @@ function makeRailwaySetupCommand(): Command {
       "--existing-project-id [projectId]",
       "use existing project instead of creating a new one",
     )
+    .option(
+      "--workspace [workspace]",
+      "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
+    )
     .action(setupFn);
 }
 
@@ -131,6 +135,10 @@ function makeRailwayLaunchCommand(): Command {
     .option(
       "--existing-project-id [projectId]",
       "use existing project instead of creating a new one",
+    )
+    .option(
+      "--workspace [workspace]",
+      "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
     )
     .action(launchFn);
 }
