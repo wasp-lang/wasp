@@ -25,6 +25,7 @@
 - No longer Stitches for our Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
 - You can now create your project in a specific Railway workspace when using Wasp Deploy with the `--workspace` option. ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
 - Better error message when choosing a template that doesn't exist. ([#2992](https://github.com/wasp-lang/wasp/pull/2992))
+- Bash completion setup is simplified. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
 
 ### 📖 Documentation
 
