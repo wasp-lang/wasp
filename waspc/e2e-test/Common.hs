@@ -5,6 +5,7 @@ module Common
     getE2eTestDir,
     getTestOutputsDir,
     getProjectRootPath,
+    projectRootFromGoldenTestProjectDir,
   )
 where
 
@@ -40,3 +41,6 @@ testOutputsDirInE2eTest = [reldir|test-outputs|]
 
 getTestOutputsDir :: IO (Path' Abs (Dir GoldensDir))
 getTestOutputsDir = (</> testOutputsDirInE2eTest) <$> getE2eTestDir
+
+projectRootFromGoldenTestProjectDir :: Path' (Rel goldenTestProjectDir) (Dir ProjectRoot)
+projectRootFromGoldenTestProjectDir = [reldir|../../../../|]
