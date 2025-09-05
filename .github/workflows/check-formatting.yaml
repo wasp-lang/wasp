@@ -43,6 +43,7 @@ jobs:
         run: |
           echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
 
-      - uses: haskell-actions/run-ormolu@v17
+      # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
+      - uses: haskell-actions/run-ormolu@v15
         with:
           version: ${{ env.ORMOLU_VERSION }}
