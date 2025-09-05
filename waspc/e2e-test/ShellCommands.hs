@@ -21,10 +21,10 @@ module ShellCommands
   )
 where
 
-import Common (ProjectRoot, repoRootDirFromGoldenTestProjectDir)
+import Common (ProjectRoot, projectRootFromGoldenTestProjectDir)
 import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import Data.List (intercalate)
-import StrongPath (Dir, Path', Rel, reldir, toFilePath)
+import StrongPath (Dir, Path', Rel, toFilePath)
 import System.FilePath (joinPath, (</>))
 
 -- NOTE: Should we consider separating shell parts, Wasp CLI parts, and test helper parts in the future?
@@ -139,12 +139,12 @@ dockerBuild =
 copyGitTrackedFilesFromRepoPath :: Path' (Rel ProjectRoot) (Dir source) -> ShellCommandBuilder ShellCommand
 copyGitTrackedFilesFromRepoPath repoRelDirPath = do
   context <- ask
-  let sourceDir = toFilePath repoRootDirFromGoldenTestProjectDir </> toFilePath repoRelDirPath
+  let sourceDir = toFilePath projectRootFromGoldenTestProjectDir </> toFilePath repoRelDirPath
       destinationDir = "./" ++ _ctxtCurrentProjectName context
 
       createDestinationDir = "mkdir -p " ++ destinationDir
 
-      listGitTrackedRepoRelDirFiles = "git -C " ++ toFilePath repoRootDirFromGoldenTestProjectDir ++ " ls-files " ++ toFilePath repoRelDirPath
+      listGitTrackedRepoRelDirFiles = "git -C " ++ toFilePath projectRootFromGoldenTestProjectDir ++ " ls-files " ++ toFilePath repoRelDirPath
       filterRepoRelDirPath = "sed 's#^" ++ toFilePath repoRelDirPath ++ "##'"
       copyFilesFromSourceToDestination = "rsync -a --files-from=- " ++ sourceDir ++ " " ++ destinationDir
       copyRepoRelDirGitTrackedFiles = pipeShellCommands [listGitTrackedRepoRelDirFiles, filterRepoRelDirPath, copyFilesFromSourceToDestination]
