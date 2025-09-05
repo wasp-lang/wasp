@@ -21,6 +21,7 @@ module ShellCommands
   )
 where
 
+import Common (ProjectRoot, repoRootDirFromGoldenTestProjectDir)
 import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import Data.List (intercalate)
 import StrongPath (Dir, Path', Rel, reldir, toFilePath)
@@ -40,11 +41,6 @@ type ShellCommand = String
 data ShellCommandContext = ShellCommandContext
   {_ctxtCurrentProjectName :: String}
   deriving (Show)
-
-data RepoRootDir
-
-repoRootDirFromGoldenTestProjectDir :: Path' (Rel goldenTestProjectDir) (Dir RepoRootDir)
-repoRootDirFromGoldenTestProjectDir = [reldir|../../../../|]
 
 -- Used to construct shell commands, while still giving access to the context (if needed).
 newtype ShellCommandBuilder a = ShellCommandBuilder
@@ -140,7 +136,7 @@ dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
 
-copyGitTrackedFilesFromRepoPath :: Path' (Rel RepoRootDir) (Dir source) -> ShellCommandBuilder ShellCommand
+copyGitTrackedFilesFromRepoPath :: Path' (Rel ProjectRoot) (Dir source) -> ShellCommandBuilder ShellCommand
 copyGitTrackedFilesFromRepoPath repoRelDirPath = do
   context <- ask
   let sourceDir = toFilePath repoRootDirFromGoldenTestProjectDir </> toFilePath repoRelDirPath
