@@ -140,7 +140,7 @@ This lets you debug production-only issues on your own machine, long before your
 
 </div>
 
-Wasp aims to make deployment a breeze, but how could we be sure our deployment adaptors for providers like [Fly.io](http://fly.io/) and [Railway](https://railway.com/) were always up-to-date? A [subtle API change on their end](https://github.com/wasp-lang/wasp/pull/2760) or a small bug in our Dockerfile could break the process without us knowing. Of course, we test it, but doing it manually can risk us missing stuff.
+Wasp aims to make deployment a breeze, but how could we be sure our deployment adaptors for providers like [Fly.io](http://fly.io/) and [Railway](https://railway.com/?utm_medium=integration&utm_source=blog&utm_campaign=wasp) were always up-to-date? A [subtle API change on their end](https://github.com/wasp-lang/wasp/pull/2760) or a small bug in our Dockerfile could break the process without us knowing. Of course, we test it, but doing it manually can risk us missing stuff.
 
 To solve this, we built an automated testing pipeline specifically for deployments. This system will automatically deploy our example Wasp apps to our supported providers on a regular basis. It will act as a continuous smoke test for our entire deployment story.
 
