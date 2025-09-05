@@ -109,7 +109,7 @@ readFile :: Path' Abs (File f) -> IO String
 readFile = P.readFile . SP.fromAbsFile
 
 readFileBytes :: Path' Abs (File f) -> IO B.ByteString
-readFileBytes = B.readFile .   SP.fromAbsFile
+readFileBytes = B.readFile . SP.fromAbsFile
 
 readFileStrict :: Path' Abs (File f) -> IO Text
 readFileStrict = T.IO.readFile . SP.toFilePath
