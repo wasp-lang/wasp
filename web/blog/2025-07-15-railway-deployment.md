@@ -16,11 +16,11 @@ Wasp aims to be the complete package for your full-stack development needs, from
 
 ## Why Railway?
 
-Railway recently introduced [Railway Metal](https://blog.railway.com/p/launch-week-02-welcome) which is their cool way of saying they have their own independent infrastructure. They’ve been able to optimize their server costs and lower the prices for everybody. This makes Railway not only a powerful and stable platform but also a very reasonably priced option for many projects.
+Railway recently introduced [Railway Metal](https://blog.railway.com/p/launch-week-02-welcome?utm_medium=integration&utm_source=blog&utm_campaign=wasp) which is their cool way of saying they have their own independent infrastructure. They’ve been able to optimize their server costs and lower the prices for everybody. This makes Railway not only a powerful and stable platform but also a very reasonably priced option for many projects.
 
 ![Railway Dashboard](/img/railway-deployment/railway-dashboard.jpg)
 
-That’s why we are excited to announce that we added support for [Railway](https://railway.com/) one-command deployment to Wasp! (Fun fact: This is provider #2, Wasp CLI already had one-command deployment with [Fly.io](http://fly.io/).)
+That’s why we are excited to announce that we added support for [Railway](https://railway.com/?utm_medium=integration&utm_source=blog&utm_campaign=wasp) one-command deployment to Wasp! (Fun fact: This is provider #2, Wasp CLI already had one-command deployment with [Fly.io](http://fly.io/).)
 
 <!--truncate-->
 
@@ -66,7 +66,7 @@ We are shipping this feature with the latest Wasp 0.17.0 version.
 If you want to deploy your app to Railway:
 
 1. Make sure you have the latest version of Wasp installed
-2. Register for Railway and [download their CLI](https://docs.railway.com/guides/cli)
+2. Register for Railway and [download their CLI](https://docs.railway.com/guides/cli?utm_medium=integration&utm_source=blog&utm_campaign=wasp)
 3. Navigate to your Wasp project directory
 4. Run the command: `wasp deploy railway launch <your-project-name>`
 
