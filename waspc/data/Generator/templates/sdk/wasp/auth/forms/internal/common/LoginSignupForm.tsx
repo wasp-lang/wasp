@@ -107,7 +107,7 @@ export const LoginSignupForm = ({
     onError: onErrorHandler,
     showEmailVerificationPending() {
       hookForm.reset()
-      setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
+      setSuccessMessage('If you have an account, you’ll receive an email with further instructions.')
     },
     onLoginSuccess() {
       navigate('{= onAuthSucceededRedirectTo =}')
