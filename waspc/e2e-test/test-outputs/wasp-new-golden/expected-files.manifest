@@ -1,0 +1,14 @@
+wasp-new/.gitignore
+wasp-new/.waspignore
+wasp-new/.wasproot
+wasp-new/main.wasp
+wasp-new/package.json
+wasp-new/public/.gitkeep
+wasp-new/public/favicon.ico
+wasp-new/schema.prisma
+wasp-new/src/Main.css
+wasp-new/src/MainPage.tsx
+wasp-new/src/assets/logo.svg
+wasp-new/src/vite-env.d.ts
+wasp-new/tsconfig.json
+wasp-new/vite.config.ts
