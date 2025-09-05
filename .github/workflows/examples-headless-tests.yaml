@@ -3,8 +3,6 @@ name: Run headless tests on root example apps
 on:
   workflow_call:
   push:
-    paths:
-      - "examples/**"
     branches:
       - main
       - release
