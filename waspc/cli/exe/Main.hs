@@ -75,7 +75,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
-  -- ormolu cache test
   -- Before calling any command, check that the node requirement is met. Node is
   -- not needed for every command, but checking for every command was decided
   -- to be more robust than trying to only check for commands that require it.
