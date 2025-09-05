@@ -412,7 +412,13 @@ To support e-mail verification and password reset flows, we need an e-mail sende
 
 We'll use the `Dummy` provider to speed up the setup. It just logs the emails to the console instead of sending them. You can use any of the [supported email providers](../advanced/email#providers).
 
+:::caution SMTP blocking on some providers
+Some hosting providers (for example, **Railway free tier** and **Hetzner**) block outbound SMTP connections on common ports (25, 465, 587).  
+If you are deploying on such a provider, SMTP-based email sending will not work unless you upgrade your plan or use an external relay (e.g. SendGrid, Postmark, Mailgun).
+:::
+
 To set up the `Dummy` provider to send emails, add the following to the `main.wasp` file:
+
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
