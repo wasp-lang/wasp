@@ -107,7 +107,7 @@ jobs:
               formula_dir="$(brew --repository "$repo_name")/Formula" # Use a local repo for the formula
               formula_file="$formula_dir/$formula_name.rb"
 
-              # Fetch formula and remove the `disable!` line
+              # Fetch formula and comment out the `disable!` line
               mkdir -p "$formula_dir"
               curl -fsSL "$formula_url" > "$formula_file"
               sed -i '' 's/disable!/# disable!/' "$formula_file"
@@ -118,6 +118,7 @@ jobs:
 
     runs-on: ${{ matrix.env.runner }}
     container: ${{ matrix.env.container }}
+    name: build (${{ matrinx.env.name }})
 
     steps:
       - uses: actions/checkout@v4
