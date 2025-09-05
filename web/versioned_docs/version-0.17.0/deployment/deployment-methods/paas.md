@@ -227,7 +227,7 @@ To get started, follow these steps:
 
 1. Make sure your Wasp app is built by running `wasp build` in the project dir.
 1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account.
-1. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installation).
+1. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli).
 1. Run `railway login` and a browser tab will open to authenticate you.
 1. Go to your [Railway account settings](https://railway.com/account/feature-flags?utm_medium=integration&utm_source=docs&utm_campaign=wasp) and enable **Railpack** as the default deployment builder. This is required for the client routing to work correctly.
 
