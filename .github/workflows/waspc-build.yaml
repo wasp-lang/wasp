@@ -101,6 +101,11 @@ jobs:
               # are only available for x86_64). The llvm@13 formula is not available in
               # Homebrew by default, but we can edit it and comment out the `disable!` line.
 
+              # Homebrew disabled the ability to install formulae from URL or from bare local
+              # files, so we will download it into a local repository (a.k.a "tap", in Homebrew
+              # parlance).
+              # https://github.com/Homebrew/brew/issues/20441#issuecomment-3186032595
+
               formula_url="https://raw.githubusercontent.com/Homebrew/homebrew-core/74572f47ce6a2463c19d7fa164ab9fb8c91bbe61/Formula/l/llvm%4013.rb"
               formula_name="llvm@13"
               repo_name="wasp/repo" # This is a custom name, not an actual GitHub repo
