@@ -18,6 +18,7 @@
 - We now support Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
 - We no longer use Stitches for our Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
 - You can now create your project in a specific Railway workspace when using Wasp Deploy with the `--workspace` option ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
+- Increased the font size in Auth UI components, preventing automatic zooming on mobile devices. (by @Vickram-T-G) ([#3110](https://github.com/wasp-lang/wasp/pull/3110/files))
 
 ### 📖 Documentation
 
