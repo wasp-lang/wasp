@@ -19,7 +19,6 @@ kitchenSinkGoldenTest =
         createDotEnvServerFile,
         waspCliCompile
       ]
-      
   where
     createDotEnvServerFile :: ShellCommandBuilder ShellCommand
     createDotEnvServerFile = return "cp .env.server.example .env.server"
