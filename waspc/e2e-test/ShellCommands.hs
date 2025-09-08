@@ -22,7 +22,7 @@ module ShellCommands
   )
 where
 
-import Common (ProjectRoot, projectRootFromGoldenTestProjectDir)
+import Common (GitRepositoryRoot, gitRootFromGoldenTestProjectDir)
 import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import Data.List (intercalate)
 import StrongPath (Dir, Path', Rel, fromRelDir)
@@ -138,20 +138,20 @@ dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
 
-copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel ProjectRoot) (Dir source) -> ShellCommandBuilder ShellCommand
-copyContentsOfGitTrackedDirToCurrentProject srcDirInProject = do
+copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir source) -> ShellCommandBuilder ShellCommand
+copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
   context <- ask
-  let sourceDirPath :: FilePath = fromRelDir (projectRootFromGoldenTestProjectDir SP.</> srcDirInProject)
-      destinationDirPath :: FilePath = "./" ++ _ctxtCurrentProjectName context
+  let sourceDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
+      destinationDirPath = "./" ++ _ctxtCurrentProjectName context
 
       createDestinationDir :: ShellCommand = "mkdir -p " ++ destinationDirPath
 
       listSourceDirGitTrackedFiles :: ShellCommand =
-        "git -C " ++ fromRelDir projectRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInProject
+        "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
       -- Remove the source dir prefix from each path so that files get copied into the destination dir directly.
       -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
       filterSourceDirPathPrefix :: ShellCommand =
-        "sed 's#^" ++ fromRelDir srcDirInProject ++ "##'"
+        "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
       copyFilesFromSourceToDestination :: ShellCommand =
         "rsync -a --files-from=- " ++ sourceDirPath ++ " " ++ destinationDirPath
    in return $
