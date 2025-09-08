@@ -1,9 +1,11 @@
 import GoldenTest (runGoldenTest)
-import GoldenTests.KitchenSink (kitchenSinkGoldenTest)
-import GoldenTests.WaspMigrate (waspMigrateGoldenTest)
-import GoldenTests.WaspNew (waspNewGoldenTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
+import Tests.KitchenSinkGoldenTest (kitchenSinkGoldenTest)
+import Tests.WaspBuildGoldenTest (waspBuildGoldenTest)
+import Tests.WaspCompileGoldenTest (waspCompileGoldenTest)
+import Tests.WaspMigrateGoldenTest (waspMigrateGoldenTest)
+import Tests.WaspNewGoldenTest (waspNewGoldenTest)
 
 main :: IO ()
 main = do
@@ -20,6 +22,8 @@ tests =
     <$> mapM
       runGoldenTest
       [ waspNewGoldenTest,
+        waspCompileGoldenTest,
+        waspBuildGoldenTest,
         waspMigrateGoldenTest,
         kitchenSinkGoldenTest
       ]

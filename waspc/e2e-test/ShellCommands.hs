@@ -5,6 +5,7 @@ module ShellCommands
     ShellCommandContext (..),
     ShellCommandBuilder (..),
     runShellCommandBuilder,
+    ($|),
     combineShellCommands,
     cdIntoCurrentProject,
     appendToWaspFile,
@@ -17,14 +18,15 @@ module ShellCommands
     waspCliBuild,
     dockerBuild,
     insertCodeIntoFileAtLineNumber,
-    copyGitTrackedFilesFromRepoPath,
+    copyContentsOfGitTrackedDirToCurrentProject,
   )
 where
 
 import Common (ProjectRoot, projectRootFromGoldenTestProjectDir)
 import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import Data.List (intercalate)
-import StrongPath (Dir, Path', Rel, toFilePath)
+import StrongPath (Dir, Path', Rel, fromRelDir)
+import qualified StrongPath as SP
 import System.FilePath (joinPath, (</>))
 
 -- NOTE: Should we consider separating shell parts, Wasp CLI parts, and test helper parts in the future?
@@ -51,11 +53,11 @@ runShellCommandBuilder :: ShellCommandBuilder a -> ShellCommandContext -> a
 runShellCommandBuilder shellCommandBuilder context =
   runReader (_runShellCommandBuilder shellCommandBuilder) context
 
+($|) :: ShellCommand -> ShellCommand -> ShellCommand
+cmd1 $| cmd2 = intercalate " | " [cmd1, cmd2]
+
 combineShellCommands :: [ShellCommand] -> ShellCommand
 combineShellCommands = intercalate " && "
-
-pipeShellCommands :: [ShellCommand] -> ShellCommand
-pipeShellCommands = intercalate " | "
 
 cdIntoCurrentProject :: ShellCommandBuilder ShellCommand
 cdIntoCurrentProject = do
@@ -136,16 +138,24 @@ dockerBuild =
   return
     "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
 
-copyGitTrackedFilesFromRepoPath :: Path' (Rel ProjectRoot) (Dir source) -> ShellCommandBuilder ShellCommand
-copyGitTrackedFilesFromRepoPath repoRelDirPath = do
+copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel ProjectRoot) (Dir source) -> ShellCommandBuilder ShellCommand
+copyContentsOfGitTrackedDirToCurrentProject srcDirInProject = do
   context <- ask
-  let sourceDir = toFilePath projectRootFromGoldenTestProjectDir </> toFilePath repoRelDirPath
-      destinationDir = "./" ++ _ctxtCurrentProjectName context
+  let sourceDirPath :: FilePath = fromRelDir (projectRootFromGoldenTestProjectDir SP.</> srcDirInProject)
+      destinationDirPath :: FilePath = "./" ++ _ctxtCurrentProjectName context
 
-      createDestinationDir = "mkdir -p " ++ destinationDir
+      createDestinationDir :: ShellCommand = "mkdir -p " ++ destinationDirPath
 
-      listGitTrackedRepoRelDirFiles = "git -C " ++ toFilePath projectRootFromGoldenTestProjectDir ++ " ls-files " ++ toFilePath repoRelDirPath
-      filterRepoRelDirPath = "sed 's#^" ++ toFilePath repoRelDirPath ++ "##'"
-      copyFilesFromSourceToDestination = "rsync -a --files-from=- " ++ sourceDir ++ " " ++ destinationDir
-      copyRepoRelDirGitTrackedFiles = pipeShellCommands [listGitTrackedRepoRelDirFiles, filterRepoRelDirPath, copyFilesFromSourceToDestination]
-   in return $ combineShellCommands [createDestinationDir, copyRepoRelDirGitTrackedFiles]
+      listSourceDirGitTrackedFiles :: ShellCommand =
+        "git -C " ++ fromRelDir projectRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInProject
+      -- Remove the source dir prefix from each path so that files get copied into the destination dir directly.
+      -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
+      filterSourceDirPathPrefix :: ShellCommand =
+        "sed 's#^" ++ fromRelDir srcDirInProject ++ "##'"
+      copyFilesFromSourceToDestination :: ShellCommand =
+        "rsync -a --files-from=- " ++ sourceDirPath ++ " " ++ destinationDirPath
+   in return $
+        combineShellCommands
+          [ createDestinationDir,
+            listSourceDirGitTrackedFiles $| filterSourceDirPathPrefix $| copyFilesFromSourceToDestination
+          ]

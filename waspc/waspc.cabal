@@ -798,6 +798,8 @@ test-suite e2e-test
     GoldenTest
     ShellCommands
     Util
-    GoldenTests.WaspNew
-    GoldenTests.KitchenSink
-    GoldenTests.WaspMigrate
+    Tests.WaspNewGoldenTest
+    Tests.KitchenSinkGoldenTest
+    Tests.WaspMigrateGoldenTest
+    Tests.WaspCompileGoldenTest
+    Tests.WaspBuildGoldenTest

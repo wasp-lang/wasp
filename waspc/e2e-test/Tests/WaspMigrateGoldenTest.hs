@@ -1,4 +1,4 @@
-module GoldenTests.WaspMigrate (waspMigrateGoldenTest) where
+module Tests.WaspMigrateGoldenTest (waspMigrateGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
