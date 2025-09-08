@@ -8,6 +8,7 @@ on:
         type: string
         description: "Wasp version to use for deployment (default to latest)"
         required: false
+        default: ""
     secrets:
       FLY_GITHUB_PRODUCTION_TOKEN:
         description: "Fly API token for deploying apps"
