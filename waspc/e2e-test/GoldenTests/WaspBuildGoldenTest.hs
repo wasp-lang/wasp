@@ -3,6 +3,7 @@ module GoldenTests.WaspBuildGoldenTest (waspBuildGoldenTest) where
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( cdIntoCurrentProject,
+    setDbToPSQL,
     waspCliBuild,
     waspCliNewMinimalStarter,
   )
@@ -13,5 +14,6 @@ waspBuildGoldenTest =
     sequence
       [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,
+        setDbToPSQL,
         waspCliBuild
       ]
