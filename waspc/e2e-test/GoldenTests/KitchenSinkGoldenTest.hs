@@ -1,4 +1,4 @@
-module Tests.KitchenSinkGoldenTest (kitchenSinkGoldenTest) where
+module GoldenTests.KitchenSinkGoldenTest (kitchenSinkGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
@@ -19,6 +19,7 @@ kitchenSinkGoldenTest =
         createDotEnvServerFile,
         waspCliCompile
       ]
+      
   where
     createDotEnvServerFile :: ShellCommandBuilder ShellCommand
     createDotEnvServerFile = return "cp .env.server.example .env.server"

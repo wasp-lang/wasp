@@ -1,11 +1,11 @@
 import GoldenTest (runGoldenTest)
+import GoldenTests.KitchenSinkGoldenTest (kitchenSinkGoldenTest)
+import GoldenTests.WaspBuildGoldenTest (waspBuildGoldenTest)
+import GoldenTests.WaspCompileGoldenTest (waspCompileGoldenTest)
+import GoldenTests.WaspMigrateGoldenTest (waspMigrateGoldenTest)
+import GoldenTests.WaspNewGoldenTest (waspNewGoldenTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.KitchenSinkGoldenTest (kitchenSinkGoldenTest)
-import Tests.WaspBuildGoldenTest (waspBuildGoldenTest)
-import Tests.WaspCompileGoldenTest (waspCompileGoldenTest)
-import Tests.WaspMigrateGoldenTest (waspMigrateGoldenTest)
-import Tests.WaspNewGoldenTest (waspNewGoldenTest)
 
 main :: IO ()
 main = do
@@ -15,7 +15,7 @@ main = do
 
 -- TODO: Add more tests to simulate full Todo app tutorial.
 --       Some of this requires waspStart and stdout parsing.
--- TODO: Investigate automatically discovering the tests.
+-- TODO: Investigate automatically discovering the GoldenTests.
 tests :: IO TestTree
 tests =
   testGroup "Golden Tests"
