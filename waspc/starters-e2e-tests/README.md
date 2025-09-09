@@ -1,6 +1,6 @@
 # Wasp starters E2E tests
 
-This project provides automated headless end-to-end testing for Wasp starter templates using Playwright.
+This project provides automated end-to-end testing for Wasp starter templates using Playwright.
 
 ## Overview
 
@@ -8,7 +8,7 @@ The test suite automatically (for each starter):
 
 1. Sets up the test environment in a temporary directory
 2. Creates a new Wasp projects from the starter template
-3. Configures the Wasp project for headless E2E testing
+3. Configures the Wasp project for e2e testing
 4. Runs the Wasp project in both development and build
 5. Validates the project functionality using Playwright
 

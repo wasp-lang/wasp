@@ -32,6 +32,7 @@ WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"
 WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests"
 WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/*-golden"
 WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
+WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
 WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests"
 
@@ -128,6 +129,8 @@ print_usage() {
   echo ""
   print_usage_cmd "test" \
     "Executes all tests (waspc + Wasp CLI + Wasp LS + todoApp + examples + starters). Builds the project first if needed."
+  print_usage_cmd "test:waspc" \
+    "Executes all waspc tests (unit + e2e). Builds the project first if needed."
   print_usage_cmd "test:waspc:unit [pattern]" \
     "Executes only waspc unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
   print_usage_cmd "test:waspc:e2e" \
@@ -200,10 +203,13 @@ case $COMMAND in
     # --color always is needed for Tasty to turn on the coloring.
     # NOTE: I did not put this into variable because I was not able to put single quotes
     #   around :main --color always that way and it was not working.
-    ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
+    ghcid -T=':main --color always' --command=cabal repl tests/TastyDiscoverDriver.hs
     ;;
   test)
     echo_and_eval "$TEST_CMD"
+    ;;
+  test:waspc)
+    echo_and_eval "$WASPC_TESTS_CMD"
     ;;
   test:waspc:unit)
     TEST_PATTERN="${ARGS[0]}"

@@ -272,6 +272,7 @@ Haskell build tools don't have a good support for mixing them with source files.
 To run tests:
 
 - To run all tests, you can do `./run test`
+- To run `waspc` tests only, you can do `./run test:waspc`.
 - To run `waspc` unit tests only, you can do `./run test:waspc:unit`.
 - To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
 - To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
