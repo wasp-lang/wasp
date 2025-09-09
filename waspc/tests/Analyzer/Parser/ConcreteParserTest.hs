@@ -15,7 +15,7 @@ import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import qualified Wasp.Analyzer.Parser.Token as T
 import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet
 
--- TODO: Do we really need all these tests now that we have "e2e" tests for parser in test/Analyzer/ParserTest/?
+-- TODO: Do we really need all these tests now that we have "e2e" tests for parser in tests/Analyzer/ParserTest/?
 
 token :: T.TokenKind -> String -> T.Token
 token kind text = T.Token {T.tokenKind = kind, T.tokenWidth = length text}

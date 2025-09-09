@@ -59,14 +59,14 @@ Run `./ensure_app_compiles_and_builds.sh` to verify the app correctly compiles (
 
 This is also run in CI.
 
-### Headless Tests
+### E2E Tests
 
 #### How to run
 
-Running headless tests:
+Running e2e tests:
 
 ```
-$ cd headless-tests
+$ cd e2e-tests
 $ npm install
 $ npx playwright install --with-deps
 $ DEBUG=pw:webserver npx playwright test
@@ -81,7 +81,7 @@ $ DEBUG=pw:webserver npx playwright test --ui
 If something breaks, maybe the example app won't run. Try running it and see if there are any errors:
 
 ```
-npm run headless:start
+npm run test
 ```
 
 #### How to run in CI

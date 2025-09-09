@@ -31,7 +31,7 @@ export async function startAppInBuildMode({
   await startLocalSmtpServer();
 
   // Client needs to be running before the server
-  // becuase headless tests start executing as soon
+  // because `playwright` tests start executing as soon
   // as the server is up.
   await buildAndRunClientApp({
     pathToApp,

@@ -56,7 +56,7 @@ export async function performEmailVerification(
 ) {
   if (isRunningInDevMode()) {
     // This relies on having the SKIP_EMAIL_VERIFICATION_IN_DEV=true in the
-    // .env.server file. This is the default value in the .env.server.headless file.
+    // .env.server file. This is the default value in the `.env.server.example` file.
     return;
   }
 
@@ -104,7 +104,7 @@ export async function getEmailVerificationLink(
 }
 
 export function isRunningInDevMode() {
-  const testMode = process.env.HEADLESS_TEST_MODE ?? "dev";
+  const testMode = process.env.WASP_RUN_MODE ?? "dev";
   return testMode === "dev";
 }
 
