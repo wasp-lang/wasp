@@ -136,7 +136,7 @@ waspCliBuild = return "wasp-cli build"
 dockerBuild :: ShellCommandBuilder ShellCommand
 dockerBuild =
   return
-    "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
+    "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. "
 
 copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir source) -> ShellCommandBuilder ShellCommand
 copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
