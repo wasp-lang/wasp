@@ -35,6 +35,7 @@ Position yourself in this directory (`waspc/`) and make sure that you are on the
 
 > [!NOTE]
 > On Windows, we recommend setting line endings to `LF` because some test suites are incompatible with `CRLF`:
+>
 > ```sh
 > git config core.eol lf
 > git config core.autocrlf input
@@ -104,6 +105,7 @@ to ensure all the tests (unit, e2e, ...) are passing.
 
 > [!NOTE]
 > On Windows, the powershell's active code page should be changed to utf-8 to support special letters in some test suits (ref. [PR3027](https://github.com/wasp-lang/wasp/pull/3027)).
+>
 > ```ps
 > chcp 65001
 > ```
