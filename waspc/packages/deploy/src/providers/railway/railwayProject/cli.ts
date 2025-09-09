@@ -19,16 +19,21 @@ export async function initRailwayProject({
   projectName,
   railwayExe,
   waspProjectDir,
+  workspace,
 }: {
   projectName: RailwayProjectName;
   railwayExe: RailwayCliExe;
   waspProjectDir: WaspProjectDir;
+  workspace: string | null;
 }): Promise<RailwayProject> {
   const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
-  await railwayCli(["init", "--name", projectName], {
-    // If there are multiple workspaces, the user needs to select **interactively**
-    // which one to use. We need to allow users to select the workspace interactively.
-    // Railway CLI doesn't accept it as a command line argument, only interactively.
+
+  const workspaceArgs = workspace ? ["--workspace", workspace] : [];
+
+  await railwayCli(["init", "--name", projectName, ...workspaceArgs], {
+    // If there are multiple workspaces and the user has not specified which one
+    // they want, the CLI will ask for it **interactively**, so we need users to
+    // be able to interact with the command.
     stdio: "inherit",
   });
 
