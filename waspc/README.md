@@ -156,10 +156,10 @@ When done, new tab in your browser should open and you will see a Todo App!
    - NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
-   Rinse and repeat. If you're an internal team member, postpone updating snapshot tests until approval (see [here](#note-for-team-members)).
+   Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
 4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
-6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the snapshot tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
+6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
@@ -168,15 +168,15 @@ When done, new tab in your browser should open and you will see a Todo App!
 
 ### Note for team members
 
-Do not update snapshot tests until your PR is approved.
+Do not update waspc e2e tests until your PR is approved.
 
-Accepting snapshot tests prematurely:
+Accepting waspc e2e tests prematurely:
 
 - Slows down the UI.
 - Creates noise for the reviewers.
 - Makes it less likely that you'll thoroughly check the final diffs after all review iterations.
 
-**Carefully review snapshot test diffs before accepting them** (see [Waspc e2e tests](#waspc-e2e-tests) for more details).
+**Carefully review waspc e2e tests diffs before accepting them** (see [Waspc e2e tests](#waspc-e2e-tests) for more details).
 
 ## Design docs (aka RFCs)
 
