@@ -176,7 +176,7 @@ Accepting snapshot tests prematurely:
 - Creates noise for the reviewers.
 - Makes it less likely that you'll thoroughly check the final diffs after all review iterations.
 
-**Carefully review snapshot test diffs before accepting them** (see [Wasp e2e snapshot tests](#wasp-e2e-snapshot-tests) for more details).
+**Carefully review snapshot test diffs before accepting them** (see [Waspc e2e tests](#waspc-e2e-tests) for more details).
 
 ## Design docs (aka RFCs)
 
@@ -282,7 +282,7 @@ To run tests:
 - To run examples e2e tests, you can do `./run test:examples`.
 - To run starter templates e2e tests, you can do `./run test:starters`.
 
-### Wasp e2e snapshot tests
+### Waspc e2e tests
 
 Inside of `waspc` e2e tests we have snapshot tests that run the `wasp-cli` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
 
