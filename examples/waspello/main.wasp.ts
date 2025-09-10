@@ -2,7 +2,7 @@ import { ActionConfig, App, ExtImport } from "wasp-config";
 
 const app = new App("waspello", {
   title: "Waspello",
-  wasp: { version: "^0.17.0" },
+  wasp: { version: "^0.18.0" },
 });
 
 app.auth({
