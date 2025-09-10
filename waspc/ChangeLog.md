@@ -26,6 +26,7 @@
 - You can now create your project in a specific Railway workspace when using Wasp Deploy with the `--workspace` option. ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
 - Better error message when choosing a template that doesn't exist. ([#2992](https://github.com/wasp-lang/wasp/pull/2992))
 - Bash completion setup is simplified. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
+- Increased the font size in Auth UI components, preventing automatic zooming on mobile devices. (by @Vickram-T-G) ([#3110](https://github.com/wasp-lang/wasp/pull/3110/files))
 
 ### 📖 Documentation
 
