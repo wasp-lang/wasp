@@ -16,7 +16,7 @@ module ShellCommands
     waspCliCompile,
     waspCliMigrate,
     waspCliBuild,
-    dockerBuild,
+    buildDockerImage,
     insertCodeIntoFileAtLineNumber,
     copyContentsOfGitTrackedDirToCurrentProject,
   )
@@ -133,10 +133,15 @@ waspCliMigrate migrationName =
 waspCliBuild :: ShellCommandBuilder ShellCommand
 waspCliBuild = return "wasp-cli build"
 
-dockerBuild :: ShellCommandBuilder ShellCommand
-dockerBuild =
-  return
-    "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. "
+buildDockerImage :: ShellCommandBuilder ShellCommand
+buildDockerImage =
+  return $
+    combineShellCommands
+      [ "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]",
+        "cd .wasp/build",
+        "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" .",
+        "cd ../.."
+      ]
 
 copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir source) -> ShellCommandBuilder ShellCommand
 copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do

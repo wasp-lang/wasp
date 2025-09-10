@@ -2,8 +2,8 @@ module GoldenTests.WaspBuildGoldenTest (waspBuildGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( cdIntoCurrentProject,
-    dockerBuild,
+  ( buildDockerImage,
+    cdIntoCurrentProject,
     setDbToPSQL,
     waspCliBuild,
     waspCliNewMinimalStarter,
@@ -17,5 +17,5 @@ waspBuildGoldenTest =
         cdIntoCurrentProject,
         setDbToPSQL,
         waspCliBuild,
-        dockerBuild
+        buildDockerImage
       ]
