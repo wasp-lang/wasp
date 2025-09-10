@@ -1,8 +1,8 @@
-const { resolveProjectPath } = require("wasp/dev");
-const { heroui } = require("@heroui/react");
+import { resolveProjectPath } from "wasp/dev"
+import { heroui } from "heroui/react";
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     resolveProjectPath("./src/**/*.{js,jsx,ts,tsx}"),
     resolveProjectPath(
