@@ -1,13 +1,9 @@
 module Common
   ( GitRepositoryRoot,
-    HaskellProjectRoot,
     E2eTestsDir,
     TestOutputsDir,
-    getE2eTestsDir,
     getTestOutputsDir,
-    getProjectRootPath,
     gitRootFromGoldenTestProjectDir,
-    goldenTestProjectDirInGitRoot,
   )
 where
 
@@ -48,13 +44,13 @@ getProjectRootPath = do
   unless (takeFileName absCwd == "waspc") (error "Expecting test process to be invoked from waspc dir")
   SP.parseAbsDir absCwd
 
-e2eTestsDirInProjectRoot :: Path' (Rel ProjectRoot) (Dir E2eTestsDir)
+e2eTestsDirInProjectRoot :: Path' (Rel HaskellProjectRoot) (Dir E2eTestsDir)
 e2eTestsDirInProjectRoot = [reldir|e2e-tests|]
 
 getE2eTestsDir :: IO (Path' Abs (Dir E2eTestsDir))
 getE2eTestsDir = (</> e2eTestsDirInProjectRoot) <$> getProjectRootPath
 
-testOutputsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir GoldensDir)
+testOutputsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir TestOutputsDir)
 testOutputsDirInE2eTests = [reldir|test-outputs|]
 
 getTestOutputsDir :: IO (Path' Abs (Dir TestOutputsDir))
