@@ -6,9 +6,9 @@ This library exports code related to Wasp's auth which is used in the generated 
 
 The library has multiple exports:
 
-- `sdk` - used in the Wasp SDK in any runtime (`@wasp.sh/libs-auth/sdk`)
-- `sdk/browser` - used in the Wasp SDK in the browser runtime (`@wasp.sh/libs-auth/sdk/browser`)
-- `server` - used in the `server` app (`@wasp.sh/libs-auth/server`)
+- `sdk` - used in the Wasp SDK in any runtime (`@wasp.sh/lib-auth/sdk`)
+- `sdk/browser` - used in the Wasp SDK in the browser runtime (`@wasp.sh/lib-auth/sdk/browser`)
+- `server` - used in the `server` app (`@wasp.sh/lib-auth/server`)
 
 If you are writing browser-only code, make sure to put it in a `<name>/browser` export.
 For example, if writing browser-only code for the `sdk` export, put it in `sdk/browser`.
@@ -37,7 +37,7 @@ Develop code and write unit tests for it.
 
 ### Adding a new export
 
-When you need to add a new entry point e.g. `@wasp.sh/libs-auth/web-app`:
+When you need to add a new entry point e.g. `@wasp.sh/lib-auth/web-app`:
 
 1. Add a new entry in `tsdown.config.ts` with the name and entry path.
 

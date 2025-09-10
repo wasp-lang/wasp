@@ -1,4 +1,4 @@
-import { createJWTHelpers } from "@wasp.sh/libs-auth/sdk";
+import { createJWTHelpers } from "@wasp.sh/lib-auth/sdk";
 
 import { config } from "wasp/server";
 
@@ -12,4 +12,4 @@ export const { createJWT, validateJWT } = createJWTHelpers(
 );
 
 // PRIVATE API
-export { TimeSpan } from "@wasp.sh/libs-auth/sdk";
+export { TimeSpan } from "@wasp.sh/lib-auth/sdk";

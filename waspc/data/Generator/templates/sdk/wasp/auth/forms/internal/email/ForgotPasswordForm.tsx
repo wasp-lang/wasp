@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form'
-import { useAuthContext } from '@wasp.sh/libs-auth/sdk/browser'
+import { useAuthContext } from '@wasp.sh/lib-auth/sdk/browser'
 
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
