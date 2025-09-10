@@ -1,10 +1,8 @@
 module Common
   ( ProjectRoot,
-    E2eTestDir,
+    E2eTestsDir,
     GoldensDir,
-    getE2eTestDir,
     getTestOutputsDir,
-    getProjectRootPath,
   )
 where
 
@@ -17,7 +15,7 @@ import System.FilePath (takeFileName)
 -- The "waspc" directory.
 data ProjectRoot
 
-data E2eTestDir
+data E2eTestsDir
 
 data GoldensDir
 
@@ -29,13 +27,13 @@ getProjectRootPath = do
   unless (takeFileName absCwd == "waspc") (error "Expecting test process to be invoked from waspc dir")
   SP.parseAbsDir absCwd
 
-e2eTestDirInProjectRoot :: Path' (Rel ProjectRoot) (Dir E2eTestDir)
-e2eTestDirInProjectRoot = [reldir|e2e-test|]
+e2eTestDirInProjectRoot :: Path' (Rel ProjectRoot) (Dir E2eTestsDir)
+e2eTestDirInProjectRoot = [reldir|e2e-tests|]
 
-getE2eTestDir :: IO (Path' Abs (Dir E2eTestDir))
+getE2eTestDir :: IO (Path' Abs (Dir E2eTestsDir))
 getE2eTestDir = (</> e2eTestDirInProjectRoot) <$> getProjectRootPath
 
-testOutputsDirInE2eTest :: Path' (Rel E2eTestDir) (Dir GoldensDir)
+testOutputsDirInE2eTest :: Path' (Rel E2eTestsDir) (Dir GoldensDir)
 testOutputsDirInE2eTest = [reldir|test-outputs|]
 
 getTestOutputsDir :: IO (Path' Abs (Dir GoldensDir))

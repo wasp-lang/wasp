@@ -125,7 +125,7 @@ runGoldenTest goldenTest = do
     -- While Wasp deterministically produces package.json files in the generated code,
     -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
     -- Also, different versions of npm may produce different (but semantically equivalent) package.json files.
-    -- All of this can result in e2e flagging these files as being different when it should not.
+    -- All of this can result in snapshot tests flagging these files as being different when it should not.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
     reformatPackageJsonFiles filePaths = do

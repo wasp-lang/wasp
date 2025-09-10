@@ -10,5 +10,5 @@ node_modules/
 !.env.example
 !.env.*.example
 
-# Headless tests
+# Playwright
 test-results/
