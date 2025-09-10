@@ -35,6 +35,7 @@ export const auth = new Lucia<{}, {
   //     sameSite: "lax",
   //   },
   // },
+  sessionExpiresIn: {= sessionExpiresInMs =},
   getUserAttributes({ userId }) {
     return {
       userId,

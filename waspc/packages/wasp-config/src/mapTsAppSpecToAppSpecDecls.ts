@@ -224,6 +224,7 @@ export function mapAuth(
     onBeforeOAuthRedirect,
     onBeforeLogin,
     onAfterLogin,
+    sessionLength,
   } = auth;
   return {
     userEntity: entityRefParser(userEntity),
@@ -243,6 +244,7 @@ export function mapAuth(
       onBeforeOAuthRedirect && mapExtImport(onBeforeOAuthRedirect),
     onBeforeLogin: onBeforeLogin && mapExtImport(onBeforeLogin),
     onAfterLogin: onAfterLogin && mapExtImport(onAfterLogin),
+    sessionLength,
   };
 }
 
