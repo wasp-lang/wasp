@@ -2,17 +2,24 @@ import { describe, expect, it } from "vitest";
 import { hashPassword, verifyPassword } from "../../src/sdk/password";
 
 describe("password utilities", () => {
+  async function expectHashingToSucceed(password: string): Promise<void> {
+    const hashedPassword = await hashPassword(password);
+
+    expect(hashedPassword.length).toBeGreaterThan(0);
+    expect(hashedPassword).not.toBe(password);
+  }
+
   describe("hashPassword", () => {
     it("should hash a password and return a string", async () => {
-      await exceptHashingToSucceed("testPassword123");
+      await expectHashingToSucceed("testPassword123");
     });
 
     it("should handle special characters", async () => {
-      await exceptHashingToSucceed("pässwörd!@#$%^&*()");
+      await expectHashingToSucceed("pässwörd!@#$%^&*()");
     });
 
     it("should handle unicode characters", async () => {
-      await exceptHashingToSucceed("パスワード🔒");
+      await expectHashingToSucceed("パスワード🔒");
     });
 
     it("should produce different hashes for the same password (due to salt)", async () => {
@@ -33,104 +40,82 @@ describe("password utilities", () => {
       const hash2 = await hashPassword(password2);
 
       // Both should verify against each other due to normalization.
-      expectVerficationToSucceed(hash1, password2);
-      expectVerficationToSucceed(hash2, password1);
+      await expectVerificationToSucceed(hash1, password2);
+      await expectVerificationToSucceed(hash2, password1);
     });
   });
 
   describe("verifyPassword", () => {
-    it("should verify a correct password", async () => {
-      const password = "correctPassword123";
+    function testPasswordHashVerification(
+      scenario: string,
+      password: string,
+      wrongPassword: string,
+    ) {
+      it(`should verify password correctly for: ${scenario}`, async () => {
+        const hashedPassword = await hashPassword(password);
 
-      const hashedPassword = await hashPassword(password);
+        await expectVerificationToSucceed(hashedPassword, password);
+        await expectVerificationToFail(hashedPassword, wrongPassword);
+      });
+    }
 
-      expectVerficationToSucceed(hashedPassword, password);
-    });
+    testPasswordHashVerification(
+      "typical password",
+      "correctPassword123",
+      "wrongPassword456",
+    );
 
-    it("should reject an incorrect password", async () => {
-      const correctPassword = "correctPassword123";
-      const incorrectPassword = "wrongPassword456";
+    testPasswordHashVerification("empty password", "", "nonEmpty");
 
-      const hashedPassword = await hashPassword(correctPassword);
+    testPasswordHashVerification(
+      "special characters",
+      "special!@#$%^&*()",
+      "different!@#",
+    );
 
-      expectVerficationToFail(hashedPassword, incorrectPassword);
-    });
+    testPasswordHashVerification(
+      "unicode characters",
+      "パスワード🔒",
+      "different🔓",
+    );
+
+    testPasswordHashVerification(
+      "long password",
+      "a".repeat(1000),
+      "a".repeat(999),
+    );
+
+    testPasswordHashVerification(
+      "case sensitive password",
+      "CaseSensitive123",
+      "casesensitive123",
+    );
 
     it("should reject when hash is invalid", async () => {
-      const password = "testPassword";
-      const invalidHash = "invalid-hash-string";
-
-      expectVerficationToFail(invalidHash, password, "Invalid hashed password");
-    });
-
-    it("should handle empty password verification", async () => {
-      const emptyPassword = "";
-
-      const hashedPassword = await hashPassword(emptyPassword);
-
-      expectVerficationToSucceed(hashedPassword, emptyPassword);
-      expectVerficationToFail(hashedPassword, "notEmpty");
-    });
-
-    it("should handle special characters verification", async () => {
-      const password = "special!@#$%^&*()";
-
-      const hashedPassword = await hashPassword(password);
-
-      expectVerficationToSucceed(hashedPassword, password);
-      expectVerficationToFail(hashedPassword, "different!@#");
-    });
-
-    it("should handle unicode characters verification", async () => {
-      const password = "パスワード🔒";
-
-      const hashedPassword = await hashPassword(password);
-
-      expectVerficationToSucceed(hashedPassword, password);
-      expectVerficationToFail(hashedPassword, "different🔓");
-    });
-
-    it("should be case sensitive", async () => {
-      const password = "CaseSensitive";
-
-      const hashedPassword = await hashPassword(password);
-
-      expectVerficationToSucceed(hashedPassword, password);
-      expectVerficationToFail(hashedPassword, password.toLowerCase());
-      expectVerficationToFail(hashedPassword, password.toUpperCase());
-    });
-
-    it("should handle very long passwords", async () => {
-      const longPassword = "a".repeat(1000);
-
-      const hashedPassword = await hashPassword(longPassword);
-
-      expectVerficationToSucceed(hashedPassword, longPassword);
-      expectVerficationToFail(hashedPassword, "a".repeat(999));
+      await expectVerificationToFail(
+        "invalid-hash-string",
+        "testPassword",
+        "Invalid hashed password",
+      );
     });
   });
 });
 
-async function exceptHashingToSucceed(password: string): Promise<void> {
-  const hashedPassword = await hashPassword(password);
-
-  expect(hashedPassword.length).toBeGreaterThan(0);
-  expect(hashedPassword).not.toBe(password);
-}
-
-function expectVerficationToSucceed(
+async function expectVerificationToSucceed(
   hashedPassword: string,
   password: string,
-): void {
-  expect(verifyPassword(hashedPassword, password)).resolves.not.toThrow();
+): Promise<void> {
+  return expect(
+    verifyPassword(hashedPassword, password),
+  ).resolves.not.toThrow();
 }
 
-function expectVerficationToFail(
+async function expectVerificationToFail(
   hashedPassword: string,
   password: string,
   expectedErrorMessage = "Invalid password",
-): void {
-  expect(verifyPassword(hashedPassword, password)).rejects.toThrow(
+): Promise<void> {
+  return expect(verifyPassword(hashedPassword, password)).rejects.toThrow(
     expectedErrorMessage,
   );
 }
