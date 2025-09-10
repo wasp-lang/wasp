@@ -3,20 +3,6 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "typesVersions": {
-    "*": {
-      "sdk": [
-        "./dist/sdk.d.ts"
-      ],
-      "sdk/browser": [
-        "./dist/sdk-browser.d.ts"
-      ],
-      "server": [
-        "./dist/server.d.ts"
-      ]
-    },
-    "//": "typesVersions is needed until the SDK tsconfig.json has moduleResolution set to 'bundler'."
-  },
   "exports": {
     "./sdk": {
       "types": "./dist/sdk.d.ts",

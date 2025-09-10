@@ -49,19 +49,7 @@ When you need to add a new entry point e.g. `@wasp.sh/libs-auth/web-app`:
    }),
    ```
 
-2. Add the new entry to `typesVersions` in `package.json`.
-
-   ```json
-   "typesVersions": {
-     "*": {
-       "web-app": [
-         "./dist/web-app.d.ts"
-       ]
-     }
-   }
-   ```
-
-3. Add the new entry to `exports` in `package.json`.
+2. Add the new entry to `exports` in `package.json`.
 
    ```json
    "exports": {
