@@ -4,8 +4,8 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    cdIntoCurrentProject,
-    copyContentsOfGitTrackedDirToCurrentProject,
+    cdIntoGoldenTestProject,
+    copyContentsOfGitTrackedDirToGoldenTestProject,
     waspCliCompile,
   )
 import StrongPath (reldir)
@@ -14,11 +14,13 @@ kitchenSinkGoldenTest :: GoldenTest
 kitchenSinkGoldenTest =
   makeGoldenTest "kitchen-sink" $
     sequence
-      [ copyContentsOfGitTrackedDirToCurrentProject [reldir|waspc/examples/todoApp/|],
-        cdIntoCurrentProject,
-        createDotEnvServerFile,
-        waspCliCompile
+      [ copyContentsOfGitTrackedDirToGoldenTestProject [reldir|waspc/examples/todoApp/|],
+        cdIntoGoldenTestProject $
+          sequence
+            [ createDotEnvServerFile,
+              waspCliCompile
+            ]
       ]
   where
-    createDotEnvServerFile :: ShellCommandBuilder ShellCommand
+    createDotEnvServerFile :: ShellCommandBuilder ctx ShellCommand
     createDotEnvServerFile = return "cp .env.server.example .env.server"

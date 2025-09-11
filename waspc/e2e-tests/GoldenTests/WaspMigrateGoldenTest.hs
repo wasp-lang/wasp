@@ -3,7 +3,7 @@ module GoldenTests.WaspMigrateGoldenTest (waspMigrateGoldenTest) where
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( appendToPrismaFile,
-    cdIntoCurrentProject,
+    cdIntoGoldenTestProject,
     waspCliCompile,
     waspCliMigrate,
     waspCliNewMinimalStarter,
@@ -13,11 +13,13 @@ waspMigrateGoldenTest :: GoldenTest
 waspMigrateGoldenTest =
   makeGoldenTest "wasp-migrate" $
     sequence
-      [ waspCliNewMinimalStarter,
-        cdIntoCurrentProject,
-        waspCliCompile,
-        appendToPrismaFile taskModel,
-        waspCliMigrate "foo"
+      [ waspCliNewMinimalStarter "wasp-migrate",
+        cdIntoGoldenTestProject $
+          sequence
+            [ waspCliCompile,
+              appendToPrismaFile taskModel,
+              waspCliMigrate "foo"
+            ]
       ]
   where
     taskModel =

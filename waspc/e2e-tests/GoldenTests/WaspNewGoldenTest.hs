@@ -9,4 +9,4 @@ waspNewGoldenTest :: GoldenTest
 waspNewGoldenTest =
   makeGoldenTest "wasp-new" $
     sequence
-      [waspCliNewMinimalStarter]
+      [waspCliNewMinimalStarter "wasp-new"]

@@ -2,7 +2,7 @@ module GoldenTests.WaspCompileGoldenTest (waspCompileGoldenTest) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( cdIntoCurrentProject,
+  ( cdIntoGoldenTestProject,
     waspCliCompile,
     waspCliNewMinimalStarter,
   )
@@ -11,7 +11,7 @@ waspCompileGoldenTest :: GoldenTest
 waspCompileGoldenTest =
   makeGoldenTest "wasp-compile" $
     sequence
-      [ waspCliNewMinimalStarter,
-        cdIntoCurrentProject,
-        waspCliCompile
+      [ waspCliNewMinimalStarter "wasp-compile",
+        cdIntoGoldenTestProject $
+          sequence [waspCliCompile]
       ]

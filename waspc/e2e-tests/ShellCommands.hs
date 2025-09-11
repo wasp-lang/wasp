@@ -2,12 +2,12 @@
 
 module ShellCommands
   ( ShellCommand,
-    ShellCommandContext (..),
     ShellCommandBuilder (..),
+    GoldenTestContext (..),
+    WaspAppContext (..),
     runShellCommandBuilder,
     ($|),
     combineShellCommands,
-    cdIntoCurrentProject,
     appendToWaspFile,
     appendToPrismaFile,
     createFile,
@@ -18,7 +18,8 @@ module ShellCommands
     waspCliBuild,
     buildDockerImage,
     insertCodeIntoFileAtLineNumber,
-    copyContentsOfGitTrackedDirToCurrentProject,
+    copyContentsOfGitTrackedDirToGoldenTestProject,
+    cdIntoGoldenTestProject,
   )
 where
 
@@ -39,41 +40,52 @@ import System.FilePath (joinPath, (</>))
 
 type ShellCommand = String
 
--- Each shell command gets access to the current project name, and maybe other things in future.
-data ShellCommandContext = ShellCommandContext
-  {_projectName :: String}
+newtype ShellCommandBuilder ctx a = ShellCommandBuilder
+  {_runShellCommandWithContext :: Reader ctx a}
+  deriving (Functor, Applicative, Monad, MonadReader ctx)
+
+data GoldenTestContext = GoldenTestContext
+  {_goldenTestProjectName :: String}
   deriving (Show)
 
--- Used to construct shell commands, while still giving access to the context (if needed).
-newtype ShellCommandBuilder a = ShellCommandBuilder
-  {_runShellCommandBuilder :: Reader ShellCommandContext a}
-  deriving (Functor, Applicative, Monad, MonadReader ShellCommandContext)
+data WaspAppContext = WaspAppContext
+  {_waspAppName :: String}
+  deriving (Show)
 
-runShellCommandBuilder :: ShellCommandBuilder a -> ShellCommandContext -> a
-runShellCommandBuilder shellCommandBuilder context =
-  runReader (_runShellCommandBuilder shellCommandBuilder) context
+runShellCommandBuilder :: ctx -> ShellCommandBuilder ctx a -> a
+runShellCommandBuilder ctx (ShellCommandBuilder r) = runReader r ctx
+
+cdIntoGoldenTestProject :: ShellCommandBuilder WaspAppContext [ShellCommand] -> ShellCommandBuilder GoldenTestContext ShellCommand
+cdIntoGoldenTestProject (ShellCommandBuilder r) = do
+  goldenTestContext <- ask
+  let waspProjectContext = WaspAppContext (_goldenTestProjectName goldenTestContext)
+  let cdCommand = "cd " ++ _waspAppName waspProjectContext
+
+  let commands = combineShellCommands (cdCommand : runReader r waspProjectContext)
+  return commands
 
 -- Commands Utilities
 
 ($|) :: ShellCommand -> ShellCommand -> ShellCommand
-cmd1 $| cmd2 = intercalate " | " [cmd1, cmd2]
+cmd1 $| cmd2 = cmd1 ++ " | " ++ cmd2
 
 combineShellCommands :: [ShellCommand] -> ShellCommand
 combineShellCommands = intercalate " && "
 
 conditionShellCommands :: ShellCommand -> [ShellCommand] -> ShellCommand
 conditionShellCommands condition cmds =
-  "if " ++ condition ++ "; then " ++ combineShellCommands cmds ++ " ;fi"
+  let body = combineShellCommands cmds
+   in "if " ++ condition ++ "; then " ++ body ++ " ;fi"
 
 -- General commands
 
-appendToFile :: FilePath -> String -> ShellCommandBuilder ShellCommand
+appendToFile :: FilePath -> String -> ShellCommandBuilder ctx ShellCommand
 appendToFile fileName content =
   -- NOTE: Using `show` to preserve newlines in string.
   return $ "printf " ++ show (content ++ "\n") ++ " >> " ++ fileName
 
 -- NOTE: Pretty fragile. Can't handle spaces in args, *nix only, etc.
-createFile :: String -> FilePath -> String -> ShellCommandBuilder ShellCommand
+createFile :: String -> FilePath -> String -> ShellCommandBuilder ctx ShellCommand
 createFile content relDirFp filename = return $ combineShellCommands [createParentDir, writeContentsToFile]
   where
     createParentDir = "mkdir -p ./" ++ relDirFp
@@ -81,7 +93,7 @@ createFile content relDirFp filename = return $ combineShellCommands [createPare
     contents = show (content ++ "\n")
     writeContentsToFile = unwords ["printf", contents, ">", destinationFile]
 
-insertCodeIntoFileAtLineNumber :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
+insertCodeIntoFileAtLineNumber :: FilePath -> Int -> String -> ShellCommandBuilder ctx ShellCommand
 insertCodeIntoFileAtLineNumber fileName atLineNumber line =
   return $
     combineShellCommands
@@ -89,7 +101,7 @@ insertCodeIntoFileAtLineNumber fileName atLineNumber line =
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
 
-replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
+replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder ctx ShellCommand
 replaceLineInFile fileName lineNumber line =
   return $
     combineShellCommands
@@ -97,18 +109,15 @@ replaceLineInFile fileName lineNumber line =
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
 
-cdIntoCurrentProject :: ShellCommandBuilder ShellCommand
-cdIntoCurrentProject = do
-  context <- ask
-  return $ "cd " ++ _projectName context
-
-copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir src) -> ShellCommandBuilder ShellCommand
-copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
-  context <- ask
+copyContentsOfGitTrackedDirToGoldenTestProject ::
+  Path' (Rel GitRepositoryRoot) (Dir src) ->
+  ShellCommandBuilder GoldenTestContext ShellCommand
+copyContentsOfGitTrackedDirToGoldenTestProject srcDirInGitRoot = do
+  goldenTestContext <- ask
   let srcDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
-      destinationDirPath = "./" ++ _projectName context
+      destDirPath = "./" ++ _goldenTestProjectName goldenTestContext
 
-      createDestinationDir :: ShellCommand = "mkdir -p " ++ destinationDirPath
+      createDestinationDir :: ShellCommand = "mkdir -p " ++ destDirPath
 
       listSrcDirGitTrackedFiles :: ShellCommand =
         "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
@@ -117,7 +126,7 @@ copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
       removeSrcDirPrefixFromPath :: ShellCommand =
         "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
       copyFilesFromSrcToDestination :: ShellCommand =
-        "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destinationDirPath
+        "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destDirPath
    in return $
         combineShellCommands
           [ createDestinationDir,
@@ -126,21 +135,21 @@ copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
 
 -- Wasp project commands
 
-appendToWaspFile :: FilePath -> ShellCommandBuilder ShellCommand
+appendToWaspFile :: FilePath -> ShellCommandBuilder WaspAppContext ShellCommand
 appendToWaspFile = appendToFile "main.wasp"
 
-appendToPrismaFile :: FilePath -> ShellCommandBuilder ShellCommand
+appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspAppContext ShellCommand
 appendToPrismaFile = appendToFile "schema.prisma"
 
 -- NOTE: very fragile, assumes line numbers do not change.
-setWaspDbToPSQL :: ShellCommandBuilder ShellCommand
+setWaspDbToPSQL :: ShellCommandBuilder WaspAppContext ShellCommand
 -- Change DB to postgres by adding string at specific line so it still parses.
 setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 
-buildDockerImage :: ShellCommandBuilder ShellCommand
+buildDockerImage :: ShellCommandBuilder WaspAppContext ShellCommand
 buildDockerImage = do
-  context <- ask
-  let dockerImageTag = "waspc-e2e-tests-" ++ _projectName context
+  waspAppContext <- ask
+  let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
    in return $
         conditionShellCommands
           "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
@@ -152,20 +161,19 @@ buildDockerImage = do
 
 -- Wasp CLI commands
 
-waspCliNewMinimalStarter :: ShellCommandBuilder ShellCommand
-waspCliNewMinimalStarter = do
-  context <- ask
+waspCliNewMinimalStarter :: String -> ShellCommandBuilder ctx ShellCommand
+waspCliNewMinimalStarter projectName = do
   return $
-    "wasp-cli new " ++ _projectName context ++ " -t minimal"
+    "wasp-cli new " ++ projectName ++ " -t minimal"
 
-waspCliCompile :: ShellCommandBuilder ShellCommand
+waspCliCompile :: ShellCommandBuilder WaspAppContext ShellCommand
 waspCliCompile = return "wasp-cli compile"
 
 -- TODO: We need to be careful what migration names we accept here, as Prisma will
 --       normalize a migration name containing spaces/dashes to underscores (and maybe other rules).
 --       This will impact our ability to move directories around if the names do not match exactly.
 --       Put in some check eventually.
-waspCliMigrate :: String -> ShellCommandBuilder ShellCommand
+waspCliMigrate :: String -> ShellCommandBuilder WaspAppContext ShellCommand
 waspCliMigrate migrationName =
   let generatedMigrationsDir = joinPath [".wasp", "out", "db", "migrations"]
       waspMigrationsDir = "migrations"
@@ -178,5 +186,5 @@ waspCliMigrate migrationName =
             "mv " ++ (generatedMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (generatedMigrationsDir </> ("no-date-" ++ migrationName))
           ]
 
-waspCliBuild :: ShellCommandBuilder ShellCommand
+waspCliBuild :: ShellCommandBuilder WaspAppContext ShellCommand
 waspCliBuild = return "wasp-cli build"

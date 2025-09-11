@@ -15,9 +15,9 @@ import Data.List (isSuffixOf, sort)
 import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
 import ShellCommands
-  ( ShellCommand,
+  ( GoldenTestContext (..),
+    ShellCommand,
     ShellCommandBuilder,
-    ShellCommandContext (..),
     combineShellCommands,
     runShellCommandBuilder,
   )
@@ -31,9 +31,12 @@ import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
-data GoldenTest = GoldenTest {_goldenTestName :: String, _goldenTestCommands :: ShellCommandBuilder [ShellCommand]}
+data GoldenTest = GoldenTest
+  { _goldenTestName :: String,
+    _goldenTestCommands :: ShellCommandBuilder GoldenTestContext [ShellCommand]
+  }
 
-makeGoldenTest :: String -> ShellCommandBuilder [ShellCommand] -> GoldenTest
+makeGoldenTest :: String -> ShellCommandBuilder GoldenTestContext [ShellCommand] -> GoldenTest
 makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCommands = commands}
 
 -- | This runs a golden test by creating a Wasp project (via `wasp-cli new`), running commands,
@@ -58,8 +61,8 @@ runGoldenTest goldenTest = do
   callCommand $ "mkdir " ++ currentTestDirAbsFp
   callCommand $ "mkdir -p " ++ goldenTestDirAbsFp
 
-  let context = ShellCommandContext {_projectName = goldenTestName}
-  let shellCommand = combineShellCommands $ runShellCommandBuilder (_goldenTestCommands goldenTest) context
+  let context = GoldenTestContext {_goldenTestProjectName = goldenTestName}
+  let shellCommand = combineShellCommands $ runShellCommandBuilder context (_goldenTestCommands goldenTest)
   putStrLn $ "Running the following command: " ++ shellCommand
 
   -- Run the series of commands within the context of a current output dir.
