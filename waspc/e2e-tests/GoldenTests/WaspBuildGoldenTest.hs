@@ -4,7 +4,7 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( buildDockerImage,
     cdIntoCurrentProject,
-    setDbToPSQL,
+    setWaspDbToPSQL,
     waspCliBuild,
     waspCliNewMinimalStarter,
   )
@@ -15,7 +15,7 @@ waspBuildGoldenTest =
     sequence
       [ waspCliNewMinimalStarter,
         cdIntoCurrentProject,
-        setDbToPSQL,
+        setWaspDbToPSQL,
         waspCliBuild,
         buildDockerImage
       ]

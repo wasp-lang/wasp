@@ -11,7 +11,7 @@ module ShellCommands
     appendToWaspFile,
     appendToPrismaFile,
     createFile,
-    setDbToPSQL,
+    setWaspDbToPSQL,
     waspCliNewMinimalStarter,
     waspCliCompile,
     waspCliMigrate,
@@ -33,7 +33,7 @@ import System.FilePath (joinPath, (</>))
 --       This would likely reqiure adoption of some library, and creating new layers of abstraction.
 --       Deemed not worth it right now by all.
 
--- NOTE: Using `wasp-cli` herein so we can assume using latest `stack install` in CI and locally.
+-- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 
 -- TODO: In future, find a good way to test `wasp-cli start`.
 
@@ -41,7 +41,7 @@ type ShellCommand = String
 
 -- Each shell command gets access to the current project name, and maybe other things in future.
 data ShellCommandContext = ShellCommandContext
-  {_ctxtCurrentProjectName :: String}
+  {_projectName :: String}
   deriving (Show)
 
 -- Used to construct shell commands, while still giving access to the context (if needed).
@@ -53,6 +53,8 @@ runShellCommandBuilder :: ShellCommandBuilder a -> ShellCommandContext -> a
 runShellCommandBuilder shellCommandBuilder context =
   runReader (_runShellCommandBuilder shellCommandBuilder) context
 
+-- Commands Utilities
+
 ($|) :: ShellCommand -> ShellCommand -> ShellCommand
 cmd1 $| cmd2 = intercalate " | " [cmd1, cmd2]
 
@@ -63,16 +65,7 @@ conditionShellCommands :: ShellCommand -> [ShellCommand] -> ShellCommand
 conditionShellCommands condition cmds =
   "if " ++ condition ++ "; then " ++ combineShellCommands cmds ++ " ;fi"
 
-cdIntoCurrentProject :: ShellCommandBuilder ShellCommand
-cdIntoCurrentProject = do
-  context <- ask
-  return $ "cd " ++ _ctxtCurrentProjectName context
-
-appendToWaspFile :: FilePath -> ShellCommandBuilder ShellCommand
-appendToWaspFile = appendToFile "main.wasp"
-
-appendToPrismaFile :: FilePath -> ShellCommandBuilder ShellCommand
-appendToPrismaFile = appendToFile "schema.prisma"
+-- General commands
 
 appendToFile :: FilePath -> String -> ShellCommandBuilder ShellCommand
 appendToFile fileName content =
@@ -87,10 +80,6 @@ createFile content relDirFp filename = return $ combineShellCommands [createPare
     destinationFile = "./" ++ relDirFp ++ "/" ++ filename
     contents = show (content ++ "\n")
     writeContentsToFile = unwords ["printf", contents, ">", destinationFile]
-
-setDbToPSQL :: ShellCommandBuilder ShellCommand
--- Change DB to postgres by adding string at specific line so it still parses.
-setDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 
 insertCodeIntoFileAtLineNumber :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
 insertCodeIntoFileAtLineNumber fileName atLineNumber line =
@@ -108,11 +97,66 @@ replaceLineInFile fileName lineNumber line =
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
 
+cdIntoCurrentProject :: ShellCommandBuilder ShellCommand
+cdIntoCurrentProject = do
+  context <- ask
+  return $ "cd " ++ _projectName context
+
+copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir src) -> ShellCommandBuilder ShellCommand
+copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
+  context <- ask
+  let srcDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
+      destinationDirPath = "./" ++ _projectName context
+
+      createDestinationDir :: ShellCommand = "mkdir -p " ++ destinationDirPath
+
+      listSrcDirGitTrackedFiles :: ShellCommand =
+        "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
+      -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
+      -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
+      removeSrcDirPrefixFromPath :: ShellCommand =
+        "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
+      copyFilesFromSrcToDestination :: ShellCommand =
+        "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destinationDirPath
+   in return $
+        combineShellCommands
+          [ createDestinationDir,
+            listSrcDirGitTrackedFiles $| removeSrcDirPrefixFromPath $| copyFilesFromSrcToDestination
+          ]
+
+-- Wasp project commands
+
+appendToWaspFile :: FilePath -> ShellCommandBuilder ShellCommand
+appendToWaspFile = appendToFile "main.wasp"
+
+appendToPrismaFile :: FilePath -> ShellCommandBuilder ShellCommand
+appendToPrismaFile = appendToFile "schema.prisma"
+
+-- NOTE: very fragile, assumes line numbers do not change.
+setWaspDbToPSQL :: ShellCommandBuilder ShellCommand
+-- Change DB to postgres by adding string at specific line so it still parses.
+setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
+
+buildDockerImage :: ShellCommandBuilder ShellCommand
+buildDockerImage = do
+  context <- ask
+  let dockerImageTag = "waspc-e2e-tests-" ++ _projectName context
+   in return $
+        conditionShellCommands
+          "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
+          [ "cd .wasp/build",
+            "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " .",
+            "docker image rm " ++ dockerImageTag,
+            "cd ../.."
+          ]
+
+-- Wasp CLI commands
+
 waspCliNewMinimalStarter :: ShellCommandBuilder ShellCommand
 waspCliNewMinimalStarter = do
   context <- ask
   return $
-    "wasp-cli new " ++ _ctxtCurrentProjectName context ++ " -t minimal"
+    "wasp-cli new " ++ _projectName context ++ " -t minimal"
 
 waspCliCompile :: ShellCommandBuilder ShellCommand
 waspCliCompile = return "wasp-cli compile"
@@ -136,38 +180,3 @@ waspCliMigrate migrationName =
 
 waspCliBuild :: ShellCommandBuilder ShellCommand
 waspCliBuild = return "wasp-cli build"
-
-buildDockerImage :: ShellCommandBuilder ShellCommand
-buildDockerImage = do
-  context <- ask
-  let dockerImageTag = "waspc-e2e-tests-" ++ _ctxtCurrentProjectName context
-   in return $
-        conditionShellCommands
-          "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          [ "cd .wasp/build",
-            "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " .",
-            "docker image rm " ++ dockerImageTag,
-            "cd ../.."
-          ]
-
-copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir src) -> ShellCommandBuilder ShellCommand
-copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
-  context <- ask
-  let srcDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
-      destinationDirPath = "./" ++ _ctxtCurrentProjectName context
-
-      createDestinationDir :: ShellCommand = "mkdir -p " ++ destinationDirPath
-
-      listSrcDirGitTrackedFiles :: ShellCommand =
-        "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
-      -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
-      -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
-      filterSrcDirPathPrefix :: ShellCommand =
-        "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
-      copyFilesFromSrcToDestination :: ShellCommand =
-        "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destinationDirPath
-   in return $
-        combineShellCommands
-          [ createDestinationDir,
-            listSrcDirGitTrackedFiles $| filterSrcDirPathPrefix $| copyFilesFromSrcToDestination
-          ]

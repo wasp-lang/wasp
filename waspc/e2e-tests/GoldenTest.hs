@@ -58,7 +58,7 @@ runGoldenTest goldenTest = do
   callCommand $ "mkdir " ++ currentTestDirAbsFp
   callCommand $ "mkdir -p " ++ goldenTestDirAbsFp
 
-  let context = ShellCommandContext {_ctxtCurrentProjectName = goldenTestName}
+  let context = ShellCommandContext {_projectName = goldenTestName}
   let shellCommand = combineShellCommands $ runShellCommandBuilder (_goldenTestCommands goldenTest) context
   putStrLn $ "Running the following command: " ++ shellCommand
 

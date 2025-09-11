@@ -76,6 +76,8 @@ expectedFilesManifestFileInGoldenTestDir = [relfile|expected-files.manifest|]
 goldenTestProjectDirInGoldenTestDir :: String -> Path' (Rel GoldenTestDir) (Dir GoldenTestProjectDir)
 goldenTestProjectDirInGoldenTestDir projectName = (fromJust . parseRelDir) projectName
 
+-- | Connected to 'gitRootFromGoldenTestProjectDir'.
+--   If you change this function, change the other one too.
 goldenTestProjectDirInGitRoot :: String -> GoldenTestType -> Path' (Rel GitRepositoryRoot) (Dir GoldenTestProjectDir)
 goldenTestProjectDirInGitRoot projectName goldenTestType =
   projectRootInGitRoot
@@ -84,6 +86,7 @@ goldenTestProjectDirInGitRoot projectName goldenTestType =
     </> goldenTestDirInTestOutputsDir projectName goldenTestType
     </> goldenTestProjectDirInGoldenTestDir projectName
 
--- TODO: define from goldenTestProjectDirInGitRoot
+-- | Connected to 'goldenTestProjectDirInGitRoot'.
+--   If you change this function, change the other one too.
 gitRootFromGoldenTestProjectDir :: Path' (Rel GoldenTestProjectDir) (Dir GitRepositoryRoot)
 gitRootFromGoldenTestProjectDir = [reldir|../../../../|]
