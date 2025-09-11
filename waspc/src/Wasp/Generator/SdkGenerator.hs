@@ -39,6 +39,7 @@ import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Monad as Generator
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
@@ -99,8 +100,8 @@ buildSdk projectRootDir = do
   where
     dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
 
-genSdk :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
-genSdk spec waspLibs =
+genSdk :: AppSpec -> Generator [FileDraft]
+genSdk spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
@@ -117,7 +118,7 @@ genSdk spec waspLibs =
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
-      genPackageJson spec waspLibs,
+      genPackageJson spec,
       genDbClient spec,
       genDevIndex
     ]
@@ -183,8 +184,9 @@ genEntitiesAndServerTypesDirs spec =
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
-genPackageJson :: AppSpec -> [WaspLib.WaspLib] -> Generator FileDraft
-genPackageJson spec waspLibs =
+genPackageJson :: AppSpec -> Generator FileDraft
+genPackageJson spec = do
+  npmDeps <- npmDepsForSdk spec <$> Generator.getWaspLibs
   return $
     C.mkTmplFdWithDstAndData
       [relfile|package.json|]
@@ -195,8 +197,6 @@ genPackageJson spec waspLibs =
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps
             ]
       )
-  where
-    npmDeps = npmDepsForSdk spec waspLibs
 
 npmDepsForSdk :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsForPackage
 npmDepsForSdk spec waspLibs =

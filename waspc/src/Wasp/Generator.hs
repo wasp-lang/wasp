@@ -19,7 +19,13 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGenerator)
+import Wasp.Generator.Monad
+  ( Generator,
+    GeneratorError,
+    GeneratorWarning,
+    makeGeneratorConfig,
+    runGenerator,
+  )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
@@ -28,7 +34,6 @@ import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
 import qualified Wasp.Generator.WaspLibs as WaspLibs
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
@@ -47,9 +52,9 @@ writeWebAppCode spec dstDir sendMessage = do
   case validateAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
-      waspLibs <- WaspLibs.getWaspLibs
-
-      let (generatorWarnings, generatorResult) = runGenerator $ genApp spec waspLibs
+      waspLibs <- WaspLibs.initWaspLibs
+      let config = makeGeneratorConfig waspLibs
+      let (generatorWarnings, generatorResult) = runGenerator config $ genApp spec
 
       case generatorResult of
         Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
@@ -59,11 +64,11 @@ writeWebAppCode spec dstDir sendMessage = do
           (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec waspLibs dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
-genApp :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
-genApp spec waspLibs =
-  genWebApp spec waspLibs
-    <++> genServer spec waspLibs
-    <++> genSdk spec waspLibs
+genApp :: AppSpec -> Generator [FileDraft]
+genApp spec =
+  genWebApp spec
+    <++> genServer spec
+    <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genTailwindConfigFiles spec

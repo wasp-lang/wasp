@@ -12,6 +12,7 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Monad as Generator
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator.Common
@@ -34,10 +35,10 @@ import Wasp.Project.Common
   )
 import Wasp.Util ((<++>))
 
-genVite :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
-genVite spec waspLibs =
+genVite :: AppSpec -> Generator [FileDraft]
+genVite spec =
   sequence
-    [ genViteConfig spec waspLibs,
+    [ genViteConfig spec,
       genViteTsconfigJson
     ]
     <++> genVitePlugins
@@ -52,23 +53,23 @@ relPathFromWebAppRootDirWaspProjectDir =
       FP.Extra.reversePosixPath $
         SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
-genViteConfig :: AppSpec -> [WaspLib.WaspLib] -> Generator FileDraft
-genViteConfig spec wasplibs = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
+genViteConfig :: AppSpec -> Generator FileDraft
+genViteConfig spec = C.mkTmplFdWithData viteConfigTmplFile . getTmplData <$> Generator.getWaspLibs
   where
-    tmplData =
+    getTmplData waspLibs =
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
           "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirWaspProjectDir,
           "defaultClientPort" .= C.defaultClientPort,
-          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
+          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList (getDepsExcludedFromOptimization waspLibs),
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    depsExcludedFromOptimization = sdkPackageName : map WaspLib.packageName wasplibs
+    getDepsExcludedFromOptimization waspLibs = sdkPackageName : map WaspLib.packageName waspLibs
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir

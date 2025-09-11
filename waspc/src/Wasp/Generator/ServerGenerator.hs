@@ -46,6 +46,7 @@ import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions (superjsonVersion, typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Monad as Generator
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
@@ -66,13 +67,14 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-genServer :: AppSpec -> [WaspLib.WaspLib] -> Generator [FileDraft]
-genServer spec waspLibs =
+genServer :: AppSpec -> Generator [FileDraft]
+genServer spec = do
+  npmDeps <- npmDepsForWasp spec <$> Generator.getWaspLibs
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
       genTsConfigJson spec,
-      genPackageJson spec (npmDepsForWasp spec waspLibs),
+      genPackageJson spec npmDeps,
       genNpmrc,
       genGitignore,
       genNodemon
