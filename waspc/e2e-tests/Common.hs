@@ -1,15 +1,18 @@
 module Common
-  ( GitRepositoryRoot,
+  ( GoldenTestType (..),
+    GitRepositoryRoot,
     E2eTestsDir,
     TestOutputsDir,
     getTestOutputsDir,
+    goldenTestDirInTestOutputsDir,
     gitRootFromGoldenTestProjectDir,
+    expectedFilesManifestFileInGoldenTestDir,
   )
 where
 
 import Control.Monad (unless)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Path', Rel, parseRelDir, reldir, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, parseRelDir, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
 import System.FilePath (takeFileName)
@@ -24,10 +27,18 @@ data E2eTestsDir
 
 data TestOutputsDir
 
+data GoldenTestType = Golden | Current
+
+instance Show GoldenTestType where
+  show Golden = "golden"
+  show Current = "current"
+
 -- The directory inside TestOutputsDir where golden test runs are stored.
 -- It follows a "<project-name>-<golden-test-type>" naming convention.
 -- e.g. "wasp-new-golden", "kitchen-sink-current"
 data GoldenTestDir
+
+data ExpectedFilesManifest
 
 -- The directory inside a golden test run directory where the project for that test is located.
 -- It is named after the project, e.g., "kitchen-sink".
@@ -56,19 +67,22 @@ testOutputsDirInE2eTests = [reldir|test-outputs|]
 getTestOutputsDir :: IO (Path' Abs (Dir TestOutputsDir))
 getTestOutputsDir = (</> testOutputsDirInE2eTests) <$> getE2eTestsDir
 
-goldenTestProjectDirInGitRoot :: String -> String -> Path' (Rel GitRepositoryRoot) (Dir GoldenTestProjectDir)
+goldenTestDirInTestOutputsDir :: String -> GoldenTestType -> Path' (Rel TestOutputsDir) (Dir GoldenTestDir)
+goldenTestDirInTestOutputsDir projectName goldenTestType = (fromJust . parseRelDir) (projectName ++ "-" ++ show goldenTestType)
+
+expectedFilesManifestFileInGoldenTestDir :: Path' (Rel GoldenTestDir) (File ExpectedFilesManifest)
+expectedFilesManifestFileInGoldenTestDir = [relfile|expected-files.manifest|]
+
+goldenTestProjectDirInGoldenTestDir :: String -> Path' (Rel GoldenTestDir) (Dir GoldenTestProjectDir)
+goldenTestProjectDirInGoldenTestDir projectName = (fromJust . parseRelDir) projectName
+
+goldenTestProjectDirInGitRoot :: String -> GoldenTestType -> Path' (Rel GitRepositoryRoot) (Dir GoldenTestProjectDir)
 goldenTestProjectDirInGitRoot projectName goldenTestType =
   projectRootInGitRoot
     </> e2eTestsDirInProjectRoot
     </> testOutputsDirInE2eTests
-    </> parseGoldenTestDirInTestsOutputs
-    </> parseGoldenTestProjectDirInGoldenTest
-  where
-    goldenTestDirName = projectName ++ "-" ++ goldenTestType
-    parseGoldenTestDirInTestsOutputs :: Path' (Rel TestOutputsDir) (Dir GoldenTestDir)
-    parseGoldenTestDirInTestsOutputs = fromJust (parseRelDir goldenTestDirName)
-    parseGoldenTestProjectDirInGoldenTest :: Path' (Rel GoldenTestDir) (Dir GoldenTestProjectDir)
-    parseGoldenTestProjectDirInGoldenTest = fromJust (parseRelDir projectName)
+    </> goldenTestDirInTestOutputsDir projectName goldenTestType
+    </> goldenTestProjectDirInGoldenTestDir projectName
 
 -- TODO: define from goldenTestProjectDirInGitRoot
 gitRootFromGoldenTestProjectDir :: Path' (Rel GoldenTestProjectDir) (Dir GitRepositoryRoot)

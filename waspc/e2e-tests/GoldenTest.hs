@@ -5,7 +5,7 @@ module GoldenTest
   )
 where
 
-import Common (getTestOutputsDir)
+import Common (GoldenTestType (..), expectedFilesManifestFileInGoldenTestDir, getTestOutputsDir, goldenTestDirInTestOutputsDir)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -22,6 +22,7 @@ import ShellCommands
     runShellCommandBuilder,
   )
 import qualified StrongPath as SP
+import qualified StrongPath as Sp
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (makeRelative, takeFileName)
@@ -39,41 +40,43 @@ makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCo
 -- and then comparing all file outputs to the corresponding golden test output directory.
 runGoldenTest :: GoldenTest -> IO TestTree
 runGoldenTest goldenTest = do
-  testOutputsDirAbsSp <- getTestOutputsDir
-  let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
-  let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
-  let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
-  let expectedFilesListAbsFp = currentOutputDirAbsFp FP.</> expectedFilesListFileName
+  let goldenTestName = _goldenTestName goldenTest
+  testOutputsDir <- getTestOutputsDir
+
+  let currentGoldenTestDir = testOutputsDir SP.</> goldenTestDirInTestOutputsDir goldenTestName Current
+  let goldenGoldenTestDir = testOutputsDir SP.</> goldenTestDirInTestOutputsDir goldenTestName Golden
+  let expectedFilesManifestFile = currentGoldenTestDir SP.</> expectedFilesManifestFileInGoldenTestDir
+
+  let currentTestDirAbsFp = SP.fromAbsDir currentGoldenTestDir
+  let goldenTestDirAbsFp = SP.fromAbsDir goldenGoldenTestDir
+  let expectedFilesListFileAbsFp = Sp.fromAbsFile expectedFilesManifestFile
 
   -- Remove existing current output files from a prior test run.
-  callCommand $ "rm -rf " ++ currentOutputDirAbsFp
+  callCommand $ "rm -rf " ++ currentTestDirAbsFp
 
   -- Create current output dir as well as the golden output dir, if missing.
-  callCommand $ "mkdir " ++ currentOutputDirAbsFp
-  callCommand $ "mkdir -p " ++ goldenOutputDirAbsFp
+  callCommand $ "mkdir " ++ currentTestDirAbsFp
+  callCommand $ "mkdir -p " ++ goldenTestDirAbsFp
 
-  let context =
-        ShellCommandContext
-          { _ctxtCurrentProjectName = _goldenTestName goldenTest
-          }
+  let context = ShellCommandContext {_ctxtCurrentProjectName = goldenTestName}
   let shellCommand = combineShellCommands $ runShellCommandBuilder (_goldenTestCommands goldenTest) context
   putStrLn $ "Running the following command: " ++ shellCommand
 
   -- Run the series of commands within the context of a current output dir.
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
+  callCommand $ "cd " ++ currentTestDirAbsFp ++ " && " ++ shellCommand
 
-  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentOutputDirAbsFp
-  filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
+  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentTestDirAbsFp
+  filesForCheckingContentAbsFps <- (expectedFilesListFileAbsFp :) <$> getFilesForCheckingContent currentTestDirAbsFp
 
-  writeExpectedFilesList currentOutputDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp
+  writeExpectedFilesList currentTestDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListFileAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentTestDirAbsFp) (pack goldenTestDirAbsFp) (pack fp)
 
   return $
     testGroup
-      (_goldenTestName goldenTest)
+      goldenTestName
       [ goldenVsFileDiff
           currentOutputAbsFp -- The test name that shows in the output.
           (\ref new -> ["diff", "-u", ref, new])
@@ -84,9 +87,6 @@ runGoldenTest goldenTest = do
           let goldenOutputAbsFp = remapCurrentToGoldenFilePath currentOutputAbsFp
       ]
   where
-    expectedFilesListFileName :: String
-    expectedFilesListFileName = "expected-files.manifest"
-
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
     getFilesForCheckingExistence dirToFilterAbsFp =
       getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist

@@ -150,24 +150,24 @@ buildDockerImage = do
             "cd ../.."
           ]
 
-copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir source) -> ShellCommandBuilder ShellCommand
+copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir src) -> ShellCommandBuilder ShellCommand
 copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
   context <- ask
-  let sourceDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
+  let srcDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
       destinationDirPath = "./" ++ _ctxtCurrentProjectName context
 
       createDestinationDir :: ShellCommand = "mkdir -p " ++ destinationDirPath
 
-      listSourceDirGitTrackedFiles :: ShellCommand =
+      listSrcDirGitTrackedFiles :: ShellCommand =
         "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
-      -- Remove the source dir prefix from each path so that files get copied into the destination dir directly.
+      -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
       -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
-      filterSourceDirPathPrefix :: ShellCommand =
+      filterSrcDirPathPrefix :: ShellCommand =
         "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
-      copyFilesFromSourceToDestination :: ShellCommand =
-        "rsync -a --files-from=- " ++ sourceDirPath ++ " " ++ destinationDirPath
+      copyFilesFromSrcToDestination :: ShellCommand =
+        "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destinationDirPath
    in return $
         combineShellCommands
           [ createDestinationDir,
-            listSourceDirGitTrackedFiles $| filterSourceDirPathPrefix $| copyFilesFromSourceToDestination
+            listSrcDirGitTrackedFiles $| filterSrcDirPathPrefix $| copyFilesFromSrcToDestination
           ]
