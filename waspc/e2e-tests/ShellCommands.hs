@@ -59,6 +59,10 @@ cmd1 $| cmd2 = intercalate " | " [cmd1, cmd2]
 combineShellCommands :: [ShellCommand] -> ShellCommand
 combineShellCommands = intercalate " && "
 
+conditionShellCommands :: ShellCommand -> [ShellCommand] -> ShellCommand
+conditionShellCommands condition cmds =
+  "if " ++ condition ++ "; then " ++ combineShellCommands cmds ++ " ;fi"
+
 cdIntoCurrentProject :: ShellCommandBuilder ShellCommand
 cdIntoCurrentProject = do
   context <- ask
@@ -134,14 +138,17 @@ waspCliBuild :: ShellCommandBuilder ShellCommand
 waspCliBuild = return "wasp-cli build"
 
 buildDockerImage :: ShellCommandBuilder ShellCommand
-buildDockerImage =
-  return $
-    combineShellCommands
-      [ "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]",
-        "cd .wasp/build",
-        "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" .",
-        "cd ../.."
-      ]
+buildDockerImage = do
+  context <- ask
+  let dockerImageTag = "waspc-e2e-tests-" ++ _ctxtCurrentProjectName context
+   in return $
+        conditionShellCommands
+          "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
+          [ "cd .wasp/build",
+            "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " .",
+            "docker image rm " ++ dockerImageTag,
+            "cd ../.."
+          ]
 
 copyContentsOfGitTrackedDirToCurrentProject :: Path' (Rel GitRepositoryRoot) (Dir source) -> ShellCommandBuilder ShellCommand
 copyContentsOfGitTrackedDirToCurrentProject srcDirInGitRoot = do
