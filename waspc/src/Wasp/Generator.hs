@@ -33,6 +33,7 @@ import qualified Wasp.Generator.Start
 import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
+import Wasp.Generator.WaspLibs (genWaspLibs)
 import qualified Wasp.Generator.WaspLibs as WaspLibs
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
@@ -72,6 +73,7 @@ genApp spec =
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genTailwindConfigFiles spec
+    <++> genWaspLibs spec
 
 -- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
 writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()
