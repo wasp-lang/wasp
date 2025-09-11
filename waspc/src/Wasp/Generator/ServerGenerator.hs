@@ -185,7 +185,7 @@ npmDepsForWasp spec waspLibs =
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-    waspLibsNpmDeps = map (WaspLib.waspLibAsNpmDependency libsRootDirFromServerDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.getNpmDepFromWaspLibWithSrcDir libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

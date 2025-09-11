@@ -18,7 +18,7 @@ import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
-import Wasp.Generator.Monad (runGenerator)
+import Wasp.Generator.Monad (makeGeneratorConfig, runGenerator)
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -95,7 +95,8 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let (_, Right fileDrafts) = runGenerator $ genWebApp testAppSpec []
+      let config = makeGeneratorConfig []
+      let (_, Right fileDrafts) = runGenerator config $ genWebApp testAppSpec
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat
