@@ -23,6 +23,13 @@ This upgrade contains no known breaking changes for Wasp apps and we expect most
 Wasp has transitioned from CommonJS (CJS) to ECMAScript Modules (ESM) for Tailwind configuration files.
 This affects both the **import/export syntax** and **file extensions** (`.cjs` ➝ `.js`).
 
+### Wasp simplified the bash completion setup
+
+You no longer need to generate a separate file for bash completion.
+Instead, you can add bash completion directly to your shell configuration.
+
+Additionally, we've added the missing `db` commands to bash completion.
+
 ## How to migrate?
 
 To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
@@ -149,6 +156,43 @@ The only manual change you need to make is to update your `package.json` file:
 </TabItem>
 </Tabs>
 
-### 5. Enjoy your updated Wasp app
+
+### 5. Update you Wasp bash completions (if you used them before)
+
+Wasp simplified how bash completions work.
+Instead of maintaining a separate file, you can now enable completions with a single line in your shell configuration.
+
+To update:
+
+1) Delete the old `wasp-completion` file.
+
+Previously, we asked you to generate a `wasp-completion` file in a folder of your choice:
+```sh
+wasp completion:generate > <your-chosen-directory>/wasp-completion"
+```
+This file is no longer necessary and we can delete it.
+
+2) Update your shell configuration
+
+Before, you had to source the `wasp-completion` file, now we can just call `complete` directly:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```bash
+source <your-chosen-directory>/wasp-completion
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```bash
+complete -o default -o nospace -C 'wasp completion:list' wasp
+```
+
+</TabItem>
+</Tabs>
+
+### 6. Enjoy your updated Wasp app
 
 That's it!
