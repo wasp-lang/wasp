@@ -4,9 +4,9 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "edit-step": "tsx ./src/index.ts edit-step",
+    "edit-action": "tsx ./src/index.ts edit-action",
     "generate-app": "tsx ./src/index.ts generate-app",
-    "list-steps": "tsx ./src/index.ts list-steps"
+    "list-actions": "tsx ./src/index.ts list-actions"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",

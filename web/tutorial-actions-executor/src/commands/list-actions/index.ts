@@ -2,16 +2,16 @@ import { Command } from "@commander-js/extra-typings";
 import { basename } from "path";
 import { chalk } from "zx";
 
-import type { Action } from "../../actions";
-import { getActionsFromTutorialFiles } from "../../extractSteps";
-import { tutorialDir } from "../../project";
+import type { Action } from "../../actions/actions";
+import { getActionsFromTutorialFiles } from "../../extract-actions";
+import { docsTutorialDirPath } from "../../tutorialApp";
 
 type ActionsGroupedByFile = Map<string, Action[]>;
 
-export const listStepsCommand = new Command("list-steps")
-  .description("List all steps in the tutorial")
+export const listActionsCommand = new Command("list-actions")
+  .description("List all actions in the tutorial")
   .action(async () => {
-    const actions = await getActionsFromTutorialFiles(tutorialDir);
+    const actions = await getActionsFromTutorialFiles(docsTutorialDirPath);
     const actionsGroupedByFile = groupActionsBySourceFile(actions);
     displayGroupedActions(actionsGroupedByFile);
   });

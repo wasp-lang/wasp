@@ -7,17 +7,17 @@ import { mdxJsxFromMarkdown, type MdxJsxFlowElement } from "mdast-util-mdx-jsx";
 import { mdxJsx } from "micromark-extension-mdx-jsx";
 import { visit } from "unist-util-visit";
 
+import type {
+  Action,
+  ActionCommon,
+  ActionId,
+  MarkdownFilePath,
+} from "../actions/actions.js";
 import {
   createApplyPatchAction,
   createMigrateDbAction,
-  type Action,
-  type ActionCommon,
 } from "../actions/index.js";
-import type {
-  MarkdownFilePath,
-  StepId,
-  TutorialDirPath,
-} from "../brandedTypes.js";
+import type { TutorialDirPath } from "../tutorialApp.js";
 
 export async function getActionsFromTutorialFiles(
   tutorialDir: TutorialDirPath,
@@ -67,10 +67,10 @@ async function getActionsFromMarkdownFile(
     if (node.name !== tutorialComponentName) {
       return;
     }
-    const stepId = getAttributeValue(node, "id") as StepId | null;
+    const actionId = getAttributeValue(node, "id") as ActionId | null;
     const actionName = getAttributeValue(node, "action");
 
-    if (!stepId) {
+    if (!actionId) {
       throw new Error(
         `TutorialAction component requires the 'id' attribute. File: ${tutorialFilePath}`,
       );
@@ -84,7 +84,7 @@ async function getActionsFromMarkdownFile(
 
     actions.push(
       createAction(actionName, {
-        id: stepId,
+        id: actionId,
         tutorialFilePath,
       }),
     );

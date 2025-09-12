@@ -1,11 +1,11 @@
 import { program } from "@commander-js/extra-typings";
-import { editStepCommand } from "./commands/edit-step";
+import { editActionCommand } from "./commands/edit-action";
 import { generateAppCommand } from "./commands/generate-app";
-import { listStepsCommand } from "./commands/list-steps";
+import { listActionsCommand } from "./commands/list-actions";
 
 program
   .addCommand(generateAppCommand)
-  .addCommand(editStepCommand)
-  .addCommand(listStepsCommand)
+  .addCommand(editActionCommand)
+  .addCommand(listActionsCommand)
   .parse(process.argv)
   .opts();

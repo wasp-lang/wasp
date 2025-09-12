@@ -1,5 +1,7 @@
 import { $ } from "zx";
 
+export const mainBranchName = "main";
+
 export async function generatePatchFromAllChanges(
   gitRepoDir: string,
 ): Promise<string> {

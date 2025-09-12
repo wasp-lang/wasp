@@ -4,7 +4,7 @@ import { Command, Option } from "@commander-js/extra-typings";
 import { ProcessOutput } from "zx";
 
 import { confirm, select } from "@inquirer/prompts";
-import type { Action, ApplyPatchAction } from "../../actions";
+import type { Action, ApplyPatchAction } from "../../actions/actions";
 import {
   applyPatchForAction,
   askUserToEditAndCreatePatch,
@@ -12,45 +12,55 @@ import {
   createBranchFromActionCommit,
   generatePatchForAction,
 } from "../../actions/git";
-import type { AppDirPath } from "../../brandedTypes";
-import { getActionsFromTutorialFiles } from "../../extractSteps";
-import { moveLastCommitChangesToStaging, rebaseBranch } from "../../git";
+import { getActionsFromTutorialFiles } from "../../extract-actions";
+import {
+  mainBranchName,
+  moveLastCommitChangesToStaging,
+  rebaseBranch,
+} from "../../git";
 import { log } from "../../log";
-import { appDir, mainBranchName, tutorialDir } from "../../project";
+import {
+  docsTutorialDirPath,
+  tutorialAppDirPath,
+  type AppDirPath,
+} from "../../tutorialApp";
 import { generateApp } from "../generate-app";
 
-export const editStepCommand = new Command("edit-step")
-  .description("Edit a step in the tutorial app")
-  .addOption(new Option("--step-id <id>", "Name of the step to edit"))
+export const editActionCommand = new Command("edit-action")
+  .description("Edit a action in the tutorial app")
+  .addOption(new Option("--action-id <id>", "ID of the action to edit"))
   .addOption(
     new Option(
       "--skip-generating-app",
-      "Skip generating app before editing step",
+      "Skip generating app before editing action",
     ),
   )
-  .action(async ({ stepId, skipGeneratingApp }) => {
-    const actions = await getActionsFromTutorialFiles(tutorialDir);
+  .action(async ({ actionId, skipGeneratingApp }) => {
+    const actions = await getActionsFromTutorialFiles(docsTutorialDirPath);
     log("info", `Found ${actions.length} actions in tutorial files.`);
 
     const action = await ensureAction({
       actions,
-      stepIdOptionValue: stepId,
+      actionIdOptionValue: actionId,
     });
 
     if (!skipGeneratingApp) {
-      log("info", "Generating app before editing step...");
+      log("info", "Generating app before editing action...");
       await generateApp(actions);
     } else {
-      log("info", `Skipping app generation, using existing app in ${appDir}`);
+      log(
+        "info",
+        `Skipping app generation, using existing app in ${tutorialAppDirPath}`,
+      );
     }
 
-    log("info", `Editing step ${action.displayName}...`);
+    log("info", `Editing action ${action.displayName}...`);
 
-    await editActionPatch({ appDir, action });
+    await editActionPatch({ appDir: tutorialAppDirPath, action });
 
     await extractCommitsIntoPatches(actions);
 
-    log("success", `Edit completed for step ${action.displayName}!`);
+    log("success", `Edit completed for action ${action.displayName}!`);
   });
 
 async function editActionPatch({
@@ -99,31 +109,34 @@ async function extractCommitsIntoPatches(actions: Action[]): Promise<void> {
   );
 
   for (const action of applyPatchActions) {
-    log("info", `Updating patch for step ${action.displayName}`);
-    const patch = await generatePatchForAction({ appDir, action });
+    log("info", `Updating patch for action ${action.displayName}`);
+    const patch = await generatePatchForAction({
+      appDir: tutorialAppDirPath,
+      action,
+    });
     await fs.writeFile(action.patchFilePath, patch, "utf-8");
   }
 }
 
 async function ensureAction({
   actions,
-  stepIdOptionValue,
+  actionIdOptionValue,
 }: {
   actions: Action[];
-  stepIdOptionValue: string | undefined;
+  actionIdOptionValue: string | undefined;
 }): Promise<ApplyPatchAction> {
   const applyPatchActions = actions.filter(
     (action) => action.kind === "apply-patch",
   );
 
-  if (!stepIdOptionValue) {
+  if (!actionIdOptionValue) {
     return askUserToSelectAction(applyPatchActions);
   }
 
-  const action = applyPatchActions.find((a) => a.id === stepIdOptionValue);
+  const action = applyPatchActions.find((a) => a.id === actionIdOptionValue);
   if (!action) {
     throw new Error(
-      `Apply patch step with ID "${stepIdOptionValue}" not found.`,
+      `Apply patch action with ID "${actionIdOptionValue}" not found.`,
     );
   }
   return action;
@@ -132,12 +145,12 @@ async function ensureAction({
 async function askUserToSelectAction(
   actions: ApplyPatchAction[],
 ): Promise<ApplyPatchAction> {
-  const selectedStepId = await select({
-    message: "Select a step to edit",
+  const selectedActionId = await select({
+    message: "Select a action to edit",
     choices: actions.map((action) => ({
       name: action.displayName,
       value: action.id,
     })),
   });
-  return actions.find((a) => a.id === selectedStepId) as ApplyPatchAction;
+  return actions.find((a) => a.id === selectedActionId) as ApplyPatchAction;
 }

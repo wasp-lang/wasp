@@ -63,7 +63,7 @@ export async function regeneratePatchForAction({
   appDir: AppDirPath;
   action: ApplyPatchAction;
 }): Promise<void> {
-  log("info", `Trying to fix patch for step: ${action.displayName}`);
+  log("info", `Trying to fix patch for action: ${action.displayName}`);
 
   if (await fs.pathExists(action.patchFilePath)) {
     log("info", `Removing existing patch file: ${action.patchFilePath}`);
@@ -82,7 +82,7 @@ export async function askUserToEditAndCreatePatch({
 }) {
   await askToOpenProjectInEditor();
   await confirm({
-    message: `Do the step ${action.displayName} and press Enter`,
+    message: `Update the app according to action ${action.displayName} and press Enter`,
   });
 
   const patch = await generatePatchFromAllChanges(appDir);

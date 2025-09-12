@@ -1,16 +1,16 @@
 import { chalk, fs } from "zx";
 
-import { type Action } from "../../actions";
+import type { Action } from "../../actions/actions";
 import {
   applyPatchForAction,
   commitActionChanges,
   regeneratePatchForAction,
 } from "../../actions/git";
-import type { AppDirPath, PatchesDirPath } from "../../brandedTypes";
 import { log } from "../../log";
+import type { AppDirPath, PatchesDirPath } from "../../tutorialApp";
 import { waspDbMigrate } from "../../waspCli";
 
-export async function executeSteps({
+export async function executeActions({
   appDir,
   patchesDir,
   actions,
@@ -20,7 +20,7 @@ export async function executeSteps({
   actions: Action[];
 }): Promise<void> {
   for (const action of actions) {
-    log("info", `${chalk.bold(`[step ${action.id}]`)} ${action.kind}`);
+    log("info", `${chalk.bold(`[action ${action.id}]`)} ${action.kind}`);
 
     await fs.ensureDir(patchesDir);
 
@@ -32,7 +32,7 @@ export async function executeSteps({
           } catch (err) {
             log(
               "error",
-              `Failed to apply patch for step ${action.displayName}:\n${err}`,
+              `Failed to apply patch for action ${action.displayName}:\n${err}`,
             );
             await regeneratePatchForAction({ appDir, action });
             await applyPatchForAction({ appDir, action });
@@ -45,7 +45,7 @@ export async function executeSteps({
           action satisfies never;
       }
     } catch (err) {
-      log("error", `Error in step with ID ${action.id}:\n\n${err}`);
+      log("error", `Error in action with ID ${action.id}:\n\n${err}`);
       process.exit(1);
     }
     await commitActionChanges({ appDir, action });
