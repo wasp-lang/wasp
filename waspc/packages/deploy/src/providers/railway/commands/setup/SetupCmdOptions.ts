@@ -6,4 +6,5 @@ import {
 
 export interface SetupCmdOptions extends CommonCmdOptions, SecretsOptions {
   existingProjectId: RailwayProjectId | null;
+  workspace: string | null;
 }

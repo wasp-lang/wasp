@@ -3,8 +3,9 @@
 # This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
 
-SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
+REPOSITORY_ROOT=$(cd "$PROJECT_ROOT"/.. && pwd)
 COMMAND=${1:-watch}
 shift
 ARGS=("$@") # NOTE: This is a bash array!
@@ -17,6 +18,7 @@ GREEN="\033[32m"
 RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
+# Building
 WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
 BUILD_HS_CMD="cabal build all"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
@@ -25,20 +27,56 @@ BUILD_ALL_STATIC_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD --enable-executabl
 
 INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 
-TEST_UNIT_CMD="cabal test waspc-test"
-TEST_CLI_CMD="cabal test cli-test"
-TEST_E2E_CMD="cabal test e2e-test"
-TEST_E2E_DELETE_GOLDENS="rm -rf $PROJECT_ROOT/e2e-test/test-outputs/*-golden"
-TEST_E2E_ACCEPT_ALL_CMD="$TEST_E2E_DELETE_GOLDENS && $TEST_E2E_CMD"
-TEST_HEADLESS_CMD="cd $PROJECT_ROOT/examples/todoApp && npm install && npm run test"
-TEST_CMD="cabal test && echo 'Running headless tests' && $TEST_HEADLESS_CMD && echo 'ALL TESTS PASSED' || { echo 'SOME TESTS FAILED'; exit 1; }"
+# Testing
+WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"
+WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests"
+WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/*-golden"
+WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
+WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
+WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests"
+
+WASPLS_TESTS_CMD="cabal test waspls-tests"
+
+TODO_APP_E2E_TESTS_CMD="cd $PROJECT_ROOT/examples/todoApp && npm install && npm run test"
+
+STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm install && npm run test:dev"
+
+function run_examples_e2e_tests() {
+  local paths=(
+    "examples/tutorials/todoApp"
+    "examples/tutorials/todoAppTs"
+    "examples/waspello"
+    "examples/waspleau"
+    "examples/websockets-realtime-voting"
+  )
+
+  for path in "${paths[@]}"; do
+    eval "(cd $REPOSITORY_ROOT/$path && npm i && npm run test)"
+    local status=$?
+    if [ $status -ne 0 ]; then
+      echo -e "${RED}E2E tests failed in $path${RESET}"
+      return $status
+    fi
+  done
+}
+EXAMPLES_E2E_TESTS_CMD="run_examples_e2e_tests"
+
+TEST_CMD="cabal test && \
+  echo 'Running e2e tests' && \
+  $TODO_APP_E2E_TESTS_CMD && \
+  $STARTERS_E2E_TESTS_CMD && \
+  $EXAMPLES_E2E_TESTS_CMD && \
+  echo 'ALL TESTS PASSED' || \
+  { echo 'SOME TESTS FAILED'; exit 1; }"
+
+# Running
 RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
-GHCID_CMD="ghcid --command=cabal repl"
 
+# Utility
+GHCID_CMD="ghcid --command=cabal repl"
 # ghc version below should be the one from `cabal.project` file, `with-compiler` field.
 GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0.0"
-
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool() {
   echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
@@ -90,17 +128,25 @@ print_usage() {
     "Installs the wasp executable as 'wasp-cli' globally on the machine."
   echo ""
   print_usage_cmd "test" \
-    "Executes all tests (unit + e2e + headless). Builds the project first if needed."
-  print_usage_cmd "test:unit [pattern]" \
-    "Executes only unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+    "Executes all tests (waspc + Wasp CLI + Wasp LS + todoApp + examples + starters). Builds the project first if needed."
+  print_usage_cmd "test:waspc" \
+    "Executes all waspc tests (unit + e2e). Builds the project first if needed."
+  print_usage_cmd "test:waspc:unit [pattern]" \
+    "Executes only waspc unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+  print_usage_cmd "test:waspc:e2e" \
+    "Executes only cli e2e tests. Builds the project first if needed."
+  print_usage_cmd "test:waspc:e2e:accept-all" \
+    "Accepts any diffs in the generated code in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:cli" \
-    "Executes only cli unit tests. Builds the project first if needed."
-  print_usage_cmd "test:e2e" \
-    "Executes only e2e tests. Builds the project first if needed."
-  print_usage_cmd "test:e2e:accept-all" \
-    "Accepts any diffs in the generated code in e2e tests. Does so by deleting current golden output and re-running e2e tests to produce new golden output."
-  print_usage_cmd "test:headless" \
-    "Executes headless tests, where example wasp apps are e2e tested using Playwright."
+    "Executes only cli tests. Builds the project first if needed."
+  print_usage_cmd "test:waspls" \
+    "Executes only cli tests. Builds the project first if needed."
+  print_usage_cmd "test:todoApp" \
+    "Executes only todoApp e2e tests. Installs deps first if needed."
+  print_usage_cmd "test:examples" \
+    "Executes only examples e2e tests. Installs deps first if needed."
+  print_usage_cmd "test:starters" \
+    "Executes only starter templates e2e tests. Installs deps first if needed."
   echo ""
   print_usage_cmd "ghcid" \
     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
@@ -147,11 +193,9 @@ case $COMMAND in
   build:packages)
     echo_and_eval "$WASP_PACKAGES_COMPILE"
     ;;
-
   install)
     echo_and_eval "$INSTALL_CMD"
     ;;
-
   ghcid)
     echo_and_eval "$GHCID_CMD"
     ;;
@@ -159,38 +203,46 @@ case $COMMAND in
     # --color always is needed for Tasty to turn on the coloring.
     # NOTE: I did not put this into variable because I was not able to put single quotes
     #   around :main --color always that way and it was not working.
-    ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
+    ghcid -T=':main --color always' --command=cabal repl tests/TastyDiscoverDriver.hs
     ;;
-
   test)
     echo_and_eval "$TEST_CMD"
     ;;
-  test:unit)
+  test:waspc)
+    echo_and_eval "$WASPC_TESTS_CMD"
+    ;;
+  test:waspc:unit)
     TEST_PATTERN="${ARGS[0]}"
     if [[ -z "$TEST_PATTERN" ]]; then
-      echo_and_eval "$TEST_UNIT_CMD"
+      echo_and_eval "$WASPC_UNIT_TESTS_CMD"
     else
-      echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
+      echo_and_eval "$WASPC_UNIT_TESTS_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
     fi
-
+    ;;
+  test:waspc:e2e)
+    echo_and_eval "$WASPC_E2E_TESTS_CMD"
+    ;;
+  test:waspc:e2e:accept-all)
+    echo_and_eval "$WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD"
     ;;
   test:cli)
-    echo_and_eval "$TEST_CLI_CMD"
+    echo_and_eval "$WASP_CLI_TESTS_CMD"
     ;;
-  test:e2e)
-    echo_and_eval "$TEST_E2E_CMD"
+  test:waspls)
+    echo_and_eval "$WASPLS_TESTS_CMD"
     ;;
-  test:e2e:accept-all)
-    echo_and_eval "$TEST_E2E_ACCEPT_ALL_CMD"
+  test:todoApp)
+    echo_and_eval "$TODO_APP_E2E_TESTS_CMD"
     ;;
-  test:headless)
-    echo_and_eval "$TEST_HEADLESS_CMD"
+  test:examples)
+    echo_and_eval "$EXAMPLES_E2E_TESTS_CMD"
     ;;
-
+  test:starters)
+    echo_and_eval "$STARTERS_E2E_TESTS_CMD"
+    ;;
   wasp-cli)
     echo_and_eval "$RUN_CMD"
     ;;
-
   stan)
     echo_and_eval "$STAN_CMD"
     ;;
@@ -245,7 +297,6 @@ case $COMMAND in
   module-graph)
     echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
     ;;
-
   ghcup-set)
     echo_and_eval "$GHCUP_SET"
     ;;
