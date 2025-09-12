@@ -51,13 +51,13 @@ runGoldenTest goldenTest = do
   let goldenTestName = _goldenTestName goldenTest
   testOutputsDir <- getTestOutputsDir
 
-  let currentGoldenTestDir = testOutputsDir SP.</> goldenTestDirInTestOutputsDir goldenTestName Current
-  let goldenGoldenTestDir = testOutputsDir SP.</> goldenTestDirInTestOutputsDir goldenTestName Golden
-  let expectedFilesManifestFile = currentGoldenTestDir SP.</> expectedFilesManifestFileInGoldenTestDir
+  let currentTestAbsDir = testOutputsDir SP.</> goldenTestDirInTestOutputsDir goldenTestName Current
+  let goldenTestAbsDir = testOutputsDir SP.</> goldenTestDirInTestOutputsDir goldenTestName Golden
+  let expectedFilesListAbsFile = currentTestAbsDir SP.</> expectedFilesManifestFileInGoldenTestDir
 
-  let currentTestDirAbsFp = SP.fromAbsDir currentGoldenTestDir
-  let goldenTestDirAbsFp = SP.fromAbsDir goldenGoldenTestDir
-  let expectedFilesListFileAbsFp = Sp.fromAbsFile expectedFilesManifestFile
+  let currentTestDirAbsFp = SP.fromAbsDir currentTestAbsDir
+  let goldenTestDirAbsFp = SP.fromAbsDir goldenTestAbsDir
+  let expectedFilesListFileAbsFp = Sp.fromAbsFile expectedFilesListAbsFile
 
   -- Remove existing current output files from a prior test run.
   callCommand $ "rm -rf " ++ currentTestDirAbsFp
