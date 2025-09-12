@@ -4,7 +4,7 @@
      --package pretty-simple
      --package aeson-pretty
      --
-     test/Fixtures.hs
+     tests/Fixtures.hs
 -}
 
 {-

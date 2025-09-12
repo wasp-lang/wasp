@@ -2,35 +2,29 @@ import { fileURLToPath } from "url";
 import { $, chalk, fs, path, spinner, tmpdir, within } from "zx";
 import { WaspCliCommand } from "./cli.js";
 import { setupWaspMailCrabConfiguration } from "./mailcrab.js";
-import { StarterE2ETests } from "./starter-e2e-tests.js";
+import { StarterName } from "./starters.js";
 
-interface StarterTestsExecution {
+interface StarterTestConfiguration {
   waspCliCommand: WaspCliCommand;
-  starterE2ETests: StarterE2ETests;
+  starterName: StarterName;
 }
 
 export async function runStarterE2ETests(
-  execution: StarterTestsExecution,
+  configuration: StarterTestConfiguration,
 ): Promise<void> {
-  const { waspCliCommand, starterE2ETests } = execution;
-  const { starterName } = starterE2ETests;
-
   const waspProjectPath = await spinner(
     "Initializing test environment...",
-    () => initializeTestEnvironment(execution),
+    () => initializeTestEnvironment(configuration),
   );
 
-  // TODO: implement branching logic based on included tests or not
-  await runDevE2ETests(starterName, waspProjectPath, waspCliCommand);
-  await runBuildE2ETests(starterName, waspProjectPath, waspCliCommand);
+  await runDevE2ETests(waspProjectPath, configuration);
+  await runBuildE2ETests(waspProjectPath, configuration);
 }
 
-async function initializeTestEnvironment(
-  execution: StarterTestsExecution,
-): Promise<string> {
-  const { waspCliCommand, starterE2ETests } = execution;
-  const { starterName, waspProjectRelativePath } = starterE2ETests;
-
+async function initializeTestEnvironment({
+  waspCliCommand,
+  starterName,
+}: StarterTestConfiguration): Promise<string> {
   const tempDirectoryPath = tmpdir();
   process.on("exit", () => cleanup(tempDirectoryPath));
   process.on("SIGINT", () => cleanup(tempDirectoryPath));
@@ -43,11 +37,7 @@ async function initializeTestEnvironment(
     cwd: tempDirectoryPath,
   })`${waspCliCommand} new ${waspStarterProjectName} -t ${starterName}`;
 
-  const waspProjectPath = path.join(
-    tempDirectoryPath,
-    waspStarterProjectName,
-    waspProjectRelativePath,
-  );
+  const waspProjectPath = path.join(tempDirectoryPath, waspStarterProjectName);
 
   await initializeServerEnvironment(waspProjectPath);
   await initializeClientEnvironment(waspProjectPath);
@@ -96,11 +86,10 @@ async function initializeClientEnvironment(
 }
 
 async function runDevE2ETests(
-  templateName: string,
   waspProjectPath: string,
-  waspCliCommand: string,
+  { starterName, waspCliCommand }: StarterTestConfiguration,
 ): Promise<void> {
-  console.log(`Running DEV e2e tests for ${templateName} starter...`);
+  console.log(`Running DEV e2e tests for ${starterName} starter...`);
   const waspAppRunnerDevEnv = {
     ...process.env,
     WASP_APP_PATH: waspProjectPath,
@@ -110,34 +99,33 @@ async function runDevE2ETests(
   await $({
     env: waspAppRunnerDevEnv,
     stdio: "inherit",
-  })`npx playwright test --grep ${getStarterPlaywrightGrepRegex(templateName)}`;
+  })`npx playwright test --grep ${getStarterPlaywrightGrepRegex(starterName)}`;
 }
 
 async function runBuildE2ETests(
-  templateName: string,
-  tempWaspProjectPath: string,
-  waspCliCommand: string,
+  waspProjectPath: string,
+  { starterName, waspCliCommand }: StarterTestConfiguration,
 ): Promise<void> {
-  if (await waspProjectUsesSqlite(tempWaspProjectPath, waspCliCommand)) {
+  if (await waspProjectUsesSqlite(waspProjectPath, waspCliCommand)) {
     console.log(
       chalk.yellow(
-        `Skipping BUILD e2e tests for ${templateName} starter - uses SQLite`,
+        `Skipping BUILD e2e tests for ${starterName} starter - uses SQLite`,
       ),
     );
     return;
   }
 
-  console.log(`Running BUILD e2e tests for ${templateName} starter...`);
+  console.log(`Running BUILD e2e tests for ${starterName} starter...`);
   const waspAppRunnerBuildEnv = {
     ...process.env,
-    WASP_APP_PATH: tempWaspProjectPath,
+    WASP_APP_PATH: waspProjectPath,
     WASP_CLI_CMD: waspCliCommand,
     WASP_RUN_MODE: "build",
   };
   await $({
     env: waspAppRunnerBuildEnv,
     stdio: "inherit",
-  })`npx playwright test --grep ${getStarterPlaywrightGrepRegex(templateName)}`;
+  })`npx playwright test --grep ${getStarterPlaywrightGrepRegex(starterName)}`;
 }
 
 /**
@@ -145,8 +133,8 @@ async function runBuildE2ETests(
  *  - tag for that starter template
  *  - no tag at all
  */
-function getStarterPlaywrightGrepRegex(templateName: string): string {
-  return `(@${templateName}|^(?!.*@).*)`;
+function getStarterPlaywrightGrepRegex(starterName: string): string {
+  return `(@${starterName}|^(?!.*@).*)`;
 }
 
 async function waspProjectUsesSqlite(

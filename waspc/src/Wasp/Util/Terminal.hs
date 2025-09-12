@@ -1,13 +1,18 @@
 module Wasp.Util.Terminal
   ( Style (..),
-    applyStyles,
     styleCode,
-    escapeCode,
-    resetCode,
+    applyStyles,
+    getAnsiCodeFor,
+    ansiEscapeCode,
+    ansiResetCode,
   )
 where
 
 import Data.List (foldl')
+
+-- | Applies the Wasp CLI standardized code styling to a string.
+styleCode :: String -> String
+styleCode = applyStyles [Bold]
 
 data Style
   = Black
@@ -36,33 +41,33 @@ data Style
 applyStyles :: [Style] -> String -> String
 applyStyles [] str = str
 applyStyles _ "" = ""
-applyStyles styles str = foldl' applyStyle str styles ++ escapeCode ++ resetCode
+applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetCode
   where
-    applyStyle s style = escapeCode ++ styleCode style ++ s
+    applyStyle s style = ansiEscapeCode ++ getAnsiCodeFor style ++ s
 
-styleCode :: Style -> String
-styleCode Black = "[30m"
-styleCode Red = "[31m"
-styleCode Green = "[32m"
-styleCode Yellow = "[33m"
-styleCode Blue = "[34m"
-styleCode Magenta = "[35m"
-styleCode Cyan = "[36m"
-styleCode White = "[37m"
-styleCode BlackBg = "[40m"
-styleCode RedBg = "[41m"
-styleCode GreenBg = "[42m"
-styleCode YellowBg = "[43m"
-styleCode BlueBg = "[44m"
-styleCode MagentaBg = "[45m"
-styleCode CyanBg = "[46m"
-styleCode WhiteBg = "[47m"
-styleCode Bold = "[1m"
-styleCode Underline = "[4m"
-styleCode Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).
+getAnsiCodeFor :: Style -> String
+getAnsiCodeFor Black = "[30m"
+getAnsiCodeFor Red = "[31m"
+getAnsiCodeFor Green = "[32m"
+getAnsiCodeFor Yellow = "[33m"
+getAnsiCodeFor Blue = "[34m"
+getAnsiCodeFor Magenta = "[35m"
+getAnsiCodeFor Cyan = "[36m"
+getAnsiCodeFor White = "[37m"
+getAnsiCodeFor BlackBg = "[40m"
+getAnsiCodeFor RedBg = "[41m"
+getAnsiCodeFor GreenBg = "[42m"
+getAnsiCodeFor YellowBg = "[43m"
+getAnsiCodeFor BlueBg = "[44m"
+getAnsiCodeFor MagentaBg = "[45m"
+getAnsiCodeFor CyanBg = "[46m"
+getAnsiCodeFor WhiteBg = "[47m"
+getAnsiCodeFor Bold = "[1m"
+getAnsiCodeFor Underline = "[4m"
+getAnsiCodeFor Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).
 
-escapeCode :: String
-escapeCode = "\ESC"
+ansiEscapeCode :: String
+ansiEscapeCode = "\ESC"
 
-resetCode :: String
-resetCode = "[0m"
+ansiResetCode :: String
+ansiResetCode = "[0m"

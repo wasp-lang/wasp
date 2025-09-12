@@ -38,18 +38,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check for Haskell file changes
-        id: haskell-changes
+      - name: Parse oromolu version
+        working-directory: waspc
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E 'waspc/.*\.hs$'; then
-            echo "run=true" >> $GITHUB_OUTPUT
-          else
-            echo "run=false" >> $GITHUB_OUTPUT
-          fi
+          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
 
-      - uses: ./.github/actions/setup-haskell
-        if: steps.haskell-changes.outputs.run == 'true'
-
-      - working-directory: waspc
-        if: steps.haskell-changes.outputs.run == 'true'
-        run: ./run ormolu:check
+      # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
+      - uses: haskell-actions/run-ormolu@v15
+        with:
+          version: ${{ env.ORMOLU_VERSION }}

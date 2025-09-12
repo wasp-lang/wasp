@@ -1,0 +1,48 @@
+app waspJob {
+  wasp: {
+    version: "^0.18.0"
+  },
+  title: "waspJob",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { MainPage } from "@src/MainPage"
+}
+job simpleJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@src/server/jobs/bar.js"
+  },
+}
+
+job scheduleJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@src/server/jobs/bar.js"
+  },
+  schedule: {
+    cron: "0 * * * *",
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 2 } json=}
+    }
+  }
+}
+
+job scheduledJobWithArgs {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@src/server/jobs/bar.js"
+  },
+  schedule: {
+    cron: "0 * * * *",
+    args: {=json { "foo": "bar" } json=},
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 2 } json=}
+    }
+  }
+}
+

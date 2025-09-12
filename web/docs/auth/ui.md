@@ -382,11 +382,11 @@ Props you can pass to all of the forms:
 
 ### 1. Customizing the Colors
 
-We use [Stitches](https://stitches.dev/) to style the Auth UI. You can customize the styles by overriding the default theme tokens.
+We use CSS variables in our styling so you can customize the styles by overriding the default theme tokens.
 
 :::info List of all available tokens
 
-See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/react-app/src/stitches.config.js) which you can override.
+See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/sdk/wasp/auth/forms/types.ts) which you can override.
 
 :::
 
