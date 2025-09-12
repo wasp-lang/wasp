@@ -5,7 +5,7 @@ import { type UserEmailSignupFields } from '../../providers'
 {=/ emailUserSignupFields.isDefined =}
 
 type EmailSignupData = {
-  username: string
+  email: string
   password: string
 }{=# emailUserSignupFields.isDefined =} & UserEmailSignupFields{=/ emailUserSignupFields.isDefined =}
 

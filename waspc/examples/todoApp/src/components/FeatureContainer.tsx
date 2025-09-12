@@ -108,6 +108,11 @@ const features: Feature[] = [
     isPublic: true,
   },
   {
+    to: "/manual-signup",
+    title: "Manual Signup",
+    isPublic: true,
+  },
+  {
     to: "/apis",
     title: "Custom APIs",
     isPublic: true,

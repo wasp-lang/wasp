@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { performLogin, setupTestUser } from "./helpers";
+import { performLogin, setupTestUser } from "./auth";
 
 test.describe("custom APIs", () => {
   const credentials = setupTestUser();
