@@ -7,10 +7,20 @@ It has two main purposes:
 `TutorialAction` component is used in the `web/docs/tutorial/*.md` files to annotate specific tutorial actions.
 */
 
-// IMPORTANT: If you change it here, make sure to also update the types in `web/tutorial-actions-executor/src/actions/actions.ts`.
-type Action = "APPLY_PATCH" | "MIGRATE_DB";
+// IMPORTANT: If you change actions here, make sure to also update the types in `web/tutorial-actions-executor/src/actions/actions.ts`.
+type ActionProps =
+  | {
+      action: "INIT_APP";
+      starterTemplateName: string;
+    }
+  | {
+      action: "APPLY_PATCH";
+    }
+  | {
+      action: "MIGRATE_DB";
+    };
 
-export function TutorialAction({ action, id }: { action: Action; id: string }) {
+export function TutorialAction({ id, action }: { id: string } & ActionProps) {
   return (
     process.env.NODE_ENV !== "production" && (
       <div style={{ marginBottom: "1rem" }}>
@@ -20,7 +30,13 @@ export function TutorialAction({ action, id }: { action: Action; id: string }) {
   );
 }
 
-function TutorialActionDebug({ id, action }: { id: string; action: Action }) {
+function TutorialActionDebug({
+  id,
+  action,
+}: {
+  id: string;
+  action: ActionProps["action"];
+}) {
   return (
     <div style={{ display: "flex", gap: "0.5rem" }}>
       <div style={tutorialActionPillStyle}>tutorial action: {action}</div>

@@ -1,5 +1,5 @@
 import { $ } from "zx";
-import type { AppDirPath, AppName, AppParentDirPath } from "./brandedTypes";
+import type { AppDirPath, AppName, AppParentDirPath } from "./tutorialApp";
 
 export async function waspDbMigrate(
   appDir: AppDirPath,

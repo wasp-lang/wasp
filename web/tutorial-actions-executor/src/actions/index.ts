@@ -4,9 +4,21 @@ import { docsTutorialPatchesPath } from "../tutorialApp";
 import type {
   ActionCommon,
   ApplyPatchAction,
+  InitAppAction,
   MigrateDbAction,
   PatchFilePath,
 } from "./actions";
+
+export function createInitAppAction(
+  commonData: ActionCommon,
+  waspStarterTemplateName: string,
+): InitAppAction {
+  return {
+    ...commonData,
+    kind: "INIT_APP",
+    waspStarterTemplateName,
+  };
+}
 
 export function createMigrateDbAction(
   commonData: ActionCommon,

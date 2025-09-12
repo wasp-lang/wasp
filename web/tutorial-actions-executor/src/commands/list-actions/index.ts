@@ -46,6 +46,7 @@ function displayFileHeader(filename: string): void {
 
 function displayActionsForFile(actions: Action[]): void {
   const kindColorMap: Record<Action["kind"], (text: string) => string> = {
+    INIT_APP: chalk.yellow,
     APPLY_PATCH: chalk.green,
     MIGRATE_DB: chalk.blue,
   };

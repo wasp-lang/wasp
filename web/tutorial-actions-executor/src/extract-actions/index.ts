@@ -15,6 +15,7 @@ import type {
 } from "../actions/actions.js";
 import {
   createApplyPatchAction,
+  createInitAppAction,
   createMigrateDbAction,
 } from "../actions/index.js";
 import type { TutorialDirPath } from "../tutorialApp.js";
@@ -68,7 +69,13 @@ async function getActionsFromMarkdownFile(
       return;
     }
     const actionId = getAttributeValue(node, "id") as ActionId | null;
-    const actionName = getAttributeValue(node, "action");
+    const actionName = getAttributeValue(node, "action") as
+      | Action["kind"]
+      | null;
+    const waspStarterTemplateName = getAttributeValue(
+      node,
+      "starterTemplateName",
+    );
 
     if (!actionId) {
       throw new Error(
@@ -82,27 +89,34 @@ async function getActionsFromMarkdownFile(
       );
     }
 
-    actions.push(
-      createAction(actionName, {
-        id: actionId,
-        tutorialFilePath,
-      }),
-    );
+    const commonData: ActionCommon = {
+      id: actionId,
+      tutorialFilePath,
+    };
+    switch (actionName) {
+      case "INIT_APP":
+        if (waspStarterTemplateName === null) {
+          throw new Error(
+            `TutorialAction with action 'INIT_APP' requires the 'starterTemplateName' attribute. File: ${tutorialFilePath}`,
+          );
+        }
+        actions.push(createInitAppAction(commonData, waspStarterTemplateName));
+        break;
+      case "APPLY_PATCH":
+        actions.push(createApplyPatchAction(commonData));
+        break;
+      case "MIGRATE_DB":
+        actions.push(createMigrateDbAction(commonData));
+        break;
+      default:
+        actionName satisfies never;
+        throw new Error(
+          `Unknown action '${actionName}' in TutorialAction component. File: ${tutorialFilePath}`,
+        );
+    }
   });
 
   return actions;
-}
-
-function createAction(actionName: string, commonData: ActionCommon): Action {
-  const actionCreators: Record<string, (data: ActionCommon) => Action> = {
-    APPLY_PATCH: createApplyPatchAction,
-    MIGRATE_DB: createMigrateDbAction,
-  };
-  const createFn = actionCreators[actionName];
-  if (!createFn) {
-    throw new Error(`Unknown action type: ${actionName}`);
-  }
-  return createFn(commonData);
 }
 
 function getAttributeValue(

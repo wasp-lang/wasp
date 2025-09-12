@@ -1,4 +1,4 @@
-import { chalk, fs } from "zx";
+import { chalk, fs, spinner } from "zx";
 
 import type { Action } from "../../actions/actions";
 import {
@@ -6,8 +6,16 @@ import {
   commitActionChanges,
   regeneratePatchForAction,
 } from "../../actions/git";
+import { initApp } from "../../actions/init";
+import { mainBranchName } from "../../git";
 import { log } from "../../log";
-import type { AppDirPath, PatchesDirPath } from "../../tutorialApp";
+import {
+  tutorialAppDirPath,
+  tutorialAppName,
+  tutorialAppParentDirPath,
+  type AppDirPath,
+  type PatchesDirPath,
+} from "../../tutorialApp";
 import { waspDbMigrate } from "../../waspCli";
 
 export async function executeActions({
@@ -26,6 +34,16 @@ export async function executeActions({
 
     try {
       switch (action.kind) {
+        case "INIT_APP":
+          await spinner("Initializing the tutorial app...", () =>
+            initApp({
+              tutorialAppDirPath,
+              tutorialAppParentDirPath,
+              tutorialAppName,
+              mainBranchName,
+            }),
+          );
+          break;
         case "APPLY_PATCH":
           try {
             await applyPatchForAction({ appDir, action });
@@ -37,9 +55,11 @@ export async function executeActions({
             await regeneratePatchForAction({ appDir, action });
             await applyPatchForAction({ appDir, action });
           }
+          await commitActionChanges({ appDir, action });
           break;
         case "MIGRATE_DB":
           await waspDbMigrate(appDir, action.id);
+          await commitActionChanges({ appDir, action });
           break;
         default:
           action satisfies never;
@@ -48,6 +68,5 @@ export async function executeActions({
       log("error", `Error in action with ID ${action.id}:\n\n${err}`);
       process.exit(1);
     }
-    await commitActionChanges({ appDir, action });
   }
 }

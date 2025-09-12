@@ -2,8 +2,6 @@ import { confirm } from "@inquirer/prompts";
 import parseGitDiff from "parse-git-diff";
 import { fs } from "zx";
 
-import type { Action, ApplyPatchAction } from ".";
-import type { AppDirPath } from "../brandedTypes";
 import { askToOpenProjectInEditor } from "../editor";
 import {
   applyPatch,
@@ -14,6 +12,8 @@ import {
   generatePatchFromRevision,
 } from "../git";
 import { log } from "../log";
+import type { AppDirPath } from "../tutorialApp";
+import type { Action, ApplyPatchAction } from "./actions";
 
 export function commitActionChanges({
   appDir,

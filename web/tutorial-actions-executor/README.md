@@ -83,7 +83,7 @@ model Task {
 The tool extracts these components and uses:
 
 - `id`: Unique identifier for the action (becomes commit message)
-- `action`: Type of action (`APPLY_PATCH` or `MIGRATE_DB`)
+- `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`)
 
 This Git-based approach ensures that:
 
