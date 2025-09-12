@@ -1,14 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { WASP_SERVER_PORT } from "../playwright.config";
-import {
-  generateRandomEmail,
-  navigateToLoginPage,
-  performEmailVerification,
-  performLogin,
-  performSignup,
-  submitLoginForm,
-} from "./auth";
-import { isRunningInDevMode } from "./helpers";
+import { performEmailVerification, performLogin, performSignup } from "./auth";
+import { generateRandomEmail, isRunningInDevMode } from "./helpers";
 
 test.describe("auth", () => {
   test("social button renders on signup page", async ({ page }) => {
@@ -60,8 +53,7 @@ test.describe("auth", () => {
         test.skip();
       }
 
-      await navigateToLoginPage(page);
-      await submitLoginForm(page, {
+      await performLogin(page, {
         email,
         password,
       });
@@ -81,12 +73,10 @@ test.describe("auth", () => {
     test("invalid credentials result in error message", async ({ page }) => {
       const invalidPassword = `${password}xxx`;
 
-      await navigateToLoginPage(page);
-      await submitLoginForm(page, {
+      await performLogin(page, {
         email,
         password: invalidPassword,
       });
-
       await expect(page.locator("body")).toContainText("Invalid credentials");
     });
 
@@ -95,7 +85,6 @@ test.describe("auth", () => {
         email,
         password,
       });
-
       await expect(page).toHaveURL("/");
     });
   });

@@ -1,13 +1,6 @@
 import { expect, test } from "@playwright/test";
-import {
-  generateRandomEmail,
-  navigateToLoginPage,
-  performEmailVerification,
-  performLogin,
-  performSignup,
-  submitLoginForm,
-} from "./auth";
-import { isRunningInDevMode } from "./helpers";
+import { performEmailVerification, performLogin, performSignup } from "./auth";
+import { generateRandomEmail, isRunningInDevMode } from "./helpers";
 
 test.describe("auth hooks", () => {
   /*
@@ -48,6 +41,7 @@ test.describe("auth hooks", () => {
       email,
       password,
     });
+    await expect(page).toHaveURL("/");
 
     await page.goto("/profile");
 
@@ -84,12 +78,10 @@ test.describe("auth hooks", () => {
 
     await performEmailVerification(page, emailThatThrowsError);
 
-    await navigateToLoginPage(page);
-    await submitLoginForm(page, {
+    await performLogin(page, {
       email: emailThatThrowsError,
       password,
     });
-
     await expect(page.locator("body")).toContainText(
       "On Before Login Hook disallows this email.",
     );

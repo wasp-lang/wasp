@@ -6,6 +6,7 @@ test.describe("async jobs", () => {
 
   test("submits a job and gets result", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/jobs");
 

@@ -6,6 +6,7 @@ test.describe("CRUD test", () => {
 
   test("crud list page", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/crud");
     await expect(page.getByTestId("crud-tasks")).toBeVisible();
@@ -57,6 +58,7 @@ test.describe("CRUD test", () => {
 
   test("crud detail page", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/crud");
     // Create a task

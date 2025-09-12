@@ -6,6 +6,7 @@ test.describe("prisma setup fn", () => {
 
   test("prisma setup hook hides a specific task", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/tasks");
 

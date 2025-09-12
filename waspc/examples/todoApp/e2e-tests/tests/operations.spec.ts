@@ -6,6 +6,7 @@ test.describe("operations", () => {
 
   test("can create a task and visit details", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/tasks");
 

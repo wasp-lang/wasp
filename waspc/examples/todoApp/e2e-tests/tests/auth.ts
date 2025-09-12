@@ -1,6 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { randomUUID } from "crypto";
-import { isRunningInDevMode } from "./helpers";
+import { generateRandomEmail, isRunningInDevMode } from "./helpers";
 import { getMailCrabEmailVerificationLink } from "./mailcrab";
 
 interface BaseEmailCredentials {
@@ -35,10 +34,6 @@ export function setupTestUser(): Credentials {
   return credentials;
 }
 
-export function generateRandomEmail(): string {
-  return `${randomUUID()}@test.com`;
-}
-
 type SignupPage = "signup" | "manual-signup" | "custom-signup";
 
 export async function performSignup(
@@ -50,12 +45,12 @@ export async function performSignup(
   await submitSignupForm(page, credentials);
 }
 
-export async function navigateToSignupPage(page: Page, signupPage: SignupPage) {
+async function navigateToSignupPage(page: Page, signupPage: SignupPage) {
   await page.goto(`/${signupPage}`);
   await page.waitForSelector("text=Password");
 }
 
-export async function submitSignupForm(page: Page, credentials: Credentials) {
+async function submitSignupForm(page: Page, credentials: Credentials) {
   for (const [formFieldName, formFieldValue] of Object.entries(credentials)) {
     await page
       .locator(`input[name='${formFieldName}']`)
@@ -95,18 +90,14 @@ export async function performLogin(
 ) {
   await navigateToLoginPage(page);
   await submitLoginForm(page, credentials);
-  await expect(page).toHaveURL("/");
 }
 
-export async function navigateToLoginPage(page: Page) {
+async function navigateToLoginPage(page: Page) {
   await page.goto("/login");
   await page.waitForSelector("text=Log in to your account");
 }
 
-export async function submitLoginForm(
-  page: Page,
-  credentials: BaseEmailCredentials,
-) {
+async function submitLoginForm(page: Page, credentials: BaseEmailCredentials) {
   await page.locator("input[type='email']").fill(credentials.email);
   await page.locator("input[type='password']").fill(credentials.password);
   await page.getByRole("button", { name: "Log in" }).click();

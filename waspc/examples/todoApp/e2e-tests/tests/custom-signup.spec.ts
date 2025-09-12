@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { generateRandomEmail, performLogin, performSignup } from "./auth";
+import { performLogin, performSignup } from "./auth";
+import { generateRandomEmail } from "./helpers";
 
 test.describe("custom signup", () => {
   // We need the login test to run after the signup test.
@@ -31,6 +32,7 @@ test.describe("custom signup", () => {
       email,
       password,
     });
+    await expect(page).toHaveURL("/");
 
     await page.goto("/profile");
     await expect(

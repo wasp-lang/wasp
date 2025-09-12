@@ -6,6 +6,7 @@ test.describe("user API", () => {
 
   test("user API works on the client", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/profile");
 

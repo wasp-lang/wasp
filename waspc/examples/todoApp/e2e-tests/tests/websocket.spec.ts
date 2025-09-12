@@ -6,6 +6,7 @@ test.describe("websocket", () => {
 
   test("chat works", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/chat");
 
