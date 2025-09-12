@@ -64,7 +64,7 @@ cdIntoGoldenTestProject (ShellCommandBuilder r) = do
   let commands = combineShellCommands (cdCommand : runReader r waspProjectContext)
   return commands
 
--- Commands Utilities
+-- Command utilities
 
 ($|) :: ShellCommand -> ShellCommand -> ShellCommand
 cmd1 $| cmd2 = cmd1 ++ " | " ++ cmd2
