@@ -33,14 +33,6 @@ Clone this repo (or its fork) to your machine.
 
 Position yourself in this directory (`waspc/`) and make sure that you are on the `main` branch.
 
-> [!NOTE]
-> On Windows, we recommend setting line endings to `LF` because some test suites are incompatible with `CRLF`:
->
-> ```sh
-> git config core.eol lf
-> git config core.autocrlf input
-> ```
-
 ### `run` script
 
 [`./run`](run) script captures the most common commands/workflows for the development of `waspc` (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, ... .
