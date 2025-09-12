@@ -3,25 +3,25 @@ import type { Branded } from "../brandedTypes";
 // If modify or add new action kinds, make sure to also update the type in `web/docs/tutorial/TutorialAction.tsx`.
 export type Action = InitAppAction | ApplyPatchAction | MigrateDbAction;
 
-export type InitAppAction = {
+export interface InitAppAction extends ActionCommon {
   kind: "INIT_APP";
   waspStarterTemplateName: string;
-} & ActionCommon;
+}
 
-export type ApplyPatchAction = {
+export interface ApplyPatchAction extends ActionCommon {
   kind: "APPLY_PATCH";
   displayName: string;
   patchFilePath: PatchFilePath;
-} & ActionCommon;
+}
 
-export type MigrateDbAction = {
+export interface MigrateDbAction extends ActionCommon {
   kind: "MIGRATE_DB";
-} & ActionCommon;
+}
 
-export type ActionCommon = {
+export interface ActionCommon {
   id: ActionId;
   tutorialFilePath: MarkdownFilePath;
-};
+}
 
 export type ActionId = Branded<string, "ActionId">;
 export type PatchFilePath = Branded<string, "PatchFilePath">;

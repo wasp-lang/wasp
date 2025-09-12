@@ -18,16 +18,18 @@ import {
   createInitAppAction,
   createMigrateDbAction,
 } from "../actions/index.js";
-import type { TutorialDirPath } from "../tutorialApp.js";
+import type { TutorialApp, TutorialDirPath } from "../tutorialApp.js";
 
 export async function getActionsFromTutorialFiles(
-  tutorialDir: TutorialDirPath,
+  tutorialApp: TutorialApp,
 ): Promise<Action[]> {
-  const tutorialFilePaths = await getTutorialFilePaths(tutorialDir);
+  const tutorialFilePaths = await getTutorialFilePaths(
+    tutorialApp.docsTutorialDirPath,
+  );
   const actions: Action[] = [];
 
   for (const filePath of tutorialFilePaths) {
-    const fileActions = await getActionsFromMarkdownFile(filePath);
+    const fileActions = await getActionsFromMarkdownFile(filePath, tutorialApp);
     actions.push(...fileActions);
   }
 
@@ -54,6 +56,7 @@ async function getTutorialFilePaths(
 
 async function getActionsFromMarkdownFile(
   tutorialFilePath: MarkdownFilePath,
+  tutorialApp: TutorialApp,
 ): Promise<Action[]> {
   const actions: Action[] = [];
   const fileContent = await fs.readFile(path.resolve(tutorialFilePath));
@@ -103,7 +106,12 @@ async function getActionsFromMarkdownFile(
         actions.push(createInitAppAction(commonData, waspStarterTemplateName));
         break;
       case "APPLY_PATCH":
-        actions.push(createApplyPatchAction(commonData));
+        actions.push(
+          createApplyPatchAction(
+            commonData,
+            tutorialApp.docsTutorialPatchesPath,
+          ),
+        );
         break;
       case "MIGRATE_DB":
         actions.push(createMigrateDbAction(commonData));

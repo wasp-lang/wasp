@@ -6,67 +6,63 @@ import {
   commitActionChanges,
   regeneratePatchForAction,
 } from "../../actions/git";
-import { initApp } from "../../actions/init";
+import { initWaspAppWithGitRepo } from "../../actions/init";
 import { mainBranchName } from "../../git";
 import { log } from "../../log";
-import {
-  tutorialAppDirPath,
-  tutorialAppName,
-  tutorialAppParentDirPath,
-  type AppDirPath,
-  type PatchesDirPath,
-} from "../../tutorialApp";
-import { waspDbMigrate } from "../../waspCli";
+import type { TutorialApp } from "../../tutorialApp";
+import { waspDbMigrate, type WaspCliCommand } from "../../waspCli";
 
 export async function executeActions({
-  appDir,
-  patchesDir,
+  tutorialApp,
   actions,
+  waspCliCommand,
 }: {
-  appDir: AppDirPath;
-  patchesDir: PatchesDirPath;
+  tutorialApp: TutorialApp;
   actions: Action[];
+  waspCliCommand: WaspCliCommand;
 }): Promise<void> {
   for (const action of actions) {
     log("info", `${chalk.bold(`[action ${action.id}]`)} ${action.kind}`);
 
-    await fs.ensureDir(patchesDir);
+    await fs.ensureDir(tutorialApp.docsTutorialPatchesPath);
 
-    try {
-      switch (action.kind) {
-        case "INIT_APP":
-          await spinner("Initializing the tutorial app...", () =>
-            initApp({
-              tutorialAppDirPath,
-              tutorialAppParentDirPath,
-              tutorialAppName,
-              mainBranchName,
-            }),
+    switch (action.kind) {
+      case "INIT_APP":
+        await spinner("Initializing the tutorial app...", () =>
+          initWaspAppWithGitRepo({
+            waspCliCommand,
+            appName: tutorialApp.name,
+            appParentDirPath: tutorialApp.parentDirPath,
+            appDirPath: tutorialApp.dirPath,
+            mainBranchName,
+          }),
+        );
+        break;
+      case "APPLY_PATCH":
+        try {
+          await applyPatchForAction({ appDir: tutorialApp.dirPath, action });
+        } catch (err) {
+          log(
+            "error",
+            `Failed to apply patch for action ${action.displayName}:\n${err}`,
           );
-          break;
-        case "APPLY_PATCH":
-          try {
-            await applyPatchForAction({ appDir, action });
-          } catch (err) {
-            log(
-              "error",
-              `Failed to apply patch for action ${action.displayName}:\n${err}`,
-            );
-            await regeneratePatchForAction({ appDir, action });
-            await applyPatchForAction({ appDir, action });
-          }
-          await commitActionChanges({ appDir, action });
-          break;
-        case "MIGRATE_DB":
-          await waspDbMigrate(appDir, action.id);
-          await commitActionChanges({ appDir, action });
-          break;
-        default:
-          action satisfies never;
-      }
-    } catch (err) {
-      log("error", `Error in action with ID ${action.id}:\n\n${err}`);
-      process.exit(1);
+          await regeneratePatchForAction({
+            appDir: tutorialApp.dirPath,
+            action,
+          });
+          await applyPatchForAction({ appDir: tutorialApp.dirPath, action });
+        }
+        break;
+      case "MIGRATE_DB":
+        await waspDbMigrate({
+          waspCliCommand,
+          appDir: tutorialApp.dirPath,
+          migrationName: action.id,
+        });
+        break;
+      default:
+        action satisfies never;
     }
+    await commitActionChanges({ appDir: tutorialApp.dirPath, action });
   }
 }

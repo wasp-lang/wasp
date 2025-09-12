@@ -1,6 +1,6 @@
 import path, { basename } from "path";
 import { getFileNameWithoutExtension } from "../files";
-import { docsTutorialPatchesPath } from "../tutorialApp";
+import type { PatchesDirPath } from "../tutorialApp";
 import type {
   ActionCommon,
   ApplyPatchAction,
@@ -31,17 +31,20 @@ export function createMigrateDbAction(
 
 export function createApplyPatchAction(
   commonData: ActionCommon,
+  docsTutorialPatchesPath: PatchesDirPath,
 ): ApplyPatchAction {
-  const patchFilePath = getPatchFilePath(commonData);
   return {
     ...commonData,
     kind: "APPLY_PATCH",
     displayName: `${basename(commonData.tutorialFilePath)} / ${commonData.id}`,
-    patchFilePath,
+    patchFilePath: getPatchFilePath(commonData, docsTutorialPatchesPath),
   };
 }
 
-function getPatchFilePath(action: ActionCommon): PatchFilePath {
+function getPatchFilePath(
+  action: ActionCommon,
+  docsTutorialPatchesPath: PatchesDirPath,
+): PatchFilePath {
   const sourceFileName = getFileNameWithoutExtension(action.tutorialFilePath);
   const patchFileName = `${sourceFileName}__${action.id}.patch`;
   return path.resolve(docsTutorialPatchesPath, patchFileName) as PatchFilePath;

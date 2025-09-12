@@ -19,11 +19,9 @@ import {
   rebaseBranch,
 } from "../../git";
 import { log } from "../../log";
-import {
-  docsTutorialDirPath,
-  tutorialAppDirPath,
-  type AppDirPath,
-} from "../../tutorialApp";
+import { tutorialApp, type AppDirPath } from "../../tutorialApp";
+import type { WaspCliCommand } from "../../waspCli";
+import { waspCliCommandOption } from "../commonOptions";
 import { generateApp } from "../generate-app";
 
 export const editActionCommand = new Command("edit-action")
@@ -35,8 +33,9 @@ export const editActionCommand = new Command("edit-action")
       "Skip generating app before editing action",
     ),
   )
-  .action(async ({ actionId, skipGeneratingApp }) => {
-    const actions = await getActionsFromTutorialFiles(docsTutorialDirPath);
+  .addOption(waspCliCommandOption)
+  .action(async ({ actionId, skipGeneratingApp, waspCliCommand }) => {
+    const actions = await getActionsFromTutorialFiles(tutorialApp);
     log("info", `Found ${actions.length} actions in tutorial files.`);
 
     const action = await ensureAction({
@@ -46,17 +45,17 @@ export const editActionCommand = new Command("edit-action")
 
     if (!skipGeneratingApp) {
       log("info", "Generating app before editing action...");
-      await generateApp(actions);
+      await generateApp(actions, waspCliCommand as WaspCliCommand);
     } else {
       log(
         "info",
-        `Skipping app generation, using existing app in ${tutorialAppDirPath}`,
+        `Skipping app generation, using existing app in ${tutorialApp.dirPath}`,
       );
     }
 
     log("info", `Editing action ${action.displayName}...`);
 
-    await editActionPatch({ appDir: tutorialAppDirPath, action });
+    await editActionPatch({ appDir: tutorialApp.dirPath, action });
 
     await extractCommitsIntoPatches(actions);
 
@@ -85,7 +84,7 @@ async function editActionPatch({
 
   try {
     await rebaseBranch({
-      gitRepoDir: appDir,
+      gitRepoDirPath: appDir,
       branchName: fixesBranchName,
       baseBranchName: mainBranchName,
     });
@@ -111,7 +110,7 @@ async function extractCommitsIntoPatches(actions: Action[]): Promise<void> {
   for (const action of applyPatchActions) {
     log("info", `Updating patch for action ${action.displayName}`);
     const patch = await generatePatchForAction({
-      appDir: tutorialAppDirPath,
+      appDir: tutorialApp.dirPath,
       action,
     });
     await fs.writeFile(action.patchFilePath, patch, "utf-8");

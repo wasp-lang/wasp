@@ -2,7 +2,7 @@ import { confirm } from "@inquirer/prompts";
 import parseGitDiff from "parse-git-diff";
 import { fs } from "zx";
 
-import { askToOpenProjectInEditor } from "../editor";
+import { askToOpenTutorialAppInEditor } from "../editor";
 import {
   applyPatch,
   commitAllChanges,
@@ -80,7 +80,7 @@ export async function askUserToEditAndCreatePatch({
   appDir: AppDirPath;
   action: ApplyPatchAction;
 }) {
-  await askToOpenProjectInEditor();
+  await askToOpenTutorialAppInEditor(appDir);
   await confirm({
     message: `Update the app according to action ${action.displayName} and press Enter`,
   });
@@ -111,7 +111,7 @@ export async function createBranchFromActionCommit({
 }): Promise<void> {
   const actionCommitSha = await getActionCommitSHA({ appDir, action });
   await createBranchFromRevision({
-    gitRepoDir: appDir,
+    gitRepoDirPath: appDir,
     branchName,
     revision: actionCommitSha,
   });

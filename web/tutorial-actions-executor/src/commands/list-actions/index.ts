@@ -4,20 +4,21 @@ import { chalk } from "zx";
 
 import type { Action } from "../../actions/actions";
 import { getActionsFromTutorialFiles } from "../../extract-actions";
-import { docsTutorialDirPath } from "../../tutorialApp";
+import { tutorialApp } from "../../tutorialApp";
 
-type ActionsGroupedByFile = Map<string, Action[]>;
+type SourceFileName = string;
+type ActionsGroupedByFile = Map<SourceFileName, Action[]>;
 
 export const listActionsCommand = new Command("list-actions")
   .description("List all actions in the tutorial")
   .action(async () => {
-    const actions = await getActionsFromTutorialFiles(docsTutorialDirPath);
+    const actions = await getActionsFromTutorialFiles(tutorialApp);
     const actionsGroupedByFile = groupActionsBySourceFile(actions);
     displayGroupedActions(actionsGroupedByFile);
   });
 
 function groupActionsBySourceFile(actions: Action[]): ActionsGroupedByFile {
-  const groupedActions = new Map<string, Action[]>();
+  const groupedActions = new Map<SourceFileName, Action[]>();
 
   for (const action of actions) {
     const filename = basename(action.tutorialFilePath);
@@ -34,7 +35,6 @@ function displayGroupedActions(
   for (const [filename, fileActions] of actionsGroupedByFile) {
     displayFileHeader(filename);
     displayActionsForFile(fileActions);
-
     console.log();
   }
 }
@@ -53,7 +53,6 @@ function displayActionsForFile(actions: Action[]): void {
 
   actions.forEach((action) => {
     const kindColorFn = kindColorMap[action.kind];
-
     console.log(`- ${chalk.bold(action.id)} (${kindColorFn(action.kind)})`);
   });
 }

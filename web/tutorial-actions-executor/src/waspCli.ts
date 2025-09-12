@@ -1,25 +1,35 @@
 import { $ } from "zx";
+import type { Branded } from "./brandedTypes";
 import type { AppDirPath, AppName, AppParentDirPath } from "./tutorialApp";
 
-export async function waspDbMigrate(
-  appDir: AppDirPath,
-  migrationName: string,
-): Promise<void> {
+export type WaspCliCommand = Branded<string, "WaspCliCommand">;
+
+export async function waspDbMigrate({
+  waspCliCommand,
+  appDir,
+  migrationName,
+}: {
+  waspCliCommand: WaspCliCommand;
+  appDir: AppDirPath;
+  migrationName: string;
+}): Promise<void> {
   await $({
     // Needs to inhert stdio for `wasp db migrate-dev` to work
     stdio: "inherit",
     cwd: appDir,
-  })`wasp db migrate-dev --name ${migrationName}`;
+  })`${waspCliCommand} db migrate-dev --name ${migrationName}`;
 }
 
 export async function waspNew({
+  waspCliCommand,
   appName,
-  appParentDir,
+  appParentDirPath,
 }: {
+  waspCliCommand: WaspCliCommand;
   appName: AppName;
-  appParentDir: AppParentDirPath;
+  appParentDirPath: AppParentDirPath;
 }): Promise<void> {
   await $({
-    cwd: appParentDir,
-  })`wasp new ${appName} -t minimal`;
+    cwd: appParentDirPath,
+  })`${waspCliCommand} new ${appName} -t minimal`;
 }

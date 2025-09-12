@@ -2,7 +2,7 @@
 
 A CLI tool for managing and editing tutorial actions in Wasp docs. This tool allows you to execute all tutorial actions to get the final app or edit individual actions.
 
-## Comamnds
+## Commands
 
 The CLI provides three main commands:
 
@@ -12,6 +12,8 @@ Creates a complete Wasp application by executing all tutorial actions in sequenc
 
 ```bash
 npm run generate-app
+# Optional: pass a custom Wasp CLI binary/command
+npm run generate-app -- --wasp-cli-command wasp
 ```
 
 This command:
@@ -21,24 +23,37 @@ This command:
 - Extracts `<TutorialAction>` components from the markdown
 - Applies each action's patches or database migrations in order
 - Creates a Git commit for each action
-- Results in a fully functional application.
+- Results in a fully functional application
+
+Notes:
+
+- Stops on the first error to keep the repository in a consistent state.
 
 ### 2. Edit Action (`npm run edit-action`)
 
 Allows you to modify a specific tutorial action and automatically update all subsequent actions.
 
 ```bash
-npm run edit-action --action-id "create-task-entity"
-# or interactive mode:
+# Non-interactive (direct by ID):
+npm run edit-action -- --action-id "create-task-entity"
+
+# Interactive (pick an action from a list):
 npm run edit-action
+
+# Optional flags:
+# - skip generating app before editing
+npm run edit-action -- --skip-generating-app
+# - pass a custom Wasp CLI
+npm run edit-action -- --wasp-cli-command wasp
 ```
 
 This command:
 
-- Generates the app (unless `--skip-generating-app` is used)
+- Generates the app
 - Creates a branch from the action's commit
-- Captures your changes as a new patch
-- Updates all affected patch files
+- Captures your edits as a new patch
+- Rebases the fixes onto the main branch (prompts to resolve conflicts if needed)
+- Regenerates patch files to reflect the updated history
 
 ### 3. List Actions (`npm run list-actions`)
 
@@ -48,13 +63,14 @@ Displays all available tutorial actions organized by source file.
 npm run list-actions
 ```
 
+You will see actions grouped by tutorial markdown filename, including the action `id` and its `kind`.
 
 ### Patch File Management
 
 - Patch files are stored in the `./docs/tutorial/patches/` directory
 - Files are named after their action IDs (e.g., `create-task-entity.patch`)
 - Contains the Git diff for that specific action
-- When a action is edited, all subsequent patch files are automatically regenerated
+- When an action is edited, all patch files are automatically regenerated from the current commit history
 
 ### Database Migration Handling
 
@@ -73,6 +89,7 @@ Tutorial actions are defined in markdown files using JSX-like components:
 <TutorialAction id="create-task-entity" action="APPLY_PATCH" />
 
 In this action, we'll create the Task entity:
+
 ```prisma
 model Task {
    id        Int      @id @default(autoincrement())
@@ -90,14 +107,14 @@ This Git-based approach ensures that:
 - **Changes can be made to any action** without breaking subsequent actions
 - **Conflicts are automatically handled** by Git's rebasing mechanism
 
-## How It Works on Git Level, Patches, and Rebasing
+## Extra Info: How It Works on Git Level, Patches, and Rebasing
 
 The tool uses a Git-based workflow to manage tutorial actions:
 
 ### Executing Tutorial Actions
 
 1. **Initial Setup**: Creates a Git repository with an initial commit
-2. **Action Execution**: Each action is executed and commited as a separate Git commit
+2. **Action Execution**: Each action is executed and committed as a separate Git commit
    with the action ID as the commit message
 
 ### Action Editing Process

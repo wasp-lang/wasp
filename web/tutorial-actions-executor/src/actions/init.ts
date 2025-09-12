@@ -1,4 +1,4 @@
-import { $, fs } from "zx";
+import { fs } from "zx";
 
 import { initGitRepo } from "../git";
 import { log } from "../log";
@@ -7,25 +7,29 @@ import {
   type AppName,
   type AppParentDirPath,
 } from "../tutorialApp";
-import { waspNew } from "../waspCli";
+import { waspNew, type WaspCliCommand } from "../waspCli";
 
-export async function initApp({
-  tutorialAppName,
-  tutorialAppDirPath,
-  tutorialAppParentDirPath,
+export async function initWaspAppWithGitRepo({
+  waspCliCommand,
+  appName,
+  appDirPath,
+  appParentDirPath,
   mainBranchName,
 }: {
-  tutorialAppName: AppName;
-  tutorialAppParentDirPath: AppParentDirPath;
-  tutorialAppDirPath: AppDirPath;
+  waspCliCommand: WaspCliCommand;
+  appName: AppName;
+  appParentDirPath: AppParentDirPath;
+  appDirPath: AppDirPath;
   mainBranchName: string;
 }): Promise<void> {
-  await fs.ensureDir(tutorialAppParentDirPath);
-  await $`rm -rf ${tutorialAppDirPath}`;
+  await fs.ensureDir(appParentDirPath);
+  await fs.remove(appDirPath);
+
   await waspNew({
-    appName: tutorialAppName,
-    appParentDir: tutorialAppParentDirPath,
+    waspCliCommand,
+    appName,
+    appParentDirPath,
   });
-  await initGitRepo(tutorialAppDirPath, mainBranchName);
-  log("info", `Tutorial app has been initialized in ${tutorialAppDirPath}`);
+  await initGitRepo(appDirPath, mainBranchName);
+  log("info", `Tutorial app has been initialized in ${appDirPath}`);
 }
