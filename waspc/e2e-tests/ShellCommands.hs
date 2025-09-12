@@ -123,20 +123,22 @@ copyContentsOfGitTrackedDirToGoldenTestProject srcDirInGitRoot = do
   let srcDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
       destDirPath = "./" ++ _goldenTestProjectName goldenTestContext
 
-      createDestinationDir :: ShellCommand = "mkdir -p " ++ destDirPath
+      createDestDir :: ShellCommand = "mkdir -p " ++ destDirPath
 
-      listSrcDirGitTrackedFiles :: ShellCommand =
+      listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
         "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
       -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
       -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
       removeSrcDirPrefixFromPath :: ShellCommand =
         "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
-      copyFilesFromSrcToDestination :: ShellCommand =
+      copyFilesFromSrcDirToDestDir :: ShellCommand =
         "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destDirPath
    in return $
         combineShellCommands
-          [ createDestinationDir,
-            listSrcDirGitTrackedFiles $| removeSrcDirPrefixFromPath $| copyFilesFromSrcToDestination
+          [ createDestDir,
+            listRelPathsOfGitTrackedFilesInSrcDir
+              $| removeSrcDirPrefixFromPath
+              $| copyFilesFromSrcDirToDestDir
           ]
 
 waspCliNewMinimalStarter :: String -> ShellCommandBuilder ctx ShellCommand
