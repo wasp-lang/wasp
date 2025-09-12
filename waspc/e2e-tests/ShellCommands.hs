@@ -129,7 +129,7 @@ copyContentsOfGitTrackedDirToGoldenTestProject srcDirInGitRoot = do
         "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
       -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
       -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
-      removeSrcDirPrefixFromPath :: ShellCommand =
+      stripSrcDirPrefixFromPath :: ShellCommand =
         "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
       copyFilesFromSrcDirToDestDir :: ShellCommand =
         "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destDirPath
@@ -137,7 +137,7 @@ copyContentsOfGitTrackedDirToGoldenTestProject srcDirInGitRoot = do
         combineShellCommands
           [ createDestDir,
             listRelPathsOfGitTrackedFilesInSrcDir
-              $| removeSrcDirPrefixFromPath
+              $| stripSrcDirPrefixFromPath
               $| copyFilesFromSrcDirToDestDir
           ]
 
