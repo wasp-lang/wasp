@@ -28,6 +28,20 @@ test.describe("auth", () => {
     const email = generateRandomEmail();
     const password = "12345678";
 
+    test("failing custom signup fields requirements results in error message", async ({
+      page,
+    }) => {
+      await performSignup(page, {
+        email,
+        password,
+        address: "TooShort",
+      });
+
+      await expect(page.locator("body")).toContainText(
+        `Address must be at least 10 characters long.`,
+      );
+    });
+
     test("can sign up", async ({ page }) => {
       await performSignup(page, {
         email,
