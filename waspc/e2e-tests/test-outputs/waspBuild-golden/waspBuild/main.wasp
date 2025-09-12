@@ -1,0 +1,14 @@
+app waspBuild {
+  wasp: {
+    version: "^0.18.0"
+  },
+  title: "waspBuild",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { MainPage } from "@src/MainPage"
+}

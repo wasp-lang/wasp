@@ -1,0 +1,121 @@
+name: Test Wasp Deploy
+
+on:
+  push:
+    paths:
+      - "waspc/**"
+      - ".github/**"
+    branches:
+      - main
+    tags:
+      - v*
+  workflow_dispatch:
+
+env:
+  APP_PREFIX: ci-${{ github.sha }}
+  FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
+  FLY_REGION: mia
+  APP_TO_DEPLOY: waspc/examples/todoApp
+
+jobs:
+  fly_deploy_app:
+    name: Deploy Wasp app
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: fly-deploy-test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-haskell
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version: "22"
+
+      - name: Install Wasp CLI
+        working-directory: waspc
+        run: ./run install
+
+        # NOTE: We tell users to install the latest version of Fly CLI,
+        # so we use it here too.
+      - uses: superfly/flyctl-actions/setup-flyctl@v1
+
+      - name: Deploy App to Fly.io
+        working-directory: ${{ env.APP_TO_DEPLOY }}
+        run: |
+          set -e
+
+          # NOTE: This assumes env var values don't contain:
+          #   - The character `#`.
+          #   - An empty line (i.e., there are no multiline env values).
+          mapfile -t ENV_VAR_ARGUMENTS < <(
+            cat .env.server.example |
+            sed -E 's/#.*//' |
+            awk 'NF {$1=$1;print}' |
+            sed -E 's/^/--server-secret\n/'
+          )
+
+          echo "Deploying with prefix: $APP_PREFIX"
+          # NOTE:
+          # - The `yes` command is necessary because the `fly launch` command
+          # prompts for confirmation.
+          # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
+          # word splitting (i.e., force Bash to interpret the flags separately
+          # instead of passing it as a single string value).
+          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing "${ENV_VAR_ARGUMENTS[@]}"
+
+      - name: Save deployed app hostnames
+        id: save_hostnames
+        working-directory: ${{ env.APP_TO_DEPLOY }}
+        run: |
+          echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
+          echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
+
+    outputs:
+      server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
+      client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
+
+  smoke_test_app:
+    name: Run smoke tests on deployed app
+
+    runs-on: ubuntu-latest
+    needs: fly_deploy_app
+    env:
+      SERVER_HOSTNAME: ${{ needs.fly_deploy_app.outputs.server_hostname }}
+      CLIENT_HOSTNAME: ${{ needs.fly_deploy_app.outputs.client_hostname }}
+
+    steps:
+      - name: Smoke test the server
+        run: |
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq '.json'
+
+      - name: Smoke test the client
+        run: |
+          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'ToDo App'
+
+  fly_destroy_app:
+    runs-on: ubuntu-latest
+    name: Clean up deployed Fly app
+    needs: [fly_deploy_app, smoke_test_app]
+    # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
+    # want to always clean them up.
+    if: always()
+
+    steps:
+      - uses: superfly/flyctl-actions/setup-flyctl@v1
+        with:
+          # NOTE: We pinned the Fly because we don't want the changes in the
+          # Fly CLI to affect our cleanup procedure. `fly destroy` isn't a part
+          # of Wasp, we're just incidentally using the same tool Wasp uses.
+          version: v0.3.164
+
+      - name: Clean up testing app from Fly.io
+        run: |
+          # NOTE: We are relying on Wasp's naming conventions here
+          flyctl apps destroy -y $APP_PREFIX-server || true
+          flyctl apps destroy -y $APP_PREFIX-client || true
+          flyctl apps destroy -y $APP_PREFIX-db || true

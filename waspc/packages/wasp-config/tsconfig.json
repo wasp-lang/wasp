@@ -9,7 +9,6 @@
     "moduleDetection": "force",
     "isolatedModules": true,
 
-    // linting
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,

@@ -1,5 +1,6 @@
 module Wasp.Psl.Generator.Schema
-  ( generateSchemaBlock,
+  ( generateSchema,
+    generateSchemaBlock,
   )
 where
 
@@ -13,12 +14,44 @@ import Wasp.Psl.Generator.Common (PslSource)
 import Wasp.Psl.Generator.ConfigBlock (generateConfigBlockKeyValuePairs)
 import Wasp.Psl.Generator.Enum (generateEnumBody)
 import Wasp.Psl.Generator.Model (generateModelBody)
+import Wasp.Psl.Generator.WithCtx (generateWithCtx)
+import Wasp.Util (indent, trim)
+
+generateSchema :: Psl.Schema.Schema -> PslSource
+generateSchema (Psl.Schema.Schema blocks) = unlines $ generateWithCtx generateSchemaBlock <$> blocks
 
 generateSchemaBlock :: Psl.Schema.Block -> PslSource
 generateSchemaBlock = \case
-  Psl.Schema.ModelBlock (Psl.Model.Model name body) -> "model " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
-  Psl.Schema.ViewBlock (Psl.View.View name body) -> "view " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
-  Psl.Schema.TypeBlock (Psl.Type.Type name body) -> "type " ++ name ++ " {\n" ++ generateModelBody body ++ "}"
-  Psl.Schema.EnumBlock (Psl.Enum.Enum name values) -> "enum " ++ name ++ " {\n" ++ generateEnumBody values ++ "}"
-  Psl.Schema.ConfigBlock (Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Datasource name content) -> "datasource " ++ name ++ " {\n" ++ generateConfigBlockKeyValuePairs content ++ "}"
-  Psl.Schema.ConfigBlock (Psl.ConfigBlock.ConfigBlock Psl.ConfigBlock.Generator name content) -> "generator " ++ name ++ " {\n" ++ generateConfigBlockKeyValuePairs content ++ "}"
+  Psl.Schema.ModelBlock modelBlock -> generateModel modelBlock
+  Psl.Schema.ViewBlock viewBlock -> generateView viewBlock
+  Psl.Schema.TypeBlock typeBlock -> generateType typeBlock
+  Psl.Schema.EnumBlock enumBlock -> generateEnum enumBlock
+  Psl.Schema.ConfigBlock configBlock -> generateConfigBlock configBlock
+
+generateModel :: Psl.Model.Model -> PslSource
+generateModel (Psl.Model.Model name body) = generateBlock "model" name $ generateModelBody body
+
+generateView :: Psl.View.View -> PslSource
+generateView (Psl.View.View name body) = generateBlock "view" name $ generateModelBody body
+
+generateType :: Psl.Type.Type -> PslSource
+generateType (Psl.Type.Type name body) = generateBlock "type" name $ generateModelBody body
+
+generateEnum :: Psl.Enum.Enum -> PslSource
+generateEnum (Psl.Enum.Enum name values) = generateBlock "enum" name $ generateEnumBody values
+
+generateConfigBlock :: Psl.ConfigBlock.ConfigBlock -> PslSource
+generateConfigBlock (Psl.ConfigBlock.ConfigBlock configType name content) =
+  generateBlock blockType name $ generateConfigBlockKeyValuePairs content
+  where
+    blockType = case configType of
+      Psl.ConfigBlock.Datasource -> "datasource"
+      Psl.ConfigBlock.Generator -> "generator"
+
+-- | Common structure for all top-level blocks in the schema.
+generateBlock :: String -> String -> PslSource -> PslSource
+generateBlock blockType name body =
+  unlines $
+    [blockType ++ " " ++ name ++ " {"]
+      ++ [indent 2 $ trim body]
+      ++ ["}"]

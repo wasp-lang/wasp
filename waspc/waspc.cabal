@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.17.1
+version:        0.18.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -42,7 +42,6 @@ data-files:
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
-  Cli/bash-completion
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
@@ -408,6 +407,8 @@ library
     Wasp.Psl.Ast.ConfigBlock
     Wasp.Psl.Ast.Type
     Wasp.Psl.Ast.View
+    Wasp.Psl.Ast.WithCtx
+    Wasp.Psl.Comments
     Wasp.Psl.Format
     Wasp.Psl.Generator.Argument
     Wasp.Psl.Generator.Attribute
@@ -416,6 +417,7 @@ library
     Wasp.Psl.Generator.Enum
     Wasp.Psl.Generator.Model
     Wasp.Psl.Generator.Schema
+    Wasp.Psl.Generator.WithCtx
     Wasp.Psl.Parser.Argument
     Wasp.Psl.Parser.Attribute
     Wasp.Psl.Parser.Common
@@ -425,6 +427,7 @@ library
     Wasp.Psl.Parser.Schema
     Wasp.Psl.Parser.Type
     Wasp.Psl.Parser.View
+    Wasp.Psl.Parser.WithCtx
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.Psl.Db
@@ -621,10 +624,10 @@ executable wasp-cli
   other-modules:
       Paths_waspc
 
-test-suite waspc-test
+test-suite waspc-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: test
+  hs-source-dirs: tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -689,6 +692,7 @@ test-suite waspc-test
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
+    Psl.Generator.WithCtxTest
     Psl.Parser.ArgumentTest
     Psl.Parser.AttributeTest
     Psl.Parser.ConfigBlockTest
@@ -697,6 +701,7 @@ test-suite waspc-test
     Psl.Parser.TypeTest
     Psl.Parser.ViewTest
     Psl.Parser.SchemaTest
+    Psl.Parser.WithCtxTest
     Psl.ValidTest
     Test.Util
     Util.FibTest
@@ -715,10 +720,10 @@ test-suite waspc-test
     Generator.NpmDependenciesTest
     JsImportTest
 
-test-suite waspls-test
+test-suite waspls-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: waspls/test
+  hs-source-dirs: waspls/tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -742,10 +747,10 @@ test-suite waspls-test
     Wasp.LSP.DebouncerTest
     Wasp.LSP.SyntaxTest
 
-test-suite cli-test
+test-suite wasp-cli-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: cli/test
+  hs-source-dirs: cli/tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -765,10 +770,10 @@ test-suite cli-test
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
-test-suite e2e-test
+test-suite waspc-e2e-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: e2e-test
+  hs-source-dirs: e2e-tests
   main-is: Main.hs
   build-tool-depends: waspc:wasp-cli
   build-depends:

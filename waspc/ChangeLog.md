@@ -1,16 +1,36 @@
 # Changelog
 
-## Unreleased
+## 0.18.0
 
 ### ⚠️ Breaking Changes
 
 - Wasp now requires Node.js version to be >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
 - Wasp now uses ECMAScript Modules (ESM) instead of CommonJS (CJS) for Tailwind configuration files. ([#2998](https://github.com/wasp-lang/wasp/pull/2998))
 - Wasp now uses Vite 7. [#2914](https://github.com/wasp-lang/wasp/pull/2914)
+- Using Wasp Deploy for Railway now requires Railway CLI version 4.6.3 or greater. ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
 
 ### 🎉 New Features
 
 - New command: `wasp build start`. Lets you run your built Wasp app locally, just like in production. If required environment variables are missing, the command will show errors—helping you confirm which env vars you'll need to set in production. [#2796](https://github.com/wasp-lang/wasp/pull/2796)
+
+### 🐞 Bug fixes
+
+- Wasp now correctly parses JSON env variables. ([#2849](https://github.com/wasp-lang/wasp/pull/2849)) by @genyus
+- Bash completion now knows about the `db` command. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
+- Bash completion no longer loops infinitely. ([#3107](https://github.com/wasp-lang/wasp/pull/3107)) by @Vickram-T-G
+
+### 🔧 Small improvements
+
+- Support for Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
+- Wasp no longer uses Stitches for Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
+- You can now create your project in a specific Railway workspace when using Wasp Deploy with the `--workspace` option. ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
+- Better error message when choosing a template that doesn't exist. ([#2992](https://github.com/wasp-lang/wasp/pull/2992))
+- Bash completion setup is simplified. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
+- Increased the font size in Auth UI components, preventing automatic zooming on mobile devices. (by @Vickram-T-G) ([#3110](https://github.com/wasp-lang/wasp/pull/3110/files))
+
+### 📖 Documentation
+
+- Added code examples on how to disable Wasp's default auth for custom auth actions. ([#3033](https://github.com/wasp-lang/wasp/pull/3033))
 
 ## 0.17.1
 

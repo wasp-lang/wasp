@@ -1,0 +1,92 @@
+app waspComplexTest {
+  wasp: {
+    version: "^0.18.0"
+  },
+  auth: {
+    userEntity: User,
+    methods: {
+      google: {}
+    },
+    onAuthFailedRedirectTo: "/login",
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks.js",
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks.js",
+    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks.js",
+  },
+
+  server: {
+    setupFn: import mySetupFunction from "@src/server/myServerSetupCode.js",
+  },
+
+  client: {
+    setupFn: import myClientSetupFunction from "@src/client/myClientSetupCode.js",
+    rootComponent: import App from "@src/client/App.jsx"
+  },
+
+  emailSender: {
+    provider: SendGrid,
+    defaultFrom: {
+      name: "Hello",
+      email: "hello@itsme.com"
+    },
+  },
+
+  title: "waspComplexTest",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ]
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { MainPage } from "@src/MainPage"
+}
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@src/server/jobs/bar.js"
+  }
+}
+
+job returnHelloJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { returnHello } from "@src/server/jobs/returnHello.js",
+  },
+  entities: [User],
+}
+
+action mySpecialAction {
+  fn: import { foo } from "@src/server/actions/bar.js",
+  entities: [User],
+}
+
+query mySpecialQuery {
+  fn: import { foo } from "@src/server/queries/bar.js",
+  entities: [User],
+}
+
+api fooBar {
+  fn: import { fooBar } from "@src/server/apis.js",
+  httpRoute: (GET, "/foo/bar"),
+  middlewareConfigFn: import { fooBarMiddlewareFn } from "@src/server/apis.js"
+}
+api fooBaz {
+  fn: import { fooBaz } from "@src/server/apis.js",
+  httpRoute: (GET, "/foo/baz"),
+  auth: false
+}
+
+apiNamespace fooBarNamespace {
+  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/server/apiNamespaces.js",
+  path: "/bar"
+}
+
+crud tasks {
+  entity: Task,
+  operations: {
+    get: {},
+    getAll: {},
+    create: {},
+  }
+}
+

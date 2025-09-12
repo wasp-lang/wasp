@@ -1,0 +1,47 @@
+name: Run e2e tests on starter templates
+
+on:
+  workflow_call:
+  push:
+    branches:
+      - main
+      - release
+  pull_request:
+    paths:
+      - "waspc/data/Cli/starters/**"
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+jobs:
+  test-wasp-config:
+    name: Test wasp-config
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: "actions/checkout@v4"
+
+      - uses: ./.github/actions/setup-haskell
+        with:
+          ghc-version: "8.10.7"
+          cabal-version: "3.10.2.0"
+          cabal-project-dir: waspc
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install `wasp-cli`
+        working-directory: waspc
+        run: ./run install
+
+      - name: Install node dependencies
+        working-directory: waspc/starters-e2e-tests
+        run: npm ci
+
+      - name: Install playwright dependencies
+        working-directory: waspc/starters-e2e-tests
+        run: npx playwright install --with-deps
+
+      - name: Run starters e2e tests
+        working-directory: waspc/starters-e2e-tests
+        run: npm run test:dev

@@ -183,7 +183,7 @@ During development (`wasp start`), there are two ways to provide env vars to you
 1. Using `.env` files. **(recommended)**
 2. Using shell. (useful for overrides)
 
-### 1. Using .env (dotenv) Files
+### 1. Using .env (dotenv) Files {#dotenv-files}
 
 ![Env vars usage in development](/img/env/prod_dev_fade.svg)
 

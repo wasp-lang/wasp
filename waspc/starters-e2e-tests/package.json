@@ -1,0 +1,23 @@
+{
+  "name": "starters-e2e-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/src/main.js",
+    "test": "npm run build && DEBUG=pw:webserver npm run start -- --wasp-cli-command wasp",
+    "test:dev": "npm run build && DEBUG=pw:webserver npm run start -- --wasp-cli-command wasp-cli"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^14.0.0",
+    "@playwright/test": "1.51.1",
+    "@wasp.sh/wasp-app-runner": "^0.0.7",
+    "commander": "^14.0.0",
+    "zx": "^8.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "typescript": "^5.9.2"
+  }
+}

@@ -4,7 +4,7 @@
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
     "env:push": "npx dotenv-vault@latest push development .env.server",
-    "test": "DEBUG=pw:webserver playwright test --config headless-tests/"
+    "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
   },
   "dependencies": {
     "@tanstack/react-query": "4.36.1",
