@@ -35,7 +35,7 @@ export const ManualSignupPage = () => {
       if (result.success) {
         setMessage({
           type: "success",
-          text: "Signup successful. You can now login.",
+          text: "You've signed up successfully! Check your email for the confirmation link.",
         });
       } else {
         setMessage({

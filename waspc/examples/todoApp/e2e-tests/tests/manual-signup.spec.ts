@@ -20,7 +20,7 @@ test.describe("manual signup", () => {
       "manual-signup",
     );
     await expect(page.locator("body")).toContainText(
-      `Signup successful. You can now login.`,
+      `You've signed up successfully! Check your email for the confirmation link.`,
     );
   });
 
