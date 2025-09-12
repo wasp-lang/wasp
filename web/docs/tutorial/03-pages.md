@@ -97,7 +97,7 @@ Now that you've seen how Wasp deals with Routes and Pages, it's finally time to 
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
-<TutorialAction id="prepare-project" action="apply-patch" />
+<TutorialAction id="prepare-project" action="APPLY_PATCH" />
 
 First, remove most of the code from the `MainPage` component:
 

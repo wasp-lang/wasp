@@ -1,26 +1,30 @@
-// If you change it here, make sure to also update the types in `tutorial-app-generator/src/executeSteps/actions.ts`.
-type Action = "apply-patch" | "migrate-db";
-
 /*
-This component serves two purposes:
-1. It provides metadata for the `tutorial-app-generator` on how to execute tutorial steps programmatically.
-2. It renders tutorial step names during development for easier debugging.
+`TutorialAction` component is related to the Tutorial Actions Executor which you can find in the `web/tutorial-actions-executor` folder.
+It has two main purposes:
+1. It provides metadata on how to execute tutorial actions programmatically.
+2. It renders tutorial action names during development for easier debugging.
+
+`TutorialAction` component is used in the `web/docs/tutorial/*.md` files to annotate specific tutorial actions.
 */
+
+// IMPORTANT: If you change it here, make sure to also update the types in `web/tutorial-actions-executor/src/actions/actions.ts`.
+type Action = "APPLY_PATCH" | "MIGRATE_DB";
+
 export function TutorialAction({ action, id }: { action: Action; id: string }) {
   return (
     process.env.NODE_ENV !== "production" && (
       <div style={{ marginBottom: "1rem" }}>
-        <TutorialActionStep id={id} action={action} />
+        <TutorialActionDebug id={id} action={action} />
       </div>
     )
   );
 }
 
-function TutorialActionStep({ id, action }: { id: string; action: Action }) {
+function TutorialActionDebug({ id, action }: { id: string; action: Action }) {
   return (
     <div style={{ display: "flex", gap: "0.5rem" }}>
       <div style={tutorialActionPillStyle}>tutorial action: {action}</div>
-      <div style={stepPillStyle}>
+      <div style={actionPillStyle}>
         {id}
         <span
           style={{
@@ -54,7 +58,7 @@ const tutorialActionPillStyle: React.CSSProperties = {
   backgroundColor: "#6b7280",
 };
 
-const stepPillStyle: React.CSSProperties = {
+const actionPillStyle: React.CSSProperties = {
   ...pillStyle,
   backgroundColor: "#ef4444",
   display: "flex",

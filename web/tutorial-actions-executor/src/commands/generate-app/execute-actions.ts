@@ -26,7 +26,7 @@ export async function executeActions({
 
     try {
       switch (action.kind) {
-        case "apply-patch":
+        case "APPLY_PATCH":
           try {
             await applyPatchForAction({ appDir, action });
           } catch (err) {
@@ -38,7 +38,7 @@ export async function executeActions({
             await applyPatchForAction({ appDir, action });
           }
           break;
-        case "migrate-db":
+        case "MIGRATE_DB":
           await waspDbMigrate(appDir, action.id);
           break;
         default:

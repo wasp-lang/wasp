@@ -4,13 +4,13 @@ import type { Branded } from "../brandedTypes";
 export type Action = ApplyPatchAction | MigrateDbAction;
 
 export type ApplyPatchAction = {
-  kind: "apply-patch";
+  kind: "APPLY_PATCH";
   displayName: string;
   patchFilePath: PatchFilePath;
 } & ActionCommon;
 
 export type MigrateDbAction = {
-  kind: "migrate-db";
+  kind: "MIGRATE_DB";
 } & ActionCommon;
 
 export type ActionCommon = {

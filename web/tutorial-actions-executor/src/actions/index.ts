@@ -13,7 +13,7 @@ export function createMigrateDbAction(
 ): MigrateDbAction {
   return {
     ...commonData,
-    kind: "migrate-db",
+    kind: "MIGRATE_DB",
   };
 }
 
@@ -23,7 +23,7 @@ export function createApplyPatchAction(
   const patchFilePath = getPatchFilePath(commonData);
   return {
     ...commonData,
-    kind: "apply-patch",
+    kind: "APPLY_PATCH",
     displayName: `${basename(commonData.tutorialFilePath)} / ${commonData.id}`,
     patchFilePath,
   };

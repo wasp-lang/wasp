@@ -70,7 +70,7 @@ Tutorial actions are defined in markdown files using JSX-like components:
 ````markdown
 # Step 4: Create Task Entity
 
-<TutorialAction id="create-task-entity" action="apply-patch" />
+<TutorialAction id="create-task-entity" action="APPLY_PATCH" />
 
 In this action, we'll create the Task entity:
 ```prisma
@@ -83,7 +83,7 @@ model Task {
 The tool extracts these components and uses:
 
 - `id`: Unique identifier for the action (becomes commit message)
-- `action`: Type of action (`apply-patch` or `migrate-db`)
+- `action`: Type of action (`APPLY_PATCH` or `MIGRATE_DB`)
 
 This Git-based approach ensures that:
 

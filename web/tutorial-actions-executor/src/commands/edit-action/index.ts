@@ -105,7 +105,7 @@ async function editActionPatch({
 
 async function extractCommitsIntoPatches(actions: Action[]): Promise<void> {
   const applyPatchActions = actions.filter(
-    (action) => action.kind === "apply-patch",
+    (action) => action.kind === "APPLY_PATCH",
   );
 
   for (const action of applyPatchActions) {
@@ -126,7 +126,7 @@ async function ensureAction({
   actionIdOptionValue: string | undefined;
 }): Promise<ApplyPatchAction> {
   const applyPatchActions = actions.filter(
-    (action) => action.kind === "apply-patch",
+    (action) => action.kind === "APPLY_PATCH",
   );
 
   if (!actionIdOptionValue) {

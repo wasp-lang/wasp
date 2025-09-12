@@ -95,8 +95,8 @@ async function getActionsFromMarkdownFile(
 
 function createAction(actionName: string, commonData: ActionCommon): Action {
   const actionCreators: Record<string, (data: ActionCommon) => Action> = {
-    "apply-patch": createApplyPatchAction,
-    "migrate-db": createMigrateDbAction,
+    APPLY_PATCH: createApplyPatchAction,
+    MIGRATE_DB: createMigrateDbAction,
   };
   const createFn = actionCreators[actionName];
   if (!createFn) {
