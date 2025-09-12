@@ -133,7 +133,12 @@ copyContentsOfGitTrackedDirToGoldenTestProject srcDirInGitRoot = do
             listSrcDirGitTrackedFiles $| removeSrcDirPrefixFromPath $| copyFilesFromSrcToDestination
           ]
 
--- Wasp project commands
+waspCliNewMinimalStarter :: String -> ShellCommandBuilder ctx ShellCommand
+waspCliNewMinimalStarter projectName = do
+  return $
+    "wasp-cli new " ++ projectName ++ " -t minimal"
+
+-- Wasp app commands
 
 appendToWaspFile :: FilePath -> ShellCommandBuilder WaspAppContext ShellCommand
 appendToWaspFile = appendToFile "main.wasp"
@@ -158,13 +163,6 @@ buildDockerImage = do
             "docker image rm " ++ dockerImageTag,
             "cd ../.."
           ]
-
--- Wasp CLI commands
-
-waspCliNewMinimalStarter :: String -> ShellCommandBuilder ctx ShellCommand
-waspCliNewMinimalStarter projectName = do
-  return $
-    "wasp-cli new " ++ projectName ++ " -t minimal"
 
 waspCliCompile :: ShellCommandBuilder WaspAppContext ShellCommand
 waspCliCompile = return "wasp-cli compile"
