@@ -48,10 +48,13 @@ newtype ShellCommandBuilder ctx a = ShellCommandBuilder
   {_runShellCommandWithContext :: Reader ctx a}
   deriving (Functor, Applicative, Monad, MonadReader ctx)
 
+-- | Context for commands which are run strictly from the golden tests.
 data GoldenTestContext = GoldenTestContext
   {_goldenTestProjectName :: String}
   deriving (Show)
 
+-- | Context for commands which are run from inside of a Wasp app project.
+-- Switching to this context means we are currently inside the Wasp app project directory.
 data WaspAppContext = WaspAppContext
   {_waspAppName :: String}
   deriving (Show)
