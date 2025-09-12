@@ -23,7 +23,11 @@ module ShellCommands
   )
 where
 
-import Common (GitRepositoryRoot, gitRootFromGoldenTestProjectDir)
+import Common
+  ( GitRepositoryRoot,
+    gitRootFromGoldenTestProjectDir,
+    goldenTestProjectDirInGoldenTestDir,
+  )
 import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import Data.List (intercalate)
 import StrongPath (Dir, Path', Rel, fromRelDir)
@@ -58,10 +62,12 @@ runShellCommandBuilder ctx (ShellCommandBuilder r) = runReader r ctx
 cdIntoGoldenTestProject :: ShellCommandBuilder WaspAppContext [ShellCommand] -> ShellCommandBuilder GoldenTestContext ShellCommand
 cdIntoGoldenTestProject (ShellCommandBuilder r) = do
   goldenTestContext <- ask
-  let waspProjectContext = WaspAppContext (_goldenTestProjectName goldenTestContext)
-  let cdCommand = "cd " ++ _waspAppName waspProjectContext
+  let waspAppName = _goldenTestProjectName goldenTestContext
+  let goldenTestProjectDir = goldenTestProjectDirInGoldenTestDir waspAppName
+  let cdCommand :: ShellCommand = "cd " ++ fromRelDir goldenTestProjectDir
 
-  let commands = combineShellCommands (cdCommand : runReader r waspProjectContext)
+  let waspAppContext = WaspAppContext waspAppName
+  let commands = combineShellCommands (cdCommand : runReader r waspAppContext)
   return commands
 
 -- Command utilities

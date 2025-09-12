@@ -5,7 +5,12 @@ module GoldenTest
   )
 where
 
-import Common (GoldenTestType (..), expectedFilesManifestFileInGoldenTestDir, getTestOutputsDir, goldenTestDirInTestOutputsDir)
+import Common
+  ( GoldenTestType (..),
+    expectedFilesManifestFileInGoldenTestDir,
+    getTestOutputsDir,
+    goldenTestDirInTestOutputsDir,
+  )
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty

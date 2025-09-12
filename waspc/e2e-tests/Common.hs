@@ -6,6 +6,7 @@ module Common
     getTestOutputsDir,
     goldenTestDirInTestOutputsDir,
     gitRootFromGoldenTestProjectDir,
+    goldenTestProjectDirInGoldenTestDir,
     expectedFilesManifestFileInGoldenTestDir,
   )
 where
@@ -74,7 +75,7 @@ expectedFilesManifestFileInGoldenTestDir :: Path' (Rel GoldenTestDir) (File Expe
 expectedFilesManifestFileInGoldenTestDir = [relfile|expected-files.manifest|]
 
 goldenTestProjectDirInGoldenTestDir :: String -> Path' (Rel GoldenTestDir) (Dir GoldenTestProjectDir)
-goldenTestProjectDirInGoldenTestDir projectName = (fromJust . parseRelDir) projectName
+goldenTestProjectDirInGoldenTestDir = fromJust . parseRelDir
 
 -- | Connected to 'gitRootFromGoldenTestProjectDir'.
 --   If you change this function, change the other one too.

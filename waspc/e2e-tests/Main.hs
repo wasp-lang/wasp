@@ -13,9 +13,7 @@ main = do
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else tests >>= defaultMain
 
--- TODO: Add more tests to simulate full Todo app tutorial.
---       Some of this requires waspStart and stdout parsing.
--- TODO: Investigate automatically discovering the GoldenTests.
+-- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
 tests =
   testGroup "Golden Tests"
