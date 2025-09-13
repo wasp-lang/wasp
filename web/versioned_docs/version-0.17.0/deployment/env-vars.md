@@ -10,7 +10,7 @@ However, when we are deploying our app, **`.env.client` and `.env.server` files 
 
 ![Env vars usage in development and production](/img/env/prod_dev_fade_2.svg)
 
-### Client Env Vars
+### Client Env Vars {#client-env-vars}
 
 During the build process, client env vars are injected into the client Javascript code, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
 
@@ -39,7 +39,7 @@ You can provide production env vars to your server code in production by definin
 
 Make sure to go through [all the required server env vars](../project/env-vars.md#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL` etc. and set them up in your production environment.
 
-**If you are using the [Wasp CLI](./deployment-methods/cli.md)** deployment method, Wasp will set the general configuration env vars for you, but you will need to set the rest of the env vars yourself (like the ones for OAuth auth methods or any other custom env vars you might have defined).
+**If you are using the [Wasp CLI](./deployment-methods/wasp-deploy/overview.md)** deployment method, Wasp will set the general configuration env vars for you, but you will need to set the rest of the env vars yourself (like the ones for OAuth auth methods or any other custom env vars you might have defined).
 ::::
 
 Setting server env variables up will highly depend on where you are deploying your server, but in general it comes down to defining the env vars via mechanisms that your hosting provider provides.
