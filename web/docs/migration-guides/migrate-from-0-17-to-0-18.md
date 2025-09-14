@@ -47,7 +47,7 @@ If you installed Node.js some other way, you can check their [official installat
 
 ### 2. Bump the Wasp version
 
-Update the version field in your Wasp file to `^0.17.0`:
+Update the version field in your Wasp file to `^0.18.0`:
 
 ```wasp title="main.wasp"
 app MyApp {
