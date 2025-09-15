@@ -192,7 +192,4 @@ jobs:
           npm run test
 
       - name: Run `waspc` e2e tests
-        env:
-          # Only ubuntu runners have docker installed by default.
-          WASP_E2E_TESTS_SKIP_DOCKER: ${{ startsWith(matrix.os, 'ubuntu') && '' || '1' }}
         run: ./run test:waspc:e2e
