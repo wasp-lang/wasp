@@ -14,8 +14,9 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
-
-  APP_PREFIX: ci-${{ github.sha }}
+  # We use run_id becuase it's shorter than commit SHA since
+  # the max length for project name in Railway is 25 characters.
+  APP_PREFIX: ci-${{ github.run_id }}
   FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
   FLY_REGION: dfw
   APP_TO_DEPLOY: examples/kitchen-sink
