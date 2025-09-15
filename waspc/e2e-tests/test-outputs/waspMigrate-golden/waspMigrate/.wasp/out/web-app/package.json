@@ -28,7 +28,6 @@
   "overrides": {
     "rollup": "4.44.0"
   },
-  "peerDependencies": {},
   "private": true,
   "scripts": {
     "build": "tsc --build && vite build",
