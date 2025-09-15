@@ -18,6 +18,12 @@ spec_combineNpmDepsForPackage = do
             ("beta", "20")
           ]
 
+  let waspPeerDeps =
+        D.fromList
+          [ ("peer1", "1.0.0"),
+            ("peer2", "2.0.0")
+          ]
+
   it "a conflicting version number is detected" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
@@ -61,7 +67,8 @@ spec_combineNpmDepsForPackage = do
       `shouldBe` Right
         NpmDepsForPackage
           { dependencies = [],
-            devDependencies = []
+            devDependencies = [],
+            peerDependencies = []
           }
 
   it "user dependencies have no overlap with wasp deps: wasp deps remain the same" $ do
@@ -84,7 +91,8 @@ spec_combineNpmDepsForPackage = do
       `shouldBe` Right
         NpmDepsForPackage
           { dependencies = waspDeps,
-            devDependencies = []
+            devDependencies = [],
+            peerDependencies = []
           }
 
   it "user dependencies partially overlap wasp dependencies, so intersection gets removed from wasp deps" $ do
@@ -107,7 +115,8 @@ spec_combineNpmDepsForPackage = do
       `shouldBe` Right
         NpmDepsForPackage
           { dependencies = D.fromList [("b", "2")],
-            devDependencies = []
+            devDependencies = [],
+            peerDependencies = []
           }
 
   it "report error if user dependency overlaps wasp dependency, different version" $ do
@@ -180,7 +189,8 @@ spec_combineNpmDepsForPackage = do
       `shouldBe` Right
         NpmDepsForPackage
           { dependencies = [],
-            devDependencies = []
+            devDependencies = [],
+            peerDependencies = []
           }
 
   it "wasp dev dependency overlaps with user non-dev dependency: should have no effect" $ do
@@ -203,7 +213,28 @@ spec_combineNpmDepsForPackage = do
       `shouldBe` Right
         NpmDepsForPackage
           { dependencies = waspDeps,
-            devDependencies = waspDevDeps
+            devDependencies = waspDevDeps,
+            peerDependencies = []
+          }
+
+  it "peer dependencies are always empty for framework npm deps" $ do
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = waspDevDeps
+            }
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies = [],
+              userDevDependencies = []
+            }
+
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
+      `shouldBe` Right
+        NpmDepsForPackage
+          { dependencies = waspDeps,
+            devDependencies = waspDevDeps,
+            peerDependencies = []
           }
 
   it "conflictErrorToMessage" $ do
@@ -222,11 +253,13 @@ spec_combineNpmDepsForPackage = do
     $ do
       NpmDepsForPackage
         { dependencies = waspDeps,
-          devDependencies = []
+          devDependencies = [],
+          peerDependencies = []
         }
       `shouldBe` NpmDepsForPackage
         { dependencies = reverse waspDeps,
-          devDependencies = []
+          devDependencies = [],
+          peerDependencies = []
         }
 
   it
@@ -234,11 +267,27 @@ spec_combineNpmDepsForPackage = do
     $ do
       NpmDepsForPackage
         { dependencies = waspDeps,
-          devDependencies = reverse waspDeps
+          devDependencies = reverse waspDeps,
+          peerDependencies = []
         }
       `shouldBe` NpmDepsForPackage
         { dependencies = reverse waspDeps,
-          devDependencies = waspDeps
+          devDependencies = waspDeps,
+          peerDependencies = []
+        }
+
+  it
+    "NpmDependencies are equal even if peer dependencies have different order"
+    $ do
+      NpmDepsForPackage
+        { dependencies = [],
+          devDependencies = [],
+          peerDependencies = waspPeerDeps
+        }
+      `shouldBe` NpmDepsForPackage
+        { dependencies = [],
+          devDependencies = [],
+          peerDependencies = reverse waspPeerDeps
         }
 
   it
@@ -246,9 +295,33 @@ spec_combineNpmDepsForPackage = do
     $ do
       NpmDepsForPackage
         { dependencies = waspDeps,
-          devDependencies = []
+          devDependencies = [],
+          peerDependencies = []
         }
       `shouldNotBe` NpmDepsForPackage
         { dependencies = [],
-          devDependencies = []
+          devDependencies = [],
+          peerDependencies = []
         }
+
+spec_getPeerDependenciesPackageJsonEntry :: Spec
+spec_getPeerDependenciesPackageJsonEntry = do
+  it "generates correct package.json entry for peer dependencies" $ do
+    let deps =
+          NpmDepsForPackage
+            { dependencies = [],
+              devDependencies = [],
+              peerDependencies = D.fromList [("react", "^18.0.0"), ("@tanstack/react-query", "^4.0.0")]
+            }
+    getPeerDependenciesPackageJsonEntry deps
+      `shouldBe` "\"peerDependencies\": {\"react\": \"^18.0.0\",\n  \"@tanstack/react-query\": \"^4.0.0\"\n}"
+
+  it "generates correct package.json entry for empty peer dependencies" $ do
+    let deps =
+          NpmDepsForPackage
+            { dependencies = [],
+              devDependencies = [],
+              peerDependencies = []
+            }
+    getPeerDependenciesPackageJsonEntry deps
+      `shouldBe` "\"peerDependencies\": {\n}"
