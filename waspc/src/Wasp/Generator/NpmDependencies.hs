@@ -194,19 +194,15 @@ determineConflictErrors waspDepsByName userDepsByName =
         then Just $ DependencyConflictError waspDep userDep
         else Nothing
 
--- Construct a map of dependency keyed by dependency name.
 makeDepsByName :: [D.Dependency] -> DepsByName
 makeDepsByName = Map.fromList . fmap (\d -> (D.name d, d))
 
--- | Construct dependencies entry in package.json
 getDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "dependencies" . dependencies
 
--- | Construct devDependencies entry in package.json
 getDevDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devDependencies" . devDependencies
 
--- | Construct peerDependencies entry in package.json
 getPeerDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getPeerDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "peerDependencies" . peerDependencies
 
