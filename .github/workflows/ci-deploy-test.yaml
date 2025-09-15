@@ -21,7 +21,7 @@ env:
   FLY_REGION: dfw
   APP_TO_DEPLOY: examples/kitchen-sink
   RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
-  RAILWAY_WASP_WORKSPACE_ID: 22f3bf34-c18e-4846-92b9-efb42c23955e
+  RAILWAY_WASP_WORKSPACE_NAME: Wasp
 
 jobs:
   fly_deploy_app:
@@ -42,12 +42,15 @@ jobs:
           cache: "npm"
           node-version: "22"
 
-      - name: Install Wasp CLI
-        working-directory: waspc
-        run: ./run install
+      # - name: Install Wasp CLI
+      #   working-directory: waspc
+      #   run: ./run install
 
-        # NOTE: We tell users to install the latest version of Fly CLI,
-        # so we use it here too.
+      - name: Install Wasp CLI
+        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s
+
+      # NOTE: We tell users to install the latest version of Fly CLI,
+      # so we use it here too.
       - uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Deploy App to Fly.io
@@ -75,7 +78,7 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing "${ENV_VAR_ARGUMENTS[@]}"
+          yes | wasp deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Save deployed app hostnames
         id: save_hostnames
@@ -175,7 +178,7 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
+          wasp deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_NAME "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Save deployed app hostnames
         id: save_hostnames
