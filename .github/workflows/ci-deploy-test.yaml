@@ -173,6 +173,8 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
+          echo $RAILWAY_API_TOKEN
+          railway login --token $RAILWAY_API_TOKEN
           wasp-cli deploy railway launch "$APP_PREFIX" --workspace wasp "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Save deployed app hostnames
@@ -217,9 +219,6 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          # We install Railway CLI globally using npm, so we don't need
-          # package manager cache here.
-          package-manager-cache: false
           node-version: "22"
 
       - name: Install Railway CLI
