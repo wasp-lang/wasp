@@ -109,7 +109,7 @@ genPackageJson spec waspDependencies = do
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "appName" .= (fst (getApp spec) :: String),
+            [ "packageName" .= ("@wasp.sh/generated-client-" ++ (if AS.isBuild spec then "build" else "dev")),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,

@@ -129,7 +129,8 @@ genPackageJson spec waspDependencies = do
       (C.asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
+            [ "packageName" .= ("@wasp.sh/generated-server-" ++ (if AS.isBuild spec then "build" else "dev")),
+              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
