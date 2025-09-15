@@ -45,7 +45,20 @@ node -v
 If you followed our [Quick Start tutorial](../quick-start#requirements), you can use `nvm use 22` to upgrade your Node.js version.
 If you installed Node.js some other way, you can check their [official installation guide](https://nodejs.org/en/download/) for more guidance. 
 
-### 2. Convert CJS Syntax to ESM
+### 2. Bump the Wasp version
+
+Update the version field in your Wasp file to `^0.18.0`:
+
+```wasp title="main.wasp"
+app MyApp {
+  wasp: {
+    // highlight-next-line
+    version: "^0.18.0"
+  },
+}
+```
+
+### 3. Convert CJS Syntax to ESM
 
 Update your `tailwind.config.cjs` file to use ESM:
 
@@ -115,13 +128,13 @@ export default {
 </Tabs>
 
 
-### 3. Rename Tailwind Configuration Files
+### 4. Rename Tailwind Configuration Files
 
 Update the Tailwind configuration files' extensions from `.cjs` to `.js`:
 - `tailwind.config.cjs` ➝ `tailwind.config.js`
 - `postcss.config.cjs` ➝ `postcss.config.js`
 
-### 4. Check your compatibility with Vite 7
+### 5. Check your compatibility with Vite 7
 
 Wasp now uses Vite 7 for better performance and stability. This includes some breaking changes, but we don't expect Wasp apps to be affected by them. If you are using Vite features directly in your app, you should check the migration guides for [v5](https://v5.vite.dev/guide/migration.html), [v6](https://v6.vite.dev/guide/migration.html), and [v7](https://v7.vite.dev/guide/migration.html). We expect most Wasp apps to be unaffected by these changes.
 
@@ -157,7 +170,7 @@ The only manual change you need to make is to update your `package.json` file:
 </Tabs>
 
 
-### 5. Update you Wasp bash completions (if you used them before)
+### 6. Update you Wasp bash completions (if you used them before)
 
 Wasp simplified how bash completions work.
 Instead of maintaining a separate file, you can now enable completions with a single line in your shell configuration.
@@ -193,6 +206,6 @@ complete -o default -o nospace -C 'wasp completion:list' wasp
 </TabItem>
 </Tabs>
 
-### 6. Enjoy your updated Wasp app
+### 7. Enjoy your updated Wasp app
 
 That's it!

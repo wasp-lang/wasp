@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { performLogin, setupTestUser } from "./helpers";
+import { performLogin, setupTestUser } from "./auth";
 
 test.describe("prisma setup fn", () => {
   const credentials = setupTestUser();
 
   test("prisma setup hook hides a specific task", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/tasks");
 

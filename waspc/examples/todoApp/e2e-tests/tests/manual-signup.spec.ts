@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { performLogin, performSignup } from "./auth";
-import { generateRandomEmail } from "./helpers";
+import { performEmailVerification, performLogin, performSignup } from "./auth";
+import { generateRandomEmail, isRunningInDevMode } from "./helpers";
 
-test.describe("custom signup", () => {
+test.describe("manual signup", () => {
   // We need the login test to run after the signup test.
   test.describe.configure({ mode: "serial" });
 
@@ -17,15 +17,24 @@ test.describe("custom signup", () => {
         password,
         address: "Some at least 10 letter address",
       },
-      "custom-signup",
+      "manual-signup",
     );
-
     await expect(page.locator("body")).toContainText(
-      `Signup successful. You can now login.`,
+      `You've signed up successfully! Check your email for the confirmation link.`,
     );
   });
 
-  test("can log in without email verification after custom sign up", async ({
+  // Unlike custom sign up, manual still follows the standard Wasp flow.
+  test("can verify email", async ({ page }) => {
+    if (isRunningInDevMode()) {
+      // Skip this test in dev mode, as email confirmation is not required.
+      test.skip();
+    }
+
+    await performEmailVerification(page, email);
+  });
+
+  test("can log in after email verification with manual sign up", async ({
     page,
   }) => {
     await performLogin(page, {

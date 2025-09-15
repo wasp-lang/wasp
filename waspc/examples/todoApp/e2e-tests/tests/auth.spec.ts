@@ -1,12 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { WASP_SERVER_PORT } from "../playwright.config";
-import {
-  generateRandomEmail,
-  getEmailVerificationLink,
-  isRunningInDevMode,
-  submitLoginForm,
-  submitSignupForm,
-} from "./helpers";
+import { performEmailVerification, performLogin, performSignup } from "./auth";
+import { generateRandomEmail, isRunningInDevMode } from "./helpers";
 
 test.describe("auth", () => {
   test("social button renders on signup page", async ({ page }) => {
@@ -20,16 +15,31 @@ test.describe("auth", () => {
   });
 
   test.describe("signup and login", () => {
-    const email = generateRandomEmail();
-    const password = "12345678";
-
     // We need the login test to run after the signup test.
     test.describe.configure({ mode: "serial" });
 
-    test("can sign up", async ({ page }) => {
-      await submitSignupForm(page, {
+    const email = generateRandomEmail();
+    const password = "12345678";
+
+    test("failing custom signup fields requirements results in error message", async ({
+      page,
+    }) => {
+      await performSignup(page, {
         email,
         password,
+        address: "TooShort",
+      });
+
+      await expect(page.locator("body")).toContainText(
+        `Address must be at least 10 characters long.`,
+      );
+    });
+
+    test("can sign up", async ({ page }) => {
+      await performSignup(page, {
+        email,
+        password,
+        address: "Some at least 10 letter address",
       });
 
       await expect(page.locator("body")).toContainText(
@@ -43,7 +53,7 @@ test.describe("auth", () => {
         test.skip();
       }
 
-      await submitLoginForm(page, {
+      await performLogin(page, {
         email,
         password,
       });
@@ -57,33 +67,24 @@ test.describe("auth", () => {
         test.skip();
       }
 
-      // Wait for the email to be sent
-      await page.waitForTimeout(1000);
-
-      const link = await getEmailVerificationLink(page, email);
-
-      await page.goto(link);
-      await expect(page.locator("body")).toContainText(
-        "Your email has been verified",
-      );
+      await performEmailVerification(page, email);
     });
 
     test("invalid credentials result in error message", async ({ page }) => {
       const invalidPassword = `${password}xxx`;
-      await submitLoginForm(page, {
+
+      await performLogin(page, {
         email,
         password: invalidPassword,
       });
-
       await expect(page.locator("body")).toContainText("Invalid credentials");
     });
 
     test("can log in", async ({ page }) => {
-      await submitLoginForm(page, {
+      await performLogin(page, {
         email,
         password,
       });
-
       await expect(page).toHaveURL("/");
     });
   });
