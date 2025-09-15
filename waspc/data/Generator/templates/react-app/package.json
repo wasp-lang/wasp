@@ -6,6 +6,7 @@
   "type": "module",
   {=& depsChunk =},
   {=& devDepsChunk =},
+  {=& peerDepsChunk =},
   {=& overridesChunk =},
   "scripts": {
     "start": "vite",
