@@ -1,11 +1,12 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module ShellCommands
   ( ShellCommand,
     ShellCommandBuilder (..),
     GoldenTestContext (..),
     WaspAppContext (..),
-    runShellCommandBuilder,
+    buildShellCommand,
     ($|),
     combineShellCommands,
     appendToWaspFile,
@@ -19,14 +20,14 @@ module ShellCommands
     buildDockerImage,
     insertCodeIntoFileAtLineNumber,
     copyContentsOfGitTrackedDirToGoldenTestProject,
-    cdIntoGoldenTestProject,
+    withInSnapshotProjectDir,
   )
 where
 
 import Common
   ( GitRepositoryRoot,
-    gitRootFromGoldenTestProjectDir,
-    goldenTestProjectDirInGoldenTestDir,
+    gitRootFromSnapshotProjectDir,
+    snapshotProjectDirInSnapshotDir,
   )
 import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import Data.List (intercalate)
@@ -44,8 +45,7 @@ import System.FilePath (joinPath, (</>))
 
 type ShellCommand = String
 
-newtype ShellCommandBuilder ctx a = ShellCommandBuilder
-  {_runShellCommandWithContext :: Reader ctx a}
+newtype ShellCommandBuilder ctx a = ShellCommandBuilder (Reader ctx a)
   deriving (Functor, Applicative, Monad, MonadReader ctx)
 
 -- | Context for commands which are run strictly from the golden tests.
@@ -59,18 +59,20 @@ data WaspAppContext = WaspAppContext
   {_waspAppName :: String}
   deriving (Show)
 
-runShellCommandBuilder :: ctx -> ShellCommandBuilder ctx a -> a
-runShellCommandBuilder ctx (ShellCommandBuilder r) = runReader r ctx
+buildShellCommand :: ctx -> ShellCommandBuilder ctx a -> a
+buildShellCommand ctx (ShellCommandBuilder reader) = runReader reader ctx
 
-cdIntoGoldenTestProject :: ShellCommandBuilder WaspAppContext [ShellCommand] -> ShellCommandBuilder GoldenTestContext ShellCommand
-cdIntoGoldenTestProject (ShellCommandBuilder r) = do
+withInSnapshotProjectDir :: ShellCommandBuilder WaspAppContext [ShellCommand] -> ShellCommandBuilder GoldenTestContext ShellCommand
+withInSnapshotProjectDir commandBuilder = do
   goldenTestContext <- ask
   let waspAppName = _goldenTestProjectName goldenTestContext
-  let goldenTestProjectDir = goldenTestProjectDirInGoldenTestDir waspAppName
-  let cdCommand :: ShellCommand = "cd " ++ fromRelDir goldenTestProjectDir
+
+  let snapshotProjectDir = snapshotProjectDirInSnapshotDir waspAppName
+  let cdCommand :: ShellCommand = "cd " ++ fromRelDir snapshotProjectDir
 
   let waspAppContext = WaspAppContext waspAppName
-  let commands = combineShellCommands (cdCommand : runReader r waspAppContext)
+  let commands = combineShellCommands (cdCommand : buildShellCommand waspAppContext commandBuilder)
+
   return commands
 
 -- Command utilities
@@ -81,10 +83,9 @@ cmd1 $| cmd2 = cmd1 ++ " | " ++ cmd2
 combineShellCommands :: [ShellCommand] -> ShellCommand
 combineShellCommands = intercalate " && "
 
-conditionShellCommands :: ShellCommand -> [ShellCommand] -> ShellCommand
-conditionShellCommands condition cmds =
-  let body = combineShellCommands cmds
-   in "if " ++ condition ++ "; then " ++ body ++ " ;fi"
+executeShellCommandsIf :: ShellCommand -> [ShellCommand] -> ShellCommand
+executeShellCommandsIf condition bodyCmds =
+  "if " ++ condition ++ "; then " ++ combineShellCommands bodyCmds ++ " ;fi"
 
 -- General commands
 
@@ -123,25 +124,25 @@ copyContentsOfGitTrackedDirToGoldenTestProject ::
   ShellCommandBuilder GoldenTestContext ShellCommand
 copyContentsOfGitTrackedDirToGoldenTestProject srcDirInGitRoot = do
   goldenTestContext <- ask
-  let srcDirPath = fromRelDir (gitRootFromGoldenTestProjectDir SP.</> srcDirInGitRoot)
+  let srcDirPath = fromRelDir (gitRootFromSnapshotProjectDir SP.</> srcDirInGitRoot)
       destDirPath = "./" ++ _goldenTestProjectName goldenTestContext
 
       createDestDir :: ShellCommand = "mkdir -p " ++ destDirPath
 
       listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
-        "git -C " ++ fromRelDir gitRootFromGoldenTestProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
+        "git -C " ++ fromRelDir gitRootFromSnapshotProjectDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
       -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
       -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
-      stripSrcDirPrefixFromPath :: ShellCommand =
+      stripSrcDirPrefixFromPaths :: ShellCommand =
         "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
-      copyFilesFromSrcDirToDestDir :: ShellCommand =
+      copyFromSrcDirToDestDir :: ShellCommand =
         "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destDirPath
    in return $
         combineShellCommands
           [ createDestDir,
             listRelPathsOfGitTrackedFilesInSrcDir
-              $| stripSrcDirPrefixFromPath
-              $| copyFilesFromSrcDirToDestDir
+              $| stripSrcDirPrefixFromPaths
+              $| copyFromSrcDirToDestDir
           ]
 
 waspCliNewMinimalStarter :: String -> ShellCommandBuilder ctx ShellCommand
@@ -167,7 +168,7 @@ buildDockerImage = do
   waspAppContext <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
    in return $
-        conditionShellCommands
+        executeShellCommandsIf
           "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
           [ "cd .wasp/build",
             "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " .",

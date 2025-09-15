@@ -4,9 +4,10 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    cdIntoGoldenTestProject,
+    WaspAppContext,
     copyContentsOfGitTrackedDirToGoldenTestProject,
     waspCliCompile,
+    withInSnapshotProjectDir,
   )
 import StrongPath (reldir)
 
@@ -15,12 +16,12 @@ kitchenSinkGoldenTest =
   makeGoldenTest "kitchen-sink" $
     sequence
       [ copyContentsOfGitTrackedDirToGoldenTestProject [reldir|waspc/examples/todoApp/|],
-        cdIntoGoldenTestProject $
+        withInSnapshotProjectDir $
           sequence
             [ createDotEnvServerFile,
               waspCliCompile
             ]
       ]
   where
-    createDotEnvServerFile :: ShellCommandBuilder ctx ShellCommand
+    createDotEnvServerFile :: ShellCommandBuilder WaspAppContext ShellCommand
     createDotEnvServerFile = return "cp .env.server.example .env.server"

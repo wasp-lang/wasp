@@ -3,10 +3,10 @@ module GoldenTests.WaspBuildGoldenTest (waspBuildGoldenTest) where
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( buildDockerImage,
-    cdIntoGoldenTestProject,
     setWaspDbToPSQL,
     waspCliBuild,
     waspCliNewMinimalStarter,
+    withInSnapshotProjectDir,
   )
 
 waspBuildGoldenTest :: GoldenTest
@@ -14,7 +14,7 @@ waspBuildGoldenTest =
   makeGoldenTest "wasp-build" $
     sequence
       [ waspCliNewMinimalStarter "wasp-build",
-        cdIntoGoldenTestProject $
+        withInSnapshotProjectDir $
           sequence
             [ setWaspDbToPSQL,
               waspCliBuild,

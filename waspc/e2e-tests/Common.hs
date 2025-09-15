@@ -1,13 +1,13 @@
 module Common
-  ( GoldenTestType (..),
+  ( SnapshotType (..),
     GitRepositoryRoot,
     E2eTestsDir,
     TestOutputsDir,
     getTestOutputsDir,
-    goldenTestDirInTestOutputsDir,
-    gitRootFromGoldenTestProjectDir,
-    goldenTestProjectDirInGoldenTestDir,
-    expectedFilesManifestFileInGoldenTestDir,
+    snapshotDirInTestOutputsDir,
+    gitRootFromSnapshotProjectDir,
+    snapshotProjectDirInSnapshotDir,
+    expectedFilesManifestFileInSnapshotDir,
   )
 where
 
@@ -18,49 +18,47 @@ import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
 import System.FilePath (takeFileName)
 
--- The root of the git repository.
 data GitRepositoryRoot
 
--- The "waspc" directory.
-data HaskellProjectRoot
+data WaspcDir
 
 data E2eTestsDir
 
 data TestOutputsDir
 
-data GoldenTestType = Golden | Current
+data SnapshotType = Golden | Current
 
-instance Show GoldenTestType where
+instance Show SnapshotType where
   show Golden = "golden"
   show Current = "current"
 
--- The directory inside TestOutputsDir where golden test runs are stored.
+-- The directory inside a TestOutputsDir where golden test snapshots are stored.
 -- It follows a "<project-name>-<golden-test-type>" naming convention.
 -- e.g. "wasp-new-golden", "kitchen-sink-current"
-data GoldenTestDir
+data SnapshotDir
 
-data ExpectedFilesManifest
-
--- The directory inside a golden test run directory where the project for that test is located.
+-- The directory inside a SnapshotDir where the project for that test is located.
 -- It is named after the project, e.g., "kitchen-sink".
-data GoldenTestProjectDir
+data SnapshotProjectDir
 
-projectRootInGitRoot :: Path' (Rel GitRepositoryRoot) (Dir HaskellProjectRoot)
-projectRootInGitRoot = [reldir|waspc|]
+data ExpectedFilesManifestFile
 
-getProjectRootPath :: IO (Path' Abs (Dir HaskellProjectRoot))
-getProjectRootPath = do
+waspcDirInGitRoot :: Path' (Rel GitRepositoryRoot) (Dir WaspcDir)
+waspcDirInGitRoot = [reldir|waspc|]
+
+getWaspcDirPath :: IO (Path' Abs (Dir WaspcDir))
+getWaspcDirPath = do
   -- NOTE: Cabal launches `cabal test` from root of the project, so this should always be some absolute path to waspc.
   absCwd <- getCurrentDirectory
   -- Just a little extra safeguard here since we are doing destructive file ops.
   unless (takeFileName absCwd == "waspc") (error "Expecting test process to be invoked from waspc dir")
   SP.parseAbsDir absCwd
 
-e2eTestsDirInProjectRoot :: Path' (Rel HaskellProjectRoot) (Dir E2eTestsDir)
-e2eTestsDirInProjectRoot = [reldir|e2e-tests|]
+e2eTestsDirInWaspcDir :: Path' (Rel WaspcDir) (Dir E2eTestsDir)
+e2eTestsDirInWaspcDir = [reldir|e2e-tests|]
 
 getE2eTestsDir :: IO (Path' Abs (Dir E2eTestsDir))
-getE2eTestsDir = (</> e2eTestsDirInProjectRoot) <$> getProjectRootPath
+getE2eTestsDir = (</> e2eTestsDirInWaspcDir) <$> getWaspcDirPath
 
 testOutputsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir TestOutputsDir)
 testOutputsDirInE2eTests = [reldir|test-outputs|]
@@ -68,26 +66,26 @@ testOutputsDirInE2eTests = [reldir|test-outputs|]
 getTestOutputsDir :: IO (Path' Abs (Dir TestOutputsDir))
 getTestOutputsDir = (</> testOutputsDirInE2eTests) <$> getE2eTestsDir
 
-goldenTestDirInTestOutputsDir :: String -> GoldenTestType -> Path' (Rel TestOutputsDir) (Dir GoldenTestDir)
-goldenTestDirInTestOutputsDir projectName goldenTestType = (fromJust . parseRelDir) (projectName ++ "-" ++ show goldenTestType)
+snapshotDirInTestOutputsDir :: String -> SnapshotType -> Path' (Rel TestOutputsDir) (Dir SnapshotDir)
+snapshotDirInTestOutputsDir projectName snapshotType = (fromJust . parseRelDir) (projectName ++ "-" ++ show snapshotType)
 
-expectedFilesManifestFileInGoldenTestDir :: Path' (Rel GoldenTestDir) (File ExpectedFilesManifest)
-expectedFilesManifestFileInGoldenTestDir = [relfile|expected-files.manifest|]
+expectedFilesManifestFileInSnapshotDir :: Path' (Rel SnapshotDir) (File ExpectedFilesManifestFile)
+expectedFilesManifestFileInSnapshotDir = [relfile|expected-files.manifest|]
 
-goldenTestProjectDirInGoldenTestDir :: String -> Path' (Rel GoldenTestDir) (Dir GoldenTestProjectDir)
-goldenTestProjectDirInGoldenTestDir = fromJust . parseRelDir
+snapshotProjectDirInSnapshotDir :: String -> Path' (Rel SnapshotDir) (Dir SnapshotProjectDir)
+snapshotProjectDirInSnapshotDir = fromJust . parseRelDir
 
--- | Connected to 'gitRootFromGoldenTestProjectDir'.
+-- | Inverse of 'gitRootFromSnapshotProjectDir'.
 --   If you change this function, change the other one too.
-goldenTestProjectDirInGitRoot :: String -> GoldenTestType -> Path' (Rel GitRepositoryRoot) (Dir GoldenTestProjectDir)
-goldenTestProjectDirInGitRoot projectName goldenTestType =
-  projectRootInGitRoot
-    </> e2eTestsDirInProjectRoot
+snapshotProjectDirInGitRoot :: String -> SnapshotType -> Path' (Rel GitRepositoryRoot) (Dir SnapshotProjectDir)
+snapshotProjectDirInGitRoot projectName snapshotType =
+  waspcDirInGitRoot
+    </> e2eTestsDirInWaspcDir
     </> testOutputsDirInE2eTests
-    </> goldenTestDirInTestOutputsDir projectName goldenTestType
-    </> goldenTestProjectDirInGoldenTestDir projectName
+    </> snapshotDirInTestOutputsDir projectName snapshotType
+    </> snapshotProjectDirInSnapshotDir projectName
 
--- | Connected to 'goldenTestProjectDirInGitRoot'.
+-- | Inverse of 'snapshotProjectDirInGitRoot'.
 --   If you change this function, change the other one too.
-gitRootFromGoldenTestProjectDir :: Path' (Rel GoldenTestProjectDir) (Dir GitRepositoryRoot)
-gitRootFromGoldenTestProjectDir = [reldir|../../../../|]
+gitRootFromSnapshotProjectDir :: Path' (Rel SnapshotProjectDir) (Dir GitRepositoryRoot)
+gitRootFromSnapshotProjectDir = [reldir|../../../../|]
