@@ -177,7 +177,7 @@ jobs:
           # instead of passing it as a single string value).
           wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_NAME "${ENV_VAR_ARGUMENTS[@]}"
 
-      - name: Save deployed app hostnames
+      - name: Save deployed app info
         id: save_hostnames
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
@@ -186,9 +186,11 @@ jobs:
 
           echo "server_hostname=$(railway status --json | jq -r --arg NAME "$server_service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain')" >> "$GITHUB_OUTPUT"
           echo "client_hostname=$(railway status --json | jq -r --arg NAME "$client_service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain')" >> "$GITHUB_OUTPUT"
+          echo "project_id=$(railway status --json | jq -r '.id')" >> "$GITHUB_OUTPUT"
     outputs:
       server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
       client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
+      project_id: ${{ steps.save_hostnames.outputs.project_id }}
 
   railway_smoke_test_app:
     name: Run smoke tests on deployed app
@@ -212,7 +214,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Clean up deployed Railway app
     needs: [railway_deploy_app, railway_smoke_test_app]
-    # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
+    # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.
     if: always()
 
@@ -227,4 +229,10 @@ jobs:
 
       - name: Clean up testing app from Railway
         run: |
-          echo "Not implemented yet, manually delete the project in Railway dashboard"
+          project_id=${{ needs.railway_deploy_app.outputs.project_id }}
+
+          curl --request POST \
+          --url https://backboard.railway.com/graphql/v2 \
+          --header "Authorization: Bearer $RAILWAY_API_TOKEN" \
+          --header 'Content-Type: application/json' \
+          --data "{\"query\":\"mutation projectDelete { projectDelete(id: \\\"$project_id\\\") }\"}"
