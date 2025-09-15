@@ -1,10 +1,17 @@
 # Tutorial Actions Executor (tacte)
 
-A CLI tool for managing and editing tutorial actions in Wasp docs. This tool allows you to execute all tutorial actions to get the final app or edit individual actions.
+## What is this CLI?
+
+Wasp docs have a tutorial that walks users through building a complete Wasp application step-by-step.
+
+Next to the text that explains each step, we added the `<TutorialAction>` components that define actions
+that define machine executable steps, like "create a new Wasp app", "add authentication", "create a Task entity", etc.
+This CLI tool, reads those tutorial files, extracts the actions, and executes them in sequence
+to create a fully functional Wasp application.
 
 ## Commands
 
-The CLI provides three main commands:
+The CLI provides three commands:
 
 ### 1. Generate App (`npm run generate-app`)
 
@@ -49,7 +56,7 @@ npm run edit-action -- --wasp-cli-command wasp
 
 This command:
 
-- Generates the app
+- Generates the app (unless `--skip-generating-app`)
 - Creates a branch from the action's commit
 - Captures your edits as a new patch
 - Rebases the fixes onto the main branch (prompts to resolve conflicts if needed)
@@ -68,15 +75,15 @@ You will see actions grouped by tutorial markdown filename, including the action
 ### Patch File Management
 
 - Patch files are stored in the `./docs/tutorial/patches/` directory
-- Files are named after their action IDs (e.g., `create-task-entity.patch`)
-- Contains the Git diff for that specific action
+- Files are named based on the source markdown file and the action id
+- Each file contains the Git diff for that specific action
 - When an action is edited, all patch files are automatically regenerated from the current commit history
 
 ### Database Migration Handling
 
 For actions that involve database changes:
 
-- Uses `wasp db migrate` command instead of patch application
+- Uses `wasp db migrate-dev --name <id>` instead of applying a patch
 - Migration files are committed with the action ID as the commit message
 
 ### Tutorial File Format
