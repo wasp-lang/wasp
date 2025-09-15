@@ -14,7 +14,9 @@ on:
   workflow_dispatch:
 
 env:
-  APP_PREFIX: ci-${{ github.sha }}
+  # We use run_id becuase it's shorter than commit SHA since
+  # the max length for project name in Railway is 25 characters.
+  APP_PREFIX: ci-${{ github.run_id }}
   FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
   FLY_REGION: mia
   RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
