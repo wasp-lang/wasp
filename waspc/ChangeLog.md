@@ -18,7 +18,7 @@
 - Wasp now correctly parses JSON env variables. ([#2849](https://github.com/wasp-lang/wasp/pull/2849)) by @genyus
 - Bash completion now knows about the `db` command. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
 - Bash completion no longer loops infinitely. ([#3107](https://github.com/wasp-lang/wasp/pull/3107)) by @Vickram-T-G
-- `EmailSignupData` type now has correct fields. ([#3149])(https://github.com/wasp-lang/wasp/issues/3149)
+- The `EmailSignupData` type now correctly has the the `email` field istead of the `username` field. ([#3149])(https://github.com/wasp-lang/wasp/issues/3149)
 
 ### 🔧 Small improvements
 
