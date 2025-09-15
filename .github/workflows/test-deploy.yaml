@@ -13,6 +13,10 @@ on:
       - v*
   workflow_dispatch:
 
+concurrency:
+  group: test-deploy
+  cancel-in-progress: true
+
 env:
   # We use run_id becuase it's shorter than commit SHA since
   # the max length for project name in Railway is 25 characters.
@@ -97,7 +101,7 @@ jobs:
     steps:
       - name: Smoke test the server
         run: |
-          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq '.json'
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq -e '.json'
 
       - name: Smoke test the client
         run: |
@@ -201,7 +205,7 @@ jobs:
     steps:
       - name: Smoke test the server
         run: |
-          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq '.json'
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq -e '.json'
 
       - name: Smoke test the client
         run: |
