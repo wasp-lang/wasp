@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { performLogin, setupTestUser } from "./helpers";
+import { performLogin, setupTestUser } from "./auth";
 
 test.describe("custom APIs", () => {
   const credentials = setupTestUser();
@@ -21,6 +21,7 @@ test.describe("custom APIs", () => {
 
   test("authenticated APIs work", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/apis");
 

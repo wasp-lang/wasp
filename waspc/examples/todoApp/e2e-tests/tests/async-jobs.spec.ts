@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { performLogin, setupTestUser } from "./helpers";
+import { performLogin, setupTestUser } from "./auth";
 
 test.describe("async jobs", () => {
   const credentials = setupTestUser();
 
   test("submits a job and gets result", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/jobs");
 
