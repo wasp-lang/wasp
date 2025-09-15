@@ -28,6 +28,7 @@
 - Better error message when choosing a template that doesn't exist. ([#2992](https://github.com/wasp-lang/wasp/pull/2992))
 - Bash completion setup is simplified. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
 - Increased the font size in Auth UI components, preventing automatic zooming on mobile devices. (by @Vickram-T-G) ([#3110](https://github.com/wasp-lang/wasp/pull/3110/files))
+- Wasp now allows more flexibility in versions of React Query. ([#3158](https://github.com/wasp-lang/wasp/pull/3158))
 - Wasp's React Query version was bumped in order to avoid a bug on their side. ([#3158](https://github.com/wasp-lang/wasp/pull/3158))
 
 ### 📖 Documentation

@@ -28,6 +28,7 @@
   "nodemonConfig": {
     "delay": "1000"
   },
+  "peerDependencies": {},
   "prisma": {},
   "private": true,
   "scripts": {
