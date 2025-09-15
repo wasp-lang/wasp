@@ -20,6 +20,7 @@ env:
   FLY_REGION: dfw
   APP_TO_DEPLOY: examples/kitchen-sink
   RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
+  RAILWAY_WASP_WORKSPACE_ID: 22f3bf34-c18e-4846-92b9-efb42c23955e
 
 jobs:
   fly_deploy_app:
@@ -173,10 +174,7 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          # - Railway login is the only place where the RAILWAY_API_TOKEN, so we need to
-          # login in before calling the Wasp CLI deploy command.
-          railway login
-          wasp-cli deploy railway launch "$APP_PREFIX" --workspace wasp "${ENV_VAR_ARGUMENTS[@]}"
+          wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Save deployed app hostnames
         id: save_hostnames
