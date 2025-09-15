@@ -23,6 +23,5 @@
   },
   "prisma": {=& prisma =},
   {=& depsChunk =},
-  {=& devDepsChunk =},
-  {=& peerDepsChunk =}
+  {=& devDepsChunk =}
 }
