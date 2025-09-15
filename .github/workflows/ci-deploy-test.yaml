@@ -12,6 +12,10 @@ on:
         required: true
   workflow_dispatch:
 
+concurrency:
+  group: test-deploy
+  cancel-in-progress: true
+
 env:
   WASP_TELEMETRY_DISABLE: 1
   # We use run_id becuase it's shorter than commit SHA since
@@ -100,7 +104,7 @@ jobs:
     steps:
       - name: Smoke test the server
         run: |
-          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq '.json'
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq -e '.json'
 
       - name: Smoke test the client
         run: |
@@ -204,7 +208,7 @@ jobs:
     steps:
       - name: Smoke test the server
         run: |
-          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq '.json'
+          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq -e '.json'
 
       - name: Smoke test the client
         run: |
