@@ -4,6 +4,7 @@ module Wasp.Generator.NpmDependencies
   ( DependencyConflictError (..),
     getDependenciesPackageJsonEntry,
     getDevDependenciesPackageJsonEntry,
+    getPeerDependenciesPackageJsonEntry,
     getUserNpmDepsForPackage,
     combineNpmDepsForPackage,
     NpmDepsForPackage (..),
@@ -41,7 +42,8 @@ instance FromJSON NpmDepsForFramework
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
-    devDependencies :: [D.Dependency]
+    devDependencies :: [D.Dependency],
+    peerDependencies :: [D.Dependency]
   }
   deriving (Show, Generic)
 
@@ -152,7 +154,11 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
       Right $
         NpmDepsForPackage
           { dependencies = Map.elems remainingWapsDeps,
-            devDependencies = Map.elems remainingWaspDevDeps
+            devDependencies = Map.elems remainingWaspDevDeps,
+            -- Peer dependencies are empty. The generated framework code is not intended to be
+            -- consumed as a library by another package; instead, it is a standalone application, so
+            -- there is no parent package to provide any peer dependencies.
+            peerDependencies = []
           }
     else
       Left $
@@ -199,6 +205,10 @@ getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "depende
 -- | Construct devDependencies entry in package.json
 getDevDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devDependencies" . devDependencies
+
+-- | Construct peerDependencies entry in package.json
+getPeerDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
+getPeerDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "peerDependencies" . peerDependencies
 
 getDependencyOverridesPackageJsonEntry :: [D.Dependency] -> String
 getDependencyOverridesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "overrides"
