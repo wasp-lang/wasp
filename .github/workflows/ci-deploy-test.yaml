@@ -208,7 +208,7 @@ jobs:
 
   railway_destroy_app:
     runs-on: ubuntu-latest
-    name: Clean up deployed Fly app
+    name: Clean up deployed Railway app
     needs: [railway_deploy_app, railway_smoke_test_app]
     # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.
@@ -217,7 +217,9 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          cache: "npm"
+          # We install Railway CLI globally using npm, so we don't need
+          # package manager cache here.
+          package-manager-cache: false
           node-version: "22"
 
       - name: Install Railway CLI
