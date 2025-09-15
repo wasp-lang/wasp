@@ -20,12 +20,14 @@ DEFAULT_COLOR="\033[39m"
 
 # Building
 WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
+WASP_LIBS_COMPILE="${SCRIPT_DIR}/tools/install_libs_to_data_dir.sh"
+WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
 BUILD_HS_CMD="cabal build all"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
-BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
-BUILD_ALL_STATIC_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD --enable-executable-static"
+BUILD_ALL_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD"
+BUILD_ALL_STATIC_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD --enable-executable-static"
 
-INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
+INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
 
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"

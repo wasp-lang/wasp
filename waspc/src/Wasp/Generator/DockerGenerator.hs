@@ -27,7 +27,7 @@ import Wasp.Generator.DbGenerator.Common
   )
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
-import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
+import Wasp.Generator.Monad (Generator, GeneratorError, makeGeneratorConfig, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
@@ -61,7 +61,9 @@ genDockerignore _ =
 -- | Helper to return what the Dockerfile content will be based on the AppSpec.
 compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Text)
 compileAndRenderDockerfile spec = do
-  let (_, generatorResult) = runGenerator $ genDockerfile spec
+  let config = makeGeneratorConfig []
+
+  let (_, generatorResult) = runGenerator config $ genDockerfile spec
   case generatorResult of
     Left generatorErrors -> return $ Left generatorErrors
     Right (FileDraftTemplateFd draft) -> do
