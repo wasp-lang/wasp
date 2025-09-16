@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { performLogin, setupTestUser } from "./helpers";
+import { performLogin, setupTestUser } from "./auth";
 
 test.describe("websocket", () => {
   const credentials = setupTestUser();
 
   test("chat works", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/chat");
 
