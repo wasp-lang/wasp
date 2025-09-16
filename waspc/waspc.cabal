@@ -795,11 +795,14 @@ test-suite waspc-e2e-tests
     , tasty-golden          ^>= 2.3.5
   other-modules:
     Common
-    GoldenTest
     ShellCommands
     Util
-    GoldenTests.WaspNewGoldenTest
-    GoldenTests.KitchenSinkGoldenTest
-    GoldenTests.WaspMigrateGoldenTest
-    GoldenTests.WaspCompileGoldenTest
-    GoldenTests.WaspBuildGoldenTest
+    WaspApp.ShellCommands
+    GoldenTest.Common
+    GoldenTest.Runner
+    GoldenTest.ShellCommands
+    Tests.WaspNewGoldenTest
+    Tests.KitchenSinkGoldenTest
+    Tests.WaspMigrateGoldenTest
+    Tests.WaspCompileGoldenTest
+    Tests.WaspBuildGoldenTest
