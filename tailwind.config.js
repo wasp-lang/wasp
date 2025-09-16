@@ -1,5 +1,5 @@
 import { resolveProjectPath } from "wasp/dev"
-import { heroui } from "heroui/react";
+import { heroui } from "@heroui/react";
 
 /** @type {import('tailwindcss').Config} */
 export default {
