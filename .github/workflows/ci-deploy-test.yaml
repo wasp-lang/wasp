@@ -102,15 +102,25 @@ jobs:
         id: save_info
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
+          function get_fly_app_hostname() {
+            config_file="$1"
+            flyctl status -j -c "$config_file" | jq -r '.Hostname'
+          }
+
+          function get_railway_service_hostname() {
+            service_name="$1"
+            railway status --json | jq -r --arg NAME "$service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain'
+          }
+
           if [ "${{ matrix.provider }}" = "fly" ]; then
-            echo "SERVER_HOSTNAME=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_ENV"
-            echo "CLIENT_HOSTNAME=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_ENV"
+            echo "SERVER_HOSTNAME=$(get_fly_app_hostname fly-server.toml)" >> "$GITHUB_ENV"
+            echo "CLIENT_HOSTNAME=$(get_fly_app_hostname fly-client.toml)" >> "$GITHUB_ENV"
           else
             server_service_name="${APP_PREFIX}-server"
             client_service_name="${APP_PREFIX}-client"
 
-            echo "SERVER_HOSTNAME=$(railway status --json | jq -r --arg NAME "$server_service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain')" >> "$GITHUB_ENV"
-            echo "CLIENT_HOSTNAME=$(railway status --json | jq -r --arg NAME "$client_service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain')" >> "$GITHUB_ENV"
+            echo "SERVER_HOSTNAME=$(get_railway_service_hostname "$server_service_name")" >> "$GITHUB_ENV"
+            echo "CLIENT_HOSTNAME=$(get_railway_service_hostname "$client_service_name")" >> "$GITHUB_ENV"
           fi
 
       - name: Smoke test deployed app
