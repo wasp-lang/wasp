@@ -139,7 +139,6 @@ jobs:
         run: |
           project_id=$(railway status --json | jq -r '.id')
 
-
           curl --request POST \
           --url https://backboard.railway.com/graphql/v2 \
           --header "Authorization: Bearer $RAILWAY_API_TOKEN" \
