@@ -339,7 +339,6 @@ waspJob/.wasp/out/server/.gitignore
 waspJob/.wasp/out/server/.npmrc
 waspJob/.wasp/out/server/README.md
 waspJob/.wasp/out/server/nodemon.json
-waspJob/.wasp/out/server/package-lock.json
 waspJob/.wasp/out/server/package.json
 waspJob/.wasp/out/server/rollup.config.js
 waspJob/.wasp/out/server/src/app.js
@@ -360,7 +359,6 @@ waspJob/.wasp/out/web-app/.npmrc
 waspJob/.wasp/out/web-app/README.md
 waspJob/.wasp/out/web-app/index.html
 waspJob/.wasp/out/web-app/netlify.toml
-waspJob/.wasp/out/web-app/package-lock.json
 waspJob/.wasp/out/web-app/package.json
 waspJob/.wasp/out/web-app/public/.gitkeep
 waspJob/.wasp/out/web-app/public/favicon.ico

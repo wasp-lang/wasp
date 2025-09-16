@@ -299,7 +299,6 @@ waspMigrate/.wasp/out/server/.gitignore
 waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/nodemon.json
-waspMigrate/.wasp/out/server/package-lock.json
 waspMigrate/.wasp/out/server/package.json
 waspMigrate/.wasp/out/server/rollup.config.js
 waspMigrate/.wasp/out/server/src/app.js
@@ -316,7 +315,6 @@ waspMigrate/.wasp/out/web-app/.npmrc
 waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/index.html
 waspMigrate/.wasp/out/web-app/netlify.toml
-waspMigrate/.wasp/out/web-app/package-lock.json
 waspMigrate/.wasp/out/web-app/package.json
 waspMigrate/.wasp/out/web-app/public/.gitkeep
 waspMigrate/.wasp/out/web-app/public/favicon.ico

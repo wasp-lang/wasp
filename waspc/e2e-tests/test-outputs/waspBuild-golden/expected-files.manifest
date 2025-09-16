@@ -289,7 +289,6 @@ waspBuild/.wasp/build/server/.gitignore
 waspBuild/.wasp/build/server/.npmrc
 waspBuild/.wasp/build/server/README.md
 waspBuild/.wasp/build/server/nodemon.json
-waspBuild/.wasp/build/server/package-lock.json
 waspBuild/.wasp/build/server/package.json
 waspBuild/.wasp/build/server/rollup.config.js
 waspBuild/.wasp/build/server/src/app.js
@@ -310,7 +309,6 @@ waspBuild/.wasp/build/web-app/.npmrc
 waspBuild/.wasp/build/web-app/README.md
 waspBuild/.wasp/build/web-app/index.html
 waspBuild/.wasp/build/web-app/netlify.toml
-waspBuild/.wasp/build/web-app/package-lock.json
 waspBuild/.wasp/build/web-app/package.json
 waspBuild/.wasp/build/web-app/public/.gitkeep
 waspBuild/.wasp/build/web-app/public/favicon.ico

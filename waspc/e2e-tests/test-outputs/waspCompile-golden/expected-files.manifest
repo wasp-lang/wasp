@@ -288,7 +288,6 @@ waspCompile/.wasp/out/server/.gitignore
 waspCompile/.wasp/out/server/.npmrc
 waspCompile/.wasp/out/server/README.md
 waspCompile/.wasp/out/server/nodemon.json
-waspCompile/.wasp/out/server/package-lock.json
 waspCompile/.wasp/out/server/package.json
 waspCompile/.wasp/out/server/rollup.config.js
 waspCompile/.wasp/out/server/src/app.js
@@ -305,7 +304,6 @@ waspCompile/.wasp/out/web-app/.npmrc
 waspCompile/.wasp/out/web-app/README.md
 waspCompile/.wasp/out/web-app/index.html
 waspCompile/.wasp/out/web-app/netlify.toml
-waspCompile/.wasp/out/web-app/package-lock.json
 waspCompile/.wasp/out/web-app/package.json
 waspCompile/.wasp/out/web-app/public/.gitkeep
 waspCompile/.wasp/out/web-app/public/favicon.ico
