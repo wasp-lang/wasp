@@ -111,7 +111,6 @@ jobs:
 
             echo "SERVER_HOSTNAME=$(railway status --json | jq -r --arg NAME "$server_service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain')" >> "$GITHUB_ENV"
             echo "CLIENT_HOSTNAME=$(railway status --json | jq -r --arg NAME "$client_service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain')" >> "$GITHUB_ENV"
-            echo "PROJECT_ID=$(railway status --json | jq -r '.id')" >> "$GITHUB_ENV"
           fi
 
       - name: Smoke test the server
@@ -146,7 +145,8 @@ jobs:
       - name: Clean up testing app from Railway
         if: always() && matrix.provider == 'railway'
         run: |
-          project_id=$PROJECT_ID
+          project_id=$(railway status --json | jq -r '.id')
+
 
           curl --request POST \
           --url https://backboard.railway.com/graphql/v2 \
