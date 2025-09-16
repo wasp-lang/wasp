@@ -113,13 +113,8 @@ jobs:
             echo "CLIENT_HOSTNAME=$(railway status --json | jq -r --arg NAME "$client_service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain')" >> "$GITHUB_ENV"
           fi
 
-      - name: Smoke test the server
-        run: |
-          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq -e '.json'
-
-      - name: Smoke test the client
-        run: |
-          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'Wasp Kitchen Sink'
+      - name: Smoke test deployed app
+        run: ./scripts/smoke-test-deployed-test-app.sh "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
 
       - name: Prepare Fly CLI for cleanup
         if: always() && matrix.provider == 'fly'
@@ -138,12 +133,9 @@ jobs:
           flyctl apps destroy -y $APP_PREFIX-client || true
           flyctl apps destroy -y $APP_PREFIX-db || true
 
-      - name: Prepare Railway CLI for cleanup
-        if: always() && matrix.provider == 'railway'
-        run: npm install -g @railway/cli
-
       - name: Clean up testing app from Railway
         if: always() && matrix.provider == 'railway'
+        working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           project_id=$(railway status --json | jq -r '.id')
 
