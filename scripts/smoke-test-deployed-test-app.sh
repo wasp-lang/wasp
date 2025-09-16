@@ -52,14 +52,14 @@ server_check_once() {
   echo "[Server] Hitting $SERVER_URL/operations/get-date"
   curl --fail --silent --max-time "$TIMEOUT_SECONDS" -X POST \
     "$SERVER_URL/operations/get-date" \
-    | jq -e '.json' > /dev/null
+    | jq -e '.json'
 }
 
 client_check_once() {
   echo "[Client] Hitting $CLIENT_URL"
   curl --fail --silent --max-time "$TIMEOUT_SECONDS" \
     "$CLIENT_URL" \
-    | grep -q 'ToDo App'
+    | grep 'ToDo App'
 }
 
 echo "Server URL: $SERVER_URL"
