@@ -95,6 +95,13 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 to ensure all the tests are passing.
 
+> [!NOTE]
+> On Windows, the powershell's active code page should be changed to utf-8 to support special letters in some test suits (ref. [PR3027](https://github.com/wasp-lang/wasp/pull/3027)).
+>
+> ```ps
+> chcp 65001
+> ```
+
 ### Run the `wasp` CLI
 
 ```sh

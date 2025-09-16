@@ -190,7 +190,8 @@ genPackageJson spec =
       ( Just $
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
+              "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
             ]
       )
 
@@ -201,7 +202,6 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
-            ("@tanstack/react-query", show reactQueryVersion),
             ("axios", show axiosVersion),
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
@@ -234,6 +234,10 @@ npmDepsForSdk spec =
           [ -- Should @types/* go into their package.json?
             ("@types/express", show expressTypesVersion),
             ("@types/express-serve-static-core", show expressTypesVersion)
+          ],
+      N.peerDependencies =
+        Npm.Dependency.fromList
+          [ ("@tanstack/react-query", show reactQueryVersion)
           ]
     }
 

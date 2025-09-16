@@ -4,6 +4,7 @@ module Wasp.Generator.NpmDependencies
   ( DependencyConflictError (..),
     getDependenciesPackageJsonEntry,
     getDevDependenciesPackageJsonEntry,
+    getPeerDependenciesPackageJsonEntry,
     getUserNpmDepsForPackage,
     combineNpmDepsForPackage,
     NpmDepsForPackage (..),
@@ -41,7 +42,8 @@ instance FromJSON NpmDepsForFramework
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
-    devDependencies :: [D.Dependency]
+    devDependencies :: [D.Dependency],
+    peerDependencies :: [D.Dependency]
   }
   deriving (Show, Generic)
 
@@ -152,7 +154,11 @@ combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
       Right $
         NpmDepsForPackage
           { dependencies = Map.elems remainingWapsDeps,
-            devDependencies = Map.elems remainingWaspDevDeps
+            devDependencies = Map.elems remainingWaspDevDeps,
+            -- Peer dependencies are empty. The generated framework code is not intended to be
+            -- consumed as a library by another package; instead, it is a standalone application, so
+            -- there is no parent package to provide any peer dependencies.
+            peerDependencies = []
           }
     else
       Left $
@@ -188,17 +194,17 @@ determineConflictErrors waspDepsByName userDepsByName =
         then Just $ DependencyConflictError waspDep userDep
         else Nothing
 
--- Construct a map of dependency keyed by dependency name.
 makeDepsByName :: [D.Dependency] -> DepsByName
 makeDepsByName = Map.fromList . fmap (\d -> (D.name d, d))
 
--- | Construct dependencies entry in package.json
 getDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "dependencies" . dependencies
 
--- | Construct devDependencies entry in package.json
 getDevDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devDependencies" . devDependencies
+
+getPeerDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
+getPeerDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "peerDependencies" . peerDependencies
 
 getDependencyOverridesPackageJsonEntry :: [D.Dependency] -> String
 getDependencyOverridesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "overrides"
