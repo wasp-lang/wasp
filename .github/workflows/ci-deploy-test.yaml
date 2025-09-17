@@ -12,18 +12,15 @@ on:
         required: true
   workflow_dispatch:
 
-concurrency:
-  group: test-deploy
-  cancel-in-progress: true
-
 env:
   WASP_TELEMETRY_DISABLE: 1
   # We use run_id becuase it's shorter than commit SHA since
   # the max length for project name in Railway is 25 characters.
   APP_PREFIX: ci-${{ github.run_id }}
+  APP_TO_DEPLOY: examples/kitchen-sink
   FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
   FLY_REGION: dfw
-  APP_TO_DEPLOY: examples/kitchen-sink
+  FLY_ORG: wasp-testing
   RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
   RAILWAY_WASP_WORKSPACE_NAME: Wasp
 
@@ -64,6 +61,7 @@ jobs:
 
       - name: Deploy app
         working-directory: ${{ env.APP_TO_DEPLOY }}
+        shell: bash
         run: |
           set -e
 
@@ -89,7 +87,7 @@ jobs:
             # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
             # word splitting (i.e., force Bash to interpret the flags separately
             # instead of passing it as a single string value).
-            yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing "${ENV_VAR_ARGUMENTS[@]}"
+            yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
           else
             # NOTE:
             # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
@@ -100,8 +98,11 @@ jobs:
 
       - name: Save deployed app info
         id: save_info
+        shell: bash
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
+          set -e
+
           function get_fly_app_hostname() {
             config_file="$1"
             flyctl status -j -c "$config_file" | jq -r '.Hostname'
