@@ -1,6 +1,10 @@
 {
   "name": "todo-app",
   "type": "module",
+  "workspaces": [
+    ".wasp/out/*",
+    ".wasp/build/*"
+  ],
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
     "env:push": "npx dotenv-vault@latest push development .env.server",
@@ -31,9 +35,5 @@
     "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",
     "vite": "^7.0.6"
-  },
-  "workspaces": [
-    ".wasp/out/*",
-    ".wasp/build/*"
-  ]
+  }
 }

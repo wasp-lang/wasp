@@ -1,6 +1,10 @@
 {
   "name": "todo-app",
   "type": "module",
+  "workspaces": [
+    ".wasp/out/*",
+    ".wasp/build/*"
+  ],
   "scripts": {
     "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
   },
@@ -17,9 +21,5 @@
     "prisma": "5.19.1",
     "typescript": "5.8.2",
     "vite": "^7.0.6"
-  },
-  "workspaces": [
-    ".wasp/out/*",
-    ".wasp/build/*"
-  ]
+  }
 }
