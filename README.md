@@ -19,9 +19,10 @@ First, makes sure you have Wasp installed.
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 
-Then, close this repo and start the database with:
+Then, close this repo, position yourself in `custom-db` and start the database with:
 ```bash
-./custom-db/run_db.sh
+cd custom-db
+./run_db.sh
 ```
 Follow the instructions in the script.
 
