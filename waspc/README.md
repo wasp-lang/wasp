@@ -433,13 +433,16 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 Do the steps marked with 👉 for every release of `waspc`.
 Do the non-bold steps when necessary (decide for each step depending on the changes, e.g. some can be skipped if there were no breaking changes).
 
-- Update the starter templates if necessary (i.e., if there are breaking changes or new features they should make use of):
-  - Context: they are used by used by `wasp new`, you can find reference to them in `Wasp.Cli. ... .StarterTemplates`.
-  - Check and merge all PRs with the label `merge-before-release`.
-  - In `StarterTemplates.hs` file, update git tag to new version of Wasp we are about to release (e.g. `wasp-v0.13.1-template`).
-  - Ensure that all starter templates are working with this new version of Wasp.
-    Update Wasp version in their main.wasp files, and update their code as neccessary. Finally, in their repos (for those templates that are on Github), create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`). Now, once new wasp release is out, it will immediately be able to pull the correct and working version of the starter templates, which is why all this needs to happen before we release new wasp version.
-  - Open-saas also falls under this!
+- Double check that starter templates are migrated and up to date (i.e., if there are breaking changes or new features they should make use of):
+  - Context: they are used by used by `wasp new` and live in `data/CLI/starters`.
+  - Update Wasp version in their main.wasp files, and update their code as neccessary.
+  - Ensure that all starter templates are working with this new version of Wasp (`wasp new -t ...`)
+- Update Open Saas:
+  - OpenSaas is also one of Wasp's templates. Ensure it's migrated and up to date.
+  - First check [Open Saas](https://github.com/wasp-lang/open-saas/pulls) and merge all PRs with the label `merge-before-release`. These are migration PRs someone already made. They weren't yet merged to keep the CI working. Now is the time to merge them.
+  - In `waspc/../StarterTemplates.hs` file, update git tag to new version of Wasp we are about to release (e.g. `"wasp-v0.18-template"`).
+  - After merging the migration PRs, tag Open Saas's main branch with this same tag.
+  - Ensure that the Open Saas template is working with this new version of Wasp (`wasp new -t saas`)
 - Make sure apps in [examples](/examples) are up to date and using a version compatible with the newest version of Wasp.
 - Make sure that Wasp AI (which is part of `waspc` and you can run it with e.g. `wasp new:ai`) is correctly producing apps that work with and use this newest version of Wasp.
   This usually means checking that templates and prompts (e.g. examples of Wasp code) are up to date. If there were no breaking changes, there is likely nothing to be done here.
