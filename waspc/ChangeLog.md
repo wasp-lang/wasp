@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🎉 New Features
+
+- Wasp now uses npm workspaces to manage our generated code. This makes our dependency system more reliable, improves install performance and reduces the size of each project on disk. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+
 ## 0.18.0
 
 ### ⚠️ Breaking Changes
