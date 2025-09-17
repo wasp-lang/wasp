@@ -61,7 +61,6 @@ jobs:
 
       - name: Deploy app
         working-directory: ${{ env.APP_TO_DEPLOY }}
-        shell: bash
         run: |
           set -e
 
@@ -90,7 +89,7 @@ jobs:
             # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
             # word splitting (i.e., force Bash to interpret the flags separately
             # instead of passing it as a single string value).
-            yes 2>/dev/null | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
+            yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
           else
             # NOTE:
             # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
@@ -101,7 +100,6 @@ jobs:
 
       - name: Save deployed app info
         id: save_info
-        shell: bash
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           set -e
