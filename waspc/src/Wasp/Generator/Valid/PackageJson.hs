@@ -9,6 +9,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
+import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateFieldValue)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
@@ -25,6 +26,7 @@ validatePackageJson packageJson =
   validateRuntimeDependencies packageJson
     ++ validateDevelopmentDependencies packageJson
     ++ validateOptionalDependencies packageJson
+    ++ validateWorkspaces packageJson
 
 validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
 validateRuntimeDependencies packageJson =
@@ -41,7 +43,7 @@ validateRuntimeDependencies packageJson =
 
 validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
 validateDevelopmentDependencies packageJson =
-  concat $
+  concat
     [ validateDevelopment ("vite", show viteVersion),
       validateDevelopment ("prisma", show prismaVersion)
     ]
@@ -57,6 +59,14 @@ validateOptionalDependencies packageJson =
     ]
   where
     validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
+
+validateWorkspaces :: P.PackageJson -> [GeneratorError]
+validateWorkspaces packageJson =
+  validateFieldValue
+    "package.json"
+    (FieldName ["workspaces"])
+    (Just [".wasp/out/*", ".wasp/build/*"])
+    (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
@@ -123,7 +133,7 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
             "to be in",
             show $ getExpectedPackageJsonDependencyKey requirement
           ]
-            ++ ( case getOppositePackageJsonDepedencyKey requirement of
+            ++ ( case getOppositePackageJsonDependencyKey requirement of
                    Just oppositeKey -> ["and not in", show oppositeKey]
                    Nothing -> []
                )
@@ -135,8 +145,8 @@ getExpectedPackageJsonDependencyKey = \case
   RequiredDevelopment -> "devDependencies"
   Optional -> "dependencies or devDependencies"
 
-getOppositePackageJsonDepedencyKey :: PackageRequirement -> Maybe String
-getOppositePackageJsonDepedencyKey = \case
+getOppositePackageJsonDependencyKey :: PackageRequirement -> Maybe String
+getOppositePackageJsonDependencyKey = \case
   RequiredRuntime -> Just "devDependencies"
   RequiredDevelopment -> Just "dependencies"
   Optional -> Nothing
