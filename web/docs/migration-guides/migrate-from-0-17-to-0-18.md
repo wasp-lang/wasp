@@ -32,7 +32,7 @@ Additionally, we've added the missing `db` commands to bash completion.
 
 ## How to migrate?
 
-To migrate your Wasp app from 0.16.X to 0.17.X, follow these steps:
+To migrate your Wasp app from 0.17.X to 0.18.X, follow these steps:
 
 ### 1. Install Node.js 22.12 or higher
 
