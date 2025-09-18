@@ -64,11 +64,13 @@ async function startClientApp({
 }): Promise<{
   exitCode: number | null;
 }> {
+  const servePath = path.resolve(pathToApp, clientAppBuildOutputDir);
+
   return spawnWithLog({
     name: "client-start-app",
     cmd: "npx",
-    args: ["serve", "--single", "-p", "3000"],
-    cwd: path.join(pathToApp, clientAppBuildOutputDir),
+    args: ["serve", "--single", "-p", "3000", servePath],
+    cwd: servePath,
   });
 }
 
