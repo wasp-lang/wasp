@@ -150,6 +150,7 @@ export function getAuthConfig(scope: ConfigType): Config<TsAppSpec.AuthConfig> {
         onBeforeOAuthRedirect: getExtImport(scope, "named"),
         onBeforeLogin: getExtImport(scope, "named"),
         onAfterLogin: getExtImport(scope, "named"),
+        sessionLength: 30 * 24 * 60 * 60 * 1000, // 30 days
       } satisfies FullConfig<TsAppSpec.AuthConfig>;
     default:
       assertUnreachable(scope);
