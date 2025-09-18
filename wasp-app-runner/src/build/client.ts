@@ -9,7 +9,6 @@ import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
 
 const clientAppDir = ".wasp/build/web-app";
-const clientAppBuildOutputDir = path.join(clientAppDir, "build");
 
 // Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
 export async function buildAndRunClientApp({
@@ -66,9 +65,16 @@ async function startClientApp({
 }> {
   return spawnWithLog({
     name: "client-start-app",
-    cmd: "npx",
-    args: ["serve", "--single", "-p", "3000"],
-    cwd: path.join(pathToApp, clientAppBuildOutputDir),
+    cmd: "npm",
+    args: [
+      "run",
+      "preview",
+      "--",
+      "--port",
+      "3000",
+      "--strictPort", // This will make it fail if the port is already in use.
+    ],
+    cwd: path.join(pathToApp, clientAppDir),
   });
 }
 
