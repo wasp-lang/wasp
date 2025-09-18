@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .link {
+    @apply text-primary-600 hover:text-primary-800 focus:ring-primary-500 underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .card {
+    @apply rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200;
+  }
+
+  .feature-title {
+    @apply text-2xl font-semibold;
+  }
+}
