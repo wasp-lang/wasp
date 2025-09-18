@@ -22,7 +22,6 @@ env:
   FLY_REGION: dfw
   FLY_ORG: wasp-testing
   RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
-  RAILWAY_WASP_WORKSPACE_NAME: Wasp
   RAILWAY_WASP_WORKSPACE_ID: eb1f9060-40c8-4be0-a372-3a8c9b8bdcf2
   DEPLOY_INFO_DIR: /tmp/deploy-info
   CACHE_KEY_PREFIX: deploy-info
@@ -96,7 +95,7 @@ jobs:
           set -e
           echo "Deploying with prefix: $APP_PREFIX (provider: railway)"
           mapfile -t ENV_VAR_ARGUMENTS < .env-args.txt
-          wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_NAME "${ENV_VAR_ARGUMENTS[@]}"
+          wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames (Fly)
         if: matrix.provider == 'fly'
