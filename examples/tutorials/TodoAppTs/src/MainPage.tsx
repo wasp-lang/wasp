@@ -1,4 +1,5 @@
-import { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import type { AuthUser } from "wasp/auth";
 import { logout } from "wasp/client/auth";
 import {
   createTask,
@@ -6,20 +7,18 @@ import {
   updateTask,
   useQuery,
 } from "wasp/client/operations";
-import { Task } from "wasp/entities";
+import type { Task } from "wasp/entities";
 
-export const MainPage = () => {
+export const MainPage = ({ user }: { user: AuthUser }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
     <div>
       <NewTaskForm />
-
       {tasks && <TasksList tasks={tasks} />}
 
       {isLoading && "Loading..."}
       {error && "Error: " + error}
-
       <button onClick={logout}>Logout</button>
     </div>
   );

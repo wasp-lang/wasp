@@ -85,10 +85,6 @@ async function initializeClientEnvironment(
   }
 }
 
-interface StarterTestExecution extends StarterTestConfiguration {
-  waspProjectPath: string;
-}
-
 async function runDevE2ETests(
   waspProjectPath: string,
   { starterName, waspCliCommand }: StarterTestConfiguration,

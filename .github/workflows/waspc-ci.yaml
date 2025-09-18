@@ -122,34 +122,30 @@ jobs:
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run unit tests
-        run: cabal test cli-test waspc-test waspls-test
+        run: cabal test wasp-cli-tests waspc-tests waspls-tests
 
-      - name: Ensure examples/todoApp compiles and builds
+      - name: Ensure `todoApp` compiles and builds
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
         run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
 
-      - name: Headless - Cache Node Modules
-        id: headless-cache-node-modules
+      - name: Cache `todoApp` Node modules
         uses: actions/cache@v4
         if: matrix.os == 'ubuntu-22.04'
         with:
           path: ~/.npm
-          key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
+          key: node-modules-${{ hashFiles('./waspc/examples/todoApp/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
-      - name: Headless - Install wasp-cli for testing
-        id: headless-install-wasp-cli
+      - name: Install `wasp-cli`
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
-      - name: Headless - Install Dependencies
-        id: headless-install-dependencies
+      - name: Install `todoApp` node dependencies
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
           npm ci
 
-      - name: Headless - Store Playwright's Version
-        id: headless-store-playwright-version
+      - name: Store `todoApp` Playwright version
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
@@ -157,38 +153,43 @@ jobs:
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
-      - name: Headless - Cache Playwright Browsers for Playwright's Version
-        id: headless-cache-playwright-browsers
+      - name: Cache `todoApp` Playwright browsers for Playwright version
+        id: todoApp-cache-playwright-browsers
         if: matrix.os == 'ubuntu-22.04'
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
 
-      - name: Headless - Setup Playwright
-        id: headless-setup-playwright
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
+      - name: Install `todoApp` Playwright browsers
+        if: steps.todoApp-cache-playwright-browsers.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
           npx playwright install --with-deps
 
-      - name: Headless - Run Playwright Tests (dev)
-        id: headless-run-playwright-tests-dev
+      - name: Set up `todoApp` project environment
         if: matrix.os == 'ubuntu-22.04'
         run: |
           cd examples/todoApp
-          # Prepare the environment for the tests
-          cp .env.server.headless .env.server
-          HEADLESS_TEST_MODE=dev npm run test
+          cp .env.server.example .env.server
 
-      - name: Headless - Run Playwright Tests (build)
-        id: headless-run-playwright-tests-build
+      - name: Run `todoApp` Playwright DEV tests
         if: matrix.os == 'ubuntu-22.04'
+        env:
+          WASP_CLI_CMD: wasp-cli
+          WASP_RUN_MODE: dev
         run: |
           cd examples/todoApp
-          # Prepare the environment for the tests
-          cp .env.server.headless .env.server
-          HEADLESS_TEST_MODE=build npm run test
+          npm run test
 
-      - name: Run e2e tests
-        run: cabal test e2e-test
+      - name: Run `todoApp` Playwright BUILD tests
+        if: matrix.os == 'ubuntu-22.04'
+        env:
+          WASP_CLI_CMD: wasp-cli
+          WASP_RUN_MODE: build
+        run: |
+          cd examples/todoApp
+          npm run test
+
+      - name: Run `waspc` e2e tests
+        run: ./run test:waspc:e2e

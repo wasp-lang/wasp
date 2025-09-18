@@ -24,8 +24,12 @@ const community = [
     url: "https://discord.gg/rzdnErX",
   },
   {
-    text: "Twitter",
-    url: "https://twitter.com/WaspLang",
+    text: "X / Twitter",
+    url: "https://x.com/WaspLang",
+  },
+  {
+    text: "Bluesky",
+    url: "https://bsky.app/profile/wasp.sh",
   },
   {
     text: "GitHub",
@@ -44,7 +48,7 @@ const company = [
   },
   {
     text: "Company",
-    url: "https://www.notion.so/wasp-lang/Founding-Engineer-at-Wasp-88a73838f7f04ab3aee1f8e1c1bee6dd#20569f14a8af452db10ae618d764d505",
+    url: "https://wasp-lang.notion.site/Framework-Engineer-at-Wasp-12a18a74854c80de9481c33ebe9cccff?pvs=25#1371801161fd404a8c583cde3611238e",
   },
 ];
 
