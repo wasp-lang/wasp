@@ -23,6 +23,7 @@ env:
   FLY_ORG: wasp-testing
   RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
   RAILWAY_WASP_WORKSPACE_NAME: Wasp
+  RAILWAY_WASP_WORKSPACE_ID: eb1f9060-40c8-4be0-a372-3a8c9b8bdcf2
   DEPLOY_INFO_DIR: /tmp/deploy-info
   CACHE_KEY_PREFIX: deploy-info
 
@@ -204,8 +205,8 @@ jobs:
               --url https://backboard.railway.com/graphql/v2 \
               --header "Authorization: Bearer $RAILWAY_API_TOKEN" \
               --header 'Content-Type: application/json' \
-              --data "{\"query\":\"query { me { projects { edges { node { id name } } } } }\"}" | \
-              jq -r --arg PROJECT_NAME "$project_name" '.data.me.projects.edges[] | select(.node.name == $PROJECT_NAME) | .node.id'
+              --data "{\"query\":\"query { workspace(workspaceId: \\\"$RAILWAY_WASP_WORKSPACE_ID\\\") { projects { edges { node { id name } } } } }\"}" | \
+              jq -r --arg PROJECT_NAME "$project_name" '.data.workspace.projects.edges[] | select(.node.name == $PROJECT_NAME) | .node.id'
           }
 
           function delete_railway_project() {
