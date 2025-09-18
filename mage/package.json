@@ -24,8 +24,8 @@
     "react-icons": "4.10.1",
     "react-parallax-tilt": "1.7.151",
     "react-router-dom": "^6.26.2",
-    "timeago.js": "4.0.2",
     "tailwindcss": "^3.2.7",
+    "timeago.js": "4.0.2",
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
