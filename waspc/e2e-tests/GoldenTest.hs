@@ -1,11 +1,10 @@
 module GoldenTest
-  ( runGoldenTest,
+  ( GoldenTest,
     makeGoldenTest,
-    GoldenTest,
+    runGoldenTest,
   )
 where
 
-import Common (getTestOutputsDir)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -14,14 +13,21 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isSuffixOf, sort)
 import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
+import GoldenTest.ShellCommands (GoldenTestContext (..))
+import GoldenTest.Snapshot
+  ( SnapshotType (..),
+    getSnapshotsDir,
+    snapshotDirInSnapshotsDir,
+    snapshotFileListManifestFileInSnapshotDir,
+  )
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    ShellCommandContext (..),
+    buildShellCommand,
     combineShellCommands,
-    runShellCommandBuilder,
   )
 import qualified StrongPath as SP
+import qualified StrongPath as Sp
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (makeRelative, takeFileName)
@@ -30,63 +36,70 @@ import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
-data GoldenTest = GoldenTest {_goldenTestName :: String, _goldenTestCommands :: ShellCommandBuilder [ShellCommand]}
+data GoldenTest = GoldenTest
+  { _goldenTestName :: String,
+    _goldenTestCommandsBuilder :: ShellCommandBuilder GoldenTestContext [ShellCommand]
+  }
 
-makeGoldenTest :: String -> ShellCommandBuilder [ShellCommand] -> GoldenTest
-makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCommands = commands}
+makeGoldenTest :: String -> [ShellCommandBuilder GoldenTestContext ShellCommand] -> GoldenTest
+makeGoldenTest goldenTestName goldenTestCommandBuilders =
+  GoldenTest
+    { _goldenTestName = goldenTestName,
+      _goldenTestCommandsBuilder = sequence goldenTestCommandBuilders
+    }
 
--- | This runs a golden test by creating a Wasp project (via `wasp-cli new`), running commands,
--- and then comparing all file outputs to the corresponding golden test output directory.
+-- | This runs a golden test by executing golden test's shell commands and then
+--  comparing the generated files to the previous "golden" (expected) version of those files.
 runGoldenTest :: GoldenTest -> IO TestTree
 runGoldenTest goldenTest = do
-  testOutputsDirAbsSp <- getTestOutputsDir
-  let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
-  let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
-  let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
-  let expectedFilesListAbsFp = currentOutputDirAbsFp FP.</> expectedFilesListFileName
+  let goldenTestName = _goldenTestName goldenTest
+  snapshotsAbsDir <- getSnapshotsDir
 
-  -- Remove existing current output files from a prior test run.
-  callCommand $ "rm -rf " ++ currentOutputDirAbsFp
+  let currentSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir goldenTestName Current
+  let goldenSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir goldenTestName Golden
+  let snapshotFileListManifestAbsFile = currentSnapshotAbsDir SP.</> snapshotFileListManifestFileInSnapshotDir
 
-  -- Create current output dir as well as the golden output dir, if missing.
-  callCommand $ "mkdir " ++ currentOutputDirAbsFp
-  callCommand $ "mkdir -p " ++ goldenOutputDirAbsFp
+  let currentSnapshotDirAbsFp = SP.fromAbsDir currentSnapshotAbsDir
+  let goldenSnapshotDirAbsFp = SP.fromAbsDir goldenSnapshotAbsDir
+  let snapshotFileListManifestFileAbsFp = Sp.fromAbsFile snapshotFileListManifestAbsFile
 
-  let context =
-        ShellCommandContext
-          { _ctxtCurrentProjectName = _goldenTestName goldenTest
-          }
-  let shellCommand = combineShellCommands $ runShellCommandBuilder (_goldenTestCommands goldenTest) context
-  putStrLn $ "Running the following command: " ++ shellCommand
+  -- Remove existing current snapshot files from a prior test run.
+  callCommand $ "rm -rf " ++ currentSnapshotDirAbsFp
 
-  -- Run the series of commands within the context of a current output dir.
+  -- Create current snapshot dir as well as the golden snapshot dir, if missing.
+  callCommand $ "mkdir " ++ currentSnapshotDirAbsFp
+  callCommand $ "mkdir -p " ++ goldenSnapshotDirAbsFp
+
+  let goldenTestContext = GoldenTestContext {_contextGoldenTestName = goldenTestName}
+  let goldenTestCommandsBuilder = _goldenTestCommandsBuilder goldenTest
+  let goldenTestShellCommand = combineShellCommands $ buildShellCommand goldenTestContext goldenTestCommandsBuilder
+  let cdIntoCurrentSnapshotDir = "cd " ++ currentSnapshotDirAbsFp
+
+  putStrLn $ "Running the following command: " ++ goldenTestShellCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
+  callCommand $ combineShellCommands [cdIntoCurrentSnapshotDir, goldenTestShellCommand]
 
-  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentOutputDirAbsFp
-  filesForCheckingContentAbsFps <- (expectedFilesListAbsFp :) <$> getFilesForCheckingContent currentOutputDirAbsFp
+  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentSnapshotDirAbsFp
+  filesForCheckingContentAbsFps <- (snapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp
 
-  writeExpectedFilesList currentOutputDirAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp
+  writeSnapshotFileListManifest currentSnapshotDirAbsFp filesForCheckingExistenceAbsFps snapshotFileListManifestFileAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentSnapshotDirAbsFp) (pack goldenSnapshotDirAbsFp) (pack fp)
 
   return $
     testGroup
-      (_goldenTestName goldenTest)
+      goldenTestName
       [ goldenVsFileDiff
-          currentOutputAbsFp -- The test name that shows in the output.
+          currentSnapshotAbsFp -- The test name.
           (\ref new -> ["diff", "-u", ref, new])
-          goldenOutputAbsFp
-          currentOutputAbsFp
+          goldenSnapshotAbsFp
+          currentSnapshotAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentOutputAbsFp <- filesForCheckingContentAbsFps,
-          let goldenOutputAbsFp = remapCurrentToGoldenFilePath currentOutputAbsFp
+        | currentSnapshotAbsFp <- filesForCheckingContentAbsFps,
+          let goldenSnapshotAbsFp = remapCurrentToGoldenFilePath currentSnapshotAbsFp
       ]
   where
-    expectedFilesListFileName :: String
-    expectedFilesListFileName = "expected-files.manifest"
-
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
     getFilesForCheckingExistence dirToFilterAbsFp =
       getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist
@@ -116,8 +129,8 @@ runGoldenTest goldenTest = do
                     "dist"
                   ]
 
-    writeExpectedFilesList :: String -> [FilePath] -> FilePath -> IO ()
-    writeExpectedFilesList baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
+    writeSnapshotFileListManifest :: String -> [FilePath] -> FilePath -> IO ()
+    writeSnapshotFileListManifest baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
       let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
       writeFile expectedFilesListAbsFp sortedRelativeFilePaths
 

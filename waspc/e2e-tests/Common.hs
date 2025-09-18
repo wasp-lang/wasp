@@ -1,8 +1,11 @@
 module Common
-  ( ProjectRoot,
+  ( GitRepositoryRoot,
+    WaspcDir,
     E2eTestsDir,
-    GoldensDir,
-    getTestOutputsDir,
+    waspcDirInGitRoot,
+    getWaspcDirPath,
+    e2eTestsDirInWaspcDir,
+    getE2eTestsDir,
   )
 where
 
@@ -12,29 +15,25 @@ import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
 import System.FilePath (takeFileName)
 
--- The "waspc" directory.
-data ProjectRoot
+data GitRepositoryRoot
+
+data WaspcDir
 
 data E2eTestsDir
 
-data GoldensDir
+waspcDirInGitRoot :: Path' (Rel GitRepositoryRoot) (Dir WaspcDir)
+waspcDirInGitRoot = [reldir|waspc|]
 
-getProjectRootPath :: IO (Path' Abs (Dir ProjectRoot))
-getProjectRootPath = do
+getWaspcDirPath :: IO (Path' Abs (Dir WaspcDir))
+getWaspcDirPath = do
   -- NOTE: Cabal launches `cabal test` from root of the project, so this should always be some absolute path to waspc.
   absCwd <- getCurrentDirectory
   -- Just a little extra safeguard here since we are doing destructive file ops.
   unless (takeFileName absCwd == "waspc") (error "Expecting test process to be invoked from waspc dir")
   SP.parseAbsDir absCwd
 
-e2eTestDirInProjectRoot :: Path' (Rel ProjectRoot) (Dir E2eTestsDir)
-e2eTestDirInProjectRoot = [reldir|e2e-tests|]
+e2eTestsDirInWaspcDir :: Path' (Rel WaspcDir) (Dir E2eTestsDir)
+e2eTestsDirInWaspcDir = [reldir|e2e-tests|]
 
-getE2eTestDir :: IO (Path' Abs (Dir E2eTestsDir))
-getE2eTestDir = (</> e2eTestDirInProjectRoot) <$> getProjectRootPath
-
-testOutputsDirInE2eTest :: Path' (Rel E2eTestsDir) (Dir GoldensDir)
-testOutputsDirInE2eTest = [reldir|test-outputs|]
-
-getTestOutputsDir :: IO (Path' Abs (Dir GoldensDir))
-getTestOutputsDir = (</> testOutputsDirInE2eTest) <$> getE2eTestDir
+getE2eTestsDir :: IO (Path' Abs (Dir E2eTestsDir))
+getE2eTestsDir = (</> e2eTestsDirInWaspcDir) <$> getWaspcDirPath
