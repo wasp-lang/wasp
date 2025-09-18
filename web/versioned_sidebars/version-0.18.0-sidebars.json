@@ -1,0 +1,217 @@
+{
+  "docs": [
+    {
+      "type": "category",
+      "label": "Getting Started",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "introduction/introduction",
+        "introduction/quick-start",
+        "introduction/editor-setup"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Tutorial",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "tutorial/create",
+        "tutorial/project-structure",
+        "tutorial/pages",
+        "tutorial/entities",
+        "tutorial/queries",
+        "tutorial/actions",
+        "tutorial/auth"
+      ]
+    },
+    {
+      "type": "link",
+      "label": "Examples",
+      "href": "https://github.com/wasp-lang/wasp/tree/release/examples"
+    },
+    {
+      "type": "category",
+      "label": "Data Model",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "data-model/entities",
+        {
+          "type": "category",
+          "label": "Operations",
+          "collapsed": true,
+          "items": [
+            "data-model/operations/overview",
+            "data-model/operations/queries",
+            "data-model/operations/actions"
+          ]
+        },
+        "data-model/crud",
+        "data-model/databases",
+        "data-model/prisma-file"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Authentication",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "auth/overview",
+        "auth/ui",
+        {
+          "type": "category",
+          "label": "Username & Password",
+          "collapsed": true,
+          "items": [
+            "auth/username-and-pass",
+            "auth/username-and-pass/create-your-own-ui"
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Email",
+          "collapsed": true,
+          "items": ["auth/email", "auth/email/create-your-own-ui"]
+        },
+        {
+          "type": "category",
+          "label": "Social Auth",
+          "collapsed": true,
+          "items": [
+            "auth/social-auth/overview",
+            "auth/social-auth/github",
+            "auth/social-auth/google",
+            "auth/social-auth/keycloak",
+            "auth/social-auth/slack",
+            "auth/social-auth/discord",
+            "auth/social-auth/create-your-own-ui"
+          ]
+        },
+        "auth/entities/entities",
+        "auth/auth-hooks",
+        {
+          "type": "category",
+          "label": "Advanced",
+          "collapsed": true,
+          "items": ["auth/advanced/custom-auth-actions"]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Project Setup",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "project/starter-templates",
+        "project/customizing-app",
+        "project/client-config",
+        "project/server-config",
+        "project/static-assets",
+        "project/env-vars",
+        "project/testing",
+        "project/dependencies",
+        "project/css-frameworks",
+        "project/custom-vite-config"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Deployment",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "deployment/intro",
+        "deployment/env-vars",
+        "deployment/database",
+        "deployment/local-testing",
+        {
+          "type": "category",
+          "label": "Deployment Methods",
+          "collapsed": true,
+          "items": [
+            "deployment/deployment-methods/overview",
+            {
+              "type": "category",
+              "label": "Wasp Deploy",
+              "collapsed": true,
+              "items": [
+                "deployment/deployment-methods/wasp-deploy/overview",
+                "deployment/deployment-methods/wasp-deploy/fly",
+                "deployment/deployment-methods/wasp-deploy/railway"
+              ]
+            },
+            "deployment/deployment-methods/paas",
+            "deployment/deployment-methods/self-hosted"
+          ]
+        },
+        "deployment/ci-cd",
+        "deployment/extras"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Wasp AI",
+      "collapsed": false,
+      "collapsible": true,
+      "items": ["wasp-ai/creating-new-app", "wasp-ai/developing-existing-app"]
+    },
+    {
+      "type": "category",
+      "label": "Advanced Features",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "advanced/email/email",
+        "advanced/jobs",
+        "advanced/web-sockets",
+        "advanced/accessing-app-config",
+        "advanced/apis",
+        "advanced/middleware-config",
+        "advanced/links"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "General",
+      "collapsed": false,
+      "collapsible": true,
+      "items": [
+        "general/language",
+        "general/cli",
+        "general/typescript",
+        "general/wasp-ts-config"
+      ]
+    },
+    {
+      "type": "link",
+      "label": "Roadmap",
+      "href": "https://github.com/orgs/wasp-lang/projects/5"
+    },
+    {
+      "type": "category",
+      "label": "Migration guides",
+      "collapsed": true,
+      "collapsible": true,
+      "items": [
+        "migration-guides/migrate-from-0-17-to-0-18",
+        "migration-guides/migrate-from-0-16-to-0-17",
+        "migration-guides/migrate-from-0-15-to-0-16",
+        "migration-guides/migrate-from-0-14-to-0-15",
+        "migration-guides/migrate-from-0-13-to-0-14",
+        "migration-guides/migrate-from-0-12-to-0-13",
+        "migration-guides/migrate-from-0-11-to-0-12"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Miscellaneous",
+      "collapsed": true,
+      "collapsible": true,
+      "items": ["contributing", "telemetry", "vision", "contact"]
+    }
+  ]
+}
