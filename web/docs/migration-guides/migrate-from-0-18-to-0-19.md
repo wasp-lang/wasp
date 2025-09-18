@@ -36,6 +36,13 @@ Add the following key to your `package.json` file:
 }
 ```
 
+If you are using the [Wasp TS Config](../general/wasp-ts-config.md), also run:
+
+```shell
+wasp clean # removes old code
+wasp ts-setup # regenerates the types
+```
+
 ### 3. Enjoy your updated Wasp app
 
 That's it!
