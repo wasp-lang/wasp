@@ -59,10 +59,12 @@ jobs:
         if: matrix.provider == 'railway'
         run: npm install -g @railway/cli
 
-      - name: Prepare environment variables
+      - name: Deploy app to Fly
+        if: matrix.provider == 'fly'
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           set -e
+
           # NOTE: This assumes env var values don't contain:
           #   - The character `#`.
           #   - An empty line (i.e., there are no multiline env values).
@@ -72,13 +74,7 @@ jobs:
             awk 'NF {$1=$1;print}' |
             sed -E 's/^/--server-secret\n/'
           )
-          echo "ENV_VAR_ARGUMENTS=${ENV_VAR_ARGUMENTS[*]}" >> "$GITHUB_ENV"
 
-      - name: Deploy app to Fly
-        if: matrix.provider == 'fly'
-        working-directory: ${{ env.APP_TO_DEPLOY }}
-        run: |
-          set -e
           echo "Deploying with prefix: $APP_PREFIX (provider: fly)"
           mapfile -t ENV_VAR_ARGUMENTS < <(echo "$ENV_VAR_ARGUMENTS" | tr ' ' '\n')
           yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
@@ -88,6 +84,17 @@ jobs:
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           set -e
+
+          # NOTE: This assumes env var values don't contain:
+          #   - The character `#`.
+          #   - An empty line (i.e., there are no multiline env values).
+          mapfile -t ENV_VAR_ARGUMENTS < <(
+            cat .env.server.example |
+            sed -E 's/#.*//' |
+            awk 'NF {$1=$1;print}' |
+            sed -E 's/^/--server-secret\n/'
+          )
+
           echo "Deploying with prefix: $APP_PREFIX (provider: railway)"
           mapfile -t ENV_VAR_ARGUMENTS < <(echo "$ENV_VAR_ARGUMENTS" | tr ' ' '\n')
           wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_NAME "${ENV_VAR_ARGUMENTS[@]}"
