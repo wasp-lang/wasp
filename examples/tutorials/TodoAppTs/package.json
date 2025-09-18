@@ -2,6 +2,7 @@
   "name": "todo-app-ts",
   "type": "module",
   "workspaces": [
+    ".wasp/out/sdk/wasp",
     ".wasp/out/*",
     ".wasp/build/*"
   ],

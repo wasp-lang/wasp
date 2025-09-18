@@ -65,7 +65,7 @@ validateWorkspaces packageJson =
   validateFieldValue
     "package.json"
     (FieldName ["workspaces"])
-    (Just [".wasp/out/*", ".wasp/build/*"])
+    (Just [".wasp/out/sdk/wasp", ".wasp/out/*", ".wasp/build/*"])
     (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]

@@ -506,7 +506,7 @@ spec_AppSpecValid = do
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just [".wasp/out/*", ".wasp/build/*"]
+                Npm.PackageJson.workspaces = Just [".wasp/out/sdk/wasp", ".wasp/out/*", ".wasp/build/*"]
               },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,

@@ -2,6 +2,7 @@
   "name": "websockets-realtime-voting",
   "type": "module",
   "workspaces": [
+    ".wasp/out/sdk/wasp",
     ".wasp/out/*",
     ".wasp/build/*"
   ],

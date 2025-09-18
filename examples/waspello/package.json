@@ -2,6 +2,7 @@
   "name": "waspello",
   "type": "module",
   "workspaces": [
+    ".wasp/out/sdk/wasp",
     ".wasp/out/*",
     ".wasp/build/*"
   ],
