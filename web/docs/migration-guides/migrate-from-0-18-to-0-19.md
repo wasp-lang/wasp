@@ -36,11 +36,12 @@ Add the following key to your `package.json` file:
 }
 ```
 
-If you are using the [Wasp TS Config](../general/wasp-ts-config.md), also run:
+And, to recalculate the dependencies with the new workspace setup, run the following commands in your terminal:
 
 ```shell
-wasp clean # removes old code
-wasp ts-setup # regenerates the types
+wasp clean
+rm package-lock.json
+wasp ts-setup # ONLY if you are using the Wasp TS Config
 ```
 
 ### 3. Enjoy your updated Wasp app
