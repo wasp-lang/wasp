@@ -1,4 +1,4 @@
-import GoldenTest.Runner (runGoldenTest)
+import GoldenTest (runGoldenTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.KitchenSinkGoldenTest (kitchenSinkGoldenTest)

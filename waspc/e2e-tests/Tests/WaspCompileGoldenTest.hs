@@ -1,6 +1,6 @@
 module Tests.WaspCompileGoldenTest (waspCompileGoldenTest) where
 
-import GoldenTest.Runner (GoldenTest, makeGoldenTest)
+import GoldenTest (GoldenTest, makeGoldenTest)
 import GoldenTest.ShellCommands
   ( createGoldenTestWaspApp,
     withInGoldenTestWaspAppDir,

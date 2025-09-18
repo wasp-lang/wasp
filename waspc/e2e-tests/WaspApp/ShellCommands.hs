@@ -2,7 +2,6 @@
 
 module WaspApp.ShellCommands
   ( WaspAppContext (..),
-    appendToWaspFile,
     appendToPrismaFile,
     setWaspDbToPSQL,
     waspCliCompile,
@@ -24,21 +23,17 @@ import ShellCommands
 import System.FilePath (joinPath, (</>))
 
 -- | Context for commands which are run from inside of a Wasp app project.
--- Switching to this context means we are currently inside the Wasp app project directory.
+-- For golden tests, commands executed with this context are run from the 'GoldenTest.Common.SnapshotWaspAppDir' directory.
 data WaspAppContext = WaspAppContext
   {_waspAppName :: String}
   deriving (Show)
 
-appendToWaspFile :: FilePath -> ShellCommandBuilder WaspAppContext ShellCommand
-appendToWaspFile = appendToFile "main.wasp"
+-- NOTE: fragile, assumes line numbers do not change.
+setWaspDbToPSQL :: ShellCommandBuilder WaspAppContext ShellCommand
+setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 
 appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspAppContext ShellCommand
 appendToPrismaFile = appendToFile "schema.prisma"
-
--- NOTE: fragile, assumes line numbers do not change.
-setWaspDbToPSQL :: ShellCommandBuilder WaspAppContext ShellCommand
--- Change DB to postgres by adding string at specific line so it still parses.
-setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 
 buildWaspDockerImage :: ShellCommandBuilder WaspAppContext ShellCommand
 buildWaspDockerImage = do
@@ -56,22 +51,23 @@ buildWaspDockerImage = do
 waspCliCompile :: ShellCommandBuilder WaspAppContext ShellCommand
 waspCliCompile = return "wasp-cli compile"
 
--- TODO: We need to be careful what migration names we accept here, as Prisma will
---       normalize a migration name containing spaces/dashes to underscores (and maybe other rules).
---       This will impact our ability to move directories around if the names do not match exactly.
---       Put in some check eventually.
+-- | We normalize the migration names to "no-date-<migrationName>" for reproducibility.
+-- This means that we can't generate two migrations with the same name in a project.
 waspCliMigrate :: String -> ShellCommandBuilder WaspAppContext ShellCommand
 waspCliMigrate migrationName =
-  let generatedMigrationsDir = joinPath [".wasp", "out", "db", "migrations"]
-      waspMigrationsDir = "migrations"
-   in return $
-        combineShellCommands
-          [ -- Migrate using a migration name to avoid Prisma asking via CLI.
-            "wasp-cli db migrate-dev --name " ++ migrationName,
-            -- Rename both migrations to remove the date-specific portion of the directory to something static.
-            "mv " ++ (waspMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (waspMigrationsDir </> ("no-date-" ++ migrationName)),
-            "mv " ++ (generatedMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (generatedMigrationsDir </> ("no-date-" ++ migrationName))
-          ]
+  return $
+    combineShellCommands
+      [ "wasp-cli db migrate-dev --name " ++ migrationName,
+        replaceMigrationDatePrefix waspMigrationsDir,
+        replaceMigrationDatePrefix dotWaspMigrationsDir
+      ]
+  where
+    waspMigrationsDir = "migrations"
+    dotWaspMigrationsDir = joinPath [".wasp", "out", "db", "migrations"]
+
+    replaceMigrationDatePrefix :: String -> ShellCommand
+    replaceMigrationDatePrefix migrationDir =
+      "mv " ++ (migrationDir </> ("*" ++ migrationName)) ++ " " ++ (migrationDir </> ("no-date-" ++ migrationName))
 
 waspCliBuild :: ShellCommandBuilder WaspAppContext ShellCommand
 waspCliBuild = return "wasp-cli build"

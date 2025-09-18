@@ -9,10 +9,7 @@ module ShellCommands
     combineShellCommands,
     shellCommandsIf,
     appendToFile,
-    createFile,
-    insertCodeIntoFileAtLineNumber,
     replaceLineInFile,
-    waspCliNewMinimalStarter,
   )
 where
 
@@ -24,11 +21,14 @@ import Data.List (intercalate)
 
 type ShellCommand = String
 
-newtype ShellCommandBuilder ctx a = ShellCommandBuilder (Reader ctx a)
-  deriving (Functor, Applicative, Monad, MonadReader ctx)
+-- | Builds shell command with access and assumptions to some context.
+-- e.g. WaspAppContext assumes commands are run from inside a Wasp app project.
+-- It also provides access to context details like Wasp app name, etc.
+newtype ShellCommandBuilder context a = ShellCommandBuilder (Reader context a)
+  deriving (Functor, Applicative, Monad, MonadReader context)
 
-buildShellCommand :: ctx -> ShellCommandBuilder ctx a -> a
-buildShellCommand ctx (ShellCommandBuilder reader) = runReader reader ctx
+buildShellCommand :: context -> ShellCommandBuilder context a -> a
+buildShellCommand context (ShellCommandBuilder reader) = runReader reader context
 
 -- Command utilities
 
@@ -44,37 +44,15 @@ shellCommandsIf condition bodyCmds =
 
 -- General commands
 
-appendToFile :: FilePath -> String -> ShellCommandBuilder ctx ShellCommand
+appendToFile :: FilePath -> String -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =
   -- NOTE: Using `show` to preserve newlines in string.
   return $ "printf " ++ show (content ++ "\n") ++ " >> " ++ fileName
 
--- NOTE: Pretty fragile. Can't handle spaces in args, *nix only, etc.
-createFile :: String -> FilePath -> String -> ShellCommandBuilder ctx ShellCommand
-createFile content relDirFp filename = return $ combineShellCommands [createParentDir, writeContentsToFile]
-  where
-    createParentDir = "mkdir -p ./" ++ relDirFp
-    destinationFile = "./" ++ relDirFp ++ "/" ++ filename
-    contents = show (content ++ "\n")
-    writeContentsToFile = unwords ["printf", contents, ">", destinationFile]
-
-insertCodeIntoFileAtLineNumber :: FilePath -> Int -> String -> ShellCommandBuilder ctx ShellCommand
-insertCodeIntoFileAtLineNumber fileName atLineNumber line =
-  return $
-    combineShellCommands
-      [ "awk 'NR==" ++ show atLineNumber ++ "{print " ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
-        "mv " ++ fileName ++ ".tmp " ++ fileName
-      ]
-
-replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder ctx ShellCommand
+replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder context ShellCommand
 replaceLineInFile fileName lineNumber line =
   return $
     combineShellCommands
       [ "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
         "mv " ++ fileName ++ ".tmp " ++ fileName
       ]
-
-waspCliNewMinimalStarter :: String -> ShellCommandBuilder ctx ShellCommand
-waspCliNewMinimalStarter projectName = do
-  return $
-    "wasp-cli new " ++ projectName ++ " -t minimal"

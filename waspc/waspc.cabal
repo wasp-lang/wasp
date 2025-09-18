@@ -798,8 +798,8 @@ test-suite waspc-e2e-tests
     ShellCommands
     Util
     WaspApp.ShellCommands
-    GoldenTest.Common
-    GoldenTest.Runner
+    GoldenTest.Snapshot
+    GoldenTest
     GoldenTest.ShellCommands
     Tests.WaspNewGoldenTest
     Tests.KitchenSinkGoldenTest

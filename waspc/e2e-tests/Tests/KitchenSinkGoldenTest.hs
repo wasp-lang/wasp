@@ -1,6 +1,6 @@
 module Tests.KitchenSinkGoldenTest (kitchenSinkGoldenTest) where
 
-import GoldenTest.Runner (GoldenTest, makeGoldenTest)
+import GoldenTest (GoldenTest, makeGoldenTest)
 import GoldenTest.ShellCommands
   ( copyContentsOfGitTrackedDirToGoldenTestWaspAppDir,
     withInGoldenTestWaspAppDir,

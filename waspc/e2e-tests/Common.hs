@@ -2,13 +2,10 @@ module Common
   ( GitRepositoryRoot,
     WaspcDir,
     E2eTestsDir,
-    TestOutputsDir,
     waspcDirInGitRoot,
     getWaspcDirPath,
     e2eTestsDirInWaspcDir,
     getE2eTestsDir,
-    testOutputsDirInE2eTests,
-    getTestOutputsDir,
   )
 where
 
@@ -23,8 +20,6 @@ data GitRepositoryRoot
 data WaspcDir
 
 data E2eTestsDir
-
-data TestOutputsDir
 
 waspcDirInGitRoot :: Path' (Rel GitRepositoryRoot) (Dir WaspcDir)
 waspcDirInGitRoot = [reldir|waspc|]
@@ -42,9 +37,3 @@ e2eTestsDirInWaspcDir = [reldir|e2e-tests|]
 
 getE2eTestsDir :: IO (Path' Abs (Dir E2eTestsDir))
 getE2eTestsDir = (</> e2eTestsDirInWaspcDir) <$> getWaspcDirPath
-
-testOutputsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir TestOutputsDir)
-testOutputsDirInE2eTests = [reldir|test-outputs|]
-
-getTestOutputsDir :: IO (Path' Abs (Dir TestOutputsDir))
-getTestOutputsDir = (</> testOutputsDirInE2eTests) <$> getE2eTestsDir
