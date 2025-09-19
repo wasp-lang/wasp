@@ -2,8 +2,8 @@
   "name": "todo-app",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/build/*/",
+    ".wasp/out/*/"
   ],
   "scripts": {
     "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
