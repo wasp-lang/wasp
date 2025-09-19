@@ -33,9 +33,33 @@ import Wasp.Util (whenM)
 import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Command-line arguments for `wasp start db`
-newtype StartDbArgs = StartDbArgs
+data StartDbArgs = StartDbArgs
   { customImage :: Maybe String
   }
+
+-- | Starts a "managed" dev database, where "managed" means that
+-- Wasp creates it and connects the Wasp app with it.
+-- Wasp is smart while doing this so it checks which database is specified
+-- in Wasp configuration and spins up a database of appropriate type.
+start :: Arguments -> Command ()
+start args = do
+  startDbArgs <-
+    parseArguments "wasp start db" startDbArgsParser args
+      & either (E.throwError . CommandError "Invalid arguments") return
+
+  InWaspProject waspProjectDir <- require
+  appSpec <- analyze waspProjectDir
+
+  throwIfCustomDbAlreadyInUse appSpec
+  
+  let (appName, _) = ASV.getApp appSpec
+  case ASV.getValidDbSystem appSpec of
+    AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
+    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName (customImage startDbArgs)
+  where
+    noteSQLiteDoesntNeedStart =
+      cliSendMessageC . Msg.Info $
+        "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
 
 -- | Parser for `wasp start db` arguments
 startDbArgsParser :: Opt.Parser StartDbArgs
@@ -47,30 +71,6 @@ startDbArgsParser =
             <> Opt.metavar "IMAGE"
             <> Opt.help "Docker image to use for the database (default: postgres)"
       )
-
--- | Starts a "managed" dev database, where "managed" means that
--- Wasp creates it and connects the Wasp app with it.
--- Wasp is smart while doing this so it checks which database is specified
--- in Wasp configuration and spins up a database of appropriate type.
-start :: Arguments -> Command ()
-start args = do
-  InWaspProject waspProjectDir <- require
-  appSpec <- analyze waspProjectDir
-
-  throwIfCustomDbAlreadyInUse appSpec
-
-  startDbArgs <-
-    parseArguments "wasp start db" startDbArgsParser args
-      & either (E.throwError . CommandError "Invalid arguments") return
-  
-  let (appName, _) = ASV.getApp appSpec
-  case ASV.getValidDbSystem appSpec of
-    AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName (customImage startDbArgs)
-  where
-    noteSQLiteDoesntNeedStart =
-      cliSendMessageC . Msg.Info $
-        "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
