@@ -83,6 +83,18 @@ Also, make sure that:
 - You have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
 - The port `5432` isn't taken.
 
+You can also specify a custom Docker image to use for the database with the `--image` option:
+```bash
+# Use default PostgreSQL image
+wasp start db
+
+# Use PostgreSQL version 15
+wasp start db --image postgres:15
+
+# Use a custom PostgreSQL-compatible image
+wasp start db --image postgis/postgis:14-3.2
+```
+
 :::tip
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
 :::

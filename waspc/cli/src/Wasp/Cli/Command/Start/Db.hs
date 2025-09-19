@@ -7,7 +7,7 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
 import System.Process (callCommand)
@@ -39,7 +39,10 @@ start args = do
 
   throwIfCustomDbAlreadyInUse appSpec
 
-  let customImage = parseImageArg args
+  customImage <- case parseImageArg args of
+    Left err -> E.throwError $ CommandError "Invalid arguments" err
+    Right img -> return img
+  
   let (appName, _) = ASV.getApp appSpec
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
@@ -49,10 +52,14 @@ start args = do
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
     
-    parseImageArg :: [String] -> Maybe String
-    parseImageArg [] = Nothing
-    parseImageArg ("--image" : image : _) = Just image
-    parseImageArg (_ : rest) = parseImageArg rest
+    parseImageArg :: [String] -> Either String (Maybe String)
+    parseImageArg [] = Right Nothing
+    parseImageArg ("--image" : []) = Left "The --image option requires a value."
+    parseImageArg ("--image" : image : rest) = 
+      if null rest 
+        then Right (Just image)
+        else Left $ "Unexpected arguments after --image: " ++ unwords rest
+    parseImageArg (unknown : _) = Left $ "Unrecognized argument: " ++ unknown
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
@@ -95,9 +102,7 @@ startPostgreDevDb waspProjectDir appName customImage = do
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   throwIfDevDbPortIsAlreadyInUse
 
-  let dockerImage = case customImage of
-        Just img -> img
-        Nothing -> "postgres"
+  let dockerImage = fromMaybe "postgres" customImage
   
   cliSendMessageC . Msg.Info $
     unlines $
