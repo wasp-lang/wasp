@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: var(--nextui-background);
+}
+.markdown a {
+  @apply text-blue-500 underline hover:text-blue-600;
+}
+.markdown h1 {
+  @apply text-3xl font-bold mb-4;
+}
+.markdown h2 {
+  @apply text-2xl font-bold mb-4;
+}
+.markdown h3 {
+  @apply text-xl font-bold mb-4;
+}
+.markdown ul {
+  @apply list-disc list-inside;
+}
+.markdown ol {
+  @apply list-decimal list-inside;
+}
+.markdown ol,
+.markdown ul {
+  @apply pl-4 my-4 space-y-1;
+}
+.markdown p {
+  @apply my-2 leading-relaxed;
+}
+
+.markdown li > p {
+  @apply inline;
+}

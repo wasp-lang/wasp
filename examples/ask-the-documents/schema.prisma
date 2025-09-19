@@ -1,0 +1,25 @@
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String?
+}
+
+model Document {
+  id        String                      @id @default(uuid())
+  title     String
+  url       String                      @unique
+  content   String
+  embedding Unsupported("vector(1536)")
+  createdAt DateTime                    @default(now())
+  updatedAt DateTime                    @updatedAt
+}
