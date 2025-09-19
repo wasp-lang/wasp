@@ -45,6 +45,7 @@ import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.WebAppGenerator.Vite (genVite)
 import qualified Wasp.Generator.WebSocket as AS.WS
+import Wasp.Generator.Workspaces (webAppPackageName)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common
   ( SrcTsConfigFile,
@@ -109,7 +110,7 @@ genPackageJson spec waspDependencies = do
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= ("@wasp.sh/generated-client-" ++ (if AS.isBuild spec then "build" else "dev")),
+            [ "packageName" .= webAppPackageName spec,
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
