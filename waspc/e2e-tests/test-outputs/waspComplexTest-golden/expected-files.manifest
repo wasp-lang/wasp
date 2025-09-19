@@ -639,7 +639,6 @@ waspComplexTest/.wasp/out/server/.gitignore
 waspComplexTest/.wasp/out/server/.npmrc
 waspComplexTest/.wasp/out/server/README.md
 waspComplexTest/.wasp/out/server/nodemon.json
-waspComplexTest/.wasp/out/server/package-lock.json
 waspComplexTest/.wasp/out/server/package.json
 waspComplexTest/.wasp/out/server/rollup.config.js
 waspComplexTest/.wasp/out/server/src/actions/mySpecialAction.ts
@@ -680,7 +679,6 @@ waspComplexTest/.wasp/out/web-app/.npmrc
 waspComplexTest/.wasp/out/web-app/README.md
 waspComplexTest/.wasp/out/web-app/index.html
 waspComplexTest/.wasp/out/web-app/netlify.toml
-waspComplexTest/.wasp/out/web-app/package-lock.json
 waspComplexTest/.wasp/out/web-app/package.json
 waspComplexTest/.wasp/out/web-app/public/.gitkeep
 waspComplexTest/.wasp/out/web-app/public/favicon.ico

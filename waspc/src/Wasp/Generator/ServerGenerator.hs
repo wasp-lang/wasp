@@ -47,6 +47,7 @@ import Wasp.Generator.DepVersions (superjsonVersion, typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -129,7 +130,8 @@ genPackageJson spec waspDependencies = do
       (C.asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
+            [ "packageName" .= serverPackageName spec,
+              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"

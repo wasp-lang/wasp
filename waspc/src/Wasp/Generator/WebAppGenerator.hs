@@ -33,6 +33,7 @@ import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.NpmWorkspaces (webAppPackageName)
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.DepVersions
@@ -109,7 +110,7 @@ genPackageJson spec waspDependencies = do
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "appName" .= (fst (getApp spec) :: String),
+            [ "packageName" .= webAppPackageName spec,
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
