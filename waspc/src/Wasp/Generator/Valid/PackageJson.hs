@@ -65,7 +65,7 @@ validateWorkspaces packageJson =
   validateFieldValue
     "package.json"
     (FieldName ["workspaces"])
-    -- TODO: Add SDK as a workspace.
+    -- TODO: Add SDK as a workspace:
     -- Currently a overly-zealous resolution makes an incompatible resolution for `@types/react`
     -- that would make the workspace installation fail.
     -- Review when we upgrade React 19 (#2482).
