@@ -61,6 +61,7 @@ spec_Analyzer = do
                 "      }",
                 "    },",
                 "    onAuthFailedRedirectTo: \"/\",",
+                "    sessionLength: 3600",
                 "  },",
                 "  server: {",
                 "    setupFn: import { setupServer } from \"@src/bar.js\"",
@@ -157,7 +158,8 @@ spec_Analyzer = do
                             Auth.onAfterEmailVerified = Nothing,
                             Auth.onBeforeOAuthRedirect = Nothing,
                             Auth.onBeforeLogin = Nothing,
-                            Auth.onAfterLogin = Nothing
+                            Auth.onAfterLogin = Nothing,
+                            Auth.sessionLength = Just 3600
                           },
                     App.server =
                       Just

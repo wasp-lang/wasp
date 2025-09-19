@@ -2,6 +2,7 @@ import { Lucia } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { prisma } from 'wasp/server'
 import { type User } from "wasp/entities"
+import { TimeSpan } from "./jwt.js"
 
 const prismaAdapter = new PrismaAdapter(
   prisma.session,
@@ -34,6 +35,7 @@ export const auth = new Lucia<{}, {
   //     sameSite: "lax",
   //   },
   // },
+  sessionExpiresIn: new TimeSpan(2592000000, "ms"),
   getUserAttributes({ userId }) {
     return {
       userId,
