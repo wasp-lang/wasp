@@ -5,7 +5,7 @@ where
 
 import Control.Applicative ((<|>))
 import qualified Data.Map as M
-import StrongPath (fromRelDir)
+import StrongPath (fromRelDirP)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
@@ -67,7 +67,7 @@ validateWorkspaces packageJson =
   validateFieldValue
     "package.json"
     (FieldName ["workspaces"])
-    (Just $ fromRelDir <$> NW.workspaces)
+    (Just $ fromRelDirP <$> NW.workspaces)
     (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]

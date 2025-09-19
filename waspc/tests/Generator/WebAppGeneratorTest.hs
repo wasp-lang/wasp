@@ -2,7 +2,7 @@ module Generator.WebAppGeneratorTest where
 
 import qualified Data.Map as M
 import Fixtures
-import StrongPath (fromRelDir, relfile)
+import StrongPath (fromRelDirP, relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
@@ -59,7 +59,7 @@ spec_WebAppGenerator = do
                 { Npm.PackageJson.name = "testApp",
                   Npm.PackageJson.dependencies = M.empty,
                   Npm.PackageJson.devDependencies = M.empty,
-                  Npm.PackageJson.workspaces = Just $ fromRelDir <$> NW.workspaces
+                  Npm.PackageJson.workspaces = Just $ fromRelDirP <$> NW.workspaces
                 },
             AS.isBuild = False,
             AS.migrationsDir = Nothing,

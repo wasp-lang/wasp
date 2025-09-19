@@ -6,7 +6,7 @@ import qualified Data.Map as M
 import Data.Maybe (fromJust)
 import Fixtures (systemSPRoot)
 import NeatInterpolation (trimming)
-import StrongPath (fromRelDir, relfile)
+import StrongPath (fromRelDirP, relfile)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Util.Prisma as Util
@@ -507,7 +507,7 @@ spec_AppSpecValid = do
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just $ fromRelDir <$> NW.workspaces
+                Npm.PackageJson.workspaces = Just $ fromRelDirP <$> NW.workspaces
               },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
