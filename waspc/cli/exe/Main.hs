@@ -52,7 +52,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("new" : newArgs) -> Command.Call.New newArgs
         ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
         ["start"] -> Command.Call.Start
-        ["start", "db"] -> Command.Call.StartDb
+        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ["clean"] -> Command.Call.Clean
         ["ts-setup"] -> Command.Call.TsSetup
         ["compile"] -> Command.Call.Compile
@@ -104,7 +104,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectConfigJson
       _unknownCommand -> printWaspNewAiUsage >> exitFailure
     Command.Call.Start -> runCommand start
-    Command.Call.StartDb -> runCommand Command.Start.Db.start
+    Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.TsSetup -> runCommand tsConfigSetup
     Command.Call.Compile -> runCommand compile
@@ -176,7 +176,9 @@ printUsage =
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
-        cmd   "    start db              Starts managed development database for you.",
+        cmd   "    start db [--image <image>]",
+              "                          Starts managed development database for you.",
+              "                          Optionally specify a custom Docker image with --image.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",

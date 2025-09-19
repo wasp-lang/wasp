@@ -32,21 +32,27 @@ import qualified Wasp.Util.Network.Socket as Socket
 -- Wasp creates it and connects the Wasp app with it.
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
-start :: Command ()
-start = do
+start :: [String] -> Command ()
+start args = do
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir
 
   throwIfCustomDbAlreadyInUse appSpec
 
+  let customImage = parseImageArg args
   let (appName, _) = ASV.getApp appSpec
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName
+    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName customImage
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
+    
+    parseImageArg :: [String] -> Maybe String
+    parseImageArg [] = Nothing
+    parseImageArg ("--image" : image : _) = Just image
+    parseImageArg (_ : rest) = parseImageArg rest
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
@@ -82,18 +88,26 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgreDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Command ()
-startPostgreDevDb waspProjectDir appName = do
+startPostgreDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe String -> Command ()
+startPostgreDevDb waspProjectDir appName customImage = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   throwIfDevDbPortIsAlreadyInUse
 
+  let dockerImage = case customImage of
+        Just img -> img
+        Nothing -> "postgres"
+  
   cliSendMessageC . Msg.Info $
-    unlines
+    unlines $
       [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
-        "",
-        "Additional info:",
+        ""
+      ] ++ 
+      (if isJust customImage 
+         then [" ℹ Using custom Docker image: " <> dockerImage, ""]
+         else []) ++
+      [ "Additional info:",
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> connectionUrl,
         " ℹ Database data is persisted in a docker volume with the following name"
@@ -117,7 +131,7 @@ startPostgreDevDb waspProjectDir appName = do
                 "--env POSTGRES_PASSWORD=%s",
                 "--env POSTGRES_USER=%s",
                 "--env POSTGRES_DB=%s",
-                "postgres"
+                "%s"
               ]
           )
           dockerContainerName
@@ -126,6 +140,7 @@ startPostgreDevDb waspProjectDir appName = do
           Dev.Postgres.defaultDevPass
           Dev.Postgres.defaultDevUser
           dbName
+          dockerImage
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
