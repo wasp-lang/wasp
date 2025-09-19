@@ -6,7 +6,7 @@
 module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
-    npmDepsForWasp,
+    npmDepsFromWasp,
   )
 where
 
@@ -46,6 +46,7 @@ import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions (superjsonVersion, typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
@@ -71,7 +72,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
       genTsConfigJson spec,
-      genPackageJson spec (npmDepsForWasp spec),
+      genPackageJson spec (npmDepsFromWasp spec),
       genNpmrc,
       genGitignore,
       genNodemon
@@ -121,7 +122,7 @@ genTsConfigJson spec = do
     srcTsConfigPath :: Path' (Rel C.ServerRootDir) (File SrcTsConfigFile) =
       waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
 
-genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
+genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
   combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
   return $
@@ -149,36 +150,38 @@ getPackageJsonPrismaField spec = object $ [] <> seedEntry
   where
     seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
-npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
-npmDepsForWasp spec =
-  N.NpmDepsForWasp
-    { N.waspDependencies =
-        Npm.Dependency.fromList
-          [ ("cookie-parser", "~1.4.6"),
-            ("cors", "^2.8.5"),
-            ("express", expressVersionStr),
-            ("morgan", "~1.10.0"),
-            ("dotenv", "^16.0.2"),
-            ("helmet", "^6.0.0"),
-            ("superjson", show superjsonVersion)
-          ]
-          ++ depsRequiredByWebSockets spec,
-      N.waspDevDependencies =
-        Npm.Dependency.fromList
-          [ ("nodemon", "^2.0.19"),
-            -- TODO: Allow users to choose whether they want to use TypeScript
-            -- in their projects and install these dependencies accordingly.
-            ("typescript", show typescriptVersion),
-            ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion),
-            ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
-            ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-            ("@types/cors", "^2.8.5"),
-            ("rollup", "^4.9.6"),
-            ("rollup-plugin-esbuild", "^6.1.1"),
-            ("@rollup/plugin-node-resolve", "^16.0.0")
-          ]
-    }
+npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
+npmDepsFromWasp spec =
+  N.NpmDepsFromWasp $
+    N.NpmDepsForPackage
+      { N.dependencies =
+          Npm.Dependency.fromList
+            [ ("cookie-parser", "~1.4.6"),
+              ("cors", "^2.8.5"),
+              ("express", expressVersionStr),
+              ("morgan", "~1.10.0"),
+              ("dotenv", "^16.0.2"),
+              ("helmet", "^6.0.0"),
+              ("superjson", show superjsonVersion)
+            ]
+            ++ depsRequiredByWebSockets spec,
+        N.devDependencies =
+          Npm.Dependency.fromList
+            [ ("nodemon", "^2.0.19"),
+              -- TODO: Allow users to choose whether they want to use TypeScript
+              -- in their projects and install these dependencies accordingly.
+              ("typescript", show typescriptVersion),
+              ("@types/express", show expressTypesVersion),
+              ("@types/express-serve-static-core", show expressTypesVersion),
+              ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
+              ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
+              ("@types/cors", "^2.8.5"),
+              ("rollup", "^4.9.6"),
+              ("rollup-plugin-esbuild", "^6.1.1"),
+              ("@rollup/plugin-node-resolve", "^16.0.0")
+            ],
+        peerDependencies = []
+      }
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
