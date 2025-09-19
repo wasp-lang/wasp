@@ -54,7 +54,7 @@ We would be super grateful if you could help us out by starring our repo on GitH
 
 ![please please please](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5b1bjvpt97e7o2psgle7.gif)
 
-…&#x65;_&#x76;en Ron would star [Wasp on GitHub](https://www.github.com/wasp-lang/wasp)_ 🤩
+_...even Ron would star [Wasp on GitHub](https://www.github.com/wasp-lang/wasp)_ 🤩
 
 ## The Tools
 

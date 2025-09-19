@@ -32,7 +32,7 @@ We would be super grateful if you could help us out by starring our repo on GitH
 
 ![https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media2.giphy.com/media/d0Pkp9OMIBdC0/giphy.gif?cid=7941fdc6b39mgj7h8orvi0f4bjebceyx4gj0ih1xb6s05ujc\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
 
-…&#x65;_&#x76;en Ron would star [Wasp on GitHub](https://www.github.com/wasp-lang/wasp)_ 🤩
+_...even Ron would star [Wasp on GitHub](https://www.github.com/wasp-lang/wasp)_ 🤩
 
 ## Background
 

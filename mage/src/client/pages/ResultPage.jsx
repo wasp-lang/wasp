@@ -267,7 +267,7 @@ export const ResultPage = () => {
         <div className="mb-4 flex flex-col items-center justify-center gap-1 rounded-xl bg-red-50 p-8 text-gray-700">
           <span>This app has been deleted. </span>
           <Link className="sm inline-block underline" to="/">
-            &#x2190; Go back and generate a new app
+            &larr; Go back and generate a new app
           </Link>
         </div>
       ) : (

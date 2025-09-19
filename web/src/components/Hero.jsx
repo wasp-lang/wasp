@@ -57,7 +57,7 @@ const PHBadge = () => (
     <img
       className="w-32 md:w-[180px]"
       src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=277135&theme=light&period=daily"
-      alt="Wasp&#0045;lang&#0032;Alpha - Develop&#0032;web&#0032;apps&#0032;in&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;with&#0032;no&#0032;boilerplate | Product Hunt"
+      alt="Wasp-lang Alpha - Develop web apps in React &amp; Node.js with no boilerplate | Product Hunt"
     />
   </a>
 );
