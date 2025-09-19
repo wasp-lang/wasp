@@ -7,7 +7,9 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
+import Data.Function ((&))
 import Data.Maybe (fromMaybe, isJust)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
 import System.Process (callCommand)
@@ -16,10 +18,12 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Util.Parser (parseArguments)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -28,38 +32,45 @@ import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
 import qualified Wasp.Util.Network.Socket as Socket
 
+-- | Command-line arguments for `wasp start db`
+newtype StartDbArgs = StartDbArgs
+  { customImage :: Maybe String
+  }
+
+-- | Parser for `wasp start db` arguments
+startDbArgsParser :: Opt.Parser StartDbArgs
+startDbArgsParser =
+  StartDbArgs
+    <$> Opt.optional
+      ( Opt.strOption $
+          Opt.long "image"
+            <> Opt.metavar "IMAGE"
+            <> Opt.help "Docker image to use for the database (default: postgres)"
+      )
+
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
-start :: [String] -> Command ()
+start :: Arguments -> Command ()
 start args = do
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir
 
   throwIfCustomDbAlreadyInUse appSpec
 
-  customImage <- case parseImageArg args of
-    Left err -> E.throwError $ CommandError "Invalid arguments" err
-    Right img -> return img
+  startDbArgs <-
+    parseArguments "wasp start db" startDbArgsParser args
+      & either (E.throwError . CommandError "Invalid arguments") return
   
   let (appName, _) = ASV.getApp appSpec
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName customImage
+    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName (customImage startDbArgs)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
-    
-    parseImageArg :: [String] -> Either String (Maybe String)
-    parseImageArg [] = Right Nothing
-    parseImageArg ("--image" : []) = Left "The --image option requires a value."
-    parseImageArg ("--image" : image : rest) = 
-      if null rest 
-        then Right (Just image)
-        else Left $ "Unexpected arguments after --image: " ++ unwords rest
-    parseImageArg (unknown : _) = Left $ "Unrecognized argument: " ++ unknown
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do

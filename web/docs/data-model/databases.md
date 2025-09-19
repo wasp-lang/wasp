@@ -83,7 +83,7 @@ Also, make sure that:
 - You have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
 - The port `5432` isn't taken.
 
-You can also specify a custom Docker image to use for the database with the `--image` option:
+You can also specify a custom Docker image to use for the database with the `--image` option. This is particularly useful when you need PostgreSQL with specific extensions (like PostGIS for geographic data, pgvector for embeddings, etc.):
 ```bash
 # Use default PostgreSQL image
 wasp start db
@@ -91,8 +91,11 @@ wasp start db
 # Use PostgreSQL version 15
 wasp start db --image postgres:15
 
-# Use a custom PostgreSQL-compatible image
+# Use PostgreSQL with PostGIS extension for geographic data
 wasp start db --image postgis/postgis:14-3.2
+
+# Use PostgreSQL with pgvector extension for AI embeddings
+wasp start db --image pgvector/pgvector:pg16
 ```
 
 :::tip
