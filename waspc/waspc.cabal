@@ -344,7 +344,6 @@ library
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
-    Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.ServerGenerator.CrudG
@@ -363,7 +362,6 @@ library
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.DepVersions
     Wasp.Generator.WebAppGenerator.RouterGenerator
-    Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebAppGenerator.Vite
