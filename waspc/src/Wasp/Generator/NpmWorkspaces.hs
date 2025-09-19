@@ -1,4 +1,4 @@
-module Wasp.Generator.Workspaces
+module Wasp.Generator.NpmWorkspaces
   ( serverPackageName,
     webAppPackageName,
   )
