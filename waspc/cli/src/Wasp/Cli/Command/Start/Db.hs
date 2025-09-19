@@ -51,7 +51,7 @@ start args = do
   appSpec <- analyze waspProjectDir
 
   throwIfCustomDbAlreadyInUse appSpec
-  
+
   let (appName, _) = ASV.getApp appSpec
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
@@ -114,22 +114,23 @@ startPostgreDevDb waspProjectDir appName customImage = do
   throwIfDevDbPortIsAlreadyInUse
 
   let dockerImage = fromMaybe "postgres" customImage
-  
+
   cliSendMessageC . Msg.Info $
     unlines $
       [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
         ""
-      ] ++ 
-      (if isJust customImage 
-         then [" ℹ Using custom Docker image: " <> dockerImage, ""]
-         else []) ++
-      [ "Additional info:",
-        " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> connectionUrl,
-        " ℹ Database data is persisted in a docker volume with the following name"
-          <> " (useful to know if you will want to delete it at some point):",
-        "     " <> dockerVolumeName
       ]
+        ++ ( if isJust customImage
+               then [" ℹ Using custom Docker image: " <> dockerImage, ""]
+               else []
+           )
+        ++ [ "Additional info:",
+             " ℹ Connection URL, in case you might want to connect with external tools:",
+             "     " <> connectionUrl,
+             " ℹ Database data is persisted in a docker volume with the following name"
+               <> " (useful to know if you will want to delete it at some point):",
+             "     " <> dockerVolumeName
+           ]
 
   cliSendMessageC $ Msg.Info "..."
 
