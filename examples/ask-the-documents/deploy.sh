@@ -7,15 +7,12 @@ wasp build
 # Deploy the server
 cd .wasp/build
 
-
 echo -e "\n\033[1;33mDeploying server to Railway...\033[0m\n"
-
 
 railway up --service server --detach
 
 # Deploy the client
-if [ -z "$BACKEND_URL" ]
-then
+if [ -z "$BACKEND_URL" ]; then
   echo "BACKEND_URL is not set"
   exit 1
 fi

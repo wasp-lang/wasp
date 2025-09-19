@@ -1,19 +1,19 @@
 import { type Document } from "wasp/entities";
 
 import {
-  type EmbedDocument,
-  type SearchDocuments,
   type AskDocuments,
-  type DeleteDocument,
-  type GetScrapeCandidates,
-  type GetDocuments,
   type DeleteAllDocuments,
+  type DeleteDocument,
+  type EmbedDocument,
+  type GetDocuments,
+  type GetScrapeCandidates,
+  type SearchDocuments,
 } from "wasp/server/operations";
 
-import { prisma, HttpError, env } from "wasp/server";
+import { HttpError, env, prisma } from "wasp/server";
 // @ts-ignore
-import { toSql } from "pgvector/utils";
 import openai from "openai";
+import { toSql } from "pgvector/utils";
 import { getContent, getLinksToScrape } from "./scrape.js";
 
 const api = new openai.OpenAI({
@@ -165,7 +165,7 @@ export const askDocuments: AskDocuments<
 
   const documents = (await prisma.$queryRaw`
     SELECT "content", "embedding" <-> ${toSql(
-      queryEmbedding
+      queryEmbedding,
     )}::vector AS "score", "url"
     FROM "Document"
     ORDER BY "embedding" <-> ${toSql(queryEmbedding)}::vector
@@ -233,7 +233,7 @@ export const askDocuments: AskDocuments<
         ${documents
           .map(
             (r) =>
-              `"""${r.content}"""\nScore: ${10 / r.score}\nSource URL: ${r.url}`
+              `"""${r.content}"""\nScore: ${10 / r.score}\nSource URL: ${r.url}`,
           )
           .join("\n\n")}`,
       },

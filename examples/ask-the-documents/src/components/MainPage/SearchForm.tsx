@@ -1,10 +1,10 @@
-import { searchDocuments } from "wasp/client/operations";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { searchDocuments } from "wasp/client/operations";
 
-import { Card, CardHeader, CardBody, Divider, Input } from "@heroui/react";
-import { SearchIcon } from "../SearchIcon";
+import { Card, CardBody, CardHeader, Divider, Input } from "@heroui/react";
 import { DocumentCard } from "../DocumentCard";
+import { SearchIcon } from "../SearchIcon";
 
 export function SearchForm() {
   const searchForm = useForm<{

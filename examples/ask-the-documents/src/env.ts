@@ -7,5 +7,5 @@ export const serverEnvValidation = defineEnvValidationSchema(
     OPENAI_API_KEY: z.string({
       required_error: "OPENAI_API_KEY is required",
     }),
-  })
+  }),
 );

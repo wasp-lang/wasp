@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as Cheerio from "cheerio";
-import { NodeHtmlMarkdown, NodeHtmlMarkdownOptions } from "node-html-markdown";
+import { NodeHtmlMarkdown } from "node-html-markdown";
 
 export const getContent = createContentGetterWithCache();
 
@@ -62,7 +62,7 @@ function createContentGetterWithCache() {
   >();
   return async function getContent(
     url: string,
-    contentSelector: string = "body"
+    contentSelector: string = "body",
   ): Promise<{
     title: string;
     content: string;
@@ -80,7 +80,7 @@ function createContentGetterWithCache() {
 
 async function scrapeUrl(
   url: string,
-  contentSelector: string = "body"
+  contentSelector: string = "body",
 ): Promise<{
   title: string;
   content: string;

@@ -1,18 +1,18 @@
 import {
-  logout,
-  useAuth,
-  googleSignInUrl as signInUrl,
-} from "wasp/client/auth";
-import {
+  Button,
   HeroUIProvider,
+  Link,
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Link,
-  Button,
 } from "@heroui/react";
 import { Outlet } from "react-router-dom";
+import {
+  logout,
+  googleSignInUrl as signInUrl,
+  useAuth,
+} from "wasp/client/auth";
 import "./Main.css";
 
 export function Layout() {

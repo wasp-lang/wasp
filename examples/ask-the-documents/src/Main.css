@@ -9,23 +9,23 @@ body {
   @apply text-blue-500 underline hover:text-blue-600;
 }
 .markdown h1 {
-  @apply text-3xl font-bold mb-4;
+  @apply mb-4 text-3xl font-bold;
 }
 .markdown h2 {
-  @apply text-2xl font-bold mb-4;
+  @apply mb-4 text-2xl font-bold;
 }
 .markdown h3 {
-  @apply text-xl font-bold mb-4;
+  @apply mb-4 text-xl font-bold;
 }
 .markdown ul {
-  @apply list-disc list-inside;
+  @apply list-inside list-disc;
 }
 .markdown ol {
-  @apply list-decimal list-inside;
+  @apply list-inside list-decimal;
 }
 .markdown ol,
 .markdown ul {
-  @apply pl-4 my-4 space-y-1;
+  @apply my-4 space-y-1 pl-4;
 }
 .markdown p {
   @apply my-2 leading-relaxed;
