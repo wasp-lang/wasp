@@ -2,7 +2,7 @@ module Generator.WebAppGeneratorTest where
 
 import qualified Data.Map as M
 import Fixtures
-import StrongPath (relfile)
+import StrongPath (fromRelDir, relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
@@ -19,6 +19,7 @@ import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.Monad (runGenerator)
+import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -58,7 +59,7 @@ spec_WebAppGenerator = do
                 { Npm.PackageJson.name = "testApp",
                   Npm.PackageJson.dependencies = M.empty,
                   Npm.PackageJson.devDependencies = M.empty,
-                  Npm.PackageJson.workspaces = Just [".wasp/out/*", ".wasp/build/*"]
+                  Npm.PackageJson.workspaces = Just $ fromRelDir <$> NW.workspaces
                 },
             AS.isBuild = False,
             AS.migrationsDir = Nothing,

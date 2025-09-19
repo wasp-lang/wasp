@@ -5,9 +5,11 @@ where
 
 import Control.Applicative ((<|>))
 import qualified Data.Map as M
+import StrongPath (fromRelDir)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateFieldValue)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
@@ -65,11 +67,7 @@ validateWorkspaces packageJson =
   validateFieldValue
     "package.json"
     (FieldName ["workspaces"])
-    -- TODO: Add SDK as a workspace:
-    -- Currently a overly-zealous resolution makes an incompatible resolution for `@types/react`
-    -- that would make the workspace installation fail.
-    -- Review when we upgrade React 19 (#2482).
-    (Just [".wasp/out/*", ".wasp/build/*"])
+    (Just $ fromRelDir <$> NW.workspaces)
     (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]

@@ -2,8 +2,8 @@
   "name": "waspleau",
   "type": "module",
   "workspaces": [
-    ".wasp/out/*",
-    ".wasp/build/*"
+    ".wasp/build/*",
+    ".wasp/out/*"
   ],
   "scripts": {
     "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
