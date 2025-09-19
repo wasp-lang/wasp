@@ -9,13 +9,14 @@ import { waspInfo, waspTsSetup } from "./waspCli.js";
 const logger = createLogger("main");
 
 export async function main(): Promise<void> {
-  const { mode, waspCliCmd, pathToApp } = parseArgs();
+  const { mode, waspCliCmd, pathToApp, dbImage } = parseArgs();
 
   try {
     await runWaspApp({
       mode,
       waspCliCmd,
       pathToApp,
+      dbImage,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -31,10 +32,12 @@ async function runWaspApp({
   mode,
   waspCliCmd,
   pathToApp,
+  dbImage,
 }: {
   mode: Mode;
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
+  dbImage?: string;
 }): Promise<void> {
   await checkDependencies();
 
@@ -61,6 +64,7 @@ async function runWaspApp({
         pathToApp,
         appName,
         dbType,
+        dbImage,
       });
       break;
 
@@ -70,6 +74,7 @@ async function runWaspApp({
         pathToApp,
         appName,
         dbType,
+        dbImage,
       });
       break;
 

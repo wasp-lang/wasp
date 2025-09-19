@@ -7,16 +7,19 @@ export async function startAppInDevMode({
   pathToApp,
   appName,
   dbType,
+  dbImage,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
   dbType: DbType;
+  dbImage?: string;
 }): Promise<void> {
   const { dbEnvVars } = await setupDb({
     appName,
     dbType,
     pathToApp,
+    dbImage,
   });
 
   await waspMigrateDb({

@@ -13,12 +13,13 @@ type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
 const logger = createLogger("postgres");
 
-export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
+export const setupPostgres: SetupDbFn = async ({ appName, pathToApp, dbImage }) => {
   await ensureDockerIsRunning();
 
   const databaseUrl = await startPostgresContainerForApp({
     appName,
     pathToApp,
+    dbImage,
   });
 
   logger.info(`Using DATABASE_URL: ${databaseUrl}`);
@@ -31,9 +32,11 @@ export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
 async function startPostgresContainerForApp({
   appName,
   pathToApp,
+  dbImage,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
+  dbImage?: string;
 }): Promise<DatabaseConnectionUrl> {
   const containerName = createAppSpecificDbContainerName({
     appName,
@@ -43,19 +46,20 @@ async function startPostgresContainerForApp({
   logger.info(`Using container name: ${containerName}`);
 
   const databaseUrl =
-    await startPostgresContainerAndWaitUntilReady(containerName);
+    await startPostgresContainerAndWaitUntilReady(containerName, dbImage);
 
   return databaseUrl;
 }
 
 async function startPostgresContainerAndWaitUntilReady(
   containerName: DbContainerName,
+  dbImage?: string,
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
-  const image = "postgres:16";
+  const image = dbImage || "postgres:16";
 
-  logger.info("Starting the PostgreSQL container...");
+  logger.info(`Starting the PostgreSQL container with image: ${image}...`);
 
   spawnAndCollectOutput({
     name: "create-postgres-container",

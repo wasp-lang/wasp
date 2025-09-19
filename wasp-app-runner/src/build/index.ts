@@ -11,11 +11,13 @@ export async function startAppInBuildMode({
   pathToApp,
   appName,
   dbType,
+  dbImage,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
   dbType: DbType;
+  dbImage?: string;
 }) {
   await waspBuild({
     waspCliCmd,
@@ -26,6 +28,7 @@ export async function startAppInBuildMode({
     appName,
     dbType,
     pathToApp,
+    dbImage,
   });
 
   await startLocalSmtpServer();

@@ -13,16 +13,18 @@ export function setupDb({
   appName,
   dbType,
   pathToApp,
+  dbImage,
 }: {
   dbType: DbType;
   appName: AppName;
   pathToApp: PathToApp;
+  dbImage?: string;
 }): ReturnType<SetupDbFn> {
   switch (dbType) {
     case DbType.Sqlite:
       return setupSqlite({ appName, pathToApp });
     case DbType.Postgres:
-      return setupPostgres({ appName, pathToApp });
+      return setupPostgres({ appName, pathToApp, dbImage });
     default:
       dbType satisfies never;
       throw new Error(`Unknown database type: ${dbType}`);
