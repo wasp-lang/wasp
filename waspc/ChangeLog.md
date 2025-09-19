@@ -12,6 +12,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Wasp now uses npm workspaces to manage our generated code. This makes our dependency system more reliable, improves install performance and reduces the size of each project on disk. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
 
+### 📖 Documentation
+
+- Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
+
 ## 0.18.0
 
 ### ⚠️ Breaking Changes
