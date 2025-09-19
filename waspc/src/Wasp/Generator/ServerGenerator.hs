@@ -47,6 +47,7 @@ import Wasp.Generator.DepVersions (superjsonVersion, typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -58,7 +59,6 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliase
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
-import Wasp.Generator.Workspaces (serverPackageName)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
