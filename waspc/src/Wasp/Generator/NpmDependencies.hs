@@ -55,7 +55,7 @@ instance FromJSON NpmDepsForPackage
 newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
   deriving (Show)
 
-data NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
+newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
   deriving (Show, Eq, Generic)
 
 instance ToJSON NpmDepsFromUser
