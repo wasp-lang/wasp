@@ -91,19 +91,19 @@ genNpmDepsForPackage spec npmDepsFromWasp =
               )
 
 buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
-buildWaspFrameworkNpmDeps spec forServer forWebApp =
+buildWaspFrameworkNpmDeps spec fromServer fromWebApp =
   case (serverDepConflicts, webAppDepConflicts) of
     (Nothing, Nothing) ->
       Right
         NpmDepsForFramework
-          { npmDepsForServer = waspDepsToPackageDeps forServer,
-            npmDepsForWebApp = waspDepsToPackageDeps forWebApp
+          { npmDepsForServer = waspDepsToPackageDeps fromServer,
+            npmDepsForWebApp = waspDepsToPackageDeps fromWebApp
           }
     _ -> Left "Could not construct npm dependencies due to a previously reported conflict."
   where
     userDeps = getUserNpmDepsForPackage spec
-    serverDepConflicts = getNpmDepsConflicts forServer userDeps
-    webAppDepConflicts = getNpmDepsConflicts forWebApp userDeps
+    serverDepConflicts = getNpmDepsConflicts fromServer userDeps
+    webAppDepConflicts = getNpmDepsConflicts fromWebApp userDeps
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
 getUserNpmDepsForPackage spec =
