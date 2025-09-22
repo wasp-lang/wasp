@@ -107,7 +107,7 @@ wasp start db --image pgvector/pgvector:pg16
 
 :::note
 
-The images you use must respect the POSTGRES_DB, POSTGRES_USER, and POSTGRES_PASSWORD environment variables, as Wasp relies on them to set up the database. An easy way to ensure this is to use images based on the official [PostgreSQL Docker image](https://hub.docker.com/_/postgres).
+The images you use must respect the `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` environment variables, as Wasp relies on them to set up the database. An easy way to ensure this is to use images based on the official [PostgreSQL Docker image](https://hub.docker.com/_/postgres).
 
 :::
 
