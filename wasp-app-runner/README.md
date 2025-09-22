@@ -71,8 +71,12 @@ DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
 
 #### Custom database image
 
-- You can override the Docker image used for Postgres via `--db-image`. If not provided, the default `postgres` is used.
-- Examples: `--db-image postgres:15`, `--db-image pgvector/pgvector:pg16`, `--db-image postgis/postgis:14-3.2`.
+You can override the Docker image used for Postgres via `--db-image`. If not provided, the default `postgres` is used.
+
+Examples: `--db-image postgres:15`, `--db-image pgvector/pgvector:pg16`, `--db-image postgis/postgis:14-3.2`.
+
+> [!NOTE]
+> The same requirements as in `wasp start db` apply for the Postgres image used. See [Wasp docs](../web/docs/data-model/databases.md#custom-database) for more details.
 
 ### Env variables
 
