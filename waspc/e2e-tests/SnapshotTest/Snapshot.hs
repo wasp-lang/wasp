@@ -19,6 +19,7 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, File, Path', Rel, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
 
+-- | The directory where all snapshots are stored.
 data SnapshotsDir
 
 -- | The directory inside a 'Common.SnapshotsDir' where a snapshot is stored.
