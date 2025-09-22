@@ -26,7 +26,6 @@ import WaspApp.ShellCommands (WaspAppContext (..))
 
 -- | Shell commands executed with this context are run from the 'SnapshotTest.Common.SnapshotDir' directory.
 data SnapshotTestContext = SnapshotTestContext
-  {_contextSnapshotTestName :: String}
   deriving (Show)
 
 snapshotTestContextToWaspAppContext :: SnapshotTestContext -> WaspAppContext

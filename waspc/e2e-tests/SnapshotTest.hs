@@ -70,12 +70,12 @@ runSnapshotTest snapshotTest = do
   callCommand $ "mkdir " ++ currentSnapshotDirAbsFp
   callCommand $ "mkdir -p " ++ goldenSnapshotDirAbsFp
 
-  let cdIntoCurrentSnapshotDir = "cd " ++ currentSnapshotDirAbsFp
-  let snapshotTestShellCommand = makeSnapshotTestShellCommand
+  let cdIntoCurrentSnapshotDirCommand = "cd " ++ currentSnapshotDirAbsFp
+  let snapshotTestCommand = makeSnapshotTestCommand
 
-  putStrLn $ "Running the following command: " ++ snapshotTestShellCommand
+  putStrLn $ "Running the following command: " ++ snapshotTestCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ combineShellCommands [cdIntoCurrentSnapshotDir, snapshotTestShellCommand]
+  callCommand $ combineShellCommands [cdIntoCurrentSnapshotDirCommand, snapshotTestCommand]
 
   filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentSnapshotDirAbsFp
   filesForCheckingContentAbsFps <- (snapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp
@@ -98,11 +98,10 @@ runSnapshotTest snapshotTest = do
           let goldenSnapshotAbsFp = remapCurrentToGoldenFilePath currentSnapshotAbsFp
       ]
   where
-    makeSnapshotTestShellCommand :: ShellCommand
-    makeSnapshotTestShellCommand =
-      let snapshotTestContext = SnapshotTestContext {_contextSnapshotTestName = _snapshotTestName snapshotTest}
-          snapshotTestCommandsBuilder = _snapshotTestCommandsBuilder snapshotTest
-       in combineShellCommands $ buildShellCommand snapshotTestContext snapshotTestCommandsBuilder
+    makeSnapshotTestCommand :: ShellCommand
+    makeSnapshotTestCommand =
+      let snapshotTestCommandsBuilder = _snapshotTestCommandsBuilder snapshotTest
+       in combineShellCommands $ buildShellCommand SnapshotTestContext snapshotTestCommandsBuilder
 
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
     getFilesForCheckingExistence dirToFilterAbsFp =

@@ -796,7 +796,6 @@ test-suite waspc-e2e-tests
   other-modules:
     Common
     ShellCommands
-    Util
     WaspApp.ShellCommands
     SnapshotTest.Snapshot
     SnapshotTest
