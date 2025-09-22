@@ -14,8 +14,8 @@ module SnapshotTest.FileSystem
   )
 where
 
-import Common (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRoot)
 import Data.Maybe (fromJust)
+import FileSystem (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRoot)
 import StrongPath (Dir, File, Path', Rel, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
 

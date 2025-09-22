@@ -1,4 +1,4 @@
-module Common
+module FileSystem
   ( GitRepositoryRoot,
     WaspcDir,
     E2eTestsDir,

@@ -794,7 +794,7 @@ test-suite waspc-e2e-tests
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-golden          ^>= 2.3.5
   other-modules:
-    Common
+    FileSystem
     ShellCommands
     WaspApp.ShellCommands
     SnapshotTest

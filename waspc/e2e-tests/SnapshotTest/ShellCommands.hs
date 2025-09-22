@@ -8,10 +8,10 @@ module SnapshotTest.ShellCommands
   )
 where
 
-import Common
+import Control.Monad.Reader (MonadReader (ask))
+import FileSystem
   ( GitRepositoryRoot,
   )
-import Control.Monad.Reader (MonadReader (ask))
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
