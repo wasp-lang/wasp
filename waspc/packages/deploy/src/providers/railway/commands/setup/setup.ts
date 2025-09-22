@@ -132,22 +132,24 @@ async function setupDb({
   );
 
   if (options.dbImage) {
-    // Use custom Docker image
     waspSays(`Using custom database image: ${options.dbImage}`);
-    await railwayCli(
-      [
-        "add",
-        ["--service", dbServiceName],
-        ["--docker-image", options.dbImage],
-        ["--variables", "POSTGRES_DB=railway"],
-        ["--variables", "POSTGRES_USER=postgres"],
-        ["--variables", "POSTGRES_PASSWORD=${{secret()}}"],
-        [
-          "--variables",
-          "DATABASE_URL=postgresql://postgres:${{POSTGRES_PASSWORD}}@${{RAILWAY_TCP_PROXY_DOMAIN}}:${{RAILWAY_TCP_PROXY_PORT}}/railway",
-        ],
-      ].flat(),
-    );
+    // When using a custom database image, the automatic variables that Railway sets up for the
+    // default Postgres template are not available.
+    await railwayCli([
+      "add",
+      "--service",
+      dbServiceName,
+      "--docker-image",
+      options.dbImage,
+      "--variables",
+      "POSTGRES_DB=railway",
+      "--variables",
+      "POSTGRES_USER=postgres",
+      "--variables",
+      "POSTGRES_PASSWORD=${{secret()}}",
+      "--variables",
+      "DATABASE_URL=postgresql://postgres:${{POSTGRES_PASSWORD}}@${{RAILWAY_TCP_PROXY_DOMAIN}}:${{RAILWAY_TCP_PROXY_PORT}}/railway",
+    ]);
   } else {
     // Use default Railway Postgres template
     await railwayCli(["add", "-d", "postgres"]);
