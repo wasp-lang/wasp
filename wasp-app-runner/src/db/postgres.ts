@@ -13,7 +13,11 @@ type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
 const logger = createLogger("postgres");
 
-export const setupPostgres: SetupDbFn = async ({ appName, pathToApp, dbImage }) => {
+export const setupPostgres: SetupDbFn = async ({
+  appName,
+  pathToApp,
+  dbImage,
+}) => {
   await ensureDockerIsRunning();
 
   const databaseUrl = await startPostgresContainerForApp({
@@ -45,8 +49,10 @@ async function startPostgresContainerForApp({
 
   logger.info(`Using container name: ${containerName}`);
 
-  const databaseUrl =
-    await startPostgresContainerAndWaitUntilReady(containerName, dbImage);
+  const databaseUrl = await startPostgresContainerAndWaitUntilReady(
+    containerName,
+    dbImage,
+  );
 
   return databaseUrl;
 }
