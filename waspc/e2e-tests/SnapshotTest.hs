@@ -1,7 +1,7 @@
-module GoldenTest
-  ( GoldenTest,
-    makeGoldenTest,
-    runGoldenTest,
+module SnapshotTest
+  ( SnapshotTest,
+    makeSnapshotTest,
+    runSnapshotTest,
   )
 where
 
@@ -13,18 +13,18 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isSuffixOf, sort)
 import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
-import GoldenTest.ShellCommands (GoldenTestContext (..))
-import GoldenTest.Snapshot
-  ( SnapshotType (..),
-    getSnapshotsDir,
-    snapshotDirInSnapshotsDir,
-    snapshotFileListManifestFileInSnapshotDir,
-  )
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
     combineShellCommands,
+  )
+import SnapshotTest.ShellCommands (SnapshotTestContext (..))
+import SnapshotTest.Snapshot
+  ( SnapshotType (..),
+    getSnapshotsDir,
+    snapshotDirInSnapshotsDir,
+    snapshotFileListManifestFileInSnapshotDir,
   )
 import qualified StrongPath as SP
 import qualified StrongPath as Sp
@@ -36,27 +36,27 @@ import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
-data GoldenTest = GoldenTest
-  { _goldenTestName :: String,
-    _goldenTestCommandsBuilder :: ShellCommandBuilder GoldenTestContext [ShellCommand]
+data SnapshotTest = SnapshotTest
+  { _snapshotTestName :: String,
+    _snapshotTestCommandsBuilder :: ShellCommandBuilder SnapshotTestContext [ShellCommand]
   }
 
-makeGoldenTest :: String -> [ShellCommandBuilder GoldenTestContext ShellCommand] -> GoldenTest
-makeGoldenTest goldenTestName goldenTestCommandBuilders =
-  GoldenTest
-    { _goldenTestName = goldenTestName,
-      _goldenTestCommandsBuilder = sequence goldenTestCommandBuilders
+makeSnapshotTest :: String -> [ShellCommandBuilder SnapshotTestContext ShellCommand] -> SnapshotTest
+makeSnapshotTest snapshotTestName snapshotTestCommandBuilders =
+  SnapshotTest
+    { _snapshotTestName = snapshotTestName,
+      _snapshotTestCommandsBuilder = sequence snapshotTestCommandBuilders
     }
 
--- | This runs a golden test by executing golden test's shell commands and then
+-- | Runs a snapshot test by executing snapshot test's shell commands and then
 --  comparing the generated files to the previous "golden" (expected) version of those files.
-runGoldenTest :: GoldenTest -> IO TestTree
-runGoldenTest goldenTest = do
-  let goldenTestName = _goldenTestName goldenTest
+runSnapshotTest :: SnapshotTest -> IO TestTree
+runSnapshotTest snapshotTest = do
+  let snapshotTestName = _snapshotTestName snapshotTest
   snapshotsAbsDir <- getSnapshotsDir
 
-  let currentSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir goldenTestName Current
-  let goldenSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir goldenTestName Golden
+  let currentSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Current
+  let goldenSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Golden
   let snapshotFileListManifestAbsFile = currentSnapshotAbsDir SP.</> snapshotFileListManifestFileInSnapshotDir
 
   let currentSnapshotDirAbsFp = SP.fromAbsDir currentSnapshotAbsDir
@@ -70,14 +70,12 @@ runGoldenTest goldenTest = do
   callCommand $ "mkdir " ++ currentSnapshotDirAbsFp
   callCommand $ "mkdir -p " ++ goldenSnapshotDirAbsFp
 
-  let goldenTestContext = GoldenTestContext {_contextGoldenTestName = goldenTestName}
-  let goldenTestCommandsBuilder = _goldenTestCommandsBuilder goldenTest
-  let goldenTestShellCommand = combineShellCommands $ buildShellCommand goldenTestContext goldenTestCommandsBuilder
   let cdIntoCurrentSnapshotDir = "cd " ++ currentSnapshotDirAbsFp
+  let snapshotTestShellCommand = makeSnapshotTestShellCommand
 
-  putStrLn $ "Running the following command: " ++ goldenTestShellCommand
+  putStrLn $ "Running the following command: " ++ snapshotTestShellCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ combineShellCommands [cdIntoCurrentSnapshotDir, goldenTestShellCommand]
+  callCommand $ combineShellCommands [cdIntoCurrentSnapshotDir, snapshotTestShellCommand]
 
   filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentSnapshotDirAbsFp
   filesForCheckingContentAbsFps <- (snapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp
@@ -89,7 +87,7 @@ runGoldenTest goldenTest = do
 
   return $
     testGroup
-      goldenTestName
+      snapshotTestName
       [ goldenVsFileDiff
           currentSnapshotAbsFp -- The test name.
           (\ref new -> ["diff", "-u", ref, new])
@@ -100,6 +98,12 @@ runGoldenTest goldenTest = do
           let goldenSnapshotAbsFp = remapCurrentToGoldenFilePath currentSnapshotAbsFp
       ]
   where
+    makeSnapshotTestShellCommand :: ShellCommand
+    makeSnapshotTestShellCommand =
+      let snapshotTestContext = SnapshotTestContext {_contextSnapshotTestName = _snapshotTestName snapshotTest}
+          snapshotTestCommandsBuilder = _snapshotTestCommandsBuilder snapshotTest
+       in combineShellCommands $ buildShellCommand snapshotTestContext snapshotTestCommandsBuilder
+
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
     getFilesForCheckingExistence dirToFilterAbsFp =
       getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist

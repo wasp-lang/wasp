@@ -18,12 +18,12 @@ import ShellCommands
     appendToFile,
     combineShellCommands,
     replaceLineInFile,
-    shellCommandsIf,
+    ($?),
   )
 import System.FilePath (joinPath, (</>))
 
 -- | Context for commands which are run from inside of a Wasp app project.
--- For golden tests, commands executed with this context are run from the 'GoldenTest.Common.SnapshotWaspAppDir' directory.
+-- For snapshot tests, commands executed with this context are run from the 'SnapshotTestCommon.SnapshotWaspAppDir' directory.
 data WaspAppContext = WaspAppContext
   {_waspAppName :: String}
   deriving (Show)
@@ -40,13 +40,13 @@ buildWaspDockerImage = do
   waspAppContext <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
    in return $
-        shellCommandsIf
-          "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          [ "cd .wasp/build",
-            "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " .",
-            "docker image rm " ++ dockerImageTag,
-            "cd ../.."
-          ]
+        "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
+          $? combineShellCommands
+            [ "cd .wasp/build",
+              "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " .",
+              "docker image rm " ++ dockerImageTag,
+              "cd ../.."
+            ]
 
 waspCliCompile :: ShellCommandBuilder WaspAppContext ShellCommand
 waspCliCompile = return "wasp-cli compile"

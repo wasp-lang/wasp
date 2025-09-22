@@ -1,10 +1,10 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 
-module GoldenTest.ShellCommands
-  ( GoldenTestContext (..),
-    createGoldenTestWaspApp,
-    withInGoldenTestWaspAppDir,
-    copyContentsOfGitTrackedDirToGoldenTestWaspAppDir,
+module SnapshotTest.ShellCommands
+  ( SnapshotTestContext (..),
+    createSnapshotTestWaspApp,
+    withInSnapshotTestWaspAppDir,
+    copyContentsOfGitTrackedDirToSnapshotTestWaspAppDir,
   )
 where
 
@@ -12,7 +12,6 @@ import Common
   ( GitRepositoryRoot,
   )
 import Control.Monad.Reader (MonadReader (ask))
-import GoldenTest.Snapshot (SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir, snapshotWaspAppDirInSnapshotDir)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -20,25 +19,26 @@ import ShellCommands
     combineShellCommands,
     ($|),
   )
+import SnapshotTest.Snapshot (SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir, snapshotWaspAppDirInSnapshotDir)
 import StrongPath (Dir, Path', Rel, fromRelDir)
 import qualified StrongPath as SP
 import WaspApp.ShellCommands (WaspAppContext (..))
 
--- | Shell commands executed with this context are run from the 'GoldenTest.Common.SnapshotDir' directory.
-data GoldenTestContext = GoldenTestContext
-  {_contextGoldenTestName :: String}
+-- | Shell commands executed with this context are run from the 'SnapshotTest.Common.SnapshotDir' directory.
+data SnapshotTestContext = SnapshotTestContext
+  {_contextSnapshotTestName :: String}
   deriving (Show)
 
-goldenTestContextToWaspAppContext :: GoldenTestContext -> WaspAppContext
-goldenTestContextToWaspAppContext _goldenTestContext =
+snapshotTestContextToWaspAppContext :: SnapshotTestContext -> WaspAppContext
+snapshotTestContextToWaspAppContext _snapshotTestContext =
   WaspAppContext
     { _waspAppName = "wasp-app" -- NOTE: we hardcode the Wasp app name so the snapshots folders is more readable.
     }
 
-createGoldenTestWaspApp :: ShellCommandBuilder GoldenTestContext ShellCommand
-createGoldenTestWaspApp = do
-  goldenTestContext <- ask
-  let waspAppContext = goldenTestContextToWaspAppContext goldenTestContext
+createSnapshotTestWaspApp :: ShellCommandBuilder SnapshotTestContext ShellCommand
+createSnapshotTestWaspApp = do
+  snapshotTestContext <- ask
+  let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
 
   waspCliNewMinimalStarter $ _waspAppName waspAppContext
   where
@@ -47,25 +47,25 @@ createGoldenTestWaspApp = do
       return $
         "wasp-cli new " ++ appName ++ " -t minimal"
 
-withInGoldenTestWaspAppDir :: [ShellCommandBuilder WaspAppContext ShellCommand] -> ShellCommandBuilder GoldenTestContext ShellCommand
-withInGoldenTestWaspAppDir waspAppCommandBuilders = do
-  goldenTestContext <- ask
-  let waspAppContext = goldenTestContextToWaspAppContext goldenTestContext
-  let goldenTestWaspAppRelDir = snapshotWaspAppDirInSnapshotDir $ _waspAppName waspAppContext
+withInSnapshotTestWaspAppDir :: [ShellCommandBuilder WaspAppContext ShellCommand] -> ShellCommandBuilder SnapshotTestContext ShellCommand
+withInSnapshotTestWaspAppDir waspAppCommandBuilders = do
+  snapshotTestContext <- ask
+  let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
+  let snapshotTestWaspAppRelDir = snapshotWaspAppDirInSnapshotDir $ _waspAppName waspAppContext
 
-  let navigateToGoldenTestWaspAppDir :: ShellCommand = "pushd " ++ fromRelDir goldenTestWaspAppRelDir
+  let navigateToSnapshotTestWaspAppDir :: ShellCommand = "pushd " ++ fromRelDir snapshotTestWaspAppRelDir
   let waspAppCommand :: ShellCommand = combineShellCommands $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
   let returnToSnapshotDir :: ShellCommand = "popd"
 
-  return $ combineShellCommands [navigateToGoldenTestWaspAppDir, waspAppCommand, returnToSnapshotDir]
+  return $ combineShellCommands [navigateToSnapshotTestWaspAppDir, waspAppCommand, returnToSnapshotDir]
 
-copyContentsOfGitTrackedDirToGoldenTestWaspAppDir ::
+copyContentsOfGitTrackedDirToSnapshotTestWaspAppDir ::
   Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspAppDir) ->
-  ShellCommandBuilder GoldenTestContext ShellCommand
-copyContentsOfGitTrackedDirToGoldenTestWaspAppDir srcDirInGitRoot = do
-  goldenTestContext <- ask
+  ShellCommandBuilder SnapshotTestContext ShellCommand
+copyContentsOfGitTrackedDirToSnapshotTestWaspAppDir srcDirInGitRoot = do
+  snapshotTestContext <- ask
   let srcDirPath = fromRelDir (gitRootInSnapshotWaspAppDir SP.</> srcDirInGitRoot)
-      waspAppContext = goldenTestContextToWaspAppContext goldenTestContext
+      waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
       destDirPath = "./" ++ _waspAppName waspAppContext
 
       createDestDir :: ShellCommand = "mkdir -p " ++ destDirPath

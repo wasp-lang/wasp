@@ -798,11 +798,11 @@ test-suite waspc-e2e-tests
     ShellCommands
     Util
     WaspApp.ShellCommands
-    GoldenTest.Snapshot
-    GoldenTest
-    GoldenTest.ShellCommands
-    Tests.WaspNewGoldenTest
-    Tests.KitchenSinkGoldenTest
-    Tests.WaspMigrateGoldenTest
-    Tests.WaspCompileGoldenTest
-    Tests.WaspBuildGoldenTest
+    SnapshotTest.Snapshot
+    SnapshotTest
+    SnapshotTest.ShellCommands
+    Tests.WaspNewSnapshotTest
+    Tests.KitchenSinkSnapshotTest
+    Tests.WaspMigrateSnapshotTest
+    Tests.WaspCompileSnapshotTest
+    Tests.WaspBuildSnapshotTest

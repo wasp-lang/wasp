@@ -1,11 +1,11 @@
-import GoldenTest (runGoldenTest)
+import SnapshotTest (runSnapshotTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.KitchenSinkGoldenTest (kitchenSinkGoldenTest)
-import Tests.WaspBuildGoldenTest (waspBuildGoldenTest)
-import Tests.WaspCompileGoldenTest (waspCompileGoldenTest)
-import Tests.WaspMigrateGoldenTest (waspMigrateGoldenTest)
-import Tests.WaspNewGoldenTest (waspNewGoldenTest)
+import Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
+import Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
+import Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
+import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
+import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
 
 main :: IO ()
 main = do
@@ -16,12 +16,12 @@ main = do
 -- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
 tests =
-  testGroup "Golden Tests"
+  testGroup "Snapshot Tests"
     <$> mapM
-      runGoldenTest
-      [ waspNewGoldenTest,
-        waspCompileGoldenTest,
-        waspBuildGoldenTest,
-        waspMigrateGoldenTest,
-        kitchenSinkGoldenTest
+      runSnapshotTest
+      [ waspNewSnapshotTest,
+        waspCompileSnapshotTest,
+        waspBuildSnapshotTest,
+        waspMigrateSnapshotTest,
+        kitchenSinkSnapshotTest
       ]

@@ -1,9 +1,9 @@
-module Tests.WaspMigrateGoldenTest (waspMigrateGoldenTest) where
+module Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) where
 
-import GoldenTest (GoldenTest, makeGoldenTest)
-import GoldenTest.ShellCommands
-  ( createGoldenTestWaspApp,
-    withInGoldenTestWaspAppDir,
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import SnapshotTest.ShellCommands
+  ( createSnapshotTestWaspApp,
+    withInSnapshotTestWaspAppDir,
   )
 import WaspApp.ShellCommands
   ( appendToPrismaFile,
@@ -11,12 +11,12 @@ import WaspApp.ShellCommands
     waspCliMigrate,
   )
 
-waspMigrateGoldenTest :: GoldenTest
-waspMigrateGoldenTest =
-  makeGoldenTest
+waspMigrateSnapshotTest :: SnapshotTest
+waspMigrateSnapshotTest =
+  makeSnapshotTest
     "wasp-migrate"
-    [ createGoldenTestWaspApp,
-      withInGoldenTestWaspAppDir
+    [ createSnapshotTestWaspApp,
+      withInSnapshotTestWaspAppDir
         [ waspCliCompile,
           appendToPrismaFile taskPrismaModel,
           waspCliMigrate "foo"

@@ -1,4 +1,4 @@
-module GoldenTest.Snapshot
+module SnapshotTest.Snapshot
   ( SnapshotType (..),
     SnapshotsDir,
     SnapshotDir,
@@ -21,16 +21,16 @@ import StrongPath.Types (Abs)
 
 data SnapshotsDir
 
--- | The directory inside a 'Common.SnapshotsDir' where a golden test snapshot is stored.
+-- | The directory inside a 'Common.SnapshotsDir' where a snapshot is stored.
 -- The snapshot is either a "golden" (expected) or a "current" (actual) snapshot.
--- It follows a @"<golden-test-name>-<snapshot-type>"@ naming convention.
--- e.g. @"testName-golden"@, @"kitchen-sink-current"@
+-- It follows a @<snapshot-test-name>-<snapshot-type>@ naming convention.
+-- e.g. @testName-golden@, @kitchen-sink-current@
 data SnapshotDir
 
 -- | The Wasp app directory inside of a 'SnapshotDir'.
 -- TODO: centralni koncept wasp appa
--- It is named after the golden test.
--- e.g., @"testName"@, @"kitchen-sink"@.
+-- It is named after the snapshot test.
+-- e.g., @testName@, @kitchen-sink@.
 data SnapshotWaspAppDir
 
 -- | asdas
