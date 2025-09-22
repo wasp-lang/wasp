@@ -19,12 +19,12 @@ import ShellCommands
     combineShellCommands,
     ($|),
   )
-import SnapshotTest.Snapshot (SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir, snapshotWaspAppDirInSnapshotDir)
+import SnapshotTest.FileSystem (SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir, snapshotWaspAppDirInSnapshotDir)
 import StrongPath (Dir, Path', Rel, fromRelDir)
 import qualified StrongPath as SP
 import WaspApp.ShellCommands (WaspAppContext (..))
 
--- | Shell commands executed with this context are run from the 'SnapshotTest.Common.SnapshotDir' directory.
+-- | Shell commands executed with this context are run from the 'SnapshotTest.FileSystem.SnapshotDir' directory.
 data SnapshotTestContext = SnapshotTestContext
   deriving (Show)
 

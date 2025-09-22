@@ -797,8 +797,8 @@ test-suite waspc-e2e-tests
     Common
     ShellCommands
     WaspApp.ShellCommands
-    SnapshotTest.Snapshot
     SnapshotTest
+    SnapshotTest.FileSystem
     SnapshotTest.ShellCommands
     Tests.WaspNewSnapshotTest
     Tests.KitchenSinkSnapshotTest

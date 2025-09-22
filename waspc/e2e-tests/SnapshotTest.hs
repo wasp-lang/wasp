@@ -19,13 +19,13 @@ import ShellCommands
     buildShellCommand,
     combineShellCommands,
   )
-import SnapshotTest.ShellCommands (SnapshotTestContext (..))
-import SnapshotTest.Snapshot
+import SnapshotTest.FileSystem
   ( SnapshotType (..),
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
   )
+import SnapshotTest.ShellCommands (SnapshotTestContext (..))
 import qualified StrongPath as SP
 import qualified StrongPath as Sp
 import System.Directory (doesFileExist)

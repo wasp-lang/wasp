@@ -1,4 +1,4 @@
-module SnapshotTest.Snapshot
+module SnapshotTest.FileSystem
   ( SnapshotType (..),
     SnapshotsDir,
     SnapshotDir,
