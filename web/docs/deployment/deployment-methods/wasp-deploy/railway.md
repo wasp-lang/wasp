@@ -41,7 +41,7 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`.
+Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using `--db-image`.
 
 <LaunchCommandEnvVars />
 
@@ -95,6 +95,20 @@ Running `wasp deploy railway launch` is the same as running the following comman
 wasp deploy railway setup <project-name>
 wasp deploy railway deploy <project-name>
 ```
+
+#### Using a custom database image
+
+Use `--db-image <docker-image>` to provision the database with a specific Postgres image (for example, to enable extensions):
+
+```shell
+# PostGIS
+wasp deploy railway launch my-wasp-app --db-image postgis/postgis
+
+# pgvector
+wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
+```
+
+When provided, Wasp configures the DB service on Railway using the given image and required Postgres environment variables. If omitted, Railway’s default Postgres is used. The service name remains `Postgres`.
 
 #### Explicitly providing the Railway project ID
 
@@ -192,7 +206,21 @@ The project name is used as a base for your server and client service names on R
 - `<project-name>-client`
 - `<project-name>-server`
 
-Railway also creates a PostgreSQL database service named `Postgres`.
+Railway also creates a PostgreSQL database service named `Postgres` (the name remains the same even when using `--db-image`).
+
+#### Using a custom database image
+
+To create the database using a specific Postgres image, pass `--db-image <docker-image>`:
+
+```shell
+# PostGIS
+wasp deploy railway setup my-wasp-app --db-image postgis/postgis
+
+# pgvector
+wasp deploy railway setup my-wasp-app --db-image pgvector/pgvector:pg16
+```
+
+When provided, Wasp sets up the DB service with the specified image and configures necessary Postgres variables. If not provided, Railway’s default Postgres template is used.
 
 #### Explicitly providing the Railway project ID
 
