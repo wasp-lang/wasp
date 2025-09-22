@@ -89,13 +89,13 @@ runSnapshotTest snapshotTest = do
     testGroup
       snapshotTestName
       [ goldenVsFileDiff
-          currentSnapshotAbsFp -- The test name.
+          currentSnapshotFileAbsFp -- The test name.
           (\ref new -> ["diff", "-u", ref, new])
-          goldenSnapshotAbsFp
-          currentSnapshotAbsFp
+          goldenSnapshotFileAbsFp
+          currentSnapshotFileAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentSnapshotAbsFp <- filesForCheckingContentAbsFps,
-          let goldenSnapshotAbsFp = remapCurrentToGoldenFilePath currentSnapshotAbsFp
+        | currentSnapshotFileAbsFp <- filesForCheckingContentAbsFps,
+          let goldenSnapshotFileAbsFp = remapCurrentToGoldenFilePath currentSnapshotFileAbsFp
       ]
   where
     makeSnapshotTestCommand :: ShellCommand
