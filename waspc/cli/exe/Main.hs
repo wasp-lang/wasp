@@ -222,7 +222,7 @@ printVersion = do
 dbCli :: [String] -> IO ()
 dbCli args = case args of
   -- These commands don't require an existing and running database.
-  ["start"] -> runCommand Command.Start.Db.start
+  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
   ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
   "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
