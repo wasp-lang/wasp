@@ -34,7 +34,7 @@ import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Command-line arguments for `wasp start db`
 data StartDbArgs = StartDbArgs
-  { customImage :: Maybe String
+  { customDbImage :: Maybe String
   }
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -55,7 +55,7 @@ start args = do
   let (appName, _) = ASV.getApp appSpec
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName (customImage startDbArgs)
+    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName (customDbImage startDbArgs)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
