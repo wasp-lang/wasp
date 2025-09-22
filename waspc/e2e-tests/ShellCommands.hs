@@ -22,7 +22,7 @@ import Data.List (intercalate)
 type ShellCommand = String
 
 -- | Builds shell command with access and assumptions to some context.
--- e.g. "WaspApp.ShellCommands.WaspAppContext" assumes commands are run from inside a Wasp app project.
+-- e.g. 'WaspApp.ShellCommands.WaspAppContext' assumes commands are run from inside a Wasp app project.
 -- It also provides access to context details like the Wasp app's name.
 newtype ShellCommandBuilder context a = ShellCommandBuilder (Reader context a)
   deriving (Functor, Applicative, Monad, MonadReader context)
@@ -32,9 +32,11 @@ buildShellCommand context (ShellCommandBuilder reader) = runReader reader contex
 
 -- Command utilities
 
+-- | Pipe the output of one command into another.
 ($|) :: ShellCommand -> ShellCommand -> ShellCommand
 cmd1 $| cmd2 = cmd1 ++ " | " ++ cmd2
 
+-- | Execute the second command only if the first command succeeds.
 ($?) :: ShellCommand -> ShellCommand -> ShellCommand
 ($?) condition command =
   "if " ++ condition ++ "; then " ++ command ++ " ;fi"

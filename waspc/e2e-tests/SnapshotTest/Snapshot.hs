@@ -28,12 +28,11 @@ data SnapshotsDir
 data SnapshotDir
 
 -- | The Wasp app directory inside of a 'SnapshotDir'.
--- TODO: centralni koncept wasp appa
--- It is named after the snapshot test.
--- e.g., @testName@, @kitchen-sink@.
+-- We hardcode its name to @wasp-app@ so that the snapshots directory is more readable.
 data SnapshotWaspAppDir
 
--- | asdas
+-- | The file inside of a 'SnapshotDir'.
+-- Lists all files that should exist in the 'SnapshotDir' directory
 data SnapshotFileListManifestFile
 
 data SnapshotType = Golden | Current

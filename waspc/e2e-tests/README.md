@@ -22,7 +22,7 @@ Snapshots are compared in two ways:
 
 For more details, check out the `waspc/e2e-tests/SnapshotTest.hs` file.
 
-Snapshots are saved in the `waspc/e2e-tests/snapshots` directory, which follows the next structure:
+Snapshots are saved in the `waspc/e2e-tests/snapshots/` directory, which follows the next structure:
 
 ```yaml
 # Where:
@@ -31,7 +31,7 @@ Snapshots are saved in the `waspc/e2e-tests/snapshots` directory, which follows 
 
 e2e-tests/
 └── snapshots/
-    └── <name>-<snapshot-type>/  # e.g. `wasp-build-current`, `wasp-build-golden`
+    └── <name>-<snapshot-type>/  # snapshot dirctory, e.g. `wasp-build-current`, `wasp-build-golden`
         ├── wasp-app/
         └── snapshot-file-list.manifest
 ```

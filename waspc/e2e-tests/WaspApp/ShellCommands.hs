@@ -35,6 +35,14 @@ setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql
 appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspAppContext ShellCommand
 appendToPrismaFile = appendToFile "schema.prisma"
 
+waspCliCompile :: ShellCommandBuilder WaspAppContext ShellCommand
+waspCliCompile = return "wasp-cli compile"
+
+waspCliBuild :: ShellCommandBuilder WaspAppContext ShellCommand
+waspCliBuild = return "wasp-cli build"
+
+-- | Builds and deletes the Docker image for a Wasp app.
+-- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
 buildWaspDockerImage :: ShellCommandBuilder WaspAppContext ShellCommand
 buildWaspDockerImage = do
   waspAppContext <- ask
@@ -48,10 +56,7 @@ buildWaspDockerImage = do
               "cd ../.."
             ]
 
-waspCliCompile :: ShellCommandBuilder WaspAppContext ShellCommand
-waspCliCompile = return "wasp-cli compile"
-
--- | We normalize the migration names to "no-date-<migrationName>" for reproducibility.
+-- | We normalize the migration names to @no-date-<migrationName>@ for reproducibility.
 -- This means that we can't generate two migrations with the same name in a project.
 waspCliMigrate :: String -> ShellCommandBuilder WaspAppContext ShellCommand
 waspCliMigrate migrationName =
@@ -68,6 +73,3 @@ waspCliMigrate migrationName =
     replaceMigrationDatePrefix :: String -> ShellCommand
     replaceMigrationDatePrefix migrationDir =
       "mv " ++ (migrationDir </> ("*" ++ migrationName)) ++ " " ++ (migrationDir </> ("no-date-" ++ migrationName))
-
-waspCliBuild :: ShellCommandBuilder WaspAppContext ShellCommand
-waspCliBuild = return "wasp-cli build"

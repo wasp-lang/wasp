@@ -31,7 +31,7 @@ data SnapshotTestContext = SnapshotTestContext
 snapshotTestContextToWaspAppContext :: SnapshotTestContext -> WaspAppContext
 snapshotTestContextToWaspAppContext _snapshotTestContext =
   WaspAppContext
-    { _waspAppName = "wasp-app" -- NOTE: we hardcode the Wasp app name so the snapshots folders is more readable.
+    { _waspAppName = "wasp-app" -- NOTE: we hardcode the Wasp app name so the snapshots directory is more readable.
     }
 
 createSnapshotTestWaspApp :: ShellCommandBuilder SnapshotTestContext ShellCommand
