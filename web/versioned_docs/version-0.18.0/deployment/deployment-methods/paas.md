@@ -232,7 +232,7 @@ To get started, follow these steps:
 1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account.
 1. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli).
 1. Run `railway login` and a browser tab will open to authenticate you.
-1. Go to your [Railway account settings](https://railway.com/account/feature-flags?utm_medium=integration&utm_source=docs&utm_campaign=wasp) and enable **Railpack** as the default deployment builder. This is required for the client routing to work correctly.
+1. Railway uses Railpack as the default deployment builder. This is required for the client routing to work correctly.
 
 ### Create New Project
 
