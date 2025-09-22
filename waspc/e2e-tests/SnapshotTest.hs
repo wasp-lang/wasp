@@ -17,7 +17,7 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
-    combineShellCommands,
+    ($&&),
   )
 import SnapshotTest.FileSystem
   ( SnapshotType (..),
@@ -75,7 +75,7 @@ runSnapshotTest snapshotTest = do
 
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ combineShellCommands [cdIntoCurrentSnapshotDirCommand, snapshotTestCommand]
+  callCommand $ cdIntoCurrentSnapshotDirCommand $&& snapshotTestCommand
 
   filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentSnapshotDirAbsFp
   filesForCheckingContentAbsFps <- (snapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp
@@ -101,7 +101,7 @@ runSnapshotTest snapshotTest = do
     makeSnapshotTestCommand :: ShellCommand
     makeSnapshotTestCommand =
       let snapshotTestCommandsBuilder = _snapshotTestCommandsBuilder snapshotTest
-       in combineShellCommands $ buildShellCommand SnapshotTestContext snapshotTestCommandsBuilder
+       in foldr1 ($&&) $ buildShellCommand SnapshotTestContext snapshotTestCommandsBuilder
 
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
     getFilesForCheckingExistence dirToFilterAbsFp =

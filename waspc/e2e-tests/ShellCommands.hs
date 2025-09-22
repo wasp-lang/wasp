@@ -6,7 +6,7 @@ module ShellCommands
     ShellCommandBuilder (..),
     buildShellCommand,
     ($|),
-    combineShellCommands,
+    ($&&),
     ($?),
     appendToFile,
     replaceLineInFile,
@@ -14,7 +14,6 @@ module ShellCommands
 where
 
 import Control.Monad.Reader (MonadReader, Reader, runReader)
-import Data.List (intercalate)
 
 -- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 -- TODO: In future, find a good way to test `wasp-cli start`.
@@ -37,12 +36,15 @@ buildShellCommand context (ShellCommandBuilder reader) = runReader reader contex
 cmd1 $| cmd2 = cmd1 ++ " | " ++ cmd2
 
 -- | Execute the second command only if the first command succeeds.
+-- The command chain will continue regardless of whether the second command runs.
 ($?) :: ShellCommand -> ShellCommand -> ShellCommand
 ($?) condition command =
   "if " ++ condition ++ "; then " ++ command ++ " ;fi"
 
-combineShellCommands :: [ShellCommand] -> ShellCommand
-combineShellCommands = intercalate " && "
+-- | Execute the second command only if the first command succeeds.
+-- In case of failure, the command chain will stop.
+($&&) :: ShellCommand -> ShellCommand -> ShellCommand
+cmd1 $&& cmd2 = cmd1 ++ " && " ++ cmd2
 
 -- General commands
 
@@ -54,7 +56,5 @@ appendToFile fileName content =
 replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder context ShellCommand
 replaceLineInFile fileName lineNumber line =
   return $
-    combineShellCommands
-      [ "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
-        "mv " ++ fileName ++ ".tmp " ++ fileName
-      ]
+    "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp"
+      $&& "mv " ++ fileName ++ ".tmp " ++ fileName

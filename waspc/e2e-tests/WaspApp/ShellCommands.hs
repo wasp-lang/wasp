@@ -16,8 +16,8 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     appendToFile,
-    combineShellCommands,
     replaceLineInFile,
+    ($&&),
     ($?),
   )
 import System.FilePath (joinPath, (</>))
@@ -49,23 +49,19 @@ buildWaspDockerImage = do
   let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          $? combineShellCommands
-            [ "cd .wasp/build",
-              "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " .",
-              "docker image rm " ++ dockerImageTag,
-              "cd ../.."
-            ]
+          $? "cd .wasp/build"
+            $&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " ."
+            $&& "docker image rm " ++ dockerImageTag
+            $&& "cd ../.."
 
 -- | We normalize the migration names to @no-date-<migrationName>@ for reproducibility.
 -- This means that we can't generate two migrations with the same name in a project.
 waspCliMigrate :: String -> ShellCommandBuilder WaspAppContext ShellCommand
 waspCliMigrate migrationName =
   return $
-    combineShellCommands
-      [ "wasp-cli db migrate-dev --name " ++ migrationName,
-        replaceMigrationDatePrefix waspMigrationsDir,
-        replaceMigrationDatePrefix dotWaspMigrationsDir
-      ]
+    "wasp-cli db migrate-dev --name " ++ migrationName
+      $&& replaceMigrationDatePrefix waspMigrationsDir
+      $&& replaceMigrationDatePrefix dotWaspMigrationsDir
   where
     waspMigrationsDir = "migrations"
     dotWaspMigrationsDir = joinPath [".wasp", "out", "db", "migrations"]
