@@ -13,7 +13,7 @@ import { Alert } from "../../../components/Alert";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
-export const SignupPage = () => {
+export const CustomSignupPage = () => {
   const {
     register,
     handleSubmit,
@@ -67,7 +67,7 @@ export const SignupPage = () => {
             </Alert>
           )}
           <FormItemGroup>
-            <FormLabel>Email</FormLabel>
+            <FormLabel>E-mail</FormLabel>
             <FormInput type="email" {...register("email")} />
             <FormError>{errors.email?.message}</FormError>
           </FormItemGroup>
@@ -82,7 +82,7 @@ export const SignupPage = () => {
             <FormError>{errors.address?.message}</FormError>
           </FormItemGroup>
           <FormItemGroup>
-            <Button type="submit">Signup</Button>
+            <Button type="submit">Sign up</Button>
           </FormItemGroup>
         </form>
       </div>
