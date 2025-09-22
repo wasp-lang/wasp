@@ -329,7 +329,7 @@ You'll deploy the server first:
 
     Select `client` when prompted to select a service.
 
-    Railway will detect the `index.html` file and deploy the client as a static site using [Railpack](https://railpack.com/languages/staticfile#root-directory-resolution).
+    Railway will detect the `index.html` file and deploy the client as a static site.
 
 
 And now your Wasp should be deployed!
