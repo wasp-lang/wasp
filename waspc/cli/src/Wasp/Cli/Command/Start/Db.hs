@@ -7,7 +7,9 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isJust)
+import Data.Function ((&))
+import Data.Maybe (fromMaybe, isJust)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
 import System.Process (callCommand)
@@ -16,10 +18,12 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Util.Parser (parseArguments)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -28,12 +32,21 @@ import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
 import qualified Wasp.Util.Network.Socket as Socket
 
+-- | Command-line arguments for `wasp start db`
+data StartDbArgs = StartDbArgs
+  { customDbImage :: Maybe String
+  }
+
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
-start :: Command ()
-start = do
+start :: Arguments -> Command ()
+start args = do
+  startDbArgs <-
+    parseArguments "wasp start db" startDbArgsParser args
+      & either (E.throwError . CommandError "Invalid arguments") return
+
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir
 
@@ -42,11 +55,22 @@ start = do
   let (appName, _) = ASV.getApp appSpec
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName
+    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName (customDbImage startDbArgs)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
+
+-- | Parser for `wasp start db` arguments
+startDbArgsParser :: Opt.Parser StartDbArgs
+startDbArgsParser =
+  StartDbArgs
+    <$> Opt.optional
+      ( Opt.strOption $
+          Opt.long "image"
+            <> Opt.metavar "IMAGE"
+            <> Opt.help "Docker image to use for the database (default: postgres)"
+      )
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
@@ -82,24 +106,31 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgreDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Command ()
-startPostgreDevDb waspProjectDir appName = do
+startPostgreDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe String -> Command ()
+startPostgreDevDb waspProjectDir appName customImage = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   throwIfDevDbPortIsAlreadyInUse
 
+  let dockerImage = fromMaybe "postgres" customImage
+
   cliSendMessageC . Msg.Info $
-    unlines
+    unlines $
       [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
-        "",
-        "Additional info:",
-        " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> connectionUrl,
-        " ℹ Database data is persisted in a docker volume with the following name"
-          <> " (useful to know if you will want to delete it at some point):",
-        "     " <> dockerVolumeName
+        ""
       ]
+        ++ ( if isJust customImage
+               then [" ℹ Using custom Docker image: " <> dockerImage, ""]
+               else []
+           )
+        ++ [ "Additional info:",
+             " ℹ Connection URL, in case you might want to connect with external tools:",
+             "     " <> connectionUrl,
+             " ℹ Database data is persisted in a docker volume with the following name"
+               <> " (useful to know if you will want to delete it at some point):",
+             "     " <> dockerVolumeName
+           ]
 
   cliSendMessageC $ Msg.Info "..."
 
@@ -117,7 +148,7 @@ startPostgreDevDb waspProjectDir appName = do
                 "--env POSTGRES_PASSWORD=%s",
                 "--env POSTGRES_USER=%s",
                 "--env POSTGRES_DB=%s",
-                "postgres"
+                "%s"
               ]
           )
           dockerContainerName
@@ -126,6 +157,7 @@ startPostgreDevDb waspProjectDir appName = do
           Dev.Postgres.defaultDevPass
           Dev.Postgres.defaultDevUser
           dbName
+          dockerImage
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
