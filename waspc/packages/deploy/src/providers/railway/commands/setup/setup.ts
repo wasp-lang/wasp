@@ -131,27 +131,14 @@ async function setupDb({
     options.waspProjectDir,
   );
 
+  const extraArgs = [];
+
   if (options.dbImage) {
-    // Use custom Docker image
     waspSays(`Using custom database image: ${options.dbImage}`);
-    await railwayCli(
-      [
-        "add",
-        ["--service", dbServiceName],
-        ["--docker-image", options.dbImage],
-        ["--variables", "POSTGRES_DB=railway"],
-        ["--variables", "POSTGRES_USER=postgres"],
-        ["--variables", "POSTGRES_PASSWORD=${{secret()}}"],
-        [
-          "--variables",
-          "DATABASE_URL=postgresql://postgres:${{POSTGRES_PASSWORD}}@${{RAILWAY_TCP_PROXY_DOMAIN}}:${{RAILWAY_TCP_PROXY_PORT}}/railway",
-        ],
-      ].flat(),
-    );
-  } else {
-    // Use default Railway Postgres template
-    await railwayCli(["add", "-d", "postgres"]);
+    extraArgs.push("--image", options.dbImage);
   }
+
+  await railwayCli(["add", "--database", "postgres", ...extraArgs]);
 }
 
 async function setupServer({
