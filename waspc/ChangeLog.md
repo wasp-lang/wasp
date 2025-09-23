@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 🔧 Small improvements
+
+- You can now specify which PostgreSQL image to use in `wasp deploy fly` with the `--db-image` argument. ([#3185](https://github.com/wasp-lang/wasp/pull/3185))
+
 ### 📖 Documentation
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
