@@ -22,6 +22,7 @@ import ShellCommands
   )
 import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir)
 import StrongPath (Abs, Dir, Path', Rel, fromRelDir, (</>))
+import System.FilePath (dropTrailingPathSeparator)
 import WaspApp.ShellCommands (WaspAppContext (..))
 
 -- | Shell commands executed with this context are run from the 'SnapshotTest.FileSystem.SnapshotDir' directory.
@@ -32,7 +33,7 @@ data SnapshotTestContext = SnapshotTestContext
 
 snapshotTestContextToWaspAppContext :: SnapshotTestContext -> WaspAppContext
 snapshotTestContextToWaspAppContext ctx =
-  WaspAppContext {_waspAppName = fromRelDir $ _snapshotWaspAppRelDir ctx}
+  WaspAppContext {_waspAppName = dropTrailingPathSeparator $ fromRelDir $ _snapshotWaspAppRelDir ctx}
 
 createSnapshotWaspApp :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspApp = do
