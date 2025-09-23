@@ -26,7 +26,6 @@ import System.FilePath (joinPath, (</>))
 -- For snapshot tests, commands executed with this context are run from the 'SnapshotTestCommon.SnapshotWaspAppDir' directory.
 data WaspAppContext = WaspAppContext
   {_waspAppName :: String}
-  deriving (Show)
 
 -- NOTE: fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspAppContext ShellCommand
