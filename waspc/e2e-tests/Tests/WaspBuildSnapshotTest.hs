@@ -2,8 +2,8 @@ module Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands
-  ( createSnapshotTestWaspApp,
-    withInSnapshotTestWaspAppDir,
+  ( createSnapshotWaspApp,
+    withInSnapshotWaspAppDir,
   )
 import WaspApp.ShellCommands
   ( buildWaspDockerImage,
@@ -15,8 +15,8 @@ waspBuildSnapshotTest :: SnapshotTest
 waspBuildSnapshotTest =
   makeSnapshotTest
     "wasp-build"
-    [ createSnapshotTestWaspApp,
-      withInSnapshotTestWaspAppDir
+    [ createSnapshotWaspApp,
+      withInSnapshotWaspAppDir
         [ setWaspDbToPSQL,
           waspCliBuild,
           buildWaspDockerImage
