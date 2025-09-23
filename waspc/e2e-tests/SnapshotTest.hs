@@ -8,9 +8,9 @@ where
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
-import qualified Data.ByteString as B
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Data.List (isSuffixOf, sort)
+import Data.List (sort)
 import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
 import ShellCommands
@@ -27,11 +27,9 @@ import SnapshotTest.FileSystem
   )
 import SnapshotTest.ShellCommands (SnapshotTestContext (..))
 import qualified StrongPath as SP
-import qualified StrongPath as Sp
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
-import System.FilePath (makeRelative, takeFileName)
-import qualified System.FilePath as FP
+import System.FilePath (equalFilePath, makeRelative, takeFileName)
 import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
@@ -61,7 +59,7 @@ runSnapshotTest snapshotTest = do
 
   let currentSnapshotDirAbsFp = SP.fromAbsDir currentSnapshotAbsDir
   let goldenSnapshotDirAbsFp = SP.fromAbsDir goldenSnapshotAbsDir
-  let snapshotFileListManifestFileAbsFp = Sp.fromAbsFile snapshotFileListManifestAbsFile
+  let snapshotFileListManifestFileAbsFp = SP.fromAbsFile snapshotFileListManifestAbsFile
 
   -- Remove existing current snapshot files from a prior test run.
   callCommand $ "rm -rf " ++ currentSnapshotDirAbsFp
@@ -71,7 +69,7 @@ runSnapshotTest snapshotTest = do
   callCommand $ "mkdir -p " ++ goldenSnapshotDirAbsFp
 
   let cdIntoCurrentSnapshotDirCommand = "cd " ++ currentSnapshotDirAbsFp
-  let snapshotTestCommand = makeSnapshotTestCommand
+  let snapshotTestCommand = foldr1 ($&&) $ buildShellCommand SnapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
 
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
@@ -83,86 +81,75 @@ runSnapshotTest snapshotTest = do
   writeSnapshotFileListManifest currentSnapshotDirAbsFp filesForCheckingExistenceAbsFps snapshotFileListManifestFileAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToGoldenFilePath fp = unpack $ replace (pack currentSnapshotDirAbsFp) (pack goldenSnapshotDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFp fp = unpack $ replace (pack currentSnapshotDirAbsFp) (pack goldenSnapshotDirAbsFp) (pack fp)
 
   return $
     testGroup
       snapshotTestName
-      [ goldenVsFileDiff
-          currentSnapshotFileAbsFp -- The test name.
-          (\ref new -> ["diff", "-u", ref, new])
-          goldenSnapshotFileAbsFp
-          currentSnapshotFileAbsFp
-          (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
-        | currentSnapshotFileAbsFp <- filesForCheckingContentAbsFps,
-          let goldenSnapshotFileAbsFp = remapCurrentToGoldenFilePath currentSnapshotFileAbsFp
-      ]
+      [defineSnapshotTest currentFp (remapCurrentToGoldenFp currentFp) | currentFp <- filesForCheckingContentAbsFps]
   where
-    makeSnapshotTestCommand :: ShellCommand
-    makeSnapshotTestCommand =
-      let snapshotTestCommandsBuilder = _snapshotTestCommandsBuilder snapshotTest
-       in foldr1 ($&&) $ buildShellCommand SnapshotTestContext snapshotTestCommandsBuilder
-
     getFilesForCheckingExistence :: FilePath -> IO [FilePath]
     getFilesForCheckingExistence dirToFilterAbsFp =
-      getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist
+      let shouldCheckFileExistence fp =
+            takeFileName fp
+              `notElem` [ ".DS_Store",
+                          "node_modules"
+                        ]
+       in getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist
 
     getFilesForCheckingContent :: FilePath -> IO [FilePath]
     getFilesForCheckingContent dirToFilterAbsFp =
-      getDirFiltered (return <$> shouldCheckFileContents) dirToFilterAbsFp >>= filterM doesFileExist
+      let shouldCheckFileContents fp =
+            takeFileName fp
+              `notElem` [ ".DS_Store",
+                          "dev.db",
+                          "dev.db-journal",
+                          ".gitignore",
+                          ".waspinfo",
+                          "package-lock.json",
+                          "node_modules",
+                          "tsconfig.tsbuildinfo",
+                          "dist"
+                        ]
+       in getDirFiltered (return <$> shouldCheckFileContents) dirToFilterAbsFp >>= filterM doesFileExist
 
-    shouldCheckFileExistence :: FilePath -> Bool
-    shouldCheckFileExistence filePath =
-      takeFileName filePath
-        `notElem` [ ".DS_Store",
-                    "node_modules"
-                  ]
-
-    shouldCheckFileContents :: FilePath -> Bool
-    shouldCheckFileContents filePath =
-      takeFileName filePath
-        `notElem` [ ".DS_Store",
-                    "dev.db",
-                    "dev.db-journal",
-                    ".gitignore",
-                    ".waspinfo",
-                    "package-lock.json",
-                    "node_modules",
-                    "tsconfig.tsbuildinfo",
-                    "dist"
-                  ]
-
+    -- Writes a deterministic manifest of files that should exist in the snapshot.
+    -- File paths are normalized to relative paths and sorted.
     writeSnapshotFileListManifest :: String -> [FilePath] -> FilePath -> IO ()
     writeSnapshotFileListManifest baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
-      let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
-      writeFile expectedFilesListAbsFp sortedRelativeFilePaths
+      let sortedRelativeFps = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
+      writeFile expectedFilesListAbsFp sortedRelativeFps
 
-    -- While Wasp deterministically produces package.json files in the generated code,
-    -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
-    -- Also, different versions of npm may produce different (but semantically equivalent) package.json files.
-    -- All of this can result in snapshot tests flagging these files as being different when it should not.
+    -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
-    reformatPackageJsonFiles filePaths = do
-      let packageJsonFilePaths = filter isPathToPackageJson filePaths
-      mapM_ reformatJson packageJsonFilePaths
+    reformatPackageJsonFiles = mapM_ reformatJson . filter isPackageJson
       where
-        isPathToPackageJson :: FilePath -> Bool
-        isPathToPackageJson = ((FP.pathSeparator : "package.json") `isSuffixOf`)
-
-        aesonPrettyConfig :: AesonPretty.Config
-        aesonPrettyConfig =
-          AesonPretty.Config
-            { AesonPretty.confIndent = AesonPretty.Spaces 2,
-              AesonPretty.confCompare = compare,
-              AesonPretty.confNumFormat = AesonPretty.Generic,
-              AesonPretty.confTrailingNewline = True
-            }
+        isPackageJson :: FilePath -> Bool
+        isPackageJson = equalFilePath "package.json" . takeFileName
 
         reformatJson :: FilePath -> IO ()
-        reformatJson jsonFilePath =
-          BSL.writeFile jsonFilePath . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
-            =<< B.readFile jsonFilePath
-          where
-            unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
-            unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
+        reformatJson jsonFp =
+          BS.readFile jsonFp >>= BSL.writeFile jsonFp . formatJson . unsafeDecodeJson
+
+        unsafeDecodeJson :: BS.ByteString -> Aeson.Value
+        unsafeDecodeJson = fromJust . Aeson.decodeStrict
+
+        formatJson :: Aeson.Value -> BSL.ByteString
+        formatJson =
+          AesonPretty.encodePretty'
+            AesonPretty.Config
+              { AesonPretty.confIndent = AesonPretty.Spaces 2,
+                AesonPretty.confCompare = compare,
+                AesonPretty.confNumFormat = AesonPretty.Generic,
+                AesonPretty.confTrailingNewline = True
+              }
+
+    defineSnapshotTest :: FilePath -> FilePath -> TestTree
+    defineSnapshotTest currentFileAbsFp goldenFileAbsFp =
+      goldenVsFileDiff
+        currentFileAbsFp -- The test name.
+        (\ref new -> ["diff", "-u", ref, new])
+        goldenFileAbsFp
+        currentFileAbsFp
+        (return ()) -- IO action to generate the current file. No-op since files are pre-generated in bulk.
