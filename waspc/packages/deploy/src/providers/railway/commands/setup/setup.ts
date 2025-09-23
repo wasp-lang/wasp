@@ -139,7 +139,7 @@ async function setupDb({
       "add",
       "--service",
       dbServiceName,
-      "--docker-image",
+      "--image",
       options.dbImage,
       "--variables",
       "POSTGRES_DB=railway",
@@ -148,10 +148,14 @@ async function setupDb({
       "--variables",
       "POSTGRES_PASSWORD=${{secret()}}",
       "--variables",
-      "DATABASE_URL=postgresql://postgres:${{POSTGRES_PASSWORD}}@${{RAILWAY_TCP_PROXY_DOMAIN}}:${{RAILWAY_TCP_PROXY_PORT}}/railway",
+      "PORT=5432",
+      "--variables",
+      "PGDATA=/var/lib/postgresql/data/pgdata",
+      "--variables",
+      "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
     ]);
   } else {
-    // Use default Railway Postgres template
+    // Use the default Railway Postgres template
     await railwayCli(["add", "-d", "postgres"]);
   }
 }
