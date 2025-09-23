@@ -25,7 +25,7 @@ import SnapshotTest.FileSystem
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
   )
-import SnapshotTest.ShellCommands (SnapshotTestContext (..))
+import SnapshotTest.ShellCommands (SnapshotTestContext, defaultSnapshotTestContext)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -69,7 +69,7 @@ runSnapshotTest snapshotTest = do
   callCommand $ "mkdir -p " ++ goldenSnapshotDirAbsFp
 
   let cdIntoCurrentSnapshotDirCommand = "cd " ++ currentSnapshotDirAbsFp
-  let snapshotTestCommand = foldr1 ($&&) $ buildShellCommand SnapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
+  let snapshotTestCommand = foldr1 ($&&) $ buildShellCommand defaultSnapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
 
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
   -- TODO: Save stdout/error as log file for "contains" checks.

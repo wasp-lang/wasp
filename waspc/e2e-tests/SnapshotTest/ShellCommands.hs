@@ -1,7 +1,8 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 
 module SnapshotTest.ShellCommands
-  ( SnapshotTestContext (..),
+  ( SnapshotTestContext,
+    defaultSnapshotTestContext,
     createSnapshotWaspApp,
     withInSnapshotWaspAppDir,
     copyContentsOfGitTrackedDirToSnapshotWaspAppDir,
@@ -16,6 +17,7 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
+    waspCliNewMinimalStarter,
     ($&&),
     ($|),
   )
@@ -26,39 +28,35 @@ import WaspApp.ShellCommands (WaspAppContext (..))
 
 -- | Shell commands executed with this context are run from the 'SnapshotTest.FileSystem.SnapshotDir' directory.
 data SnapshotTestContext = SnapshotTestContext
+  {_defaultWaspAppName :: String}
   deriving (Show)
 
+defaultSnapshotTestContext :: SnapshotTestContext
+defaultSnapshotTestContext = SnapshotTestContext {_defaultWaspAppName = "wasp-app"}
+
 snapshotTestContextToWaspAppContext :: SnapshotTestContext -> WaspAppContext
-snapshotTestContextToWaspAppContext _snapshotTestContext =
-  WaspAppContext
-    { _waspAppName = "wasp-app" -- NOTE: we hardcode the Wasp app name so the snapshots directory is more readable.
-    }
+snapshotTestContextToWaspAppContext ctx = WaspAppContext {_waspAppName = _defaultWaspAppName ctx}
 
 createSnapshotWaspApp :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspApp = do
   snapshotTestContext <- ask
-  let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
-
-  waspCliNewMinimalStarter $ _waspAppName waspAppContext
-  where
-    waspCliNewMinimalStarter :: String -> ShellCommandBuilder ctx ShellCommand
-    waspCliNewMinimalStarter appName = do
-      return $
-        "wasp-cli new " ++ appName ++ " -t minimal"
+  waspCliNewMinimalStarter $ _defaultWaspAppName snapshotTestContext
 
 withInSnapshotWaspAppDir ::
   [ShellCommandBuilder WaspAppContext ShellCommand] ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
 withInSnapshotWaspAppDir waspAppCommandBuilders = do
   snapshotTestContext <- ask
-  let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
-  let snapshotWaspAppRelDir = snapshotWaspAppDirInSnapshotDir $ _waspAppName waspAppContext
+  let snapshotWaspAppRelDir = snapshotWaspAppDirInSnapshotDir $ _defaultWaspAppName snapshotTestContext
+      waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
 
-  let navigateToSnapshotWaspAppDir = "pushd " ++ fromRelDir snapshotWaspAppRelDir
-  let waspAppCommand = foldr1 ($&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
-  let returnToSnapshotDir = "popd"
-
-  return $ navigateToSnapshotWaspAppDir $&& waspAppCommand $&& returnToSnapshotDir
+      navigateToSnapshotWaspAppDir :: ShellCommand =
+        "pushd " ++ fromRelDir snapshotWaspAppRelDir
+      waspAppCommand :: ShellCommand =
+        foldr1 ($&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
+      returnToSnapshotDir :: ShellCommand =
+        "popd"
+   in return $ navigateToSnapshotWaspAppDir $&& waspAppCommand $&& returnToSnapshotDir
 
 copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
   Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspAppDir) ->
@@ -66,11 +64,10 @@ copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
 copyContentsOfGitTrackedDirToSnapshotWaspAppDir srcDirInGitRoot = do
   snapshotTestContext <- ask
   let srcDirPath = fromRelDir (gitRootInSnapshotWaspAppDir SP.</> srcDirInGitRoot)
-      waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
-      destDirPath = "./" ++ _waspAppName waspAppContext
+      destDirPath = fromRelDir $ snapshotWaspAppDirInSnapshotDir $ _defaultWaspAppName snapshotTestContext
 
-      createDestDir :: ShellCommand = "mkdir -p " ++ destDirPath
-
+      createDestDir :: ShellCommand =
+        "mkdir -p " ++ destDirPath
       listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
         "git -C " ++ fromRelDir gitRootInSnapshotWaspAppDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
       -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.

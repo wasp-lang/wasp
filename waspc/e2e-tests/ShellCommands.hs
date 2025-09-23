@@ -10,6 +10,7 @@ module ShellCommands
     ($?),
     appendToFile,
     replaceLineInFile,
+    waspCliNewMinimalStarter,
   )
 where
 
@@ -58,3 +59,6 @@ replaceLineInFile fileName lineNumber line =
   return $
     "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp"
       $&& "mv " ++ fileName ++ ".tmp " ++ fileName
+
+waspCliNewMinimalStarter :: String -> ShellCommandBuilder context ShellCommand
+waspCliNewMinimalStarter appName = return $ "wasp-cli new " ++ appName ++ " -t minimal"
