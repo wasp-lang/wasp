@@ -7,7 +7,7 @@ module WaspApp.ShellCommands
     waspCliCompile,
     waspCliMigrate,
     waspCliBuild,
-    buildWaspDockerImage,
+    validateWaspAppDockerImageBuilds,
   )
 where
 
@@ -42,8 +42,8 @@ waspCliBuild = return "wasp-cli build"
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
-buildWaspDockerImage :: ShellCommandBuilder WaspAppContext ShellCommand
-buildWaspDockerImage = do
+validateWaspAppDockerImageBuilds :: ShellCommandBuilder WaspAppContext ShellCommand
+validateWaspAppDockerImageBuilds = do
   waspAppContext <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
    in return $

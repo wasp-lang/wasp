@@ -6,8 +6,8 @@ import SnapshotTest.ShellCommands
     withInSnapshotWaspAppDir,
   )
 import WaspApp.ShellCommands
-  ( buildWaspDockerImage,
-    setWaspDbToPSQL,
+  ( setWaspDbToPSQL,
+    validateWaspAppDockerImageBuilds,
     waspCliBuild,
   )
 
@@ -19,6 +19,6 @@ waspBuildSnapshotTest =
       withInSnapshotWaspAppDir
         [ setWaspDbToPSQL,
           waspCliBuild,
-          buildWaspDockerImage
+          validateWaspAppDockerImageBuilds
         ]
     ]
