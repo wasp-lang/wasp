@@ -44,7 +44,7 @@ class FlyCommand extends Command {
       )
       .option(
         "--db-image <dbImage>",
-        "custom postgres image with extensions (e.g. postgis/postgis)",
+        "custom postgres image with extensions (must be based on flyio/postgres-flex)",
       );
   }
   addLocalBuildOption(): this {
