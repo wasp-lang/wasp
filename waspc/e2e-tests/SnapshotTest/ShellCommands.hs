@@ -21,7 +21,7 @@ import ShellCommands
     ($|),
   )
 import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir)
-import StrongPath (Abs, Dir, Path', Rel, fromRelDir, (</>))
+import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))
 import System.FilePath (dropTrailingPathSeparator)
 import WaspApp.ShellCommands (WaspAppContext (..))
 
@@ -48,7 +48,7 @@ withInSnapshotWaspAppDir waspAppCommandBuilders = do
   let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
 
       navigateToSnapshotWaspAppDir :: ShellCommand =
-        "pushd " ++ fromRelDir (_snapshotWaspAppRelDir snapshotTestContext)
+        "pushd " ++ fromAbsDir (_snapshotAbsDir snapshotTestContext </> _snapshotWaspAppRelDir snapshotTestContext)
       waspAppCommand :: ShellCommand =
         foldr1 ($&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
       returnToSnapshotDir :: ShellCommand =
