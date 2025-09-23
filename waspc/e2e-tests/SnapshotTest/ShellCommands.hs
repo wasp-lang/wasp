@@ -46,7 +46,9 @@ createSnapshotWaspApp = do
       return $
         "wasp-cli new " ++ appName ++ " -t minimal"
 
-withInSnapshotWaspAppDir :: [ShellCommandBuilder WaspAppContext ShellCommand] -> ShellCommandBuilder SnapshotTestContext ShellCommand
+withInSnapshotWaspAppDir ::
+  [ShellCommandBuilder WaspAppContext ShellCommand] ->
+  ShellCommandBuilder SnapshotTestContext ShellCommand
 withInSnapshotWaspAppDir waspAppCommandBuilders = do
   snapshotTestContext <- ask
   let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
