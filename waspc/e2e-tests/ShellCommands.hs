@@ -36,16 +36,22 @@ buildShellCommand context (ShellCommandBuilder reader) = runReader reader contex
 ($|) :: ShellCommand -> ShellCommand -> ShellCommand
 cmd1 $| cmd2 = cmd1 ++ " | " ++ cmd2
 
+infixl 7 $|
+
+-- | Execute the second command only if the first command succeeds.
+-- In case of failure, the command chain will stop.
+($&&) :: ShellCommand -> ShellCommand -> ShellCommand
+cmd1 $&& cmd2 = cmd1 ++ " && " ++ cmd2
+
+infixl 6 $&&
+
 -- | Execute the second command only if the first command succeeds.
 -- The command chain will continue regardless of whether the second command runs.
 ($?) :: ShellCommand -> ShellCommand -> ShellCommand
 ($?) condition command =
   "if " ++ condition ++ "; then " ++ command ++ " ;fi"
 
--- | Execute the second command only if the first command succeeds.
--- In case of failure, the command chain will stop.
-($&&) :: ShellCommand -> ShellCommand -> ShellCommand
-cmd1 $&& cmd2 = cmd1 ++ " && " ++ cmd2
+infixl 4 $?
 
 -- General commands
 

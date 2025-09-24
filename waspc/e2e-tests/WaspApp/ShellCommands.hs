@@ -20,12 +20,16 @@ import ShellCommands
     ($&&),
     ($?),
   )
-import System.FilePath (joinPath, (</>))
+import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
+import System.FilePath (joinPath)
+import WaspApp.FileSystem (WaspAppDir, waspAppBuildDirInWaspAppDir, waspAppMigrationsDirInWaspAppDir, waspAppMigrationsDirInWaspAppOutDir, waspAppOutDirInWaspAppDir)
 
 -- | Context for commands which are run from inside of a Wasp app project.
 -- For snapshot tests, commands executed with this context are run from the 'SnapshotTestCommon.SnapshotWaspAppDir' directory.
 data WaspAppContext = WaspAppContext
-  {_waspAppName :: String}
+  { _waspAppAbsDir :: Path' Abs (Dir WaspAppDir),
+    _waspAppName :: String
+  }
 
 -- NOTE: fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspAppContext ShellCommand
@@ -46,25 +50,25 @@ validateWaspAppDockerImageBuilds :: ShellCommandBuilder WaspAppContext ShellComm
 validateWaspAppDockerImageBuilds = do
   waspAppContext <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
+      waspAppBuildDirPath = fromAbsDir (_waspAppAbsDir waspAppContext </> waspAppBuildDirInWaspAppDir)
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          $? "cd .wasp/build"
+          $? "pushd " ++ waspAppBuildDirPath
             $&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " ."
             $&& "docker image rm " ++ dockerImageTag
-            $&& "cd ../.."
+            $&& "popd"
 
 -- | We normalize the migration names to @no-date-<migrationName>@ for reproducibility.
 -- This means that we can't generate two migrations with the same name in a project.
 waspCliMigrate :: String -> ShellCommandBuilder WaspAppContext ShellCommand
-waspCliMigrate migrationName =
-  return $
-    "wasp-cli db migrate-dev --name " ++ migrationName
-      $&& replaceMigrationDatePrefix waspMigrationsDir
-      $&& replaceMigrationDatePrefix dotWaspMigrationsDir
-  where
-    waspMigrationsDir = "migrations"
-    dotWaspMigrationsDir = joinPath [".wasp", "out", "db", "migrations"]
-
-    replaceMigrationDatePrefix :: String -> ShellCommand
-    replaceMigrationDatePrefix migrationDir =
-      "mv " ++ (migrationDir </> ("*" ++ migrationName)) ++ " " ++ (migrationDir </> ("no-date-" ++ migrationName))
+waspCliMigrate migrationName = do
+  waspAppContext <- ask
+  let waspAppAbsDir = _waspAppAbsDir waspAppContext
+      waspMigrationsDir = fromAbsDir (waspAppAbsDir </> waspAppMigrationsDirInWaspAppDir)
+      waspOutMigrationsDir = fromAbsDir (waspAppAbsDir </> waspAppOutDirInWaspAppDir </> waspAppMigrationsDirInWaspAppOutDir)
+      replaceMigrationDatePrefix migrationDir =
+        "mv " ++ joinPath [migrationDir, "*" ++ migrationName] ++ " " ++ joinPath [migrationDir, "no-date-" ++ migrationName]
+   in return $
+        "wasp-cli db migrate-dev --name " ++ migrationName
+          $&& replaceMigrationDatePrefix waspMigrationsDir
+          $&& replaceMigrationDatePrefix waspOutMigrationsDir

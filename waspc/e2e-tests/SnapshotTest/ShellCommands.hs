@@ -32,8 +32,11 @@ data SnapshotTestContext = SnapshotTestContext
   }
 
 snapshotTestContextToWaspAppContext :: SnapshotTestContext -> WaspAppContext
-snapshotTestContextToWaspAppContext ctx =
-  WaspAppContext {_waspAppName = dropTrailingPathSeparator $ fromRelDir $ _snapshotWaspAppRelDir ctx}
+snapshotTestContextToWaspAppContext snapshotTestContext =
+  WaspAppContext
+    { _waspAppName = dropTrailingPathSeparator $ fromRelDir $ _snapshotWaspAppRelDir snapshotTestContext,
+      _waspAppAbsDir = _snapshotAbsDir snapshotTestContext </> _snapshotWaspAppRelDir snapshotTestContext
+    }
 
 createSnapshotWaspApp :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspApp = do

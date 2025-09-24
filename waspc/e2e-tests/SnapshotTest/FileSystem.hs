@@ -18,6 +18,7 @@ import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRoot)
 import StrongPath (Dir, File, Path', Rel, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
+import WaspApp.FileSystem (WaspAppDir)
 
 -- | The directory where all snapshots are stored.
 data SnapshotsDir
@@ -30,7 +31,7 @@ data SnapshotDir
 
 -- | The Wasp app directory inside of a 'SnapshotDir'.
 -- We hardcode its name to @wasp-app@ so that the snapshots directory is more readable.
-data SnapshotWaspAppDir
+type SnapshotWaspAppDir = WaspAppDir
 
 -- | The file inside of a 'SnapshotDir'.
 -- Lists all files that should exist in the 'SnapshotDir' directory
