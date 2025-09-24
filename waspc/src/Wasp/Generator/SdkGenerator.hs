@@ -194,7 +194,8 @@ genPackageJson spec = do
       ( Just $
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps,
+              "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry npmDeps
             ]
       )
 
@@ -205,7 +206,6 @@ npmDepsForSdk spec waspLibs =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
-            ("@tanstack/react-query", show reactQueryVersion),
             ("axios", show axiosVersion),
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
@@ -238,6 +238,10 @@ npmDepsForSdk spec waspLibs =
           [ -- Should @types/* go into their package.json?
             ("@types/express", show expressTypesVersion),
             ("@types/express-serve-static-core", show expressTypesVersion)
+          ],
+      N.peerDependencies =
+        Npm.Dependency.fromList
+          [ ("@tanstack/react-query", show reactQueryVersion)
           ]
     }
   where

@@ -1,12 +1,6 @@
 import { expect, test } from "@playwright/test";
-import {
-  generateRandomEmail,
-  isRunningInDevMode,
-  performEmailVerification,
-  performLogin,
-  submitLoginForm,
-  submitSignupForm,
-} from "./helpers";
+import { performEmailVerification, performLogin, performSignup } from "./auth";
+import { generateRandomEmail, isRunningInDevMode } from "./helpers";
 
 test.describe("auth hooks", () => {
   /*
@@ -16,9 +10,10 @@ test.describe("auth hooks", () => {
     const emailThatThrowsError = "notallowed@email.com";
     const password = "12345678";
 
-    await submitSignupForm(page, {
+    await performSignup(page, {
       email: emailThatThrowsError,
       password,
+      address: "Some at least 10 letter address",
     });
 
     await expect(page.locator("body")).toContainText(
@@ -34,9 +29,10 @@ test.describe("auth hooks", () => {
     const email = generateRandomEmail();
     const password = "12345678";
 
-    await submitSignupForm(page, {
+    await performSignup(page, {
       email,
       password,
+      address: "Some at least 10 letter address",
     });
 
     await performEmailVerification(page, email);
@@ -45,6 +41,7 @@ test.describe("auth hooks", () => {
       email,
       password,
     });
+    await expect(page).toHaveURL("/");
 
     await page.goto("/profile");
 
@@ -73,18 +70,18 @@ test.describe("auth hooks", () => {
     const emailThatThrowsError = "cantlogin@email.com";
     const password = "12345678";
 
-    await submitSignupForm(page, {
+    await performSignup(page, {
       email: emailThatThrowsError,
       password,
+      address: "Some at least 10 letter address",
     });
 
     await performEmailVerification(page, emailThatThrowsError);
 
-    await submitLoginForm(page, {
+    await performLogin(page, {
       email: emailThatThrowsError,
       password,
     });
-
     await expect(page.locator("body")).toContainText(
       "On Before Login Hook disallows this email.",
     );

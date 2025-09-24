@@ -1,11 +1,12 @@
 import { expect, type Page, test } from "@playwright/test";
-import { performLogin, setupTestUser } from "./helpers";
+import { performLogin, setupTestUser } from "./auth";
 
 test.describe("CRUD test", () => {
   const credentials = setupTestUser();
 
   test("crud list page", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/crud");
     await expect(page.getByTestId("crud-tasks")).toBeVisible();
@@ -57,6 +58,7 @@ test.describe("CRUD test", () => {
 
   test("crud detail page", async ({ page }) => {
     await performLogin(page, credentials);
+    await expect(page).toHaveURL("/");
 
     await page.goto("/crud");
     // Create a task

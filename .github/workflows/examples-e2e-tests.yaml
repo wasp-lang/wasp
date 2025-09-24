@@ -3,8 +3,6 @@ name: Run e2e tests on example apps
 on:
   workflow_call:
   push:
-    paths:
-      - "examples/**"
     branches:
       - main
       - release

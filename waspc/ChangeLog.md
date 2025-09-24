@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### 📖 Documentation
+
+- Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
+
+## 0.18.0
+
 ### ⚠️ Breaking Changes
 
 - Wasp now requires Node.js version to be >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
@@ -13,12 +19,24 @@
 
 - New command: `wasp build start`. Lets you run your built Wasp app locally, just like in production. If required environment variables are missing, the command will show errors—helping you confirm which env vars you'll need to set in production. [#2796](https://github.com/wasp-lang/wasp/pull/2796)
 
+### 🐞 Bug fixes
+
+- Wasp now correctly parses JSON env variables. ([#2849](https://github.com/wasp-lang/wasp/pull/2849)) by @genyus
+- Bash completion now knows about the `db` command. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
+- Bash completion no longer loops infinitely. ([#3107](https://github.com/wasp-lang/wasp/pull/3107)) by @Vickram-T-G
+- The `EmailSignupData` type now correctly has the the `email` field istead of the `username` field. ([#3149](https://github.com/wasp-lang/wasp/issues/3149))
+- Wasp now explicitly gives users access to its React Query version. ([#3158](https://github.com/wasp-lang/wasp/pull/3158))
+
 ### 🔧 Small improvements
 
-- We now support Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
-- We no longer use Stitches for our Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
-- You can now create your project in a specific Railway workspace when using Wasp Deploy with the `--workspace` option ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
+- Support for Prisma schemas annotated with [leading triple-slash documentation comments](https://www.prisma.io/docs/orm/prisma-schema/overview#comments). ([#2949](https://github.com/wasp-lang/wasp/pull/2949))
+- Wasp no longer uses Stitches for Auth UI components, reducing bundle size and improving performance. ([#3034](https://github.com/wasp-lang/wasp/pull/3034))
+- You can now create your project in a specific Railway workspace when using Wasp Deploy with the `--workspace` option. ([#3113](https://github.com/wasp-lang/wasp/pull/3113))
+- Better error message when choosing a template that doesn't exist. ([#2992](https://github.com/wasp-lang/wasp/pull/2992))
+- Bash completion setup is simplified. ([#3100](https://github.com/wasp-lang/wasp/pull/3100))
 - Increased the font size in Auth UI components, preventing automatic zooming on mobile devices. (by @Vickram-T-G) ([#3110](https://github.com/wasp-lang/wasp/pull/3110/files))
+- Wasp now allows more flexibility in versions of React Query. ([#3158](https://github.com/wasp-lang/wasp/pull/3158))
+- Wasp's React Query version was bumped in order to avoid a bug on their side. ([#3158](https://github.com/wasp-lang/wasp/pull/3158))
 
 ### 📖 Documentation
 

@@ -125,11 +125,18 @@ page ProfilePage {
   component: import { ProfilePage } from "@src/features/auth/pages/ProfilePage"
 }
 
+// --------- Manual Signup --------- //
+
+route ManualSignupRoute { path: "/manual-signup", to: ManualSignupPage }
+page ManualSignupPage {
+  component: import { ManualSignupPage } from "@src/features/auth/pages/ManualSignupPage"
+}
+
 // --------- Custom Signup --------- //
 
 route CustomSignupRoute { path: "/custom-signup", to: CustomSignupPage }
 page CustomSignupPage {
-  component: import { SignupPage } from "@src/features/auth/pages/CustomSignupPage"
+  component: import { CustomSignupPage } from "@src/features/auth/pages/CustomSignupPage"
 }
 
 action customSignup {
