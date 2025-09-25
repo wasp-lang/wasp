@@ -5,10 +5,10 @@ where
 
 import Control.Applicative ((<|>))
 import qualified Data.Map as M
-import StrongPath (fromRelDirP)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import Wasp.Generator.NpmWorkspaces (toWorkspacesField)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateFieldValue)
@@ -67,7 +67,7 @@ validateWorkspaces packageJson =
   validateFieldValue
     "package.json"
     (FieldName ["workspaces"])
-    (Just $ fromRelDirP <$> NW.workspaces)
+    (Just $ toWorkspacesField NW.workspaces)
     (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]

@@ -1,5 +1,6 @@
 module Wasp.Generator.NpmWorkspaces
   ( serverPackageName,
+    toWorkspacesField,
     webAppPackageName,
     workspaces,
   )
@@ -7,7 +8,8 @@ where
 
 import Control.Exception (Exception (displayException))
 import Data.List (sort)
-import StrongPath (Dir, Path, Posix, Rel, relDirToPosix, reldirP, (</>))
+import StrongPath (Dir, Path, Posix, Rel, fromRelDirP, relDirToPosix, reldirP, (</>))
+import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec, isBuild)
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
@@ -41,6 +43,12 @@ workspaces =
           [ "This should never happen: our paths should always be POSIX-compatible, but they're not.",
             displayException exception
           ]
+
+toWorkspacesField :: [Path Posix (Rel WaspProjectDir) (Dir ())] -> [String]
+toWorkspacesField =
+  -- While the trailing slashes do not matter, we drop them because they will be user-visible in
+  -- their `package.json`, and it is more customary without them.
+  fmap (FP.Posix.dropTrailingPathSeparator . fromRelDirP)
 
 serverPackageName :: AppSpec -> String
 serverPackageName = workspacePackageName "server"
