@@ -53,9 +53,12 @@ start args = do
   throwIfCustomDbAlreadyInUse appSpec
 
   let (appName, _) = ASV.getApp appSpec
+
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgresDevDb waspProjectDir appName (customDbImage startDbArgs)
+    AS.App.Db.PostgreSQL -> do
+      let dockerImage = fromMaybe "postgres" $ customDbImage startDbArgs
+      startPostgresDevDb waspProjectDir appName dockerImage
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
@@ -106,14 +109,12 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe String -> Command ()
-startPostgresDevDb waspProjectDir appName customImage = do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> String -> Command ()
+startPostgresDevDb waspProjectDir appName dockerImage = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   throwIfDevDbPortIsAlreadyInUse
-
-  let dockerImage = fromMaybe "postgres" customImage
 
   cliSendMessageC . Msg.Info $
     unlines
