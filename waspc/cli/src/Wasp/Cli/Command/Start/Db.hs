@@ -116,21 +116,17 @@ startPostgreDevDb waspProjectDir appName customImage = do
   let dockerImage = fromMaybe "postgres" customImage
 
   cliSendMessageC . Msg.Info $
-    unlines $
+    unlines
       [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
-        ""
+        "",
+        "Additional info:",
+        " ℹ Using Docker image: " <> dockerImage,
+        " ℹ Connection URL, in case you might want to connect with external tools:",
+        "     " <> connectionUrl,
+        " ℹ Database data is persisted in a docker volume with the following name"
+          <> " (useful to know if you will want to delete it at some point):",
+        "     " <> dockerVolumeName
       ]
-        ++ ( if isJust customImage
-               then [" ℹ Using custom Docker image: " <> dockerImage, ""]
-               else []
-           )
-        ++ [ "Additional info:",
-             " ℹ Connection URL, in case you might want to connect with external tools:",
-             "     " <> connectionUrl,
-             " ℹ Database data is persisted in a docker volume with the following name"
-               <> " (useful to know if you will want to delete it at some point):",
-             "     " <> dockerVolumeName
-           ]
 
   cliSendMessageC $ Msg.Info "..."
 
