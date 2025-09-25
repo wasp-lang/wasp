@@ -61,10 +61,10 @@ genWebApp spec = do
       genAppTsConfigJson spec,
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
-      genNpmrc,
       genGitignore,
       genIndexHtml spec
     ]
+    <++> genNpmrc spec
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
@@ -124,13 +124,23 @@ genPackageJson spec waspDependencies = do
           ("rollup", "4.44.0")
         ]
 
-genNpmrc :: Generator FileDraft
-genNpmrc =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|npmrc|])
-      (C.asWebAppFile [relfile|.npmrc|])
-      Nothing
+genNpmrc :: AppSpec -> Generator [FileDraft]
+genNpmrc spec
+  -- We only use `.npmrc` to force `npm` to error out if the Node.js version is incompatible.
+  --
+  -- In dev mode, we already check the Node.js version ourselves before running any `npm` commands,
+  -- so we don't need this there.
+  --
+  -- We do expect users to manually go into the generated directories when bundling the built ouput.
+  -- So we do add the `.npmrc` there to help them avoid using an incompatible Node.js version.
+  | AS.isBuild spec =
+    return
+      [ C.mkTmplFdWithDstAndData
+          (C.asTmplFile [relfile|npmrc|])
+          (C.asWebAppFile [relfile|.npmrc|])
+          Nothing
+      ]
+  | otherwise = return []
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp _spec =
