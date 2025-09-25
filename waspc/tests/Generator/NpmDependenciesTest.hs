@@ -4,8 +4,8 @@ import Test.Tasty.Hspec
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import Wasp.Generator.NpmDependencies
 
-spec_combineNpmDepsForPackage :: Spec
-spec_combineNpmDepsForPackage = do
+spec_getNpmDepsConflicts :: Spec
+spec_getNpmDepsConflicts = do
   let waspDeps =
         D.fromList
           [ ("a", "1"),
@@ -40,8 +40,8 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Left
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Just
         NpmDepsForPackageError
           { dependenciesConflictErrors =
               [ DependencyConflictError
@@ -51,7 +51,7 @@ spec_combineNpmDepsForPackage = do
             devDependenciesConflictErrors = []
           }
 
-  it "wasp deps completely overlap with user deps: all wasp deps are dropped" $ do
+  it "wasp deps completely overlap with user deps with same versions: no conflicts" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -63,15 +63,10 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Right
-        NpmDepsForPackage
-          { dependencies = [],
-            devDependencies = [],
-            peerDependencies = []
-          }
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Nothing
 
-  it "user dependencies have no overlap with wasp deps: wasp deps remain the same" $ do
+  it "user dependencies have no overlap with wasp deps: no conflicts" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -87,15 +82,10 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Right
-        NpmDepsForPackage
-          { dependencies = waspDeps,
-            devDependencies = [],
-            peerDependencies = []
-          }
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Nothing
 
-  it "user dependencies partially overlap wasp dependencies, so intersection gets removed from wasp deps" $ do
+  it "user dependencies partially overlap wasp dependencies with same versions: no conflicts" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -111,13 +101,8 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Right
-        NpmDepsForPackage
-          { dependencies = D.fromList [("b", "2")],
-            devDependencies = [],
-            peerDependencies = []
-          }
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Nothing
 
   it "report error if user dependency overlaps wasp dependency, different version" $ do
     let npmDepsForWasp =
@@ -135,8 +120,8 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Left
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Just
         NpmDepsForPackageError
           { dependenciesConflictErrors =
               [ DependencyConflictError
@@ -162,8 +147,8 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Left
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Just
         NpmDepsForPackageError
           { dependenciesConflictErrors =
               [ DependencyConflictError
@@ -173,7 +158,7 @@ spec_combineNpmDepsForPackage = do
             devDependenciesConflictErrors = []
           }
 
-  it "both dev deps and normal deps are same for user and wasp: all wasp deps are removed" $ do
+  it "both dev deps and normal deps are same for user and wasp: no conflicts" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -185,15 +170,10 @@ spec_combineNpmDepsForPackage = do
             { userDependencies = waspDeps,
               userDevDependencies = waspDevDeps
             }
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Right
-        NpmDepsForPackage
-          { dependencies = [],
-            devDependencies = [],
-            peerDependencies = []
-          }
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Nothing
 
-  it "wasp dev dependency overlaps with user non-dev dependency: should have no effect" $ do
+  it "wasp dev dependency overlaps with user non-dev dependency with same version: no conflicts" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -209,15 +189,10 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Right
-        NpmDepsForPackage
-          { dependencies = waspDeps,
-            devDependencies = waspDevDeps,
-            peerDependencies = []
-          }
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Nothing
 
-  it "peer dependencies are always empty for framework npm deps" $ do
+  it "no user dependencies: no conflicts" $ do
     let npmDepsForWasp =
           NpmDepsForWasp
             { waspDependencies = waspDeps,
@@ -229,13 +204,8 @@ spec_combineNpmDepsForPackage = do
               userDevDependencies = []
             }
 
-    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
-      `shouldBe` Right
-        NpmDepsForPackage
-          { dependencies = waspDeps,
-            devDependencies = waspDevDeps,
-            peerDependencies = []
-          }
+    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+      `shouldBe` Nothing
 
   it "conflictErrorToMessage" $ do
     conflictErrorToMessage

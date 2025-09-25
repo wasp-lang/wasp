@@ -1,6 +1,7 @@
 {
   "name": "__waspAppName__",
   "type": "module",
+  "workspaces": [".wasp/build/*", ".wasp/out/*"],
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

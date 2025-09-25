@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-18-to-0-19) for step-by-step documentation on how to upgrade.
+
+- Wasp now requires your project's `package.json` to contain `"workspaces": [".wasp/build/*", ".wasp/out/*"]`. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+
+### 🎉 New Features
+
+- Wasp now uses npm workspaces to manage our generated code. This makes our dependency system more reliable, improves install performance and reduces the size of each project on disk. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+
 ### 📖 Documentation
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))

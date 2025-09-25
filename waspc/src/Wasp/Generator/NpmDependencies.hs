@@ -6,7 +6,7 @@ module Wasp.Generator.NpmDependencies
     getDevDependenciesPackageJsonEntry,
     getPeerDependenciesPackageJsonEntry,
     getUserNpmDepsForPackage,
-    combineNpmDepsForPackage,
+    getNpmDepsConflicts,
     NpmDepsForPackage (..),
     NpmDepsForPackageError (..),
     conflictErrorToMessage,
@@ -20,6 +20,7 @@ module Wasp.Generator.NpmDependencies
 where
 
 import Data.Aeson
+import Data.Function (on)
 import Data.List (intercalate, sort)
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
@@ -83,9 +84,9 @@ data DependencyConflictError = DependencyConflictError
 --   derived from AppSpec, or if there are conflicts, fail with error messages.
 genNpmDepsForPackage :: AppSpec -> NpmDepsForWasp -> Generator NpmDepsForPackage
 genNpmDepsForPackage spec npmDepsForWasp =
-  case combineNpmDepsForPackage npmDepsForWasp (getUserNpmDepsForPackage spec) of
-    Right deps -> return deps
-    Left conflictErrorDeps ->
+  case getNpmDepsConflicts npmDepsForWasp (getUserNpmDepsForPackage spec) of
+    Nothing -> return $ waspDepsToPackageDeps npmDepsForWasp
+    Just conflictErrorDeps ->
       logAndThrowGeneratorError $
         GenericGeneratorError $
           intercalate "\n " $
@@ -97,18 +98,18 @@ genNpmDepsForPackage spec npmDepsForWasp =
 
 buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFramework
 buildWaspFrameworkNpmDeps spec forServer forWebApp =
-  case (combinedServerDeps, combinedWebAppDeps) of
-    (Right a, Right b) ->
+  case (serverDepConflicts, webAppDepConflicts) of
+    (Nothing, Nothing) ->
       Right
         NpmDepsForFramework
-          { npmDepsForServer = a,
-            npmDepsForWebApp = b
+          { npmDepsForServer = waspDepsToPackageDeps forServer,
+            npmDepsForWebApp = waspDepsToPackageDeps forWebApp
           }
     _ -> Left "Could not construct npm dependencies due to a previously reported conflict."
   where
     userDeps = getUserNpmDepsForPackage spec
-    combinedServerDeps = combineNpmDepsForPackage forServer userDeps
-    combinedWebAppDeps = combineNpmDepsForPackage forWebApp userDeps
+    serverDepConflicts = getNpmDepsConflicts forServer userDeps
+    webAppDepConflicts = getNpmDepsConflicts forWebApp userDeps
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
@@ -137,45 +138,38 @@ instance Eq NpmDepsForPackage where
 sortedDependencies :: NpmDepsForPackage -> ([D.Dependency], [D.Dependency])
 sortedDependencies a = (sort $ dependencies a, sort $ devDependencies a)
 
--- | Takes wasp npm dependencies and user npm dependencies and figures out how
---   to combine them together, returning (Right) a new NpmDepsForPackage
---   that combines them, and on error (Left), returns a NpmDepsForPackageError
---   which describes which dependencies are in conflict.
--- TODO: The comment above and function name are not exactly correct any more,
--- as user deps don't get combined with the wasp deps any more, instead user deps
--- are just checked against wasp deps to see if there are any conflicts, and then
--- wasp deps are more or less returned as they are (maybe with some changes? But certainly no user deps added).
--- This function deserves rewriting / rethinking. This should be addressed while solving
--- GH issue https://github.com/wasp-lang/wasp/issues/1644 .
-combineNpmDepsForPackage :: NpmDepsForWasp -> NpmDepsForUser -> Either NpmDepsForPackageError NpmDepsForPackage
-combineNpmDepsForPackage npmDepsForWasp npmDepsForUser =
+waspDepsToPackageDeps :: NpmDepsForWasp -> NpmDepsForPackage
+waspDepsToPackageDeps npmDepsForWasp =
+  NpmDepsForPackage
+    { dependencies = waspDependencies npmDepsForWasp,
+      devDependencies = waspDevDependencies npmDepsForWasp,
+      -- Wasp dependencies are used for generating standalone applications, not libraries. They are
+      -- not consumed by another package that could provide peer dependencies. Thus, peer
+      -- dependencies are always empty.
+      peerDependencies = []
+    }
+
+-- | Checks the user's dependencies compatibility against Wasp's declared npm dependencies.
+getNpmDepsConflicts :: NpmDepsForWasp -> NpmDepsForUser -> Maybe NpmDepsForPackageError
+getNpmDepsConflicts npmDepsForWasp npmDepsForUser =
   if null conflictErrors && null devConflictErrors
-    then
-      Right $
-        NpmDepsForPackage
-          { dependencies = Map.elems remainingWapsDeps,
-            devDependencies = Map.elems remainingWaspDevDeps,
-            -- Peer dependencies are empty. The generated framework code is not intended to be
-            -- consumed as a library by another package; instead, it is a standalone application, so
-            -- there is no parent package to provide any peer dependencies.
-            peerDependencies = []
-          }
+    then Nothing
     else
-      Left $
+      Just $
         NpmDepsForPackageError
           { dependenciesConflictErrors = conflictErrors,
             devDependenciesConflictErrors = devConflictErrors
           }
   where
-    waspDepsByName = makeDepsByName $ waspDependencies npmDepsForWasp
-    waspDevDepsByName = makeDepsByName $ waspDevDependencies npmDepsForWasp
+    waspDeps = waspDependencies npmDepsForWasp
+    waspDevDeps = waspDevDependencies npmDepsForWasp
+    allWaspDepsByName = (Map.union `on` makeDepsByName) waspDeps waspDevDeps
+
     userDepsByName = makeDepsByName $ userDependencies npmDepsForUser
     userDevDepsByName = makeDepsByName $ userDevDependencies npmDepsForUser
-    allWaspDepsByName = waspDepsByName `Map.union` waspDevDepsByName
+
     conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
     devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
-    remainingWapsDeps = waspDepsByName `Map.difference` userDepsByName
-    remainingWaspDevDeps = waspDevDepsByName `Map.difference` userDevDepsByName
 
 type DepsByName = Map.Map String D.Dependency
 

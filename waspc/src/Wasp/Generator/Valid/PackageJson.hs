@@ -8,7 +8,10 @@ import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import Wasp.Generator.NpmWorkspaces (toWorkspacesField)
+import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
+import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateArrayFieldIncludesRequired)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
@@ -25,6 +28,7 @@ validatePackageJson packageJson =
   validateRuntimeDependencies packageJson
     ++ validateDevelopmentDependencies packageJson
     ++ validateOptionalDependencies packageJson
+    ++ validateWorkspaces packageJson
 
 validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
 validateRuntimeDependencies packageJson =
@@ -41,7 +45,7 @@ validateRuntimeDependencies packageJson =
 
 validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
 validateDevelopmentDependencies packageJson =
-  concat $
+  concat
     [ validateDevelopment ("vite", show viteVersion),
       validateDevelopment ("prisma", show prismaVersion)
     ]
@@ -57,6 +61,14 @@ validateOptionalDependencies packageJson =
     ]
   where
     validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
+
+validateWorkspaces :: P.PackageJson -> [GeneratorError]
+validateWorkspaces packageJson =
+  validateArrayFieldIncludesRequired
+    "package.json"
+    (FieldName ["workspaces"])
+    (toWorkspacesField NW.workspaces)
+    (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
@@ -123,7 +135,7 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
             "to be in",
             show $ getExpectedPackageJsonDependencyKey requirement
           ]
-            ++ ( case getOppositePackageJsonDepedencyKey requirement of
+            ++ ( case getOppositePackageJsonDependencyKey requirement of
                    Just oppositeKey -> ["and not in", show oppositeKey]
                    Nothing -> []
                )
@@ -135,8 +147,8 @@ getExpectedPackageJsonDependencyKey = \case
   RequiredDevelopment -> "devDependencies"
   Optional -> "dependencies or devDependencies"
 
-getOppositePackageJsonDepedencyKey :: PackageRequirement -> Maybe String
-getOppositePackageJsonDepedencyKey = \case
+getOppositePackageJsonDependencyKey :: PackageRequirement -> Maybe String
+getOppositePackageJsonDependencyKey = \case
   RequiredRuntime -> Just "devDependencies"
   RequiredDevelopment -> Just "dependencies"
   Optional -> Nothing
