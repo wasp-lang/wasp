@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### 🔧 Small improvements
+### 🎉 New Features
 
 - You can now specify which PostgreSQL image to use in `wasp start db` with the `--image` argument. ([#3182](https://github.com/wasp-lang/wasp/pull/3182))
 
