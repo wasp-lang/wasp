@@ -285,7 +285,6 @@ waspCompile/.wasp/out/sdk/wasp/universal/validators.ts
 waspCompile/.wasp/out/sdk/wasp/vite-env.d.ts
 waspCompile/.wasp/out/server/.env
 waspCompile/.wasp/out/server/.gitignore
-waspCompile/.wasp/out/server/.npmrc
 waspCompile/.wasp/out/server/README.md
 waspCompile/.wasp/out/server/nodemon.json
 waspCompile/.wasp/out/server/package.json
@@ -300,7 +299,6 @@ waspCompile/.wasp/out/server/src/server.ts
 waspCompile/.wasp/out/server/tsconfig.json
 waspCompile/.wasp/out/web-app/.env
 waspCompile/.wasp/out/web-app/.gitignore
-waspCompile/.wasp/out/web-app/.npmrc
 waspCompile/.wasp/out/web-app/README.md
 waspCompile/.wasp/out/web-app/index.html
 waspCompile/.wasp/out/web-app/netlify.toml

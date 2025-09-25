@@ -336,7 +336,6 @@ waspJob/.wasp/out/sdk/wasp/universal/validators.ts
 waspJob/.wasp/out/sdk/wasp/vite-env.d.ts
 waspJob/.wasp/out/server/.env
 waspJob/.wasp/out/server/.gitignore
-waspJob/.wasp/out/server/.npmrc
 waspJob/.wasp/out/server/README.md
 waspJob/.wasp/out/server/nodemon.json
 waspJob/.wasp/out/server/package.json
@@ -355,7 +354,6 @@ waspJob/.wasp/out/server/src/server.ts
 waspJob/.wasp/out/server/tsconfig.json
 waspJob/.wasp/out/web-app/.env
 waspJob/.wasp/out/web-app/.gitignore
-waspJob/.wasp/out/web-app/.npmrc
 waspJob/.wasp/out/web-app/README.md
 waspJob/.wasp/out/web-app/index.html
 waspJob/.wasp/out/web-app/netlify.toml
