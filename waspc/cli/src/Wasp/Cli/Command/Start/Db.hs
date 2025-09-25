@@ -8,7 +8,7 @@ import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (isJust)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
@@ -31,11 +31,6 @@ import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
 import qualified Wasp.Util.Network.Socket as Socket
-
--- | Command-line arguments for `wasp start db`
-data StartDbArgs = StartDbArgs
-  { dbImage :: String
-  }
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
@@ -73,6 +68,11 @@ startDbArgsParser =
           <> Opt.showDefault
           <> Opt.value "postgres"
       )
+
+-- | Command-line arguments for `wasp start db`
+data StartDbArgs = StartDbArgs
+  { dbImage :: String
+  }
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
