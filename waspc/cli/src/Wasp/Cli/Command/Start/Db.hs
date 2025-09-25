@@ -57,7 +57,6 @@ start args = do
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
 
--- | Parser for `wasp start db` arguments
 startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
@@ -69,7 +68,6 @@ startDbArgsParser =
           <> Opt.value "postgres"
       )
 
--- | Command-line arguments for `wasp start db`
 data StartDbArgs = StartDbArgs
   { dbImage :: String
   }
