@@ -177,11 +177,15 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 ## Streaming Responses
 
-Wasp APIs support streaming responses, allowing you to send data to the client in chunks as it becomes available. This is useful for long-running processes, real-time data, or large datasets that need to be processed incrementally.
+You can use streaming responses to send data to the client in chunks as it becomes available. This is useful for:
+
+- **LLM responses** - Stream AI-generated content as it's produced (like ChatGPT)
+- **Long-running processes** - Show progress updates in real-time
+- **Large datasets** - Send data incrementally to avoid timeouts
 
 ### Creating a Streaming API
 
-To create a streaming API, you'll write a standard API function that uses Express response methods like `res.write()` and `res.end()`:
+To create a streaming API, write a function that uses Express response methods like `res.write()` and `res.end()`:
 
 ```wasp title="main.wasp"
 api streamingText {
@@ -215,7 +219,7 @@ export const getStreamingText: StreamingText = async (_req, res, _context) => {
 
 #### Using the Fetch API (Recommended)
 
-The most reliable way to consume streaming responses is using the native `fetch` API with the Streams API:
+To consume streaming responses, use the `fetch` API with the Streams API:
 
 ```tsx title="src/StreamingPage.tsx" auto-js
 import React, { useEffect, useState } from "react";
@@ -279,11 +283,9 @@ export function StreamingPage() {
 
 #### Authentication with Streaming APIs
 
-If your streaming API requires authentication, you need to include the session token in your request headers:
+If your streaming API requires authentication, include the session token in your request headers:
 
-<ShowForTs>
-
-```tsx title="src/AuthenticatedStreamingPage.tsx"
+```tsx title="src/AuthenticatedStreamingPage.tsx" auto-js
 import React, { useEffect, useState } from "react";
 import { config } from "wasp/client";
 import { getSessionId } from "wasp/client/api";
@@ -320,45 +322,6 @@ async function fetchAuthenticatedStream(
 }
 ```
 
-</ShowForTs>
-
-<ShowForJs>
-
-```jsx title="src/AuthenticatedStreamingPage.jsx"
-import React, { useEffect, useState } from "react";
-import { config } from "wasp/client";
-import { getSessionId } from "wasp/client/api";
-
-async function fetchAuthenticatedStream(path, onData, controller) {
-  const sessionId = getSessionId();
-  
-  const response = await fetch(config.apiUrl + path, {
-    signal: controller.signal,
-    headers: {
-      ...(sessionId && { Authorization: `Bearer ${sessionId}` }),
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  if (response.body === null) {
-    throw new Error("Stream body is null");
-  }
-
-  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
-  
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    onData(value);
-  }
-}
-```
-
-</ShowForJs>
-
 For authenticated streaming APIs, make sure to set `auth: true` in your API declaration:
 
 ```wasp title="main.wasp"
@@ -386,9 +349,9 @@ export const getAuthenticatedStreamingText: AuthenticatedStreamingText = async (
 
 #### Why Not Axios?
 
-While Wasp uses Axios by default for API calls, Axios doesn't have proper streaming support since it's built on XMLHttpRequest. For streaming responses, we recommend using the native `fetch` API as shown above.
+Axios doesn't work well for streaming because it's built on XMLHttpRequest. Use the `fetch` API instead for streaming responses.
 
-If you need to use Axios for other reasons, you can try using `responseType: 'stream'` but this approach has limitations and may not work reliably across all browsers:
+If you must use Axios, you can try `responseType: 'stream'`, but it has limitations:
 
 ```ts
 // Not recommended - Axios streaming has limitations
@@ -403,7 +366,7 @@ api.get('/api/streaming-example', {
 
 ### Error Handling
 
-Always implement proper error handling for streaming responses:
+You should handle errors in your streaming functions:
 
 ```ts title="Enhanced streaming with error handling" auto-js
 async function fetchStreamWithErrorHandling(
