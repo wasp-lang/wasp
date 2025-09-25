@@ -14,7 +14,7 @@
   "name": "wasp-new",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*/",
-    ".wasp/out/*/"
+    ".wasp/build/*",
+    ".wasp/out/*"
   ]
 }

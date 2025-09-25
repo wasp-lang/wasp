@@ -14,7 +14,7 @@
   "name": "wasp-migrate",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*/",
-    ".wasp/out/*/"
+    ".wasp/build/*",
+    ".wasp/out/*"
   ]
 }
