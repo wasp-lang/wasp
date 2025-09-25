@@ -62,7 +62,7 @@ startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
     <$> Opt.strOption
-      ( Opt.long "image"
+      ( Opt.long "db-image"
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
           <> Opt.showDefault
