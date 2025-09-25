@@ -6,7 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-18-to-0-19) for step-by-step documentation on how to upgrade.
 
-- Wasp now requires your project's `package.json` to contain `"workspaces": [".wasp/build/*/", ".wasp/out/*/"]`. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+- Wasp now requires your project's `package.json` to contain `"workspaces": [".wasp/build/*", ".wasp/out/*"]`. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
 
 ### 🎉 New Features
 
