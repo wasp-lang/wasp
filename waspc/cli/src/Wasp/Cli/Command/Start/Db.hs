@@ -107,7 +107,7 @@ throwIfCustomDbAlreadyInUse spec = do
       E.throwError $ CommandError "You are using custom database already" msg
 
 startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> String -> Command ()
-startPostgresDevDb waspProjectDir appName dockerImage = do
+startPostgresDevDb waspProjectDir appName dbDockerImage = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
@@ -118,7 +118,7 @@ startPostgresDevDb waspProjectDir appName dockerImage = do
       [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
         "",
         "Additional info:",
-        " ℹ Using Docker image: " <> dockerImage,
+        " ℹ Using Docker image: " <> dbDockerImage,
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> connectionUrl,
         " ℹ Database data is persisted in a docker volume with the following name"
@@ -151,7 +151,7 @@ startPostgresDevDb waspProjectDir appName dockerImage = do
           Dev.Postgres.defaultDevPass
           Dev.Postgres.defaultDevUser
           dbName
-          dockerImage
+          dbDockerImage
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
