@@ -11,7 +11,7 @@ import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.NpmWorkspaces (toWorkspacesField)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateFieldValue)
+import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateArrayFieldIncludesRequired)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
@@ -64,10 +64,10 @@ validateOptionalDependencies packageJson =
 
 validateWorkspaces :: P.PackageJson -> [GeneratorError]
 validateWorkspaces packageJson =
-  validateFieldValue
+  validateArrayFieldIncludesRequired
     "package.json"
     (FieldName ["workspaces"])
-    (Just $ toWorkspacesField NW.workspaces)
+    (toWorkspacesField NW.workspaces)
     (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
