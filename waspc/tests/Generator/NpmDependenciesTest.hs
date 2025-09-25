@@ -25,22 +25,26 @@ spec_getNpmDepsConflicts = do
           ]
 
   it "a conflicting version number is detected" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = []
-            }
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("a", "1"),
-                    ("b", "3")
-                  ],
-              userDevDependencies = []
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = [],
+                peerDependencies = []
+              }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies =
+                  D.fromList
+                    [ ("a", "1"),
+                      ("b", "3")
+                    ],
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Just
         NpmDepsForPackageError
           { dependenciesConflictErrors =
@@ -52,75 +56,91 @@ spec_getNpmDepsConflicts = do
           }
 
   it "wasp deps completely overlap with user deps with same versions: no conflicts" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = []
-            }
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies = waspDeps,
-              userDevDependencies = []
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = [],
+                peerDependencies = []
+              }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Nothing
 
   it "user dependencies have no overlap with wasp deps: no conflicts" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = []
-            }
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("c", "3"),
-                    ("d", "4")
-                  ],
-              userDevDependencies = []
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = [],
+                peerDependencies = []
+              }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies =
+                  D.fromList
+                    [ ("c", "3"),
+                      ("d", "4")
+                    ],
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Nothing
 
   it "user dependencies partially overlap wasp dependencies with same versions: no conflicts" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = []
-            }
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("a", "1"),
-                    ("d", "4")
-                  ],
-              userDevDependencies = []
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = [],
+                peerDependencies = []
+              }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies =
+                  D.fromList
+                    [ ("a", "1"),
+                      ("d", "4")
+                    ],
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Nothing
 
   it "report error if user dependency overlaps wasp dependency, different version" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = []
-            }
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("a", "2"),
-                    ("foo", "bar")
-                  ],
-              userDevDependencies = []
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = [],
+                peerDependencies = []
+              }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies =
+                  D.fromList
+                    [ ("a", "2"),
+                      ("foo", "bar")
+                    ],
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Just
         NpmDepsForPackageError
           { dependenciesConflictErrors =
@@ -132,22 +152,26 @@ spec_getNpmDepsConflicts = do
           }
 
   it "a conflicting version number is detected with wasp devDependencies" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = waspDevDeps
-            }
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("a", "1"),
-                    ("alpha", "70")
-                  ],
-              userDevDependencies = []
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = waspDevDeps,
+                peerDependencies = []
+              }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies =
+                  D.fromList
+                    [ ("a", "1"),
+                      ("alpha", "70")
+                    ],
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Just
         NpmDepsForPackageError
           { dependenciesConflictErrors =
@@ -159,52 +183,64 @@ spec_getNpmDepsConflicts = do
           }
 
   it "both dev deps and normal deps are same for user and wasp: no conflicts" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = waspDevDeps
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = waspDevDeps,
+                peerDependencies = []
+              }
 
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies = waspDeps,
-              userDevDependencies = waspDevDeps
-            }
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = waspDevDeps,
+                peerDependencies = []
+              }
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Nothing
 
   it "wasp dev dependency overlaps with user non-dev dependency with same version: no conflicts" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = waspDevDeps
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = waspDevDeps,
+                peerDependencies = []
+              }
 
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies =
-                D.fromList
-                  [ ("alpha", "10")
-                  ],
-              userDevDependencies = []
-            }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies =
+                  D.fromList
+                    [ ("alpha", "10")
+                    ],
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Nothing
 
   it "no user dependencies: no conflicts" $ do
-    let npmDepsForWasp =
-          NpmDepsForWasp
-            { waspDependencies = waspDeps,
-              waspDevDependencies = waspDevDeps
-            }
-    let npmDepsForUser =
-          NpmDepsForUser
-            { userDependencies = [],
-              userDevDependencies = []
-            }
+    let npmDepsFromWasp =
+          NpmDepsFromWasp $
+            NpmDepsForPackage
+              { dependencies = waspDeps,
+                devDependencies = waspDevDeps,
+                peerDependencies = []
+              }
+    let npmDepsFromUser =
+          NpmDepsFromUser $
+            NpmDepsForPackage
+              { dependencies = [],
+                devDependencies = [],
+                peerDependencies = []
+              }
 
-    getNpmDepsConflicts npmDepsForWasp npmDepsForUser
+    getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
       `shouldBe` Nothing
 
   it "conflictErrorToMessage" $ do
