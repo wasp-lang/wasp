@@ -175,6 +175,222 @@ export const fooBar: FooBar = async (req, res, context) => {
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
+## Streaming Responses
+
+You can use streaming responses to send data to the client in chunks as it becomes available. This is useful for:
+
+- **LLM responses** - Stream AI-generated content as it's produced
+- **Long-running processes** - Show progress updates in real-time
+- **Large datasets** - Send data incrementally to avoid timeouts
+
+### Creating a Streaming API
+
+To create a streaming API, write a function that uses Express response methods like `res.write()` and `res.end()`:
+
+```wasp title="main.wasp"
+api streamingText {
+  httpRoute: (POST, "/api/streaming-example"),
+  fn: import { getStreamingText } from "@src/streaming",
+}
+```
+
+<small>
+
+Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+</small>
+
+```ts title="src/streaming.ts" auto-js
+import type { StreamingText } from "wasp/server/api";
+
+export const getStreamingText: StreamingText<
+  {},
+  string,
+  { message: string }
+> = async (req, res) => {
+  const { message } = req.body;
+
+  // Set appropriate headers for streaming
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Transfer-Encoding", "chunked");
+
+  // Stream the message 5 times with delays
+  for (let i = 1; i <= 5; i++) {
+    res.write(`${i}. ${message}\n`);
+    // Simulate processing time
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  // End the response
+  res.end();
+};
+```
+
+### Consuming Streaming Responses
+
+#### Using the Fetch API (Recommended)
+
+Here's a example showing how to consume streaming responses on the client:
+
+```tsx title="src/StreamingPage.tsx" auto-js
+import { useEffect, useState } from "react";
+import { config } from "wasp/client";
+import { getSessionId } from "wasp/client/api";
+
+export function StreamingPage() {
+  const { response } = useTextStream("/api/streaming-example", {
+    message: "Hello from streaming!",
+  });
+
+  return (
+    <div>
+      <h1>Streaming Example</h1>
+      <pre>{response}</pre>
+    </div>
+  );
+}
+
+function useTextStream(path: string, payload: { message: string }) {
+  const [response, setResponse] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetchStream(
+      path,
+      payload,
+      (chunk) => {
+        setResponse((prev) => prev + chunk);
+      },
+      controller.signal
+    );
+
+    return () => {
+      controller.abort();
+    };
+  }, [path]);
+
+  return { response };
+}
+
+async function fetchStream(
+  path: string,
+  payload: { message: string },
+  onData: (data: string) => void,
+  signal: AbortSignal
+) {
+  const sessionId = getSessionId();
+
+  try {
+    const response = await fetch(config.apiUrl + path, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(sessionId && { Authorization: `Bearer ${sessionId}` }),
+      },
+      body: JSON.stringify(payload),
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    if (response.body === null) {
+      throw new Error("Stream body is null");
+    }
+
+    for await (const chunk of response.body.pipeThrough(new TextDecoderStream())) {
+      onData(chunk);
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        // Fetch was aborted, no need to log an error
+        return;
+      }
+      console.error("Fetch error:", error.message);
+    } else {
+      throw error;
+    }
+  }
+}
+```
+
+#### Using Axios
+
+Axios does not natively support streaming responses, but you can simulate it by leveraging the `onDownloadProgress` callback. On the other hand, you don't have to provide the session token manually, as the Axios wrapper from `wasp/client/api` does that for you.
+
+Here's how you can do it:
+
+```tsx title="src/AxiosStreamingPage.tsx" auto-js
+import { useEffect, useState } from "react";
+import { api } from "wasp/client/api";
+
+export function StreamingPage() {
+  const { response } = useAxiosTextStream("/api/streaming-example", {
+    message: "Hello from Axios!",
+  });
+
+  return (
+    <div>
+      <h1>Axios Streaming</h1>
+      <pre>{response}</pre>
+    </div>
+  );
+}
+
+function useAxiosTextStream(path: string, payload: { message: string }) {
+  const [response, setResponse] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetchAxiosStream(
+      path,
+      payload,
+      (data) => {
+        setResponse(data);
+      },
+      controller
+    );
+
+    return () => {
+      controller.abort();
+    };
+  }, [path]);
+
+  return { response };
+}
+
+async function fetchAxiosStream(
+  path: string,
+  payload: { message: string },
+  onData: (data: string) => void,
+  controller: AbortController
+) {
+  try {
+    return await api.post(path, payload, {
+      responseType: "stream",
+      signal: controller.signal,
+      onDownloadProgress: (progressEvent) => {
+        const xhr = progressEvent.event.target;
+        onData(xhr.responseText);
+      },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.name === "CanceledError") {
+        // Request was cancelled, no action needed
+      } else {
+        console.error("Fetch error:", error);
+      }
+    } else {
+      throw error;
+    }
+  }
+}
+```
+
 ## API Reference
 
 ```wasp title="main.wasp"
