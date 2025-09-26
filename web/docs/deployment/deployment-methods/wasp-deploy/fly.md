@@ -200,7 +200,7 @@ By default, Wasp uses the standard PostgreSQL image provided by Fly.io when crea
 ```shell
 wasp deploy fly create-db <region> --db-image <custom-postgres-image>
 wasp deploy fly setup <app-name> <region> --db-image <custom-postgres-image>
-wasp deploy fly launch <app-name> <region> --db-image <custom-postgres
+wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 ```
 
 :::warning
