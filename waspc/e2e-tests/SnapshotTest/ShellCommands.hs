@@ -61,19 +61,19 @@ withInSnapshotWaspAppDir waspAppCommandBuilders = do
 copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
   Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspAppDir) ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
-copyContentsOfGitTrackedDirToSnapshotWaspAppDir srcDirInGitRoot = do
+copyContentsOfGitTrackedDirToSnapshotWaspAppDir srcDirInRepoRoot = do
   snapshotTestContext <- ask
-  let srcDirPath = fromRelDir (gitRootInSnapshotWaspAppDir </> srcDirInGitRoot)
+  let srcDirPath = fromRelDir (gitRootInSnapshotWaspAppDir </> srcDirInRepoRoot)
       destDirPath = fromRelDir $ _snapshotWaspAppRelDir snapshotTestContext
 
       createDestDir :: ShellCommand =
         "mkdir -p " ++ destDirPath
       listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
-        "git -C " ++ fromRelDir gitRootInSnapshotWaspAppDir ++ " ls-files " ++ fromRelDir srcDirInGitRoot
+        "git -C " ++ fromRelDir gitRootInSnapshotWaspAppDir ++ " ls-files " ++ fromRelDir srcDirInRepoRoot
       -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
       -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
       stripSrcDirPrefixFromPaths :: ShellCommand =
-        "sed 's#^" ++ fromRelDir srcDirInGitRoot ++ "##'"
+        "sed 's#^" ++ fromRelDir srcDirInRepoRoot ++ "##'"
       copyFromSrcDirToDestDir :: ShellCommand =
         "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destDirPath
    in return $
