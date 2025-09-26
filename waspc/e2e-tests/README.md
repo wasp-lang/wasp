@@ -1,18 +1,18 @@
-# End-to-End Tests for `waspc`
+# End-to-End tests for `waspc`
 
-The purpose of `e2e-tests` is to verify the functionality of the **`waspc` binary**.
+The purpose of these `e2e-tests` is to verify the functionality of the **`waspc` binary**.
 We are not concerned with the internal implementation of the binary, only its interface and outputs.
 
-## Functionalities
+## More on purpose
 
-The e2e tests serve several critical purposes:
+**Interface** is exposed through the Wasp CLI. We want to test the behavior of all of the Wasp CLI commands. These tests test behavior at the command level, rather than the internal implementation details.
 
-1. **E2E Testing**: verify that the `waspc` binary works as expected e2e.
-2. **Regression Testing**: catch changes in `waspc` binary (code generation, CLI behavior).
-3. **CLI Testing**: validate that the `waspc` binary CLI commands work correctly.
+The main **outputs** of the `waspc` binary are Wasp applications. We want to validate that CLI commands correctly generate or modify applications in line with expectations.
+In addition to applications, we also cover secondary outputs, such as the installation and uninstallation of the CLI itself, `bash` completions, and more.
 
-## Snapshot Tests
+## Snapshot tests
 
+Majority of our e2e tests are snapshot tests.
 Snapshot tests compare the current test outputs (`current` snapshot) against the expected test outputs (`golden` snapshot).
 
 Snapshots are compared in two ways:
