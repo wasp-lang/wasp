@@ -68,9 +68,10 @@ waspCliMigrate migrationName = do
   let waspAppAbsDir = _waspAppAbsDir waspAppContext
       waspMigrationsDir = fromAbsDir (waspAppAbsDir </> waspAppMigrationsDirInWaspAppDir)
       waspOutMigrationsDir = fromAbsDir (waspAppAbsDir </> waspAppOutDirInWaspAppDir </> waspAppMigrationsDirInWaspAppOutDir)
-      replaceMigrationDatePrefix migrationDir =
-        "mv " ++ joinPath [migrationDir, "*" ++ migrationName] ++ " " ++ joinPath [migrationDir, "no-date-" ++ migrationName]
    in return $
         "wasp-cli db migrate-dev --name " ++ migrationName
           $&& replaceMigrationDatePrefix waspMigrationsDir
           $&& replaceMigrationDatePrefix waspOutMigrationsDir
+  where
+    replaceMigrationDatePrefix migrationDir =
+      "mv " ++ joinPath [migrationDir, "*" ++ migrationName] ++ " " ++ joinPath [migrationDir, "no-date-" ++ migrationName]
