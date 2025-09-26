@@ -44,7 +44,7 @@ createSnapshotWaspApp = do
   waspCliNewMinimalStarter $ _waspAppName $ snapshotTestContextToWaspAppContext snapshotTestContext
 
 withInSnapshotWaspAppDir ::
-  ShellCommandBuilder WaspAppContext ShellCommand ->
+  [ShellCommandBuilder WaspAppContext ShellCommand] ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
 withInSnapshotWaspAppDir waspAppCommandBuilders = do
   snapshotTestContext <- ask
@@ -54,7 +54,7 @@ withInSnapshotWaspAppDir waspAppCommandBuilders = do
   let snapshotWaspAppAbsDir = snapshotAbsDir </> _snapshotWaspAppRelDir snapshotTestContext
 
   let navigateToSnapshotWaspAppDir = "cd " ++ fromAbsDir snapshotWaspAppAbsDir
-  let cmdInWaspAppContext = buildShellCommand waspAppContext waspAppCommandBuilders
+  let cmdInWaspAppContext = foldr1 ($&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
   let returnToSnapshotDir = "cd " ++ fromAbsDir snapshotAbsDir
 
   return $
