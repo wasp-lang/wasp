@@ -178,7 +178,7 @@ printUsage =
         cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd   "    start db [--db-image <image>]",
               "                          Starts managed development database for you.",
-              "                          Optionally specify a custom Docker image with --db-image.",
+              "                          Optionally specify a custom Docker image.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
