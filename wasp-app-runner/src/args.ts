@@ -5,11 +5,13 @@ import { Branded } from "./types.js";
 export type Mode = "dev" | "build";
 export type PathToApp = Branded<string, "PathToApp">;
 export type WaspCliCmd = Branded<string, "WaspCliCmd">;
+export type DockerImageName = Branded<string, "DockerImageName">;
 
 export function parseArgs(): {
   mode: Mode;
   pathToApp: PathToApp;
   waspCliCmd: WaspCliCmd;
+  dbImage: DockerImageName;
 } {
   const parsedProgram = program
     .name("run-wasp-app")
@@ -22,6 +24,11 @@ export function parseArgs(): {
     )
     .option("--path-to-app <path>", "Path to the Wasp application", ".")
     .option("--wasp-cli-cmd <command>", "Wasp CLI command to use", "wasp")
+    .option(
+      "--db-image <image>",
+      "Custom PostgreSQL Docker image to use",
+      "postgres:16",
+    )
     .parse();
 
   const options = parsedProgram.opts();
@@ -31,5 +38,6 @@ export function parseArgs(): {
     mode,
     pathToApp: options.pathToApp as PathToApp,
     waspCliCmd: options.waspCliCmd as WaspCliCmd,
+    dbImage: options.dbImage as DockerImageName,
   };
 }
