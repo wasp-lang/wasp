@@ -101,7 +101,9 @@ Use the `--db-image <docker-image>` flag to set up the database with a specific 
 ```shell
 # PostGIS
 wasp deploy railway launch my-wasp-app --db-image postgis/postgis
+```
 
+```shell
 # pgvector
 wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
 ```
