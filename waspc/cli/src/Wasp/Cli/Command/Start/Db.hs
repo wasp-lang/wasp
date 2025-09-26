@@ -24,12 +24,14 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Util.Parser (parseArguments)
+import Wasp.Db.Postgres (defaultDockerImageForPostgres)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
+import Wasp.Util.Docker (DockerImageName)
 import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -65,11 +67,11 @@ startDbArgsParser =
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
           <> Opt.showDefault
-          <> Opt.value "postgres"
+          <> Opt.value defaultDockerImageForPostgres
       )
 
 data StartDbArgs = StartDbArgs
-  { dbImage :: String
+  { dbImage :: DockerImageName
   }
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
