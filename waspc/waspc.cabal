@@ -444,6 +444,7 @@ library
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
     Wasp.Util.Debug
+    Wasp.Util.Docker
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.HashMap

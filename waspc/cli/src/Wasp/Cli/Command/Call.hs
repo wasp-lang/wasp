@@ -4,7 +4,7 @@ data Call
   = New Arguments
   | NewAi Arguments
   | Start
-  | StartDb
+  | StartDb Arguments
   | Clean
   | Uninstall
   | TsSetup
