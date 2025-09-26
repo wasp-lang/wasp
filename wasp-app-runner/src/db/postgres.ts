@@ -1,4 +1,4 @@
-import type { PathToApp } from "../args.js";
+import type { DockerImageName, PathToApp } from "../args.js";
 import {
   DbContainerName,
   createAppSpecificDbContainerName,
@@ -7,17 +7,21 @@ import { createLogger } from "../logging.js";
 import { spawnAndCollectOutput } from "../process.js";
 import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
-import type { SetupDbFn } from "./types.js";
+import type { SetupDbResult } from "./types.js";
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
 const logger = createLogger("postgres");
 
-export const setupPostgres: SetupDbFn = async ({
+export const setupPostgres = async ({
   appName,
   pathToApp,
   dbImage,
-}) => {
+}: {
+  appName: AppName;
+  pathToApp: PathToApp;
+  dbImage: DockerImageName;
+}): Promise<SetupDbResult> => {
   await ensureDockerIsRunning();
 
   const databaseUrl = await startPostgresContainerForApp({
@@ -40,7 +44,7 @@ async function startPostgresContainerForApp({
 }: {
   appName: AppName;
   pathToApp: PathToApp;
-  dbImage?: string;
+  dbImage: DockerImageName;
 }): Promise<DatabaseConnectionUrl> {
   const containerName = createAppSpecificDbContainerName({
     appName,
@@ -59,13 +63,12 @@ async function startPostgresContainerForApp({
 
 async function startPostgresContainerAndWaitUntilReady(
   containerName: DbContainerName,
-  dbImage?: string,
+  dbImage: DockerImageName,
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
-  const image = dbImage || "postgres:16";
 
-  logger.info(`Starting the PostgreSQL container with image: ${image}...`);
+  logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
 
   spawnAndCollectOutput({
     name: "create-postgres-container",
@@ -79,7 +82,7 @@ async function startPostgresContainerAndWaitUntilReady(
       "-e",
       `POSTGRES_PASSWORD=${password}`,
       `--rm`,
-      image,
+      dbImage,
     ],
   })
     // If we awaited here, we would block the main thread indefinitely.

@@ -1,5 +1,11 @@
 import { readdir } from "fs/promises";
-import { type Mode, parseArgs, PathToApp, WaspCliCmd } from "./args.js";
+import {
+  parseArgs,
+  type DockerImageName,
+  type Mode,
+  type PathToApp,
+  type WaspCliCmd,
+} from "./args.js";
 import { startAppInBuildMode } from "./build/index.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
@@ -37,7 +43,7 @@ async function runWaspApp({
   mode: Mode;
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
-  dbImage?: string;
+  dbImage: DockerImageName;
 }): Promise<void> {
   await checkDependencies();
 
