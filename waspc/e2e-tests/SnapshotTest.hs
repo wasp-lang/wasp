@@ -54,13 +54,13 @@ runSnapshotTest snapshotTest = do
   let snapshotTestName = _snapshotTestName snapshotTest
   snapshotsAbsDir <- getSnapshotsDir
 
-  let currentSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Current
   let goldenSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Golden
-  let snapshotFileListManifestAbsFile = currentSnapshotAbsDir SP.</> snapshotFileListManifestFileInSnapshotDir
+  let currentSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Current
+  let currentSnapshotFileListManifestAbsFile = currentSnapshotAbsDir SP.</> snapshotFileListManifestFileInSnapshotDir
 
-  let currentSnapshotDirAbsFp = SP.fromAbsDir currentSnapshotAbsDir
   let goldenSnapshotDirAbsFp = SP.fromAbsDir goldenSnapshotAbsDir
-  let snapshotFileListManifestFileAbsFp = SP.fromAbsFile snapshotFileListManifestAbsFile
+  let currentSnapshotDirAbsFp = SP.fromAbsDir currentSnapshotAbsDir
+  let currentSnapshotFileListManifestFileAbsFp = SP.fromAbsFile currentSnapshotFileListManifestAbsFile
 
   -- Remove existing current snapshot files from a prior test run.
   callCommand $ "rm -rf " ++ currentSnapshotDirAbsFp
@@ -82,9 +82,9 @@ runSnapshotTest snapshotTest = do
   callCommand $ cdIntoCurrentSnapshotDirCommand $&& snapshotTestCommand
 
   filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentSnapshotDirAbsFp
-  filesForCheckingContentAbsFps <- (snapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp
+  filesForCheckingContentAbsFps <- (currentSnapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp
 
-  writeSnapshotFileListManifest currentSnapshotDirAbsFp filesForCheckingExistenceAbsFps snapshotFileListManifestFileAbsFp
+  writeSnapshotFileListManifest currentSnapshotDirAbsFp filesForCheckingExistenceAbsFps currentSnapshotFileListManifestFileAbsFp
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
   let remapCurrentToGoldenFp fp = unpack $ replace (pack currentSnapshotDirAbsFp) (pack goldenSnapshotDirAbsFp) (pack fp)
