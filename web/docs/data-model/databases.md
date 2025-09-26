@@ -89,7 +89,7 @@ In case you might want to connect to the dev database through the external tool 
 
 ##### Customising the dev database {#custom-database}
 
-You can also specify a custom Docker image to use for the database with the `--db-image` option. This is particularly useful when you need PostgreSQL with specific extensions (like PostGIS for geographic data, pgvector for embeddings, etc.), or an older version. By default, Wasp uses the latest official PostgreSQL image.
+You can also specify a custom Docker image to use for the database with the `--db-image` option. This is particularly useful when you need PostgreSQL with specific extensions (like PostGIS for geographic data, pgvector for embeddings, etc.), or an older version. By default, Wasp uses the latest official [PostgreSQL Docker image](https://hub.docker.com/_/postgres).
 
 ```bash
 # Use default PostgreSQL image:
