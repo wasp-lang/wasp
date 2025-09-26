@@ -371,6 +371,7 @@ library
     Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WaspLibs
+    Wasp.Generator.WaspLibs.AvailableLibs
     Wasp.Generator.WaspLibs.Common
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WriteFileDrafts

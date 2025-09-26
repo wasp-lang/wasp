@@ -13,7 +13,7 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import qualified Wasp.Generator.WaspLibs as WaspLibs
+import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import Wasp.Project (analyzeWaspProject)
@@ -29,7 +29,7 @@ deps = do
       (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
       return
       appSpecOrAnalyzerErrors
-  waspLibs <- liftIO WaspLibs.initWaspLibs
+  waspLibs <- liftIO WaspLibs.AvailableLibs.makeWaspLibs
 
   liftIO $ putStrLn $ depsMessage appSpec waspLibs
 

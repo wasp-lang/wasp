@@ -61,6 +61,8 @@ genDockerignore _ =
 -- | Helper to return what the Dockerfile content will be based on the AppSpec.
 compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Text)
 compileAndRenderDockerfile spec = do
+  -- We make a generator config with no WaspLibs because they are not needed
+  -- for Dockerfile generation.
   let config = makeGeneratorConfig []
 
   let (_, generatorResult) = runGenerator config $ genDockerfile spec

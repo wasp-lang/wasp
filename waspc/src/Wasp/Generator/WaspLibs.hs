@@ -1,6 +1,5 @@
 module Wasp.Generator.WaspLibs
-  ( initWaspLibs,
-    genWaspLibs,
+  ( genWaspLibs,
   )
 where
 
@@ -12,11 +11,6 @@ import Wasp.Generator.Monad (Generator, getWaspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedCodeDir, libsRootDirNextToSdk)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 
--- NOTE: The package names of the libs should match the names in the
--- `package.json` files of the libs in the ./libs directory.
-initWaspLibs :: IO [WaspLib.WaspLib]
-initWaspLibs = sequence [WaspLib.makeWaspLib "@wasp.sh/lib-auth"]
-
 genWaspLibs :: AS.AppSpec -> Generator [FileDraft]
 genWaspLibs spec = do
   waspLibs <- getWaspLibs
@@ -24,7 +18,7 @@ genWaspLibs spec = do
   where
     mkLibCopyDraft destDir waspLib =
       createCopyFileDraft
-        (destDir </> Npm.Tarball.filename (WaspLib.generatedCodeDirTarball waspLib))
+        (destDir </> Npm.Tarball.tarballFilenameAsRelFile (WaspLib.generatedCodeDirTarballFilename waspLib))
         (WaspLib.waspDataDirTarballAbsPath waspLib)
 
     -- We need to accomodate the SDK hacks with libs, so we copy the libs

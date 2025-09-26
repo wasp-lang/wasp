@@ -1,7 +1,8 @@
-# Libs
+# Wasp Libs
 
-Libs are npm packages that contain code used by the Wasp apps. They are building
-blocks that are used to build the Wasp SDK, the `server` and the `web-app`.
+Wasp Libs are Wasp-owned npm packages that contain code that will be used in the
+generated Wasp apps. They are building blocks that are used in the generated Wasp
+apps.
 
 There are two ways you can add code to the generated Wasp apps:
 
@@ -9,7 +10,7 @@ There are two ways you can add code to the generated Wasp apps:
 - by working on the libs in this folder
 
 Templates are not a real JS project (they include Mustache syntax) which means you
-can't write tests for them, and they are not type-checked.
+can't write tests for them, and they can't be type-checked.
 The libs, on the other hand, are real JS projects, and you can write tests for them,
 and they are type-checked.
 
@@ -18,7 +19,7 @@ config objects and orchestrate the use of these libs.
 
 ## Testing Libs Locally
 
-Run `tools/install_libs_to_data_dir.sh` to compile the libs and copy
+Run `./tools/install_libs_to_data_dir.sh` to compile the libs and copy
 them into `data/`. Then you can use `./run wasp-cli` as normal. You can run
 `./run install` which will run the script before installing the
 Wasp CLI.
@@ -30,4 +31,4 @@ Create a directory in this folder to contain the new package. It should contain 
 the package.
 
 The package will be packaged using `npm pack` and the resulting tarball will
-be copied to `data/libs/` by the `tools/install_libs_to_data_dir.sh` script.
+be copied to `data/libs/` by the `./tools/install_libs_to_data_dir.sh` script.

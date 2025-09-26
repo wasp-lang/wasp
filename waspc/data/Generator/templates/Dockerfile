@@ -36,12 +36,13 @@ COPY src ./src
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig*.json .
-# Server depends on the libs
-COPY libs .wasp/build/libs
 COPY server .wasp/build/server
-# SDK depends on the libs
-COPY libs .wasp/out/libs
 COPY sdk .wasp/out/sdk
+# We copy Wasp libs twice, because server needs them in .wasp/build/libs
+# and SDK needs them in .wasp/out/libs becuase the SDK needs to live in the
+# out directory to be accessible to the client code: https://github.com/wasp-lang/wasp/issues/1769
+COPY libs .wasp/build/libs
+COPY libs .wasp/out/libs
 # Install npm packages, resulting in node_modules/.
 RUN npm install && cd .wasp/build/server && npm install
 {=# usingPrisma =}

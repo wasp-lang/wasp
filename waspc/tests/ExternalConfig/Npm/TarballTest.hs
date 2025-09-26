@@ -1,13 +1,12 @@
 module ExternalConfig.Npm.TarballTest where
 
-import Data.Maybe (fromJust)
-import StrongPath (parseRelFile)
 import Test.Tasty.Hspec
+import Wasp.ExternalConfig.Npm.Tarball (TarballFilename (TarballFilename))
 import qualified Wasp.ExternalConfig.Npm.Tarball as Tarball
 
 spec_createTarballFilenamesCorrectly :: Spec
 spec_createTarballFilenamesCorrectly = do
-  describe "sanitizeForTarballFilename" $ do
+  describe "sanitizePackageNameAsNpmPackTarball" $ do
     -- Test cases based on the allowed npm package name regex and expected
     -- values generated using `npm pack` command.
     "@scope/package" ~> "scope-package"
@@ -30,9 +29,9 @@ spec_createTarballFilenamesCorrectly = do
     (~>) :: String -> String -> Spec
     (~>) input expected = do
       it ("sanitizes " ++ input) $ do
-        Tarball.sanitizePackageNameForTarballName input `shouldBe` Tarball.SanitizedTarballName expected
+        Tarball.sanitizePackageNameAsNpmPackTarball input `shouldBe` expected
 
     itShouldCreateValidTarballPath :: (String, String) -> String -> Spec
     itShouldCreateValidTarballPath (packageName, packageVersion) expected = do
       it ("package " ++ packageName ++ " with version " ++ packageName) $ do
-        Tarball.makeTarballFilename (Tarball.sanitizePackageNameForTarballName packageName) packageVersion `shouldBe` fromJust (parseRelFile expected)
+        Tarball.makeTarballFilename packageName packageVersion `shouldBe` TarballFilename expected
