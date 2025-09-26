@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### 🔧 Small improvements
+### 🎉 New Features
 
 - You can now specify which PostgreSQL image to use in `wasp deploy railway` with the `--db-image` argument. ([#3184](https://github.com/wasp-lang/wasp/pull/3184))
 
