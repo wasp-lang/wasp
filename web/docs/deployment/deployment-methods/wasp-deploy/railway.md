@@ -208,7 +208,7 @@ Railway also creates a PostgreSQL database service named `Postgres`.
 
 #### Using a custom database image
 
-To create the database using a specific Postgres image, pass `--db-image <docker-image>`:
+To create the database using a specific Postgres image, pass the `--db-image <docker-image>` flag:
 
 ```shell
 # PostGIS
