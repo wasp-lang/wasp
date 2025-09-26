@@ -54,41 +54,37 @@ runSnapshotTest snapshotTest = do
   let snapshotTestName = _snapshotTestName snapshotTest
   snapshotsAbsDir <- getSnapshotsDir
 
-  let goldenSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Golden
-  let currentSnapshotAbsDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Current
-  let currentSnapshotFileListManifestAbsFile = currentSnapshotAbsDir SP.</> snapshotFileListManifestFileInSnapshotDir
-
-  let goldenSnapshotDirAbsFp = SP.fromAbsDir goldenSnapshotAbsDir
-  let currentSnapshotDirAbsFp = SP.fromAbsDir currentSnapshotAbsDir
-  let currentSnapshotFileListManifestFileAbsFp = SP.fromAbsFile currentSnapshotFileListManifestAbsFile
+  let goldenSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Golden
+  let currentSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Current
+  let currentSnapshotFileListManifestFile = currentSnapshotDir SP.</> snapshotFileListManifestFileInSnapshotDir
 
   -- Remove existing current snapshot files from a prior test run.
-  callCommand $ "rm -rf " ++ currentSnapshotDirAbsFp
+  callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir ++ "/*"
 
   -- Create current snapshot dir as well as the golden snapshot dir, if missing.
-  callCommand $ "mkdir " ++ currentSnapshotDirAbsFp
-  callCommand $ "mkdir -p " ++ goldenSnapshotDirAbsFp
+  callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir ++ "/*"
+  callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
   let snapshotTestContext =
         SnapshotTestContext
-          { _snapshotDir = currentSnapshotAbsDir,
+          { _snapshotDir = currentSnapshotDir,
             _snapshotWaspAppDirInSnapshotDir = snapshotWaspAppDirInSnapshotDir "wasp-app",
             _snapshotWaspAppName = "wasp-app"
           }
   let snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
-  let cdIntoCurrentSnapshotDirCommand = "cd " ++ currentSnapshotDirAbsFp
+  let cdIntoCurrentSnapshotDirCommand = "cd " ++ SP.fromAbsDir currentSnapshotDir ++ "/*"
 
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
   callCommand $ cdIntoCurrentSnapshotDirCommand ~&& snapshotTestCommand
 
-  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentSnapshotDirAbsFp
-  filesForCheckingContentAbsFps <- (currentSnapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp
+  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence $ SP.fromAbsDir currentSnapshotDir ++ "/*"
+  filesForCheckingContentAbsFps <- (SP.fromAbsFile currentSnapshotFileListManifestFile :) <$> getFilesForCheckingContent (SP.fromAbsDir currentSnapshotDir ++ "/*")
 
-  writeSnapshotFileListManifest currentSnapshotDirAbsFp filesForCheckingExistenceAbsFps currentSnapshotFileListManifestFileAbsFp
+  writeSnapshotFileListManifest (SP.fromAbsDir currentSnapshotDir ++ "/*") filesForCheckingExistenceAbsFps (SP.fromAbsFile currentSnapshotFileListManifestFile)
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToGoldenFp fp = unpack $ replace (pack currentSnapshotDirAbsFp) (pack goldenSnapshotDirAbsFp) (pack fp)
+  let remapCurrentToGoldenFp fp = unpack $ replace (pack $ SP.fromAbsDir currentSnapshotDir ++ "/*") (pack $ SP.fromAbsDir goldenSnapshotDir) (pack fp)
 
   return $
     testGroup
