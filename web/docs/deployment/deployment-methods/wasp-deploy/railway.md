@@ -106,7 +106,7 @@ wasp deploy railway launch my-wasp-app --db-image postgis/postgis
 wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
 ```
 
-When provided, Wasp configures the DB service on Railway using the given image and required Postgres environment variables. If omitted, Railway’s default Postgres is used. The service name remains `Postgres`.
+If a custom database image is provided, Wasp configures the DB service on Railway using that image together with the required Postgres environment variables. Otherwise, Railway’s default Postgres image and environment variables are used. The service name always remains `Postgres`.
 
 #### Explicitly providing the Railway project ID
 
