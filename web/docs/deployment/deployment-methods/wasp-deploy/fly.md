@@ -205,7 +205,7 @@ wasp deploy fly launch <app-name> <region> --db-image <custom-postgres
 
 :::warning
 
-Custom PostgreSQL images must be compatible with Fly.io, as the platform requires certain configurations to work properly. Since these requirements are not readily documented, en easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
+Custom PostgreSQL images must be compatible with Fly.io, as the platform requires certain configurations to work properly. Since these requirements are not readily documented, an easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
 
 :::
 
