@@ -155,7 +155,7 @@ async function setupDb({
       "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
     ]);
   } else {
-    // Use the default Railway Postgres template
+    // Use the default Railway Postgres template.
     await railwayCli(["add", "-d", "postgres"]);
   }
 }
