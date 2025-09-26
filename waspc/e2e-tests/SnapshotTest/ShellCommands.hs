@@ -53,11 +53,11 @@ withInSnapshotWaspAppDir waspAppCommandBuilders = do
 
       navigateToSnapshotWaspAppDir :: ShellCommand =
         "cd " ++ fromAbsDir (snapshotAbsDir </> _snapshotWaspAppRelDir snapshotTestContext)
-      waspAppCommand :: ShellCommand =
+      cmdInWaspAppCtxt :: ShellCommand =
         foldr1 ($&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
       returnToSnapshotDir :: ShellCommand =
         "cd " ++ fromAbsDir snapshotAbsDir
-   in return $ navigateToSnapshotWaspAppDir $&& waspAppCommand $&& returnToSnapshotDir
+   in return $ navigateToSnapshotWaspAppDir $&& cmdInWaspAppCtxt $&& returnToSnapshotDir
 
 copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
   Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspAppDir) ->
