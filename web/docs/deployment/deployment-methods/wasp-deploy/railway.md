@@ -96,7 +96,7 @@ wasp deploy railway deploy <project-name>
 
 #### Using a custom database image
 
-Use `--db-image <docker-image>` to provision the database with a specific Postgres image (for example, to enable extensions):
+Use the `--db-image <docker-image>` flag to set up the database with a specific Postgres image (for example, to enable extensions):
 
 ```shell
 # PostGIS
