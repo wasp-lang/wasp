@@ -204,7 +204,7 @@ The project name is used as a base for your server and client service names on R
 - `<project-name>-client`
 - `<project-name>-server`
 
-Railway also creates a PostgreSQL database service named `Postgres` (the name remains the same even when using `--db-image`).
+Railway also creates a PostgreSQL database service named `Postgres`.
 
 #### Using a custom database image
 
