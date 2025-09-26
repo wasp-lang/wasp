@@ -58,8 +58,10 @@ validateWaspAppDockerImageBuilds = do
             $&& "docker image rm " ++ dockerImageTag
             $&& "popd"
 
--- | We normalize the migration names to @no-date-<migrationName>@ for reproducibility.
--- This means that we can't generate two migrations with the same name in a project.
+-- | We make the migration name deterministic by forcing it to be
+-- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
+-- This is important for snapshot testing as we don't want a different migration name each time.
+-- Caveat: this does mean that we can't have two migrations with the same name in a project.
 waspCliMigrate :: String -> ShellCommandBuilder WaspAppContext ShellCommand
 waspCliMigrate migrationName = do
   waspAppContext <- ask
