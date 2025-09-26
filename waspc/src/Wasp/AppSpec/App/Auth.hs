@@ -45,7 +45,8 @@ data Auth = Auth
     onAfterEmailVerified :: Maybe ExtImport,
     onBeforeOAuthRedirect :: Maybe ExtImport,
     onBeforeLogin :: Maybe ExtImport,
-    onAfterLogin :: Maybe ExtImport
+    onAfterLogin :: Maybe ExtImport,
+    sessionLength :: Maybe Integer
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 
