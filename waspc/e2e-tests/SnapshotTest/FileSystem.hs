@@ -23,7 +23,7 @@ import WaspApp.FileSystem (WaspAppDir)
 -- | The directory where all snapshots are stored.
 data SnapshotsDir
 
--- | The directory inside a 'Common.SnapshotsDir' where a snapshot is stored.
+-- | The directory inside a 'SnapshotsDir' where a snapshot is stored.
 -- The snapshot is either a "golden" (expected) or a "current" (actual) snapshot.
 -- It follows a @<snapshot-test-name>-<snapshot-type>@ naming convention.
 -- e.g. @testName-golden@, @kitchen-sink-current@
