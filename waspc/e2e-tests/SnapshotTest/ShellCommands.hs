@@ -17,8 +17,8 @@ import ShellCommands
     ShellCommandBuilder,
     buildShellCommand,
     waspCliNewMinimalStarter,
-    ($&&),
-    ($|),
+    (~&&),
+    (~|),
   )
 import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir)
 import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))
@@ -54,13 +54,13 @@ withInSnapshotWaspAppDir waspAppCommandBuilders = do
   let snapshotWaspAppAbsDir = snapshotAbsDir </> _snapshotWaspAppRelDir snapshotTestContext
 
   let navigateToSnapshotWaspAppDir = "cd " ++ fromAbsDir snapshotWaspAppAbsDir
-  let cmdInWaspAppContext = foldr1 ($&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
+  let cmdInWaspAppContext = foldr1 (~&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
   let returnToSnapshotDir = "cd " ++ fromAbsDir snapshotAbsDir
 
   return $
     navigateToSnapshotWaspAppDir
-      $&& cmdInWaspAppContext
-      $&& returnToSnapshotDir
+      ~&& cmdInWaspAppContext
+      ~&& returnToSnapshotDir
 
 copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
   Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspAppDir) ->
@@ -82,6 +82,6 @@ copyContentsOfGitTrackedDirToSnapshotWaspAppDir srcDirInRepoRoot = do
         "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destDirPath
    in return $
         createDestDir
-          $&& listRelPathsOfGitTrackedFilesInSrcDir
-            $| stripSrcDirPrefixFromPaths
-            $| copyFromSrcDirToDestDir
+          ~&& listRelPathsOfGitTrackedFilesInSrcDir
+            ~| stripSrcDirPrefixFromPaths
+            ~| copyFromSrcDirToDestDir

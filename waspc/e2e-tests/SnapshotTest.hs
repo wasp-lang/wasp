@@ -17,7 +17,7 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
-    ($&&),
+    (~&&),
   )
 import SnapshotTest.FileSystem
   ( SnapshotType (..),
@@ -74,12 +74,12 @@ runSnapshotTest snapshotTest = do
           { _snapshotAbsDir = currentSnapshotAbsDir,
             _snapshotWaspAppRelDir = snapshotWaspAppDirInSnapshotDir "wasp-app"
           }
-  let snapshotTestCommand = foldr1 ($&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
+  let snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
   let cdIntoCurrentSnapshotDirCommand = "cd " ++ currentSnapshotDirAbsFp
 
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ cdIntoCurrentSnapshotDirCommand $&& snapshotTestCommand
+  callCommand $ cdIntoCurrentSnapshotDirCommand ~&& snapshotTestCommand
 
   filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence currentSnapshotDirAbsFp
   filesForCheckingContentAbsFps <- (currentSnapshotFileListManifestFileAbsFp :) <$> getFilesForCheckingContent currentSnapshotDirAbsFp

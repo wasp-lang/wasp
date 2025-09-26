@@ -17,8 +17,8 @@ import ShellCommands
     ShellCommandBuilder,
     appendToFile,
     replaceLineInFile,
-    ($&&),
-    ($?),
+    (~&&),
+    (~?),
   )
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.FilePath (joinPath)
@@ -52,10 +52,10 @@ validateWaspAppDockerImageBuilds = do
       waspAppAbsDir = _waspAppAbsDir waspAppContext
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          $? "cd " ++ fromAbsDir (waspAppAbsDir </> waspAppBuildDirInWaspAppDir)
-            $&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " ."
-            $&& "docker image rm " ++ dockerImageTag
-            $&& "cd " ++ fromAbsDir waspAppAbsDir
+          ~? "cd " ++ fromAbsDir (waspAppAbsDir </> waspAppBuildDirInWaspAppDir)
+            ~&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " ."
+            ~&& "docker image rm " ++ dockerImageTag
+            ~&& "cd " ++ fromAbsDir waspAppAbsDir
 
 -- | We make the migration name deterministic by forcing it to be
 -- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
@@ -69,8 +69,8 @@ waspCliMigrate migrationName = do
       waspOutMigrationsDir = fromAbsDir (waspAppAbsDir </> waspAppOutDirInWaspAppDir </> waspAppMigrationsDirInWaspAppOutDir)
    in return $
         "wasp-cli db migrate-dev --name " ++ migrationName
-          $&& replaceMigrationDatePrefix waspMigrationsDir
-          $&& replaceMigrationDatePrefix waspOutMigrationsDir
+          ~&& replaceMigrationDatePrefix waspMigrationsDir
+          ~&& replaceMigrationDatePrefix waspOutMigrationsDir
   where
     replaceMigrationDatePrefix migrationDir =
       "mv " ++ joinPath [migrationDir, "*" ++ migrationName] ++ " " ++ joinPath [migrationDir, "no-date-" ++ migrationName]
