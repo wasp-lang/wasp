@@ -87,27 +87,29 @@ Also, make sure that:
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
 :::
 
-##### Adding extensions to the dev database {#custom-database}
+##### Customising the dev database {#custom-database}
 
-You can also specify a custom Docker image to use for the database with the `--image` option. This is particularly useful when you need PostgreSQL with specific extensions (like PostGIS for geographic data, pgvector for embeddings, etc.):
+You can also specify a custom Docker image to use for the database with the `--db-image` option. This is particularly useful when you need PostgreSQL with specific extensions (like PostGIS for geographic data, pgvector for embeddings, etc.), or an older version. By default, Wasp uses the latest official [PostgreSQL Docker image](https://hub.docker.com/_/postgres).
 
 ```bash
-# Use default PostgreSQL image
+# Use default PostgreSQL image:
 wasp start db
+# Same as:
+wasp start db --db-image postgres
 
-# Use PostgreSQL version 15
-wasp start db --image postgres:15
+# Use PostgreSQL version 15:
+wasp start db --db-image postgres:15
 
-# Use PostgreSQL with PostGIS extension for geographic data
-wasp start db --image postgis/postgis:14-3.2
+# Use PostgreSQL with PostGIS extension for geographic data:
+wasp start db --db-image postgis/postgis:14-3.2
 
-# Use PostgreSQL with pgvector extension for AI embeddings
-wasp start db --image pgvector/pgvector:pg16
+# Use PostgreSQL with pgvector extension for AI embeddings:
+wasp start db --db-image pgvector/pgvector:pg16
 ```
 
 :::note
 
-The images you use must respect the `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` environment variables, as Wasp relies on them to set up the database. An easy way to ensure this is to use images based on the official [PostgreSQL Docker image](https://hub.docker.com/_/postgres).
+The custom Docker image you specify must use the `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` environment variables when configuring the database. Wasp will use those values when connecting to the database. We recommend basing your image on the official [PostgreSQL Docker image](https://hub.docker.com/_/postgres), as it automatically uses these environment variables to set up the database name, user, and password.
 
 :::
 
