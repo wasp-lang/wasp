@@ -1,0 +1,140 @@
+import fs from "fs/promises";
+import path from "path";
+
+import * as acorn from "acorn";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { mdxJsxFromMarkdown, type MdxJsxFlowElement } from "mdast-util-mdx-jsx";
+import { mdxJsx } from "micromark-extension-mdx-jsx";
+import { visit } from "unist-util-visit";
+
+import type {
+  Action,
+  ActionCommon,
+  ActionId,
+  MarkdownFilePath,
+} from "../actions/actions.js";
+import {
+  createApplyPatchAction,
+  createInitAppAction,
+  createMigrateDbAction,
+} from "../actions/index.js";
+import type { TutorialApp, TutorialDirPath } from "../tutorialApp.js";
+
+export async function getActionsFromTutorialFiles(
+  tutorialApp: TutorialApp,
+): Promise<Action[]> {
+  const tutorialFilePaths = await getTutorialFilePaths(
+    tutorialApp.docsTutorialDirPath,
+  );
+  const actions: Action[] = [];
+
+  for (const filePath of tutorialFilePaths) {
+    const fileActions = await getActionsFromMarkdownFile(filePath, tutorialApp);
+    actions.push(...fileActions);
+  }
+
+  return actions;
+}
+
+async function getTutorialFilePaths(
+  tutorialDir: TutorialDirPath,
+): Promise<MarkdownFilePath[]> {
+  const files = await fs.readdir(tutorialDir);
+  return (
+    files
+      .filter((file) => file.endsWith(".md"))
+      // Tutorial files are named "01-something.md"
+      // and we want to sort them by the number prefix
+      .sort((a, b) => {
+        const aNumber = parseInt(a.split("-")[0]!, 10);
+        const bNumber = parseInt(b.split("-")[0]!, 10);
+        return aNumber - bNumber;
+      })
+      .map((file) => path.resolve(tutorialDir, file) as MarkdownFilePath)
+  );
+}
+
+async function getActionsFromMarkdownFile(
+  tutorialFilePath: MarkdownFilePath,
+  tutorialApp: TutorialApp,
+): Promise<Action[]> {
+  const actions: Action[] = [];
+  const fileContent = await fs.readFile(path.resolve(tutorialFilePath));
+
+  const ast = fromMarkdown(fileContent, {
+    extensions: [mdxJsx({ acorn, addResult: true })],
+    mdastExtensions: [mdxJsxFromMarkdown()],
+  });
+
+  const tutorialComponentName = "TutorialAction";
+  visit(ast, "mdxJsxFlowElement", (node) => {
+    if (node.name !== tutorialComponentName) {
+      return;
+    }
+    const actionId = getAttributeValue(node, "id") as ActionId | null;
+    const actionName = getAttributeValue(node, "action") as
+      | Action["kind"]
+      | null;
+    const waspStarterTemplateName = getAttributeValue(
+      node,
+      "starterTemplateName",
+    );
+
+    if (!actionId) {
+      throw new Error(
+        `TutorialAction component requires the 'id' attribute. File: ${tutorialFilePath}`,
+      );
+    }
+
+    if (!actionName) {
+      throw new Error(
+        `TutorialAction component requires the 'action' attribute. File: ${tutorialFilePath}`,
+      );
+    }
+
+    const commonData: ActionCommon = {
+      id: actionId,
+      tutorialFilePath,
+    };
+    switch (actionName) {
+      case "INIT_APP":
+        if (waspStarterTemplateName === null) {
+          throw new Error(
+            `TutorialAction with action 'INIT_APP' requires the 'starterTemplateName' attribute. File: ${tutorialFilePath}`,
+          );
+        }
+        actions.push(createInitAppAction(commonData, waspStarterTemplateName));
+        break;
+      case "APPLY_PATCH":
+        actions.push(
+          createApplyPatchAction(
+            commonData,
+            tutorialApp.docsTutorialPatchesPath,
+          ),
+        );
+        break;
+      case "MIGRATE_DB":
+        actions.push(createMigrateDbAction(commonData));
+        break;
+      default:
+        actionName satisfies never;
+        throw new Error(
+          `Unknown action '${actionName}' in TutorialAction component. File: ${tutorialFilePath}`,
+        );
+    }
+  });
+
+  return actions;
+}
+
+function getAttributeValue(
+  node: MdxJsxFlowElement,
+  attributeName: string,
+): string | null {
+  const attribute = node.attributes.find(
+    (attr) => attr.type === "mdxJsxAttribute" && attr.name === attributeName,
+  );
+  return attribute && typeof attribute.value === "string"
+    ? attribute.value
+    : null;
+}
