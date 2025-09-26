@@ -310,27 +310,53 @@ import React, { useEffect, useState } from "react";
 import { api } from "wasp/client/api";
 
 export function AxiosStreamingPage() {
-  const [response, setResponse] = useState("");
-
-  useEffect(() => {
-    api.post('/api/streaming-example', 
-      { message: "Hello from Axios!" },
-      {
-        responseType: 'stream',
-        onDownloadProgress: (progressEvent) => {
-          const xhr = progressEvent.event.target;
-          setResponse(xhr.responseText || "");
-        },
-      }
-    ).catch(console.error);
-  }, []);
-
+  const { response } = useAxiosTextStream("/api/streaming-example", { message: "Hello from Axios!" });
+  
   return (
     <div>
       <h1>Axios Streaming (Limited)</h1>
       <pre>{response}</pre>
     </div>
   );
+}
+
+function useAxiosTextStream(path: string, payload: any) {
+  const [response, setResponse] = useState("");
+  
+  useEffect(() => {
+    const controller = new AbortController();
+    
+    fetchAxiosStream(
+      path,
+      payload,
+      (data) => {
+        setResponse(data);
+      },
+      controller
+    );
+
+    return () => {
+      controller.abort();
+    };
+  }, [path]);
+
+  return { response };
+}
+
+function fetchAxiosStream(
+  path: string,
+  payload: any,
+  onData: (data: string) => void,
+  controller: AbortController
+) {
+  return api.post(path, payload, {
+    responseType: 'stream',
+    signal: controller.signal,
+    onDownloadProgress: (progressEvent) => {
+      const xhr = progressEvent.event.target;
+      onData(xhr.responseText || "");
+    },
+  }).catch(console.error);
 }
 ```
 
