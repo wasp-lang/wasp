@@ -206,7 +206,7 @@ export const getStreamingText: StreamingText<
   {},
   string,
   { message: string }
-> = async (req, res, _context) => {
+> = async (req, res) => {
   const { message } = req.body;
 
   // Set appropriate headers for streaming
@@ -232,7 +232,7 @@ export const getStreamingText: StreamingText<
 Here's a example showing how to consume streaming responses on the client:
 
 ```tsx title="src/StreamingPage.tsx" auto-js
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { config } from "wasp/client";
 import { getSessionId } from "wasp/client/api";
 
@@ -261,7 +261,7 @@ function useTextStream(path: string, payload: { message: string }) {
       (chunk) => {
         setResponse((prev) => prev + chunk);
       },
-      controller
+      controller.signal
     );
 
     return () => {
@@ -276,7 +276,7 @@ async function fetchStream(
   path: string,
   payload: { message: string },
   onData: (data: string) => void,
-  controller: AbortController
+  signal: AbortSignal
 ) {
   const sessionId = getSessionId();
 
@@ -288,7 +288,7 @@ async function fetchStream(
         ...(sessionId && { Authorization: `Bearer ${sessionId}` }),
       },
       body: JSON.stringify(payload),
-      signal: controller.signal,
+      signal,
     });
 
     if (!response.ok) {
@@ -299,16 +299,8 @@ async function fetchStream(
       throw new Error("Stream body is null");
     }
 
-    const reader = response.body
-      .pipeThrough(new TextDecoderStream())
-      .getReader();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      onData(value);
+    for await (const chunk of response.body.pipeThrough(new TextDecoderStream())) {
+      onData(chunk);
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -331,7 +323,7 @@ Axios does not natively support streaming responses, but you can simulate it by 
 Here's how you can do it:
 
 ```tsx title="src/AxiosStreamingPage.tsx" auto-js
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "wasp/client/api";
 
 export function StreamingPage() {
