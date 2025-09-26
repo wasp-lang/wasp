@@ -2,7 +2,7 @@
 
 module SnapshotTest.ShellCommands
   ( SnapshotTestContext (..),
-    createSnapshotWaspApp,
+    createSnapshotWaspAppFromMinimalStarter,
     withInSnapshotWaspAppDir,
     copyContentsOfGitTrackedDirToSnapshotWaspAppDir,
   )
@@ -38,8 +38,8 @@ snapshotTestContextToWaspAppContext snapshotTestContext =
       _waspAppAbsDir = _snapshotAbsDir snapshotTestContext </> _snapshotWaspAppRelDir snapshotTestContext
     }
 
-createSnapshotWaspApp :: ShellCommandBuilder SnapshotTestContext ShellCommand
-createSnapshotWaspApp = do
+createSnapshotWaspAppFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
+createSnapshotWaspAppFromMinimalStarter = do
   snapshotTestContext <- ask
   waspCliNewMinimalStarter $ _waspAppName $ snapshotTestContextToWaspAppContext snapshotTestContext
 
