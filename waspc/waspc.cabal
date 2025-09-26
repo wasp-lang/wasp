@@ -798,6 +798,7 @@ test-suite waspc-e2e-tests
     ShellCommands
     WaspApp.ShellCommands
     SnapshotTest
+    SnapshotTest.Snapshot
     SnapshotTest.FileSystem
     SnapshotTest.ShellCommands
     Tests.WaspNewSnapshotTest

@@ -16,6 +16,7 @@ where
 
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRoot)
+import SnapshotTest.Snapshot
 import StrongPath (Dir, File, Path', Rel, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
 import WaspApp.FileSystem (WaspAppDir)
@@ -36,12 +37,6 @@ type SnapshotWaspAppDir = WaspAppDir
 -- | The file inside of a 'SnapshotDir'.
 -- Lists all files that should exist in the 'SnapshotDir' directory.
 data SnapshotFileListManifestFile
-
-data SnapshotType = Golden | Current
-
-instance Show SnapshotType where
-  show Golden = "golden"
-  show Current = "current"
 
 snapshotsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir SnapshotsDir)
 snapshotsDirInE2eTests = [reldir|snapshots|]
