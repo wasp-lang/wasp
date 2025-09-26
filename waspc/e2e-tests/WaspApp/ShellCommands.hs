@@ -50,13 +50,13 @@ validateWaspAppDockerImageBuilds :: ShellCommandBuilder WaspAppContext ShellComm
 validateWaspAppDockerImageBuilds = do
   waspAppContext <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
-      waspAppBuildDirPath = fromAbsDir (_waspAppAbsDir waspAppContext </> waspAppBuildDirInWaspAppDir)
+      waspAppAbsDir = _waspAppAbsDir waspAppContext
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          $? "pushd " ++ waspAppBuildDirPath
+          $? "cd " ++ fromAbsDir (waspAppAbsDir </> waspAppBuildDirInWaspAppDir)
             $&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " ."
             $&& "docker image rm " ++ dockerImageTag
-            $&& "popd"
+            $&& "cd " ++ fromAbsDir waspAppAbsDir
 
 -- | We make the migration name deterministic by forcing it to be
 -- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
