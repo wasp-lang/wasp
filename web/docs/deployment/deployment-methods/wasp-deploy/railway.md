@@ -208,7 +208,7 @@ Railway also creates a PostgreSQL database service named `Postgres`.
 
 #### Using a custom database image
 
-To create the database using a specific Postgres image, pass the `--db-image <docker-image>` flag:
+Use the `--db-image <docker-image>` flag to set up the database with a specific Postgres image (for example, to enable extensions):
 
 ```shell
 # PostGIS
@@ -218,7 +218,7 @@ wasp deploy railway setup my-wasp-app --db-image postgis/postgis
 wasp deploy railway setup my-wasp-app --db-image pgvector/pgvector:pg16
 ```
 
-When provided, Wasp sets up the DB service with the specified image and configures necessary Postgres variables. If not provided, Railway’s default Postgres template is used.
+If a custom database image is provided, Wasp configures the DB service on Railway using that image together with the required Postgres environment variables. Otherwise, Railway’s default Postgres image and environment variables are used. The service name always remains `Postgres`.
 
 #### Explicitly providing the Railway project ID
 
