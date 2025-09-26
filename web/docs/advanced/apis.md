@@ -191,17 +191,24 @@ To create a streaming API, write a function that uses Express response methods l
 api streamingText {
   httpRoute: (POST, "/api/streaming-example"),
   fn: import { getStreamingText } from "@src/streaming",
-  auth: true
 }
 ```
+
+<small>
+
+Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+</small>
 
 ```ts title="src/streaming.ts" auto-js
 import type { StreamingText } from "wasp/server/api";
 
-export const getStreamingText: StreamingText = async (req, res, _context) => {
-  // Get the message from request body
+export const getStreamingText: StreamingText<
+  {},
+  string,
+  { message: string }
+> = async (req, res, _context) => {
   const { message } = req.body;
-  
+
   // Set appropriate headers for streaming
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Transfer-Encoding", "chunked");
@@ -210,7 +217,7 @@ export const getStreamingText: StreamingText = async (req, res, _context) => {
   for (let i = 1; i <= 5; i++) {
     res.write(`${i}. ${message}\n`);
     // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   // End the response
@@ -222,7 +229,7 @@ export const getStreamingText: StreamingText = async (req, res, _context) => {
 
 #### Using the Fetch API (Recommended)
 
-Here's a complete example showing how to consume streaming responses in a React component:
+Here's a example showing how to consume streaming responses on the client:
 
 ```tsx title="src/StreamingPage.tsx" auto-js
 import React, { useEffect, useState } from "react";
@@ -230,8 +237,10 @@ import { config } from "wasp/client";
 import { getSessionId } from "wasp/client/api";
 
 export function StreamingPage() {
-  const { response } = useTextStream("/api/streaming-example", { message: "Hello from streaming!" });
-  
+  const { response } = useTextStream("/api/streaming-example", {
+    message: "Hello from streaming!",
+  });
+
   return (
     <div>
       <h1>Streaming Example</h1>
@@ -240,12 +249,12 @@ export function StreamingPage() {
   );
 }
 
-function useTextStream(path: string, payload: any) {
+function useTextStream(path: string, payload: { message: string }) {
   const [response, setResponse] = useState("");
-  
+
   useEffect(() => {
     const controller = new AbortController();
-    
+
     fetchStream(
       path,
       payload,
@@ -265,67 +274,85 @@ function useTextStream(path: string, payload: any) {
 
 async function fetchStream(
   path: string,
-  payload: any,
+  payload: { message: string },
   onData: (data: string) => void,
   controller: AbortController
 ) {
   const sessionId = getSessionId();
-  
-  const response = await fetch(config.apiUrl + path, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(sessionId && { Authorization: `Bearer ${sessionId}` }),
-    },
-    body: JSON.stringify(payload),
-    signal: controller.signal,
-  });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
+  try {
+    const response = await fetch(config.apiUrl + path, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(sessionId && { Authorization: `Bearer ${sessionId}` }),
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
 
-  if (response.body === null) {
-    throw new Error("Stream body is null");
-  }
-
-  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
-  
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    onData(value);
+
+    if (response.body === null) {
+      throw new Error("Stream body is null");
+    }
+
+    const reader = response.body
+      .pipeThrough(new TextDecoderStream())
+      .getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      onData(value);
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        // Fetch was aborted, no need to log an error
+        return;
+      }
+      console.error("Fetch error:", error.message);
+    } else {
+      throw error;
+    }
   }
 }
 ```
 
-#### Using Axios instead of fetch
+#### Using Axios
 
-If you want to use Axios, you can use `responseType: 'stream'`, but it has limitations:
+Axios does not natively support streaming responses, but you can simulate it by leveraging the `onDownloadProgress` callback. On the other hand, you don't have to provide the session token manually, as the Axios wrapper from `wasp/client/api` does that for you.
+
+Here's how you can do it:
 
 ```tsx title="src/AxiosStreamingPage.tsx" auto-js
 import React, { useEffect, useState } from "react";
 import { api } from "wasp/client/api";
 
-export function AxiosStreamingPage() {
-  const { response } = useAxiosTextStream("/api/streaming-example", { message: "Hello from Axios!" });
-  
+export function StreamingPage() {
+  const { response } = useAxiosTextStream("/api/streaming-example", {
+    message: "Hello from Axios!",
+  });
+
   return (
     <div>
-      <h1>Axios Streaming (Limited)</h1>
+      <h1>Axios Streaming</h1>
       <pre>{response}</pre>
     </div>
   );
 }
 
-function useAxiosTextStream(path: string, payload: any) {
+function useAxiosTextStream(path: string, payload: { message: string }) {
   const [response, setResponse] = useState("");
-  
+
   useEffect(() => {
     const controller = new AbortController();
-    
+
     fetchAxiosStream(
       path,
       payload,
@@ -343,20 +370,32 @@ function useAxiosTextStream(path: string, payload: any) {
   return { response };
 }
 
-function fetchAxiosStream(
+async function fetchAxiosStream(
   path: string,
-  payload: any,
+  payload: { message: string },
   onData: (data: string) => void,
   controller: AbortController
 ) {
-  return api.post(path, payload, {
-    responseType: 'stream',
-    signal: controller.signal,
-    onDownloadProgress: (progressEvent) => {
-      const xhr = progressEvent.event.target;
-      onData(xhr.responseText || "");
-    },
-  }).catch(console.error);
+  try {
+    return await api.post(path, payload, {
+      responseType: "stream",
+      signal: controller.signal,
+      onDownloadProgress: (progressEvent) => {
+        const xhr = progressEvent.event.target;
+        onData(xhr.responseText);
+      },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.name === "CanceledError") {
+        // Request was cancelled, no action needed
+      } else {
+        console.error("Fetch error:", error);
+      }
+    } else {
+      throw error;
+    }
+  }
 }
 ```
 
