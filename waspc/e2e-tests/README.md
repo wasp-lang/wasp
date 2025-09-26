@@ -12,7 +12,7 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 ## Snapshot tests
 
-Majority of our e2e tests are snapshot tests.
+We primarily test the `waspc` binary outputs using snapshot tests.
 Snapshot tests compare the current test outputs (`current` snapshot) against the expected test outputs (`golden` snapshot).
 
 Snapshots are compared in two ways:
