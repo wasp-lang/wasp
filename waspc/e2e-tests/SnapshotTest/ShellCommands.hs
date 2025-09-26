@@ -26,8 +26,8 @@ import WaspApp.ShellCommands (WaspAppContext (..))
 
 -- | Shell commands executed with this context are run from the 'SnapshotTest.FileSystem.SnapshotDir' directory.
 data SnapshotTestContext = SnapshotTestContext
-  { _snapshotAbsDir :: Path' Abs (Dir SnapshotDir),
-    _snapshotWaspAppRelDir :: Path' (Rel SnapshotDir) (Dir SnapshotWaspAppDir),
+  { _snapshotDir :: Path' Abs (Dir SnapshotDir),
+    _snapshotWaspAppDirInSnapshotDir :: Path' (Rel SnapshotDir) (Dir SnapshotWaspAppDir),
     _snapshotWaspAppName :: String
   }
 
@@ -35,7 +35,7 @@ getSnapshotWaspAppContext :: SnapshotTestContext -> WaspAppContext
 getSnapshotWaspAppContext snapshotTestContext =
   WaspAppContext
     { _waspAppName = _snapshotWaspAppName snapshotTestContext,
-      _waspAppAbsDir = _snapshotAbsDir snapshotTestContext </> _snapshotWaspAppRelDir snapshotTestContext
+      _waspAppAbsDir = _snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
     }
 
 createSnapshotWaspAppFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
@@ -50,8 +50,8 @@ withInSnapshotWaspAppDir waspAppCommandBuilders = do
   snapshotTestContext <- ask
   let waspAppContext = getSnapshotWaspAppContext snapshotTestContext
 
-  let snapshotAbsDir = _snapshotAbsDir snapshotTestContext
-  let snapshotWaspAppAbsDir = snapshotAbsDir </> _snapshotWaspAppRelDir snapshotTestContext
+  let snapshotAbsDir = _snapshotDir snapshotTestContext
+  let snapshotWaspAppAbsDir = snapshotAbsDir </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
 
   let navigateToSnapshotWaspAppDir = "cd " ++ fromAbsDir snapshotWaspAppAbsDir
   let cmdInWaspAppContext = foldr1 (~&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
@@ -68,7 +68,7 @@ copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
 copyContentsOfGitTrackedDirToSnapshotWaspAppDir srcDirInRepoRoot = do
   snapshotTestContext <- ask
   let srcDirPath = fromRelDir (gitRootInSnapshotWaspAppDir </> srcDirInRepoRoot)
-      destDirPath = fromRelDir $ _snapshotWaspAppRelDir snapshotTestContext
+      destDirPath = fromRelDir $ _snapshotWaspAppDirInSnapshotDir snapshotTestContext
 
       createDestDir :: ShellCommand =
         "mkdir -p " ++ destDirPath
