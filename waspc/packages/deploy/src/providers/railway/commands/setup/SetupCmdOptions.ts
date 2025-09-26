@@ -5,6 +5,7 @@ import {
 } from "../../DeploymentInstructions.js";
 
 export interface SetupCmdOptions extends CommonCmdOptions, SecretsOptions {
-  existingProjectId: RailwayProjectId | null;
-  workspace: string | null;
+  existingProjectId?: RailwayProjectId;
+  workspace?: string;
+  dbImage?: string;
 }

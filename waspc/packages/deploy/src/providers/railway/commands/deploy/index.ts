@@ -62,7 +62,7 @@ async function ensureRailwayProjectForDirectory({
   railwayExe: RailwayCliExe;
   projectName: RailwayProjectName;
   waspProjectDir: WaspProjectDir;
-  existingProjectId: RailwayProjectId | null;
+  existingProjectId?: RailwayProjectId;
 }): Promise<RailwayProject> {
   const { status, project } = await getRailwayProjectStatus({
     projectName,

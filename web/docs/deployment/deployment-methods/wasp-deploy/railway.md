@@ -39,7 +39,7 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`.
+Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
 
 <LaunchCommandEnvVars />
 
@@ -93,6 +93,22 @@ Running `wasp deploy railway launch` is the same as running the following comman
 wasp deploy railway setup <project-name>
 wasp deploy railway deploy <project-name>
 ```
+
+#### Using a custom database image
+
+Use the `--db-image <docker-image>` flag to set up the database with a specific Postgres image (for example, to enable extensions):
+
+```shell
+# PostGIS
+wasp deploy railway launch my-wasp-app --db-image postgis/postgis
+```
+
+```shell
+# pgvector
+wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
+```
+
+If a custom database image is provided, Wasp configures the DB service on Railway using that image together with the required Postgres environment variables. Otherwise, Railway’s default Postgres image and environment variables are used. The service name always remains `Postgres`.
 
 #### Explicitly providing the Railway project ID
 
@@ -191,6 +207,20 @@ The project name is used as a base for your server and client service names on R
 - `<project-name>-server`
 
 Railway also creates a PostgreSQL database service named `Postgres`.
+
+#### Using a custom database image
+
+Use the `--db-image <docker-image>` flag to set up the database with a specific Postgres image (for example, to enable extensions):
+
+```shell
+# PostGIS
+wasp deploy railway setup my-wasp-app --db-image postgis/postgis
+
+# pgvector
+wasp deploy railway setup my-wasp-app --db-image pgvector/pgvector:pg16
+```
+
+If a custom database image is provided, Wasp configures the DB service on Railway using that image together with the required Postgres environment variables. Otherwise, Railway’s default Postgres image and environment variables are used. The service name always remains `Postgres`.
 
 #### Explicitly providing the Railway project ID
 
