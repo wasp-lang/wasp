@@ -24,7 +24,7 @@ export async function initRailwayProject({
   projectName: RailwayProjectName;
   railwayExe: RailwayCliExe;
   waspProjectDir: WaspProjectDir;
-  workspace: string | null;
+  workspace?: string;
 }): Promise<RailwayProject> {
   const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
 

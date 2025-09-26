@@ -81,8 +81,8 @@ async function setupRailwayProjectForDirectory({
   railwayExe: RailwayCliExe;
   projectName: RailwayProjectName;
   waspProjectDir: WaspProjectDir;
-  existingProjectId: RailwayProjectId | null;
-  workspace: string | null;
+  existingProjectId?: RailwayProjectId;
+  workspace?: string;
 }): Promise<RailwayProject> {
   const { status, project } = await getRailwayProjectStatus({
     projectName,
