@@ -72,7 +72,8 @@ runSnapshotTest snapshotTest = do
   let snapshotTestContext =
         SnapshotTestContext
           { _snapshotAbsDir = currentSnapshotAbsDir,
-            _snapshotWaspAppRelDir = snapshotWaspAppDirInSnapshotDir "wasp-app"
+            _snapshotWaspAppRelDir = snapshotWaspAppDirInSnapshotDir "wasp-app",
+            _snapshotWaspAppName = "wasp-app"
           }
   let snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
   let cdIntoCurrentSnapshotDirCommand = "cd " ++ currentSnapshotDirAbsFp
