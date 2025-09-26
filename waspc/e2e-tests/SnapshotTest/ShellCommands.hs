@@ -49,13 +49,14 @@ withInSnapshotWaspAppDir ::
 withInSnapshotWaspAppDir waspAppCommandBuilders = do
   snapshotTestContext <- ask
   let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
+      snapshotAbsDir = _snapshotAbsDir snapshotTestContext
 
       navigateToSnapshotWaspAppDir :: ShellCommand =
-        "cd " ++ fromAbsDir (_snapshotAbsDir snapshotTestContext </> _snapshotWaspAppRelDir snapshotTestContext)
+        "cd " ++ fromAbsDir (snapshotAbsDir </> _snapshotWaspAppRelDir snapshotTestContext)
       waspAppCommand :: ShellCommand =
         foldr1 ($&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
       returnToSnapshotDir :: ShellCommand =
-        "cd " ++ fromAbsDir (_snapshotAbsDir snapshotTestContext)
+        "cd " ++ fromAbsDir snapshotAbsDir
    in return $ navigateToSnapshotWaspAppDir $&& waspAppCommand $&& returnToSnapshotDir
 
 copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
