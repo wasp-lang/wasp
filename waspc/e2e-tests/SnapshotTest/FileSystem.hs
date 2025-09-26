@@ -34,7 +34,7 @@ data SnapshotDir
 type SnapshotWaspAppDir = WaspAppDir
 
 -- | The file inside of a 'SnapshotDir'.
--- Lists all files that should exist in the 'SnapshotDir' directory
+-- Lists all files that should exist in the 'SnapshotDir' directory.
 data SnapshotFileListManifestFile
 
 data SnapshotType = Golden | Current
