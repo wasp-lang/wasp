@@ -31,8 +31,8 @@ data SnapshotTestContext = SnapshotTestContext
     _snapshotWaspAppRelDir :: Path' (Rel SnapshotDir) (Dir SnapshotWaspAppDir)
   }
 
-snapshotTestContextToWaspAppContext :: SnapshotTestContext -> WaspAppContext
-snapshotTestContextToWaspAppContext snapshotTestContext =
+getSnapshotWaspAppContext :: SnapshotTestContext -> WaspAppContext
+getSnapshotWaspAppContext snapshotTestContext =
   WaspAppContext
     { _waspAppName = dropTrailingPathSeparator $ fromRelDir $ _snapshotWaspAppRelDir snapshotTestContext,
       _waspAppAbsDir = _snapshotAbsDir snapshotTestContext </> _snapshotWaspAppRelDir snapshotTestContext
@@ -41,14 +41,14 @@ snapshotTestContextToWaspAppContext snapshotTestContext =
 createSnapshotWaspAppFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspAppFromMinimalStarter = do
   snapshotTestContext <- ask
-  waspCliNewMinimalStarter $ _waspAppName $ snapshotTestContextToWaspAppContext snapshotTestContext
+  waspCliNewMinimalStarter $ _waspAppName $ getSnapshotWaspAppContext snapshotTestContext
 
 withInSnapshotWaspAppDir ::
   [ShellCommandBuilder WaspAppContext ShellCommand] ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
 withInSnapshotWaspAppDir waspAppCommandBuilders = do
   snapshotTestContext <- ask
-  let waspAppContext = snapshotTestContextToWaspAppContext snapshotTestContext
+  let waspAppContext = getSnapshotWaspAppContext snapshotTestContext
 
   let snapshotAbsDir = _snapshotAbsDir snapshotTestContext
   let snapshotWaspAppAbsDir = snapshotAbsDir </> _snapshotWaspAppRelDir snapshotTestContext
