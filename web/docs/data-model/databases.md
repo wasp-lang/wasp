@@ -109,7 +109,7 @@ wasp start db --db-image pgvector/pgvector:pg16
 
 :::note
 
-The images you specify must use the `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` environment variables to configure themselves. Wasp will use those values when connecting to the database. We recommend basing your images on the official [PostgreSQL Docker image](https://hub.docker.com/_/postgres), as it automatically uses these environment variables to set up the database name, user, and password.
+The custom Docker image you specify must use the `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` environment variables when configuring the database. Wasp will use those values when connecting to the database. We recommend basing your image on the official [PostgreSQL Docker image](https://hub.docker.com/_/postgres), as it automatically uses these environment variables to set up the database name, user, and password.
 
 :::
 
