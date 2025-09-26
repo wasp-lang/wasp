@@ -104,7 +104,7 @@ which might be an issue for you if you have recurring Jobs or some other process
 running on the server even without external input, in which case we advise keeping "minimal number
 of machines running" setting at a number larger than zero.
 
-Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX 
+Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX
 
 Press any key to continue or Ctrl+C to cancel.`);
   } else {
@@ -176,7 +176,7 @@ async function setupClient(
   }
 
   // This creates the fly.toml file, but does not attempt to deploy.
-  await $`flyctl launch --no-deploy  ${launchArgs}`;
+  await $`flyctl launch --no-deploy ${launchArgs}`;
 
   if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
     await question(`\n⚠️  There was an issue setting up your client app.
@@ -186,7 +186,7 @@ We tried modifying your client fly.toml to set ${chalk.bold(
 
 This means your client app might not be accessible.
 
-Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX 
+Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX
 
 Press any key to continue or Ctrl+C to cancel.`);
   } else {
