@@ -26,7 +26,7 @@ import WaspApp.FileSystem (WaspAppDir, waspAppBuildDirInWaspAppDir, waspAppMigra
 
 -- | Context for commands which are run from inside of a Wasp app project.
 data WaspAppContext = WaspAppContext
-  { _waspAppAbsDir :: Path' Abs (Dir WaspAppDir),
+  { _waspAppDir :: Path' Abs (Dir WaspAppDir),
     _waspAppName :: String
   }
 
@@ -49,7 +49,7 @@ validateWaspAppDockerImageBuilds :: ShellCommandBuilder WaspAppContext ShellComm
 validateWaspAppDockerImageBuilds = do
   waspAppContext <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ _waspAppName waspAppContext
-      waspAppAbsDir = _waspAppAbsDir waspAppContext
+      waspAppAbsDir = _waspAppDir waspAppContext
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
           ~? "cd " ++ fromAbsDir (waspAppAbsDir </> waspAppBuildDirInWaspAppDir)
@@ -64,7 +64,7 @@ validateWaspAppDockerImageBuilds = do
 waspCliMigrate :: String -> ShellCommandBuilder WaspAppContext ShellCommand
 waspCliMigrate migrationName = do
   waspAppContext <- ask
-  let waspAppAbsDir = _waspAppAbsDir waspAppContext
+  let waspAppAbsDir = _waspAppDir waspAppContext
       waspMigrationsDir = fromAbsDir (waspAppAbsDir </> waspAppMigrationsDirInWaspAppDir)
       waspOutMigrationsDir = fromAbsDir (waspAppAbsDir </> waspAppOutDirInWaspAppDir </> waspAppMigrationsDirInWaspAppOutDir)
    in return $

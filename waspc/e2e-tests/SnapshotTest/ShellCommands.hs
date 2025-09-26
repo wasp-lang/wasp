@@ -35,7 +35,7 @@ getSnapshotWaspAppContext :: SnapshotTestContext -> WaspAppContext
 getSnapshotWaspAppContext snapshotTestContext =
   WaspAppContext
     { _waspAppName = _snapshotWaspAppName snapshotTestContext,
-      _waspAppAbsDir = _snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
+      _waspAppDir = _snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
     }
 
 createSnapshotWaspAppFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
