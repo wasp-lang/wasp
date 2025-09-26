@@ -133,8 +133,8 @@ async function setupDb({
 
   if (options.dbImage) {
     waspSays(`Using custom database image: ${options.dbImage}`);
-    // When using a custom database image, the automatic variables that Railway sets up for the
-    // default Postgres template are not available.
+    // When using a custom database image, Railway doesn't automatically set the default
+    // Postgres-related environment variables, so we need to set them ourselves.
     await railwayCli([
       "add",
       "--service",
