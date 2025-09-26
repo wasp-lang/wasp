@@ -25,7 +25,6 @@ import System.FilePath (joinPath)
 import WaspApp.FileSystem (WaspAppDir, waspAppBuildDirInWaspAppDir, waspAppMigrationsDirInWaspAppDir, waspAppMigrationsDirInWaspAppOutDir, waspAppOutDirInWaspAppDir)
 
 -- | Context for commands which are run from inside of a Wasp app project.
--- For snapshot tests, commands executed with this context are run from the 'SnapshotTestCommon.SnapshotWaspAppDir' directory.
 data WaspAppContext = WaspAppContext
   { _waspAppAbsDir :: Path' Abs (Dir WaspAppDir),
     _waspAppName :: String
