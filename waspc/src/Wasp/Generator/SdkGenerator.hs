@@ -245,7 +245,7 @@ npmDepsForSdk spec waspLibs =
           ]
     }
   where
-    waspLibsNpmDeps = map (WaspLib.getNpmDepFromWaspLibWithSrcDir libsRootDirFromSdkDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
