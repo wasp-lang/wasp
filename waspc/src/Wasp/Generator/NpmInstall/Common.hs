@@ -12,6 +12,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Generator.ServerGenerator as SG
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator as WG
 
 data AllNpmDeps = AllNpmDeps
@@ -25,12 +26,12 @@ instance ToJSON AllNpmDeps
 
 instance FromJSON AllNpmDeps
 
-getAllNpmDeps :: AppSpec -> Either String AllNpmDeps
-getAllNpmDeps spec =
+getAllNpmDeps :: AppSpec -> [WaspLib.WaspLib] -> Either String AllNpmDeps
+getAllNpmDeps spec waspLibs =
   let userNpmDeps = N.getUserNpmDepsForPackage spec
       errorOrWaspFrameworkNpmDeps =
-        N.buildWaspFrameworkNpmDeps spec (SG.npmDepsForWasp spec) (WG.npmDepsForWasp spec)
-      waspSdkNpmDeps = SdkGenerator.npmDepsForSdk spec
+        N.buildWaspFrameworkNpmDeps spec (SG.npmDepsForWasp spec waspLibs) (WG.npmDepsForWasp spec)
+      waspSdkNpmDeps = SdkGenerator.npmDepsForSdk spec waspLibs
    in case errorOrWaspFrameworkNpmDeps of
         Left message -> Left $ "determining npm deps to install failed: " ++ message
         Right waspFrameworkNpmDeps ->
