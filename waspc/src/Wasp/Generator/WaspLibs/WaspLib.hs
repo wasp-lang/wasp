@@ -23,30 +23,23 @@ import Wasp.Util (checksumFromFilePath, hexToString)
 -}
 data WaspLib = WaspLib
   { packageName :: String,
-    waspDataDirTarballFilename :: TarballFilename,
     waspDataDirTarballAbsPath :: Path' Abs File',
     generatedCodeDirTarballFilename :: TarballFilename
   }
 
 makeWaspLib :: String -> IO WaspLib
 makeWaspLib waspLibPackageName = do
-  libsSourceDirPath <- getAbsLibsSourceDirPath
-
   -- Libs have a fixed version "0.0.0" which means we use the same version for the tarballs
   -- in the data directory (e.g. lib-0.0.0.tgz). When the tarballs are copied to the generated project directory,
   -- the tarball filename version is replaced with the checksum of the tarball (e.g. lib-<checksum>.tgz).
-  let waspDataDirTarballFilename' = Npm.Tarball.makeTarballFilename waspLibPackageName "0.0.0"
-  let waspDataDirTarballAbsPath' = libsSourceDirPath </> tarballFilenameAsRelFile waspDataDirTarballFilename'
-
-  waspDataDirTarballChecksum <- computeTarballChecksum waspDataDirTarballAbsPath'
-  let generatedCodeDirTarballilename' = Npm.Tarball.makeTarballFilename waspLibPackageName waspDataDirTarballChecksum
+  waspDataDirTarballAbsPath' <- (</> tarballFilenameAsRelFile (Npm.Tarball.makeTarballFilename waspLibPackageName "0.0.0")) <$> getAbsLibsSourceDirPath
+  generatedCodeDirTarballFilename' <- Npm.Tarball.makeTarballFilename waspLibPackageName <$> computeTarballChecksum waspDataDirTarballAbsPath'
 
   return $
     WaspLib
       { packageName = waspLibPackageName,
-        waspDataDirTarballFilename = waspDataDirTarballFilename',
         waspDataDirTarballAbsPath = waspDataDirTarballAbsPath',
-        generatedCodeDirTarballFilename = generatedCodeDirTarballilename'
+        generatedCodeDirTarballFilename = generatedCodeDirTarballFilename'
       }
 
 computeTarballChecksum :: Path' Abs File' -> IO String
