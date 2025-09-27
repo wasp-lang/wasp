@@ -69,7 +69,8 @@ spec_GeneratorAuthInjectionTest = do
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]
-        let config = makeGeneratorConfig []
+        let waspLibs = []
+        let config = makeGeneratorConfig waspLibs
         let (_generatorWarnings, generatorResult) = runGenerator config $ injectAuth allEntities userEntity
          in generatorResult
               `shouldBe` Right

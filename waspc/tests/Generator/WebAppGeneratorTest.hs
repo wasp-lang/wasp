@@ -95,7 +95,8 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let config = makeGeneratorConfig []
+      let waspLibs = []
+      let config = makeGeneratorConfig waspLibs
       let (_, Right fileDrafts) = runGenerator config $ genWebApp testAppSpec
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $

@@ -63,7 +63,8 @@ compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Te
 compileAndRenderDockerfile spec = do
   -- We make a generator config with no WaspLibs because they are not needed
   -- for Dockerfile generation.
-  let config = makeGeneratorConfig []
+  let waspLibs = []
+  let config = makeGeneratorConfig waspLibs
 
   let (_, generatorResult) = runGenerator config $ genDockerfile spec
   case generatorResult of
