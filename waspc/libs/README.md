@@ -19,10 +19,14 @@ config objects and orchestrate the use of these libs.
 
 ## Testing Libs Locally
 
+Wasp Libs are npm libraries you develop in isolation and test them using unit tests.
+
+When you want to test how they integrate with the Wasp CLI and the generated app,
+you need to make sure the Wasp CLI can find them.
+To do that, you need to copy the compiled libs to the `data/` folder, which is
+packaged with the Wasp CLI.
 Run `./tools/install_libs_to_data_dir.sh` to compile the libs and copy
-them into `data/`. Then you can use `./run wasp-cli` as normal. You can run
-`./run install` which will run the script before installing the
-Wasp CLI.
+them into `data/`. Then you can use `./run wasp-cli` as normal.
 
 ## Adding a New Lib
 
