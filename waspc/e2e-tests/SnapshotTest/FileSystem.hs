@@ -50,7 +50,7 @@ asWaspAppDir = castDir
 data SnapshotFileListManifestFile
 
 -- | Converts a 'SnapshotFileListManifestFile' to a 'SnapshotFile'.
--- This is safe because every manifest file is also a snapshot directory file.
+-- This is safe because every snapshot file list manifest file is also a snapshot file.
 asSnapshotFile :: Path s a (File SnapshotFileListManifestFile) -> Path s a (File SnapshotFile)
 asSnapshotFile = castFile
 
