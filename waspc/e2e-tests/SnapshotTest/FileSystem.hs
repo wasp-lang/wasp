@@ -4,7 +4,9 @@ module SnapshotTest.FileSystem
     SnapshotDir,
     SnapshotWaspAppDir,
     SnapshotFileListManifestFile,
-    SnapshotDirFile,
+    SnapshotFile,
+    asWaspAppDir,
+    asSnapshotFile,
     snapshotsDirInE2eTests,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
@@ -17,8 +19,8 @@ where
 
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRoot)
-import SnapshotTest.Snapshot
-import StrongPath (Dir, File, Path', Rel, parseRelDir, reldir, relfile, (</>))
+import SnapshotTest.Snapshot (SnapshotType (..))
+import StrongPath (Dir, File, Path, Path', Rel, castDir, castFile, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
 import WaspApp.FileSystem (WaspAppDir)
 
@@ -32,15 +34,25 @@ data SnapshotsDir
 data SnapshotDir
 
 -- | Represent any file inside of a 'SnapshotDir'.
-data SnapshotDirFile
+data SnapshotFile
 
 -- | The Wasp app directory inside of a 'SnapshotDir'.
 -- We hardcode its name to @wasp-app@ so that the snapshots directory is more readable.
-type SnapshotWaspAppDir = WaspAppDir
+data SnapshotWaspAppDir
+
+-- | Converts a 'SnapshotWaspAppDir' to a 'WaspApp.FileSystem.WaspAppDir'.
+-- This is safe because every snapshot Wasp app directory is also a Wasp app directory.
+asWaspAppDir :: Path s a (Dir SnapshotWaspAppDir) -> Path s a (Dir WaspAppDir)
+asWaspAppDir = castDir
 
 -- | The file inside of a 'SnapshotDir'.
 -- Lists all files that should exist in the 'SnapshotDir' directory.
-type SnapshotFileListManifestFile = SnapshotDirFile
+data SnapshotFileListManifestFile
+
+-- | Converts a 'SnapshotFileListManifestFile' to a 'SnapshotFile'.
+-- This is safe because every manifest file is also a snapshot directory file.
+asSnapshotFile :: Path s a (File SnapshotFileListManifestFile) -> Path s a (File SnapshotFile)
+asSnapshotFile = castFile
 
 snapshotsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir SnapshotsDir)
 snapshotsDirInE2eTests = [reldir|snapshots|]

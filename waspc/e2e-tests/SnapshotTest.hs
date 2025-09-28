@@ -22,9 +22,10 @@ import ShellCommands
   )
 import SnapshotTest.FileSystem
   ( SnapshotDir,
-    SnapshotDirFile,
+    SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
+    asSnapshotFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
@@ -83,8 +84,8 @@ runSnapshotTest snapshotTest = do
   -- TODO: Save stdout/error as log file for "contains" checks.
   callCommand $ cdIntoCurrentSnapshotDirCommand ~&& snapshotTestCommand
 
-  filesForCheckingExistenceAbsFps <- (currentSnapshotFileListManifestFile :) <$> getFilesForCheckingExistence currentSnapshotDir
-  filesForCheckingContentAbsFps <- (currentSnapshotFileListManifestFile :) <$> getFilesForCheckingContent currentSnapshotDir
+  filesForCheckingExistenceAbsFps <- (asSnapshotFile currentSnapshotFileListManifestFile :) <$> getFilesForCheckingExistence currentSnapshotDir
+  filesForCheckingContentAbsFps <- (asSnapshotFile currentSnapshotFileListManifestFile :) <$> getFilesForCheckingContent currentSnapshotDir
 
   writeSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile filesForCheckingExistenceAbsFps
   reformatPackageJsonFiles filesForCheckingContentAbsFps
@@ -96,7 +97,7 @@ runSnapshotTest snapshotTest = do
       snapshotTestName
       [defineSnapshotTest currentSnapshotDirFile (toGoldenSnapshotDirFile currentSnapshotDirFile) | currentSnapshotDirFile <- filesForCheckingContentAbsFps]
   where
-    getFilesForCheckingExistence :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotDirFile)]
+    getFilesForCheckingExistence :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
     getFilesForCheckingExistence snapshotDir =
       let shouldCheckFileExistence fp =
             takeFileName fp
@@ -105,7 +106,7 @@ runSnapshotTest snapshotTest = do
                         ]
        in getDirFiltered (return <$> shouldCheckFileExistence) (SP.fromAbsDir snapshotDir) >>= filterM doesFileExist >>= mapM SP.parseAbsFile
 
-    getFilesForCheckingContent :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotDirFile)]
+    getFilesForCheckingContent :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
     getFilesForCheckingContent snapshotDir =
       let shouldCheckFileContents fp =
             takeFileName fp
@@ -123,7 +124,7 @@ runSnapshotTest snapshotTest = do
 
     -- Writes a deterministic manifest of files that should exist in the snapshot.
     -- File paths are normalized to relative paths and sorted.
-    writeSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> [Path' Abs (File SnapshotDirFile)] -> IO ()
+    writeSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> [Path' Abs (File SnapshotFile)] -> IO ()
     writeSnapshotFileListManifest snapshotDir snapshotFileListManifestFile filesForCheckingExistenceAbsFps =
       writeFile (SP.fromAbsFile snapshotFileListManifestFile) sortedSnapshotFilePathsRelativeToSnapshotDir
       where
@@ -131,13 +132,13 @@ runSnapshotTest snapshotTest = do
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
-    reformatPackageJsonFiles :: [Path' Abs (File SnapshotDirFile)] -> IO ()
+    reformatPackageJsonFiles :: [Path' Abs (File SnapshotFile)] -> IO ()
     reformatPackageJsonFiles = mapM_ reformatJson . filter isPackageJson
       where
-        isPackageJson :: Path' Abs (File SnapshotDirFile) -> Bool
+        isPackageJson :: Path' Abs (File SnapshotFile) -> Bool
         isPackageJson = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
 
-        reformatJson :: Path' Abs (File SnapshotDirFile) -> IO ()
+        reformatJson :: Path' Abs (File SnapshotFile) -> IO ()
         reformatJson snapshotDirJsonFile =
           BS.readFile (SP.fromAbsFile snapshotDirJsonFile) >>= BSL.writeFile (SP.fromAbsFile snapshotDirJsonFile) . formatJson . unsafeDecodeJson
 
@@ -154,7 +155,7 @@ runSnapshotTest snapshotTest = do
                 AesonPretty.confTrailingNewline = True
               }
 
-    defineSnapshotTest :: Path' Abs (File SnapshotDirFile) -> Path' Abs (File SnapshotDirFile) -> TestTree
+    defineSnapshotTest :: Path' Abs (File SnapshotFile) -> Path' Abs (File SnapshotFile) -> TestTree
     defineSnapshotTest currentSnapshotDirFile goldenSnapshotDirFile =
       goldenVsFileDiff
         (SP.fromAbsFile currentSnapshotDirFile) -- The test name.

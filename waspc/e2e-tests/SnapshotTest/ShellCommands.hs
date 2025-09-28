@@ -20,7 +20,7 @@ import ShellCommands
     (~&&),
     (~|),
   )
-import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, gitRootInSnapshotWaspAppDir)
+import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, asWaspAppDir, gitRootInSnapshotWaspAppDir)
 import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))
 import WaspApp.ShellCommands (WaspAppContext (..))
 
@@ -35,7 +35,7 @@ getSnapshotWaspAppContext :: SnapshotTestContext -> WaspAppContext
 getSnapshotWaspAppContext snapshotTestContext =
   WaspAppContext
     { _waspAppName = _snapshotWaspAppName snapshotTestContext,
-      _waspAppDir = _snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
+      _waspAppDir = asWaspAppDir (_snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext)
     }
 
 createSnapshotWaspAppFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
