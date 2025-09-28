@@ -57,11 +57,10 @@ makeSnapshotTest snapshotTestName snapshotTestCommandBuilders =
 --  comparing the generated files to the previous "golden" (expected) version of those files.
 runSnapshotTest :: SnapshotTest -> IO TestTree
 runSnapshotTest snapshotTest = do
-  let snapshotTestName = _snapshotTestName snapshotTest
   snapshotsAbsDir <- getSnapshotsDir
 
-  let goldenSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Golden
-  let currentSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir snapshotTestName Current
+  let goldenSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir (_snapshotTestName snapshotTest) Golden
+  let currentSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir (_snapshotTestName snapshotTest) Current
   let currentSnapshotFileListManifestFile = currentSnapshotDir SP.</> snapshotFileListManifestFileInSnapshotDir
 
   -- Remove existing current snapshot files from a prior test run.
@@ -88,14 +87,14 @@ runSnapshotTest snapshotTest = do
   filesForCheckingContentAbsFps <- (asSnapshotFile currentSnapshotFileListManifestFile :) <$> getFilesForCheckingContent currentSnapshotDir
 
   writeSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile filesForCheckingExistenceAbsFps
-  reformatPackageJsonFiles filesForCheckingContentAbsFps
+  formatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let toGoldenSnapshotDirFile currentSnapshotDirFile = fromJust $ SP.parseAbsFile $ unpack $ replace (pack $ SP.fromAbsDir currentSnapshotDir) (pack $ SP.fromAbsDir goldenSnapshotDir) (pack $ SP.fromAbsFile currentSnapshotDirFile)
+  let toGoldenSnapshotFile currentSnapshotFile = fromJust $ SP.parseAbsFile $ unpack $ replace (pack $ SP.fromAbsDir currentSnapshotDir) (pack $ SP.fromAbsDir goldenSnapshotDir) (pack $ SP.fromAbsFile currentSnapshotFile)
 
   return $
     testGroup
-      snapshotTestName
-      [defineSnapshotTest currentSnapshotDirFile (toGoldenSnapshotDirFile currentSnapshotDirFile) | currentSnapshotDirFile <- filesForCheckingContentAbsFps]
+      (_snapshotTestName snapshotTest)
+      [defineSnapshotTest currentSnapshotFile (toGoldenSnapshotFile currentSnapshotFile) | currentSnapshotFile <- filesForCheckingContentAbsFps]
   where
     getFilesForCheckingExistence :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
     getFilesForCheckingExistence snapshotDir =
@@ -130,36 +129,42 @@ runSnapshotTest snapshotTest = do
       where
         sortedSnapshotFilePathsRelativeToSnapshotDir = unlines . sort . map (makeRelative $ SP.fromAbsDir snapshotDir) $ filesForCheckingExistenceAbsFps <&> SP.fromAbsFile
 
-    -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
-    -- Ref: https://github.com/wasp-lang/wasp/issues/482
-    reformatPackageJsonFiles :: [Path' Abs (File SnapshotFile)] -> IO ()
-    reformatPackageJsonFiles = mapM_ reformatJson . filter isPackageJson
-      where
-        isPackageJson :: Path' Abs (File SnapshotFile) -> Bool
-        isPackageJson = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
-
-        reformatJson :: Path' Abs (File SnapshotFile) -> IO ()
-        reformatJson snapshotDirJsonFile =
-          BS.readFile (SP.fromAbsFile snapshotDirJsonFile) >>= BSL.writeFile (SP.fromAbsFile snapshotDirJsonFile) . formatJson . unsafeDecodeJson
-
-        unsafeDecodeJson :: BS.ByteString -> Aeson.Value
-        unsafeDecodeJson = fromJust . Aeson.decodeStrict
-
-        formatJson :: Aeson.Value -> BSL.ByteString
-        formatJson =
-          AesonPretty.encodePretty'
-            AesonPretty.Config
-              { AesonPretty.confIndent = AesonPretty.Spaces 2,
-                AesonPretty.confCompare = compare,
-                AesonPretty.confNumFormat = AesonPretty.Generic,
-                AesonPretty.confTrailingNewline = True
-              }
-
     defineSnapshotTest :: Path' Abs (File SnapshotFile) -> Path' Abs (File SnapshotFile) -> TestTree
-    defineSnapshotTest currentSnapshotDirFile goldenSnapshotDirFile =
+    defineSnapshotTest currentSnapshotFile goldenSnapshotFile =
       goldenVsFileDiff
-        (SP.fromAbsFile currentSnapshotDirFile) -- The test name.
+        (SP.fromAbsFile currentSnapshotFile) -- The test name.
         (\ref new -> ["diff", "-u", ref, new])
-        (SP.fromAbsFile goldenSnapshotDirFile)
-        (SP.fromAbsFile currentSnapshotDirFile)
+        (SP.fromAbsFile goldenSnapshotFile)
+        (SP.fromAbsFile currentSnapshotFile)
         (return ()) -- IO action to generate the current file. No-op since files are pre-generated in bulk.
+
+-- Normalizes @package.json@ files into deterministic format for snapshot comparison.
+-- Ref: https://github.com/wasp-lang/wasp/issues/482
+formatPackageJsonFiles :: [Path' Abs (File file)] -> IO ()
+formatPackageJsonFiles = mapM_ formatPackageJsonFile . filter isPackageJsonFile
+  where
+    formatPackageJsonFile :: Path' Abs (File file) -> IO ()
+    formatPackageJsonFile packageJsonFile = do
+      readJson packageJsonFile >>= writeJson packageJsonFile . formatJson . unsafeDecodeJson
+
+    isPackageJsonFile :: Path' Abs (File file) -> Bool
+    isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
+
+    readJson :: Path' Abs (File file) -> IO BS.ByteString
+    readJson = BS.readFile . SP.fromAbsFile
+
+    unsafeDecodeJson :: BS.ByteString -> Aeson.Value
+    unsafeDecodeJson = fromJust . Aeson.decodeStrict
+
+    formatJson :: Aeson.Value -> BSL.ByteString
+    formatJson =
+      AesonPretty.encodePretty'
+        AesonPretty.Config
+          { AesonPretty.confIndent = AesonPretty.Spaces 2,
+            AesonPretty.confCompare = compare,
+            AesonPretty.confNumFormat = AesonPretty.Generic,
+            AesonPretty.confTrailingNewline = True
+          }
+
+    writeJson :: Path' Abs (File file) -> BSL.ByteString -> IO ()
+    writeJson snapshotPackageJsonFile = BSL.writeFile (SP.fromAbsFile snapshotPackageJsonFile)
