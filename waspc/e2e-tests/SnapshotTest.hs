@@ -10,6 +10,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
+import Data.Functor ((<&>))
 import Data.List (sort)
 import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
@@ -20,13 +21,17 @@ import ShellCommands
     (~&&),
   )
 import SnapshotTest.FileSystem
-  ( SnapshotType (..),
+  ( SnapshotDir,
+    SnapshotDirFile,
+    SnapshotFileListManifestFile,
+    SnapshotType (..),
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
     snapshotWaspAppDirInSnapshotDir,
   )
 import SnapshotTest.ShellCommands (SnapshotTestContext (..))
+import StrongPath (Abs, Dir, File, Path')
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -59,10 +64,10 @@ runSnapshotTest snapshotTest = do
   let currentSnapshotFileListManifestFile = currentSnapshotDir SP.</> snapshotFileListManifestFileInSnapshotDir
 
   -- Remove existing current snapshot files from a prior test run.
-  callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir ++ "/*"
+  callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
 
   -- Create current snapshot dir as well as the golden snapshot dir, if missing.
-  callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir ++ "/*"
+  callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
   callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
   let snapshotTestContext =
@@ -72,68 +77,69 @@ runSnapshotTest snapshotTest = do
             _snapshotWaspAppName = "wasp-app"
           }
   let snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
-  let cdIntoCurrentSnapshotDirCommand = "cd " ++ SP.fromAbsDir currentSnapshotDir ++ "/*"
+  let cdIntoCurrentSnapshotDirCommand = "cd " ++ SP.fromAbsDir currentSnapshotDir
 
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
   -- TODO: Save stdout/error as log file for "contains" checks.
   callCommand $ cdIntoCurrentSnapshotDirCommand ~&& snapshotTestCommand
 
-  filesForCheckingExistenceAbsFps <- getFilesForCheckingExistence $ SP.fromAbsDir currentSnapshotDir ++ "/*"
-  filesForCheckingContentAbsFps <- (SP.fromAbsFile currentSnapshotFileListManifestFile :) <$> getFilesForCheckingContent (SP.fromAbsDir currentSnapshotDir ++ "/*")
+  filesForCheckingExistenceAbsFps <- (currentSnapshotFileListManifestFile :) <$> getFilesForCheckingExistence currentSnapshotDir
+  filesForCheckingContentAbsFps <- (currentSnapshotFileListManifestFile :) <$> getFilesForCheckingContent currentSnapshotDir
 
-  writeSnapshotFileListManifest (SP.fromAbsDir currentSnapshotDir ++ "/*") filesForCheckingExistenceAbsFps (SP.fromAbsFile currentSnapshotFileListManifestFile)
+  writeSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile filesForCheckingExistenceAbsFps
   reformatPackageJsonFiles filesForCheckingContentAbsFps
 
-  let remapCurrentToGoldenFp fp = unpack $ replace (pack $ SP.fromAbsDir currentSnapshotDir ++ "/*") (pack $ SP.fromAbsDir goldenSnapshotDir) (pack fp)
+  let toGoldenSnapshotDirFile currentSnapshotDirFile = fromJust $ SP.parseAbsFile $ unpack $ replace (pack $ SP.fromAbsDir currentSnapshotDir) (pack $ SP.fromAbsDir goldenSnapshotDir) (pack $ SP.fromAbsFile currentSnapshotDirFile)
 
   return $
     testGroup
       snapshotTestName
-      [defineSnapshotTest currentFp (remapCurrentToGoldenFp currentFp) | currentFp <- filesForCheckingContentAbsFps]
+      [defineSnapshotTest currentSnapshotDirFile (toGoldenSnapshotDirFile currentSnapshotDirFile) | currentSnapshotDirFile <- filesForCheckingContentAbsFps]
   where
-    getFilesForCheckingExistence :: FilePath -> IO [FilePath]
-    getFilesForCheckingExistence dirToFilterAbsFp =
+    getFilesForCheckingExistence :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotDirFile)]
+    getFilesForCheckingExistence snapshotDir =
       let shouldCheckFileExistence fp =
             takeFileName fp
               `notElem` [ ".DS_Store",
                           "node_modules"
                         ]
-       in getDirFiltered (return <$> shouldCheckFileExistence) dirToFilterAbsFp >>= filterM doesFileExist
+       in getDirFiltered (return <$> shouldCheckFileExistence) (SP.fromAbsDir snapshotDir) >>= filterM doesFileExist >>= mapM SP.parseAbsFile
 
-    getFilesForCheckingContent :: FilePath -> IO [FilePath]
-    getFilesForCheckingContent dirToFilterAbsFp =
+    getFilesForCheckingContent :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotDirFile)]
+    getFilesForCheckingContent snapshotDir =
       let shouldCheckFileContents fp =
             takeFileName fp
               `notElem` [ ".DS_Store",
+                          "node_modules",
                           "dev.db",
                           "dev.db-journal",
                           ".gitignore",
                           ".waspinfo",
                           "package-lock.json",
-                          "node_modules",
                           "tsconfig.tsbuildinfo",
                           "dist"
                         ]
-       in getDirFiltered (return <$> shouldCheckFileContents) dirToFilterAbsFp >>= filterM doesFileExist
+       in getDirFiltered (return <$> shouldCheckFileContents) (SP.fromAbsDir snapshotDir) >>= filterM doesFileExist >>= mapM SP.parseAbsFile
 
     -- Writes a deterministic manifest of files that should exist in the snapshot.
     -- File paths are normalized to relative paths and sorted.
-    writeSnapshotFileListManifest :: String -> [FilePath] -> FilePath -> IO ()
-    writeSnapshotFileListManifest baseAbsFp filesForCheckingExistenceAbsFps expectedFilesListAbsFp = do
-      let sortedRelativeFps = unlines . sort . map (makeRelative baseAbsFp) $ filesForCheckingExistenceAbsFps
-      writeFile expectedFilesListAbsFp sortedRelativeFps
+    writeSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> [Path' Abs (File SnapshotDirFile)] -> IO ()
+    writeSnapshotFileListManifest snapshotDir snapshotFileListManifestFile filesForCheckingExistenceAbsFps =
+      writeFile (SP.fromAbsFile snapshotFileListManifestFile) sortedSnapshotFilePathsRelativeToSnapshotDir
+      where
+        sortedSnapshotFilePathsRelativeToSnapshotDir = unlines . sort . map (makeRelative $ SP.fromAbsDir snapshotDir) $ filesForCheckingExistenceAbsFps <&> SP.fromAbsFile
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
-    reformatPackageJsonFiles :: [FilePath] -> IO ()
+    reformatPackageJsonFiles :: [Path' Abs (File SnapshotDirFile)] -> IO ()
     reformatPackageJsonFiles = mapM_ reformatJson . filter isPackageJson
       where
-        isPackageJson :: FilePath -> Bool
-        isPackageJson = equalFilePath "package.json" . takeFileName
+        isPackageJson :: Path' Abs (File SnapshotDirFile) -> Bool
+        isPackageJson = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
 
-        reformatJson :: FilePath -> IO ()
-        reformatJson jsonFp =
-          BS.readFile jsonFp >>= BSL.writeFile jsonFp . formatJson . unsafeDecodeJson
+        reformatJson :: Path' Abs (File SnapshotDirFile) -> IO ()
+        reformatJson snapshotDirJsonFile =
+          BS.readFile (SP.fromAbsFile snapshotDirJsonFile) >>= BSL.writeFile (SP.fromAbsFile snapshotDirJsonFile) . formatJson . unsafeDecodeJson
 
         unsafeDecodeJson :: BS.ByteString -> Aeson.Value
         unsafeDecodeJson = fromJust . Aeson.decodeStrict
@@ -148,11 +154,11 @@ runSnapshotTest snapshotTest = do
                 AesonPretty.confTrailingNewline = True
               }
 
-    defineSnapshotTest :: FilePath -> FilePath -> TestTree
-    defineSnapshotTest currentFileAbsFp goldenFileAbsFp =
+    defineSnapshotTest :: Path' Abs (File SnapshotDirFile) -> Path' Abs (File SnapshotDirFile) -> TestTree
+    defineSnapshotTest currentSnapshotDirFile goldenSnapshotDirFile =
       goldenVsFileDiff
-        currentFileAbsFp -- The test name.
+        (SP.fromAbsFile currentSnapshotDirFile) -- The test name.
         (\ref new -> ["diff", "-u", ref, new])
-        goldenFileAbsFp
-        currentFileAbsFp
+        (SP.fromAbsFile goldenSnapshotDirFile)
+        (SP.fromAbsFile currentSnapshotDirFile)
         (return ()) -- IO action to generate the current file. No-op since files are pre-generated in bulk.

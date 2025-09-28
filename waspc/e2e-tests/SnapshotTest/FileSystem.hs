@@ -4,6 +4,7 @@ module SnapshotTest.FileSystem
     SnapshotDir,
     SnapshotWaspAppDir,
     SnapshotFileListManifestFile,
+    SnapshotDirFile,
     snapshotsDirInE2eTests,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
@@ -30,13 +31,16 @@ data SnapshotsDir
 -- e.g. @testName-golden@, @kitchen-sink-current@
 data SnapshotDir
 
+-- | Represent any file inside of a 'SnapshotDir'.
+data SnapshotDirFile
+
 -- | The Wasp app directory inside of a 'SnapshotDir'.
 -- We hardcode its name to @wasp-app@ so that the snapshots directory is more readable.
 type SnapshotWaspAppDir = WaspAppDir
 
 -- | The file inside of a 'SnapshotDir'.
 -- Lists all files that should exist in the 'SnapshotDir' directory.
-data SnapshotFileListManifestFile
+type SnapshotFileListManifestFile = SnapshotDirFile
 
 snapshotsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir SnapshotsDir)
 snapshotsDirInE2eTests = [reldir|snapshots|]
