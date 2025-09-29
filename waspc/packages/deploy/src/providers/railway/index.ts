@@ -112,8 +112,8 @@ function makeRailwaySetupCommand(): Command {
       "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
     )
     .option(
-      "--db-image [dbImage]",
-      "custom Docker image for the Postgres database (e.g., postgis/postgis for PostGIS extensions)",
+      "--db-image <dbImage>",
+      "custom Docker image for the PostgreSQL database",
     )
     .action(setupFn);
 }
@@ -145,8 +145,8 @@ function makeRailwayLaunchCommand(): Command {
       "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
     )
     .option(
-      "--db-image [dbImage]",
-      "custom Docker image for the Postgres database (e.g., postgis/postgis for PostGIS extensions)",
+      "--db-image <dbImage>",
+      "custom Docker image for the PostgreSQL database",
     )
     .action(launchFn);
 }
