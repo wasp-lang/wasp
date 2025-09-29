@@ -1,89 +1,99 @@
-# TodoApp
+# Kitchen Sink Application
 
-The main purpose of this app is for contributors to easily test the version of the `wasp` CLI that they are working on right now and therefore aid them during development.
+The **`kitchen-sink`** app serves two main purposes:
 
-That is why it is a bit crowded with features and somewhat incoherent: it is not an app to be used as a showcase, but an app that we use as a "workbench" / "playground" while working on `wasp`.
+1. The **primary** purpose of `kitchen-sink` app is for contributors to easily test the development version of the Wasp CLI.
+2. The **secondary** purpose is to demonstrates as many Wasp features as possible.
+   Not all features can be included at once (e.g. `email` vs `usernameAndPassword` auth are mutually exclusive), but the goal is to cover as many as we can.
 
-This app should always be "up to date", in the sense that we keep updating it to always work with the latest changes to `wasp`. This means you can count on it being up to date, but also that you should make sure to keep it up to date as you do changes. You should also be adding new features to it if you implement them, so they can easily be tested / tried out.
+The `kitchen-sink` app is also the main playground for Wasp’s e2e application tests.  
+Any new or modified features should be added and tested here whenever possible.
 
-## Set up
+## Setup
 
-### Env vars
+### Environment Variables
 
-To do the minimum to get the app running, do:
+To run the app with minimal setup:
 
 ```sh
 cp .env.server.example .env.server
 ```
 
-This will create a `.env.server` file with some basic env vars set to dummy values. This will allow your app to run and work, but not all features will work, e.g. Google Auth won't work because it needs you to provide real API keys via env vars.
+This creates a `.env.server` file with basic env variables set to dummy values.
+The app will run, but not all features will work unless you provide the real API keys.
 
-To obtain all the API keys to get all the features of the app working, if you do need that, you will have to obtain them on your own, normally from the corresponding third-party services. Check Wasp docs for instructions on how to do this for Google Auth, GitHub Auth, and so on.
+Check the [Wasp docs](https://wasp.sh/docs) for instructions on configuring supported providers such as Google Auth or GitHub Auth.
 
-#### Obtaining API keys as a Wasp Team member
+#### For Wasp team members
 
-If you are a member of the Wasp Team, you don't have to obtain all the API keys on your own.
+You can use the shared `.env.server` with real API keys:
 
-Instead, you can run `npm run env:pull`: this will obtain `.env.server` file that we share on the team level.  
-We are using https://vault.dotenv.org to power this and have an account/organization up there.  
-If you modify `.env.server` and want to persist the changes (for yourself and for the other team members), do `npm run env:push`.
+```sh
+npm run env:pull
+```
+
+To persist the local changes back to the shared config:
+
+```sh
+npm run env:push
+```
 
 ## Running
 
-Start the database in a separate terminal session:
+The `kitchen-sink` app runs like any other Wasp application.
 
-```
-cabal run wasp-cli start db
-```
+1. Start the database:
 
-Migrate the database if needed:
-
-```
-cabal run wasp-cli db migrate-dev
+```sh
+wasp start db
 ```
 
-Run the app!
+2. Start the app (in a separate terminal):
 
-```
-cabal run wasp-cli start
+```sh
+wasp start
 ```
 
-Open `localhost:3000` in the browser to see the app!  
-NOTE: Normally wasp apps open automatically in browser, to help new users find their way, but that can become annoying after some time so here we turned that off.
+3. Migrate the database (if needed):
+
+```sh
+wasp db migrate-dev
+```
+
+4. Open `localhost:3000` in the browser to see the app!
+
+### Development Wasp CLI
+
+To run the application with the development version of Wasp CLI, please use the `./run wasp-cli` script located in the `waspc/` directory.
+
+For example:
+
+```sh
+# From inside the kitchen-sink directory:
+../../waspc/run wasp-cli start db
+
+# Or use an alias with the absolute path to the script:
+wrun wasp-cli start db
+
+# Or if you installed the development `waspc` binary globally:
+wasp-cli start db
+```
 
 ## Testing
 
-### Compiling and building
+### End-to-End Tests
 
-Run `./ensure_app_compiles_and_builds.sh` to verify the app correctly compiles (TS) and builds (both client and server).
+We use `playwright` for e2e tests.
+To run the tests:
 
-This is also run in CI.
+1. Sintall `playwright`'s browser dependencies:
 
-### E2E Tests
-
-#### How to run
-
-Running e2e tests:
-
-```
-$ cd e2e-tests
-$ npm install
-$ npx playwright install --with-deps
-$ DEBUG=pw:webserver npx playwright test
+```sh
+npx playwright install --with-deps
 ```
 
-For debugging it's useful to pass the `ui` flag:
+2. Run the tests:
 
-```
-$ DEBUG=pw:webserver npx playwright test --ui
-```
-
-If something breaks, maybe the example app won't run. Try running it and see if there are any errors:
-
-```
+```sh
 npm run test
 ```
-
-#### How to run in CI
-
-We set up a GitHub Action to run the tests in CI. See `.github/workflows/waspc-ci.yaml` for details.
