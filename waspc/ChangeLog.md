@@ -6,6 +6,10 @@
 
 - You can now specify which PostgreSQL image to use in `wasp start db` with the `--db-image` argument. ([#3182](https://github.com/wasp-lang/wasp/pull/3182))
 
+### 🔧 Small improvements
+
+- Creating a new OpenSaaS project is now much faster (around 20x faster in our testing!). ([#3196](https://github.com/wasp-lang/wasp/pull/3196))
+
 ### 📖 Documentation
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
