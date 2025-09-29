@@ -200,27 +200,38 @@ Don't forget to set up the CORS middleware. See the [section explaning CORS](#ma
 </small>
 
 ```ts title="src/streaming.ts" auto-js
+import OpenAI from "openai";
 import type { StreamingText } from "wasp/server/api";
 
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export const getStreamingText: StreamingText<
-  {},
+  never,
   string,
   { message: string }
 > = async (req, res) => {
   const { message } = req.body;
 
-  // Set appropriate headers for streaming
+  // Set appropriate headers for streaming.
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Transfer-Encoding", "chunked");
 
-  // Stream the message 5 times with delays
-  for (let i = 1; i <= 5; i++) {
-    res.write(`${i}. ${message}\n`);
-    // Simulate processing time
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  const stream = await client.responses.create({
+    model: "gpt-5",
+    input: `Funny response to "${message}"`,
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    if (chunk.type === "response.output_text.delta") {
+      // Write each chunk to the response as it arrives.
+      res.write(chunk.delta);
+    }
   }
 
-  // End the response
+  // End the response.
   res.end();
 };
 ```
@@ -238,7 +249,7 @@ import { getSessionId } from "wasp/client/api";
 
 export function StreamingPage() {
   const { response } = useTextStream("/api/streaming-example", {
-    message: "Hello from streaming!",
+    message: "Best Office episode?",
   });
 
   return (
@@ -334,7 +345,7 @@ import { api } from "wasp/client/api";
 
 export function StreamingPage() {
   const { response } = useAxiosTextStream("/api/streaming-example", {
-    message: "Hello from Axios!",
+    message: "Best Office episode?",
   });
 
   return (
