@@ -25,6 +25,16 @@ If you did a **bug fix**, make sure you satisfy the following:
 If you're unable to add a regression test, please explain why.
 This likely indicates that our current testing setup needs improvement.
 
+### Test Coverage
+
+Please ensure your changes are adequately tested:
+
+1. [ ] **My changes are covered by tests** (unit, integration, or e2e tests as appropriate).
+
+If you're unable to add tests or if coverage is partial, please explain why below:
+
+<!-- Provide explanation here if tests are missing or incomplete -->
+
 ### Update example apps if needed
 
 If you did code changes and **added a new feature**, make sure you satisfy the following:

@@ -62,7 +62,7 @@ The `send` method returns an object with the status of the sent email. It varies
 
 We'll go over all of the available providers in the next section. For some of them, you'll need to set up some env variables. You can do that in the `.env.server` file.
 
-### Using the Dummy Provider
+### Using the Dummy Provider {#dummy}
 
 <DummyProviderNote />
 
@@ -79,7 +79,7 @@ app Example {
 }
 ```
 
-### Using the SMTP Provider
+### Using the SMTP Provider {#smtp}
 
 First, set the provider to `SMTP` in your `main.wasp` file.
 
@@ -103,7 +103,12 @@ SMTP_PORT=
 
 Many transactional email providers (e.g. Mailgun, SendGrid but also others) can also use SMTP, so you can use them as well.
 
-### Using the Mailgun Provider
+:::caution SMTP ports might be blocked
+Some hosting providers (for example, **Railway** on its free tier, or **Hetzner**) block outbound SMTP ports to prevent spam.
+If you run into issues, check their documentation for a solution, or consider using a dedicated provider integration like [Mailgun](#mailgun) or [SendGrid](#sendgrid) instead of plain SMTP.
+:::
+
+### Using the Mailgun Provider {#mailgun}
 
 Set the provider to `Mailgun` in the `main.wasp` file.
 
@@ -139,7 +144,7 @@ If your domain region is in the EU, you need to set the `MAILGUN_API_URL` variab
 MAILGUN_API_URL=https://api.eu.mailgun.net
 ```
 
-### Using the SendGrid Provider
+### Using the SendGrid Provider {#sendgrid}
 
 Set the provider field to `SendGrid` in your `main.wasp` file.
 

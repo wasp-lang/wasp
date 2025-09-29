@@ -52,7 +52,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("new" : newArgs) -> Command.Call.New newArgs
         ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
         ["start"] -> Command.Call.Start
-        ["start", "db"] -> Command.Call.StartDb
+        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ["clean"] -> Command.Call.Clean
         ["ts-setup"] -> Command.Call.TsSetup
         ["compile"] -> Command.Call.Compile
@@ -104,7 +104,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectConfigJson
       _unknownCommand -> printWaspNewAiUsage >> exitFailure
     Command.Call.Start -> runCommand start
-    Command.Call.StartDb -> runCommand Command.Start.Db.start
+    Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.TsSetup -> runCommand tsConfigSetup
     Command.Call.Compile -> runCommand compile
@@ -176,7 +176,9 @@ printUsage =
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
-        cmd   "    start db              Starts managed development database for you.",
+        cmd   "    start db [--db-image <image>]",
+              "                          Starts managed development database for you.",
+              "                          Optionally specify a custom Docker image.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
@@ -220,7 +222,7 @@ printVersion = do
 dbCli :: [String] -> IO ()
 dbCli args = case args of
   -- These commands don't require an existing and running database.
-  ["start"] -> runCommand Command.Start.Db.start
+  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
   ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
   "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
@@ -238,21 +240,25 @@ printDbUsage =
               "  wasp db <command> [command-args]",
               "",
         title "COMMANDS",
-        cmd   "  start         Alias for `wasp start db`.",
-        cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
-        cmd   "  seed [name]   Executes a db seed function (specified via app.db.seeds).",
-              "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
-              "                or if not then you will be asked to provide the name interactively.",
         cmd $ intercalate "\n" [
-              "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):",
-              "                  - Generates a new migration if there are changes in the schema.",
-              "                  - Applies any pending migrations to the database either using the",
-              "                    supplied migration name or asking for one.",
+              "  start [--db-image <image>]   Alias for `wasp start db`.",
+              "                               Starts managed development database for you.",
+              "                               Optionally specify a custom Docker image."
+        ],
+        cmd   "  reset                        Drops all data and tables from development database and re-applies all migrations.",
+        cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
+              "                               If there are multiple seeds, you can specify a seed to execute by providing its name,",
+              "                               or if not then you will be asked to provide the name interactively.",
+        cmd $ intercalate "\n" [
+              "  migrate-dev                  Ensures dev database corresponds to the current state of schema(entities):",
+              "                                 - Generates a new migration if there are changes in the schema.",
+              "                                 - Applies any pending migrations to the database either using the",
+              "                                   supplied migration name or asking for one.",
               "    OPTIONS:",
               "      --name [migration-name]",
               "      --create-only"
         ],
-        cmd   "  studio        GUI for inspecting your database.",
+        cmd   "  studio                       GUI for inspecting your database.",
               "",
         title "EXAMPLES",
               "  wasp db migrate-dev",

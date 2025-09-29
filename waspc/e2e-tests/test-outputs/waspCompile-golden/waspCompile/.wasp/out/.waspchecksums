@@ -214,7 +214,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "fa30602bdbd147a711a992de50b78b4cd7386c5213b13b1d0db72397bb294d3b"
+        "bd8923042f1086628639f37c8ec31869073db970803878fb9f67d2da4e17cfb6"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "web-app/package.json"
         ],
-        "0818cb3b58cb86b64d1dfe047eca3feccbac2e20932a84a9734cbbb792d6c7a0"
+        "32690cb56d6846781eb6892400e7b69b08c1239fd899f954ab05677702ae9dca"
     ],
     [
         [
@@ -704,7 +704,7 @@
             "file",
             "web-app/tsconfig.app.json"
         ],
-        "3569d142426c6c6aa5992f71dab7f4f1099483fbe2a552ea4c1beeed3df3c317"
+        "1c4711b7c2c3a02a3575190ba02bd3f16323bf53c4cde15b3951e144ae520c79"
     ],
     [
         [
