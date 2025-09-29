@@ -13,6 +13,7 @@ import qualified StrongPath as SP
 import StrongPath.Path (toPathAbsDir)
 import System.FilePath (takeFileName)
 import Wasp.Cli.FileSystem (withTempDir)
+import Wasp.Util.IO (removeFile)
 
 fetchArchiveAndCopySubdirToDisk ::
   String ->
@@ -29,6 +30,7 @@ fetchArchiveAndCopySubdirToDisk archiveDownloadUrl targetFolder destinationOnDis
 
         downloadFile archiveDownloadUrl archiveDownloadPath
         unpackArchive archiveDownloadPath archiveUnpackPath
+        removeFile archiveDownloadPath
         copyDirRecur (toPathAbsDir targetFolderInArchivePath) (toPathAbsDir destinationOnDisk)
     )
     <&> either showException Right

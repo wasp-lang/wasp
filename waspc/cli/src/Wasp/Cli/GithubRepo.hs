@@ -26,6 +26,27 @@ type GithubRepoName = String
 
 type GithubRepoReferenceName = String
 
+type GithubReleaseAssetName = String
+
+fetchFolderFromGithubReleaseAssetToDisk ::
+  GithubRepoRef ->
+  GithubReleaseAssetName ->
+  Path' (Rel archiveRoot) (Dir folderInArchive) ->
+  Path' Abs (Dir destinationDir) ->
+  IO (Either String ())
+fetchFolderFromGithubReleaseAssetToDisk githubRepoRef assetName folderInArchiveRoot destinationOnDisk = do
+  let downloadUrl = getGithubReleaseAssetDownloadURL githubRepoRef
+
+  fetchArchiveAndCopySubdirToDisk downloadUrl folderInArchiveRoot destinationOnDisk
+  where
+    getGithubReleaseAssetDownloadURL :: GithubRepoRef -> String
+    getGithubReleaseAssetDownloadURL
+      GithubRepoRef
+        { _repoName = repoName,
+          _repoOwner = repoOwner,
+          _repoReferenceName = repoReferenceName
+        } = intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoReferenceName, assetName]
+
 fetchFolderFromGithubRepoToDisk ::
   GithubRepoRef ->
   Path' (Rel repoRoot) (Dir folderInRepo) ->
