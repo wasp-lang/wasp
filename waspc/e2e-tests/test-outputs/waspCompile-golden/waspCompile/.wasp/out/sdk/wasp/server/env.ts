@@ -57,10 +57,14 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverProdSchema.merge(serverCommonSchema)
 ])
 
+const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
+const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
 // PUBLIC API
-const { NODE_ENV = serverDevSchema.shape.NODE_ENV.value, ...restEnv } = process.env;
 export const env = ensureEnvSchema(
-  { NODE_ENV, ...restEnv },
+  {
+    NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
+    ...restEnv,
+  },
   serverEnvSchema,
 )
 
