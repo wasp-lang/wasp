@@ -1,5 +1,6 @@
 import { confirm } from "@inquirer/prompts";
 import { $ } from "zx";
+
 import type { AppDirPath } from "./tutorialApp";
 
 export async function askToOpenTutorialAppInEditor(

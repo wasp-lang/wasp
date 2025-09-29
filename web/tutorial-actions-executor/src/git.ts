@@ -31,10 +31,10 @@ export async function findCommitSHAForExactMessage(
   return commit.sha;
 }
 
-type GitCommit = {
+interface GitCommit {
   message: string;
   sha: string;
-};
+}
 
 async function grepGitCommitsByMessage(
   gitRepoDirPath: string,

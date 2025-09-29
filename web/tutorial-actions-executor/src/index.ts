@@ -1,4 +1,5 @@
 import { program } from "@commander-js/extra-typings";
+
 import { editActionCommand } from "./commands/edit-action";
 import { generateAppCommand } from "./commands/generate-app";
 import { listActionsCommand } from "./commands/list-actions";

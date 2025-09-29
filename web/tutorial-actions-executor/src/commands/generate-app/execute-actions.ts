@@ -7,6 +7,7 @@ import {
   regeneratePatchForAction,
 } from "../../actions/git";
 import { initWaspAppWithGitRepo } from "../../actions/init";
+import { assertUnreachable } from "../../assert";
 import { mainBranchName } from "../../git";
 import { log } from "../../log";
 import type { TutorialApp } from "../../tutorialApp";
@@ -61,7 +62,7 @@ export async function executeActions({
         });
         break;
       default:
-        action satisfies never;
+        assertUnreachable(action, `Unknown action '${action}'`);
     }
     await commitActionChanges({ appDir: tutorialApp.dirPath, action });
   }

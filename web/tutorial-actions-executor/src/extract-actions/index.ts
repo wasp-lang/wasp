@@ -9,8 +9,8 @@ import { visit } from "unist-util-visit";
 
 import type {
   Action,
-  ActionCommon,
   ActionId,
+  BaseAction,
   MarkdownFilePath,
 } from "../actions/actions.js";
 import {
@@ -18,6 +18,7 @@ import {
   createInitAppAction,
   createMigrateDbAction,
 } from "../actions/index.js";
+import { assertUnreachable } from "../assert.js";
 import type { TutorialApp, TutorialDirPath } from "../tutorialApp.js";
 
 export async function getActionsFromTutorialFiles(
@@ -92,7 +93,7 @@ async function getActionsFromMarkdownFile(
       );
     }
 
-    const commonData: ActionCommon = {
+    const commonData: BaseAction = {
       id: actionId,
       tutorialFilePath,
     };
@@ -117,8 +118,8 @@ async function getActionsFromMarkdownFile(
         actions.push(createMigrateDbAction(commonData));
         break;
       default:
-        actionName satisfies never;
-        throw new Error(
+        assertUnreachable(
+          actionName,
           `Unknown action '${actionName}' in TutorialAction component. File: ${tutorialFilePath}`,
         );
     }

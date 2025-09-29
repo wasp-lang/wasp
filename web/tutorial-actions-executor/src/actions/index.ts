@@ -1,16 +1,17 @@
 import path, { basename } from "path";
+
 import { getFileNameWithoutExtension } from "../files";
 import type { PatchesDirPath } from "../tutorialApp";
 import type {
-  ActionCommon,
   ApplyPatchAction,
+  BaseAction,
   InitAppAction,
   MigrateDbAction,
   PatchFilePath,
 } from "./actions";
 
 export function createInitAppAction(
-  commonData: ActionCommon,
+  commonData: BaseAction,
   waspStarterTemplateName: string,
 ): InitAppAction {
   return {
@@ -20,9 +21,7 @@ export function createInitAppAction(
   };
 }
 
-export function createMigrateDbAction(
-  commonData: ActionCommon,
-): MigrateDbAction {
+export function createMigrateDbAction(commonData: BaseAction): MigrateDbAction {
   return {
     ...commonData,
     kind: "MIGRATE_DB",
@@ -30,7 +29,7 @@ export function createMigrateDbAction(
 }
 
 export function createApplyPatchAction(
-  commonData: ActionCommon,
+  commonData: BaseAction,
   docsTutorialPatchesPath: PatchesDirPath,
 ): ApplyPatchAction {
   return {
@@ -42,7 +41,7 @@ export function createApplyPatchAction(
 }
 
 function getPatchFilePath(
-  action: ActionCommon,
+  action: BaseAction,
   docsTutorialPatchesPath: PatchesDirPath,
 ): PatchFilePath {
   const sourceFileName = getFileNameWithoutExtension(action.tutorialFilePath);

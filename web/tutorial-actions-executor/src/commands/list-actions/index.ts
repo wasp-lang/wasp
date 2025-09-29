@@ -1,5 +1,6 @@
-import { Command } from "@commander-js/extra-typings";
 import { basename } from "path";
+
+import { Command } from "@commander-js/extra-typings";
 import { chalk } from "zx";
 
 import type { Action } from "../../actions/actions";
