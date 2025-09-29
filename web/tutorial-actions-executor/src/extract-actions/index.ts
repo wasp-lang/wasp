@@ -56,11 +56,11 @@ async function getTutorialFilePaths(
 }
 
 async function getActionsFromMdxFile(
-  tutorialFilePath: MdxFilePath,
+  sourceTutorialFilePath: MdxFilePath,
   tutorialApp: TutorialApp,
 ): Promise<Action[]> {
   const actions: Action[] = [];
-  const fileContent = await fs.readFile(path.resolve(tutorialFilePath));
+  const fileContent = await fs.readFile(path.resolve(sourceTutorialFilePath));
 
   const ast = fromMarkdown(fileContent, {
     extensions: [mdxJsx({ acorn, addResult: true })],
@@ -83,25 +83,25 @@ async function getActionsFromMdxFile(
 
     if (!actionId) {
       throw new Error(
-        `TutorialAction component requires the 'id' attribute. File: ${tutorialFilePath}`,
+        `TutorialAction component requires the 'id' attribute. File: ${sourceTutorialFilePath}`,
       );
     }
 
     if (!actionName) {
       throw new Error(
-        `TutorialAction component requires the 'action' attribute. File: ${tutorialFilePath}`,
+        `TutorialAction component requires the 'action' attribute. File: ${sourceTutorialFilePath}`,
       );
     }
 
     const commonData: BaseAction = {
       id: actionId,
-      tutorialFilePath,
+      sourceTutorialFilePath,
     };
     switch (actionName) {
       case "INIT_APP":
         if (waspStarterTemplateName === null) {
           throw new Error(
-            `TutorialAction with action 'INIT_APP' requires the 'starterTemplateName' attribute. File: ${tutorialFilePath}`,
+            `TutorialAction with action 'INIT_APP' requires the 'starterTemplateName' attribute. File: ${sourceTutorialFilePath}`,
           );
         }
         actions.push(createInitAppAction(commonData, waspStarterTemplateName));
@@ -120,7 +120,7 @@ async function getActionsFromMdxFile(
       default:
         assertUnreachable(
           actionName,
-          `Unknown action '${actionName}' in TutorialAction component. File: ${tutorialFilePath}`,
+          `Unknown action '${actionName}' in TutorialAction component. File: ${sourceTutorialFilePath}`,
         );
     }
   });

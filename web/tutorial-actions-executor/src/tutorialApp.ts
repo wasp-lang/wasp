@@ -9,9 +9,7 @@ export type TutorialDirPath = Branded<string, "TutorialDirPath">;
 export type PatchesDirPath = Branded<string, "PatchesDirPath">;
 
 const tutorialAppName = "TodoApp" as AppName;
-const tutorialAppParentDirPath = path.resolve(
-  "./.generated-apps",
-) as AppParentDirPath;
+const tutorialAppParentDirPath = path.resolve("./.result") as AppParentDirPath;
 const tutorialAppDirPath = path.resolve(
   tutorialAppParentDirPath,
   tutorialAppName,

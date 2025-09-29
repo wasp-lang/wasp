@@ -32,13 +32,12 @@ This command:
 - Creates a Git commit for each action
 - Results in a fully functional application
 
-Notes:
-
-- Stops on the first error to keep the repository in a consistent state.
+If one of the patches fails to apply, the CLI will ask you to recreate the patch manually
+and try to continue.
 
 ### 2. Edit Action (`npm run edit-action`)
 
-Allows you to modify a specific tutorial action and automatically update all subsequent actions.
+Allows you to modify a specific patch action and automatically update all subsequent patch actions.
 
 ```bash
 # Non-interactive (direct by ID):
@@ -56,11 +55,11 @@ npm run edit-action -- --wasp-cli-command wasp
 
 This command:
 
-- Generates the app (unless `--skip-generating-app`)
-- Creates a branch from the action's commit
-- Captures your edits as a new patch
-- Rebases the fixes onto the main branch (prompts to resolve conflicts if needed)
-- Regenerates patch files to reflect the updated history
+- Applies all actions before the target action
+- Moves all the changes from the target action to the staging area
+- Allows you to edit the code in your editor
+- Updates the patch based on your changes
+- Reapplies all subsequent actions, allowing you to resolve any conflicts
 
 ### 3. List Actions (`npm run list-actions`)
 
@@ -75,16 +74,8 @@ You will see actions grouped by tutorial filename, including the action `id` and
 ### Patch File Management
 
 - Patch files are stored in the `./docs/tutorial/patches/` directory
-- Files are named based on the source file and the action id
-- Each file contains the Git diff for that specific action
-- When an action is edited, all patch files are automatically regenerated from the current commit history
-
-### Database Migration Handling
-
-For actions that involve database changes:
-
-- Uses `wasp db migrate-dev --name <id>` instead of applying a patch
-- Migration files are committed with the action ID as the commit message
+- Files are named using the source file and the action id
+- Each patch file contains a Git diff for that specific action
 
 ### Tutorial File Format
 

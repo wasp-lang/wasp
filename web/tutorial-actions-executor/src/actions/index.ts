@@ -36,16 +36,19 @@ export function createApplyPatchAction(
 ): ApplyPatchAction {
   const patchFilename = getPatchFilename(
     commonData.id,
-    commonData.tutorialFilePath,
+    commonData.sourceTutorialFilePath,
   );
   return {
     ...commonData,
     kind: "APPLY_PATCH",
-    displayName: `${basename(commonData.tutorialFilePath)} / ${commonData.id}`,
+    displayName: `${basename(commonData.sourceTutorialFilePath)} / ${commonData.id}`,
     patchFilePath: path.resolve(patchesDirPath, patchFilename) as PatchFilePath,
   };
 }
 
-function getPatchFilename(id: ActionId, tutorialFilePath: MdxFilePath): string {
-  return `${getFileNameWithoutExtension(tutorialFilePath)}__${id}.patch`;
+function getPatchFilename(
+  id: ActionId,
+  sourceTutorialFilePath: MdxFilePath,
+): string {
+  return `${getFileNameWithoutExtension(sourceTutorialFilePath)}__${id}.patch`;
 }

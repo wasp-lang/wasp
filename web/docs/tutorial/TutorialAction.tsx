@@ -1,8 +1,8 @@
 /*
-`TutorialAction` component is related to the Tutorial Actions Executor which you can find in the `web/tutorial-actions-executor` folder.
-It has two main purposes:
-1. It provides metadata on how to execute tutorial actions programmatically.
-2. It renders tutorial action names during development for easier debugging.
+`TutorialAction` component is related to the Tutorial Actions Executor (TACTE) which you can find in the `web/tutorial-actions-executor` folder.
+
+Its main purpose is to provide metadata on how to execute tutorial actions programmatically (using TACTE)
+Additionally, it renders tutorial action names during development for easier debugging.
 
 `TutorialAction` component is used in the `web/docs/tutorial/*.md` files to annotate specific tutorial actions.
 */
@@ -23,12 +23,12 @@ type ActionProps =
 export function TutorialAction({ id, action }: { id: string } & ActionProps) {
   return (
     process.env.NODE_ENV !== "production" && (
-      <TutorialActionDebug id={id} action={action} />
+      <TutorialActionDebugInfo id={id} action={action} />
     )
   );
 }
 
-function TutorialActionDebug({
+function TutorialActionDebugInfo({
   id,
   action,
 }: {
