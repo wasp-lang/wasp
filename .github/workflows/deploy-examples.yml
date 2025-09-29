@@ -37,6 +37,7 @@ jobs:
           - examples/waspello
           - examples/waspleau
           - examples/websockets-realtime-voting
+          - examples/kitchen-sink
 
     name: Deploy ${{ matrix.app-dir }}
 
