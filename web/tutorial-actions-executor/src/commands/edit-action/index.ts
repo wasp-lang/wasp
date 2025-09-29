@@ -151,5 +151,7 @@ async function askUserToSelectAction(
       value: action.id,
     })),
   });
-  return actions.find((a) => a.id === selectedActionId) as ApplyPatchAction;
+  return actions.find(
+    (a) => a.kind === "APPLY_PATCH" && a.id === selectedActionId,
+  )!;
 }

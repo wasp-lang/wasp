@@ -23,9 +23,7 @@ type ActionProps =
 export function TutorialAction({ id, action }: { id: string } & ActionProps) {
   return (
     process.env.NODE_ENV !== "production" && (
-      <div style={{ marginBottom: "1rem" }}>
-        <TutorialActionDebug id={id} action={action} />
-      </div>
+      <TutorialActionDebug id={id} action={action} />
     )
   );
 }
@@ -38,7 +36,7 @@ function TutorialActionDebug({
   action: ActionProps["action"];
 }) {
   return (
-    <div style={{ display: "flex", gap: "0.5rem" }}>
+    <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
       <div style={tutorialActionPillStyle}>tutorial action: {action}</div>
       <div style={actionPillStyle}>
         {id}

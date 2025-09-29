@@ -26,8 +26,8 @@ npm run generate-app -- --wasp-cli-command wasp
 This command:
 
 - Initializes a new Wasp application
-- Reads all tutorial markdown files (numbered like `01-setup.md`, `02-auth.md`, etc.)
-- Extracts `<TutorialAction>` components from the markdown
+- Reads all tutorial files (numbered like `01-setup.md`, `02-auth.md`, etc.)
+- Extracts `<TutorialAction>` components from the file
 - Applies each action's patches or database migrations in order
 - Creates a Git commit for each action
 - Results in a fully functional application
@@ -70,12 +70,12 @@ Displays all available tutorial actions organized by source file.
 npm run list-actions
 ```
 
-You will see actions grouped by tutorial markdown filename, including the action `id` and its `kind`.
+You will see actions grouped by tutorial filename, including the action `id` and its `kind`.
 
 ### Patch File Management
 
 - Patch files are stored in the `./docs/tutorial/patches/` directory
-- Files are named based on the source markdown file and the action id
+- Files are named based on the source file and the action id
 - Each file contains the Git diff for that specific action
 - When an action is edited, all patch files are automatically regenerated from the current commit history
 
@@ -88,7 +88,7 @@ For actions that involve database changes:
 
 ### Tutorial File Format
 
-Tutorial actions are defined in markdown files using JSX-like components:
+Tutorial actions are defined in MDX files using JSX components:
 
 ````markdown
 # Step 4: Create Task Entity

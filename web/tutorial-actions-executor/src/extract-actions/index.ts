@@ -11,7 +11,7 @@ import type {
   Action,
   ActionId,
   BaseAction,
-  MarkdownFilePath,
+  MdxFilePath,
 } from "../actions/actions.js";
 import {
   createApplyPatchAction,
@@ -30,7 +30,7 @@ export async function getActionsFromTutorialFiles(
   const actions: Action[] = [];
 
   for (const filePath of tutorialFilePaths) {
-    const fileActions = await getActionsFromMarkdownFile(filePath, tutorialApp);
+    const fileActions = await getActionsFromMdxFile(filePath, tutorialApp);
     actions.push(...fileActions);
   }
 
@@ -39,7 +39,7 @@ export async function getActionsFromTutorialFiles(
 
 async function getTutorialFilePaths(
   tutorialDir: TutorialDirPath,
-): Promise<MarkdownFilePath[]> {
+): Promise<MdxFilePath[]> {
   const files = await fs.readdir(tutorialDir);
   return (
     files
@@ -51,12 +51,12 @@ async function getTutorialFilePaths(
         const bNumber = parseInt(b.split("-")[0]!, 10);
         return aNumber - bNumber;
       })
-      .map((file) => path.resolve(tutorialDir, file) as MarkdownFilePath)
+      .map((file) => path.resolve(tutorialDir, file) as MdxFilePath)
   );
 }
 
-async function getActionsFromMarkdownFile(
-  tutorialFilePath: MarkdownFilePath,
+async function getActionsFromMdxFile(
+  tutorialFilePath: MdxFilePath,
   tutorialApp: TutorialApp,
 ): Promise<Action[]> {
   const actions: Action[] = [];

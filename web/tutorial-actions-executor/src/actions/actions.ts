@@ -20,9 +20,9 @@ export interface MigrateDbAction extends BaseAction {
 
 export interface BaseAction {
   id: ActionId;
-  tutorialFilePath: MarkdownFilePath;
+  tutorialFilePath: MdxFilePath;
 }
 
 export type ActionId = Branded<string, "ActionId">;
 export type PatchFilePath = Branded<string, "PatchFilePath">;
-export type MarkdownFilePath = Branded<string, "MarkdownFilePath">;
+export type MdxFilePath = Branded<string, "MdxFilePath">;
