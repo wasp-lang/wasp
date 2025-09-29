@@ -9,6 +9,7 @@
 ### 📖 Documentation
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
+- Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory ([#3085](github.com/wasp-lang/wasp/issues/3085))
 
 ## 0.18.0
 
