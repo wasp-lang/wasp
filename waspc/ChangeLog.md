@@ -11,6 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🎉 New Features
 
 - Wasp now uses npm workspaces to manage our generated code. This makes our dependency system more reliable, improves install performance and reduces the size of each project on disk. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+- You can now specify which PostgreSQL image to use in `wasp start db` with the `--db-image` argument. ([#3182](https://github.com/wasp-lang/wasp/pull/3182))
 
 ### 📖 Documentation
 

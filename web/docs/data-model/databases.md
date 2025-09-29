@@ -87,6 +87,32 @@ Also, make sure that:
 In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
 :::
 
+##### Customising the dev database {#custom-database}
+
+You can also specify a custom Docker image to use for the database with the `--db-image` option. This is particularly useful when you need PostgreSQL with specific extensions (like PostGIS for geographic data, pgvector for embeddings, etc.), or an older version. By default, Wasp uses the latest official [PostgreSQL Docker image](https://hub.docker.com/_/postgres).
+
+```bash
+# Use default PostgreSQL image:
+wasp start db
+# Same as:
+wasp start db --db-image postgres
+
+# Use PostgreSQL version 15:
+wasp start db --db-image postgres:15
+
+# Use PostgreSQL with PostGIS extension for geographic data:
+wasp start db --db-image postgis/postgis:14-3.2
+
+# Use PostgreSQL with pgvector extension for AI embeddings:
+wasp start db --db-image pgvector/pgvector:pg16
+```
+
+:::note
+
+The custom Docker image you specify must use the `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` environment variables when configuring the database. Wasp will use those values when connecting to the database. We recommend basing your image on the official [PostgreSQL Docker image](https://hub.docker.com/_/postgres), as it automatically uses these environment variables to set up the database name, user, and password.
+
+:::
+
 #### Connecting to an existing database
 
 If you want to spin up your own dev database (or connect to an external one), you can tell Wasp about it using the `DATABASE_URL` environment variable. Wasp will use the value of `DATABASE_URL` as a connection string.
