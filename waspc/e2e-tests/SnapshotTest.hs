@@ -10,7 +10,6 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Data.Functor ((<&>))
 import Data.List (sort)
 import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
@@ -25,6 +24,7 @@ import SnapshotTest.FileSystem
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
+    SnapshotsDir,
     asSnapshotFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
@@ -32,7 +32,7 @@ import SnapshotTest.FileSystem
     snapshotWaspAppDirInSnapshotDir,
   )
 import SnapshotTest.ShellCommands (SnapshotTestContext (..))
-import StrongPath (Abs, Dir, File, Path')
+import StrongPath (Abs, Dir, File, Path, Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -57,27 +57,33 @@ makeSnapshotTest snapshotTestName snapshotTestCommandBuilders =
 --  comparing the generated files to the previous "golden" (expected) version of those files.
 runSnapshotTest :: SnapshotTest -> IO TestTree
 runSnapshotTest snapshotTest = do
-  snapshotsAbsDir <- getSnapshotsDir
+  snapshotsDir <- getSnapshotsDir
+  let snapshotTestName = _snapshotTestName snapshotTest
 
-  let goldenSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir (_snapshotTestName snapshotTest) Golden
-  let currentSnapshotDir = snapshotsAbsDir SP.</> snapshotDirInSnapshotsDir (_snapshotTestName snapshotTest) Current
-  let currentSnapshotFileListManifestFile = currentSnapshotDir SP.</> snapshotFileListManifestFileInSnapshotDir
+  let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName Golden
+  let currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName Current
+  let currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
 
   setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-  executeSnapshotTestCommand snapshotTest currentSnapshotDir
-  createSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
+  executeSnapshotTestCommand (_snapshotTestCommandsBuilder snapshotTest) (createSnapshotTestContext currentSnapshotDir)
 
-  currentSnapshotFilesForContentComparison <- (asSnapshotFile currentSnapshotFileListManifestFile :) <$> getSnapshotFilesForContentComparison currentSnapshotDir
+  getSnapshotFilesForSnapshotFileListManifest currentSnapshotDir >>= createSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
+
+  currentSnapshotFilesForContentComparison <- getSnapshotFilesForContentComparison currentSnapshotDir
   formatPackageJsonFiles currentSnapshotFilesForContentComparison
-  let toGoldenSnapshotFile currentSnapshotFile = fromJust $ SP.parseAbsFile $ unpack $ replace (pack $ SP.fromAbsDir currentSnapshotDir) (pack $ SP.fromAbsDir goldenSnapshotDir) (pack $ SP.fromAbsFile currentSnapshotFile)
 
   return $
     testGroup
-      (_snapshotTestName snapshotTest)
-      [defineSnapshotTest currentSnapshotFile (toGoldenSnapshotFile currentSnapshotFile) | currentSnapshotFile <- currentSnapshotFilesForContentComparison]
+      snapshotTestName
+      [ defineSnapshotTest currentSnapshotFile (goldenSnapshotDir </> currentSnapshotFileFromCurrentSnapshotDir)
+        | currentSnapshotFile <- currentSnapshotFilesForContentComparison,
+          let currentSnapshotFileFromCurrentSnapshotDir = fromJust $ SP.parseRelFile $ makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile)
+      ]
 
--- | Sets up the snapshot test environment by ensuring that the current and golden snapshot directories exist.
--- It also removes any existing files in the current snapshot directory from a prior test run.
+-- | Sets up the snapshot test environment by:
+-- 1. Removing any existing files in the current snapshot directory from a prior test run.
+-- 2. Ensuring the current and golden snapshot directories exist.
+-- 3. Navigating into the current snapshot directory.
 setupSnapshotTestEnvironment :: Path' Abs (Dir SnapshotDir) -> Path' Abs (Dir SnapshotDir) -> IO ()
 setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
@@ -85,48 +91,50 @@ setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
   callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
-executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO ()
-executeSnapshotTestCommand snapshotTest currentSnapshotDir = do
+  callCommand $ "cd " ++ SP.fromAbsDir currentSnapshotDir
+
+executeSnapshotTestCommand ::
+  ShellCommandBuilder SnapshotTestContext [ShellCommand] ->
+  SnapshotTestContext ->
+  IO ()
+executeSnapshotTestCommand snapshotTestCommandBuilder snapshotTestContext = do
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommand $ cdIntoCurrentSnapshotDirCommand ~&& snapshotTestCommand
+  callCommand snapshotTestCommand
   where
     snapshotTestCommand :: ShellCommand
-    snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
+    snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTestCommandBuilder
 
-    snapshotTestContext :: SnapshotTestContext =
-      SnapshotTestContext
-        { _snapshotDir = currentSnapshotDir,
-          _snapshotWaspAppDirInSnapshotDir = snapshotWaspAppDirInSnapshotDir "wasp-app",
-          _snapshotWaspAppName = "wasp-app"
-        }
+createSnapshotTestContext :: Path' Abs (Dir SnapshotDir) -> SnapshotTestContext
+createSnapshotTestContext currentSnapshotDir =
+  SnapshotTestContext
+    { _snapshotDir = currentSnapshotDir,
+      _snapshotWaspAppDirInSnapshotDir = snapshotWaspAppDirInSnapshotDir "wasp-app",
+      _snapshotWaspAppName = "wasp-app"
+    }
 
-    cdIntoCurrentSnapshotDirCommand :: ShellCommand
-    cdIntoCurrentSnapshotDirCommand = "cd " ++ SP.fromAbsDir currentSnapshotDir
-
--- | Creates a deterministic manifest of files that should exist in the snapshot.
--- File paths are normalized to relative paths and sorted.
-createSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> IO ()
-createSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
+getSnapshotFilesForSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
+getSnapshotFilesForSnapshotFileListManifest snapshotDir =
   getDirFiltered (return . flip notElem ignoredFiles . takeFileName) (SP.fromAbsDir snapshotDir)
     >>= filterM doesFileExist
-    >>= writeFile (SP.fromAbsFile snapshotFileListManifestFile) . unlines . sort . map (makeRelative $ SP.fromAbsDir snapshotDir)
+    >>= mapM SP.parseAbsFile
   where
-    ignoredFiles :: [FilePath]
     ignoredFiles =
       [ ".DS_Store",
         "node_modules"
       ]
 
--- | TODO:
+-- | Creates a deterministic manifest of files that should exist in the snapshot.
+-- File paths are normalized to relative paths and sorted.
+createSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> [Path' Abs (File SnapshotFile)] -> IO ()
+createSnapshotFileListManifest snapshotDir snapshotFileListManifestFile = do
+  writeFile (SP.fromAbsFile snapshotFileListManifestFile) . unlines . sort . map (makeRelative (SP.fromAbsDir snapshotDir) . SP.fromAbsFile)
+
 getSnapshotFilesForContentComparison :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
 getSnapshotFilesForContentComparison snapshotDir = do
-  getFilesForContentComparison >>= mapM SP.parseAbsFile
+  getDirFiltered (return . flip notElem ignoredFiles . takeFileName) (SP.fromAbsDir snapshotDir)
+    >>= filterM doesFileExist
+    >>= mapM SP.parseAbsFile
   where
-    getFilesForContentComparison :: IO [FilePath]
-    getFilesForContentComparison =
-      getDirFiltered (return . flip notElem ignoredFiles . takeFileName) (SP.fromAbsDir snapshotDir) >>= filterM doesFileExist
-
-    ignoredFiles :: [FilePath]
     ignoredFiles =
       [ ".DS_Store",
         "node_modules",
