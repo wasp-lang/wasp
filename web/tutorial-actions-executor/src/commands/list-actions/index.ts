@@ -18,7 +18,9 @@ export const listActionsCommand = new Command("list-actions")
     displayGroupedActions(actionsGroupedByFile);
   });
 
-function groupActionsBySourceFile(actions: Action[]): ActionsGroupedByFile {
+export function groupActionsBySourceFile(
+  actions: Action[],
+): ActionsGroupedByFile {
   const groupedActions = new Map<SourceFileName, Action[]>();
 
   for (const action of actions) {

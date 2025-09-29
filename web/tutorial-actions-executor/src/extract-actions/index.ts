@@ -41,26 +41,43 @@ async function getTutorialFilePaths(
   tutorialDir: TutorialDirPath,
 ): Promise<MdxFilePath[]> {
   const files = await fs.readdir(tutorialDir);
-  return (
-    files
-      .filter((file) => file.endsWith(".md"))
-      // Tutorial files are named "01-something.md"
-      // and we want to sort them by the number prefix
-      .sort((a, b) => {
-        const aNumber = parseInt(a.split("-")[0]!, 10);
-        const bNumber = parseInt(b.split("-")[0]!, 10);
-        return aNumber - bNumber;
-      })
-      .map((file) => path.resolve(tutorialDir, file) as MdxFilePath)
+  return sortTutorialFileNames(filterTutorialFileNames(files)).map(
+    (file) => path.resolve(tutorialDir, file) as MdxFilePath,
   );
+}
+
+export function filterTutorialFileNames(filePaths: string[]): string[] {
+  return filePaths.filter((file) => file.endsWith(".md"));
+}
+
+// Tutorial files are named "01-something.md"
+// and we want to sort them by the number prefix
+export function sortTutorialFileNames(filePaths: string[]): string[] {
+  return filePaths.sort((a, b) => {
+    const aNumber = parseInt(a.split("-")[0]!, 10);
+    const bNumber = parseInt(b.split("-")[0]!, 10);
+    return aNumber - bNumber;
+  });
 }
 
 async function getActionsFromMdxFile(
   sourceTutorialFilePath: MdxFilePath,
   tutorialApp: TutorialApp,
 ): Promise<Action[]> {
-  const actions: Action[] = [];
   const fileContent = await fs.readFile(path.resolve(sourceTutorialFilePath));
+  return getActionsFromMdxContent(
+    sourceTutorialFilePath,
+    fileContent,
+    tutorialApp,
+  );
+}
+
+export async function getActionsFromMdxContent(
+  sourceTutorialFilePath: MdxFilePath,
+  fileContent: Buffer<ArrayBufferLike>,
+  tutorialApp: TutorialApp,
+): Promise<Action[]> {
+  const actions: Action[] = [];
 
   const ast = fromMarkdown(fileContent, {
     extensions: [mdxJsx({ acorn, addResult: true })],
@@ -128,7 +145,7 @@ async function getActionsFromMdxFile(
   return actions;
 }
 
-function getAttributeValue(
+export function getAttributeValue(
   node: MdxJsxFlowElement,
   attributeName: string,
 ): string | null {

@@ -6,7 +6,8 @@
   "scripts": {
     "edit-action": "tsx ./src/index.ts edit-action",
     "generate-app": "tsx ./src/index.ts generate-app",
-    "list-actions": "tsx ./src/index.ts list-actions"
+    "list-actions": "tsx ./src/index.ts list-actions",
+    "test": "vitest"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/mdast": "^4.0.4"
+    "@types/mdast": "^4.0.4",
+    "vitest": "^3.2.4"
   }
 }
