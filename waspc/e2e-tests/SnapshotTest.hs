@@ -12,7 +12,6 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (sort)
 import Data.Maybe (fromJust)
-import Data.Text (pack, replace, unpack)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -24,15 +23,13 @@ import SnapshotTest.FileSystem
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
-    SnapshotsDir,
-    asSnapshotFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
     snapshotWaspAppDirInSnapshotDir,
   )
 import SnapshotTest.ShellCommands (SnapshotTestContext (..))
-import StrongPath (Abs, Dir, File, Path, Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -67,9 +64,9 @@ runSnapshotTest snapshotTest = do
   setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
   executeSnapshotTestCommand (_snapshotTestCommandsBuilder snapshotTest) (createSnapshotTestContext currentSnapshotDir)
 
-  getSnapshotFilesForSnapshotFileListManifest currentSnapshotDir >>= createSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
+  getFilesForSnapshotFileListManifest currentSnapshotDir >>= createSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
 
-  currentSnapshotFilesForContentComparison <- getSnapshotFilesForContentComparison currentSnapshotDir
+  currentSnapshotFilesForContentComparison <- getFilesForSnapshotContentComparison currentSnapshotDir
   formatPackageJsonFiles currentSnapshotFilesForContentComparison
 
   return $
@@ -83,7 +80,6 @@ runSnapshotTest snapshotTest = do
 -- | Sets up the snapshot test environment by:
 -- 1. Removing any existing files in the current snapshot directory from a prior test run.
 -- 2. Ensuring the current and golden snapshot directories exist.
--- 3. Navigating into the current snapshot directory.
 setupSnapshotTestEnvironment :: Path' Abs (Dir SnapshotDir) -> Path' Abs (Dir SnapshotDir) -> IO ()
 setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
@@ -91,18 +87,19 @@ setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
   callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
-  callCommand $ "cd " ++ SP.fromAbsDir currentSnapshotDir
-
 executeSnapshotTestCommand ::
   ShellCommandBuilder SnapshotTestContext [ShellCommand] ->
   SnapshotTestContext ->
   IO ()
 executeSnapshotTestCommand snapshotTestCommandBuilder snapshotTestContext = do
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommand snapshotTestCommand
+  callCommand $ cdIntoCurrentSnapshotDirCommand ~&& snapshotTestCommand
   where
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTestCommandBuilder
+
+    cdIntoCurrentSnapshotDirCommand :: ShellCommand
+    cdIntoCurrentSnapshotDirCommand = "cd " ++ SP.fromAbsDir (_snapshotDir snapshotTestContext)
 
 createSnapshotTestContext :: Path' Abs (Dir SnapshotDir) -> SnapshotTestContext
 createSnapshotTestContext currentSnapshotDir =
@@ -112,8 +109,8 @@ createSnapshotTestContext currentSnapshotDir =
       _snapshotWaspAppName = "wasp-app"
     }
 
-getSnapshotFilesForSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
-getSnapshotFilesForSnapshotFileListManifest snapshotDir =
+getFilesForSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
+getFilesForSnapshotFileListManifest snapshotDir =
   getDirFiltered (return . flip notElem ignoredFiles . takeFileName) (SP.fromAbsDir snapshotDir)
     >>= filterM doesFileExist
     >>= mapM SP.parseAbsFile
@@ -129,8 +126,8 @@ createSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File
 createSnapshotFileListManifest snapshotDir snapshotFileListManifestFile = do
   writeFile (SP.fromAbsFile snapshotFileListManifestFile) . unlines . sort . map (makeRelative (SP.fromAbsDir snapshotDir) . SP.fromAbsFile)
 
-getSnapshotFilesForContentComparison :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
-getSnapshotFilesForContentComparison snapshotDir = do
+getFilesForSnapshotContentComparison :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
+getFilesForSnapshotContentComparison snapshotDir = do
   getDirFiltered (return . flip notElem ignoredFiles . takeFileName) (SP.fromAbsDir snapshotDir)
     >>= filterM doesFileExist
     >>= mapM SP.parseAbsFile
