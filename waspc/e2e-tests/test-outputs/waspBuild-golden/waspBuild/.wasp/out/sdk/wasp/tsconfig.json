@@ -1,0 +1,102 @@
+{
+  "compilerOptions": {
+    /* Basic options */
+    "target": "esnext",
+    "jsx": "preserve",
+    "lib": [
+      "esnext",
+      "dom",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "rootDir": ".",
+    "outDir": "dist",
+
+    /* Strictness and type checking */
+    /*
+       User code was compiled using `"strict": true`, so we know we can use it
+       here as well. We override some of strict's options because parts of the SDK
+       code don't respect them. This only makes the SDK ruleset more permissive than
+       the user's ruleset. Therefore, we can sefely include users code inside the
+       SDK without casuing errors during the SDK build step.
+       Reference: https://github.com/wasp-lang/wasp/issues/1938
+    */
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false,
+    /*
+       The following two properties are disabled because we don't
+       yet want to force user code to use them.
+       Reference: https://github.com/wasp-lang/wasp/issues/2655
+    */
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": false,
+
+    /* DX */
+    "declaration": true, // Allows users to consume the SDK as a library, enables autocomplete
+    "declarationMap": true, // Makes go-to-definition go to source instead of type definitions
+    "sourceMap": true, // Needed for debugging
+
+    /* Modules */
+    "module": "esnext",
+    "esModuleInterop": true,
+    // TODO: Enable this once we enable it for users:
+    // https://github.com/wasp-lang/wasp/issues/2654
+    "resolveJsonModule": false,
+    /*
+       The `isolatedModules` flag tells typescript to throw errors on code that
+       doesn't work with bundlers:
+         - The user code must enable it because Wasp bundles user code when bundling
+        server code and web app code (which directly import the user code).
+         - The SDK code must disable it because parts of the SDK code rely on
+        such features. Since we build the SDK with TSC before bundling it,
+        these features don't cause problems.
+      More details in https://github.com/wasp-lang/wasp/issues/2150
+    */
+    "isolatedModules": false,
+    // `verbatimModuleSyntax` is disabled because we don't yet want to
+    // force user code into using `type` imports.
+    "verbatimModuleSyntax": false,
+    "moduleDetection": "force", // Assume all files are modules
+    /*
+      - We want to allow users to use extensionless and directory imports.
+      - We want users to import stuff from the SDK with `wasp/something`, and we
+        don't want to do extra processing on those imports (for now).
+
+      These requirements force us to bundle user code and, because we copy user
+      code into the SDK code, they force us to bundle the SDK too.
+
+      We currently bundle the SDK in a very hacky way (indirectly while bundling
+      the server and client): https://github.com/wasp-lang/wasp/issues/2150
+      Regardless of how we do it, the SDK code is eventually bundled, so this
+      `tsconfig.json` file must reflect that (which means `moduleResolution:
+      bundler`).
+    */
+    "moduleResolution": "bundler",
+    "types": [
+      /*
+         This is needed to properly support Vitest testing with jest-dom matchers.
+         Types for jest-dom are not recognized automatically and Typescript complains
+         about missing types e.g. when using `toBeInTheDocument` and other matchers.
+      */
+      "@testing-library/jest-dom"
+    ],
+    /*
+       The `incremental` option enables faster SDK compilation, less Vite HMR
+       messages and it prevent unnecessary full-page reloads when using Vite HMR.
+       While this is great, we still want to dig deeper at some point to understand
+       better why Vite HMR misbehaves when the SDK is recompiled:
+       https://github.com/wasp-lang/wasp/issues/1934
+    */
+    "incremental": true,
+  },
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

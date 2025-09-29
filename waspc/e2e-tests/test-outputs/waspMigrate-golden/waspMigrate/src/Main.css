@@ -1,0 +1,103 @@
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  margin: 3rem 3rem 10rem 3rem;
+  max-width: 726px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.logo {
+  max-height: 200px;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.content {
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 2;
+  margin-bottom: 3rem;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.button {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 1.2rem 1.5rem;
+  border-radius: 10px;
+}
+
+.button-filled {
+  color: black;
+  background-color: #ffcc00;
+  border: 2px solid #ffcc00;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.button-filled:hover {
+  filter: brightness(0.95);
+}
+
+.button-outlined {
+  color: black;
+  background-color: transparent;
+  border: 2px solid #ffcc00;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.button-outlined:hover {
+  filter: brightness(0.95);
+}
+
+code {
+  border-radius: 5px;
+  border: 1px solid #ffcc00;
+  padding: 0.2rem;
+  background: #ffcc0044;
+  font-family:
+    Menlo,
+    Monaco,
+    Lucida Console,
+    Liberation Mono,
+    DejaVu Sans Mono,
+    Bitstream Vera Sans Mono,
+    Courier New,
+    monospace;
+}
