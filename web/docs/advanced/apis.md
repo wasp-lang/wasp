@@ -299,8 +299,14 @@ async function fetchStream(
       throw new Error("Stream body is null");
     }
 
-    for await (const chunk of response.body.pipeThrough(new TextDecoderStream())) {
-      onData(chunk);
+    const stream = response.body.pipeThrough(new TextDecoderStream());
+    const reader = stream.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      onData(value);
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
