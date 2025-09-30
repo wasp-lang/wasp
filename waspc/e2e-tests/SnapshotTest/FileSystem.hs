@@ -6,7 +6,6 @@ module SnapshotTest.FileSystem
     SnapshotFileListManifestFile,
     SnapshotFile,
     asWaspAppDir,
-    asSnapshotFile,
     snapshotsDirInE2eTests,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
@@ -20,7 +19,7 @@ where
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRoot)
 import SnapshotTest.Snapshot (SnapshotType (..))
-import StrongPath (Dir, File, Path, Path', Rel, castDir, castFile, parseRelDir, reldir, relfile, (</>))
+import StrongPath (Dir, File, Path, Path', Rel, castDir, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
 import WaspApp.FileSystem (WaspAppDir)
 
