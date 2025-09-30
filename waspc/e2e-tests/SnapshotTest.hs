@@ -65,7 +65,7 @@ runSnapshotTest snapshotTest = do
   executeSnapshotTestCommand (_snapshotTestCommandsBuilder snapshotTest) (createSnapshotTestContext currentSnapshotDir)
 
   currentSnapshotFilesForExistenceCheck <- getSnapshotFilesForExistenceCheck currentSnapshotDir
-  createSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile currentSnapshotFilesForExistenceCheck
+  writeSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile currentSnapshotFilesForExistenceCheck
 
   currentSnapshotFilesForContentCheck <- getSnapshotFilesForContentCheck currentSnapshotDir
   formatPackageJsonFiles currentSnapshotFilesForContentCheck
@@ -121,12 +121,12 @@ getSnapshotFilesForExistenceCheck snapshotDir =
 
 -- | Creates a deterministic manifest of files that should exist in the snapshot.
 -- File paths are normalized to relative paths and sorted.
-createSnapshotFileListManifest ::
+writeSnapshotFileListManifest ::
   Path' Abs (Dir SnapshotDir) ->
   Path' Abs (File SnapshotFileListManifestFile) ->
   [Path' Abs (File SnapshotFile)] ->
   IO ()
-createSnapshotFileListManifest snapshotDir snapshotFileListManifestFile = do
+writeSnapshotFileListManifest snapshotDir snapshotFileListManifestFile = do
   writeFile (SP.fromAbsFile snapshotFileListManifestFile) . unlines . sort . map normalizeFile
   where
     normalizeFile = makeRelative (SP.fromAbsDir snapshotDir) . SP.fromAbsFile
