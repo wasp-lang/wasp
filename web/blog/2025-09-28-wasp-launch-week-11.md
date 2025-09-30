@@ -102,7 +102,7 @@ You all know the old adage: *"A web framework is only worth as much as you can i
 
 ### Deploy OpenSaaS template to Railway with one click!
 
-During LW #10 we announced a [native integration with Railway in Wasp's CLI](docs/deployment/deployment-methods/wasp-deploy/railway), allowing you to deploy your Wasp app with a single CLI command. Now, Railway has returned the favor - Open SaaS is one their verified template starters! You can take a look at it [here](https://railway.com/deploy/open-saas).
+During LW #10 we announced a [native integration with Railway in Wasp's CLI](/docs/deployment/deployment-methods/wasp-deploy/railway), allowing you to deploy your Wasp app with a single CLI command. Now, Railway has returned the favor - Open SaaS is one their verified template starters! You can take a look at it [here](https://railway.com/deploy/open-saas).
 
 <ImgWithCaption
     alt="Open SaaS on Railway"
