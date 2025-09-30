@@ -1,7 +1,6 @@
 module Wasp.Cli.Command.CreateNewProject.AI
   ( createNewProjectInteractiveOnDisk,
-    createNewProjectNonInteractiveOnDisk,
-    createNewProjectNonInteractiveToStdout,
+    createNewProjectNonInteractive,
   )
 where
 
@@ -33,6 +32,8 @@ import qualified Wasp.AI.GenerateNewProject.LogMsg as GNP.L
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
 import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command.CreateNewProject.AI.ArgumentsParser (NewProjectAIArgs (NewProjectAIArgs))
+import qualified Wasp.Cli.Command.CreateNewProject.AI.ArgumentsParser as NewProjectAIArgs
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectAppName (..),
     obtainAvailableProjectDirPath,
@@ -110,6 +111,18 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
           "",
           "========"
         ]
+
+createNewProjectNonInteractive :: NewProjectAIArgs -> Command ()
+createNewProjectNonInteractive
+  NewProjectAIArgs
+    { NewProjectAIArgs.projectName = projectName,
+      NewProjectAIArgs.appDescription = appDescription,
+      NewProjectAIArgs.projectConfigJson = projectConfigJson,
+      NewProjectAIArgs.projectDestination = projectDestination
+    } =
+    case projectDestination of
+      NewProjectAIArgs.ToDisk -> createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson
+      NewProjectAIArgs.ToStdout -> createNewProjectNonInteractiveToStdout projectName appDescription projectConfigJson
 
 createNewProjectNonInteractiveOnDisk :: String -> String -> String -> Command ()
 createNewProjectNonInteractiveOnDisk projectName appDescription projectConfigJson = do

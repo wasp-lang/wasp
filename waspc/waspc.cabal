@@ -575,6 +575,7 @@ library cli-lib
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
     Wasp.Cli.Command.CreateNewProject.AI
+    Wasp.Cli.Command.CreateNewProject.AI.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
@@ -622,6 +623,7 @@ executable wasp-cli
     , waspc
     , cli-lib
     , with-utf8 ^>= 1.0.2
+    , optparse-applicative
   other-modules:
       Paths_waspc
 

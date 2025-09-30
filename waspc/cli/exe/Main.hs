@@ -1,5 +1,8 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
+import Control.Applicative ((<**>), (<|>), many)
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
@@ -7,18 +10,21 @@ import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
-import System.Environment (getArgs)
+import qualified Options.Applicative as Opt
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
+import Wasp.Cli.Command.Call (Call)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
+import Wasp.Cli.Command.CreateNewProject.AI.ArgumentsParser (newProjectAiParserInfo)
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParserInfo)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
@@ -47,31 +53,134 @@ import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
-  args <- getArgs
-  let commandCall = case args of
-        ("new" : newArgs) -> Command.Call.New newArgs
-        ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
-        ["start"] -> Command.Call.Start
-        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
-        ["clean"] -> Command.Call.Clean
-        ["ts-setup"] -> Command.Call.TsSetup
-        ["compile"] -> Command.Call.Compile
-        ("db" : dbArgs) -> Command.Call.Db dbArgs
-        ["uninstall"] -> Command.Call.Uninstall
-        ["version"] -> Command.Call.Version
-        ["build"] -> Command.Call.Build
-        ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
-        ["telemetry"] -> Command.Call.Telemetry
-        ["deps"] -> Command.Call.Deps
-        ["dockerfile"] -> Command.Call.Dockerfile
-        ["info"] -> Command.Call.Info
-        ["studio"] -> Command.Call.Studio
-        ["completion"] -> Command.Call.PrintBashCompletionInstruction
-        ["completion:list"] -> Command.Call.BashCompletionListCommands
-        ("waspls" : _) -> Command.Call.WaspLS
-        ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ("test" : testArgs) -> Command.Call.Test testArgs
-        _unknownCommand -> Command.Call.Unknown args
+  commandCall <-
+    Opt.customExecParser
+      (Opt.prefs (Opt.showHelpOnError <> Opt.showHelpOnEmpty <> Opt.subparserInline))
+      (Opt.info (mainParser <**> Opt.helper) mainInfo)
+  
+  runWaspCommand commandCall
+  where
+    mainInfo =
+      Opt.fullDesc
+        <> Opt.header "wasp - Wasp CLI tool"
+        <> Opt.progDesc "A modern web app framework that makes building full-stack React & Node.js apps super easy"
+        <> Opt.footer "For more information, visit https://wasp-lang.dev"
+    
+    handleInternalErrors :: E.ErrorCall -> IO ()
+    handleInternalErrors e = do
+      putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
+      exitFailure
+
+mainParser :: Opt.Parser Call
+mainParser =
+  Opt.hsubparser $
+    mconcat
+      [ Opt.command "new" $ Command.Call.New <$> newProjectArgsParserInfo,
+        Opt.command "new:ai" $ Command.Call.NewAi <$> newProjectAiParserInfo,
+        Opt.command "start" $ Opt.info startParser (Opt.progDesc "Run Wasp app in development mode"),
+        Opt.command "clean" $ Opt.info (pure Command.Call.Clean) (Opt.progDesc "Delete all generated code and cached artifacts"),
+        Opt.command "compile" $ Opt.info (pure Command.Call.Compile) (Opt.progDesc "Compile the Wasp app"),
+        Opt.command "db" $ Opt.info (Command.Call.Db <$> dbArgsParser) (Opt.progDesc "Execute database commands"),
+        Opt.command "build" $ Opt.info buildParser (Opt.progDesc "Generate full web app code, ready for deployment"),
+        Opt.command "deploy" $ Opt.info (Command.Call.Deploy <$> deployArgsParser) (Opt.progDesc "Deploy your Wasp app to cloud hosting providers"),
+        Opt.command "telemetry" $ Opt.info (pure Command.Call.Telemetry) (Opt.progDesc "Print telemetry status"),
+        Opt.command "deps" $ Opt.info (pure Command.Call.Deps) (Opt.progDesc "Print the dependencies that Wasp uses"),
+        Opt.command "dockerfile" $ Opt.info (pure Command.Call.Dockerfile) (Opt.progDesc "Print the Wasp generated Dockerfile"),
+        Opt.command "info" $ Opt.info (pure Command.Call.Info) (Opt.progDesc "Print basic information about current project"),
+        Opt.command "studio" $ Opt.info (pure Command.Call.Studio) (Opt.progDesc "(experimental) GUI for inspecting your Wasp app"),
+        Opt.command "test" $ Opt.info (Command.Call.Test <$> testArgsParser) (Opt.progDesc "Execute tests in your project"),
+        Opt.command "uninstall" $ Opt.info (pure Command.Call.Uninstall) (Opt.progDesc "Remove Wasp from your system"),
+        Opt.command "ts-setup" $ Opt.info (pure Command.Call.TsSetup) (Opt.progDesc "Setup TypeScript configuration"),
+        Opt.command "version" $ Opt.info (pure Command.Call.Version) (Opt.progDesc "Print current version of CLI"),
+        Opt.command "completion" $ Opt.info (pure Command.Call.PrintBashCompletionInstruction) (Opt.progDesc "Print help on bash completion"),
+        Opt.command "completion:list" $ Opt.info (pure Command.Call.BashCompletionListCommands) (Opt.progDesc "List commands for bash completion"),
+        Opt.command "waspls" $ Opt.info (pure Command.Call.WaspLS) (Opt.progDesc "Run Wasp Language Server")
+      ]
+
+-- Parser for start command (can have "db" subcommand)
+startParser :: Opt.Parser Call
+startParser =
+  Opt.subparser
+    ( Opt.command "db" (Opt.info startDbParser (Opt.progDesc "Start managed development database"))
+    )
+    <|> pure Command.Call.Start
+  where
+    startDbParser = 
+      Command.Call.StartDb . maybe [] (\img -> ["--db-image", img])
+        <$> Opt.optional (Opt.strOption $
+          Opt.long "db-image"
+            <> Opt.metavar "IMAGE"
+            <> Opt.help "Specify a custom Docker image for the database")
+
+-- Parser for build command (can have "start" subcommand)
+buildParser :: Opt.Parser Call
+buildParser =
+  Opt.subparser
+    ( Opt.command "start" (Opt.info buildStartParser (Opt.progDesc "Preview the built production app locally"))
+    )
+    <|> pure Command.Call.Build
+  where
+    buildStartParser = Command.Call.BuildStart <$> many (Opt.strArgument (Opt.metavar "ARGS..."))
+
+-- Parser for db subcommands
+dbArgsParser :: Opt.Parser [String]
+dbArgsParser =
+  Opt.subparser $
+    mconcat
+      [ Opt.command "start" $ Opt.info startDbArgsParser (Opt.progDesc "Start managed development database"),
+        Opt.command "reset" $ Opt.info (pure ["reset"]) (Opt.progDesc "Reset development database"),
+        Opt.command "migrate-dev" $ Opt.info migrateDevArgsParser (Opt.progDesc "Synchronize database with the current state of schema"),
+        Opt.command "seed" $ Opt.info seedArgsParser (Opt.progDesc "Execute a database seed function"),
+        Opt.command "studio" $ Opt.info (pure ["studio"]) (Opt.progDesc "GUI for inspecting your database")
+      ]
+  where
+    startDbArgsParser :: Opt.Parser [String]
+    startDbArgsParser = 
+      (\maybeDbImage -> case maybeDbImage of
+        Nothing -> ["start"]
+        Just image -> ["start", "--db-image", image])
+      <$> Opt.optional (Opt.strOption $
+          Opt.long "db-image"
+            <> Opt.metavar "IMAGE"
+            <> Opt.help "Specify a custom Docker image for the database")
+    
+    migrateDevArgsParser :: Opt.Parser [String]
+    migrateDevArgsParser = 
+      (\maybeName createOnly -> "migrate-dev" : concat
+        [ maybe [] (\n -> ["--name", n]) maybeName
+        , ["--create-only" | createOnly]
+        ])
+      <$> Opt.optional (Opt.strOption $
+          Opt.long "name"
+            <> Opt.metavar "MIGRATION_NAME"
+            <> Opt.help "Name for the migration")
+      <*> Opt.switch (
+          Opt.long "create-only"
+            <> Opt.help "Create migration without applying it")
+    
+    seedArgsParser :: Opt.Parser [String]
+    seedArgsParser = 
+      (\maybeSeedName -> case maybeSeedName of
+        Nothing -> ["seed"]
+        Just name -> ["seed", name])
+      <$> Opt.optional (Opt.strArgument $ 
+        Opt.metavar "SEED_NAME"
+          <> Opt.help "Name of the seed to execute")
+
+-- Parser for deploy arguments (passthrough)
+deployArgsParser :: Opt.Parser [String]
+deployArgsParser = many $ Opt.strArgument $ 
+  Opt.metavar "DEPLOY_ARGS..."
+    <> Opt.help "Arguments to pass to the deploy command"
+
+-- Parser for test arguments
+testArgsParser :: Opt.Parser [String]
+testArgsParser = many $ Opt.strArgument $
+  Opt.metavar "TEST_ARGS..."
+    <> Opt.help "Arguments to pass to the test command"
+
+runWaspCommand :: Call -> IO ()
+runWaspCommand commandCall = do
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
@@ -89,20 +198,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.NewAi newAiArgs -> case newAiArgs of
-      ["--stdout", projectName, appDescription, projectConfigJson] ->
-        runCommand $
-          Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout
-            projectName
-            appDescription
-            projectConfigJson
-      [projectName, appDescription, projectConfigJson] ->
-        runCommand $
-          Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk
-            projectName
-            appDescription
-            projectConfigJson
-      _unknownCommand -> printWaspNewAiUsage >> exitFailure
+    Command.Call.NewAi newAiArgs ->
+      runCommand $
+        Command.CreateNewProject.AI.createNewProjectNonInteractive newAiArgs
     Command.Call.Start -> runCommand start
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
@@ -131,11 +229,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     threadDelaySeconds =
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
-
-    handleInternalErrors :: E.ErrorCall -> IO ()
-    handleInternalErrors e = do
-      putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
-      exitFailure
 
 -- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.
@@ -265,30 +358,6 @@ printDbUsage =
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
               "  wasp db studio"
-      ]
-{- ORMOLU_ENABLE -}
-
-{- ORMOLU_DISABLE -}
-printWaspNewAiUsage :: IO ()
-printWaspNewAiUsage =
-  putStrLn $
-    unlines
-      [ title "USAGE",
-              "  wasp new:ai <app-name> <app-description> <config-json>",
-              "",
-              "    Config JSON:",
-              "      It is used to provide additional configuration to Wasp AI.",
-              "      Following fields are supported:",
-              "      {",
-              "        \"defaultGptTemperature\"?: number (from 0 to 2)",
-              "        \"planningGptModel\"?: string (OpenAI model name)",
-              "        \"codingGptModel\"?: string (OpenAI model name)",
-              "        \"primaryColor\"?: string (Tailwind color name)",
-              "      }",
-              "",
-        title "EXAMPLES",
-              "  wasp new:ai ButtonApp \"One page with button\" \"{}\"",
-              "  wasp new:ai ButtonApp \"One page with button\" \"{ \\\"defaultGptTemperature\\\": 0.5, \\\"codingGptModel\\\": \\\"gpt-4-1106-preview\\\" }\""
       ]
 {- ORMOLU_ENABLE -}
 
