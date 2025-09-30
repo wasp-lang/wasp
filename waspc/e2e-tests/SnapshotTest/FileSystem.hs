@@ -49,11 +49,6 @@ asWaspAppDir = castDir
 -- Lists all files that should exist in the 'SnapshotDir' directory.
 data SnapshotFileListManifestFile
 
--- | Converts a 'SnapshotFileListManifestFile' to a 'SnapshotFile'.
--- This is safe because every snapshot file list manifest file is also a snapshot file.
-asSnapshotFile :: Path s a (File SnapshotFileListManifestFile) -> Path s a (File SnapshotFile)
-asSnapshotFile = castFile
-
 snapshotsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir SnapshotsDir)
 snapshotsDirInE2eTests = [reldir|snapshots|]
 
