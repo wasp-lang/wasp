@@ -24,7 +24,7 @@
     "build": "tsdown",
     "check": "npm run check:types && npm run check:coverage && npm run check:type-exports",
     "check:coverage": "vitest run --coverage",
-    "check:type-exports": "npx @arethetypeswrong/cli -P",
+    "check:type-exports": "npx @arethetypeswrong/cli -P --profile esm-only",
     "check:types": "tsc --noEmit",
     "dev": "vitest dev",
     "prepare": "npm run build"

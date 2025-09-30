@@ -86,13 +86,18 @@ npm run check:types
 
 ### Verifying type exports
 
-To check the type exports are okay and the library can be consumed, run:
+This check uses `arethetypeswrong` under the hood which:
+
+> attempts to analyze npm package contents for issues with their TypeScript types,
+> particularly ESM-related module resolution issues
+
+To check the type exports are okay run:
 
 ```bash
 npm run check:type-exports
 ```
 
-You want to see `🟢` for all items and `⚠️ ESM (dynamic import only) ` for `node16`.
+You want to see `🟢` for all ESM items.
 
 ## Building the library
 
