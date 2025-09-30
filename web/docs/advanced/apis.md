@@ -195,7 +195,6 @@ api streamingText {
 ```
 
 <small>
-
 Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
 </small>
 
@@ -368,7 +367,7 @@ function useAxiosTextStream(path: string, payload: { message: string }) {
       (data) => {
         setResponse(data);
       },
-      controller
+      controller.signal
     );
 
     return () => {
@@ -383,12 +382,12 @@ async function fetchAxiosStream(
   path: string,
   payload: { message: string },
   onData: (data: string) => void,
-  controller: AbortController
+  signal: AbortSignal
 ) {
   try {
     return await api.post(path, payload, {
       responseType: "stream",
-      signal: controller.signal,
+      signal,
       onDownloadProgress: (progressEvent) => {
         const xhr = progressEvent.event.target;
         onData(xhr.responseText);
