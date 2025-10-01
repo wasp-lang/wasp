@@ -11,7 +11,7 @@ const plugin: Plugin<[], Root> = () => (tree, _file) => {
   let needsImports = false;
 
   visit(tree, "mdxJsxFlowElement", (node) => {
-    if (node.name === "Tabs" || node.name === "TabItem") {
+    if (node.name === "Tabs" || node.name === "TabItem" || node.name === "BeforeAfter") {
       needsImports = true;
       return EXIT;
     }
@@ -23,6 +23,7 @@ const plugin: Plugin<[], Root> = () => (tree, _file) => {
       makeImports([
         { from: "@theme/Tabs", importDefaultAs: "Tabs" },
         { from: "@theme/TabItem", importDefaultAs: "TabItem" },
+        { from: "../components/BeforeAfter", importDefaultAs: "BeforeAfter" },
       ]),
     );
   }
