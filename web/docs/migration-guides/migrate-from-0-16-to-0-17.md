@@ -16,8 +16,7 @@ you don't need to take any action.
 The `login` function, as imported from `wasp/client/auth`, has changed
 the way of calling it:
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```ts
 import { login } from "wasp/client/auth";
@@ -25,17 +24,13 @@ import { login } from "wasp/client/auth";
 await login(usernameValue, passwordValue);
 ```
 
-</TabItem>
-<TabItem value="after" label="After">
-
 ```ts
 import { login } from "wasp/client/auth";
 
 await login({ username: usernameValue, password: passwordValue });
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 This is to make it consistent with the `login` and `signup` calls in other
 authentication methods, which were already using this convention.
@@ -77,8 +72,7 @@ If you were using the `login` function (imported from `wasp/client/auth`),
 change its parameters from `login(usernameValue, passwordValue)` to
 `login({ username: usernameValue, password: passwordValue })`.
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```tsx title="src/components/MyLoginForm.tsx"
 import { login } from "wasp/client/auth";
@@ -97,9 +91,6 @@ export const MyLoginForm = () => {
 };
 ```
 
-</TabItem>
-<TabItem value="after" label="After">
-
 ```tsx title="src/components/MyLoginForm.tsx"
 import { login } from "wasp/client/auth";
 
@@ -117,8 +108,7 @@ export const MyLoginForm = () => {
 };
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 It is possible that you were not using this function in your code.
 If you're instead using [the `<LoginForm>` component](../auth/ui.md#login-form),
@@ -175,8 +165,7 @@ Wasp now requires `typescript` to be set to version `5.8.2`.
 
 Here’s the updated `package.json` snippet:
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```json title="package.json"
 {
@@ -186,9 +175,6 @@ Here’s the updated `package.json` snippet:
 }
 ```
 
-</TabItem>
-<TabItem value="after" label="After">
-
 ```json title="package.json"
 {
   "devDependencies": {
@@ -197,8 +183,7 @@ Here’s the updated `package.json` snippet:
 }
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 ### 5. Tell Wasp about `jest-dom` types
 
@@ -243,8 +228,7 @@ app MyApp {
 
 If you had `express` or `@types/express` in your `package.json`, you should change them to use version 5:
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```json title="package.json"
 {
@@ -257,9 +241,6 @@ If you had `express` or `@types/express` in your `package.json`, you should chan
 }
 ```
 
-</TabItem>
-<TabItem value="after" label="After">
-
 ```json title="package.json"
 {
   "dependencies": {
@@ -271,8 +252,7 @@ If you had `express` or `@types/express` in your `package.json`, you should chan
 }
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 ### 9. Upgrade your `api` endpoints to Express 5
 
