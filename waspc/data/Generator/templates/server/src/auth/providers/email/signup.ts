@@ -22,11 +22,10 @@ import {
   createEmailVerificationLink,
   isEmailResendAllowed,
   sendEmailVerificationEmail,
+  sendAccountAlreadyExistsEmail,
 } from 'wasp/server/auth/email/utils'
 import { EmailFromField } from 'wasp/server/email'
 import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
-import { Email } from 'wasp/server/email'
-import { emailSender } from 'wasp/server/email'
 
 export function getSignupRoute({
   userSignupFields,
@@ -90,8 +89,8 @@ export function getSignupRoute({
             from: fromField,
             to: fields.email,
             subject: 'Account Already Exists',
-            text: 'It looks like you (or someone else) tried to sign up with this email. If you already have an account, you can log in or reset your password. If this wasn’t you, you can ignore this email.',
-            html: '<p>It looks like you (or someone else) tried to sign up with this email. If you already have an account, you can <a href="/login">log in</a> or <a href="/reset-password">reset your password</a>. If this wasn’t you, you can ignore this email.</p>'
+            text: `It looks like you (or someone else) tried to sign up with this email. If you already have an account, you can log in at ${clientRoute}/login or reset your password at ${clientRoute}/reset-password. If this wasn't you, you can ignore this email.`,
+            html: `<p>It looks like you (or someone else) tried to sign up with this email. If you already have an account, you can <a href="${clientRoute}/login">log in</a> or <a href="${clientRoute}/reset-password">reset your password</a>. If this wasn't you, you can ignore this email.</p>`
           })
         } catch (e: unknown) {
           console.error('Failed to send account already exists email:', e)
@@ -179,10 +178,3 @@ function ensureValidArgs(args: object): void {
   ensureValidPassword(args)
 }
 
-async function sendAccountAlreadyExistsEmail(email: string, content: Email): Promise<void> {
-  // Use the same email sending utility as verification emails, but do not update verification metadata.
-  // This avoids leaking info about verification status.
-  emailSender.send(content).catch((e) => {
-    console.error('Failed to send account already exists email', e);
-  });
-}
