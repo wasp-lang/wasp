@@ -237,9 +237,16 @@ export const getStreamingText: StreamingText<
 
 ### Consuming Streaming Responses
 
-#### Using the Fetch API (Recommended)
+There are two ways you can consume streaming responses on the client side: using the Fetch API or using Axios.
 
-Here's a example showing how to consume streaming responses on the client:
+We recommend using the Fetch API becuase it supports streaming natively. You'll need to handle auth manually by adding the `Authorization` header.
+
+Axios doesn't natively support streaming responses and you have use the `onDownloadProgress` callback to simulate it.
+Wasp internally uses Axios and exposes an Axios wrapper via `wasp/client/api` which handles auth automatically.
+
+#### Using the Fetch API
+
+Here's an example showing how to consume streaming responses using the Fetch API:
 
 ```tsx title="src/StreamingPage.tsx" auto-js
 import { useEffect, useState } from "react";
@@ -334,9 +341,7 @@ async function fetchStream(
 
 #### Using Axios
 
-Axios does not natively support streaming responses, but you can simulate it by leveraging the `onDownloadProgress` callback. On the other hand, you don't have to provide the session token manually, as the Axios wrapper from `wasp/client/api` does that for you.
-
-Here's how you can do it:
+Here's an example showing how to consume streaming responses using the Axios wrapper from `wasp/client/api`:
 
 ```tsx title="src/AxiosStreamingPage.tsx" auto-js
 import { useEffect, useState } from "react";
