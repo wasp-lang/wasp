@@ -62,8 +62,7 @@ app MyApp {
 
 Update your `tailwind.config.cjs` file to use ESM:
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```js title="tailwind.config.cjs"
 const { resolveProjectPath } = require('wasp/dev')
@@ -77,9 +76,6 @@ module.exports = {
   plugins: [require('@tailwindcss/typography')],
 };
 ```
-
-</TabItem>
-<TabItem value="after" label="After">
 
 ```js title="tailwind.config.cjs"
 import TailwindTypography from "@tailwindcss/typography";
@@ -95,13 +91,11 @@ export default {
 };
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 Same for the `postcss.config.cjs` file:
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```js title="postcss.config.cjs"
 module.exports = {
@@ -112,9 +106,6 @@ module.exports = {
 };
 ```
 
-</TabItem>
-<TabItem value="after" label="After">
-
 ```js title="postcss.config.cjs"
 export default {
   plugins: {
@@ -124,8 +115,7 @@ export default {
 };
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 
 ### 4. Rename Tailwind Configuration Files
@@ -140,12 +130,11 @@ Wasp now uses Vite 7 for better performance and stability. This includes some br
 
 The only manual change you need to make is to update your `package.json` file:
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```json title="package.json"
 {
-  // ...
+// ...
   "devDependencies": {
     // ...
     "vite": "^4.3.9"
@@ -153,12 +142,9 @@ The only manual change you need to make is to update your `package.json` file:
 }
 ```
 
-</TabItem>
-<TabItem value="after" label="After">
-
 ```json title="package.json"
 {
-  // ...
+// ...
   "devDependencies": {
     // ...
     "vite": "^7.0.6"
@@ -166,8 +152,7 @@ The only manual change you need to make is to update your `package.json` file:
 }
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 
 ### 6. Update you Wasp bash completions (if you used them before)
@@ -189,22 +174,17 @@ This file is no longer necessary and we can delete it.
 
 Before, you had to source the `wasp-completion` file, now we can just call `complete` directly:
 
-<Tabs>
-<TabItem value="before" label="Before">
+<BeforeAfter>
 
 ```bash
 source <your-chosen-directory>/wasp-completion
 ```
 
-</TabItem>
-<TabItem value="after" label="After">
-
 ```bash
 complete -o default -o nospace -C 'wasp completion:list' wasp
 ```
 
-</TabItem>
-</Tabs>
+</BeforeAfter>
 
 ### 7. Enjoy your updated Wasp app
 
