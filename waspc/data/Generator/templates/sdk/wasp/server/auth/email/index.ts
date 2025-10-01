@@ -15,6 +15,7 @@ export {
     sendEmailVerificationEmail,
     createPasswordResetLink,
     sendPasswordResetEmail,
+    sendAccountAlreadyExistsEmail,
     isEmailResendAllowed,
 } from './utils.js'
 export { ensureValidEmail } from '../../../auth/validation.js'
