@@ -1,5 +1,6 @@
 import { Argument, program } from "@commander-js/extra-typings";
 import packageJson from "../package.json" with { type: "json" };
+import { defaultPostgresDbImage } from "./db/postgres.js";
 import { Branded } from "./types.js";
 
 export type Mode = "dev" | "build";
@@ -11,7 +12,7 @@ export function parseArgs(): {
   mode: Mode;
   pathToApp: PathToApp;
   waspCliCmd: WaspCliCmd;
-  dbImage: DockerImageName;
+  dbImage?: DockerImageName;
 } {
   const parsedProgram = program
     .name("run-wasp-app")
@@ -26,8 +27,7 @@ export function parseArgs(): {
     .option("--wasp-cli-cmd <command>", "Wasp CLI command to use", "wasp")
     .option(
       "--db-image <image>",
-      "Custom PostgreSQL Docker image to use",
-      "postgres:16",
+      `Custom PostgreSQL Docker image to use (default: "${defaultPostgresDbImage}")`,
     )
     .parse();
 

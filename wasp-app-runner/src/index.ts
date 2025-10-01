@@ -7,6 +7,8 @@ import {
   type WaspCliCmd,
 } from "./args.js";
 import { startAppInBuildMode } from "./build/index.js";
+import { DbType } from "./db/index.js";
+import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { createLogger } from "./logging.js";
@@ -38,12 +40,12 @@ async function runWaspApp({
   mode,
   waspCliCmd,
   pathToApp,
-  dbImage,
+  dbImage: dbImageArg,
 }: {
   mode: Mode;
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
-  dbImage: DockerImageName;
+  dbImage?: DockerImageName;
 }): Promise<void> {
   await checkDependencies();
 
@@ -51,6 +53,14 @@ async function runWaspApp({
     waspCliCmd,
     pathToApp,
   });
+
+  if (dbImageArg && dbType !== DbType.Postgres) {
+    logger.error(
+      `The --db-image option is only valid when using PostgreSQL as the database.`,
+    );
+    process.exit(1);
+  }
+  const dbImage = dbImageArg ?? defaultPostgresDbImage;
 
   if (await isWaspTypescriptConfigProject(pathToApp)) {
     await waspTsSetup({
