@@ -49,19 +49,15 @@ Follow the steps below to migrate:
 
    The redirect URL for the OAuth providers has changed. You will need to update the redirect URL for the OAuth providers in the provider's dashboard.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
-       ```
-       {clientUrl}/auth/login/{provider}
-       ```
-     </TabItem>
+   <BeforeAfter>
+   ```
+     {clientUrl}/auth/login/{provider}
+   ```
 
-     <TabItem value="after" label="After">
-       ```
-       {serverUrl}/auth/{provider}/callback
-       ```
-     </TabItem>
-   </Tabs>
+   ```
+     {serverUrl}/auth/{provider}/callback
+   ```
+   </BeforeAfter>
 
    Check the new redirect URLs for [Google](../auth/social-auth/google.md#3-creating-a-google-oauth-app) and [GitHub](../auth/social-auth/github.md#3-creating-a-github-oauth-app) in Wasp's docs.
 
@@ -73,29 +69,36 @@ Follow the steps below to migrate:
 
    Also, the object returned from `configFn` no longer needs to include the Client ID and the Client Secret. You can remove them from the object that `configFn` returns.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
-       ```ts title="google.ts"
-       export function getConfig() {
-           return {
-               clientID: process.env.GOOGLE_CLIENT_ID,
+   <BeforeAfter>
+   ```ts title="google.ts"
+     export function getConfig() {
+         return {
+             clientID: process.env.GOOGLE_CLIENT_ID,
                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
                scope: ['profile', 'email'],
            }
        }
-       ```
-     </TabItem>
+     ```
+     
 
-     <TabItem value="after" label="After">
-       ```ts title="google.ts"
+   ```
+     ```ts title="google.ts"
        export function getConfig() {
            return {
                scopes: ['profile', 'email'],
            }
-       }
-       ```
-     </TabItem>
-   </Tabs>
+         }
+     }
+   ```
+
+   ```ts title="google.ts"
+     export function getConfig() {
+         return {
+             scopes: ['profile', 'email'],
+         }
+     }
+   ```
+   </BeforeAfter>
 
 4. **Update the `userSignupFields` fields** to use the new `profile` format
 
@@ -103,27 +106,34 @@ Follow the steps below to migrate:
 
    The data format for the `profile` that you receive from the OAuth providers has changed. You will need to update your code to reflect this change.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
-       ```ts title="google.ts"
-       import { defineUserSignupFields } from 'wasp/server/auth'
+   <BeforeAfter>
+   ```ts title="google.ts"
+     import { defineUserSignupFields } from 'wasp/server/auth'
 
-       export const userSignupFields = defineUserSignupFields({
+     export const userSignupFields = defineUserSignupFields({
            displayName: (data: any) => data.profile.displayName,
        })
-       ```
-     </TabItem>
+     ```
+     
 
-     <TabItem value="after" label="After">
-       ```ts title="google.ts"
+   ```
+     ```ts title="google.ts"
        import { defineUserSignupFields } from 'wasp/server/auth'
 
        export const userSignupFields = defineUserSignupFields({
            displayName: (data: any) => data.profile.name,
-       })
-       ```
-     </TabItem>
-   </Tabs>
+         })
+     }
+   ```
+
+   ```ts title="google.ts"
+     import { defineUserSignupFields } from 'wasp/server/auth'
+
+     export const userSignupFields = defineUserSignupFields({
+         displayName: (data: any) => data.profile.name,
+     })
+   ```
+   </BeforeAfter>
 
    Wasp now directly forwards what it receives from the OAuth providers. You can check the data format for [Google](../auth/social-auth/google.md#data-received-from-google) and [GitHub](../auth/social-auth/github.md#data-received-from-github) in Wasp's docs.
 
