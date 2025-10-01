@@ -16,8 +16,7 @@ Before 0.14.0, users defined their entities in the `.wasp` file, and Wasp genera
 
 Wasp now exposes the `schema.prisma` file directly to the user. You now define your entities in the `schema.prisma` file and Wasp uses that to generate the database schema and Prisma client. You can use all the Prisma features directly in the `schema.prisma` file. Simply put, the `schema.prisma` file is now the source of truth for your database schema.
 
-<Tabs>
-  <TabItem value="before" label="Before">
+<BeforeAfter>
     ```wasp title="main.wasp"
     app myApp {
       wasp: {
@@ -42,9 +41,7 @@ Wasp now exposes the `schema.prisma` file directly to the user. You now define y
       user        User @relation(fields: [userId], references: [id])
     psl=}
     ```
-  </TabItem>
 
-  <TabItem value="after" label="After">
     ```wasp title="main.wasp"
     app myApp {
       wasp: {
@@ -77,8 +74,7 @@ Wasp now exposes the `schema.prisma` file directly to the user. You now define y
       user        User @relation(fields: [userId], references: [id])
     }
     ```
-  </TabItem>
-</Tabs>
+</BeforeAfter>
 
 ### Better auth user API
 
@@ -188,7 +184,7 @@ This block specifies the database type and connection URL:
       url      = env("DATABASE_URL")
     }
     ```
-  </TabItem>
+  
 
   <TabItem value="postgresql" label="PostgreSQL">
     ```prisma title="schema.prisma"
@@ -197,8 +193,8 @@ This block specifies the database type and connection URL:
       url      = env("DATABASE_URL")
     }
     ```
-  </TabItem>
-</Tabs>
+  
+</BeforeAfter>
 
 - The `provider` should be either `"postgresql"` or `"sqlite"`.
 
@@ -222,7 +218,7 @@ This block specifies the Prisma Client generator Wasp uses:
     }
     // highlight-end
     ```
-  </TabItem>
+  
 
   <TabItem value="postgresql" label="PostgreSQL">
     ```prisma title="schema.prisma"
@@ -237,8 +233,8 @@ This block specifies the Prisma Client generator Wasp uses:
     }
     // highlight-end
     ```
-  </TabItem>
-</Tabs>
+  
+</BeforeAfter>
 
 - The `provider` should be set to `"prisma-client-js"`.
 
@@ -274,7 +270,7 @@ Move the entities from the `.wasp` file to the `schema.prisma` file:
     }
     // highlight-end
     ```
-  </TabItem>
+  
 
   <TabItem value="postgresql" label="PostgreSQL">
     ```prisma title="schema.prisma"
@@ -303,8 +299,8 @@ Move the entities from the `.wasp` file to the `schema.prisma` file:
     }
     // highlight-end
     ```
-  </TabItem>
-</Tabs>
+  
+</BeforeAfter>
 
 When moving the entities over, you'll need to change `entity` to `model` and remove the `=psl` and `psl=` tags.
 
@@ -398,8 +394,8 @@ Follow the steps below to migrate:
 
    This helper changed and it no longer works with the `user` you receive as a prop on a page or through the `context`. You'll need to replace it with `user.identities.username.id`.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
+     ```
        ```tsx title="src/MainPage.tsx"
        import { getUsername, AuthUser } from 'wasp/auth'
 
@@ -417,9 +413,9 @@ Follow the steps below to migrate:
            // ...
        }
        ```
-     </TabItem>
+     
 
-     <TabItem value="after" label="After">
+     ```
        ```tsx title="src/MainPage.tsx"
        import { AuthUser } from 'wasp/auth'
 
@@ -435,8 +431,8 @@ Follow the steps below to migrate:
            // ...
        }
        ```
-     </TabItem>
-   </Tabs>
+     
+   </BeforeAfter>
 
 2. **Replace the `getEmail` helper** with `user.identities.email.id`
 
@@ -444,8 +440,8 @@ Follow the steps below to migrate:
 
    This helper changed and it no longer works with the `user` you receive as a prop on a page or through the `context`. You'll need to replace it with `user.identities.email.id`.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
+     ```
        ```tsx title="src/MainPage.tsx"
        import { getEmail, AuthUser } from 'wasp/auth'
 
@@ -463,9 +459,9 @@ Follow the steps below to migrate:
            // ...
        }
        ```
-     </TabItem>
+     
 
-     <TabItem value="after" label="After">
+     ```
        ```tsx title="src/MainPage.tsx"
        import { AuthUser } from 'wasp/auth'
 
@@ -481,8 +477,8 @@ Follow the steps below to migrate:
            // ...
        }
        ```
-     </TabItem>
-   </Tabs>
+     
+   </BeforeAfter>
 
 3. **Replace accessing `providerData`** with `user.identities.<provider>.<value>`
 
@@ -490,8 +486,8 @@ Follow the steps below to migrate:
 
    Replace `<provider>` with the provider name (for example `username`, `email`, `google`, `github`, etc.) and `<value>` with the field you want to access (for example `isEmailVerified`).
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
+     ```
        ```tsx title="src/MainPage.tsx"
        import { findUserIdentity, AuthUser } from 'wasp/auth'
 
@@ -509,9 +505,9 @@ Follow the steps below to migrate:
          // ...
        }
        ```
-     </TabItem>
+     
 
-     <TabItem value="after" label="After">
+     ```
        ```tsx title="src/MainPage.tsx"
        import { AuthUser } from 'wasp/auth'
 
@@ -521,8 +517,8 @@ Follow the steps below to migrate:
          // ...
        }
        ```
-     </TabItem>
-   </Tabs>
+     
+   </BeforeAfter>
 
 4. **Use `getFirstProviderUserId` directly** on the user object
 
@@ -530,8 +526,8 @@ Follow the steps below to migrate:
 
    You should replace `getFirstProviderUserId(user)` with `user.getFirstProviderUserId()`.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
+     ```
        ```tsx title="src/MainPage.tsx"
        import { getFirstProviderUserId, AuthUser } from 'wasp/auth'
 
@@ -549,9 +545,9 @@ Follow the steps below to migrate:
            // ...
        }
        ```
-     </TabItem>
+     
 
-     <TabItem value="after" label="After">
+     ```
        ```tsx title="src/MainPage.tsx"
        import { AuthUser } from 'wasp/auth'
 
@@ -567,8 +563,8 @@ Follow the steps below to migrate:
            // ...
        }
        ```
-     </TabItem>
-   </Tabs>
+     
+   </BeforeAfter>
 
 5. **Replace `findUserIdentity`** with checks on `user.identities.<provider>`
 
@@ -576,8 +572,8 @@ Follow the steps below to migrate:
 
    Instead of using `findUserIdentity` to get the identity object, you can directly check if the identity exists on the `identities` object.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
+     ```
        ```tsx title="src/MainPage.tsx"
        import { findUserIdentity, AuthUser } from 'wasp/auth'
 
@@ -599,9 +595,9 @@ Follow the steps below to migrate:
            }
        }
        ```
-     </TabItem>
+     
 
-     <TabItem value="after" label="After">
+     ```
        ```tsx title="src/MainPage.tsx"
        import { AuthUser } from 'wasp/auth'
 
@@ -619,8 +615,8 @@ Follow the steps below to migrate:
            }
        }
        ```
-     </TabItem>
-   </Tabs>
+     
+   </BeforeAfter>
 
 ### Migrate the database
 
