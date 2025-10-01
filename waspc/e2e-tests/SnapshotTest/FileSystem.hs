@@ -21,7 +21,7 @@ import FileSystem (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2e
 import SnapshotTest.Snapshot (SnapshotType (..))
 import StrongPath (Dir, File, Path, Path', Rel, castDir, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
-import WaspApp.FileSystem (WaspAppDir)
+import Wasp.Project.Common (WaspProjectDir)
 
 -- | The directory where all snapshots are stored.
 data SnapshotsDir
@@ -39,10 +39,10 @@ data SnapshotFile
 -- We hardcode its name to @wasp-app@ so that the snapshots directory is more readable.
 data SnapshotWaspAppDir
 
--- | Converts a 'SnapshotWaspAppDir' to a 'WaspApp.FileSystem.WaspAppDir'.
--- This is safe because every snapshot Wasp app directory is also a Wasp app directory.
-asWaspAppDir :: Path s a (Dir SnapshotWaspAppDir) -> Path s a (Dir WaspAppDir)
-asWaspAppDir = castDir
+-- | Converts a 'SnapshotWaspAppDir' to a 'Wasp.Project.Common.WaspProjectDir'.
+-- This is safe because every snapshot Wasp project directory is also a Wasp project directory.
+asWaspProjectDir :: Path s a (Dir SnapshotWaspAppDir) -> Path s a (Dir WaspProjectDir)
+asWaspProjectDir = castDir
 
 -- | The file inside of a 'SnapshotDir'.
 -- Lists all files that should exist in the 'SnapshotDir' directory.

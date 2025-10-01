@@ -20,7 +20,7 @@ import ShellCommands
     (~&&),
     (~|),
   )
-import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, asWaspAppDir, gitRootInSnapshotWaspAppDir)
+import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, asWaspProjectDir, gitRootInSnapshotWaspAppDir)
 import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))
 import WaspApp.ShellCommands (WaspAppContext (..))
 
@@ -35,7 +35,7 @@ getSnapshotWaspAppContext :: SnapshotTestContext -> WaspAppContext
 getSnapshotWaspAppContext snapshotTestContext =
   WaspAppContext
     { _waspAppName = _snapshotWaspAppName snapshotTestContext,
-      _waspAppDir = asWaspAppDir (_snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext)
+      _waspAppDir = asWaspProjectDir (_snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext)
     }
 
 createSnapshotWaspAppFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
@@ -51,9 +51,9 @@ withInSnapshotWaspAppDir waspAppCommandBuilders = do
   let waspAppContext = getSnapshotWaspAppContext snapshotTestContext
 
   let snapshotAbsDir = _snapshotDir snapshotTestContext
-  let snapshotWaspAppAbsDir = snapshotAbsDir </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
+  let snapshotWaspAppDir = snapshotAbsDir </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
 
-  let navigateToSnapshotWaspAppDir = "cd " ++ fromAbsDir snapshotWaspAppAbsDir
+  let navigateToSnapshotWaspAppDir = "cd " ++ fromAbsDir snapshotWaspAppDir
   let cmdInWaspAppContext = foldr1 (~&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
   let returnToSnapshotDir = "cd " ++ fromAbsDir snapshotAbsDir
 
