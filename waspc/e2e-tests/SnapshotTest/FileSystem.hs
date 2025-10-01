@@ -2,16 +2,16 @@ module SnapshotTest.FileSystem
   ( SnapshotType (..),
     SnapshotsDir,
     SnapshotDir,
-    SnapshotWaspAppDir,
+    SnapshotWaspProjectDir,
     SnapshotFileListManifestFile,
     SnapshotFile,
-    asWaspAppDir,
+    asWaspProjectDir,
     snapshotsDirInE2eTests,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
-    snapshotWaspAppDirInRepoRoot,
-    gitRootInSnapshotWaspAppDir,
-    snapshotWaspAppDirInSnapshotDir,
+    snapshotWaspProjectDirInRepoRoot,
+    gitRootInSnapshotWaspProjectDir,
+    snapshotWaspProjectDirInSnapshotDir,
     snapshotFileListManifestFileInSnapshotDir,
   )
 where
@@ -37,11 +37,11 @@ data SnapshotFile
 
 -- | The Wasp app directory inside of a 'SnapshotDir'.
 -- We hardcode its name to @wasp-app@ so that the snapshots directory is more readable.
-data SnapshotWaspAppDir
+data SnapshotWaspProjectDir
 
--- | Converts a 'SnapshotWaspAppDir' to a 'Wasp.Project.Common.WaspProjectDir'.
+-- | Converts a 'SnapshotWaspProjectDir' to a 'Wasp.Project.Common.WaspProjectDir'.
 -- This is safe because every snapshot Wasp project directory is also a Wasp project directory.
-asWaspProjectDir :: Path s a (Dir SnapshotWaspAppDir) -> Path s a (Dir WaspProjectDir)
+asWaspProjectDir :: Path s a (Dir SnapshotWaspProjectDir) -> Path s a (Dir WaspProjectDir)
 asWaspProjectDir = castDir
 
 -- | The file inside of a 'SnapshotDir'.
@@ -60,20 +60,20 @@ snapshotDirInSnapshotsDir snapshotTestName snapshotType = (fromJust . parseRelDi
 snapshotFileListManifestFileInSnapshotDir :: Path' (Rel SnapshotDir) (File SnapshotFileListManifestFile)
 snapshotFileListManifestFileInSnapshotDir = [relfile|snapshot-file-list.manifest|]
 
-snapshotWaspAppDirInSnapshotDir :: String -> Path' (Rel SnapshotDir) (Dir SnapshotWaspAppDir)
-snapshotWaspAppDirInSnapshotDir snapshotWaspAppName = fromJust . parseRelDir $ snapshotWaspAppName
+snapshotWaspProjectDirInSnapshotDir :: String -> Path' (Rel SnapshotDir) (Dir SnapshotWaspProjectDir)
+snapshotWaspProjectDirInSnapshotDir snapshotWaspProjectName = fromJust . parseRelDir $ snapshotWaspProjectName
 
--- | Inverse of 'gitRootInSnapshotWaspAppDir'.
+-- | Inverse of 'gitRootInSnapshotWaspProjectDir'.
 -- NOTE: If you change this function, change the other one too.
-snapshotWaspAppDirInRepoRoot :: String -> SnapshotType -> String -> Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspAppDir)
-snapshotWaspAppDirInRepoRoot snapshotTestName snapshotType snapshotWaspAppName =
+snapshotWaspProjectDirInRepoRoot :: String -> SnapshotType -> String -> Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspProjectDir)
+snapshotWaspProjectDirInRepoRoot snapshotTestName snapshotType snapshotWaspProjectName =
   waspcDirInGitRoot
     </> e2eTestsDirInWaspcDir
     </> snapshotsDirInE2eTests
     </> snapshotDirInSnapshotsDir snapshotTestName snapshotType
-    </> snapshotWaspAppDirInSnapshotDir snapshotWaspAppName
+    </> snapshotWaspProjectDirInSnapshotDir snapshotWaspProjectName
 
--- | Inverse of 'snapshotWaspAppDirInRepoRoot'.
+-- | Inverse of 'snapshotWaspProjectDirInRepoRoot'.
 -- NOTE: If you change this function, change the other one too.
-gitRootInSnapshotWaspAppDir :: Path' (Rel SnapshotWaspAppDir) (Dir GitRepositoryRoot)
-gitRootInSnapshotWaspAppDir = [reldir|../../../../|]
+gitRootInSnapshotWaspProjectDir :: Path' (Rel SnapshotWaspProjectDir) (Dir GitRepositoryRoot)
+gitRootInSnapshotWaspProjectDir = [reldir|../../../../|]

@@ -26,7 +26,7 @@ import SnapshotTest.FileSystem
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
-    snapshotWaspAppDirInSnapshotDir,
+    snapshotWaspProjectDirInSnapshotDir,
   )
 import SnapshotTest.ShellCommands (SnapshotTestContext (..))
 import StrongPath (Abs, Dir, File, Path', (</>))
@@ -103,8 +103,8 @@ createSnapshotTestContext :: Path' Abs (Dir SnapshotDir) -> SnapshotTestContext
 createSnapshotTestContext currentSnapshotDir =
   SnapshotTestContext
     { _snapshotDir = currentSnapshotDir,
-      _snapshotWaspAppDirInSnapshotDir = snapshotWaspAppDirInSnapshotDir "wasp-app",
-      _snapshotWaspAppName = "wasp-app"
+      _snapshotWaspProjectDirInSnapshotDir = snapshotWaspProjectDirInSnapshotDir "wasp-app",
+      _snapshotWaspProjectName = "wasp-app"
     }
 
 getSnapshotFilesForExistenceCheck :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]

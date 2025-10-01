@@ -6,12 +6,12 @@ import ShellCommands
   )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands
-  ( copyContentsOfGitTrackedDirToSnapshotWaspAppDir,
-    withInSnapshotWaspAppDir,
+  ( copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    withInSnapshotWaspProjectDir,
   )
 import StrongPath (reldir)
-import WaspApp.ShellCommands
-  ( WaspAppContext,
+import WaspProject.ShellCommands
+  ( WaspProjectContext,
     waspCliCompile,
   )
 
@@ -19,12 +19,12 @@ kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
   makeSnapshotTest
     "kitchen-sink"
-    [ copyContentsOfGitTrackedDirToSnapshotWaspAppDir [reldir|waspc/examples/todoApp/|],
-      withInSnapshotWaspAppDir
+    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|waspc/examples/todoApp/|],
+      withInSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           waspCliCompile
         ]
     ]
   where
-    createDotEnvServerFile :: ShellCommandBuilder WaspAppContext ShellCommand
+    createDotEnvServerFile :: ShellCommandBuilder WaspProjectContext ShellCommand
     createDotEnvServerFile = return "cp .env.server.example .env.server"

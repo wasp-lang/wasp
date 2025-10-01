@@ -2,10 +2,10 @@ module Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands
-  ( createSnapshotWaspAppFromMinimalStarter,
-    withInSnapshotWaspAppDir,
+  ( createSnapshotWaspProjectFromMinimalStarter,
+    withInSnapshotWaspProjectDir,
   )
-import WaspApp.ShellCommands
+import WaspProject.ShellCommands
   ( appendToPrismaFile,
     waspCliCompile,
     waspCliMigrate,
@@ -15,8 +15,8 @@ waspMigrateSnapshotTest :: SnapshotTest
 waspMigrateSnapshotTest =
   makeSnapshotTest
     "wasp-migrate"
-    [ createSnapshotWaspAppFromMinimalStarter,
-      withInSnapshotWaspAppDir
+    [ createSnapshotWaspProjectFromMinimalStarter,
+      withInSnapshotWaspProjectDir
         [ waspCliCompile,
           appendToPrismaFile taskPrismaModel,
           waspCliMigrate "foo"

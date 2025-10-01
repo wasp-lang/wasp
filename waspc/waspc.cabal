@@ -796,7 +796,7 @@ test-suite waspc-e2e-tests
   other-modules:
     FileSystem
     ShellCommands
-    WaspApp.ShellCommands
+    WaspProject.ShellCommands
     SnapshotTest
     SnapshotTest.Snapshot
     SnapshotTest.FileSystem

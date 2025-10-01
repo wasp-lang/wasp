@@ -2,12 +2,12 @@ module Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands
-  ( createSnapshotWaspAppFromMinimalStarter,
-    withInSnapshotWaspAppDir,
+  ( createSnapshotWaspProjectFromMinimalStarter,
+    withInSnapshotWaspProjectDir,
   )
-import WaspApp.ShellCommands
+import WaspProject.ShellCommands
   ( setWaspDbToPSQL,
-    validateWaspAppDockerImageBuilds,
+    validateWaspProjectDockerImageBuilds,
     waspCliBuild,
   )
 
@@ -15,10 +15,10 @@ waspBuildSnapshotTest :: SnapshotTest
 waspBuildSnapshotTest =
   makeSnapshotTest
     "wasp-build"
-    [ createSnapshotWaspAppFromMinimalStarter,
-      withInSnapshotWaspAppDir
+    [ createSnapshotWaspProjectFromMinimalStarter,
+      withInSnapshotWaspProjectDir
         [ setWaspDbToPSQL,
           waspCliBuild,
-          validateWaspAppDockerImageBuilds
+          validateWaspProjectDockerImageBuilds
         ]
     ]

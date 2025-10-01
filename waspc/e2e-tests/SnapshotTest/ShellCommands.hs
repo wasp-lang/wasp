@@ -2,9 +2,9 @@
 
 module SnapshotTest.ShellCommands
   ( SnapshotTestContext (..),
-    createSnapshotWaspAppFromMinimalStarter,
-    withInSnapshotWaspAppDir,
-    copyContentsOfGitTrackedDirToSnapshotWaspAppDir,
+    createSnapshotWaspProjectFromMinimalStarter,
+    withInSnapshotWaspProjectDir,
+    copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
   )
 where
 
@@ -20,60 +20,60 @@ import ShellCommands
     (~&&),
     (~|),
   )
-import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspAppDir, asWaspProjectDir, gitRootInSnapshotWaspAppDir)
+import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspProjectDir, asWaspProjectDir, gitRootInSnapshotWaspProjectDir)
 import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))
-import WaspApp.ShellCommands (WaspAppContext (..))
+import WaspProject.ShellCommands (WaspProjectContext (..))
 
 -- | Shell commands executed with this context are run from the 'SnapshotTest.FileSystem.SnapshotDir' directory.
 data SnapshotTestContext = SnapshotTestContext
   { _snapshotDir :: Path' Abs (Dir SnapshotDir),
-    _snapshotWaspAppDirInSnapshotDir :: Path' (Rel SnapshotDir) (Dir SnapshotWaspAppDir),
-    _snapshotWaspAppName :: String
+    _snapshotWaspProjectDirInSnapshotDir :: Path' (Rel SnapshotDir) (Dir SnapshotWaspProjectDir),
+    _snapshotWaspProjectName :: String
   }
 
-getSnapshotWaspAppContext :: SnapshotTestContext -> WaspAppContext
-getSnapshotWaspAppContext snapshotTestContext =
-  WaspAppContext
-    { _waspAppName = _snapshotWaspAppName snapshotTestContext,
-      _waspAppDir = asWaspProjectDir (_snapshotDir snapshotTestContext </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext)
+getSnapshotWaspProjectContext :: SnapshotTestContext -> WaspProjectContext
+getSnapshotWaspProjectContext snapshotTestContext =
+  WaspProjectContext
+    { _waspProjectName = _snapshotWaspProjectName snapshotTestContext,
+      _waspProjectDir = asWaspProjectDir (_snapshotDir snapshotTestContext </> _snapshotWaspProjectDirInSnapshotDir snapshotTestContext)
     }
 
-createSnapshotWaspAppFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
-createSnapshotWaspAppFromMinimalStarter = do
+createSnapshotWaspProjectFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
+createSnapshotWaspProjectFromMinimalStarter = do
   snapshotTestContext <- ask
-  waspCliNewMinimalStarter $ _snapshotWaspAppName snapshotTestContext
+  waspCliNewMinimalStarter $ _snapshotWaspProjectName snapshotTestContext
 
-withInSnapshotWaspAppDir ::
-  [ShellCommandBuilder WaspAppContext ShellCommand] ->
+withInSnapshotWaspProjectDir ::
+  [ShellCommandBuilder WaspProjectContext ShellCommand] ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
-withInSnapshotWaspAppDir waspAppCommandBuilders = do
+withInSnapshotWaspProjectDir waspProjectCommandBuilders = do
   snapshotTestContext <- ask
-  let waspAppContext = getSnapshotWaspAppContext snapshotTestContext
+  let waspProjectContext = getSnapshotWaspProjectContext snapshotTestContext
 
-  let snapshotAbsDir = _snapshotDir snapshotTestContext
-  let snapshotWaspAppDir = snapshotAbsDir </> _snapshotWaspAppDirInSnapshotDir snapshotTestContext
+  let snapshotDir = _snapshotDir snapshotTestContext
+  let snapshotWaspProjectDir = snapshotDir </> _snapshotWaspProjectDirInSnapshotDir snapshotTestContext
 
-  let navigateToSnapshotWaspAppDir = "cd " ++ fromAbsDir snapshotWaspAppDir
-  let cmdInWaspAppContext = foldr1 (~&&) $ buildShellCommand waspAppContext $ sequence waspAppCommandBuilders
-  let returnToSnapshotDir = "cd " ++ fromAbsDir snapshotAbsDir
+  let navigateToSnapshotWaspProjectDir = "cd " ++ fromAbsDir snapshotWaspProjectDir
+  let cmdInWaspProjectContext = foldr1 (~&&) $ buildShellCommand waspProjectContext $ sequence waspProjectCommandBuilders
+  let returnToSnapshotDir = "cd " ++ fromAbsDir snapshotDir
 
   return $
-    navigateToSnapshotWaspAppDir
-      ~&& cmdInWaspAppContext
+    navigateToSnapshotWaspProjectDir
+      ~&& cmdInWaspProjectContext
       ~&& returnToSnapshotDir
 
-copyContentsOfGitTrackedDirToSnapshotWaspAppDir ::
-  Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspAppDir) ->
+copyContentsOfGitTrackedDirToSnapshotWaspProjectDir ::
+  Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspProjectDir) ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
-copyContentsOfGitTrackedDirToSnapshotWaspAppDir srcDirInRepoRoot = do
+copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirInRepoRoot = do
   snapshotTestContext <- ask
-  let srcDirPath = fromRelDir (gitRootInSnapshotWaspAppDir </> srcDirInRepoRoot)
-      destDirPath = fromRelDir $ _snapshotWaspAppDirInSnapshotDir snapshotTestContext
+  let srcDirPath = fromRelDir (gitRootInSnapshotWaspProjectDir </> srcDirInRepoRoot)
+      destDirPath = fromRelDir $ _snapshotWaspProjectDirInSnapshotDir snapshotTestContext
 
       createDestDir :: ShellCommand =
         "mkdir -p " ++ destDirPath
       listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
-        "git -C " ++ fromRelDir gitRootInSnapshotWaspAppDir ++ " ls-files " ++ fromRelDir srcDirInRepoRoot
+        "git -C " ++ fromRelDir gitRootInSnapshotWaspProjectDir ++ " ls-files " ++ fromRelDir srcDirInRepoRoot
       -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
       -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
       stripSrcDirPrefixFromPaths :: ShellCommand =

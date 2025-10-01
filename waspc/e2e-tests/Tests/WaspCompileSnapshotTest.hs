@@ -2,10 +2,10 @@ module Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands
-  ( createSnapshotWaspAppFromMinimalStarter,
-    withInSnapshotWaspAppDir,
+  ( createSnapshotWaspProjectFromMinimalStarter,
+    withInSnapshotWaspProjectDir,
   )
-import WaspApp.ShellCommands
+import WaspProject.ShellCommands
   ( waspCliCompile,
   )
 
@@ -13,7 +13,7 @@ waspCompileSnapshotTest :: SnapshotTest
 waspCompileSnapshotTest =
   makeSnapshotTest
     "wasp-compile"
-    [ createSnapshotWaspAppFromMinimalStarter,
-      withInSnapshotWaspAppDir
+    [ createSnapshotWaspProjectFromMinimalStarter,
+      withInSnapshotWaspProjectDir
         [waspCliCompile]
     ]
