@@ -262,7 +262,8 @@ genRoutesIndex spec =
           "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
-          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
+          "isDevelopment" .= (not $ AS.isBuild spec :: Bool)
         ]
 
 operationsRouteInRootRouter :: String

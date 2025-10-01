@@ -17,7 +17,16 @@ const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
 router.get('/', middleware, function (_req, res) {
+  {=# isDevelopment =}
+  res.json({
+    message: 'Wasp Server is up and running!',
+    note: 'This is the Wasp server API. If you are looking for the web app, it is running on a separate port (usually 3000).',
+    documentation: 'https://wasp-lang.dev/docs'
+  });
+  {=/ isDevelopment =}
+  {=^ isDevelopment =}
   res.status(200).send();
+  {=/ isDevelopment =}
 })
 
 {=# isAuthEnabled =}
