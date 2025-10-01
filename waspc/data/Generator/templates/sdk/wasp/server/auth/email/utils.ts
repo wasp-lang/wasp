@@ -55,22 +55,32 @@ export async function sendEmailVerificationEmail(
   });
 }
 
+// PUBLIC API
+export async function sendAccountAlreadyExistsEmail(
+  email: string,
+  content: Email,
+): Promise<void> {
+  return sendEmailAndSaveMetadata(email, content);
+}
+
 async function sendEmailAndSaveMetadata(
   email: string,
   content: Email,
-  metadata: Partial<EmailProviderData>,
+  metadata?: Partial<EmailProviderData>,
 ): Promise<void> {
   // Save the metadata (e.g. timestamp) first, and then send the email
   // so the user can't send multiple requests while the email is being sent.
-  const providerId = createProviderId("email", email);
-  const authIdentity = await findAuthIdentity(providerId);
+  if (metadata) {
+    const providerId = createProviderId("email", email);
+    const authIdentity = await findAuthIdentity(providerId);
 
-  if (!authIdentity) {
-    throw new Error(`User with email: ${email} not found.`);
+    if (!authIdentity) {
+      throw new Error(`User with email: ${email} not found.`);
+    }
+
+    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
+    await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
   }
-
-  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-  await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
 
   emailSender.send(content).catch((e) => {
     console.error('Failed to send email', e);

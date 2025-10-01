@@ -22,8 +22,9 @@ import {
   createEmailVerificationLink,
   isEmailResendAllowed,
   sendEmailVerificationEmail,
+  sendAccountAlreadyExistsEmail,
 } from 'wasp/server/auth/email/utils'
-import { EmailFromField } from 'wasp/server/email/core/types'
+import { EmailFromField } from 'wasp/server/email'
 import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
 
 export function getSignupRoute({
@@ -82,6 +83,19 @@ export function getSignupRoute({
       // it would take to send the email. Atm, the fake work takes obviously longer than sending
       // the email!
       if (providerData.isEmailVerified) {
+        // Send a generic 'account already exists' email to the user.
+        try {
+          await sendAccountAlreadyExistsEmail(fields.email, {
+            from: fromField,
+            to: fields.email,
+            subject: 'Account Already Exists',
+            text: `It looks like you (or someone else) tried to sign up with this email. If you already have an account, you can log in at ${clientRoute}/login or reset your password at ${clientRoute}/reset-password. If this wasn't you, you can ignore this email.`,
+            html: `<p>It looks like you (or someone else) tried to sign up with this email. If you already have an account, you can <a href="${clientRoute}/login">log in</a> or <a href="${clientRoute}/reset-password">reset your password</a>. If this wasn't you, you can ignore this email.</p>`
+          })
+        } catch (e: unknown) {
+          console.error('Failed to send account already exists email:', e)
+          // Do not throw, to avoid leaking info
+        }
         await doFakeWork()
         res.json({ success: true })
         return
@@ -163,3 +177,4 @@ function ensureValidArgs(args: object): void {
   ensurePasswordIsPresent(args)
   ensureValidPassword(args)
 }
+
