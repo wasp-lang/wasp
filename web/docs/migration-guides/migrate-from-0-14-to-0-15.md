@@ -65,8 +65,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
 
 1. If you used the `useHistory()` hook, you should now use the `useNavigate()` hook.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
        ```tsx title="src/SomePage.tsx"
        import { useHistory } from 'react-router-dom'
 
@@ -79,9 +78,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          return <button onClick={handleClick}>Go to new route</button>
        }
        ```
-     </TabItem>
 
-     <TabItem value="after" label="After">
        ```tsx title="src/SomePage.tsx"
        import { useNavigate } from 'react-router-dom'
 
@@ -94,8 +91,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          return <button onClick={handleClick}>Go to new route</button>
        }
        ```
-     </TabItem>
-   </Tabs>
+   </BeforeAfter>
 
    Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-navigate#optionsreplace) for more information on the `useNavigate()` hook.
 
@@ -103,8 +99,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
 
    The default behaviour changed from `replace` to `push` in v6, so if you want to keep the old behaviour, you should add the `replace` prop.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
        ```tsx title="src/SomePage.tsx"
        import { Redirect } from 'react-router-dom'
 
@@ -115,9 +110,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          )
        }
        ```
-     </TabItem>
 
-     <TabItem value="after" label="After">
        ```tsx title="src/SomePage.tsx"
        import { Navigate } from 'react-router-dom'
 
@@ -128,15 +121,13 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          )
        }
        ```
-     </TabItem>
-   </Tabs>
+   </BeforeAfter>
 
    Check the [React Router 6 docs](https://reactrouter.com/en/main/components/navigate) for more information on the `<Navigate />` component.
 
 3. If you accessed the route params using `props.match.params`, you should now use the `useParams()` hook.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
        ```tsx title="src/SomePage.tsx"
        import { RouteComponentProps } from 'react-router-dom'
 
@@ -150,9 +141,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          )
        }
        ```
-     </TabItem>
 
-     <TabItem value="after" label="After">
        ```tsx title="src/SomePage.tsx"
        import { useParams } from 'react-router-dom'
 
@@ -166,15 +155,13 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          )
        }
        ```
-     </TabItem>
-   </Tabs>
+   </BeforeAfter>
 
    Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-params) for more information on the `useParams()` hook.
 
 4. If you used the `<NavLink />` component and its `isActive` prop to set the active link state, you should now set the `className` prop directly.
 
-   <Tabs>
-     <TabItem value="before" label="Before">
+   <BeforeAfter>
        ```tsx title="src/SomePage.tsx"
        import { NavLink } from 'react-router-dom'
 
@@ -198,9 +185,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          )
        }
        ```
-     </TabItem>
 
-     <TabItem value="after" label="After">
        ```tsx title="src/SomePage.tsx"
        import { NavLink, useLocation } from 'react-router-dom'
 
@@ -222,8 +207,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
          )
        }
        ```
-     </TabItem>
-   </Tabs>
+   </BeforeAfter>
 
    Check the [React Router 6 docs](https://reactrouter.com/en/main/components/nav-link#navlink) for more information on the `<NavLink />` component.
 
@@ -231,8 +215,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
 
 The `client.rootComponent` now requires rendering `<Outlet />` instead the `children` prop.
 
-<Tabs>
-  <TabItem value="before" label="Before">
+<BeforeAfter>
     ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
@@ -259,9 +242,7 @@ The `client.rootComponent` now requires rendering `<Outlet />` instead the `chil
       )
     }
     ```
-  </TabItem>
 
-  <TabItem value="after" label="After">
     ```wasp title="main.wasp"
     app MyApp {
       title: "My app",
@@ -290,8 +271,7 @@ The `client.rootComponent` now requires rendering `<Outlet />` instead the `chil
       )
     }
     ```
-  </TabItem>
-</Tabs>
+</BeforeAfter>
 
 That's it!
 
