@@ -33,7 +33,6 @@ const ShowcaseGallery = () => {
             text="Data Analysis"
             className="border-yellow-600 bg-yellow-50 text-yellow-600"
           />
-
         </ShowcaseItem>
         
         <ShowcaseItem
