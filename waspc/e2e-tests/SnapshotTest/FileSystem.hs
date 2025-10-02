@@ -36,7 +36,6 @@ data SnapshotDir
 data SnapshotFile
 
 -- | The Wasp app directory inside of a 'SnapshotDir'.
--- We hardcode its name to @wasp-app@ so that the snapshots directory is more readable.
 data SnapshotWaspProjectDir
 
 -- | Converts a 'SnapshotWaspProjectDir' to a 'Wasp.Project.Common.WaspProjectDir'.
