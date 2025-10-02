@@ -35,17 +35,19 @@ fetchFolderFromGithubReleaseArchiveToDisk ::
   Path' Abs (Dir destinationDir) ->
   IO (Either String ())
 fetchFolderFromGithubReleaseArchiveToDisk githubRepoRef assetName folderInArchiveRoot destinationOnDisk = do
-  let downloadUrl = getGithubReleaseArchiveDownloadURL githubRepoRef
+  let downloadUrl = getGithubReleaseArchiveDownloadURL githubRepoRef assetName
 
   fetchArchiveAndCopySubdirToDisk downloadUrl folderInArchiveRoot destinationOnDisk
   where
-    getGithubReleaseArchiveDownloadURL :: GithubRepoRef -> String
+    getGithubReleaseArchiveDownloadURL :: GithubRepoRef -> GithubReleaseArchiveName -> String
     getGithubReleaseArchiveDownloadURL
       GithubRepoRef
         { _repoName = repoName,
           _repoOwner = repoOwner,
           _repoReferenceName = repoReferenceName
-        } = intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoReferenceName, assetName]
+        }
+      assetName' =
+        intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoReferenceName, assetName']
 
 fetchFolderFromGithubRepoToDisk ::
   GithubRepoRef ->
