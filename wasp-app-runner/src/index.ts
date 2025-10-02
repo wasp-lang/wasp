@@ -1,6 +1,14 @@
 import { readdir } from "fs/promises";
-import { type Mode, parseArgs, PathToApp, WaspCliCmd } from "./args.js";
+import {
+  parseArgs,
+  type DockerImageName,
+  type Mode,
+  type PathToApp,
+  type WaspCliCmd,
+} from "./args.js";
 import { startAppInBuildMode } from "./build/index.js";
+import { DbType } from "./db/index.js";
+import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { createLogger } from "./logging.js";
@@ -9,13 +17,14 @@ import { waspInfo, waspTsSetup } from "./waspCli.js";
 const logger = createLogger("main");
 
 export async function main(): Promise<void> {
-  const { mode, waspCliCmd, pathToApp } = parseArgs();
+  const { mode, waspCliCmd, pathToApp, dbImage } = parseArgs();
 
   try {
     await runWaspApp({
       mode,
       waspCliCmd,
       pathToApp,
+      dbImage,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -31,10 +40,12 @@ async function runWaspApp({
   mode,
   waspCliCmd,
   pathToApp,
+  dbImage: dbImageArg,
 }: {
   mode: Mode;
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
+  dbImage?: DockerImageName;
 }): Promise<void> {
   await checkDependencies();
 
@@ -42,6 +53,14 @@ async function runWaspApp({
     waspCliCmd,
     pathToApp,
   });
+
+  if (dbImageArg && dbType !== DbType.Postgres) {
+    logger.error(
+      `The --db-image option is only valid when using PostgreSQL as the database.`,
+    );
+    process.exit(1);
+  }
+  const dbImage = dbImageArg ?? defaultPostgresDbImage;
 
   if (await isWaspTypescriptConfigProject(pathToApp)) {
     await waspTsSetup({
@@ -61,6 +80,7 @@ async function runWaspApp({
         pathToApp,
         appName,
         dbType,
+        dbImage,
       });
       break;
 
@@ -70,6 +90,7 @@ async function runWaspApp({
         pathToApp,
         appName,
         dbType,
+        dbImage,
       });
       break;
 
