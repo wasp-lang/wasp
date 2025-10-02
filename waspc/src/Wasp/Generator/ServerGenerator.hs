@@ -263,7 +263,8 @@ genRoutesIndex spec =
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
-          "isDevelopment" .= (not $ AS.isBuild spec :: Bool)
+          "isDevelopment" .= (not $ AS.isBuild spec :: Bool),
+          "appName" .= (fst $ getApp spec :: String)
         ]
 
 operationsRouteInRootRouter :: String
