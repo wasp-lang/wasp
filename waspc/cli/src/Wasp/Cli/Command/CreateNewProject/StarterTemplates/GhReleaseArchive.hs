@@ -21,8 +21,11 @@ createProjectOnDiskFromGhReleaseArchiveTemplate ::
   Path' Rel' Dir' ->
   Command ()
 createProjectOnDiskFromGhReleaseArchiveTemplate absWaspProjectDir projectName appName ghRepoRef assetName templatePathInRepo = do
-  fetchTheTemplateFromGhToDisk >>= either throwProjectCreationError pure
-  liftIO $ replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
+  fetchTemplateFromGhToWaspProjectDir
+    >>= either throwProjectCreationError (const replaceTemplatePlaceholders)
   where
-    fetchTheTemplateFromGhToDisk = do
+    fetchTemplateFromGhToWaspProjectDir =
       liftIO $ fetchFolderFromGithubReleaseArchiveToDisk ghRepoRef assetName templatePathInRepo absWaspProjectDir
+
+    replaceTemplatePlaceholders =
+      liftIO $ replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
