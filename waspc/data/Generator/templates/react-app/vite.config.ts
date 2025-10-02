@@ -25,7 +25,7 @@ const defaultViteConfig = {
     detectServerImports(),
   ],
   optimizeDeps: {
-    exclude:  {=& depsExcludedFromOptimization =}
+    exclude: {=& depsExcludedFromOptimization =}
   },
   server: {
     port: {= defaultClientPort =},
