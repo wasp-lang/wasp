@@ -26,21 +26,21 @@ type GithubRepoName = String
 
 type GithubRepoReferenceName = String
 
-type GithubReleaseAssetName = String
+type GithubReleaseArchiveName = String
 
-fetchFolderFromGithubReleaseAssetToDisk ::
+fetchFolderFromGithubReleaseArchiveToDisk ::
   GithubRepoRef ->
-  GithubReleaseAssetName ->
+  GithubReleaseArchiveName ->
   Path' (Rel archiveRoot) (Dir folderInArchive) ->
   Path' Abs (Dir destinationDir) ->
   IO (Either String ())
-fetchFolderFromGithubReleaseAssetToDisk githubRepoRef assetName folderInArchiveRoot destinationOnDisk = do
-  let downloadUrl = getGithubReleaseAssetDownloadURL githubRepoRef
+fetchFolderFromGithubReleaseArchiveToDisk githubRepoRef assetName folderInArchiveRoot destinationOnDisk = do
+  let downloadUrl = getGithubReleaseArchiveDownloadURL githubRepoRef
 
   fetchArchiveAndCopySubdirToDisk downloadUrl folderInArchiveRoot destinationOnDisk
   where
-    getGithubReleaseAssetDownloadURL :: GithubRepoRef -> String
-    getGithubReleaseAssetDownloadURL
+    getGithubReleaseArchiveDownloadURL :: GithubRepoRef -> String
+    getGithubReleaseArchiveDownloadURL
       GithubRepoRef
         { _repoName = repoName,
           _repoOwner = repoOwner,
