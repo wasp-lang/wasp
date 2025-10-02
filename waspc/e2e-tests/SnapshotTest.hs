@@ -60,16 +60,15 @@ runSnapshotTest snapshotTest = do
   getSnapshotsDir >>= executeSnapshotTestWorkflow
   where
     executeSnapshotTestWorkflow :: Path' Abs (Dir SnapshotsDir) -> IO TestTree
-    executeSnapshotTestWorkflow snapshotsDir =
+    executeSnapshotTestWorkflow snapshotsDir = do
       setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-        >> executeSnapshotTestCommand snapshotTest currentSnapshotDir
-        >> generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
-        >> getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
-        >>= \currentSnapshotFilesForContentCheck ->
-          return $
-            testGroup
-              (_snapshotTestName snapshotTest)
-              (defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFilesForContentCheck)
+      executeSnapshotTestCommand snapshotTest currentSnapshotDir
+      generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
+      currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
+      return $
+        testGroup
+          (_snapshotTestName snapshotTest)
+          (defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFilesForContentCheck)
       where
         goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir (_snapshotTestName snapshotTest) Golden
         currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir (_snapshotTestName snapshotTest) Current
