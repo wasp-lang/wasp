@@ -15,8 +15,7 @@ const examples = [
   },
   {
     title: "Roke ⛰️",
-    description:
-      "A Wasp + ShadCN + Framer Motion Starter Template.",
+    description: "A Wasp + ShadCN + Framer Motion Starter Template.",
     authorName: "wardbox",
     authorImg: "https://avatars.githubusercontent.com/u/31261302",
     repoName: "roke",

@@ -34,7 +34,7 @@ const ShowcaseGallery = () => {
             className="border-yellow-600 bg-yellow-50 text-yellow-600"
           />
         </ShowcaseItem>
-        
+
         <ShowcaseItem
           url="/blog/2022/11/26/erlis-amicus-usecase"
           thumb="img/lp/showcase/amicus.webp"
@@ -58,7 +58,6 @@ const ShowcaseGallery = () => {
             className="border-green-600 bg-green-50 text-green-600"
           />
         </ShowcaseItem>
-
       </div>
     </SectionContainer>
   );
@@ -70,7 +69,7 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
       <div className="group inline-block min-w-full">
         <div className="flex flex-col space-y-3 pb-8 md:pb-0">
           <div
-            className={`relative mb-4 h-56 w-full overflow-hidden rounded-lg bg-black border border-neutral-300 shadow-lg`}
+            className={`relative mb-4 h-56 w-full overflow-hidden rounded-lg border border-neutral-300 bg-black shadow-lg`}
           >
             <img src={thumb} className="object-cover" />
           </div>
