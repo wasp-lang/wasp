@@ -23,6 +23,7 @@ import SnapshotTest.FileSystem
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
+    asWaspProjectDir,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
@@ -37,6 +38,7 @@ import System.FilePath (equalFilePath, makeRelative, takeFileName)
 import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
+import WaspProject.ShellCommands (WaspProjectContext (..))
 
 data SnapshotTest = SnapshotTest
   { _snapshotTestName :: String,
@@ -103,8 +105,11 @@ createSnapshotTestContext :: Path' Abs (Dir SnapshotDir) -> SnapshotTestContext
 createSnapshotTestContext currentSnapshotDir =
   SnapshotTestContext
     { _snapshotDir = currentSnapshotDir,
-      _snapshotWaspProjectDirInSnapshotDir = snapshotWaspProjectDirInSnapshotDir "wasp-app",
-      _snapshotWaspProjectName = "wasp-app"
+      _snapshotWaspProjectContext =
+        WaspProjectContext
+          { _waspProjectDir = asWaspProjectDir $ currentSnapshotDir </> snapshotWaspProjectDirInSnapshotDir "wasp-app",
+            _waspProjectName = "wasp-app"
+          }
     }
 
 getSnapshotFilesForExistenceCheck :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]

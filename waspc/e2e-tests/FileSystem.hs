@@ -1,8 +1,8 @@
 module FileSystem
-  ( GitRepositoryRoot,
+  ( GitRootDir,
     WaspcDir,
     E2eTestsDir,
-    waspcDirInGitRoot,
+    waspcDirInGitRootDir,
     getWaspcDirPath,
     e2eTestsDirInWaspcDir,
     getE2eTestsDir,
@@ -15,14 +15,14 @@ import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
 import System.FilePath (takeFileName)
 
-data GitRepositoryRoot
+data GitRootDir
 
 data WaspcDir
 
 data E2eTestsDir
 
-waspcDirInGitRoot :: Path' (Rel GitRepositoryRoot) (Dir WaspcDir)
-waspcDirInGitRoot = [reldir|waspc|]
+waspcDirInGitRootDir :: Path' (Rel GitRootDir) (Dir WaspcDir)
+waspcDirInGitRootDir = [reldir|waspc|]
 
 getWaspcDirPath :: IO (Path' Abs (Dir WaspcDir))
 getWaspcDirPath = do

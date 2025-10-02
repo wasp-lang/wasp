@@ -10,7 +10,7 @@ where
 
 import Control.Monad.Reader (MonadReader (ask))
 import FileSystem
-  ( GitRepositoryRoot,
+  ( GitRootDir,
   )
 import ShellCommands
   ( ShellCommand,
@@ -20,68 +20,52 @@ import ShellCommands
     (~&&),
     (~|),
   )
-import SnapshotTest.FileSystem (SnapshotDir, SnapshotWaspProjectDir, asWaspProjectDir, gitRootInSnapshotWaspProjectDir)
+import SnapshotTest.FileSystem (SnapshotDir, gitRootFromSnapshotDir)
 import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
 -- | Shell commands executed with this context are run from the 'SnapshotTest.FileSystem.SnapshotDir' directory.
 data SnapshotTestContext = SnapshotTestContext
   { _snapshotDir :: Path' Abs (Dir SnapshotDir),
-    _snapshotWaspProjectDirInSnapshotDir :: Path' (Rel SnapshotDir) (Dir SnapshotWaspProjectDir),
-    _snapshotWaspProjectName :: String
+    _snapshotWaspProjectContext :: WaspProjectContext
   }
-
-getSnapshotWaspProjectContext :: SnapshotTestContext -> WaspProjectContext
-getSnapshotWaspProjectContext snapshotTestContext =
-  WaspProjectContext
-    { _waspProjectName = _snapshotWaspProjectName snapshotTestContext,
-      _waspProjectDir = asWaspProjectDir (_snapshotDir snapshotTestContext </> _snapshotWaspProjectDirInSnapshotDir snapshotTestContext)
-    }
 
 createSnapshotWaspProjectFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspProjectFromMinimalStarter = do
   snapshotTestContext <- ask
-  waspCliNewMinimalStarter $ _snapshotWaspProjectName snapshotTestContext
+  waspCliNewMinimalStarter $ _waspProjectName $ _snapshotWaspProjectContext snapshotTestContext
 
 withInSnapshotWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
 withInSnapshotWaspProjectDir waspProjectCommandBuilders = do
   snapshotTestContext <- ask
-  let waspProjectContext = getSnapshotWaspProjectContext snapshotTestContext
-
-  let snapshotDir = _snapshotDir snapshotTestContext
-  let snapshotWaspProjectDir = snapshotDir </> _snapshotWaspProjectDirInSnapshotDir snapshotTestContext
-
-  let navigateToSnapshotWaspProjectDir = "cd " ++ fromAbsDir snapshotWaspProjectDir
-  let cmdInWaspProjectContext = foldr1 (~&&) $ buildShellCommand waspProjectContext $ sequence waspProjectCommandBuilders
-  let returnToSnapshotDir = "cd " ++ fromAbsDir snapshotDir
-
   return $
-    navigateToSnapshotWaspProjectDir
-      ~&& cmdInWaspProjectContext
-      ~&& returnToSnapshotDir
+    "cd " ++ fromAbsDir (_waspProjectDir $ _snapshotWaspProjectContext snapshotTestContext)
+      ~&& foldr1 (~&&) (snapshotWaspProjectCommands snapshotTestContext)
+      ~&& "cd " ++ fromAbsDir (_snapshotDir snapshotTestContext)
+  where
+    snapshotWaspProjectCommands :: SnapshotTestContext -> [ShellCommand]
+    snapshotWaspProjectCommands snapshotTestContext =
+      buildShellCommand (_snapshotWaspProjectContext snapshotTestContext) $ sequence waspProjectCommandBuilders
 
 copyContentsOfGitTrackedDirToSnapshotWaspProjectDir ::
-  Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspProjectDir) ->
+  Path' (Rel GitRootDir) (Dir srcDir) ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
-copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirInRepoRoot = do
+copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirFromGitRootDir = do
   snapshotTestContext <- ask
-  let srcDirPath = fromRelDir (gitRootInSnapshotWaspProjectDir </> srcDirInRepoRoot)
-      destDirPath = fromRelDir $ _snapshotWaspProjectDirInSnapshotDir snapshotTestContext
+  let snapshotWaspProjectDir = _waspProjectDir $ _snapshotWaspProjectContext snapshotTestContext
 
-      createDestDir :: ShellCommand =
-        "mkdir -p " ++ destDirPath
       listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
-        "git -C " ++ fromRelDir gitRootInSnapshotWaspProjectDir ++ " ls-files " ++ fromRelDir srcDirInRepoRoot
-      -- Remove the src dir prefix from each path so that files get copied into the destination dir directly.
-      -- e.g. `waspc/examples/todoApp/file.txt` -> `file.txt`
-      stripSrcDirPrefixFromPaths :: ShellCommand =
-        "sed 's#^" ++ fromRelDir srcDirInRepoRoot ++ "##'"
-      copyFromSrcDirToDestDir :: ShellCommand =
-        "rsync -a --files-from=- " ++ srcDirPath ++ " " ++ destDirPath
+        "git -C " ++ fromRelDir gitRootFromSnapshotDir ++ " ls-files " ++ fromRelDir srcDirFromGitRootDir
+      -- Remove the relative prefix from each path so that files get copied into the destination dir directly.
+      -- e.g. `../../../../examples/todoApp/file.txt` -> `file.txt`
+      stripSrcDirRelPrefixFromPaths :: ShellCommand =
+        "sed 's#^" ++ fromRelDir srcDirFromGitRootDir ++ "##'"
+      copyFromSrcDirToSnapshotWaspProjectDir :: ShellCommand =
+        "rsync -a --files-from=- " ++ fromRelDir (gitRootFromSnapshotDir </> srcDirFromGitRootDir) ++ " " ++ fromAbsDir snapshotWaspProjectDir
    in return $
-        createDestDir
+        "mkdir -p " ++ fromAbsDir snapshotWaspProjectDir
           ~&& listRelPathsOfGitTrackedFilesInSrcDir
-            ~| stripSrcDirPrefixFromPaths
-            ~| copyFromSrcDirToDestDir
+            ~| stripSrcDirRelPrefixFromPaths
+            ~| copyFromSrcDirToSnapshotWaspProjectDir

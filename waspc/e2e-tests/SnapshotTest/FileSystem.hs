@@ -9,15 +9,15 @@ module SnapshotTest.FileSystem
     snapshotsDirInE2eTests,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
-    snapshotWaspProjectDirInRepoRoot,
-    gitRootInSnapshotWaspProjectDir,
+    snapshotDirInGitRootDir,
+    gitRootFromSnapshotDir,
     snapshotWaspProjectDirInSnapshotDir,
     snapshotFileListManifestFileInSnapshotDir,
   )
 where
 
 import Data.Maybe (fromJust)
-import FileSystem (E2eTestsDir, GitRepositoryRoot, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRoot)
+import FileSystem (E2eTestsDir, GitRootDir, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRootDir)
 import SnapshotTest.Snapshot (SnapshotType (..))
 import StrongPath (Dir, File, Path, Path', Rel, castDir, parseRelDir, reldir, relfile, (</>))
 import StrongPath.Types (Abs)
@@ -63,17 +63,16 @@ snapshotFileListManifestFileInSnapshotDir = [relfile|snapshot-file-list.manifest
 snapshotWaspProjectDirInSnapshotDir :: String -> Path' (Rel SnapshotDir) (Dir SnapshotWaspProjectDir)
 snapshotWaspProjectDirInSnapshotDir snapshotWaspProjectName = fromJust . parseRelDir $ snapshotWaspProjectName
 
--- | Inverse of 'gitRootInSnapshotWaspProjectDir'.
+-- | Inverse of 'gitRootFromSnapshotDir'.
 -- NOTE: If you change this function, change the other one too.
-snapshotWaspProjectDirInRepoRoot :: String -> SnapshotType -> String -> Path' (Rel GitRepositoryRoot) (Dir SnapshotWaspProjectDir)
-snapshotWaspProjectDirInRepoRoot snapshotTestName snapshotType snapshotWaspProjectName =
-  waspcDirInGitRoot
+snapshotDirInGitRootDir :: String -> SnapshotType -> Path' (Rel GitRootDir) (Dir SnapshotDir)
+snapshotDirInGitRootDir snapshotTestName snapshotType =
+  waspcDirInGitRootDir
     </> e2eTestsDirInWaspcDir
     </> snapshotsDirInE2eTests
     </> snapshotDirInSnapshotsDir snapshotTestName snapshotType
-    </> snapshotWaspProjectDirInSnapshotDir snapshotWaspProjectName
 
--- | Inverse of 'snapshotWaspProjectDirInRepoRoot'.
+-- | Inverse of 'snapshotDirInGitRootDir'.
 -- NOTE: If you change this function, change the other one too.
-gitRootInSnapshotWaspProjectDir :: Path' (Rel SnapshotWaspProjectDir) (Dir GitRepositoryRoot)
-gitRootInSnapshotWaspProjectDir = [reldir|../../../../|]
+gitRootFromSnapshotDir :: Path' (Rel SnapshotDir) (Dir GitRootDir)
+gitRootFromSnapshotDir = [reldir|../../../../|]
