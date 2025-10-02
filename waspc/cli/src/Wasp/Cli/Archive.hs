@@ -8,16 +8,15 @@ import Data.Functor ((<&>))
 import Data.Maybe (fromJust)
 import Network.HTTP.Conduit (simpleHttp)
 import Path.IO (copyDirRecur)
-import StrongPath (Abs, Dir, File, Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import StrongPath.Path (toPathAbsDir)
 import System.FilePath (takeFileName)
 import Wasp.Cli.FileSystem (withTempDir)
-import Wasp.Util.IO (removeFile)
 
 fetchArchiveAndCopySubdirToDisk ::
   String ->
-  Path' (Rel r) (Dir subdir) ->
+  Path' (Rel extracted) (Dir subdir) ->
   Path' Abs (Dir d) ->
   IO (Either String ())
 fetchArchiveAndCopySubdirToDisk archiveDownloadUrl targetFolder destinationOnDisk = do
@@ -25,16 +24,18 @@ fetchArchiveAndCopySubdirToDisk archiveDownloadUrl targetFolder destinationOnDis
     ( withTempDir $ \tempDir -> do
         let archiveName = takeFileName archiveDownloadUrl
             archiveDownloadPath = tempDir </> (fromJust . SP.parseRelFile $ archiveName)
-            archiveUnpackPath = tempDir
+            archiveUnpackPath = tempDir </> extractedContentsDir
             targetFolderInArchivePath = archiveUnpackPath </> targetFolder
 
         downloadFile archiveDownloadUrl archiveDownloadPath
         unpackArchive archiveDownloadPath archiveUnpackPath
-        removeFile archiveDownloadPath
         copyDirRecur (toPathAbsDir targetFolderInArchivePath) (toPathAbsDir destinationOnDisk)
     )
     <&> either showException Right
   where
+    extractedContentsDir :: Path' (Rel tempDir) (Dir extracted)
+    extractedContentsDir = [reldir|extracted|]
+
     downloadFile :: String -> Path' Abs (File f) -> IO ()
     downloadFile downloadUrl destinationPath =
       simpleHttp downloadUrl >>= BL.writeFile (SP.fromAbsFile destinationPath)
