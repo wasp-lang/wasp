@@ -177,7 +177,7 @@ simpleGhReleaseArchiveTemplate (repoName, assetName) (tmplDisplayName, tmplDescr
     ( DirBasedTemplateMetadata
         { _name = tmplDisplayName,
           _description = tmplDescription,
-          _path = [reldir|.|],
+          _path = [reldir|.|], -- We assume that the archive contains files at its root.
           _buildStartingInstructions = buildStartingInstructions
         }
     )
