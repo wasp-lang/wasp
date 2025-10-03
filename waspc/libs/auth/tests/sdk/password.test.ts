@@ -7,10 +7,12 @@ describe("password utilities", () => {
 
     expect(hashedPassword.length).toBeGreaterThan(0);
     expect(hashedPassword).not.toBe(password);
+    expectVerificationToSucceed(hashedPassword, password);
+    expectVerificationToFail(hashedPassword, password + "wrong");
   }
 
   describe("hashPassword", () => {
-    it("should hash a password and return a string", async () => {
+    it("should hash a password", async () => {
       await expectHashingToSucceed("testPassword123");
     });
 
@@ -22,7 +24,7 @@ describe("password utilities", () => {
       await expectHashingToSucceed("パスワード🔒");
     });
 
-    it("should produce different hashes for the same password (due to salt)", async () => {
+    it("should produce different hashes for the same password due to random salt", async () => {
       const password = "samePassword";
 
       const hash1 = await hashPassword(password);
@@ -31,8 +33,7 @@ describe("password utilities", () => {
       expect(hash1).not.toBe(hash2);
     });
 
-    it("should normalize password before hashing", async () => {
-      // Test with characters that can be normalized differently.
+    it("should handle chars with different unicode representations by normalizing them", async () => {
       const password1 = "café"; // composed é
       const password2 = "cafe\u0301"; // e + combining acute accent
 

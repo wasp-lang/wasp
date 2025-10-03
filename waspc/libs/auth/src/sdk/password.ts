@@ -8,10 +8,25 @@ const hashingOptions: Options = {
   parallelism: 1,
 };
 
+/**
+ * Hashes a password using the Argon2 algorithm.
+ * - It normalizes the password password before hashing to ensure consistency.
+ * - It doesn't require a salt input as the argon2 library generates a random salt for each hash.
+ *
+ * @param password The password to hash
+ * @returns A PHC string (e.g. $argon2id$v=19$m=19456,t=2,p=1$...) whichs contains the hashed password and the salt.
+ * @see https://github.com/P-H-C/phc-string-format/blob/master/phc-sf-spec.md for more information about the PHC string format.
+ */
 export async function hashPassword(password: string): Promise<string> {
   return hash(normalizePassword(password), hashingOptions);
 }
 
+/**
+ *
+ * @param hashedPassword A PHC string (e.g. $argon2id$v=19$m=19456,t=2,p=1$...) whichs contains the hashed password and the salt.
+ * @param password The password to verify
+ * @throws An error if the password is invalid
+ */
 export async function verifyPassword(
   hashedPassword: string,
   password: string,
