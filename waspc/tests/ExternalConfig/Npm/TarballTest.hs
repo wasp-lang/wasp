@@ -6,7 +6,7 @@ import qualified Wasp.ExternalConfig.Npm.Tarball as Tarball
 
 spec_createTarballFilenamesCorrectly :: Spec
 spec_createTarballFilenamesCorrectly = do
-  describe "sanitizePackageNameAsNpmPackTarball" $ do
+  describe "packageNameToTarballPrefix" $ do
     -- Test cases based on the allowed npm package name regex and expected
     -- values generated using `npm pack` command.
     "@scope/package" ~> "scope-package"
@@ -29,7 +29,7 @@ spec_createTarballFilenamesCorrectly = do
     (~>) :: String -> String -> Spec
     (~>) input expected = do
       it ("sanitizes " ++ input) $ do
-        Tarball.sanitizePackageNameAsNpmPackTarball input `shouldBe` expected
+        Tarball.packageNameToTarballPrefix input `shouldBe` expected
 
     itShouldCreateValidTarballPath :: (String, String) -> String -> Spec
     itShouldCreateValidTarballPath (packageName, packageVersion) expected = do

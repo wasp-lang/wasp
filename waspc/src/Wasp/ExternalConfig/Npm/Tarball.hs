@@ -1,5 +1,5 @@
 module Wasp.ExternalConfig.Npm.Tarball
-  ( sanitizePackageNameAsNpmPackTarball,
+  ( packageNameToTarballPrefix,
     makeTarballFilename,
     tarballFilenameAsRelFile,
     TarballFilename (..),
@@ -23,14 +23,14 @@ makeTarballFilename :: String -> String -> TarballFilename
 makeTarballFilename packageName version =
   TarballFilename $
     concat
-      [ sanitizePackageNameAsNpmPackTarball packageName,
+      [ packageNameToTarballPrefix packageName,
         "-",
         version,
         ".tgz"
       ]
 
-sanitizePackageNameAsNpmPackTarball :: String -> String
-sanitizePackageNameAsNpmPackTarball = sanitize
+packageNameToTarballPrefix :: String -> String
+packageNameToTarballPrefix = sanitize
   where
     sanitize :: String -> String
     sanitize = removeStartingAtSymbol . slashesToDashes
