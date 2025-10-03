@@ -122,6 +122,8 @@ print_usage() {
     "Builds the Haskell project statically + all sub-projects (i.e. TS packages). Only useful for release builds. Needs to be run on a musl-based Linux distribution (e.g. Alpine)."
   print_usage_cmd "build:packages" \
     "Builds the TypeScript projects under packages/."
+  print_usage_cmd "build:libs" \
+    "Builds the Wasp libs under libs/."
   echo ""
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
@@ -194,6 +196,9 @@ case $COMMAND in
     ;;
   build:packages)
     echo_and_eval "$WASP_PACKAGES_COMPILE"
+    ;;
+  build:libs)
+    echo_and_eval "$WASP_LIBS_COMPILE"
     ;;
   install)
     echo_and_eval "$INSTALL_CMD"
