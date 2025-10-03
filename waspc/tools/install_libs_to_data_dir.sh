@@ -8,7 +8,8 @@ waspc_dir=$script_dir/..
 data_libs_dir=$waspc_dir/data/Generator/libs
 
 # Cleanup old libs.
-rm -f "${data_libs_dir:?}"/*.tgz
+rm -rf "$data_libs_dir"
+mkdir -p "$data_libs_dir"
 
 # Build and copy libs to data dir.
 for lib_dir in "$waspc_dir"/libs/*; do
