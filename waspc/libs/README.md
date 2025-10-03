@@ -41,3 +41,6 @@ Keep in mind:
 
 The package will be packaged using `npm pack` and the resulting tarball will
 be copied to `data/libs/` by the `./tools/install_libs_to_data_dir.sh` script.
+
+Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
+module so that the Wasp CLI knows about it.
