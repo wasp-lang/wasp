@@ -13,10 +13,10 @@ import Wasp.Generator.WaspLibs.Common (LibsRootDir, getAbsLibsSourceDirPath)
 import Wasp.Util (checksumFromFilePath, hexToString)
 
 {-
-  `WaspLib` represents internal Wasp npm packages that are located in the
-  ./libs directory. These packages contain code that is used in the generated
-  Wasp app. `WaspLib`s are packaged into npm tarballs which are copied to the
-  generated Wasp app and are installed as npm dependencies.
+  `WaspLib` represents an internal Wasp npm package that are located in the
+  ./libs directory. This npm package contain code that is used in the generated
+  Wasp app. They are packaged into npm tarballs which are copied to the
+  generated Wasp app and are installed as an npm dependency.
 
   The filename of a npm tarball copied to the generated Wasp app contains the checksum of the
   tarball, to avoid npm caching the tarball.
@@ -52,6 +52,6 @@ computeTarballChecksum :: Path' Abs File' -> IO String
 computeTarballChecksum tarballPath = take 8 . hexToString <$> checksumFromFilePath tarballPath
 
 makeLocalNpmDepFromWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
-makeLocalNpmDepFromWaspLib tarbalSrcDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
+makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
   where
-    npmDepFilePath = "file:" <> fromRelFile (tarbalSrcDir </> tarballFilenameAsRelFile (generatedCodeDirTarballFilename waspLib))
+    npmDepFilePath = "file:" <> fromRelFile (tarballSrcDir </> tarballFilenameAsRelFile (generatedCodeDirTarballFilename waspLib))
