@@ -24,7 +24,7 @@
     "build": "tsdown",
     "check": "npm run check:types && npm run check:coverage && npm run check:type-exports",
     "check:coverage": "vitest run --coverage",
-    "check:type-exports": "npx @arethetypeswrong/cli -P --profile esm-only",
+    "check:type-exports": "attw -P --profile esm-only",
     "check:types": "tsc --noEmit",
     "dev": "vitest dev",
     "prepare": "npm run build"
@@ -37,6 +37,7 @@
     "oslo": "^1.1.2"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
     "@types/node": "^22.17.1",
     "@types/react": "^18.2.0",
     "@vitest/coverage-v8": "^3.1.4",
