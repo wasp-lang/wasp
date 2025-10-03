@@ -30,9 +30,14 @@ them into `data/`. Then you can use `./run wasp-cli` as normal.
 
 ## Adding a New Lib
 
-Create a directory in this folder to contain the new package. It should contain a
-`prepare` script that will be run to prepare the package for use e.g. to build
-the package.
+Create a directory in this folder to contain the new package.
+
+Keep in mind:
+
+- `package.json` should have a `prepare` script that will be run to prepare
+  the package for use e.g. to build the package.
+- `package.json` should include a `files` field that specifies which files
+  should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
 The package will be packaged using `npm pack` and the resulting tarball will
 be copied to `data/libs/` by the `./tools/install_libs_to_data_dir.sh` script.
