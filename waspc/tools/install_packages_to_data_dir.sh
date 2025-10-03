@@ -6,6 +6,11 @@
 # Gets the directory of where this script lives.
 script_dir=$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)
 waspc_dir=$script_dir/..
+data_packages_dir=$waspc_dir/data/packages
+
+# Cleanup old packages in data dir.
+rm -rf "$data_packages_dir"
+mkdir -p "$data_packages_dir"
 
 for package_dir in "${waspc_dir:?}"/packages/*; do
   if [[ -d "$package_dir" ]]; then
@@ -22,5 +27,4 @@ for package_dir in "${waspc_dir:?}"/packages/*; do
 done
 
 cd "${waspc_dir:?}"
-rm -rf ./data/packages
-cp -R ./packages ./data
+cp -R ./packages/* "$data_packages_dir"
