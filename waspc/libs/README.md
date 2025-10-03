@@ -6,7 +6,7 @@ apps.
 
 There are two ways you can add code to the generated Wasp apps:
 
-- by writing Mustache templates in the `data/Generator/templates` folder
+- by writing Mustache templates in the `waspc/data/Generator/templates` folder
 - by working on the libs in this folder
 
 Templates are not a real JS project (they include Mustache syntax) which means you
@@ -23,10 +23,10 @@ Wasp Libs are npm libraries you develop in isolation and test them using unit te
 
 When you want to test how they integrate with the Wasp CLI and the generated app,
 you need to make sure the Wasp CLI can find them.
-To do that, you need to copy the compiled libs to the `data/` folder, which is
+To do that, you need to copy the compiled libs to the `waspc/data/` folder, which is
 packaged with the Wasp CLI.
-Run `./tools/install_libs_to_data_dir.sh` to compile the libs and copy
-them into `data/`. Then you can use `./run wasp-cli` as normal.
+Run `./run build:libs` to compile the libs and copy them into `data/`.
+Then you can use `./run wasp-cli` as you normally would.
 
 ## Adding a New Lib
 
@@ -40,7 +40,7 @@ Keep in mind:
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
 The package will be packaged using `npm pack` and the resulting tarball will
-be copied to `data/libs/` by the `./tools/install_libs_to_data_dir.sh` script.
+be copied to `waspc/data/libs/` by the `./run build:libs` script.
 
 Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
 module so that the Wasp CLI knows about it.
