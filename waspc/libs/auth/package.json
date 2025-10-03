@@ -6,15 +6,15 @@
   "exports": {
     "./sdk": {
       "types": "./dist/sdk.d.ts",
-      "import": "./dist/sdk.js"
+      "default": "./dist/sdk.js"
     },
     "./sdk/browser": {
       "types": "./dist/sdk-browser.d.ts",
-      "import": "./dist/sdk-browser.js"
+      "default": "./dist/sdk-browser.js"
     },
     "./server": {
       "types": "./dist/server.d.ts",
-      "import": "./dist/server.js"
+      "default": "./dist/server.js"
     }
   },
   "files": [
