@@ -3,6 +3,7 @@ import operations from './operations/index.js'
 import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 import { config } from 'wasp/server'
 
+
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
