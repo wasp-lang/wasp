@@ -28,7 +28,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 
 ## How to switch from the Wasp DSL config to the Wasp TS config
 
-1. Go into the Wasp project you want to switch to the Wasp TS config (or create a new Wasp project if you want to try it out like that). Make sure your project is working.
+1. Go into the Wasp project you want to switch to the Wasp TS config (or create a new Wasp project if you just want to try it out).
 2. Rename `tsconfig.json` file to `tsconfig.src.json`
 3. Create a new `tsconfig.json` file with the following content:
 
