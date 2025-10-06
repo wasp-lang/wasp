@@ -112,57 +112,33 @@ If you, for example, want to serve the client from a different path than `/`, yo
   </TabItem>
 </Tabs>
 
-## Chrome DevTools automatic workspace mapping {#devtools-workspace}
+### Editing from the Chrome DevTools {#devtools-workspace}
 
-Want edits you make in Chrome DevTools Sources panel to save directly to your project files? You can enable [Chrome DevTools Workspace](https://developer.chrome.com/docs/devtools/workspace/) support in development with the community plugin **vite-plugin-devtools-json** (no Wasp fork required).
+Chrome DevTools support [mapping a page's resources to a folder](https://developer.chrome.com/docs/devtools/workspaces), so any changes you make in the browser reflect back to your files. To enable it, you can add their Vite plugin: [`vite-plugin-devtools-json`](https://github.com/ChromeDevTools/vite-plugin-devtools-json).
 
 1. Install the plugin as a **dev-dependency**:
 
 ```bash
-npm add -D vite-plugin-devtools-json
+npm i -D vite-plugin-devtools-json
 ```
 
 2. Extend your `vite.config.{ts,js}`:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-
-```js title="vite.config.js"
-import { devtoolsJson } from 'vite-plugin-devtools-json'
-
-export default {
-  plugins: [
-    react(),              // already present
-    devtoolsJson({
-      // tell Chrome which folder to map – project root works great
-      root: __dirname
-    })
-  ]
-}
-```
-
-  </TabItem>
-  <TabItem value="ts" label="TypeScript">
-
-```ts title="vite.config.ts"
+```ts title="vite.config.ts" auto-js
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import { devtoolsJson } from 'vite-plugin-devtools-json'
+import devtoolsJson from 'vite-plugin-devtools-json'
 
 export default defineConfig({
   plugins: [
-    react(),
-    devtoolsJson({ root: __dirname })
+    devtoolsJson({ root: import.meta.dirname })
   ]
 })
 ```
-  </TabItem>
-</Tabs>
 
-3. Start your app with `wasp start`, open Chrome DevTools → **Sources › Filesystems** and you should see your project automatically mapped. Changes you make in DevTools now save to disk and Vite’s HMR updates the browser instantly.
+3. Start your app with `wasp start`, open **Chrome DevTools → Sources → Workspace** and you should see your project automatically mapped. Changes you make in DevTools now save to disk and Vite's HMR updates the browser instantly.
 
 :::tip Path normalisation
-The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Docker-desktop path fixes contributed by the Wasp community – make sure you are on ≥ 0.4.0.
+The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Docker Desktop path fixes contributed by the Wasp community – make sure you are on version 0.4.0 or greater.
 :::
 
 This keeps the default Wasp setup lean while letting you opt-in to a powerful workflow with just a few lines in your Vite config.
