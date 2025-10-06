@@ -14,7 +14,7 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
-  # We use run_id becuase it's shorter than commit SHA since
+  # We use run_id because it's shorter than commit SHA since
   # the max length for project name in Railway is 25 characters.
   APP_PREFIX: ci-${{ github.run_id }}
   APP_TO_DEPLOY: examples/kitchen-sink
