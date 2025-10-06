@@ -1,0 +1,83 @@
+name: Run e2e tests on example apps
+
+on:
+  workflow_call:
+  push:
+    branches:
+      - main
+      - release
+  pull_request:
+    paths:
+      - "examples/**"
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+jobs:
+  test-example-apps:
+    name: Test Example Apps
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - tutorials/TodoApp
+          - tutorials/TodoAppTs
+          - waspello
+          - waspleau
+          - websockets-realtime-voting
+
+    steps:
+      - uses: "actions/checkout@v4"
+
+      - uses: ./.github/actions/setup-haskell
+        with:
+          ghc-version: "8.10.7"
+          cabal-version: "3.10.2.0"
+          cabal-project-dir: waspc
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Wasp CLI
+        working-directory: waspc
+        run: ./run install
+
+      - name: Install node dependencies for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: npm ci
+
+      - name: Install playwright dependencies for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: npx playwright install --with-deps
+
+      - name: Setup project environment for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          if [ -f ".env.server.example" ]; then
+            cp .env.server.example .env.server
+          fi
+
+      - name: Extract Database Provider
+        id: extract-db-provider
+        working-directory: examples/${{ matrix.example }}
+        run: |
+          DATABASE_PROVIDER=$($GITHUB_WORKSPACE/scripts/get-wasp-database-provider.sh wasp-cli)
+          echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
+
+      - name: Run DEV e2e tests for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        env:
+          WASP_CLI_CMD: wasp-cli
+          WASP_RUN_MODE: dev
+        run: npm run test
+
+      - name: Run BUILD e2e tests for ${{ matrix.example }}
+        # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
+        if: steps.extract-db-provider.outputs.provider != 'sqlite'
+        working-directory: examples/${{ matrix.example }}
+        env:
+          WASP_CLI_CMD: wasp-cli
+          WASP_RUN_MODE: build
+        run: npm run test

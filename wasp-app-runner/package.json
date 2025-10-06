@@ -1,8 +1,8 @@
 {
   "name": "@wasp.sh/wasp-app-runner",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "type": "module",
-  "description": "CLI tool for running Wasp applications for headless testing",
+  "description": "CLI tool for running Wasp applications for e2e testing",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git"

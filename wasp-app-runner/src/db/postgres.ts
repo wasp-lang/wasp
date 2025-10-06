@@ -1,4 +1,4 @@
-import type { PathToApp } from "../args.js";
+import type { DockerImageName, PathToApp } from "../args.js";
 import {
   DbContainerName,
   createAppSpecificDbContainerName,
@@ -7,18 +7,29 @@ import { createLogger } from "../logging.js";
 import { spawnAndCollectOutput } from "../process.js";
 import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
-import type { SetupDbFn } from "./types.js";
+import type { SetupDbResult } from "./types.js";
+
+export const defaultPostgresDbImage = "postgres:16" as DockerImageName;
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
 const logger = createLogger("postgres");
 
-export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
+export const setupPostgres = async ({
+  appName,
+  pathToApp,
+  dbImage,
+}: {
+  appName: AppName;
+  pathToApp: PathToApp;
+  dbImage: DockerImageName;
+}): Promise<SetupDbResult> => {
   await ensureDockerIsRunning();
 
   const databaseUrl = await startPostgresContainerForApp({
     appName,
     pathToApp,
+    dbImage,
   });
 
   logger.info(`Using DATABASE_URL: ${databaseUrl}`);
@@ -31,9 +42,11 @@ export const setupPostgres: SetupDbFn = async ({ appName, pathToApp }) => {
 async function startPostgresContainerForApp({
   appName,
   pathToApp,
+  dbImage,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
+  dbImage: DockerImageName;
 }): Promise<DatabaseConnectionUrl> {
   const containerName = createAppSpecificDbContainerName({
     appName,
@@ -42,20 +55,22 @@ async function startPostgresContainerForApp({
 
   logger.info(`Using container name: ${containerName}`);
 
-  const databaseUrl =
-    await startPostgresContainerAndWaitUntilReady(containerName);
+  const databaseUrl = await startPostgresContainerAndWaitUntilReady(
+    containerName,
+    dbImage,
+  );
 
   return databaseUrl;
 }
 
 async function startPostgresContainerAndWaitUntilReady(
   containerName: DbContainerName,
+  dbImage: DockerImageName,
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
-  const image = "postgres:16";
 
-  logger.info("Starting the PostgreSQL container...");
+  logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
 
   spawnAndCollectOutput({
     name: "create-postgres-container",
@@ -69,7 +84,7 @@ async function startPostgresContainerAndWaitUntilReady(
       "-e",
       `POSTGRES_PASSWORD=${password}`,
       `--rm`,
-      image,
+      dbImage,
     ],
   })
     // If we awaited here, we would block the main thread indefinitely.

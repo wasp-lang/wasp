@@ -1,2 +1,12 @@
-e2e-test/test-outputs/*-golden/** linguist-generated=true
-waspls/test/completionTests/*.golden linguist-generated=true
+# This will always convert text files (as recognized by git) to have LF EOLs
+# (i.e. it will convert any CRLF into LF) when storing them in git, and will also
+# check them out with LF. This prevents any CRLFs from making it into the textual
+# files in the repo and making a mess, and also ensures that dev experience is
+# consistent across the platforms. This also works ok on Win because modern editors
+# support LF on Win.
+* text=auto eol=lf
+# For .ps1 scripts on Win, it is important that their lines end with CRLF to execute correctly.
+*.ps1 text eol=crlf
+
+e2e-tests/test-outputs/*-golden/** linguist-generated=true
+waspls/tests/completionTests/*.golden linguist-generated=true

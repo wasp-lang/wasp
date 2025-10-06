@@ -3,7 +3,7 @@
 import { chalk } from "zx";
 import { parseArgs } from "./cli.js";
 import { runStarterE2ETests } from "./starter-e2e-test-runner.js";
-import { STARTERS_E2E_TESTS } from "./starter-e2e-tests.js";
+import { STARTER_NAMES } from "./starters.js";
 
 try {
   await runAllStartersE2ETests();
@@ -15,13 +15,11 @@ try {
 async function runAllStartersE2ETests(): Promise<void> {
   const { waspCliCommand } = parseArgs(process.argv);
 
-  for (const starterE2ETests of STARTERS_E2E_TESTS) {
-    console.log(
-      chalk.bold(`\nRunning tests for ${starterE2ETests.starterName} starter`),
-    );
+  for (const starterName of STARTER_NAMES) {
+    console.log(chalk.bold(`\nRunning tests for ${starterName} starter`));
     await runStarterE2ETests({
       waspCliCommand,
-      starterE2ETests,
+      starterName,
     });
   }
 }

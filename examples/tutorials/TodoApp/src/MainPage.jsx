@@ -6,18 +6,16 @@ import {
   useQuery,
 } from "wasp/client/operations";
 
-export const MainPage = () => {
+export const MainPage = ({ user }) => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
     <div>
       <NewTaskForm />
-
       {tasks && <TasksList tasks={tasks} />}
 
       {isLoading && "Loading..."}
       {error && "Error: " + error}
-
       <button onClick={logout}>Logout</button>
     </div>
   );

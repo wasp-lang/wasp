@@ -1,0 +1,27 @@
+{
+  "extends": "@tsconfig/vite-react/tsconfig.json",
+  "compilerOptions": {
+    // Temporary loosen the type checking until we can address all the errors.
+    "jsx": "preserve",
+    "allowJs": true,
+    "skipLibCheck": true,
+    // Allow importing pages with the .tsx extension.
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    // Overriding Vite 7 linting-focused options to be less strict since we
+    // don't want to block web-app builds on linting errors.
+    // We'll tackle it when we do: https://github.com/wasp-lang/wasp/issues/2777
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "erasableSyntaxOnly": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedSideEffectImports": false
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    { "path": "../../../tsconfig.json" }
+  ]
+}

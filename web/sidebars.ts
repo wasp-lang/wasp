@@ -129,6 +129,7 @@ const sidebars: SidebarsConfig = {
         "deployment/intro",
         "deployment/env-vars",
         "deployment/database",
+        "deployment/local-testing",
         {
           type: "category",
           label: "Deployment Methods",

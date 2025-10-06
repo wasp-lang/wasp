@@ -6,8 +6,9 @@ on:
     inputs:
       version:
         type: string
-        description: "Wasp version to use for deployment (default to latest)"
+        description: "Wasp version to use for deployment (e.g., 0.18.0), defaults to latest"
         required: false
+        default: "" # We are relying on the install script treating the empty string as the latest version
     secrets:
       FLY_GITHUB_PRODUCTION_TOKEN:
         description: "Fly API token for deploying apps"
@@ -17,7 +18,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Wasp version to use for deployment (default to latest)"
+        description: "Wasp version to use for deployment (e.g., 0.18.0), defaults to latest"
         required: false
         default: "" # We are relying on the install script treating the empty string as the latest version
 
@@ -55,6 +56,11 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          node-version: "22"
 
       - name: Setup Wasp TS Config (if needed)
         working-directory: ${{ matrix.app-dir }}

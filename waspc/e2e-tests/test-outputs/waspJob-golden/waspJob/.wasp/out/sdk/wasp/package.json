@@ -1,0 +1,109 @@
+{
+  "dependencies": {
+    "@prisma/client": "5.19.1",
+    "@testing-library/jest-dom": "^6.3.0",
+    "@testing-library/react": "^14.1.2",
+    "@vitest/ui": "^1.2.1",
+    "axios": "^1.4.0",
+    "express": "~5.1.0",
+    "jsdom": "^21.1.1",
+    "mitt": "3.0.0",
+    "msw": "^1.1.0",
+    "pg-boss": "^8.4.2",
+    "prisma": "5.19.1",
+    "react": "^18.2.0",
+    "react-hook-form": "^7.45.4",
+    "react-router-dom": "^6.26.2",
+    "superjson": "^2.2.1",
+    "vitest": "^1.2.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/express-serve-static-core": "^5.0.0"
+  },
+  "exports": {
+    "./api/events": "./dist/api/events.js",
+    "./auth": "./dist/auth/index.js",
+    "./auth/helpers/user": "./dist/auth/helpers/user.js",
+    "./auth/jwt": "./dist/auth/jwt.js",
+    "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
+    "./auth/password": "./dist/auth/password.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
+    "./auth/providers/types": "./dist/auth/providers/types.js",
+    "./auth/session": "./dist/auth/session.js",
+    "./auth/types": "./dist/auth/types.js",
+    "./auth/user": "./dist/auth/user.js",
+    "./auth/utils": "./dist/auth/utils.js",
+    "./auth/validation": "./dist/auth/validation.js",
+    "./client": "./dist/client/index.js",
+    "./client/api": "./dist/api/index.js",
+    "./client/auth": "./dist/client/auth/index.js",
+    "./client/crud": "./dist/client/crud/index.js",
+    "./client/env/schema": "./dist/client/env/schema.js",
+    "./client/operations": "./dist/client/operations/index.js",
+    "./client/operations/rpc": "./dist/client/operations/rpc.js",
+    "./client/router": "./dist/client/router/index.js",
+    "./client/test": "./dist/client/test/index.js",
+    "./client/test/*": "./dist/client/test/*.js",
+    "./client/webSocket": "./dist/client/webSocket/index.js",
+    "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
+    "./core/auth": "./dist/core/auth.js",
+    "./core/serialization": "./dist/core/serialization/index.js",
+    "./core/storage": "./dist/core/storage.js",
+    "./dev": "./dist/dev/index.js",
+    "./entities": "./dist/entities/index.js",
+    "./env": "./dist/env/index.js",
+    "./env/validation": "./dist/env/validation.js",
+    "./operations": "./dist/operations/index.js",
+    "./operations/*": "./dist/operations/*",
+    "./server": "./dist/server/index.js",
+    "./server/_types": "./dist/server/_types/index.js",
+    "./server/api": "./dist/server/api/index.js",
+    "./server/auth": "./dist/server/auth/index.js",
+    "./server/auth/email": "./dist/server/auth/email/index.js",
+    "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
+    "./server/crud": "./dist/server/crud/index.js",
+    "./server/crud/*": "./dist/server/crud/*.js",
+    "./server/email": "./dist/server/email/index.js",
+    "./server/email/core/types": "./dist/server/email/core/types.js",
+    "./server/jobs": "./dist/server/jobs/index.js",
+    "./server/jobs/*": "./dist/server/jobs/*.js",
+    "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
+    "./server/middleware": "./dist/server/middleware/index.js",
+    "./server/operations": "./dist/server/operations/index.js",
+    "./server/operations/actions": "./dist/server/operations/actions/index.js",
+    "./server/operations/queries": "./dist/server/operations/queries/index.js",
+    "./server/types": "./dist/server/types/index.js",
+    "./server/utils": "./dist/server/utils.js",
+    "./server/webSocket": "./dist/server/webSocket/index.js",
+    "./src/*": "./dist/src/*.js",
+    "./universal/ansiColors": "./dist/universal/ansiColors.js",
+    "./universal/types": "./dist/universal/types.js",
+    "./universal/url": "./dist/universal/url.js",
+    "./universal/validators": "./dist/universal/validators.js"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "license": "ISC",
+  "name": "wasp",
+  "peerDependencies": {
+    "@tanstack/react-query": "^4.39.1"
+  },
+  "private": true,
+  "scripts": {
+    "build": "tsc && node ./scripts/copy-assets.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
+  },
+  "type": "module",
+  "typesVersions": {
+    "*": {
+      "client/api": [
+        "api/index.ts"
+      ]
+    }
+  },
+  "version": "1.0.0"
+}

@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.17.1
+version:        0.18.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -42,7 +42,6 @@ data-files:
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
-  Cli/bash-completion
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
@@ -440,6 +439,7 @@ library
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
     Wasp.Util.Debug
+    Wasp.Util.Docker
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.HashMap
@@ -580,6 +580,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
@@ -625,10 +626,10 @@ executable wasp-cli
   other-modules:
       Paths_waspc
 
-test-suite waspc-test
+test-suite waspc-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: test
+  hs-source-dirs: tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -721,10 +722,10 @@ test-suite waspc-test
     Generator.NpmDependenciesTest
     JsImportTest
 
-test-suite waspls-test
+test-suite waspls-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: waspls/test
+  hs-source-dirs: waspls/tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -748,10 +749,10 @@ test-suite waspls-test
     Wasp.LSP.DebouncerTest
     Wasp.LSP.SyntaxTest
 
-test-suite cli-test
+test-suite wasp-cli-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: cli/test
+  hs-source-dirs: cli/tests
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover
@@ -771,10 +772,10 @@ test-suite cli-test
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
-test-suite e2e-test
+test-suite waspc-e2e-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: e2e-test
+  hs-source-dirs: e2e-tests
   main-is: Main.hs
   build-tool-depends: waspc:wasp-cli
   build-depends:

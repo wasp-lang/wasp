@@ -100,13 +100,30 @@ jobs:
               # We need to install llvm@13 for building on Apple Silicon (prebuilt libraries
               # are only available for x86_64). The llvm@13 formula is not available in
               # Homebrew by default, but we can edit it and comment out the `disable!` line.
-              curl -fsSL https://raw.githubusercontent.com/Homebrew/homebrew-core/74572f47ce6a2463c19d7fa164ab9fb8c91bbe61/Formula/l/llvm%4013.rb > /tmp/llvm@13.rb
-              sed -i '' 's/disable!/# disable!/' /tmp/llvm@13.rb
-              brew install --formula /tmp/llvm@13.rb
-              brew link --force llvm@13
+
+              # Homebrew disabled the ability to install formulae from URL or from bare local
+              # files, so we will download it into a local repository (a.k.a "tap", in Homebrew
+              # parlance).
+              # https://github.com/Homebrew/brew/issues/20441#issuecomment-3186032595
+
+              formula_url="https://raw.githubusercontent.com/Homebrew/homebrew-core/74572f47ce6a2463c19d7fa164ab9fb8c91bbe61/Formula/l/llvm%4013.rb"
+              formula_name="llvm@13"
+              repo_name="wasp/repo" # This is a custom name, not an actual GitHub repo
+              formula_dir="$(brew --repository "$repo_name")/Formula" # Use a local repo for the formula
+              formula_file="$formula_dir/$formula_name.rb"
+
+              # Fetch formula and comment out the `disable!` line
+              mkdir -p "$formula_dir"
+              curl -fsSL "$formula_url" > "$formula_file"
+              sed -i '' 's/disable!/# disable!/' "$formula_file"
+
+              # Install and link the formula
+              brew install --formula "$repo_name/$formula_name"
+              brew link --force "$repo_name/$formula_name"
 
     runs-on: ${{ matrix.env.runner }}
     container: ${{ matrix.env.container }}
+    name: build (${{ matrix.env.name }})
 
     steps:
       - uses: actions/checkout@v4

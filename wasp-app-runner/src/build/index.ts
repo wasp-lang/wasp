@@ -1,4 +1,4 @@
-import type { PathToApp, WaspCliCmd } from "../args.js";
+import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
 import { startLocalSmtpServer } from "../smtp.js";
 import { type AppName, waspBuild } from "../waspCli.js";
@@ -11,11 +11,13 @@ export async function startAppInBuildMode({
   pathToApp,
   appName,
   dbType,
+  dbImage,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
   dbType: DbType;
+  dbImage: DockerImageName;
 }) {
   await waspBuild({
     waspCliCmd,
@@ -26,12 +28,13 @@ export async function startAppInBuildMode({
     appName,
     dbType,
     pathToApp,
+    dbImage,
   });
 
   await startLocalSmtpServer();
 
   // Client needs to be running before the server
-  // becuase headless tests start executing as soon
+  // because `playwright` tests start executing as soon
   // as the server is up.
   await buildAndRunClientApp({
     pathToApp,

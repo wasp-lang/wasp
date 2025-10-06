@@ -1,5 +1,0 @@
-function _wasp {
-    wasp completion:list
-}
-
-complete -o default -o nospace -C _wasp wasp

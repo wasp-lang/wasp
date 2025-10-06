@@ -1,8 +1,11 @@
 app TodoApp {
   wasp: {
-    version: "^0.17.0" // Pins the version of Wasp to use.
+    version: "^0.18.0" // Pins the version of Wasp to use.
   },
   title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
   auth: {
     // Tells Wasp which entity to use for storing users.
     userEntity: User,
