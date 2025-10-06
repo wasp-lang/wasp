@@ -81,7 +81,7 @@ You will see actions grouped by tutorial filename, including the action `id` and
 
 Tutorial actions are defined in MDX files using JSX components:
 
-````markdown
+````mdx
 # Step 4: Create Task Entity
 
 <TutorialAction id="create-task-entity" action="APPLY_PATCH" />
