@@ -183,8 +183,8 @@ npmDepsForWasp spec =
     depsRequiredByViews spec'
       | AS.isBuild spec' = []
       | otherwise =
-        [ Npm.Dependency.make ("ejs", "^3.1.10")
-        ]
+          [ Npm.Dependency.make ("ejs", "^3.1.10")
+          ]
 
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
@@ -218,9 +218,9 @@ genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec
   | AS.isBuild spec = return []
   | otherwise =
-    sequence
-      [ genFileCopy [relfile|views/wrong-port.html.ejs|]
-      ]
+      sequence
+        [ genFileCopy [relfile|views/wrong-port.html.ejs|]
+        ]
   where
     genFileCopy = return . C.mkTmplFd
 
