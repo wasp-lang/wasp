@@ -26,6 +26,7 @@ jobs:
           - waspello
           - waspleau
           - websockets-realtime-voting
+          - kitchen-sink
 
     steps:
       - uses: "actions/checkout@v4"

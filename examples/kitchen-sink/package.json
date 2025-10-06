@@ -1,5 +1,5 @@
 {
-  "name": "todo-app",
+  "name": "kitchen-sink",
   "type": "module",
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
