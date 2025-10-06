@@ -4,9 +4,9 @@
 
 Wasp docs have a tutorial that walks users through building a complete Wasp application step-by-step.
 
-Next to the text that explains each step, we added the `<TutorialAction>` components that define actions
-that define machine executable steps, like "create a new Wasp app", "add authentication", "create a Task entity", etc.
-This CLI tool, reads those tutorial files, extracts the actions, and executes them in sequence
+Next to the text that explains each step, we added `<TutorialAction>` components that define machine-executable steps,
+like "create a new Wasp app", "add authentication", "create a Task entity", etc.
+This CLI tool reads those tutorial files, extracts the actions, and executes them in sequence
 to create a fully functional Wasp application.
 
 ## Commands
@@ -25,19 +25,18 @@ npm run generate-app -- --wasp-cli-command wasp
 
 This command:
 
-- Initializes a new Wasp application
 - Reads all tutorial files (numbered like `01-setup.md`, `02-auth.md`, etc.)
 - Extracts `<TutorialAction>` components from the file
-- Applies each action's patches or database migrations in order
-- Creates a Git commit for each action
+- Applies each action in sequence (e.g. initialize app, apply patches, migrate DB)
 - Results in a fully functional application
 
-If one of the patches fails to apply, the CLI will ask you to recreate the patch manually
-and try to continue.
+One of the actions is to apply a Git patch that modifies a source file. If applying
+a patch fails due to conflicts, `generate-app` command pauses and allows you
+to resolve the conflicts manually.
 
 ### 2. Edit Action (`npm run edit-action`)
 
-Allows you to modify a specific patch action and automatically update all subsequent patch actions.
+Allows you to modify a specific patch action and automatically reapplies all subsequent actions.
 
 ```bash
 # Non-interactive (direct by ID):
@@ -55,11 +54,11 @@ npm run edit-action -- --wasp-cli-command wasp
 
 This command:
 
-- Applies all actions before the target action
-- Moves all the changes from the target action to the staging area
+- Executes all actions before the target action
+- Moves all the changes from the target action to the Git staging area
 - Allows you to edit the code in your editor
 - Updates the patch based on your changes
-- Reapplies all subsequent actions, allowing you to resolve any conflicts
+- Reapplies all subsequent actions
 
 ### 3. List Actions (`npm run list-actions`)
 
@@ -69,12 +68,12 @@ Displays all available tutorial actions organized by source file.
 npm run list-actions
 ```
 
-You will see actions grouped by tutorial filename, including the action `id` and its `kind`.
+Shows actions grouped by tutorial file, including each action's `id` and `kind`.
 
 ### Patch File Management
 
-- Patch files are stored in the `./docs/tutorial/patches/` directory
-- Files are named using the source file and the action id
+- Patch files are stored in `./docs/tutorial/patches/`
+- Files are named using the source file and action ID
 - Each patch file contains a Git diff for that specific action
 
 ### Tutorial File Format
@@ -100,19 +99,14 @@ The tool extracts these components and uses:
 - `id`: Unique identifier for the action (becomes commit message)
 - `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`)
 
-This Git-based approach ensures that:
+## How It Works: Git-Based Workflow
 
-- **Changes can be made to any action** without breaking subsequent actions
-- **Conflicts are automatically handled** by Git's rebasing mechanism
-
-## Extra Info: How It Works on Git Level, Patches, and Rebasing
-
-The tool uses a Git-based workflow to manage tutorial actions:
+This tool uses a Git-based workflow to manage tutorial actions:
 
 ### Executing Tutorial Actions
 
 1. **Initial Setup**: Creates a Git repository with an initial commit
-2. **Action Execution**: Each action is executed and committed as a separate Git commit
+2. **Action Execution**: Each tutorial action is executed and committed as a separate Git commit,
    with the action ID as the commit message
 
 ### Action Editing Process
@@ -138,23 +132,23 @@ git switch --force-create fixes <action-4-commit-sha>
 #### Phase 2: User Editing
 
 ```bash
-# Move the action 4 commit changes to staging area
+# Move action 4's changes to staging area
 git reset --soft HEAD~1
 
-# User makes their edits in the editor
-# User confirms they're done
+# User edits the code in their editor
+# User confirms when done
 ```
 
 #### Phase 3: Patch Creation and Application
 
 ```bash
-# Commit all current changes and generate a new patch
+# Commit changes and generate a new patch
 git add .
 git commit -m "temporary-commit"
 git show HEAD --format= > new-patch.patch
 git reset --hard HEAD~1
 
-# Apply the new patch and commit with original action ID
+# Apply the new patch and commit with the original action ID
 git apply new-patch.patch
 git commit -m "action-4-create-task-entity"
 ```
@@ -169,10 +163,10 @@ git rebase fixes # This integrates the fixed action 4
 # If conflicts occur, user resolves them like any other Git conflict
 ```
 
-#### Phase 5: Patch File Updates
+#### Phase 5: Regenerate Patch Files
 
 ```bash
-# Regenerate all patch files from the updated commits
+# Regenerate patch files from the updated commits
 # For each action after the edited one:
 git show action-commit-sha --format= > patches/action-N.patch
 ```
