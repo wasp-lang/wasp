@@ -155,13 +155,13 @@ npmDepsForWasp spec =
         Npm.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("dotenv", "^16.0.2"),
-            ("ejs", "^3.1.10"),
             ("express", expressVersionStr),
-            ("helmet", "^6.0.0"),
             ("morgan", "~1.10.0"),
+            ("dotenv", "^16.0.2"),
+            ("helmet", "^6.0.0"),
             ("superjson", show superjsonVersion)
           ]
+          ++ depsRequiredByViews spec
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         Npm.Dependency.fromList
@@ -180,6 +180,12 @@ npmDepsForWasp spec =
           ]
     }
   where
+    depsRequiredByViews spec'
+      | AS.isBuild spec' = []
+      | otherwise =
+        [ Npm.Dependency.make ("ejs", "^3.1.10")
+        ]
+
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 genNpmrc :: Generator FileDraft

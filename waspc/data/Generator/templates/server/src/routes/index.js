@@ -15,6 +15,7 @@ import { rootCrudRouter } from './crud/index.js'
 import { config } from 'wasp/server'
 {=/ isDevelopment =}
 
+
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
