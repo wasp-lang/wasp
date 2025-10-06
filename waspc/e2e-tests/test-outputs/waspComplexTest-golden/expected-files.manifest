@@ -674,6 +674,7 @@ waspComplexTest/.wasp/out/server/src/routes/operations/mySpecialAction.js
 waspComplexTest/.wasp/out/server/src/routes/operations/mySpecialQuery.js
 waspComplexTest/.wasp/out/server/src/server.ts
 waspComplexTest/.wasp/out/server/tsconfig.json
+waspComplexTest/.wasp/out/server/views/wrong-port.html.ejs
 waspComplexTest/.wasp/out/web-app/.env
 waspComplexTest/.wasp/out/web-app/.gitignore
 waspComplexTest/.wasp/out/web-app/.npmrc

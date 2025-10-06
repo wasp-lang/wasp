@@ -354,6 +354,7 @@ waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
 waspJob/.wasp/out/server/src/server.ts
 waspJob/.wasp/out/server/tsconfig.json
+waspJob/.wasp/out/server/views/wrong-port.html.ejs
 waspJob/.wasp/out/web-app/.env
 waspJob/.wasp/out/web-app/.gitignore
 waspJob/.wasp/out/web-app/.npmrc

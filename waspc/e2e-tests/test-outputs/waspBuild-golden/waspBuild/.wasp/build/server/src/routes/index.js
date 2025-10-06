@@ -6,9 +6,7 @@ const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
 router.get('/', middleware, function (_req, res) {
-  const responseText =
-      undefined;
-  res.status(200).send(responseText);
+  res.status(200).send();
 })
 
 router.use('/operations', middleware, operations)

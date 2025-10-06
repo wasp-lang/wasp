@@ -310,6 +310,7 @@ waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.ts
 waspMigrate/.wasp/out/server/tsconfig.json
+waspMigrate/.wasp/out/server/views/wrong-port.html.ejs
 waspMigrate/.wasp/out/web-app/.env
 waspMigrate/.wasp/out/web-app/.gitignore
 waspMigrate/.wasp/out/web-app/.npmrc
