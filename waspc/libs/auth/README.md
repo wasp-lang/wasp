@@ -15,9 +15,7 @@ For example, if writing browser-only code for the `sdk` export, put it in `sdk/b
 
 ### Lib version
 
-We are not versioning the library, we fixed the version to `0.0.0`. Wasp CLI will
-replace the `0.0.0` version with a checksum of the tarball when generating the Wasp app so that
-the library is not cached by npm. Read more: https://github.com/wasp-lang/wasp/pull/2989#issuecomment-3144236711
+Read more about versioning and why we pin the version to `0.0.0` in the parent [README](../README.md#lib-version).
 
 ## Development
 

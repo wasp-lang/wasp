@@ -17,6 +17,35 @@ and they are type-checked.
 Ideally, most of the logic should be in the libs, and the templates should produce
 config objects and orchestrate the use of these libs.
 
+## Lib Version
+
+We don't version the libraries by semantic versioning like usual npm packages.
+Instead, we use a fixed version `0.0.0` in the `package.json` of each lib.
+They are considered to be an implementation detail of the Wasp CLI, so their version
+is whatever version the Wasp CLI is.
+
+When the Wasp CLI is shipped, the libs are packaged and shipped with it in the
+`waspc/data/` folder, and the Wasp CLI uses these local copies of the libs
+when generating the Wasp app.
+
+### `npm` cache busting
+
+`npm` caches installed packages based on their version, so if we used a fixed version
+like `0.0.0` for the libs, when a user updates their Wasp CLI `npm` would use the
+cached version of the lib instead of the new version that came with the updated Wasp CLI.
+
+To avoid this, the Wasp CLI computes a checksum of the tarball of the lib and uses
+that as the version when generating the Wasp app. This way, if a lib changes,
+the checksum changes, and `npm` will install the new version of the lib.
+
+```json
+{
+  "dependencies": {
+    "@wasp/lib-name": "file:./libs/lib-name-<checksum>.tgz"
+  }
+}
+```
+
 ## Testing Libs Locally
 
 Wasp Libs are npm libraries you develop in isolation and test them using unit tests.
