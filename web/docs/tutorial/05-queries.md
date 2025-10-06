@@ -25,6 +25,7 @@ We'll create a new Query called `getTasks`. We'll need to declare the Query in t
 
 We need to add a **query** declaration to `main.wasp` so that Wasp knows it exists:
 
+<TutorialAction id="query-get-tasks" action="APPLY_PATCH">
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```wasp title="main.wasp"
@@ -44,7 +45,6 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-  <TutorialAction id="query-get-tasks" action="APPLY_PATCH" />
     ```wasp title="main.wasp"
     // ...
 
@@ -65,6 +65,7 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
 
   </TabItem>
 </Tabs>
+</TutorialAction>
 
 ### Implementing a Query
 
@@ -76,7 +77,7 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` declaration:
 </ShowForTs>
 
-<TutorialAction id="query-get-tasks-impl" action="APPLY_PATCH" />
+<TutorialAction id="query-get-tasks-impl" action="APPLY_PATCH">
 
 ```ts title="src/queries.ts" auto-js
 import type { Task } from "wasp/entities";
@@ -88,7 +89,7 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   });
 };
 ```
-
+</TutorialAction>
 <ShowForTs>
 Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
 
@@ -122,7 +123,7 @@ While we implement Queries on the server, Wasp generates client-side functions t
 
 This makes it easy for us to use the `getTasks` Query we just created in our React component:
 
-<TutorialAction id="main-page-tasks" action="APPLY_PATCH" />
+<TutorialAction id="main-page-tasks" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { Task } from "wasp/entities";
@@ -167,6 +168,7 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
 };
 // highlight-end
 ```
+</TutorialAction>
 
 Most of this code is regular React, the only exception being the <ShowForJs>two</ShowForJs><ShowForTs>three</ShowForTs> special `wasp` imports:
 
