@@ -76,6 +76,7 @@ genServer spec =
       genNodemon
     ]
     <++> genSrcDir spec
+    <++> genViewsDir spec
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genApis spec
@@ -154,10 +155,11 @@ npmDepsForWasp spec =
         Npm.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("express", expressVersionStr),
-            ("morgan", "~1.10.0"),
             ("dotenv", "^16.0.2"),
+            ("ejs", "^3.1.10"),
+            ("express", expressVersionStr),
             ("helmet", "^6.0.0"),
+            ("morgan", "~1.10.0"),
             ("superjson", show superjsonVersion)
           ]
           ++ depsRequiredByWebSockets spec,
@@ -205,6 +207,16 @@ genNodemon =
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
       waspProjectDirFromAppComponentDir </> srcDirInWaspProjectDir
+
+genViewsDir :: AppSpec -> Generator [FileDraft]
+genViewsDir spec
+  | AS.isBuild spec = return []
+  | otherwise =
+    sequence
+      [ genFileCopy [relfile|views/wrong-port.html.ejs|]
+      ]
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
