@@ -9,10 +9,10 @@ waspc_dir=$script_dir/..
 data_packages_dir=$waspc_dir/data/packages
 
 # Cleanup old packages in data dir.
-rm -rf "$data_packages_dir"
+rm -rf "${data_packages_dir:?data_packages_dir must be set before cleanup}"
 mkdir -p "$data_packages_dir"
 
-for package_dir in "${waspc_dir:?}"/packages/*; do
+for package_dir in "$waspc_dir"/packages/*; do
   if [[ -d "$package_dir" ]]; then
     package=$(basename "$package_dir")
     # We're only installing the dependencies here to verify that the build
@@ -26,5 +26,5 @@ for package_dir in "${waspc_dir:?}"/packages/*; do
   fi
 done
 
-cd "${waspc_dir:?}"
+cd "$waspc_dir"
 cp -R ./packages/* "$data_packages_dir"

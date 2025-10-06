@@ -8,7 +8,7 @@ waspc_dir=$script_dir/..
 data_libs_dir=$waspc_dir/data/Generator/libs
 
 # Cleanup old libs.
-rm -rf "$data_libs_dir"
+rm -rf "${data_libs_dir:?data_libs_dir must be set before cleanup}"
 mkdir -p "$data_libs_dir"
 
 # Build and copy libs to data dir.
