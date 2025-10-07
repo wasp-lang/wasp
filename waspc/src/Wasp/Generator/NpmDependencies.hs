@@ -79,12 +79,12 @@ genNpmDepsForPackage :: AppSpec -> NpmDepsForWasp -> Generator NpmDepsForPackage
 genNpmDepsForPackage spec npmDepsForWasp
   | null conflictErrors = return $ waspDepsToPackageDeps npmDepsForWasp
   | otherwise =
-    logAndThrowGeneratorError $
-      GenericGeneratorError $
-        intercalate "\n " $
-          map
-            conflictErrorToMessage
-            conflictErrors
+      logAndThrowGeneratorError $
+        GenericGeneratorError $
+          intercalate "\n " $
+            map
+              conflictErrorToMessage
+              conflictErrors
   where
     conflictErrors = getNpmDepsConflicts npmDepsForWasp (getUserNpmDepsForPackage spec)
 
@@ -92,11 +92,11 @@ buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Eith
 buildWaspFrameworkNpmDeps spec forServer forWebApp
   | hasConflicts = Left "Could not construct npm dependencies due to a previously reported conflict."
   | otherwise =
-    Right $
-      NpmDepsForFramework
-        { npmDepsForServer = waspDepsToPackageDeps forServer,
-          npmDepsForWebApp = waspDepsToPackageDeps forWebApp
-        }
+      Right $
+        NpmDepsForFramework
+          { npmDepsForServer = waspDepsToPackageDeps forServer,
+            npmDepsForWebApp = waspDepsToPackageDeps forWebApp
+          }
   where
     hasConflicts = not $ null serverDepConflicts && null webAppDepConflicts
     serverDepConflicts = getNpmDepsConflicts forServer userDeps
