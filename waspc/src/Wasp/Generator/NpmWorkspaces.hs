@@ -7,8 +7,7 @@ module Wasp.Generator.NpmWorkspaces
 where
 
 import Control.Exception (Exception (displayException))
-import Data.List (sort)
-import StrongPath (Dir, Path, Posix, Rel, fromRelDirP, relDirToPosix, reldirP, (</>))
+import StrongPath (Dir, Dir', Path, Posix, Rel, fromRelDirP, relDirToPosix, reldirP, (</>))
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec, isBuild)
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
@@ -17,19 +16,15 @@ import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWa
 -- workspace is a glob that matches all packages in a certain directory.
 -- The path syntax here is always POSIX, because Windows syntax does not allow globs, and `npm`
 -- prefers it.
---
--- Order doesn't matter, but we sort the packages to ensure a deterministic order. Otherwise, we
--- might inadvertently change the order and the compiler will complain about it in user's projects.
-workspaces :: [Path Posix (Rel WaspProjectDir) (Dir ())]
+workspaces :: [Path Posix (Rel WaspProjectDir) Dir']
 workspaces =
-  sort
-    [ globFor generatedCodeDirInDotWaspDir,
-      globFor buildDirInDotWaspDir
-      -- TODO: Add SDK as a workspace:
-      -- Currently a overly-zealous resolution makes an incompatible resolution for `@types/react`
-      -- that would make the workspace installation fail.
-      -- Review when we upgrade React 19 (#2482).
-    ]
+  [ globFor generatedCodeDirInDotWaspDir,
+    globFor buildDirInDotWaspDir
+    -- TODO: Add SDK as a workspace:
+    -- Currently a overly-zealous resolution makes an incompatible resolution for `@types/react`
+    -- that would make the workspace installation fail.
+    -- Review when we upgrade React 19 (#2482).
+  ]
   where
     globFor dir =
       forceRelDirToPosix (dotWaspDirInWaspProjectDir </> dir)
@@ -57,6 +52,8 @@ webAppPackageName :: AppSpec -> String
 webAppPackageName = workspacePackageName "webapp"
 
 workspacePackageName :: String -> AppSpec -> String
-workspacePackageName baseName spec = "@wasp.sh/generated-" ++ baseName ++ "-" ++ mode
+workspacePackageName baseName spec = "@wasp.sh/generated-" ++ baseName ++ "-" ++ modeName
   where
-    mode = if isBuild spec then "build" else "dev"
+    modeName
+      | isBuild spec = "build"
+      | otherwise = "dev"
