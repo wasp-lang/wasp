@@ -247,7 +247,7 @@ We agreed that **the docs examples must reference the source code of example app
 
 We are implementing this as a `Docusaurus` plugin called `code-ref-checker`. It’s still a work in progress, but we’re happy with the early results (notice the code ref in the header):
 
-````mdx
+````markdown
 ```ts title="src/auth.ts" ref="waspc/examples/todoApp/src/auth/signup.ts:L1-14"
 import { defineUserSignupFields } from "wasp/server/auth";
 
@@ -286,7 +286,7 @@ We call it `TACTE`, the _Tutorial Action Executor_.
 
 In `TACTE`, each step is declared via a JSX component that lives next to the tutorial content itself, and the CLI helps us define the actions to make the process work.
 
-````mdx
+````markdown
 To setup a new Wasp project, run the following command in your terminal:
 
 <TutorialAction
