@@ -66,18 +66,34 @@
   /* 75% green with diagonal stripe pattern, 25% black */
   background-image:
     /* Stripes over green portion */
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 0, rgba(255, 255, 255, 0.15) 10px, transparent 10px, transparent 20px),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.15) 0,
+      rgba(255, 255, 255, 0.15) 10px,
+      transparent 10px,
+      transparent 20px
+    ),
     /* Stripes over black portion */
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0, rgba(255, 255, 255, 0.08) 10px, transparent 10px, transparent 20px),
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.08) 0,
+        rgba(255, 255, 255, 0.08) 10px,
+        transparent 10px,
+        transparent 20px
+      ),
     /* Solid green fill for the left portion */
-    linear-gradient(to right, #10b981 0%, #10b981 100%),
+      linear-gradient(to right, #10b981 0%, #10b981 100%),
     /* Black for the remaining portion */
-    linear-gradient(to right, #000000 0%, #000000 100%);
+      linear-gradient(to right, #000000 0%, #000000 100%);
   background-size:
     75% 100%,
     25% 100%,
     75% 100%,
     100% 100%;
   background-repeat: no-repeat;
-  background-position: left top, right top, left top, left top;
+  background-position:
+    left top,
+    right top,
+    left top,
+    left top;
 }
