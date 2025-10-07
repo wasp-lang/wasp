@@ -97,7 +97,7 @@ At the core of our framework sits the compiler, written in Haskell. It takes a c
 
 <ImgWithCaption
     alt="Overview of Wasp compilation process"
-    source="img/wasp-compilation.png"
+    source="img/lp/wasp-compilation-diagram.webp"
 />
 
 Although Haskell has excellent reliability and type safety (e.g., check out [our library for type-safe paths](https://hackage.haskell.org/package/strong-path/docs/StrongPath.html)), **tests are still necessary**. We use unit tests to ensure our compiler’s logic is correct. But the compiler’s most important product is the generated code that exists outside the Haskell domain. To verify the generated code, we use the end-to-end (e2e) tests.
