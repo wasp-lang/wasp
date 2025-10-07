@@ -20,10 +20,7 @@ workspaces :: [Path Posix (Rel WaspProjectDir) Dir']
 workspaces =
   [ globFor generatedCodeDirInDotWaspDir,
     globFor buildDirInDotWaspDir
-    -- TODO: Add SDK as a workspace:
-    -- Currently a overly-zealous resolution makes an incompatible resolution for `@types/react`
-    -- that would make the workspace installation fail.
-    -- Review when we upgrade React 19 (#2482).
+    -- TODO: Add SDK as a workspace (#3233)
   ]
   where
     globFor dir =
@@ -43,7 +40,7 @@ toWorkspacesField :: [Path Posix (Rel WaspProjectDir) (Dir ())] -> [String]
 toWorkspacesField =
   -- While the trailing slashes do not matter, we drop them because they will be user-visible in
   -- their `package.json`, and it is more customary without them.
-  fmap (FP.Posix.dropTrailingPathSeparator . fromRelDirP)
+  map (FP.Posix.dropTrailingPathSeparator . fromRelDirP)
 
 serverPackageName :: AppSpec -> String
 serverPackageName = workspacePackageName "server"
