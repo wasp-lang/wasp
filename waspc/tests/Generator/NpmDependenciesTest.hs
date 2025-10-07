@@ -41,15 +41,10 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Just
-        NpmDepsForPackageError
-          { dependenciesConflictErrors =
-              [ DependencyConflictError
-                  (D.make ("b", "2"))
-                  (D.make ("b", "3"))
-              ],
-            devDependenciesConflictErrors = []
-          }
+      `shouldBe` [ DependencyConflictError
+                     (D.make ("b", "2"))
+                     (D.make ("b", "3"))
+                 ]
 
   it "wasp deps completely overlap with user deps with same versions: no conflicts" $ do
     let npmDepsForWasp =
@@ -121,15 +116,10 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Just
-        NpmDepsForPackageError
-          { dependenciesConflictErrors =
-              [ DependencyConflictError
-                  (D.make ("a", "1"))
-                  (D.make ("a", "2"))
-              ],
-            devDependenciesConflictErrors = []
-          }
+      `shouldBe` [ DependencyConflictError
+                     (D.make ("a", "1"))
+                     (D.make ("a", "2"))
+                 ]
 
   it "a conflicting version number is detected with wasp devDependencies" $ do
     let npmDepsForWasp =
@@ -148,15 +138,10 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Just
-        NpmDepsForPackageError
-          { dependenciesConflictErrors =
-              [ DependencyConflictError
-                  (D.make ("alpha", "10"))
-                  (D.make ("alpha", "70"))
-              ],
-            devDependenciesConflictErrors = []
-          }
+      `shouldBe` [ DependencyConflictError
+                     (D.make ("alpha", "10"))
+                     (D.make ("alpha", "70"))
+                 ]
 
   it "both dev deps and normal deps are same for user and wasp: no conflicts" $ do
     let npmDepsForWasp =

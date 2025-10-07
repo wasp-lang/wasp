@@ -8,7 +8,6 @@ module Wasp.Generator.NpmDependencies
     getUserNpmDepsForPackage,
     getNpmDepsConflicts,
     NpmDepsForPackage (..),
-    NpmDepsForPackageError (..),
     conflictErrorToMessage,
     genNpmDepsForPackage,
     NpmDepsForFramework,
@@ -68,12 +67,6 @@ instance ToJSON NpmDepsForUser
 
 instance FromJSON NpmDepsForUser
 
-data NpmDepsForPackageError = NpmDepsForPackageError
-  { dependenciesConflictErrors :: [DependencyConflictError],
-    devDependenciesConflictErrors :: [DependencyConflictError]
-  }
-  deriving (Show, Eq)
-
 data DependencyConflictError = DependencyConflictError
   { waspDependency :: D.Dependency,
     userDependency :: D.Dependency
@@ -83,33 +76,32 @@ data DependencyConflictError = DependencyConflictError
 -- | Generate a NpmDepsForPackage by combining wasp dependencies with user dependencies
 --   derived from AppSpec, or if there are conflicts, fail with error messages.
 genNpmDepsForPackage :: AppSpec -> NpmDepsForWasp -> Generator NpmDepsForPackage
-genNpmDepsForPackage spec npmDepsForWasp =
-  case getNpmDepsConflicts npmDepsForWasp (getUserNpmDepsForPackage spec) of
-    Nothing -> return $ waspDepsToPackageDeps npmDepsForWasp
-    Just conflictErrorDeps ->
-      logAndThrowGeneratorError $
-        GenericGeneratorError $
-          intercalate "\n " $
-            map
-              conflictErrorToMessage
-              ( dependenciesConflictErrors conflictErrorDeps
-                  ++ devDependenciesConflictErrors conflictErrorDeps
-              )
+genNpmDepsForPackage spec npmDepsForWasp
+  | null conflictErrors = return $ waspDepsToPackageDeps npmDepsForWasp
+  | otherwise =
+    logAndThrowGeneratorError $
+      GenericGeneratorError $
+        intercalate "\n " $
+          map
+            conflictErrorToMessage
+            conflictErrors
+  where
+    conflictErrors = getNpmDepsConflicts npmDepsForWasp (getUserNpmDepsForPackage spec)
 
 buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsForWasp -> NpmDepsForWasp -> Either String NpmDepsForFramework
-buildWaspFrameworkNpmDeps spec forServer forWebApp =
-  case (serverDepConflicts, webAppDepConflicts) of
-    (Nothing, Nothing) ->
-      Right
-        NpmDepsForFramework
-          { npmDepsForServer = waspDepsToPackageDeps forServer,
-            npmDepsForWebApp = waspDepsToPackageDeps forWebApp
-          }
-    _ -> Left "Could not construct npm dependencies due to a previously reported conflict."
+buildWaspFrameworkNpmDeps spec forServer forWebApp
+  | hasConflicts = Left "Could not construct npm dependencies due to a previously reported conflict."
+  | otherwise =
+    Right $
+      NpmDepsForFramework
+        { npmDepsForServer = waspDepsToPackageDeps forServer,
+          npmDepsForWebApp = waspDepsToPackageDeps forWebApp
+        }
   where
-    userDeps = getUserNpmDepsForPackage spec
+    hasConflicts = not $ null serverDepConflicts && null webAppDepConflicts
     serverDepConflicts = getNpmDepsConflicts forServer userDeps
     webAppDepConflicts = getNpmDepsConflicts forWebApp userDeps
+    userDeps = getUserNpmDepsForPackage spec
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
@@ -150,26 +142,19 @@ waspDepsToPackageDeps npmDepsForWasp =
     }
 
 -- | Checks the user's dependencies compatibility against Wasp's declared npm dependencies.
-getNpmDepsConflicts :: NpmDepsForWasp -> NpmDepsForUser -> Maybe NpmDepsForPackageError
+getNpmDepsConflicts :: NpmDepsForWasp -> NpmDepsForUser -> [DependencyConflictError]
 getNpmDepsConflicts npmDepsForWasp npmDepsForUser =
-  if null conflictErrors && null devConflictErrors
-    then Nothing
-    else
-      Just $
-        NpmDepsForPackageError
-          { dependenciesConflictErrors = conflictErrors,
-            devDependenciesConflictErrors = devConflictErrors
-          }
+  conflictErrors ++ devConflictErrors
   where
+    conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
+    devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
+
+    allWaspDepsByName = (Map.union `on` makeDepsByName) waspDeps waspDevDeps
     waspDeps = waspDependencies npmDepsForWasp
     waspDevDeps = waspDevDependencies npmDepsForWasp
-    allWaspDepsByName = (Map.union `on` makeDepsByName) waspDeps waspDevDeps
 
     userDepsByName = makeDepsByName $ userDependencies npmDepsForUser
     userDevDepsByName = makeDepsByName $ userDevDependencies npmDepsForUser
-
-    conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
-    devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
 
 type DepsByName = Map.Map String D.Dependency
 
