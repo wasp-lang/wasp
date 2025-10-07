@@ -6,11 +6,12 @@ module Wasp.Generator.NpmWorkspaces
   )
 where
 
-import Control.Exception (Exception (displayException))
-import StrongPath (Dir, Dir', Path, Posix, Rel, fromRelDirP, relDirToPosix, reldirP, (</>))
+import Data.Either (fromRight)
+import StrongPath (Dir, Dir', Path, Path', Posix, Rel, fromRelDirP, relDirToPosix, reldirP, (</>))
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec, isBuild)
-import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Project.Common (DotWaspDir, WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 -- | Returns the list of workspaces that should be included in the generated package.json file. Each
 -- workspace is a glob that matches all packages in a certain directory.
@@ -23,18 +24,19 @@ workspaces =
     -- TODO: Add SDK as a workspace (#3233)
   ]
   where
+    globFor :: Path' (Rel DotWaspDir) (Dir ProjectRootDir) -> Path Posix (Rel WaspProjectDir) Dir'
     globFor dir =
       forceRelDirToPosix (dotWaspDirInWaspProjectDir </> dir)
         </> packageWildcard
+
     packageWildcard = [reldirP|*|]
 
-    forceRelDirToPosix = either nonPosixError id . relDirToPosix
-    nonPosixError exception =
+    forceRelDirToPosix inputDir = fromRight (nonPosixError inputDir) $ relDirToPosix inputDir
+    nonPosixError inputDir =
       error $
-        unlines
-          [ "This should never happen: our paths should always be POSIX-compatible, but they're not.",
-            displayException exception
-          ]
+        "This should never happen: our paths should always be POSIX-compatible, but they're not. (Received: "
+          ++ show inputDir
+          ++ ")"
 
 toWorkspacesField :: [Path Posix (Rel WaspProjectDir) (Dir ())] -> [String]
 toWorkspacesField =
