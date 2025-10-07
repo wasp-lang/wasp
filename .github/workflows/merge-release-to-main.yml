@@ -1,0 +1,37 @@
+name: Merge `release` back to `main`
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release
+
+env:
+  SOURCE_BRANCH: release
+  TARGET_BRANCH: main
+
+  PR_TITLE: "Merge `release` into `main`"
+  PR_BODY: |
+    Automated PR to merge changes from `release` branch back into `main`.
+
+    > [!IMPORTANT]
+    > Please remember to **Rebase and merge** this PR to avoid conflicts in the future.
+
+jobs:
+  create-pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          gh pr create \
+            --assignee "$GITHUB_ACTOR" \
+            --reviewer "$GITHUB_ACTOR" \
+            --head "$SOURCE_BRANCH" \
+            --base "$TARGET_BRANCH" \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_ACTOR: ${{ github.actor }}
