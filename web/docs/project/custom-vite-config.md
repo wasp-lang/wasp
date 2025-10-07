@@ -114,9 +114,9 @@ If you, for example, want to serve the client from a different path than `/`, yo
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 
-Chrome DevTools support [mapping a page's resources to a folder](https://developer.chrome.com/docs/devtools/workspaces), so any changes you make in the browser reflect back to your files. To enable it, you can add their Vite plugin: [`vite-plugin-devtools-json`](https://github.com/ChromeDevTools/vite-plugin-devtools-json).
+Chrome DevTools support [mapping a page's resources to a folder](https://developer.chrome.com/docs/devtools/workspaces), so any changes you make in the browser are reflected back to your files. To enable it, you can use their Vite plugin: [`vite-plugin-devtools-json`](https://github.com/ChromeDevTools/vite-plugin-devtools-json).
 
-1. Install the plugin as a **dev-dependency**:
+1. Install the plugin as a **dev dependency**:
 
 ```bash
 npm i -D vite-plugin-devtools-json
@@ -135,10 +135,8 @@ export default defineConfig({
 })
 ```
 
-3. Start your app with `wasp start`, open **Chrome DevTools → Sources → Workspace** and you should see your project automatically mapped. Changes you make in DevTools now save to disk and Vite's HMR updates the browser instantly.
+3. Start your app with `wasp start`, open **Chrome DevTools → Sources → Workspace** and you should see your project automatically mapped. Changes you make in DevTools now save to disk and Vite's HMR updates the browser instantly!
 
 :::tip Path normalisation
 The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Docker Desktop path fixes contributed by the Wasp community – make sure you are on version 0.4.0 or greater.
 :::
-
-This keeps the default Wasp setup lean while letting you opt-in to a powerful workflow with just a few lines in your Vite config.
