@@ -59,7 +59,7 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "user dependencies have no overlap with wasp deps: no conflicts" $ do
     let npmDepsForWasp =
@@ -78,7 +78,7 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "user dependencies partially overlap wasp dependencies with same versions: no conflicts" $ do
     let npmDepsForWasp =
@@ -97,7 +97,7 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "report error if user dependency overlaps wasp dependency, different version" $ do
     let npmDepsForWasp =
@@ -156,7 +156,7 @@ spec_getNpmDepsConflicts = do
               userDevDependencies = waspDevDeps
             }
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "wasp dev dependency overlaps with user non-dev dependency with same version: no conflicts" $ do
     let npmDepsForWasp =
@@ -175,7 +175,7 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "no user dependencies: no conflicts" $ do
     let npmDepsForWasp =
@@ -190,7 +190,7 @@ spec_getNpmDepsConflicts = do
             }
 
     getNpmDepsConflicts npmDepsForWasp npmDepsForUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "conflictErrorToMessage" $ do
     conflictErrorToMessage
