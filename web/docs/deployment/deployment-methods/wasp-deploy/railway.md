@@ -5,6 +5,7 @@ title-llm: Automated Deployment to Railway with Wasp CLI
 
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
+import CustomPostgresOption from './\_railway-custom-postgres-option.md'
 
 [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) is a cloud development platform that streamlines building and deploying applications with built-in support for databases and services. It offers an intuitive interface and automates infrastructure.
 
@@ -94,25 +95,7 @@ wasp deploy railway setup <project-name>
 wasp deploy railway deploy <project-name>
 ```
 
-#### Using a custom PostgreSQL instance
-
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
-
-:::tip
-You only need to specify the Docker image once, when first creating the app.
-:::
-
-```shell
-# Use PostGIS:
-wasp deploy railway launch my-wasp-app --db-image postgis/postgis
-```
-
-```shell
-# Use pgvector:
-wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+<CustomPostgresOption command="launch" />
 
 #### Explicitly providing the Railway project ID
 
@@ -212,25 +195,7 @@ The project name is used as a base for your server and client service names on R
 
 Railway also creates a PostgreSQL database service named `Postgres`.
 
-#### Using a custom PostgreSQL database
-
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
-
-:::tip
-You only need to specify the Docker image once, when first creating the app.
-:::
-
-```shell
-# Use PostGIS:
-wasp deploy railway launch my-wasp-app --db-image postgis/postgis
-```
-
-```shell
-# Use pgvector:
-wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+<CustomPostgresOption command="setup" />
 
 #### Explicitly providing the Railway project ID
 
