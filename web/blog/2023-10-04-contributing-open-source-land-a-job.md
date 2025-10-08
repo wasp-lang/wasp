@@ -10,6 +10,8 @@ tags: [career, web-development, open-source, hacktoberfest]
 ![How to Open-Source](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/04lotyojmwdnzt7b2s8j.png)
 In this article, we’re going to see how open-source can change your career for the better and get you out of the Skill Paradox — a point in which the skills you need to land a job are generally acquired after you get a job.
 
+<!-- truncate -->
+
 Besides that, we’ll check how you can start contributing to different open-source projects and get on the hype train of [Hacktoberfest](https://hacktoberfest.com/) while also learning some important topics on handling feedbacks and showcasing your contributions.
 
 ## 1. Introduction

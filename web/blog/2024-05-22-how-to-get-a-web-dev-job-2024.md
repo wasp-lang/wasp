@@ -11,6 +11,8 @@ tags: [career, webdev, tech, job]
 
 I’m a self-taught developer that changed careers during the Covid pandemic. I was able to switch from education to web development by learning and building in my free time, participating in hackathons, and creating educational content for devs.
 
+{/* truncate */}
+
 Back when I was finding my first dev job, although I was determined to become a staff engineer, I started out by taking a very low-paying “traineeship” position. Although it wasn’t ideal, it allowed me to learn on-the-job and get my foot in the door.
 
 A year later, and after a lot of hard work, I got offered a much better position and 3x’ed my previous salary! 🤯

@@ -5,14 +5,17 @@ image: /img/email/email-cover.jpg
 tags: [webdev, tips, emails]
 ---
 
-import ReactPlayer from 'react-player'
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import { ImgWithCaption } from './components/ImgWithCaption'
+import Tabs from '@theme/Tabs';
+import ReactPlayer from 'react-player';
+
+import { ImgWithCaption } from './components/ImgWithCaption';
 
 If you’ve just built your SaaS web app and deployed it on a production server, you might be running into email deliverability issues. Transactional or marketing emails might not be landing in your users' inboxes. Don’t panic! This is a pretty common problem, especially for apps that run on newly registered domains.
+
+{/* truncate */}
 
 We have seen a lot of [Wasp](https://wasp.sh/) users facing similar challenges, thinking their toolkit was to blame. In our Discord community, we regularly help users who’ve just launched their first app with Wasp, and we've seen this issue pop up frequently. The bad news: your users and their email servers pulled a Gandalf move on you. The good news: no worries, this is something you can fix!
 

@@ -9,6 +9,8 @@ We are excited to announce that we've grown the team! 🐝  This means we can sh
 
 Today, we're introducing [Carlos](https://bsky.app/profile/precioso.design), who recently joined us as a framework engineer. Through this interview, you'll get to know more about his interests and what drew him to join Wasp.
 
+<!-- truncate -->
+
 ### Let’s start with two truths and a lie about yourself.
 
 1. I was entered into a baby model agency and had a professional photo book done.

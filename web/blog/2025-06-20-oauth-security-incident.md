@@ -10,6 +10,8 @@ tags: [security, oauth, keycloak, wasp]
 On May 23rd, 2025, we learned about a security vulnerability in Wasp auth related to our OAuth support in Wasp `0.16.5` and earlier.
 Users with same IDs with different casing (e.g. `abc` and `ABC`) were considered the same person which could lead to users gaining access to other users' accounts.
 
+<!-- truncate -->
+
 **Only users using Keycloak with non-default case-sensitive IDs are affected.**
 
 All other configurations (Google, GitHub, Discord, or Keycloak with the default case-insensitive configuration) are **not affected**. Email and username auth providers are also **not affected**.

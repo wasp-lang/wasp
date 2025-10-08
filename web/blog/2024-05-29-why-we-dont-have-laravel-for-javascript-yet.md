@@ -11,6 +11,8 @@ tags: [framework, javascript, full-stack, laravel, rails]
 
 And if you’re not familiar with tools like [Laravel](https://laravel.com/) and [Ruby-on-Rails](https://rubyonrails.org/), they are opinionated full-stack frameworks (for PHP and Ruby) with lots of built-in features that follow established conventions so that developers can write less boilerplate and more business logic, while getting the industry best practices baked into their app.
 
+{/* truncate */}
+
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/dndfaz2hjet9nisbiimc.png)
 
 He answers this question with the opinion that JavaScript _doesn’t need_ such frameworks because it’s better to select the tools you want and build the solution you need yourself.

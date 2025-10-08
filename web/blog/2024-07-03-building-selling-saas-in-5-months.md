@@ -7,6 +7,8 @@ tags: [saas, boilerplate, acquire, react, gpt, openai, marketing]
 
 Since the release of ChatGPT, we’ve been flooded with all possible versions of apps that use it in one way or another. Building on top of trendy technology is an excellent way to get initial attention, but still, 99% of these apps die very quickly and don’t last beyond a week or two following their “big” Twitter or Product Hunt launch.
 
+{/* truncate */}
+
 Why? **Because they aren’t solving a real problem**. It’s either a fun tech gadget or a gross overpromise (e.g., _“you will never need to code again,”_ which [I strongly disagree with](https://wasp.sh/blog/2022/06/24/ML-code-gen-vs-coding-by-hand-future)) that quickly falls short.
 
 Building a successful product still follows the same rules as in the pre-GPT era: **find a problem people are willing to pay for and then figure out a way to reach these people**. Sounds simple? It is, but it for sure isn’t easy. The good news is that GPT opened so many new opportunities that actually doing it is faster and easier than ever.

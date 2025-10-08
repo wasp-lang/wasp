@@ -17,9 +17,9 @@ import { InBlogCta } from './components/InBlogCta';
 
 In this tutorial, we’ll build a full-stack web app that acts as our own personal Twitter Agent, or “intern”, as I like to call it. It keeps track of your notes and ideas, and uses them — along with tweets from trending-setting twitter users — to brainstorm new ideas and write tweet drafts for you! 💥
 
-BTW, If you get stuck during the tutorial, or at any point just want to check out the full, final repo of the app we're building, here it is: https://github.com/vincanger/twitter-intern
-
 {/* truncate */}
+
+BTW, If you get stuck during the tutorial, or at any point just want to check out the full, final repo of the app we're building, here it is: https://github.com/vincanger/twitter-intern
 
 ## Before We Begin
 
@@ -1869,7 +1869,7 @@ const MainPage = () => {
               </div>
               <h2>Tweet Draft</h2>
               <div className='flex flex-row gap-2 justify-center items-center w-full'>
-                <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg w-full'>{tweetDraft.content}</div>
+                <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg'>{tweetDraft.content}</div>
               </div>
 
               {!!tweetDraft.notes && tweetDraft.notes !== tweetDraft.originalTweet.content && (
@@ -1883,7 +1883,7 @@ const MainPage = () => {
                 {tweetDraft.originalTweet.ideas.map((idea) => (
                   <div key={idea.id} className='flex flex-row gap-2 justify-center items-center w-full'>
                     <div className='flex flex-row gap-2 justify-center items-center w-full'>
-                      <div className='w-full p-4 h-22 bg-neutral-100 border rounded-lg w-full'>{idea.content}</div>
+                      <div className='w-full p-4 h-22 bg-neutral-100 border rounded-lg'>{idea.content}</div>
                     </div>
                   </div>
                 ))}
@@ -1955,13 +1955,13 @@ const NotesPage = () => {
         notes.map((note) => (
           <div key={note.id} className='flex flex-col gap-2 justify-center items-center w-full'>
             <div className='flex flex-row gap-2 justify-center items-center w-full'>
-              <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg w-full'>{note.content}</div>
+              <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg'>{note.content}</div>
             </div>
           </div>
         ))
       ) : notes && notes.length === 0 && (
         <div className='flex flex-col gap-2 justify-center items-center w-full'>
-          <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg w-full'>No notes yet</div>
+          <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg'>No notes yet</div>
         </div>
       )}
     </>

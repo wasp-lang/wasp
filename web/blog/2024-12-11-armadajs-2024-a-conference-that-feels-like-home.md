@@ -9,6 +9,8 @@ tags: [conference, community, wasp, webdev]
 
 It took us a few days to wrap our thoughts after attending [ArmadaJS](https://armada-js.com/), a small but exciting conference in Novi Sad, Serbia. People usually believe that bigger conferences are better, but the fact that this one was on a smaller scale meant that it was easer for us to closely connect and talk with other attendees.
 
+<!-- truncate -->
+
 In short, we had an amazing time, and in this post, we’ll share all the highlights and fun moments from the event!
 
 ![conference booth](/img/armadajs-2024/1.webp)
