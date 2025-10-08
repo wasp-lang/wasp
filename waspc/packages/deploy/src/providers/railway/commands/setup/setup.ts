@@ -137,22 +137,17 @@ async function setupDb({
     // Postgres-related environment variables, so we need to set them ourselves.
     await railwayCli([
       "add",
-      "--service",
-      dbServiceName,
-      "--image",
-      options.dbImage,
-      "--variables",
-      "POSTGRES_DB=railway",
-      "--variables",
-      "POSTGRES_USER=postgres",
-      "--variables",
-      "POSTGRES_PASSWORD=${{secret()}}",
-      "--variables",
-      "PORT=5432",
-      "--variables",
-      "PGDATA=/var/lib/postgresql/data/pgdata",
-      "--variables",
-      "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
+      ...["--service", dbServiceName],
+      ...["--image", options.dbImage],
+      ...["--variables", "POSTGRES_DB=railway"],
+      ...["--variables", "POSTGRES_USER=postgres"],
+      ...["--variables", "POSTGRES_PASSWORD=${{secret()}}"],
+      ...["--variables", "PORT=5432"],
+      ...["--variables", "PGDATA=/var/lib/postgresql/data/pgdata"],
+      ...[
+        "--variables",
+        "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
+      ],
     ]);
   } else {
     // Use the default Railway Postgres template.
