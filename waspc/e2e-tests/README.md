@@ -5,11 +5,11 @@ We are not concerned with the internal implementation, only its interface and ou
 
 ## More on purpose
 
-**Interface** is exposed through the Wasp CLI (called `waspc`). 
-We want to test the behavior of all of the Wasp CLI commands. 
+**Interface** is exposed through the Wasp CLI (called `waspc`).
+We want to test the behavior of all of the Wasp CLI commands.
 Every command is treated as a black box.
 
-The main **outputs** of the `waspc` is a Wasp application. 
+The main **outputs** of the `waspc` is a Wasp application.
 We want to validate that CLI commands correctly generate or modify applications.
 In addition to applications, we also cover secondary outputs, such as the installation and uninstallation of the CLI itself, `bash` completions, and more.
 
