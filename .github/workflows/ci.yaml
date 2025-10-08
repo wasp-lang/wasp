@@ -12,17 +12,9 @@ on:
   workflow_call:
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   deploy-test:
     uses: ./.github/workflows/ci-deploy-test.yaml
-    secrets: inherit
-
-  examples-deploy:
-    uses: ./.github/workflows/ci-examples-deploy.yaml
     secrets: inherit
 
   examples-test:
