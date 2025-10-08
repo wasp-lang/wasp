@@ -67,10 +67,6 @@ jobs:
           git config --global core.eol lf
 
       - uses: "actions/checkout@v5"
-        with:
-          # Workaround for a Github Checkout action bug
-          # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
-          ref: ${{ github.event.pull_request.head.sha }}
 
       # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
       # The fix will be propagated in a few days, so we can remove this workaround then.

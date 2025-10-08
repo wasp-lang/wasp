@@ -34,8 +34,6 @@ jobs:
           git config --global core.eol lf
 
       - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
 
       - name: Parse oromolu version
         working-directory: waspc
