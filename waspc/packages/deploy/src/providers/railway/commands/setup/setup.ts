@@ -141,12 +141,15 @@ async function setupDb({
       ...["--image", options.dbImage],
       ...["--variables", "POSTGRES_DB=railway"],
       ...["--variables", "POSTGRES_USER=postgres"],
-      ...["--variables", "POSTGRES_PASSWORD=${{secret()}}"],
+      ...[
+        "--variables",
+        `POSTGRES_PASSWORD=${getRailwayEnvVarValueReference("secret()")}`,
+      ],
       ...["--variables", "PORT=5432"],
       ...["--variables", "PGDATA=/var/lib/postgresql/data/pgdata"],
       ...[
         "--variables",
-        "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
+        `DATABASE_URL=postgresql://${getRailwayEnvVarValueReference("POSTGRES_USER")}:${getRailwayEnvVarValueReference("POSTGRES_PASSWORD")}@${getRailwayEnvVarValueReference("RAILWAY_PRIVATE_DOMAIN")}:${getRailwayEnvVarValueReference("PORT")}/${getRailwayEnvVarValueReference("POSTGRES_DB")}`,
       ],
     ]);
   } else {
