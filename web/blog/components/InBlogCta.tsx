@@ -1,6 +1,5 @@
 import Link from "@docusaurus/Link";
 
-
 export function InBlogCta() {
   return (
     <p className="in-blog-cta-link-container">

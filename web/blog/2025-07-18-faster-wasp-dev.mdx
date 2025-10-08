@@ -13,7 +13,7 @@ Have you ever heard the expression [_the cobbler's children alway go barefoot_](
 
 {/* truncate */}
 
-But [in this Launch Week](./2025-07-07-wasp-launch-week-10.md), the team has taken some time between shipping features and fixing bugs, and looked at the tools we were using ourselves. What we found _won't_ surprise you: the process by which we build Wasp needs a serious tune-up. Our features have changed a lot from the initial to-do apps, to the real projects that are shipping today; made by hobbyists, startups, and enterprise. Now, we need to update our approach for our current scale, without losing our open identity.
+But [in this Launch Week](./2025-07-07-wasp-launch-week-10.mdx), the team has taken some time between shipping features and fixing bugs, and looked at the tools we were using ourselves. What we found _won't_ surprise you: the process by which we build Wasp needs a serious tune-up. Our features have changed a lot from the initial to-do apps, to the real projects that are shipping today; made by hobbyists, startups, and enterprise. Now, we need to update our approach for our current scale, without losing our open identity.
 
 **So… we’re giving you a tour!**
 
@@ -90,7 +90,7 @@ Just a few months ago, our internal project landscape had become a sprawling aff
 
 That was... annoying. Keeping everything in sync with the latest version of Wasp was a manual chore. A change in the compiler required hopping between repos, and hoping we didn't miss anything-a perfect recipe for version drift.
 
-But, when Earth most needed them, [Franjo](./2025-03-20-meet-franjo-engineer-at-wasp.md) and [Miho](./2024-12-24-meet-miho-founding-engineer-wasp.md) came through!
+But, when Earth most needed them, [Franjo](./2025-03-20-meet-franjo-engineer-at-wasp.mdx) and [Miho](./2024-12-24-meet-miho-founding-engineer-wasp.mdx) came through!
 
 First, we consolidated the starters. We now have two, and only two, official starters, living directly inside the main Wasp repo: one for a basic app with guidance on enabling common features, and a minimal one for users who know exactly what they want. Gone are the super-specialized starters that saw basically no usage. Don't worry though, [OpenSaas](https://opensaas.sh/) and [Mage](https://usemage.ai/) are still offered in `wasp new` to help you with more advanced needs.
 
@@ -124,7 +124,7 @@ Testing shouldn't be an afterthought, but it also shouldn't be a pain. We realiz
 
 How do you _really_ know your app is ready for production? The `wasp start` dev server is great for development, but a production build is a different beast - assets are bundled and optimized, environment variables are handled differently, and the server runs in a hardened mode.
 
-Internally, our method for testing this is a collection of [ad-hoc scripts](https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289). First of all, these rely on you knowing [Filip](./2022-05-31-filip-intro.md) and asking him for his scripts. And second, they depend on our developer machines’ setups, and that's not something we could ever ship to you. We need a first-class solution.
+Internally, our method for testing this is a collection of [ad-hoc scripts](https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289). First of all, these rely on you knowing [Filip](./2022-05-31-filip-intro.mdx) and asking him for his scripts. And second, they depend on our developer machines’ setups, and that's not something we could ever ship to you. We need a first-class solution.
 
 That’s why we’re developing a new CLI command: `wasp build start`. This command will take your built production output (the result of `wasp build`) and start your app locally, using the generated client files, and the server Docker container. It’s a one-step dress rehearsal for your deployment.
 
@@ -152,9 +152,9 @@ This means we can:
 
 We have some example apps that we deploy with the latest changes:
 
-- [Waspello](https://waspello-app-client.fly.dev/) (from [this blog post](./2021-12-02-waspello.md))
-- [Waspleau](https://waspleau-app-client.fly.dev/) (from [this blog post](./2022-01-27-waspleau.md))
-- [Websockets Voting](https://websockets-voting-client.fly.dev/) (from [this blog post](./2023-08-09-build-real-time-voting-app-websockets-react-typescript.md))
+- [Waspello](https://waspello-app-client.fly.dev/) (from [this blog post](./2021-12-02-waspello.mdx))
+- [Waspleau](https://waspleau-app-client.fly.dev/) (from [this blog post](./2022-01-27-waspleau.mdx))
+- [Websockets Voting](https://websockets-voting-client.fly.dev/) (from [this blog post](./2023-08-09-build-real-time-voting-app-websockets-react-typescript.mdx))
 
 This isn't just about testing our code; it's about testing the entire ecosystem you rely on. You can see the plan for this initiative on [GitHub](https://github.com/wasp-lang/wasp/issues/2831).
 

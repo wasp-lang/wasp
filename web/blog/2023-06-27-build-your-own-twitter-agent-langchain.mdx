@@ -571,7 +571,7 @@ export default function AddNote() {
         onChange={(e) => setIdea(e.target.value)}
         value={idea}
         placeholder='LLMs are great for brainstorming!'
-        className='w-full p-4 h-22 bg-neutral-100 border rounded-lg w-full'
+        className='w-full p-4 h-22 bg-neutral-100 border rounded-lg'
       />
       <button
         onClick={handleEmbedIdea}
@@ -1189,7 +1189,7 @@ export default function AddNote() {
         onChange={(e) => setIdea(e.target.value)}
         value={idea}
         placeholder='LLMs are great for brainstorming!'
-        className='w-full p-4 h-22 bg-neutral-100 border rounded-lg w-full'
+        className='w-full p-4 h-22 bg-neutral-100 border rounded-lg'
       />
       <Button isLoading={isIdeaEmbedding} onClick={handleEmbedIdea}>
         Save Note
@@ -1266,7 +1266,7 @@ const MainPage = () => {
                 <div key={tweetDraft.id} className='flex flex-col gap-2 justify-center items-center w-full'>
                   <h2>Tweet Draft</h2>
                   <div className='flex flex-row gap-2 justify-center items-center w-full'>
-                    <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg w-full'>{tweetDraft.content}</div>
+                    <div className='w-full p-4 h-22 bg-blue-100 border rounded-lg'>{tweetDraft.content}</div>
                   </div>
 
                   {!!tweetDraft.notes && tweetDraft.notes !== tweetDraft.originalTweet.content && (
@@ -1280,7 +1280,7 @@ const MainPage = () => {
                     {tweetDraft.originalTweet.ideas.map((idea) => (
                       <div key={idea.id} className='flex flex-row gap-2 justify-center items-center w-full'>
                         <div className='flex flex-row gap-2 justify-center items-center w-full'>
-                          <div className='w-full p-4 h-22 bg-neutral-100 border rounded-lg w-full'>{idea.content}</div>
+                          <div className='w-full p-4 h-22 bg-neutral-100 border rounded-lg'>{idea.content}</div>
                         </div>
                       </div>
                     ))}
