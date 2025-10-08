@@ -35,10 +35,3 @@ jobs:
           artifacts: "./wasp-cli-*/*"
           artifactErrorsFailBuild: true
           replacesArtifacts: true
-
-  deploy-examples:
-    needs: create-release
-    uses: ./.github/workflows/release-examples-deploy.yaml
-    with:
-      version: ${{ github.ref_name }}
-    secrets: inherit
