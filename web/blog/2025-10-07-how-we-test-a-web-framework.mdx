@@ -1,32 +1,30 @@
 ---
 title: "How we test a web framework"
+description: "A sneak peek into how we test our compiler-driven full-stack web framework at Wasp."
 authors: [franjomindek]
-image: /img/how-we-test-a-web-framework/banner.png
+image: /img/how-we-test-a-web-framework/wasp-overview.png
 tags: [testing, wasp]
 ---
 
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-import InBlogCta from './components/InBlogCta';
 import WaspIntro from './\_wasp-intro.md';
-import ImgWithCaption from './components/ImgWithCaption'
-
-<ImgWithCaption
-    alt="An AI generated image of Wasp mascot thinking about testing the web framework"
-    source="/img/how-we-test-a-web-framework/banner.png"
-/>
-
-**Wasp is a compiler-driven full-stack web framework**; it takes configuration and source files with your unique logic, and it generates the complete source code your the web app.
-
-As a result of our approach and somewhat unique design, we have a large surface area to test. Every layer can break in its own creative way, and a **strong suite of automated tests is what keeps us (somewhat) sane**.
-
-In this article, our goal is to demonstrate the practical side of testing in a compiler-driven full-stack framework, where traditional testing intersects with code generation and developer experience.
+import ImgWithCaption from './components/ImgWithCaption';
+import InBlogCta from './components/InBlogCta';
 
 <ImgWithCaption
     alt="Overview of Wasp ecosystem"
     source="img/how-we-test-a-web-framework/wasp-overview.png"
 />
+
+**Wasp is a compiler-driven full-stack web framework**; it takes configuration and source files with your unique logic, and it generates the complete source code your the web app. Think of a Rails-like framework for React, Node.js and Prisma. 
+
+As a result of our approach and somewhat unique design, we have a large surface area to test. Every layer can break in its own creative way, and a **strong suite of automated tests is what keeps us (somewhat) sane**.
+
+{/* truncate */}
+
+In this article, our goal is to demonstrate the practical side of testing in a compiler-driven full-stack framework, where traditional testing intersects with code generation and developer experience.
 
 ## Our approach to tests
 
@@ -55,7 +53,7 @@ spec_kebabToCamelCase = do
       kebabToCamelCase kebab `shouldBe` camel
 ```
 
-That rule naturally connects to the next one: **tests should be** **descriptive enough that you can understand their essence without additional comments**. That’s why sometimes we end up with beautifully long descriptions like this:
+That rule naturally connects to the next one: **tests should be descriptive enough that you can understand their essence without additional comments**. That’s why sometimes we end up with beautifully long descriptions like this:
 
 ```haskell
 spec_WriteFileDrafts :: Spec
@@ -169,7 +167,7 @@ While this gave us a lot of control and flexibility while generating the code, i
 
 This inconvenience made our usual development workflow consist of generating a Wasp app, making modifications to the generated files, and carrying over the changes back to the template. Repeat the process until we get it right.
 
-That is why [we’re migrating most of the TypeScript logic from Mustaches templates into dedicated `npm` packages.](https://github.com/wasp-lang/wasp/pull/2989#issue-comment-box) This will leave templates as mostly simple `import`/`export` wrappers, while **allowing us to build and test** the TypeScript side of the source code **with full type safety and normal tooling**.
+That is why [we’re migrating most of the TypeScript logic from Mustaches templates into dedicated `npm` packages.](https://github.com/wasp-lang/wasp/pull/2989#issue-comment-box) This will leave templates as mostly simple `import`/`export` wrappers, while **allowing us to build and test** the TypeScript side of the source code **with full type safety and normal toolqing**.
 
 ## Testing the Wasp apps
 
@@ -204,7 +202,7 @@ We have one golden rule when modifying/adding framework features: “**There mus
 
 ### When Kitchen Sink is not enough (or too much)
 
-Previously, I mentioned that `kitchen-sink` tests **_most_** of the framework features. Most — because **Wasp has mutually exclusive features**. For example, `usernameAndPassword` authentication vs `email` authentication (yes, `email` authentication also uses a password, I didn’t design the name). So we try to pick up the scraps with the rest of the smaller example apps.
+Previously, I mentioned that `kitchen-sink` tests **_most_** of the framework features. Most — because Wasp has **mutually exclusive features**. For example, `usernameAndPassword` authentication vs `email` authentication (yes, `email` authentication also uses a password, I didn’t design the name). So we try to pick up the scraps with the rest of the smaller example apps.
 
 While the `kitchen-sink` application is suitable for showcasing the framework's power to users, **it’s impossible to test all of the features in a single application**. Nor is it the proper way to test Wasp end-to-end.
 
