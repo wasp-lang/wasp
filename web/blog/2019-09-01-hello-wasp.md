@@ -8,7 +8,7 @@ About a year or so ago, brother and I started discussing how awesome it would be
 
 Step by step, the idea has started to take a more concrete shape, and Wasp (Web Application SPecification language) came to life! While still very early, we are writing this blog post to explain why are we building Wasp, what is the current status and what the future may hold.
 
-<!--truncate-->
+<!-- truncate -->
 
 ## More specification, less implementation
 
