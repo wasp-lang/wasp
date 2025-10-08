@@ -11,10 +11,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  warm-cache-build:
-    uses: ./.github/workflows/ci-waspc-build.yaml
-    secrets: inherit
-
   warm-cache-ci:
-    uses: ./.github/workflows/ci-waspc-test.yaml
+    uses: ./.github/workflows/ci.yaml
     secrets: inherit
