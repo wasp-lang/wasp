@@ -1,13 +1,16 @@
 # End-to-End tests for `waspc`
 
-The purpose of these `e2e-tests` is to verify the functionality of the **`waspc` binary**.
-We are not concerned with the internal implementation of the binary, only its interface and outputs.
+The purpose of `e2e-tests` is to **verify that the Wasp binary works as expected**.
+We are not concerned with the internal implementation, only its interface and outputs.
 
 ## More on purpose
 
-**Interface** is exposed through the Wasp CLI. We want to test the behavior of all of the Wasp CLI commands. These tests test behavior at the command level, rather than the internal implementation details.
+**Interface** is exposed through the Wasp CLI (called `waspc`). 
+We want to test the behavior of all of the Wasp CLI commands. 
+Every command is treated as a black box.
 
-The main **outputs** of the `waspc` binary are Wasp applications. We want to validate that CLI commands correctly generate or modify applications in line with expectations.
+The main **outputs** of the `waspc` is a Wasp application. 
+We want to validate that CLI commands correctly generate or modify applications.
 In addition to applications, we also cover secondary outputs, such as the installation and uninstallation of the CLI itself, `bash` completions, and more.
 
 ## Snapshot tests
