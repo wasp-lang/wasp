@@ -2,7 +2,7 @@
 
 // This script is intended to be run in a GitHub Actions workflow to delete
 // orphaned caches that are no longer associated with any remote refs.
-// Called from `.github/workflows/cache-evict.yml`.
+// Called from `.github/workflows/automation-cache-evict.yaml`.
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -38,7 +38,7 @@ function listGitHubCaches() {
   return ghCachesOutput;
 }
 
-function listRemoteRefs(githubRepository) {
+function listRemoteRefs(/** @type {string} */ githubRepository) {
   const parsedLsRemoteOutput = parseGitRemoteOutput(
     runCmd(
       // We use `git ls-remote` so we also receive refs such as `refs/pull/123/head`
