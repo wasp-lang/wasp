@@ -60,9 +60,6 @@ jobs:
               # Cabal dependencies
               apt-get install -y zlib1g-dev
 
-          # TODO: Add a Linux ARM64 build once we update the GHC version (#1446)
-          # GHC 8.10.7 does not support ARM64 on Linux yet
-
           - name: linux-x86_64-static
             runner: ubuntu-latest
             # actions/setup-node does not work in alpine.
