@@ -7,34 +7,18 @@ on:
 
 jobs:
   ci:
-    uses: ./.github/workflows/waspc-ci.yaml
-
-  build:
-    uses: ./.github/workflows/waspc-build.yaml
-
-  examples-e2e-tests:
-    uses: ./.github/workflows/examples-e2e-tests.yaml
-
-  starters-e2e-tests:
-    uses: ./.github/workflows/starters-e2e-tests.yaml
-
-  wasp-config-tests:
-    uses: ./.github/workflows/wasp-config-tests.yaml
+    uses: ./.github/workflows/ci.yaml
+    secrets: inherit
 
   create-release:
-    needs:
-      - ci
-      - build
-      - examples-e2e-tests
-      - starters-e2e-tests
-      - wasp-config-tests
+    needs: ci
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: wasp-cli-*
 

@@ -1,26 +1,21 @@
 name: Check formatting
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-      - release
+  workflow_call:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
 
 permissions:
   contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   prettier:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "npm"
           node-version: "22"
@@ -38,7 +33,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 

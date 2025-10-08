@@ -26,6 +26,9 @@ on:
         type: string
         required: false
 
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
 jobs:
   build:
     strategy:
@@ -126,7 +129,7 @@ jobs:
     name: build (${{ matrix.env.name }})
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install dependencies
         run: ${{ matrix.env.install-deps }}
@@ -136,7 +139,7 @@ jobs:
           ghc-version: ${{ inputs.ghc-version }}
           extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: ${{ !matrix.env.skip-node-install }}
         with:
           node-version: ${{ inputs.node-version }}
@@ -161,7 +164,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Download macOS binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: wasp-cli-macos-*
 

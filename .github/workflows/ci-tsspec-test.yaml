@@ -2,15 +2,6 @@ name: Run wasp-config tests
 
 on:
   workflow_call:
-  push:
-    paths:
-      - "waspc/packages/wasp-config/**"
-    branches:
-      - main
-      - release
-  pull_request:
-    paths:
-      - "waspc/packages/wasp-config/**"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -20,9 +11,9 @@ jobs:
     name: Test wasp-config
     runs-on: ubuntu-22.04
     steps:
-      - uses: "actions/checkout@v4"
+      - uses: "actions/checkout@v5"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: lts/*
 

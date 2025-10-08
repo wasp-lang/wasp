@@ -2,13 +2,6 @@ name: Run e2e tests on example apps
 
 on:
   workflow_call:
-  push:
-    branches:
-      - main
-      - release
-  pull_request:
-    paths:
-      - "examples/**"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -28,7 +21,7 @@ jobs:
           - websockets-realtime-voting
 
     steps:
-      - uses: "actions/checkout@v4"
+      - uses: "actions/checkout@v5"
 
       - uses: ./.github/actions/setup-haskell
         with:
@@ -36,7 +29,7 @@ jobs:
           cabal-version: "3.10.2.0"
           cabal-project-dir: waspc
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: lts/*
 

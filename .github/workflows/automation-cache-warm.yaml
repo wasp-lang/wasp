@@ -12,7 +12,9 @@ concurrency:
 
 jobs:
   warm-cache-build:
-    uses: ./.github/workflows/waspc-build.yaml
+    uses: ./.github/workflows/ci-waspc-build.yaml
+    secrets: inherit
 
   warm-cache-ci:
-    uses: ./.github/workflows/waspc-ci.yaml
+    uses: ./.github/workflows/ci-waspc-test.yaml
+    secrets: inherit

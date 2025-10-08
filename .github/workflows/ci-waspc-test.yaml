@@ -3,15 +3,6 @@ name: WASPC-CI
 on:
   workflow_call:
   workflow_dispatch:
-  push:
-    paths:
-      - "waspc/**"
-    branches:
-      - main
-      - release
-  pull_request:
-    paths:
-      - "waspc/**"
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -75,7 +66,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: "actions/checkout@v4"
+      - uses: "actions/checkout@v5"
         with:
           # Workaround for a Github Checkout action bug
           # https://github.com/actions/checkout/issues/1359#issuecomment-1567902034
@@ -96,7 +87,7 @@ jobs:
           cabal-project-dir: waspc
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
 

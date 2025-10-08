@@ -1,0 +1,50 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - release
+  pull_request:
+    branches:
+      - main
+      - release
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-test:
+    uses: ./.github/workflows/ci-deploy-test.yaml
+    secrets: inherit
+
+  examples-deploy:
+    uses: ./.github/workflows/ci-examples-deploy.yaml
+    secrets: inherit
+
+  examples-test:
+    uses: ./.github/workflows/ci-examples-test.yaml
+    secrets: inherit
+
+  formatting:
+    uses: ./.github/workflows/ci-formatting.yaml
+    secrets: inherit
+
+  starters-test:
+    uses: ./.github/workflows/ci-starters-test.yaml
+    secrets: inherit
+
+  tsspec-test:
+    uses: ./.github/workflows/ci-tsspec-test.yaml
+    secrets: inherit
+
+  waspc-build:
+    uses: ./.github/workflows/ci-waspc-build.yaml
+    secrets: inherit
+
+  waspc-test:
+    uses: ./.github/workflows/ci-waspc-test.yaml
+    secrets: inherit
