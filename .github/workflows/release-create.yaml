@@ -5,6 +5,10 @@ on:
     tags:
       - v*
 
+concurrency:
+  group: "release-create"
+  cancel-in-progress: true
+
 jobs:
   ci:
     uses: ./.github/workflows/ci.yaml

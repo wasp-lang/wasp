@@ -14,7 +14,7 @@ on:
       - main
 
 concurrency:
-  group: "cache-evict"
+  group: "automation-cache-evict"
   cancel-in-progress: true
 
 jobs:

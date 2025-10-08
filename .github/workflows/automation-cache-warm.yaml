@@ -7,7 +7,7 @@ on:
     - cron: "0 0 */6 * *"
 
 concurrency:
-  group: "cache-warm"
+  group: "automation-cache-warm"
   cancel-in-progress: false
 
 jobs:

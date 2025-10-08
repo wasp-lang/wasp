@@ -23,7 +23,7 @@ on:
         default: "" # We are relying on the install script treating the empty string as the latest version
 
 concurrency:
-  group: "deploy-examples"
+  group: "release-examples-deploy"
   cancel-in-progress: true
 
 env:

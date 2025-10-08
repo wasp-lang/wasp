@@ -7,6 +7,10 @@ on:
     branches:
       - deploy-web
 
+concurrency:
+  group: "automation-algolia-restart-crawler"
+  cancel-in-progress: true
+
 jobs:
   restart-crawler:
     name: Restart Algolia Crawler

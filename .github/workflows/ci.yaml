@@ -12,6 +12,10 @@ on:
   workflow_call:
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy-test:
     uses: ./.github/workflows/ci-deploy-test.yaml
