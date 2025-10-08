@@ -24,7 +24,6 @@ export function InBlogCta() {
   )
 };
 
-
 function CtaDivider() {
   return <span className="in-blog-cta--divider"> → </span>;
 }
