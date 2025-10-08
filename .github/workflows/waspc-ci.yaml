@@ -58,11 +58,11 @@ jobs:
         include:
           - os: ubuntu-22.04
             node-version: 22
-            ghc: "9.10.2"
+            ghc: "9.0.2"
             cabal: "3.10.2.0"
           - os: ubuntu-22.04
             node-version: 24
-            ghc: "9.10.2"
+            ghc: "9.0.2"
             cabal: "3.10.2.0"
 
     steps:
