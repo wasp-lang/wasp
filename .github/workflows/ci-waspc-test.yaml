@@ -35,7 +35,7 @@ jobs:
         node-version:
           - "latest"
         ghc:
-          - "8.10.7"
+          - "9.0.2"
         cabal:
           - "3.10.2.0"
         # In addition to the default matrix, we also want to run the build job for
@@ -45,11 +45,11 @@ jobs:
         include:
           - os: ubuntu-22.04
             node-version: 22
-            ghc: "8.10.7"
+            ghc: "9.0.2"
             cabal: "3.10.2.0"
           - os: ubuntu-22.04
             node-version: 24
-            ghc: "8.10.7"
+            ghc: "9.0.2"
             cabal: "3.10.2.0"
 
     steps:

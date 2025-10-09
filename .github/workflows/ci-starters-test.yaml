@@ -15,7 +15,7 @@ jobs:
 
       - uses: ./.github/actions/setup-haskell
         with:
-          ghc-version: "8.10.7"
+          ghc-version: "9.0.2"
           cabal-version: "3.10.2.0"
           cabal-project-dir: waspc
 
