@@ -1,4 +1,4 @@
-name: Merge `release` back to `main`
+name: "Automation - Merge release to main"
 
 on:
   workflow_dispatch:

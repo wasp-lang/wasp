@@ -1,17 +1,16 @@
-name: Test Wasp Deploy
+name: "Test - Wasp Deploy"
 
 on:
-  push:
-    paths:
-      - "waspc/**"
-      - ".github/**"
-    branches:
-      - main
-    tags:
-      - v*
+  workflow_call:
+    secrets:
+      FLY_GITHUB_TESTING_TOKEN:
+        description: "Fly API token for deploying testing apps"
+        required: true
   workflow_dispatch:
 
 env:
+  WASP_TELEMETRY_DISABLE: 1
+
   APP_PREFIX: ci-${{ github.sha }}
   FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
   FLY_REGION: mia
@@ -27,11 +26,11 @@ jobs:
       name: fly-deploy-test
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: ./.github/actions/setup-haskell
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "npm"
           node-version: "22"

@@ -1,4 +1,4 @@
-name: Keeps build cache warm
+name: "Automation - Warm caches"
 
 on:
   workflow_dispatch:
@@ -7,12 +7,10 @@ on:
     - cron: "0 0 */6 * *"
 
 concurrency:
-  group: "cache-warm"
+  group: "automation-cache-warm"
   cancel-in-progress: false
 
 jobs:
-  warm-cache-build:
-    uses: ./.github/workflows/waspc-build.yaml
-
   warm-cache-ci:
-    uses: ./.github/workflows/waspc-ci.yaml
+    uses: ./.github/workflows/ci.yaml
+    secrets: inherit

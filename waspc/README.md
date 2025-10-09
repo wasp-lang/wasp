@@ -409,19 +409,19 @@ During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
 If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
 
-We also have a workflow for deploying example apps to Fly.io (`deploy-examples.yml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
+We also have a workflow for deploying example apps to Fly.io (`release-examples-deploy.yaml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
 
 You can run this workflow:
 
-- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/deploy-examples.yml (click "Run workflow" and select the `release` branch)
+- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml (click "Run workflow" and select the `release` branch)
 - **From GitHub CLI**:
 
   ```bash
   # Deploy with latest Wasp version
-  gh workflow run deploy-examples.yml --ref release
+  gh workflow run release-examples-deploy --ref release
   
   # Deploy with specific Wasp version
-  gh workflow run deploy-examples.yml --ref release -f version=0.13.2
+  gh workflow run release-examples-deploy --ref release -f version=0.13.2
   ```
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
@@ -461,7 +461,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main`. Make sure to merge that PR. This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
-- Deploy the example apps to Fly.io by running the [deploy-examples workflow](/.github/workflows/deploy-examples.yml) (see "Deployment / CI" section for more details).
+- Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](/.github/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If you published new docs, rerun the Algolia Crawler to update the search index. If you published a new version of the docs, the search won't work until you do this.
   - To do this, go to https://crawler.algolia.com/admin and click "Restart crawling" under the "wasp-lang" crawler.
