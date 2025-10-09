@@ -38,7 +38,7 @@ workspaces =
           ++ show inputDir
           ++ ")"
 
-toWorkspacesField :: [Path Posix (Rel WaspProjectDir) (Dir ())] -> [String]
+toWorkspacesField :: [Path Posix (Rel WaspProjectDir) (Dir')] -> [String]
 toWorkspacesField =
   -- While the trailing slashes do not matter, we drop them because they will be user-visible in
   -- their `package.json`, and it is more customary without them.
