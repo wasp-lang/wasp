@@ -396,6 +396,9 @@ How do I know where I want to target my PR, to `release` or `main`?
   - `release` represents the present, and is for changes to the already published stuff.
   - `main` represents near future, and is for changes to the to-be-published stuff.
 
+> [!IMPORTANT]
+> If you merge a PR or push any changes to `release`, a new PR will automatically be created to update `main` with the changes from `release`. You will be assigned it, and it's your responsibility to merge it.
+
 ## Deployment / CI
 
 We use Github Actions for CI.
@@ -457,7 +460,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - This will automatically create a new draft release.
 - 👉 Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
-- 👉 Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
+- 👉 You will have been tagged in an automated PR to merge `release` back to `main`. Make sure to merge that PR. This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [deploy-examples workflow](/.github/workflows/deploy-examples.yml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If you published new docs, rerun the Algolia Crawler to update the search index. If you published a new version of the docs, the search won't work until you do this.
