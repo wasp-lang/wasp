@@ -150,7 +150,8 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
             ".waspinfo",
             "package-lock.json",
             "tsconfig.tsbuildinfo",
-            "dist"
+            "dist",
+            ".env"
           ]
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
