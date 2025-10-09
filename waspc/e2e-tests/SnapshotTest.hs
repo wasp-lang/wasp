@@ -88,7 +88,7 @@ executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO 
 executeSnapshotTestCommand snapshotTest snapshotDir = do
   putStrLn $ "Executing snapshot test: " ++ _snapshotTestName snapshotTest
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommand $ "df -h" ~&& "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+  callCommand $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
   where
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
@@ -150,8 +150,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
             ".waspinfo",
             "package-lock.json",
             "tsconfig.tsbuildinfo",
-            "dist",
-            ".env"
+            "dist"
           ]
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
