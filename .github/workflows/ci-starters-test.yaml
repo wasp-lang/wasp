@@ -1,4 +1,4 @@
-name: Run e2e tests on starter templates
+name: "Test - E2E Starters"
 
 on:
   workflow_call:

@@ -1,4 +1,4 @@
-name: Build and upload Wasp CLI binaries to release
+name: "Release - Check, build, and upload binaries"
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Run e2e tests on example apps
+name: "Test - E2E Example apps"
 
 on:
   workflow_call:

@@ -1,4 +1,4 @@
-name: Deploy example apps to Fly
+name: "Release - Deploy examples"
 
 on:
   # Allow calling this workflow from other workflows

@@ -1,4 +1,4 @@
-name: WASPC-CI
+name: "Test - waspc"
 
 on:
   workflow_call:

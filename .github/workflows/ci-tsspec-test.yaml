@@ -1,4 +1,4 @@
-name: Run wasp-config tests
+name: "Test - TS Spec"
 
 on:
   workflow_call:

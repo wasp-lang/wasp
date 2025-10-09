@@ -1,4 +1,4 @@
-name: Test Wasp Deploy
+name: "Test - Wasp Deploy"
 
 on:
   workflow_call:

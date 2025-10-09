@@ -1,4 +1,4 @@
-name: Evict caches for merged PRs
+name: "Automation - Evict caches"
 
 # Caches for merged PRs stay around until we bump against our cache limit.
 # They are also not shareable between branches. Therefore, once a PR is

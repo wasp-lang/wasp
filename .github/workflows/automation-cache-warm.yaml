@@ -1,4 +1,4 @@
-name: Keeps build cache warm
+name: "Automation - Warm caches"
 
 on:
   workflow_dispatch:

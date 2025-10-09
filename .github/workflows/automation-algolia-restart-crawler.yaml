@@ -1,4 +1,4 @@
-name: Restart Algolia crawler
+name: "Automation - Restart Algolia crawler"
 
 # Based on https://github.com/wasp-lang/wasp/tree/main/web#deployment.
 on:

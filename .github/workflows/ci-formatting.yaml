@@ -1,4 +1,4 @@
-name: Check formatting
+name: "Check - Formatting"
 
 on:
   workflow_call:
