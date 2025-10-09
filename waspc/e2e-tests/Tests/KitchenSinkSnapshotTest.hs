@@ -32,5 +32,3 @@ kitchenSinkSnapshotTest =
 
     normalizePostgresConnectionString :: ShellCommandBuilder WaspProjectContext ShellCommand
     normalizePostgresConnectionString = return "printf '\\nDATABASE_URL=mock-database-url\\n' >> .env.server"
-
-
