@@ -15,7 +15,7 @@ env:
     Automated PR to merge changes from `release` branch back into `main`.
 
     > [!IMPORTANT]
-    > Please remember to **Rebase and merge** this PR to avoid conflicts in the future.
+    > You should **NOT** "Rebase and merge" or "Squash and merge" this PR, so we avoid conflicts in the future.
 
 jobs:
   create-pr:
