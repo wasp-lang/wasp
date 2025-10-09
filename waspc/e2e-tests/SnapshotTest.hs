@@ -88,7 +88,7 @@ executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO 
 executeSnapshotTestCommand snapshotTest snapshotDir = do
   putStrLn $ "Executing snapshot test: " ++ _snapshotTestName snapshotTest
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommand $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+  callCommand $ "df -h" ~&& "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
   where
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
