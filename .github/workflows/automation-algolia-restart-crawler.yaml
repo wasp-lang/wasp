@@ -1,4 +1,4 @@
-name: Restart Algolia crawler
+name: "Automation - Restart Algolia crawler"
 
 # Based on https://github.com/wasp-lang/wasp/tree/main/web#deployment.
 on:
@@ -6,6 +6,10 @@ on:
   push:
     branches:
       - deploy-web
+
+concurrency:
+  group: "automation-algolia-restart-crawler"
+  cancel-in-progress: true
 
 jobs:
   restart-crawler:
