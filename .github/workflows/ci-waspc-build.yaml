@@ -112,6 +112,10 @@ jobs:
               brew install --formula "$repo_name/$formula_name"
               brew link --force "$repo_name/$formula_name"
 
+              # Workaround for GHC 9.0.2 and Apple Silicon
+              # https://gitlab.haskell.org/ghc/ghc/-/issues/20592
+              echo C_INCLUDE_PATH="`xcrun --show-sdk-path`/usr/include/ffi" >> $GITHUB_ENV
+
     runs-on: ${{ matrix.env.runner }}
     container: ${{ matrix.env.container }}
     name: build (${{ matrix.env.name }})
