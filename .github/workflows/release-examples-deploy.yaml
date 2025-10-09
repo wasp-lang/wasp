@@ -1,4 +1,4 @@
-name: Deploy example apps to Fly
+name: "Release - Deploy examples"
 
 on:
   # Allow calling this workflow from other workflows
@@ -23,7 +23,7 @@ on:
         default: "" # We are relying on the install script treating the empty string as the latest version
 
 concurrency:
-  group: "deploy-examples"
+  group: "release-examples-deploy"
   cancel-in-progress: true
 
 env:
@@ -55,9 +55,9 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "npm"
           node-version: "22"

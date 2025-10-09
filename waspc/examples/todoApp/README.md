@@ -24,8 +24,9 @@ To obtain all the API keys to get all the features of the app working, if you do
 
 If you are a member of the Wasp Team, you don't have to obtain all the API keys on your own.
 
-Instead, you can run `npm run env:pull`: this will obtain `.env.server` file that we share on the team level.  
-We are using https://vault.dotenv.org to power this and have an account/organization up there.  
+Instead, you can run `npm run env:pull`: this will obtain `.env.server` file that we share on the team level.
+We are using https://vault.dotenv.org to power this and have an account/organization up there.
+
 If you modify `.env.server` and want to persist the changes (for yourself and for the other team members), do `npm run env:push`.
 
 ## Running
@@ -48,7 +49,8 @@ Run the app!
 cabal run wasp-cli start
 ```
 
-Open `localhost:3000` in the browser to see the app!  
+Open `localhost:3000` in the browser to see the app!
+
 NOTE: Normally wasp apps open automatically in browser, to help new users find their way, but that can become annoying after some time so here we turned that off.
 
 ## Testing
@@ -86,4 +88,4 @@ npm run test
 
 #### How to run in CI
 
-We set up a GitHub Action to run the tests in CI. See `.github/workflows/waspc-ci.yaml` for details.
+We set up a GitHub Action to run the tests in CI. See `.github/workflows/ci-waspc-test.yaml` for details.
