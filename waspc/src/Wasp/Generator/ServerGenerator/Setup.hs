@@ -1,5 +1,5 @@
-module Wasp.Generator.ServerGenerator.Start
-  ( startServer,
+module Wasp.Generator.ServerGenerator.Setup
+  ( installNpmDependencies,
   )
 where
 
@@ -10,7 +10,7 @@ import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Node.Executables (npmExec)
 
-startServer :: Path' Abs (Dir ProjectRootDir) -> J.Job
-startServer projectDir = do
+installNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> J.Job
+installNpmDependencies projectDir = do
   let serverDir = projectDir </> Common.serverRootDirInProjectRootDir
-  runNodeCommandAsJob serverDir npmExec ["run", "watch"] J.Server
+  runNodeCommandAsJob serverDir npmExec ["install"] J.Server
