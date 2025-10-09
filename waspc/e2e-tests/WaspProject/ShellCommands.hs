@@ -66,13 +66,17 @@ validateWaspProjectDockerImageBuilds = do
 waspCliMigrate :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliMigrate migrationName = do
   waspProjectContext <- ask
-  let waspProjectDir = _waspProjectDir waspProjectContext
-      waspMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
-      waspOutMigrationsDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
+  let waspMigrationsDir = _waspProjectDir waspProjectContext </> dbMigrationsDirInWaspProjectDir
+      waspOutMigrationsDir =
+        _waspProjectDir waspProjectContext
+          </> dotWaspDirInWaspProjectDir
+          </> generatedCodeDirInDotWaspDir
+          </> dbRootDirInProjectRootDir
+          </> dbMigrationsDirInDbRootDir
    in return $
         "wasp-cli db migrate-dev --name " ++ migrationName
           ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
           ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
   where
-    replaceMigrationDatePrefix migrationDir =
-      "mv " ++ joinPath [migrationDir, "*" ++ migrationName] ++ " " ++ joinPath [migrationDir, "no-date-" ++ migrationName]
+    replaceMigrationDatePrefix migrationDirPath =
+      "mv " ++ joinPath [migrationDirPath, "*" ++ migrationName] ++ " " ++ joinPath [migrationDirPath, "no-date-" ++ migrationName]

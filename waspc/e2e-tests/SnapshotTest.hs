@@ -87,7 +87,6 @@ setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
 executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO ()
 executeSnapshotTestCommand snapshotTest snapshotDir = do
   putStrLn $ "Executing snapshot test: " ++ _snapshotTestName snapshotTest
-  putStrLn $ "Running the following command: " ++ snapshotTestCommand
   callCommand $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
   where
     snapshotTestCommand :: ShellCommand
