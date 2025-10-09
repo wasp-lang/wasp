@@ -9,7 +9,6 @@ where
 import Control.Applicative ((<|>))
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
-import Language.Haskell.TH.Syntax (VarBangType)
 import qualified Wasp.Analyzer.Evaluator.Evaluation as E
 import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
@@ -147,7 +146,8 @@ makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(NormalC conName [(_,
 -- The constructor is in the form @data Type = Type x1 x2 ... xn@, which is not valid for a decl
 makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(NormalC _ values) =
   fail $
-    "makeDeclType expects given type " ++ show typeName
+    "makeDeclType expects given type "
+      ++ show typeName
       ++ " to be a record or to have one data constructor with exactly 1 value, "
       ++ "but instead it was given a data constructor with "
       ++ show (length values)
@@ -188,7 +188,7 @@ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
           { dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
             dtBodyType = $bodyTypeE,
             dtEvaluate = \typeDefs bindings declName declBodyExpr ->
-              makeDecl @ $(conT typeName) declName <$> declEvaluate typeDefs bindings declBodyExpr
+              makeDecl @($(conT typeName)) declName <$> declEvaluate typeDefs bindings declBodyExpr
           }
         |],
     genVal 'declEvaluate evaluateE
@@ -218,19 +218,19 @@ genWaspTypeAndEvaluationForHaskellType typ =
     KJSON -> return ([|T.QuoterType "json"|], [|E.json|])
     KDeclRef t ->
       return
-        ( [|T.DeclType $ dtName $ declType @ $(pure t)|],
-          [|E.declRef @ $(pure t)|]
+        ( [|T.DeclType $ dtName $ declType @($(pure t))|],
+          [|E.declRef @($(pure t))|]
         )
     KEnum ->
       return
-        ( [|T.EnumType $ etName $ enumType @ $(pure typ)|],
-          [|E.enum @ $(pure typ)|]
+        ( [|T.EnumType $ etName $ enumType @($(pure typ))|],
+          [|E.enum @($(pure typ))|]
         )
     KRecord dataConName fields -> genDictWaspTypeAndEvaluationForRecord dataConName fields
     KCustomEvaluation ->
       return
-        ( [|HasCustomEvaluation.waspType @ $(pure typ)|],
-          [|HasCustomEvaluation.evaluation @ $(pure typ)|]
+        ( [|HasCustomEvaluation.waspType @($(pure typ))|],
+          [|HasCustomEvaluation.evaluation @($(pure typ))|]
         )
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
