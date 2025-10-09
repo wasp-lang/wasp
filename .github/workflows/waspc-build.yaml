@@ -5,21 +5,12 @@ name: Build wasp-cli binaries for multiple platforms
 on:
   workflow_dispatch:
     inputs:
-      ghc-version:
-        description: "GHC version to use"
-        default: "8.10.7"
-        required: false
       node-version:
         description: "Node.js version to use"
         default: "22"
         required: false
   workflow_call:
     inputs:
-      ghc-version:
-        description: "GHC version to use"
-        default: "8.10.7"
-        type: string
-        required: false
       node-version:
         description: "Node.js version to use"
         default: "22"
@@ -59,9 +50,6 @@ jobs:
               apt-get install -y build-essential curl libffi-dev libffi7 libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5
               # Cabal dependencies
               apt-get install -y zlib1g-dev
-
-          # TODO: Add a Linux ARM64 build once we update the GHC version (#1446)
-          # GHC 8.10.7 does not support ARM64 on Linux yet
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
@@ -121,6 +109,10 @@ jobs:
               brew install --formula "$repo_name/$formula_name"
               brew link --force "$repo_name/$formula_name"
 
+              # Workaround for GHC 9.0.2 and Apple Silicon
+              # https://gitlab.haskell.org/ghc/ghc/-/issues/20592
+              echo C_INCLUDE_PATH="`xcrun --show-sdk-path`/usr/include/ffi" >> $GITHUB_ENV
+
     runs-on: ${{ matrix.env.runner }}
     container: ${{ matrix.env.container }}
     name: build (${{ matrix.env.name }})
@@ -133,7 +125,6 @@ jobs:
 
       - uses: ./.github/actions/setup-haskell
         with:
-          ghc-version: ${{ inputs.ghc-version }}
           extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
 
       - uses: actions/setup-node@v4

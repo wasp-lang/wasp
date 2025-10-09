@@ -96,7 +96,7 @@ const config: Config = {
       ],
     },
     prism: {
-      additionalLanguages: ["shell-session", "haskell"],
+      additionalLanguages: ["shell-session", "haskell", "markdown"],
       theme: lightCodeTheme,
     },
     footer: {

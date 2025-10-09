@@ -126,7 +126,7 @@ library
     , aeson                 ^>= 1.5.6
     , aeson-pretty          ^>= 0.8
     , text                  ^>= 1.2.4
-    , template-haskell      ^>= 2.16.0
+    , template-haskell      ^>= 2.17.0
     , unordered-containers  ^>= 0.2.16
     , mtl                   ^>= 2.2.2
     , async                 ^>= 2.2.4
@@ -580,6 +580,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
