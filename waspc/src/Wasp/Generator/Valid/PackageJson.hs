@@ -8,7 +8,6 @@ import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.NpmWorkspaces (toWorkspacesField)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateArrayFieldIncludesRequired)
@@ -67,7 +66,7 @@ validateWorkspaces packageJson =
   validateArrayFieldIncludesRequired
     "package.json"
     (FieldName ["workspaces"])
-    (toWorkspacesField NW.workspaces)
+    NW.workspaceGlobs
     (P.workspaces packageJson)
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]

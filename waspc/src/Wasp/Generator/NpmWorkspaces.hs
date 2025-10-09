@@ -1,48 +1,47 @@
 module Wasp.Generator.NpmWorkspaces
   ( serverPackageName,
-    toWorkspacesField,
     webAppPackageName,
-    workspaces,
+    workspaceGlobs,
   )
 where
 
 import Data.Either (fromRight)
-import StrongPath (Dir, Dir', Path, Path', Posix, Rel, fromRelDirP, relDirToPosix, reldirP, (</>))
+import StrongPath (Dir, Path, Path', Posix, Rel, (</>))
+import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec, isBuild)
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Project.Common (DotWaspDir, WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common
+  ( WaspProjectDir,
+    buildDirInDotWaspDir,
+    dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+  )
 
--- | Returns the list of workspaces that should be included in the generated package.json file. Each
+-- | Returns the list of workspaces that should be included in the user's `package.json` file. Each
 -- workspace is a glob that matches all packages in a certain directory.
--- The path syntax here is always POSIX, because Windows syntax does not allow globs, and `npm`
--- prefers it.
-workspaces :: [Path Posix (Rel WaspProjectDir) Dir']
-workspaces =
-  [ globFor generatedCodeDirInDotWaspDir,
-    globFor buildDirInDotWaspDir
-    -- TODO: Add SDK as a workspace (#3233)
-  ]
+--
+-- The glob syntax is POSIX-path-like, but not actually a path, so it's represented as a String.
+workspaceGlobs :: [String]
+workspaceGlobs =
+  FP.Posix.dropTrailingPathSeparator . SP.fromRelDirP
+    <$> [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
+          makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
+          -- TODO: Add SDK as a workspace (#3233)
+        ]
   where
-    globFor :: Path' (Rel DotWaspDir) (Dir ProjectRootDir) -> Path Posix (Rel WaspProjectDir) Dir'
-    globFor dir =
-      forceRelDirToPosix (dotWaspDirInWaspProjectDir </> dir)
-        </> packageWildcard
+    makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> Path Posix (Rel WaspProjectDir) (Dir a)
+    makeGlobFromProjectRoot projectRootDir = (forceRelDirToPosix projectRootDir) </> packageWildcard
 
-    packageWildcard = [reldirP|*|]
+    -- We force this to be POSIX because Windows-style paths do not accept wildcard characters.
+    packageWildcard = [SP.reldirP|*|]
 
-    forceRelDirToPosix inputDir = fromRight (nonPosixError inputDir) $ relDirToPosix inputDir
-    nonPosixError inputDir =
+    forceRelDirToPosix inputDir = fromRight (makeNonPosixError inputDir) $ SP.relDirToPosix inputDir
+    makeNonPosixError inputDir =
       error $
         "This should never happen: our paths should always be POSIX-compatible, but they're not. (Received: "
           ++ show inputDir
           ++ ")"
-
-toWorkspacesField :: [Path Posix (Rel WaspProjectDir) (Dir')] -> [String]
-toWorkspacesField =
-  -- While the trailing slashes do not matter, we drop them because they will be user-visible in
-  -- their `package.json`, and it is more customary without them.
-  map (FP.Posix.dropTrailingPathSeparator . fromRelDirP)
 
 serverPackageName :: AppSpec -> String
 serverPackageName = workspacePackageName "server"

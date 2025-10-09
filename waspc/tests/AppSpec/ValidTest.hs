@@ -33,7 +33,6 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Generator.NpmWorkspaces (toWorkspacesField)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
@@ -508,7 +507,7 @@ spec_AppSpecValid = do
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just $ toWorkspacesField NW.workspaces
+                Npm.PackageJson.workspaces = Just $ NW.workspaceGlobs
               },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
