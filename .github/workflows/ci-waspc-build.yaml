@@ -5,21 +5,12 @@ name: Build wasp-cli binaries for multiple platforms
 on:
   workflow_dispatch:
     inputs:
-      ghc-version:
-        description: "GHC version to use"
-        default: "9.0.2"
-        required: false
       node-version:
         description: "Node.js version to use"
         default: "22"
         required: false
   workflow_call:
     inputs:
-      ghc-version:
-        description: "GHC version to use"
-        default: "9.0.2"
-        type: string
-        required: false
       node-version:
         description: "Node.js version to use"
         default: "22"
@@ -133,7 +124,6 @@ jobs:
 
       - uses: ./.github/actions/setup-haskell
         with:
-          ghc-version: ${{ inputs.ghc-version }}
           extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
 
       - uses: actions/setup-node@v5

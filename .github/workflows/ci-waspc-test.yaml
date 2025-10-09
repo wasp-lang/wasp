@@ -34,10 +34,6 @@ jobs:
           - windows-latest
         node-version:
           - "latest"
-        ghc:
-          - "9.0.2"
-        cabal:
-          - "3.10.2.0"
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
@@ -45,12 +41,8 @@ jobs:
         include:
           - os: ubuntu-22.04
             node-version: 22
-            ghc: "9.0.2"
-            cabal: "3.10.2.0"
           - os: ubuntu-22.04
             node-version: 24
-            ghc: "9.0.2"
-            cabal: "3.10.2.0"
 
     steps:
       - name: Configure git
@@ -74,8 +66,6 @@ jobs:
       - name: Set up Haskell
         uses: ./.github/actions/setup-haskell
         with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
           cabal-project-dir: waspc
 
       - name: Set up Node
