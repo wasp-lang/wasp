@@ -2,7 +2,7 @@
 title: Wasp TypeScript config (*.wasp.ts)
 ---
 
-import DiscordLink from '@site/blog/components/DiscordLink';
+import { DiscordLink } from '@site/blog/components/DiscordLink';
 
 :::caution Requires Wasp >= 0.16.3
 This document assumes your app works with Wasp >= 0.16.3.\
