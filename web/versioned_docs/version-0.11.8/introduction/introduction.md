@@ -3,7 +3,7 @@ title: Introduction
 slug: /
 ---
 
-import ImgWithCaption from '@site/blog/components/ImgWithCaption'
+import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
 :::note
 If you are looking for the installation instructions, check out the [Quick Start](./quick-start.md) section.
