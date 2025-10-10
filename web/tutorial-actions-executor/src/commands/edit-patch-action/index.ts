@@ -24,8 +24,8 @@ import type { WaspCliCommand } from "../../waspCli";
 import { waspCliCommandOption } from "../commonOptions";
 import { generateApp } from "../generate-app";
 
-export const editActionCommand = new Command("edit-action")
-  .description("Edit a action in the tutorial app")
+export const editPatchActionCommand = new Command("edit-patch-action")
+  .description("Edit a patch action in the tutorial app")
   .addOption(new Option("--action-id <id>", "ID of the action to edit"))
   .addOption(
     new Option(
@@ -55,14 +55,14 @@ export const editActionCommand = new Command("edit-action")
 
     log("info", `Editing action ${action.displayName}...`);
 
-    await editActionPatch({ appDir: tutorialApp.dirPath, action });
+    await editPatchActionPatch({ appDir: tutorialApp.dirPath, action });
 
     await extractCommitsIntoPatches(actions);
 
     log("success", `Edit completed for action ${action.displayName}!`);
   });
 
-async function editActionPatch({
+async function editPatchActionPatch({
   appDir,
   action,
 }: {

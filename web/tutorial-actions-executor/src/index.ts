@@ -1,12 +1,12 @@
 import { program } from "@commander-js/extra-typings";
 
-import { editActionCommand } from "./commands/edit-action";
+import { editPatchActionCommand } from "./commands/edit-patch-action";
 import { generateAppCommand } from "./commands/generate-app";
 import { listActionsCommand } from "./commands/list-actions";
 
 program
   .addCommand(generateAppCommand)
-  .addCommand(editActionCommand)
+  .addCommand(editPatchActionCommand)
   .addCommand(listActionsCommand)
   .parse(process.argv)
   .opts();
