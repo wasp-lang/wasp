@@ -50,5 +50,5 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPO: ${{ github.repository }}
           GITHUB_ACTOR: ${{ github.actor }}
