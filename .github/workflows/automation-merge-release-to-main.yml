@@ -10,6 +10,8 @@ env:
   SOURCE_BRANCH: release
   TARGET_BRANCH: main
 
+  GITHUB_ACTOR: ${{ github.actor }}
+
   PR_TITLE: "Merge `release` into `main`"
   PR_BODY: |
     Automated PR to merge changes from `release` branch back into `main`.
@@ -49,6 +51,6 @@ jobs:
               --body "$PR_BODY"
           fi
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          GITHUB_REPO: ${{ github.repository }}
-          GITHUB_ACTOR: ${{ github.actor }}
+          # Env for the `gh` CLI tool
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
