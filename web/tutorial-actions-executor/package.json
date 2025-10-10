@@ -7,7 +7,7 @@
     "edit-patch-action": "tsx ./src/index.ts edit-patch-action",
     "generate-app": "tsx ./src/index.ts generate-app",
     "list-actions": "tsx ./src/index.ts list-actions",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",

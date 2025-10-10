@@ -46,17 +46,24 @@ async function getTutorialFilePaths(
   );
 }
 
-export function getMarkdownFileNames(filePaths: string[]): string[] {
-  return filePaths.filter((file) => file.endsWith(".md"));
+const SUPPORTED_TUTORIAL_FILE_EXTENSIONS = ["md", "mdx"] as const;
+
+export function getMarkdownFileNames(fileNames: string[]): string[] {
+  return fileNames.filter((fileName) => {
+    const lowerFileName = fileName.toLowerCase();
+    return SUPPORTED_TUTORIAL_FILE_EXTENSIONS.some((ext) =>
+      lowerFileName.endsWith(`.${ext}`),
+    );
+  });
 }
 
 /**
  * Sorts a list of files which are named "01-something.md" by their numeric prefix.
- * @param filePaths
+ * @param fileNames
  * @returns Sorted file paths
  */
-export function sortFileNamesByNumberedPrefix(filePaths: string[]): string[] {
-  return filePaths.sort((a, b) => {
+export function sortFileNamesByNumberedPrefix(fileNames: string[]): string[] {
+  return fileNames.sort((a, b) => {
     const aNumber = parseInt(a.split("-")[0]!, 10);
     const bNumber = parseInt(b.split("-")[0]!, 10);
     return aNumber - bNumber;

@@ -59,13 +59,45 @@ describe("getAttributeValue", () => {
 });
 
 describe("getMarkdownFileNames", () => {
-  it("should filter files ending with .md", () => {
-    const files = ["01-intro.md", "02-setup.md", "README.txt", "package.json"];
+  function itShouldFilterMarkdownFiles(
+    testName: string,
+    inputFiles: string[],
+    expectedFiles: string[],
+  ) {
+    it(testName, () => {
+      expect(getMarkdownFileNames(inputFiles)).toEqual(expectedFiles);
+    });
+  }
 
-    const result = getMarkdownFileNames(files);
+  itShouldFilterMarkdownFiles(
+    "should return empty array when no markdown files are present",
+    ["file.txt", "image.png", "document.pdf"],
+    [],
+  );
 
-    expect(result).toEqual(["01-intro.md", "02-setup.md"]);
-  });
+  itShouldFilterMarkdownFiles(
+    "should filter files ending with .md or .mdx",
+    [
+      "01-intro.md",
+      "02-setup.mdx",
+      "03-advanced.md",
+      "README.txt",
+      "package.json",
+    ],
+    ["01-intro.md", "02-setup.mdx", "03-advanced.md"],
+  );
+
+  itShouldFilterMarkdownFiles(
+    "should handle case-insensitive file extensions",
+    ["README.MD", "guide.MDX", "tutorial.Md", "docs.mDx", "file.txt"],
+    ["README.MD", "guide.MDX", "tutorial.Md", "docs.mDx"],
+  );
+
+  itShouldFilterMarkdownFiles(
+    "should not match extensions in the middle of filename",
+    ["file.md.txt", "file.mdx.backup", "README.md"],
+    ["README.md"],
+  );
 });
 
 describe("sortFileNamesByNumberedPrefix", () => {
