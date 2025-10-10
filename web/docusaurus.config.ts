@@ -213,7 +213,7 @@ const config: Config = {
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
-          onUntruncatedBlogPosts: "log",
+          onUntruncatedBlogPosts: "throw",
         },
         theme: {
           customCss: ["./src/css/custom.css"],
