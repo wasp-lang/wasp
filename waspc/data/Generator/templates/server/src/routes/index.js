@@ -11,13 +11,24 @@ import apis from './apis/index.js'
 {=# areThereAnyCrudRoutes =}
 import { rootCrudRouter } from './crud/index.js'
 {=/ areThereAnyCrudRoutes =}
+{=# isDevelopment =}
+import { config } from 'wasp/server'
+{=/ isDevelopment =}
 
 
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
 router.get('/', middleware, function (_req, res) {
+  {=# isDevelopment =}
+  res.render("wrong-port.html.ejs", {
+    appName: "{= appName =}",
+    frontendUrl: config.frontendUrl
+  });
+  {=/ isDevelopment =}
+  {=^ isDevelopment =}
   res.status(200).send();
+  {=/ isDevelopment =}
 })
 
 {=# isAuthEnabled =}

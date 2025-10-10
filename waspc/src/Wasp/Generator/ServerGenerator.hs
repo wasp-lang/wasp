@@ -76,6 +76,7 @@ genServer spec =
       genNodemon
     ]
     <++> genSrcDir spec
+    <++> genViewsDir spec
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genApis spec
@@ -160,6 +161,7 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("superjson", show superjsonVersion)
           ]
+          ++ depsRequiredByViews spec
           ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         Npm.Dependency.fromList
@@ -178,6 +180,12 @@ npmDepsForWasp spec =
           ]
     }
   where
+    depsRequiredByViews spec'
+      | AS.isBuild spec' = []
+      | otherwise =
+          [ Npm.Dependency.make ("ejs", "^3.1.10")
+          ]
+
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 genNpmrc :: Generator FileDraft
@@ -205,6 +213,16 @@ genNodemon =
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
       waspProjectDirFromAppComponentDir </> srcDirInWaspProjectDir
+
+genViewsDir :: AppSpec -> Generator [FileDraft]
+genViewsDir spec
+  | AS.isBuild spec = return []
+  | otherwise =
+      sequence
+        [ genFileCopy [relfile|views/wrong-port.html.ejs|]
+        ]
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
@@ -262,7 +280,9 @@ genRoutesIndex spec =
           "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
-          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
+          "isDevelopment" .= (not $ AS.isBuild spec :: Bool),
+          "appName" .= (fst $ getApp spec :: String)
         ]
 
 operationsRouteInRootRouter :: String
