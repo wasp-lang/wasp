@@ -25,6 +25,7 @@ where
 import Control.Monad (filterM)
 import Control.Monad.Extra (whenM)
 import qualified Data.ByteString.Lazy as B
+import Data.List (sort)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import qualified Data.Text.IO as Text.IO
@@ -38,7 +39,6 @@ import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import Prelude hiding (readFile, writeFile)
 import qualified Prelude as P
-import Data.List (sort)
 
 -- TODO: write tests.
 
