@@ -30,7 +30,7 @@ This command:
 - Applies each action in sequence (e.g. initialize app, apply patches, migrate DB)
 - Results in a fully functional application
 
-One of the actions is to apply a Git patch that modifies a source file. If applying
+One of the action types is to apply a Git patch that modifies a source file. If applying
 a patch fails due to conflicts, `generate-app` command pauses and allows you
 to resolve the conflicts manually.
 
