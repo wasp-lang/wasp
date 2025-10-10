@@ -532,11 +532,11 @@ Here’s an example configuration file to help you get started. This example wor
 
       steps:
         - name: Checkout Code
-          uses: actions/checkout@v2
+          uses: actions/checkout@v5
 
         - name: Setup Node.js
           id: setup-node
-          uses: actions/setup-node@v4
+          uses: actions/setup-node@v5
           with:
             node-version: '22'
 
@@ -633,11 +633,11 @@ Here’s an example configuration file to help you get started. This example wor
 
       steps:
         - name: Checkout Code
-          uses: actions/checkout@v2
+          uses: actions/checkout@v5
 
         - name: Setup Node.js
           id: setup-node
-          uses: actions/setup-node@v4
+          uses: actions/setup-node@v5
           with:
             node-version: '22'
 

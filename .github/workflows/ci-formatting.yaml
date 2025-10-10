@@ -1,0 +1,46 @@
+name: "Check - Formatting"
+
+on:
+  workflow_call:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+permissions:
+  contents: read
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          cache: "npm"
+          node-version: "22"
+
+      - name: Run Prettier
+        run: |
+          npm ci
+          npm run prettier:check
+
+  ormolu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          git config --global core.autocrlf input
+          git config --global core.eol lf
+
+      - uses: actions/checkout@v5
+
+      - name: Parse oromolu version
+        working-directory: waspc
+        run: |
+          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+
+      # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
+      - uses: haskell-actions/run-ormolu@v15
+        with:
+          version: ${{ env.ORMOLU_VERSION }}
