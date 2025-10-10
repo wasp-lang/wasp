@@ -41,21 +41,21 @@ async function getTutorialFilePaths(
   tutorialDir: TutorialDirPath,
 ): Promise<MdxFilePath[]> {
   const files = await fs.readdir(tutorialDir);
-  return sortTutorialFileNames(filterTutorialFileNames(files)).map(
+  return sortFileNamesByNumberedPrefix(getMarkdownFileNames(files)).map(
     (file) => path.resolve(tutorialDir, file) as MdxFilePath,
   );
 }
 
-export function filterTutorialFileNames(filePaths: string[]): string[] {
+export function getMarkdownFileNames(filePaths: string[]): string[] {
   return filePaths.filter((file) => file.endsWith(".md"));
 }
 
 /**
- * Tutorial files are named "01-something.md" and we want to sort them by the number prefix.
+ * Sorts a list of files which are named "01-something.md" by their numeric prefix.
  * @param filePaths
  * @returns Sorted file paths
  */
-export function sortTutorialFileNames(filePaths: string[]): string[] {
+export function sortFileNamesByNumberedPrefix(filePaths: string[]): string[] {
   return filePaths.sort((a, b) => {
     const aNumber = parseInt(a.split("-")[0]!, 10);
     const bNumber = parseInt(b.split("-")[0]!, 10);

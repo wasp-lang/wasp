@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 
 import type { MdxFilePath } from "../../src/actions/actions";
 import {
-  filterTutorialFileNames,
   getActionsFromMdxContent,
   getAttributeValue,
-  sortTutorialFileNames,
+  getMarkdownFileNames,
+  sortFileNamesByNumberedPrefix,
 } from "../../src/extract-actions/index";
 import type {
   AppDirPath,
@@ -46,21 +46,21 @@ describe("getAttributeValue", () => {
   });
 });
 
-describe("filterTutorialFileNames", () => {
+describe("getMarkdownFileNames", () => {
   it("should filter files ending with .md", () => {
     const files = ["01-intro.md", "02-setup.md", "README.txt", "package.json"];
 
-    const result = filterTutorialFileNames(files);
+    const result = getMarkdownFileNames(files);
 
     expect(result).toEqual(["01-intro.md", "02-setup.md"]);
   });
 });
 
-describe("sortTutorialFileNames", () => {
+describe("sortFileNamesByNumberedPrefix", () => {
   it("should sort files by numeric prefix", () => {
     const files = ["03-advanced.md", "01-intro.md", "02-setup.md"];
 
-    const result = sortTutorialFileNames(files);
+    const result = sortFileNamesByNumberedPrefix(files);
 
     expect(result).toEqual(["01-intro.md", "02-setup.md", "03-advanced.md"]);
   });
