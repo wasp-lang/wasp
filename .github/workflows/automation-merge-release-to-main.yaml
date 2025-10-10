@@ -10,7 +10,7 @@ env:
   SOURCE_BRANCH: release
   TARGET_BRANCH: main
 
-  GITHUB_ACTOR: ${{ github.actor }}
+  USERNAME: ${{ github.actor }}
 
   PR_TITLE: "Merge `release` into `main`"
   PR_BODY: |
@@ -36,15 +36,15 @@ jobs:
 
           if [ -n "$existing_pr_number" ]; then
             gh pr comment "$existing_pr_number" \
-              --body "Ping @${GITHUB_ACTOR}"
+              --body "Ping @${USERNAME}"
 
             gh pr edit "$existing_pr_number" \
-              --add-assignee "$GITHUB_ACTOR" \
-              --add-reviewer "$GITHUB_ACTOR"
+              --add-assignee "$USERNAME" \
+              --add-reviewer "$USERNAME"
           else
             gh pr create \
-              --assignee "$GITHUB_ACTOR" \
-              --reviewer "$GITHUB_ACTOR" \
+              --assignee "$USERNAME" \
+              --reviewer "$USERNAME" \
               --head "$SOURCE_BRANCH" \
               --base "$TARGET_BRANCH" \
               --title "$PR_TITLE" \
