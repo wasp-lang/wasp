@@ -1,7 +1,7 @@
-import { embedDocument, getScrapeCandidates } from "wasp/client/operations";
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { Button, Input, Listbox, ListboxItem } from "@heroui/react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { embedDocument, getScrapeCandidates } from "wasp/client/operations";
 
 import { ListboxWrapper } from "../ListBoxWrapper";
 
@@ -74,8 +74,8 @@ export function UrlTreeForm() {
 
       {results && (
         <div>
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold mt-4">Candidate URLs</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="mt-4 text-2xl font-bold">Candidate URLs</h2>
             <Button
               onClick={() => {
                 setResults(null);

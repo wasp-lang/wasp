@@ -1,4 +1,4 @@
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth";
 
 export const fields = defineUserSignupFields({
   email: (data: any) => data.profile.email,

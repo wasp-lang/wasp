@@ -1,20 +1,20 @@
 import {
-  deleteDocument,
-  useQuery,
-  getDocuments,
-  deleteAllDocuments,
-} from "wasp/client/operations";
-import {
+  Button,
   Card,
   CardBody,
-  Button,
   Modal,
-  ModalContent,
-  ModalHeader,
   ModalBody,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
   useDisclosure,
 } from "@heroui/react";
+import {
+  deleteAllDocuments,
+  deleteDocument,
+  getDocuments,
+  useQuery,
+} from "wasp/client/operations";
 
 import { DocumentCard } from "../DocumentCard";
 
@@ -29,7 +29,7 @@ export function DocumentsList() {
 
   return (
     <>
-      <div className="flex justify-between items-center my-4">
+      <div className="my-4 flex items-center justify-between">
         <h2 className="text-2xl font-bold">Documents</h2>
         {documents && documents.length > 0 && (
           <Button
