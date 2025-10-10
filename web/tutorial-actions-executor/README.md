@@ -83,16 +83,18 @@ Tutorial actions are defined in MDX files using JSX components:
 ````mdx
 # Step 4: Create Task Entity
 
-<TutorialAction id="create-task-entity" action="APPLY_PATCH" />
-
 In this action, we'll create the Task entity:
 
+<TutorialAction id="create-task-entity" action="APPLY_PATCH">
 ```prisma
 model Task {
    id        Int      @id @default(autoincrement())
 }
 ```
+</TutorialAction>
 ````
+
+The `<TutorialAction>` component should wrap the part of the tutorial text that it is associated with.
 
 The tool extracts these components and uses:
 

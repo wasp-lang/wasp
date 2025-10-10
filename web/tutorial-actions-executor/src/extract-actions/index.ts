@@ -50,8 +50,11 @@ export function filterTutorialFileNames(filePaths: string[]): string[] {
   return filePaths.filter((file) => file.endsWith(".md"));
 }
 
-// Tutorial files are named "01-something.md"
-// and we want to sort them by the number prefix
+/**
+ * Tutorial files are named "01-something.md" and we want to sort them by the number prefix.
+ * @param filePaths
+ * @returns Sorted file paths
+ */
 export function sortTutorialFileNames(filePaths: string[]): string[] {
   return filePaths.sort((a, b) => {
     const aNumber = parseInt(a.split("-")[0]!, 10);
