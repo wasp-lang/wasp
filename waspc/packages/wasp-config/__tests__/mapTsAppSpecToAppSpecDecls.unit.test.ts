@@ -193,6 +193,7 @@ describe("mapAuth", () => {
         auth.onBeforeOAuthRedirect && mapExtImport(auth.onBeforeOAuthRedirect),
       onBeforeLogin: auth.onBeforeLogin && mapExtImport(auth.onBeforeLogin),
       onAfterLogin: auth.onAfterLogin && mapExtImport(auth.onAfterLogin),
+      sessionLength: auth.sessionLength,
     } satisfies AppSpec.Auth);
   }
 });

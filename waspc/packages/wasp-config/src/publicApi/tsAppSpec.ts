@@ -61,6 +61,7 @@ export type AuthConfig = {
   onBeforeOAuthRedirect?: ExtImport;
   onBeforeLogin?: ExtImport;
   onAfterLogin?: ExtImport;
+  sessionLength?: number;
 };
 
 export type AuthMethods = {

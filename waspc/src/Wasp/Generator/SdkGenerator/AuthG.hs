@@ -84,10 +84,13 @@ genLuciaTs auth = return $ C.mkTmplFdWithData [relfile|auth/lucia.ts|] tmplData
       object
         [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
           "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userEntityUpper" .= (userEntityName :: String)
+          "userEntityUpper" .= (userEntityName :: String),
+          "sessionExpiresInMs" .= sessionExpiresInMs
         ]
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
+    -- Default to 30 days in milliseconds if not specified
+    sessionExpiresInMs = maybe (30 * 24 * 60 * 60 * 1000) (* 1000) $ AS.Auth.sessionLength auth
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth = return $ C.mkTmplFdWithData [relfile|auth/session.ts|] tmplData
