@@ -10,6 +10,8 @@ env:
   SOURCE_BRANCH: release
   TARGET_BRANCH: main
 
+  USERNAME: ${{ github.actor }}
+
   PR_TITLE: "Merge `release` into `main`"
   PR_BODY: |
     Automated PR to merge changes from `release` branch back into `main`.
@@ -34,21 +36,21 @@ jobs:
 
           if [ -n "$existing_pr_number" ]; then
             gh pr comment "$existing_pr_number" \
-              --body "Ping @${GITHUB_ACTOR}"
+              --body "Ping @${USERNAME}"
 
             gh pr edit "$existing_pr_number" \
-              --add-assignee "$GITHUB_ACTOR" \
-              --add-reviewer "$GITHUB_ACTOR"
+              --add-assignee "$USERNAME" \
+              --add-reviewer "$USERNAME"
           else
             gh pr create \
-              --assignee "$GITHUB_ACTOR" \
-              --reviewer "$GITHUB_ACTOR" \
+              --assignee "$USERNAME" \
+              --reviewer "$USERNAME" \
               --head "$SOURCE_BRANCH" \
               --base "$TARGET_BRANCH" \
               --title "$PR_TITLE" \
               --body "$PR_BODY"
           fi
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_ACTOR: ${{ github.actor }}
+          # Env for the `gh` CLI tool
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
