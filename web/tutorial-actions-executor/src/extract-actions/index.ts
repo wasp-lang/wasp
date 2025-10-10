@@ -59,8 +59,6 @@ export function filterValidTutorialFileNames(fileNames: string[]): string[] {
 
 /**
  * Sorts a list of files which are named "01-something.md" by their numeric prefix.
- * @param fileNames
- * @returns Sorted file paths
  */
 export function sortFileNamesByNumberedPrefix(fileNames: string[]): string[] {
   return fileNames.sort((a, b) => {
