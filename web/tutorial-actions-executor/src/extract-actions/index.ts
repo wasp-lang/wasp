@@ -41,14 +41,14 @@ async function getTutorialFilePaths(
   tutorialDir: TutorialDirPath,
 ): Promise<MdxFilePath[]> {
   const files = await fs.readdir(tutorialDir);
-  return sortFileNamesByNumberedPrefix(getMarkdownFileNames(files)).map(
+  return sortFileNamesByNumberedPrefix(filterValidTutorialFileNames(files)).map(
     (file) => path.resolve(tutorialDir, file) as MdxFilePath,
   );
 }
 
 const SUPPORTED_TUTORIAL_FILE_EXTENSIONS = ["md", "mdx"] as const;
 
-export function getMarkdownFileNames(fileNames: string[]): string[] {
+export function filterValidTutorialFileNames(fileNames: string[]): string[] {
   return fileNames.filter((fileName) => {
     const lowerFileName = fileName.toLowerCase();
     return SUPPORTED_TUTORIAL_FILE_EXTENSIONS.some((ext) =>

@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import type { MdxFilePath } from "../../src/actions/actions";
 import {
+  filterValidTutorialFileNames,
   getActionsFromMdxContent,
   getAttributeValue,
-  getMarkdownFileNames,
   sortFileNamesByNumberedPrefix,
 } from "../../src/extract-actions/index";
 import type {
@@ -58,24 +58,24 @@ describe("getAttributeValue", () => {
   });
 });
 
-describe("getMarkdownFileNames", () => {
-  function itShouldFilterMarkdownFiles(
+describe("filterValidTutorialFileNames", () => {
+  function itShouldFilterTutorialFileNames(
     testName: string,
     inputFiles: string[],
     expectedFiles: string[],
   ) {
     it(testName, () => {
-      expect(getMarkdownFileNames(inputFiles)).toEqual(expectedFiles);
+      expect(filterValidTutorialFileNames(inputFiles)).toEqual(expectedFiles);
     });
   }
 
-  itShouldFilterMarkdownFiles(
+  itShouldFilterTutorialFileNames(
     "should return empty array when no markdown files are present",
     ["file.txt", "image.png", "document.pdf"],
     [],
   );
 
-  itShouldFilterMarkdownFiles(
+  itShouldFilterTutorialFileNames(
     "should filter files ending with .md or .mdx",
     [
       "01-intro.md",
@@ -87,13 +87,13 @@ describe("getMarkdownFileNames", () => {
     ["01-intro.md", "02-setup.mdx", "03-advanced.md"],
   );
 
-  itShouldFilterMarkdownFiles(
+  itShouldFilterTutorialFileNames(
     "should handle case-insensitive file extensions",
     ["README.MD", "guide.MDX", "tutorial.Md", "docs.mDx", "file.txt"],
     ["README.MD", "guide.MDX", "tutorial.Md", "docs.mDx"],
   );
 
-  itShouldFilterMarkdownFiles(
+  itShouldFilterTutorialFileNames(
     "should not match extensions in the middle of filename",
     ["file.md.txt", "file.mdx.backup", "README.md"],
     ["README.md"],
