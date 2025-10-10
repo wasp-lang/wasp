@@ -15,6 +15,18 @@ import type {
   PatchesDirPath,
   TutorialDirPath,
 } from "../../src/tutorialApp";
+import {
+  mdxWithApplyPatchAction,
+  mdxWithInitAppAction,
+  mdxWithMigrateDbAction,
+  mdxWithMissingActionAttribute,
+  mdxWithMissingIdAttribute,
+  mdxWithMissingStarterTemplateName,
+  mdxWithMultipleActions,
+  mdxWithNoActions,
+  mdxWithNonTutorialActionComponents,
+  mdxWithUnknownActionType,
+} from "./exampleMdxFiles";
 
 describe("getAttributeValue", () => {
   it("should return correct value when attributes exist", () => {
@@ -109,130 +121,59 @@ describe("getActionsFromMdxContent", () => {
     });
   }
 
-  itShouldExtractActions(
-    "INIT_APP action",
-    `
-# Tutorial
+  itShouldExtractActions("INIT_APP action", mdxWithInitAppAction, [
+    {
+      id: "init-project",
+      sourceTutorialFilePath: context.filePath,
+      kind: "INIT_APP",
+      waspStarterTemplateName: "basic",
+    },
+  ]);
 
-<TutorialAction id="init-project" action="INIT_APP" starterTemplateName="basic" />
+  itShouldExtractActions("APPLY_PATCH action", mdxWithApplyPatchAction, [
+    {
+      id: "add-feature",
+      sourceTutorialFilePath: context.filePath,
+      kind: "APPLY_PATCH",
+      displayName: "01-intro.md / add-feature",
+      patchFilePath: "/test/tutorial/patches/01-intro__add-feature.patch",
+    },
+  ]);
 
-Some content here.
-`,
-    [
-      {
-        id: "init-project",
-        sourceTutorialFilePath: context.filePath,
-        kind: "INIT_APP",
-        waspStarterTemplateName: "basic",
-      },
-    ],
-  );
+  itShouldExtractActions("MIGRATE_DB action", mdxWithMigrateDbAction, [
+    {
+      id: "migrate-schema",
+      sourceTutorialFilePath: context.filePath,
+      kind: "MIGRATE_DB",
+    },
+  ]);
 
-  itShouldExtractActions(
-    "APPLY_PATCH action",
-    `
-# Tutorial
+  itShouldExtractActions("multiple actions", mdxWithMultipleActions, [
+    {
+      id: "init-project",
+      sourceTutorialFilePath: context.filePath,
+      kind: "INIT_APP",
+      waspStarterTemplateName: "basic",
+    },
+    {
+      id: "add-feature",
+      sourceTutorialFilePath: context.filePath,
+      kind: "APPLY_PATCH",
+      displayName: "01-intro.md / add-feature",
+      patchFilePath: "/test/tutorial/patches/01-intro__add-feature.patch",
+    },
+    {
+      id: "migrate-schema",
+      sourceTutorialFilePath: context.filePath,
+      kind: "MIGRATE_DB",
+    },
+  ]);
 
-<TutorialAction id="add-feature" action="APPLY_PATCH">
-
-\`\`\`
-const someCode = ""
-\`\`\`
-</TutorialAction>
-
-Some content here.
-    `,
-    [
-      {
-        id: "add-feature",
-        sourceTutorialFilePath: context.filePath,
-        kind: "APPLY_PATCH",
-        displayName: "01-intro.md / add-feature",
-        patchFilePath: "/test/tutorial/patches/01-intro__add-feature.patch",
-      },
-    ],
-  );
-
-  itShouldExtractActions(
-    "MIGRATE_DB action",
-    `
-# Tutorial
-
-<TutorialAction id="migrate-schema" action="MIGRATE_DB" />
-
-Some content here.
-    `,
-    [
-      {
-        id: "migrate-schema",
-        sourceTutorialFilePath: context.filePath,
-        kind: "MIGRATE_DB",
-      },
-    ],
-  );
-
-  itShouldExtractActions(
-    "multiple actions",
-    `
-# Tutorial
-
-<TutorialAction id="init-project" action="INIT_APP" starterTemplateName="basic" />
-
-Some content here.
-
-<TutorialAction id="add-feature" action="APPLY_PATCH">
-\`\`\`
-const someCode = ""
-\`\`\`
-</TutorialAction>
-
-More content.
-
-<TutorialAction id="migrate-schema" action="MIGRATE_DB" />
-    `,
-    [
-      {
-        id: "init-project",
-        sourceTutorialFilePath: context.filePath,
-        kind: "INIT_APP",
-        waspStarterTemplateName: "basic",
-      },
-      {
-        id: "add-feature",
-        sourceTutorialFilePath: context.filePath,
-        kind: "APPLY_PATCH",
-        displayName: "01-intro.md / add-feature",
-        patchFilePath: "/test/tutorial/patches/01-intro__add-feature.patch",
-      },
-      {
-        id: "migrate-schema",
-        sourceTutorialFilePath: context.filePath,
-        kind: "MIGRATE_DB",
-      },
-    ],
-  );
-
-  itShouldExtractActions(
-    "no actions present",
-    `
-# Tutorial
-
-Just some regular content without any tutorial actions.
-    `,
-    [],
-  );
+  itShouldExtractActions("no actions present", mdxWithNoActions, []);
 
   itShouldExtractActions(
     "should ignore non-TutorialAction MDX components",
-    `
-# Tutorial
-
-<SomeOtherComponent id="test" />
-
-<TutorialAction id="valid-action" action="MIGRATE_DB" />
-
-<AnotherComponent action="SOMETHING" />
-    `,
+    mdxWithNonTutorialActionComponents,
     [
       {
         id: "valid-action",
@@ -244,33 +185,25 @@ Just some regular content without any tutorial actions.
 
   itShouldFailWhenExtractingActions(
     "when action attribute is missing",
-    `
-<TutorialAction id="test-action" />
-    `,
+    mdxWithMissingActionAttribute,
     "TutorialAction component requires the 'action' attribute",
   );
 
   itShouldFailWhenExtractingActions(
     "when id attribute is missing",
-    `
-<TutorialAction action="INIT_APP" starterTemplateName="basic" />
-    `,
+    mdxWithMissingIdAttribute,
     "TutorialAction component requires the 'id' attribute",
   );
 
   itShouldFailWhenExtractingActions(
     "when INIT_APP action is missing starterTemplateName",
-    `
-<TutorialAction id="init-project" action="INIT_APP" />
-    `,
+    mdxWithMissingStarterTemplateName,
     "TutorialAction with action 'INIT_APP' requires the 'starterTemplateName' attribute",
   );
 
   itShouldFailWhenExtractingActions(
     "for unknown action type",
-    `
-<TutorialAction id="test-action" action="UNKNOWN_ACTION" />
-    `,
+    mdxWithUnknownActionType,
     "Unknown action 'UNKNOWN_ACTION' in TutorialAction component",
   );
 });
