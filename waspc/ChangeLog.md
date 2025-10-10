@@ -17,6 +17,7 @@
 ### 📖 Documentation
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
+- Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
 
 ## 0.18.0
 

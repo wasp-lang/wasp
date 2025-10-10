@@ -2,12 +2,7 @@
 title: Wasp TypeScript config (*.wasp.ts)
 ---
 
-import DiscordLink from '@site/blog/components/DiscordLink';
-
-:::caution Requires Wasp >= 0.16.3
-This document assumes your app works with Wasp >= 0.16.3.\
-If you haven't migrated your app yet, follow the [migration instructions](../migration-guides/migrate-from-0-15-to-0-16.md) and verify everything works. After that, come back here and try out the new Wasp TS config.
-:::
+import { DiscordLink } from '@site/blog/components/DiscordLink';
 
 :::caution Early preview
 This feature is currently in early preview and we are actively working on it.
@@ -33,7 +28,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 
 ## How to switch from the Wasp DSL config to the Wasp TS config
 
-1. Go into the Wasp project you want to switch to the Wasp TS config (or create a new Wasp project if you want to try it out like that). Make sure you are on Wasp >= 0.16.3 and your project is working.
+1. Go into the Wasp project you want to switch to the Wasp TS config (or create a new Wasp project if you just want to try it out).
 2. Rename `tsconfig.json` file to `tsconfig.src.json`
 3. Create a new `tsconfig.json` file with the following content:
 
