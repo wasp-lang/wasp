@@ -4,5 +4,5 @@ import { CommonCmdOptions } from "../../DeploymentInstructions.js";
 export interface DeployCmdOptions extends CommonCmdOptions {
   skipClient?: boolean;
   skipServer?: boolean;
-  existingProjectId: RailwayProjectId | null;
+  existingProjectId?: RailwayProjectId;
 }

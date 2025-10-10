@@ -81,8 +81,8 @@ async function setupRailwayProjectForDirectory({
   railwayExe: RailwayCliExe;
   projectName: RailwayProjectName;
   waspProjectDir: WaspProjectDir;
-  existingProjectId: RailwayProjectId | null;
-  workspace: string | null;
+  existingProjectId?: RailwayProjectId;
+  workspace?: string;
 }): Promise<RailwayProject> {
   const { status, project } = await getRailwayProjectStatus({
     projectName,
@@ -122,6 +122,7 @@ async function setupRailwayProjectForDirectory({
 
 async function setupDb({
   cmdOptions: options,
+  dbServiceName,
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays("Setting up database");
 
@@ -129,7 +130,32 @@ async function setupDb({
     options.railwayExe,
     options.waspProjectDir,
   );
-  await railwayCli(["add", "-d", "postgres"]);
+
+  if (options.dbImage) {
+    waspSays(`Using custom database image: ${options.dbImage}`);
+    // When using a custom database image, Railway doesn't automatically set the default
+    // Postgres-related environment variables, so we need to set them ourselves.
+    await railwayCli([
+      "add",
+      ...["--service", dbServiceName],
+      ...["--image", options.dbImage],
+      ...["--variables", "POSTGRES_DB=railway"],
+      ...["--variables", "POSTGRES_USER=postgres"],
+      ...[
+        "--variables",
+        `POSTGRES_PASSWORD=${getRailwayEnvVarValueReference("secret()")}`,
+      ],
+      ...["--variables", "PORT=5432"],
+      ...["--variables", "PGDATA=/var/lib/postgresql/data/pgdata"],
+      ...[
+        "--variables",
+        `DATABASE_URL=postgresql://${getRailwayEnvVarValueReference("POSTGRES_USER")}:${getRailwayEnvVarValueReference("POSTGRES_PASSWORD")}@${getRailwayEnvVarValueReference("RAILWAY_PRIVATE_DOMAIN")}:${getRailwayEnvVarValueReference("PORT")}/${getRailwayEnvVarValueReference("POSTGRES_DB")}`,
+      ],
+    ]);
+  } else {
+    // Use the default Railway Postgres template.
+    await railwayCli(["add", "-d", "postgres"]);
+  }
 }
 
 async function setupServer({
