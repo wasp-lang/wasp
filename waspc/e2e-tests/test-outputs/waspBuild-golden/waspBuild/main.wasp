@@ -1,6 +1,6 @@
 app waspBuild {
   wasp: {
-    version: "^0.18.0"
+    version: "^0.18.1"
   },
   title: "waspBuild",
   head: [
