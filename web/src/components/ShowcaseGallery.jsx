@@ -24,46 +24,38 @@ const ShowcaseGallery = () => {
         className={`mx-auto grid max-w-lg gap-8 lg:max-w-none lg:grid-cols-3 lg:gap-12`}
       >
         <ShowcaseItem
-          url="/blog/2022/10/28/farnance-hackathon-winner"
-          thumb="img/lp/showcase/farnance-dashboard.webp"
-          title="Farnance: SaaS marketplace for farmers"
-          description="See how Julian won HackLBS 2021 among 250 participants and why Wasp was instrumental for the team's victory."
+          url="blog/2025/07/17/three-saas-case-studies-wasp"
+          thumb="img/lp/showcase/kivo.webp"
+          title="Kivo: Unified platform for creating data-driven reports"
+          description="Learn how Kivo leveraged Wasp to build a complex, data-intensive application with a small team."
         >
           <Tag
-            text="hackathon"
+            text="Data Analysis"
             className="border-yellow-600 bg-yellow-50 text-yellow-600"
-          />
-          <Tag
-            text="material-ui"
-            className="border-blue-500 bg-slate-50 text-blue-500"
-          />
-        </ShowcaseItem>
-
-        <ShowcaseItem
-          url="/blog/2022/11/26/michael-curry-usecase"
-          thumb="img/lp/showcase/grabbit-hero.webp"
-          title="Grabbit: Easily manage dev environments"
-          description="See how Michael built and deployed an internal tool for managing dev resources at StudentBeans."
-        >
-          <Tag
-            text="internal-tools"
-            className="border-green-600 bg-green-50 text-green-600"
           />
         </ShowcaseItem>
 
         <ShowcaseItem
           url="/blog/2022/11/26/erlis-amicus-usecase"
-          thumb="img/lp/showcase/amicus-landing.webp"
+          thumb="img/lp/showcase/amicus.webp"
           title="Amicus: Task and workflow management for legal teams"
           description="See how Erlis rolled out fully-fledged SaaS as a team of one in record time and got first paying customers."
         >
           <Tag
-            text="startup"
+            text="Legal"
             className="border-fuchsia-600 bg-fuchsia-50 text-fuchsia-600"
           />
+        </ShowcaseItem>
+
+        <ShowcaseItem
+          url="https://searchcraft.io"
+          thumb="img/lp/showcase/searchcraft.webp"
+          title="Searchcraft: Advanced search developer tools"
+          description="Searchcraft delivers purpose-built developer tools for content discovery."
+        >
           <Tag
-            text="material-ui"
-            className="border-blue-500 bg-slate-50 text-blue-500"
+            text="Dev Tools"
+            className="border-green-600 bg-green-50 text-green-600"
           />
         </ShowcaseItem>
       </div>
@@ -73,11 +65,11 @@ const ShowcaseGallery = () => {
 
 const ShowcaseItem = ({ url, thumb, title, description, children }) => (
   <div>
-    <a href={url}>
+    <a href={url} target="_blank">
       <div className="group inline-block min-w-full">
         <div className="flex flex-col space-y-3 pb-8 md:pb-0">
           <div
-            className={`relative mb-4 h-60 w-full overflow-auto overflow-y-hidden rounded-lg border border-neutral-300 shadow-lg`}
+            className={`relative mb-4 h-56 w-full overflow-hidden rounded-lg border border-neutral-300 bg-black shadow-lg`}
           >
             <img src={thumb} className="object-cover" />
           </div>

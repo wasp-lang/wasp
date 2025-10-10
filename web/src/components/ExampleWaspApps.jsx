@@ -4,6 +4,25 @@ import SectionContainer from "./Layouts/SectionContainer";
 
 const examples = [
   {
+    title: "Open SaaS",
+    description:
+      "A feature-rich, open-source SaaS boilerplate template. Powered by Wasp.",
+    authorName: "wasp",
+    authorImg: "https://avatars.githubusercontent.com/u/55102317",
+    repoName: "open-saas",
+    repoUrl: "https://github.com/wasp-lang/open-saas/tree/main/template/app",
+    demoUrl: "https://opensaas.sh",
+  },
+  {
+    title: "Roke ⛰️",
+    description: "A Wasp + ShadCN + Framer Motion Starter Template.",
+    authorName: "wardbox",
+    authorImg: "https://avatars.githubusercontent.com/u/31261302",
+    repoName: "roke",
+    repoUrl: "https://github.com/wardbox/roke",
+    demoUrl: "https://roke.dev",
+  },
+  {
     title: "Todo App (TypeScript) ✅",
     description: "A famous To-Do list app, implemented in TypeScript.",
     authorName: "wasp",
@@ -13,27 +32,6 @@ const examples = [
       "https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs",
     //demoUrl: 'https://waspello-demo.netlify.app/',
     // todo: try in GitPod/Replit url
-  },
-  {
-    title: "CoverLetterGPT 🤖",
-    description:
-      "Generate cover letters based on your CV and the job description. Powered by ChatGPT.",
-    authorName: "vincanger",
-    authorImg: "https://avatars.githubusercontent.com/u/70215737",
-    repoName: "coverlettergpt",
-    repoUrl: "https://github.com/vincanger/coverlettergpt",
-    demoUrl: "https://coverlettergpt.xyz/",
-  },
-  {
-    title: "Realtime voting via WebSockets 🔌",
-    description:
-      "A realtime, websockets-powered voting app built with Wasp and TypeScript.",
-    authorName: "wasp",
-    authorImg: "https://avatars.githubusercontent.com/u/55102317",
-    repoName: "websockets-realtime-voting",
-    repoUrl:
-      "https://github.com/wasp-lang/wasp/tree/release/examples/websockets-realtime-voting",
-    demoUrl: "https://websockets-voting-client.fly.dev/login",
   },
 ];
 
