@@ -32,7 +32,7 @@ Add the following key to your `package.json` file:
 ```json title="package.json"
 {
   // highlight-next-line
-  "workspaces": [".wasp/out/*", ".wasp/build/*"]
+  "workspaces": [".wasp/build/*", ".wasp/out/*"]
 }
 ```
 

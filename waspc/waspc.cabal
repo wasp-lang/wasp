@@ -126,7 +126,7 @@ library
     , aeson                 ^>= 1.5.6
     , aeson-pretty          ^>= 0.8
     , text                  ^>= 1.2.4
-    , template-haskell      ^>= 2.16.0
+    , template-haskell      ^>= 2.17.0
     , unordered-containers  ^>= 0.2.16
     , mtl                   ^>= 2.2.2
     , async                 ^>= 2.2.4
@@ -307,6 +307,7 @@ library
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
+    Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.EmailAuthG
@@ -344,7 +345,6 @@ library
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
-    Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.ServerGenerator.CrudG
@@ -363,13 +363,11 @@ library
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.DepVersions
     Wasp.Generator.WebAppGenerator.RouterGenerator
-    Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebAppGenerator.Vite
     Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
-    Wasp.Generator.Workspaces
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
     Wasp.Job
@@ -441,6 +439,7 @@ library
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
     Wasp.Util.Debug
+    Wasp.Util.Docker
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.HashMap
@@ -581,6 +580,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db

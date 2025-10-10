@@ -45,15 +45,10 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Just
-        NpmDepsForPackageError
-          { dependenciesConflictErrors =
-              [ DependencyConflictError
-                  (D.make ("b", "2"))
-                  (D.make ("b", "3"))
-              ],
-            devDependenciesConflictErrors = []
-          }
+      `shouldBe` [ DependencyConflictError
+                     (D.make ("b", "2"))
+                     (D.make ("b", "3"))
+                 ]
 
   it "wasp deps completely overlap with user deps with same versions: no conflicts" $ do
     let npmDepsFromWasp =
@@ -72,7 +67,7 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "user dependencies have no overlap with wasp deps: no conflicts" $ do
     let npmDepsFromWasp =
@@ -95,7 +90,7 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "user dependencies partially overlap wasp dependencies with same versions: no conflicts" $ do
     let npmDepsFromWasp =
@@ -118,7 +113,7 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "report error if user dependency overlaps wasp dependency, different version" $ do
     let npmDepsFromWasp =
@@ -141,15 +136,10 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Just
-        NpmDepsForPackageError
-          { dependenciesConflictErrors =
-              [ DependencyConflictError
-                  (D.make ("a", "1"))
-                  (D.make ("a", "2"))
-              ],
-            devDependenciesConflictErrors = []
-          }
+      `shouldBe` [ DependencyConflictError
+                     (D.make ("a", "1"))
+                     (D.make ("a", "2"))
+                 ]
 
   it "a conflicting version number is detected with wasp devDependencies" $ do
     let npmDepsFromWasp =
@@ -172,15 +162,10 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Just
-        NpmDepsForPackageError
-          { dependenciesConflictErrors =
-              [ DependencyConflictError
-                  (D.make ("alpha", "10"))
-                  (D.make ("alpha", "70"))
-              ],
-            devDependenciesConflictErrors = []
-          }
+      `shouldBe` [ DependencyConflictError
+                     (D.make ("alpha", "10"))
+                     (D.make ("alpha", "70"))
+                 ]
 
   it "both dev deps and normal deps are same for user and wasp: no conflicts" $ do
     let npmDepsFromWasp =
@@ -199,7 +184,7 @@ spec_getNpmDepsConflicts = do
                 peerDependencies = []
               }
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "wasp dev dependency overlaps with user non-dev dependency with same version: no conflicts" $ do
     let npmDepsFromWasp =
@@ -222,7 +207,7 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "no user dependencies: no conflicts" $ do
     let npmDepsFromWasp =
@@ -241,7 +226,7 @@ spec_getNpmDepsConflicts = do
               }
 
     getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser
-      `shouldBe` Nothing
+      `shouldBe` []
 
   it "conflictErrorToMessage" $ do
     conflictErrorToMessage

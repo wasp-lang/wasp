@@ -14,7 +14,7 @@
   "name": "wasp-compile",
   "type": "module",
   "workspaces": [
-    ".wasp/out/*",
-    ".wasp/build/*"
+    ".wasp/build/*",
+    ".wasp/out/*"
   ]
 }

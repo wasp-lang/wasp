@@ -277,7 +277,7 @@
             "file",
             "../out/sdk/wasp/server/env.ts"
         ],
-        "0b4f32532b3e5aa0fa3d0dc7c7d0401282f2850d51122fa12ab9aeb4087938fa"
+        "c36941c745b8ee8829a794a33d065abd04249da2fd58fb1369fedc19d30602ec"
     ],
     [
         [
@@ -445,7 +445,7 @@
             "file",
             "Dockerfile"
         ],
-        "2cb53e90df9939f7a7ddec359d8fcde7c32bebf4b5667676fc7b0ece4a5e03db"
+        "4fa36fa061986195d5202d826583442f69e88697d93a23089c62906c7a8ee3ec"
     ],
     [
         [
@@ -467,13 +467,6 @@
             "server/.gitignore"
         ],
         "2c3d81dd719ff91d51609a02d03ba62ad456e2c50763b7b4c761395cb583f890"
-    ],
-    [
-        [
-            "file",
-            "server/.npmrc"
-        ],
-        "8a74b1091affea3c71c2cf04acbaa38c4a51a261a9a98dcc9e96473d07a85a27"
     ],
     [
         [
@@ -572,13 +565,6 @@
             "web-app/.gitignore"
         ],
         "d373417ea2a8844e3b7a1515aab123e90fbeb4b7225144d55d243d9f6f04f73a"
-    ],
-    [
-        [
-            "file",
-            "web-app/.npmrc"
-        ],
-        "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
     ],
     [
         [

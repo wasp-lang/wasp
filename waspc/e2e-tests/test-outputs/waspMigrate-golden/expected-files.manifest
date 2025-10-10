@@ -296,7 +296,6 @@ waspMigrate/.wasp/out/sdk/wasp/universal/validators.ts
 waspMigrate/.wasp/out/sdk/wasp/vite-env.d.ts
 waspMigrate/.wasp/out/server/.env
 waspMigrate/.wasp/out/server/.gitignore
-waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/nodemon.json
 waspMigrate/.wasp/out/server/package.json
@@ -311,7 +310,6 @@ waspMigrate/.wasp/out/server/src/server.ts
 waspMigrate/.wasp/out/server/tsconfig.json
 waspMigrate/.wasp/out/web-app/.env
 waspMigrate/.wasp/out/web-app/.gitignore
-waspMigrate/.wasp/out/web-app/.npmrc
 waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/index.html
 waspMigrate/.wasp/out/web-app/netlify.toml

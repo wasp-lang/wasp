@@ -9,13 +9,13 @@ inputs:
     description: |
       The version of GHC to install.
     required: false
-    default: "8.10.7"
+    default: "9.0.2"
 
   cabal-version:
     description: |
       The version of Cabal to install.
     required: false
-    default: "latest"
+    default: "3.10.2.0"
 
   cabal-project-dir:
     description: |

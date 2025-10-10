@@ -3,11 +3,13 @@
 module Wasp.Generator.Valid.Common
   ( validateFieldValue,
     validateRequiredField,
+    validateArrayFieldIncludesRequired,
     FullyQualifiedFieldName (FieldName),
   )
 where
 
 import Data.List (intercalate)
+import qualified Data.Set as S
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 
 class JsonValue a where
@@ -42,7 +44,7 @@ validateFieldValue fileName fullyQualifiedFieldName expectedValue actualValue =
   case (expectedValue, actualValue) of
     (Nothing, Nothing) -> []
     (Just expected, Just actual) -> [makeInvalidValueErrorMessage expected | actual /= expected]
-    (Just expected, Nothing) -> [makeMissingFieldErrorMessage expected]
+    (Just expected, Nothing) -> [makeMissingFieldErrorMessage fileName fullyQualifiedFieldName expected]
     (Nothing, Just _) -> [fieldMustBeUnsetErrorMessage]
   where
     makeInvalidValueErrorMessage expected =
@@ -66,13 +68,39 @@ validateFieldValue fileName fullyQualifiedFieldName expectedValue actualValue =
             "must be left unspecified."
           ]
 
-    makeMissingFieldErrorMessage expected =
-      GenericGeneratorError $
-        unwords
-          [ "The",
-            "\"" ++ show fullyQualifiedFieldName ++ "\"",
-            "field is missing in",
-            fileName ++ ",",
-            "you must set it to:",
-            showAsJsValue expected ++ "."
-          ]
+validateArrayFieldIncludesRequired :: (Ord a, JsonValue [a]) => String -> FullyQualifiedFieldName -> [a] -> Maybe [a] -> [GeneratorError]
+validateArrayFieldIncludesRequired fileName fullyQualifiedFieldName requiredValues Nothing =
+  [makeMissingFieldErrorMessage fileName fullyQualifiedFieldName requiredValues]
+validateArrayFieldIncludesRequired fileName fullyQualifiedFieldName requiredValues (Just actualValue) =
+  if null missingSet
+    then []
+    else
+      [ GenericGeneratorError $
+          unwords
+            [ "The",
+              "\"" ++ show fullyQualifiedFieldName ++ "\"",
+              "field in",
+              fileName,
+              "is missing required values:",
+              showAsJsValue (S.toList missingSet) ++ ".",
+              "Current values:",
+              showAsJsValue actualValue ++ "."
+            ]
+      ]
+  where
+    missingSet = requiredSet `S.difference` actualSet
+
+    requiredSet = S.fromList requiredValues
+    actualSet = S.fromList actualValue
+
+makeMissingFieldErrorMessage :: JsonValue a => String -> FullyQualifiedFieldName -> a -> GeneratorError
+makeMissingFieldErrorMessage fileName fullyQualifiedFieldName expected =
+  GenericGeneratorError $
+    unwords
+      [ "The",
+        "\"" ++ show fullyQualifiedFieldName ++ "\"",
+        "field is missing in",
+        fileName ++ ",",
+        "you must set it to:",
+        showAsJsValue expected ++ "."
+      ]

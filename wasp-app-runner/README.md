@@ -48,17 +48,18 @@ npx @wasp.sh/wasp-app-runner dev
 ### Options
 
 ```
-npx run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+npx run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
 ```
 
 You must pass the `<mode>` as an argument, which can be either `dev` or `build`.
 
-| Option           | Description                                            | Example         |
-| ---------------- | ------------------------------------------------------ | --------------- |
-| `--path-to-app`  | Path to your Wasp application directory (default: ".") | `./my-wasp-app` |
-| `--wasp-cli-cmd` | Wasp CLI command (default: `wasp`)                     | `wasp-cli`      |
+| Option           | Description                                            | Example           |
+| ---------------- | ------------------------------------------------------ | ----------------- |
+| `--path-to-app`  | Path to your Wasp application directory (default: ".") | `./my-wasp-app`   |
+| `--wasp-cli-cmd` | Wasp CLI command (default: `wasp`)                     | `wasp-cli`        |
+| `--db-image`     | Custom PostgreSQL Docker image (default: `postgres`)   | `postgis/postgis` |
 
-## Postgres Configuration
+### Postgres Configuration
 
 Check the `./db/postgres.ts` file to see the Postgres configuration used.
 
@@ -67,6 +68,15 @@ If Postgres is used, the script automatically sets the `DATABASE_URL` env variab
 ```
 DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
 ```
+
+#### Custom database image
+
+You can override the Docker image used for Postgres via `--db-image`. If not provided, the default `postgres` is used.
+
+Examples: `--db-image postgres:15`, `--db-image pgvector/pgvector:pg16`, `--db-image postgis/postgis:14-3.2`.
+
+> [!NOTE]
+> The same requirements as in `wasp start db` apply for the Postgres image used. See [Wasp docs](../web/docs/data-model/databases.md#custom-database) for more details.
 
 ### Env variables
 
@@ -85,7 +95,7 @@ When developing, you can run the script directly from the local directory withou
 
 ```
 npm install
-npm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>]
+npm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
 ```
 
 `npm run start` runs `npm run build` to build the TypeScript code and then runs the `./bin/index.js` script.

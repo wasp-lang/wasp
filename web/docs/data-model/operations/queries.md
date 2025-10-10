@@ -271,7 +271,8 @@ Calling a Query on the server is similar to calling it on the client.
 Here's what you have to do differently:
 
 - Import Queries from `wasp/server/operations` instead of `wasp/client/operations`.
-- Make sure you pass in a context object with the user to authenticated Queries.
+- Make sure you pass in a `context` object with the `user` field to authenticated Queries.
+  - Note that you don't have to pass other parts of the `context` object, like Entities, those will get injected automatically.
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">

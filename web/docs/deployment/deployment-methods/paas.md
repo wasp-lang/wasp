@@ -232,7 +232,6 @@ To get started, follow these steps:
 1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account.
 1. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli).
 1. Run `railway login` and a browser tab will open to authenticate you.
-1. Go to your [Railway account settings](https://railway.com/account/feature-flags?utm_medium=integration&utm_source=docs&utm_campaign=wasp) and enable **Railpack** as the default deployment builder. This is required for the client routing to work correctly.
 
 ### Create New Project
 
@@ -332,7 +331,7 @@ You'll deploy the server first:
 
     Select `client` when prompted to select a service.
 
-    Railway will detect the `index.html` file and deploy the client as a static site using [Railpack](https://railpack.com/languages/staticfile#root-directory-resolution).
+    Railway will detect the `index.html` file and deploy the client as a static site.
 
 
 And now your Wasp should be deployed!
@@ -533,11 +532,11 @@ Here’s an example configuration file to help you get started. This example wor
 
       steps:
         - name: Checkout Code
-          uses: actions/checkout@v2
+          uses: actions/checkout@v5
 
         - name: Setup Node.js
           id: setup-node
-          uses: actions/setup-node@v4
+          uses: actions/setup-node@v5
           with:
             node-version: '22'
 
@@ -634,11 +633,11 @@ Here’s an example configuration file to help you get started. This example wor
 
       steps:
         - name: Checkout Code
-          uses: actions/checkout@v2
+          uses: actions/checkout@v5
 
         - name: Setup Node.js
           id: setup-node
-          uses: actions/setup-node@v4
+          uses: actions/setup-node@v5
           with:
             node-version: '22'
 
