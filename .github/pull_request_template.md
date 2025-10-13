@@ -50,7 +50,7 @@
   - [ ] I tested this change in a Wasp app **locally**.
   - [ ] <!-- If you modified Haskell code: --> I added **unit tests** for my change at `waspc/tests`.
   - [ ] <!-- If you added or updated a feature: --> I added an **integration test** for my change at `waspc/examples/todoApp/e2e-tests`.
-  - [ ] <!-- If you added or updated a feature: --> I updated the *starters* at `waspc/data/Cli/templates`, if needed.
+  - [ ] <!-- If you added or updated a feature: --> I updated the **starters** at `waspc/data/Cli/templates`, if needed.
   - [ ] <!-- If you fixed a bug: --> I added a **regression test** for the bug I fixed.
 
 - 📜 Documentation:
