@@ -21,7 +21,7 @@ import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
-import Wasp.Node.Commands (nodeCmd, npmCmd)
+import Wasp.Node.Executables (nodeExec, npmExec)
 import qualified Wasp.Node.Version as NodeVersion
 
 -- | This are the globally installed packages waspc runs directly from
@@ -86,7 +86,7 @@ getPackageProcessOptions package args = do
   packageDir <- getRunnablePackageDir package
   let scriptFile = packageDir </> scriptInPackageDir
   ensurePackageDependenciesAreInstalled packageDir
-  return $ packageCreateProcess packageDir nodeCmd (fromAbsFile scriptFile : args)
+  return $ packageCreateProcess packageDir nodeExec (fromAbsFile scriptFile : args)
 
 getPackageInstallationPath :: InstallablePackage -> IO String
 getPackageInstallationPath package = do
@@ -104,7 +104,7 @@ getRunnablePackageDir package = do
 ensurePackageDependenciesAreInstalled :: Path' Abs (Dir PackageDir) -> IO ()
 ensurePackageDependenciesAreInstalled packageDir =
   unlessM nodeModulesDirExists $ do
-    let npmInstallCreateProcess = packageCreateProcess packageDir npmCmd ["install"]
+    let npmInstallCreateProcess = packageCreateProcess packageDir npmExec ["install"]
     (exitCode, _out, err) <- P.readCreateProcessWithExitCode npmInstallCreateProcess ""
     case exitCode of
       ExitFailure _ -> do

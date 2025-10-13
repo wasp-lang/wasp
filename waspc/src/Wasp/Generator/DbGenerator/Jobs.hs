@@ -16,7 +16,6 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
@@ -175,13 +174,8 @@ runPrismaCommandAsJobWithExtraEnv fromDir envVars projectRootDir cmdArgs =
 -- | NOTE: The expectation is that `npm install` was already executed
 -- such that we can use the locally installed package.
 -- This assumption is ok since it happens during compilation now.
---
--- TODO(martin): Test this carefully on Windows! On Windows, npm creates both
--- `prisma` (shell script) and `prisma.cmd` (batch file) in node_modules/.bin/.
--- P.proc might need the .cmd extension to find it properly.
 absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
-absPrismaExecutableFp waspProjectDir =
-  let basePath = SP.fromAbsFile $ waspProjectDir </> [relfile|./node_modules/.bin/prisma|]
-   in if System.Info.os == "mingw32"
-        then basePath ++ ".cmd"
-        else basePath
+absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
+  where
+    prismaExecutableAbs :: Path' Abs File'
+    prismaExecutableAbs = waspProjectDir </> [relfile|./node_modules/.bin/prisma|]

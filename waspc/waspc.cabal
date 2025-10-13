@@ -157,7 +157,6 @@ library
     , network               ^>= 3.1.2
     , neat-interpolation    ^>= 0.5.1.3
     , megaparsec            ^>= 9.2.1
-    , memoize               ^>= 1.1.2
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -378,7 +377,7 @@ library
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.Message
-    Wasp.Node.Commands
+    Wasp.Node.Executables
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
@@ -450,8 +449,8 @@ library
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
-    Wasp.Util.Process
     Wasp.Util.StrongPath
+    Wasp.Util.System
     Wasp.Util.Terminal
     Wasp.Util.TH
     Wasp.Util.WebRouterPath
