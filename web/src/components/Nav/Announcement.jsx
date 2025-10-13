@@ -23,7 +23,8 @@ const Announcement = () => {
       >
         <span className="item-center flex gap-2 px-3">
           <span>
-            <b className="text-yellow-300">🎨 Wasp Design-AI-Thon is live!</b> <span className="font-medium underline">Oct 10 - Oct 19</span>
+            <b className="text-yellow-300">🎨 Wasp Design-AI-Thon is live!</b>{" "}
+            <span className="font-medium underline">Oct 10 - Oct 19</span>
           </span>
         </span>
 
