@@ -14,14 +14,15 @@
 ### Description
 
 <!--
-  Describe your PR! If this PR closes an issue, write “Fixes #XXXX" so GitHub will
-  link them together.
+  Describe your PR!
 
   Common questions we'd like you to answer:
   - What's the motivation for this change?
   - Which changes are included in this PR?
     - If there are many different changes, consider splitting your PR into smaller
       ones. It will go through faster!
+
+  If this PR closes an issue, write “Fixes #XXXX" so GitHub will link them together.
 
   You can also answer some of these questions if they are relevant:
   - Does this change affect users? How?
@@ -44,26 +45,26 @@
 <!-- Put an x in between the brackets to select options, like so: [x] -->
 <!-- You can add notes or explanations wherever needed -->
 
-- Testing:
+- 🧪 Testing:
 
-  - [ ] I tested this change in a Wasp app locally.
-  - [ ] <!-- If you modified Haskell code: --> I added unit tests for my change at `waspc/tests`.
-  - [ ] <!-- If you added or updated a feature: --> I added an integration test for my change at `waspc/examples/todoApp/e2e-tests`.
-  - [ ] <!-- If you added or updated a feature: --> I updated the starters at `waspc/data/Cli/templates`, if needed.
-  - [ ] <!-- If you fixed a bug: --> I added a regression test for the bug I fixed.
+  - [ ] I tested this change in a Wasp app **locally**.
+  - [ ] <!-- If you modified Haskell code: --> I added **unit tests** for my change at `waspc/tests`.
+  - [ ] <!-- If you added or updated a feature: --> I added an **integration test** for my change at `waspc/examples/todoApp/e2e-tests`.
+  - [ ] <!-- If you added or updated a feature: --> I updated the *starters* at `waspc/data/Cli/templates`, if needed.
+  - [ ] <!-- If you fixed a bug: --> I added a **regression test** for the bug I fixed.
 
-- Documentation:
+- 📜 Documentation:
 
-  - [ ] <!-- If you added a feature: --> I added documentation to the `web/docs/`, in a place that makes sense.
-  - [ ] <!-- If you updated a feature: --> I searched for all relevant places in the `web/docs/` and updated them, if needed.
+  - [ ] <!-- If you added a feature: --> I **added documentation** to the `web/docs/`, in a place that makes sense.
+  - [ ] <!-- If you updated a feature: --> I **searched** for all relevant places in the `web/docs/` and **updated** them, if needed.
 
-- Changelog:
+- 🆕 Changelog:
 
   <!-- If you did a bug fix, new feature, or breaking change: -->
 
-  - [ ] I updated `waspc/ChangeLog.md` with a user-friendly description of the change.
-  - [ ] I bumped the `version` in `waspc/waspc.cabal` to reflect changes I introduced.
-  - [ ] <!-- If you did a breaking change: --> I added a step to the current migration guide at `web/docs/migration-guides/`.
+  - [ ] I updated `waspc/ChangeLog.md` with a **user-friendly** description of the change.
+  - [ ] I **bumped the `version`** in `waspc/waspc.cabal` to reflect changes I introduced.
+  - [ ] <!-- If you did a breaking change: --> I added a step to the current **migration guide** at `web/docs/migration-guides/`.
 
   <!--
     While we're in beta, the version should be bumped according to the type of change:
