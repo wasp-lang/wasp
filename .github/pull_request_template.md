@@ -1,33 +1,33 @@
 <!--
-Hi, thanks for contributing to Wasp!
+  Hi, thanks for contributing to Wasp!
 
-Comments like this one won't be shown in the final PR, but they contain
-instructions to guide you.
+  Comments like this one won't be shown in the final PR, but they contain
+  instructions to guide you.
 
-Make sure to follow this PR template, so that we can speed up the review process.
-It will also help you not forget important steps when making a change.
+  Make sure to follow this PR template, so that we can speed up the review process.
+  It will also help you not forget important steps when making a change.
 
-If you don't know how to fill any of the sections below, it's okay to leave them
-blank, we will help you out during the review.
+  If you don't know how to fill any of the sections below, it's okay to leave them
+  blank, we will help you out during the review.
 -->
 
 ### Description
 
 <!--
-Describe your PR! If this PR closes an issue, write “Fixes #XXXX" so GitHub will
-link them together.
+  Describe your PR! If this PR closes an issue, write “Fixes #XXXX" so GitHub will
+  link them together.
 
-Common questions we'd like you to answer:
-- What's the motivation for this change?
-- Which changes are included in this PR?
-  - If there are many different changes, consider splitting your PR into smaller
-    ones. It will go through faster!
+  Common questions we'd like you to answer:
+  - What's the motivation for this change?
+  - Which changes are included in this PR?
+    - If there are many different changes, consider splitting your PR into smaller
+      ones. It will go through faster!
 
-You can also answer some of these questions if they are relevant:
-- Does this change affect users? How?
-- Have you considered any other approaches? Why is this one the best?
-- Are there any drawbacks or edge cases?
-- What are the possibilities for future work?
+  You can also answer some of these questions if they are relevant:
+  - Does this change affect users? How?
+  - Have you considered any other approaches? Why is this one the best?
+  - Are there any drawbacks or edge cases?
+  - What are the possibilities for future work?
 -->
 
 ### Select what type of change this PR introduces:
