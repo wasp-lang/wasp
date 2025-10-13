@@ -6,16 +6,17 @@ module Wasp.Node.Executables
 where
 
 import GHC.IO (unsafePerformIO)
+import StrongPath (fromAbsFile)
 import Wasp.Util.System (resolveExecNameIO)
 
 {-# NOINLINE nodeExec #-}
 nodeExec :: String
-nodeExec = fst $ unsafePerformIO $ resolveExecNameIO "node"
+nodeExec = fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "node"
 
 {-# NOINLINE npmExec #-}
 npmExec :: String
-npmExec = fst $ unsafePerformIO $ resolveExecNameIO "npm"
+npmExec = fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "npm"
 
 {-# NOINLINE npxExec #-}
 npxExec :: String
-npxExec = fst $ unsafePerformIO $ resolveExecNameIO "npx"
+npxExec = fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "npx"
