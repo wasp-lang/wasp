@@ -1,62 +1,82 @@
+<!--
+Hi, thanks for contributing to Wasp!
+
+Comments like this one won't be shown in the final PR, but they contain
+instructions to guide you.
+
+Make sure to follow this PR template, so that we can speed up the review process.
+It will also help you not forget important steps when making a change.
+
+If you don't know how to fill any of the sections below, it's okay to leave them
+blank, we will help you out during the review.
+-->
+
 ### Description
 
-> Describe your PR! If this PR closes an issue, use “Fixes #(issue_number)" syntax so GitHub will auto-close it when merged.
+<!--
+Describe your PR! If this PR closes an issue, write “Fixes #XXXX" so GitHub will
+link them together.
+
+Common questions we'd like you to answer:
+- What's the motivation for this change?
+- Which changes are included in this PR?
+  - If there are many different changes, consider splitting your PR into smaller
+    ones. It will go through faster!
+
+You can also answer some of these questions if they are relevant:
+- Does this change affect users? How?
+- Have you considered any other approaches? Why is this one the best?
+- Are there any drawbacks or edge cases?
+- What are the possibilities for future work?
+-->
 
 ### Select what type of change this PR introduces:
 
-1. [ ] **Just code/docs improvement** (no functional change).
-2. [ ] **Bug fix** (non-breaking change which fixes an issue).
-3. [ ] **New feature** (non-breaking change which adds functionality).
-4. [ ] **Breaking change** (fix or feature that would cause existing functionality to not work as expected).
+<!-- Put an x in between the brackets to select options, like so: [x] -->
 
-### Update Waspc ChangeLog and version if needed
+- [ ] **Just code/docs improvement** (no functional change).
+- [ ] **Bug fix** (non-breaking change which fixes an issue).
+- [ ] **New feature** (non-breaking change which adds functionality).
+- [ ] **Breaking change** (fix or feature that would cause existing functionality to not work as expected).
 
-If you did a **bug fix, new feature, or breaking change**, that affects `waspc`, make sure you satisfy the following:
+### Checklist
 
-1. [ ] I updated [`ChangeLog.md`](https://github.com/wasp-lang/wasp/blob/main/waspc/ChangeLog.md) with description of the change this PR introduces.
-2. [ ] I bumped `waspc` version in [`waspc.cabal`](https://github.com/wasp-lang/wasp/blob/main/waspc/waspc.cabal) to reflect changes I introduced, with regards to the version of the latest wasp release, if the bump was needed.
+<!-- Put an x in between the brackets to select options, like so: [x] -->
+<!-- You can add notes or explanations wherever needed -->
 
-### Add a regression test if needed
+- Testing:
 
-If you did a **bug fix**, make sure you satisfy the following:
+  - [ ] I tested this change in a Wasp app locally.
+  - [ ] <!-- If you modified Haskell code: --> I added unit tests for my change at `waspc/tests`.
+  - [ ] <!-- If you added or updated a feature: --> I added an integration test for my change at `waspc/examples/todoApp/e2e-tests`.
+  - [ ] <!-- If you added or updated a feature: --> I updated the starters at `waspc/data/Cli/templates`, if needed.
+  - [ ] <!-- If you fixed a bug: --> I added a regression test for the bug I fixed.
 
-1. [ ] I added a regression test that reproduces the bug and verifies the fix.
+- Documentation:
 
-If you're unable to add a regression test, please explain why.
-This likely indicates that our current testing setup needs improvement.
+  - [ ] <!-- If you added a feature: --> I added documentation to the `web/docs/`, in a place that makes sense.
+  - [ ] <!-- If you updated a feature: --> I searched for all relevant places in the `web/docs/` and updated them, if needed.
 
-### Test Coverage
+- Changelog:
 
-Please ensure your changes are adequately tested:
+  <!-- If you did a bug fix, new feature, or breaking change: -->
 
-1. [ ] **My changes are covered by tests** (unit, integration, or e2e tests as appropriate).
+  - [ ] I updated `waspc/ChangeLog.md` with a user-friendly description of the change.
+  - [ ] I bumped the `version` in `waspc/waspc.cabal` to reflect changes I introduced.
+  - [ ] <!-- If you did a breaking change: --> I added a step to the current migration guide at `web/docs/migration-guides/`.
 
-If you're unable to add tests or if coverage is partial, please explain why below:
+  <!--
+    While we're in beta, the version should be bumped according to the type of change:
+      - Bug fix: patch version (0.0.X).
+      - New feature: patch version (0.0.X).
+      - Breaking change: minor version (0.X.0).
+    If the version has already been bumped since the last release, you can skip this.
+  -->
 
-<!-- Provide explanation here if tests are missing or incomplete -->
+<!--
+  Thanks for contributing! :)
 
-### Update example apps if needed
-
-If you did code changes and **added a new feature**, make sure you satisfy the following:
-
-1. [ ] I updated [`waspc/examples/todoApp`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todoApp) and its e2e tests as needed and manually checked it works correctly.
-
-If you did code changes and **updated an existing feature**, make sure you satisfy the following:
-
-1. [ ] I updated [`waspc/examples/todoApp`](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todoApp) and its e2e tests as needed and manually checked it works correctly.
-
-### Update starter apps if needed
-
-If you did code changes and **updated an existing feature**, make sure you satisfy the following:
-
-1. [ ] I updated [starter skeleton](https://github.com/wasp-lang/wasp/tree/main/waspc/data/Cli/templates/skeleton) as needed and manually checked it works correctly.
-2. [ ] I updated [`basic` starter](https://github.com/wasp-lang/wasp/tree/main/waspc/data/Cli/templates/basic) as needed and manually checked it works correctly.
-3. [ ] I updated [`todo-ts` starter](https://github.com/wasp-lang/starters/tree/dev/todo-ts) as needed and manually checked it works correctly.
-4. [ ] I updated [`embeddings` starter](https://github.com/wasp-lang/starters/tree/dev/embeddings) as needed and manually checked it works correctly.
-5. [ ] I updated [`saas` starter](https://github.com/wasp-lang/open-saas/tree/main/template) as needed and manually checked it works correctly.
-
-### Update e2e tests if needed
-
-If you did code changes and changed Wasp's code generation logic, make sure you satisfy the following:
-
-1. [] I updated [e2e tests](https://github.com/wasp-lang/wasp/tree/main/waspc#end-to-end-e2e-tests) as needed and manually checked they are correct.
+  We'll check this PR as soon as we can. Meanwhile, keep an eye on this PR and
+  fix any errors that might come up in the checks. It should be all green before
+  we can merge it.
+-->
