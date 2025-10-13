@@ -22,7 +22,7 @@ installWaspCli :: SV.Version -> ShellCommandBuilder ContainerTestContext ShellCo
 installWaspCli version =
   return $ "curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v " ++ show version
 
--- | Asserts that we are switching to an already existing version, 
+-- | Asserts that we are switching to an already existing version,
 -- rather than installing it again.
 assertFoundExistingInstallation :: SV.Version -> ShellCommandBuilder ContainerTestContext ShellCommand
 assertFoundExistingInstallation version =
