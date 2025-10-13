@@ -177,5 +177,11 @@ runPrismaCommandAsJobWithExtraEnv fromDir envVars projectRootDir cmdArgs =
 absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
 absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
   where
+    -- TODO: Wasp command currently fails on wasp db migrate-dev and that seems to be happening
+    --   on call to "prisma format". I think that is likely because this path doesn't work out.
+    --   In .bin, there is prisma, prisma.cmd and prisma.ps1. We should figure out what to do
+    --   about that. If windows, just add .cmd here? Is that enough?
+    --   Have a function for getting the name of binary in node modules? Because I see all of them have
+    --   plain version, .cmd and .ps1.
     prismaExecutableAbs :: Path' Abs File'
     prismaExecutableAbs = waspProjectDir </> [relfile|./node_modules/.bin/prisma|]
