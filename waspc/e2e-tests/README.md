@@ -13,6 +13,13 @@ The main **outputs** of the `waspc` is a Wasp application.
 We want to validate that CLI commands correctly generate or modify applications.
 In addition to applications, we also cover secondary outputs, such as the installation and uninstallation of the CLI itself, `bash` completions, and more.
 
+
+## Test varaints - TODO
+
+1. Tests whose output we want to save and compare to later -> Snapshot Tests
+2. Tests whose output we don't need to save -> Ephemeral Tests ??
+3. Tests which affect the OS environement so we want to run them in the container -> Container Tests
+
 ## Snapshot tests
 
 We primarily test the `waspc` binary outputs using snapshot tests.

@@ -1,9 +1,11 @@
+import ContainerTest (runContainerTest)
 import SnapshotTest (runSnapshotTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
+import Tests.WaspInstallUninstallContainerTest (waspInstallUninstallContainerTest)
 import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
 
@@ -15,13 +17,24 @@ main = do
 
 -- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
-tests =
-  testGroup "Snapshot Tests"
-    <$> mapM
+tests = do
+  snapshotTests <-
+    mapM
       runSnapshotTest
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
+      ]
+  containerTests <-
+    mapM
+      runContainerTest
+      [waspInstallUninstallContainerTest]
+
+  return $
+    testGroup
+      "E2E tests"
+      [ testGroup "Snapshot Tests" snapshotTests,
+        testGroup "Container Tests" containerTests
       ]

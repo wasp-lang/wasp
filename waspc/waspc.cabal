@@ -799,10 +799,14 @@ test-suite waspc-e2e-tests
     FileSystem
     ShellCommands
     WaspProject.ShellCommands
+    ContainerTest
+    ContainerTest.FileSystem
+    ContainerTest.ShellCommands
     SnapshotTest
     SnapshotTest.Snapshot
     SnapshotTest.FileSystem
     SnapshotTest.ShellCommands
+    Tests.WaspInstallUninstallContainerTest
     Tests.WaspNewSnapshotTest
     Tests.KitchenSinkSnapshotTest
     Tests.WaspMigrateSnapshotTest
