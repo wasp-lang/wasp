@@ -2,6 +2,8 @@
 
 ![Ask The Documents Cover](./github.png)
 
+Live at https://ask-the-documents-client.fly.dev/
+
 ## What does it do?
 
 This is an example Wasp app that supports:
@@ -14,36 +16,34 @@ This is an example Wasp app that supports:
 
 ## Running it locally
 
-First, makes sure you have Wasp installed.
+1. Make sure you have the latest version of Wasp installed.
 
-```bash
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
-```
+   ```bash
+   curl -sSL https://get.wasp.sh/installer.sh | sh
+   ```
 
-Then, close this repo, position yourself in `custom-db` and start the database with:
+2. Start the database with:
 
-```bash
-cd custom-db
-./run_db.sh
-```
+   ```bash
+   wasp start db --db-image pgvector/pgvector:pg17
+   ```
 
-Follow the instructions in the script.
+3. Copy `.env.server.example` to `.env.server` and fill out the environment variables.
 
-Fill the env variables in `.env.server`:
+   ```bash
+   OPENAI_API_KEY="<your_openai_key>"
+   GOOGLE_CLIENT_ID="<your_google_client_id>"
+   GOOGLE_CLIENT_SECRET="<your_google_client_secret>"
+   ```
 
-```
-OPENAI_API_KEY=<your_key>
-DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
-```
+4. Migrate the database with:
 
-Migrate the database with:
+   ```bash
+   wasp db migrate-dev
+   ```
 
-```bash
-wasp db migrate-dev
-```
+5. Start the server with:
 
-Then, start the server with:
-
-```bash
-wasp start
-```
+   ```bash
+   wasp start
+   ```
