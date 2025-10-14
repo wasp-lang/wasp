@@ -19,7 +19,7 @@ import Wasp.Util.System (isEnvVarValueTruthy, isSystemWindows)
 {-# NOINLINE isStylingDisabled #-}
 isStylingDisabled :: Bool
 isStylingDisabled =
-  case unsafePerformIO (lookupEnv "WASP_TERMINAL_STYLING_DISABLE") of
+  case unsafePerformIO (lookupEnv "WASP_TERMINAL_STYLING") of
     Nothing -> isSystemWindows
     Just v -> isEnvVarValueTruthy v
 
