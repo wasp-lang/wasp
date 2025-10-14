@@ -15,14 +15,14 @@ where
 
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
-import StrongPath.TH (relfile)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
+import Wasp.Node.NodeModules (getPathToExecutableInNodeModules)
+import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir, waspProjectDirFromProjectRootDir)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectRootDir migrateArgs =
@@ -177,11 +177,8 @@ runPrismaCommandAsJobWithExtraEnv fromDir envVars projectRootDir cmdArgs =
 absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
 absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
   where
-    -- TODO: Wasp command currently fails on wasp db migrate-dev and that seems to be happening
-    --   on call to "prisma format". I think that is likely because this path doesn't work out.
-    --   In .bin, there is prisma, prisma.cmd and prisma.ps1. We should figure out what to do
-    --   about that. If windows, just add .cmd here? Is that enough?
-    --   Have a function for getting the name of binary in node modules? Because I see all of them have
-    --   plain version, .cmd and .ps1.
     prismaExecutableAbs :: Path' Abs File'
-    prismaExecutableAbs = waspProjectDir </> [relfile|./node_modules/.bin/prisma|]
+    prismaExecutableAbs =
+      waspProjectDir
+        </> nodeModulesDirInWaspProjectDir
+        </> SP.castRel (getPathToExecutableInNodeModules "prisma")

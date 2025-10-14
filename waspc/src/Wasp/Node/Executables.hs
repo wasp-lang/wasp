@@ -7,16 +7,37 @@ where
 
 import GHC.IO (unsafePerformIO)
 import StrongPath (fromAbsFile)
-import Wasp.Util.System (resolveExecNameIO)
+import Wasp.Util.System (ExecName, resolveExecNameIO)
 
+-- | Node executable name to be passed to Haskell's "System.Process" functions.
+--
+-- This function being top level form in combo with NOINLINE guarantees that IO action will get
+-- executed only once per lifetime of the Haskell program.
 {-# NOINLINE nodeExec #-}
-nodeExec :: String
-nodeExec = fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "node"
+nodeExec :: ExecName
+nodeExec =
+  -- NOTE: We are taking whole resolved absolute path here because just using the resolved exec name
+  -- was still flaky on Windows in some situations.
+  fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "node"
 
+-- | Npm executable name to be passed to Haskell's "System.Process" functions.
+--
+-- This function being top level form in combo with NOINLINE guarantees that IO action will get
+-- executed only once per lifetime of the Haskell program.
 {-# NOINLINE npmExec #-}
-npmExec :: String
-npmExec = fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "npm"
+npmExec :: ExecName
+npmExec =
+  -- NOTE: We are taking whole resolved absolute path here because just using the resolved exec name
+  -- was still flaky on Windows in some situations.
+  fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "npm"
 
+-- | Node executable name to be passed to Haskell's "System.Process" functions.
+--
+-- This function being top level form in combo with NOINLINE guarantees that IO action will get
+-- executed only once per lifetime of the Haskell program.
 {-# NOINLINE npxExec #-}
-npxExec :: String
-npxExec = fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "npx"
+npxExec :: ExecName
+npxExec =
+  -- NOTE: We are taking whole resolved absolute path here because just using the resolved exec name
+  -- was still flaky on Windows in some situations.
+  fromAbsFile $ snd $ unsafePerformIO $ resolveExecNameIO "npx"
