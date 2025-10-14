@@ -5,6 +5,7 @@ module Wasp.Util.System
     isSystemWindows,
     isSystemMacOS,
     ExecName,
+    isEnvVarValueTruthy,
   )
 where
 
@@ -60,3 +61,6 @@ isSystemWindows = System.Info.os == "mingw32"
 
 isSystemMacOS :: Bool
 isSystemMacOS = System.Info.os == "darwin"
+
+isEnvVarValueTruthy :: String -> Bool
+isEnvVarValueTruthy envVarValue = envVarValue `notElem` ["0", "false", "no", "off"]

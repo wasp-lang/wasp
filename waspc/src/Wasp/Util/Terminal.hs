@@ -10,18 +10,18 @@ module Wasp.Util.Terminal
 where
 
 import Data.List (foldl')
-import Data.Maybe (isJust)
 import GHC.IO (unsafePerformIO)
 import System.Environment (lookupEnv)
-import Wasp.Util.System (isSystemWindows)
+import Wasp.Util.System (isEnvVarValueTruthy, isSystemWindows)
 
+-- Combo of this function being top level form and NOINLINE ensures that the IO action
+-- executes only once per lifetime of the program.
 {-# NOINLINE isStylingDisabled #-}
 isStylingDisabled :: Bool
 isStylingDisabled =
-  isEnvVarSet "WASP_TERMINAL_STYLING_DISABLE"
-    || isSystemWindows && not (isEnvVarSet "WASP_TERMINAL_STYLING_ENABLE")
-  where
-    isEnvVarSet = isJust . unsafePerformIO . lookupEnv
+  case unsafePerformIO (lookupEnv "WASP_TERMINAL_STYLING_DISABLE") of
+    Nothing -> isSystemWindows
+    Just v -> isEnvVarValueTruthy v
 
 -- | Applies the Wasp CLI standardized code styling to a string.
 styleCode :: String -> String
