@@ -19,6 +19,7 @@ jobs:
           - waspello
           - waspleau
           - websockets-realtime-voting
+          - ask-the-documents
 
     steps:
       - uses: "actions/checkout@v5"

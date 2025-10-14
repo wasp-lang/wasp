@@ -49,6 +49,7 @@ function run_examples_e2e_tests() {
     "examples/waspello"
     "examples/waspleau"
     "examples/websockets-realtime-voting"
+    "examples/ask-the-documents"
   )
 
   for path in "${paths[@]}"; do
