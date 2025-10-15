@@ -1,7 +1,7 @@
 FROM node:22-alpine3.21 AS runtime
 # We use curl and bash syntax in our commands.
 RUN apk update && apk add curl bash
-SHELL ["/bin/bash", "-c"] 
+SHELL ["/bin/bash", "-c"]
 # Ensure we have `.local/bin` in our path.
 RUN mkdir -p /root/.local/bin/
 ENV PATH=/root/.local/bin:$PATH
