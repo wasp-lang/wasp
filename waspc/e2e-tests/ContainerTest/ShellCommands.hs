@@ -12,4 +12,4 @@ data ContainerTestContext = ContainerTestContext {}
 
 -- | This includes all other installed versions.
 unisntallWaspCli :: ShellCommandBuilder ContainerTestContext ShellCommand
-unisntallWaspCli = return $ "yes" ~| "wasp uninstall"
+unisntallWaspCli = return $ "yes" ~| "wasp-cli uninstall"

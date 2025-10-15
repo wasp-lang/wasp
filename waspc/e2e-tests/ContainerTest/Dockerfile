@@ -1,7 +1,10 @@
-FROM node:22-alpine3.21 AS runtime
-# We use curl and bash syntax in our commands.
-RUN apk update && apk add curl bash
-SHELL ["/bin/bash", "-c"]
+FROM debian:bookworm AS runtime
+# We use curl in our commands.
+# Node is required to run Wasp CLI.
+RUN apt-get update -y
+RUN apt-get install -y curl
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+RUN apt-get install -y nodejs
 # Ensure we have `.local/bin` in our path.
 RUN mkdir -p /root/.local/bin/
 ENV PATH=/root/.local/bin:$PATH

@@ -52,10 +52,11 @@ runContainerTest containerTest = do
             system dockerRunCommand >>= failIfNotSuccess "Container test command failed"
       where
         containerTestName = _containerTestName containerTest
+        dockerContainerImageName = "container-test-" ++ containerTestName
 
         containerTestCommand = foldr1 (~&&) $ buildShellCommand ContainerTestContext (_containerTestCommandsBuilder containerTest)
-        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(" ++ waspCliFilePathRelativeToWaspcDirCommand ++ ")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t container-test-image  --progress=plain ."
+        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(" ++ waspCliFilePathRelativeToWaspcDirCommand ++ ")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t " ++ dockerContainerImageName ++" -q ."
         waspCliFilePathRelativeToWaspcDirCommand = "cabal list-bin wasp-cli | sed \"s|^$(pwd)/||\""
-        dockerRunCommand = "docker run --rm container-test-image bash -c '" ++ containerTestCommand ++ "'"
+        dockerRunCommand = "docker run --rm -i " ++ dockerContainerImageName ++ " bash -s <<'EOF'\n" ++ containerTestCommand ++ "\nEOF"
 
         failIfNotSuccess errorMessage exitCode = when (exitCode /= ExitSuccess) $ error errorMessage
