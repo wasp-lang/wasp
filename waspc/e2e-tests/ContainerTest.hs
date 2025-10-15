@@ -54,7 +54,8 @@ runContainerTest containerTest = do
         containerTestName = _containerTestName containerTest
 
         containerTestCommand = foldr1 (~&&) $ buildShellCommand ContainerTestContext (_containerTestCommandsBuilder containerTest)
-        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(cabal list-bin wasp-cli | sed \"s|^$(pwd)/||\")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t container-test-image ."
+        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(" ++ waspCliFilePathRelativeToWaspcDirCommand ++ ")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t container-test-image  --progress=plain ."
+        waspCliFilePathRelativeToWaspcDirCommand = "cabal list-bin wasp-cli | sed \"s|^$(pwd)/||\""
         dockerRunCommand = "docker run --rm container-test-image bash -c '" ++ containerTestCommand ++ "'"
 
         failIfNotSuccess errorMessage exitCode = when (exitCode /= ExitSuccess) $ error errorMessage
