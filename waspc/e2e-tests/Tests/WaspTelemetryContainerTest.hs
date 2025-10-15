@@ -1,14 +1,13 @@
 module Tests.WaspTelemetryContainerTest (waspTelemetryContainerTest) where
 
 import ContainerTest (ContainerTest, makeContainerTest)
-import ShellCommands (waspCliTelemetry, (~|), appendToFile)
+import ShellCommands (appendToFile, waspCliTelemetry, (~|))
 
 waspTelemetryContainerTest :: ContainerTest
 waspTelemetryContainerTest =
   makeContainerTest
     "wasp-telemetry"
-    [
-       (~| "grep -q 'ENABLED'") <$> waspCliTelemetry,
+    [ (~| "grep -q 'ENABLED'") <$> waspCliTelemetry,
       appendToFile "~/.profile" "WASP_TELEMETRY_DISABLE=1",
-       (~| "grep -q 'DISABLED'") <$> waspCliTelemetry
+      (~| "grep -q 'DISABLED'") <$> waspCliTelemetry
     ]

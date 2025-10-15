@@ -40,5 +40,3 @@ waspInstallContainerTest =
 
     assertWaspCliVerionDirectoryExists :: SV.Version -> ShellCommandBuilder context ShellCommand
     assertWaspCliVerionDirectoryExists version = return $ "[ -d ~/.local/share/wasp-lang/" ++ show version ++ " ]"
-
-

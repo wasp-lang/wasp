@@ -32,13 +32,14 @@ tests = do
       ]
   containerTests <-
     if os == "linux"
-      then mapM
-        runContainerTest
-        [ waspInstallContainerTest,
-          waspUninstallContainerTest,
-          waspTelemetryContainerTest,
-          waspCompletionContainerTest
-        ]
+      then
+        mapM
+          runContainerTest
+          [ waspInstallContainerTest,
+            waspUninstallContainerTest,
+            waspTelemetryContainerTest,
+            waspCompletionContainerTest
+          ]
       else return []
 
   return $

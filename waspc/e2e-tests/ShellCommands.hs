@@ -12,7 +12,7 @@ module ShellCommands
     replaceLineInFile,
     waspCliNewMinimalStarter,
     waspCliTelemetry,
-    waspCliCompletion
+    waspCliCompletion,
   )
 where
 
@@ -76,4 +76,3 @@ waspCliTelemetry = return "wasp-cli telemetry"
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "wasp-cli completion"
-

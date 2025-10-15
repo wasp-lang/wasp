@@ -8,8 +8,7 @@ waspUninstallContainerTest :: ContainerTest
 waspUninstallContainerTest =
   makeContainerTest
     "wasp-uninstall"
-    [ 
-      -- Install other Wasp versions to test the complete uninstall?
+    [ -- Install other Wasp versions to test the complete uninstall?
       -- But how to get back to development version of Wasp then?
       unisntallWaspCli,
       assertDirectoryMissing "~/.local/share/wasp-lang",
@@ -21,4 +20,3 @@ assertFileMissing directory = return $ "[ ! -f " ++ directory ++ " ]"
 
 assertDirectoryMissing :: String -> ShellCommandBuilder context ShellCommand
 assertDirectoryMissing directory = return $ "[ ! -d " ++ directory ++ " ]"
-
