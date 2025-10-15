@@ -21,28 +21,29 @@ main = do
 -- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
 tests = do
-  -- snapshotTests <-
-  --   mapM
-  --     runSnapshotTest
-  --     [ waspNewSnapshotTest,
-  --       waspCompileSnapshotTest,
-  --       waspBuildSnapshotTest,
-  --       waspMigrateSnapshotTest,
-  --       kitchenSinkSnapshotTest
-  --     ]
-  containerTests <-
+  snapshotTests <-
     mapM
-      runContainerTest
-      [ waspInstallContainerTest
-        -- waspUninstallContainerTest,
-        -- waspTelemetryContainerTest,
-        -- waspCompletionContainerTest
+      runSnapshotTest
+      [ waspNewSnapshotTest,
+        waspCompileSnapshotTest,
+        waspBuildSnapshotTest,
+        waspMigrateSnapshotTest,
+        kitchenSinkSnapshotTest
       ]
+  containerTests <-
+    if os == "linux"
+      then mapM
+        runContainerTest
+        [ waspInstallContainerTest,
+          waspUninstallContainerTest,
+          waspTelemetryContainerTest,
+          waspCompletionContainerTest
+        ]
+      else return []
 
   return $
     testGroup
       "E2E tests"
-      [
-      -- [ testGroup "Snapshot Tests" snapshotTests,
+      [ testGroup "Snapshot Tests" snapshotTests,
         testGroup "Container Tests" containerTests
       ]
