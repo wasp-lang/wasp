@@ -806,7 +806,10 @@ test-suite waspc-e2e-tests
     SnapshotTest.Snapshot
     SnapshotTest.FileSystem
     SnapshotTest.ShellCommands
-    Tests.WaspInstallUninstallContainerTest
+    Tests.WaspInstallContainerTest
+    Tests.WaspUninstallContainerTest
+    Tests.WaspTelemetryContainerTest
+    Tests.WaspCompletionContainerTest
     Tests.WaspNewSnapshotTest
     Tests.KitchenSinkSnapshotTest
     Tests.WaspMigrateSnapshotTest

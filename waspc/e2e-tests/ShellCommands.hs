@@ -11,6 +11,8 @@ module ShellCommands
     appendToFile,
     replaceLineInFile,
     waspCliNewMinimalStarter,
+    waspCliTelemetry,
+    waspCliCompletion
   )
 where
 
@@ -68,3 +70,10 @@ replaceLineInFile fileName lineNumber line =
 
 waspCliNewMinimalStarter :: String -> ShellCommandBuilder context ShellCommand
 waspCliNewMinimalStarter appName = return $ "wasp-cli new " ++ appName ++ " -t minimal"
+
+waspCliTelemetry :: ShellCommandBuilder context ShellCommand
+waspCliTelemetry = return "wasp-cli telemetry"
+
+waspCliCompletion :: ShellCommandBuilder context ShellCommand
+waspCliCompletion = return "wasp-cli completion"
+
