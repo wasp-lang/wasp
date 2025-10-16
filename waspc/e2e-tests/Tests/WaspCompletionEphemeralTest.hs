@@ -29,4 +29,4 @@ waspCompletionEphemeralTest =
       return $
         "export COMP_LINE='" ++ query ++ "'"
           ~&& "export COMP_POINT='" ++ show (length query) ++ "'"
-          ~&& "[[ \"$(wasp-cli completion:list)\" == '" ++ expectedCompletion ++ "' ]]"
+          ~&& "[ \"$(wasp-cli completion:list)\" = \"" ++ expectedCompletion ++ "\" ]"

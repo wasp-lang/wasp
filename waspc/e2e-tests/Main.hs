@@ -37,7 +37,7 @@ tests = do
       ]
   shouldSkipDocker <- isJust <$> lookupEnv "WASP_E2E_TESTS_SKIP_DOCKER"
   containerTests <-
-    if shouldSkipDocker || (os /= "linux")
+    if shouldSkipDocker || (os == "darwin")
       then return []
       else
         mapM
