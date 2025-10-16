@@ -8,6 +8,7 @@ module WaspProject.ShellCommands
     waspCliMigrate,
     waspCliBuild,
     waspCliInfo,
+    waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
   )
 where
@@ -48,6 +49,9 @@ waspCliBuild = return "wasp-cli build"
 
 waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliInfo = return "wasp-cli info"
+
+waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDockerfile = return "wasp-cli dockerfile"
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.

@@ -16,6 +16,7 @@ import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.WaspTelemetryContainerTest (waspTelemetryContainerTest)
 import Tests.WaspUninstallContainerTest (waspUninstallContainerTest)
 import Tests.WaspVersionEphemeralTest (waspVersionEphemeralTest)
+import Tests.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest)
 
 main :: IO ()
 main = do
@@ -36,6 +37,10 @@ tests = do
         kitchenSinkSnapshotTest
       ]
   shouldSkipDocker <- isJust <$> lookupEnv "WASP_E2E_TESTS_SKIP_DOCKER"
+
+  print $ "Is skip docker env var?: " ++ show shouldSkipDocker
+  print $ "Is macOS?: " ++ show (os == "darwin")
+
   containerTests <-
     if shouldSkipDocker || (os == "darwin")
       then return []
@@ -51,7 +56,8 @@ tests = do
       runEphemeralTest
       [ waspCompletionEphemeralTest,
         waspInfoEphemeralTest,
-        waspVersionEphemeralTest
+        waspVersionEphemeralTest,
+        waspDockerfileEphemeralTest
       ]
 
   return $
