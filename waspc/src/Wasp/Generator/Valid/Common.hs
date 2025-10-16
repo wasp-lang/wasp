@@ -70,9 +70,6 @@ field fieldName fn check =
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 
-field' :: String -> (a -> b) -> Validator b error result -> Validator a error ()
-field' fieldName fn check value = void $ field fieldName fn check value
-
 mapErrorContexts :: (ValidationContext -> ValidationContext) -> Validation e a -> Validation e a
 mapErrorContexts fn = first (fmap $ mapContext fn)
 

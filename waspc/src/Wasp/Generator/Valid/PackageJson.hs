@@ -3,6 +3,7 @@ module Wasp.Generator.Valid.PackageJson
   )
 where
 
+import Control.Selective (bindS)
 import Data.Foldable (traverse_)
 import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -10,10 +11,11 @@ import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import Wasp.Generator.Valid.Common
-  ( Validator,
+  ( Validation,
+    Validator,
     execValidator,
     failure,
-    field',
+    field,
     fileValidator,
     validateAll',
   )
@@ -57,8 +59,8 @@ validateOptionalDependency ::
   Validator P.PackageJson String ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
   validateAll'
-    [ makeDependencyValidator Runtime dep validationForOptional,
-      makeDependencyValidator Development dep validationForOptional
+    [ forDependency Runtime dep validationForOptional,
+      forDependency Development dep validationForOptional
     ]
   where
     validationForOptional IncorrectVersion = incorrectVersionError
@@ -78,19 +80,20 @@ validateRequiredDependency ::
   RequirementType ->
   PackageSpecification ->
   Validator P.PackageJson String ()
-validateRequiredDependency reqType dep@(pkgName, pkgVersion) =
-  validateAll'
-    [ makeDependencyValidator reqType dep validationForCorrectPlace,
-      makeDependencyValidator (oppositeDepType reqType) dep validationForWrongPlace
-    ]
+validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
+  bindS
+    (forWrongDependency validationForWrongPlace)
+    (const $ forCorrectDependency validationForCorrectPlace)
   where
+    validationForWrongPlace NotPresent = pure ()
+    validationForWrongPlace _ = wrongDepTypeError
+
     validationForCorrectPlace CorrectVersion = pure ()
     validationForCorrectPlace NotPresent = missingPackageError
     validationForCorrectPlace IncorrectVersion = incorrectPackageVersionError
 
-    validationForWrongPlace CorrectVersion = wrongDepTypeError
-    validationForWrongPlace NotPresent = pure ()
-    validationForWrongPlace IncorrectVersion = wrongDepTypeError
+    forCorrectDependency check = forDependency reqType dep check pkgJson
+    forWrongDependency check = forDependency (oppositeDepType reqType) dep check pkgJson
 
     wrongDepTypeError =
       failure $
@@ -119,14 +122,14 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) =
             show pkgVersion ++ "."
           ]
 
-makeDependencyValidator ::
+forDependency ::
   RequirementType ->
-  PackageSpecification ->
-  Validator DependencyCheckResult error () ->
-  Validator P.PackageJson error ()
-makeDependencyValidator reqType' (pkgName, pkgVersion) check =
-  field' (requirementTypeName reqType') (requirementTypeGet reqType') $
-    field' pkgName (M.lookup pkgName) (check . checkDependency pkgVersion)
+  (P.PackageName, P.PackageVersion) ->
+  (DependencyCheckResult -> Validation error a) ->
+  Validator P.PackageJson error a
+forDependency kind (pkgName, pkgVersion) check =
+  field (requirementTypeName kind) (requirementTypeGet kind) $
+    field pkgName (M.lookup pkgName) (check . checkDependency pkgVersion)
 
 oppositeDepType :: RequirementType -> RequirementType
 oppositeDepType Runtime = Development
@@ -151,3 +154,4 @@ checkDependency expected (Just actual)
 checkDependency _ Nothing = NotPresent
 
 data DependencyCheckResult = CorrectVersion | IncorrectVersion | NotPresent
+  deriving (Eq, Enum, Bounded)
