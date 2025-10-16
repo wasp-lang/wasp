@@ -3,140 +3,151 @@ module Wasp.Generator.Valid.PackageJson
   )
 where
 
-import Control.Applicative ((<|>))
+import Data.Foldable (traverse_)
 import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
+import Wasp.Generator.Valid.Common
+  ( Validator,
+    execValidator,
+    failure,
+    field',
+    fileValidator,
+    validateAll',
+  )
+import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
-data PackageRequirement
-  = RequiredRuntime
-  | RequiredDevelopment
-  | Optional
+validatePackageJson :: P.PackageJson -> [GeneratorError]
+validatePackageJson =
+  (fmap (GenericGeneratorError . show) <$>) . execValidator $ do
+    fileValidator "package.json" validateDependencies
+  where
+    validateDependencies pkg =
+      traverse_
+        ($ pkg)
+        ( fmap (validateRequiredDependency Runtime) requiredRuntimeDependencies
+            <> fmap (validateRequiredDependency Development) requiredDevelopmentDependencies
+            <> fmap validateOptionalDependency optionalDependencies
+        )
+
+    requiredRuntimeDependencies =
+      [ ("wasp", "file:.wasp/out/sdk/wasp"),
+        ("react-router-dom", show D.reactRouterVersion),
+        -- Installing the wrong version of "react-router-dom" can make users believe that they
+        -- can use features that are not available in the version that Wasp supports.
+        ("react", show D.reactVersion),
+        ("react-dom", show D.reactVersion)
+      ]
+
+    requiredDevelopmentDependencies =
+      [ ("vite", show D.viteVersion),
+        ("prisma", show prismaVersion)
+      ]
+
+    optionalDependencies =
+      [ ("typescript", show typescriptVersion),
+        ("@types/react", show D.reactTypesVersion),
+        ("@types/express", show expressTypesVersion)
+      ]
+
+validateOptionalDependency ::
+  PackageSpecification ->
+  Validator P.PackageJson String ()
+validateOptionalDependency dep@(pkgName, pkgVersion) =
+  validateAll'
+    [ makeDependencyValidator Runtime dep validationForOptional,
+      makeDependencyValidator Development dep validationForOptional
+    ]
+  where
+    validationForOptional IncorrectVersion = incorrectVersionError
+    validationForOptional _ = pure ()
+
+    incorrectVersionError =
+      failure $
+        unwords
+          [ "Wasp requires package",
+            show pkgName,
+            "to be version",
+            show pkgVersion,
+            "if present."
+          ]
+
+validateRequiredDependency ::
+  RequirementType ->
+  PackageSpecification ->
+  Validator P.PackageJson String ()
+validateRequiredDependency reqType dep@(pkgName, pkgVersion) =
+  validateAll'
+    [ makeDependencyValidator reqType dep validationForCorrectPlace,
+      makeDependencyValidator (oppositeDepType reqType) dep validationForWrongPlace
+    ]
+  where
+    validationForCorrectPlace CorrectVersion = pure ()
+    validationForCorrectPlace NotPresent = missingPackageError
+    validationForCorrectPlace IncorrectVersion = incorrectPackageVersionError
+
+    validationForWrongPlace CorrectVersion = wrongDepTypeError
+    validationForWrongPlace NotPresent = pure ()
+    validationForWrongPlace IncorrectVersion = wrongDepTypeError
+
+    wrongDepTypeError =
+      failure $
+        unwords
+          [ "Wasp requires package",
+            show pkgName,
+            "to be in",
+            show (requirementTypeName reqType) ++ "."
+          ]
+
+    missingPackageError =
+      failure $
+        unwords
+          [ "Wasp requires package",
+            show pkgName,
+            "with version",
+            show pkgVersion ++ "."
+          ]
+
+    incorrectPackageVersionError =
+      failure $
+        unwords
+          [ "Wasp requires package",
+            show pkgName,
+            "to be version",
+            show pkgVersion ++ "."
+          ]
+
+makeDependencyValidator ::
+  RequirementType ->
+  PackageSpecification ->
+  Validator DependencyCheckResult error () ->
+  Validator P.PackageJson error ()
+makeDependencyValidator reqType' (pkgName, pkgVersion) check =
+  field' (requirementTypeName reqType') (requirementTypeGet reqType') $
+    field' pkgName (M.lookup pkgName) (check . checkDependency pkgVersion)
+
+oppositeDepType :: RequirementType -> RequirementType
+oppositeDepType Runtime = Development
+oppositeDepType Development = Runtime
+
+requirementTypeGet :: RequirementType -> P.PackageJson -> P.DependenciesMap
+requirementTypeGet Runtime = P.dependencies
+requirementTypeGet Development = P.devDependencies
+
+requirementTypeName :: RequirementType -> String
+requirementTypeName Runtime = "dependencies"
+requirementTypeName Development = "devDependencies"
+
+data RequirementType = Runtime | Development
 
 type PackageSpecification = (P.PackageName, P.PackageVersion)
 
-validatePackageJson ::
-  P.PackageJson ->
-  [GeneratorError]
-validatePackageJson packageJson =
-  validateRuntimeDependencies packageJson
-    ++ validateDevelopmentDependencies packageJson
-    ++ validateOptionalDependencies packageJson
+checkDependency :: P.PackageVersion -> Maybe P.PackageVersion -> DependencyCheckResult
+checkDependency expected (Just actual)
+  | expected == actual = CorrectVersion
+  | otherwise = IncorrectVersion
+checkDependency _ Nothing = NotPresent
 
-validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
-validateRuntimeDependencies packageJson =
-  concat
-    [ validateRuntime ("wasp", "file:.wasp/out/sdk/wasp"),
-      validateRuntime ("react-router-dom", show reactRouterVersion),
-      -- Installing the wrong version of "react-router-dom" can make users believe that they
-      -- can use features that are not available in the version that Wasp supports.
-      validateRuntime ("react", show reactVersion),
-      validateRuntime ("react-dom", show reactVersion)
-    ]
-  where
-    validateRuntime packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredRuntime
-
-validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
-validateDevelopmentDependencies packageJson =
-  concat $
-    [ validateDevelopment ("vite", show viteVersion),
-      validateDevelopment ("prisma", show prismaVersion)
-    ]
-  where
-    validateDevelopment packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredDevelopment
-
-validateOptionalDependencies :: P.PackageJson -> [GeneratorError]
-validateOptionalDependencies packageJson =
-  concat
-    [ validateOptional ("typescript", show typescriptVersion),
-      validateOptional ("@types/react", show reactTypesVersion),
-      validateOptional ("@types/express", show expressTypesVersion)
-    ]
-  where
-    validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
-
-validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
-validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
-  case maybePackageJsonDepedency of
-    Just actualPackageVersion ->
-      if actualPackageVersion == expectedPackageVersion
-        then []
-        else [incorrectPackageVersionErrorMessage]
-    Nothing ->
-      if isInWrongLocation requirement
-        then [wrongDependencyTypeErrorMessage]
-        else getMissingPackageError requirement
-  where
-    maybePackageJsonDepedency :: Maybe P.PackageVersion
-    maybePackageJsonDepedency = case requirement of
-      RequiredRuntime -> M.lookup packageName $ P.dependencies packageJson
-      RequiredDevelopment -> M.lookup packageName $ P.devDependencies packageJson
-      Optional ->
-        M.lookup packageName (P.dependencies packageJson)
-          <|> M.lookup packageName (P.devDependencies packageJson)
-
-    isInWrongLocation :: PackageRequirement -> Bool
-    isInWrongLocation = \case
-      RequiredRuntime -> M.member packageName (P.devDependencies packageJson)
-      RequiredDevelopment -> M.member packageName (P.dependencies packageJson)
-      Optional -> False
-
-    getMissingPackageError :: PackageRequirement -> [GeneratorError]
-    getMissingPackageError = \case
-      RequiredRuntime -> [missingRequiredPackageErrorMessage]
-      RequiredDevelopment -> [missingRequiredPackageErrorMessage]
-      Optional -> []
-
-    incorrectPackageVersionErrorMessage :: GeneratorError
-    incorrectPackageVersionErrorMessage =
-      GenericGeneratorError $
-        unwords
-          [ "Wasp requires package",
-            show packageName,
-            "to be version",
-            show expectedPackageVersion,
-            "in package.json."
-          ]
-
-    missingRequiredPackageErrorMessage :: GeneratorError
-    missingRequiredPackageErrorMessage =
-      GenericGeneratorError $
-        unwords
-          [ "Wasp requires package",
-            show packageName,
-            "with version",
-            show expectedPackageVersion,
-            "to be in",
-            show $ getExpectedPackageJsonDependencyKey requirement,
-            "in package.json."
-          ]
-
-    wrongDependencyTypeErrorMessage :: GeneratorError
-    wrongDependencyTypeErrorMessage =
-      GenericGeneratorError $
-        unwords $
-          [ "Wasp requires package",
-            show packageName,
-            "to be in",
-            show $ getExpectedPackageJsonDependencyKey requirement
-          ]
-            ++ ( case getOppositePackageJsonDepedencyKey requirement of
-                   Just oppositeKey -> ["and not in", show oppositeKey]
-                   Nothing -> []
-               )
-            ++ ["in package.json."]
-
-getExpectedPackageJsonDependencyKey :: PackageRequirement -> String
-getExpectedPackageJsonDependencyKey = \case
-  RequiredRuntime -> "dependencies"
-  RequiredDevelopment -> "devDependencies"
-  Optional -> "dependencies or devDependencies"
-
-getOppositePackageJsonDepedencyKey :: PackageRequirement -> Maybe String
-getOppositePackageJsonDepedencyKey = \case
-  RequiredRuntime -> Just "devDependencies"
-  RequiredDevelopment -> Just "dependencies"
-  Optional -> Nothing
+data DependencyCheckResult = CorrectVersion | IncorrectVersion | NotPresent
