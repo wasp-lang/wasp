@@ -10,38 +10,27 @@ import qualified Data.List.NonEmpty as NE
 import Validation (validationToEither)
 import qualified Validation as V
 
-type Validator input error result = input -> Validation error result
+type Validator input result = input -> Validation result
 
-type Validation error result =
-  V.Validation (NonEmpty (WithValidationContext error)) result
+type Validation result =
+  V.Validation (NonEmpty ValidationError) result
 
-data WithValidationContext a = WithValidationContext ValidationContext a
-
-instance Functor WithValidationContext where
-  fmap f (WithValidationContext ctx a) = WithValidationContext ctx (f a)
-
-mapContext :: (ValidationContext -> ValidationContext) -> WithValidationContext a -> WithValidationContext a
-mapContext fn (WithValidationContext ctx a) = WithValidationContext (fn ctx) a
-
-data ValidationContext = ValidationContext
-  { fieldPath :: [String],
+data ValidationError = ValidationError
+  { message :: String,
+    fieldPath :: [String],
     fileName :: Maybe String
   }
 
-emptyValidationContext :: ValidationContext
-emptyValidationContext = ValidationContext [] Nothing
-
-withEmptyValidationContext :: a -> WithValidationContext a
-withEmptyValidationContext = WithValidationContext emptyValidationContext
-
-instance Show (WithValidationContext String) where
+instance Show ValidationError where
   show
-    ( WithValidationContext
-        ValidationContext {fieldPath = fieldPath', fileName = fileName'}
-        value
+    ( ValidationError
+        { message = message',
+          fieldPath = fieldPath',
+          fileName = fileName'
+        }
       ) =
       unlines $
-        value
+        message'
           : ( fieldLine fieldPath'
                 ++ fileLine fileName'
             )
@@ -52,28 +41,28 @@ instance Show (WithValidationContext String) where
         fileLine (Just name) = ["In " ++ show name]
         fileLine Nothing = []
 
-runValidator :: Show error => Validator input error result -> input -> Either (NonEmpty (WithValidationContext error)) result
+runValidator :: Validator input result -> input -> Either (NonEmpty ValidationError) result
 runValidator validator = validationToEither . validator
 
-execValidator :: Show error => Validator input error result -> input -> [WithValidationContext error]
+execValidator :: Validator input result -> input -> [ValidationError]
 execValidator validator = either NE.toList (const []) . runValidator validator
 
-fileValidator :: String -> Validator a error result -> Validator a error result
+fileValidator :: String -> Validator a result -> Validator a result
 fileValidator fileName' innerValidator =
-  mapErrorContexts setFileName . innerValidator
+  mapErrors setFileName . innerValidator
   where
     setFileName err = err {fileName = Just fileName'}
 
-field :: String -> (a -> b) -> Validator b error result -> Validator a error result
+field :: String -> (a -> b) -> Validator b result -> Validator a result
 field fieldName fn check =
-  mapErrorContexts prependFieldName . check . fn
+  mapErrors prependFieldName . check . fn
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 
-mapErrorContexts :: (ValidationContext -> ValidationContext) -> Validation e a -> Validation e a
-mapErrorContexts fn = first (fmap $ mapContext fn)
+mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
+mapErrors = first . fmap
 
-eqJust :: (Eq a, Show a) => a -> Validator (Maybe a) String ()
+eqJust :: (Eq a, Show a) => a -> Validator (Maybe a) ()
 eqJust expected (Just actual) = eq expected actual
 eqJust expected Nothing =
   failure $
@@ -82,12 +71,12 @@ eqJust expected Nothing =
         show expected ++ "."
       ]
 
-notPresent :: Validator (Maybe a) String ()
+notPresent :: Validator (Maybe a) ()
 notPresent Nothing = pure ()
 notPresent (Just _) =
   failure "Field must be left unspecified."
 
-eq :: (Eq a, Show a) => a -> Validator a String ()
+eq :: (Eq a, Show a) => a -> Validator a ()
 eq expected actual
   | actual == expected = pure ()
   | otherwise =
@@ -99,8 +88,14 @@ eq expected actual
             show actual ++ "."
           ]
 
-failure :: a -> Validation a b
-failure = V.failure . withEmptyValidationContext
+failure :: String -> Validation b
+failure message' =
+  V.failure $
+    ValidationError
+      { message = message',
+        fieldPath = [],
+        fileName = Nothing
+      }
 
-validateAll' :: [Validator a e b] -> Validator a e ()
+validateAll' :: [Validator a b] -> Validator a ()
 validateAll' checks = void . V.validateAll checks

@@ -56,7 +56,7 @@ validatePackageJson =
 
 validateOptionalDependency ::
   PackageSpecification ->
-  Validator P.PackageJson String ()
+  Validator P.PackageJson ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
   validateAll'
     [ forDependency Runtime dep validationForOptional,
@@ -79,11 +79,11 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 validateRequiredDependency ::
   RequirementType ->
   PackageSpecification ->
-  Validator P.PackageJson String ()
+  Validator P.PackageJson ()
 validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
   bindS
-    (forWrongDependency validationForWrongPlace)
-    (const $ forCorrectDependency validationForCorrectPlace)
+    (forWrongDependency validationForWrongPlace pkgJson)
+    (const $ forCorrectDependency validationForCorrectPlace pkgJson)
   where
     validationForWrongPlace NotPresent = pure ()
     validationForWrongPlace _ = wrongDepTypeError
@@ -92,8 +92,8 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
     validationForCorrectPlace NotPresent = missingPackageError
     validationForCorrectPlace IncorrectVersion = incorrectPackageVersionError
 
-    forCorrectDependency check = forDependency reqType dep check pkgJson
-    forWrongDependency check = forDependency (oppositeDepType reqType) dep check pkgJson
+    forCorrectDependency = forDependency reqType dep
+    forWrongDependency = forDependency (oppositeDepType reqType) dep
 
     wrongDepTypeError =
       failure $
@@ -125,8 +125,8 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
 forDependency ::
   RequirementType ->
   (P.PackageName, P.PackageVersion) ->
-  (DependencyCheckResult -> Validation error a) ->
-  Validator P.PackageJson error a
+  (DependencyCheckResult -> Validation a) ->
+  Validator P.PackageJson a
 forDependency kind (pkgName, pkgVersion) check =
   field (requirementTypeName kind) (requirementTypeGet kind) $
     field pkgName (M.lookup pkgName) (check . checkDependency pkgVersion)
