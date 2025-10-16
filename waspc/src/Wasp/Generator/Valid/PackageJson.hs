@@ -4,20 +4,19 @@ module Wasp.Generator.Valid.PackageJson
 where
 
 import Control.Selective (bindS)
-import Data.Foldable (traverse_)
 import qualified Data.Map as M
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Common
+import Wasp.Generator.Valid.Validator
   ( Validation,
     Validator,
     execValidator,
     failure,
     field,
     fileValidator,
-    validateAll',
+    validateAll_,
   )
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
@@ -26,13 +25,11 @@ validatePackageJson =
   (fmap (GenericGeneratorError . show) <$>) . execValidator $ do
     fileValidator "package.json" validateDependencies
   where
-    validateDependencies pkg =
-      traverse_
-        ($ pkg)
-        ( fmap (validateRequiredDependency Runtime) requiredRuntimeDependencies
-            <> fmap (validateRequiredDependency Development) requiredDevelopmentDependencies
-            <> fmap validateOptionalDependency optionalDependencies
-        )
+    validateDependencies =
+      validateAll_ $
+        (validateRequiredDependency Runtime <$> requiredRuntimeDependencies)
+          <> (validateRequiredDependency Development <$> requiredDevelopmentDependencies)
+          <> (validateOptionalDependency <$> optionalDependencies)
 
     requiredRuntimeDependencies =
       [ ("wasp", "file:.wasp/out/sdk/wasp"),
@@ -58,7 +55,7 @@ validateOptionalDependency ::
   PackageSpecification ->
   Validator P.PackageJson ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
-  validateAll'
+  validateAll_
     [ forDependency Runtime dep validationForOptional,
       forDependency Development dep validationForOptional
     ]
@@ -81,6 +78,12 @@ validateRequiredDependency ::
   PackageSpecification ->
   Validator P.PackageJson ()
 validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
+  -- `bindS` is the synonym of `>>=` for the `Selective` applicatives, that is,
+  -- an effectul computation that depends on the previous one's result.
+  --
+  -- We use it here so that if we show the first error about the dependency
+  -- being in the wrong place, it will short-circuit and not show the second
+  -- error about it missing in in its correct place.
   bindS
     (forWrongDependency validationForWrongPlace pkgJson)
     (const $ forCorrectDependency validationForCorrectPlace pkgJson)
@@ -95,13 +98,16 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
     forCorrectDependency = forDependency reqType dep
     forWrongDependency = forDependency (oppositeDepType reqType) dep
 
+    oppositeDepType Runtime = Development
+    oppositeDepType Development = Runtime
+
     wrongDepTypeError =
       failure $
         unwords
           [ "Wasp requires package",
             show pkgName,
             "to be in",
-            show (requirementTypeName reqType) ++ "."
+            show (reqTypeFieldName reqType) ++ "."
           ]
 
     missingPackageError =
@@ -122,36 +128,31 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
             show pkgVersion ++ "."
           ]
 
-forDependency ::
-  RequirementType ->
-  (P.PackageName, P.PackageVersion) ->
-  (DependencyCheckResult -> Validation a) ->
-  Validator P.PackageJson a
-forDependency kind (pkgName, pkgVersion) check =
-  field (requirementTypeName kind) (requirementTypeGet kind) $
-    field pkgName (M.lookup pkgName) (check . checkDependency pkgVersion)
-
-oppositeDepType :: RequirementType -> RequirementType
-oppositeDepType Runtime = Development
-oppositeDepType Development = Runtime
-
-requirementTypeGet :: RequirementType -> P.PackageJson -> P.DependenciesMap
-requirementTypeGet Runtime = P.dependencies
-requirementTypeGet Development = P.devDependencies
-
-requirementTypeName :: RequirementType -> String
-requirementTypeName Runtime = "dependencies"
-requirementTypeName Development = "devDependencies"
+type PackageSpecification = (P.PackageName, P.PackageVersion)
 
 data RequirementType = Runtime | Development
 
-type PackageSpecification = (P.PackageName, P.PackageVersion)
+forDependency ::
+  RequirementType ->
+  PackageSpecification ->
+  (DependencyCheckResult -> Validation a) ->
+  Validator P.PackageJson a
+forDependency reqType (pkgName, pkgVersion) f =
+  field (reqTypeFieldName reqType) (reqTypeGetter reqType) $
+    field pkgName (M.lookup pkgName) (f . checkDependency pkgVersion)
+  where
+    reqTypeGetter Runtime = P.dependencies
+    reqTypeGetter Development = P.devDependencies
 
-checkDependency :: P.PackageVersion -> Maybe P.PackageVersion -> DependencyCheckResult
-checkDependency expected (Just actual)
-  | expected == actual = CorrectVersion
-  | otherwise = IncorrectVersion
-checkDependency _ Nothing = NotPresent
+reqTypeFieldName :: RequirementType -> String
+reqTypeFieldName Runtime = "dependencies"
+reqTypeFieldName Development = "devDependencies"
 
 data DependencyCheckResult = CorrectVersion | IncorrectVersion | NotPresent
   deriving (Eq, Enum, Bounded)
+
+checkDependency :: P.PackageVersion -> Maybe P.PackageVersion -> DependencyCheckResult
+checkDependency expectedVersion (Just actualVersion)
+  | expectedVersion == actualVersion = CorrectVersion
+  | otherwise = IncorrectVersion
+checkDependency _ Nothing = NotPresent

@@ -6,7 +6,7 @@ where
 import Control.Monad (void)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.Valid.Common (eqJust, execValidator, field, fileValidator, validateAll')
+import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, field, fileValidator, validateAll_)
 
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig =
@@ -20,13 +20,13 @@ validateSrcTsConfig =
     --   - https://www.typescriptlang.org/tsconfig/
 
     validateTopLevel =
-      validateAll'
+      validateAll_
         [ field "include" T.include (eqJust ["src"]),
           void . field "compilerOptions" T.compilerOptions validateCompilerOptions
         ]
 
     validateCompilerOptions =
-      validateAll'
+      validateAll_
         [ field "module" T._module (eqJust "esnext"),
           field "target" T.target (eqJust "esnext"),
           -- Since Wasp ends up bundling the user code, `bundler` is the most
@@ -51,3 +51,24 @@ validateSrcTsConfig =
           field "composite" T.composite (eqJust True),
           field "skipLibCheck" T.skipLibCheck (eqJust True)
         ]
+
+eqJust :: (Eq a, Show a) => a -> Validator (Maybe a) ()
+eqJust expected (Just actual) = eq expected actual
+eqJust expected Nothing =
+  failure $
+    unwords
+      [ "Missing value, expected",
+        show expected ++ "."
+      ]
+
+eq :: (Eq a, Show a) => a -> Validator a ()
+eq expected actual
+  | actual == expected = pure ()
+  | otherwise =
+      failure $
+        unwords
+          [ "Expected",
+            show expected,
+            "but got",
+            show actual ++ "."
+          ]
