@@ -13,5 +13,3 @@ ARG WASP_CLI_PATH
 COPY ./${WASP_CLI_PATH} /root/.local/bin/wasp-cli
 # Make the binary executable
 RUN chmod +x /root/.local/bin/wasp-cli
-# Ensure we have development version of Wasp installed properly.
-RUN wasp-cli version
