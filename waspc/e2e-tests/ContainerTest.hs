@@ -55,7 +55,7 @@ runContainerTest containerTest = do
         dockerContainerImageName = "container-test-" ++ containerTestName
 
         containerTestCommand = foldr1 (~&&) $ buildShellCommand ContainerTestContext (_containerTestCommandsBuilder containerTest)
-        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(" ++ waspCliFilePathRelativeToWaspcDirCommand ++ ")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t " ++ dockerContainerImageName ++" -q ."
+        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(" ++ waspCliFilePathRelativeToWaspcDirCommand ++ ")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t " ++ dockerContainerImageName ++ " -q ."
         waspCliFilePathRelativeToWaspcDirCommand = "cabal list-bin wasp-cli | sed \"s|^$(pwd)/||\""
         dockerRunCommand = "docker run --rm -i " ++ dockerContainerImageName ++ " bash -s <<'EOF'\n" ++ containerTestCommand ++ "\nEOF"
 

@@ -9,7 +9,6 @@ waspTelemetryContainerTest :: ContainerTest
 waspTelemetryContainerTest =
   makeContainerTest
     "wasp-telemetry"
-    [ 
-      (~| "grep -q 'ENABLED'") <$> waspCliTelemetry,
+    [ (~| "grep -q 'ENABLED'") <$> waspCliTelemetry,
       (~| "grep -q 'DISABLED'") . ("WASP_TELEMETRY_DISABLE=1 " ++) <$> waspCliTelemetry
     ]

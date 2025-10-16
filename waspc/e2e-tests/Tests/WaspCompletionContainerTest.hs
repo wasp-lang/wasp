@@ -17,11 +17,10 @@ waspCompletionContainerTest =
       testWaspCliCompletionCommand "wasp-cli d" "db\ndeploy\ndeps\ndockerfile",
       testWaspCliCompletionCommand "wasp-cli unknown" ""
     ]
-  where 
-    -- | Note Wasp completion only uses COMP_LINE, but it's correct to also set the COMP_POINT.
-    testWaspCliCompletionCommand query expectedCompletion = 
-      return $ "export COMP_LINE='" ++ query ++ "'" 
-        ~&& "export COMP_POINT='" ++ show (length query) ++ "'" 
-        ~&& "[[ \"$(wasp-cli completion:list)\" == '" ++ expectedCompletion ++ "' ]]"
-
-
+  where
+    -- Note Wasp completion only uses COMP_LINE, but it's correct to also set the COMP_POINT.
+    testWaspCliCompletionCommand query expectedCompletion =
+      return $
+        "export COMP_LINE='" ++ query ++ "'"
+          ~&& "export COMP_POINT='" ++ show (length query) ++ "'"
+          ~&& "[[ \"$(wasp-cli completion:list)\" == '" ++ expectedCompletion ++ "' ]]"
