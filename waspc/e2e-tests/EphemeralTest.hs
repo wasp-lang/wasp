@@ -5,20 +5,20 @@ module EphemeralTest
   )
 where
 
+import EphemeralTest.FileSystem (EphemeralDir, asWaspProjectDir, ephemeralWaspProjectDirInEphemeralDir, getEphemeralDir)
+import EphemeralTest.ShellCommands (EphemeralTestContext (..))
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
     (~&&),
   )
-import StrongPath (Abs, Path', Dir, fromAbsDir, (</>))
+import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (callCommand, readCreateProcessWithExitCode, shell)
 import Test.Tasty (TestTree)
-import Test.Tasty.Hspec (describe, it, testSpec, expectationFailure)
-import EphemeralTest.ShellCommands (EphemeralTestContext (..))
-import EphemeralTest.FileSystem (EphemeralDir, getEphemeralDir, asWaspProjectDir, ephemeralWaspProjectDirInEphemeralDir)
-import WaspProject.ShellCommands (WaspProjectContext(..))
+import Test.Tasty.Hspec (describe, expectationFailure, it, testSpec)
+import WaspProject.ShellCommands (WaspProjectContext (..))
 
 data EphemeralTest = EphemeralTest
   { _ephemeralTestName :: String,
@@ -32,7 +32,7 @@ makeEphemeralTest ephemeralTestName ephemeralTestCommandBuilders =
       _ephemeralTestCommandsBuilder = sequence ephemeralTestCommandBuilders
     }
 
--- | Runs 
+-- | Runs
 runEphemeralTest :: EphemeralTest -> IO TestTree
 runEphemeralTest ephemeralTest = do
   getEphemeralDir ephemeralTestName >>= executeEphemeralTestWorkflow

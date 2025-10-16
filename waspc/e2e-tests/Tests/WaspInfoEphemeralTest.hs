@@ -3,7 +3,7 @@ module Tests.WaspInfoEphemeralTest (waspInfoEphemeralTest) where
 import EphemeralTest (EphemeralTest, makeEphemeralTest)
 import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
 import ShellCommands (writeToStdErrOnFailureAndExit, writeToStdErrOnSuccessAndExit)
-import WaspProject.ShellCommands ( waspCliInfo )
+import WaspProject.ShellCommands (waspCliInfo)
 
 waspInfoEphemeralTest :: EphemeralTest
 waspInfoEphemeralTest =
@@ -17,6 +17,6 @@ waspInfoEphemeralTest =
         [ writeToStdErrOnFailureAndExit
             waspCliInfo
             "Wasp info failed inside of a Wasp project"
-          -- NOTE: we don't test for changing values like name, database, project dir size, and last compile
+            -- NOTE: we don't test for changing values like name, database, project dir size, and last compile
         ]
     ]

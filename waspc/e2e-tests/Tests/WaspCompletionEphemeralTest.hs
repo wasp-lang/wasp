@@ -1,7 +1,7 @@
 module Tests.WaspCompletionEphemeralTest (waspCompletionEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest)
-import ShellCommands (writeToStdErrOnFailureAndExit, (~&&), ShellCommand, ShellCommandBuilder)
+import ShellCommands (ShellCommand, ShellCommandBuilder, writeToStdErrOnFailureAndExit, (~&&))
 
 waspCompletionEphemeralTest :: EphemeralTest
 waspCompletionEphemeralTest =

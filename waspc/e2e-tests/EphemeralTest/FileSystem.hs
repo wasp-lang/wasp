@@ -4,19 +4,19 @@ module EphemeralTest.FileSystem
     getEphemeralDir,
     EphemeralWaspProjectDir,
     asWaspProjectDir,
-    ephemeralWaspProjectDirInEphemeralDir
+    ephemeralWaspProjectDirInEphemeralDir,
   )
 where
 
-import FileSystem (E2eTestsDir, getE2eTestsDir)
-import StrongPath (Abs, Path', Path, Rel, (</>), parseRelDir, Dir, castDir)
 import Data.Maybe (fromJust)
+import FileSystem (E2eTestsDir, getE2eTestsDir)
+import StrongPath (Abs, Dir, Path, Path', Rel, castDir, parseRelDir, (</>))
 import Wasp.Project (WaspProjectDir)
 
 data EphemeralDir
 
 ephemeralDirInE2eTestsDir :: String -> Path' (Rel E2eTestsDir) (Dir EphemeralDir)
-ephemeralDirInE2eTestsDir testName =  fromJust . parseRelDir $ ("temp-" ++ testName)
+ephemeralDirInE2eTestsDir testName = fromJust . parseRelDir $ ("temp-" ++ testName)
 
 getEphemeralDir :: String -> IO (Path' Abs (Dir EphemeralDir))
 getEphemeralDir testName = (</> ephemeralDirInE2eTestsDir testName) <$> getE2eTestsDir

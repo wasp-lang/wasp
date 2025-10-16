@@ -17,7 +17,7 @@ import StrongPath (Abs, File, Path', fromAbsFile)
 import System.Exit (ExitCode (..))
 import System.Process (readCreateProcessWithExitCode, shell)
 import Test.Tasty (TestTree)
-import Test.Tasty.Hspec (describe, it, testSpec, expectationFailure)
+import Test.Tasty.Hspec (describe, expectationFailure, it, testSpec)
 
 data ContainerTest = ContainerTest
   { _containerTestName :: String,
@@ -52,7 +52,7 @@ runContainerTest containerTest = do
               ExitSuccess -> return ()
             (dockerRunExitCode, _stdOut, dockerRunStdErr) <- readCreateProcessWithExitCode (shell dockerRunCommand) ""
             case dockerRunExitCode of
-              ExitFailure _ -> expectationFailure $ "docker run failed: " ++  dockerRunStdErr
+              ExitFailure _ -> expectationFailure $ "docker run failed: " ++ dockerRunStdErr
               ExitSuccess -> return ()
       where
         dockerBuildCommand :: ShellCommand
@@ -67,4 +67,3 @@ runContainerTest containerTest = do
 
         dockerContainerImageName :: String
         dockerContainerImageName = "container-test-" ++ containerTestName
-

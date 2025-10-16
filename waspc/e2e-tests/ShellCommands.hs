@@ -15,7 +15,7 @@ module ShellCommands
     waspCliTelemetry,
     waspCliCompletion,
     writeToStdErrOnFailureAndExit,
-    writeToStdErrOnSuccessAndExit
+    writeToStdErrOnSuccessAndExit,
   )
 where
 

@@ -1,20 +1,20 @@
 import ContainerTest (runContainerTest)
+import Data.Maybe (isJust)
+import EphemeralTest (runEphemeralTest)
 import SnapshotTest (runSnapshotTest)
+import System.Environment (lookupEnv)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.WaspCompletionEphemeralTest (waspCompletionEphemeralTest)
+import Tests.WaspInfoEphemeralTest (waspInfoEphemeralTest)
 import Tests.WaspInstallContainerTest (waspInstallContainerTest)
 import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.WaspTelemetryContainerTest (waspTelemetryContainerTest)
 import Tests.WaspUninstallContainerTest (waspUninstallContainerTest)
-import System.Environment (lookupEnv)
-import Data.Maybe (isJust)
-import EphemeralTest (runEphemeralTest)
-import Tests.WaspInfoEphemeralTest (waspInfoEphemeralTest)
 import Tests.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 
 main :: IO ()
@@ -46,13 +46,13 @@ tests = do
             waspUninstallContainerTest,
             waspTelemetryContainerTest
           ]
-  ephemeralTests <- 
+  ephemeralTests <-
     mapM
       runEphemeralTest
       [ waspCompletionEphemeralTest,
         waspInfoEphemeralTest,
-        waspVersionEphemeralTest ]
-
+        waspVersionEphemeralTest
+      ]
 
   return $
     testGroup
