@@ -7,6 +7,7 @@ import ContainerTest.ShellCommands
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
+    writeToStdErrOnFailureAndExit,
     (~|),
   )
 import qualified Wasp.SemanticVersion as SV
@@ -18,11 +19,19 @@ waspInstallContainerTest =
   makeContainerTest
     "wasp-install"
     [ installWaspCli $ SV.Version 0 17 0,
-      assertWaspCliVerionDirectoryExists $ SV.Version 0 17 0,
+      writeToStdErrOnFailureAndExit
+        (assertWaspCliVerionDirectoryExists $ SV.Version 0 17 0)
+        "Installed Wasp 0.17.0 but didn't create the ~/.local/share/wasp-lang/0.17.0 directory",
       installLatestWaspCLi,
-      assertLatestWaspCliVerionDirectoryExists,
-      assertWaspCliVerionDirectoryExists $ SV.Version 0 17 0, -- we didn't overwrite the old version
-      (~| "grep -q 'Found an existing installation on the disk'") <$> installWaspCli (SV.Version 0 17 0)
+      writeToStdErrOnFailureAndExit
+        assertLatestWaspCliVerionDirectoryExists
+        "Installed latest Wasp version but didn't create the ~/.local/share/wasp-lang/<latest_version> directory",
+      writeToStdErrOnFailureAndExit
+        (assertWaspCliVerionDirectoryExists $ SV.Version 0 17 0)
+        "Installing the latest Wasp version removed Wasp 0.17.0 version ~/.local/share/wasp-lang/0.17.0 directory",
+      writeToStdErrOnFailureAndExit
+        ((~| "grep -q 'Found an existing installation on the disk'") <$> installWaspCli (SV.Version 0 17 0))
+        "Installing already installed version dind't reuse the existing installation on the disk"
     ]
   where
     installLatestWaspCLi :: ShellCommandBuilder ContainerTestContext ShellCommand

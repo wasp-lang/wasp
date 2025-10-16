@@ -7,7 +7,6 @@ where
 
 import ContainerTest.FileSystem (ContainerDockerfileFile, getContainerDockerfileFile)
 import ContainerTest.ShellCommands (ContainerTestContext (..))
-import Control.Monad (when)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -16,9 +15,9 @@ import ShellCommands
   )
 import StrongPath (Abs, File, Path', fromAbsFile)
 import System.Exit (ExitCode (..))
-import System.Process (system)
+import System.Process (readCreateProcessWithExitCode, shell)
 import Test.Tasty (TestTree)
-import Test.Tasty.Hspec (describe, it, testSpec)
+import Test.Tasty.Hspec (describe, it, testSpec, expectationFailure)
 
 data ContainerTest = ContainerTest
   { _containerTestName :: String,
@@ -38,25 +37,34 @@ runContainerTest :: ContainerTest -> IO TestTree
 runContainerTest containerTest = do
   getContainerDockerfileFile >>= executeContainerTestWorkflow
   where
+    containerTestName :: String
+    containerTestName = _containerTestName containerTest
+
     executeContainerTestWorkflow :: Path' Abs (File ContainerDockerfileFile) -> IO TestTree
     executeContainerTestWorkflow containerDockerfileFile = do
+      putStrLn $ "Executing container test: " ++ containerTestName
       testSpec "Container Test" $
         describe containerTestName $ do
           it "executes successfully" $ do
-            putStrLn $ "Executing container test: " ++ containerTestName
-
-            putStrLn $ "Building docker image: " ++ dockerBuildCommand
-            system dockerBuildCommand >>= failIfNotSuccess "Docker build failed"
-
-            putStrLn $ "Starting docker container and executing the test command: " ++ dockerRunCommand
-            system dockerRunCommand >>= failIfNotSuccess "Container test command failed"
+            (dockerBuildExitCode, _stdOut, dockerBuildStdErr) <- readCreateProcessWithExitCode (shell dockerBuildCommand) ""
+            case dockerBuildExitCode of
+              ExitFailure _ -> expectationFailure $ "docker build failed: " ++ dockerBuildStdErr
+              ExitSuccess -> return ()
+            (dockerRunExitCode, _stdOut, dockerRunStdErr) <- readCreateProcessWithExitCode (shell dockerRunCommand) ""
+            case dockerRunExitCode of
+              ExitFailure _ -> expectationFailure $ "docker run failed: " ++  dockerRunStdErr
+              ExitSuccess -> return ()
       where
-        containerTestName = _containerTestName containerTest
+        dockerBuildCommand :: ShellCommand
+        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(" ++ waspCliFilePathRelativeToWaspcDirCommand ++ ")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t " ++ dockerContainerImageName ++ " -q ."
+
+        waspCliFilePathRelativeToWaspcDirCommand :: ShellCommand
+        waspCliFilePathRelativeToWaspcDirCommand = "cabal list-bin wasp-cli | sed \"s|^$(pwd)/||\""
+
+        dockerRunCommand :: ShellCommand
+        dockerRunCommand = "docker run --rm -i " ++ dockerContainerImageName ++ " bash -s <<'EOF'\n" ++ containerTestCommand ++ "\nEOF"
+        containerTestCommand = foldr1 (~&&) $ buildShellCommand ContainerTestContext (_containerTestCommandsBuilder containerTest)
+
+        dockerContainerImageName :: String
         dockerContainerImageName = "container-test-" ++ containerTestName
 
-        containerTestCommand = foldr1 (~&&) $ buildShellCommand ContainerTestContext (_containerTestCommandsBuilder containerTest)
-        dockerBuildCommand = "docker build --build-arg WASP_CLI_PATH=\"$(" ++ waspCliFilePathRelativeToWaspcDirCommand ++ ")\" -f " ++ fromAbsFile containerDockerfileFile ++ " -t " ++ dockerContainerImageName ++ " -q ."
-        waspCliFilePathRelativeToWaspcDirCommand = "cabal list-bin wasp-cli | sed \"s|^$(pwd)/||\""
-        dockerRunCommand = "docker run --rm -i " ++ dockerContainerImageName ++ " bash -s <<'EOF'\n" ++ containerTestCommand ++ "\nEOF"
-
-        failIfNotSuccess errorMessage exitCode = when (exitCode /= ExitSuccess) $ error errorMessage

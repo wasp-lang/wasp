@@ -5,12 +5,17 @@ import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
-import Tests.WaspCompletionContainerTest (waspCompletionContainerTest)
+import Tests.WaspCompletionEphemeralTest (waspCompletionEphemeralTest)
 import Tests.WaspInstallContainerTest (waspInstallContainerTest)
 import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.WaspTelemetryContainerTest (waspTelemetryContainerTest)
 import Tests.WaspUninstallContainerTest (waspUninstallContainerTest)
+import System.Environment (lookupEnv)
+import Data.Maybe (isJust)
+import EphemeralTest (runEphemeralTest)
+import Tests.WaspInfoEphemeralTest (waspInfoEphemeralTest)
+import Tests.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 
 main :: IO ()
 main = do
@@ -30,21 +35,30 @@ tests = do
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
       ]
+  shouldSkipDocker <- isJust <$> lookupEnv "WASP_E2E_TESTS_SKIP_DOCKER"
   containerTests <-
-    if os == "linux"
-      then
+    if shouldSkipDocker || (os /= "linux")
+      then return []
+      else
         mapM
           runContainerTest
           [ waspInstallContainerTest,
             waspUninstallContainerTest,
-            waspTelemetryContainerTest,
-            waspCompletionContainerTest
+            waspTelemetryContainerTest
           ]
-      else return []
+  ephemeralTests <- 
+    mapM
+      runEphemeralTest
+      [ waspCompletionEphemeralTest,
+        waspInfoEphemeralTest,
+        waspVersionEphemeralTest ]
+
 
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTests,
-        testGroup "Container Tests" containerTests
+      [ 
+        testGroup "Snapshot Tests" snapshotTests,
+        testGroup "Container Tests" containerTests,
+        testGroup "Ephemeral Tests" ephemeralTests
       ]

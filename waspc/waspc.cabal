@@ -799,19 +799,25 @@ test-suite waspc-e2e-tests
     FileSystem
     ShellCommands
     WaspProject.ShellCommands
-    ContainerTest
-    ContainerTest.FileSystem
-    ContainerTest.ShellCommands
     SnapshotTest
     SnapshotTest.Snapshot
     SnapshotTest.FileSystem
     SnapshotTest.ShellCommands
-    Tests.WaspInstallContainerTest
-    Tests.WaspUninstallContainerTest
-    Tests.WaspTelemetryContainerTest
-    Tests.WaspCompletionContainerTest
     Tests.WaspNewSnapshotTest
     Tests.KitchenSinkSnapshotTest
     Tests.WaspMigrateSnapshotTest
     Tests.WaspCompileSnapshotTest
     Tests.WaspBuildSnapshotTest
+    EphemeralTest
+    EphemeralTest.FileSystem
+    EphemeralTest.ShellCommands
+    Tests.WaspCompletionEphemeralTest
+    Tests.WaspVersionEphemeralTest
+    Tests.WaspInfoEphemeralTest
+    ContainerTest
+    ContainerTest.FileSystem
+    ContainerTest.ShellCommands
+    Tests.WaspTelemetryContainerTest
+    Tests.WaspInstallContainerTest
+    Tests.WaspUninstallContainerTest
+

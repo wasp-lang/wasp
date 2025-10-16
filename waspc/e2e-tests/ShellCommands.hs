@@ -11,8 +11,11 @@ module ShellCommands
     appendToFile,
     replaceLineInFile,
     waspCliNewMinimalStarter,
+    waspCliVersion,
     waspCliTelemetry,
     waspCliCompletion,
+    writeToStdErrOnFailureAndExit,
+    writeToStdErrOnSuccessAndExit
   )
 where
 
@@ -71,8 +74,19 @@ replaceLineInFile fileName lineNumber line =
 waspCliNewMinimalStarter :: String -> ShellCommandBuilder context ShellCommand
 waspCliNewMinimalStarter appName = return $ "wasp-cli new " ++ appName ++ " -t minimal"
 
+waspCliVersion :: ShellCommandBuilder context ShellCommand
+waspCliVersion = return "wasp-cli version"
+
 waspCliTelemetry :: ShellCommandBuilder context ShellCommand
 waspCliTelemetry = return "wasp-cli telemetry"
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "wasp-cli completion"
+
+writeToStdErrOnFailureAndExit :: ShellCommandBuilder context ShellCommand -> String -> ShellCommandBuilder context ShellCommand
+writeToStdErrOnFailureAndExit command errorMessage =
+  ("{ " ++) . (++ " || { echo \"" ++ errorMessage ++ "\" >&2; exit 1; } }") <$> command
+
+writeToStdErrOnSuccessAndExit :: ShellCommandBuilder context ShellCommand -> String -> ShellCommandBuilder context ShellCommand
+writeToStdErrOnSuccessAndExit command errorMessage =
+  ("{ ! " ++) . (++ " || { echo \"" ++ errorMessage ++ "\" >&2; exit 1; } }") <$> command
