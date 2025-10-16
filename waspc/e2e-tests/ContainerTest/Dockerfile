@@ -15,3 +15,4 @@ COPY ./${WASP_CLI_PATH} /root/.local/bin/wasp-cli
 RUN chmod +x /root/.local/bin/wasp-cli
 # Ensure we have development version of Wasp installed properly.
 RUN wasp-cli version
+
