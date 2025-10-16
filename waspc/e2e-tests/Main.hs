@@ -57,8 +57,7 @@ tests = do
   return $
     testGroup
       "E2E tests"
-      [ 
-        testGroup "Snapshot Tests" snapshotTests,
+      [ testGroup "Snapshot Tests" snapshotTests,
         testGroup "Container Tests" containerTests,
         testGroup "Ephemeral Tests" ephemeralTests
       ]
