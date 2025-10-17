@@ -5,7 +5,7 @@
     "@prisma/client": "5.19.1",
     "@sendgrid/mail": "^7.7.0",
     "@stitches/react": "^1.2.8",
-    "@tanstack/react-query": "4.36.1",
+    "@tanstack/react-query": "~4.41.0",
     "@testing-library/jest-dom": "^6.3.0",
     "@testing-library/react": "^14.1.2",
     "@vitest/ui": "^1.2.1",

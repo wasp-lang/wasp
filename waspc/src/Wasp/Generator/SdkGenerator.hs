@@ -197,7 +197,7 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
-            ("@tanstack/react-query", show reactQueryVersion),
+            ("@tanstack/react-query", reactQueryVersion),
             ("axios", show axiosVersion),
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),

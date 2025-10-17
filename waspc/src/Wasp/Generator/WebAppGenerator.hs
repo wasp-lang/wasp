@@ -140,7 +140,7 @@ npmDepsForWasp _spec =
             ("react", show reactVersion),
             -- React and ReactDOM versions should always match.
             ("react-dom", show reactVersion),
-            ("@tanstack/react-query", show reactQueryVersion),
+            ("@tanstack/react-query", reactQueryVersion),
             ("react-router-dom", show reactRouterVersion)
           ],
       N.waspDevDependencies =

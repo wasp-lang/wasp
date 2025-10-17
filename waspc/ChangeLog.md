@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.17.2
+
+### 🐞 Bug fixes
+
+- Wasp now pins `@tanstack/react-query` to a patch version instead of a minor version to prevent future package releases from affecting Wasp. ([#3264](https://github.com/wasp-lang/wasp/pull/3264))
+
 ## 0.17.1
 
 ### 🐞 Bug fixes
