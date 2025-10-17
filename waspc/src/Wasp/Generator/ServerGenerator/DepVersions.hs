@@ -6,8 +6,8 @@ where
 
 import qualified Wasp.SemanticVersion as SV
 
--- TODO: update this to use Wasp.SemanticVersion when we'll have support
--- for patch versions
+-- TODO: update this to use Wasp.SemanticVersion when we'll have support for patch versions
+-- also update reactQueryVersion
 expressVersionStr :: String
 expressVersionStr = "~5.1.0"
 
