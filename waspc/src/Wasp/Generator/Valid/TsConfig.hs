@@ -4,9 +4,10 @@ module Wasp.Generator.Valid.TsConfig
 where
 
 import Control.Monad (void)
+import Validation (validateAll)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, field, fileValidator, validateAll_)
+import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, field, fileValidator)
 
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig =
@@ -20,13 +21,13 @@ validateSrcTsConfig =
     --   - https://www.typescriptlang.org/tsconfig/
 
     validateTopLevel =
-      validateAll_
+      validateAll
         [ field "include" T.include (eqJust ["src"]),
           void . field "compilerOptions" T.compilerOptions validateCompilerOptions
         ]
 
     validateCompilerOptions =
-      validateAll_
+      validateAll
         [ field "module" T._module (eqJust "esnext"),
           field "target" T.target (eqJust "esnext"),
           -- Since Wasp ends up bundling the user code, `bundler` is the most

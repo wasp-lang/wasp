@@ -5,6 +5,7 @@ where
 
 import Control.Selective (bindS)
 import qualified Data.Map as M
+import Validation (validateAll)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
@@ -16,7 +17,6 @@ import Wasp.Generator.Valid.Validator
     failure,
     field,
     fileValidator,
-    validateAll_,
   )
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
@@ -26,7 +26,7 @@ validatePackageJson =
     fileValidator "package.json" validateDependencies
   where
     validateDependencies =
-      validateAll_ $
+      validateAll $
         (validateRequiredDependency Runtime <$> requiredRuntimeDependencies)
           <> (validateRequiredDependency Development <$> requiredDevelopmentDependencies)
           <> (validateOptionalDependency <$> optionalDependencies)
@@ -54,11 +54,9 @@ validatePackageJson =
 validateOptionalDependency ::
   PackageSpecification ->
   Validator P.PackageJson ()
-validateOptionalDependency dep@(pkgName, pkgVersion) =
-  validateAll_
-    [ forDependency Runtime dep validationForOptional,
-      forDependency Development dep validationForOptional
-    ]
+validateOptionalDependency dep@(pkgName, pkgVersion) pkgJson =
+  forDependency Runtime dep validationForOptional pkgJson
+    *> forDependency Development dep validationForOptional pkgJson
   where
     validationForOptional IncorrectVersion = incorrectVersionError
     validationForOptional _ = pure ()
@@ -73,6 +71,10 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
             "if present."
           ]
 
+-- | Validates that a required dependency is present in the correct dependency
+-- list with the correct version. It shows an appropriate error message
+-- otherwise (with an explicit check for the case when the dependency is present
+-- in the opposite list -- runtime deps vs. devDeps).
 validateRequiredDependency ::
   DependencyType ->
   PackageSpecification ->
@@ -85,21 +87,21 @@ validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
   -- being in the wrong place, it will short-circuit and not show the second
   -- error about it missing in in its correct place.
   bindS
-    (forWrongDependency validationForWrongPlace pkgJson)
-    (const $ forCorrectDependency validationForCorrectPlace pkgJson)
+    (forOppositeDepList resultForOpposite pkgJson)
+    (const $ forCorrectDepList resultForCorrect pkgJson)
   where
-    validationForWrongPlace NotPresent = pure ()
-    validationForWrongPlace _ = wrongDepTypeError
-
-    validationForCorrectPlace CorrectVersion = pure ()
-    validationForCorrectPlace NotPresent = missingPackageError
-    validationForCorrectPlace IncorrectVersion = incorrectPackageVersionError
-
-    forCorrectDependency = forDependency depType dep
-    forWrongDependency = forDependency (oppositeDepType depType) dep
+    forCorrectDepList = forDependency depType dep
+    forOppositeDepList = forDependency (oppositeDepType depType) dep
 
     oppositeDepType Runtime = Development
     oppositeDepType Development = Runtime
+
+    resultForOpposite NotPresent = pure ()
+    resultForOpposite _ = wrongDepTypeError
+
+    resultForCorrect CorrectVersion = pure ()
+    resultForCorrect NotPresent = missingPackageError
+    resultForCorrect IncorrectVersion = incorrectPackageVersionError
 
     wrongDepTypeError =
       failure $

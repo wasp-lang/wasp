@@ -1,6 +1,5 @@
 module Wasp.Generator.Valid.Validator where
 
-import Control.Monad (void)
 import Data.Bifunctor (first)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty)
@@ -27,9 +26,6 @@ runValidator validator = validationToEither . validator
 execValidator :: Validator input result -> input -> [ValidationError]
 execValidator validator = either NE.toList (const []) . runValidator validator
 
-validateAll_ :: [Validator a b] -> Validator a ()
-validateAll_ checks = void . V.validateAll checks
-
 fileValidator :: String -> Validator a result -> Validator a result
 fileValidator fileName' innerValidator =
   mapErrors setFileName . innerValidator
@@ -50,6 +46,9 @@ failure message' =
         fieldPath = [],
         fileName = Nothing
       }
+
+mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
+mapErrors = first . fmap
 
 instance Show ValidationError where
   show
@@ -79,6 +78,3 @@ instance Show ValidationError where
                   "→",
                   show (intercalate "." fieldPath'') ++ ":"
                 ]
-
-mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
-mapErrors = first . fmap
