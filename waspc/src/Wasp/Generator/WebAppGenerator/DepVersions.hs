@@ -14,6 +14,7 @@ reactRouterVersion :: SV.ComparatorSet
 reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 6 26 2
 
 -- TODO: update this to use Wasp.SemanticVersion when we'll have support for patch versions
+-- https://github.com/wasp-lang/wasp/issues/2941
 -- also update expressVersionStr
 reactQueryVersion :: String
 reactQueryVersion = "~4.41.0"
