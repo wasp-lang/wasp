@@ -808,3 +808,17 @@ test-suite waspc-e2e-tests
     Tests.WaspMigrateSnapshotTest
     Tests.WaspCompileSnapshotTest
     Tests.WaspBuildSnapshotTest
+    EphemeralTest
+    EphemeralTest.FileSystem
+    EphemeralTest.ShellCommands
+    Tests.WaspCompletionEphemeralTest
+    Tests.WaspVersionEphemeralTest
+    Tests.WaspInfoEphemeralTest
+    Tests.WaspDockerfileEphemeralTest
+    ContainerTest
+    ContainerTest.FileSystem
+    ContainerTest.ShellCommands
+    Tests.WaspTelemetryContainerTest
+    Tests.WaspInstallContainerTest
+    Tests.WaspUninstallContainerTest
+

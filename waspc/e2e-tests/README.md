@@ -1,6 +1,6 @@
 # End-to-End tests for `waspc`
 
-The purpose of `e2e-tests` is to **verify that the Wasp binary works as expected**.
+The purpose of e2e tests is to **verify that the Wasp binary works as expected**.
 We are not concerned with the internal implementation, only its interface and outputs.
 
 ## More on purpose
@@ -13,7 +13,15 @@ The main **outputs** of the `waspc` is a Wasp application.
 We want to validate that CLI commands correctly generate or modify applications.
 In addition to applications, we also cover secondary outputs, such as the installation and uninstallation of the CLI itself, `bash` completions, and more.
 
-## Snapshot tests
+## Test varaints
+
+Our `waspc e2e-tests` consist of three different tests variants:
+
+1. **Snapshot Tests**: tests whose output we want to save
+2. **Ephemeral Tests**: tests whose output we don't need to save
+3. **Container Tests**: tests which can modify host OS environment, so we isolate them in containers
+
+### Snapshot tests
 
 We primarily test the `waspc` binary outputs using snapshot tests.
 Snapshot tests compare the current test outputs (`current` snapshot) against the expected test outputs (`golden` snapshot).
@@ -42,3 +50,13 @@ e2e-tests/
 
 `wasp-app` contains the Wasp app for that snapshot.
 `snapshot-file-list.manifest` lists the files that should exist in the snapshot directory.
+
+### Ephemeral tests
+
+### Container tests
+
+Wasp CLI commands tested in container tests can modify the host OS environment, so we run them inside of containers.
+
+All of tests are run from the Docker image built from `waspc/e2e-tests/ContainerTest/Dockerfile`.
+This Dockerfile ensures minimal requirements needed to install and run Wasp CLI.
+It also ensures that `wasp-cli` alias for `wasp` exists, since all of the commands inside of `waspc e2e-tests` use call `wasp-cli`.

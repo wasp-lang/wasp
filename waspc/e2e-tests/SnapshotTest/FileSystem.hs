@@ -19,8 +19,7 @@ where
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, GitRootDir, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRootDir)
 import SnapshotTest.Snapshot (SnapshotType (..))
-import StrongPath (Dir, File, Path, Path', Rel, castDir, parseRelDir, reldir, relfile, (</>))
-import StrongPath.Types (Abs)
+import StrongPath (Abs, Dir, File, Path, Path', Rel, castDir, parseRelDir, reldir, relfile, (</>))
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | The directory where all snapshots are stored.

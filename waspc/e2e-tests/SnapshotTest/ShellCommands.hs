@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeSynonymInstances #-}
-
 module SnapshotTest.ShellCommands
   ( SnapshotTestContext (..),
     createSnapshotWaspProjectFromMinimalStarter,
