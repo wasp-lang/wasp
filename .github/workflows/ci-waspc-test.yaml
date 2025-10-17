@@ -90,10 +90,6 @@ jobs:
       - name: Build wasp code
         run: cabal build all
 
-      - name: On MacOS, skip e2e tests with Docker since it is not installed
-        if: matrix.os == 'macos-13'
-        run: export WASP_E2E_TESTS_SKIP_DOCKER=1
-
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
 
@@ -165,4 +161,6 @@ jobs:
           npm run test
 
       - name: Run `waspc` e2e tests
+        env:
+          WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
         run: ./run test:waspc:e2e

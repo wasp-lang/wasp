@@ -3,7 +3,7 @@ title: Introduction
 slug: /
 ---
 
-import ImgWithCaption from '@site/blog/components/ImgWithCaption'
+import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { HiddenLLMHelper } from '@site/src/components/HiddenLLMHelper'
 
 <HiddenLLMHelper />
