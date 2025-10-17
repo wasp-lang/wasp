@@ -74,10 +74,10 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
           ]
 
 validateRequiredDependency ::
-  RequirementType ->
+  DependencyType ->
   PackageSpecification ->
   Validator P.PackageJson ()
-validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
+validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
   -- `bindS` is the synonym of `>>=` for the `Selective` applicatives, that is,
   -- an effectul computation that depends on the previous one's result.
   --
@@ -95,8 +95,8 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
     validationForCorrectPlace NotPresent = missingPackageError
     validationForCorrectPlace IncorrectVersion = incorrectPackageVersionError
 
-    forCorrectDependency = forDependency reqType dep
-    forWrongDependency = forDependency (oppositeDepType reqType) dep
+    forCorrectDependency = forDependency depType dep
+    forWrongDependency = forDependency (oppositeDepType depType) dep
 
     oppositeDepType Runtime = Development
     oppositeDepType Development = Runtime
@@ -107,7 +107,7 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
           [ "Wasp requires package",
             show pkgName,
             "to be in",
-            show (reqTypeFieldName reqType) ++ "."
+            show (depTypeFieldName depType) ++ "."
           ]
 
     missingPackageError =
@@ -130,29 +130,29 @@ validateRequiredDependency reqType dep@(pkgName, pkgVersion) pkgJson =
 
 type PackageSpecification = (P.PackageName, P.PackageVersion)
 
-data RequirementType = Runtime | Development
+data DependencyType = Runtime | Development
 
 forDependency ::
-  RequirementType ->
+  DependencyType ->
   PackageSpecification ->
   (DependencyCheckResult -> Validation a) ->
   Validator P.PackageJson a
-forDependency reqType (pkgName, pkgVersion) f =
-  field (reqTypeFieldName reqType) (reqTypeGetter reqType) $
+forDependency depType (pkgName, pkgVersion) f =
+  field (depTypeFieldName depType) (depTypeGetter depType) $
     field pkgName (M.lookup pkgName) (f . checkDependency pkgVersion)
   where
-    reqTypeGetter Runtime = P.dependencies
-    reqTypeGetter Development = P.devDependencies
+    depTypeGetter Runtime = P.dependencies
+    depTypeGetter Development = P.devDependencies
 
-reqTypeFieldName :: RequirementType -> String
-reqTypeFieldName Runtime = "dependencies"
-reqTypeFieldName Development = "devDependencies"
+depTypeFieldName :: DependencyType -> String
+depTypeFieldName Runtime = "dependencies"
+depTypeFieldName Development = "devDependencies"
 
 data DependencyCheckResult = CorrectVersion | IncorrectVersion | NotPresent
   deriving (Eq, Enum, Bounded)
 
 checkDependency :: P.PackageVersion -> Maybe P.PackageVersion -> DependencyCheckResult
+checkDependency _ Nothing = NotPresent
 checkDependency expectedVersion (Just actualVersion)
   | expectedVersion == actualVersion = CorrectVersion
   | otherwise = IncorrectVersion
-checkDependency _ Nothing = NotPresent
