@@ -1,6 +1,6 @@
 app crudTesting {
   wasp: {
-    version: "^0.16.0"
+    version: "^0.16.8"
   },
   head: [
     "<link rel=\"stylesheet\" href=\"https://unpkg.com/mvp.css@1.12/mvp.css\">"

@@ -1,6 +1,6 @@
 app streaming {
   wasp: {
-    version: "^0.16.0"
+    version: "^0.16.8"
   },
   title: "streaming"
 }

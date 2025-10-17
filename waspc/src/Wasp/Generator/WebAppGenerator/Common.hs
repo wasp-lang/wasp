@@ -161,8 +161,8 @@ getDefaultDevClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ S
 reactRouterVersion :: SV.ComparatorSet
 reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 6 26 2
 
-reactQueryVersion :: SV.ComparatorSet
-reactQueryVersion = SV.eq $ SV.Version 4 36 1
+reactQueryVersion :: String
+reactQueryVersion = "~4.41.0"
 
 axiosVersion :: SV.ComparatorSet
 axiosVersion = SV.backwardsCompatibleWith $ SV.Version 1 4 0

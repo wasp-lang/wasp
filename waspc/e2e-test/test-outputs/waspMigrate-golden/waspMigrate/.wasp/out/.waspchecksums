@@ -193,7 +193,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "bd302ecfcd22d5586b609ce1041946415c40df0b20f951e87883bd817e1681ef"
+        "633cf42ab3ce64ee65f30906109ca27df0bd50c8e26cad61fc5c29d66ca4997b"
     ],
     [
         [
@@ -578,7 +578,7 @@
             "file",
             "web-app/package.json"
         ],
-        "864289f9248c94fb6dcd6b4456c0037abc5fcd91d14c77a9b5cc6681457f17cb"
+        "6777fb4a932a9980626ed1ab09cc512081540b83da24902e3e3838baa39f3a92"
     ],
     [
         [
