@@ -32,6 +32,7 @@ data Style
   | CyanBg
   | WhiteBg
   | Bold
+  | Grey
   | Underline
   | Blink
   deriving (Show, Eq)
@@ -65,6 +66,7 @@ getAnsiCodeFor WhiteBg = "[47m"
 getAnsiCodeFor Bold = "[1m"
 getAnsiCodeFor Underline = "[4m"
 getAnsiCodeFor Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).
+getAnsiCodeFor Grey = "[90m"
 
 ansiEscapeCode :: String
 ansiEscapeCode = "\ESC"

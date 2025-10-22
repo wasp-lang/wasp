@@ -82,6 +82,7 @@ data NewsEntry = NewsEntry
   { _wneId :: !String,
     _wneTitle :: !String,
     _wneBody :: !String,
+    _wneLevel :: !String,
     _wnePublishedAt :: !UTCTime
   }
   deriving (Generic, Show)
@@ -92,6 +93,7 @@ instance FromJSON NewsEntry where
       Aeson.defaultOptions {Aeson.fieldLabelModifier = modifyFieldLabel}
     where
       modifyFieldLabel "_wneId" = "id"
+      modifyFieldLabel "_wneLevel" = "level"
       modifyFieldLabel "_wneTitle" = "title"
       modifyFieldLabel "_wneBody" = "body"
       modifyFieldLabel "_wnePublishedAt" = "publishedAt"
@@ -99,22 +101,32 @@ instance FromJSON NewsEntry where
 
 printNewsEntry :: NewsEntry -> IO ()
 printNewsEntry entry = do
-  let title = _wneTitle entry
-  let body = _wneBody entry
-  let dateText = formatTime defaultTimeLocale "%Y-%m-%d" (_wnePublishedAt entry)
-  let dotCount = max minDotsCount (maxColumns - length title - length dateText - 2)
-
   putStrLn ""
   putStrLn $
     Term.applyStyles [Term.Bold] title
       <> " "
-      <> replicate dotCount '.'
+      <> Term.applyStyles [Term.Bold] (replicate dotCount '.')
       <> " "
-      <> Term.applyStyles [Term.Yellow] dateText
-  putStrLn $ "  " <> intercalate "\n  " (wrapText (maxColumns - 2) body)
+      <> Term.applyStyles [Term.Yellow, Term.Bold] dateText
+  -- <> "\nSeverity:" <> Term.applyStyles [Term.Bold, Term.Red] "Critical"
+  putStrLn $ levelPrint <> "\n" <> "  " <> Term.applyStyles [Term.Grey] (intercalate "\n  " (wrapText (maxColumns - 2) body))
   where
+    title = _wneTitle entry
+    level = _wneLevel entry
+    body = _wneBody entry
+    dateText = formatTime defaultTimeLocale "%Y-%m-%d" (_wnePublishedAt entry)
+    dotCount = max minDotsCount (maxColumns - length title - length dateText - 2)
     maxColumns = 80
     minDotsCount = 5
+    levelPrint =
+      "Severity: "
+        ++ ( case level of
+               "high" -> Term.applyStyles [Term.Red]
+               "moderate" -> Term.applyStyles [Term.Yellow]
+               "low" -> Term.applyStyles [Term.Blue]
+               _ -> error "Invalid"
+           )
+          level
 
 -- | TODO: Review this it is AI generated.
 wrapText :: Int -> String -> [String]
@@ -150,7 +162,9 @@ saveLocalNewsInfo localNewsInfo = do
   IOUtil.writeFile newsCacheFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsInfo
 
 printNews :: [NewsEntry] -> IO ()
-printNews = mapM_ printNewsEntry
+printNews newsEntries = do
+  -- waspSays $ asWaspStartMessage "Here's some news for ya!"
+  mapM_ printNewsEntry newsEntries
 
 wasNewsEntrySeen :: LocalNewsInfo -> NewsEntry -> Bool
 wasNewsEntrySeen info entry = _wneId entry `Set.member` _seenNewsIds info
