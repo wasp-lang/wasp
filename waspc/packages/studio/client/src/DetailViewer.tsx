@@ -13,7 +13,7 @@ import {
 import { OpenAI } from "openai";
 import { useState } from "react";
 import { Node } from "reactflow";
-import { Data } from "./types";
+import { WaspAppData } from "./types";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -22,7 +22,7 @@ const openai = new OpenAI({
 
 interface DetailViewerProps {
   selectedNode: Node | null;
-  data: Data;
+  data: WaspAppData;
   onNodeClick: (nodeId: string) => void;
 }
 
@@ -437,7 +437,7 @@ function AISummaryCard({
   nodeType,
 }: {
   selectedNode: Node;
-  data: Data;
+  data: WaspAppData;
   nodeType: string;
 }) {
   const [summary, setSummary] = useState<string | null>(null);
@@ -551,7 +551,7 @@ function AISummaryCard({
 // Prepare context for AI analysis
 function prepareNodeContext(
   selectedNode: Node,
-  data: Data,
+  data: WaspAppData,
   nodeType: string,
 ): string {
   const relationships = getRelationships(selectedNode, data);
@@ -646,7 +646,7 @@ This is where Claude Haiku's analysis would appear. The actual implementation wo
 // Type-specific detail sections
 function renderTypeSpecificDetails(
   selectedNode: Node,
-  data: Data,
+  data: WaspAppData,
   nodeType: string,
 ) {
   switch (nodeType.toLowerCase()) {
@@ -671,7 +671,7 @@ function renderTypeSpecificDetails(
 }
 
 // Entity-specific details
-function EntityDetails({ node }: { node: Node; data: Data }) {
+function EntityDetails({ node }: { node: Node; data: WaspAppData }) {
   const isUserEntity = node.data.isUserEntity;
 
   return (
@@ -742,7 +742,7 @@ function EntityDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Operation (Query/Action) details
-function OperationDetails({ node }: { node: Node; data: Data }) {
+function OperationDetails({ node }: { node: Node; data: WaspAppData }) {
   const operationType = node.data.type || "operation";
   const authRequired = node.data.auth;
 
@@ -822,7 +822,7 @@ function OperationDetails({ node }: { node: Node; data: Data }) {
 }
 
 // API details
-function ApiDetails({ node }: { node: Node; data: Data }) {
+function ApiDetails({ node }: { node: Node; data: WaspAppData }) {
   const httpRoute = node.data.httpRoute;
 
   return (
@@ -861,7 +861,7 @@ function ApiDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Route details
-function RouteDetails({ node }: { node: Node; data: Data }) {
+function RouteDetails({ node }: { node: Node; data: WaspAppData }) {
   return (
     <Card className="mb-4">
       <CardHeader className="pb-2">
@@ -880,7 +880,7 @@ function RouteDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Page details
-function PageDetails({ node }: { node: Node; data: Data }) {
+function PageDetails({ node }: { node: Node; data: WaspAppData }) {
   return (
     <Card className="mb-4">
       <CardHeader className="pb-2">
@@ -907,7 +907,7 @@ function PageDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Job details
-function JobDetails({ node }: { node: Node; data: Data }) {
+function JobDetails({ node }: { node: Node; data: WaspAppData }) {
   return (
     <Card className="mb-4">
       <CardHeader className="pb-2">
@@ -932,7 +932,7 @@ function JobDetails({ node }: { node: Node; data: Data }) {
 }
 
 // App details
-function AppDetails({ node, data }: { node: Node; data: Data }) {
+function AppDetails({ node, data }: { node: Node; data: WaspAppData }) {
   const auth = node.data.auth;
   const db = node.data.db;
 
@@ -1117,7 +1117,7 @@ function RelationshipChip({
 // Get relationships (same logic as before)
 function getRelationships(
   selectedNode: Node,
-  data: Data,
+  data: WaspAppData,
 ): {
   uses: Relationship[];
   usedBy: Relationship[];
