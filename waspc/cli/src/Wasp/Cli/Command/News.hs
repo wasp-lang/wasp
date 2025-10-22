@@ -13,10 +13,12 @@ import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Functor ((<&>))
+import Data.List (intercalate)
 import Data.Maybe (fromJust, fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
+import Data.Time (UTCTime, defaultTimeLocale, formatTime)
 import qualified Data.Time as T
 import GHC.Generics
 import GHC.IO (unsafePerformIO)
@@ -28,6 +30,7 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.IO as IOUtil
+import qualified Wasp.Util.Terminal as Term
 
 {-
   TODO list
@@ -49,8 +52,6 @@ news :: Command ()
 news = liftIO $ do
   newsEntries <- fetchNews
 
-  putStrLn ""
-  printNewsHeader
   printNews newsEntries
 
   info <- obtainLocalNewsInfo
@@ -81,7 +82,7 @@ data NewsEntry = NewsEntry
   { _wneId :: !String,
     _wneTitle :: !String,
     _wneBody :: !String,
-    _wnePublishedAt :: !String
+    _wnePublishedAt :: !UTCTime
   }
   deriving (Generic, Show)
 
@@ -96,20 +97,43 @@ instance FromJSON NewsEntry where
       modifyFieldLabel "_wnePublishedAt" = "publishedAt"
       modifyFieldLabel other = other
 
-printNewsHeader :: IO ()
-printNewsHeader = do
-  putStrLn "      ┌─────────────────────┐"
-  putStrLn "      │   📰 WASP NEWS 📰   │"
-  putStrLn "      └─────────────────────┘"
-
 printNewsEntry :: NewsEntry -> IO ()
 printNewsEntry entry = do
+  let title = _wneTitle entry
+  let body = _wneBody entry
+  let dateText = formatTime defaultTimeLocale "%Y-%m-%d" (_wnePublishedAt entry)
+  let dotCount = max minDotsCount (maxColumns - length title - length dateText - 2)
+
   putStrLn ""
-  putStrLn $ " 📌 " <> _wneTitle entry <> " • [" <> _wnePublishedAt entry <> "]"
-  putStrLn ""
-  putStrLn $ "    " <> _wneBody entry
-  putStrLn ""
-  putStrLn "─────────────────────────────────────────────────────────"
+  putStrLn $
+    Term.applyStyles [Term.Bold] title
+      <> " "
+      <> replicate dotCount '.'
+      <> " "
+      <> Term.applyStyles [Term.Yellow] dateText
+  putStrLn $ "  " <> intercalate "\n  " (wrapText (maxColumns - 2) body)
+  where
+    maxColumns = 80
+    minDotsCount = 5
+
+-- | TODO: Review this it is AI generated.
+wrapText :: Int -> String -> [String]
+wrapText maxLen text
+  | length text <= maxLen = [text]
+  | otherwise =
+      let (line, rest) = splitAt maxLen text
+          breakPoint = findLastSpace line
+       in case breakPoint of
+            Nothing -> line : wrapText maxLen rest -- Force break if no space
+            Just pos ->
+              let (firstPart, remainder) = splitAt pos text
+                  restText = dropWhile (== ' ') remainder -- Remove leading space
+               in firstPart : wrapText maxLen restText
+  where
+    findLastSpace :: String -> Maybe Int
+    findLastSpace str =
+      let positions = [i | (i, c) <- zip [0 ..] str, c == ' ']
+       in if null positions then Nothing else Just (last positions)
 
 getNewsCacheFilePath :: IO (Path' Abs File')
 getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir

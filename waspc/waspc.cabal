@@ -593,7 +593,6 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
-    Wasp.Cli.Command.NewsAI
     Wasp.Cli.Command.News
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
