@@ -23,7 +23,7 @@ module Wasp.AppSpec.App.Auth
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.Maybe (isJust)
 import GHC.Generics (Generic)
@@ -47,7 +47,7 @@ data Auth = Auth
     onBeforeLogin :: Maybe ExtImport,
     onAfterLogin :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data AuthMethods = AuthMethods
   { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
@@ -58,18 +58,18 @@ data AuthMethods = AuthMethods
     keycloak :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data UsernameAndPasswordConfig = UsernameAndPasswordConfig
   { userSignupFields :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
     userSignupFields :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data EmailAuthConfig = EmailAuthConfig
   { userSignupFields :: Maybe ExtImport,
@@ -77,7 +77,7 @@ data EmailAuthConfig = EmailAuthConfig
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods

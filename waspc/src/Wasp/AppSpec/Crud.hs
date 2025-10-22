@@ -10,7 +10,7 @@ module Wasp.AppSpec.Crud
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
@@ -22,7 +22,7 @@ data Crud = Crud
   { entity :: Ref Entity,
     operations :: CrudOperations
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Crud
 
@@ -33,13 +33,13 @@ data CrudOperations = CrudOperations
     update :: Maybe CrudOperationOptions,
     delete :: Maybe CrudOperationOptions
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data CrudOperationOptions = CrudOperationOptions
   { isPublic :: Maybe Bool,
     overrideFn :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data CrudOperation = Get | GetAll | Create | Update | Delete
-  deriving (Show, Eq, Ord, Data, Generic, FromJSON)
+  deriving (Show, Eq, Ord, Data, Generic, FromJSON, ToJSON)

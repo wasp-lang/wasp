@@ -9,7 +9,7 @@ module Wasp.AppSpec.App.EmailSender
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 
@@ -17,13 +17,13 @@ data EmailSender = EmailSender
   { provider :: EmailProvider,
     defaultFrom :: Maybe EmailFromField
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data EmailProvider = SMTP | SendGrid | Mailgun | Dummy
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data EmailFromField = EmailFromField
   { name :: Maybe String,
     email :: String
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)

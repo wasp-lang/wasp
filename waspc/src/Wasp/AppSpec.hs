@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.AppSpec
@@ -24,16 +26,17 @@ module Wasp.AppSpec
   )
 where
 
+import qualified Data.Aeson as Aeson
 import Data.List (find)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (Abs, Dir, File, File', Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, toFilePath, (</>))
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
-import Wasp.AppSpec.Core.Decl (Decl, takeDecls)
+import Wasp.AppSpec.Core.Decl (Decl, declName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Crud (Crud)
@@ -160,3 +163,104 @@ asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
 --   In the meantime, we determine it based on the oldest node version that Wasp supports.
 userNodeVersionRange :: AppSpec -> SV.Range
 userNodeVersionRange _ = SV.Range [SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion]
+
+-- | Convert a Decl to JSON representation.
+-- This function encodes declarations with their type and value information.
+declToJSON :: Decl -> Aeson.Value
+declToJSON decl =
+  let name = declName decl
+      typeAndValue = tryEncodeDeclTypes decl
+   in case typeAndValue of
+        Just (typeName, jsonValue) ->
+          Aeson.object
+            [ "declType" Aeson..= typeName,
+              "declName" Aeson..= name,
+              "declValue" Aeson..= jsonValue
+            ]
+        Nothing ->
+          error $ "Failed to encode Decl: " ++ name ++ ". This should never happen."
+
+-- | Try to match and encode each known declaration type.
+-- This function attempts to cast the value from each Decl to each known IsDecl type.
+tryEncodeDeclTypes :: Decl -> Maybe (String, Aeson.Value)
+tryEncodeDeclTypes decl =
+  -- For each declaration type, try to extract its value using takeDecls and re-encode
+  case tryDeclTypeCasts decl of
+    Just result -> Just result
+    Nothing -> Nothing
+
+-- | Helper function that tries to cast a Decl to each known type and encode it.
+-- This uses the takeDecls function to extract declarations by type.
+tryDeclTypeCasts :: Decl -> Maybe (String, Aeson.Value)
+tryDeclTypeCasts decl =
+  let apps = takeDecls [decl] :: [(String, App)]
+      pages = takeDecls [decl] :: [(String, Page)]
+      routes = takeDecls [decl] :: [(String, Route)]
+      queries = takeDecls [decl] :: [(String, Query)]
+      actions = takeDecls [decl] :: [(String, Action)]
+      jobs = takeDecls [decl] :: [(String, Job)]
+      apis = takeDecls [decl] :: [(String, Api)]
+      namespaces = takeDecls [decl] :: [(String, ApiNamespace)]
+      cruds = takeDecls [decl] :: [(String, Crud)]
+      entities = takeDecls [decl] :: [(String, Entity)]
+   in case apps of
+        [(_, app)] -> Just ("App", Aeson.toJSON app)
+        [] ->
+          case pages of
+            [(_, page)] -> Just ("Page", Aeson.toJSON page)
+            [] ->
+              case routes of
+                [(_, route)] -> Just ("Route", Aeson.toJSON route)
+                [] ->
+                  case queries of
+                    [(_, query)] -> Just ("Query", Aeson.toJSON query)
+                    [] ->
+                      case actions of
+                        [(_, action)] -> Just ("Action", Aeson.toJSON action)
+                        [] ->
+                          case jobs of
+                            [(_, job)] -> Just ("Job", Aeson.toJSON job)
+                            [] ->
+                              case apis of
+                                [(_, api)] -> Just ("Api", Aeson.toJSON api)
+                                [] ->
+                                  case namespaces of
+                                    [(_, ns)] -> Just ("ApiNamespace", Aeson.toJSON ns)
+                                    [] ->
+                                      case cruds of
+                                        [(_, crud)] -> Just ("Crud", Aeson.toJSON crud)
+                                        [] ->
+                                          case entities of
+                                            [(_, entity)] -> Just ("Entity", Aeson.toJSON entity)
+                                            [] -> Nothing
+                                            (_ : _) -> Nothing
+                                        (_ : _) -> Nothing
+                                    (_ : _) -> Nothing
+                                (_ : _) -> Nothing
+                            (_ : _) -> Nothing
+                        (_ : _) -> Nothing
+                    (_ : _) -> Nothing
+                (_ : _) -> Nothing
+            (_ : _) -> Nothing
+        (_ : _) -> Nothing
+
+instance Aeson.ToJSON AppSpec where
+  toJSON spec =
+    Aeson.object
+      [ "decls" Aeson..= map declToJSON (decls spec),
+        "prismaSchema" Aeson..= Aeson.Null,  -- Complex Prisma schema, omitted for JSON
+        "packageJson" Aeson..= Aeson.Null,  -- Complex npm package.json, omitted for JSON
+        "waspProjectDir" Aeson..= toFilePath (waspProjectDir spec),
+        "externalCodeFiles" Aeson..= Aeson.Null,  -- Complex external files, omitted for JSON
+        "externalPublicFiles" Aeson..= Aeson.Null,  -- Complex external files, omitted for JSON
+        "migrationsDir" Aeson..= fmap toFilePath (migrationsDir spec),
+        "devEnvVarsServer" Aeson..= Aeson.toJSON (devEnvVarsServer spec),
+        "devEnvVarsClient" Aeson..= Aeson.toJSON (devEnvVarsClient spec),
+        "isBuild" Aeson..= isBuild spec,
+        "userDockerfileContents" Aeson..= userDockerfileContents spec,
+        "tailwindConfigFilesRelocators" Aeson..= Aeson.Null,  -- Complex config relocators, omitted for JSON
+        "devDatabaseUrl" Aeson..= devDatabaseUrl spec,
+        "customViteConfigPath" Aeson..= fmap toFilePath (customViteConfigPath spec),
+        "srcTsConfigPath" Aeson..= toFilePath (srcTsConfigPath spec),
+        "srcTsConfig" Aeson..= Aeson.Null  -- Complex TypeScript config, omitted for JSON
+      ]

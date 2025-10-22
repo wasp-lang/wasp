@@ -9,7 +9,7 @@ module Wasp.AppSpec.Core.Ref
   )
 where
 
-import Data.Aeson (FromJSON, withObject, (.:))
+import Data.Aeson (FromJSON, ToJSON (..), object, withObject, (.=), (.:))
 import Data.Aeson.Types (FromJSON (parseJSON))
 import Data.Data (Data)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
@@ -40,3 +40,10 @@ instance (IsDecl a) => FromJSON (Ref a) where
             <> "', but it was '"
             <> declType
             <> "'."
+
+instance (IsDecl a) => ToJSON (Ref a) where
+  toJSON (Ref name) =
+    object
+      [ "name" .= name,
+        "declType" .= declTypeName @a
+      ]

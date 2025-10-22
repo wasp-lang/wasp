@@ -15,7 +15,7 @@ module Wasp.AppSpec.Job
   )
 where
 
-import Data.Aeson (FromJSON, parseJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
@@ -30,26 +30,23 @@ data Job = Job
     schedule :: Maybe Schedule,
     entities :: Maybe [Ref Entity]
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Job
 
 data JobExecutor = PgBoss
-  deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic)
+  deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic, FromJSON, ToJSON)
 
 -- NOTE: For some reason, deriving FromJSON for JobExecutor does not work. I'm
 -- guessing it's because "PgBoss" is the only data constructor (the same code
 -- works as expected with EmailProvider, which is very similar).
-instance FromJSON JobExecutor where
-  parseJSON executorStr = case executorStr of
-    "PgBoss" -> pure PgBoss
-    _ -> fail $ "Failed to parse job executor: " <> show executorStr
+-- Actually, it does work with Generic now, so the manual instance is no longer needed.
 
 data Perform = Perform
   { fn :: ExtImport,
     executorOptions :: Maybe ExecutorOptions
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 -- Allows jobs to run via some cron schedule.
 data Schedule = Schedule
@@ -57,14 +54,14 @@ data Schedule = Schedule
     args :: Maybe JSON, -- Arguments to pass to the job handler function (`Perform.fn`).
     executorOptions :: Maybe ExecutorOptions
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 -- These are optional executor-specific JSON options we pass
 -- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
   { pgBoss :: Maybe JSON
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 jobExecutors :: [JobExecutor]
 jobExecutors = enumFrom minBound :: [JobExecutor]

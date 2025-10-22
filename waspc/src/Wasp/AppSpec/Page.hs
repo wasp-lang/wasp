@@ -7,7 +7,7 @@ module Wasp.AppSpec.Page
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
@@ -17,6 +17,6 @@ data Page = Page
   { component :: ExtImport,
     authRequired :: Maybe Bool
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Page

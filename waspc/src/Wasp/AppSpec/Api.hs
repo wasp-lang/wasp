@@ -10,7 +10,7 @@ module Wasp.AppSpec.Api
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
@@ -25,7 +25,7 @@ data Api = Api
     httpRoute :: (HttpMethod, String), -- (method, path), exe: (GET, "/foo/bar")
     auth :: Maybe Bool
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Api
 
@@ -36,4 +36,4 @@ path :: Api -> String
 path = snd . httpRoute
 
 data HttpMethod = ALL | GET | POST | PUT | DELETE
-  deriving (Show, Eq, Ord, Data, Generic, FromJSON)
+  deriving (Show, Eq, Ord, Data, Generic, FromJSON, ToJSON)
