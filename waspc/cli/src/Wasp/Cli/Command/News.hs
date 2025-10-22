@@ -3,11 +3,24 @@ module Wasp.Cli.Command.News
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
+import Data.Maybe (fromMaybe)
+import GHC.IO (unsafePerformIO)
+import Network.HTTP.Simple (getResponseBody, httpBS, parseRequest)
+import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Message (cliSendMessageC)
-import qualified Wasp.Message as Msg
+
+{-# NOINLINE waspNewsServerUrl #-}
+waspNewsServerUrl :: String
+waspNewsServerUrl =
+  fromMaybe "https://news.wasp.sh" $ unsafePerformIO $ lookupEnv "WASP_NEWS_SERVER_URL"
 
 news :: Command ()
 news = do
-  cliSendMessageC $
-    Msg.Info "News command - stub implementation"
+  liftIO $ do
+    putStrLn "  WASP NEWS  "
+    putStrLn "============="
+
+    response <- httpBS =<< parseRequest waspNewsServerUrl
+    let newsJsonStr = show $ getResponseBody response
+    print newsJsonStr
