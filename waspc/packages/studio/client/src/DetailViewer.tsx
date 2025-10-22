@@ -1,13 +1,36 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card, CardBody, CardHeader, Chip, Divider, Spinner } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Divider,
+  Input,
+  Spinner,
+  Tab,
+  Tabs,
+} from "@nextui-org/react";
+import { OpenAI } from "openai";
 import { useState } from "react";
 import { Node } from "reactflow";
-import { WaspAppData } from "./waspAppData";
+import { WaspAppData } from "./types";
+
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true, // TODO: Remove this once we have a backend
+});
 
 interface DetailViewerProps {
   selectedNode: Node | null;
-  waspAppData: WaspAppData;
+  data: WaspAppData;
   onNodeClick: (nodeId: string) => void;
+}
+
+interface ChatMessage {
+  id: string;
+  text: string;
+  nodesToSelect: string[];
+  isUser: boolean;
 }
 
 interface Relationship {
@@ -22,143 +45,399 @@ export function DetailViewer({
   waspAppData,
   onNodeClick,
 }: DetailViewerProps) {
-  if (!selectedNode) {
-    return (
-      <div className="flex h-full items-center justify-center p-8">
-        <div className="text-center">
-          <div className="mb-4 text-6xl opacity-20">👈</div>
-          <h3 className="mb-2 text-lg font-semibold text-gray-400">
-            No Selection
-          </h3>
-          <p className="text-sm text-gray-500">
-            Click any node in the graph to view detailed information
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
-  const nodeType = selectedNode.type?.replace("Node", "") || "Unknown";
-  const relationships = getRelationships(selectedNode, waspAppData);
+  const nodeType = selectedNode?.type?.replace("Node", "") || "Unknown";
+  const relationships = selectedNode ? getRelationships(selectedNode, data) : { uses: [], usedBy: [] };
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+
+    setIsChatLoading(true);
+    const userMessage: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      text: inputValue,
+      nodesToSelect: [],
+      isUser: true,
+    };
+
+    setMessages([...messages, userMessage]);
+    setInputValue("");
+
+    try {
+      // Define the select_node tool
+      const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
+        {
+          type: "function",
+          function: {
+            name: "select_node",
+            description:
+              "Select and highlight a node in the graph to show its details. Use this when the user asks about a specific entity, operation, page, or other node.",
+            parameters: {
+              type: "object",
+              properties: {
+                nodeId: {
+                  type: "string",
+                  description:
+                    "The node ID in format '{type}:{name}' (e.g., 'entity:User', 'query:getGptResponses', 'page:DemoAppPage')",
+                },
+              },
+              required: ["nodeId"],
+            },
+          },
+        },
+      ];
+
+      // Create the messages array for the API call
+      const apiMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+        [
+          {
+            role: "system",
+            content: `You're a helpful assistant that can answer questions about the Wasp app structure.
+
+App structure: ${JSON.stringify(data)}
+
+Available node types and their IDs:
+- Entities: ${data.entities.map((e) => `entity:${e.name}`).join(", ")}
+- Queries: ${data.operations
+              .filter((o) => o.type === "query")
+              .map((o) => `query:${o.name}`)
+              .join(", ")}
+- Actions: ${data.operations
+              .filter((o) => o.type === "action")
+              .map((o) => `action:${o.name}`)
+              .join(", ")}
+- Pages: ${data.pages.map((p) => `page:${p.name}`).join(", ")}
+- Routes: ${data.routes.map((r) => `route:${r.path}`).join(", ")}
+- APIs: ${data.apis.map((a) => `api:${a.name}`).join(", ")}
+- Jobs: ${data.jobs.map((j) => `job:${j.name}`).join(", ")}
+
+Use the select_node tool when you want to highlight a specific node in the graph for the user.`,
+          },
+          {
+            role: "user",
+            content: inputValue,
+          },
+        ];
+
+      // Make the initial API call
+      let response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: apiMessages,
+        tools: tools,
+        tool_choice: "auto",
+      });
+
+      const responseMessage = response.choices[0].message;
+      const nodesToSelect: string[] = [];
+
+      // Check if the model wants to call tools
+      if (responseMessage.tool_calls) {
+        // Add the assistant's response to messages
+        apiMessages.push(responseMessage);
+
+        // Process each tool call
+        for (const toolCall of responseMessage.tool_calls) {
+          if (
+            toolCall.type === "function" &&
+            toolCall.function.name === "select_node"
+          ) {
+            const args = JSON.parse(toolCall.function.arguments);
+            const nodeId = args.nodeId;
+
+            // Execute the tool - select the node
+            nodesToSelect.push(nodeId);
+
+            // Add tool result to messages
+            apiMessages.push({
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ success: true, nodeId }),
+            });
+          }
+        }
+
+        // Get the final response from the model
+        response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: apiMessages,
+        });
+      }
+
+      // Create the AI message
+      const finalContent =
+        response.choices[0].message.content ||
+        "I couldn't generate a response.";
+      const aiMessage: ChatMessage = {
+        id: `msg-${Date.now()}-ai`,
+        text: finalContent,
+        nodesToSelect: nodesToSelect,
+        isUser: false,
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+
+      // Select the first node if any were suggested
+      if (nodesToSelect.length > 0) {
+        onNodeClick(nodesToSelect[0]);
+      }
+    } catch (error) {
+      console.error("Error calling OpenAI:", error);
+      const errorMessage: ChatMessage = {
+        id: `msg-${Date.now()}-error`,
+        text: "Sorry, I encountered an error processing your request.",
+        nodesToSelect: [],
+        isUser: false,
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   return (
-    <div className="h-full overflow-y-auto">
-      {/* Header Section */}
-      <Card className="m-4">
-        <CardHeader className="flex-col items-start gap-2 pb-2">
-          <Chip color="primary" variant="flat" size="sm">
-            {nodeType}
-          </Chip>
-          <h2 className="text-xl font-bold">
-            {selectedNode.data.label || selectedNode.data.name}
-          </h2>
-        </CardHeader>
-        <CardBody className="pt-0">
-          <div className="space-y-2 text-sm">
-            <InfoRow
-              label="Type"
-              value={nodeType}
-              icon="🏷️"
-            />
-            <InfoRow
-              label="ID"
-              value={selectedNode.id}
-              icon="🔑"
-              mono
-            />
-            {/* Placeholder for file location */}
-            <InfoRow
-              label="Location"
-              value="src/server/operations.ts:42"
-              icon="📁"
-              placeholder
-              mono
-            />
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* AI Summary Section */}
-      <AISummaryCard selectedNode={selectedNode} waspAppData={waspAppData} nodeType={nodeType} />
-
-      {/* Type-Specific Details */}
-      {renderTypeSpecificDetails(selectedNode, waspAppData, nodeType)}
-
-      {/* Relationships Section */}
-      <Card className="m-4">
-        <CardHeader className="pb-2">
-          <h3 className="text-md font-semibold">Relationships</h3>
-        </CardHeader>
-        <CardBody className="gap-4 pt-2">
-          {/* Dependencies (Uses) */}
-          {relationships.uses.length > 0 && (
-            <div>
-              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-400">
-                <span>⬇️</span> Uses ({relationships.uses.length})
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {relationships.uses.map((rel) => (
-                  <RelationshipChip
-                    key={rel.id}
-                    relationship={rel}
-                    onClick={() => onNodeClick(rel.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Dependents (Used By) */}
-          {relationships.usedBy.length > 0 && (
-            <div>
-              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-400">
-                <span>⬆️</span> Used By ({relationships.usedBy.length})
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {relationships.usedBy.map((rel) => (
-                  <RelationshipChip
-                    key={rel.id}
-                    relationship={rel}
-                    onClick={() => onNodeClick(rel.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Impact Summary */}
-          <div className="mt-2 rounded-lg bg-gray-800 p-3">
-            <p className="text-xs text-gray-400">
-              📊 Impact:{" "}
-              <strong className="text-white">
-                {relationships.usedBy.length} dependent
-                {relationships.usedBy.length !== 1 ? "s" : ""}
-              </strong>
-              {relationships.uses.length > 0 && (
-                <>
-                  {" • "}
-                  <strong className="text-white">
-                    {relationships.uses.length} dependenc
-                    {relationships.uses.length !== 1 ? "ies" : "y"}
-                  </strong>
-                </>
+    <div className="flex h-full flex-col">
+      <Tabs aria-label="Detail Viewer Tabs" className="px-4 pt-4">
+        <Tab key="chat" title="Chat">
+          <div className="flex h-full flex-col">
+            {/* Chat Messages Area */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {messages.length === 0 ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="text-center">
+                    <div className="mb-4 text-6xl opacity-20">💬</div>
+                    <h3 className="mb-2 text-lg font-semibold text-gray-400">
+                      Start a Conversation
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Ask questions about this {nodeType.toLowerCase()} or your
+                      Wasp app
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((message) => (
+                    <ChatMessageBubble
+                      key={message.id}
+                      message={message}
+                      onNodeClick={onNodeClick}
+                    />
+                  ))}
+                  {isChatLoading && (
+                    <div className="flex items-center justify-center gap-3 rounded-lg bg-purple-950/20 p-6">
+                      <Spinner size="sm" color="secondary" />
+                      <span className="text-sm text-gray-400">Thinking...</span>
+                    </div>
+                  )}
+                </div>
               )}
-            </p>
+            </div>
+
+            {/* Chat Input Area */}
+            <div className="border-t border-gray-700 p-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ask about this node or your app..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  size="sm"
+                  className="flex-1"
+                />
+                <Button
+                  color="primary"
+                  size="sm"
+                  onPress={handleSendMessage}
+                  isDisabled={!inputValue.trim()}
+                >
+                  Send
+                </Button>
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Press Enter to send, Shift+Enter for new line
+              </p>
+            </div>
           </div>
-        </CardBody>
-      </Card>
+        </Tab>
+        <Tab key="details" title="Details">
+          {!selectedNode ? (
+            <div className="flex h-full items-center justify-center p-8">
+              <div className="text-center">
+                <div className="mb-4 text-6xl opacity-20">👉</div>
+                <h3 className="mb-2 text-lg font-semibold text-gray-400">
+                  No Selection
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Click any node in the graph to view detailed information
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="h-full overflow-y-auto pb-4">
+              {/* Header Section */}
+              <Card className="mb-4">
+                <CardHeader className="flex-col items-start gap-2 pb-2">
+                  <Chip color="primary" variant="flat" size="sm">
+                    {nodeType}
+                  </Chip>
+                  <h2 className="text-xl font-bold">
+                    {selectedNode.data.label || selectedNode.data.name}
+                  </h2>
+                </CardHeader>
+                <CardBody className="pt-0">
+                  <div className="space-y-2 text-sm">
+                    <InfoRow label="Type" value={nodeType} icon="🏷️" />
+                    <InfoRow
+                      label="ID"
+                      value={selectedNode.id}
+                      icon="🔑"
+                      mono
+                    />
+                    {/* Placeholder for file location */}
+                    <InfoRow
+                      label="Location"
+                      value="src/server/operations.ts:42"
+                      icon="📁"
+                      placeholder
+                      mono
+                    />
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* AI Summary Section */}
+              <AISummaryCard
+                selectedNode={selectedNode}
+                data={data}
+                nodeType={nodeType}
+              />
+
+              {/* Type-Specific Details */}
+              {renderTypeSpecificDetails(selectedNode, data, nodeType)}
+
+              {/* Relationships Section */}
+              <Card className="mb-4">
+                <CardHeader className="pb-2">
+                  <h3 className="text-md font-semibold">Relationships</h3>
+                </CardHeader>
+                <CardBody className="gap-4 pt-2">
+                  {/* Dependencies (Uses) */}
+                  {relationships.uses.length > 0 && (
+                    <div>
+                      <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-400">
+                        <span>⬇️</span> Uses ({relationships.uses.length})
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {relationships.uses.map((rel) => (
+                          <RelationshipChip
+                            key={rel.id}
+                            relationship={rel}
+                            onClick={() => onNodeClick(rel.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dependents (Used By) */}
+                  {relationships.usedBy.length > 0 && (
+                    <div>
+                      <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-400">
+                        <span>⬆️</span> Used By ({relationships.usedBy.length})
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {relationships.usedBy.map((rel) => (
+                          <RelationshipChip
+                            key={rel.id}
+                            relationship={rel}
+                            onClick={() => onNodeClick(rel.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Impact Summary */}
+                  <div className="mt-2 rounded-lg bg-gray-800 p-3">
+                    <p className="text-xs text-gray-400">
+                      📊 Impact:{" "}
+                      <strong className="text-white">
+                        {relationships.usedBy.length} dependent
+                        {relationships.usedBy.length !== 1 ? "s" : ""}
+                      </strong>
+                      {relationships.uses.length > 0 && (
+                        <>
+                          {" • "}
+                          <strong className="text-white">
+                            {relationships.uses.length} dependenc
+                            {relationships.uses.length !== 1 ? "ies" : "y"}
+                          </strong>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+          )}
+        </Tab>
+      </Tabs>
     </div>
   );
 }
 
-// AI Summary Card Component
+function ChatMessageBubble({
+  message,
+  onNodeClick,
+}: {
+  message: ChatMessage;
+  onNodeClick: (nodeId: string) => void;
+}) {
+  return (
+    <div className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[80%] rounded-lg p-3 ${
+          message.isUser ? "bg-primary text-white" : "bg-gray-800 text-gray-200"
+        }`}
+      >
+        <p className="text-sm">{message.text}</p>
+        {message.nodesToSelect.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {message.nodesToSelect.map((nodeId) => (
+              <Chip
+                key={nodeId}
+                size="sm"
+                variant="flat"
+                className="cursor-pointer"
+                onClick={() => onNodeClick(nodeId)}
+              >
+                {nodeId}
+              </Chip>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AISummaryCard({
   selectedNode,
   waspAppData,
   nodeType,
 }: {
   selectedNode: Node;
-  waspAppData: WaspAppData;
+  data: WaspAppData;
   nodeType: string;
 }) {
   const [summary, setSummary] = useState<string | null>(null);
@@ -176,17 +455,19 @@ function AISummaryCard({
       // TODO: Replace with actual backend API endpoint
       // For now, show a placeholder response
       const response = await fetchAISummary(context);
-      
+
       setSummary(response);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate summary");
+      setError(
+        err instanceof Error ? err.message : "Failed to generate summary",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card className="m-4 border-2 border-purple-500/30">
+    <Card className="mb-4 border-2 border-purple-500/30">
       <CardHeader className="flex items-center justify-between pb-2">
         <div className="flex items-center gap-2">
           <span className="text-lg">🤖</span>
@@ -256,11 +537,7 @@ function AISummaryCard({
               >
                 ↻ Regenerate
               </Button>
-              <Button
-                size="sm"
-                variant="flat"
-                onPress={() => setSummary(null)}
-              >
+              <Button size="sm" variant="flat" onPress={() => setSummary(null)}>
                 Clear
               </Button>
             </div>
@@ -274,7 +551,7 @@ function AISummaryCard({
 // Prepare context for AI analysis
 function prepareNodeContext(
   selectedNode: Node,
-  waspAppData: WaspAppData,
+  data: WaspAppData,
   nodeType: string,
 ): string {
   const relationships = getRelationships(selectedNode, waspAppData);
@@ -331,8 +608,6 @@ function prepareNodeContext(
   return context;
 }
 
-// API call to backend (with fallback placeholder)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function fetchAISummary(_context: string): Promise<string> {
   // TODO: Replace with actual backend endpoint
   // Example: const response = await fetch('/api/ai-summary', {
@@ -340,7 +615,7 @@ async function fetchAISummary(_context: string): Promise<string> {
   //   headers: { 'Content-Type': 'application/json' },
   //   body: JSON.stringify({ context: _context })
   // });
-  
+
   // PLACEHOLDER: Simulate API call with delay
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
@@ -371,7 +646,7 @@ This is where Claude Haiku's analysis would appear. The actual implementation wo
 // Type-specific detail sections
 function renderTypeSpecificDetails(
   selectedNode: Node,
-  waspAppData: WaspAppData,
+  data: WaspAppData,
   nodeType: string,
 ) {
   switch (nodeType.toLowerCase()) {
@@ -396,11 +671,11 @@ function renderTypeSpecificDetails(
 }
 
 // Entity-specific details
-function EntityDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
+function EntityDetails({ node }: { node: Node; data: WaspAppData }) {
   const isUserEntity = node.data.isUserEntity;
 
   return (
-    <Card className="m-4">
+    <Card className="mb-4">
       <CardHeader className="pb-2">
         <h3 className="text-md font-semibold">Entity Schema</h3>
       </CardHeader>
@@ -410,19 +685,39 @@ function EntityDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
             👤 User Entity (Auth)
           </Chip>
         )}
-        
+
         {/* Placeholder for Prisma fields */}
         <div>
           <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
             Fields (Prisma Schema)
           </p>
           <div className="space-y-1 rounded-lg bg-gray-900 p-3 font-mono text-xs">
-            <FieldRow name="id" type="String" attributes="@id @default(uuid())" placeholder />
-            <FieldRow name="createdAt" type="DateTime" attributes="@default(now())" placeholder />
-            <FieldRow name="updatedAt" type="DateTime" attributes="@updatedAt" placeholder />
+            <FieldRow
+              name="id"
+              type="String"
+              attributes="@id @default(uuid())"
+              placeholder
+            />
+            <FieldRow
+              name="createdAt"
+              type="DateTime"
+              attributes="@default(now())"
+              placeholder
+            />
+            <FieldRow
+              name="updatedAt"
+              type="DateTime"
+              attributes="@updatedAt"
+              placeholder
+            />
             {isUserEntity && (
               <>
-                <FieldRow name="username" type="String" attributes="@unique" placeholder />
+                <FieldRow
+                  name="username"
+                  type="String"
+                  attributes="@unique"
+                  placeholder
+                />
                 <FieldRow name="password" type="String" placeholder />
               </>
             )}
@@ -447,12 +742,12 @@ function EntityDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
 }
 
 // Operation (Query/Action) details
-function OperationDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
+function OperationDetails({ node }: { node: Node; data: WaspAppData }) {
   const operationType = node.data.type || "operation";
   const authRequired = node.data.auth;
 
   return (
-    <Card className="m-4">
+    <Card className="mb-4">
       <CardHeader className="pb-2">
         <h3 className="text-md font-semibold">
           {operationType === "query" ? "Query" : "Action"} Details
@@ -473,8 +768,7 @@ function OperationDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
           </p>
           <div className="space-y-1 rounded-lg bg-gray-900 p-3 font-mono text-xs">
             <div className="text-purple-400">
-              <span className="text-blue-400">function</span>{" "}
-              {node.data.name}(
+              <span className="text-blue-400">function</span> {node.data.name}(
               <div className="ml-4 text-gray-400">
                 args: {"{"}
                 <div className="ml-4">
@@ -528,11 +822,11 @@ function OperationDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
 }
 
 // API details
-function ApiDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
+function ApiDetails({ node }: { node: Node; data: WaspAppData }) {
   const httpRoute = node.data.httpRoute;
 
   return (
-    <Card className="m-4">
+    <Card className="mb-4">
       <CardHeader className="pb-2">
         <h3 className="text-md font-semibold">API Endpoint</h3>
       </CardHeader>
@@ -552,7 +846,7 @@ function ApiDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
             />
           </>
         )}
-        
+
         <div>
           <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
             Request/Response
@@ -567,19 +861,14 @@ function ApiDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
 }
 
 // Route details
-function RouteDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
+function RouteDetails({ node }: { node: Node; data: WaspAppData }) {
   return (
-    <Card className="m-4">
+    <Card className="mb-4">
       <CardHeader className="pb-2">
         <h3 className="text-md font-semibold">Route Details</h3>
       </CardHeader>
       <CardBody className="gap-3 pt-2">
-        <InfoRow
-          label="Path"
-          value={node.data.path || "/"}
-          icon="🛣️"
-          mono
-        />
+        <InfoRow label="Path" value={node.data.path || "/"} icon="🛣️" mono />
         <InfoRow
           label="Page"
           value={node.data.toPage?.name || "Unknown"}
@@ -591,9 +880,9 @@ function RouteDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
 }
 
 // Page details
-function PageDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
+function PageDetails({ node }: { node: Node; data: WaspAppData }) {
   return (
-    <Card className="m-4">
+    <Card className="mb-4">
       <CardHeader className="pb-2">
         <h3 className="text-md font-semibold">Page Details</h3>
       </CardHeader>
@@ -603,7 +892,7 @@ function PageDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
           value={node.data.authRequired ? "Yes" : "No"}
           icon={node.data.authRequired ? "🔒" : "🌐"}
         />
-        
+
         <div>
           <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
             Component
@@ -618,22 +907,17 @@ function PageDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
 }
 
 // Job details
-function JobDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
+function JobDetails({ node }: { node: Node; data: WaspAppData }) {
   return (
-    <Card className="m-4">
+    <Card className="mb-4">
       <CardHeader className="pb-2">
         <h3 className="text-md font-semibold">Job Details</h3>
       </CardHeader>
       <CardBody className="gap-3 pt-2">
         {node.data.schedule && (
-          <InfoRow
-            label="Schedule"
-            value={node.data.schedule}
-            icon="⏰"
-            mono
-          />
+          <InfoRow label="Schedule" value={node.data.schedule} icon="⏰" mono />
         )}
-        
+
         <div>
           <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
             Execution
@@ -648,24 +932,20 @@ function JobDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
 }
 
 // App details
-function AppDetails({ node, waspAppData }: { node: Node; waspAppData: WaspAppData }) {
+function AppDetails({ node, data }: { node: Node; data: WaspAppData }) {
   const auth = node.data.auth;
   const db = node.data.db;
 
   return (
-    <Card className="m-4">
+    <Card className="mb-4">
       <CardHeader className="pb-2">
         <h3 className="text-md font-semibold">App Configuration</h3>
       </CardHeader>
       <CardBody className="gap-3 pt-2">
         {db && (
-          <InfoRow
-            label="Database"
-            value={db.system || "Unknown"}
-            icon="🗄️"
-          />
+          <InfoRow label="Database" value={db.system || "Unknown"} icon="🗄️" />
         )}
-        
+
         {auth && (
           <>
             <div>
@@ -799,9 +1079,7 @@ function ParamRow({
         <span className="text-gray-500">: </span>
         <span className="text-purple-400">{type}</span>
       </div>
-      {required && (
-        <div className="mt-1 text-xs text-red-400">* Required</div>
-      )}
+      {required && <div className="mt-1 text-xs text-red-400">* Required</div>}
     </div>
   );
 }
@@ -843,7 +1121,7 @@ function RelationshipChip({
 // Get relationships (same logic as before)
 function getRelationships(
   selectedNode: Node,
-  _waspAppData: WaspAppData,
+  data: WaspAppData,
 ): {
   uses: Relationship[];
   usedBy: Relationship[];
@@ -1003,4 +1281,3 @@ function getRelationships(
 
   return { uses, usedBy };
 }
-
