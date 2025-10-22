@@ -107,7 +107,7 @@ genJobData spec =
   return $
     C.mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = [relfile|server/jobs/core/data.json|]
+    tmplFile = [relfile|server/jobs/core/data.ts|]
 
     tmplData =
       object
