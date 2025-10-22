@@ -13,7 +13,6 @@ import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Functor ((<&>))
-import Data.List (intercalate)
 import Data.Maybe (fromJust, fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -28,7 +27,7 @@ import qualified System.Directory as SD
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
-import Wasp.Util (ifM, whenM)
+import Wasp.Util (ifM, indent, whenM)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 
@@ -108,8 +107,10 @@ printNewsEntry entry = do
       <> Term.applyStyles [Term.Bold] (replicate dotCount '.')
       <> " "
       <> Term.applyStyles [Term.Yellow, Term.Bold] dateText
-  -- <> "\nSeverity:" <> Term.applyStyles [Term.Bold, Term.Red] "Critical"
-  putStrLn $ levelPrint <> "\n" <> "  " <> Term.applyStyles [Term.Grey] (intercalate "\n  " (wrapText (maxColumns - 2) body))
+  putStrLn $
+    levelPrint
+      <> "\n"
+      <> Term.applyStyles [Term.Grey] (indent 2 $ wrapText (maxColumns - 2) body)
   where
     title = _wneTitle entry
     level = _wneLevel entry
@@ -128,24 +129,16 @@ printNewsEntry entry = do
            )
           level
 
--- | TODO: Review this it is AI generated.
-wrapText :: Int -> String -> [String]
-wrapText maxLen text
-  | length text <= maxLen = [text]
-  | otherwise =
-      let (line, rest) = splitAt maxLen text
-          breakPoint = findLastSpace line
-       in case breakPoint of
-            Nothing -> line : wrapText maxLen rest -- Force break if no space
-            Just pos ->
-              let (firstPart, remainder) = splitAt pos text
-                  restText = dropWhile (== ' ') remainder -- Remove leading space
-               in firstPart : wrapText maxLen restText
+wrapText :: Int -> String -> String
+wrapText maxLen text = go 0 [] (words text)
   where
-    findLastSpace :: String -> Maybe Int
-    findLastSpace str =
-      let positions = [i | (i, c) <- zip [0 ..] str, c == ' ']
-       in if null positions then Nothing else Just (last positions)
+    go :: Int -> [String] -> [String] -> String
+    go _ wrappedTokens [] = concat $ drop 1 $ reverse wrappedTokens
+    go lastLineLen wrappedTokens (nextWord : wordsRest) =
+      let lastLineLen' = lastLineLen + 1 + length nextWord
+       in if lastLineLen' <= maxLen
+            then go lastLineLen' (nextWord : " " : wrappedTokens) wordsRest
+            else go (length nextWord) (nextWord : "\n" : wrappedTokens) wordsRest
 
 getNewsCacheFilePath :: IO (Path' Abs File')
 getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
