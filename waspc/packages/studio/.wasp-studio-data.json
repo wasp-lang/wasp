@@ -1,0 +1,148 @@
+{
+    "entities": [
+        {
+            "name": "User"
+        },
+        {
+            "name": "GptResponse"
+        },
+        {
+            "name": "Task"
+        }
+    ],
+    "operations": [
+        {
+            "entities": [
+                {
+                    "name": "User"
+                },
+                {
+                    "name": "GptResponse"
+                }
+            ],
+            "name": "getGptResponses",
+            "type": "query",
+            "auth": null
+        },
+        {
+            "entities": [
+                {
+                    "name": "Task"
+                }
+            ],
+            "name": "getAllTasksByUser",
+            "type": "query",
+            "auth": null
+        },
+        {
+            "entities": [
+                {
+                    "name": "User"
+                },
+                {
+                    "name": "Task"
+                },
+                {
+                    "name": "GptResponse"
+                }
+            ],
+            "name": "generateGptResponse",
+            "type": "action",
+            "auth": null
+        },
+        {
+            "entities": [
+                {
+                    "name": "Task"
+                }
+            ],
+            "name": "createTask",
+            "type": "action",
+            "auth": null
+        },
+        {
+            "entities": [
+                {
+                    "name": "Task"
+                }
+            ],
+            "name": "deleteTask",
+            "type": "action",
+            "auth": null
+        },
+        {
+            "entities": [
+                {
+                    "name": "Task"
+                }
+            ],
+            "name": "updateTask",
+            "type": "action",
+            "auth": null
+        }
+    ],
+    "apis": [],
+    "jobs": [],
+    "pages": [
+        {
+            "authRequired": null,
+            "name": "MainPage"
+        },
+        {
+            "authRequired": null,
+            "name": "LoginPage"
+        },
+        {
+            "authRequired": null,
+            "name": "SignupPage"
+        },
+        {
+            "authRequired": null,
+            "name": "DemoAppPage"
+        }
+    ],
+    "routes": [
+        {
+            "name": "RootRoute",
+            "toPage": {
+                "name": "MainPage"
+            },
+            "path": "/"
+        },
+        {
+            "name": "LoginRoute",
+            "toPage": {
+                "name": "LoginPage"
+            },
+            "path": "/login"
+        },
+        {
+            "name": "SignupRoute",
+            "toPage": {
+                "name": "SignupPage"
+            },
+            "path": "/signup"
+        },
+        {
+            "name": "DemoAppRoute",
+            "toPage": {
+                "name": "DemoAppPage"
+            },
+            "path": "/demo-app"
+        }
+    ],
+    "app": {
+        "name": "aiDayScheduler",
+        "auth": {
+            "userEntity": {
+                "name": "User"
+            },
+            "methods": [
+                "usernameAndPassword"
+            ]
+        },
+        "db": {
+            "system": "SQLite"
+        }
+    }
+}

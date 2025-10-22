@@ -14,6 +14,7 @@ import ReactFlow, {
   useReactFlow,
 } from "reactflow";
 import { Data } from "./types";
+import { DetailViewer } from "./DetailViewer";
 
 import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
 
@@ -91,12 +92,12 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 export default function Flow({ data }: { data: Data }) {
-  // NOTE: This is not used. But it might be useful in the future.
-  const [selectedNode] = useState<Node | null>(null);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [showBreadcrumb, setShowBreadcrumb] = useState<boolean>(true);
 
-  const [nodes, setNodes] = useNodesState([]);
-  const [edges, setEdges] = useEdgesState([]);
-  const { fitView } = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { fitView, getNode } = useReactFlow();
   const nodeTypes = useMemo(
     () => ({
       pageNode: PageNode,
@@ -257,16 +258,148 @@ export default function Flow({ data }: { data: Data }) {
     fitView();
   }, [fitView]);
 
+  const handleNodeClick = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      setSelectedNode(node);
+    },
+    [],
+  );
+
+  const handlePaneClick = useCallback(() => {
+    setSelectedNode(null);
+  }, []);
+
+  const handleNavigateToNode = useCallback(
+    (nodeId: string) => {
+      const node = getNode(nodeId);
+      if (node) {
+        setSelectedNode(node);
+        // Optionally, center the node in view
+        fitView({
+          nodes: [node],
+          duration: 500,
+          padding: 0.5,
+        });
+      }
+    },
+    [getNode, fitView],
+  );
+
+  // Update node selection state and mark connected nodes
+  useEffect(() => {
+    if (!selectedNode) {
+      // Clear all selections and connected states
+      setNodes((nds) =>
+        nds.map((node) => ({
+          ...node,
+          selected: false,
+          className: "",
+        })),
+      );
+      setEdges((eds) =>
+        eds.map((edge) => ({
+          ...edge,
+          selected: false,
+        })),
+      );
+      return;
+    }
+
+    // Find all nodes connected to the selected node
+    const connectedNodeIds = new Set<string>();
+    edges.forEach((edge) => {
+      if (edge.source === selectedNode.id) {
+        connectedNodeIds.add(edge.target);
+      }
+      if (edge.target === selectedNode.id) {
+        connectedNodeIds.add(edge.source);
+      }
+    });
+
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        selected: node.id === selectedNode.id,
+        className: connectedNodeIds.has(node.id) ? "connected" : "",
+      })),
+    );
+    setEdges((eds) =>
+      eds.map((edge) => ({
+        ...edge,
+        selected:
+          edge.source === selectedNode.id || edge.target === selectedNode.id,
+      })),
+    );
+  }, [selectedNode, setNodes, setEdges, edges]);
+
   return (
-    <div style={{ height: "100%" }}>
-      <ReactFlow nodes={nodes} edges={edges} fitView nodeTypes={nodeTypes}>
-        <Background
+    <div style={{ height: "100%", display: "flex", position: "relative" }}>
+      {/* Detail Viewer Panel */}
+      {showBreadcrumb && (
+        <div
           style={{
-            backgroundColor: `hsl(var(--nextui-background)`,
+            width: "400px",
+            maxHeight: "100%",
+            overflowY: "auto",
+            borderRight: "1px solid #333",
+            background: "hsl(var(--nextui-background))",
           }}
-          color={`#444`}
-        />
-      </ReactFlow>
+        >
+          <DetailViewer
+            selectedNode={selectedNode}
+            data={data}
+            onNodeClick={handleNavigateToNode}
+          />
+        </div>
+      )}
+
+      {/* Main Graph */}
+      <div style={{ flex: 1, position: "relative" }}>
+        {/* Toggle Button */}
+        <button
+          onClick={() => setShowBreadcrumb(!showBreadcrumb)}
+          style={{
+            position: "absolute",
+            top: "10px",
+            left: "10px",
+            zIndex: 10,
+            padding: "8px 12px",
+            background: "#333",
+            border: "1px solid #555",
+            borderRadius: "6px",
+            color: "#fff",
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: "600",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+          title={showBreadcrumb ? "Hide Details" : "Show Details"}
+        >
+          <span>{showBreadcrumb ? "◀" : "▶"}</span>
+          <span>{showBreadcrumb ? "Hide" : "Show"} Details</span>
+        </button>
+
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={handleNodeClick}
+          onPaneClick={handlePaneClick}
+          fitView
+          nodeTypes={nodeTypes}
+          className={selectedNode ? "focus-mode" : ""}
+        >
+          <Background
+            style={{
+              backgroundColor: `hsl(var(--nextui-background)`,
+            }}
+            color={`#444`}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 }

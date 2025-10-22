@@ -6,3 +6,43 @@
   height: calc(100vh - 4rem);
   width: 100vw;
 }
+
+/* Smooth transitions for focus effect */
+.react-flow__node,
+.react-flow__edge {
+  transition: opacity 0.30s ease-in-out;
+}
+
+/* Focus mode: three-tier opacity system */
+
+/* Tier 3: Unrelated nodes and edges (most dimmed) */
+.focus-mode .react-flow__node:not(.selected):not(.connected) {
+  opacity: 0.25;
+}
+
+.focus-mode .react-flow__edge:not(.selected) {
+  opacity: 0.2;
+}
+
+/* Tier 2: Connected nodes (semi-highlighted at 80%) */
+.focus-mode .react-flow__node.connected {
+  opacity: 0.70 !important;
+}
+
+/* Tier 1: Selected node (fully visible at 100%) */
+.react-flow__node.selected {
+  opacity: 1 !important;
+  box-shadow: 0 0 0 3px #10b981 !important; /* Green-500 */
+  border-radius: 4px !important;
+  z-index: 10;
+}
+
+/* Tier 1: Selected edges (fully visible at 100%) */
+.react-flow__edge.selected {
+  opacity: 1 !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #10b981 !important;
+  stroke-width: 2.5px;
+}
