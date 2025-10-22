@@ -2,7 +2,7 @@ import {
   Navbar,
   NavbarBrand,
   NavbarContent,
-  NavbarItem,
+  NavbarItem
 } from "@nextui-org/react";
 import { lazy, Suspense } from "react";
 import "reactflow/dist/style.css";
@@ -42,7 +42,7 @@ export default function App() {
       </Navbar>
       <div className="flow-container">
         <Suspense fallback={<Loading />}>
-          {data ? <Flow data={data} /> : <Loading />}
+          {data ? <Flow waspAppData={data} /> : <Loading />}
         </Suspense>
       </div>
     </div>

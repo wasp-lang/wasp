@@ -4,7 +4,7 @@
 
 module Wasp.AppSpec.App (App (..)) where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.App.Auth (Auth)
@@ -27,6 +27,6 @@ data App = App
     emailSender :: Maybe EmailSender,
     webSocket :: Maybe WebSocket
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl App

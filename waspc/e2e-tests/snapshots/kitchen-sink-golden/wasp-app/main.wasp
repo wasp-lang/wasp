@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.18.1"
+    version: "^0.18.2"
   },
   title: "ToDo App",
   // head: [],

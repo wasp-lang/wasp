@@ -11,12 +11,13 @@ module Wasp.AppSpec.ExtImport
 where
 
 import Control.Arrow (left)
+import qualified Data.Aeson as Aeson
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
 import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
 import Data.List (stripPrefix)
 import GHC.Generics (Generic)
-import StrongPath (File', Path, Posix, Rel)
+import StrongPath (File', Path, Posix, Rel, toFilePath)
 import qualified StrongPath as SP
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 
@@ -41,6 +42,19 @@ instance FromJSON ExtImport where
         "default" -> pure $ ExtImportModule nameStr
         "named" -> pure $ ExtImportField nameStr
         _ -> fail $ "Failed to parse import kind: " <> kindStr
+
+instance ToJSON ExtImport where
+  toJSON (ExtImport importName importPath) =
+    let kindStr = case importName of
+          ExtImportModule _ -> "default" :: String
+          ExtImportField _ -> "named" :: String
+        nameStr = importIdentifier (ExtImport importName importPath)
+        pathStr = toFilePath importPath
+     in Aeson.object
+          [ "kind" Aeson..= kindStr,
+            "name" Aeson..= nameStr,
+            "path" Aeson..= pathStr
+          ]
 
 type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
 
