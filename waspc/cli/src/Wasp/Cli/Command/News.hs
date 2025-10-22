@@ -29,6 +29,49 @@ import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.IO as IOUtil
 
+{-
+  TODO list
+  - Check the TODOS from this file.
+  - Handle the fetching errors (fromJust, etc.).
+  - Handle the level (add filtering on wasp start and emphasize it in output, create types, etc.).
+  - Properly type and validate stuff on the server.
+  - Decide how to deliver the news on the server.
+  - Maybe include the project in the monorepo (might make deployment more difficult).
+  - Improve how the news look like in the terminal .
+  - Improve naming and considerj splitting into multiple files.
+  - Test what happens when we add new news on the server.
+  - Figure out how to end tests.
+  - Figure out what to do with the versions affected field.
+  - Thoroughly review the code (there are probably some hacks left over).
+-}
+
+news :: Command ()
+news = liftIO $ do
+  newsEntries <- fetchNews
+
+  putStrLn ""
+  printNewsHeader
+  printNews newsEntries
+
+  info <- obtainLocalNewsInfo
+  currentTime <- T.getCurrentTime
+  saveLocalNewsInfo $
+    info
+      { _lastFetched = Just currentTime,
+        _seenNewsIds =
+          _seenNewsIds info
+            `Set.union` Set.fromList (_wneId <$> newsEntries)
+      }
+
+ifNewsStaleUpdateAndShowUnseen :: IO ()
+ifNewsStaleUpdateAndShowUnseen = do
+  localNewsInfo <- obtainLocalNewsInfo
+  whenM (areNewsStale localNewsInfo) $ do
+    unseenNews <- filter (not . wasNewsEntrySeen localNewsInfo) <$> fetchNews
+    printNews unseenNews
+    currentTime <- T.getCurrentTime
+    saveLocalNewsInfo $ localNewsInfo {_lastFetched = Just currentTime}
+
 {-# NOINLINE waspNewsServerUrl #-}
 waspNewsServerUrl :: String
 waspNewsServerUrl =
@@ -53,24 +96,6 @@ instance FromJSON NewsEntry where
       modifyFieldLabel "_wnePublishedAt" = "publishedAt"
       modifyFieldLabel other = other
 
-news :: Command ()
-news = liftIO $ do
-  newsEntries <- fetchNews
-
-  putStrLn ""
-  printNewsHeader
-  printNews newsEntries
-
-  info <- obtainLocalNewsInfo
-  currentTime <- T.getCurrentTime
-  saveLocalNewsInfo $
-    info
-      { _lastFetched = Just currentTime,
-        _seenNewsIds =
-          _seenNewsIds info
-            `Set.union` Set.fromList (_wneId <$> newsEntries)
-      }
-
 printNewsHeader :: IO ()
 printNewsHeader = do
   putStrLn "      ┌─────────────────────┐"
@@ -85,15 +110,6 @@ printNewsEntry entry = do
   putStrLn $ "    " <> _wneBody entry
   putStrLn ""
   putStrLn "─────────────────────────────────────────────────────────"
-
-ifNewsStaleUpdateAndShowUnseen :: IO ()
-ifNewsStaleUpdateAndShowUnseen = do
-  localNewsInfo <- obtainLocalNewsInfo
-  whenM (areNewsStale localNewsInfo) $ do
-    unseenNews <- filter (wasNewsEntrySeen localNewsInfo) <$> fetchNews
-    printNews unseenNews
-    currentTime <- T.getCurrentTime
-    saveLocalNewsInfo $ localNewsInfo {_lastFetched = Just currentTime}
 
 getNewsCacheFilePath :: IO (Path' Abs File')
 getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
