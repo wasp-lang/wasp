@@ -10,7 +10,8 @@ module Wasp.AppSpec.Entity
   )
 where
 
-import Data.Aeson (FromJSON (parseJSON), ToJSON (..))
+import Data.Aeson (FromJSON (parseJSON), ToJSON (..), object, (.=))
+import Data.Text (pack)
 import Data.Data (Data)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
@@ -32,7 +33,7 @@ instance FromJSON Entity where
   parseJSON = const $ fail "Entity declarations in wasp are deprecated, entities are now defined via prisma.schema file."
 
 instance ToJSON Entity where
-  toJSON _ = error "Entities cannot be serialized to JSON directly, they come from the Prisma schema."
+  toJSON entity = object [pack (Field.fieldName f) .= Field.fieldType f | f <- fields entity]
 
 makeEntity :: Psl.Model.Body -> Entity
 makeEntity body =

@@ -246,8 +246,9 @@ tryDeclTypeCasts decl =
 
 instance Aeson.ToJSON AppSpec where
   toJSON spec =
-    Aeson.object
-      [ "decls" Aeson..= map declToJSON (decls spec),
+    let allDecls = map declToJSON (decls spec)
+     in Aeson.object
+      [ "decls" Aeson..= allDecls,
         "prismaSchema" Aeson..= Aeson.Null,  -- Complex Prisma schema, omitted for JSON
         "packageJson" Aeson..= Aeson.Null,  -- Complex npm package.json, omitted for JSON
         "waspProjectDir" Aeson..= toFilePath (waspProjectDir spec),
