@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Concurrent (threadDelay)
+import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
@@ -28,7 +29,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
-import Wasp.Cli.Command.News (checkAndDisplayNews, news)
+import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)

@@ -7,55 +7,69 @@ module Wasp.Cli.Command.News
   )
 where
 
-import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON (parseJSON), decode, genericParseJSON)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as L
-import Data.Maybe (fromMaybe)
+import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
+import Data.Functor ((<&>))
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Set (Set)
+import qualified Data.Set as Set
+import qualified Data.Text as Text
 import qualified Data.Time as T
 import GHC.Generics
 import GHC.IO (unsafePerformIO)
 import Network.HTTP.Simple (getResponseBody, httpBS, parseRequest)
+import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
+import qualified System.Directory as SD
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command)
+import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
+import Wasp.Util (ifM, whenM)
+import qualified Wasp.Util.IO as IOUtil
 
 {-# NOINLINE waspNewsServerUrl #-}
 waspNewsServerUrl :: String
 waspNewsServerUrl =
   fromMaybe "https://news.wasp.sh" $ unsafePerformIO $ lookupEnv "WASP_NEWS_SERVER_URL"
 
-data WaspNewsEntry = WaspNewsEntry
-  { -- _wneId :: !String,
+data NewsEntry = NewsEntry
+  { _wneId :: !String,
     _wneTitle :: !String,
     _wneBody :: !String,
     _wnePublishedAt :: !String
   }
   deriving (Generic, Show)
 
-instance FromJSON WaspNewsEntry where
+instance FromJSON NewsEntry where
   parseJSON =
     genericParseJSON $
       Aeson.defaultOptions {Aeson.fieldLabelModifier = modifyFieldLabel}
     where
-      -- modifyFieldLabel "_wneId" = "id"
+      modifyFieldLabel "_wneId" = "id"
       modifyFieldLabel "_wneTitle" = "title"
       modifyFieldLabel "_wneBody" = "body"
       modifyFieldLabel "_wnePublishedAt" = "publishedAt"
       modifyFieldLabel other = other
 
 news :: Command ()
-news = do
-  liftIO $ do
-    putStrLn ""
-    printNewsHeader
+news = liftIO $ do
+  newsEntries <- fetchNews
 
-    response <- httpBS =<< parseRequest waspNewsServerUrl
-    let responseBody = L.fromStrict $ getResponseBody response
-    case decode responseBody of
-      Nothing -> putStrLn "Failed to parse news data"
-      Just (newsEntries :: [WaspNewsEntry]) -> mapM_ printNewsEntry newsEntries
+  putStrLn ""
+  printNewsHeader
+  printNews newsEntries
+
+  info <- obtainLocalNewsInfo
+  currentTime <- T.getCurrentTime
+  saveLocalNewsInfo $
+    info
+      { _lastFetched = Just currentTime,
+        _seenNewsIds =
+          _seenNewsIds info
+            `Set.union` Set.fromList (_wneId <$> newsEntries)
+      }
 
 printNewsHeader :: IO ()
 printNewsHeader = do
@@ -63,7 +77,7 @@ printNewsHeader = do
   putStrLn "      │   📰 WASP NEWS 📰   │"
   putStrLn "      └─────────────────────┘"
 
-printNewsEntry :: WaspNewsEntry -> IO ()
+printNewsEntry :: NewsEntry -> IO ()
 printNewsEntry entry = do
   putStrLn ""
   putStrLn $ " 📌 " <> _wneTitle entry <> " • [" <> _wnePublishedAt entry <> "]"
@@ -75,15 +89,49 @@ printNewsEntry entry = do
 ifNewsStaleUpdateAndShowUnseen :: IO ()
 ifNewsStaleUpdateAndShowUnseen = do
   localNewsInfo <- obtainLocalNewsInfo
-  when (areNewsStale localNewsInfo) $ do
-    news <- fetchNews
-    showUnseenNews news
-    updateLastFetchedTimestamp
-    undefined
+  whenM (areNewsStale localNewsInfo) $ do
+    unseenNews <- filter (wasNewsEntrySeen localNewsInfo) <$> fetchNews
+    printNews unseenNews
+    currentTime <- T.getCurrentTime
+    saveLocalNewsInfo $ localNewsInfo {_lastFetched = Just currentTime}
 
--- | Read news info from cache file.
+getNewsCacheFilePath :: IO (Path' Abs File')
+getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
+
+ensureNewsCacheFileParentDirExists :: IO ()
+ensureNewsCacheFileParentDirExists = do
+  parentDir <- parent <$> getNewsCacheFilePath
+  SD.createDirectoryIfMissing True $ fromAbsDir parentDir
+
+saveLocalNewsInfo :: LocalNewsInfo -> IO ()
+saveLocalNewsInfo localNewsInfo = do
+  ensureNewsCacheFileParentDirExists
+  newsCacheFile <- getNewsCacheFilePath
+  IOUtil.writeFile newsCacheFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsInfo
+
+printNews :: [NewsEntry] -> IO ()
+printNews = mapM_ printNewsEntry
+
+wasNewsEntrySeen :: LocalNewsInfo -> NewsEntry -> Bool
+wasNewsEntrySeen info entry = _wneId entry `Set.member` _seenNewsIds info
+
+-- | TODO: Improve error handling.
 obtainLocalNewsInfo :: IO LocalNewsInfo
-obtainLocalNewsInfo = undefined
+obtainLocalNewsInfo = do
+  cacheFile <- getNewsCacheFilePath
+  ifM
+    (IOUtil.doesFileExist cacheFile)
+    (readLocalNewsInfoFromFile cacheFile)
+    (return newLocalNewsInfoFromFile)
+  where
+    readLocalNewsInfoFromFile filePath = do
+      fileContent <- IOUtil.readFileStrict filePath
+      return $ fromJust $ Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
+    newLocalNewsInfoFromFile =
+      LocalNewsInfo
+        { _lastFetched = Nothing,
+          _seenNewsIds = Set.empty
+        }
 
 -- | News cache state stored on disk.
 data LocalNewsInfo = LocalNewsInfo
@@ -96,14 +144,24 @@ instance Aeson.FromJSON LocalNewsInfo
 
 instance Aeson.ToJSON LocalNewsInfo
 
-areNewsStale :: LocalNewsInfo -> Bool
-areNewsStale = undefined
+areNewsStale :: LocalNewsInfo -> IO Bool
+areNewsStale info = case _lastFetched info of
+  Nothing -> return True
+  (Just lastFetched) -> isOlderThan24Hours lastFetched
 
-fetchNews :: IO [WaspNewsEntry]
-fetchNews = undefined
+-- | TODO: Better error handling.
+fetchNews :: IO [NewsEntry]
+fetchNews = do
+  response <- httpBS =<< parseRequest waspNewsServerUrl
+  let responseBody = L.fromStrict $ getResponseBody response
+  -- TODO: This fromJust here is not a good error handling, we should propagate instead.
+  return $ fromJust $ decode responseBody
 
-showUnseenNews :: [WaspNewsEntry] -> IO ()
-showUnseenNews = undefined
-
-updateLastFetchedTimestamp :: IO ()
-updateLastFetchedTimestamp = undefined
+-- | TODO: Instead reuse similar function from telemetry (it is 12 hours though).
+isOlderThan24Hours :: T.UTCTime -> IO Bool
+isOlderThan24Hours time = do
+  now <- T.getCurrentTime
+  let secondsSinceLastFetch = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
+  return $
+    let numSecondsInHour = 3600
+     in secondsSinceLastFetch > 24 * numSecondsInHour
