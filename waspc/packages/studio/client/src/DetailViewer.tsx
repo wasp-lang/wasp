@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Button,
   Card,
@@ -13,7 +14,10 @@ import {
 import { OpenAI } from "openai";
 import { useState } from "react";
 import { Node } from "reactflow";
-import { WaspAppData } from "./types";
+import { Route } from "./appSpec";
+import { generateNodeId } from "./graph/factories";
+import { DeclNode } from "./node";
+import { WaspAppData } from "./waspAppData";
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
@@ -21,8 +25,8 @@ const openai = new OpenAI({
 });
 
 interface DetailViewerProps {
-  selectedNode: Node | null;
-  data: WaspAppData;
+  selectedNode: DeclNode | null;
+  waspAppData: WaspAppData;
   onNodeClick: (nodeId: string) => void;
 }
 
@@ -48,9 +52,7 @@ export function DetailViewer({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
-
-  const nodeType = selectedNode?.type?.replace("Node", "") || "Unknown";
-  const relationships = selectedNode ? getRelationships(selectedNode, data) : { uses: [], usedBy: [] };
+  const relationships = selectedNode ? getRelationships(selectedNode, waspAppData) : { uses: [], usedBy: [] };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -97,22 +99,30 @@ export function DetailViewer({
             role: "system",
             content: `You're a helpful assistant that can answer questions about the Wasp app structure.
 
-App structure: ${JSON.stringify(data)}
+App structure: ${JSON.stringify(waspAppData)}
 
 Available node types and their IDs:
-- Entities: ${data.entities.map((e) => `entity:${e.name}`).join(", ")}
-- Queries: ${data.operations
-              .filter((o) => o.type === "query")
-              .map((o) => `query:${o.name}`)
-              .join(", ")}
-- Actions: ${data.operations
-              .filter((o) => o.type === "action")
-              .map((o) => `action:${o.name}`)
-              .join(", ")}
-- Pages: ${data.pages.map((p) => `page:${p.name}`).join(", ")}
-- Routes: ${data.routes.map((r) => `route:${r.path}`).join(", ")}
-- APIs: ${data.apis.map((a) => `api:${a.name}`).join(", ")}
-- Jobs: ${data.jobs.map((j) => `job:${j.name}`).join(", ")}
+- Entities: ${waspAppData.entities
+                .map((entity) => `entity:${entity.declName}`)
+                .join(", ")}
+- Queries: ${waspAppData.queries
+                .map((query) => `query:${query.declName}`)
+                .join(", ")}
+- Actions: ${waspAppData.actions
+                .map((action) => `action:${action.declName}`)
+                .join(", ")}
+- Pages: ${waspAppData.pages
+                .map((page) => `page:${page.declName}`)
+                .join(", ")}
+- Routes: ${waspAppData.routes
+                .map((route) => `route:${route.declValue.path}`)
+                .join(", ")}
+- APIs: ${waspAppData.apis
+                .map((api) => `api:${api.declName}`)
+                .join(", ")}
+- Jobs: ${waspAppData.jobs
+                .map((job) => `job:${job.declName}`)
+                .join(", ")}
 
 Use the select_node tool when you want to highlight a specific node in the graph for the user.`,
           },
@@ -219,7 +229,7 @@ Use the select_node tool when you want to highlight a specific node in the graph
                       Start a Conversation
                     </h3>
                     <p className="text-sm text-gray-500">
-                      Ask questions about this {nodeType.toLowerCase()} or your
+                      Ask questions about this {selectedNode?.data.type} or your
                       Wasp app
                     </p>
                   </div>
@@ -288,42 +298,64 @@ Use the select_node tool when you want to highlight a specific node in the graph
               <Card className="mb-4">
                 <CardHeader className="flex-col items-start gap-2 pb-2">
                   <Chip color="primary" variant="flat" size="sm">
-                    {nodeType}
+                    {selectedNode?.data.type}
                   </Chip>
                   <h2 className="text-xl font-bold">
-                    {selectedNode.data.label || selectedNode.data.name}
+                    {selectedNode.data.name}
                   </h2>
                 </CardHeader>
                 <CardBody className="pt-0">
                   <div className="space-y-2 text-sm">
-                    <InfoRow label="Type" value={nodeType} icon="🏷️" />
+                    <InfoRow label="Type" value={selectedNode?.data.type} icon="🏷️" />
                     <InfoRow
                       label="ID"
                       value={selectedNode.id}
                       icon="🔑"
                       mono
                     />
-                    {/* Placeholder for file location */}
-                    <InfoRow
+                    {(selectedNode.type === 'Action' || selectedNode.type === 'Query') && <InfoRow
                       label="Location"
-                      value="src/server/operations.ts:42"
+                      value={`${selectedNode.data.value.fn.name}@${selectedNode.data.value.fn.path}`}
                       icon="📁"
-                      placeholder
                       mono
-                    />
+                    />}
+                    {(selectedNode.type === 'Page') && <InfoRow
+                      label="Location"
+                      value={selectedNode.data.value.component.path}
+                      icon="📁"
+                      mono
+                    />}
                   </div>
                 </CardBody>
               </Card>
-
+              {selectedNode.type === 'Entity' && (
+                  <Card className="mb-4">
+                  <CardHeader className="flex-col items-start gap-2 pb-2">
+                    <h2 className="text-xl font-bold">
+                      Entity
+                    </h2>
+                  </CardHeader>
+                  <CardBody className="pt-0">
+                    <div className="space-y-2 text-sm">
+                      {Object.entries(selectedNode.data.value).map(([name, value]) => (
+                      <InfoRow
+                        label={name}
+                        value={JSON.stringify(value)}
+                        mono
+                      />
+                    ))}
+                    </div>
+                  </CardBody>
+                </Card>
+              )}
               {/* AI Summary Section */}
               <AISummaryCard
                 selectedNode={selectedNode}
-                data={data}
-                nodeType={nodeType}
+                waspAppData={waspAppData}
               />
 
               {/* Type-Specific Details */}
-              {renderTypeSpecificDetails(selectedNode, data, nodeType)}
+              {renderTypeSpecificDetails(selectedNode, waspAppData)}
 
               {/* Relationships Section */}
               <Card className="mb-4">
@@ -406,9 +438,8 @@ function ChatMessageBubble({
   return (
     <div className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[80%] rounded-lg p-3 ${
-          message.isUser ? "bg-primary text-white" : "bg-gray-800 text-gray-200"
-        }`}
+        className={`max-w-[80%] rounded-lg p-3 ${message.isUser ? "bg-primary text-white" : "bg-gray-800 text-gray-200"
+          }`}
       >
         <p className="text-sm">{message.text}</p>
         {message.nodesToSelect.length > 0 && (
@@ -434,11 +465,9 @@ function ChatMessageBubble({
 function AISummaryCard({
   selectedNode,
   waspAppData,
-  nodeType,
 }: {
-  selectedNode: Node;
-  data: WaspAppData;
-  nodeType: string;
+  selectedNode: DeclNode;
+  waspAppData: WaspAppData;
 }) {
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -450,7 +479,7 @@ function AISummaryCard({
 
     try {
       // Prepare context for Claude
-      const context = prepareNodeContext(selectedNode, waspAppData, nodeType);
+      const context = prepareNodeContext(selectedNode, waspAppData);
 
       // TODO: Replace with actual backend API endpoint
       // For now, show a placeholder response
@@ -492,7 +521,7 @@ function AISummaryCard({
           <div className="rounded-lg bg-purple-950/20 p-4 text-center text-sm text-gray-400">
             <p className="mb-2">✨ Get an AI-powered explanation</p>
             <p className="text-xs">
-              Claude will analyze this {nodeType.toLowerCase()} and provide
+              Claude will analyze this {selectedNode.data.type} and provide
               insights about its purpose, usage, and relationships.
             </p>
           </div>
@@ -550,12 +579,12 @@ function AISummaryCard({
 
 // Prepare context for AI analysis
 function prepareNodeContext(
-  selectedNode: Node,
-  data: WaspAppData,
-  nodeType: string,
+  selectedNode: DeclNode,
+  waspAppData: WaspAppData,
 ): string {
   const relationships = getRelationships(selectedNode, waspAppData);
-  const nodeName = selectedNode.data.label || selectedNode.data.name;
+  const nodeName = selectedNode.data.name;
+  const nodeType = selectedNode.data.type;
 
   let context = `Analyze this ${nodeType} in a Wasp full-stack application:\n\n`;
   context += `Name: ${nodeName}\n`;
@@ -563,34 +592,34 @@ function prepareNodeContext(
   context += `ID: ${selectedNode.id}\n\n`;
 
   // Add type-specific context
-  switch (nodeType.toLowerCase()) {
-    case "entity":
+  switch (nodeType) {
+    case "Entity":
       context += `This is a database entity/model.\n`;
-      context += `User Entity: ${selectedNode.data.isUserEntity ? "Yes (used for authentication)" : "No"}\n`;
+      context += `User Entity: ${selectedNode.data.name === "User" ? "Yes (used for authentication)" : "No"}\n`;
       break;
-    case "query":
+    case "Query":
       context += `This is a read operation (query).\n`;
-      context += `Authentication: ${selectedNode.data.auth ? "Required" : "Public"}\n`;
+      context += `Authentication: ${selectedNode.data.value.auth ? "Required" : "Public"}\n`;
       break;
-    case "action":
+    case "Action":
       context += `This is a write operation (action).\n`;
-      context += `Authentication: ${selectedNode.data.auth ? "Required" : "Public"}\n`;
+      context += `Authentication: ${selectedNode.data.value.auth ? "Required" : "Public"}\n`;
       break;
-    case "api":
-      if (selectedNode.data.httpRoute) {
-        context += `HTTP Endpoint: ${selectedNode.data.httpRoute.method} ${selectedNode.data.httpRoute.path}\n`;
+    case "Api":
+      if (selectedNode.data.value.httpRoute) {
+        context += `HTTP Endpoint: ${selectedNode.data.value.httpRoute[0]} ${selectedNode.data.value.httpRoute[1]}\n`;
       }
       break;
-    case "route":
-      context += `URL Path: ${selectedNode.data.path}\n`;
-      context += `Renders Page: ${selectedNode.data.toPage?.name}\n`;
+    case "Route":
+      context += `URL Path: ${selectedNode.data.value.path}\n`;
+      context += `Renders Page: ${selectedNode.data.value.to.name}\n`;
       break;
-    case "page":
-      context += `Auth Required: ${selectedNode.data.authRequired ? "Yes" : "No"}\n`;
+    case "Page":
+      context += `Auth Required: ${selectedNode.data.value.authRequired ? "Yes" : "No"}\n`;
       break;
-    case "job":
-      if (selectedNode.data.schedule) {
-        context += `Schedule: ${selectedNode.data.schedule}\n`;
+    case "Job":
+      if (selectedNode.data.value.schedule) {
+        context += `Schedule: ${selectedNode.data.value.schedule}\n`;
       }
       break;
   }
@@ -646,10 +675,9 @@ This is where Claude Haiku's analysis would appear. The actual implementation wo
 // Type-specific detail sections
 function renderTypeSpecificDetails(
   selectedNode: Node,
-  data: WaspAppData,
-  nodeType: string,
+  waspAppData: WaspAppData,
 ) {
-  switch (nodeType.toLowerCase()) {
+  switch (selectedNode?.data.type) {
     case "entity":
       return <EntityDetails node={selectedNode} waspAppData={waspAppData} />;
     case "query":
@@ -671,7 +699,7 @@ function renderTypeSpecificDetails(
 }
 
 // Entity-specific details
-function EntityDetails({ node }: { node: Node; data: WaspAppData }) {
+function EntityDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   const isUserEntity = node.data.isUserEntity;
 
   return (
@@ -742,7 +770,7 @@ function EntityDetails({ node }: { node: Node; data: WaspAppData }) {
 }
 
 // Operation (Query/Action) details
-function OperationDetails({ node }: { node: Node; data: WaspAppData }) {
+function OperationDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   const operationType = node.data.type || "operation";
   const authRequired = node.data.auth;
 
@@ -822,7 +850,7 @@ function OperationDetails({ node }: { node: Node; data: WaspAppData }) {
 }
 
 // API details
-function ApiDetails({ node }: { node: Node; data: WaspAppData }) {
+function ApiDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   const httpRoute = node.data.httpRoute;
 
   return (
@@ -861,7 +889,7 @@ function ApiDetails({ node }: { node: Node; data: WaspAppData }) {
 }
 
 // Route details
-function RouteDetails({ node }: { node: Node; data: WaspAppData }) {
+function RouteDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   return (
     <Card className="mb-4">
       <CardHeader className="pb-2">
@@ -880,7 +908,7 @@ function RouteDetails({ node }: { node: Node; data: WaspAppData }) {
 }
 
 // Page details
-function PageDetails({ node }: { node: Node; data: WaspAppData }) {
+function PageDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   return (
     <Card className="mb-4">
       <CardHeader className="pb-2">
@@ -907,7 +935,7 @@ function PageDetails({ node }: { node: Node; data: WaspAppData }) {
 }
 
 // Job details
-function JobDetails({ node }: { node: Node; data: WaspAppData }) {
+function JobDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   return (
     <Card className="mb-4">
       <CardHeader className="pb-2">
@@ -932,7 +960,7 @@ function JobDetails({ node }: { node: Node; data: WaspAppData }) {
 }
 
 // App details
-function AppDetails({ node, data }: { node: Node; data: WaspAppData }) {
+function AppDetails({ node, waspAppData }: { node: Node; waspAppData: WaspAppData }) {
   const auth = node.data.auth;
   const db = node.data.db;
 
@@ -1028,9 +1056,8 @@ function InfoRow({
         {label}:
       </span>
       <span
-        className={`text-xs ${mono ? "font-mono" : ""} ${
-          placeholder ? "italic text-gray-500" : "text-white"
-        }`}
+        className={`text-xs ${mono ? "font-mono" : ""} ${placeholder ? "italic text-gray-500" : "text-white"
+          }`}
       >
         {value}
       </span>
@@ -1120,164 +1147,176 @@ function RelationshipChip({
 
 // Get relationships (same logic as before)
 function getRelationships(
-  selectedNode: Node,
-  data: WaspAppData,
+  selectedNode: DeclNode,
+  waspAppData: WaspAppData,
 ): {
   uses: Relationship[];
   usedBy: Relationship[];
 } {
-  const nodeId = selectedNode.id;
-  const [_nodeType, _nodeName] = nodeId.split(":");
-
   const uses: Relationship[] = [];
   const usedBy: Relationship[] = [];
 
-  // switch (nodeType) {
-  //   case "entity":
-  //     waspAppData.actions.forEach((op) => {
-  //       if (op.entities.some((e) => e.name === nodeName)) {
-  //         usedBy.push({
-  //           id: `${op.type}:${op.name}`,
-  //           name: op.name,
-  //           type: op.type,
-  //           direction: "usedBy",
-  //         });
-  //       }
-  //     });
-  //     waspAppData.queries.forEach((op) => {
-  //       if (op.entities.some((e) => e.name === nodeName)) {
-  //         usedBy.push({
-  //           id: `${op.type}:${op.name}`,
-  //           name: op.name,
-  //           type: op.type,
-  //           direction: "usedBy",
-  //         });
-  //       }
-  //     });
+  switch (selectedNode.data.type) {
+    case "Entity":
+      waspAppData.actions.forEach((action) => {
+        if (action.declValue.entities?.some((entity) => entity.name === selectedNode.data.name)) {
+          usedBy.push({
+            id: generateNodeId(action),
+            name: action.declName,
+            type: action.declType,
+            direction: "usedBy",
+          });
+        }
+      });
+      waspAppData.queries.forEach((query) => {
+        if (query.declValue.entities?.some((entity) => entity.name === selectedNode.data.name)) {
+          usedBy.push({
+            id: generateNodeId(query),
+            name: query.declName,
+            type: query.declType,
+            direction: "usedBy",
+          });
+        }
+      });
+      waspAppData.apis.forEach((api) => {
+        if (api.declValue.entities?.some((entity) => entity.name === selectedNode.data.name)) {
+          usedBy.push({
+            id: generateNodeId(api),
+            name: api.declName,
+            type: api.declType,
+            direction: "usedBy",
+          });
+        }
+      });
+      waspAppData.jobs.forEach((job) => {
+        if (job.declValue.entities?.some((entity) => entity.name === selectedNode.data.name)) {
+          usedBy.push({
+            id: generateNodeId(job),
+            name: job.declName,
+            type: job.declType,
+            direction: "usedBy",
+          });
+        }
+      });
+      uses.push({
+        id: generateNodeId(waspAppData.app),
+        name: waspAppData.app.declName,
+        type: waspAppData.app.declType,
+        direction: "uses",
+      });
+      break;
 
-  //     waspAppData.apis.forEach((api) => {
-  //       if (api.entities.some((e) => e.name === nodeName)) {
-  //         usedBy.push({
-  //           id: `api:${api.name}`,
-  //           name: api.name,
-  //           type: "api",
-  //           direction: "usedBy",
-  //         });
-  //       }
-  //     });
+    case "Query":
+      waspAppData.queries
+        .find((query) => query.declName === selectedNode.data.name)
+        ?.declValue.entities
+        ?.forEach((entity) => {
+          uses.push({
+            id: generateNodeId(entity),
+            name: entity.name,
+            type: entity.declType,
+            direction: "uses",
+          });
+        });
+      break;
 
-  //     waspAppData.jobs.forEach((job) => {
-  //       if (job.entities.some((e) => e.name === nodeName)) {
-  //         usedBy.push({
-  //           id: `job:${job.name}`,
-  //           name: job.name,
-  //           type: "job",
-  //           direction: "usedBy",
-  //         });
-  //       }
-  //     });
+    case "Action":
+      waspAppData.actions
+        .find((action) => action.declName === selectedNode.data.name)
+        ?.declValue.entities
+        ?.forEach((entity) => {
+          uses.push({
+            id: generateNodeId(entity),
+            name: entity.name,
+            type: entity.declType,
+            direction: "uses",
+          });
+        });
+      break;
+      
+    case "Api":
+      waspAppData.apis
+        .find((api) => api.declName === selectedNode.data.name)
+        ?.declValue.entities
+        ?.forEach((entity) => {
+          uses.push({
+            id: generateNodeId(entity),
+            name: entity.name,
+            type: entity.declType,
+            direction: "uses",
+          });
+        });
+      break;
 
-  //     uses.push({
-  //       id: `app:${waspAppData.app.name}`,
-  //       name: waspAppData.app.name,
-  //       type: "app",
-  //       direction: "uses",
-  //     });
-  //     break;
+    case "Job":
+      waspAppData.jobs
+        .find((job) => job.declName === selectedNode.data.name)
+        ?.declValue.entities
+        ?.forEach((entity) => {
+          uses.push({
+            id: generateNodeId(entity),
+            name: entity.name,
+            type: entity.declType,
+            direction: "uses",
+          });
+        });
+      break;
 
-  //   case "query":
-  //   case "action":
-  //     const operation = waspAppData.operations.find((op) => op.name === nodeName);
-  //     if (operation) {
-  //       operation.entities.forEach((entity) => {
-  //         uses.push({
-  //           id: `entity:${entity.name}`,
-  //           name: entity.name,
-  //           type: "entity",
-  //           direction: "uses",
-  //         });
-  //       });
-  //     }
-  //     break;
+    case "Route":
+      waspAppData.pages.forEach((page) => {
+        if (page.declName === (selectedNode.data.value as Route).to.name) {
+          usedBy.push({
+            id: generateNodeId(page),
+            name: page.declName,
+            type: page.declType,
+            direction: "usedBy",
+          });
+        }
+      });
+      waspAppData.pages.forEach((page) => {
+        if (page.declName === (selectedNode.data.value as Route).to.name) {
+          uses.push({
+            id: generateNodeId(waspAppData.app),
+            name: waspAppData.app.declName,
+            type: waspAppData.app.declType,
+            direction: "uses",
+          });
+        }
+      });
+      break;
 
-  //   case "api":
-  //     const api = waspAppData.apis.find((a) => a.name === nodeName);
-  //     if (api) {
-  //       api.entities.forEach((entity) => {
-  //         uses.push({
-  //           id: `entity:${entity.name}`,
-  //           name: entity.name,
-  //           type: "entity",
-  //           direction: "uses",
-  //         });
-  //       });
-  //     }
-  //     break;
+    case "Page":
+      waspAppData.routes.forEach((route) => {
+        if (route.declValue.to.name === selectedNode.data.name) {
+          usedBy.push({
+            id: generateNodeId(route),
+            name: route.declName,
+            type: route.declType,
+            direction: "usedBy",
+          });
+        }
+      });
+      break;
 
-  //   case "job":
-  //     const job = waspAppData.jobs.find((j) => j.name === nodeName);
-  //     if (job) {
-  //       job.entities.forEach((entity) => {
-  //         uses.push({
-  //           id: `entity:${entity.name}`,
-  //           name: entity.name,
-  //           type: "entity",
-  //           direction: "uses",
-  //         });
-  //       });
-  //     }
-  //     break;
-
-  //   case "route":
-  //     const route = waspAppData.routes.find((r) => r.path === nodeName);
-  //     if (route) {
-  //       uses.push({
-  //         id: `app:${waspAppData.app.name}`,
-  //         name: waspAppData.app.name,
-  //         type: "app",
-  //         direction: "uses",
-  //       });
-  //       uses.push({
-  //         id: `page:${route.toPage.name}`,
-  //         name: route.toPage.name,
-  //         type: "page",
-  //         direction: "uses",
-  //       });
-  //     }
-  //     break;
-
-  //   case "page":
-  //     waspAppData.routes.forEach((route) => {
-  //       if (route.toPage.name === nodeName) {
-  //         usedBy.push({
-  //           id: `route:${route.path}`,
-  //           name: route.path,
-  //           type: "route",
-  //           direction: "usedBy",
-  //         });
-  //       }
-  //     });
-  //     break;
-
-  //   case "app":
-  //     waspAppData.entities.forEach((entity) => {
-  //       usedBy.push({
-  //         id: `entity:${entity.name}`,
-  //         name: entity.name,
-  //         type: "entity",
-  //         direction: "usedBy",
-  //       });
-  //     });
-  //     waspAppData.routes.forEach((route) => {
-  //       usedBy.push({
-  //         id: `route:${route.path}`,
-  //         name: route.path,
-  //         type: "route",
-  //         direction: "usedBy",
-  //       });
-  //     });
-  //     break;
-  // }
+    case "App":
+      waspAppData.entities.forEach((entity) => {
+        usedBy.push({
+          id: generateNodeId(entity),
+          name: entity.declName,
+          type: entity.declType,
+          direction: "usedBy",
+        });
+      });
+      waspAppData.routes.forEach((route) => {
+        usedBy.push({
+          id: generateNodeId(route),
+          name: route.declName,
+          type: route.declType,
+          direction: "usedBy",
+        });
+      });
+      break;
+  }
 
   return { uses, usedBy };
 }

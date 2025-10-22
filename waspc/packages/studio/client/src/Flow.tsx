@@ -1,26 +1,18 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useState
 } from "react";
 import ReactFlow, {
   Background,
   Edge,
-  Node,
+  getConnectedEdges,
   useEdgesState,
   useNodesState,
-  useReactFlow,
+  useReactFlow
 } from "reactflow";
 import { DetailViewer } from "./DetailViewer";
 import { getLayoutedElements } from "./ELK";
-import { ApiNode } from "./graph/ApiNode";
-import { AppNode } from "./graph/AppNode";
-import { EntityNode } from "./graph/EntityNode";
-import { JobNode } from "./graph/JobNode";
-import { ActionNode, QueryNode } from "./graph/OperationNode";
-import { PageNode } from "./graph/PageNode";
-import { RouteNode } from "./graph/RouteNode";
 import {
   createActionNode,
   createApiNode,
@@ -32,6 +24,7 @@ import {
   createQueryNode,
   createRouteNode
 } from "./graph/factories";
+import { DeclNode, declNodeTypes } from "./node";
 import { WaspAppData } from "./waspAppData";
 
 interface FlowProps {
@@ -41,12 +34,15 @@ interface FlowProps {
 export default function Flow({
   waspAppData,
 }: FlowProps) {
-  // NOTE: This is not used. But it might be useful in the future.
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedNode, setSelectedNode] = useState<DeclNode | null>(null);
   const [showBreadcrumb, setShowBreadcrumb] = useState<boolean>(true);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { fitView, getNode } = useReactFlow();
+
+  // NOTE:
+  // To make adding/removing entities work,
+  // the "waspAppData" must be connected to edges/nodes bidirectionally.
 
   // const handleAddEntity = useCallback(
   //   () => {
@@ -63,22 +59,8 @@ export default function Flow({
   //   [selectedNode, waspAppData.app, setNodes, setEdges],
   // );
 
-  const nodeTypes = useMemo(
-    () => ({
-      pageNode: PageNode,
-      entityNode: EntityNode,
-      queryNode: QueryNode,
-      actionNode: ActionNode,
-      appNode: AppNode,
-      routeNode: RouteNode,
-      apiNode: ApiNode,
-      jobNode: JobNode,
-    }),
-    [],
-  );
-
   const onLayout = useCallback(() => {
-    const initialNodes: Node[] = [
+    const initialNodes: DeclNode[] = [
       createAppNode(
         waspAppData.app,
         selectedNode,
@@ -171,10 +153,6 @@ export default function Flow({
       );
     });
 
-
-
-    console.log(initialEdges)
-
     getLayoutedElements(initialNodes, initialEdges).then((result) => {
       if (!result) {
         return;
@@ -184,7 +162,7 @@ export default function Flow({
         return;
       }
       // Hack
-      setNodes(layoutedNodes as Node[]);
+      setNodes(layoutedNodes as DeclNode[]);
       // Hack
       setEdges(layoutedEdges as unknown as Edge[]);
       window.requestAnimationFrame(() => fitView());
@@ -197,13 +175,9 @@ export default function Flow({
     }, 100);
   }, [fitView, selectedNode]);
 
-  useEffect(() => {
-    fitView();
-  }, [fitView]);
-
   const handleNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
-      setSelectedNode(node);
+      setSelectedNode(node as unknown as DeclNode);
     },
     [],
   );
@@ -214,10 +188,9 @@ export default function Flow({
 
   const handleNavigateToNode = useCallback(
     (nodeId: string) => {
-      const node = getNode(nodeId);
+      const node = getNode(nodeId) as DeclNode | undefined;
       if (node) {
         setSelectedNode(node);
-        // Optionally, center the node in view
         fitView({
           nodes: [node],
           duration: 500,
@@ -248,34 +221,13 @@ export default function Flow({
       return;
     }
 
-    // Find all nodes connected to the selected node
-    const connectedNodeIds = new Set<string>();
-    edges.forEach((edge) => {
-      if (edge.source === selectedNode.id) {
-        connectedNodeIds.add(edge.target);
-      }
-      if (edge.target === selectedNode.id) {
-        connectedNodeIds.add(edge.source);
-      }
-    });
-
-    // If selected node is an operation, also highlight its referenced pages
-    if (selectedNode.type === "queryNode" || selectedNode.type === "actionNode") {
-      const operation = waspAppData.operations.find(
-        (op) => op.name === selectedNode.data.name
-      );
-      if (operation) {
-        operation.pages.forEach((page) => {
-          connectedNodeIds.add(generateId(page.name, "page"));
-        });
-      }
-    }
-
+    const connectedNodeIds = getConnectedEdges([selectedNode], edges).map(edge => edge.id);
+  
     setNodes((nds) =>
       nds.map((node) => ({
         ...node,
         selected: node.id === selectedNode.id,
-        className: connectedNodeIds.has(node.id) ? "connected" : "",
+        className: connectedNodeIds.includes(node.id) ? "connected" : "",
       })),
     );
     setEdges((eds) =>
@@ -285,7 +237,7 @@ export default function Flow({
           edge.source === selectedNode.id || edge.target === selectedNode.id,
       })),
     );
-  }, [selectedNode, setNodes, setEdges, edges, waspAppData.operations]);
+  }, [selectedNode, setNodes, setEdges, edges]);
 
   return (
     <div style={{ height: "100%", display: "flex", position: "relative" }}>
@@ -302,12 +254,11 @@ export default function Flow({
         >
           <DetailViewer
             selectedNode={selectedNode}
-            waspAppData={waspAppData}
             onNodeClick={handleNavigateToNode}
+            waspAppData={waspAppData}
           />
         </div>
       )}
-
       {/* Main Graph */}
       <div style={{ flex: 1, position: "relative" }}>
         {/* Toggle Button */}
@@ -338,7 +289,7 @@ export default function Flow({
           onNodeClick={handleNodeClick}
           onPaneClick={handlePaneClick}
           fitView
-          nodeTypes={nodeTypes}
+          nodeTypes={declNodeTypes}
           className={selectedNode ? "focus-mode" : ""}
           onInit={onLayout}
         >
@@ -351,19 +302,6 @@ export default function Flow({
         </ReactFlow>
       </div>
     </div>
-  );
-}
-
-function generateId(name: string, type: string): string {
-  return `${type}:${name}`;
-}
-
-function getAuthMethods(node: Node) {
-  if (node.type !== "appNode") {
-    return [];
-  }
-  return (
-    node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ?? []
   );
 }
 

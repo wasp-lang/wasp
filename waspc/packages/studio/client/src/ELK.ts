@@ -30,7 +30,6 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
       "elk.layered.crossingMinimization.semiInteractive": true,
     },
     children: nodes.map((node: Node) => {
-      console.log(node);
       return {
         ...node,
         width: getNodeWidth(node),

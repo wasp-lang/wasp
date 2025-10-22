@@ -1,5 +1,6 @@
-import { Edge, Node, Position } from "reactflow";
+import { Edge, Position } from "reactflow";
 import { AnyRef, Decl, GetDeclForType } from "../appSpec";
+import { DeclNode } from "../node";
 
 export function generateNodeId(declOrRef: Decl | AnyRef): string {
   // It's a Ref.
@@ -9,143 +10,134 @@ export function generateNodeId(declOrRef: Decl | AnyRef): string {
   return `${declOrRef.declType.toLowerCase()}-${declOrRef.declName}`;
 }
 
-// app: GetDeclForType<"App">;
-// pages: GetDeclForType<"Page">[];
-// routes: GetDeclForType<"Route">[];
-// entities: GetDeclForType<"Entity">[];
-// actions: GetDeclForType<"Action">[];
-// queries: GetDeclForType<"Query">[];
-// apis: GetDeclForType<"Api">[];
-// jobs: GetDeclForType<"Job">[];
-
 export function createPageNode(
   page: GetDeclForType<"Page">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(page);
   return {
     id,
-    type: `${page.declType.toLowerCase()}Node`,
+    type: page.declType,
     data: { name: page.declName, value: page.declValue, type: page.declType },
     position: { x: 0, y: 0 },
     targetPosition: Position.Left,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 export function createActionNode(
   action: GetDeclForType<"Action">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(action);
   return {
     id,
-    type: `${action.declType.toLowerCase()}Node`,
+    type: action.declType,
     data: { name: action.declName, value: action.declValue, type: action.declType },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 export function createQueryNode(
   query: GetDeclForType<"Query">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(query);
   return {
     id,
-    type: `${query.declType.toLowerCase()}Node`,
+    type: query.declType,
     data: { name: query.declName, value: query.declValue, type: query.declType },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 
 export function createRouteNode(
   route: GetDeclForType<"Route">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(route);
   return {
     id,
-    type: `${route.declType.toLowerCase()}Node`,
+    type: route.declType,
     data: { name: route.declName, value: route.declValue, type: route.declType },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 export function createEntityNode(
   entity: GetDeclForType<"Entity">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(entity);
   return {
     id,
-    type: `${entity.declType.toLowerCase()}Node`,
+    type: entity.declType,
     data: { name: entity.declName, value: entity.declValue, type: entity.declType },
     position: { x: 0, y: 0 },
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 export function createApiNode(
   api: GetDeclForType<"Api">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(api);
   return {
     id,
-    type: `${api.declType.toLowerCase()}Node`,
+    type: api.declType,
     data: { name: api.declName, value: api.declValue, type: api.declType },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 export function createJobNode(
   job: GetDeclForType<"Job">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(job);
   return {
     id,
-    type: `${job.declType.toLowerCase()}Node`,
+    type: job.declType,
     data: { name: job.declName, value: job.declValue, type: job.declType },
     position: { x: 0, y: 0 },
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 export function createAppNode(
   app: GetDeclForType<"App">,
-  selectedNode: Node | null,
-): Node {
+  selectedNode: DeclNode | null,
+): DeclNode {
   const id = generateNodeId(app);
   return {
     id,
-    type: `${app.declType.toLowerCase()}Node`,
+    type: app.declType,
     data: { name: app.declName, value: app.declValue, type: app.declType },
     position: { x: 0, y: 0 },
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies DeclNode;
 }
 
 export function createEdge(
   sourceDeclOrRel: Decl | AnyRef,
   targetDeclOrRef: Decl | AnyRef,
-  selectedNode: Node | null,
+  selectedNode: DeclNode | null,
 ) {
   const source = generateNodeId(sourceDeclOrRel);
   const target = generateNodeId(targetDeclOrRef);
