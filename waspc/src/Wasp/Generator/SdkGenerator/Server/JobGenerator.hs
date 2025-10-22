@@ -15,6 +15,7 @@ import StrongPath (File', Path, Posix, Rel, reldir, relfile, relfileP, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.ExtImport as ExtImport
 import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
@@ -36,7 +37,8 @@ genNewJobsApi spec =
     [] -> return []
     jobs ->
       sequence
-        [ genIndexTs jobs
+        [ genIndexTs jobs,
+          genJobData spec
         ]
         <++> mapM genJob jobs
         <++> genJobExecutors spec
@@ -54,11 +56,11 @@ genIndexTs jobs = return $ C.mkTmplFdWithData tmplFile tmplData
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return $
-    C.mkTmplFdWithDstAndData
+  return
+    $ C.mkTmplFdWithDstAndData
       tmplFile
       dstFile
-      $ Just tmplData
+    $ Just tmplData
   where
     tmplFile = [relfile|server/jobs/_job.ts|]
     dstFile = [reldir|server/jobs|] </> fromJust (SP.parseRelFile $ jobName ++ ".ts")
@@ -99,6 +101,30 @@ genJob (jobName, job) =
       maybe
         (object ["isDefined" .= False])
         (\options -> object ["isDefined" .= True, "json" .= Aeson.Text.encodeToLazyText options])
+
+genJobData :: AppSpec -> Generator FileDraft
+genJobData spec =
+  return $
+    C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = [relfile|server/jobs/core/data.json|]
+
+    tmplData =
+      object
+        [ "jobs" .= Aeson.Text.encodeToLazyText (getJobData <$> getJobs spec)
+        ]
+
+    getJobData (name, job) =
+      object
+        [ "name" .= name,
+          "implementationLocation" .= getExtImport (J.fn $ J.perform job)
+        ]
+
+    getExtImport extImport =
+      object
+        [ "name" .= ExtImport.name extImport,
+          "path" .= SP.fromRelFileP (ExtImport.path extImport)
+        ]
 
 -- | We are importing relevant functions and types per executor e.g. JobFn or registerJob,
 -- this functions maps the executor to the import path from SDK.
