@@ -534,6 +534,7 @@ library cli-lib
     , exceptions
     , lens ^>=5.1
     , lens-aeson ^>=1.1.3
+    , containers
     , cryptonite
     , fsnotify
     , http-conduit
@@ -592,6 +593,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.NewsAI
     Wasp.Cli.Command.News
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require

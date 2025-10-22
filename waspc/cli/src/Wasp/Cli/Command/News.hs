@@ -3,15 +3,19 @@
 
 module Wasp.Cli.Command.News
   ( news,
+    ifNewsStaleUpdateAndShowUnseen,
   )
 where
 
+import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON (parseJSON), decode, genericParseJSON)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as L
 import Data.Maybe (fromMaybe)
-import GHC.Generics (Generic)
+import Data.Set (Set)
+import qualified Data.Time as T
+import GHC.Generics
 import GHC.IO (unsafePerformIO)
 import Network.HTTP.Simple (getResponseBody, httpBS, parseRequest)
 import System.Environment (lookupEnv)
@@ -67,3 +71,39 @@ printNewsEntry entry = do
   putStrLn $ "    " <> _wneBody entry
   putStrLn ""
   putStrLn "─────────────────────────────────────────────────────────"
+
+ifNewsStaleUpdateAndShowUnseen :: IO ()
+ifNewsStaleUpdateAndShowUnseen = do
+  localNewsInfo <- obtainLocalNewsInfo
+  when (areNewsStale localNewsInfo) $ do
+    news <- fetchNews
+    showUnseenNews news
+    updateLastFetchedTimestamp
+    undefined
+
+-- | Read news info from cache file.
+obtainLocalNewsInfo :: IO LocalNewsInfo
+obtainLocalNewsInfo = undefined
+
+-- | News cache state stored on disk.
+data LocalNewsInfo = LocalNewsInfo
+  { _lastFetched :: Maybe T.UTCTime,
+    _seenNewsIds :: Set String
+  }
+  deriving (Generic, Show)
+
+instance Aeson.FromJSON LocalNewsInfo
+
+instance Aeson.ToJSON LocalNewsInfo
+
+areNewsStale :: LocalNewsInfo -> Bool
+areNewsStale = undefined
+
+fetchNews :: IO [WaspNewsEntry]
+fetchNews = undefined
+
+showUnseenNews :: [WaspNewsEntry] -> IO ()
+showUnseenNews = undefined
+
+updateLastFetchedTimestamp :: IO ()
+updateLastFetchedTimestamp = undefined
