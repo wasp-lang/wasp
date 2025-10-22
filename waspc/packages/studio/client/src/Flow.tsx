@@ -30,9 +30,9 @@ import {
   createJobNode,
   createPageNode,
   createQueryNode,
-  createRouteNode,
+  createRouteNode
 } from "./graph/factories";
-import { WaspAppData } from "./types";
+import { WaspAppData } from "./waspAppData";
 
 interface FlowProps {
   waspAppData: WaspAppData;
@@ -48,30 +48,20 @@ export default function Flow({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { fitView, getNode } = useReactFlow();
 
-  const handleAddEntity = useCallback(
-    (entityName: string) => {
-      const entityNodeId = generateId(entityName, "entity");
-      const appNodeId = generateId(waspAppData.app.name, "app");
+  // const handleAddEntity = useCallback(
+  //   () => {
+  //     const newEntity: GetDeclForType<"Entity"> = { declName: "name", declType: "Entity", declValue: {}};
+  //     const entityNode = createEntityNode(
+  //       newEntity,
+  //       selectedNode,
+  //     );
+  //     const newEdge = createEdge(newEntity, waspAppData.app, selectedNode);
 
-      const newNode = createEntityNode(
-        entityNodeId,
-        entityName,
-        false,
-        { name: entityName },
-        selectedNode,
-      );
-      const newEdge = createEdge(entityNodeId, appNodeId, selectedNode);
-
-      setNodes(oldNodes => [...oldNodes, newNode]);
-      setEdges(oldEges => [...oldEges, newEdge]);
-    },
-    [waspAppData.app.name, selectedNode, setNodes, setEdges],
-  );
-
-  const handleAddRoute = useCallback(() => {
-    // TODO: Implement logic to add a new route
-    console.log("Add route clicked");
-  }, []);
+  //     setNodes(oldNodes => [...oldNodes, entityNode]);
+  //     setEdges(oldEges => [...oldEges, newEdge]);
+  //   },
+  //   [selectedNode, waspAppData.app, setNodes, setEdges],
+  // );
 
   const nodeTypes = useMemo(
     () => ({
@@ -89,124 +79,103 @@ export default function Flow({
 
   const onLayout = useCallback(() => {
     const initialNodes: Node[] = [
-      // ASSUMPTION: The names are of everything is unique.
       createAppNode(
-        generateId(waspAppData.app.name, "app"),
-        waspAppData.app.name,
-        {
-          ...waspAppData.app,
-          onAddEntity: handleAddEntity,
-          onAddRoute: handleAddRoute,
-        },
+        waspAppData.app,
         selectedNode,
       ),
-      ...waspAppData.pages.map((page) =>
-        createPageNode(
-          generateId(page.name, "page"),
-          page.name,
-          page,
-          selectedNode,
-        ),
-      ),
-      ...waspAppData.operations
-        .filter((operation) => operation.type === "query")
-        .map((query) =>
-          createQueryNode(
-            generateId(query.name, "query"),
-            query.name,
-            query,
-            selectedNode,
-          ),
-        ),
-      ...waspAppData.operations
-        .filter((operation) => operation.type === "action")
-        .map((action) =>
-          createActionNode(
-            generateId(action.name, "action"),
-            action.name,
-            action,
-            selectedNode,
-          ),
-        ),
-      ...waspAppData.entities.map((entity) =>
-        createEntityNode(
-          generateId(entity.name, "entity"),
-          entity.name,
-          entity.name === waspAppData.app.auth?.userEntity.name,
+      ...waspAppData.pages.map((page) => createPageNode(page, selectedNode)),
+      ...waspAppData.routes.map((route) => createRouteNode(route, selectedNode)),
+      ...waspAppData.entities.map((entity) => createEntityNode(entity, selectedNode)),
+      ...waspAppData.queries.map((query) => createQueryNode(query, selectedNode)),
+      ...waspAppData.actions.map((action) => createActionNode(action, selectedNode)),
+      ...waspAppData.apis.map((api) => createApiNode(api, selectedNode)),
+      ...waspAppData.jobs.map((job) => createJobNode(job, selectedNode)),
+    ];
+
+    const initialEdges: Edge[] = [];
+    // Edges from Entities to App
+    waspAppData.entities.forEach((entity) => {
+      initialEdges.push(
+        createEdge(
           entity,
+          waspAppData.app,
           selectedNode,
         ),
-      ),
-      ...waspAppData.routes.map((route) =>
-        createRouteNode(
-          generateId(route.path, "route"),
-          route.path,
+      );
+    });
+    // Edges from Routes to Pages
+    waspAppData.routes.forEach((route) => {
+      initialEdges.push(
+        createEdge(
+          route,
+          route.declValue.to,
+          selectedNode,
+        ),
+      );
+    });
+    // Edges from Operations (Query/Action) to Entities
+    waspAppData.queries.forEach((query) => {
+      query.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            query,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    waspAppData.actions.forEach((action) => {
+      action.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            action,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    // Edges from APIs to Entities
+    waspAppData.apis.forEach((api) => {
+      api.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            api,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    // Edges from Jobs to Entities
+    waspAppData.jobs.forEach((job) => {
+      job.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            job,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    // Edges from App to Routes
+    waspAppData.routes.forEach((route) => {
+      initialEdges.push(
+        createEdge(
+          waspAppData.app,
           route,
           selectedNode,
         ),
-      ),
-      ...waspAppData.apis.map((api) =>
-        createApiNode(generateId(api.name, "api"), api.name, api, selectedNode),
-      ),
-      ...waspAppData.jobs.map((job) =>
-        createJobNode(generateId(job.name, "job"), job.name, job, selectedNode),
-      ),
-    ];
+      );
+    });
 
-    const initialEdges: Edge[] = [
-      ...waspAppData.entities.map((entity) =>
-        createEdge(
-          generateId(entity.name, "entity"),
-          generateId(waspAppData.app.name, "app"),
-          selectedNode,
-        ),
-      ),
-      ...waspAppData.routes.map((route) =>
-        createEdge(
-          generateId(route.path, "route"),
-          generateId(route.toPage.name, "page"),
-          selectedNode,
-        ),
-      ),
-      ...waspAppData.operations.flatMap((operation) =>
-        operation.entities.map((entity) =>
-          // ASSUMPTION: operation.type is either "query" or "action"
-          createEdge(
-            generateId(operation.name, operation.type),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...waspAppData.apis.flatMap((api) =>
-        api.entities.map((entity) =>
-          createEdge(
-            generateId(api.name, "api"),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...waspAppData.jobs.flatMap((job) =>
-        job.entities.map((entity) =>
-          createEdge(
-            generateId(job.name, "job"),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...waspAppData.routes.map((route) =>
-        createEdge(
-          generateId(waspAppData.app.name, "app"),
-          generateId(route.path, "route"),
-          selectedNode,
-        ),
-      ),
-    ];
+
+
+    console.log(initialEdges)
 
     getLayoutedElements(initialNodes, initialEdges).then((result) => {
-      console.log("here")
       if (!result) {
         return;
       }
@@ -220,15 +189,7 @@ export default function Flow({
       setEdges(layoutedEdges as unknown as Edge[]);
       window.requestAnimationFrame(() => fitView());
     });
-  }, [
-    waspAppData,
-    handleAddEntity,
-    handleAddRoute,
-    selectedNode,
-    fitView,
-    setEdges,
-    setNodes
-  ]);
+  }, [waspAppData, selectedNode, fitView, setEdges, setNodes]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -329,7 +290,7 @@ export default function Flow({
         >
           <DetailViewer
             selectedNode={selectedNode}
-            data={waspAppData}
+            waspAppData={waspAppData}
             onNodeClick={handleNavigateToNode}
           />
         </div>
@@ -384,8 +345,4 @@ export default function Flow({
       </div>
     </div>
   );
-}
-
-function generateId(name: string, type: string): string {
-  return `${type}:${name}`;
 }

@@ -7,10 +7,12 @@ module Wasp.AppSpec.App.Client
   )
 where
 
-import Data.Aeson (FromJSON, ToJSON)
+import qualified Data.Aeson as Aeson
 import Data.Data (Data)
+import Data.Maybe (catMaybes)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.JSON (maybeToField)
 
 data Client = Client
   { setupFn :: Maybe ExtImport,
@@ -19,4 +21,15 @@ data Client = Client
     baseDir :: Maybe String,
     envValidationSchema :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Data, Generic, Aeson.FromJSON)
+
+instance Aeson.ToJSON Client where
+  toJSON client =
+    let optionalFields =
+          [ maybeToField "setupFn" (setupFn client),
+            maybeToField "rootComponent" (rootComponent client),
+            maybeToField "baseDir" (baseDir client),
+            maybeToField "envValidationSchema" (envValidationSchema client)
+          ]
+     in Aeson.object (catMaybes optionalFields)
+

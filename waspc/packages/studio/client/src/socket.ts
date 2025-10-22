@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { WaspAppData } from "./types";
+import { AppSpec } from "./appSpec";
 
 export const socket = io("http://localhost:4000");
 
 export function useSocket() {
   const [isConnected, setIsConnected] = useState(false);
 
-  const [data, setData] = useState<WaspAppData | null>(null);
+  const [data, setData] = useState<AppSpec | null>(null);
 
   function onData(data: string) {
     try {
-      setData(JSON.parse(data) as WaspAppData);
+      setData(JSON.parse(data) as AppSpec);
     } catch (e: unknown) {
       console.error(e);
     }

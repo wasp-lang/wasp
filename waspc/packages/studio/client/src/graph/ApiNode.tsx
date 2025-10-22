@@ -1,10 +1,11 @@
 import { Handle, NodeProps, Position } from "reactflow";
+import { NodeDataForDecl } from "../node";
 
 export const ApiNode = ({
   data,
   sourcePosition = Position.Right,
   isConnectable,
-}: NodeProps) => (
+}: NodeProps<NodeDataForDecl<"Api">>) => (
   <div className={`rounded bg-slate-900 px-6 py-3 text-center text-white`}>
     <Handle
       type="source"
@@ -28,12 +29,12 @@ export const ApiNode = ({
         />
       </svg>
     </div>
-    <div className="font-bold">{data?.label}</div>
+    <div className="font-bold">{data.name}</div>
     <div className="mt-2 flex items-center justify-center">
       <div className="bg-foreground text-background rounded px-1 text-xs">
         <span>
-          <strong className="font-bold">{data.httpRoute.method}</strong>{" "}
-          {data.httpRoute.path}
+          <strong className="font-bold">{data.value.httpRoute[0]}</strong>{" "}
+          {data.value.httpRoute[1]}
         </span>
       </div>
     </div>

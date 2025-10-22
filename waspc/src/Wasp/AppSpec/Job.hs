@@ -15,13 +15,15 @@ module Wasp.AppSpec.Job
   )
 where
 
-import Data.Aeson (FromJSON, ToJSON)
+import qualified Data.Aeson as Aeson
 import Data.Data (Data)
+import Data.Maybe (catMaybes)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.JSON (maybeToField)
 import Wasp.AppSpec.JSON (JSON (..))
 
 data Job = Job
@@ -30,23 +32,38 @@ data Job = Job
     schedule :: Maybe Schedule,
     entities :: Maybe [Ref Entity]
   }
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Data, Generic, Aeson.FromJSON)
 
 instance IsDecl Job
 
-data JobExecutor = PgBoss
-  deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic, FromJSON, ToJSON)
+instance Aeson.ToJSON Job where
+  toJSON job =
+    let requiredFields =
+          [ "executor" Aeson..= executor job,
+            "perform" Aeson..= perform job
+          ]
+        optionalFields =
+          [ maybeToField "schedule" (schedule job),
+            maybeToField "entities" (entities job)
+          ]
+     in Aeson.object (requiredFields <> catMaybes optionalFields)
 
--- NOTE: For some reason, deriving FromJSON for JobExecutor does not work. I'm
--- guessing it's because "PgBoss" is the only data constructor (the same code
--- works as expected with EmailProvider, which is very similar).
--- Actually, it does work with Generic now, so the manual instance is no longer needed.
+data JobExecutor = PgBoss
+  deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic, Aeson.FromJSON, Aeson.ToJSON)
 
 data Perform = Perform
   { fn :: ExtImport,
     executorOptions :: Maybe ExecutorOptions
   }
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Data, Generic, Aeson.FromJSON)
+
+instance Aeson.ToJSON Perform where
+  toJSON perf =
+    let requiredFields = ["fn" Aeson..= fn perf]
+        optionalFields =
+          [ maybeToField "executorOptions" (executorOptions (perf :: Perform))
+          ]
+     in Aeson.object (requiredFields <> catMaybes optionalFields)
 
 -- Allows jobs to run via some cron schedule.
 data Schedule = Schedule
@@ -54,14 +71,30 @@ data Schedule = Schedule
     args :: Maybe JSON, -- Arguments to pass to the job handler function (`Perform.fn`).
     executorOptions :: Maybe ExecutorOptions
   }
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Data, Generic, Aeson.FromJSON)
+
+instance Aeson.ToJSON Schedule where
+  toJSON sched =
+    let requiredFields = ["cron" Aeson..= cron sched]
+        optionalFields =
+          [ maybeToField "args" (args sched),
+            maybeToField "executorOptions" (executorOptions (sched :: Schedule))
+          ]
+     in Aeson.object (requiredFields <> catMaybes optionalFields)
 
 -- These are optional executor-specific JSON options we pass
 -- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
   { pgBoss :: Maybe JSON
   }
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Data, Generic, Aeson.FromJSON)
+
+instance Aeson.ToJSON ExecutorOptions where
+  toJSON executorOpts =
+    let optionalFields =
+          [ maybeToField "pgBoss" (pgBoss executorOpts)
+          ]
+     in Aeson.object (catMaybes optionalFields)
 
 jobExecutors :: [JobExecutor]
 jobExecutors = enumFrom minBound :: [JobExecutor]

@@ -1,6 +1,7 @@
 import { Handle, NodeProps, Position } from "reactflow";
+import { NodeDataForDecl } from "../node";
 
-export const QueryNode = (props: NodeProps) => (
+export const QueryNode = (props: NodeProps<NodeDataForDecl<"Query">>) => (
   <OperationNode
     {...props}
     label={
@@ -26,7 +27,7 @@ export const QueryNode = (props: NodeProps) => (
   />
 );
 
-export const ActionNode = (props: NodeProps) => (
+export const ActionNode = (props: NodeProps<NodeDataForDecl<"Action">>) => (
   <OperationNode
     {...props}
     label={
@@ -52,33 +53,32 @@ export const ActionNode = (props: NodeProps) => (
   />
 );
 
-export const OperationNode = ({
+export const OperationNode = <T extends "Action" | "Query">({
   data,
+  label,
   isConnectable,
   targetPosition = Position.Top,
   sourcePosition = Position.Bottom,
-  label = "Operation",
   color = "emerald",
-}: NodeProps & {
-  label?: React.ReactNode;
-  color?: string;
-}) => (
-  <div className={`rounded px-6 py-3 bg-${color}-900 text-white`}>
-    <Handle
-      type="target"
-      position={targetPosition}
-      isConnectable={isConnectable}
-    />
-    <div
-      className={`text-xs bg-${color}-300 text-${color}-900 absolute -top-1 left-1/2 -translate-x-1/2 rounded px-1`}
-    >
-      {label}
+}: NodeProps<NodeDataForDecl<T>> & {label: React.ReactNode, color: string}) => {
+  return (
+    <div className={`rounded px-6 py-3 bg-${color}-900 text-white`}>
+      <Handle
+        type="target"
+        position={targetPosition}
+        isConnectable={isConnectable}
+      />
+      <div
+        className={`text-xs bg-${color}-300 text-${color}-900 absolute -top-1 left-1/2 -translate-x-1/2 rounded px-1`}
+      >
+        {label}
+      </div>
+      <div className="font-bold">{data.name}</div>
+      <Handle
+        type="source"
+        position={sourcePosition}
+        isConnectable={isConnectable}
+      />
     </div>
-    <div className="font-bold">{data?.label}</div>
-    <Handle
-      type="source"
-      position={sourcePosition}
-      isConnectable={isConnectable}
-    />
-  </div>
-);
+  );
+};

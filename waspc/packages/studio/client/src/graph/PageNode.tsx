@@ -1,10 +1,11 @@
 import { Handle, NodeProps, Position } from "reactflow";
+import { NodeDataForDecl } from "../node";
 
 export const PageNode = ({
   data,
   isConnectable,
   targetPosition = Position.Right,
-}: NodeProps) => (
+}: NodeProps<NodeDataForDecl<"Page">>) => (
   <div className="rounded bg-sky-900 px-6 py-3 text-white">
     <Handle
       type="target"
@@ -29,8 +30,8 @@ export const PageNode = ({
       </svg>
     </div>
     <div className="font-bold">
-      {data?.label}
-      {data.authRequired ? (
+      {data.name}
+      {data.value.authRequired ? (
         <span className="ml-1" role="img" aria-label="Auth Required">
           🔒
         </span>

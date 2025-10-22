@@ -29,11 +29,14 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
       // "elk.hierarchyHandling": "INCLUDE_CHILDREN",
       "elk.layered.crossingMinimization.semiInteractive": true,
     },
-    children: nodes.map((node: Node) => ({
-      ...node,
-      width: getNodeWidth(node),
-      height: getNodeHeight(node),
-    })),
+    children: nodes.map((node: Node) => {
+      console.log(node);
+      return {
+        ...node,
+        width: getNodeWidth(node),
+        height: getNodeHeight(node),
+      }
+    }),
     edges: edges,
   };
 
@@ -50,7 +53,6 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
             ...node,
             position: { x: node.x, y: node.y },
           })),
-
           edges: layoutedGraph.edges,
         };
       })
@@ -58,7 +60,7 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   );
 };
 
-function getNodeHeight(node: Node) {
+function getNodeHeight(node: Node ) {
   if (node.type === "apiNode") {
     return 100;
   }
@@ -66,7 +68,7 @@ function getNodeHeight(node: Node) {
     return 100;
   }
   if (node.type === "appNode") {
-    const authMethods = node.data.auth?.methods ?? [];
+    const authMethods = (Object.values(node.data.value.auth?.methods ?? {}));
     return 100 + authMethods.length * 50;
   }
   return 50;
@@ -74,12 +76,7 @@ function getNodeHeight(node: Node) {
 
 function getNodeWidth(node: Node) {
   const textCandidates = [
-    node.data?.label,
-    node.data?.name,
-    node.data?.path,
-    node.data?.schedule,
-    // Auth methods
-    ...getAuthMethods(node),
+    node.data.name,
   ]
     .filter(Boolean)
     .map((text) => text.length);
@@ -89,11 +86,11 @@ function getNodeWidth(node: Node) {
   return width;
 }
 
-function getAuthMethods(node: Node) {
-  if (node.type !== "appNode") {
-    return [];
-  }
-  return (
-    node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ?? []
-  );
-}
+// function getAuthMethods(node: Node) {
+//   if (node.type !== "appNode") {
+//     return [];
+//   }
+//   return (
+//     node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ?? []
+//   );
+// }

@@ -28,7 +28,7 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.List (find)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (catMaybes, fromMaybe)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File, File', Path', Rel, toFilePath, (</>))
 import Wasp.AppSpec.Action (Action)
@@ -43,6 +43,7 @@ import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.ExternalFiles as ExternalFiles
 import Wasp.AppSpec.Job (Job)
+import Wasp.AppSpec.JSON (maybeToField)
 import Wasp.AppSpec.Operation (Operation)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Page (Page)
@@ -247,21 +248,24 @@ tryDeclTypeCasts decl =
 instance Aeson.ToJSON AppSpec where
   toJSON spec =
     let allDecls = map declToJSON (decls spec)
-     in Aeson.object
-      [ "decls" Aeson..= allDecls,
-        "prismaSchema" Aeson..= Aeson.Null,  -- Complex Prisma schema, omitted for JSON
-        "packageJson" Aeson..= Aeson.Null,  -- Complex npm package.json, omitted for JSON
-        "waspProjectDir" Aeson..= toFilePath (waspProjectDir spec),
-        "externalCodeFiles" Aeson..= Aeson.Null,  -- Complex external files, omitted for JSON
-        "externalPublicFiles" Aeson..= Aeson.Null,  -- Complex external files, omitted for JSON
-        "migrationsDir" Aeson..= fmap toFilePath (migrationsDir spec),
-        "devEnvVarsServer" Aeson..= Aeson.toJSON (devEnvVarsServer spec),
-        "devEnvVarsClient" Aeson..= Aeson.toJSON (devEnvVarsClient spec),
-        "isBuild" Aeson..= isBuild spec,
-        "userDockerfileContents" Aeson..= userDockerfileContents spec,
-        "tailwindConfigFilesRelocators" Aeson..= Aeson.Null,  -- Complex config relocators, omitted for JSON
-        "devDatabaseUrl" Aeson..= devDatabaseUrl spec,
-        "customViteConfigPath" Aeson..= fmap toFilePath (customViteConfigPath spec),
-        "srcTsConfigPath" Aeson..= toFilePath (srcTsConfigPath spec),
-        "srcTsConfig" Aeson..= Aeson.Null  -- Complex TypeScript config, omitted for JSON
-      ]
+        requiredFields =
+          [ "decls" Aeson..= allDecls,
+            "prismaSchema" Aeson..= Aeson.Null,  -- Complex Prisma schema, omitted for JSON
+            "packageJson" Aeson..= Aeson.Null,  -- Complex npm package.json, omitted for JSON
+            "waspProjectDir" Aeson..= toFilePath (waspProjectDir spec),
+            "externalCodeFiles" Aeson..= Aeson.Null,  -- Complex external files, omitted for JSON
+            "externalPublicFiles" Aeson..= Aeson.Null,  -- Complex external files, omitted for JSON
+            "devEnvVarsServer" Aeson..= Aeson.toJSON (devEnvVarsServer spec),
+            "devEnvVarsClient" Aeson..= Aeson.toJSON (devEnvVarsClient spec),
+            "isBuild" Aeson..= isBuild spec,
+            "tailwindConfigFilesRelocators" Aeson..= Aeson.Null,  -- Complex config relocators, omitted for JSON
+            "srcTsConfigPath" Aeson..= toFilePath (srcTsConfigPath spec),
+            "srcTsConfig" Aeson..= Aeson.Null  -- Complex TypeScript config, omitted for JSON
+          ]
+        optionalFields =
+          [ maybeToField "migrationsDir" (fmap toFilePath (migrationsDir spec)),
+            maybeToField "userDockerfileContents" (userDockerfileContents spec),
+            maybeToField "devDatabaseUrl" (devDatabaseUrl spec),
+            maybeToField "customViteConfigPath" (fmap toFilePath (customViteConfigPath spec))
+          ]
+     in Aeson.object (requiredFields <> catMaybes optionalFields)

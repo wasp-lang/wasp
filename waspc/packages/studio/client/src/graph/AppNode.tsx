@@ -1,26 +1,16 @@
-import { useDisclosure } from "@nextui-org/react";
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Handle, NodeProps, Position } from "reactflow";
-import { AddEntityModal } from "./AddEntityModal";
+import { NodeDataForDecl } from "../node";
 
 export const AppNode = ({
   data,
   isConnectable,
   targetPosition = Position.Left,
   sourcePosition = Position.Right,
-}: NodeProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const addEntityModal = useDisclosure();
-
-  const handleAddRoute = () => {
-    data.onAddRoute?.();
-  };
-
+}: NodeProps<NodeDataForDecl<"App">>) => {
   return (
     <div
       className="relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="rounded bg-cyan-900 px-6 py-3 text-center text-white">
         <Handle
@@ -45,7 +35,7 @@ export const AppNode = ({
             />
           </svg>
         </div>
-        <div className="font-bold">{data?.label}</div>
+        <div className="font-bold">{data.name}</div>
         <Handle
           type="source"
           position={sourcePosition}
@@ -53,10 +43,12 @@ export const AppNode = ({
         />
         <div className="mt-2 flex flex-col items-center justify-center gap-2">
           <div className="bg-foreground text-background rounded px-1 text-xs">
-            <span>{data.db?.system || "SQLite"}</span>
+            {/* TODO: Fix hardcode below */}
+            <span>{"SQLite"}</span>
           </div>
-          {data.auth &&
-            data.auth.methods.map((method: string) => (
+          {data.value.auth && Object.entries(data.value.auth.methods)
+            .filter(([_key, value]) => !!value)
+            .map(([method]) => (
               <div
                 className="bg-foreground text-background rounded px-1 text-xs"
                 key={method}
@@ -66,7 +58,7 @@ export const AppNode = ({
             ))}
         </div>
       </div>
-      {isHovered && (
+      {/* {isHovered && (
         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2 bg-cyan-800 rounded px-2 py-1 whitespace-nowrap">
           <button
             onClick={addEntityModal.onOpenChange}
@@ -80,15 +72,8 @@ export const AppNode = ({
             onClose={() => addEntityModal.onOpenChange()}
             onEntityAdd={data.onAddEntity}
           />
-          <button
-            onClick={handleAddRoute}
-            className="text-xs bg-blue-600 hover:bg-blue-500 text-white rounded px-2 py-1 transition-colors"
-            title="Add new route"
-          >
-            + Route
-          </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

@@ -1,11 +1,12 @@
 import { Handle, NodeProps, Position } from "reactflow";
+import { NodeDataForDecl } from "../node";
 
 export const RouteNode = ({
   data,
   isConnectable,
   sourcePosition = Position.Left,
   targetPosition = Position.Right,
-}: NodeProps) => (
+}: NodeProps<NodeDataForDecl<"Route">>) => (
   <div className="rounded bg-rose-900 px-6 py-3 text-center text-white">
     <Handle
       type="target"
@@ -29,7 +30,7 @@ export const RouteNode = ({
         />
       </svg>
     </div>
-    <div className="font-bold">{data?.label}</div>
+    <div className="font-bold">{data.name}</div>
     <Handle
       type="source"
       position={sourcePosition}

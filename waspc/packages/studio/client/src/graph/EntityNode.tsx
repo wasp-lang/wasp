@@ -1,13 +1,14 @@
 import { Handle, NodeProps, Position } from "reactflow";
+import { NodeDataForDecl } from "../node";
 
 export const EntityNode = ({
   data,
   isConnectable,
   targetPosition = Position.Left,
   sourcePosition = Position.Right,
-}: NodeProps) => (
+}: NodeProps<NodeDataForDecl<"Entity">>) => (
   <div
-    className={`rounded bg-yellow-900 px-6 py-3 text-center text-white ${data.isUserEntity ? "border-3 border-yellow-300" : ""} `}
+    className={`rounded bg-yellow-900 px-6 py-3 text-center text-white ${data.name === "User" ? "border-3 border-yellow-300" : ""} `}
   >
     <Handle
       type="source"
@@ -33,7 +34,7 @@ export const EntityNode = ({
         />
       </svg>
     </div>
-    <div className="font-bold">{data?.label}</div>
+    <div className="font-bold">{data.name}</div>
     <Handle
       type="target"
       position={targetPosition}

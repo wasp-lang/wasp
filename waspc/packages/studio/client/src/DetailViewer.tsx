@@ -1,11 +1,12 @@
-import { Card, CardBody, CardHeader, Chip, Divider, Button, Spinner } from "@nextui-org/react";
-import { Node } from "reactflow";
-import { Data } from "./types";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Button, Card, CardBody, CardHeader, Chip, Divider, Spinner } from "@nextui-org/react";
 import { useState } from "react";
+import { Node } from "reactflow";
+import { WaspAppData } from "./waspAppData";
 
 interface DetailViewerProps {
   selectedNode: Node | null;
-  data: Data;
+  waspAppData: WaspAppData;
   onNodeClick: (nodeId: string) => void;
 }
 
@@ -18,7 +19,7 @@ interface Relationship {
 
 export function DetailViewer({
   selectedNode,
-  data,
+  waspAppData,
   onNodeClick,
 }: DetailViewerProps) {
   if (!selectedNode) {
@@ -38,7 +39,7 @@ export function DetailViewer({
   }
 
   const nodeType = selectedNode.type?.replace("Node", "") || "Unknown";
-  const relationships = getRelationships(selectedNode, data);
+  const relationships = getRelationships(selectedNode, waspAppData);
 
   return (
     <div className="h-full overflow-y-auto">
@@ -78,10 +79,10 @@ export function DetailViewer({
       </Card>
 
       {/* AI Summary Section */}
-      <AISummaryCard selectedNode={selectedNode} data={data} nodeType={nodeType} />
+      <AISummaryCard selectedNode={selectedNode} waspAppData={waspAppData} nodeType={nodeType} />
 
       {/* Type-Specific Details */}
-      {renderTypeSpecificDetails(selectedNode, data, nodeType)}
+      {renderTypeSpecificDetails(selectedNode, waspAppData, nodeType)}
 
       {/* Relationships Section */}
       <Card className="m-4">
@@ -153,11 +154,11 @@ export function DetailViewer({
 // AI Summary Card Component
 function AISummaryCard({
   selectedNode,
-  data,
+  waspAppData,
   nodeType,
 }: {
   selectedNode: Node;
-  data: Data;
+  waspAppData: WaspAppData;
   nodeType: string;
 }) {
   const [summary, setSummary] = useState<string | null>(null);
@@ -170,7 +171,7 @@ function AISummaryCard({
 
     try {
       // Prepare context for Claude
-      const context = prepareNodeContext(selectedNode, data, nodeType);
+      const context = prepareNodeContext(selectedNode, waspAppData, nodeType);
 
       // TODO: Replace with actual backend API endpoint
       // For now, show a placeholder response
@@ -273,10 +274,10 @@ function AISummaryCard({
 // Prepare context for AI analysis
 function prepareNodeContext(
   selectedNode: Node,
-  data: Data,
+  waspAppData: WaspAppData,
   nodeType: string,
 ): string {
-  const relationships = getRelationships(selectedNode, data);
+  const relationships = getRelationships(selectedNode, waspAppData);
   const nodeName = selectedNode.data.label || selectedNode.data.name;
 
   let context = `Analyze this ${nodeType} in a Wasp full-stack application:\n\n`;
@@ -331,6 +332,7 @@ function prepareNodeContext(
 }
 
 // API call to backend (with fallback placeholder)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function fetchAISummary(_context: string): Promise<string> {
   // TODO: Replace with actual backend endpoint
   // Example: const response = await fetch('/api/ai-summary', {
@@ -369,32 +371,32 @@ This is where Claude Haiku's analysis would appear. The actual implementation wo
 // Type-specific detail sections
 function renderTypeSpecificDetails(
   selectedNode: Node,
-  data: Data,
+  waspAppData: WaspAppData,
   nodeType: string,
 ) {
   switch (nodeType.toLowerCase()) {
     case "entity":
-      return <EntityDetails node={selectedNode} data={data} />;
+      return <EntityDetails node={selectedNode} waspAppData={waspAppData} />;
     case "query":
     case "action":
-      return <OperationDetails node={selectedNode} data={data} />;
+      return <OperationDetails node={selectedNode} waspAppData={waspAppData} />;
     case "api":
-      return <ApiDetails node={selectedNode} data={data} />;
+      return <ApiDetails node={selectedNode} waspAppData={waspAppData} />;
     case "route":
-      return <RouteDetails node={selectedNode} data={data} />;
+      return <RouteDetails node={selectedNode} waspAppData={waspAppData} />;
     case "page":
-      return <PageDetails node={selectedNode} data={data} />;
+      return <PageDetails node={selectedNode} waspAppData={waspAppData} />;
     case "job":
-      return <JobDetails node={selectedNode} data={data} />;
+      return <JobDetails node={selectedNode} waspAppData={waspAppData} />;
     case "app":
-      return <AppDetails node={selectedNode} data={data} />;
+      return <AppDetails node={selectedNode} waspAppData={waspAppData} />;
     default:
       return null;
   }
 }
 
 // Entity-specific details
-function EntityDetails({ node }: { node: Node; data: Data }) {
+function EntityDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   const isUserEntity = node.data.isUserEntity;
 
   return (
@@ -445,7 +447,7 @@ function EntityDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Operation (Query/Action) details
-function OperationDetails({ node }: { node: Node; data: Data }) {
+function OperationDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   const operationType = node.data.type || "operation";
   const authRequired = node.data.auth;
 
@@ -526,7 +528,7 @@ function OperationDetails({ node }: { node: Node; data: Data }) {
 }
 
 // API details
-function ApiDetails({ node }: { node: Node; data: Data }) {
+function ApiDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   const httpRoute = node.data.httpRoute;
 
   return (
@@ -565,7 +567,7 @@ function ApiDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Route details
-function RouteDetails({ node }: { node: Node; data: Data }) {
+function RouteDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   return (
     <Card className="m-4">
       <CardHeader className="pb-2">
@@ -589,7 +591,7 @@ function RouteDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Page details
-function PageDetails({ node }: { node: Node; data: Data }) {
+function PageDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   return (
     <Card className="m-4">
       <CardHeader className="pb-2">
@@ -616,7 +618,7 @@ function PageDetails({ node }: { node: Node; data: Data }) {
 }
 
 // Job details
-function JobDetails({ node }: { node: Node; data: Data }) {
+function JobDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
   return (
     <Card className="m-4">
       <CardHeader className="pb-2">
@@ -646,7 +648,7 @@ function JobDetails({ node }: { node: Node; data: Data }) {
 }
 
 // App details
-function AppDetails({ node, data }: { node: Node; data: Data }) {
+function AppDetails({ node, waspAppData }: { node: Node; waspAppData: WaspAppData }) {
   const auth = node.data.auth;
   const db = node.data.db;
 
@@ -700,19 +702,23 @@ function AppDetails({ node, data }: { node: Node; data: Data }) {
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="rounded bg-gray-900 p-2">
               <div className="text-gray-400">Entities</div>
-              <div className="text-lg font-bold">{data.entities.length}</div>
+              <div className="text-lg font-bold">{waspAppData.entities.length}</div>
             </div>
             <div className="rounded bg-gray-900 p-2">
-              <div className="text-gray-400">Operations</div>
-              <div className="text-lg font-bold">{data.operations.length}</div>
+              <div className="text-gray-400">Queries</div>
+              <div className="text-lg font-bold">{waspAppData.queries.length}</div>
+            </div>
+            <div className="rounded bg-gray-900 p-2">
+              <div className="text-gray-400">Actions</div>
+              <div className="text-lg font-bold">{waspAppData.actions.length}</div>
             </div>
             <div className="rounded bg-gray-900 p-2">
               <div className="text-gray-400">Pages</div>
-              <div className="text-lg font-bold">{data.pages.length}</div>
+              <div className="text-lg font-bold">{waspAppData.pages.length}</div>
             </div>
             <div className="rounded bg-gray-900 p-2">
               <div className="text-gray-400">Routes</div>
-              <div className="text-lg font-bold">{data.routes.length}</div>
+              <div className="text-lg font-bold">{waspAppData.routes.length}</div>
             </div>
           </div>
         </div>
@@ -837,153 +843,163 @@ function RelationshipChip({
 // Get relationships (same logic as before)
 function getRelationships(
   selectedNode: Node,
-  data: Data,
+  _waspAppData: WaspAppData,
 ): {
   uses: Relationship[];
   usedBy: Relationship[];
 } {
   const nodeId = selectedNode.id;
-  const [nodeType, nodeName] = nodeId.split(":");
+  const [_nodeType, _nodeName] = nodeId.split(":");
 
   const uses: Relationship[] = [];
   const usedBy: Relationship[] = [];
 
-  switch (nodeType) {
-    case "entity":
-      data.operations.forEach((op) => {
-        if (op.entities.some((e) => e.name === nodeName)) {
-          usedBy.push({
-            id: `${op.type}:${op.name}`,
-            name: op.name,
-            type: op.type,
-            direction: "usedBy",
-          });
-        }
-      });
+  // switch (nodeType) {
+  //   case "entity":
+  //     waspAppData.actions.forEach((op) => {
+  //       if (op.entities.some((e) => e.name === nodeName)) {
+  //         usedBy.push({
+  //           id: `${op.type}:${op.name}`,
+  //           name: op.name,
+  //           type: op.type,
+  //           direction: "usedBy",
+  //         });
+  //       }
+  //     });
+  //     waspAppData.queries.forEach((op) => {
+  //       if (op.entities.some((e) => e.name === nodeName)) {
+  //         usedBy.push({
+  //           id: `${op.type}:${op.name}`,
+  //           name: op.name,
+  //           type: op.type,
+  //           direction: "usedBy",
+  //         });
+  //       }
+  //     });
 
-      data.apis.forEach((api) => {
-        if (api.entities.some((e) => e.name === nodeName)) {
-          usedBy.push({
-            id: `api:${api.name}`,
-            name: api.name,
-            type: "api",
-            direction: "usedBy",
-          });
-        }
-      });
+  //     waspAppData.apis.forEach((api) => {
+  //       if (api.entities.some((e) => e.name === nodeName)) {
+  //         usedBy.push({
+  //           id: `api:${api.name}`,
+  //           name: api.name,
+  //           type: "api",
+  //           direction: "usedBy",
+  //         });
+  //       }
+  //     });
 
-      data.jobs.forEach((job) => {
-        if (job.entities.some((e) => e.name === nodeName)) {
-          usedBy.push({
-            id: `job:${job.name}`,
-            name: job.name,
-            type: "job",
-            direction: "usedBy",
-          });
-        }
-      });
+  //     waspAppData.jobs.forEach((job) => {
+  //       if (job.entities.some((e) => e.name === nodeName)) {
+  //         usedBy.push({
+  //           id: `job:${job.name}`,
+  //           name: job.name,
+  //           type: "job",
+  //           direction: "usedBy",
+  //         });
+  //       }
+  //     });
 
-      uses.push({
-        id: `app:${data.app.name}`,
-        name: data.app.name,
-        type: "app",
-        direction: "uses",
-      });
-      break;
+  //     uses.push({
+  //       id: `app:${waspAppData.app.name}`,
+  //       name: waspAppData.app.name,
+  //       type: "app",
+  //       direction: "uses",
+  //     });
+  //     break;
 
-    case "query":
-    case "action":
-      const operation = data.operations.find((op) => op.name === nodeName);
-      if (operation) {
-        operation.entities.forEach((entity) => {
-          uses.push({
-            id: `entity:${entity.name}`,
-            name: entity.name,
-            type: "entity",
-            direction: "uses",
-          });
-        });
-      }
-      break;
+  //   case "query":
+  //   case "action":
+  //     const operation = waspAppData.operations.find((op) => op.name === nodeName);
+  //     if (operation) {
+  //       operation.entities.forEach((entity) => {
+  //         uses.push({
+  //           id: `entity:${entity.name}`,
+  //           name: entity.name,
+  //           type: "entity",
+  //           direction: "uses",
+  //         });
+  //       });
+  //     }
+  //     break;
 
-    case "api":
-      const api = data.apis.find((a) => a.name === nodeName);
-      if (api) {
-        api.entities.forEach((entity) => {
-          uses.push({
-            id: `entity:${entity.name}`,
-            name: entity.name,
-            type: "entity",
-            direction: "uses",
-          });
-        });
-      }
-      break;
+  //   case "api":
+  //     const api = waspAppData.apis.find((a) => a.name === nodeName);
+  //     if (api) {
+  //       api.entities.forEach((entity) => {
+  //         uses.push({
+  //           id: `entity:${entity.name}`,
+  //           name: entity.name,
+  //           type: "entity",
+  //           direction: "uses",
+  //         });
+  //       });
+  //     }
+  //     break;
 
-    case "job":
-      const job = data.jobs.find((j) => j.name === nodeName);
-      if (job) {
-        job.entities.forEach((entity) => {
-          uses.push({
-            id: `entity:${entity.name}`,
-            name: entity.name,
-            type: "entity",
-            direction: "uses",
-          });
-        });
-      }
-      break;
+  //   case "job":
+  //     const job = waspAppData.jobs.find((j) => j.name === nodeName);
+  //     if (job) {
+  //       job.entities.forEach((entity) => {
+  //         uses.push({
+  //           id: `entity:${entity.name}`,
+  //           name: entity.name,
+  //           type: "entity",
+  //           direction: "uses",
+  //         });
+  //       });
+  //     }
+  //     break;
 
-    case "route":
-      const route = data.routes.find((r) => r.path === nodeName);
-      if (route) {
-        uses.push({
-          id: `app:${data.app.name}`,
-          name: data.app.name,
-          type: "app",
-          direction: "uses",
-        });
-        uses.push({
-          id: `page:${route.toPage.name}`,
-          name: route.toPage.name,
-          type: "page",
-          direction: "uses",
-        });
-      }
-      break;
+  //   case "route":
+  //     const route = waspAppData.routes.find((r) => r.path === nodeName);
+  //     if (route) {
+  //       uses.push({
+  //         id: `app:${waspAppData.app.name}`,
+  //         name: waspAppData.app.name,
+  //         type: "app",
+  //         direction: "uses",
+  //       });
+  //       uses.push({
+  //         id: `page:${route.toPage.name}`,
+  //         name: route.toPage.name,
+  //         type: "page",
+  //         direction: "uses",
+  //       });
+  //     }
+  //     break;
 
-    case "page":
-      data.routes.forEach((route) => {
-        if (route.toPage.name === nodeName) {
-          usedBy.push({
-            id: `route:${route.path}`,
-            name: route.path,
-            type: "route",
-            direction: "usedBy",
-          });
-        }
-      });
-      break;
+  //   case "page":
+  //     waspAppData.routes.forEach((route) => {
+  //       if (route.toPage.name === nodeName) {
+  //         usedBy.push({
+  //           id: `route:${route.path}`,
+  //           name: route.path,
+  //           type: "route",
+  //           direction: "usedBy",
+  //         });
+  //       }
+  //     });
+  //     break;
 
-    case "app":
-      data.entities.forEach((entity) => {
-        usedBy.push({
-          id: `entity:${entity.name}`,
-          name: entity.name,
-          type: "entity",
-          direction: "usedBy",
-        });
-      });
-      data.routes.forEach((route) => {
-        usedBy.push({
-          id: `route:${route.path}`,
-          name: route.path,
-          type: "route",
-          direction: "usedBy",
-        });
-      });
-      break;
-  }
+  //   case "app":
+  //     waspAppData.entities.forEach((entity) => {
+  //       usedBy.push({
+  //         id: `entity:${entity.name}`,
+  //         name: entity.name,
+  //         type: "entity",
+  //         direction: "usedBy",
+  //       });
+  //     });
+  //     waspAppData.routes.forEach((route) => {
+  //       usedBy.push({
+  //         id: `route:${route.path}`,
+  //         name: route.path,
+  //         type: "route",
+  //         direction: "usedBy",
+  //       });
+  //     });
+  //     break;
+  // }
 
   return { uses, usedBy };
 }

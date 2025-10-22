@@ -1,10 +1,11 @@
 import { Handle, NodeProps, Position } from "reactflow";
+import { NodeDataForDecl } from "../node";
 
 export const JobNode = ({
   data,
   isConnectable,
   sourcePosition = Position.Right,
-}: NodeProps) => (
+}: NodeProps<NodeDataForDecl<"Job">>) => (
   <div className="rounded bg-violet-900 px-6 py-3 text-center text-white">
     <Handle
       type="source"
@@ -28,11 +29,11 @@ export const JobNode = ({
         />
       </svg>
     </div>
-    <div className="font-bold">{data?.label}</div>
-    {data.schedule && (
+    <div className="font-bold">{data.name}</div>
+    {data.value.schedule && (
       <div className="mt-2 flex items-center justify-center">
         <div className="bg-foreground text-background rounded px-1 text-xs">
-          <span>Schedule: {data.schedule}</span>
+          <span>Schedule: {data.value.schedule.cron}</span>
         </div>
       </div>
     )}
