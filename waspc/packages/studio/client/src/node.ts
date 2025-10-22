@@ -19,8 +19,10 @@ export const declNodeTypes = {
   Job: JobNode,
 } as const;
 
-export type NodeDataForDecl<T extends Decl["declType"]> = { name: GetDeclForType<T>["declName"], value: GetDeclForType<T>["declValue"], type: GetDeclForType<T>["declType"] }
+export type DeclNodeDataForDecl<T extends Decl["declType"]> = { name: GetDeclForType<T>["declName"], value: GetDeclForType<T>["declValue"], type: GetDeclForType<T>["declType"] }
 
 export type DeclNode = {
-  [Type in keyof DeclTypeToValue]: Node<NodeDataForDecl<Type>, Type>
+  [Type in keyof DeclTypeToValue]: Node<DeclNodeDataForDecl<Type>, Type>
 }[keyof DeclTypeToValue];
+
+export type DeclNodeForDecl<T extends Decl["declType"]> = Node<DeclNodeDataForDecl<T>, T>

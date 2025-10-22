@@ -1,7 +1,7 @@
 import { Handle, NodeProps, Position } from "reactflow";
-import { NodeDataForDecl } from "../node";
+import { DeclNodeDataForDecl } from "../node";
 
-export const QueryNode = (props: NodeProps<NodeDataForDecl<"Query">>) => (
+export const QueryNode = (props: NodeProps<DeclNodeDataForDecl<"Query">>) => (
   <OperationNode
     {...props}
     label={
@@ -27,7 +27,7 @@ export const QueryNode = (props: NodeProps<NodeDataForDecl<"Query">>) => (
   />
 );
 
-export const ActionNode = (props: NodeProps<NodeDataForDecl<"Action">>) => (
+export const ActionNode = (props: NodeProps<DeclNodeDataForDecl<"Action">>) => (
   <OperationNode
     {...props}
     label={
@@ -60,7 +60,7 @@ export const OperationNode = <T extends "Action" | "Query">({
   targetPosition = Position.Top,
   sourcePosition = Position.Bottom,
   color = "emerald",
-}: NodeProps<NodeDataForDecl<T>> & {label: React.ReactNode, color: string}) => {
+}: NodeProps<DeclNodeDataForDecl<T>> & {label: React.ReactNode, color: string}) => {
   return (
     <div className={`rounded px-6 py-3 bg-${color}-900 text-white`}>
       <Handle

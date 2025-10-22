@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 import { Command } from "commander";
 import cors from "cors";
-import express from "express";
+import express, { Request, Response } from "express";
 import { createServer } from "http";
 import morgan from "morgan";
 import { Server } from "socket.io";
@@ -30,6 +30,7 @@ const io = new Server(server, {
 
 const requestLogger = morgan("dev");
 app.use(requestLogger);
+app.use(express.json());
 
 app.use(
   cors({
@@ -39,6 +40,21 @@ app.use(
 
 const publicDirPath = new URL("./public", import.meta.url).pathname;
 app.use(express.static(publicDirPath));
+
+app.get("/api/prisma-schema", (req: Request, res: Response): void => {
+  try {
+    const schemaPath = req.query.path as string;
+    if (!schemaPath) {
+      res.status(400).json({ error: "Missing 'path' query parameter" });
+      return;
+    }
+    const schemaContent = fs.readFileSync(schemaPath, "utf8");
+    res.json({ content: schemaContent });
+  } catch (error) {
+    console.error("Error reading Prisma schema:", error);
+    res.status(500).json({ error: "Failed to read Prisma schema file" });
+  }
+});
 
 const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);
 function readFile() {

@@ -12,11 +12,11 @@ import {
   Tabs,
 } from "@nextui-org/react";
 import { OpenAI } from "openai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Node } from "reactflow";
 import { Route } from "./appSpec";
 import { generateNodeId } from "./graph/factories";
-import { DeclNode } from "./node";
+import { DeclNode, DeclNodeForDecl } from "./node";
 import { WaspAppData } from "./waspAppData";
 
 const openai = new OpenAI({
@@ -328,26 +328,6 @@ Use the select_node tool when you want to highlight a specific node in the graph
                   </div>
                 </CardBody>
               </Card>
-              {selectedNode.type === 'Entity' && (
-                  <Card className="mb-4">
-                  <CardHeader className="flex-col items-start gap-2 pb-2">
-                    <h2 className="text-xl font-bold">
-                      Entity
-                    </h2>
-                  </CardHeader>
-                  <CardBody className="pt-0">
-                    <div className="space-y-2 text-sm">
-                      {Object.entries(selectedNode.data.value).map(([name, value]) => (
-                      <InfoRow
-                        label={name}
-                        value={JSON.stringify(value)}
-                        mono
-                      />
-                    ))}
-                    </div>
-                  </CardBody>
-                </Card>
-              )}
               {/* AI Summary Section */}
               <AISummaryCard
                 selectedNode={selectedNode}
@@ -674,24 +654,24 @@ This is where Claude Haiku's analysis would appear. The actual implementation wo
 
 // Type-specific detail sections
 function renderTypeSpecificDetails(
-  selectedNode: Node,
+  selectedNode: DeclNode,
   waspAppData: WaspAppData,
 ) {
-  switch (selectedNode?.data.type) {
-    case "entity":
-      return <EntityDetails node={selectedNode} waspAppData={waspAppData} />;
-    case "query":
-    case "action":
+  switch (selectedNode.data.type) {
+    case "Entity":
+      return <EntityDetails node={selectedNode as DeclNodeForDecl<"Entity">} waspAppData={waspAppData} />;
+    case "Query":
+    case "Action":
       return <OperationDetails node={selectedNode} waspAppData={waspAppData} />;
-    case "api":
+    case "Api":
       return <ApiDetails node={selectedNode} waspAppData={waspAppData} />;
-    case "route":
+    case "Route":
       return <RouteDetails node={selectedNode} waspAppData={waspAppData} />;
-    case "page":
+    case "Page":
       return <PageDetails node={selectedNode} waspAppData={waspAppData} />;
-    case "job":
+    case "Job":
       return <JobDetails node={selectedNode} waspAppData={waspAppData} />;
-    case "app":
+    case "App":
       return <AppDetails node={selectedNode} waspAppData={waspAppData} />;
     default:
       return null;
@@ -699,8 +679,47 @@ function renderTypeSpecificDetails(
 }
 
 // Entity-specific details
-function EntityDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
-  const isUserEntity = node.data.isUserEntity;
+function EntityDetails({ node, waspAppData }: { node: DeclNodeForDecl<"Entity">; waspAppData: WaspAppData }) {
+  const isUserEntity = node.data.name === "User";
+  const prismaSchemaPath = [waspAppData.waspProjectDir, "schema.prisma"].join("/");
+  const [modelDefinition, setModelDefinition] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPrismaModel() {
+      try {
+        const response = await fetch(
+          `http://localhost:4000/api/prisma-schema?path=${encodeURIComponent(prismaSchemaPath)}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch Prisma schema");
+        }
+        const data = await response.json();
+        const schemaContent = data.content as string;
+        
+        // Extract the model definition for this entity
+        const modelName = node.data.name;
+        const modelRegex = new RegExp(
+          `model\\s+${modelName}\\s*\\{[\\s\\S]*?\\n\\}`,
+          "m"
+        );
+        const match = schemaContent.match(modelRegex);
+        
+        if (match) {
+          setModelDefinition(match[0]);
+        } else {
+          setModelDefinition(null);
+        }
+      } catch (error) {
+        console.error("Error fetching Prisma schema:", error);
+        setModelDefinition(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPrismaModel();
+  }, [node.data.name, prismaSchemaPath]);
 
   return (
     <Card className="mb-4">
@@ -714,55 +733,26 @@ function EntityDetails({ node }: { node: Node; waspAppData: WaspAppData }) {
           </Chip>
         )}
 
-        {/* Placeholder for Prisma fields */}
+        {/* Prisma Schema Definition */}
         <div>
           <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
-            Fields (Prisma Schema)
+            Prisma Schema
           </p>
-          <div className="space-y-1 rounded-lg bg-gray-900 p-3 font-mono text-xs">
-            <FieldRow
-              name="id"
-              type="String"
-              attributes="@id @default(uuid())"
-              placeholder
-            />
-            <FieldRow
-              name="createdAt"
-              type="DateTime"
-              attributes="@default(now())"
-              placeholder
-            />
-            <FieldRow
-              name="updatedAt"
-              type="DateTime"
-              attributes="@updatedAt"
-              placeholder
-            />
-            {isUserEntity && (
-              <>
-                <FieldRow
-                  name="username"
-                  type="String"
-                  attributes="@unique"
-                  placeholder
-                />
-                <FieldRow name="password" type="String" placeholder />
-              </>
-            )}
-            <div className="pt-2 text-gray-500">
-              + more fields (from Prisma schema)
+          {isLoading ? (
+            <div className="flex items-center justify-center rounded-lg bg-gray-900 p-3">
+              <Spinner size="sm" />
             </div>
-          </div>
-        </div>
-
-        {/* Placeholder for relations */}
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase text-gray-400">
-            Relations
-          </p>
-          <div className="rounded-lg bg-gray-900 p-3 text-xs text-gray-500">
-            Relation data will appear here
-          </div>
+          ) : modelDefinition ? (
+            <div className="rounded-lg bg-gray-900 p-3 font-mono text-xs">
+              <pre className="whitespace-pre-wrap text-gray-300">
+                {modelDefinition}
+              </pre>
+            </div>
+          ) : (
+            <div className="rounded-lg bg-gray-900 p-3 text-xs text-gray-500">
+              Model definition not found in schema.prisma
+            </div>
+          )}
         </div>
       </CardBody>
     </Card>
@@ -1061,26 +1051,6 @@ function InfoRow({
       >
         {value}
       </span>
-    </div>
-  );
-}
-
-function FieldRow({
-  name,
-  type,
-  attributes,
-  placeholder = false,
-}: {
-  name: string;
-  type: string;
-  attributes?: string;
-  placeholder?: boolean;
-}) {
-  return (
-    <div className={placeholder ? "opacity-50" : ""}>
-      <span className="text-blue-400">{name}</span>{" "}
-      <span className="text-purple-400">{type}</span>{" "}
-      {attributes && <span className="text-gray-500">{attributes}</span>}
     </div>
   );
 }

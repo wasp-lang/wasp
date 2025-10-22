@@ -1,11 +1,11 @@
 import { Handle, NodeProps, Position } from "reactflow";
-import { NodeDataForDecl } from "../node";
+import { DeclNodeDataForDecl } from "../node";
 
 export const PageNode = ({
   data,
   isConnectable,
   targetPosition = Position.Right,
-}: NodeProps<NodeDataForDecl<"Page">>) => (
+}: NodeProps<DeclNodeDataForDecl<"Page">>) => (
   <div className="rounded bg-sky-900 px-6 py-3 text-white">
     <Handle
       type="target"

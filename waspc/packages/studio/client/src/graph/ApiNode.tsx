@@ -1,11 +1,11 @@
 import { Handle, NodeProps, Position } from "reactflow";
-import { NodeDataForDecl } from "../node";
+import { DeclNodeDataForDecl } from "../node";
 
 export const ApiNode = ({
   data,
   sourcePosition = Position.Right,
   isConnectable,
-}: NodeProps<NodeDataForDecl<"Api">>) => {
+}: NodeProps<DeclNodeDataForDecl<"Api">>) => {
   console.log(data)
   return (
     <div className={`rounded bg-slate-900 px-6 py-3 text-center text-white`}>

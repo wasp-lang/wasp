@@ -1,11 +1,11 @@
 import { Handle, NodeProps, Position } from "reactflow";
-import { NodeDataForDecl } from "../node";
+import { DeclNodeDataForDecl } from "../node";
 
 export const JobNode = ({
   data,
   isConnectable,
   sourcePosition = Position.Right,
-}: NodeProps<NodeDataForDecl<"Job">>) => (
+}: NodeProps<DeclNodeDataForDecl<"Job">>) => (
   <div className="rounded bg-violet-900 px-6 py-3 text-center text-white">
     <Handle
       type="source"

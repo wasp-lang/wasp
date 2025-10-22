@@ -1,12 +1,12 @@
 import { Handle, NodeProps, Position } from "reactflow";
-import { NodeDataForDecl } from "../node";
+import { DeclNodeDataForDecl } from "../node";
 
 export const RouteNode = ({
   data,
   isConnectable,
   sourcePosition = Position.Left,
   targetPosition = Position.Right,
-}: NodeProps<NodeDataForDecl<"Route">>) => (
+}: NodeProps<DeclNodeDataForDecl<"Route">>) => (
   <div className="rounded bg-rose-900 px-6 py-3 text-center text-white">
     <Handle
       type="target"

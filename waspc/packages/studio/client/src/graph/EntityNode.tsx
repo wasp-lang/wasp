@@ -1,12 +1,12 @@
 import { Handle, NodeProps, Position } from "reactflow";
-import { NodeDataForDecl } from "../node";
+import { DeclNodeDataForDecl } from "../node";
 
 export const EntityNode = ({
   data,
   isConnectable,
   targetPosition = Position.Left,
   sourcePosition = Position.Right,
-}: NodeProps<NodeDataForDecl<"Entity">>) => (
+}: NodeProps<DeclNodeDataForDecl<"Entity">>) => (
   <div
     className={`rounded bg-yellow-900 px-6 py-3 text-center text-white ${data.name === "User" ? "border-3 border-yellow-300" : ""} `}
   >
