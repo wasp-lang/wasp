@@ -22,7 +22,12 @@
             ],
             "name": "getGptResponses",
             "type": "query",
-            "auth": null
+            "auth": null,
+            "pages": [
+                {
+                    "name": "DemoAppPage"
+                }
+            ]
         },
         {
             "entities": [
@@ -31,8 +36,19 @@
                 }
             ],
             "name": "getAllTasksByUser",
+            "arguments": [
+                {
+                    "name": "userId",
+                    "type": "string"
+                }
+            ],
             "type": "query",
-            "auth": null
+            "auth": null,
+            "pages": [
+                {
+                    "name": "DemoAppPage"
+                }
+            ]
         },
         {
             "entities": [
@@ -48,7 +64,12 @@
             ],
             "name": "generateGptResponse",
             "type": "action",
-            "auth": null
+            "auth": null,
+            "pages": [
+                {
+                    "name": "DemoAppPage"
+                }
+            ]
         },
         {
             "entities": [
@@ -58,7 +79,12 @@
             ],
             "name": "createTask",
             "type": "action",
-            "auth": null
+            "auth": null,
+            "pages": [
+                {
+                    "name": "DemoAppPage"
+                }
+            ]
         },
         {
             "entities": [
@@ -68,7 +94,12 @@
             ],
             "name": "deleteTask",
             "type": "action",
-            "auth": null
+            "auth": null,
+            "pages": [
+                {
+                    "name": "DemoAppPage"
+                }
+            ]
         },
         {
             "entities": [
@@ -78,7 +109,12 @@
             ],
             "name": "updateTask",
             "type": "action",
-            "auth": null
+            "auth": null,
+            "pages": [
+                {
+                    "name": "DemoAppPage"
+                }
+            ]
         }
     ],
     "apis": [],

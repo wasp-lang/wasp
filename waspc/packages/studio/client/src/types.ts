@@ -9,6 +9,9 @@ export type Data = {
     name: string;
     type: "query" | "action";
     auth: string;
+    pages: {
+      name: string;
+    }[];
   }[];
   apis: {
     entities: {
