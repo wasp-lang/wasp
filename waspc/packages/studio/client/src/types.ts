@@ -1,4 +1,4 @@
-export type Data = {
+export type WaspAppData = {
   entities: {
     name: string;
   }[];
