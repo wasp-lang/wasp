@@ -6,6 +6,7 @@ import {
 import ReactFlow, {
   Background,
   Edge,
+  Node,
   getConnectedEdges,
   useEdgesState,
   useNodesState,
