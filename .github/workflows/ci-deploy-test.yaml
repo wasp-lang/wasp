@@ -97,7 +97,7 @@ jobs:
 
       - name: Smoke test the client
         run: |
-          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'Kitchen Sink App'
+          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'Wasp Kitchen Sink'
 
   fly_destroy_app:
     runs-on: ubuntu-latest
