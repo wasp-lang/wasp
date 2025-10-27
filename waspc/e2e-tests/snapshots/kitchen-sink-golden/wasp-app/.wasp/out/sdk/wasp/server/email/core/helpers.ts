@@ -20,6 +20,6 @@ export function formatFromField({
 // PRIVATE API
 export function getDefaultFromField(): EmailFromField {
   return {
-    email: "todoapp@mg.wasp.sh",
+    email: "kitchen-sink@wasp.sh",
   }
 }
