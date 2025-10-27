@@ -30,15 +30,15 @@ execValidator :: Validator input result -> input -> [ValidationError]
 execValidator validator = either NE.toList (const []) . runValidator validator
 
 -- | Adds file name context to validation errors produced by the inner validator.
-file :: String -> Validator a result -> Validator a result
-file fileName' innerValidator =
+inFile :: String -> Validator a result -> Validator a result
+inFile fileName' innerValidator =
   mapErrors setFileName . innerValidator
   where
     setFileName err = err {fileName = Just fileName'}
 
--- | Adds field name context to validation errors produced by the inner validator.
-field :: String -> (a -> b) -> Validator b result -> Validator a result
-field fieldName fn innerValidator =
+-- | Runs the validator on a specific field of the input, adding the field name to the error path.
+inField :: String -> (a -> b) -> Validator b result -> Validator a result
+inField fieldName fn innerValidator =
   mapErrors prependFieldName . innerValidator . fn
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
@@ -70,16 +70,8 @@ instance Show ValidationError where
         locationLine = case (fieldPath', fileName') of
           ([], Nothing) -> Nothing
           ([], Just fileName'') ->
-            Just $
-              "In " ++ show fileName'' ++ ":"
+            Just $ "In " ++ show fileName'' ++ ":"
           (fieldPath'', Nothing) ->
-            Just $
-              "In " ++ show (intercalate "." fieldPath'') ++ ":"
+            Just $ "In " ++ show (intercalate "." fieldPath'') ++ ":"
           (fieldPath'', Just fileName'') ->
-            Just $
-              unwords
-                [ "In",
-                  show fileName'',
-                  "→",
-                  show (intercalate "." fieldPath'') ++ ":"
-                ]
+            Just $ "In " ++ show fileName'' ++ " → " ++ show (intercalate "." fieldPath'') ++ ":"
