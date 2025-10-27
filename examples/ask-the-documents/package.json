@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
-    "env:push": "npx dotenv-vault@latest push development .env.server"
+    "env:push": "npx dotenv-vault@latest push development .env.server",
+    "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
   },
   "dependencies": {
     "@heroui/react": "2.7.5",
@@ -22,7 +23,9 @@
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
+    "@playwright/test": "1.51.1",
     "@types/react": "^18.0.37",
+    "@wasp.sh/wasp-app-runner": "^0.0.9",
     "prisma": "5.19.1",
     "typescript": "5.8.2",
     "vite": "^7.0.6"

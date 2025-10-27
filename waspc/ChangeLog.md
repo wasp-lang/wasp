@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.18.1 (Unreleased)
+## 0.18.2 (Unreleased)
 
 ### 🎉 New Features
 
@@ -20,6 +20,12 @@
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+
+## 0.18.1
+
+### 🐞 Bug fixes
+
+- Wasp now pins `@tanstack/react-query` to a patch version instead of a minor version to prevent future package releases from affecting Wasp. ([#3264](https://github.com/wasp-lang/wasp/pull/3264))
 
 ## 0.18.0
 
