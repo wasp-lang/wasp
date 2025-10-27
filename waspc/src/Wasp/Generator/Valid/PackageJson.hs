@@ -5,12 +5,12 @@ where
 
 import Control.Monad (void)
 import qualified Data.Map as M
-import Validation (validateAll, whenSuccess_)
+import Validation (validateAll)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, inField, inFile)
+import Wasp.Generator.Valid.Validator (Validator, andThen, execValidator, failure, inField, inFile)
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 validatePackageJson :: P.PackageJson -> [GeneratorError]
@@ -69,7 +69,7 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 validateRequiredDependency :: DependencyType -> PackageSpecification -> Validator P.PackageJson ()
 validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
   inOppositeDepList (resultForOpposite . checkVersion) pkgJson
-    `whenSuccess_` const (inCorrectDepList (resultForCorrect . checkVersion) pkgJson)
+    `andThen` inCorrectDepList (resultForCorrect . checkVersion) pkgJson
   where
     checkVersion = eqVersion pkgVersion
 

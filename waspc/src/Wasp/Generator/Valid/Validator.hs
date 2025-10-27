@@ -52,6 +52,13 @@ failure message' =
         fileName = Nothing
       }
 
+-- | A combinator to short-circuit a validation chain if the left side fails,
+-- skipping the right side.
+andThen :: V.Validation e a -> V.Validation e a -> V.Validation e a
+andThen left right
+  | V.isFailure left = left
+  | otherwise = right
+
 mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
 mapErrors = first . fmap
 
