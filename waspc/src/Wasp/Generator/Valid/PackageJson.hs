@@ -16,14 +16,14 @@ import Wasp.Generator.Valid.Validator
     execValidator,
     failure,
     field,
-    fileValidator,
+    file,
   )
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 validatePackageJson :: P.PackageJson -> [GeneratorError]
 validatePackageJson =
   (fmap (GenericGeneratorError . show) <$>) . execValidator $ do
-    fileValidator "package.json" validateDependencies
+    file "package.json" validateDependencies
   where
     validateDependencies =
       validateAll $

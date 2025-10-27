@@ -7,12 +7,12 @@ import Control.Monad (void)
 import Validation (validateAll)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, field, fileValidator)
+import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, field, file)
 
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig =
   (fmap (GenericGeneratorError . show) <$>) . execValidator $
-    fileValidator "tsconfig.json" validateTopLevel
+    file "tsconfig.json" validateTopLevel
   where
     -- References for understanding the required compiler options:
     --   - The comments in templates/sdk/wasp/tsconfig.json

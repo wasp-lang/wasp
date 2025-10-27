@@ -20,21 +20,26 @@ data ValidationError = ValidationError
     fileName :: Maybe String
   }
 
+-- | Runs the given validator on the input and returns either validation errors or the result.
 runValidator :: Validator input result -> input -> Either (NonEmpty ValidationError) result
 runValidator validator = validationToEither . validator
 
+-- | Executes the given validator on the input and returns a list of validation errors. If there are
+-- no errors, returns an empty list.
 execValidator :: Validator input result -> input -> [ValidationError]
 execValidator validator = either NE.toList (const []) . runValidator validator
 
-fileValidator :: String -> Validator a result -> Validator a result
-fileValidator fileName' innerValidator =
+-- | Adds file name context to validation errors produced by the inner validator.
+file :: String -> Validator a result -> Validator a result
+file fileName' innerValidator =
   mapErrors setFileName . innerValidator
   where
     setFileName err = err {fileName = Just fileName'}
 
+-- | Adds field name context to validation errors produced by the inner validator.
 field :: String -> (a -> b) -> Validator b result -> Validator a result
-field fieldName fn check =
-  mapErrors prependFieldName . check . fn
+field fieldName fn innerValidator =
+  mapErrors prependFieldName . innerValidator . fn
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 
