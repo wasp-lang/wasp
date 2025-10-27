@@ -14,10 +14,12 @@
     "@nextui-org/react": "^2.1.12",
     "elkjs": "^0.8.2",
     "framer-motion": "^10.16.4",
+    "openai": "^6.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.8.3",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

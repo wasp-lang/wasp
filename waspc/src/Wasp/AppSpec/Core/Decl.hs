@@ -6,6 +6,7 @@ module Wasp.AppSpec.Core.Decl
     takeDecls,
     makeDecl,
     fromDecl,
+    declName,
   )
 where
 
@@ -28,3 +29,10 @@ makeDecl = Decl
 
 fromDecl :: (IsDecl a) => Decl -> Maybe (String, a)
 fromDecl (Decl name value) = (name,) <$> cast value
+
+-- | Extract the name from a Decl.
+declName :: Decl -> String
+declName (Decl name _) = name
+
+
+

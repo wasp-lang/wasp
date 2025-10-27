@@ -1,29 +1,19 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
+  useState
 } from "react";
 import ReactFlow, {
   Background,
   Edge,
   Node,
+  getConnectedEdges,
   useEdgesState,
   useNodesState,
-  useReactFlow,
+  useReactFlow
 } from "reactflow";
-import { Data } from "./types";
-
-import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
-
-import { ApiNode } from "./graph/Api";
-import { AppNode } from "./graph/App";
-import { EntityNode } from "./graph/Entity";
-import { JobNode } from "./graph/Job";
-import { ActionNode, QueryNode } from "./graph/Operation";
-import { PageNode } from "./graph/Page";
-import { RouteNode } from "./graph/Route";
+import { DetailViewer } from "./DetailViewer";
+import { getLayoutedElements } from "./ELK";
 import {
   createActionNode,
   createApiNode,
@@ -33,197 +23,136 @@ import {
   createJobNode,
   createPageNode,
   createQueryNode,
-  createRouteNode,
+  createRouteNode
 } from "./graph/factories";
+import { DeclNode, declNodeTypes } from "./node";
+import { WaspAppData } from "./waspAppData";
 
-const elk = new ELK();
+interface FlowProps {
+  waspAppData: WaspAppData;
+}
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
-  const graph = {
-    id: "root",
-    // Elk has a *huge* amount of options to configure. To see everything you can
-    // tweak check out:
-    //
-    // - https://www.eclipse.org/elk/reference/algorithms.html
-    // - https://www.eclipse.org/elk/reference/options.html
-    layoutOptions: {
-      // Alternative layout:
-      // "elk.spacing.nodeNode": "30.0",
-      // "elk.algorithm": "elk.layered",
-      // "elk.layered.spacing.nodeNodeBetweenLayers": "100.0",
-      // "elk.layered.thoroughness": "7",
-      // "elk.direction": "RIGHT",
-      // "elk.edgeRouting": "POLYLINE",
-      // "elk.aspectRatio": "1.0f",
-      "elk.algorithm": "layered",
-      "elk.direction": "RIGHT",
-      "elk.edgeRouting": "POLYLINE",
-      // "elk.hierarchyHandling": "INCLUDE_CHILDREN",
-      "elk.layered.crossingMinimization.semiInteractive": true,
-    },
-    children: nodes.map((node: Node) => ({
-      ...node,
-      width: getNodeWidth(node),
-      height: getNodeHeight(node),
-    })),
-    edges: edges,
-  };
+export default function Flow({
+  waspAppData,
+}: FlowProps) {
+  const [selectedNode, setSelectedNode] = useState<DeclNode | null>(null);
+  const [showBreadcrumb, setShowBreadcrumb] = useState<boolean>(true);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { fitView, getNode } = useReactFlow();
 
-  return (
-    elk
-      // Hack
-      .layout(graph as unknown as ElkNode)
-      .then((layoutedGraph) => {
-        if (!layoutedGraph.children) {
-          return null;
-        }
-        return {
-          nodes: layoutedGraph.children.map((node) => ({
-            ...node,
-            position: { x: node.x, y: node.y },
-          })),
+  // NOTE:
+  // To make adding/removing entities work,
+  // the "waspAppData" must be connected to edges/nodes bidirectionally.
 
-          edges: layoutedGraph.edges,
-        };
-      })
-      .catch(console.error)
-  );
-};
+  // const handleAddEntity = useCallback(
+  //   () => {
+  //     const newEntity: GetDeclForType<"Entity"> = { declName: "name", declType: "Entity", declValue: {}};
+  //     const entityNode = createEntityNode(
+  //       newEntity,
+  //       selectedNode,
+  //     );
+  //     const newEdge = createEdge(newEntity, waspAppData.app, selectedNode);
 
-export default function Flow({ data }: { data: Data }) {
-  // NOTE: This is not used. But it might be useful in the future.
-  const [selectedNode] = useState<Node | null>(null);
-
-  const [nodes, setNodes] = useNodesState([]);
-  const [edges, setEdges] = useEdgesState([]);
-  const { fitView } = useReactFlow();
-  const nodeTypes = useMemo(
-    () => ({
-      pageNode: PageNode,
-      entityNode: EntityNode,
-      queryNode: QueryNode,
-      actionNode: ActionNode,
-      appNode: AppNode,
-      routeNode: RouteNode,
-      apiNode: ApiNode,
-      jobNode: JobNode,
-    }),
-    [],
-  );
+  //     setNodes(oldNodes => [...oldNodes, entityNode]);
+  //     setEdges(oldEges => [...oldEges, newEdge]);
+  //   },
+  //   [selectedNode, waspAppData.app, setNodes, setEdges],
+  // );
 
   const onLayout = useCallback(() => {
-    const initialNodes: Node[] = [
-      // ASSUMPTION: The names are of everything is unique.
+    const initialNodes: DeclNode[] = [
       createAppNode(
-        generateId(data.app.name, "app"),
-        data.app.name,
-        data.app,
+        waspAppData.app,
         selectedNode,
       ),
-      ...data.pages.map((page) =>
-        createPageNode(
-          generateId(page.name, "page"),
-          page.name,
-          page,
-          selectedNode,
-        ),
-      ),
-      ...data.operations
-        .filter((operation) => operation.type === "query")
-        .map((query) =>
-          createQueryNode(
-            generateId(query.name, "query"),
-            query.name,
-            query,
-            selectedNode,
-          ),
-        ),
-      ...data.operations
-        .filter((operation) => operation.type === "action")
-        .map((action) =>
-          createActionNode(
-            generateId(action.name, "action"),
-            action.name,
-            action,
-            selectedNode,
-          ),
-        ),
-      ...data.entities.map((entity) =>
-        createEntityNode(
-          generateId(entity.name, "entity"),
-          entity.name,
-          entity.name === data.app.auth?.userEntity.name,
+      ...waspAppData.pages.map((page) => createPageNode(page, selectedNode)),
+      ...waspAppData.routes.map((route) => createRouteNode(route, selectedNode)),
+      ...waspAppData.entities.map((entity) => createEntityNode(entity, selectedNode)),
+      ...waspAppData.queries.map((query) => createQueryNode(query, selectedNode)),
+      ...waspAppData.actions.map((action) => createActionNode(action, selectedNode)),
+      ...waspAppData.apis.map((api) => createApiNode(api, selectedNode)),
+      ...waspAppData.jobs.map((job) => createJobNode(job, selectedNode)),
+    ];
+
+    const initialEdges: Edge[] = [];
+    // Edges from Entities to App
+    waspAppData.entities.forEach((entity) => {
+      initialEdges.push(
+        createEdge(
           entity,
+          waspAppData.app,
           selectedNode,
         ),
-      ),
-      ...data.routes.map((route) =>
-        createRouteNode(
-          generateId(route.path, "route"),
-          route.path,
+      );
+    });
+    // Edges from Routes to Pages
+    waspAppData.routes.forEach((route) => {
+      initialEdges.push(
+        createEdge(
+          route,
+          route.declValue.to,
+          selectedNode,
+        ),
+      );
+    });
+    // Edges from Operations (Query/Action) to Entities
+    waspAppData.queries.forEach((query) => {
+      query.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            query,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    waspAppData.actions.forEach((action) => {
+      action.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            action,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    // Edges from APIs to Entities
+    waspAppData.apis.forEach((api) => {
+      api.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            api,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    // Edges from Jobs to Entities
+    waspAppData.jobs.forEach((job) => {
+      job.declValue.entities?.forEach((entity) => {
+        initialEdges.push(
+          createEdge(
+            job,
+            entity,
+            selectedNode,
+          ),
+        );
+      });
+    });
+    // Edges from App to Routes
+    waspAppData.routes.forEach((route) => {
+      initialEdges.push(
+        createEdge(
+          waspAppData.app,
           route,
           selectedNode,
         ),
-      ),
-      ...data.apis.map((api) =>
-        createApiNode(generateId(api.name, "api"), api.name, api, selectedNode),
-      ),
-      ...data.jobs.map((job) =>
-        createJobNode(generateId(job.name, "job"), job.name, job, selectedNode),
-      ),
-    ];
-
-    const initialEdges: Edge[] = [
-      ...data.entities.map((entity) =>
-        createEdge(
-          generateId(entity.name, "entity"),
-          generateId(data.app.name, "app"),
-          selectedNode,
-        ),
-      ),
-      ...data.routes.map((route) =>
-        createEdge(
-          generateId(route.path, "route"),
-          generateId(route.toPage.name, "page"),
-          selectedNode,
-        ),
-      ),
-      ...data.operations.flatMap((operation) =>
-        operation.entities.map((entity) =>
-          // ASSUMPTION: operation.type is either "query" or "action"
-          createEdge(
-            generateId(operation.name, operation.type),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...data.apis.flatMap((api) =>
-        api.entities.map((entity) =>
-          createEdge(
-            generateId(api.name, "api"),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...data.jobs.flatMap((job) =>
-        job.entities.map((entity) =>
-          createEdge(
-            generateId(job.name, "job"),
-            generateId(entity.name, "entity"),
-            selectedNode,
-          ),
-        ),
-      ),
-      ...data.routes.map((route) =>
-        createEdge(
-          generateId(data.app.name, "app"),
-          generateId(route.path, "route"),
-          selectedNode,
-        ),
-      ),
-    ];
+      );
+    });
 
     getLayoutedElements(initialNodes, initialEdges).then((result) => {
       if (!result) {
@@ -234,18 +163,12 @@ export default function Flow({ data }: { data: Data }) {
         return;
       }
       // Hack
-      setNodes(layoutedNodes as Node[]);
+      setNodes(layoutedNodes as DeclNode[]);
       // Hack
       setEdges(layoutedEdges as unknown as Edge[]);
-
       window.requestAnimationFrame(() => fitView());
     });
-  }, [data, setNodes, setEdges, fitView, selectedNode]);
-
-  // Calculate the initial layout on mount.
-  useLayoutEffect(() => {
-    onLayout();
-  }, [onLayout]);
+  }, [waspAppData, selectedNode, fitView, setEdges, setNodes]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -253,64 +176,174 @@ export default function Flow({ data }: { data: Data }) {
     }, 100);
   }, [fitView, selectedNode]);
 
+  const handleNodeClick = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      setSelectedNode(node as unknown as DeclNode);
+    },
+    [],
+  );
+
+  const handlePaneClick = useCallback(() => {
+    setSelectedNode(null);
+  }, []);
+
+  const handleNavigateToNode = useCallback(
+    (nodeId: string) => {
+      const node = getNode(nodeId) as DeclNode | undefined;
+      if (node) {
+        setSelectedNode(node);
+        fitView({
+          nodes: [node],
+          duration: 500,
+          padding: 0.5,
+        });
+      }
+    },
+    [getNode, fitView],
+  );
+
+  // Update node selection state and mark connected nodes
   useEffect(() => {
-    fitView();
-  }, [fitView]);
+    if (!selectedNode) {
+      // Clear all selections and connected states
+      setNodes((nds) =>
+        nds.map((node) => ({
+          ...node,
+          selected: false,
+          className: "",
+        })),
+      );
+      setEdges((eds) =>
+        eds.map((edge) => ({
+          ...edge,
+          selected: false,
+        })),
+      );
+      return;
+    }
+
+    const connectedNodeIds = getConnectedEdges([selectedNode], edges).map(edge => edge.id);
+  
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        selected: node.id === selectedNode.id,
+        className: connectedNodeIds.includes(node.id) ? "connected" : "",
+      })),
+    );
+    setEdges((eds) =>
+      eds.map((edge) => ({
+        ...edge,
+        selected:
+          edge.source === selectedNode.id || edge.target === selectedNode.id,
+      })),
+    );
+  }, [selectedNode, setNodes, setEdges, edges]);
 
   return (
-    <div style={{ height: "100%" }}>
-      <ReactFlow nodes={nodes} edges={edges} fitView nodeTypes={nodeTypes}>
-        <Background
+    <div style={{ height: "100%", display: "flex", position: "relative" }}>
+      {/* Detail Viewer Panel */}
+      {showBreadcrumb && (
+        <div
           style={{
-            backgroundColor: `hsl(var(--nextui-background)`,
+            width: "400px",
+            maxHeight: "100%",
+            overflowY: "auto",
+            borderRight: "1px solid #333",
+            background: "hsl(var(--nextui-background))",
           }}
-          color={`#444`}
-        />
-      </ReactFlow>
+        >
+          <DetailViewer
+            selectedNode={selectedNode}
+            onNodeClick={handleNavigateToNode}
+            waspAppData={waspAppData}
+          />
+        </div>
+      )}
+      {/* Main Graph */}
+      <div style={{ flex: 1, position: "relative" }}>
+        {/* Toggle Button */}
+        <button
+          onClick={() => setShowBreadcrumb(!showBreadcrumb)}
+          style={{
+            position: "absolute",
+            top: "10px",
+            left: "10px",
+            zIndex: 10,
+            padding: "8px 12px",
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: "600",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+          title={showBreadcrumb ? "Hide Details" : "Show Details"}
+        >
+          {showBreadcrumb ? <SideBarOpenIcon /> : <SideBarCloseIcon />}
+        </button>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={handleNodeClick}
+          onPaneClick={handlePaneClick}
+          fitView
+          nodeTypes={declNodeTypes}
+          className={selectedNode ? "focus-mode" : ""}
+          onInit={onLayout}
+        >
+          <Background
+            style={{
+              backgroundColor: `hsl(var(--nextui-background)`,
+            }}
+            color={`#444`}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 }
 
-function getNodeHeight(node: Node) {
-  if (node.type === "apiNode") {
-    return 100;
-  }
-  if (node.type === "jobNode" && node.data.schedule) {
-    return 100;
-  }
-  if (node.type === "appNode") {
-    const authMethods = node.data.auth?.methods ?? [];
-    return 100 + authMethods.length * 50;
-  }
-  return 50;
-}
-
-function getNodeWidth(node: Node) {
-  const textCandidates = [
-    node.data?.label,
-    node.data?.name,
-    node.data?.path,
-    node.data?.schedule,
-    // Auth methods
-    ...getAuthMethods(node),
-  ]
-    .filter(Boolean)
-    .map((text) => text.length);
-
-  const longestText = Math.max(...textCandidates);
-  const width = Math.max(150, longestText * 10 + 40);
-  return width;
-}
-
-function generateId(name: string, type: string): string {
-  return `${type}:${name}`;
-}
-
-function getAuthMethods(node: Node) {
-  if (node.type !== "appNode") {
-    return [];
-  }
+function SideBarCloseIcon() {
   return (
-    node.data?.auth?.methods.map((method: string) => `Auth: ${method}`) ?? []
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="lucide lucide-panel-left-open-icon lucide-panel-left-open"
+    >
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M9 3v18" />
+      <path d="m14 9 3 3-3 3" />
+    </svg>
+  );
+}
+
+function SideBarOpenIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="lucide lucide-panel-left-close-icon lucide-panel-left-close"
+    >
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M9 3v18" />
+      <path d="m16 15-3-3 3-3" />
+    </svg>
   );
 }

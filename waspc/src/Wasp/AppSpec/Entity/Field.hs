@@ -9,7 +9,10 @@ module Wasp.AppSpec.Entity.Field
   )
 where
 
+import qualified Data.Aeson as Aeson
+import Data.Aeson (object, (.=))
 import Data.Data (Data)
+import Data.Text (pack)
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 
 data Field = Field
@@ -73,3 +76,24 @@ pslFieldToEntityField pslField =
       Psl.Model.Bytes -> Bytes
       Psl.Model.UserType typeName -> UserType typeName
       Psl.Model.Unsupported typeName -> Unsupported typeName
+
+instance Aeson.ToJSON Scalar where
+  toJSON String = Aeson.String "string"
+  toJSON Boolean = Aeson.String "boolean"
+  toJSON Int = Aeson.String "int"
+  toJSON BigInt = Aeson.String "bigint"
+  toJSON Float = Aeson.String "float"
+  toJSON Decimal = Aeson.String "decimal"
+  toJSON DateTime = Aeson.String "datetime"
+  toJSON Json = Aeson.String "json"
+  toJSON Bytes = Aeson.String "bytes"
+  toJSON (UserType typeName) = Aeson.String (pack typeName)
+  toJSON (Unsupported typeName) = Aeson.String (pack typeName)
+
+instance Aeson.ToJSON Composite where
+  toJSON (Optional scalar) = object ["type" .= ("optional" :: String), "of" .= Aeson.toJSON scalar]
+  toJSON (List scalar) = object ["type" .= ("list" :: String), "of" .= Aeson.toJSON scalar]
+
+instance Aeson.ToJSON FieldType where
+  toJSON (FieldTypeScalar scalar) = Aeson.toJSON scalar
+  toJSON (FieldTypeComposite composite) = Aeson.toJSON composite
