@@ -49,7 +49,7 @@ jobs:
           set -e
 
           # `fly launch` fails if Fly toml files already exist.
-          rm fly-server.toml fly-client.toml 
+          rm -f fly-server.toml fly-client.toml 
 
           # NOTE: This assumes env var values don't contain:
           #   - The character `#`.
