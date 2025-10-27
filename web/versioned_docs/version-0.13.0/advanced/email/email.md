@@ -249,6 +249,10 @@ Then, get the SendGrid API key and add it to your `.env.server` file.
 
 #### Getting the API Key
 
+:::note SendGrid Pricing
+SendGrid requires a paid subscription to send emails. They discontinued their free plan in 2024. Check their [pricing page](https://sendgrid.com/en-us/pricing) for current plans.
+:::
+
 1. Go to [SendGrid](https://sendgrid.com/) and create an account.
 2. Go to [API Keys](https://app.sendgrid.com/settings/api_keys) and create a new API key.
 3. Copy the API key and add it to your `.env.server` file.
