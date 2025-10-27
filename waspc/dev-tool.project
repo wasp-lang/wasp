@@ -1,4 +1,4 @@
-with-compiler: ghc-8.10.7
+with-compiler: ghc-9.0.2
 
 packages: .
 
@@ -7,8 +7,8 @@ jobs: $ncpus
 
 constraints:
   ormolu ==0.4.0.0,
-  stan ==0.0.1.0,
-  hlint ==3.3.6,
+  stan ==0.2.1.0,
+  hlint ==3.5.0,
   prune-juice ==0.7
 
 -- See cabal.project.

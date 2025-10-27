@@ -63,5 +63,37 @@
  * so I resorted to doing it manually.
  */
 .gradientBackground {
-  background-image: linear-gradient(to right, #d946ef, #ffcc00);
+  /* 75% purple with diagonal stripe pattern, 25% black */
+  background-image:
+    /* Stripes over purple portion */
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.15) 0,
+      rgba(255, 255, 255, 0.15) 10px,
+      transparent 10px,
+      transparent 20px
+    ),
+    /* Stripes over black portion */
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.08) 0,
+        rgba(255, 255, 255, 0.08) 10px,
+        transparent 10px,
+        transparent 20px
+      ),
+    /* Solid purple fill for the left portion */
+      linear-gradient(to right, #8b5cf6 0%, #8b5cf6 100%),
+    /* Black for the remaining portion */
+      linear-gradient(to right, #000000 0%, #000000 100%);
+  background-size:
+    75% 100%,
+    25% 100%,
+    75% 100%,
+    100% 100%;
+  background-repeat: no-repeat;
+  background-position:
+    left top,
+    right top,
+    left top,
+    left top;
 }

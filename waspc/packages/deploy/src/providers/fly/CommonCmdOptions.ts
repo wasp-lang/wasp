@@ -11,6 +11,7 @@ export interface DbOptions {
   vmSize: string;
   initialClusterSize: string;
   volumeSize: string;
+  dbImage?: string;
 }
 
 export interface LocalBuildOptions {

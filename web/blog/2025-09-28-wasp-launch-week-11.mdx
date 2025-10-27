@@ -1,0 +1,161 @@
+---
+title: "Wasp Launch Week #11 - Grinding the Grind ⛏️💎 + Design-a-thon! 🎨 "
+authors: [matijasos]
+image: /img/lw11/lw11-banner.png
+tags: [launch-week, update]
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+
+<ImgWithCaption
+    alt="Launch Week 11 is here"
+    source="img/lw11/lw11-banner.png"
+/>
+
+Anybody remember RuneScape? Martin and I spent a solid part of our high-school years on it (no regrets). What better way to spend your Friday evening than catching a bunch of fresh lobbies, cooking them nicely, going to the town square, and selling them for 250 ea?
+
+{/* truncate */}
+
+If our last quarter were RuneScape, we've been patiently grinding and leveling up: making things easier to build and test (starting with ourselves), and deploy. No super big fancy features this time, but everything you know and love about Wasp just got better. And that will help us add more, bigger and fancier things in the future, faster.
+
+So the time has come to count the loot and show the XP we gained - **welcome to Launch Week #11**.
+
+*(If you never heard of RuneScape, I'm sorry. Just imagine I mentioned your favorite MMORPG. If you don't know what that is, then I'm really sorry).*
+
+<ImgWithCaption
+    alt="RuneScape sales"
+    source="img/lw11/runescape-sales.webp"
+    caption="Ah, these were the days. I still remember my fingers getting sore from constantly typing the same thing."
+/>
+
+## The raid starts on Oct 6, Monday - bring your bows, swords and staffs!
+
+There's no launch party without a nice, cozy community call to kick it all off! We'll assemble in exactly one week, on **Monday, October 6th, 8 AM PT / 11 AM ET / 5 PM CET**. Make sure to register [in our Discord](https://discord.gg/yeyPb6Rk?event=1421153157215424764) to secure your spot in this epic raid (yep, pushing this MMORPG theme)!
+
+<ImgWithCaption
+    alt="Event instructions"
+    source="img/lw11/lw11-register.png"
+    caption="I'll see you there, fellow adventurer."
+/>
+
+## **Day #1: 🐲 The Loot AKA new features** - here's what we took from the dragon!
+
+I actually think it's not very nice to steal stuff from dragons. I'm sure some of them worked quite hard to get all that treasure and organise it nicely in their cave (maybe even used a label maker), and then a bunch of drunken dwarves shows up and starts waving their axes and yelling like crazy.
+
+Dragon rights and prejudices aside, on Monday we'll present everything new we added to Wasp. **The star of the show is `wasp build start` - a new CLI command that let's you test your production build locally before you deploy your app.** That way you can catch dependencies on your local environment and stuff that's otherwise easy to miss (before your users see it), like a missing environment variable which you set only locally.
+
+<ImgWithCaption
+    alt="Wasp build start"
+    source="img/lw11/wasp-build-start.png"
+/>
+
+We also shipped a bunch of QoL improvements and bug fixes - e.g. Node.js and Vite versions got bumped and we switched to ECMAScriptModules instead of CJS for Tailwind config files. Not to spill all the gold - more on the day itself!
+
+## **Day #2: 🔧 Under-the-hood day** - an unexpected journey of testing a full-stack framework: CLI to example apps
+
+Well, it was kinda expected - stuff has to be tested. What was probably less expected is how much work and effort will go into this. But, engineers are famous for underestimating so that was also expected in the end. Still, I needed a cool fantasy inspired subtitle (from The Hobbit, for the uncultured goblins) so here we are.
+
+Anyhow, if you enjoy tasting in all its flavors, this one is for you. We've got everything from unit tests and snapshot testing all the way to Playwright e2e tests. And then you also need to orchestrate it all in the CI, and add invariant testing in the future. Sounds like fun, no?
+
+<ImgWithCaption
+    alt="Testing meme"
+    source="img/lw11/testing-meme.png"
+    caption="Can you believe I used no AI to create this meme?"
+/>
+
+I can't think of a better way to end your Tuesday.
+
+
+## **Day #3: 🔦 Community Spotlight Day** - Live Demos! 🎙️
+
+<ImgWithCaption
+    alt="I love wasp testimonial"
+    source="img/lw11/rachie-testimonial.jpg"
+    caption="And we love you back, rachie cakies. More than you can ever know."
+    width="500px"
+/>
+
+What we started the last Launch Week has become a tradition by now (we move fast): we give spotlight to you, Wasp builders!
+
+We selected a few of amazing community members and builders who will **share what they built (live demo, woohoo!), what it took, and how Wasp helped in the process**. And you get to ask them questions, too!
+
+Nothing better than to share stories over a barrel of finely aged meadow with fellow warriors and dragon-slayers - make sure not to miss this one!
+
+<ImgWithCaption
+    alt="I love wasp testimonial"
+    source="img/lw11/dwarves-cheers.gif"
+    caption="Friday night after you've successfully pushed to prod"
+/>
+
+
+## **Day #4: 🧩 Ecosystem day** - Even more Railway + welcome Mastra - a Langchain for JS! 
+
+<ImgWithCaption
+    alt="I love wasp testimonial"
+    source="img/lw11/wasp-mastra-railway.png"
+/>
+
+You all know the old adage: *"A web framework is only worth as much as you can integrate it with other tools in the ecosystem."* And who are we to say anything to that, but to keep adding more!
+
+### Deploy OpenSaaS template to Railway with one click!
+
+During LW #10 we announced a [native integration with Railway in Wasp's CLI](/docs/deployment/deployment-methods/wasp-deploy/railway), allowing you to deploy your Wasp app with a single CLI command. Now, Railway has returned the favor - Open SaaS is one their verified template starters! You can take a look at it [here](https://railway.com/deploy/open-saas).
+
+<ImgWithCaption
+    alt="Open SaaS on Railway"
+    source="img/lw11/opensaas-railway.png"
+/>
+
+That means **you can deploy a fully working Open SaaS app to production even before you start writing any new features**. This greatly speeds up the feedback loop and makes it incredibly easy to deploy as often as possible. High five, Railway!
+
+### Welcome Mastra - the best way to lang your chain in JS!
+
+We love trying new things and figuring out the best ways to use them in Wasp. Especially if its open-source and you can easily self-host it. [Mastra](https://mastra.ai/) checks all the boxes and we kept hearing about it, so Vinny finally gave it a go!
+
+The result is, of course, an app. And it's something like you've never seen before - a recipe app! 🤯🤯
+
+<ImgWithCaption
+    alt="Wasp x Mastra"
+    source="img/lw11/wasp-mastra.png"
+/>
+
+The cool part about Mastra is that it gives the AI part of your app a neat structure and a bunch of features you'd otherwise have to (re)invent yourself. It's actually kinda like Wasp, but for the AI.
+
+Full video tutorial coming on Thursday!
+
+## **Day #5: 🤖 AI/Vibe-coding day** - Open SaaS x Claude Code = Magic 🧙
+
+<ImgWithCaption
+    alt="Open SaaS x Claude Code"
+    source="img/lw11/os-cc.png"
+    width="500px"
+/>
+
+Everybody keeps talking about the best stack for AI-assisted coding (or "vibe-coding", as the cool kids call it), and Claude Code has definitely become a front-runner lately. And being curious as we are, we also gave it a go and did our best to figure out the best workflow to use it with Open SaaS.
+
+We collaborated with one of our favorite creators on this one, and some of you already might know him from the community and videos he made previously. This is one of his most extensive tutorials so far in which he builds a full-stack app from scratch (not a recipe app, I promise. It's a todo list, of course), so stay tuned!
+
+## **Day #6: 🎨 Design-a-thon** - redesign our landing page and win cool prizes!
+
+<ImgWithCaption
+    alt="Design-a-thon"
+    source="img/lw11/wasp-artest.png"
+    width="500px"
+/>
+
+It's been a while since our last hackathon, so we decided it's about time to bring it back up. And this time, it's a bit different - **we're not asking you to code, but design** (using all the AI you want, of course)! We're looking to refresh Wasp's brand and we thought what could be better than to ask our community to have fun with it? We will reward the best ideas and use them as an inspiration (aka steal team) for our upcoming rebrand.
+
+More details on everything (the process, awards - they will be well designed, that much I can share) coming soon.
+
+## See you there, player!
+
+<ImgWithCaption
+    alt="See you"
+    source="img/lw11/ninja.gif"
+    caption="Smash that 'Interested' button in our Discord invite"
+/>
+
+Thanks so much for reading! We hope all (or at least some) of this sounds interesting and that you will join our Launch Week! As always, we're very much excited about all and any feedback and you might have for us, so please share it with us whenever - on [Discord](https://discord.com/invite/rzdnErX), [Twitter/X](https://x.com/WaspLang), [GitHub](https://github.com/wasp-lang/wasp) - you name it, we're there!
+
+
+And, as usual - to stay in the loop, [follow us on Twitter/X](https://twitter.com/WaspLang) and [join our Discord](https://discord.gg/rzdnErX) - game on! 🐝🐝

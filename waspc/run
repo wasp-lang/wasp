@@ -30,7 +30,7 @@ INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"
 WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests"
-WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/*-golden"
+WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/snapshots/*-golden"
 WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
 WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
@@ -49,6 +49,7 @@ function run_examples_e2e_tests() {
     "examples/waspello"
     "examples/waspleau"
     "examples/websockets-realtime-voting"
+    "examples/ask-the-documents"
     "examples/kitchen-sink"
   )
 
@@ -75,8 +76,9 @@ RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 
 # Utility
 GHCID_CMD="ghcid --command=cabal repl"
-# ghc version below should be the one from `cabal.project` file, `with-compiler` field.
-GHCUP_SET="ghcup set ghc 8.10.7 && ghcup set hls 2.2.0.0"
+# HLS version below should be one that works with the GHC version from the
+# `with-compiler` field in `cabal.project`
+GHCUP_SET="ghcup set hls 2.2.0.0"
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool() {
   echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"

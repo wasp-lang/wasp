@@ -1,15 +1,32 @@
 # Changelog
 
-## Unreleased
+## 0.18.2 (Unreleased)
 
 ### 🎉 New Features
 
 - You can now specify which PostgreSQL image to use in `wasp start db` with the `--db-image` argument. ([#3182](https://github.com/wasp-lang/wasp/pull/3182))
+- You can now specify which PostgreSQL image to use in `wasp deploy railway` with the `--db-image` argument. ([#3184](https://github.com/wasp-lang/wasp/pull/3184))
+- You can now specify which PostgreSQL image to use in `wasp deploy fly` with the `--db-image` argument. ([#3187](https://github.com/wasp-lang/wasp/pull/3187))
+
+### 🐞 Bug fixes
+
+- Fixed a type error with the default `NODE_ENV` value in the server env validation schema. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
+
+### 🔧 Small improvements
+
+- Creating a new OpenSaaS project is now much faster (around 20x faster in our testing!). ([#3196](https://github.com/wasp-lang/wasp/pull/3196))
 
 ### 📖 Documentation
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory ([#3085](github.com/wasp-lang/wasp/issues/3085))
+- Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+
+## 0.18.1
+
+### 🐞 Bug fixes
+
+- Wasp now pins `@tanstack/react-query` to a patch version instead of a minor version to prevent future package releases from affecting Wasp. ([#3264](https://github.com/wasp-lang/wasp/pull/3264))
 
 ## 0.18.0
 
