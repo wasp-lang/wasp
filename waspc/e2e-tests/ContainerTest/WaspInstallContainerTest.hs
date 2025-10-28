@@ -11,11 +11,12 @@ import ShellCommands
     writeToStdErrOnFailureAndExit,
     (~|),
   )
-import StrongPath (fromAbsDir, (</>), Path', Abs, Dir)
+import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Process (readCreateProcess, shell)
 import Wasp.Cli.FileSystem
-  ( getHomeDir,
-    waspInstallationDirInHomeDir, UserHomeDir,
+  ( UserHomeDir,
+    getHomeDir,
+    waspInstallationDirInHomeDir,
   )
 import qualified Wasp.SemanticVersion.Version as SV
 
@@ -34,25 +35,25 @@ waspInstallContainerTest = do
     makeWaspInstallContainerTest :: Path' Abs (Dir UserHomeDir) -> String -> ContainerTest
     makeWaspInstallContainerTest homeDir latestWaspVersion =
       makeContainerTest
-      "wasp-install"
-      [ writeToStdErrOnFailureAndExit
-          (installWaspCliVersion specificWaspVersion)
-          "Installer should suppoert installing a specific Wasp version",
-        writeToStdErrOnFailureAndExit
-          (assertWaspCliVerionDirectoryExists specificWaspVersion)
-          ("Installing Wasp version should create the " ++ fromAbsDir waspInstallationDir ++ "/<version> directory"),
-        installLatestWaspCli,
-        writeToStdErrOnFailureAndExit
-          assertLatestWaspCliVerionDirectoryExists
-          ("Installing latest Wasp version should create the " ++ fromAbsDir waspInstallationDir ++ "/<version> directory"),
-        writeToStdErrOnFailureAndExit
-          (assertWaspCliVerionDirectoryExists specificWaspVersion)
-          "Installing multiple Wasp versions should not remove the previously installed versions directories",
-        writeToStdErrOnFailureAndExit
-          -- This only tests that the edge case is recognized, it doesn't test the actual reuse/download.
-          ((~| "grep -q 'Found an existing installation on the disk'") <$> installWaspCliVersion specificWaspVersion)
-          "Installing already installed version should reuse the existing installation on the disk"
-      ]
+        "wasp-install"
+        [ writeToStdErrOnFailureAndExit
+            (installWaspCliVersion specificWaspVersion)
+            "Installer should suppoert installing a specific Wasp version",
+          writeToStdErrOnFailureAndExit
+            (assertWaspCliVerionDirectoryExists specificWaspVersion)
+            ("Installing Wasp version should create the " ++ fromAbsDir waspInstallationDir ++ "/<version> directory"),
+          installLatestWaspCli,
+          writeToStdErrOnFailureAndExit
+            assertLatestWaspCliVerionDirectoryExists
+            ("Installing latest Wasp version should create the " ++ fromAbsDir waspInstallationDir ++ "/<version> directory"),
+          writeToStdErrOnFailureAndExit
+            (assertWaspCliVerionDirectoryExists specificWaspVersion)
+            "Installing multiple Wasp versions should not remove the previously installed versions directories",
+          writeToStdErrOnFailureAndExit
+            -- This only tests that the edge case is recognized, it doesn't test the actual reuse/download.
+            ((~| "grep -q 'Found an existing installation on the disk'") <$> installWaspCliVersion specificWaspVersion)
+            "Installing already installed version should reuse the existing installation on the disk"
+        ]
       where
         assertLatestWaspCliVerionDirectoryExists :: ShellCommandBuilder context ShellCommand
         assertLatestWaspCliVerionDirectoryExists = return $ "[ -d " ++ fromAbsDir waspInstallationDir ++ latestWaspVersion ++ " ]"

@@ -23,8 +23,6 @@ Our `waspc e2e-tests` consist of three different tests variants:
 
 ### Ephemeral tests
 
-
-
 ### Snapshot tests
 
 We primarily test the `waspc` binary outputs using snapshot tests.
