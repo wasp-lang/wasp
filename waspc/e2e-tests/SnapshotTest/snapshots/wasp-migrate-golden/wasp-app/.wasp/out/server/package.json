@@ -18,13 +18,14 @@
     "@types/node": "^22.0.0",
     "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
-    "rollup-plugin-esbuild": "^6.1.1"
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "5.8.2"
   },
   "engineStrict": true,
   "engines": {
     "node": ">=22.12.0"
   },
-  "name": "server",
+  "name": "@wasp.sh/generated-server-dev",
   "nodemonConfig": {
     "delay": "1000"
   },
