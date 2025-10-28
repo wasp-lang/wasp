@@ -445,7 +445,7 @@
             "file",
             "Dockerfile"
         ],
-        "9de4ca5bcf28d82d55e553092777c16703684d43b2d8609b472b71866b4067a8"
+        "1b24a999d954c055578f7eea7de5bc4d6f23cb2f8cf640a091cdeb589fd0d21b"
     ],
     [
         [
@@ -471,13 +471,6 @@
     [
         [
             "file",
-            "server/.npmrc"
-        ],
-        "8a74b1091affea3c71c2cf04acbaa38c4a51a261a9a98dcc9e96473d07a85a27"
-    ],
-    [
-        [
-            "file",
             "server/README.md"
         ],
         "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
@@ -494,7 +487,7 @@
             "file",
             "server/package.json"
         ],
-        "3cbc2e7ea015363e88f0563ce8bffe444fabe3362e0308d7a455bdab5880c6b2"
+        "0901d904a7f3ad4d31e5496d8fc6613992ebc7358c8577024f1c71f7f4dc6cd6"
     ],
     [
         [
@@ -576,13 +569,6 @@
     [
         [
             "file",
-            "web-app/.npmrc"
-        ],
-        "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
-    ],
-    [
-        [
-            "file",
             "web-app/README.md"
         ],
         "6af47b8c26fa9d30e9b774e6c38d3456a3b469c3101bffb186e2a1fb325a93f4"
@@ -606,7 +592,7 @@
             "file",
             "web-app/package.json"
         ],
-        "f2dbf78e5de5f267551ed82f3909b4672ee486d59b44aee299b434be3b481f67"
+        "81e196ff68faea1ad0202d41c73d99da66caa3c2d5cdac610cc3afa7bcdf4002"
     ],
     [
         [

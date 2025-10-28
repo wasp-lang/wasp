@@ -47,6 +47,10 @@ RUN cd .wasp/build/server && npx prisma generate --schema='{= dbSchemaFileFromSe
 # Building the server should come after Prisma generation.
 RUN cd .wasp/build/server && npm run bundle
 
+# Depending on `npm`'s dependency resolution, this folder may or may not exist.
+# We ensure they are created so that the COPY instruction later does not fail.
+RUN mkdir -p ./.wasp/build/server/node_modules
+
 
 # TODO: Use pm2?
 # TODO: Use non-root user (node).

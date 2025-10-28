@@ -5,12 +5,14 @@ where
 
 import Control.Monad (void)
 import qualified Data.Map as M
-import Validation (validateAll)
+import qualified Data.Set as S
+import Validation (isFailure, validateAll)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Validator (Validator, andThen, execValidator, failure, inField, inFile)
+import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, inField, inFile)
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 validatePackageJson :: P.PackageJson -> [GeneratorError]
@@ -21,7 +23,8 @@ validatePackageJson pkgJson =
     validateFile =
       inFile "package.json" $
         validateAll $
-          (validateRequiredDependency Runtime <$> requiredRuntimeDependencies)
+          [validateWorkspaces]
+            <> (validateRequiredDependency Runtime <$> requiredRuntimeDependencies)
             <> (validateRequiredDependency Development <$> requiredDevelopmentDependencies)
             <> (validateOptionalDependency <$> optionalDependencies)
 
@@ -45,6 +48,30 @@ validatePackageJson pkgJson =
         ("@types/express", show expressTypesVersion)
       ]
 
+validateWorkspaces :: Validator P.PackageJson ()
+validateWorkspaces =
+  inField "workspaces" P.workspaces $
+    maybe missingWorkspacesKeyError (void . validateWorkspaceValues)
+  where
+    validateWorkspaceValues =
+      validateAll $ validateSpecificWorkspace <$> S.toList NW.workspaceGlobs
+
+    validateSpecificWorkspace expectedWorkspace actualWorkspaces
+      | expectedWorkspace `elem` actualWorkspaces = pure ()
+      | otherwise = makeMissingSpecificWorkspaceError expectedWorkspace
+
+    makeMissingSpecificWorkspaceError expectedWorkspace =
+      failure $
+        "Wasp requires "
+          ++ show expectedWorkspace
+          ++ " to be included."
+
+    missingWorkspacesKeyError =
+      failure $
+        "Wasp requires the value "
+          ++ show (S.toList NW.workspaceGlobs)
+          ++ "."
+
 validateOptionalDependency :: PackageSpecification -> Validator P.PackageJson ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
   void
@@ -67,9 +94,9 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
 validateRequiredDependency :: DependencyType -> PackageSpecification -> Validator P.PackageJson ()
-validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
-  inOppositeDepList (resultForOpposite . checkVersion) pkgJson
-    `andThen` inCorrectDepList (resultForCorrect . checkVersion) pkgJson
+validateRequiredDependency depType dep@(pkgName, pkgVersion) =
+  inOppositeDepList (resultForOpposite . checkVersion)
+    `andThen` inCorrectDepList (resultForCorrect . checkVersion)
   where
     checkVersion = eqVersion pkgVersion
 
@@ -117,6 +144,16 @@ depTypeFieldName Development = "devDependencies"
 depTypeGetter :: DependencyType -> P.PackageJson -> P.DependenciesMap
 depTypeGetter Runtime = P.dependencies
 depTypeGetter Development = P.devDependencies
+
+-- | A combinator to short-circuit a validation chain if the left side fails,
+-- skipping the right side.
+andThen :: Validator a b -> Validator a b -> Validator a b
+andThen x y value
+  | isFailure xResult = xResult
+  | otherwise = yResult
+  where
+    xResult = x value
+    yResult = y value
 
 eqVersion :: P.PackageVersion -> Maybe P.PackageVersion -> DependencyCheckResult
 eqVersion _ Nothing = NotPresent

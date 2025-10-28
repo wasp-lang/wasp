@@ -19,7 +19,7 @@ kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
   makeSnapshotTest
     "kitchen-sink"
-    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|waspc/examples/todoApp/|],
+    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink/|],
       withInSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           normalizePostgresConnectionString,
