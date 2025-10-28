@@ -29,13 +29,13 @@ waspUninstallContainerTest = do
         unisntallWaspCli,
         writeToStdErrOnFailureAndExit
           (assertDirectoryMissing $ fromAbsDir waspInstallationDir)
-          ("Directory " ++ fromAbsDir waspInstallationDir ++ " was not deleted by the uninstall command"),
+          ("Wasp installation directory should be deleted: " ++ fromAbsDir waspInstallationDir),
         writeToStdErrOnFailureAndExit
           (assertDirectoryMissing $ fromAbsDir waspCacheDir)
-          ("Directory " ++ fromAbsDir waspCacheDir ++ " was not deleted by the uninstall command"),
+          ("Wasp cache directory should be deleted: " ++ fromAbsDir waspCacheDir),
         writeToStdErrOnFailureAndExit
           (assertFileMissing $ fromAbsFile waspExecutableFile)
-          ("File " ++ fromAbsFile waspExecutableFile ++ " was not deleted by the uninstall command")
+          ("Wasp executable should be deleted: " ++ fromAbsFile waspExecutableFile)
       ]
   where
     assertFileMissing :: String -> ShellCommandBuilder context ShellCommand

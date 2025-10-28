@@ -13,6 +13,6 @@ ARG WASP_CLI_PATH
 COPY ./${WASP_CLI_PATH} /root/.local/bin/wasp-cli
 # To enable testing of default behavior.
 # e.g. uninstall removes the binary
-RUN ln s /root/.local/bin/wasp-cli /root/.local/bin/wasp
+RUN ln -s /root/.local/bin/wasp-cli /root/.local/bin/wasp
 # Make the binary executable.
 RUN chmod +x /root/.local/bin/wasp-cli
