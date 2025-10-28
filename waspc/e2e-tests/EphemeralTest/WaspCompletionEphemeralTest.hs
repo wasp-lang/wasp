@@ -1,4 +1,4 @@
-module Tests.WaspCompletionEphemeralTest (waspCompletionEphemeralTest) where
+module EphemeralTest.WaspCompletionEphemeralTest (waspCompletionEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest)
 import ShellCommands (ShellCommand, ShellCommandBuilder, writeToStdErrOnFailureAndExit, (~&&))

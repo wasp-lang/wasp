@@ -47,7 +47,7 @@ asWaspProjectDir = castDir
 data SnapshotFileListManifestFile
 
 snapshotsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir SnapshotsDir)
-snapshotsDirInE2eTests = [reldir|snapshots|]
+snapshotsDirInE2eTests = [reldir|SnapshotTest/snapshots|]
 
 getSnapshotsDir :: IO (Path' Abs (Dir SnapshotsDir))
 getSnapshotsDir = (</> snapshotsDirInE2eTests) <$> getE2eTestsDir
@@ -73,4 +73,4 @@ snapshotDirInGitRootDir snapshotTestName snapshotType =
 -- | Inverse of 'snapshotDirInGitRootDir'.
 -- NOTE: If you change this function, change the other one too.
 gitRootFromSnapshotDir :: Path' (Rel SnapshotDir) (Dir GitRootDir)
-gitRootFromSnapshotDir = [reldir|../../../../|]
+gitRootFromSnapshotDir = [reldir|../../../../../|]

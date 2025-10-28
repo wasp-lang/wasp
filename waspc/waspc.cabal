@@ -780,6 +780,7 @@ test-suite waspc-e2e-tests
   build-tool-depends: waspc:wasp-cli
   build-depends:
     , waspc
+    , cli-lib
     , aeson
     , directory
     , base
@@ -803,22 +804,22 @@ test-suite waspc-e2e-tests
     SnapshotTest.Snapshot
     SnapshotTest.FileSystem
     SnapshotTest.ShellCommands
-    Tests.WaspNewSnapshotTest
-    Tests.KitchenSinkSnapshotTest
-    Tests.WaspMigrateSnapshotTest
-    Tests.WaspCompileSnapshotTest
-    Tests.WaspBuildSnapshotTest
+    SnapshotTest.WaspNewSnapshotTest
+    SnapshotTest.KitchenSinkSnapshotTest
+    SnapshotTest.WaspMigrateSnapshotTest
+    SnapshotTest.WaspCompileSnapshotTest
+    SnapshotTest.WaspBuildSnapshotTest
     EphemeralTest
     EphemeralTest.FileSystem
     EphemeralTest.ShellCommands
-    Tests.WaspCompletionEphemeralTest
-    Tests.WaspVersionEphemeralTest
-    Tests.WaspInfoEphemeralTest
-    Tests.WaspDockerfileEphemeralTest
-    Tests.WaspTelemetryEphemeralTest
+    EphemeralTest.WaspCompletionEphemeralTest
+    EphemeralTest.WaspVersionEphemeralTest
+    EphemeralTest.WaspInfoEphemeralTest
+    EphemeralTest.WaspDockerfileEphemeralTest
+    EphemeralTest.WaspTelemetryEphemeralTest
     ContainerTest
     ContainerTest.FileSystem
     ContainerTest.ShellCommands
-    Tests.WaspInstallContainerTest
-    Tests.WaspUninstallContainerTest
+    ContainerTest.WaspInstallContainerTest
+    ContainerTest.WaspUninstallContainerTest
 

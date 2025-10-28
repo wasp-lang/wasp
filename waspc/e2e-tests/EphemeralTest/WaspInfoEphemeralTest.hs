@@ -1,4 +1,4 @@
-module Tests.WaspInfoEphemeralTest (waspInfoEphemeralTest) where
+module EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest)
 import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)

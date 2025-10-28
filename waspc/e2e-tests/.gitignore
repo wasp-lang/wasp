@@ -1,2 +1,2 @@
-snapshots/*-current
-temp-*
+SnapshotTest/snapshots/*-current
+EphemeralTest/temp-*

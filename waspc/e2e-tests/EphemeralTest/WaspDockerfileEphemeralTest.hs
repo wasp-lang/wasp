@@ -1,4 +1,4 @@
-module Tests.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest) where
+module EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest)
 import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)

@@ -1,22 +1,22 @@
 import ContainerTest (runContainerTest)
+import ContainerTest.WaspInstallContainerTest (waspInstallContainerTest)
+import ContainerTest.WaspUninstallContainerTest (waspUninstallContainerTest)
 import Data.Maybe (isJust)
 import EphemeralTest (runEphemeralTest)
+import EphemeralTest.WaspCompletionEphemeralTest (waspCompletionEphemeralTest)
+import EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest)
+import EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest)
+import EphemeralTest.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest)
+import EphemeralTest.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 import SnapshotTest (runSnapshotTest)
+import SnapshotTest.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
+import SnapshotTest.WaspBuildSnapshotTest (waspBuildSnapshotTest)
+import SnapshotTest.WaspCompileSnapshotTest (waspCompileSnapshotTest)
+import SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
+import SnapshotTest.WaspNewSnapshotTest (waspNewSnapshotTest)
 import System.Environment (lookupEnv)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
-import Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
-import Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
-import Tests.WaspCompletionEphemeralTest (waspCompletionEphemeralTest)
-import Tests.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest)
-import Tests.WaspInfoEphemeralTest (waspInfoEphemeralTest)
-import Tests.WaspInstallContainerTest (waspInstallContainerTest)
-import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
-import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
-import Tests.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest)
-import Tests.WaspUninstallContainerTest (waspUninstallContainerTest)
-import Tests.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 
 main :: IO ()
 main = do
@@ -44,12 +44,13 @@ tests = do
   containerTests <-
     if shouldSkipDocker || (os == "darwin")
       then return []
-      else
+      else do
         mapM
           runContainerTest
-          [ waspInstallContainerTest,
-            waspUninstallContainerTest
-          ]
+          =<< sequence
+            [ waspInstallContainerTest,
+              waspUninstallContainerTest
+            ]
   ephemeralTests <-
     mapM
       runEphemeralTest

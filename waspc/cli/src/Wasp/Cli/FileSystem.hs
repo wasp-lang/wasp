@@ -6,6 +6,7 @@ module Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     getAbsPathToDirInCwd,
     withTempDir,
+    UserHomeDir,
     UserCacheDir,
     WaspCacheDir,
   )

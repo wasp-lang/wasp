@@ -17,9 +17,13 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 Our `waspc e2e-tests` consist of three different tests variants:
 
-1. **Snapshot Tests**: tests whose output we want to save
-2. **Ephemeral Tests**: tests whose output we don't need to save
+1. **Ephemeral Tests**: tests whose output we don't need to save
+2. **Snapshot Tests**: tests whose output we want to save
 3. **Container Tests**: tests which can modify host OS environment, so we isolate them in containers
+
+### Ephemeral tests
+
+
 
 ### Snapshot tests
 
@@ -33,7 +37,7 @@ Snapshots are compared in two ways:
 
 For more details, check out the `waspc/e2e-tests/SnapshotTest.hs` file.
 
-Snapshots are saved in the `waspc/e2e-tests/snapshots/` directory.
+Snapshots are saved in the `waspc/e2e-tests/SnapshotTest/snapshots/` directory.
 While the exact files within a snapshot aren’t strictly defined, they usually have the following structure:
 
 ```yaml
@@ -42,21 +46,20 @@ While the exact files within a snapshot aren’t strictly defined, they usually 
 #   `<snapshot-type>` = `current` or `golden`.
 
 e2e-tests/
-└── snapshots/
-    └── <name>-<snapshot-type>/  # snapshot dirctory, e.g. `wasp-build-current`, `wasp-build-golden`
-        ├── wasp-app/
-        └── snapshot-file-list.manifest
+└── SnapshotTest/
+    └── snapshots/
+        └── <name>-<snapshot-type>/  # snapshot dirctory, e.g. `wasp-build-current`, `wasp-build-golden`
+            ├── wasp-app/
+            └── snapshot-file-list.manifest
 ```
 
 `wasp-app` contains the Wasp app for that snapshot.
 `snapshot-file-list.manifest` lists the files that should exist in the snapshot directory.
 
-### Ephemeral tests
-
 ### Container tests
 
-Wasp CLI commands tested in container tests can modify the host OS environment, so we run them inside of containers.
+Wasp CLI has commands which directly modify the host OS environment, that's why we test those commands inside of Docker containers.
 
-All of tests are run from the Docker image built from `waspc/e2e-tests/ContainerTest/Dockerfile`.
-This Dockerfile ensures minimal requirements needed to install and run Wasp CLI.
+All tests use the same Dockerfile: `waspc/e2e-tests/ContainerTest/Dockerfile`.
+This Dockerfile ensures minimal requirements needed to install and run the Wasp CLI.
 It also ensures that `wasp-cli` alias for `wasp` exists, since all of the commands inside of `waspc e2e-tests` use call `wasp-cli`.

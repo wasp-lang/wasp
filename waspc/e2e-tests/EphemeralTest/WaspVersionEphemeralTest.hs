@@ -1,4 +1,4 @@
-module Tests.WaspVersionEphemeralTest (waspVersionEphemeralTest) where
+module EphemeralTest.WaspVersionEphemeralTest (waspVersionEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest)
 import ShellCommands (waspCliVersion, writeToStdErrOnFailureAndExit, (~|))
