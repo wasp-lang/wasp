@@ -6,6 +6,7 @@ module Wasp.Generator.NpmWorkspaces
 where
 
 import Data.Either (fromRight)
+import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
@@ -18,16 +19,17 @@ import Wasp.Project.Common
     generatedCodeDirInDotWaspDir,
   )
 
--- | Returns the list of workspaces that should be included in the user's `package.json` file. Each
+-- | Returns the set of workspaces that should be included in the user's `package.json` file. Each
 -- workspace is a glob that matches all packages in a certain directory.
 --
 -- The glob syntax is POSIX-path-like, but not actually a path, so it's represented as a String.
-workspaceGlobs :: [String]
+workspaceGlobs :: Set String
 workspaceGlobs =
-  [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
-    makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
-    -- TODO: Add SDK as a workspace (#3233)
-  ]
+  fromList
+    [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
+      makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
+      -- TODO: Add SDK as a workspace (#3233)
+    ]
   where
     makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> String
     makeGlobFromProjectRoot projectRootDir = relDirToPosixString projectRootDir FP.</> "*"

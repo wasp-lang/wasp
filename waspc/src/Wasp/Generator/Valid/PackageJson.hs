@@ -4,8 +4,8 @@ module Wasp.Generator.Valid.PackageJson
 where
 
 import Control.Applicative ((<|>))
-import Data.List (intersect)
 import qualified Data.Map as M
+import Data.Set (isSubsetOf)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
@@ -68,8 +68,6 @@ validateWorkspaces = validateRequiredWorkspaces . P.workspaces
     validateRequiredWorkspaces (Just definedWorkspaces)
       | NW.workspaceGlobs `isSubsetOf` definedWorkspaces = []
       | otherwise = [makeWrongWorkspacesError definedWorkspaces]
-
-    x `isSubsetOf` y = length (x `intersect` y) == length x
 
     makeWrongWorkspacesError definedWorkspaces =
       GenericGeneratorError $

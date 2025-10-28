@@ -14,6 +14,7 @@ where
 import Data.Aeson (FromJSON)
 import Data.Map (Map)
 import qualified Data.Map as M
+import Data.Set (Set)
 import GHC.Generics (Generic)
 import Wasp.ExternalConfig.Npm.Dependency (Dependency)
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
@@ -22,7 +23,7 @@ data PackageJson = PackageJson
   { name :: !String,
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap,
-    workspaces :: !(Maybe [String])
+    workspaces :: !(Maybe (Set String))
   }
   deriving (Show, Generic, FromJSON)
 
