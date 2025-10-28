@@ -32,9 +32,12 @@ workspaceGlobs =
     ]
   where
     makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> String
-    makeGlobFromProjectRoot projectRootDir = relDirToPosixString projectRootDir FP.</> "*"
+    makeGlobFromProjectRoot projectRootDir =
+      relDirToPosixString projectRootDir FP.</> "*"
 
-    relDirToPosixString inputDir = SP.fromRelDirP $ fromRight (makeNonPosixError inputDir) $ SP.relDirToPosix inputDir
+    relDirToPosixString inputDir =
+      SP.fromRelDirP $ fromRight (makeNonPosixError inputDir) $ SP.relDirToPosix inputDir
+
     makeNonPosixError inputDir =
       error $
         "This should never happen: our paths should always be POSIX-compatible, but they're not. (Received: "
