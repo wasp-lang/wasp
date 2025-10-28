@@ -353,7 +353,6 @@ library
     Wasp.Generator.Templates
     Wasp.Generator.Test
     Wasp.Generator.Valid
-    Wasp.Generator.Valid.Common
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
     Wasp.Generator.WebAppGenerator

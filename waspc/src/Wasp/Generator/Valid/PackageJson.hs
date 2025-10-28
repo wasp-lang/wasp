@@ -4,13 +4,15 @@ module Wasp.Generator.Valid.PackageJson
 where
 
 import Control.Applicative ((<|>))
+import Data.List (intersect)
 import qualified Data.Map as M
+import Data.Text.Internal.Encoding.Utf32 (validate)
+import qualified Data.Text.Internal.Read as P
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateArrayFieldIncludesRequired)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
@@ -44,10 +46,8 @@ validateRuntimeDependencies packageJson =
 
 validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
 validateDevelopmentDependencies packageJson =
-  concat
-    [ validateDevelopment ("vite", show viteVersion),
-      validateDevelopment ("prisma", show prismaVersion)
-    ]
+  validateDevelopment ("vite", show viteVersion)
+    ++ validateDevelopment ("prisma", show prismaVersion)
   where
     validateDevelopment packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredDevelopment
 
@@ -62,20 +62,38 @@ validateOptionalDependencies packageJson =
     validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
 
 validateWorkspaces :: P.PackageJson -> [GeneratorError]
-validateWorkspaces packageJson =
-  validateArrayFieldIncludesRequired
-    "package.json"
-    (FieldName ["workspaces"])
-    NW.workspaceGlobs
-    (P.workspaces packageJson)
+validateWorkspaces = validateRequiredWorkspaces . P.workspaces
+  where
+    validateRequiredWorkspaces Nothing = [missingWorkspacesError]
+    validateRequiredWorkspaces (Just definedWorkspaces)
+      | NW.workspaceGlobs `isSubsetOf` definedWorkspaces = []
+      | otherwise = [makeWrongWorkspacesError definedWorkspaces]
+
+    x `isSubsetOf` y = length (x `intersect` y) == length x
+
+    makeWrongWorkspacesError definedWorkspaces =
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires \"workspaces\" to include",
+            show NW.workspaceGlobs,
+            "but found",
+            show definedWorkspaces,
+            "in package.json."
+          ]
+
+    missingWorkspacesError =
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires \"workspaces\" to be present with the value",
+            show NW.workspaceGlobs,
+            "in package.json."
+          ]
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
   case maybePackageJsonDepedency of
     Just actualPackageVersion ->
-      if actualPackageVersion == expectedPackageVersion
-        then []
-        else [incorrectPackageVersionErrorMessage]
+      ([incorrectPackageVersionErrorMessage | actualPackageVersion /= expectedPackageVersion])
     Nothing ->
       if isInWrongLocation requirement
         then [wrongDependencyTypeErrorMessage]
