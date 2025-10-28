@@ -4,6 +4,7 @@ module Wasp.Generator.Valid.PackageJson
 where
 
 import Control.Applicative ((<|>))
+import Data.List (intercalate)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -72,22 +73,20 @@ validateWorkspaces = validateRequiredWorkspaces . P.workspaces
     makeWrongWorkspacesError definedWorkspaces =
       GenericGeneratorError $
         unwords
-          [ "Wasp requires \"workspaces\" to include",
-            showSet NW.workspaceGlobs,
-            "but is missing",
-            showSet $ NW.workspaceGlobs `S.difference` definedWorkspaces,
-            "in package.json."
+          [ "Wasp requires package.json \"workspaces\" to include:",
+            showSet NW.workspaceGlobs ++ ".",
+            "You are missing:",
+            showSet (NW.workspaceGlobs `S.difference` definedWorkspaces) ++ "."
           ]
 
     missingWorkspacesError =
       GenericGeneratorError $
         unwords
-          [ "Wasp requires \"workspaces\" to be present with the value",
-            showSet NW.workspaceGlobs,
-            "in package.json."
+          [ "Wasp requires package.json \"workspaces\" to be present with the value and include values:",
+            showSet NW.workspaceGlobs ++ "."
           ]
 
-    showSet = show . S.toList
+    showSet = intercalate ", " . fmap show . S.toList
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
