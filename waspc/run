@@ -38,9 +38,9 @@ WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests"
 
 WASPLS_TESTS_CMD="cabal test waspls-tests"
 
-TODO_APP_E2E_TESTS_CMD="cd $PROJECT_ROOT/examples/todoApp && npm install && npm run test"
+KITCHEN_SINK_E2E_TESTS_CMD="cd $REPOSITORY_ROOT/examples/kitchen-sink && npm i && npx playwright install --with-deps && npm run test"
 
-STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm install && npm run test:dev"
+STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm i && npx playwright install --with-deps && npm run test:dev"
 
 function run_examples_e2e_tests() {
   local paths=(
@@ -50,10 +50,11 @@ function run_examples_e2e_tests() {
     "examples/waspleau"
     "examples/websockets-realtime-voting"
     "examples/ask-the-documents"
+    "examples/kitchen-sink"
   )
 
   for path in "${paths[@]}"; do
-    eval "(cd $REPOSITORY_ROOT/$path && npm i && npm run test)"
+    eval "(cd $REPOSITORY_ROOT/$path && npm i && npx playwright install --with-deps && npm run test)"
     local status=$?
     if [ $status -ne 0 ]; then
       echo -e "${RED}E2E tests failed in $path${RESET}"
@@ -65,7 +66,6 @@ EXAMPLES_E2E_TESTS_CMD="run_examples_e2e_tests"
 
 TEST_CMD="cabal test && \
   echo 'Running e2e tests' && \
-  $TODO_APP_E2E_TESTS_CMD && \
   $STARTERS_E2E_TESTS_CMD && \
   $EXAMPLES_E2E_TESTS_CMD && \
   echo 'ALL TESTS PASSED' || \
@@ -130,7 +130,7 @@ print_usage() {
     "Installs the wasp executable as 'wasp-cli' globally on the machine."
   echo ""
   print_usage_cmd "test" \
-    "Executes all tests (waspc + Wasp CLI + Wasp LS + todoApp + examples + starters). Builds the project first if needed."
+    "Executes all tests (waspc + Wasp CLI + Wasp LS + examples + starters). Builds the project first if needed."
   print_usage_cmd "test:waspc" \
     "Executes all waspc tests (unit + e2e). Builds the project first if needed."
   print_usage_cmd "test:waspc:unit [pattern]" \
@@ -143,8 +143,8 @@ print_usage() {
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \
     "Executes only cli tests. Builds the project first if needed."
-  print_usage_cmd "test:todoApp" \
-    "Executes only todoApp e2e tests. Installs deps first if needed."
+  print_usage_cmd "test:kitchen-sink" \
+    "Executes only kitchen-sink e2e tests. Installs deps first if needed."
   print_usage_cmd "test:examples" \
     "Executes only examples e2e tests. Installs deps first if needed."
   print_usage_cmd "test:starters" \
@@ -233,8 +233,8 @@ case $COMMAND in
   test:waspls)
     echo_and_eval "$WASPLS_TESTS_CMD"
     ;;
-  test:todoApp)
-    echo_and_eval "$TODO_APP_E2E_TESTS_CMD"
+  test:kitchen-sink)
+    echo_and_eval "$KITCHEN_SINK_E2E_TESTS_CMD"
     ;;
   test:examples)
     echo_and_eval "$EXAMPLES_E2E_TESTS_CMD"

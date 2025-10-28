@@ -1,8 +1,8 @@
-app todoApp {
+app KitchenSink {
   wasp: {
     version: "^0.18.1"
   },
-  title: "ToDo App",
+  title: "Wasp Kitchen Sink",
   // head: [],
   webSocket: {
     fn: import { webSocketFn } from "@src/features/chat/webSocket",
@@ -34,8 +34,8 @@ app todoApp {
       email: {
         userSignupFields: import { userSignupFields } from "@src/features/auth/providers/email",
         fromField: {
-          name: "ToDO App",
-          email: "todoapp@mg.wasp.sh"
+          name: "Wasp Kitchen Sink",
+          email: "kitchen-sink@wasp.sh"
         },
         emailVerification: {
           getEmailContentFn: import { getVerificationEmailContent } from "@src/features/auth/providers/email",
@@ -75,7 +75,7 @@ app todoApp {
   emailSender: {
     provider: SMTP,
     defaultFrom: {
-      email: "todoapp@mg.wasp.sh"
+      email: "kitchen-sink@wasp.sh"
     },
   },
 }

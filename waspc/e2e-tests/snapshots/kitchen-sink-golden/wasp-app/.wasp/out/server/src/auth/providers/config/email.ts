@@ -22,8 +22,8 @@ const _waspGetPasswordResetEmailContent: GetPasswordResetEmailContentFn = getPas
 
 
 const fromField: EmailFromField = {
-    name: 'ToDO App',
-    email: 'todoapp@mg.wasp.sh',
+    name: 'Wasp Kitchen Sink',
+    email: 'kitchen-sink@wasp.sh',
 };
 
 const config: ProviderConfig = {
