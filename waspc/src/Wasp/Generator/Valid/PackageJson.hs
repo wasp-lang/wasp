@@ -66,9 +66,11 @@ validateWorkspaces :: P.PackageJson -> [GeneratorError]
 validateWorkspaces = validateRequiredWorkspaces . P.workspaces
   where
     validateRequiredWorkspaces Nothing = [missingWorkspacesError]
-    validateRequiredWorkspaces (Just definedWorkspaces)
+    validateRequiredWorkspaces (Just definedWorkspacesList)
       | NW.workspaceGlobs `S.isSubsetOf` definedWorkspaces = []
       | otherwise = [makeWrongWorkspacesError definedWorkspaces]
+      where
+        definedWorkspaces = S.fromList definedWorkspacesList
 
     makeWrongWorkspacesError definedWorkspaces =
       GenericGeneratorError $
