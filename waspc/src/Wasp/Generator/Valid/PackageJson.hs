@@ -44,8 +44,10 @@ validateRuntimeDependencies packageJson =
 
 validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
 validateDevelopmentDependencies packageJson =
-  validateDevelopment ("vite", show viteVersion)
-    ++ validateDevelopment ("prisma", show prismaVersion)
+  concat
+    [ validateDevelopment ("vite", show viteVersion),
+      validateDevelopment ("prisma", show prismaVersion)
+    ]
   where
     validateDevelopment packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredDevelopment
 
