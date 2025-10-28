@@ -4,6 +4,7 @@ title: 7. Adding Authentication
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
+import { TutorialAction } from './TutorialAction';
 
 Most modern apps need a way to create and authenticate users. Wasp makes this as easy as possible with its first-class auth support.
 
@@ -23,6 +24,8 @@ Since Wasp manages authentication, it will create [the auth related entities](..
 
 You must only add the `User` Entity to keep track of who owns which tasks:
 
+<TutorialAction id="prisma-user" action="APPLY_PATCH">
+
 ```prisma title="schema.prisma"
 // ...
 
@@ -30,10 +33,13 @@ model User {
   id Int @id @default(autoincrement())
 }
 ```
+</TutorialAction>
 
 ## Adding Auth to the Project
 
 Next, tell Wasp to use full-stack [authentication](../auth/overview):
+
+<TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
 ```wasp title="main.wasp"
 app TodoApp {
@@ -60,8 +66,11 @@ app TodoApp {
 
 // ...
 ```
+</TutorialAction>
 
 Don't forget to update the database schema by running:
+
+<TutorialAction id="migration-add-user" action="MIGRATE_DB" />
 
 ```sh
 wasp db migrate-dev
@@ -82,6 +91,8 @@ Wasp also supports authentication using [Google](../auth/social-auth/google), [G
 
 Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
 
+<TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
+
 ```wasp title="main.wasp"
 // ...
 
@@ -95,46 +106,53 @@ page LoginPage {
   component: import { LoginPage } from "@src/LoginPage"
 }
 ```
+</TutorialAction>
 
 Great, Wasp now knows these pages exist!
 
 Here's the React code for the pages you've just imported:
 
+<TutorialAction id="login-page-initial" action="APPLY_PATCH">
+
 ```tsx title="src/LoginPage.tsx" auto-js
-import { Link } from 'react-router-dom'
-import { LoginForm } from 'wasp/client/auth'
+import { Link } from "react-router-dom";
+import { LoginForm } from "wasp/client/auth";
 
 export const LoginPage = () => {
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
       <LoginForm />
       <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
     </div>
-  )
-}
+  );
+};
 ```
+</TutorialAction>
 
 The signup page is very similar to the login page:
 
+<TutorialAction id="signup-page-initial" action="APPLY_PATCH">
+
 ```tsx title="src/SignupPage.tsx" auto-js
-import { Link } from 'react-router-dom'
-import { SignupForm } from 'wasp/client/auth'
+import { Link } from "react-router-dom";
+import { SignupForm } from "wasp/client/auth";
 
 export const SignupPage = () => {
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
       <SignupForm />
       <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
     </div>
-  )
-}
+  );
+};
 ```
+</TutorialAction>
 
 <ShowForTs>
   :::tip Type-safe links
@@ -146,6 +164,8 @@ export const SignupPage = () => {
 
 We don't want users who are not logged in to access the main page, because they won't be able to create any tasks. So let's make the page private by requiring the user to be logged in:
 
+<TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
+
 ```wasp title="main.wasp"
 // ...
 
@@ -155,20 +175,24 @@ page MainPage {
   component: import { MainPage } from "@src/MainPage"
 }
 ```
+</TutorialAction>
 
 Now that auth is required for this page, unauthenticated users will be redirected to `/login`, as we specified with `app.auth.onAuthFailedRedirectTo`.
 
 Additionally, when `authRequired` is `true`, the page's React component will be provided a `user` object as prop.
 
+<TutorialAction id="main-page-add-auth" action="APPLY_PATCH">
+
 ```tsx title="src/MainPage.tsx" auto-js
-import type { AuthUser } from 'wasp/auth'
+import type { AuthUser } from "wasp/auth";
 
 // highlight-next-line
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // Do something with the user
   // ...
-}
+};
 ```
+</TutorialAction>
 
 Ok, time to test this out. Navigate to the main page (`/`) of the app. You'll get redirected to `/login`, where you'll be asked to authenticate.
 
@@ -194,6 +218,8 @@ However, you will notice that if you try logging in as different users and creat
 
 First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 
+<TutorialAction id="prisma-connect-task-user" action="APPLY_PATCH">
+
 ```prisma title="schema.prisma"
 // ...
 
@@ -213,9 +239,11 @@ model Task {
   userId      Int?
 }
 ```
+</TutorialAction>
 
 As always, you must migrate the database after changing the Entities:
 
+<TutorialAction id="migration-connect-task-user" action="MIGRATE_DB" />
 ```sh
 wasp db migrate-dev
 ```
@@ -232,41 +260,46 @@ Instead, we would do a data migration to take care of those tasks, even if it me
 
 Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged-in user's tasks:
 
+<TutorialAction id="query-add-auth" action="APPLY_PATCH">
+
 ```ts title="src/queries.ts" auto-js
-import type { Task } from 'wasp/entities'
+import type { Task } from "wasp/entities";
 // highlight-next-line
-import { HttpError } from 'wasp/server'
-import type { GetTasks } from 'wasp/server/operations'
+import { HttpError } from "wasp/server";
+import type { GetTasks } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   // highlight-start
   if (!context.user) {
-    throw new HttpError(401)
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.findMany({
     // highlight-next-line
     where: { user: { id: context.user.id } },
-    orderBy: { id: 'asc' },
-  })
-}
+    orderBy: { id: "asc" },
+  });
+};
 ```
+</TutorialAction>
+
+<TutorialAction id="action-add-auth" action="APPLY_PATCH">
 
 ```ts title="src/actions.ts" auto-js
-import type { Task } from 'wasp/entities'
+import type { Task } from "wasp/entities";
 // highlight-next-line
-import { HttpError } from 'wasp/server'
-import type { CreateTask, UpdateTask } from 'wasp/server/operations'
+import { HttpError } from "wasp/server";
+import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
-type CreateTaskPayload = Pick<Task, 'description'>
+type CreateTaskPayload = Pick<Task, "description">;
 
 export const createTask: CreateTask<CreateTaskPayload, Task> = async (
   args,
-  context
+  context,
 ) => {
   // highlight-start
   if (!context.user) {
-    throw new HttpError(401)
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.create({
@@ -275,10 +308,10 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
       // highlight-next-line
       user: { connect: { id: context.user.id } },
     },
-  })
-}
+  });
+};
 
-type UpdateTaskPayload = Pick<Task, 'id' | 'isDone'>
+type UpdateTaskPayload = Pick<Task, "id" | "isDone">;
 
 export const updateTask: UpdateTask<
   UpdateTaskPayload,
@@ -286,15 +319,16 @@ export const updateTask: UpdateTask<
 > = async (args, context) => {
   // highlight-start
   if (!context.user) {
-    throw new HttpError(401)
+    throw new HttpError(401);
   }
   // highlight-end
   return context.entities.Task.updateMany({
     where: { id: args.id, user: { id: context.user.id } },
     data: { isDone: args.isDone },
-  })
-}
+  });
+};
 ```
+</TutorialAction>
 
 :::note
 Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
@@ -316,10 +350,12 @@ You will see that each user has their tasks, just as we specified in our code!
 
 Last, but not least, let's add the logout functionality:
 
+<TutorialAction id="main-page-add-logout" action="APPLY_PATCH">
+
 ```tsx title="src/MainPage.tsx" auto-js with-hole
 // ...
 // highlight-next-line
-import { logout } from 'wasp/client/auth'
+import { logout } from "wasp/client/auth";
 //...
 
 const MainPage = () => {
@@ -330,9 +366,10 @@ const MainPage = () => {
       // highlight-next-line
       <button onClick={logout}>Logout</button>
     </div>
-  )
-}
+  );
+};
 ```
+</TutorialAction>
 
 This is it, we have a working authentication system, and our Todo app is multi-user!
 

@@ -6,6 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
+import { TutorialAction } from './TutorialAction';
 
 In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
 
@@ -47,7 +48,7 @@ import './Main.css';
 
 export function MainPage() {
   // ...
-}
+};
 ```
 
 This is a regular functional React component. It also imports some CSS and a logo from the `assets` folder.
@@ -74,12 +75,12 @@ page HelloPage {
 When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router-dom` to access the `name` parameter:
 
 ```tsx title="src/HelloPage.tsx" auto-js
-import { useParams } from 'react-router-dom'
+import { useParams } from "react-router-dom";
 
 export const HelloPage = () => {
-  const { name } = useParams<'name'>()
-  return <div>Here's {name}!</div>
-}
+  const { name } = useParams<"name">();
+  return <div>Here's {name}!</div>;
+};
 ```
 
 Now you can visit `/hello/johnny` and see "Here's johnny!"
@@ -96,12 +97,14 @@ Now that you've seen how Wasp deals with Routes and Pages, it's finally time to 
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
+<TutorialAction id="prepare-project" action="APPLY_PATCH">
+
 First, remove most of the code from the `MainPage` component:
 
 ```tsx title="src/MainPage.tsx" auto-js
 export const MainPage = () => {
-  return <div>Hello world!</div>
-}
+  return <div>Hello world!</div>;
+};
 ```
 
 At this point, the main page should look like this:
@@ -130,6 +133,7 @@ page MainPage {
   component: import { MainPage } from "@src/MainPage"
 }
 ```
+</TutorialAction>
 
 Excellent work!
 

@@ -1,0 +1,20 @@
+diff --git a/src/SignupPage.tsx b/src/SignupPage.tsx
+new file mode 100644
+index 0000000..ee62723
+--- /dev/null
++++ b/src/SignupPage.tsx
+@@ -0,0 +1,14 @@
++import { Link } from "react-router-dom";
++import { SignupForm } from "wasp/client/auth";
++
++export const SignupPage = () => {
++  return (
++    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
++      <SignupForm />
++      <br />
++      <span>
++        I already have an account (<Link to="/login">go to login</Link>).
++      </span>
++    </div>
++  );
++};
