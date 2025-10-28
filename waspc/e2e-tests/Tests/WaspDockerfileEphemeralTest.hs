@@ -1,8 +1,8 @@
 module Tests.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest)
-import ShellCommands (writeToStdErrOnFailureAndExit, writeToStdErrOnSuccessAndExit)
 import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
+import ShellCommands (writeToStdErrOnFailureAndExit, writeToStdErrOnSuccessAndExit)
 import WaspProject.ShellCommands (waspCliDockerfile)
 
 waspDockerfileEphemeralTest :: EphemeralTest
