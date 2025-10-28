@@ -815,10 +815,10 @@ test-suite waspc-e2e-tests
     Tests.WaspVersionEphemeralTest
     Tests.WaspInfoEphemeralTest
     Tests.WaspDockerfileEphemeralTest
+    Tests.WaspTelemetryEphemeralTest
     ContainerTest
     ContainerTest.FileSystem
     ContainerTest.ShellCommands
-    Tests.WaspTelemetryContainerTest
     Tests.WaspInstallContainerTest
     Tests.WaspUninstallContainerTest
 

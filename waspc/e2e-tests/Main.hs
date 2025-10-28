@@ -14,7 +14,7 @@ import Tests.WaspInfoEphemeralTest (waspInfoEphemeralTest)
 import Tests.WaspInstallContainerTest (waspInstallContainerTest)
 import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
-import Tests.WaspTelemetryContainerTest (waspTelemetryContainerTest)
+import Tests.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest)
 import Tests.WaspUninstallContainerTest (waspUninstallContainerTest)
 import Tests.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 
@@ -48,13 +48,13 @@ tests = do
         mapM
           runContainerTest
           [ waspInstallContainerTest,
-            waspUninstallContainerTest,
-            waspTelemetryContainerTest
+            waspUninstallContainerTest
           ]
   ephemeralTests <-
     mapM
       runEphemeralTest
-      [ waspCompletionEphemeralTest,
+      [ waspTelemetryEphemeralTest,
+        waspCompletionEphemeralTest,
         waspInfoEphemeralTest,
         waspVersionEphemeralTest,
         waspDockerfileEphemeralTest
