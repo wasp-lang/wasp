@@ -23,7 +23,7 @@ To deploy to Fly.io using Wasp CLI:
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
 
 ```shell
-wasp deploy fly launch my-wasp-app mia
+wasp deploy fly launch my-wasp-app dfw
 ```
 
 <small>
@@ -36,7 +36,7 @@ Two things to keep in mind:
 
 1. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names (slugs) of your organizations by running `fly orgs list`.
 
-The `launch` command uses the app basename `my-wasp-app` and deploy it to the `mia` region (`mia` is short for _Miami, Florida (US)_). Read more about Fly.io regions [here](#flyio-regions).
+The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for _Dallas, Texas (US)_). Read more about Fly.io regions [here](#flyio-regions).
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -144,7 +144,7 @@ If your app requires any other server-side environment variables (like social au
 If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
 ```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 ```
 
 or
@@ -184,7 +184,7 @@ fly platform regions
 If you have multiple organizations, you can specify a `--org` option. For example:
 
 ```shell
-wasp deploy fly launch my-wasp-app mia --org hive
+wasp deploy fly launch my-wasp-app dfw --org hive
 ```
 
 ## Building Locally
@@ -247,7 +247,7 @@ wasp deploy fly deploy
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
 ```
-wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
 
 ##### Client
@@ -255,7 +255,7 @@ wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --
 If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
 ```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 ```
 
 ### `setup`

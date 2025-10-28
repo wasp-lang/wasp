@@ -1,4 +1,3 @@
-wasp-app/.env.client.example
 wasp-app/.env.server
 wasp-app/.env.server.example
 wasp-app/.env.vault
@@ -1186,7 +1185,8 @@ wasp-app/e2e-tests/tests/serialization.spec.ts
 wasp-app/e2e-tests/tests/streaming.spec.ts
 wasp-app/e2e-tests/tests/user-api.spec.ts
 wasp-app/e2e-tests/tests/websocket.spec.ts
-wasp-app/ensure_app_compiles_and_builds.sh
+wasp-app/fly-client.toml
+wasp-app/fly-server.toml
 wasp-app/main.wasp
 wasp-app/migrations/20230404165422_initial/migration.sql
 wasp-app/migrations/20230816133128_add_address/migration.sql
