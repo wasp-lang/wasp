@@ -45,6 +45,7 @@ import qualified Wasp.Util.Terminal as Term
   - Figure out how to end tests.
   - Figure out what to do with the versions affected field.
   - Thoroughly review the code (there are probably some hacks left over).
+  - In `wasp news` output, mark the unread/new news.
 -}
 
 news :: Command ()
