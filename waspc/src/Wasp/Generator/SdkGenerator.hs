@@ -76,6 +76,7 @@ import Wasp.Generator.WebAppGenerator.DepVersions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Node.Executables (npmExec)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Db as Db
@@ -90,7 +91,7 @@ buildSdk projectRootDir = do
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob dstDir "npm" ["run", "build"] J.Wasp chan)
+      (runNodeCommandAsJob dstDir npmExec ["run", "build"] J.Wasp chan)
   case exitCode of
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
@@ -332,7 +333,7 @@ depsRequiredByTailwind spec =
 -- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =
-  runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp
+  runNodeCommandAsJob projectDir npmExec ["install"] J.Wasp
 
 -- todo(filip): consider reorganizing/splitting the file.
 

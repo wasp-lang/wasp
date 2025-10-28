@@ -64,7 +64,11 @@ prettyShowSrcLinesOfErrorRgn
                         else line ++ stylingEnd
                     stylingStart = T.ansiEscapeCode ++ T.getAnsiCodeFor T.Red
                     stylingEnd = T.ansiEscapeCode ++ T.ansiResetCode
-                 in (lineNum, if lineContainsError then lineWithStylingStartAndEnd else line)
+                 in ( lineNum,
+                      if lineContainsError && not T.isStylingDisabled
+                        then lineWithStylingStartAndEnd
+                        else line
+                    )
             )
             srcLines
         srcLinesWithMarkedErrorRgnAndLineNumber =
