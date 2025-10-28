@@ -93,7 +93,9 @@ validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> Packag
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
   case maybePackageJsonDepedency of
     Just actualPackageVersion ->
-      ([incorrectPackageVersionErrorMessage | actualPackageVersion /= expectedPackageVersion])
+      if actualPackageVersion == expectedPackageVersion
+        then []
+        else [incorrectPackageVersionErrorMessage]
     Nothing ->
       if isInWrongLocation requirement
         then [wrongDependencyTypeErrorMessage]
