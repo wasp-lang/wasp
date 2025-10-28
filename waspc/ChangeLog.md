@@ -37,6 +37,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ## 0.18.0
 
+### 🐞 Bug fixes
+
+- Fixes missing `npm` and `npx` on native Windows ([#3020](https://github.com/wasp-lang/wasp/pull/3020))
+
 ### ⚠️ Breaking Changes
 
 - Wasp now requires Node.js version to be >=v22.12. [#2915](https://github.com/wasp-lang/wasp/pull/2915)
