@@ -19,6 +19,8 @@ jobs:
           - waspello
           - waspleau
           - websockets-realtime-voting
+          - ask-the-documents
+          - kitchen-sink
 
     steps:
       - uses: "actions/checkout@v5"

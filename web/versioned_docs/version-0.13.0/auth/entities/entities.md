@@ -2,7 +2,7 @@
 title: Auth Entities
 ---
 
-import ImgWithCaption from '@site/blog/components/ImgWithCaption'
+import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from '../\_multiple-identities-warning.md';
 import GetEmail from './\_get-email.md';

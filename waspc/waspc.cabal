@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.18.0
+version:        0.18.1
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -353,7 +353,6 @@ library
     Wasp.Generator.Templates
     Wasp.Generator.Test
     Wasp.Generator.Valid
-    Wasp.Generator.Valid.Common
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
     Wasp.Generator.WebAppGenerator
@@ -796,13 +795,15 @@ test-suite waspc-e2e-tests
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-golden          ^>= 2.3.5
   other-modules:
-    Common
-    GoldenTest
+    FileSystem
     ShellCommands
-    Util
-    Tests.WaspBuildTest
-    Tests.WaspCompileTest
-    Tests.WaspJobTest
-    Tests.WaspMigrateTest
-    Tests.WaspNewTest
-    Tests.WaspComplexTest
+    WaspProject.ShellCommands
+    SnapshotTest
+    SnapshotTest.Snapshot
+    SnapshotTest.FileSystem
+    SnapshotTest.ShellCommands
+    Tests.WaspNewSnapshotTest
+    Tests.KitchenSinkSnapshotTest
+    Tests.WaspMigrateSnapshotTest
+    Tests.WaspCompileSnapshotTest
+    Tests.WaspBuildSnapshotTest

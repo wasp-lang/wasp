@@ -4,13 +4,14 @@ module Wasp.Generator.Valid.PackageJson
 where
 
 import Control.Applicative ((<|>))
+import Data.List (intercalate)
 import qualified Data.Map as M
+import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Common (FullyQualifiedFieldName (FieldName), validateArrayFieldIncludesRequired)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
@@ -62,12 +63,32 @@ validateOptionalDependencies packageJson =
     validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
 
 validateWorkspaces :: P.PackageJson -> [GeneratorError]
-validateWorkspaces packageJson =
-  validateArrayFieldIncludesRequired
-    "package.json"
-    (FieldName ["workspaces"])
-    NW.workspaceGlobs
-    (P.workspaces packageJson)
+validateWorkspaces = validateRequiredWorkspaces . P.workspaces
+  where
+    validateRequiredWorkspaces Nothing = [missingWorkspacesError]
+    validateRequiredWorkspaces (Just definedWorkspacesList)
+      | NW.workspaceGlobs `S.isSubsetOf` definedWorkspaces = []
+      | otherwise = [makeWrongWorkspacesError definedWorkspaces]
+      where
+        definedWorkspaces = S.fromList definedWorkspacesList
+
+    makeWrongWorkspacesError definedWorkspaces =
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires package.json \"workspaces\" to include:",
+            showSet NW.workspaceGlobs ++ ".",
+            "You are missing:",
+            showSet (NW.workspaceGlobs `S.difference` definedWorkspaces) ++ "."
+          ]
+
+    missingWorkspacesError =
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires package.json \"workspaces\" to be present with the value and include values:",
+            showSet NW.workspaceGlobs ++ "."
+          ]
+
+    showSet = intercalate ", " . fmap show . S.toList
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =

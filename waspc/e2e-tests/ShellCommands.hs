@@ -1,131 +1,70 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module ShellCommands
   ( ShellCommand,
-    ShellCommandContext (..),
     ShellCommandBuilder (..),
-    runShellCommandBuilder,
-    combineShellCommands,
-    cdIntoCurrentProject,
-    appendToWaspFile,
-    appendToPrismaFile,
-    createFile,
-    setDbToPSQL,
+    buildShellCommand,
+    (~|),
+    (~&&),
+    (~?),
+    appendToFile,
+    replaceLineInFile,
     waspCliNewMinimalStarter,
-    waspCliCompile,
-    waspCliMigrate,
-    waspCliBuild,
-    dockerBuild,
-    insertCodeIntoFileAtLineNumber,
   )
 where
 
-import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
-import Data.List (intercalate)
-import System.FilePath (joinPath, (</>))
+import Control.Monad.Reader (MonadReader, Reader, runReader)
 
--- NOTE: Should we consider separating shell parts, Wasp CLI parts, and test helper parts in the future?
---       This would likely reqiure adoption of some library, and creating new layers of abstraction.
---       Deemed not worth it right now by all.
-
--- NOTE: Using `wasp-cli` herein so we can assume using latest `stack install` in CI and locally.
-
+-- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 -- TODO: In future, find a good way to test `wasp-cli start`.
 
 type ShellCommand = String
 
--- Each shell command gets access to the current project name, and maybe other things in future.
-data ShellCommandContext = ShellCommandContext
-  { _ctxtCurrentProjectName :: String
-  }
-  deriving (Show)
+-- | Builds shell command with access and assumptions to some context.
+-- e.g. 'WaspProject.ShellCommands.WaspProjectContext' assumes commands are run from inside a Wasp project.
+-- It also provides access to context details like the command execution directory.
+newtype ShellCommandBuilder context a = ShellCommandBuilder (Reader context a)
+  deriving (Functor, Applicative, Monad, MonadReader context)
 
--- Used to construct shell commands, while still giving access to the context (if needed).
-newtype ShellCommandBuilder a = ShellCommandBuilder {_runShellCommandBuilder :: Reader ShellCommandContext a}
-  deriving (Functor, Applicative, Monad, MonadReader ShellCommandContext)
+buildShellCommand :: context -> ShellCommandBuilder context a -> a
+buildShellCommand context (ShellCommandBuilder reader) = runReader reader context
 
-runShellCommandBuilder :: ShellCommandBuilder a -> ShellCommandContext -> a
-runShellCommandBuilder shellCommandBuilder context =
-  runReader (_runShellCommandBuilder shellCommandBuilder) context
+-- Command utilities
 
-combineShellCommands :: [ShellCommand] -> ShellCommand
-combineShellCommands = intercalate " && "
+-- | Pipe the output of one command into another.
+(~|) :: ShellCommand -> ShellCommand -> ShellCommand
+cmd1 ~| cmd2 = cmd1 ++ " | " ++ cmd2
 
-cdIntoCurrentProject :: ShellCommandBuilder ShellCommand
-cdIntoCurrentProject = do
-  context <- ask
-  return $ "cd " ++ _ctxtCurrentProjectName context
+infixl 7 ~|
 
-appendToWaspFile :: FilePath -> ShellCommandBuilder ShellCommand
-appendToWaspFile = appendToFile "main.wasp"
+-- | Execute the second command only if the first command succeeds.
+-- In case of failure, the command chain will stop.
+(~&&) :: ShellCommand -> ShellCommand -> ShellCommand
+cmd1 ~&& cmd2 = cmd1 ++ " && " ++ cmd2
 
-appendToPrismaFile :: FilePath -> ShellCommandBuilder ShellCommand
-appendToPrismaFile = appendToFile "schema.prisma"
+infixl 6 ~&&
 
-appendToFile :: FilePath -> String -> ShellCommandBuilder ShellCommand
+-- | Execute the second command only if the first command succeeds.
+-- The command chain will continue regardless of whether the second command runs.
+(~?) :: ShellCommand -> ShellCommand -> ShellCommand
+(~?) condition command =
+  "if " ++ condition ++ "; then " ++ command ++ " ;fi"
+
+infixl 4 ~?
+
+-- General commands
+
+appendToFile :: FilePath -> String -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =
   -- NOTE: Using `show` to preserve newlines in string.
   return $ "printf " ++ show (content ++ "\n") ++ " >> " ++ fileName
 
--- NOTE: Pretty fragile. Can't handle spaces in args, *nix only, etc.
-createFile :: String -> FilePath -> String -> ShellCommandBuilder ShellCommand
-createFile content relDirFp filename = return $ combineShellCommands [createParentDir, writeContentsToFile]
-  where
-    createParentDir = "mkdir -p ./" ++ relDirFp
-    destinationFile = "./" ++ relDirFp ++ "/" ++ filename
-    contents = show (content ++ "\n")
-    writeContentsToFile = unwords ["printf", contents, ">", destinationFile]
-
-setDbToPSQL :: ShellCommandBuilder ShellCommand
--- Change DB to postgres by adding string at specific line so it still parses.
-setDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
-
-insertCodeIntoFileAtLineNumber :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
-insertCodeIntoFileAtLineNumber fileName atLineNumber line =
-  return $
-    combineShellCommands
-      [ "awk 'NR==" ++ show atLineNumber ++ "{print " ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
-        "mv " ++ fileName ++ ".tmp " ++ fileName
-      ]
-
-replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder ShellCommand
+replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder context ShellCommand
 replaceLineInFile fileName lineNumber line =
   return $
-    combineShellCommands
-      [ "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp",
-        "mv " ++ fileName ++ ".tmp " ++ fileName
-      ]
+    "awk 'NR==" ++ show lineNumber ++ "{$0=" ++ show line ++ "}1' " ++ fileName ++ " > " ++ fileName ++ ".tmp"
+      ~&& "mv " ++ fileName ++ ".tmp " ++ fileName
 
-waspCliNewMinimalStarter :: ShellCommandBuilder ShellCommand
-waspCliNewMinimalStarter = do
-  context <- ask
-  return $
-    "wasp-cli new " ++ _ctxtCurrentProjectName context ++ " -t minimal"
-
-waspCliCompile :: ShellCommandBuilder ShellCommand
-waspCliCompile = return "wasp-cli compile"
-
--- TODO: We need to be careful what migration names we accept here, as Prisma will
---       normalize a migration name containing spaces/dashes to underscores (and maybe other rules).
---       This will impact our ability to move directories around if the names do not match exactly.
---       Put in some check eventually.
-waspCliMigrate :: String -> ShellCommandBuilder ShellCommand
-waspCliMigrate migrationName =
-  let generatedMigrationsDir = joinPath [".wasp", "out", "db", "migrations"]
-      waspMigrationsDir = "migrations"
-   in return $
-        combineShellCommands
-          [ -- Migrate using a migration name to avoid Prisma asking via CLI.
-            "wasp-cli db migrate-dev --name " ++ migrationName,
-            -- Rename both migrations to remove the date-specific portion of the directory to something static.
-            "mv " ++ (waspMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (waspMigrationsDir </> ("no-date-" ++ migrationName)),
-            "mv " ++ (generatedMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (generatedMigrationsDir </> ("no-date-" ++ migrationName))
-          ]
-
-waspCliBuild :: ShellCommandBuilder ShellCommand
-waspCliBuild = return "wasp-cli build"
-
-dockerBuild :: ShellCommandBuilder ShellCommand
-dockerBuild =
-  return
-    "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"
+waspCliNewMinimalStarter :: String -> ShellCommandBuilder context ShellCommand
+waspCliNewMinimalStarter appName = return $ "wasp-cli new " ++ appName ++ " -t minimal"

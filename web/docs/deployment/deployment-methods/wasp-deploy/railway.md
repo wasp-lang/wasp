@@ -5,6 +5,7 @@ title-llm: Automated Deployment to Railway with Wasp CLI
 
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
+import CustomPostgresOption from './\_railway-custom-postgres-option.md'
 
 [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) is a cloud development platform that streamlines building and deploying applications with built-in support for databases and services. It offers an intuitive interface and automates infrastructure.
 
@@ -39,7 +40,7 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`.
+Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
 
 <LaunchCommandEnvVars />
 
@@ -93,6 +94,8 @@ Running `wasp deploy railway launch` is the same as running the following comman
 wasp deploy railway setup <project-name>
 wasp deploy railway deploy <project-name>
 ```
+
+<CustomPostgresOption command="launch" />
 
 #### Explicitly providing the Railway project ID
 
@@ -191,6 +194,8 @@ The project name is used as a base for your server and client service names on R
 - `<project-name>-server`
 
 Railway also creates a PostgreSQL database service named `Postgres`.
+
+<CustomPostgresOption command="setup" />
 
 #### Explicitly providing the Railway project ID
 

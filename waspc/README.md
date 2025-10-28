@@ -9,7 +9,7 @@ If you are a Wasp user and not a contributor (yet 😉), you might want to look 
 If you would like to make your first contribution, here is a handy checklist we made for you:
 
 - [ ] Read [Quick overview](#quick-overview).
-- [ ] Compile the project successfully and get todoApp example running (follow [Basics](#basics)).
+- [ ] Compile the project successfully and get `kitchen-sink` example running (follow [Basics](#basics)).
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
 - [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediately propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find something for you together.
@@ -115,9 +115,9 @@ Since you provided no arguments, you should see help/usage.
 Note that the executable during development is named `wasp-cli`, unlike `wasp` which is how it is named when you install a public release of Wasp via official installation method.
 This is to make it easier to differentiate between the development version of wasp CLI and the released version.
 
-### Running the example app
+### Running the `kitchen-sink` example
 
-First, position yourself in the [waspc/examples/todoApp/](examples/todoApp/) dir.
+First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-sink/) dir.
 
 Then, run the dev database:
 
@@ -151,10 +151,10 @@ to run the example app in the development mode.
 
 If you are doing this for the very first time, it might take a minute or so to download and install npm dependencies.
 
-When done, new tab in your browser should open and you will see a Todo App!
+When done, new tab in your browser should open and you will see the Kitchen Sink App!
 
 > [!NOTE]
-> You will notice that some functionality in the Todo App is not working. That is because the env vars in `.env.server` files are just mock values. Check Todo App's README for more details on how to set up env vars for development.
+> You will notice that some functionality in the `kitchen-sink` is not working. That is because the env vars in `.env.server` files are just mock values. Check `kitchen-sink`'s README for more details on how to set up env vars for development.
 
 ## Typical development workflow
 
@@ -165,7 +165,7 @@ When done, new tab in your browser should open and you will see a Todo App!
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
 4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
-5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
+5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
@@ -237,7 +237,6 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
 - `data/Cli/starters/` -> starter templates for new projects
-- `examples/todoApp/` -> our kitchen sink app
 
 ### Typescript packages
 
@@ -285,7 +284,7 @@ To run tests:
 - To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
 - To run Wasp CLI tests only, you can do `./run test:cli`.
 - To run Wasp LS tests only, you can do `./run test:waspls`.
-- To run `todoApp` e2e tests, you can do `./run test:todoApp`.
+- To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
 - To run examples e2e tests, you can do `./run test:examples`.
 - To run starter templates e2e tests, you can do `./run test:starters`.
 
