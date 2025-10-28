@@ -6,9 +6,9 @@ module Wasp.Generator.NpmWorkspaces
 where
 
 import Data.Either (fromRight)
-import StrongPath (Dir, Path, Path', Posix, Rel, (</>))
+import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
-import qualified System.FilePath.Posix as FP.Posix
+import qualified System.FilePath.Posix as FP
 import Wasp.AppSpec (AppSpec, isBuild)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Project.Common
@@ -24,19 +24,15 @@ import Wasp.Project.Common
 -- The glob syntax is POSIX-path-like, but not actually a path, so it's represented as a String.
 workspaceGlobs :: [String]
 workspaceGlobs =
-  FP.Posix.dropTrailingPathSeparator . SP.fromRelDirP
-    <$> [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
-          makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
-          -- TODO: Add SDK as a workspace (#3233)
-        ]
+  [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
+    makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
+    -- TODO: Add SDK as a workspace (#3233)
+  ]
   where
-    makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> Path Posix (Rel WaspProjectDir) (Dir a)
-    makeGlobFromProjectRoot projectRootDir = (forceRelDirToPosix projectRootDir) </> packageWildcard
+    makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> String
+    makeGlobFromProjectRoot projectRootDir = relDirToPosixString projectRootDir FP.</> "*"
 
-    -- We force this to be POSIX because Windows-style paths do not accept wildcard characters.
-    packageWildcard = [SP.reldirP|*|]
-
-    forceRelDirToPosix inputDir = fromRight (makeNonPosixError inputDir) $ SP.relDirToPosix inputDir
+    relDirToPosixString inputDir = SP.fromRelDirP $ fromRight (makeNonPosixError inputDir) $ SP.relDirToPosix inputDir
     makeNonPosixError inputDir =
       error $
         "This should never happen: our paths should always be POSIX-compatible, but they're not. (Received: "
