@@ -41,7 +41,7 @@ waspInstallContainerTest = do
             "Installer should suppoert installing a specific Wasp version",
           writeToStdErrOnFailureAndExit
             (assertWaspCliVerionDirectoryExists specificWaspVersion)
-            ("Installing Wasp version should create the " ++ fromAbsDir waspInstallationDir ++ "/<version> directory"),
+            ("Installing Wasp version should create the " ++ fromAbsDir waspInstallationDir ++ "<version> directory"),
           installLatestWaspCli,
           writeToStdErrOnFailureAndExit
             assertLatestWaspCliVerionDirectoryExists

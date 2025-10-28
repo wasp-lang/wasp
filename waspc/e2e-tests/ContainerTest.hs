@@ -43,6 +43,7 @@ runContainerTest containerTest = do
     executeContainerTestWorkflow :: Path' Abs (File ContainerDockerfileFile) -> IO TestTree
     executeContainerTestWorkflow containerDockerfileFile = do
       putStrLn $ "Executing container test: " ++ containerTestName
+      putStrLn $ "Running the following command: " ++ containerTestCommand
       testSpec "Container Test" $
         describe containerTestName $ do
           it "executes successfully" $ do
@@ -63,6 +64,8 @@ runContainerTest containerTest = do
 
         dockerRunCommand :: ShellCommand
         dockerRunCommand = "docker run --rm -i " ++ dockerContainerImageName ++ " bash -s <<'EOF'\n" ++ containerTestCommand ++ "\nEOF"
+        
+        containerTestCommand :: ShellCommand
         containerTestCommand = foldr1 (~&&) $ buildShellCommand ContainerTestContext (_containerTestCommandsBuilder containerTest)
 
         dockerContainerImageName :: String
