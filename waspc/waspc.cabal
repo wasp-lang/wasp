@@ -779,7 +779,6 @@ test-suite waspc-e2e-tests
   build-tool-depends: waspc:wasp-cli
   build-depends:
     , waspc
-    , cli-lib
     , aeson
     , directory
     , base
