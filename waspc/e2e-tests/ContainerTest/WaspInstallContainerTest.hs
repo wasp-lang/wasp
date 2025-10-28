@@ -16,6 +16,9 @@ import qualified Wasp.SemanticVersion.Version as SV
 
 -- | Note that Wasp install script lives outside of Wasp CLI,
 -- We should not export functions defined here outside of this module.
+-- TODO:
+-- - test wasp respects custom home dir
+-- - test wasp respects custom cache dir
 waspInstallContainerTest :: IO ContainerTest
 waspInstallContainerTest = do
   latestWaspVersion <- readCreateProcess (shell curlLatestWaspVersion) ""

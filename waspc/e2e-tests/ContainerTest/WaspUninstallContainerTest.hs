@@ -3,39 +3,26 @@ module ContainerTest.WaspUninstallContainerTest (waspUninstallContainerTest) whe
 import ContainerTest (ContainerTest, makeContainerTest)
 import ContainerTest.ShellCommands (unisntallWaspCli)
 import ShellCommands (ShellCommand, ShellCommandBuilder, writeToStdErrOnFailureAndExit)
-import StrongPath (fromAbsDir, fromAbsFile, (</>))
-import Wasp.Cli.FileSystem
-  ( getHomeDir,
-    getUserCacheDir,
-    getWaspCacheDir,
-    waspExecutableInHomeDir,
-    waspInstallationDirInHomeDir,
-  )
 
+-- TODO:
+-- Force creation of telemetry data to test cache is deleted?
+-- Install other Wasp versions to test the complete uninstall?
+-- Currently we only copy the executable to the container -> can't test if installation dir was deleted properly?
 waspUninstallContainerTest :: IO ContainerTest
-waspUninstallContainerTest = do
-  homeDir <- getHomeDir
-  userCacheDir <- getUserCacheDir
-
-  let waspInstallationDir = homeDir </> waspInstallationDirInHomeDir
-      waspCacheDir = getWaspCacheDir userCacheDir
-      waspExecutableFile = homeDir </> waspExecutableInHomeDir
-
+waspUninstallContainerTest = 
   return $
     makeContainerTest
       "wasp-uninstall"
-      [ -- TODO: Install other Wasp versions to test the complete uninstall?
-        -- But how to get back to development version of Wasp then?
-        unisntallWaspCli,
+      [ unisntallWaspCli,
         writeToStdErrOnFailureAndExit
-          (assertDirectoryMissing $ fromAbsDir waspInstallationDir)
-          ("Wasp installation directory should be deleted: " ++ fromAbsDir waspInstallationDir),
+          (assertDirectoryMissing "\"$HOME/.local/share/wasp-lang\"")
+          "Wasp installation directory should be deleted: \"$HOME/.local/share/wasp-lang\"",
         writeToStdErrOnFailureAndExit
-          (assertDirectoryMissing $ fromAbsDir waspCacheDir)
-          ("Wasp cache directory should be deleted: " ++ fromAbsDir waspCacheDir),
+          (assertDirectoryMissing "\"$HOME/.cache/wasp\"")
+          "Wasp cache directory should be deleted: \"$HOME/.cache/wasp\"",
         writeToStdErrOnFailureAndExit
-          (assertFileMissing $ fromAbsFile waspExecutableFile)
-          ("Wasp executable should be deleted: " ++ fromAbsFile waspExecutableFile)
+          (assertFileMissing "\"$HOME/.local/share/wasp-lang\"")
+          "Wasp executable should be deleted: \"$HOME/.local/share/wasp-lang\""
       ]
   where
     assertFileMissing :: String -> ShellCommandBuilder context ShellCommand
