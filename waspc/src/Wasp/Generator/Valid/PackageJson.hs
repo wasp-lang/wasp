@@ -6,8 +6,6 @@ where
 import Control.Applicative ((<|>))
 import Data.List (intersect)
 import qualified Data.Map as M
-import Data.Text.Internal.Encoding.Utf32 (validate)
-import qualified Data.Text.Internal.Read as P
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
