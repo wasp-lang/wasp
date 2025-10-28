@@ -5,7 +5,7 @@ where
 
 import Control.Applicative ((<|>))
 import qualified Data.Map as M
-import Data.Set (isSubsetOf)
+import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
@@ -66,16 +66,16 @@ validateWorkspaces = validateRequiredWorkspaces . P.workspaces
   where
     validateRequiredWorkspaces Nothing = [missingWorkspacesError]
     validateRequiredWorkspaces (Just definedWorkspaces)
-      | NW.workspaceGlobs `isSubsetOf` definedWorkspaces = []
+      | NW.workspaceGlobs `S.isSubsetOf` definedWorkspaces = []
       | otherwise = [makeWrongWorkspacesError definedWorkspaces]
 
     makeWrongWorkspacesError definedWorkspaces =
       GenericGeneratorError $
         unwords
           [ "Wasp requires \"workspaces\" to include",
-            show NW.workspaceGlobs,
-            "but found",
-            show definedWorkspaces,
+            showSet NW.workspaceGlobs,
+            "but is missing",
+            showSet $ NW.workspaceGlobs `S.difference` definedWorkspaces,
             "in package.json."
           ]
 
@@ -83,9 +83,11 @@ validateWorkspaces = validateRequiredWorkspaces . P.workspaces
       GenericGeneratorError $
         unwords
           [ "Wasp requires \"workspaces\" to be present with the value",
-            show NW.workspaceGlobs,
+            showSet NW.workspaceGlobs,
             "in package.json."
           ]
+
+    showSet = show . S.toList
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
