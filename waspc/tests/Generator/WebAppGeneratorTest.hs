@@ -1,6 +1,7 @@
 module Generator.WebAppGeneratorTest where
 
 import qualified Data.Map as M
+import qualified Data.Set as S
 import Fixtures
 import StrongPath (relfile)
 import qualified StrongPath as SP
@@ -59,7 +60,7 @@ spec_WebAppGenerator = do
                 { Npm.PackageJson.name = "testApp",
                   Npm.PackageJson.dependencies = M.empty,
                   Npm.PackageJson.devDependencies = M.empty,
-                  Npm.PackageJson.workspaces = Just $ NW.workspaceGlobs
+                  Npm.PackageJson.workspaces = Just $ S.toList NW.workspaceGlobs
                 },
             AS.isBuild = False,
             AS.migrationsDir = Nothing,

@@ -4,6 +4,7 @@ module AppSpec.ValidTest where
 
 import qualified Data.Map as M
 import Data.Maybe (fromJust)
+import qualified Data.Set as S
 import Fixtures (systemSPRoot)
 import NeatInterpolation (trimming)
 import StrongPath (relfile)
@@ -507,7 +508,7 @@ spec_AppSpecValid = do
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just $ NW.workspaceGlobs
+                Npm.PackageJson.workspaces = Just $ S.toList NW.workspaceGlobs
               },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
