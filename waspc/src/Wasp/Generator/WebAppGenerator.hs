@@ -2,7 +2,7 @@
 
 module Wasp.Generator.WebAppGenerator
   ( genWebApp,
-    npmDepsForWasp,
+    npmDepsFromWasp,
   )
 where
 
@@ -60,7 +60,7 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genAppTsConfigJson spec,
       genFileCopy [relfile|netlify.toml|],
-      genPackageJson spec (npmDepsForWasp spec),
+      genPackageJson spec (npmDepsFromWasp spec),
       genGitignore,
       genIndexHtml spec
     ]
@@ -101,7 +101,7 @@ genDotEnv spec =
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
 
-genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
+genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
   combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
   return $
@@ -142,31 +142,33 @@ genNpmrc spec
         ]
   | otherwise = return []
 
-npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
-npmDepsForWasp _spec =
-  N.NpmDepsForWasp
-    { N.waspDependencies =
-        Npm.Dependency.fromList
-          [ ("axios", show axiosVersion),
-            ("react", show reactVersion),
-            -- React and ReactDOM versions should always match.
-            ("react-dom", show reactVersion),
-            ("@tanstack/react-query", reactQueryVersion),
-            ("react-router-dom", show reactRouterVersion)
-          ],
-      N.waspDevDependencies =
-        Npm.Dependency.fromList
-          [ -- TODO: Allow users to choose whether they want to use TypeScript
-            -- in their projects and install these dependencies accordingly.
-            ("typescript", show typescriptVersion),
-            ("@types/react", "^18.0.37"),
-            ("@types/react-dom", "^18.0.11"),
-            ("@vitejs/plugin-react", "^4.7.0"),
-            -- NOTE: Make sure to bump the version of the tsconfig
-            -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^7.0.0")
-          ]
-    }
+npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
+npmDepsFromWasp _spec =
+  N.NpmDepsFromWasp $
+    N.NpmDepsForPackage
+      { N.dependencies =
+          Npm.Dependency.fromList
+            [ ("axios", show axiosVersion),
+              ("react", show reactVersion),
+              -- React and ReactDOM versions should always match.
+              ("react-dom", show reactVersion),
+              ("@tanstack/react-query", reactQueryVersion),
+              ("react-router-dom", show reactRouterVersion)
+            ],
+        N.devDependencies =
+          Npm.Dependency.fromList
+            [ -- TODO: Allow users to choose whether they want to use TypeScript
+              -- in their projects and install these dependencies accordingly.
+              ("typescript", show typescriptVersion),
+              ("@types/react", "^18.0.37"),
+              ("@types/react-dom", "^18.0.11"),
+              ("@vitejs/plugin-react", "^4.7.0"),
+              -- NOTE: Make sure to bump the version of the tsconfig
+              -- when updating Vite or React versions
+              ("@tsconfig/vite-react", "^7.0.0")
+            ],
+        N.peerDependencies = []
+      }
 
 genGitignore :: Generator FileDraft
 genGitignore =
