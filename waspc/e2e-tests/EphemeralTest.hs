@@ -54,15 +54,14 @@ runEphemeralTest ephemeralTest = do
         executeEphemeralTestCommand = do
           putStrLn $ "Executing ephemeral test: " ++ ephemeralTestName
           putStrLn $ "Running the following command: " ++ ephemeralTestCommand
-          testSpec "Ephemeral Test" $
-            describe ephemeralTestName $ do
-              it "executes successfully" $ do
-                -- We purposely remove the empheralDir as part of the ephemeralTestCommand.
-                -- Because if the test fails, we don't want to delete the test dir so we can inspect the faulty test files.
-                (exitCode, _stdOut, stdErr) <- readCreateProcessWithExitCode (shell ("cd " ++ fromAbsDir ephemeralDir ~&& ephemeralTestCommand ~&& "rm -rf " ++ fromAbsDir ephemeralDir)) ""
-                case exitCode of
-                  ExitFailure _ -> expectationFailure stdErr
-                  ExitSuccess -> return ()
+          testSpec ephemeralTestName $ do
+            it "executes successfully" $ do
+              -- We purposely remove the empheralDir as part of the ephemeralTestCommand.
+              -- Because if the test fails, we don't want to delete the test dir so we can inspect the faulty test files.
+              (exitCode, _stdOut, stdErr) <- readCreateProcessWithExitCode (shell ("cd " ++ fromAbsDir ephemeralDir ~&& ephemeralTestCommand ~&& "rm -rf " ++ fromAbsDir ephemeralDir)) ""
+              case exitCode of
+                ExitFailure _ -> expectationFailure stdErr
+                ExitSuccess -> return ()
 
         ephemeralTestCommand :: ShellCommand
         ephemeralTestCommand = foldr1 (~&&) $ buildShellCommand ephemeralTestContext (_ephemeralTestCommandsBuilder ephemeralTest)
