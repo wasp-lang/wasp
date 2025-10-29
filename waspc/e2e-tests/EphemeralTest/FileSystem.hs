@@ -16,7 +16,7 @@ import Wasp.Project (WaspProjectDir)
 data EphemeralDir
 
 ephemeralDirInE2eTestsDir :: String -> Path' (Rel E2eTestsDir) (Dir EphemeralDir)
-ephemeralDirInE2eTestsDir testName = fromJust . parseRelDir $ ("EphemeralTest/temp-" ++ testName)
+ephemeralDirInE2eTestsDir testName = fromJust . parseRelDir $ ("EphemeralTest/temp/" ++ testName)
 
 getEphemeralDir :: String -> IO (Path' Abs (Dir EphemeralDir))
 getEphemeralDir testName = (</> ephemeralDirInE2eTestsDir testName) <$> getE2eTestsDir

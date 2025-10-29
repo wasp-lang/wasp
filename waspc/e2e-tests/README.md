@@ -22,11 +22,10 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 ### Ephemeral tests
 
-You can think of ephemeral tests as "normal" e2e tests.
 We test Wasp CLI commands whose outputs we can discard.
 
-Ephemeral tests are executed in the `EhpemeralDir`.
-Ther `EhpemeralDir`s are created in the `waspc/e2e-tests/EphemeralTest/` diectory.
+Ephemeral tests **sequentially execute their test cases** in the `EhpemeralDir`.
+Ther `EhpemeralDir`s are created in the `waspc/e2e-tests/EphemeralTest/temp/` diectory.
 While the exact files within a `EhpemeralDir` aren’t strictly defined, they usually have the following structure:
 
 ```yaml
@@ -35,16 +34,11 @@ While the exact files within a `EhpemeralDir` aren’t strictly defined, they us
 
 e2e-tests/
 └── EphemeralTest/
-    └── temp-<name>/  # ephemeral dirctory, e.g. `temp-wasp-info`
-        ├── wasp-app/ # contains the Wasp app for that ephemeral test.
-        └── ...
+    └── temp/
+        └── <name>/  # ephemeral dirctory, e.g. `wasp-info`
+            ├── wasp-app/ # contains the Wasp app for that ephemeral test
+            └── ...
 ```
-
-`wasp-app` contains the Wasp app for that ephemeral test.
-
-`EhpemeralDir`s are supposed to be cleaned up after successful exeuction or before subsequent `waspc e2e-tests` runs.
-The exception is when an ephemeral tests fails, we keep the directory to make debugging easier (in case the tests generates outputs).
-
 
 ### Snapshot tests
 
