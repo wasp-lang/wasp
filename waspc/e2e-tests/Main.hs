@@ -1,5 +1,6 @@
 import EphemeralTest (runEphemeralTest)
 import EphemeralTest.WaspCompletionEphemeralTest (waspCompletionEphemeralTest)
+import EphemeralTest.WaspDepsEphemeralTest (waspDepsEphemeralTest)
 import EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest)
 import EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest)
 import EphemeralTest.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest)
@@ -38,7 +39,8 @@ tests = do
         waspCompletionEphemeralTest,
         waspInfoEphemeralTest,
         waspVersionEphemeralTest,
-        waspDockerfileEphemeralTest
+        waspDockerfileEphemeralTest,
+        waspDepsEphemeralTest
       ]
 
   return $
