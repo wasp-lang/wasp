@@ -1,4 +1,4 @@
-with-compiler: ghc-9.0.2
+with-compiler: ghc-9.6.7
 
 packages: .
 
@@ -20,4 +20,4 @@ jobs: $ncpus
 test-show-details: direct
 
 -- WARNING: Run cabal update if your local package index is older than this date.
-index-state: 2023-03-09T09:15:49Z
+index-state: 2025-10-09T07:34:14Z
