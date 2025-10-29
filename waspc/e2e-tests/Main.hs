@@ -1,11 +1,17 @@
+import EphemeralTest (runEphemeralTest)
+import EphemeralTest.WaspCompletionEphemeralTest (waspCompletionEphemeralTest)
+import EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest)
+import EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest)
+import EphemeralTest.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest)
+import EphemeralTest.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 import SnapshotTest (runSnapshotTest)
+import SnapshotTest.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
+import SnapshotTest.WaspBuildSnapshotTest (waspBuildSnapshotTest)
+import SnapshotTest.WaspCompileSnapshotTest (waspCompileSnapshotTest)
+import SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
+import SnapshotTest.WaspNewSnapshotTest (waspNewSnapshotTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
-import Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
-import Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
-import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
-import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
 
 main :: IO ()
 main = do
@@ -15,13 +21,29 @@ main = do
 
 -- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
-tests =
-  testGroup "Snapshot Tests"
-    <$> mapM
+tests = do
+  snapshotTests <-
+    mapM
       runSnapshotTest
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
+      ]
+  ephemeralTests <-
+    mapM
+      runEphemeralTest
+      [ waspTelemetryEphemeralTest,
+        waspCompletionEphemeralTest,
+        waspInfoEphemeralTest,
+        waspVersionEphemeralTest,
+        waspDockerfileEphemeralTest
+      ]
+
+  return $
+    testGroup
+      "E2E tests"
+      [ testGroup "Snapshot Tests" snapshotTests,
+        testGroup "Ephemeral Tests" ephemeralTests
       ]
