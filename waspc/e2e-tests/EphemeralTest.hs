@@ -1,10 +1,13 @@
 module EphemeralTest
   ( EphemeralTest,
+    EphemeralTestCase,
     makeEphemeralTest,
+    makeEphemeralTestCase,
     runEphemeralTest,
   )
 where
 
+import Control.Monad (forM_)
 import EphemeralTest.FileSystem (EphemeralDir, asWaspProjectDir, ephemeralWaspProjectDirInEphemeralDir, getEphemeralDir)
 import EphemeralTest.ShellCommands (EphemeralTestContext (..))
 import ShellCommands
@@ -17,22 +20,34 @@ import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (callCommand, readCreateProcessWithExitCode, shell)
 import Test.Tasty (TestTree)
-import Test.Tasty.Hspec (describe, expectationFailure, it, testSpec)
+import Test.Tasty.Hspec (Spec, expectationFailure, it, testSpec, runIO)
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
 data EphemeralTest = EphemeralTest
   { _ephemeralTestName :: String,
-    _ephemeralTestCommandsBuilder :: ShellCommandBuilder EphemeralTestContext [ShellCommand]
+    _ephemeralTestCases :: [EphemeralTestCase]
   }
 
-makeEphemeralTest :: String -> [ShellCommandBuilder EphemeralTestContext ShellCommand] -> EphemeralTest
-makeEphemeralTest ephemeralTestName ephemeralTestCommandBuilders =
+makeEphemeralTest :: String -> [EphemeralTestCase] -> EphemeralTest
+makeEphemeralTest ephemeralTestName ephemeralTestCases =
   EphemeralTest
     { _ephemeralTestName = ephemeralTestName,
-      _ephemeralTestCommandsBuilder = sequence ephemeralTestCommandBuilders
+      _ephemeralTestCases = ephemeralTestCases
     }
 
--- | Runs
+data EphemeralTestCase = EphemeralTestCase
+  { _ephemeralTestCaseName :: String,
+    _ephemeralTestCaseCommandBuilder :: ShellCommandBuilder EphemeralTestContext ShellCommand
+  }
+
+makeEphemeralTestCase :: String -> ShellCommandBuilder EphemeralTestContext ShellCommand -> EphemeralTestCase
+makeEphemeralTestCase testCaseName commandBuilder =
+  EphemeralTestCase
+    { _ephemeralTestCaseName = testCaseName,
+      _ephemeralTestCaseCommandBuilder = commandBuilder
+    }
+
+-- | TODO: Runs... 
 runEphemeralTest :: EphemeralTest -> IO TestTree
 runEphemeralTest ephemeralTest = do
   getEphemeralDir ephemeralTestName >>= executeEphemeralTestWorkflow
@@ -43,28 +58,38 @@ runEphemeralTest ephemeralTest = do
     executeEphemeralTestWorkflow :: Path' Abs (Dir EphemeralDir) -> IO TestTree
     executeEphemeralTestWorkflow ephemeralDir = do
       setupEphemeralTest
-      executeEphemeralTestCommand
+      executeEphemeralTestCases
+
       where
         setupEphemeralTest :: IO ()
         setupEphemeralTest = do
           callCommand $ "rm -rf " ++ fromAbsDir ephemeralDir
           callCommand $ "mkdir " ++ fromAbsDir ephemeralDir
 
-        executeEphemeralTestCommand :: IO TestTree
-        executeEphemeralTestCommand = do
+        executeEphemeralTestCases :: IO TestTree
+        executeEphemeralTestCases = do
           putStrLn $ "Executing ephemeral test: " ++ ephemeralTestName
-          putStrLn $ "Running the following command: " ++ ephemeralTestCommand
-          testSpec ephemeralTestName $ do
-            it "executes successfully" $ do
-              -- We purposely remove the empheralDir as part of the ephemeralTestCommand.
-              -- Because if the test fails, we don't want to delete the test dir so we can inspect the faulty test files.
-              (exitCode, _stdOut, stdErr) <- readCreateProcessWithExitCode (shell ("cd " ++ fromAbsDir ephemeralDir ~&& ephemeralTestCommand ~&& "rm -rf " ++ fromAbsDir ephemeralDir)) ""
+          testSpec ephemeralTestName $ sequenceTestCases (_ephemeralTestCases ephemeralTest)
+          
+        sequenceTestCases :: [EphemeralTestCase] -> Spec
+        sequenceTestCases testCases = do
+          forM_ testCases $ \testCase -> do
+            let testCaseName = _ephemeralTestCaseName testCase
+            let testCaseCommand = buildShellCommand ephemeralTestContext (_ephemeralTestCaseCommandBuilder testCase)
+            
+            -- Force sequential execution of the commands
+            -- TODO: higher versions of Test.Hspec support sequential execution
+            (exitCode, _stdOut, stdErr) <- runIO $ do
+              putStrLn $ "Executing test case: " ++ testCaseCommand
+              readCreateProcessWithExitCode (shell ("cd " ++ fromAbsDir ephemeralDir ~&& testCaseCommand)) ""
+            
+            it testCaseName $ do
               case exitCode of
                 ExitFailure _ -> expectationFailure stdErr
                 ExitSuccess -> return ()
-
-        ephemeralTestCommand :: ShellCommand
-        ephemeralTestCommand = foldr1 (~&&) $ buildShellCommand ephemeralTestContext (_ephemeralTestCommandsBuilder ephemeralTest)
+          
+          -- Clean up the ephemeral directory only if all test cases have passed
+          runIO $ callCommand $ "rm -rf " ++ fromAbsDir ephemeralDir
 
         ephemeralTestContext :: EphemeralTestContext
         ephemeralTestContext =

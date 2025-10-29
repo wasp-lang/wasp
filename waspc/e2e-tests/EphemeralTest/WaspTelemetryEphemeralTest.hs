@@ -1,17 +1,16 @@
 module EphemeralTest.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest)
-import ShellCommands (waspCliTelemetry, writeToStdErrOnFailureAndExit, (~|))
+import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
+import ShellCommands (waspCliTelemetry, (~|))
 
 waspTelemetryEphemeralTest :: EphemeralTest
 waspTelemetryEphemeralTest =
   makeEphemeralTest
     "wasp-telemetry"
-    [ -- unsets the `WASP_TELEMETRY_DISABLE` to force the default behavior
-      writeToStdErrOnFailureAndExit
-        ((~| "grep -q 'ENABLED'") . ("env -u WASP_TELEMETRY_DISABLE " ++) <$> waspCliTelemetry)
-        "Wasp Telemetry should be enabled by default",
-      writeToStdErrOnFailureAndExit
-        ((~| "grep -q 'DISABLED'") . ("WASP_TELEMETRY_DISABLE=1 " ++) <$> waspCliTelemetry)
-        "Wasp Telemetry should be disabled when WASP_TELEMETRY_DISABLE=1 env var is set"
+    [ makeEphemeralTestCase
+        "`Should be enabled by default"
+        (("env -u WASP_TELEMETRY_DISABLE " ++) . (~| "grep -q 'ENABLED'") <$> waspCliTelemetry),
+      makeEphemeralTestCase
+        "`Should be disabled when WASP_TELEMETRY_DISABLE=1 env var is set"
+        (("WASP_TELEMETRY_DISABLE=1 " ++) . (~| "grep -q 'DISABLED'") <$> waspCliTelemetry)
     ]
