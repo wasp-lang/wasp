@@ -6,7 +6,7 @@ import '../auth-styles.css'
 import { config } from 'wasp/client'
 import { clsx } from '../util'
 
-import { AuthContext } from '../../Auth'
+import { AuthContext } from '../../AuthContext'
 import {
   Form,
   FormInput,
