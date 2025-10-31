@@ -7,12 +7,12 @@ import Control.Monad (void)
 import Validation (validateAll)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, inField, inFile)
+import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, inFile)
 
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig config =
   GenericGeneratorError . show
-    <$> execValidator validateFile config
+    <$> getValidationErrors validateFile config
   where
     -- References for understanding the required compiler options:
     --   - The comments in templates/sdk/wasp/tsconfig.json
@@ -54,7 +54,7 @@ validateSrcTsConfig config =
           inField "skipLibCheck" T.skipLibCheck (eqJust True)
         ]
 
-eqJust :: (Eq a, Show a) => a -> Validator (Maybe a) ()
+eqJust :: (Eq a, Show a) => a -> Maybe a -> Validation ()
 eqJust expected (Just actual)
   | actual == expected = pure ()
   | otherwise =

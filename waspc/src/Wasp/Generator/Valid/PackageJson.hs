@@ -6,23 +6,23 @@ where
 import Control.Monad (void)
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Validation (isFailure, validateAll)
+import qualified Validation as V
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Validator (Validator, execValidator, failure, inField, inFile)
+import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, inFile)
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 validatePackageJson :: P.PackageJson -> [GeneratorError]
 validatePackageJson pkgJson =
   GenericGeneratorError . show
-    <$> execValidator validateFile pkgJson
+    <$> getValidationErrors validateFile pkgJson
   where
     validateFile =
       inFile "package.json" $
-        validateAll $
+        V.validateAll $
           [validateWorkspaces]
             <> (validateRequiredDependency Runtime <$> requiredRuntimeDependencies)
             <> (validateRequiredDependency Development <$> requiredDevelopmentDependencies)
@@ -48,13 +48,13 @@ validatePackageJson pkgJson =
         ("@types/express", show expressTypesVersion)
       ]
 
-validateWorkspaces :: Validator P.PackageJson ()
+validateWorkspaces :: P.PackageJson -> Validation ()
 validateWorkspaces =
   inField "workspaces" P.workspaces $
     maybe missingWorkspacesKeyError (void . validateWorkspaceValues)
   where
     validateWorkspaceValues =
-      validateAll $ validateSpecificWorkspace <$> S.toList NW.workspaceGlobs
+      V.validateAll $ validateSpecificWorkspace <$> S.toList NW.workspaceGlobs
 
     validateSpecificWorkspace expectedWorkspace actualWorkspaces
       | expectedWorkspace `elem` actualWorkspaces = pure ()
@@ -72,10 +72,10 @@ validateWorkspaces =
           ++ show (S.toList NW.workspaceGlobs)
           ++ "."
 
-validateOptionalDependency :: PackageSpecification -> Validator P.PackageJson ()
+validateOptionalDependency :: PackageSpecification -> P.PackageJson -> Validation ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
   void
-    . validateAll
+    . V.validateAll
       [ inDependency Runtime dep (resultForOptional . checkVersion),
         inDependency Development dep (resultForOptional . checkVersion)
       ]
@@ -93,7 +93,7 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 -- list with the correct version. It shows an appropriate error message
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
-validateRequiredDependency :: DependencyType -> PackageSpecification -> Validator P.PackageJson ()
+validateRequiredDependency :: DependencyType -> PackageSpecification -> P.PackageJson -> Validation ()
 validateRequiredDependency depType dep@(pkgName, pkgVersion) =
   inOppositeDepList (resultForOpposite . checkVersion)
     `andThen` inCorrectDepList (resultForCorrect . checkVersion)
@@ -130,7 +130,11 @@ type PackageSpecification = (P.PackageName, P.PackageVersion)
 -- | Runs the validator on a specific dependency of the input, setting the appropriate path for
 -- errors.
 inDependency ::
-  DependencyType -> PackageSpecification -> Validator (Maybe P.PackageVersion) a -> Validator P.PackageJson a
+  DependencyType ->
+  PackageSpecification ->
+  (Maybe P.PackageVersion -> Validation a) ->
+  P.PackageJson ->
+  Validation a
 inDependency depType (pkgName, _) innerValidator =
   inField (depTypeFieldName depType) (depTypeGetter depType) $
     inField pkgName (M.lookup pkgName) innerValidator
@@ -147,13 +151,13 @@ depTypeGetter Development = P.devDependencies
 
 -- | A combinator to short-circuit a validation chain if the left side fails,
 -- skipping the right side.
-andThen :: Validator a b -> Validator a b -> Validator a b
-andThen x y value
-  | isFailure xResult = xResult
+andThen :: (a -> Validation b) -> (a -> Validation b) -> a -> Validation b
+andThen v1 v2 input
+  | V.isFailure xResult = xResult
   | otherwise = yResult
   where
-    xResult = x value
-    yResult = y value
+    xResult = v1 input
+    yResult = v2 input
 
 eqVersion :: P.PackageVersion -> Maybe P.PackageVersion -> DependencyCheckResult
 eqVersion _ Nothing = NotPresent
