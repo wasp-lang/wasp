@@ -1,4 +1,4 @@
-with-compiler: ghc-9.0.2
+with-compiler: ghc-9.2.8
 
 packages: .
 
@@ -11,6 +11,11 @@ package waspc
   --   This is not a problem for us for now since we have only one package in our project.
   ghc-options: -j
 
+source-repository-package
+  type: git
+  location: https://github.com/wasp-lang/strong-path
+  tag: 02182c66bb938a29cc926fa26f680e6adeb4bd34
+
 -- This causes cabal to build packages on all cores, instead of just one.
 -- This doesn't help when developing a single local package, but instead helps when
 -- building multiple packages at once, for example external dependencies.
@@ -20,4 +25,4 @@ jobs: $ncpus
 test-show-details: direct
 
 -- WARNING: Run cabal update if your local package index is older than this date.
-index-state: 2023-03-09T09:15:49Z
+index-state: 2025-10-09T07:34:14Z
