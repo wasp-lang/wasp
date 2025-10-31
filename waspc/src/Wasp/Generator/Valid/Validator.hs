@@ -1,6 +1,7 @@
 module Wasp.Generator.Valid.Validator where
 
 import Data.Bifunctor (first)
+import Data.Functor (void)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
@@ -35,6 +36,9 @@ inField fieldName fieldGetter innerValidator =
   mapErrors prependFieldName . innerValidator . fieldGetter
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
+
+validateAll_ :: (Foldable f, Semigroup e) => f (a -> V.Validation e b) -> a -> V.Validation e ()
+validateAll_ = fmap void . V.validateAll
 
 failure :: String -> Validation b
 failure message' =

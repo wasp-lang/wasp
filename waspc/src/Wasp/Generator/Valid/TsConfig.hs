@@ -3,11 +3,9 @@ module Wasp.Generator.Valid.TsConfig
   )
 where
 
-import Control.Monad (void)
-import Validation (validateAll)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, withFileName)
+import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, validateAll_, withFileName)
 
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig config =
@@ -22,13 +20,13 @@ validateSrcTsConfig config =
 
     validateFile =
       withFileName "tsconfig.json" $
-        validateAll
+        validateAll_
           [ inField "include" T.include (eqJust ["src"]),
-            void . inField "compilerOptions" T.compilerOptions validateCompilerOptions
+            inField "compilerOptions" T.compilerOptions validateCompilerOptions
           ]
 
     validateCompilerOptions =
-      validateAll
+      validateAll_
         [ inField "module" T._module (eqJust "esnext"),
           inField "target" T.target (eqJust "esnext"),
           -- Since Wasp ends up bundling the user code, `bundler` is the most

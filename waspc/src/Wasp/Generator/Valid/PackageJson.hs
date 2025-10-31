@@ -3,8 +3,9 @@ module Wasp.Generator.Valid.PackageJson
   )
 where
 
-import Control.Monad (void)
+import Control.Selective (ifS)
 import qualified Data.Map as M
+import Data.Maybe (isNothing)
 import qualified Data.Set as S
 import qualified Validation as V
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -12,7 +13,14 @@ import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, withFileName)
+import Wasp.Generator.Valid.Validator
+  ( Validation,
+    failure,
+    getValidationErrors,
+    inField,
+    validateAll_,
+    withFileName,
+  )
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 validatePackageJson :: P.PackageJson -> [GeneratorError]
@@ -51,10 +59,10 @@ validatePackageJson pkgJson =
 validateWorkspaces :: P.PackageJson -> Validation ()
 validateWorkspaces =
   inField "workspaces" P.workspaces $
-    maybe missingWorkspacesKeyError (void . validateWorkspaceValues)
+    maybe missingWorkspacesKeyError validateWorkspaceValues
   where
     validateWorkspaceValues =
-      V.validateAll $ validateSpecificWorkspace <$> S.toList NW.workspaceGlobs
+      validateAll_ $ validateSpecificWorkspace <$> S.toList NW.workspaceGlobs
 
     validateSpecificWorkspace expectedWorkspace actualWorkspaces
       | expectedWorkspace `elem` actualWorkspaces = pure ()
@@ -74,16 +82,15 @@ validateWorkspaces =
 
 validateOptionalDependency :: PackageSpecification -> P.PackageJson -> Validation ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
-  void
-    . V.validateAll
-      [ inDependency Runtime dep (resultForOptional . checkVersion),
-        inDependency Development dep (resultForOptional . checkVersion)
-      ]
+  validateAll_
+    [ inDependency Runtime dep checkVersion,
+      inDependency Development dep checkVersion
+    ]
   where
-    checkVersion = eqVersion pkgVersion
-
-    resultForOptional IncorrectVersion = incorrectVersionError
-    resultForOptional _ = pure ()
+    checkVersion version = case (pkgVersion ==) <$> version of
+      Just True -> pure ()
+      Just False -> incorrectVersionError
+      Nothing -> pure ()
 
     incorrectVersionError =
       failure $
@@ -94,24 +101,24 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
 validateRequiredDependency :: DependencyType -> PackageSpecification -> P.PackageJson -> Validation ()
-validateRequiredDependency depType dep@(pkgName, pkgVersion) =
-  inOppositeDepList (resultForOpposite . checkVersion)
-    `andThen` inCorrectDepList (resultForCorrect . checkVersion)
+validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
+  (ifS $ oppositeDep eqNothing pkgJson)
+    (correctDep checkVersion pkgJson)
+    wrongDepTypeError
   where
-    checkVersion = eqVersion pkgVersion
+    eqNothing = pure . isNothing
 
-    inCorrectDepList = inDependency depType dep
-    inOppositeDepList = inDependency (oppositeDepType depType) dep
+    checkVersion version =
+      case (pkgVersion ==) <$> version of
+        Just True -> pure ()
+        Just False -> incorrectPackageVersionError
+        Nothing -> missingPackageError
+
+    correctDep = inDependency depType dep
+    oppositeDep = inDependency (oppositeDepType depType) dep
 
     oppositeDepType Runtime = Development
     oppositeDepType Development = Runtime
-
-    resultForOpposite NotPresent = pure ()
-    resultForOpposite _ = wrongDepTypeError
-
-    resultForCorrect CorrectVersion = pure ()
-    resultForCorrect NotPresent = missingPackageError
-    resultForCorrect IncorrectVersion = incorrectPackageVersionError
 
     wrongDepTypeError =
       failure $
@@ -148,21 +155,3 @@ depTypeFieldName Development = "devDependencies"
 depTypeGetter :: DependencyType -> P.PackageJson -> P.DependenciesMap
 depTypeGetter Runtime = P.dependencies
 depTypeGetter Development = P.devDependencies
-
--- | A combinator to short-circuit a validation chain if the left side fails,
--- skipping the right side.
-andThen :: (a -> Validation b) -> (a -> Validation b) -> a -> Validation b
-andThen v1 v2 input
-  | V.isFailure xResult = xResult
-  | otherwise = yResult
-  where
-    xResult = v1 input
-    yResult = v2 input
-
-eqVersion :: P.PackageVersion -> Maybe P.PackageVersion -> DependencyCheckResult
-eqVersion _ Nothing = NotPresent
-eqVersion expectedVersion (Just actualVersion)
-  | expectedVersion == actualVersion = CorrectVersion
-  | otherwise = IncorrectVersion
-
-data DependencyCheckResult = CorrectVersion | IncorrectVersion | NotPresent
