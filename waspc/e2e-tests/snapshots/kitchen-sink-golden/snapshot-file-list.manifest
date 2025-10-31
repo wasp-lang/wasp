@@ -143,6 +143,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/Auth.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/Auth.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/Auth.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/Auth.module.css
+wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/AuthContext.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/AuthContext.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/AuthContext.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/AuthContext.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/ForgotPassword.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/ForgotPassword.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/ForgotPassword.jsx

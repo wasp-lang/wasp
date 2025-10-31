@@ -60,7 +60,14 @@
             "file",
             "../out/sdk/wasp/auth/forms/Auth.tsx"
         ],
-        "6603800c5dd60b5384d5ce9f6679fe1937d1a9250cdd923f09df549dd7959589"
+        "1ccb7089fe277ee6c351e4ee399c326c7b4336e62b1322c26663f25b580db0d1"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/auth/forms/AuthContext.tsx"
+        ],
+        "a78d50eacbaae62f8093c0a4da80c7de4b8904e94d45947f7e9de9a308d66525"
     ],
     [
         [
@@ -144,28 +151,28 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "3960378fd8ff2a72e0a11625eb000ef6a325badfd3de9862bd88106b848efbbc"
+        "309b45065dda9499c40991f9cd2e8667f24301773d1e2181aa6b57a0fdc32c26"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx"
         ],
-        "1334b84918066bb2cfc5af941854a8d13bdad286dc001b2425b5fe31a7354590"
+        "425d7112030765367d71471cbd09c9460230a06a5242e778339739570ece0e93"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "c3fbb2cd379947a35e0eba3ed17f50002ec489449fc63db4039ed8aa444a76c6"
+        "bdef0e9b7a5c089809a4dcd7f25a049f6d640167bfc6223e3ce497c2979b7b36"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "a4086ae99097e09dca75ecd97015f8186e60c47608934e26182659e6c843803d"
+        "b6b02fe60286afb6e8af12c8ec23c530249cb429132f2b29faec7e16847d446a"
     ],
     [
         [
