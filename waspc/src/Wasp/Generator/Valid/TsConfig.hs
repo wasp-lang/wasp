@@ -7,7 +7,7 @@ import Control.Monad (void)
 import Validation (validateAll)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, inFile)
+import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, withFileName)
 
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig config =
@@ -21,7 +21,7 @@ validateSrcTsConfig config =
     --   - https://www.typescriptlang.org/tsconfig/
 
     validateFile =
-      inFile "tsconfig.json" $
+      withFileName "tsconfig.json" $
         validateAll
           [ inField "include" T.include (eqJust ["src"]),
             void . inField "compilerOptions" T.compilerOptions validateCompilerOptions

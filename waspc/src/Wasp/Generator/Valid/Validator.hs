@@ -23,8 +23,8 @@ getValidationErrors validator =
   maybe [] NE.toList . V.failureToMaybe . validator
 
 -- | Adds file name context to validation errors produced by the inner validator.
-inFile :: String -> (a -> Validation result) -> (a -> Validation result)
-inFile fileName' innerValidator =
+withFileName :: String -> (a -> Validation result) -> (a -> Validation result)
+withFileName fileName' innerValidator =
   mapErrors setFileName . innerValidator
   where
     setFileName err = err {fileName = Just fileName'}

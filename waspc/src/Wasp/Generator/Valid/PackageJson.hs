@@ -12,7 +12,7 @@ import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, inFile)
+import Wasp.Generator.Valid.Validator (Validation, failure, getValidationErrors, inField, withFileName)
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 validatePackageJson :: P.PackageJson -> [GeneratorError]
@@ -21,7 +21,7 @@ validatePackageJson pkgJson =
     <$> getValidationErrors validateFile pkgJson
   where
     validateFile =
-      inFile "package.json" $
+      withFileName "package.json" $
         V.validateAll $
           [validateWorkspaces]
             <> (validateRequiredDependency Runtime <$> requiredRuntimeDependencies)
