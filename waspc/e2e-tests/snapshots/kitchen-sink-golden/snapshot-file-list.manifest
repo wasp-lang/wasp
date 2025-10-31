@@ -30,6 +30,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/email/actions/verifyEmail.ts
 wasp-app/.wasp/out/sdk/wasp/auth/email/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/forms/Auth.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/Auth.tsx
+wasp-app/.wasp/out/sdk/wasp/auth/forms/AuthContext.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/ForgotPassword.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/Login.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/ResetPassword.tsx
