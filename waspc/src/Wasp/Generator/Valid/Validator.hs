@@ -31,8 +31,8 @@ withFileName fileName' innerValidator =
 
 -- | Runs the validator on a specific field of the input, adding the field name to the error path.
 inField :: String -> (a -> b) -> (b -> Validation result) -> (a -> Validation result)
-inField fieldName fn innerValidator =
-  mapErrors prependFieldName . innerValidator . fn
+inField fieldName fieldGetter innerValidator =
+  mapErrors prependFieldName . innerValidator . fieldGetter
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 
