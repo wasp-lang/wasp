@@ -3,9 +3,8 @@ module Wasp.Generator.Valid.PackageJson
   )
 where
 
-import Control.Selective (ifS)
+import Control.Selective (whenS)
 import qualified Data.Map as M
-import Data.Maybe (isNothing)
 import qualified Data.Set as S
 import qualified Validation as V
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -102,17 +101,17 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 -- in the opposite list -- runtime deps vs. devDeps).
 validateRequiredDependency :: DependencyType -> PackageSpecification -> P.PackageJson -> Validation ()
 validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
-  (ifS $ oppositeDep eqNothing pkgJson)
-    (correctDep checkVersion pkgJson)
-    wrongDepTypeError
+  whenS (oppositeDep checkVersionNotPresent pkgJson) $
+    correctDep checkCorrectVersion pkgJson
   where
-    eqNothing = pure . isNothing
-
-    checkVersion version =
+    checkCorrectVersion version =
       case (pkgVersion ==) <$> version of
         Just True -> pure ()
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
+
+    checkVersionNotPresent Nothing = pure True
+    checkVersionNotPresent _ = wrongDepTypeError
 
     correctDep = inDependency depType dep
     oppositeDep = inDependency (oppositeDepType depType) dep
