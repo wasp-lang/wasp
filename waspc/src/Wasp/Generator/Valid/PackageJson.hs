@@ -31,49 +31,55 @@ validatePackageJson pkgJson =
       withFileName "package.json" $
         V.validateAll $
           [validateWorkspaces]
-            <> (validateRequiredDependency Runtime <$> requiredRuntimeDependencies)
-            <> (validateRequiredDependency Development <$> requiredDevelopmentDependencies)
-            <> (validateOptionalDependency <$> optionalDependencies)
+            <> validateRuntimeDeps
+            <> validateDevDeps
+            <> validateOptionalDeps
 
-    requiredRuntimeDependencies =
-      [ ("wasp", "file:.wasp/out/sdk/wasp"),
-        ("react-router-dom", show D.reactRouterVersion),
-        -- Installing the wrong version of "react-router-dom" can make users believe that they
-        -- can use features that are not available in the version that Wasp supports.
-        ("react", show D.reactVersion),
-        ("react-dom", show D.reactVersion)
-      ]
+    validateRuntimeDeps =
+      validateRequiredDependency Runtime
+        <$> [ ("wasp", "file:.wasp/out/sdk/wasp"),
+              ("react-router-dom", show D.reactRouterVersion),
+              -- Installing the wrong version of "react-router-dom" can make users believe that they
+              -- can use features that are not available in the version that Wasp supports.
+              ("react", show D.reactVersion),
+              ("react-dom", show D.reactVersion)
+            ]
 
-    requiredDevelopmentDependencies =
-      [ ("vite", show D.viteVersion),
-        ("prisma", show prismaVersion)
-      ]
+    validateDevDeps =
+      validateRequiredDependency Development
+        <$> [ ("vite", show D.viteVersion),
+              ("prisma", show prismaVersion)
+            ]
 
-    optionalDependencies =
-      [ ("typescript", show typescriptVersion),
-        ("@types/react", show D.reactTypesVersion),
-        ("@types/express", show expressTypesVersion)
-      ]
+    validateOptionalDeps =
+      validateOptionalDependency
+        <$> [ ("typescript", show typescriptVersion),
+              ("@types/react", show D.reactTypesVersion),
+              ("@types/express", show expressTypesVersion)
+            ]
 
 validateWorkspaces :: P.PackageJson -> Validation ()
 validateWorkspaces =
   inField "workspaces" P.workspaces $
-    maybe missingWorkspacesKeyError validateWorkspaceValues
+    maybe noWorkspacesPropertyError allWorkspacesIncluded
   where
-    validateWorkspaceValues =
-      validateAll_ $ validateSpecificWorkspace <$> S.toList NW.workspaceGlobs
+    allWorkspacesIncluded :: [String] -> Validation ()
+    allWorkspacesIncluded =
+      validateAll_ $
+        workspaceIncluded <$> S.toList NW.workspaceGlobs
 
-    validateSpecificWorkspace expectedWorkspace actualWorkspaces
+    workspaceIncluded :: String -> [String] -> Validation ()
+    workspaceIncluded expectedWorkspace actualWorkspaces
       | expectedWorkspace `elem` actualWorkspaces = pure ()
-      | otherwise = makeMissingSpecificWorkspaceError expectedWorkspace
+      | otherwise = makeMissingWorkspaceError expectedWorkspace
 
-    makeMissingSpecificWorkspaceError expectedWorkspace =
+    makeMissingWorkspaceError expectedWorkspace =
       failure $
         "Wasp requires "
           ++ show expectedWorkspace
           ++ " to be included."
 
-    missingWorkspacesKeyError =
+    noWorkspacesPropertyError =
       failure $
         "Wasp requires the value "
           ++ show (S.toList NW.workspaceGlobs)
@@ -86,10 +92,12 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
       inDependency Development dep checkVersion
     ]
   where
-    checkVersion version = case (pkgVersion ==) <$> version of
-      Just True -> pure ()
-      Just False -> incorrectVersionError
-      Nothing -> pure ()
+    checkVersion :: Maybe P.PackageVersion -> Validation ()
+    checkVersion version =
+      case (pkgVersion ==) <$> version of
+        Just True -> pure ()
+        Just False -> incorrectVersionError
+        Nothing -> pure ()
 
     incorrectVersionError =
       failure $
@@ -104,24 +112,29 @@ validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
   whenS (oppositeDep checkVersionNotPresent pkgJson) $
     correctDep checkCorrectVersion pkgJson
   where
+    checkCorrectVersion :: Maybe P.PackageVersion -> Validation ()
     checkCorrectVersion version =
       case (pkgVersion ==) <$> version of
         Just True -> pure ()
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
 
+    checkVersionNotPresent :: Maybe P.PackageVersion -> Validation Bool
     checkVersionNotPresent Nothing = pure True
     checkVersionNotPresent _ = wrongDepTypeError
 
+    correctDep :: (Maybe P.PackageVersion -> Validation a) -> P.PackageJson -> Validation a
     correctDep = inDependency depType dep
-    oppositeDep = inDependency (oppositeDepType depType) dep
+    oppositeDep :: (Maybe P.PackageVersion -> Validation a) -> P.PackageJson -> Validation a
+    oppositeDep = inDependency (oppositeForDepType depType) dep
 
-    oppositeDepType Runtime = Development
-    oppositeDepType Development = Runtime
+    oppositeForDepType :: DependencyType -> DependencyType
+    oppositeForDepType Runtime = Development
+    oppositeForDepType Development = Runtime
 
     wrongDepTypeError =
       failure $
-        "Wasp requires package " ++ show pkgName ++ " to be in " ++ show (depTypeFieldName depType) ++ "."
+        "Wasp requires package " ++ show pkgName ++ " to be in " ++ show (fieldNameForDepType depType) ++ "."
 
     missingPackageError =
       failure $
@@ -142,15 +155,15 @@ inDependency ::
   P.PackageJson ->
   Validation a
 inDependency depType (pkgName, _) innerValidator =
-  inField (depTypeFieldName depType) (depTypeGetter depType) $
+  inField (fieldNameForDepType depType) (getterForDepType depType) $
     inField pkgName (M.lookup pkgName) innerValidator
 
 data DependencyType = Runtime | Development
 
-depTypeFieldName :: DependencyType -> String
-depTypeFieldName Runtime = "dependencies"
-depTypeFieldName Development = "devDependencies"
+fieldNameForDepType :: DependencyType -> String
+fieldNameForDepType Runtime = "dependencies"
+fieldNameForDepType Development = "devDependencies"
 
-depTypeGetter :: DependencyType -> P.PackageJson -> P.DependenciesMap
-depTypeGetter Runtime = P.dependencies
-depTypeGetter Development = P.devDependencies
+getterForDepType :: DependencyType -> P.PackageJson -> P.DependenciesMap
+getterForDepType Runtime = P.dependencies
+getterForDepType Development = P.devDependencies
