@@ -4,7 +4,7 @@ import Data.Bifunctor (first)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
-import Data.Maybe (maybeToList)
+import Data.Maybe (catMaybes)
 import qualified Validation as V
 import Wasp.Util (indent)
 
@@ -61,16 +61,15 @@ instance Show ValidationError where
           fieldPath = fieldPath',
           fileName = fileName'
         }
-      ) =
-      unlines $
-        maybeToList locationLine
-          ++ [indent 4 message']
+      )
+      | null context = message'
+      | otherwise = unlines [contextLine, indent 4 message']
       where
-        locationLine = case (fieldPath', fileName') of
-          ([], Nothing) -> Nothing
-          ([], Just fileName'') ->
-            Just $ "In " ++ show fileName'' ++ ":"
-          (fieldPath'', Nothing) ->
-            Just $ "In " ++ show (intercalate "." fieldPath'') ++ ":"
-          (fieldPath'', Just fileName'') ->
-            Just $ "In " ++ show fileName'' ++ " → " ++ show (intercalate "." fieldPath'') ++ ":"
+        contextLine = "In " ++ intercalate " → " context ++ ":"
+        context = catMaybes [fileNamePart, fieldPathPart]
+
+        fileNamePart = show <$> fileName'
+
+        fieldPathPart
+          | null fieldPath' = Nothing
+          | otherwise = Just $ show $ intercalate "." fieldPath'
