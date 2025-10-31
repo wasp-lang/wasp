@@ -27,6 +27,7 @@ genAuthForms auth =
   sequence
     [ genAuthComponent auth,
       genFileCopy [relfile|auth/forms/Auth.module.css|],
+      genFileCopy [relfile|auth/forms/AuthContext.tsx|],
       genTypes auth,
       genFileCopy [relfile|auth/forms/Login.tsx|],
       genFileCopy [relfile|auth/forms/Signup.tsx|]

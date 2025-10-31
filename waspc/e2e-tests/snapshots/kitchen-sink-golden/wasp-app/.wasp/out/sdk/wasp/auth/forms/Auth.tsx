@@ -1,8 +1,9 @@
-import { useState, createContext, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import styles from './Auth.module.css'
 import './internal/auth-styles.css'
 import { tokenObjToCSSVars } from "./internal/util"
 import { CSSProperties } from "react"
+import { AuthContext } from './AuthContext'
 
 import {
   type State,
@@ -20,14 +21,6 @@ const logoStyle = {
   height: '3rem'
 }
 
-
-// PRIVATE API
-export const AuthContext = createContext({
-  isLoading: false,
-  setIsLoading: (isLoading: boolean) => {},
-  setErrorMessage: (errorMessage: ErrorMessage | null) => {},
-  setSuccessMessage: (successMessage: string | null) => {},
-})
 
 function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additionalSignupFields }: {
     state: State;
