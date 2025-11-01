@@ -21,6 +21,8 @@ source-repository-package
 -- building multiple packages at once, for example external dependencies.
 jobs: $ncpus
 
+tests: True
+
 -- Ensures that tests print their output to stdout as they execute.
 test-show-details: direct
 

@@ -7,7 +7,7 @@ where
 
 import Data.Algorithm.Diff (Diff, PolyDiff (Both, First, Second), getDiff)
 import Data.List (intercalate)
-import Test.Tasty.Hspec (Expectation, expectationFailure)
+import Test.Hspec (Expectation, expectationFailure)
 
 shouldBeWithDiff :: (Eq a, Diffable a) => a -> a -> Expectation
 shouldBeWithDiff actual expected

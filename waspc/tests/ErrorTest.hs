@@ -4,7 +4,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Analyzer.Parser.Ctx (ctxFromRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Error

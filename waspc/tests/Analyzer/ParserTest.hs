@@ -5,7 +5,7 @@ import qualified Data.ByteString.Lazy.Char8 as BSC
 import System.FilePath (replaceExtension, takeBaseName)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (findByExtension, goldenVsStringDiff)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Analyzer.Parser hiding (withCtx)
 import Wasp.Analyzer.Parser.PrettyPrinter (prettyPrintParserResult)
 

@@ -2,7 +2,7 @@
 
 module Util.Control.MonadTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Util.Control.Monad
 
 data Identity a = Identity {runIdentity :: a} deriving (Functor)

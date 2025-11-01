@@ -8,7 +8,7 @@ import Fixtures (systemSPRoot)
 import NeatInterpolation (trimming)
 import StrongPath (relfile)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action

@@ -502,8 +502,8 @@ library waspls
     , lsp ^>=1.4.0.0
     , lsp-types ^>=1.4.0.1
     , stm ^>=2.5.1.0
-    , stm-containers ^>=1.2
-    , hashable ^>=1.3.5.0
+    , stm-containers ^>=1.2.1
+    , hashable ^>=1.4
     , unordered-containers
     , strong-path
     , path
@@ -653,6 +653,7 @@ test-suite waspc-tests
     , waspc
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
+    , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-quickcheck      ^>= 0.10
     , tasty-golden          ^>= 2.3.5
@@ -738,6 +739,7 @@ test-suite waspls-tests
     , mtl
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
+    , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-golden          ^>= 2.3.5
     , bytestring
@@ -760,6 +762,7 @@ test-suite wasp-cli-tests
     , cli-lib
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
+    , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-quickcheck      ^>= 0.10
   other-modules:
@@ -789,6 +792,7 @@ test-suite waspc-e2e-tests
     , aeson-pretty
     , process
     , tasty                 ^>= 1.4.2
+    , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-golden          ^>= 2.3.5
   other-modules:

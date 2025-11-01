@@ -10,7 +10,7 @@ import Data.Data (Data)
 import Data.List.Split (splitOn)
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import Text.Read (readMaybe)
 import Wasp.Analyzer.Evaluator
 import qualified Wasp.Analyzer.Evaluator.Evaluation as E

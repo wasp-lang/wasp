@@ -5,7 +5,7 @@ import Fixtures
 import StrongPath (relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp

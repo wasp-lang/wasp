@@ -1,7 +1,7 @@
 module DbMigrateTest where
 
 import Data.Either (isLeft)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Cli.Command.Db.Migrate (parseMigrateArgs)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 

@@ -3,7 +3,7 @@ module Analyzer.TypeCheckerTest where
 import Analyzer.TestUtil (ctx)
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker

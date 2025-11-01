@@ -48,11 +48,12 @@ import Control.Applicative (liftA2)
 import Control.Monad (unless, when)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as Key
+import qualified Data.Aeson.KeyMap as KM
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
-import qualified Data.HashMap.Strict as M
 import Data.List (group, intercalate, sort)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
@@ -108,7 +109,7 @@ second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
 second3 f (x, y, z) = (x, f y, z)
 
 jsonSet :: Text.Text -> Aeson.Value -> Aeson.Value -> Aeson.Value
-jsonSet key value (Aeson.Object o) = Aeson.Object $ M.insert key value o
+jsonSet key value (Aeson.Object o) = Aeson.Object $ KM.insert (Key.fromText key) value o
 jsonSet _ _ _ = error "Input JSON must be an object"
 
 indent :: Int -> String -> String
