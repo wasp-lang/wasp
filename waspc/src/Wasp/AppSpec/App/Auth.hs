@@ -2,8 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
--- TODO: Remove once we start using record dot syntax
-{-# OPTIONS_GHC -Wno-ambiguous-fields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
@@ -115,13 +114,13 @@ isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
 
 -- These helper functions are used to avoid ambiguity when using the
--- `userSignupFields` function (otherwise we need to use the DuplicateRecordFields
--- extension in each module that uses them).
+-- `userSignupFields` function (otherwise we need to use DuplicateRecordFields
+-- and OverloadedRecordDot extension in each module that uses them).
 userSignupFieldsForEmailAuth :: EmailAuthConfig -> Maybe ExtImport
-userSignupFieldsForEmailAuth = userSignupFields
+userSignupFieldsForEmailAuth = (.userSignupFields)
 
 userSignupFieldsForUsernameAuth :: UsernameAndPasswordConfig -> Maybe ExtImport
-userSignupFieldsForUsernameAuth = userSignupFields
+userSignupFieldsForUsernameAuth = (.userSignupFields)
 
 userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
-userSignupFieldsForExternalAuth = userSignupFields
+userSignupFieldsForExternalAuth = (.userSignupFields)

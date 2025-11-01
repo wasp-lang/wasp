@@ -1,4 +1,4 @@
-with-compiler: ghc-9.2.8
+with-compiler: ghc-9.4.8
 
 packages: .
 
