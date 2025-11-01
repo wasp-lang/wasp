@@ -52,6 +52,10 @@ export async function createDb(
     cmdOptions.volumeSize,
   ];
 
+  if (cmdOptions.dbImage) {
+    createArgs.push("--image-ref", cmdOptions.dbImage);
+  }
+
   if (deploymentInstructions.cmdOptions.org) {
     createArgs.push("--org", deploymentInstructions.cmdOptions.org);
   }

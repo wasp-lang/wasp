@@ -32,10 +32,14 @@ RUN cd .wasp/build/server && npx prisma generate --schema='../db/schema.prisma'
 # Building the server should come after Prisma generation.
 RUN cd .wasp/build/server && npm run bundle
 
+# Depending on `npm`'s dependency resolution, this folder may or may not exist.
+# We ensure they are created so that the COPY instruction later does not fail.
+RUN mkdir -p /app/.wasp/build/server/node_modules
+
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.18.0
+RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.18.1
 ENV PATH "$PATH:/root/.local/bin"
 ENV NODE_ENV production
 WORKDIR /app

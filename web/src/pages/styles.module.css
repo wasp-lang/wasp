@@ -63,9 +63,9 @@
  * so I resorted to doing it manually.
  */
 .gradientBackground {
-  /* 75% green with diagonal stripe pattern, 25% black */
+  /* 75% purple with diagonal stripe pattern, 25% black */
   background-image:
-    /* Stripes over green portion */
+    /* Stripes over purple portion */
     repeating-linear-gradient(
       45deg,
       rgba(255, 255, 255, 0.15) 0,
@@ -81,8 +81,8 @@
         transparent 10px,
         transparent 20px
       ),
-    /* Solid green fill for the left portion */
-      linear-gradient(to right, #10b981 0%, #10b981 100%),
+    /* Solid purple fill for the left portion */
+      linear-gradient(to right, #8b5cf6 0%, #8b5cf6 100%),
     /* Black for the remaining portion */
       linear-gradient(to right, #000000 0%, #000000 100%);
   background-size:
