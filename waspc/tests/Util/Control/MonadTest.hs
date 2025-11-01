@@ -12,7 +12,6 @@ instance Applicative Identity where
   Identity f <*> Identity x = Identity (f x)
 
 instance Monad Identity where
-  return = Identity
   Identity x >>= f = f x
 
 spec_untilM :: Spec

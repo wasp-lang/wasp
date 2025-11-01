@@ -57,9 +57,9 @@ getInput = lstateInput <$> get
 updateInput :: Int -> Lexer ()
 updateInput !consumed = do
   (LexInput _ _ remaining) <- getInput
-  let newInput =
-        let (prevChar : remaining') = drop (consumed - 1) remaining
-         in LexInput prevChar [] remaining'
+  let newInput = case drop (consumed - 1) remaining of
+        (prevChar : remaining') -> LexInput prevChar [] remaining'
+        [] -> error "This should never happen. Lexer should never attempt to consume more input than remaining, but it did."
   modify $ \s -> s {lstateInput = newInput}
 
 getStartCode :: Lexer LexerStartCode

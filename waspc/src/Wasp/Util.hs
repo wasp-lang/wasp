@@ -139,10 +139,11 @@ indent numSpaces = intercalate "\n" . map (toEmptyStringIfAllWhiteSpace . (inden
 --      Written to file bar.txt
 -- @
 concatShortPrefixAndText :: String -> String -> String
-concatShortPrefixAndText prefix "" = prefix
-concatShortPrefixAndText prefix text =
-  let (l : ls) = lines text
-   in prefix ++ l ++ if null ls then "" else "\n" ++ indent (length prefix) (intercalate "\n" ls)
+concatShortPrefixAndText prefix text = case lines text of
+  [] -> prefix
+  (l : ls)
+    | null ls -> prefix ++ l
+    | otherwise -> prefix ++ l ++ "\n" ++ indent (length prefix) (intercalate "\n" ls)
 
 -- | Given a prefix and text, concatenates them in the following manner:
 -- - If just one line of text:

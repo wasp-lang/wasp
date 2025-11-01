@@ -178,7 +178,8 @@ spec_Evaluator = do
         let typeDefs =
               TD.addDeclType @Business $
                 TD.addEnumType @BusinessType $
-                  TD.addDeclType @Person $ TD.empty
+                  TD.addDeclType @Person $
+                    TD.empty
         let source =
               [ "person Tim { name: \"Tim Stocker\", age: 40 }",
                 "person John { name: \"John Cashier\", age: 23 }",
@@ -226,7 +227,12 @@ spec_Evaluator = do
                 "  booleanValue: {=json false json=},",
                 "}"
               ]
-        let Right [("Test", allJson)] = takeDecls <$> eval typeDefs source
+        let allJson = case takeDecls <$> eval typeDefs source of
+              Right result -> result
+              left ->
+                expectationFailure $
+                  "Expected Right but got Left:" ++ show left
+                    >> error "Assert unreachable"
         show (objectValue allJson) `shouldBe` "{\"key\":1}"
         show (arrayValue allJson) `shouldBe` "[1,2,3]"
         show (stringValue allJson) `shouldBe` "\"hello\""
