@@ -59,7 +59,6 @@ import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
@@ -108,8 +107,8 @@ headSafe xs = Just (head xs)
 second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
 second3 f (x, y, z) = (x, f y, z)
 
-jsonSet :: Text.Text -> Aeson.Value -> Aeson.Value -> Aeson.Value
-jsonSet key value (Aeson.Object o) = Aeson.Object $ KM.insert (Key.fromText key) value o
+jsonSet :: Key.Key -> Aeson.Value -> Aeson.Value -> Aeson.Value
+jsonSet key value (Aeson.Object o) = Aeson.Object $ KM.insert key value o
 jsonSet _ _ _ = error "Input JSON must be an object"
 
 indent :: Int -> String -> String
