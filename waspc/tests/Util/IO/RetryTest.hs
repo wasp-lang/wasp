@@ -5,7 +5,7 @@ module Util.IO.RetryTest where
 import Control.Monad (forM_)
 import Control.Monad.State (MonadState (get), State, modify, runState)
 import Numeric.Natural (Natural)
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, shouldBe)
 import qualified Wasp.Util.IO.Retry as R
 
 spec_RetryTest :: Spec

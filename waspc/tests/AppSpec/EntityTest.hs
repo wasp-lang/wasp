@@ -1,6 +1,6 @@
 module AppSpec.EntityTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.AppSpec.Entity (getIdField)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute

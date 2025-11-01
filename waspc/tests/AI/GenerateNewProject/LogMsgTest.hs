@@ -1,6 +1,6 @@
 module AI.GenerateNewProject.LogMsgTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.AI.GenerateNewProject.LogMsg
 import qualified Wasp.Util.Terminal as Term
 

@@ -7,7 +7,7 @@ import Control.Concurrent (newEmptyMVar, readMVar, tryPutMVar)
 import Control.Monad (void)
 import Data.Maybe (isJust)
 import System.Timeout (timeout)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.LSP.Debouncer (debounce, newDebouncerIO)
 
 -- | Debounce time for all tests in microseconds.

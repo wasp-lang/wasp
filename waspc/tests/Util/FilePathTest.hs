@@ -1,7 +1,7 @@
 module Util.FilePathTest where
 
 import qualified System.FilePath as FP
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, shouldBe)
 import Wasp.Util.FilePath (removePathPrefix)
 
 spec_FilePathTest :: Spec

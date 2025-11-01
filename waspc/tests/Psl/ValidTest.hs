@@ -1,7 +1,7 @@
 module Psl.ValidTest where
 
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Util.Prisma as Util
 import qualified Wasp.Psl.Valid as PslV
 import qualified Wasp.Valid as Valid

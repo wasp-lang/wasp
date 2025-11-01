@@ -4,7 +4,7 @@ module Psl.Parser.SchemaTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock

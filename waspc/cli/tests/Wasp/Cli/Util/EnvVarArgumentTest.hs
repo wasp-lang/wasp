@@ -1,6 +1,6 @@
 module Wasp.Cli.Util.EnvVarArgumentTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Cli.Util.EnvVarArgument (envVarFromString)
 
 spec_envVarFromString :: Spec

@@ -1,6 +1,6 @@
 module Psl.Parser.AttributeTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute

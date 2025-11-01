@@ -1,7 +1,7 @@
 module Analyzer.Parser.SourceSpanTest where
 
+import Test.Hspec
 import Test.QuickCheck
-import Test.Tasty.Hspec
 import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (SourceSpan), spansOverlap)
 
 spec_SourceSpanTest :: Spec

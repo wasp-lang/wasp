@@ -9,7 +9,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Util.Prisma as Util
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)

@@ -7,7 +7,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import NeatInterpolation (trimming)
 import StrongPath (relfileP)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.AppSpec (Ref)
 import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App.Db as Db

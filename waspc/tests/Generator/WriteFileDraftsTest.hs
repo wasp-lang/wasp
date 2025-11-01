@@ -6,7 +6,7 @@ import Data.Bifunctor (Bifunctor (first))
 import Data.Maybe (fromJust)
 import Data.Text (pack)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec (Spec, anyErrorCall, describe, it, shouldBe, shouldMatchList, shouldReturn, shouldThrow)
+import Test.Hspec (Spec, anyErrorCall, describe, it, shouldBe, shouldMatchList, shouldReturn, shouldThrow)
 import Wasp.Generator.FileDraft (FileDraft (FileDraftTextFd), Writeable (getDstPath))
 import Wasp.Generator.FileDraft.TextFileDraft (TextFileDraft)
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD

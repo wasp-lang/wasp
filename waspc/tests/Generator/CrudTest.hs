@@ -6,7 +6,7 @@ import Data.Aeson (KeyValue ((.=)), Value, object)
 import Data.Aeson.Types (Pair)
 import StrongPath (relfileP)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport

@@ -1,6 +1,6 @@
 module Util.FibTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Test.Tasty.QuickCheck
 import Wasp.Util.Fib
 
