@@ -652,7 +652,7 @@ test-suite waspc-tests
     , bytestring
     , waspc
     , QuickCheck            ^>= 2.14
-    , tasty                 ^>= 1.4.2
+    , tasty                 ^>= 1.5
     , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-quickcheck      ^>= 0.10
@@ -738,7 +738,7 @@ test-suite waspls-tests
     , lsp-types             ^>=1.4.0.1
     , mtl
     , QuickCheck            ^>= 2.14
-    , tasty                 ^>= 1.4.2
+    , tasty                 ^>= 1.5
     , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-golden          ^>= 2.3.5
@@ -761,7 +761,7 @@ test-suite wasp-cli-tests
     , waspc
     , cli-lib
     , QuickCheck            ^>= 2.14
-    , tasty                 ^>= 1.4.2
+    , tasty                 ^>= 1.5
     , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-quickcheck      ^>= 0.10
@@ -791,7 +791,7 @@ test-suite waspc-e2e-tests
     , dir-traverse
     , aeson-pretty
     , process
-    , tasty                 ^>= 1.4.2
+    , tasty                 ^>= 1.5
     , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-golden          ^>= 2.3.5
