@@ -91,7 +91,7 @@ validateWorkspaces =
 
 -- | Validates that an optional dependency is either not present, or present
 -- with the correct version. It does so in both regular and dev dependencies.
-validateOptionalDependency :: PackageSpecification -> P.PackageJson -> Validation ()
+validateOptionalDependency :: DependencySpecification -> P.PackageJson -> Validation ()
 validateOptionalDependency dep@(pkgName, expectedPkgVersion) =
   validateAll_ $
     [inDependency depType dep checkVersion | depType <- [Runtime, Development]]
@@ -115,7 +115,7 @@ validateOptionalDependency dep@(pkgName, expectedPkgVersion) =
 -- list with the correct version. It shows an appropriate error message
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
-validateRequiredDependency :: DependencyType -> PackageSpecification -> P.PackageJson -> Validation ()
+validateRequiredDependency :: DependencyType -> DependencySpecification -> P.PackageJson -> Validation ()
 validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
   whenS (oppositeDep checkNotPresent pkgJson) $
     correctDep checkCorrectVersion pkgJson
@@ -164,13 +164,13 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
           ++ show expectedPkgVersion
           ++ "."
 
-type PackageSpecification = (P.PackageName, P.PackageVersion)
+type DependencySpecification = (P.PackageName, P.PackageVersion)
 
 -- | Runs the validator on a specific dependency of the input, setting the appropriate path for
 -- errors.
 inDependency ::
   DependencyType ->
-  PackageSpecification ->
+  DependencySpecification ->
   (Maybe P.PackageVersion -> Validation a) ->
   P.PackageJson ->
   Validation a
