@@ -98,7 +98,7 @@ validateWorkspaces =
 validateOptionalDependency :: DependencySpecification -> P.PackageJson -> Validation ()
 validateOptionalDependency dep@(pkgName, expectedPkgVersion) =
   validateAll_ $
-    [inDependency depType dep checkVersion | depType <- [Runtime, Development]]
+    [valueOfDependency depType dep checkVersion | depType <- [Runtime, Development]]
   where
     checkVersion :: Maybe P.PackageVersion -> Validation ()
     checkVersion actualVersion =
@@ -136,9 +136,9 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
         Nothing -> missingPackageError
 
     correctDep :: (Maybe P.PackageVersion -> Validation a) -> P.PackageJson -> Validation a
-    correctDep = inDependency depType dep
+    correctDep = valueOfDependency depType dep
     oppositeDep :: (Maybe P.PackageVersion -> Validation a) -> P.PackageJson -> Validation a
-    oppositeDep = inDependency (oppositeForDepType depType) dep
+    oppositeDep = valueOfDependency (oppositeForDepType depType) dep
 
     oppositeForDepType :: DependencyType -> DependencyType
     oppositeForDepType Runtime = Development
@@ -170,13 +170,13 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
 
 -- | Runs the validator on a specific dependency of the input, setting the appropriate path for
 -- errors.
-inDependency ::
+valueOfDependency ::
   DependencyType ->
   DependencySpecification ->
   (Maybe P.PackageVersion -> Validation a) ->
   P.PackageJson ->
   Validation a
-inDependency depType (pkgName, _) versionStringValidator =
+valueOfDependency depType (pkgName, _) versionStringValidator =
   valueOfField (fieldNameForDepType depType) (getterForDepType depType) $
     valueOfField pkgName (M.lookup pkgName) versionStringValidator
 
