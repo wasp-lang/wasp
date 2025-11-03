@@ -22,6 +22,10 @@ import Wasp.Generator.Valid.Validator
   )
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
+data DependencyType = Runtime | Development
+
+type DependencySpecification = (P.PackageName, P.PackageVersion)
+
 validatePackageJson :: P.PackageJson -> [GeneratorError]
 validatePackageJson pkgJson =
   GenericGeneratorError . show
@@ -164,8 +168,6 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
           ++ show expectedPkgVersion
           ++ "."
 
-type DependencySpecification = (P.PackageName, P.PackageVersion)
-
 -- | Runs the validator on a specific dependency of the input, setting the appropriate path for
 -- errors.
 inDependency ::
@@ -177,8 +179,6 @@ inDependency ::
 inDependency depType (pkgName, _) versionStringValidator =
   inField (fieldNameForDepType depType) (getterForDepType depType) $
     inField pkgName (M.lookup pkgName) versionStringValidator
-
-data DependencyType = Runtime | Development
 
 fieldNameForDepType :: DependencyType -> String
 fieldNameForDepType Runtime = "dependencies"
