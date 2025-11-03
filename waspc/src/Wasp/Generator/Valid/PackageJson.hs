@@ -92,15 +92,15 @@ validateWorkspaces =
 -- | Validates that an optional dependency is either not present, or present
 -- with the correct version. It does so in both regular and dev dependencies.
 validateOptionalDependency :: PackageSpecification -> P.PackageJson -> Validation ()
-validateOptionalDependency dep@(pkgName, pkgVersion) =
+validateOptionalDependency dep@(pkgName, expectedPkgVersion) =
   validateAll_
     [ inDependency Runtime dep checkVersion,
       inDependency Development dep checkVersion
     ]
   where
     checkVersion :: Maybe P.PackageVersion -> Validation ()
-    checkVersion version =
-      case (pkgVersion ==) <$> version of
+    checkVersion actualVersion =
+      case (expectedPkgVersion ==) <$> actualVersion of
         Just True -> pure ()
         Just False -> incorrectVersionError
         Nothing -> pure ()
@@ -110,7 +110,7 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
         "Wasp requires package "
           ++ show pkgName
           ++ " to be version "
-          ++ show pkgVersion
+          ++ show expectedPkgVersion
           ++ " if present."
 
 -- | Validates that a required dependency is present in the correct dependency
@@ -118,13 +118,13 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
 validateRequiredDependency :: DependencyType -> PackageSpecification -> P.PackageJson -> Validation ()
-validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
+validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
   whenS (oppositeDep checkVersionNotPresent pkgJson) $
     correctDep checkCorrectVersion pkgJson
   where
     checkCorrectVersion :: Maybe P.PackageVersion -> Validation ()
-    checkCorrectVersion version =
-      case (pkgVersion ==) <$> version of
+    checkCorrectVersion actualVersion =
+      case (expectedPkgVersion ==) <$> actualVersion of
         Just True -> pure ()
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
@@ -155,7 +155,7 @@ validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
         "Wasp requires package "
           ++ show pkgName
           ++ " with version "
-          ++ show pkgVersion
+          ++ show expectedPkgVersion
           ++ "."
 
     incorrectPackageVersionError =
@@ -163,7 +163,7 @@ validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
         "Wasp requires package "
           ++ show pkgName
           ++ " to be version "
-          ++ show pkgVersion
+          ++ show expectedPkgVersion
           ++ "."
 
 type PackageSpecification = (P.PackageName, P.PackageVersion)
