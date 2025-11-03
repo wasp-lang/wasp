@@ -53,9 +53,16 @@ validateSrcTsConfig config =
         ]
 
 eqJust :: (Eq a, Show a) => a -> Maybe a -> Validation ()
-eqJust expected (Just actual)
-  | actual == expected = pure ()
-  | otherwise =
-      failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
-eqJust expected Nothing =
-  failure $ "Missing value, expected " ++ show expected ++ "."
+eqJust expected actual =
+  case (expected ==) <$> actual of
+    Just True -> pure ()
+    Just False -> wrongValueError
+    Nothing -> missingValueError
+  where
+    wrongValueError =
+      failure $
+        "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
+
+    missingValueError =
+      failure $
+        "Missing value, expected " ++ show expected ++ "."
