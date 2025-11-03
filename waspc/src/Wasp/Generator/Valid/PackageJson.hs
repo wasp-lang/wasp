@@ -65,8 +65,7 @@ validateWorkspaces =
   where
     allWorkspacesIncluded :: [String] -> Validation ()
     allWorkspacesIncluded =
-      validateAll_ $
-        workspaceIncluded <$> S.toList NW.workspaceGlobs
+      validateAll_ $ workspaceIncluded <$> expectedWorkspaces
 
     workspaceIncluded :: String -> [String] -> Validation ()
     workspaceIncluded expectedWorkspace actualWorkspaces
@@ -82,8 +81,10 @@ validateWorkspaces =
     noWorkspacesPropertyError =
       failure $
         "Wasp requires the value "
-          ++ show (S.toList NW.workspaceGlobs)
+          ++ show expectedWorkspaces
           ++ "."
+
+    expectedWorkspaces = S.toList NW.workspaceGlobs
 
 validateOptionalDependency :: PackageSpecification -> P.PackageJson -> Validation ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
