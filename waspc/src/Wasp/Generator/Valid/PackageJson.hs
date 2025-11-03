@@ -58,6 +58,8 @@ validatePackageJson pkgJson =
               ("@types/express", show expressTypesVersion)
             ]
 
+-- | Validates that the 'workspaces' property in package.json includes all
+-- expected workspaces used by Wasp.
 validateWorkspaces :: P.PackageJson -> Validation ()
 validateWorkspaces =
   inField "workspaces" P.workspaces $ \case
@@ -87,6 +89,8 @@ validateWorkspaces =
 
     expectedWorkspaces = S.toList NW.workspaceGlobs
 
+-- | Validates that an optional dependency is either not present, or present
+-- with the correct version. It does so in both regular and dev dependencies.
 validateOptionalDependency :: PackageSpecification -> P.PackageJson -> Validation ()
 validateOptionalDependency dep@(pkgName, pkgVersion) =
   validateAll_
@@ -103,7 +107,11 @@ validateOptionalDependency dep@(pkgName, pkgVersion) =
 
     incorrectVersionError =
       failure $
-        "Wasp requires package " ++ show pkgName ++ " to be version " ++ show pkgVersion ++ " if present."
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " to be version "
+          ++ show pkgVersion
+          ++ " if present."
 
 -- | Validates that a required dependency is present in the correct dependency
 -- list with the correct version. It shows an appropriate error message
