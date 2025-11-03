@@ -1,83 +1,60 @@
 <!--
-  Hi, thanks for contributing to Wasp!
-
-  Comments like this one won't be shown in the final PR, but they contain
-  instructions to guide you.
-
+  Thanks for contributing to Wasp!
   Make sure to follow this PR template, so that we can speed up the review process.
   It will also help you not forget important steps when making a change.
-
-  If you don't know how to fill any of the sections below, it's okay to leave them
-  blank, we will help you out during the review.
+  If you don't know how to fill any of the sections below, it's okay to leave
+  them blank, we will help you out during the review.
 -->
 
-### Description
+## Description
 
 <!--
-  Describe your PR!
-
-  Common questions we'd like you to answer:
-  - What's the motivation for this change?
-  - Which changes are included in this PR?
-    - If there are many different changes, consider splitting your PR into smaller
-      ones. It will go through faster!
-
-  If this PR closes an issue, write “Fixes #XXXX" so GitHub will link them together.
-
-  You can also answer some of these questions if they are relevant:
-  - Does this change affect users? How?
-  - Have you considered any other approaches? Why is this one the best?
-  - Are there any drawbacks or edge cases?
-  - What are the possibilities for future work?
+  Write a high-level overview and any additional context (motivation, trade-offs,
+  approaches considered, concerns, ...)
 -->
 
-### Select what type of change this PR introduces:
+TODO
 
-<!-- Put an x in between the brackets to select options, like so: [x] -->
+## Type of the change
 
-- [ ] **Just code/docs improvement** (no functional change).
-- [ ] **Bug fix** (non-breaking change which fixes an issue).
-- [ ] **New feature** (non-breaking change which adds functionality).
-- [ ] **Breaking change** (fix or feature that would cause existing functionality to not work as expected).
+<!-- Select just one, the largest change: -->
 
-### Checklist
+- [ ] `v _._._` **Just code/docs improvement** <!-- no functional change -->
+- [ ] `v _._.+1` **Bug fix** <!-- non-breaking change which fixes an issue -->
+- [ ] `v _._.+1` **New/improved feature** <!-- non-breaking change which adds functionality -->
+- [ ] `v _.+1.0` **Breaking change** <!-- fix or feature that would cause existing functionality to not work as expected -->
 
-<!-- Put an x in between the brackets to select options, like so: [x] -->
-<!-- You can add notes or explanations wherever needed -->
+## Checklist
 
-- 🧪 Testing:
+<!--
+  Check the relevant boxes, and strikethrough those that do not apply.
+  We prefer that you explain if something is not applicable, rather than leaving
+  it unchecked.
+-->
 
-  - [ ] I tested this change in a Wasp app **locally**.
-  - [ ] I added **unit tests** for my change at `waspc/tests`.
-  - [ ] <!-- If you added or updated a feature: --> I added **e2e tests** for my change at `waspc/examples/todoApp/e2e-tests`.
-  - [ ] <!-- If you added or updated a feature: --> I updated the **starters** at `waspc/data/Cli/templates`, if needed.
-  - [ ] <!-- If you fixed a bug: --> I added a **regression test** for the bug I fixed.
+- [ ] I tested my change in a Wasp app to verify that it works as intended.
+
+- 🧪 Tests:
+  - [ ] I added **unit tests** for my change. <!-- If not, explain why. -->
+  - [ ] _(if you fixed a bug)_ I added a **regression test** for the bug I fixed. <!-- If not, explain why. -->
+  - [ ] _(if you added/updated a feature)_ I added/updated **e2e tests** at `waspc/examples/todoApp/e2e-tests`.
+  - [ ] _(if you added/updated a feature)_ I updated the **starter templates** at `waspc/data/Cli/templates`, as needed.
 
 - 📜 Documentation:
+  - [ ] _(if you added/updated a feature)_ I **added/updated the documentation** in `web/docs/`.
 
-  - [ ] <!-- If you added a feature: --> I **added documentation** to the `web/docs/`, in a place that makes sense.
-  - [ ] <!-- If you updated a feature: --> I **searched** for all relevant places in the `web/docs/` and **updated** them, if needed.
-
-- 🆕 Changelog:
-
-  <!-- If you did a bug fix, new feature, or breaking change: -->
-
+- 🆕 Changelog: _(if change is more than just code/docs improvement)_
   - [ ] I updated `waspc/ChangeLog.md` with a **user-friendly** description of the change.
-  - [ ] I **bumped the `version`** in `waspc/waspc.cabal` to reflect changes I introduced.
-  - [ ] <!-- If you did a breaking change: --> I added a step to the current **migration guide** at `web/docs/migration-guides/`.
-
-  <!--
-    While we're in beta, the version should be bumped according to the type of change:
-      - Bug fix: patch version (0.0.X).
-      - New feature: patch version (0.0.X).
-      - Breaking change: minor version (0.X.0).
-    If the version has already been bumped since the last release, you can skip this.
-  -->
+  - [ ] I **bumped the `version`** in `waspc/waspc.cabal` to reflect the changes I introduced.
+  - [ ] _(if you did a breaking change)_ I added a step to the current **migration guide** at `web/docs/migration-guides/`.
 
 <!--
-  Thanks for contributing! :)
+  On updating the waspc version in waspc/waspc.cabal:
+  We still haven't reached 1.0, so the version bumping follows these rules:
+    - Bug fix or new feature: 0.X.(Y+1)
+    - Breaking change: 0.(X+1).0
+  where 0.X.Y is the version of the last release.
 
-  We'll check this PR as soon as we can. Meanwhile, keep an eye on this PR and
-  fix any errors that might come up in the checks. It should be all green before
-  we can merge it.
+  If the version has already been bumped as needed on `main` branch since the
+  last release, skip this.
 -->
