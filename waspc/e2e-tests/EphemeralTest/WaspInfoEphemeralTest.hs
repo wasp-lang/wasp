@@ -4,7 +4,8 @@ import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
 import WaspProject.ShellCommands (waspCliInfo)
 
--- TODO: test values changing: name, database, project dir size, last compile
+-- TODO: Test `wasp info` values change properly: 
+-- name, database, project dir size, last compile.
 waspInfoEphemeralTest :: EphemeralTest
 waspInfoEphemeralTest =
   makeEphemeralTest

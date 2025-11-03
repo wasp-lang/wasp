@@ -8,6 +8,7 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
+    createFile,
     appendToFile,
     replaceLineInFile,
     waspCliNewMinimalStarter,
@@ -20,6 +21,8 @@ module ShellCommands
 where
 
 import Control.Monad.Reader (MonadReader, Reader, runReader)
+import StrongPath (Path', Abs, fromAbsFile, Dir', parseRelFile, (</>), fromAbsDir)
+import Data.Maybe (fromJust)
 
 -- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 -- TODO: In future, find a good way to test `wasp-cli start`.
@@ -59,6 +62,15 @@ infixl 6 ~&&
 infixl 4 ~?
 
 -- General commands
+
+-- NOTE: Pretty fragile. Can't handle spaces in args, *nix only, etc.
+-- TODO: Franjo: copied from old code, check if we can improve further.
+createFile :: Path' Abs Dir' -> String -> String -> ShellCommandBuilder context ShellCommand
+createFile fileDir fileName content = return $ createParentDir ~&& writeContentsToFile
+  where
+    createParentDir = "mkdir -p " ++ fromAbsDir fileDir
+    writeContentsToFile = "cat << 'EOF' > " ++ fromAbsFile destinationFile ++ "\n" ++ content ++ "\nEOF"
+    destinationFile = fileDir </> fromJust (parseRelFile fileName)
 
 appendToFile :: FilePath -> String -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =

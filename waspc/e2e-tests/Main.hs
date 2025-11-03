@@ -13,6 +13,8 @@ import SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import SnapshotTest.WaspNewSnapshotTest (waspNewSnapshotTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
+import EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest)
+import EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest)
 
 main :: IO ()
 main = do
@@ -40,7 +42,9 @@ tests = do
         waspInfoEphemeralTest,
         waspVersionEphemeralTest,
         waspDockerfileEphemeralTest,
-        waspDepsEphemeralTest
+        waspDepsEphemeralTest,
+        waspDbStartEphemeralTest,
+        waspDbResetEphemeralTest
       ]
 
   return $

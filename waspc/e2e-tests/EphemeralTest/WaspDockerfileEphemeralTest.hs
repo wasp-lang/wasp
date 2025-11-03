@@ -4,6 +4,7 @@ import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDockerfile)
 
+-- TODO: Test `wasp dockerfile` content.
 waspDockerfileEphemeralTest :: EphemeralTest
 waspDockerfileEphemeralTest =
   makeEphemeralTest
@@ -17,5 +18,4 @@ waspDockerfileEphemeralTest =
       makeEphemeralTestCase
         "Should succeed inside of a Wasp project"
         (withInEphemeralWaspProjectDir [waspCliDockerfile])
-        -- NOTE: we don't test dockerfile contents
     ]

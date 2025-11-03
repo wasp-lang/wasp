@@ -23,10 +23,8 @@ waspCompletionEphemeralTest =
         (assertWaspCliCompletion "wasp-cli unknown" "")
     ]
   where
-    -- Note Wasp completion only uses COMP_LINE, but it's correct to also set the COMP_POINT.
     assertWaspCliCompletion :: String -> String -> ShellCommandBuilder context ShellCommand
     assertWaspCliCompletion query expectedCompletion =
       return $
         "export COMP_LINE='" ++ query ++ "'"
-          ~&& "export COMP_POINT='" ++ show (length query) ++ "'"
           ~&& "[ \"$(wasp-cli completion:list)\" = \"" ++ expectedCompletion ++ "\" ]"

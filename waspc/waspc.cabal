@@ -816,3 +816,6 @@ test-suite waspc-e2e-tests
     EphemeralTest.WaspDockerfileEphemeralTest
     EphemeralTest.WaspTelemetryEphemeralTest
     EphemeralTest.WaspDepsEphemeralTest
+    EphemeralTest.WaspDbStartEphemeralTest
+    EphemeralTest.WaspDbSeedEphemeralTest
+    EphemeralTest.WaspDbResetEphemeralTest

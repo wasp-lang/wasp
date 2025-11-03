@@ -4,6 +4,9 @@ module WaspProject.ShellCommands
   ( WaspProjectContext (..),
     appendToPrismaFile,
     setWaspDbToPSQL,
+    waspCliDbStart,
+    waspCliDbReset,
+    waspCliDbSeed,
     waspCliCompile,
     waspCliMigrate,
     waspCliBuild,
@@ -20,13 +23,14 @@ import ShellCommands
     appendToFile,
     replaceLineInFile,
     (~&&),
-    (~?),
+    (~?), createFile,
   )
-import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
+import StrongPath (Abs, Dir, Path', fromAbsDir, (</>), parseRelDir)
 import System.FilePath (joinPath)
 import Wasp.Generator.DbGenerator.Common
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
+import Data.Maybe (fromJust)
 
 -- | Context for commands which are run from inside of a Wasp app project.
 data WaspProjectContext = WaspProjectContext
@@ -40,6 +44,65 @@ setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql
 
 appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspProjectContext ShellCommand
 appendToPrismaFile = appendToFile "schema.prisma"
+
+-- TODO:
+-- add script file
+-- add seed to wasp config
+{-
+1. Solution - simple
+Add all seed scripts at once, assume no existing "seeds" field.
+
+Cases:
+- no db field -> modify "content" to have db
+- else -> just append seeds with field
+
+Bad:
+- wont work on projects with existing seeds
+
+2. Solution - more complex
+Add all seed scripts one per one
+
+Cases:
+- no db field -> add db field
+- no seeds -> add seeds field + seed without comma
+- existing seeds -> prepend to start of array with comma
+
+Bad:
+- complex
+-}
+
+
+createSeedScript :: String -> String -> ShellCommandBuilder WaspProjectContext ShellCommand
+createSeedScript seedName seedContent = do
+  waspProjectContext <- ask
+  let seedDirRelPath = "src/db/seeds"
+      seedDir = _waspProjectDir waspProjectContext </> fromJust (parseRelDir seedDirRelPath)
+      seedImportStatement = unwords ["import {", seedName, "} from \"@src/", seedDirRelPath, "/", seedName, "\""]
+
+  createFile seedDir seedName seedContent
+
+  -- find "db: {", if not found write db field:
+  -- db: {
+  -- }
+
+  -- find "seeds: [", if not found seeds field with first seed:
+  -- seeds: [
+  --   import { someSeed } from "@src/db/seeds/someSeed"
+  -- ]
+  -- else, prepend seed with comma to start of array
+  -- seeds: [
+  --   import { newerSeed } from "@src/db/seeds/newerSeed",
+  --   import { someSeed } from "@src/db/seeds/someSeed"
+  -- ]
+
+waspCliDbStart :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbStart = return "wasp-cli db start"
+
+waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbReset = return "wasp-cli db reset"
+
+waspCliDbSeed :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbSeed = return "wasp-cli db seed"
 
 waspCliCompile :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliCompile = return "wasp-cli compile"
