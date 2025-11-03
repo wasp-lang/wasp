@@ -120,16 +120,16 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
   whenS (oppositeDep checkPackageNotPresent pkgJson) $
     correctDep checkCorrectVersion pkgJson
   where
+    checkPackageNotPresent :: Maybe P.PackageVersion -> Validation Bool
+    checkPackageNotPresent Nothing = pure True
+    checkPackageNotPresent _ = wrongDepTypeError
+
     checkCorrectVersion :: Maybe P.PackageVersion -> Validation ()
     checkCorrectVersion actualVersion =
       case (expectedPkgVersion ==) <$> actualVersion of
         Just True -> pure ()
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
-
-    checkPackageNotPresent :: Maybe P.PackageVersion -> Validation Bool
-    checkPackageNotPresent Nothing = pure True
-    checkPackageNotPresent _ = wrongDepTypeError
 
     correctDep :: (Maybe P.PackageVersion -> Validation a) -> P.PackageJson -> Validation a
     correctDep = inDependency depType dep
