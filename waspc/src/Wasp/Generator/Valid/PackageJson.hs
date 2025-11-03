@@ -60,8 +60,9 @@ validatePackageJson pkgJson =
 
 validateWorkspaces :: P.PackageJson -> Validation ()
 validateWorkspaces =
-  inField "workspaces" P.workspaces $
-    maybe noWorkspacesPropertyError allWorkspacesIncluded
+  inField "workspaces" P.workspaces $ \case
+    Just workspaces -> allWorkspacesIncluded workspaces
+    Nothing -> noWorkspacesPropertyError
   where
     allWorkspacesIncluded :: [String] -> Validation ()
     allWorkspacesIncluded =
