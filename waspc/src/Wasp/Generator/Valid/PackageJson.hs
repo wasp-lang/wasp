@@ -174,9 +174,9 @@ inDependency ::
   (Maybe P.PackageVersion -> Validation a) ->
   P.PackageJson ->
   Validation a
-inDependency depType (pkgName, _) innerValidator =
+inDependency depType (pkgName, _) versionStringValidator =
   inField (fieldNameForDepType depType) (getterForDepType depType) $
-    inField pkgName (M.lookup pkgName) innerValidator
+    inField pkgName (M.lookup pkgName) versionStringValidator
 
 data DependencyType = Runtime | Development
 
