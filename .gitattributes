@@ -2,7 +2,7 @@
 
 *.hs linguist-detectable=false
 
-/web/* linguist-documentation
-/examples/* linguist-documentation
+/web/** linguist-documentation
+/examples/** linguist-documentation
 
 **/package-lock.json linguist-generated=true
