@@ -117,12 +117,12 @@ validateOptionalDependency dep@(pkgName, expectedPkgVersion) =
 -- in the opposite list -- runtime deps vs. devDeps).
 validateRequiredDependency :: DependencyType -> PackageSpecification -> P.PackageJson -> Validation ()
 validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
-  whenS (oppositeDep checkPackageNotPresent pkgJson) $
+  whenS (oppositeDep checkNotPresent pkgJson) $
     correctDep checkCorrectVersion pkgJson
   where
-    checkPackageNotPresent :: Maybe P.PackageVersion -> Validation Bool
-    checkPackageNotPresent Nothing = pure True
-    checkPackageNotPresent _ = wrongDepTypeError
+    checkNotPresent :: Maybe P.PackageVersion -> Validation Bool
+    checkNotPresent Nothing = pure True
+    checkNotPresent _ = wrongDepTypeError
 
     checkCorrectVersion :: Maybe P.PackageVersion -> Validation ()
     checkCorrectVersion actualVersion =
