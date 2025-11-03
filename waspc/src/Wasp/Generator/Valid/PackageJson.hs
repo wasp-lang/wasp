@@ -93,10 +93,8 @@ validateWorkspaces =
 -- with the correct version. It does so in both regular and dev dependencies.
 validateOptionalDependency :: PackageSpecification -> P.PackageJson -> Validation ()
 validateOptionalDependency dep@(pkgName, expectedPkgVersion) =
-  validateAll_
-    [ inDependency Runtime dep checkVersion,
-      inDependency Development dep checkVersion
-    ]
+  validateAll_ $
+    [inDependency depType dep checkVersion | depType <- [Runtime, Development]]
   where
     checkVersion :: Maybe P.PackageVersion -> Validation ()
     checkVersion actualVersion =
