@@ -81,7 +81,7 @@ buildDirInDotWaspDir = [reldir|build|]
 -- TODO: This backwards relative path relies on multiple forward relative path
 -- definitions. We should find a better way to express it (e.g., by somehow
 -- calculating it from existing definitions)
-waspProjectDirFromAppComponentDir :: G.Common.AppComponentRootDir d => Path' (Rel d) (Dir WaspProjectDir)
+waspProjectDirFromAppComponentDir :: (G.Common.AppComponentRootDir d) => Path' (Rel d) (Dir WaspProjectDir)
 waspProjectDirFromAppComponentDir = [reldir|../../../|]
 
 -- | NOTE: This path is calculated from the values of @dotWaspDirInWaspProjectDir@,

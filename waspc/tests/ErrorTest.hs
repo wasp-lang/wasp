@@ -72,7 +72,8 @@ spec_WaspError = do
             [ SP.fromAbsFile waspFilePath ++ " @ 1:5-12",
               "  " ++ errMsg,
               "",
-              "  " ++ T.applyStyles [T.Yellow] "     1 | "
+              "  "
+                ++ T.applyStyles [T.Yellow] "     1 | "
                 ++ "app "
                 ++ T.applyStyles [T.Red] "$TestApp"
                 ++ " { title: \"Test App\" }"

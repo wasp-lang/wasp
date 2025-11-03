@@ -190,21 +190,21 @@ trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
 infixr 5 <++>
 
-(<++>) :: Applicative f => f [a] -> f [a] -> f [a]
+(<++>) :: (Applicative f) => f [a] -> f [a] -> f [a]
 (<++>) = liftA2 (++)
 
 infixr 5 <:>
 
-(<:>) :: Applicative f => f a -> f [a] -> f [a]
+(<:>) :: (Applicative f) => f a -> f [a] -> f [a]
 (<:>) = liftA2 (:)
 
-ifM :: Monad m => m Bool -> m a -> m a -> m a
+ifM :: (Monad m) => m Bool -> m a -> m a -> m a
 ifM p x y = p >>= \b -> if b then x else y
 
-whenM :: Monad m => m Bool -> m () -> m ()
+whenM :: (Monad m) => m Bool -> m () -> m ()
 whenM ma mb = ma >>= (`when` mb)
 
-unlessM :: Monad m => m Bool -> m () -> m ()
+unlessM :: (Monad m) => m Bool -> m () -> m ()
 unlessM ma mb = ma >>= (`unless` mb)
 
 type Checksum = Hex
@@ -273,5 +273,5 @@ textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
 secondsToMicroSeconds :: Int -> Int
 secondsToMicroSeconds = (* 1000000)
 
-findDuplicateElems :: Ord a => [a] -> [a]
+findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map head . filter ((> 1) . length) . group . sort

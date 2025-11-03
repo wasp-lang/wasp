@@ -44,8 +44,8 @@ stmt :: GrammarRule
 stmt =
   Decl
     <$$> (T.Identifier `as` DeclType)
-    <> (T.Identifier `as` DeclName)
-    <> expr
+      <> (T.Identifier `as` DeclName)
+      <> expr
 
 {- ORMOLU_DISABLE -}
 expr :: GrammarRule

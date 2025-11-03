@@ -46,12 +46,12 @@ spec_generatePslWithCtx = do
                               [ " Multiline leading comments",
                                 " For prop3"
                               ]
-                              $ Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "prop3"
-                                  Psl.Model.String
-                                  []
-                                  [Psl.Attribute.Attribute "unique" []]
+                              $ Psl.Model.ElementField
+                              $ Psl.Model.Field
+                                "prop3"
+                                Psl.Model.String
+                                []
+                                [Psl.Attribute.Attribute "unique" []]
                           ]
                       )
               ]

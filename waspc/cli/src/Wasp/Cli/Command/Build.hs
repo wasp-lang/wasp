@@ -52,7 +52,8 @@ build = do
   InWaspProject waspProjectDir <- require
 
   let buildDir =
-        waspProjectDir </> dotWaspDirInWaspProjectDir
+        waspProjectDir
+          </> dotWaspDirInWaspProjectDir
           </> buildDirInDotWaspDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
@@ -76,7 +77,8 @@ build = do
   liftIO $ printCompilationResult (warnings, errors)
   unless (null errors) $
     throwError $
-      CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found."
+      CommandError "Building of wasp project failed" $
+        show (length errors) ++ " errors found."
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err

@@ -29,7 +29,8 @@ readWaspCompileInfo waspDir =
     (return "No compile information found")
   where
     dotWaspInfoFile =
-      waspDir </> Project.Common.dotWaspDirInWaspProjectDir
+      waspDir
+        </> Project.Common.dotWaspDirInWaspProjectDir
         </> Project.Common.generatedCodeDirInDotWaspDir
         </> Project.Common.dotWaspInfoFileInGeneratedCodeDir
 
