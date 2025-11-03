@@ -16,8 +16,8 @@ import Wasp.Generator.Valid.Validator
   ( Validation,
     failure,
     getValidationErrors,
-    inField,
     validateAll_,
+    valueOfField,
     withFileName,
   )
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
@@ -66,7 +66,7 @@ validatePackageJson pkgJson =
 -- expected workspaces used by Wasp.
 validateWorkspaces :: P.PackageJson -> Validation ()
 validateWorkspaces =
-  inField "workspaces" P.workspaces $ \case
+  valueOfField "workspaces" P.workspaces $ \case
     Just workspaces -> allWorkspacesIncluded workspaces
     Nothing -> noWorkspacesPropertyError
   where
@@ -177,8 +177,8 @@ inDependency ::
   P.PackageJson ->
   Validation a
 inDependency depType (pkgName, _) versionStringValidator =
-  inField (fieldNameForDepType depType) (getterForDepType depType) $
-    inField pkgName (M.lookup pkgName) versionStringValidator
+  valueOfField (fieldNameForDepType depType) (getterForDepType depType) $
+    valueOfField pkgName (M.lookup pkgName) versionStringValidator
 
 fieldNameForDepType :: DependencyType -> String
 fieldNameForDepType Runtime = "dependencies"
