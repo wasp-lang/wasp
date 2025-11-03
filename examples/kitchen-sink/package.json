@@ -1,6 +1,10 @@
 {
-  "name": "todo-app",
+  "name": "kitchen-sink",
   "type": "module",
+  "workspaces": [
+    ".wasp/build/*",
+    ".wasp/out/*"
+  ],
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
     "env:push": "npx dotenv-vault@latest push development .env.server",
@@ -26,7 +30,7 @@
     "@types/express": "^5.0.0",
     "@types/react": "^18.0.37",
     "@types/uuid": "^9.0.8",
-    "@wasp.sh/wasp-app-runner": "^0.0.7",
+    "@wasp.sh/wasp-app-runner": "^0.0.8",
     "prisma": "5.19.1",
     "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",

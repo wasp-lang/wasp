@@ -809,7 +809,7 @@
             "file",
             "../out/sdk/wasp/server/email/core/helpers.ts"
         ],
-        "64dee6c4127e106c6727eae474380972b66bba391397242e65f369cb22fa062b"
+        "089df47a3b576925954fe07c60e5d98fbc55db40f0c6f561a9c0445459c54c1c"
     ],
     [
         [
@@ -1481,7 +1481,7 @@
             "file",
             "Dockerfile"
         ],
-        "74313b0f83c9e7b1caa6c51726be51d8640c6608be9d867da5c560383b3ba06b"
+        "3a8be69c4a9318f0757cb8f324656f2cce589f316e7f264ace58be1eb41c32ed"
     ],
     [
         [
@@ -1514,13 +1514,6 @@
     [
         [
             "file",
-            "server/.npmrc"
-        ],
-        "8a74b1091affea3c71c2cf04acbaa38c4a51a261a9a98dcc9e96473d07a85a27"
-    ],
-    [
-        [
-            "file",
             "server/README.md"
         ],
         "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
@@ -1537,7 +1530,7 @@
             "file",
             "server/package.json"
         ],
-        "e6caddd3d2d3419937fa11c2156874f6e0c9e853f47e5d6fd3c97b5cc2626cb9"
+        "d3ed6224c2da78cf43005b4f755e04a5c3f0d3233ab8d7179c4d896546e48747"
     ],
     [
         [
@@ -1698,7 +1691,7 @@
             "file",
             "server/src/auth/providers/config/email.ts"
         ],
-        "b191493af16ef8c3f243e306c7c1adc9ab52c717eb2068798971e6e6b37ad870"
+        "a2089a02cae97e004257f30e4501569e870d4530e1718adafa205e461e814e1b"
     ],
     [
         [
@@ -2263,13 +2256,6 @@
     [
         [
             "file",
-            "web-app/.npmrc"
-        ],
-        "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
-    ],
-    [
-        [
-            "file",
             "web-app/README.md"
         ],
         "6af47b8c26fa9d30e9b774e6c38d3456a3b469c3101bffb186e2a1fb325a93f4"
@@ -2279,7 +2265,7 @@
             "file",
             "web-app/index.html"
         ],
-        "fb4c60511b9325fbeb741bb942ea5f88b3b050aff363bd9b2e27d8f2e8beedff"
+        "c0cd220d4360169157912c8d54a2ef94ef17bb208155539d0bdb7d580095c087"
     ],
     [
         [
@@ -2293,7 +2279,7 @@
             "file",
             "web-app/package.json"
         ],
-        "ee120467a1f1852130a2b23fda765a5ea42c6d22628920af979e6283b9c92a94"
+        "81e196ff68faea1ad0202d41c73d99da66caa3c2d5cdac610cc3afa7bcdf4002"
     ],
     [
         [
@@ -2321,7 +2307,7 @@
             "file",
             "web-app/public/manifest.json"
         ],
-        "b1241f02a3cdeda71a98a12fa0a255556b56c322b87bff32162f31a1520362e0"
+        "363c9a329056993724a2344ff927743c4e7d1dcd2814c9f0aea3039180eee841"
     ],
     [
         [

@@ -14,7 +14,7 @@ env:
   APP_PREFIX: ci-${{ github.sha }}
   FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
   FLY_REGION: dfw
-  APP_TO_DEPLOY: waspc/examples/todoApp
+  APP_TO_DEPLOY: examples/kitchen-sink
 
 jobs:
   fly_deploy_app:
@@ -47,6 +47,9 @@ jobs:
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           set -e
+
+          # `fly launch` fails if Fly toml files already exist.
+          rm -f fly-server.toml fly-client.toml 
 
           # NOTE: This assumes env var values don't contain:
           #   - The character `#`.
@@ -94,7 +97,7 @@ jobs:
 
       - name: Smoke test the client
         run: |
-          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'ToDo App'
+          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'Wasp Kitchen Sink'
 
   fly_destroy_app:
     runs-on: ubuntu-latest
