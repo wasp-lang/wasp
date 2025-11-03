@@ -144,15 +144,27 @@ validateRequiredDependency depType dep@(pkgName, pkgVersion) pkgJson =
 
     wrongDepTypeError =
       failure $
-        "Wasp requires package " ++ show pkgName ++ " to be in " ++ show (fieldNameForDepType depType) ++ "."
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " to be in "
+          ++ show (fieldNameForDepType depType)
+          ++ "."
 
     missingPackageError =
       failure $
-        "Wasp requires package " ++ show pkgName ++ " with version " ++ show pkgVersion ++ "."
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " with version "
+          ++ show pkgVersion
+          ++ "."
 
     incorrectPackageVersionError =
       failure $
-        "Wasp requires package " ++ show pkgName ++ " to be version " ++ show pkgVersion ++ "."
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " to be version "
+          ++ show pkgVersion
+          ++ "."
 
 type PackageSpecification = (P.PackageName, P.PackageVersion)
 
