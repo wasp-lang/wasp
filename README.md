@@ -49,7 +49,7 @@ Build your app in a day and deploy it with a single CLI command!
 - 😌 **No boilerplate**: By abstracting away complex full-stack features, there is less boilerplate code. That means less code to maintain and understand! It also means easier upgrades.
 - 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have full control over the code (and can actually check it out in `.wasp/` directory if you are interested ).
 
-Notable features:
+#### Notable features
 
 - 🔒 Full-stack Auth & Type Safety
 - 🖇️ RPC (Client <-> Server)
