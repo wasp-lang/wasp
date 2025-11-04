@@ -161,7 +161,7 @@ jobs:
           echo "CLIENT_HOSTNAME=$(cat "$DEPLOY_INFO_DIR/client-hostname")" >> "$GITHUB_ENV"
 
       - name: Smoke test deployed app
-        run: ./scripts/smoke-test-deployed-test-app.sh "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
+        run: node ./scripts/smoke-test-deployed-test-app.mjs "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
 
   cleanup:
     name: Cleanup app (${{ matrix.provider }})
