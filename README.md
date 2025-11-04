@@ -47,7 +47,7 @@ Build your app in a day and deploy it with a single CLI command!
 
 - 🚀 **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
 - 😌 **No boilerplate**: By abstracting away complex full-stack features, there is less boilerplate code. That means less code to maintain and understand! It also means easier upgrades.
-- 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have full control over the code (and can actually check it out in `.wasp/` directory if you are interested ).
+- 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have complete control over the code (and can actually check it out in `.wasp/` directory if you are interested ).
 
 #### Notable features
 
@@ -97,7 +97,7 @@ model Task { // Your Prisma data model.
 }
 ```
 
-The rest of the code you write in React / Node.js and just reference it from the `.wasp` file.
+The rest of the code you write in React / Node.js and reference it from the `.wasp` file.
 
 👉 Check out [TodoApp example](/examples/tutorials/TodoApp) for a complete code example. 👈
 
@@ -105,7 +105,7 @@ The rest of the code you write in React / Node.js and just reference it from the
 
 <img width="800px" src="https://user-images.githubusercontent.com/1536647/231472285-126679e5-ecce-4cbb-8579-eb3cd9ba95bf.png"/>
 
-Given a simple `.wasp` configuration file that describes the high-level details of your web app, and `.ts(x)`/`.css`/..., source files with your unique logic, Wasp compiler generates the full source of your web app in the target stack: front-end, back-end and deployment.
+Given a simple `.wasp` configuration file that describes the high-level details of your web app, and `.ts(x)`/`.css`/..., source files with your unique logic, Wasp compiler generates the whole source of your web app in the target stack: front-end, back-end and deployment.
 
 This unique approach is what makes Wasp "smart" and gives it its superpowers!
 
@@ -119,7 +119,7 @@ Run to install Wasp on OSX/Linux/WSL(Win):
 curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
-From there, just follow the instructions to run your first app in less than a minute!
+From there, follow the instructions to run your first app in less than a minute!
 
 For a quick start, check out [this docs page](https://wasp.sh/docs/quick-start).
 
@@ -129,14 +129,15 @@ If you have a Wasp application running in production, we'd love to send some swa
 
 ## Wasp AI / Mage
 
-Wasp comes with experimental AI code generator to help you kickstart your next Wasp project. You can use it via `wasp new` in the CLI (choose `ai-generated` option) if you can provide your OpenAI keys or you can do it via our [Mage web app](https://usemage.ai) in which case our OpenAI keys are used in the background.
+Wasp comes with experimental AI code generator to help you kickstart your next Wasp project. You can use it via `wasp new` in the CLI (select the `ai-generated` option) if you provide your OpenAI keys. Alternatively, you can use our [Mage web app](https://usemage.ai), in which case our OpenAI keys are used in the background.
 
 ## Project status
 
-Currently, Wasp is in beta, with most features fleshed out and working well.
-However, there are still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
+Currently, Wasp is in beta, with most features fully developed and functioning well.
+However, we still have many improvements and additions in mind for the future, and we are continually working on them. As a result, you can expect numerous changes and improvements in the future.
 
-While the idea is to support multiple web tech stacks in the future, right now, we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, and Prisma.
+While the idea is to support multiple web tech stacks in the future, we are currently focusing on a specific stack:
+React + TanStack Query, Node.js + Express.js, and Prisma.
 
 ## Contributing
 
@@ -146,13 +147,12 @@ The best place to start is to check out [`waspc/`](waspc/), where you can find d
 
 The core of Wasp is built in Haskell, but there are also a lot of non-Haskell parts of Wasp, so you will certainly be able to find something for you!
 
-Even if you don't plan to submit any code, just joining the discussion on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
+Even if you don't plan to submit any code, just joining the discussion on Discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
 
 You can also:
 
 - ⭐️ Star this repo to show your interest/support.
 - 📫 Stay updated by subscribing to our [email list](https://wasp.sh#signup).
-- 💬 Join the discussion at https://github.com/wasp-lang/wasp/discussions .
 - 👀 Check out the [development roadmap](https://github.com/orgs/wasp-lang/projects/5).
 
 ## Careers
