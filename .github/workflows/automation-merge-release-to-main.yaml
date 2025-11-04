@@ -37,6 +37,10 @@ jobs:
           if [ -n "$existing_pr_number" ]; then
             gh pr comment "$existing_pr_number" \
               --body "Ping @${USERNAME}"
+
+            gh pr edit "$existing_pr_number" \
+              --add-assignee "$USERNAME" \
+              --add-reviewer "$USERNAME"
           else
             gh pr create \
               --assignee "$USERNAME" \
