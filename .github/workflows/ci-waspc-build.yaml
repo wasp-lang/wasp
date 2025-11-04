@@ -76,7 +76,7 @@ jobs:
               apk add zlib-dev zlib-static
 
           - name: macos-x86_64
-            runner: macos-13 # Latest image still based on Intel architecture that can be used for free
+            runner: macos-15-intel # Latest image still based on Intel architecture that can be used for free
 
             # macOS's syscalls are private and change between versions, so we
             # can't statically link the binary. However, on macOS programs link
