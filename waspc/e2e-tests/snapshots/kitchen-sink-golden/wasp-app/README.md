@@ -84,15 +84,7 @@ wasp-cli start db
 ### End-to-End Tests
 
 We use `playwright` for e2e tests.
-To run the tests:
-
-1. Install `playwright`'s browser dependencies:
-
-```sh
-npx playwright install --with-deps
-```
-
-2. Run the tests:
+You can run them through `npm` scripts:
 
 ```sh
 npm run test
