@@ -163,11 +163,17 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 
 <!-- NOTE: These have to be a single line to render properly. -->
 <a href="https://github.com/michelwaechter"><img src="https://github.com/michelwaechter.png" width="50px" alt="michelwaechter" /></a> - Our first sponsor ever! Thanks so much, Michel ❤️ , from the whole Wasp Team, for bravely going where nobody has been before :)!
+
 <a href="https://github.com/shayneczyzewski"><img src="https://github.com/shayneczyzewski.png" width="50px" alt="shayneczyzewski" /></a> - Thanks Shayne, for all the contributions you did so far and for your continuous support!
+
 <a href="https://github.com/velocity-one"><img src="https://github.com/velocity-one.png" width="50px" alt="VelocityOne" /></a> - Thanks VelocityOne for the generous donation!
+
 <a href="https://github.com/ricdex"><img src="https://github.com/ricdex.png" width="50px" alt="ricdex" /></a> - We are thankful for your support Ricardo in this early stage of Wasp :)!
+
 <a href="https://github.com/ThomasJonesUK"><img src="https://github.com/ThomasJonesUK.png" width="50px" alt="ThomasJonesUK" /></a> - Thanks Thomas for supporting Wasp :)!
+
 <a href="https://github.com/Arukaito"><img src="https://github.com/Arukaito.png" width="50px" alt="Arukaito" /></a> - Our awesome sponsor again and again!
+
 <a href="https://github.com/Case-E"><img src="https://github.com/Case-E.png" width="50px" alt="Case-E" /></a> - Big thanks for supporting us both via sponsorship and great suggestions!
 
 ### Past sponsors
