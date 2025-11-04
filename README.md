@@ -1,37 +1,39 @@
-<div align=center>
+<div>
   <!-- INTRO -->
-  <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
-  <p>
-    The fastest way to develop full-stack web apps with React & Node.js.
-  </p>
-
+  <div align=center>
+    <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
+    <p>
+      The fastest way to develop full-stack web apps with React & Node.js.
+    </p>
+  </div>
   <br />
-
   <!-- BADGES -->
-  <a href="https://github.com/wasp-lang/wasp/blob/main/LICENSE">
-    <img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp">
-  </a>
-  <a href="https://github.com/wasp-lang/wasp/releases/latest">
-    <img alt="latest release" src="https://img.shields.io/github/v/release/wasp-lang/wasp"/>
-  </a>
-  <a href="https://discord.gg/rzdnErX">
-    <img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/>
-  </a>
-
+  <div align=center>
+    <a href="https://github.com/wasp-lang/wasp/blob/main/LICENSE">
+      <img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp">
+    </a>
+    <a href="https://github.com/wasp-lang/wasp/releases/latest">
+      <img alt="latest release" src="https://img.shields.io/github/v/release/wasp-lang/wasp"/>
+    </a>
+    <a href="https://discord.gg/rzdnErX">
+      <img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/>
+    </a>
+  </div>
   <br />
-
   <!-- LINKS -->
-  <a href="https://wasp.sh">Website</a> 
-  | 
-  <a href="https://wasp.sh/docs">Docs</a> 
-  | 
-  <a href="https://discord.gg/rzdnErX">Discord</a> 
-  | 
-  <a href="https://x.com/WaspLang">Twitter</a> 
-  | 
-  <a href="https://www.youtube.com/@wasplang">Youtube</a> 
-  |
-  <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">Deployed? Get swag! 👕</a>
+  <div align=center>
+    <a href="https://wasp.sh">Website</a>
+    <span>|</span>
+    <a href="https://wasp.sh/docs">Docs</a>
+    <span>|</span>
+    <a href="https://discord.gg/rzdnErX">Discord</a>
+    <span>|</span>
+    <a href="https://x.com/WaspLang">Twitter</a>
+    <span>|</span>
+    <a href="https://www.youtube.com/@wasplang">Youtube</a>
+    <span>|</span>
+    <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">Deployed? Get swag! 👕</a>
+  </div>
 </div>
 
 ---
@@ -47,17 +49,15 @@ Build your app in a day and deploy it with a single CLI command!
 - 😌 **No boilerplate**: By abstracting away complex full-stack features, there is less boilerplate code. That means less code to maintain and understand! It also means easier upgrades.
 - 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have full control over the code (and can actually check it out in `.wasp/` directory if you are interested ).
 
-### Features
+Notable features:
 
-- 🔒 Full-stack Auth 
+- 🔒 Full-stack Auth & Type Safety
 - 🖇️ RPC (Client <-> Server)
 - 🚀 Simple Deployment
 - ⚙ ️Jobs
 - ✉️ Email Sending
-- 🛟 Full-stack Type Safety 
-- ...
 
-#### Code example
+### Code example
 
 Simple Wasp config file in which you describe the high-level details of your web app:
 
@@ -68,7 +68,7 @@ app TodoApp {
   title: "TODO App",  // visible in the browser tab
   wasp: { version: "^0.18.1" },
   auth: { // full-stack auth out-of-the-box
-    userEntity: User, 
+    userEntity: User,
     methods: { email: {...}, google: {...}, }
   }
 }
@@ -85,6 +85,8 @@ query getTasks {
 }
 ```
 
+And a Prisma schema for the database:
+
 ```prisma
 // file: schema.prisma
 
@@ -95,7 +97,7 @@ model Task { // Your Prisma data model.
 }
 ```
 
-The rest of the code you write in React / Node.js / Prisma and just reference it from the `.wasp` file.
+The rest of the code you write in React / Node.js and just reference it from the `.wasp` file.
 
 👉 Check out [TodoApp example](/examples/tutorials/TodoApp) for a complete code example. 👈
 
@@ -111,21 +113,19 @@ For more information about Wasp, check [**docs**](https://wasp.sh/docs).
 
 ## Get started
 
-Run
+Run to install Wasp on OSX/Linux/WSL(Win):
 
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
-to install Wasp on OSX/Linux/WSL(Win). 
 From there, just follow the instructions to run your first app in less than a minute!
 
-For more details, check out [the docs](https://wasp.sh/docs).
+For a quick start, check out [this docs page](https://wasp.sh/docs/quick-start).
 
 ## Have a Wasp app deployed? - we will send you swag!
 
 If you have a Wasp application running in production, we'd love to send some swag your way! Fill out [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi), and we'll make it happen.
-
 
 ## Wasp AI / Mage
 
