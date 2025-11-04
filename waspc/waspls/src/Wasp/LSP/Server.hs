@@ -18,7 +18,6 @@ import qualified Data.Text as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
-import qualified System.Log.Logger
 import qualified Wasp.LSP.Commands as Commands
 import Wasp.LSP.Debouncer (newDebouncerIO)
 import Wasp.LSP.Handlers
@@ -59,9 +58,7 @@ lspServerHandlers stopReactor =
     ]
 
 serve :: Maybe FilePath -> IO ()
-serve maybeLogFile = do
-  setupLspLogger maybeLogFile
-
+serve _maybeLogFile = do
   -- Reactor setup
   reactorLifetime <- newEmptyMVar
   let stopReactor = void $ tryPutMVar reactorLifetime ()
@@ -108,21 +105,6 @@ serve maybeLogFile = do
   case exitCode of
     0 -> return ()
     n -> exitWith (ExitFailure n)
-
--- | Setup global DEBUG logger. Logs at other levels are ignored.
---
--- Use 'System.Log.Logger.logM' at "DEBUG" level to write to this log.
---
--- @setupLspLogger Nothing@ doesn't set up any logger, so logs are not output
--- anywhere.
---
--- @setupLspLogger (Just "[OUTPUT]")@ sends log messages to the LSP client
---
--- @setupLspLogger (Just filepath)@ writes log messages to the path given
-setupLspLogger :: Maybe FilePath -> IO ()
-setupLspLogger Nothing = pure ()
-setupLspLogger (Just "[OUTPUT]") = LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
-setupLspLogger file = LSP.setupLogger file [] System.Log.Logger.DEBUG
 
 -- | Returns either a JSON parsing error message or the updated "ServerConfig".
 lspServerUpdateConfig :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig
