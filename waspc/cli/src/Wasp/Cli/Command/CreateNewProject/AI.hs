@@ -7,7 +7,8 @@ where
 
 import Control.Arrow ()
 import Control.Monad (unless)
-import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
+import Control.Monad.Except (MonadError (throwError))
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List (intercalate)
