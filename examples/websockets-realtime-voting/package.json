@@ -6,7 +6,8 @@
     ".wasp/out/*"
   ],
   "scripts": {
-    "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
+    "test:install-deps": "npx playwright install --with-deps",
+    "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/"
   },
   "dependencies": {
     "express": "~5.1.0",
