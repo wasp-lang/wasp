@@ -76,11 +76,11 @@ app TodoApp {
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true, // Limit access to logged-in users.
-  component: import Main from "@client/Main.tsx" // Your React code.
+  component: import MainPage from "@src/MainPage" // Your React code.
 }
 
 query getTasks {
-  fn: import { getTasks } from "@server/tasks.js", // Your Node.js code.
+  fn: import { getTasks } from "@src/queries", // Your Node.js code.
   entities: [Task] // Automatic cache invalidation.
 }
 ```
