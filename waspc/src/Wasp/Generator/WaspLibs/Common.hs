@@ -17,6 +17,13 @@ import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
 
 data LibsSourceDir
 
+-- | Type representing the destination directory where Wasp lib tarballs
+-- are copied in the generated project (e.g., .wasp/out/libs/).
+--
+-- LibsRootDir has a flat structure with tarball files at the top level:
+--   libs/
+--   ├── wasp.sh-lib-auth-<checksum>.tgz
+--   └── wasp.sh-lib-other-<checksum>.tgz
 data LibsRootDir
 
 -- We are repeating the SDK hack here - becuase the libs needs to be next to
