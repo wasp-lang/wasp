@@ -163,7 +163,8 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 
 <a href="https://github.com/michelwaechter">
   <img src="https://github.com/michelwaechter.png" width="50px" alt="michelwaechter" />
-</a> - Our first sponsor ever! Thanks so much, Michel ❤️ , from the whole Wasp Team, for bravely going where nobody has been before :)!
+</a> 
+- Our first sponsor ever! Thanks so much, Michel ❤️ , from the whole Wasp Team, for bravely going where nobody has been before :)!
 
 <a href="https://github.com/shayneczyzewski">
   <img src="https://github.com/shayneczyzewski.png" width="50px" alt="shayneczyzewski" />
