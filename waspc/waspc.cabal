@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.18.0
+version:        0.18.1
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -307,6 +307,7 @@ library
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
+    Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.EmailAuthG
@@ -344,7 +345,6 @@ library
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
-    Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.ServerGenerator.CrudG
@@ -362,7 +362,6 @@ library
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.DepVersions
     Wasp.Generator.WebAppGenerator.RouterGenerator
-    Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebAppGenerator.Vite
@@ -796,13 +795,15 @@ test-suite waspc-e2e-tests
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-golden          ^>= 2.3.5
   other-modules:
-    Common
-    GoldenTest
+    FileSystem
     ShellCommands
-    Util
-    Tests.WaspBuildTest
-    Tests.WaspCompileTest
-    Tests.WaspJobTest
-    Tests.WaspMigrateTest
-    Tests.WaspNewTest
-    Tests.WaspComplexTest
+    WaspProject.ShellCommands
+    SnapshotTest
+    SnapshotTest.Snapshot
+    SnapshotTest.FileSystem
+    SnapshotTest.ShellCommands
+    Tests.WaspNewSnapshotTest
+    Tests.KitchenSinkSnapshotTest
+    Tests.WaspMigrateSnapshotTest
+    Tests.WaspCompileSnapshotTest
+    Tests.WaspBuildSnapshotTest

@@ -237,7 +237,7 @@ npmDepsForSdk spec =
           ],
       N.peerDependencies =
         Npm.Dependency.fromList
-          [ ("@tanstack/react-query", show reactQueryVersion)
+          [ ("@tanstack/react-query", reactQueryVersion)
           ]
     }
 

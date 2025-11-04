@@ -30,7 +30,7 @@ jobs:
           # and link the binaries statically:
           # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
-          - macos-13
+          - macos-15-intel
           - windows-latest
         node-version:
           - "latest"
@@ -56,13 +56,6 @@ jobs:
 
       - uses: "actions/checkout@v5"
 
-      # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
-      # The fix will be propagated in a few days, so we can remove this workaround then.
-      # https://github.com/actions/runner-images/issues/7061
-      - name: Workaround runner image issue
-        if: matrix.os == 'ubuntu-22.04'
-        run: sudo chown -R $USER /usr/local/.ghcup
-
       - name: Set up Haskell
         uses: ./.github/actions/setup-haskell
         with:
@@ -74,14 +67,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
         run: |
           cd packages/ts-inspect
           npm ci
           npm test
 
       - name: Compile TS packages and move it into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
         run: ./tools/install_packages_to_data_dir.sh
 
       - name: Build external dependencies
@@ -90,79 +83,14 @@ jobs:
       - name: Build wasp code
         run: cabal build all
 
-      - name: On MacOS, skip e2e tests with Docker since it is not installed
-        if: matrix.os == 'macos-13'
-        run: export WASP_E2E_TESTS_SKIP_DOCKER=1
-
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
-
-      - name: Ensure `todoApp` compiles and builds
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
-        run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
-
-      - name: Cache `todoApp` Node modules
-        uses: actions/cache@v4
-        if: matrix.os == 'ubuntu-22.04'
-        with:
-          path: ~/.npm
-          key: node-modules-${{ hashFiles('./waspc/examples/todoApp/package-lock.json') }}-${{ matrix.os }}-${{ matrix.node-version }}
 
       - name: Install `wasp-cli`
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
-      - name: Install `todoApp` node dependencies
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          cd examples/todoApp
-          npm ci
-
-      - name: Store `todoApp` Playwright version
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          cd examples/todoApp
-          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
-          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
-          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
-
-      - name: Cache `todoApp` Playwright browsers for Playwright version
-        id: todoApp-cache-playwright-browsers
-        if: matrix.os == 'ubuntu-22.04'
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
-
-      - name: Install `todoApp` Playwright browsers
-        if: steps.todoApp-cache-playwright-browsers.cache-hit != 'true' && matrix.os == 'ubuntu-22.04'
-        run: |
-          cd examples/todoApp
-          npx playwright install --with-deps
-
-      - name: Set up `todoApp` project environment
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          cd examples/todoApp
-          cp .env.server.example .env.server
-
-      - name: Run `todoApp` Playwright DEV tests
-        if: matrix.os == 'ubuntu-22.04'
-        env:
-          WASP_CLI_CMD: wasp-cli
-          WASP_RUN_MODE: dev
-        run: |
-          cd examples/todoApp
-          npm run test
-
-      - name: Run `todoApp` Playwright BUILD tests
-        if: matrix.os == 'ubuntu-22.04'
-        env:
-          WASP_CLI_CMD: wasp-cli
-          WASP_RUN_MODE: build
-        run: |
-          cd examples/todoApp
-          npm run test
-
       - name: Run `waspc` e2e tests
+        env:
+          WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
         run: ./run test:waspc:e2e
