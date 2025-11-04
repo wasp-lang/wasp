@@ -56,12 +56,12 @@ validateWaspProjectDockerImageBuilds = do
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
           ~? "cd "
           ++ fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir)
-          ~&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t "
+            ~&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t "
           ++ dockerImageTag
           ++ " ."
-          ~&& "docker image rm "
+            ~&& "docker image rm "
           ++ dockerImageTag
-          ~&& "cd "
+            ~&& "cd "
           ++ fromAbsDir waspProjectDir
 
 -- | We make the migration name deterministic by forcing it to be
