@@ -41,6 +41,10 @@ class FlyCommand extends Command {
         "--volume-size <volumeSize>",
         "flyctl postgres create option",
         "1",
+      )
+      .option(
+        "--db-image <dbImage>",
+        "custom Docker image for the PostgreSQL database",
       );
   }
   addLocalBuildOption(): this {

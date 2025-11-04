@@ -42,22 +42,22 @@ depsMessage appSpec waspLibs =
     ]
       ++ printDeps
         "Server dependencies:"
-        ( N.waspDependencies $ ServerGenerator.npmDepsForWasp appSpec waspLibs
+        ( N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec waspLibs
         )
       ++ [""]
       ++ printDeps
         "Server devDependencies:"
-        ( N.waspDevDependencies $ ServerGenerator.npmDepsForWasp appSpec waspLibs
+        ( N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec waspLibs
         )
       ++ [""]
       ++ printDeps
         "Webapp dependencies:"
-        ( N.waspDependencies $ WebAppGenerator.npmDepsForWasp appSpec
+        ( N.dependencies $ N.fromWasp $ WebAppGenerator.npmDepsFromWasp appSpec
         )
       ++ [""]
       ++ printDeps
         "Webapp devDependencies:"
-        ( N.waspDevDependencies $ WebAppGenerator.npmDepsForWasp appSpec
+        ( N.devDependencies $ N.fromWasp $ WebAppGenerator.npmDepsFromWasp appSpec
         )
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]

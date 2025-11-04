@@ -2,7 +2,7 @@
 title: Wasp TypeScript config (*.wasp.ts)
 ---
 
-import DiscordLink from '@site/blog/components/DiscordLink';
+import { DiscordLink } from '@site/blog/components/DiscordLink';
 
 :::caution Early preview
 This feature is currently in early preview and we are actively working on it.

@@ -2,7 +2,7 @@
 title: Accessing User Data
 ---
 
-import ImgWithCaption from '@site/blog/components/ImgWithCaption'
+import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { Internal } from '@site/src/components/Tag'
 import MultipleIdentitiesWarning from '../\_multiple-identities-warning.md';
 import UsernameData from './\_username-data.md';

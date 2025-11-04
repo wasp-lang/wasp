@@ -1,0 +1,56 @@
+name: "Automation - Merge release to main"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release
+
+env:
+  SOURCE_BRANCH: release
+  TARGET_BRANCH: main
+
+  USERNAME: ${{ github.actor }}
+
+  PR_TITLE: "Merge `release` into `main`"
+  PR_BODY: |
+    Automated PR to merge changes from `release` branch back into `main`.
+
+    > [!IMPORTANT]
+    > You should **NOT** "Rebase and merge" or "Squash and merge" this PR, so we avoid conflicts in the future.
+
+jobs:
+  create-pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          existing_pr_number=$(
+            gh pr list \
+              --head "$SOURCE_BRANCH" \
+              --base "$TARGET_BRANCH" \
+              --json number \
+              --jq '.[0].number // empty'
+          )
+
+          if [ -n "$existing_pr_number" ]; then
+            gh pr comment "$existing_pr_number" \
+              --body "Ping @${USERNAME}"
+
+            gh pr edit "$existing_pr_number" \
+              --add-assignee "$USERNAME" \
+              --add-reviewer "$USERNAME"
+          else
+            gh pr create \
+              --assignee "$USERNAME" \
+              --reviewer "$USERNAME" \
+              --head "$SOURCE_BRANCH" \
+              --base "$TARGET_BRANCH" \
+              --title "$PR_TITLE" \
+              --body "$PR_BODY"
+          fi
+        env:
+          # Env for the `gh` CLI tool
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

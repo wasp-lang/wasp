@@ -4,10 +4,13 @@ module Wasp.Generator.Valid.PackageJson
 where
 
 import Control.Applicative ((<|>))
+import Data.List (intercalate)
 import qualified Data.Map as M
+import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
+import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
@@ -26,6 +29,7 @@ validatePackageJson packageJson =
   validateRuntimeDependencies packageJson
     ++ validateDevelopmentDependencies packageJson
     ++ validateOptionalDependencies packageJson
+    ++ validateWorkspaces packageJson
 
 validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
 validateRuntimeDependencies packageJson =
@@ -42,7 +46,7 @@ validateRuntimeDependencies packageJson =
 
 validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
 validateDevelopmentDependencies packageJson =
-  concat $
+  concat
     [ validateDevelopment ("vite", show viteVersion),
       validateDevelopment ("prisma", show prismaVersion)
     ]
@@ -58,6 +62,34 @@ validateOptionalDependencies packageJson =
     ]
   where
     validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
+
+validateWorkspaces :: P.PackageJson -> [GeneratorError]
+validateWorkspaces = validateRequiredWorkspaces . P.workspaces
+  where
+    validateRequiredWorkspaces Nothing = [missingWorkspacesError]
+    validateRequiredWorkspaces (Just definedWorkspacesList)
+      | NW.workspaceGlobs `S.isSubsetOf` definedWorkspaces = []
+      | otherwise = [makeWrongWorkspacesError definedWorkspaces]
+      where
+        definedWorkspaces = S.fromList definedWorkspacesList
+
+    makeWrongWorkspacesError definedWorkspaces =
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires package.json \"workspaces\" to include:",
+            showSet NW.workspaceGlobs ++ ".",
+            "You are missing:",
+            showSet (NW.workspaceGlobs `S.difference` definedWorkspaces) ++ "."
+          ]
+
+    missingWorkspacesError =
+      GenericGeneratorError $
+        unwords
+          [ "Wasp requires package.json \"workspaces\" to be present with the value and include values:",
+            showSet NW.workspaceGlobs ++ "."
+          ]
+
+    showSet = intercalate ", " . fmap show . S.toList
 
 validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
 validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
@@ -124,7 +156,7 @@ validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) 
             "to be in",
             show $ getExpectedPackageJsonDependencyKey requirement
           ]
-            ++ ( case getOppositePackageJsonDepedencyKey requirement of
+            ++ ( case getOppositePackageJsonDependencyKey requirement of
                    Just oppositeKey -> ["and not in", show oppositeKey]
                    Nothing -> []
                )
@@ -136,8 +168,8 @@ getExpectedPackageJsonDependencyKey = \case
   RequiredDevelopment -> "devDependencies"
   Optional -> "dependencies or devDependencies"
 
-getOppositePackageJsonDepedencyKey :: PackageRequirement -> Maybe String
-getOppositePackageJsonDepedencyKey = \case
+getOppositePackageJsonDependencyKey :: PackageRequirement -> Maybe String
+getOppositePackageJsonDependencyKey = \case
   RequiredRuntime -> Just "devDependencies"
   RequiredDevelopment -> Just "dependencies"
   Optional -> Nothing

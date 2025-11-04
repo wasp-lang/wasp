@@ -241,7 +241,7 @@ npmDepsForSdk spec waspLibs =
           ],
       N.peerDependencies =
         Npm.Dependency.fromList
-          [ ("@tanstack/react-query", show reactQueryVersion)
+          [ ("@tanstack/react-query", reactQueryVersion)
           ]
     }
   where
