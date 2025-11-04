@@ -84,7 +84,7 @@ wasp-cli start db
 ### End-to-End Tests
 
 We use `playwright` for e2e tests.
-You can run them through `npm` scripts:
+Run the e2e tests with:
 
 ```sh
 npm run test
