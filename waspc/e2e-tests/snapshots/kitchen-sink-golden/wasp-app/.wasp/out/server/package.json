@@ -15,17 +15,19 @@
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@tsconfig/node22": "latest",
     "@types/cors": "^2.8.5",
+    "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/node": "^22.0.0",
     "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
-    "rollup-plugin-esbuild": "^6.1.1"
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "5.8.2"
   },
   "engineStrict": true,
   "engines": {
     "node": ">=22.12.0"
   },
-  "name": "server",
+  "name": "@wasp.sh/generated-server-dev",
   "nodemonConfig": {
     "delay": "1000"
   },

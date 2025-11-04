@@ -21,7 +21,8 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as D
 data PackageJson = PackageJson
   { name :: !String,
     dependencies :: !DependenciesMap,
-    devDependencies :: !DependenciesMap
+    devDependencies :: !DependenciesMap,
+    workspaces :: !(Maybe [String])
   }
   deriving (Show, Generic, FromJSON)
 

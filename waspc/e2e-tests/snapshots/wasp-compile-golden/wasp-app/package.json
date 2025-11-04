@@ -12,5 +12,9 @@
     "vite": "^7.0.6"
   },
   "name": "wasp-app",
-  "type": "module"
+  "type": "module",
+  "workspaces": [
+    ".wasp/build/*",
+    ".wasp/out/*"
+  ]
 }
