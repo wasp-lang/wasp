@@ -2,22 +2,14 @@
   <!-- INTRO -->
   <div align=center>
     <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
-    <p>
-      The fastest way to develop full-stack web apps with React & Node.js.
-    </p>
+    <p>The fastest way to develop full-stack web apps with React & Node.js.</p>
   </div>
   <br />
   <!-- BADGES -->
   <div align=center>
-    <a href="https://github.com/wasp-lang/wasp/blob/main/LICENSE">
-      <img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp">
-    </a>
-    <a href="https://github.com/wasp-lang/wasp/releases/latest">
-      <img alt="latest release" src="https://img.shields.io/github/v/release/wasp-lang/wasp"/>
-    </a>
-    <a href="https://discord.gg/rzdnErX">
-      <img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/>
-    </a>
+    <a href="https://github.com/wasp-lang/wasp/blob/main/LICENSE"><img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp"></a>
+    <a href="https://github.com/wasp-lang/wasp/releases/latest"><img alt="latest release" src="https://img.shields.io/github/v/release/wasp-lang/wasp"/></a>
+    <a href="https://discord.gg/rzdnErX"><img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/></a>
   </div>
   <br />
   <!-- LINKS -->
