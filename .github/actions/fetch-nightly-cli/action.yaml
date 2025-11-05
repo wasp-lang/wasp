@@ -54,6 +54,6 @@ runs:
         RUN_ID: ${{ steps.get_run_id.outputs.run_id }}
         OUTPUT_DIR: ${{ inputs.output-dir }}
         ARTIFACT_NAME:
-          # This is the name of the artifact (not the file), as defined in:
-          # .github/workflows/ci-waspc-build.yaml
+          # This is the name of the artifact (not the file), which must be in sync with:
+          # /.github/workflows/ci-waspc-build.yaml
           "wasp-cli-${{ runner.os == 'Linux' && 'linux' || 'macos' }}-${{ runner.arch == 'ARM64' && 'aarch64' || 'x86_64' }}"
