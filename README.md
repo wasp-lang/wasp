@@ -130,6 +130,8 @@ Wasp comes with experimental AI code generator to help you kickstart your next W
 Currently, Wasp is in beta, with most features fully developed and functioning well.
 However, we still have many improvements and additions in mind for the future, and we are continually working on them. As a result, you can expect numerous changes and improvements in the future.
 
+Keep up with Wasp by following [our development roadmap](https://github.com/orgs/wasp-lang/projects/5).
+
 While the idea is to support multiple web tech stacks in the future, we are currently focusing on a specific stack:
 React + TanStack Query, Node.js + Express.js, and Prisma.
 
