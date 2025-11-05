@@ -17,8 +17,6 @@
     <a href="https://wasp.sh">Website</a>
     |
     <a href="https://wasp.sh/docs">Docs</a>
-    |
-    <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">Deployed? Get swag! 👕</a>
   </div>
   <div align=center>
     <a href="https://discord.gg/rzdnErX">Discord</a>
@@ -26,6 +24,9 @@
     <a href="https://x.com/WaspLang">Twitter</a>
     |
     <a href="https://www.youtube.com/@wasplang">Youtube</a>
+  </div>
+  <div align=center>
+    <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">Deployed? Get swag! 👕</a>
   </div>
 </div>
 
