@@ -25,8 +25,8 @@ runs:
       run: |
         run_id=$(
           gh run list \
-            --workflow "$workflow_name" \
-            --branch "$branch" \
+            --workflow "$WORKFLOW_NAME" \
+            --branch "$BRANCH" \
             --status success \
             --limit 1 \
             --json databaseId \
@@ -36,8 +36,8 @@ runs:
       env:
         GH_REPO: wasp-lang/wasp
         GH_TOKEN: ${{ inputs.token }}
-        branch: ${{ inputs.branch }}
-        workflow_name:
+        BRANCH: ${{ inputs.branch }}
+        WORKFLOW_NAME:
           # This name must be in sync with the name used in:
           # /.github/workflows/ci.yaml
           "CI"
@@ -45,15 +45,15 @@ runs:
     - name: Download artifact
       shell: bash
       run: |
-        gh run download "$run_id" \
-          --name "$artifact_name" \
-          --dir "$output_dir"
+        gh run download "$RUN_ID" \
+          --name "$ARTIFACT_NAME" \
+          --dir "$OUTPUT_DIR"
       env:
         GH_REPO: wasp-lang/wasp
         GH_TOKEN: ${{ inputs.token }}
-        run_id: ${{ steps.get_run_id.outputs.run_id }}
-        output_dir: ${{ inputs.output-dir }}
-        artifact_name:
+        RUN_ID: ${{ steps.get_run_id.outputs.run_id }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+        ARTIFACT_NAME:
           # This is the name of the artifact (not the file), as defined in:
           # .github/workflows/ci-waspc-build.yaml
           "wasp-cli-${{ runner.os == 'Linux' && 'linux' || 'macos' }}-${{ runner.arch == 'ARM64' && 'aarch64' || 'x86_64' }}"
