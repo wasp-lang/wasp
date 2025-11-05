@@ -11,7 +11,7 @@
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
-    "generate-llm-files": "tsx ./scripts/generate-llm-files.ts",
+    "generate-llm-files": "docusaurus generate-typedoc && tsx ./scripts/generate-llm-files.ts",
     "remark": "remark",
     "remark:once": "npm run remark -- --quiet --frail --use remark-validate-links docs/",
     "serve": "docusaurus serve",
