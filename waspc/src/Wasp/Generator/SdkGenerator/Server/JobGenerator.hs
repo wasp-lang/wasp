@@ -54,11 +54,11 @@ genIndexTs jobs = return $ C.mkTmplFdWithData tmplFile tmplData
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return $
-    C.mkTmplFdWithDstAndData
+  return
+    $ C.mkTmplFdWithDstAndData
       tmplFile
       dstFile
-      $ Just tmplData
+    $ Just tmplData
   where
     tmplFile = [relfile|server/jobs/_job.ts|]
     dstFile = [reldir|server/jobs|] </> fromJust (SP.parseRelFile $ jobName ++ ".ts")

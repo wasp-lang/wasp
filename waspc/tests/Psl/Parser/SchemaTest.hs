@@ -318,13 +318,13 @@ spec_parsePslSchema = do
                                         ]
                                   ]
                         ),
-                    Psl.Schema.EnumBlock $
-                      Psl.Enum.Enum
+                    Psl.Schema.EnumBlock
+                      $ Psl.Enum.Enum
                         "Role"
-                        $ Psl.WithCtx.empty
-                          <$> [ Psl.Enum.ElementValue "USER" [],
-                                Psl.Enum.ElementValue "ADMIN" []
-                              ],
+                      $ Psl.WithCtx.empty
+                        <$> [ Psl.Enum.ElementValue "USER" [],
+                              Psl.Enum.ElementValue "ADMIN" []
+                            ],
                     Psl.Schema.ViewBlock $
                       Psl.View.View
                         "UserInfo"

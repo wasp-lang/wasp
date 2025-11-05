@@ -32,7 +32,7 @@ class Diffable a where
 instance Diffable Char where
   toLines c = [[c]]
 
-instance Diffable a => Diffable [a] where
+instance (Diffable a) => Diffable [a] where
   toLines xs = concatMap toLines xs
 
 instance (Diffable a, Diffable b) => Diffable (a, b) where

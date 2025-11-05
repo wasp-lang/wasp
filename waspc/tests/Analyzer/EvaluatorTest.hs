@@ -27,7 +27,7 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import Wasp.AppSpec.JSON (JSON (..))
 
-fromRight :: Show a => Either a b -> b
+fromRight :: (Show a) => Either a b -> b
 fromRight (Right x) = x
 fromRight (Left e) = error $ show e
 

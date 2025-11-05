@@ -317,7 +317,7 @@ spec_AppSpecFromJSON = do
     barEntityRef = [trimming| { "name": "bar", "declType": "Entity" }|]
     pageRef = [trimming| { "name": "foo", "declType": "Page" }|]
 
-    decodeJson :: FromJSON a => T.Text -> Maybe a
+    decodeJson :: (FromJSON a) => T.Text -> Maybe a
     decodeJson = Aeson.decodeStrict . TE.encodeUtf8
 
     shouldDecodeTo json expectedValue = do
