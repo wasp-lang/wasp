@@ -9,7 +9,6 @@
   <div align=center>
     <a href="https://github.com/wasp-lang/wasp/blob/main/LICENSE"><img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp"></a>
     <a href="https://github.com/wasp-lang/wasp/releases/latest"><img alt="latest release" src="https://img.shields.io/github/v/release/wasp-lang/wasp"/></a>
-    <a href="https://discord.gg/rzdnErX"><img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/></a>
   </div>
   <br />
   <!-- LINKS -->
@@ -143,7 +142,7 @@ The best place to start is to check out [`waspc/`](waspc/), where you can find d
 
 The core of Wasp is built in Haskell, but there are also a lot of non-Haskell parts of Wasp, so you will certainly be able to find something for you!
 
-Even if you don't plan to submit any code, just joining the discussion on Discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
+Even if you don't plan to submit any code, just joining the discussion on [Discord](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
 
 You can also:
 
