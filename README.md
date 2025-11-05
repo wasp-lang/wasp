@@ -15,15 +15,15 @@
   <!-- LINKS -->
   <div align=center>
     <a href="https://wasp.sh">Website</a>
-    |
+    <span>|</span>
     <a href="https://wasp.sh/docs">Docs</a>
-    |
+    <span>|</span>
     <a href="https://discord.gg/rzdnErX">Discord</a>
-    |
+    <span>|</span>
     <a href="https://x.com/WaspLang">Twitter</a>
-    |
+    <span>|</span>
     <a href="https://www.youtube.com/@wasplang">Youtube</a>
-    |
+    <span>|</span>
     <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">Deployed? Get swag! 👕</a>
   </div>
 </div>
