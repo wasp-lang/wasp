@@ -16,7 +16,7 @@ inputs:
     default: "."
 
 runs:
-  using: "composite"
+  using: composite
 
   steps:
     - name: Get latest successful run ID
@@ -43,10 +43,11 @@ runs:
           "CI"
 
     - name: Download artifact
-      if: matrix.args.needs-download == true
       shell: bash
       run: |
-        gh run download "$run_id" --name "$artifact_name" --dir "$output_dir"
+        gh run download "$run_id" \
+          --name "$artifact_name" \
+          --dir "$output_dir"
       env:
         GH_REPO: wasp-lang/wasp
         GH_TOKEN: ${{ inputs.token }}
