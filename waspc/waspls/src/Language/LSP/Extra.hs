@@ -1,28 +1,3 @@
--- | Extra utilities for the LSP library.
---
--- This module contains functions that were removed from later versions of the
--- lsp package but are still useful for maintaining backwards compatibility.
---
--- = Background
---
--- During the migration from lsp 1.4 to lsp 1.6, the @setupLogger@ function was
--- removed from the lsp package. In lsp 1.5, the library switched from using
--- @hslogger@ to @co-log-core@ for logging.
---
--- However, our codebase extensively uses a custom @MonadLog@ typeclass backed by
--- @hslogger@'s global state throughout the LSP server implementation (15+ files).
--- Rather than refactoring all of this logging infrastructure, we've chosen to
--- preserve the @setupLogger@ function from lsp 1.4.0.0 in this compatibility module.
---
--- = Implementation
---
--- The @setupLogger@ function here is a verbatim copy from lsp-1.4.0.0's
--- @Language.LSP.Server.Core@ module. It configures @hslogger@'s global state,
--- which our @MonadLog@ instance in @Wasp.LSP.ServerMonads@ relies on.
---
--- In @Wasp.LSP.Server@, we disable lsp 1.6's built-in co-log logging by passing
--- @mempty@ loggers to @runServerWithHandles@, ensuring only our hslogger-based
--- logging is active.
 module Language.LSP.Extra
   ( setupLogger,
   )

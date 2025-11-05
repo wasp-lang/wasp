@@ -1,0 +1,176 @@
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ExplicitNamespaces #-}
+
+module Wasp.LSP.Server
+  ( serve,
+  )
+where
+
+import Colog.Core (LogAction (..), cmap)
+import Colog.Core.Severity (WithSeverity (WithSeverity))
+import Control.Concurrent (newEmptyMVar, tryPutMVar)
+import Control.Concurrent.STM (newTChanIO, newTVarIO)
+import Control.Monad (void)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import qualified Data.Aeson as Aeson
+import Data.Default (Default (def))
+import qualified Data.HashMap.Strict as M
+import qualified Data.Text as Text
+import qualified Language.LSP.Logging as LSP
+import Language.LSP.Server (LspM, LspServerLog)
+import qualified Language.LSP.Server as LSP
+import qualified Language.LSP.Types as LSP
+import System.Exit (ExitCode (ExitFailure), exitWith)
+import System.IO (IOMode (AppendMode), hPutStrLn, openFile, stdin, stdout)
+import qualified Wasp.LSP.Commands as Commands
+import Wasp.LSP.Debouncer (newDebouncerIO)
+import Wasp.LSP.Handlers
+import Wasp.LSP.Reactor (startReactorThread)
+import Wasp.LSP.ServerConfig (ServerConfig)
+import Wasp.LSP.ServerMonads (ServerM, runRLspM)
+import Wasp.LSP.ServerState
+  ( RegistrationTokens (RegTokens, _watchPrismaSchemaToken, _watchSourceFilesToken),
+    ServerState
+      ( ServerState,
+        _cst,
+        _currentWaspSource,
+        _debouncer,
+        _latestDiagnostics,
+        _prismaSchemaAst,
+        _reactorIn,
+        _regTokens,
+        _tsExports,
+        _waspFileUri
+      ),
+  )
+import Wasp.LSP.SignatureHelp (signatureHelpRetriggerCharacters, signatureHelpTriggerCharacters)
+import qualified Wasp.Psl.Ast.Schema as Psl.Schema
+
+-- | Lift an IO-based LogAction to work in LspM monad
+liftIOLogAction :: LogAction IO a -> LogAction (LSP.LspM config) a
+liftIOLogAction (LogAction f) = LogAction (\a -> liftIO (f a))
+
+-- | Convert LspServerLog to Text for display
+lspServerLogToText :: LSP.LspServerLog -> Text.Text
+lspServerLogToText = Text.pack . show
+
+lspServerHandlers :: IO () -> LSP.Handlers ServerM
+lspServerHandlers stopReactor =
+  mconcat
+    [ initializedHandler,
+      shutdownHandler stopReactor,
+      didOpenHandler,
+      didSaveHandler,
+      didChangeHandler,
+      executeCommandHandler,
+      completionHandler,
+      signatureHelpHandler,
+      gotoDefinitionHandler,
+      codeActionHandler
+    ]
+
+serve :: Maybe FilePath -> IO ()
+serve maybeLogFile = do
+  -- Reactor setup
+  reactorLifetime <- newEmptyMVar
+  let stopReactor = void $ tryPutMVar reactorLifetime ()
+  reactorIn <- newTChanIO
+  startReactorThread reactorLifetime reactorIn
+
+  -- Debouncer setup
+  debouncer <- newDebouncerIO
+
+  let defaultServerState =
+        ServerState
+          { _waspFileUri = Nothing,
+            _prismaSchemaAst = Psl.Schema.Schema [],
+            _currentWaspSource = "",
+            _latestDiagnostics = [],
+            _cst = Nothing,
+            _tsExports = M.empty,
+            _regTokens = RegTokens {_watchSourceFilesToken = Nothing, _watchPrismaSchemaToken = Nothing},
+            _reactorIn = reactorIn,
+            _debouncer = debouncer
+          }
+
+  -- Create the TVar that manages the server state.
+  stateTVar <- newTVarIO defaultServerState
+
+  let lspServerInterpretHandler env =
+        LSP.Iso {forward = runHandler, backward = liftIO}
+        where
+          runHandler :: ServerM a -> IO a
+          runHandler handler =
+            LSP.runLspT env $ runRLspM stateTVar handler
+
+  (logger1, logger2) <- getLoggers maybeLogFile
+  exitCode <-
+    LSP.runServerWithHandles logger1 logger2 stdin stdout $
+      LSP.ServerDefinition
+        { defaultConfig = def :: ServerConfig,
+          onConfigurationChange = lspServerUpdateConfig,
+          doInitialize = lspServerDoInitialize,
+          staticHandlers = lspServerHandlers stopReactor,
+          interpretHandler = lspServerInterpretHandler,
+          options = lspServerOptions
+        }
+
+  case exitCode of
+    0 -> return ()
+    n -> exitWith (ExitFailure n)
+
+getLoggers ::
+  Maybe FilePath ->
+  IO (LogAction IO (WithSeverity LspServerLog), LogAction (LspM config) (WithSeverity LspServerLog))
+getLoggers = \case
+  Nothing -> pure (mempty, mempty)
+  Just "[OUTPUT]" ->
+    let toTextLog (WithSeverity lspLog sev) = WithSeverity (lspServerLogToText lspLog) sev
+        clientLogger = cmap toTextLog LSP.defaultClientLogger
+     in pure (mempty, clientLogger)
+  Just filePath -> do
+    handle <- openFile filePath AppendMode
+    let fileLogger = LogAction $ \(WithSeverity lspLog _) -> hPutStrLn handle (Text.unpack (lspServerLogToText lspLog))
+    return (fileLogger, liftIOLogAction fileLogger)
+
+-- | Returns either a JSON parsing error message or the updated "ServerConfig".
+lspServerUpdateConfig :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig
+lspServerUpdateConfig _oldConfig json =
+  case Aeson.fromJSON json of
+    Aeson.Success config -> Right config
+    Aeson.Error string -> Left (Text.pack string)
+
+lspServerDoInitialize ::
+  LSP.LanguageContextEnv ServerConfig ->
+  LSP.Message 'LSP.Initialize ->
+  IO (Either LSP.ResponseError (LSP.LanguageContextEnv ServerConfig))
+lspServerDoInitialize env _req = return (Right env)
+
+lspServerOptions :: LSP.Options
+lspServerOptions =
+  (def :: LSP.Options)
+    { LSP.textDocumentSync = Just syncOptions,
+      LSP.completionTriggerCharacters = Just [':', ' '],
+      LSP.signatureHelpTriggerCharacters = signatureHelpTriggerCharacters,
+      LSP.signatureHelpRetriggerCharacters = signatureHelpRetriggerCharacters,
+      LSP.executeCommandCommands = Just Commands.availableCommands
+    }
+
+-- | Options to tell the client how to update the server about the state of text
+-- documents in the workspace.
+syncOptions :: LSP.TextDocumentSyncOptions
+syncOptions =
+  LSP.TextDocumentSyncOptions
+    { -- Send open/close notifications be sent to the server.
+      _openClose = Just True,
+      -- Keep a copy of text documents contents in the VFS. When the document is
+      -- changed, only send the updates instead of the entire contents.
+      _change = Just LSP.TdSyncIncremental,
+      -- Don't send will-save notifications to the server.
+      _willSave = Just False,
+      -- Don't send will-save-wait-until notifications to the server.
+      _willSaveWaitUntil = Just False,
+      -- Send save notifications to the server.
+      _save = Just (LSP.InR (LSP.SaveOptions (Just True)))
+    }
