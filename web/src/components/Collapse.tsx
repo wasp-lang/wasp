@@ -8,6 +8,7 @@ export default function Collapse(props: {
   const { children, title } = props;
   return (
     <Details>
+      {/* @ts-expect-error */}
       <summary mdxType="summary">{title}</summary>
       {children}
     </Details>
