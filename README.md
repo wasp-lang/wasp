@@ -44,10 +44,10 @@ Build your app in a day and deploy it with a single CLI command!
 
 - [🔒 Full-stack Auth](https://wasp.sh/docs/auth/overview)
 - [🖇️ RPC (Client <-> Server)](https://wasp.sh/docs/data-model/operations/overview)
-- [🛟 Full-stack Type Safety](https://wasp.sh/docs/general/typescript)
 - [🚀 Simple Deployment](https://wasp.sh/docs/deployment/deployment-methods/overview)
 - [⚙ ️Jobs](https://wasp.sh/docs/advanced/jobs)
 - [✉️ Email Sending](https://wasp.sh/docs/advanced/email)
+- [🛟 Full-stack Type Safety](https://wasp.sh/docs/general/typescript)
 - ...
 
 ### Code example
