@@ -177,12 +177,6 @@ Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f9
 
 ### Past sponsors
 
-<a href="https://github.com/MarianoMiguel">
-  <img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" />
-</a>
-<a href="https://github.com/Tech4Money">
-  <img src="https://github.com/Tech4Money.png" width="50px" alt="Tech4Money" />
-</a>
-<a href="https://github.com/haseeb-heaven">
-  <img src="https://github.com/haseeb-heaven.png" width="50px" alt="haseeb-heaven" />
-</a>
+<a href="https://github.com/MarianoMiguel"><img src="https://github.com/MarianoMiguel.png" width="50px" alt="MarianoMiguel" /></a>
+<a href="https://github.com/Tech4Money"><img src="https://github.com/Tech4Money.png" width="50px" alt="Tech4Money" /></a>
+<a href="https://github.com/haseeb-heaven"><img src="https://github.com/haseeb-heaven.png" width="50px" alt="haseeb-heaven" /></a>
