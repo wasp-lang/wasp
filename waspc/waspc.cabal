@@ -495,7 +495,6 @@ library waspls
       base
     , aeson
     , aeson-pretty
-    , co-log-core
     , deepseq
     , data-default ^>=0.7.1.1
     , hslogger ^>=1.3.1.0
