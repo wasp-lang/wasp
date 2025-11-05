@@ -1,0 +1,8 @@
+{
+  "name": "@wasp/reference",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
