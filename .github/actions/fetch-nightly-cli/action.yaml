@@ -37,7 +37,7 @@ runs:
         GH_REPO: wasp-lang/wasp
         GH_TOKEN: ${{ inputs.token }}
         branch: ${{ inputs.branch }}
-        worfklow_name:
+        workflow_name:
           # This name must be in sync with the name used in:
           # /.github/workflows/ci.yaml
           "CI"
