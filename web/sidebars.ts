@@ -199,6 +199,7 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       collapsible: true,
       items: [
+        "migration-guides/migrate-from-0-18-to-0-19",
         "migration-guides/migrate-from-0-17-to-0-18",
         "migration-guides/migrate-from-0-16-to-0-17",
         "migration-guides/migrate-from-0-15-to-0-16",

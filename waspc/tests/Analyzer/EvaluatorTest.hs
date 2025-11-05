@@ -229,7 +229,7 @@ spec_Evaluator = do
               ]
         let allJson = case takeDecls <$> eval typeDefs source of
               Right [(_, aj)] -> aj
-              left -> error $ "Expected Right but got Left:" ++ show left
+              other -> error $ "Couldn't deconstroct value: " ++ show other
         show (objectValue allJson) `shouldBe` "{\"key\":1}"
         show (arrayValue allJson) `shouldBe` "[1,2,3]"
         show (stringValue allJson) `shouldBe` "\"hello\""

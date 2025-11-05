@@ -68,7 +68,7 @@ spec_TypeChecker = do
       it "Properly hoists declarations" $ do
         let mAst = P.parseStatements "llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }"
         mAst `shouldSatisfy` isRight
-        let ast = fromRight (error "Impossible") mAst
+        let ast = fromRight (error "Impossible, this should have been checked in the previous step") mAst
         let llnodeArgType =
               DictType $
                 H.fromList

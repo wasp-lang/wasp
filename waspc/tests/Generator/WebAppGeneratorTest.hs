@@ -1,5 +1,6 @@
 module Generator.WebAppGeneratorTest where
 
+import Data.Either (fromRight)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Fixtures
@@ -98,10 +99,10 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let (_, generatorResult) = runGenerator $ genWebApp testAppSpec
-      fileDrafts <- case generatorResult of
-        Right fds -> pure fds
-        Left err -> expectationFailure ("genWebApp failed: " ++ show err) >> error "unreachable"
+      let fileDrafts =
+            fromRight
+              (error "Expected Right but got Left")
+              (snd $ runGenerator $ genWebApp testAppSpec)
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat
