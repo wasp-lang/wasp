@@ -3,7 +3,7 @@
 
 module Psl.Generator.SchemaTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument

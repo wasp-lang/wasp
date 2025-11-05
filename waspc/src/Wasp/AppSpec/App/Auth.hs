@@ -2,6 +2,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+-- TODO: Remove once we start using record dot syntax
+{-# OPTIONS_GHC -Wno-ambiguous-fields #-}
 
 module Wasp.AppSpec.App.Auth
   ( Auth (..),

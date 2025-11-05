@@ -4,7 +4,7 @@
 module Analyzer.Parser.ConcreteParserTest where
 
 import Control.DeepSeq (deepseq)
-import Test.Tasty.Hspec (Spec, describe, it)
+import Test.Hspec (Spec, describe, it)
 import Test.Tasty.QuickCheck
 import Util.Diff
 import Wasp.Analyzer.Parser.CST

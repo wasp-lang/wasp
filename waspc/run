@@ -78,7 +78,7 @@ RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
 # HLS version below should be one that works with the GHC version from the
 # `with-compiler` field in `cabal.project`
-GHCUP_SET="ghcup set hls 2.2.0.0"
+GHCUP_SET="ghcup set hls 2.6.0.0"
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool() {
   echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
