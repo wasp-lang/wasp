@@ -144,7 +144,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: ./waspc/artifacts/*
-          name: wasp-cli-${{ matrix.env.name }}
+          name:
+            "wasp-cli-${{ matrix.env.name }}"
+            # This name must be in sync with the artifact name used in:
+            # /.github/actions/fetch-nightly-cli/action.yaml
           if-no-files-found: error
 
   build-universal:
