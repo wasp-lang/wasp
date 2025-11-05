@@ -342,8 +342,11 @@ declare module "wasp/client/operations" {
    * ```
    */
   export function useAction<Input, Output>(
-    actionFn: (args: Input) => Promise<Output>
-  ): [(args: Input) => Promise<Output>, { isLoading: boolean; error: Error | null }];
+    actionFn: (args: Input) => Promise<Output>,
+  ): [
+    (args: Input) => Promise<Output>,
+    { isLoading: boolean; error: Error | null },
+  ];
 
   /**
    * Configuration for optimistic updates when executing queries.
@@ -378,7 +381,7 @@ declare module "wasp/client/operations" {
   export function useQuery<Input, Output>(
     queryFn: (args: Input) => Promise<Output>,
     args?: Input,
-    options?: any
+    options?: any,
   ): {
     data: Output | undefined;
     isLoading: boolean;
@@ -479,7 +482,7 @@ declare module "wasp/client/test" {
    * ```
    */
   export function renderInContext(
-    component: React.ReactElement
+    component: React.ReactElement,
   ): ReturnType<typeof import("@testing-library/react").render>;
 
   /**
@@ -561,7 +564,7 @@ declare module "wasp/client/webSocket" {
    */
   export function useSocketListener<Event extends string>(
     event: Event,
-    handler: (payload: any) => void
+    handler: (payload: any) => void,
   ): void;
 }
 
@@ -750,8 +753,6 @@ declare module "wasp/server" {
 // ============================================================================
 
 declare module "wasp/server/api" {
-  import type { Request, Response, NextFunction } from "express";
-
   /**
    * Type for custom API route handlers.
    * Replace 'MyApiRoute' with your actual API route name.
@@ -807,7 +808,7 @@ declare module "wasp/server/auth" {
    */
   export function createProviderId(
     providerName: string,
-    providerUserId: string
+    providerUserId: string,
   ): ProviderId;
 
   /**
@@ -829,7 +830,7 @@ declare module "wasp/server/auth" {
   export function updateAuthIdentityProviderData(
     providerId: ProviderId,
     providerData: any,
-    prisma: PrismaClient
+    prisma: PrismaClient,
   ): Promise<any>;
 
   /**
@@ -841,7 +842,7 @@ declare module "wasp/server/auth" {
    */
   export function getProviderData(
     providerId: ProviderId,
-    prisma: PrismaClient
+    prisma: PrismaClient,
   ): Promise<EmailProviderData | UsernameProviderData | OAuthProviderData>;
 
   /**
@@ -854,7 +855,7 @@ declare module "wasp/server/auth" {
    */
   export function getProviderDataWithPassword(
     providerId: ProviderId,
-    prisma: PrismaClient
+    prisma: PrismaClient,
   ): Promise<any>;
 
   /**
@@ -866,7 +867,7 @@ declare module "wasp/server/auth" {
    */
   export function findAuthIdentity(
     providerId: ProviderId,
-    prisma: PrismaClient
+    prisma: PrismaClient,
   ): Promise<any | null>;
 
   /**
@@ -882,7 +883,7 @@ declare module "wasp/server/auth" {
     providerId: ProviderId,
     providerData: any,
     userData: any,
-    prisma: PrismaClient
+    prisma: PrismaClient,
   ): Promise<CreateUserResult>;
 
   /**
@@ -1004,7 +1005,7 @@ declare module "wasp/server/auth" {
    */
   export function sendEmailVerificationEmail(
     email: string,
-    verificationLink: string
+    verificationLink: string,
   ): Promise<void>;
 
   /**
@@ -1023,7 +1024,7 @@ declare module "wasp/server/auth" {
    */
   export function sendPasswordResetEmail(
     email: string,
-    passwordResetLink: string
+    passwordResetLink: string,
   ): Promise<void>;
 
   /**
@@ -1234,9 +1235,6 @@ declare module "wasp/server/jobs" {
 // ============================================================================
 
 declare module "wasp/server/operations" {
-  import type { AuthUser } from "wasp/auth";
-  import type { PrismaClient } from "wasp/server";
-
   /**
    * Your defined query types.
    * Replace 'MyQuery' with your actual query name.
@@ -1252,7 +1250,6 @@ declare module "wasp/server/operations" {
    *   };
    * ```
    */
-
   /**
    * Your defined action types.
    * Replace 'MyAction' with your actual action name.
@@ -1279,7 +1276,6 @@ declare module "wasp/server/operations" {
 declare module "wasp/server/webSocket" {
   import type { Server } from "socket.io";
   import type { AuthUser } from "wasp/auth";
-  import type { PrismaClient } from "wasp/server";
 
   /**
    * WebSocket definition function type.
@@ -1306,7 +1302,7 @@ declare module "wasp/server/webSocket" {
     ClientToServerEvents = any,
     ServerToClientEvents = any,
     InterServerEvents = any,
-    SocketData extends WaspSocketData = WaspSocketData
+    SocketData extends WaspSocketData = WaspSocketData,
   > = (
     io: Server<
       ClientToServerEvents,
@@ -1316,7 +1312,7 @@ declare module "wasp/server/webSocket" {
     >,
     context: {
       entities: Record<string, any>;
-    }
+    },
   ) => Promise<void> | void;
 
   /**
