@@ -1,7 +1,28 @@
 -- | Extra utilities for the LSP library.
 --
 -- This module contains functions that were removed from later versions of the
--- lsp package but are still useful for compatibility.
+-- lsp package but are still useful for maintaining backwards compatibility.
+--
+-- = Background
+--
+-- During the migration from lsp 1.4 to lsp 1.6, the @setupLogger@ function was
+-- removed from the lsp package. In lsp 1.5, the library switched from using
+-- @hslogger@ to @co-log-core@ for logging.
+--
+-- However, our codebase extensively uses a custom @MonadLog@ typeclass backed by
+-- @hslogger@'s global state throughout the LSP server implementation (15+ files).
+-- Rather than refactoring all of this logging infrastructure, we've chosen to
+-- preserve the @setupLogger@ function from lsp 1.4.0.0 in this compatibility module.
+--
+-- = Implementation
+--
+-- The @setupLogger@ function here is a verbatim copy from lsp-1.4.0.0's
+-- @Language.LSP.Server.Core@ module. It configures @hslogger@'s global state,
+-- which our @MonadLog@ instance in @Wasp.LSP.ServerMonads@ relies on.
+--
+-- In @Wasp.LSP.Server@, we disable lsp 1.6's built-in co-log logging by passing
+-- @mempty@ loggers to @runServerWithHandles@, ensuring only our hslogger-based
+-- logging is active.
 module Language.LSP.Extra
   ( setupLogger,
   )
@@ -16,7 +37,27 @@ import qualified System.Log.Handler.Simple as LHS
 import System.Log.Logger (Priority)
 import qualified System.Log.Logger as L
 
--- | Setup logger. Adapted from lsp-1.4.0.0.
+-- | This is a stub identical to the @setupLogger@ function from lsp 1.4.0.0
+--
+-- Updating GHC to 9.6.7 forced us to update lsp to a version newer than
+-- 1.5.0.0.
+--
+-- Lsp 1.5.0.0 drops support for @hslogger@ and no longer exposes the
+-- @setupLogger@ function. To properly accomodate the change, we would have to
+-- update our entire logging architecture in the LSP.
+--
+-- We soon plan to move Wasp to the TS Spec. Spending time on the LSP therefore
+-- makes little sense, so we've decided to stick with the "old approach" by
+-- copying over the @setupLogger@ function verbatim and putting it here.
+-- Reference:
+-- https://hackage.haskell.org/package/lsp-1.4.0.0/docs/src/Language.LSP.Server.Core.html#setupLogger
+--
+-- To avoid our logs clashing with LSP's new default logs, we've also had to
+-- disable the new logging mechanism in @Wasp.LSP.Server@.
+--
+-- These two small changes (creating a stub + disabling default logging) allow
+-- us to keep the rest of the code completely intact without compromising any
+-- functionality.
 setupLogger :: Maybe FilePath -> [String] -> Priority -> IO ()
 setupLogger mLogFile extraLogNames level = do
   logStream <- case mLogFile of

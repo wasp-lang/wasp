@@ -15,12 +15,12 @@ import qualified Data.Aeson as Aeson
 import Data.Default (Default (def))
 import qualified Data.HashMap.Strict as M
 import qualified Data.Text as Text
+import Language.LSP.Extra (setupLogger)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import System.IO (stdin, stdout)
 import qualified System.Log.Logger
-import Language.LSP.Extra (setupLogger)
 import qualified Wasp.LSP.Commands as Commands
 import Wasp.LSP.Debouncer (newDebouncerIO)
 import Wasp.LSP.Handlers
@@ -97,6 +97,9 @@ serve maybeLogFile = do
             LSP.runLspT env $ runRLspM stateTVar handler
 
   exitCode <-
+    -- Setting the first two arguments to mempty disables LSP's default
+    -- logging. We are instead using our own logger for reasons explained in
+    -- @Language.LSP.Extra@.
     LSP.runServerWithHandles mempty mempty stdin stdout $
       LSP.ServerDefinition
         { defaultConfig = def :: ServerConfig,
