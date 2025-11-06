@@ -33,7 +33,7 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
 - 🧪 Tests:
   - [ ] I added **unit tests** for my change. <!-- If not, explain why. -->
   - [ ] _(if you fixed a bug)_ I added a **regression test** for the bug I fixed. <!-- If not, explain why. -->
-  - [ ] _(if you added/updated a feature)_ I added/updated **e2e tests** at `waspc/examples/todoApp/e2e-tests`.
+  - [ ] _(if you added/updated a feature)_ I added/updated **e2e tests** at `examples/kitchen-sink/e2e-tests`.
   - [ ] _(if you added/updated a feature)_ I updated the **starter templates** at `waspc/data/Cli/templates`, as needed.
 
 - 📜 Documentation:
