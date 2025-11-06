@@ -45,12 +45,12 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
   - [ ] I **bumped the `version`** in `waspc/waspc.cabal` to reflect the changes I introduced.
 
 <!--
-  On updating the waspc version in waspc/waspc.cabal:
-  We still haven't reached 1.0, so the version bumping follows these rules:
-    - Bug fix or new feature: 0.X.(Y+1)
-    - Breaking change: 0.(X+1).0
-  where 0.X.Y is the version of the last release.
+  Bumping the version on `waspc/waspc.cabal`:
 
-  If the version has already been bumped as needed on `main` branch since the
-  last release, skip this.
+  We still haven't reached 1.0, so the version bumping follows these rules:
+    - Bug fix:            0.X.+1    (e.g. 0.16.3 bumps to 0.16.4)
+    - New feature:        0.X.+1    (e.g. 0.16.3 bumps to 0.16.4)
+    - Breaking change:    0.+1.0    (e.g. 0.16.3 bumps to 0.17.0)
+
+  If the version has already been bumped on `main` since the last release, skip this.
 -->
