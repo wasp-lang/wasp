@@ -87,7 +87,7 @@ fetchFolderFromGithubRepoToDisk githubRepoRef folderInRepoRoot destinationOnDisk
           githubRepoArchiveRootFolderName :: Path' (Rel archiveRoot) (Dir archiveInnerDir)
           githubRepoArchiveRootFolderName = fromJust . SP.parseRelDir $ repoName ++ "-" ++ repoReferenceName
 
-fetchRepoFileContents :: FromJSON a => GithubRepoRef -> String -> IO (Either String a)
+fetchRepoFileContents :: (FromJSON a) => GithubRepoRef -> String -> IO (Either String a)
 fetchRepoFileContents githubRepo filePath = do
   try (HTTP.httpJSONEither ghRepoInfoRequest) <&> \case
     Right response -> either (Left . show) Right $ HTTP.getResponseBody response

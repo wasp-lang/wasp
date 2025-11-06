@@ -99,7 +99,7 @@ data AppSpec = AppSpec
 -- Or @WithName@ or just @Named@.
 -- I like the best: `newtype Named a = Named (String, a)`
 -- I created a github issue for it: https://github.com/wasp-lang/wasp/issues/426 .
-getDecls :: IsDecl a => AppSpec -> [(String, a)]
+getDecls :: (IsDecl a) => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
 getEntities :: AppSpec -> [(String, Entity)]
@@ -148,8 +148,8 @@ resolveRef spec ref =
           ++ "."
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
-    $ find ((== refName ref) . fst) $
-      getDecls spec
+    $ find ((== refName ref) . fst)
+    $ getDecls spec
 
 asAbsWaspProjectDirFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Path' Abs File'
 asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file

@@ -4,7 +4,7 @@ import Analyzer.TestUtil (ctx, fromWithCtx)
 import Data.Either (isLeft)
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
-import Test.Tasty.Hspec
+import Test.Hspec
 import Test.Tasty.QuickCheck
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Type

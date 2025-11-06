@@ -91,7 +91,7 @@ instance WriteableMonad MockWriteableMonad where
 instance MonadIO MockWriteableMonad where
   liftIO = undefined
 
-modifyLogs :: MonadState (a, b) m => (a -> a) -> m ()
+modifyLogs :: (MonadState (a, b) m) => (a -> a) -> m ()
 modifyLogs f = modify (first f)
 
 newtype MockWriteableMonad a = MockWriteableMonad

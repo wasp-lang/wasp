@@ -75,7 +75,9 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
         then return userProvidedSeedName
         else
           (E.throwError . CommandError "Invalid seed name") $
-            "There is no seed with the name " <> userProvidedSeedName <> "."
+            "There is no seed with the name "
+              <> userProvidedSeedName
+              <> "."
               <> ("\nValid seed names are: " <> intercalate ", " (NE.toList seedNames) <> ".")
 
     getSeedsFromAppSpecOrThrowIfNone :: Command (NE.NonEmpty AS.ExtImport.ExtImport)

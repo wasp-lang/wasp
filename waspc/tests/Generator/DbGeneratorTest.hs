@@ -1,7 +1,7 @@
 module Generator.DbGeneratorTest where
 
 import qualified Data.Text as T
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, shouldBe)
 import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs (..),
     defaultMigrateArgs,
