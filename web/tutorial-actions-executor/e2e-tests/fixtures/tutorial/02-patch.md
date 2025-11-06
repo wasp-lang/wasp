@@ -6,7 +6,7 @@ import { TutorialAction } from './TutorialAction';
 
 ## Add a Test File
 
-This is a minimal test tutorial to verify the APPLY_PATCH action.
+Let's add a new file `src/testUtils.ts` to our Wasp app:
 
 <TutorialAction id="add-test-file" action="APPLY_PATCH">
 

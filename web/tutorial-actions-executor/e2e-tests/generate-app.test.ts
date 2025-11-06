@@ -14,16 +14,19 @@ describe("generate-app e2e", () => {
 
       const projectDirPath = path.join(TEST_OUTPUT_DIR, TEST_APP_NAME);
 
-      // Verify generated file structure
+      function getProjectFileContent(filePath: string): string {
+        return fs.readFileSync(path.join(projectDirPath, filePath), "utf-8");
+      }
+
       const fileList = await getProjectFileList(projectDirPath);
       expect(fileList).toMatchSnapshot("file-structure");
 
-      // File added by patch in 02-patch.md
-      const testUtilsPath = path.join(projectDirPath, "src/testUtils.ts");
-      const testUtilsContent = fs.readFileSync(testUtilsPath, "utf-8");
+      const testUtilsContent = getProjectFileContent("src/testUtils.ts");
       expect(testUtilsContent).toMatchSnapshot("test-utils");
 
-      // Verify git commit history
+      const schemaContent = getProjectFileContent("schema.prisma");
+      expect(schemaContent).toMatchSnapshot("prisma-schema");
+
       const gitLog = await getGitLog(projectDirPath);
       expect(gitLog).toMatchSnapshot("git-commits");
     },
@@ -40,14 +43,9 @@ async function getProjectFileList(projectDirPath: string): Promise<string[]> {
   return files.sort();
 }
 
-async function getGitLog(projectDirPath: string): Promise<string[]> {
-  const gitLog =
-    await $`git -C ${projectDirPath} log --format=%an%n%ae%n%s%n%b%n---`
-      .quiet()
-      .text();
+async function getGitLog(projectDirPath: string): Promise<string> {
+  const gitLogResult =
+    await $`git -C ${projectDirPath} log --format="%s%b" --name-only`.quiet();
 
-  return gitLog
-    .split("---")
-    .map((commit) => commit.trim())
-    .filter((commit) => !!commit);
+  return gitLogResult.text();
 }

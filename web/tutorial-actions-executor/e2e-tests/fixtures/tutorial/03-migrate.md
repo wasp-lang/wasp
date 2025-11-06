@@ -20,7 +20,6 @@ model Post {
 
 </TutorialAction>
 
-Now, migrate the database.
+Now, migrate the database with `wasp db migrate-dev`.
 
 <TutorialAction id="migrate-db" action="MIGRATE_DB" />
-```
