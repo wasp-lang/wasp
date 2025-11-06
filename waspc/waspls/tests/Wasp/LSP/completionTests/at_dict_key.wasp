@@ -9,5 +9,5 @@ app todoApp {
 route MainRoute { | }
                   ^
 page MainPage {
-  component: import { MainPage } from "@client/MainPage.jsx",
+  component: import { MainPage } from "@client/MainPage",
 }

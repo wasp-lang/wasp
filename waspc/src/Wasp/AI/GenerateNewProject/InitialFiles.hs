@@ -100,18 +100,18 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
             "<link rel='icon' href='/favicon.ico' />",
           ],
           client: {
-            rootComponent: import { Layout } from "@src/Layout.jsx",
+            rootComponent: import { Layout } from "@src/Layout",
           },
           ${appAuth}
         }
 
         route LoginRoute { path: "/login", to: LoginPage }
         page LoginPage {
-          component: import Login from "@src/pages/auth/Login.jsx"
+          component: import Login from "@src/pages/auth/Login"
         }
         route SignupRoute { path: "/signup", to: SignupPage }
         page SignupPage {
-          component: import Signup from "@src/pages/auth/Signup.jsx"
+          component: import Signup from "@src/pages/auth/Signup"
         }
       |]
 

@@ -109,7 +109,7 @@ generatePage newProjectDetails entityPlans queries actions pPlan = do
 
         Example of such JSON:
         {
-          "pageWaspDecl": "route ExampleRoute { path: \"/\", to: ExamplePage }\npage ExamplePage {\n  component: import ExamplePage from \"@src/ExamplePage.jsx\",\n  authRequired: true\n}",
+          "pageWaspDecl": "route ExampleRoute { path: \"/\", to: ExamplePage }\npage ExamplePage {\n  component: import ExamplePage from \"@src/ExamplePage\",\n  authRequired: true\n}",
           "pageJsImpl": "JS imports + React component implementing the page.",
         }
         There should be no other text in the response.
@@ -135,7 +135,7 @@ makePageDocPrompt =
         ```wasp
         route TasksRoute { path: "/", to: ExamplePage }
         page TasksPage {
-          component: import Tasks from "@src/Tasks.jsx",
+          component: import Tasks from "@src/Tasks",
           authRequired: true
         }
         ```
@@ -211,7 +211,7 @@ makePageDocPrompt =
         ```wasp
         route DashboardRoute { path: "/dashboard", to: DashboardPage }
         page DashboardPage {
-          component: import Dashboard from "@src/Dashboard.jsx",
+          component: import Dashboard from "@src/Dashboard",
           authRequired: true
         }
         ```
