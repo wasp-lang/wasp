@@ -25,10 +25,10 @@ npm run generate-app -- --wasp-cli-command wasp
 
 This command:
 
-- Reads all tutorial files (numbered like `01-setup.md`, `02-auth.md`, etc.)
-- Extracts `<TutorialAction>` components from the file
-- Applies each action in sequence (e.g. initialize app, apply patches, migrate DB)
-- Results in a fully functional application
+- Reads all tutorial files (numbered like `01-setup.md`, `02-auth.md`, etc.).
+- Extracts actions from `<TutorialAction>` components in each tutorial file.
+- Applies each action in sequence (e.g. initialize app, apply patches, migrate DB).
+- The result of applying all of the actions in a fully functional application.
 
 One of the action types is to apply a Git patch that modifies a source file. If applying
 a patch fails due to conflicts, `generate-app` command pauses and allows you
@@ -54,11 +54,15 @@ npm run edit-patch-action -- --wasp-cli-command wasp
 
 This command:
 
-- Executes all actions before the target action
-- Moves all the changes from the target action to the Git staging area
-- Allows you to edit the code in your editor
-- Updates the patch based on your changes
-- Reapplies all subsequent actions
+- Generates the app from scratch using `generate-app` command.
+  - Generating the apps results in having each action as a separate commit in Git history.
+- "Rewinds" the app to the commit _before_ the specified action.
+- Applies changes from specified action to the working directory but does not commit them.
+- Allows you to edit the code as needed.
+- Asks you to confirm when you are done, and then creates a new patch for the action.
+- Reapplies all subsequent actions on top of the modified action.
+  - There might be conflicts between your new changes and subsequent actions.
+  - If so, you will need to resolve them manually.
 
 ### 3. List Actions (`npm run list-actions`)
 
