@@ -8,24 +8,35 @@ export type AppParentDirPath = Branded<string, "AppParentDirPath">;
 export type TutorialDirPath = Branded<string, "TutorialDirPath">;
 export type PatchesDirPath = Branded<string, "PatchesDirPath">;
 
-const tutorialAppName = "TodoApp" as AppName;
-const tutorialAppParentDirPath = path.resolve("./.result") as AppParentDirPath;
-const tutorialAppDirPath = path.resolve(
-  tutorialAppParentDirPath,
-  tutorialAppName,
-) as AppDirPath;
-const docsTutorialDirPath = path.resolve("../docs/tutorial") as TutorialDirPath;
-const docsTutorialPatchesPath = path.resolve(
-  docsTutorialDirPath,
-  "patches",
-) as PatchesDirPath;
+export interface TutorialApp {
+  name: AppName;
+  parentDirPath: AppParentDirPath;
+  dirPath: AppDirPath;
+  docsTutorialDirPath: TutorialDirPath;
+  docsTutorialPatchesPath: PatchesDirPath;
+}
 
-export const tutorialApp = {
-  name: tutorialAppName,
-  parentDirPath: tutorialAppParentDirPath,
-  dirPath: tutorialAppDirPath,
-  docsTutorialDirPath,
-  docsTutorialPatchesPath,
-} as const;
+export function createTutorialApp(options: {
+  appName: string;
+  outputDir: string;
+  tutorialDir: string;
+}): TutorialApp {
+  const appName = options.appName as AppName;
+  const parentDirPath = path.resolve(options.outputDir) as AppParentDirPath;
+  const dirPath = path.resolve(parentDirPath, appName) as AppDirPath;
+  const docsTutorialDirPath = path.resolve(
+    options.tutorialDir,
+  ) as TutorialDirPath;
+  const docsTutorialPatchesPath = path.resolve(
+    docsTutorialDirPath,
+    "patches",
+  ) as PatchesDirPath;
 
-export type TutorialApp = typeof tutorialApp;
+  return {
+    name: appName,
+    parentDirPath,
+    dirPath,
+    docsTutorialDirPath,
+    docsTutorialPatchesPath,
+  };
+}

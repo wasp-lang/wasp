@@ -5,14 +5,27 @@ import { chalk } from "zx";
 
 import type { Action } from "../../actions/actions";
 import { getActionsFromTutorialFiles } from "../../extract-actions";
-import { tutorialApp } from "../../tutorialApp";
+import { createTutorialApp } from "../../tutorialApp";
+import {
+  appNameOption,
+  outputDirOption,
+  tutorialDirOption,
+} from "../commonOptions";
 
 type SourceFileName = string;
 type ActionsGroupedByFile = Map<SourceFileName, Action[]>;
 
 export const listActionsCommand = new Command("list-actions")
   .description("List all actions in the tutorial")
-  .action(async () => {
+  .addOption(appNameOption)
+  .addOption(outputDirOption)
+  .addOption(tutorialDirOption)
+  .action(async ({ appName, outputDir, tutorialDir }) => {
+    const tutorialApp = createTutorialApp({
+      appName,
+      outputDir,
+      tutorialDir,
+    });
     const actions = await getActionsFromTutorialFiles(tutorialApp);
     const actionsGroupedByFile = groupActionsBySourceFile(actions);
     displayGroupedActions(actionsGroupedByFile);

@@ -74,9 +74,23 @@ npm run list-actions
 
 Shows actions grouped by tutorial file, including each action's `id` and `kind`.
 
+### Required Command Options
+
+All commands require the following options to set up the tutorial app configuration:
+
+- `--app-name <name>`: Name of the app to generate.
+- `--output-dir <path>`: Directory where the app will be generated.
+- `--tutorial-dir <path>`: Directory containing the tutorial tutorial files.
+
+For example:
+
+```bash
+npm run generate-app -- --app-name MyApp --output-dir ./custom-output --tutorial-dir ./my-tutorial
+```
+
 ### Patch File Management
 
-- Patch files are stored in `./docs/tutorial/patches/`.
+- Patch files are stored in configured dir e.g. for the Wasp tutorial `./docs/tutorial/patches/`.
 - Files are named using the source file and action ID.
 - Each patch file contains a Git diff for that specific action.
 
@@ -104,3 +118,32 @@ The tool extracts these components and uses:
 
 - `id`: Unique identifier for the action (becomes commit message),
 - `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`).
+
+## Testing
+
+The project includes both unit tests and end-to-end (e2e) snapshot tests.
+
+You can run all tests using:
+
+```bash
+npm run test
+```
+
+### E2E Snapshot Tests
+
+E2E tests verify the entire tutorial action execution flow using snapshot testing.
+
+Snapshot testing captures the output of the tutorial action executor (generated files, git history, etc.)
+and stores it as a "snapshot". On subsequent test runs, the output is compared against the stored snapshot
+to ensure nothing has changed unexpectedly.
+
+**E2E Test Structure:**
+
+- Test fixtures: `e2e-tests/fixtures/tutorial/` contains minimal tutorial files used for testing.
+- Generated output: `e2e-tests/.result/`.
+- Snapshots: `e2e-tests/__snapshots__/`.
+
+**Updating Snapshots:**
+
+When you intentionally change the tutorial action executor behavior, delete the `__snapshots__` folder
+and re-run the tests to generate new snapshots.

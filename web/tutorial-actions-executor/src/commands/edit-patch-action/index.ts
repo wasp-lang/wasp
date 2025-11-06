@@ -19,9 +19,18 @@ import {
   rebaseBranch,
 } from "../../git";
 import { log } from "../../log";
-import { tutorialApp, type AppDirPath } from "../../tutorialApp";
+import {
+  createTutorialApp,
+  type AppDirPath,
+  type TutorialApp,
+} from "../../tutorialApp";
 import type { WaspCliCommand } from "../../waspCli";
-import { waspCliCommandOption } from "../commonOptions";
+import {
+  appNameOption,
+  outputDirOption,
+  tutorialDirOption,
+  waspCliCommandOption,
+} from "../commonOptions";
 import { generateApp } from "../generate-app";
 
 export const editPatchActionCommand = new Command("edit-patch-action")
@@ -34,7 +43,23 @@ export const editPatchActionCommand = new Command("edit-patch-action")
     ),
   )
   .addOption(waspCliCommandOption)
-  .action(async ({ actionId, skipGeneratingApp, waspCliCommand }) => {
+  .addOption(appNameOption)
+  .addOption(outputDirOption)
+  .addOption(tutorialDirOption)
+  .action(async (args) => {
+    const {
+      actionId,
+      skipGeneratingApp,
+      waspCliCommand,
+      appName,
+      outputDir,
+      tutorialDir,
+    } = args;
+    const tutorialApp = createTutorialApp({
+      appName,
+      outputDir,
+      tutorialDir,
+    });
     const actions = await getActionsFromTutorialFiles(tutorialApp);
     log("info", `Found ${actions.length} actions in tutorial files.`);
 
@@ -45,7 +70,7 @@ export const editPatchActionCommand = new Command("edit-patch-action")
 
     if (!skipGeneratingApp) {
       log("info", "Generating app before editing action...");
-      await generateApp(actions, waspCliCommand as WaspCliCommand);
+      await generateApp(actions, waspCliCommand as WaspCliCommand, tutorialApp);
     } else {
       log(
         "info",
@@ -57,7 +82,7 @@ export const editPatchActionCommand = new Command("edit-patch-action")
 
     await editPatchActionPatch({ appDir: tutorialApp.dirPath, action });
 
-    await extractCommitsIntoPatches(actions);
+    await extractCommitsIntoPatches(actions, tutorialApp);
 
     log("success", `Edit completed for action ${action.displayName}!`);
   });
@@ -102,7 +127,10 @@ async function editPatchActionPatch({
   }
 }
 
-async function extractCommitsIntoPatches(actions: Action[]): Promise<void> {
+async function extractCommitsIntoPatches(
+  actions: Action[],
+  tutorialApp: TutorialApp,
+): Promise<void> {
   const applyPatchActions = actions.filter(
     (action) => action.kind === "APPLY_PATCH",
   );
