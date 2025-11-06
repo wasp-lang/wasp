@@ -13,9 +13,9 @@ A GitHub Action that fetches the latest nightly CLI build from Wasp's CI runs. T
 
 This action provides an internal "nightly" system for Wasp, allowing other repositories and workflows to download and install the binary from the latest successful CI run. The action:
 
-- Fetches the most recent successful build from the specified branch (defaults to `main`)
-- Downloads the appropriate binary for the current OS and architecture
-- Can be used to test against PRs by specifying a different branch
+- Fetches the most recent successful build from the specified branch (defaults to `main`).
+- Downloads the appropriate binary for the current OS and architecture.
+- Can be used to test against PRs by specifying a different branch.
 
 ## Usage
 
