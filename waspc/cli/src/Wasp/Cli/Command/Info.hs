@@ -4,7 +4,7 @@ module Wasp.Cli.Command.Info
 where
 
 import Control.Arrow ()
-import Control.Monad.Except (MonadIO (liftIO))
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import StrongPath (Abs, Dir, Path', fromRelFile)
 import StrongPath.Operations ()
 import System.Directory (getFileSize)
