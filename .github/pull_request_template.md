@@ -8,12 +8,8 @@
 
 ## Description
 
-<!--
-  Write a high-level overview and any additional context (motivation, trade-offs,
-  approaches considered, concerns, ...)
--->
-
-TODO
+Replace this message here, and write a high-level overview with any additional
+context (motivation, trade-offs, approaches considered, concerns, ...).
 
 ## Type of the change
 
