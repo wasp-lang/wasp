@@ -25,6 +25,7 @@ jobs:
           COMMENT_BODY: ${{ github.event.comment.body }}
           SOURCE_PR_URL: ${{ github.event.issue.html_url }}
 
+        # Post a thumbs up reaction if successful
       - if: success()
         run: |
           gh api "$COMMENT_URL/reactions" \
@@ -33,6 +34,7 @@ jobs:
         env:
           COMMENT_URL: ${{ github.event.comment.url }}
 
+        # Post a thumbs down reaction if failed
       - if: failure()
         run: |
           gh api "$COMMENT_URL/reactions" \
