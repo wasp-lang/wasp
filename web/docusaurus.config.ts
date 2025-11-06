@@ -29,15 +29,6 @@ const config: Config = {
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
   themeConfig: {
-    announcementBar: {
-      id: "design-aithon",
-      content:
-        '<b>🎨 Wasp Design-AI-Thon is live!</b> <span style="text-decoration: underline;">Oct 10 - Oct 19</span> <a href="/blog/2025/10/08/design-ai-thon" style="background-color: rgba(255,255,255,0.2); color: #fbbf24; padding: 4px 12px; border-radius: 12px; text-decoration: none; font-weight: 600; margin-left: 8px; border: 1px solid rgba(251, 191, 36, 0.3);">Join now →</a>',
-      backgroundColor: "#8b5cf6",
-      textColor: "#fff",
-      isCloseable: false,
-    },
-
     imageZoom: {
       // CSS selector to apply the plugin to, defaults to '.markdown img'
       //selector: '.markdown img',

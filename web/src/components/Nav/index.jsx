@@ -2,7 +2,6 @@ import Link from "@docusaurus/Link";
 import { useRef, useState } from "react";
 import { Star } from "react-feather";
 import Transition from "../../lib/Transition";
-import Announcement from "./Announcement";
 import { DiscordIcon, GitHubIcon, TwitterIcon } from "./SocialIcons";
 
 const Nav = () => {
@@ -105,7 +104,6 @@ const Nav = () => {
 
   return (
     <>
-      <Announcement />
       <div className="sticky top-0 z-50">
         <div className="absolute top-0 h-full w-full bg-[#f5f4f0] opacity-80"></div>
         <nav className="border-b backdrop-blur-sm">
