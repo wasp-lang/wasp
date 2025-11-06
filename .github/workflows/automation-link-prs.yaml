@@ -1,0 +1,42 @@
+name: Link PRs
+
+on:
+  issue_comment:
+    types: created
+
+jobs:
+  link-prs:
+    runs-on: ubuntu-latest
+
+    if: |
+      github.event.issue.pull_request != null
+      && startsWith(github.event.comment.body, 'waspbot link')
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      - run: |
+          pr_link=$(echo "$COMMENT_BODY" | awk '{print $3}')
+          target_pr_url=$(gh pr view "$pr_link" --json url --jq '.url'))
+          gh pr comment "$target_pr_url" --body "waspbot link $SOURCE_PR_URL"
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          SOURCE_PR_URL: ${{ github.event.issue.html_url }}
+
+      - if: success()
+        run: |
+          gh api "$COMMENT_URL/reactions" \
+            --method POST \
+            -f 'content=+1'
+        env:
+          COMMENT_URL: ${{ github.event.comment.url }}
+
+      - if: failure()
+        run: |
+          gh api "$COMMENT_URL/reactions" \
+            --method POST \
+            -f 'content=-1'
+        env:
+          COMMENT_URL: ${{ github.event.comment.url }}
