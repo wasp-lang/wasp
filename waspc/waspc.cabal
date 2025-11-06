@@ -507,8 +507,8 @@ library waspls
     , unordered-containers
     , strong-path
     , path
-    , async ^>=2.2.4
-    , mustache ^>=2.4
+    , async
+    , mustache
     , unliftio-core
     , mtl
     , text
@@ -532,7 +532,7 @@ library cli-lib
     , mtl
     , async
     , exceptions
-    , lens ^>=5.2
+    , lens
     , lens-aeson ^>=1.2
     , cryptonite
     , fsnotify
@@ -540,7 +540,7 @@ library cli-lib
     , optparse-applicative ^>=0.17.0.0
     , path
     , path-io
-    , pretty-simple ^>= 4.1.2.0
+    , pretty-simple
     , process
     , strong-path
     , text
@@ -549,9 +549,9 @@ library cli-lib
     , waspc
     , waspls
     , neat-interpolation
-    , unliftio ^>= 0.2.20
-    , unordered-containers  ^>= 0.2.16
-    , bytestring ^>= 0.11
+    , unliftio
+    , unordered-containers
+    , bytestring
     , tar ^>=0.5.1.1
     , zlib ^>=0.6.3.0
     , temporary ^>=1.3
@@ -733,15 +733,15 @@ test-suite waspls-tests
     , base
     , waspc
     , waspls
-    , lens                  ^>=5.2
-    , lsp                   ^>=1.6
-    , lsp-types             ^>=1.6
+    , lens
+    , lsp
+    , lsp-types
     , mtl
-    , QuickCheck            ^>= 2.14
-    , tasty                 ^>= 1.5
-    , hspec                 >= 2.11
-    , tasty-hspec           >= 1.2
-    , tasty-golden          ^>= 2.3.5
+    , QuickCheck
+    , tasty
+    , hspec
+    , tasty-hspec
+    , tasty-golden
     , bytestring
     , filepath
   other-modules:
@@ -760,11 +760,11 @@ test-suite wasp-cli-tests
     , base
     , waspc
     , cli-lib
-    , QuickCheck            ^>= 2.14
-    , tasty                 ^>= 1.5
-    , hspec                 >= 2.11
-    , tasty-hspec           >= 1.2
-    , tasty-quickcheck      ^>= 0.10
+    , QuickCheck
+    , tasty
+    , hspec
+    , tasty-hspec
+    , tasty-quickcheck
   other-modules:
     DbMigrateTest
     TerminalTest
@@ -791,10 +791,10 @@ test-suite waspc-e2e-tests
     , dir-traverse
     , aeson-pretty
     , process
-    , tasty                 ^>= 1.5
-    , hspec                 >= 2.11
-    , tasty-hspec           >= 1.2
-    , tasty-golden          ^>= 2.3.5
+    , tasty
+    , hspec
+    , tasty-hspec
+    , tasty-golden
   other-modules:
     FileSystem
     ShellCommands
