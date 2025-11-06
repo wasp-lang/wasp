@@ -15,8 +15,10 @@ export async function waspDbMigrate({
   migrationName: string;
 }): Promise<void> {
   await $({
-    // We ignore stdin to avoid hangs in non-interactive environments e.g. e2e tests.
-    // We don't need any input since we are providing the migration name via the --name flag.
+    // We ignore stdin to avoid hangs in non-interactive environments e.g. e2e tests when
+    // `wasp db migrate-dev` runs. When `stdin` is not ignored, the command waits forever
+    // for user input. We don't need any input since we are providing the migration name
+    // via the --name flag.
     stdio: ["ignore", "pipe", "pipe"],
     cwd: appDir,
   })`${waspCliCommand} db migrate-dev --name ${migrationName}`;
