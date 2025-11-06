@@ -9,6 +9,10 @@ import Data.Maybe (catMaybes)
 import qualified Validation as V
 import Wasp.Util (indent)
 
+type Validator' input = Validator input ()
+
+type Validator input result = input -> Validation result
+
 type Validation result = V.Validation (NonEmpty ValidationError) result
 
 data ValidationError = ValidationError
@@ -19,26 +23,29 @@ data ValidationError = ValidationError
 
 -- | Executes the given validator on the input and returns a list of validation errors. If there are
 -- no errors, returns an empty list.
-getValidationErrors :: (input -> Validation result) -> input -> [ValidationError]
-getValidationErrors validator =
+execValidator :: Validator input result -> input -> [ValidationError]
+execValidator validator =
   maybe [] NE.toList . V.failureToMaybe . validator
 
+all :: [Validator a b] -> Validator a ()
+all = fmap void . V.validateAll
+
 -- | Adds file name context to validation errors produced by the inner validator.
-withFileName :: String -> (a -> Validation result) -> (a -> Validation result)
+withFileName :: String -> Validator a result -> Validator a result
 withFileName fileName' innerValidator =
   mapErrors setFileName . innerValidator
   where
     setFileName err = err {fileName = Just fileName'}
 
 -- | Runs the validator on a specific field of the input, adding the field name to the error path.
-valueOfField :: (String, a -> b) -> (b -> Validation result) -> (a -> Validation result)
-valueOfField (fieldName, fieldGetter) innerValidator =
+fieldValidator :: (String, a -> b) -> Validator b result -> Validator a result
+fieldValidator (fieldName, fieldGetter) innerValidator =
   mapErrors prependFieldName . innerValidator . fieldGetter
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 
-validateAll_ :: (Foldable f, Semigroup e) => f (a -> V.Validation e b) -> a -> V.Validation e ()
-validateAll_ = fmap void . V.validateAll
+mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
+mapErrors = first . fmap
 
 failure :: String -> Validation b
 failure message' =
@@ -48,9 +55,6 @@ failure message' =
         fieldPath = [],
         fileName = Nothing
       }
-
-mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
-mapErrors = first . fmap
 
 instance Show ValidationError where
   show
