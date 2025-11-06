@@ -11,14 +11,14 @@
 Replace this message here, and write a high-level overview with any additional
 context (motivation, trade-offs, approaches considered, concerns, ...).
 
-## Type of the change
+## Type of change
 
-<!-- Select just one, the largest change: -->
+<!-- Select just one with [x] -->
 
-- [ ] `v _._._` **Just code/docs improvement** <!-- no functional change -->
-- [ ] `v _._.+1` **Bug fix** <!-- non-breaking change which fixes an issue -->
-- [ ] `v _._.+1` **New/improved feature** <!-- non-breaking change which adds functionality -->
-- [ ] `v _.+1.0` **Breaking change** <!-- fix or feature that would cause existing functionality to not work as expected -->
+- [ ] **🔧 Just code/docs improvement** <!-- no functional change -->
+- [ ] **🐞 Bug fix** <!-- non-breaking change which fixes an issue -->
+- [ ] **🚀 New/improved feature** <!-- non-breaking change which adds functionality -->
+- [ ] **💥 Breaking change** <!-- fix or feature that would cause existing functionality to not work as expected -->
 
 ## Checklist
 
