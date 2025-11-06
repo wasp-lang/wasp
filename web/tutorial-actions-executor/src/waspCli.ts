@@ -15,8 +15,9 @@ export async function waspDbMigrate({
   migrationName: string;
 }): Promise<void> {
   await $({
-    // Needs to inhert stdio for `wasp db migrate-dev` to work
-    stdio: "inherit",
+    // We ignore stdin to avoid hangs in non-interactive environments e.g. e2e tests.
+    // We don't need any input since we are providing the migration name via the --name flag.
+    stdio: ["ignore", "pipe", "pipe"],
     cwd: appDir,
   })`${waspCliCommand} db migrate-dev --name ${migrationName}`;
 }
