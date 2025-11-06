@@ -23,9 +23,8 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
 ## Checklist
 
 <!--
-  Check the relevant boxes, and strikethrough those that do not apply.
-  We prefer that you explain if something is not applicable, rather than leaving
-  it unchecked.
+  Check all the applicable boxes with [x], and leave the rest empty.
+  If you're unsure about any of them, don't hesitate to ask for help.
 -->
 
 - [ ] I tested my change in a Wasp app to verify that it works as intended.
