@@ -5,7 +5,8 @@ where
 
 import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad.Except (MonadError (throwError), runExceptT, when)
+import Control.Monad (when)
+import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Data.Functor ((<&>))

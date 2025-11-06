@@ -3,7 +3,7 @@ module Generator.FileDraft.CopyFileDraftTest where
 import Fixtures (systemSPRoot)
 import qualified Generator.MockWriteableMonad as Mock
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Generator.FileDraft
 
 spec_CopyFileDraft :: Spec

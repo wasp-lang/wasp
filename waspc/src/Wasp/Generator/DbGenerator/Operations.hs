@@ -94,16 +94,17 @@ copyMigrationsBackToSourceIfTheyExist genProjectRootDirAbs dbMigrationsDirInWasp
     True -> copyMigrationsDir
   where
     copyMigrationsDir =
-      copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir >> return (Right ())
-        `catch` (\e -> return $ Left $ show (e :: P.PathException))
-        `catch` (\e -> return $ Left $ show (e :: IOError))
+      copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir
+        >> return (Right ())
+          `catch` (\e -> return $ Left $ show (e :: P.PathException))
+          `catch` (\e -> return $ Left $ show (e :: IOError))
 
     waspMigrationsDir = dbMigrationsDirInWaspProjectDirAbs
     genProjectMigrationsDir = genProjectRootDirAbs </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
 -- | This function assumes the DB schema has been generated, as it will attempt to read it from the generated code.
 writeDbSchemaChecksumToFile ::
-  DbSchemaChecksumFile f =>
+  (DbSchemaChecksumFile f) =>
   Path' Abs (Dir ProjectRootDir) ->
   Path' (Rel ProjectRootDir) (File f) ->
   IO ()
@@ -116,7 +117,7 @@ writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDi
     dbSchemaChecksumFile = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
 removeDbSchemaChecksumFile ::
-  DbSchemaChecksumFile f =>
+  (DbSchemaChecksumFile f) =>
   Path' Abs (Dir ProjectRootDir) ->
   Path' (Rel ProjectRootDir) (File f) ->
   IO ()

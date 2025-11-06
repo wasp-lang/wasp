@@ -47,7 +47,8 @@ compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   InWaspProject waspProjectDir <- require
   let outDir =
-        waspProjectDir </> dotWaspDirInWaspProjectDir
+        waspProjectDir
+          </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."

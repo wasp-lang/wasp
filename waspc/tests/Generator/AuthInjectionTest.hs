@@ -2,7 +2,7 @@ module Generator.AuthInjectionTest where
 
 import Data.Maybe (maybeToList)
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Util.Prisma (getPrismaModelBody)
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.DbGenerator.Auth (injectAuth)

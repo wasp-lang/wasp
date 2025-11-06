@@ -1,6 +1,6 @@
 module ExternalConfig.Npm.TarballTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.ExternalConfig.Npm.Tarball (TarballFilename (TarballFilename))
 import qualified Wasp.ExternalConfig.Npm.Tarball as Tarball
 

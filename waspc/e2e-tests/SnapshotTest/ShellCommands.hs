@@ -41,9 +41,11 @@ withInSnapshotWaspProjectDir ::
 withInSnapshotWaspProjectDir waspProjectCommandBuilders = do
   snapshotTestContext <- ask
   return $
-    "cd " ++ fromAbsDir (_waspProjectDir $ _snapshotWaspProjectContext snapshotTestContext)
-      ~&& foldr1 (~&&) (snapshotWaspProjectCommands snapshotTestContext)
-      ~&& "cd " ++ fromAbsDir (_snapshotDir snapshotTestContext)
+    "cd "
+      ++ fromAbsDir (_waspProjectDir $ _snapshotWaspProjectContext snapshotTestContext)
+        ~&& foldr1 (~&&) (snapshotWaspProjectCommands snapshotTestContext)
+        ~&& "cd "
+      ++ fromAbsDir (_snapshotDir snapshotTestContext)
   where
     snapshotWaspProjectCommands :: SnapshotTestContext -> [ShellCommand]
     snapshotWaspProjectCommands snapshotTestContext =
@@ -65,7 +67,8 @@ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirFromGitRootDir = do
       copyFromSrcDirToSnapshotWaspProjectDir :: ShellCommand =
         "rsync -a --files-from=- " ++ fromRelDir (gitRootFromSnapshotDir </> srcDirFromGitRootDir) ++ " " ++ fromAbsDir snapshotWaspProjectDir
    in return $
-        "mkdir -p " ++ fromAbsDir snapshotWaspProjectDir
-          ~&& listRelPathsOfGitTrackedFilesInSrcDir
+        "mkdir -p "
+          ++ fromAbsDir snapshotWaspProjectDir
+            ~&& listRelPathsOfGitTrackedFilesInSrcDir
             ~| stripSrcDirRelPrefixFromPaths
             ~| copyFromSrcDirToSnapshotWaspProjectDir
