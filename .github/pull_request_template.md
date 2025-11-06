@@ -41,8 +41,8 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
 
 - 🆕 Changelog: _(if change is more than just code/docs improvement)_
   - [ ] I updated `waspc/ChangeLog.md` with a **user-friendly** description of the change.
-  - [ ] I **bumped the `version`** in `waspc/waspc.cabal` to reflect the changes I introduced.
   - [ ] _(if you did a breaking change)_ I added a step to the current **migration guide** at `web/docs/migration-guides/`.
+  - [ ] I **bumped the `version`** in `waspc/waspc.cabal` to reflect the changes I introduced.
 
 <!--
   On updating the waspc version in waspc/waspc.cabal:
