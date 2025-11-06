@@ -76,9 +76,9 @@ Shows actions grouped by tutorial file, including each action's `id` and `kind`.
 
 ### Patch File Management
 
-- Patch files are stored in `./docs/tutorial/patches/`
-- Files are named using the source file and action ID
-- Each patch file contains a Git diff for that specific action
+- Patch files are stored in `./docs/tutorial/patches/`.
+- Files are named using the source file and action ID.
+- Each patch file contains a Git diff for that specific action.
 
 ### Tutorial File Format
 
@@ -102,5 +102,5 @@ The `<TutorialAction>` component should wrap the part of the tutorial text that 
 
 The tool extracts these components and uses:
 
-- `id`: Unique identifier for the action (becomes commit message)
-- `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`)
+- `id`: Unique identifier for the action (becomes commit message),
+- `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`).
