@@ -158,7 +158,7 @@ library
     , neat-interpolation    ^>= 0.5.1.3
     , megaparsec            ^>= 9.2.1
     , validation-selective  ^>= 0.2.0.0
-    , selective             ^>= 0.6
+    , selective             ^>= 0.7.0.1
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
