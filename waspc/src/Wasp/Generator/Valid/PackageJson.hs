@@ -66,7 +66,7 @@ validatePackageJson pkgJson =
 -- expected workspaces used by Wasp.
 validateWorkspaces :: P.PackageJson -> Validation ()
 validateWorkspaces =
-  valueOfField "workspaces" P.workspaces $ \case
+  valueOfField ("workspaces", P.workspaces) $ \case
     Just workspaces -> allWorkspacesIncluded workspaces
     Nothing -> noWorkspacesPropertyError
   where
@@ -149,7 +149,7 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
         "Wasp requires package "
           ++ show pkgName
           ++ " to be in "
-          ++ show (fieldNameForDepType depType)
+          ++ show (fst $ fieldForDepType depType)
           ++ "."
 
     missingPackageError =
@@ -177,13 +177,9 @@ valueOfDependency ::
   P.PackageJson ->
   Validation a
 valueOfDependency depType (pkgName, _) versionStringValidator =
-  valueOfField (fieldNameForDepType depType) (getterForDepType depType) $
-    valueOfField pkgName (M.lookup pkgName) versionStringValidator
+  valueOfField (fieldForDepType depType) $
+    valueOfField (pkgName, M.lookup pkgName) versionStringValidator
 
-fieldNameForDepType :: DependencyType -> String
-fieldNameForDepType Runtime = "dependencies"
-fieldNameForDepType Development = "devDependencies"
-
-getterForDepType :: DependencyType -> P.PackageJson -> P.DependenciesMap
-getterForDepType Runtime = P.dependencies
-getterForDepType Development = P.devDependencies
+fieldForDepType :: DependencyType -> (String, P.PackageJson -> P.DependenciesMap)
+fieldForDepType Runtime = ("dependencies", P.dependencies)
+fieldForDepType Development = ("devDependencies", P.devDependencies)
