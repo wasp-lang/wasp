@@ -4,7 +4,7 @@ module Psl.Generator.WithCtxTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -46,12 +46,12 @@ spec_generatePslWithCtx = do
                               [ " Multiline leading comments",
                                 " For prop3"
                               ]
-                              $ Psl.Model.ElementField $
-                                Psl.Model.Field
-                                  "prop3"
-                                  Psl.Model.String
-                                  []
-                                  [Psl.Attribute.Attribute "unique" []]
+                              $ Psl.Model.ElementField
+                              $ Psl.Model.Field
+                                "prop3"
+                                Psl.Model.String
+                                []
+                                [Psl.Attribute.Attribute "unique" []]
                           ]
                       )
               ]

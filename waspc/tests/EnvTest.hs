@@ -2,7 +2,7 @@ module EnvTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Env
   ( envVarsToDotEnvContent,
     formatEnvVarValue,

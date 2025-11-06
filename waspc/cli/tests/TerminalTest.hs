@@ -1,6 +1,6 @@
 module TerminalTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Cli.Terminal
   ( asWaspMessage,
   )

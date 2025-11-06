@@ -4,7 +4,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Analyzer.Parser.Ctx (ctxFromRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Error
@@ -72,7 +72,8 @@ spec_WaspError = do
             [ SP.fromAbsFile waspFilePath ++ " @ 1:5-12",
               "  " ++ errMsg,
               "",
-              "  " ++ T.applyStyles [T.Yellow] "     1 | "
+              "  "
+                ++ T.applyStyles [T.Yellow] "     1 | "
                 ++ "app "
                 ++ T.applyStyles [T.Red] "$TestApp"
                 ++ " { title: \"Test App\" }"

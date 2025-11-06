@@ -98,7 +98,8 @@ getErrorMsgAndErrorCtxMsgsAndParsingCtx (EvaluationError (WithCtx ctx evalError)
   UndefinedVariable varName -> makeMainMsg $ "Undefined variable " ++ varName
   InvalidEnumVariant enumType validEnumVariants actualEnumVariant ->
     makeMainMsg $
-      "Expected value of enum type '" ++ enumType
+      "Expected value of enum type '"
+        ++ enumType
         ++ "' but got value '"
         ++ actualEnumVariant
         ++ "'\n"

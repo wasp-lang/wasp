@@ -4,7 +4,7 @@
 module Analyzer.Parser.ConcreteParserTest where
 
 import Control.DeepSeq (deepseq)
-import Test.Tasty.Hspec (Spec, describe, it)
+import Test.Hspec (Spec, describe, it)
 import Test.Tasty.QuickCheck
 import Util.Diff
 import Wasp.Analyzer.Parser.CST
@@ -265,7 +265,8 @@ spec_ConcreteParser =
     --
     -- The point of this test is to ensure some sort of parse tree is always built
     it "never fails to parse" $
-      property $ \source -> parseCST (L.lex source) `deepseq` True
+      property $
+        \source -> parseCST (L.lex source) `deepseq` True
 
 instance Diffable SyntaxNode where
   toLines n = lines $ cstPrettyPrint n

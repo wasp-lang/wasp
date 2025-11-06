@@ -1,12 +1,13 @@
 module Generator.WebAppGeneratorTest where
 
+import Data.Either (fromRight)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Fixtures
 import StrongPath (relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
@@ -98,7 +99,10 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let (_, Right fileDrafts) = runGenerator $ genWebApp testAppSpec
+      let fileDrafts =
+            fromRight
+              (error "Expected Right but got Left")
+              (snd $ runGenerator $ genWebApp testAppSpec)
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat

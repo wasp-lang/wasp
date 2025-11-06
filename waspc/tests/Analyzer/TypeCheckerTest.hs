@@ -1,9 +1,9 @@
 module Analyzer.TypeCheckerTest where
 
 import Analyzer.TestUtil (ctx)
-import Data.Either (isRight)
+import Data.Either (fromRight, isRight)
 import qualified Data.HashMap.Strict as H
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker
@@ -68,7 +68,7 @@ spec_TypeChecker = do
       it "Properly hoists declarations" $ do
         let mAst = P.parseStatements "llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }"
         mAst `shouldSatisfy` isRight
-        let (Right ast) = mAst
+        let ast = fromRight (error "Impossible, this should have been checked in the previous step") mAst
         let llnodeArgType =
               DictType $
                 H.fromList
