@@ -3,7 +3,7 @@
   Make sure to follow this PR template, so that we can speed up the review process.
   It will also help you not forget important steps when making a change.
   If you don't know how to fill any of the sections below, it's okay to leave
-  them blank, we will help you out during the review.
+  them blank and ask for help.
 -->
 
 ## Description
