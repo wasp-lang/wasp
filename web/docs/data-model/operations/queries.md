@@ -44,11 +44,11 @@ Let's declare two Queries - one to fetch all tasks, and another to fetch tasks b
     // ...
 
     query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries.js"
+      fn: import { getAllTasks } from "@src/queries"
     }
 
     query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries.js"
+      fn: import { getFilteredTasks } from "@src/queries"
     }
     ```
   </TabItem>
@@ -58,11 +58,11 @@ Let's declare two Queries - one to fetch all tasks, and another to fetch tasks b
     // ...
 
     query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries.js"
+      fn: import { getAllTasks } from "@src/queries"
     }
 
     query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries.js"
+      fn: import { getFilteredTasks } from "@src/queries"
     }
     ```
   </TabItem>
@@ -271,7 +271,8 @@ Calling a Query on the server is similar to calling it on the client.
 Here's what you have to do differently:
 
 - Import Queries from `wasp/server/operations` instead of `wasp/client/operations`.
-- Make sure you pass in a context object with the user to authenticated Queries.
+- Make sure you pass in a `context` object with the `user` field to authenticated Queries.
+  - Note that you don't have to pass other parts of the `context` object, like Entities, those will get injected automatically.
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -468,12 +469,12 @@ To use an Entity in your Query, add it to the `query` declaration in Wasp:
     ```wasp {4,9} title="main.wasp"
 
     query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries.js",
+      fn: import { getAllTasks } from "@src/queries",
       entities: [Task]
     }
 
     query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries.js",
+      fn: import { getFilteredTasks } from "@src/queries",
       entities: [Task]
     }
     ```
@@ -483,12 +484,12 @@ To use an Entity in your Query, add it to the `query` declaration in Wasp:
     ```wasp {4,9} title="main.wasp"
 
     query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries.js",
+      fn: import { getAllTasks } from "@src/queries",
       entities: [Task]
     }
 
     query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries.js",
+      fn: import { getFilteredTasks } from "@src/queries",
       entities: [Task]
     }
     ```
@@ -560,7 +561,7 @@ The `query` declaration supports the following fields:
 
     ```wasp
     query getFoo {
-        fn: import { getFoo } from "@src/queries.js"
+        fn: import { getFoo } from "@src/queries"
         entities: [Foo]
     }
     ```
@@ -583,7 +584,7 @@ The `query` declaration supports the following fields:
 
     ```wasp
     query getFoo {
-        fn: import { getFoo } from "@src/queries.js"
+        fn: import { getFoo } from "@src/queries"
         entities: [Foo]
     }
     ```
@@ -649,7 +650,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     ```wasp
     query getFoo {
-        fn: import { getFoo } from "@src/queries.js"
+        fn: import { getFoo } from "@src/queries"
         entities: [Foo]
     }
     ```
@@ -668,7 +669,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     ```wasp
     query getFoo {
-        fn: import { getFoo } from "@src/queries.js"
+        fn: import { getFoo } from "@src/queries"
         entities: [Foo]
     }
     ```

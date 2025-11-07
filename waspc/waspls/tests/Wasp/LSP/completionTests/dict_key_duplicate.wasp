@@ -10,5 +10,5 @@ app todoApp {
 route MainRoute { path: "/", | }
                              ^
 page MainPage {
-  component: import { MainPage } from "@client/MainPage.jsx",
+  component: import { MainPage } from "@client/MainPage",
 }

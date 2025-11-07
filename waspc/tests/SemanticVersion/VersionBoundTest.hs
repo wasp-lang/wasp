@@ -1,6 +1,6 @@
 module SemanticVersion.VersionBoundTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.SemanticVersion.Version
 import Wasp.SemanticVersion.VersionBound
 

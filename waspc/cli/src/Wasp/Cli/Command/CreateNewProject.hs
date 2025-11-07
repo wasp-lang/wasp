@@ -21,6 +21,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
     availableStarterTemplates,
     getTemplateStartingInstructions,
   )
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo (createProjectOnDiskFromGhRepoTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -52,6 +53,8 @@ createProjectOnDisk
     case template of
       GhRepoStarterTemplate ghRepoRef metadata ->
         createProjectOnDiskFromGhRepoTemplate absWaspProjectDir projectName appName ghRepoRef $ _path metadata
+      GhRepoReleaseArchiveTemplate ghRepoRef assetName metadata ->
+        createProjectOnDiskFromGhReleaseArchiveTemplate absWaspProjectDir projectName appName ghRepoRef assetName $ _path metadata
       LocalStarterTemplate metadata ->
         liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName $ _path metadata
       AiGeneratedStarterTemplate ->

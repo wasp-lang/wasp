@@ -64,7 +64,7 @@ waspStylePathToCachePath (WaspStyleExtFilePath waspStylePath) =
         Just (relPathWithoutExt, ext) ->
           ExtFileCachePath relPathWithoutExt (widenExtension ext)
 
-absPathToCachePath :: HasProjectRootDir m => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)
+absPathToCachePath :: (HasProjectRootDir m) => SP.Path' SP.Abs (SP.File a) -> m (Maybe ExtFileCachePath)
 absPathToCachePath absFile = do
   -- Makes the path relative to src/ and deletes the extension.
   maybeProjectDir <- getProjectRootDir
@@ -78,7 +78,7 @@ absPathToCachePath absFile = do
               Nothing -> pure Nothing
               Just (fileWithoutExt, ext) -> pure $ Just $ ExtFileCachePath fileWithoutExt (DotExact ext)
 
-cachePathToAbsPathWithoutExt :: HasProjectRootDir m => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File ExtensionlessExtFile)))
+cachePathToAbsPathWithoutExt :: (HasProjectRootDir m) => ExtFileCachePath -> m (Maybe (SP.Path' SP.Abs (SP.File ExtensionlessExtFile)))
 cachePathToAbsPathWithoutExt (ExtFileCachePath cachePath _) = do
   -- Converts to an absolute path, but does not add any extension.
   maybeProjectDir <- getProjectRootDir

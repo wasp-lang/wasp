@@ -7,7 +7,9 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
+import Data.Function ((&))
 import Data.Maybe (isJust)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
 import System.Process (callCommand)
@@ -16,37 +18,64 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Util.Parser (parseArguments)
+import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
+import Wasp.Util.Docker (DockerImageName)
 import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
-start :: Command ()
-start = do
+start :: Arguments -> Command ()
+start args = do
+  startDbArgs <-
+    parseArguments "wasp start db" startDbArgsParser args
+      & either (E.throwError . CommandError "Invalid arguments") return
+
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir
 
   throwIfCustomDbAlreadyInUse appSpec
 
   let (appName, _) = ASV.getApp appSpec
+
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgreDevDb waspProjectDir appName
+    AS.App.Db.PostgreSQL -> startPostgresDevDb waspProjectDir appName (dbImage startDbArgs)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
+
+startDbArgsParser :: Opt.Parser StartDbArgs
+startDbArgsParser =
+  StartDbArgs
+    <$> Opt.strOption
+      -- TODO: we are missing DB mount path option here, we have the default value for
+      -- the db image AND the mount path in Wasp.Db.Postgres.defaultPostgresDockerImageSpec
+      -- but we should allow users to override both of these and not just the db image.
+      ( Opt.long "db-image"
+          <> Opt.metavar "IMAGE"
+          <> Opt.help "Docker image to use for the database"
+          <> Opt.showDefault
+          <> Opt.value (fst defaultPostgresDockerImageSpec)
+      )
+
+data StartDbArgs = StartDbArgs
+  { dbImage :: DockerImageName
+  }
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
 throwIfCustomDbAlreadyInUse spec = do
@@ -82,8 +111,8 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgreDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Command ()
-startPostgreDevDb waspProjectDir appName = do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> String -> Command ()
+startPostgresDevDb waspProjectDir appName dbDockerImage = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
@@ -94,6 +123,7 @@ startPostgreDevDb waspProjectDir appName = do
       [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
         "",
         "Additional info:",
+        " ℹ Using Docker image: " <> dbDockerImage,
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> connectionUrl,
         " ℹ Database data is persisted in a docker volume with the following name"
@@ -112,11 +142,11 @@ startPostgreDevDb waspProjectDir appName = do
             printf "--name %s" dockerContainerName,
             "--rm",
             printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
-            printf "-v %s:%s" dockerVolumeName postgresDockerVolumeMountPath,
+            printf "-v %s:%s" dockerVolumeName dockerVolumeMountPath,
             printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
             printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
             printf "--env POSTGRES_DB=%s" dbName,
-            postgresDockerImage
+            dbDockerImage
           ]
   liftIO $ callCommand command
   where
@@ -124,7 +154,7 @@ startPostgreDevDb waspProjectDir appName = do
     dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
     dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
     connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
-    (postgresDockerImage, postgresDockerVolumeMountPath) = waspDevDbPostgresDockerImageSpec
+    dockerVolumeMountPath = snd defaultPostgresDockerImageSpec
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
     throwIfDevDbPortIsAlreadyInUse = do
@@ -164,18 +194,3 @@ makeWaspDevDbDockerContainerName waspProjectDir appName =
 
 maxDockerContainerNameLength :: Int
 maxDockerContainerNameLength = 63
-
-type PostgresDockerImage = String
-
-type PostgresDockerVolumeMountPath = String
-
--- | We pin the Postgres Docker image to avoid issues when a new major version of Postgres
--- is released. We aim to occasionally update this version in Wasp releases.
--- If you bump the Postgres version here, also check if `postgresDockerVolumeMountPath`
--- is still correct.
-waspDevDbPostgresDockerImageSpec :: (PostgresDockerImage, PostgresDockerVolumeMountPath)
-waspDevDbPostgresDockerImageSpec = ("postgres:18", postgresDockerVolumeMountPath)
-  where
-    -- Path inside the Postgres Docker container where the database files are stored.
-    postgresDockerVolumeMountPath :: PostgresDockerVolumeMountPath
-    postgresDockerVolumeMountPath = "/var/lib/postgresql"

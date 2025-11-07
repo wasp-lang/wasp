@@ -2,7 +2,7 @@ module JsImportTest where
 
 import StrongPath ((</>))
 import qualified StrongPath as SP
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, shouldBe)
 import Wasp.JsImport
 
 spec_JsImportTest :: Spec

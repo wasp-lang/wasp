@@ -25,6 +25,7 @@ where
 import Control.Monad (filterM)
 import Control.Monad.Extra (whenM)
 import qualified Data.ByteString.Lazy as B
+import Data.List (sort)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import qualified Data.Text.IO as Text.IO
@@ -69,8 +70,9 @@ listDirectoryDeep absDirPath = do
 listDirectory :: forall r d f. Path' Abs (Dir r) -> IO ([Path' (Rel r) (File f)], [Path' (Rel r) (Dir d)])
 listDirectory absDirPath = do
   fpRelItemPaths <- SD.listDirectory fpAbsDirPath
-  relFilePaths <- filterFiles fpAbsDirPath fpRelItemPaths
-  relDirPaths <- filterDirs fpAbsDirPath fpRelItemPaths
+  let sortedFpRelItemPaths = sort fpRelItemPaths
+  relFilePaths <- filterFiles fpAbsDirPath sortedFpRelItemPaths
+  relDirPaths <- filterDirs fpAbsDirPath sortedFpRelItemPaths
   return (relFilePaths, relDirPaths)
   where
     fpAbsDirPath :: FilePath

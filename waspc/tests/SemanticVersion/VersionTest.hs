@@ -1,7 +1,7 @@
 module SemanticVersion.VersionTest where
 
 import Data.Either (isLeft)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.SemanticVersion.Version
 
 spec_SemanticVersion_Version :: Spec

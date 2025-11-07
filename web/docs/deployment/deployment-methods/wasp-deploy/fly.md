@@ -23,7 +23,7 @@ To deploy to Fly.io using Wasp CLI:
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
 
 ```shell
-wasp deploy fly launch my-wasp-app mia
+wasp deploy fly launch my-wasp-app dfw
 ```
 
 <small>
@@ -36,7 +36,7 @@ Two things to keep in mind:
 
 1. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names (slugs) of your organizations by running `fly orgs list`.
 
-The `launch` command uses the app basename `my-wasp-app` and deploy it to the `mia` region (`mia` is short for _Miami, Florida (US)_). Read more about Fly.io regions [here](#flyio-regions).
+The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for _Dallas, Texas (US)_). Read more about Fly.io regions [here](#flyio-regions).
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -126,9 +126,95 @@ Using the `www` and `non-www` domains at the same time will require you to updat
 
 :::
 
+## Environment Variables {#flyio-cli-environment-variables}
+
+### Server Secrets
+
+If your app requires any other server-side environment variables (like social auth secrets), you can set them:
+
+1. Initially, in the `launch` or `setup` commands with the [`--server-secret` option](#fly-launch-environment-variables)
+2. After the app has already been deployed by using the `secrets set` command:
+
+    ```
+    wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
+    ```
+
+### Client Environment Variables
+
+If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
+```
+
+or
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
+```
+
+Please note that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
+
+```json title="package.json"
+{
+  "scripts": {
+    "deploy": "REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy"
+  }
+}
+```
+
+Then you can run `npm run deploy` to deploy your app.
+
+## Fly.io Regions
+
+> Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
+
+<small>
+  Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
+</small>
+
+You can find the list of all available Fly regions by running:
+
+```shell
+fly platform regions
+```
+
+## Multiple Fly.io Organizations
+
+If you have multiple organizations, you can specify a `--org` option. For example:
+
+```shell
+wasp deploy fly launch my-wasp-app dfw --org hive
+```
+
+## Building Locally
+
+Fly.io offers support for both **locally** built Docker containers and **remotely** built ones. However, for simplicity and reproducibility, the CLI defaults to the use of a remote Fly.io builder.
+
+If you want to build locally, supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
+
+#### Using a custom PostgreSQL database
+
+By default, Wasp uses the standard PostgreSQL Docker image provided by Fly.io when creating a new database for your app. However, if you have a need for a custom Docker image, e.g., your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+
+Your custom PostgreSQL image must be compatible with Fly.io, as their platform has some requirements to work properly. Since these requirements are not readily documented, an easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
+
+We have crafted a small guide on [how to create a custom Docker image with PostGIS or pgvector for Fly.io](https://gist.github.com/cprecioso/e19e883138241c1a446f48d6187aae75). You can also use it as a starting point to create your own images with other extensions.
+
+:::tip
+You only need to specify the Docker image once, when first creating the app with any of these commands:
+
+```shell
+wasp deploy fly create-db <region> --db-image <custom-postgres-image>
+wasp deploy fly setup <app-name> <region> --db-image <custom-postgres-image>
+wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
+```
+:::
+
+
 ## API Reference
 
-### `launch` command
+### `launch`
 
 `launch` is a convenience command that runs `setup`, `create-db`, and `deploy` in sequence.
 
@@ -161,7 +247,7 @@ wasp deploy fly deploy
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
 ```
-wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
 
 ##### Client
@@ -169,10 +255,10 @@ wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --
 If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
 ```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
+REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 ```
 
-#### The `setup` command
+### `setup`
 
 The `setup` command registers your client and server apps on Fly, and sets up needed environment variables.
 It only needs to be run once, when initially creating the app. It does _not_ trigger a deploy for the client or server apps.
@@ -202,7 +288,7 @@ If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path
 You should only run `setup` once per app. If you run it multiple times, it creates unnecessary apps on Fly.
 :::
 
-#### The `create-db` command
+### `create-db`
 
 The `create-db` command creates a new database for your app.
 
@@ -220,7 +306,7 @@ It accepts the following arguments:
 You should only run `create-db` once per app. If you run it multiple times, it creates multiple databases, but your app needs only one.
 :::
 
-#### The `deploy` command
+### `deploy`
 
 ```shell
 wasp deploy fly deploy
@@ -242,77 +328,10 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
-#### The `cmd` command
+### `cmd`
 
 If you want to run arbitrary Fly commands (for example `fly secrets list` for your server app), here's how to do it:
 
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
-
-### Environment Variables {#flyio-cli-environment-variables}
-
-#### Server Secrets
-
-If your app requires any other server-side environment variables (like social auth secrets), you can set them:
-
-1. Initially, in the `launch` or `setup` commands with the [`--server-secret` option](#fly-launch-environment-variables)
-2. After the app has already been deployed by using the `secrets set` command:
-
-    ```
-    wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
-    ```
-
-#### Client Environment Variables
-
-If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app mia
-```
-
-or
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
-```
-
-Please note that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
-
-```json title="package.json"
-{
-  "scripts": {
-    "deploy": "REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy"
-  }
-}
-```
-
-Then you can run `npm run deploy` to deploy your app.
-
-### Fly.io Regions
-
-> Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
-
-<small>
-  Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
-</small>
-
-You can find the list of all available Fly regions by running:
-
-```shell
-fly platform regions
-```
-
-### Multiple Fly.io Organizations
-
-If you have multiple organizations, you can specify a `--org` option. For example:
-
-```shell
-wasp deploy fly launch my-wasp-app mia --org hive
-```
-
-### Building Locally
-
-Fly.io offers support for both **locally** built Docker containers and **remotely** built ones. However, for simplicity and reproducibility, the CLI defaults to the use of a remote Fly.io builder.
-
-If you want to build locally, supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.

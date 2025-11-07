@@ -24,7 +24,7 @@ export async function getRailwayProjectStatus({
   existingProjectId,
 }: {
   projectName: RailwayProjectName;
-  existingProjectId: RailwayProjectId | null;
+  existingProjectId?: RailwayProjectId;
   waspProjectDir: WaspProjectDir;
   railwayExe: RailwayCliExe;
 }): Promise<

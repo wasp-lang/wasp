@@ -15,8 +15,8 @@ You can configure the client using the `client` field inside the `app` declarati
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.jsx",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode.js"
+        rootComponent: import Root from "@src/Root",
+        setupFn: import mySetupFunction from "@src/myClientSetupCode"
       }
     }
     ```
@@ -28,8 +28,8 @@ You can configure the client using the `client` field inside the `app` declarati
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.tsx",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode.ts"
+        rootComponent: import Root from "@src/Root",
+        setupFn: import mySetupFunction from "@src/myClientSetupCode"
       }
     }
     ```
@@ -56,7 +56,7 @@ Let's define a common layout for your application:
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.jsx",
+        rootComponent: import Root from "@src/Root",
       }
     }
     ```
@@ -87,7 +87,7 @@ Let's define a common layout for your application:
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.tsx",
+        rootComponent: import Root from "@src/Root",
       }
     }
     ```
@@ -126,7 +126,7 @@ This is how to set up various providers that your application needs:
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.jsx",
+        rootComponent: import Root from "@src/Root",
       }
     }
     ```
@@ -152,7 +152,7 @@ This is how to set up various providers that your application needs:
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.tsx",
+        rootComponent: import Root from "@src/Root",
       }
     }
     ```
@@ -298,8 +298,8 @@ router will work correctly, and all the assets will be served from
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.jsx",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode.js"
+        rootComponent: import Root from "@src/Root",
+        setupFn: import mySetupFunction from "@src/myClientSetupCode"
       }
     }
     ```
@@ -311,8 +311,8 @@ router will work correctly, and all the assets will be served from
       title: "My app",
       // ...
       client: {
-        rootComponent: import Root from "@src/Root.tsx",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode.ts",
+        rootComponent: import Root from "@src/Root",
+        setupFn: import mySetupFunction from "@src/myClientSetupCode",
         baseDir: "/my-app",
       }
     }

@@ -46,7 +46,7 @@ waspInstallationDirInHomeDir = [reldir|.local/share/wasp-lang|]
 waspExecutableInHomeDir :: Path' (Rel UserHomeDir) File'
 waspExecutableInHomeDir = [relfile|.local/bin/wasp|]
 
-getAbsPathToDirInCwd :: MonadThrow m => String -> IO (m (Path' Abs (Dir d)))
+getAbsPathToDirInCwd :: (MonadThrow m) => String -> IO (m (Path' Abs (Dir d)))
 getAbsPathToDirInCwd dirName = do
   absCwd <- SD.getCurrentDirectory
   return $ SP.parseAbsDir $ absCwd FP.</> dirName

@@ -1,0 +1,96 @@
+name: "Test - waspc"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+defaults:
+  run:
+    shell: bash
+    working-directory: waspc
+
+jobs:
+  build:
+    name: Build Wasp
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
+          # prevent the version from changing on its own.
+          #
+          # We also set the Ubuntu version to the oldest supported LTS version
+          # rather than the latest LTS version. Doing so avoids GLIBC version
+          # mismatch errors (and possibly other similar issues).
+          #
+          # This might become redundant if we start building with Alpine/Musl
+          # and link the binaries statically:
+          # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
+          - ubuntu-22.04
+          - macos-15-intel
+          - windows-latest
+        node-version:
+          - "latest"
+        # In addition to the default matrix, we also want to run the build job for
+        # additional Node.js versions, to make sure that Wasp works with them.
+        # To reduce the number of jobs, we only test the Node.js versions on
+        # Ubuntu 20.04.
+        include:
+          - os: ubuntu-22.04
+            node-version: 22
+          - os: ubuntu-22.04
+            node-version: 24
+
+    steps:
+      - name: Configure git
+        working-directory: ~
+        # For waspc parser tests, we need to make sure git doesn't convert line
+        # endings to CRLF during checkout on Windows because that would cause
+        # the test cases to fail.
+        run: |
+          git config --global core.autocrlf input
+          git config --global core.eol lf
+
+      - uses: "actions/checkout@v5"
+
+      - name: Set up Haskell
+        uses: ./.github/actions/setup-haskell
+        with:
+          cabal-project-dir: waspc
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: packages/ts-inspect - Run tests
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
+        run: |
+          cd packages/ts-inspect
+          npm ci
+          npm test
+
+      - name: Compile TS packages and move it into the Cabal data dir
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
+        run: ./tools/install_packages_to_data_dir.sh
+
+      - name: Build external dependencies
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies
+
+      - name: Build wasp code
+        run: cabal build all
+
+      - name: Run unit tests
+        run: cabal test wasp-cli-tests waspc-tests waspls-tests
+
+      - name: Install `wasp-cli`
+        if: matrix.os == 'ubuntu-22.04'
+        run: cabal install
+
+      - name: Run `waspc` e2e tests
+        env:
+          WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
+        run: ./run test:waspc:e2e

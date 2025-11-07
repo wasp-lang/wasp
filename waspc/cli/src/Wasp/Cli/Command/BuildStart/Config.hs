@@ -12,7 +12,8 @@ module Wasp.Cli.Command.BuildStart.Config
   )
 where
 
-import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
+import Control.Monad.Except (MonadError (throwError))
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
 import StrongPath ((</>))

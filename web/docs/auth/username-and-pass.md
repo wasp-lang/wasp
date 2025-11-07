@@ -128,11 +128,11 @@ Add the following to the `main.wasp` file:
     // ...
     route LoginRoute { path: "/login", to: LoginPage }
     page LoginPage {
-      component: import { Login } from "@src/pages/auth.jsx"
+      component: import { Login } from "@src/pages/auth"
     }
     route SignupRoute { path: "/signup", to: SignupPage }
     page SignupPage {
-      component: import { Signup } from "@src/pages/auth.jsx"
+      component: import { Signup } from "@src/pages/auth"
     }
     ```
   </TabItem>
@@ -142,11 +142,11 @@ Add the following to the `main.wasp` file:
     // ...
     route LoginRoute { path: "/login", to: LoginPage }
     page LoginPage {
-      component: import { Login } from "@src/pages/auth.tsx"
+      component: import { Login } from "@src/pages/auth"
     }
     route SignupRoute { path: "/signup", to: SignupPage }
     page SignupPage {
-      component: import { Signup } from "@src/pages/auth.tsx"
+      component: import { Signup } from "@src/pages/auth"
     }
     ```
   </TabItem>
@@ -342,7 +342,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
         userEntity: User,
         methods: {
           usernameAndPassword: {
-            userSignupFields: import { userSignupFields } from "@src/auth/email.js",
+            userSignupFields: import { userSignupFields } from "@src/auth/email",
           },
         },
         onAuthFailedRedirectTo: "/login"
@@ -363,7 +363,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
         userEntity: User,
         methods: {
           usernameAndPassword: {
-            userSignupFields: import { userSignupFields } from "@src/auth/email.js",
+            userSignupFields: import { userSignupFields } from "@src/auth/email",
           },
         },
         onAuthFailedRedirectTo: "/login"

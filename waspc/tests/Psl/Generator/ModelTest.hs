@@ -4,7 +4,7 @@
 module Psl.Generator.ModelTest where
 
 import Psl.Common.ModelTest (sampleBodyAst)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema

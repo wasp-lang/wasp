@@ -7,7 +7,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import NeatInterpolation (trimming)
 import StrongPath (relfileP)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.AppSpec (Ref)
 import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App.Db as Db
@@ -317,7 +317,7 @@ spec_AppSpecFromJSON = do
     barEntityRef = [trimming| { "name": "bar", "declType": "Entity" }|]
     pageRef = [trimming| { "name": "foo", "declType": "Page" }|]
 
-    decodeJson :: FromJSON a => T.Text -> Maybe a
+    decodeJson :: (FromJSON a) => T.Text -> Maybe a
     decodeJson = Aeson.decodeStrict . TE.encodeUtf8
 
     shouldDecodeTo json expectedValue = do
