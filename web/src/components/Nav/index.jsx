@@ -105,7 +105,7 @@ const Nav = () => {
 
   return (
     <>
-      <Announcement />
+      {/* <Announcement /> */}
       <div className="sticky top-0 z-50">
         <div className="absolute top-0 h-full w-full bg-[#f5f4f0] opacity-80"></div>
         <nav className="border-b backdrop-blur-sm">
