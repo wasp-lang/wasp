@@ -137,4 +137,5 @@ getOperationTypeData operation = tmplData
       makeSdkImportPath $
         relDirToRelFileP $
           fromJust $
-            SP.relDirToPosix $ serverOperationsDirInSdkRootDir operation
+            SP.relDirToPosix $
+              serverOperationsDirInSdkRootDir operation

@@ -4,7 +4,7 @@ title: Automatic CRUD
 
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
-import ImgWithCaption from '@site/blog/components/ImgWithCaption'
+import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
 If you have a lot of experience writing full-stack apps, you probably ended up doing some of the same things many times: listing data, adding data, editing it, and deleting it.
 
@@ -41,7 +41,7 @@ crud Tasks {
     },
     get: {},
     create: {
-      overrideFn: import { createTask } from "@src/tasks.js",
+      overrideFn: import { createTask } from "@src/tasks",
     },
     update: {},
   },
@@ -90,18 +90,18 @@ app tasksCrudApp {
 // Tasks app routes
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import { MainPage } from "@src/MainPage.jsx",
+  component: import { MainPage } from "@src/MainPage",
   authRequired: true,
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@src/LoginPage.jsx",
+  component: import { LoginPage } from "@src/LoginPage",
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@src/SignupPage.jsx",
+  component: import { SignupPage } from "@src/SignupPage",
 }
 ```
 
@@ -137,7 +137,7 @@ crud Tasks {
   operations: {
     getAll: {},
     create: {
-      overrideFn: import { createTask } from "@src/tasks.js",
+      overrideFn: import { createTask } from "@src/tasks",
     },
   },
 }
@@ -597,7 +597,7 @@ Here's an example of a more complex CRUD declaration:
         },
         get: {},
         create: {
-          overrideFn: import { createTask } from "@src/tasks.js", // optional
+          overrideFn: import { createTask } from "@src/tasks", // optional
         },
         update: {},
       },
@@ -615,7 +615,7 @@ Here's an example of a more complex CRUD declaration:
         },
         get: {},
         create: {
-          overrideFn: import { createTask } from "@src/tasks.js", // optional
+          overrideFn: import { createTask } from "@src/tasks", // optional
         },
         update: {},
       },

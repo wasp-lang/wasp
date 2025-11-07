@@ -9,7 +9,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Util.Prisma as Util
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
@@ -57,22 +57,22 @@ spec_Analyzer = do
                 "    userEntity: User,",
                 "    methods: {",
                 "      usernameAndPassword: {",
-                "        userSignupFields: import { getUserFields } from \"@src/auth/signup.js\",",
+                "        userSignupFields: import { getUserFields } from \"@src/auth/signup\",",
                 "      }",
                 "    },",
                 "    onAuthFailedRedirectTo: \"/\",",
                 "  },",
                 "  server: {",
-                "    setupFn: import { setupServer } from \"@src/bar.js\"",
+                "    setupFn: import { setupServer } from \"@src/bar\"",
                 "  },",
                 "  client: {",
-                "    rootComponent: import { App } from \"@src/App.jsx\",",
-                "    setupFn: import { setupClient } from \"@src/baz.js\",",
+                "    rootComponent: import { App } from \"@src/App\",",
+                "    setupFn: import { setupClient } from \"@src/baz\",",
                 "    baseDir: \"/\"",
                 "  },",
                 "  db: {",
-                "    seeds: [ import { devSeedSimple } from \"@src/dbSeeds.js\" ],",
-                "    prismaSetupFn: import { setUpPrisma } from \"@src/setUpPrisma.js\",",
+                "    seeds: [ import { devSeedSimple } from \"@src/dbSeeds\" ],",
+                "    prismaSetupFn: import { setUpPrisma } from \"@src/setUpPrisma\",",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -95,12 +95,12 @@ spec_Analyzer = do
                 "route HomeRoute { path: \"/\", to: HomePage }",
                 "",
                 "query getUsers {",
-                "  fn: import { getAllUsers } from \"@src/foo.js\",",
+                "  fn: import { getAllUsers } from \"@src/foo\",",
                 "  entities: [User]",
                 "}",
                 "",
                 "action updateUser {",
-                "  fn: import { updateUser } from \"@src/foo.js\",",
+                "  fn: import { updateUser } from \"@src/foo\",",
                 "  entities: [User],",
                 "  auth: true",
                 "}",
@@ -108,7 +108,7 @@ spec_Analyzer = do
                 "job BackgroundJob {",
                 "  executor: PgBoss,",
                 "  perform: {",
-                "    fn: import { backgroundJob } from \"@src/jobs/baz.js\",",
+                "    fn: import { backgroundJob } from \"@src/jobs/baz\",",
                 "    executorOptions: {",
                 "      pgBoss: {=json { \"retryLimit\": 1 } json=}",
                 "    }",
@@ -141,7 +141,7 @@ spec_Analyzer = do
                                 { Auth.usernameAndPassword =
                                     Just
                                       Auth.UsernameAndPasswordConfig
-                                        { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup.js")
+                                        { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup")
                                         },
                                   Auth.slack = Nothing,
                                   Auth.discord = Nothing,
@@ -166,7 +166,7 @@ spec_Analyzer = do
                               Just $
                                 ExtImport
                                   (ExtImportField "setupServer")
-                                  (fromJust $ SP.parseRelFileP "bar.js"),
+                                  (fromJust $ SP.parseRelFileP "bar"),
                             Server.middlewareConfigFn = Nothing,
                             Server.envValidationSchema = Nothing
                           },
@@ -175,10 +175,10 @@ spec_Analyzer = do
                         Client.Client
                           { Client.setupFn =
                               Just $
-                                ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz.js"),
+                                ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz"),
                             Client.rootComponent =
                               Just $
-                                ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx"),
+                                ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App"),
                             Client.baseDir = Just "/",
                             Client.envValidationSchema = Nothing
                           },
@@ -189,13 +189,13 @@ spec_Analyzer = do
                               Just
                                 [ ExtImport
                                     (ExtImportField "devSeedSimple")
-                                    (fromJust $ SP.parseRelFileP "dbSeeds.js")
+                                    (fromJust $ SP.parseRelFileP "dbSeeds")
                                 ],
                             Db.prismaSetupFn =
                               Just $
                                 ExtImport
                                   (ExtImportField "setUpPrisma")
-                                  (fromJust $ SP.parseRelFileP "setUpPrisma.js")
+                                  (fromJust $ SP.parseRelFileP "setUpPrisma")
                           },
                     App.emailSender =
                       Just
@@ -249,7 +249,7 @@ spec_Analyzer = do
                   { Query.fn =
                       ExtImport
                         (ExtImportField "getAllUsers")
-                        (fromJust $ SP.parseRelFileP "foo.js"),
+                        (fromJust $ SP.parseRelFileP "foo"),
                     Query.entities = Just [Ref "User"],
                     Query.auth = Nothing
                   }
@@ -263,7 +263,7 @@ spec_Analyzer = do
                   { Action.fn =
                       ExtImport
                         (ExtImportField "updateUser")
-                        (fromJust $ SP.parseRelFileP "foo.js"),
+                        (fromJust $ SP.parseRelFileP "foo"),
                     Action.entities = Just [Ref "User"],
                     Action.auth = Just True
                   }
@@ -275,7 +275,7 @@ spec_Analyzer = do
             Job.Perform
               ( ExtImport
                   (ExtImportField "backgroundJob")
-                  (fromJust $ SP.parseRelFileP "jobs/baz.js")
+                  (fromJust $ SP.parseRelFileP "jobs/baz")
               )
               ( Just $
                   Job.ExecutorOptions
@@ -332,7 +332,7 @@ spec_Analyzer = do
       let source =
             unlines
               [ "route HomeRoute { path: \"/\",  to: HomePage }",
-                "page HomePage { component: import Home from \"@src/HomePage.js\" }"
+                "page HomePage { component: import Home from \"@src/HomePage\" }"
               ]
       isRight (analyze prismaSchema source) `shouldBe` True
 

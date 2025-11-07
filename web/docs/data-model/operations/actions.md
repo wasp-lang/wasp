@@ -43,11 +43,11 @@ To create an Action in Wasp, we begin with an `action` declaration. Let's declar
     // ...
 
     action createTask {
-      fn: import { createTask } from "@src/actions.js"
+      fn: import { createTask } from "@src/actions"
     }
 
     action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions.js"
+      fn: import { markTaskAsDone } from "@src/actions"
     }
 
     ```
@@ -58,11 +58,11 @@ To create an Action in Wasp, we begin with an `action` declaration. Let's declar
     // ...
 
     action createTask {
-      fn: import { createTask } from "@src/actions.js"
+      fn: import { createTask } from "@src/actions"
     }
 
     action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions.js"
+      fn: import { markTaskAsDone } from "@src/actions"
     }
     ```
   </TabItem>
@@ -452,12 +452,12 @@ To use an Entity in your Action, add it to the `action` declaration in Wasp:
     ```wasp {4,9} title="main.wasp"
 
     action createTask {
-      fn: import { createTask } from "@src/actions.js",
+      fn: import { createTask } from "@src/actions",
       entities: [Task]
     }
 
     action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions.js",
+      fn: import { markTaskAsDone } from "@src/actions",
       entities: [Task]
     }
     ```
@@ -467,12 +467,12 @@ To use an Entity in your Action, add it to the `action` declaration in Wasp:
     ```wasp {4,9} title="main.wasp"
 
     action createTask {
-      fn: import { createTask } from "@src/actions.js",
+      fn: import { createTask } from "@src/actions",
       entities: [Task]
     }
 
     action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions.js",
+      fn: import { markTaskAsDone } from "@src/actions",
       entities: [Task]
     }
     ```
@@ -591,7 +591,7 @@ The `action` declaration supports the following fields:
 
     ```wasp
     query createFoo {
-        fn: import { createFoo } from "@src/actions.js"
+        fn: import { createFoo } from "@src/actions"
         entities: [Foo]
     }
     ```
@@ -612,7 +612,7 @@ The `action` declaration supports the following fields:
 
     ```wasp
     query createFoo {
-        fn: import { createFoo } from "@src/actions.js"
+        fn: import { createFoo } from "@src/actions"
         entities: [Foo]
     }
     ```
@@ -678,7 +678,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     ```wasp
     action createFoo {
-        fn: import { createFoo } from "@src/actions.js"
+        fn: import { createFoo } from "@src/actions"
         entities: [Foo]
     }
     ```
@@ -697,7 +697,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     ```wasp
     action createFoo {
-        fn: import { createFoo } from "@src/actions.js"
+        fn: import { createFoo } from "@src/actions"
         entities: [Foo]
     }
     ```

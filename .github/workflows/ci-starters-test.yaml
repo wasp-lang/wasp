@@ -1,0 +1,34 @@
+name: "Test - Starters"
+
+on:
+  workflow_call:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+jobs:
+  test-starters:
+    name: Test starters
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: "actions/checkout@v5"
+
+      - uses: ./.github/actions/setup-haskell
+        with:
+          cabal-project-dir: waspc
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
+      - name: Install `wasp-cli`
+        working-directory: waspc
+        run: ./run install
+
+      - name: Install node dependencies
+        working-directory: waspc/starters-e2e-tests
+        run: npm ci
+
+      - name: Run starters e2e tests
+        working-directory: waspc/starters-e2e-tests
+        run: npm run test:dev

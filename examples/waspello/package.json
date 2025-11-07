@@ -1,8 +1,13 @@
 {
   "name": "waspello",
   "type": "module",
+  "workspaces": [
+    ".wasp/build/*",
+    ".wasp/out/*"
+  ],
   "scripts": {
-    "test": "DEBUG=pw:webserver playwright test --config e2e-tests/"
+    "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
+    "test:install-deps": "playwright install --with-deps"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
@@ -17,7 +22,7 @@
   "devDependencies": {
     "@playwright/test": "1.51.1",
     "@types/react": "^18.0.37",
-    "@wasp.sh/wasp-app-runner": "^0.0.7",
+    "@wasp.sh/wasp-app-runner": "^0.0.8",
     "prisma": "5.19.1",
     "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",

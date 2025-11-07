@@ -26,6 +26,29 @@ type GithubRepoName = String
 
 type GithubRepoReferenceName = String
 
+type GithubReleaseArchiveName = String
+
+fetchFolderFromGithubReleaseArchiveToDisk ::
+  GithubRepoRef ->
+  GithubReleaseArchiveName ->
+  Path' (Rel archiveRoot) (Dir folderInArchive) ->
+  Path' Abs (Dir destinationDir) ->
+  IO (Either String ())
+fetchFolderFromGithubReleaseArchiveToDisk githubRepoRef assetName folderInArchiveRoot destinationOnDisk = do
+  let downloadUrl = getGithubReleaseArchiveDownloadURL githubRepoRef assetName
+
+  fetchArchiveAndCopySubdirToDisk downloadUrl folderInArchiveRoot destinationOnDisk
+  where
+    getGithubReleaseArchiveDownloadURL :: GithubRepoRef -> GithubReleaseArchiveName -> String
+    getGithubReleaseArchiveDownloadURL
+      GithubRepoRef
+        { _repoName = repoName,
+          _repoOwner = repoOwner,
+          _repoReferenceName = repoReferenceName
+        }
+      assetName' =
+        intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoReferenceName, assetName']
+
 fetchFolderFromGithubRepoToDisk ::
   GithubRepoRef ->
   Path' (Rel repoRoot) (Dir folderInRepo) ->
@@ -64,7 +87,7 @@ fetchFolderFromGithubRepoToDisk githubRepoRef folderInRepoRoot destinationOnDisk
           githubRepoArchiveRootFolderName :: Path' (Rel archiveRoot) (Dir archiveInnerDir)
           githubRepoArchiveRootFolderName = fromJust . SP.parseRelDir $ repoName ++ "-" ++ repoReferenceName
 
-fetchRepoFileContents :: FromJSON a => GithubRepoRef -> String -> IO (Either String a)
+fetchRepoFileContents :: (FromJSON a) => GithubRepoRef -> String -> IO (Either String a)
 fetchRepoFileContents githubRepo filePath = do
   try (HTTP.httpJSONEither ghRepoInfoRequest) <&> \case
     Right response -> either (Left . show) Right $ HTTP.getResponseBody response

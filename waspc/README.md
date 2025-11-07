@@ -9,7 +9,7 @@ If you are a Wasp user and not a contributor (yet 😉), you might want to look 
 If you would like to make your first contribution, here is a handy checklist we made for you:
 
 - [ ] Read [Quick overview](#quick-overview).
-- [ ] Compile the project successfully and get todoApp example running (follow [Basics](#basics)).
+- [ ] Compile the project successfully and get `kitchen-sink` example running (follow [Basics](#basics)).
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
 - [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediately propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find something for you together.
@@ -81,12 +81,6 @@ to build the whole `waspc` project.
 This might take a while (e.g. 10 mins) if you are doing it for the very first time, due to having to download all the dependencies (which will later be cached).
 If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" 😀.
 
-> [!NOTE]
-> If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS).
-> The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
->
-> If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/opt/llvm@13/bin:$PATH"`.
-
 ### Run tests
 
 ```sh
@@ -115,9 +109,9 @@ Since you provided no arguments, you should see help/usage.
 Note that the executable during development is named `wasp-cli`, unlike `wasp` which is how it is named when you install a public release of Wasp via official installation method.
 This is to make it easier to differentiate between the development version of wasp CLI and the released version.
 
-### Running the example app
+### Running the `kitchen-sink` example
 
-First, position yourself in the [waspc/examples/todoApp/](examples/todoApp/) dir.
+First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-sink/) dir.
 
 Then, run the dev database:
 
@@ -151,10 +145,10 @@ to run the example app in the development mode.
 
 If you are doing this for the very first time, it might take a minute or so to download and install npm dependencies.
 
-When done, new tab in your browser should open and you will see a Todo App!
+When done, new tab in your browser should open and you will see the Kitchen Sink App!
 
 > [!NOTE]
-> You will notice that some functionality in the Todo App is not working. That is because the env vars in `.env.server` files are just mock values. Check Todo App's README for more details on how to set up env vars for development.
+> You will notice that some functionality in the `kitchen-sink` is not working. That is because the env vars in `.env.server` files are just mock values. Check `kitchen-sink`'s README for more details on how to set up env vars for development.
 
 ## Typical development workflow
 
@@ -165,7 +159,7 @@ When done, new tab in your browser should open and you will see a Todo App!
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
 4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
-5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
+5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
@@ -237,7 +231,6 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
 - `data/Cli/starters/` -> starter templates for new projects
-- `examples/todoApp/` -> our kitchen sink app
 
 ### Typescript packages
 
@@ -285,7 +278,7 @@ To run tests:
 - To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
 - To run Wasp CLI tests only, you can do `./run test:cli`.
 - To run Wasp LS tests only, you can do `./run test:waspls`.
-- To run `todoApp` e2e tests, you can do `./run test:todoApp`.
+- To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
 - To run examples e2e tests, you can do `./run test:examples`.
 - To run starter templates e2e tests, you can do `./run test:starters`.
 
@@ -396,6 +389,9 @@ How do I know where I want to target my PR, to `release` or `main`?
   - `release` represents the present, and is for changes to the already published stuff.
   - `main` represents near future, and is for changes to the to-be-published stuff.
 
+> [!IMPORTANT]
+> If you merge a PR or push any changes to `release`, a new PR will automatically be created to update `main` with the changes from `release`. You will be assigned it, and it's your responsibility to merge it.
+
 ## Deployment / CI
 
 We use Github Actions for CI.
@@ -406,19 +402,19 @@ During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
 If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
 
-We also have a workflow for deploying example apps to Fly.io (`deploy-examples.yml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
+We also have a workflow for deploying example apps to Fly.io (`release-examples-deploy.yaml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
 
 You can run this workflow:
 
-- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/deploy-examples.yml (click "Run workflow" and select the `release` branch)
+- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml (click "Run workflow" and select the `release` branch)
 - **From GitHub CLI**:
 
   ```bash
   # Deploy with latest Wasp version
-  gh workflow run deploy-examples.yml --ref release
+  gh workflow run release-examples-deploy --ref release
   
   # Deploy with specific Wasp version
-  gh workflow run deploy-examples.yml --ref release -f version=0.13.2
+  gh workflow run release-examples-deploy --ref release -f version=0.13.2
   ```
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
@@ -438,7 +434,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - Check and merge all PRs with the label `merge-before-release`.
   - In `StarterTemplates.hs` file, update git tag to new version of Wasp we are about to release (e.g. `wasp-v0.13.1-template`).
   - Ensure that all starter templates are working with this new version of Wasp.
-    Update Wasp version in their main.wasp files, and update their code as neccessary. Finally, in their repos (for those templates that are on Github), create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`). Now, once new wasp release is out, it will immediately be able to pull the correct and working version of the starter templates, which is why all this needs to happen before we release new wasp version.
+    Update Wasp version in their main.wasp files, and update their code as neccessary. Finally, in their repos (for those templates that are on Github), create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`), and confirm that the GitHub action correctly ran and uploaded a `template.tar.gz` file. Now, once new wasp release is out, it will immediately be able to pull the correct and working version of the starter templates, which is why all this needs to happen before we release new wasp version.
   - Open-saas also falls under this!
 - Make sure apps in [examples](/examples) are up to date and using a version compatible with the newest version of Wasp.
 - Make sure that Wasp AI (which is part of `waspc` and you can run it with e.g. `wasp new:ai`) is correctly producing apps that work with and use this newest version of Wasp.
@@ -457,8 +453,8 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - This will automatically create a new draft release.
 - 👉 Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
-- 👉 Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
-- Deploy the example apps to Fly.io by running the [deploy-examples workflow](/.github/workflows/deploy-examples.yml) (see "Deployment / CI" section for more details).
+- 👉 You will have been tagged in an automated PR to merge `release` back to `main`. Make sure to merge that PR. This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
+- Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](/.github/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If you published new docs, rerun the Algolia Crawler to update the search index. If you published a new version of the docs, the search won't work until you do this.
   - To do this, go to https://crawler.algolia.com/admin and click "Restart crawling" under the "wasp-lang" crawler.

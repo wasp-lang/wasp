@@ -8,10 +8,10 @@ import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value (..))
+import qualified Data.Aeson.Key as Key
+import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens
-import qualified Data.HashMap.Strict as HM
 import Data.List (isSuffixOf)
-import Data.Text (Text, unpack)
 import StrongPath (Abs, Dir, Path', castRel, (</>))
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
@@ -52,7 +52,8 @@ build = do
   InWaspProject waspProjectDir <- require
 
   let buildDir =
-        waspProjectDir </> dotWaspDirInWaspProjectDir
+        waspProjectDir
+          </> dotWaspDirInWaspProjectDir
           </> buildDirInDotWaspDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
@@ -76,7 +77,8 @@ build = do
   liftIO $ printCompilationResult (warnings, errors)
   unless (null errors) $
     throwError $
-      CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found."
+      CommandError "Building of wasp project failed" $
+        show (length errors) ++ " errors found."
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
@@ -148,12 +150,12 @@ build = do
       packageLockJsonObject
         & key "packages" . key "" %~ removeWaspConfigFromDevDependenciesArray
         & key "packages" . _Object
-          %~ HM.filterWithKey
-            (\packageLocation _ -> not $ isWaspConfigPackageLocation packageLocation)
+          %~ KM.filterWithKey
+            (\packageLocation _ -> not $ isWaspConfigPackageLocation (Key.toString packageLocation))
 
-    isWaspConfigPackageLocation :: Text -> Bool
+    isWaspConfigPackageLocation :: String -> Bool
     isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : "wasp-config") `isSuffixOf` unpack packageLocation
+      (FP.pathSeparator : "wasp-config") `isSuffixOf` packageLocation
 
     removeWaspConfigFromDevDependenciesArray :: Value -> Value
     removeWaspConfigFromDevDependenciesArray original =

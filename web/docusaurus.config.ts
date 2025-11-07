@@ -30,10 +30,10 @@ const config: Config = {
   favicon: "img/favicon.ico",
   themeConfig: {
     announcementBar: {
-      id: "LW7",
+      id: "design-aithon",
       content:
-        '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
-      backgroundColor: "#eab307",
+        '<b>🎨 Wasp Design-AI-Thon is live!</b> <span style="text-decoration: underline;">Oct 10 - Oct 19</span> <a href="/blog/2025/10/08/design-ai-thon" style="background-color: rgba(255,255,255,0.2); color: #fbbf24; padding: 4px 12px; border-radius: 12px; text-decoration: none; font-weight: 600; margin-left: 8px; border: 1px solid rgba(251, 191, 36, 0.3);">Join now →</a>',
+      backgroundColor: "#8b5cf6",
       textColor: "#fff",
       isCloseable: false,
     },
@@ -96,7 +96,7 @@ const config: Config = {
       ],
     },
     prism: {
-      additionalLanguages: ["shell-session", "haskell"],
+      additionalLanguages: ["shell-session", "haskell", "markdown"],
       theme: lightCodeTheme,
     },
     footer: {
@@ -213,7 +213,7 @@ const config: Config = {
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
-          onUntruncatedBlogPosts: "log",
+          onUntruncatedBlogPosts: "throw",
         },
         theme: {
           customCss: ["./src/css/custom.css"],

@@ -6,8 +6,9 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/src/main.js",
-    "test": "npm run build && DEBUG=pw:webserver npm run start -- --wasp-cli-command wasp",
-    "test:dev": "npm run build && DEBUG=pw:webserver npm run start -- --wasp-cli-command wasp-cli"
+    "test": "npm run build && npm run test:install-deps && DEBUG=pw:webserver npm run start -- --wasp-cli-command wasp",
+    "test:dev": "npm run build && npm run test:install-deps && DEBUG=pw:webserver npm run start -- --wasp-cli-command wasp-cli",
+    "test:install-deps": "playwright install --with-deps"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",

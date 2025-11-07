@@ -1,0 +1,48 @@
+name: "CI"
+# This name must be in sync with the name used in:
+# /.github/actions/fetch-nightly-cli/action.yaml
+
+on:
+  push:
+    branches:
+      - main
+      - release
+  pull_request:
+    branches:
+      - main
+      - release
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-test:
+    uses: ./.github/workflows/ci-deploy-test.yaml
+    secrets: inherit
+
+  examples-test:
+    uses: ./.github/workflows/ci-examples-test.yaml
+    secrets: inherit
+
+  formatting:
+    uses: ./.github/workflows/ci-formatting.yaml
+    secrets: inherit
+
+  starters-test:
+    uses: ./.github/workflows/ci-starters-test.yaml
+    secrets: inherit
+
+  tsspec-test:
+    uses: ./.github/workflows/ci-tsspec-test.yaml
+    secrets: inherit
+
+  waspc-build:
+    uses: ./.github/workflows/ci-waspc-build.yaml
+    secrets: inherit
+
+  waspc-test:
+    uses: ./.github/workflows/ci-waspc-test.yaml
+    secrets: inherit

@@ -1,0 +1,44 @@
+{
+  "browserslist": {
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ]
+  },
+  "dependencies": {
+    "@tanstack/react-query": "~4.41.0",
+    "axios": "^1.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@tsconfig/vite-react": "^7.0.0",
+    "@types/react": "^18.0.37",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "5.8.2"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "name": "@wasp.sh/generated-webapp-dev",
+  "overrides": {
+    "rollup": "4.44.0"
+  },
+  "private": true,
+  "scripts": {
+    "build": "tsc --build && vite build",
+    "preview": "vite preview",
+    "start": "vite"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

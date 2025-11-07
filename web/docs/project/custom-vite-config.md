@@ -111,3 +111,32 @@ If you, for example, want to serve the client from a different path than `/`, yo
     ```
   </TabItem>
 </Tabs>
+
+### Editing from the Chrome DevTools {#devtools-workspace}
+
+Chrome DevTools support [mapping a page's resources to a folder](https://developer.chrome.com/docs/devtools/workspaces), so any changes you make in the browser are reflected back to your files. To enable it, you can use their Vite plugin: [`vite-plugin-devtools-json`](https://github.com/ChromeDevTools/vite-plugin-devtools-json).
+
+1. Install the plugin as a **dev dependency**:
+
+```bash
+npm i -D vite-plugin-devtools-json
+```
+
+2. Extend your `vite.config.{ts,js}`:
+
+```ts title="vite.config.ts" auto-js
+import { defineConfig } from 'vite'
+import devtoolsJson from 'vite-plugin-devtools-json'
+
+export default defineConfig({
+  plugins: [
+    devtoolsJson({ root: import.meta.dirname })
+  ]
+})
+```
+
+3. Start your app with `wasp start`, open **Chrome DevTools → Sources → Workspace** and you should see your project automatically mapped. Changes you make in DevTools now save to disk and Vite's HMR updates the browser instantly!
+
+:::tip Path normalisation
+The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Docker Desktop path fixes contributed by the Wasp community – make sure you are on version 0.4.0 or greater.
+:::
