@@ -5,7 +5,7 @@ module Psl.Parser.WithCtxTest where
 import Data.Either (isLeft)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -60,12 +60,12 @@ spec_parsePslWithCtx = do
                                   [ " Multiline comments",
                                     " For prop3"
                                   ]
-                                  $ Psl.Model.ElementField $
-                                    Psl.Model.Field
-                                      "prop3"
-                                      Psl.Model.String
-                                      []
-                                      [Psl.Attribute.Attribute "unique" []]
+                                  $ Psl.Model.ElementField
+                                  $ Psl.Model.Field
+                                    "prop3"
+                                    Psl.Model.String
+                                    []
+                                    [Psl.Attribute.Attribute "unique" []]
                               ]
                           )
                     ]
@@ -100,26 +100,26 @@ spec_parsePslWithCtx = do
                                   [ " The unique identifier for the post",
                                     " @zod.uuid()"
                                   ]
-                                  $ Psl.Model.ElementField $
-                                    Psl.Model.Field
-                                      "id"
-                                      Psl.Model.String
-                                      []
-                                      [ Psl.Attribute.Attribute "id" [],
-                                        Psl.Attribute.Attribute
-                                          "default"
-                                          [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
-                                      ],
+                                  $ Psl.Model.ElementField
+                                  $ Psl.Model.Field
+                                    "id"
+                                    Psl.Model.String
+                                    []
+                                    [ Psl.Attribute.Attribute "id" [],
+                                      Psl.Attribute.Attribute
+                                        "default"
+                                        [Psl.Argument.ArgUnnamed $ Psl.Argument.FuncExpr "uuid" []]
+                                    ],
                                 commentedNode
                                   [ " A brief title that describes the contents of the post",
                                     " @zod.max(255, { message: \"The title must be shorter than 256 characters\" })"
                                   ]
-                                  $ Psl.Model.ElementField $
-                                    Psl.Model.Field
-                                      "title"
-                                      Psl.Model.String
-                                      []
-                                      [],
+                                  $ Psl.Model.ElementField
+                                  $ Psl.Model.Field
+                                    "title"
+                                    Psl.Model.String
+                                    []
+                                    [],
                                 commentedNode [" @zod.max(10240)"] $
                                   Psl.Model.ElementField $
                                     Psl.Model.Field

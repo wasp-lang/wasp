@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.18.2 (Unreleased)
+## 0.18.3 (Unreleased)
 
 ### ⚠️ Breaking Changes
 
@@ -28,6 +28,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory ([#3085](github.com/wasp-lang/wasp/issues/3085))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+
+## 0.18.2
+
+### 🐞 Bug fixes
+
+- Wasp dev database (`wasp start db`) now uses a pinned PostgreSQL version (`postgres:18`) with the correct volume mount path. ([#3323](https://github.com/wasp-lang/wasp/pull/3323))
 
 ## 0.18.1
 

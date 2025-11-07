@@ -67,7 +67,7 @@ askForRequiredInput = repeatIfNull . askForInput
 askToChoose' :: String -> NonEmpty (Option o) -> IO o
 askToChoose' question options = oValue <$> askToChoose question options
 
-askToChoose :: forall o. IsOption o => String -> NonEmpty o -> IO o
+askToChoose :: forall o. (IsOption o) => String -> NonEmpty o -> IO o
 askToChoose _ (singleOption :| []) = return singleOption
 askToChoose question options = do
   putStrLn $ Term.applyStyles [Term.Bold] question
@@ -128,7 +128,7 @@ askToChoose question options = do
 askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
 
-repeatIfNull :: Foldable t => IO (t a) -> IO (t a)
+repeatIfNull :: (Foldable t) => IO (t a) -> IO (t a)
 repeatIfNull action = repeatUntil null "This field cannot be empty." action
 
 repeatUntil :: (a -> Bool) -> String -> IO a -> IO a

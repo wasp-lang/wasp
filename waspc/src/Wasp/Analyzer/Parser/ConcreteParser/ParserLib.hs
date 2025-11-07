@@ -770,5 +770,5 @@ eof = EOF
 
 -- UTILITIES:
 
-tryError :: MonadError e m => m () -> m (Maybe e)
+tryError :: (MonadError e m) => m () -> m (Maybe e)
 tryError m = (m >> return Nothing) `catchError` (return . Just)

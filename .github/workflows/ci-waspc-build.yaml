@@ -76,45 +76,14 @@ jobs:
               apk add zlib-dev zlib-static
 
           - name: macos-x86_64
-            runner: macos-13 # Latest image still based on Intel architecture that can be used for free
-
+            runner: macos-15-intel
             # macOS's syscalls are private and change between versions, so we
-            # can't statically link the binary. However, on macOS programs link
-            # to `libSystem`, which is quite stable between releases, so we're
-            # fine depending on it.
+            # can't statically link the binary.
             static: false
 
           - name: macos-aarch64
-            runner: macos-latest # Latest macOS images are already Apple Silicon-based
+            runner: macos-15 # By default an Apple Silicon-based runner.
             static: false # Check the comment above for why we can't statically link on macOS
-            install-deps: |
-              # We need to install llvm@13 for building on Apple Silicon (prebuilt libraries
-              # are only available for x86_64). The llvm@13 formula is not available in
-              # Homebrew by default, but we can edit it and comment out the `disable!` line.
-
-              # Homebrew disabled the ability to install formulae from URL or from bare local
-              # files, so we will download it into a local repository (a.k.a "tap", in Homebrew
-              # parlance).
-              # https://github.com/Homebrew/brew/issues/20441#issuecomment-3186032595
-
-              formula_url="https://raw.githubusercontent.com/Homebrew/homebrew-core/74572f47ce6a2463c19d7fa164ab9fb8c91bbe61/Formula/l/llvm%4013.rb"
-              formula_name="llvm@13"
-              repo_name="wasp/repo" # This is a custom name, not an actual GitHub repo
-              formula_dir="$(brew --repository "$repo_name")/Formula" # Use a local repo for the formula
-              formula_file="$formula_dir/$formula_name.rb"
-
-              # Fetch formula and comment out the `disable!` line
-              mkdir -p "$formula_dir"
-              curl -fsSL "$formula_url" > "$formula_file"
-              sed -i '' 's/disable!/# disable!/' "$formula_file"
-
-              # Install and link the formula
-              brew install --formula "$repo_name/$formula_name"
-              brew link --force "$repo_name/$formula_name"
-
-              # Workaround for GHC 9.0.2 and Apple Silicon
-              # https://gitlab.haskell.org/ghc/ghc/-/issues/20592
-              echo C_INCLUDE_PATH="`xcrun --show-sdk-path`/usr/include/ffi" >> $GITHUB_ENV
 
     runs-on: ${{ matrix.env.runner }}
     container: ${{ matrix.env.container }}
@@ -124,6 +93,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Install dependencies
+        if: ${{ matrix.env.install-deps }}
         run: ${{ matrix.env.install-deps }}
 
       - uses: ./.github/actions/setup-haskell
@@ -147,12 +117,15 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: ./waspc/artifacts/*
-          name: wasp-cli-${{ matrix.env.name }}
+          name:
+            "wasp-cli-${{ matrix.env.name }}"
+            # This name must be in sync with the artifact name used in:
+            # /.github/actions/fetch-nightly-cli/action.yaml
           if-no-files-found: error
 
   build-universal:
     needs: build
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Download macOS binaries
         uses: actions/download-artifact@v5

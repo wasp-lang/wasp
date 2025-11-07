@@ -123,7 +123,7 @@ You can use the `LoginForm` component to build your login page:
 
     route LoginRoute { path: "/login", to: LoginPage }
     page LoginPage {
-      component: import { LoginPage } from "@src/LoginPage.jsx"
+      component: import { LoginPage } from "@src/LoginPage"
     }
     ```
 
@@ -143,7 +143,7 @@ You can use the `LoginForm` component to build your login page:
 
     route LoginRoute { path: "/login", to: LoginPage }
     page LoginPage {
-      component: import { LoginPage } from "@src/LoginPage.tsx"
+      component: import { LoginPage } from "@src/LoginPage"
     }
     ```
 
@@ -175,7 +175,7 @@ You can use the `SignupForm` component to build your signup page:
 
     route SignupRoute { path: "/signup", to: SignupPage }
     page SignupPage {
-      component: import { SignupPage } from "@src/SignupPage.jsx"
+      component: import { SignupPage } from "@src/SignupPage"
     }
     ```
 
@@ -195,7 +195,7 @@ You can use the `SignupForm` component to build your signup page:
 
     route SignupRoute { path: "/signup", to: SignupPage }
     page SignupPage {
-      component: import { SignupPage } from "@src/SignupPage.tsx"
+      component: import { SignupPage } from "@src/SignupPage"
     }
     ```
 
@@ -231,7 +231,7 @@ You can use the `ForgotPasswordForm` component to build your own forgot password
 
     route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
     page RequestPasswordResetPage {
-      component: import { ForgotPasswordPage } from "@src/ForgotPasswordPage.jsx"
+      component: import { ForgotPasswordPage } from "@src/ForgotPasswordPage"
     }
     ```
 
@@ -251,7 +251,7 @@ You can use the `ForgotPasswordForm` component to build your own forgot password
 
     route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
     page RequestPasswordResetPage {
-      component: import { ForgotPasswordPage } from "@src/ForgotPasswordPage.tsx"
+      component: import { ForgotPasswordPage } from "@src/ForgotPasswordPage"
     }
     ```
 
@@ -283,7 +283,7 @@ You can use the `ResetPasswordForm` component to build your reset password page:
 
     route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
     page PasswordResetPage {
-      component: import { ResetPasswordPage } from "@src/ResetPasswordPage.jsx"
+      component: import { ResetPasswordPage } from "@src/ResetPasswordPage"
     }
     ```
 
@@ -303,7 +303,7 @@ You can use the `ResetPasswordForm` component to build your reset password page:
 
     route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
     page PasswordResetPage {
-      component: import { ResetPasswordPage } from "@src/ResetPasswordPage.tsx"
+      component: import { ResetPasswordPage } from "@src/ResetPasswordPage"
     }
     ```
 
@@ -335,7 +335,7 @@ You can use the `VerifyEmailForm` component to build your email verification pag
 
     route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
     page EmailVerificationPage {
-      component: import { VerifyEmailPage } from "@src/VerifyEmailPage.jsx"
+      component: import { VerifyEmailPage } from "@src/VerifyEmailPage"
     }
     ```
 
@@ -355,7 +355,7 @@ You can use the `VerifyEmailForm` component to build your email verification pag
 
     route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
     page EmailVerificationPage {
-      component: import { VerifyEmailPage } from "@src/VerifyEmailPage.tsx"
+      component: import { VerifyEmailPage } from "@src/VerifyEmailPage"
     }
     ```
 

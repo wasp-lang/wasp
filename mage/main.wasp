@@ -1,6 +1,6 @@
 app waspAi {
   wasp: {
-    version: "^0.18.1"
+    version: "^0.18.2"
   },
   title: "MAGE - GPT Web App Generator ✨",
   head: [
@@ -17,7 +17,7 @@ app waspAi {
     "<script src=\"/piggy.js\"></script>",
   ],
   client: {
-    rootComponent: import { RootComponent } from "@src/client/RootComponent.jsx",
+    rootComponent: import { RootComponent } from "@src/client/RootComponent",
   },
   auth: {
     userEntity: User,
@@ -38,93 +38,93 @@ app waspAi {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@src/client/pages/MainPage.jsx"
+  component: import Main from "@src/client/pages/MainPage"
 }
 
 route ResultRoute { path: "/result/:appId", to: ResultPage }
 page ResultPage {
-  component: import { ResultPage } from "@src/client/pages/ResultPage.jsx"
+  component: import { ResultPage } from "@src/client/pages/ResultPage"
 }
 
 route UserRoute { path: "/user", to: UserPage }
 page UserPage {
-  component: import { UserPage } from "@src/client/pages/UserPage.jsx",
+  component: import { UserPage } from "@src/client/pages/UserPage",
   authRequired: true
 }
 
 route StatsRoute { path: "/stats", to: StatsPage }
 page StatsPage {
-  component: import { Stats } from "@src/client/pages/StatsPage.jsx",
+  component: import { Stats } from "@src/client/pages/StatsPage",
   authRequired: true
 }
 
 route FeedbackRoute { path: "/feedback", to: FeedbackPage }
 page FeedbackPage {
-  component: import { Feedback } from "@src/client/pages/FeedbackPage.jsx",
+  component: import { Feedback } from "@src/client/pages/FeedbackPage",
   authRequired: true
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@src/client/pages/LoginPage.jsx",
+  component: import { LoginPage } from "@src/client/pages/LoginPage",
 }
 
 action startGeneratingNewApp {
-  fn: import { startGeneratingNewApp } from "@src/server/operations.js",
+  fn: import { startGeneratingNewApp } from "@src/server/operations",
   entities: [
     Project,
   ]
 }
 
 action registerZipDownload {
-  fn: import { registerZipDownload } from "@src/server/operations.js",
+  fn: import { registerZipDownload } from "@src/server/operations",
   entities: [Project]
 }
 
 action createFeedback {
-  fn: import { createFeedback } from "@src/server/operations.js",
+  fn: import { createFeedback } from "@src/server/operations",
   entities: [Feedback]
 }
 
 action deleteMyself {
-  fn: import { deleteMyself } from "@src/server/operations.js",
+  fn: import { deleteMyself } from "@src/server/operations",
   entities: [User, Project, File, Log]
 }
 
 query getFeedback {
-  fn: import { getFeedback } from "@src/server/operations.js",
+  fn: import { getFeedback } from "@src/server/operations",
   entities: [Feedback]
 }
 
 query getProjectsByUser {
-  fn: import { getProjectsByUser } from "@src/server/operations.js",
+  fn: import { getProjectsByUser } from "@src/server/operations",
   entities: [Project]
 }
 
 
 query getAppGenerationResult {
-  fn: import { getAppGenerationResult } from "@src/server/operations.js",
+  fn: import { getAppGenerationResult } from "@src/server/operations",
   entities: [
     Project
   ]
 }
 
 query getProjects {
-  fn: import { getProjects } from "@src/server/operations.js",
+  fn: import { getProjects } from "@src/server/operations",
   entities: [
     Project
   ]
 }
 
 query getStats {
-  fn: import { getStats } from "@src/server/operations.js",
+  fn: import { getStats } from "@src/server/operations",
   entities: [
     Project
   ]
 }
 
 query getNumProjects {
-  fn: import { getNumProjects } from "@src/server/operations.js",
+  fn: import { getNumProjects } from "@src/server/operations",
   entities: [
     Project
   ]
@@ -136,7 +136,7 @@ job checkPendingAppsJob {
     cron: "* * * * *",
   },
   perform: {
-    fn: import { checkForPendingApps } from "@src/server/jobs/checkForPendingApps.js"
+    fn: import { checkForPendingApps } from "@src/server/jobs/checkForPendingApps"
   },
   entities: [Project]
 }
@@ -147,7 +147,7 @@ job failStaleAppsJobs {
     cron: "* * * * *",
   },
   perform: {
-    fn: import { failStaleGenerations } from "@src/server/jobs/failStaleGenerations.js",
+    fn: import { failStaleGenerations } from "@src/server/jobs/failStaleGenerations",
   },
   entities: [Project, Log]
 }
@@ -155,7 +155,7 @@ job failStaleAppsJobs {
 job generateAppJob {
   executor: PgBoss,
   perform: {
-    fn: import { generateApp } from "@src/server/jobs/generateApp.js",
+    fn: import { generateApp } from "@src/server/jobs/generateApp",
   },
   entities: [
     Project,
