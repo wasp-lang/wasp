@@ -1,11 +1,11 @@
 module Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import SnapshotTest.ShellCommands
+import SnapshotTest.TestCommands
   ( createSnapshotWaspProjectFromMinimalStarter,
     withInSnapshotWaspProjectDir,
   )
-import WaspProject.ShellCommands
+import WaspProject.TestCommands
   ( setWaspDbToPSQL,
     validateWaspProjectDockerImageBuilds,
     waspCliBuild,

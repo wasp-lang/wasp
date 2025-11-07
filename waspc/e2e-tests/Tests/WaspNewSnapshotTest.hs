@@ -1,7 +1,7 @@
 module Tests.WaspNewSnapshotTest (waspNewSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import SnapshotTest.ShellCommands (createSnapshotWaspProjectFromMinimalStarter)
+import SnapshotTest.TestCommands (createSnapshotWaspProjectFromMinimalStarter)
 
 waspNewSnapshotTest :: SnapshotTest
 waspNewSnapshotTest =

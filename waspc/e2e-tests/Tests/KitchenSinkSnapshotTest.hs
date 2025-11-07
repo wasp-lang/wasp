@@ -1,16 +1,16 @@
 module Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
 
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-  )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import SnapshotTest.ShellCommands
+import SnapshotTest.TestCommands
   ( copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
     withInSnapshotWaspProjectDir,
   )
 import StrongPath (reldir)
-import WaspProject.ShellCommands
+import TestCommands
+  ( TestCommand,
+    shellCommand,
+  )
+import WaspProject.TestCommands
   ( WaspProjectContext,
     waspCliCompile,
   )
@@ -27,8 +27,8 @@ kitchenSinkSnapshotTest =
         ]
     ]
   where
-    createDotEnvServerFile :: ShellCommandBuilder WaspProjectContext ShellCommand
-    createDotEnvServerFile = return "cp .env.server.example .env.server"
+    createDotEnvServerFile :: TestCommand WaspProjectContext ()
+    createDotEnvServerFile = shellCommand "cp .env.server.example .env.server"
 
-    normalizePostgresConnectionString :: ShellCommandBuilder WaspProjectContext ShellCommand
-    normalizePostgresConnectionString = return "printf '\\nDATABASE_URL=mock-database-url\\n' >> .env.server"
+    normalizePostgresConnectionString :: TestCommand WaspProjectContext ()
+    normalizePostgresConnectionString = shellCommand "printf '\\nDATABASE_URL=mock-database-url\\n' >> .env.server"

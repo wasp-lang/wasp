@@ -797,12 +797,12 @@ test-suite waspc-e2e-tests
     , tasty-golden          ^>= 2.3.5
   other-modules:
     FileSystem
-    ShellCommands
-    WaspProject.ShellCommands
+    TestCommands
+    WaspProject.TestCommands
     SnapshotTest
     SnapshotTest.Snapshot
     SnapshotTest.FileSystem
-    SnapshotTest.ShellCommands
+    SnapshotTest.TestCommands
     Tests.WaspNewSnapshotTest
     Tests.KitchenSinkSnapshotTest
     Tests.WaspMigrateSnapshotTest

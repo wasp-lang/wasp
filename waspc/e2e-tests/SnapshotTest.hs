@@ -5,18 +5,16 @@ module SnapshotTest
   )
 where
 
-import Control.Monad (filterM)
+import Control.Monad (filterM, when)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (sort)
 import Data.Maybe (fromJust)
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    buildShellCommand,
-    (~&&),
+import TestCommands
+  ( TestCommand,
+    runTestCommand,
   )
 import SnapshotTest.FileSystem
   ( SnapshotDir,
@@ -30,27 +28,33 @@ import SnapshotTest.FileSystem
     snapshotFileListManifestFileInSnapshotDir,
     snapshotWaspProjectDirInSnapshotDir,
   )
-import SnapshotTest.ShellCommands (SnapshotTestContext (..))
+import SnapshotTest.TestCommands (SnapshotTestContext (..))
 import StrongPath (Abs, Dir, File, Path', (</>))
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
+import System.Directory
+  ( createDirectory,
+    createDirectoryIfMissing,
+    doesDirectoryExist,
+    doesFileExist,
+    removeDirectoryRecursive,
+    withCurrentDirectory,
+  )
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (equalFilePath, makeRelative, takeFileName)
-import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
-import WaspProject.ShellCommands (WaspProjectContext (..))
+import WaspProject.TestCommands (WaspProjectContext (..))
 
 data SnapshotTest = SnapshotTest
   { _snapshotTestName :: String,
-    _snapshotTestCommandsBuilder :: ShellCommandBuilder SnapshotTestContext [ShellCommand]
+    _snapshotTestCommands :: [TestCommand SnapshotTestContext ()]
   }
 
-makeSnapshotTest :: String -> [ShellCommandBuilder SnapshotTestContext ShellCommand] -> SnapshotTest
-makeSnapshotTest snapshotTestName snapshotTestCommandBuilders =
+makeSnapshotTest :: String -> [TestCommand SnapshotTestContext ()] -> SnapshotTest
+makeSnapshotTest snapshotTestName snapshotTestCommands =
   SnapshotTest
     { _snapshotTestName = snapshotTestName,
-      _snapshotTestCommandsBuilder = sequence snapshotTestCommandBuilders
+      _snapshotTestCommands = snapshotTestCommands
     }
 
 -- | Runs a snapshot test by executing snapshot test's shell commands and then
@@ -79,20 +83,25 @@ runSnapshotTest snapshotTest = do
 -- 2. Ensuring the current and golden snapshot directories exist.
 setupSnapshotTestEnvironment :: Path' Abs (Dir SnapshotDir) -> Path' Abs (Dir SnapshotDir) -> IO ()
 setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
-  callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
+  let currentDir = SP.fromAbsDir currentSnapshotDir
+  let goldenDir = SP.fromAbsDir goldenSnapshotDir
 
-  callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
-  callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
+  -- Remove current snapshot dir if it exists
+  exists <- doesDirectoryExist currentDir
+  when exists $ removeDirectoryRecursive currentDir
+
+  -- Create directories
+  createDirectory currentDir
+  createDirectoryIfMissing True goldenDir
 
 executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO ()
 executeSnapshotTestCommand snapshotTest snapshotDir = do
   putStrLn $ "Executing snapshot test: " ++ _snapshotTestName snapshotTest
-  putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommand $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
-  where
-    snapshotTestCommand :: ShellCommand
-    snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext (_snapshotTestCommandsBuilder snapshotTest)
 
+  -- Run all test commands in the snapshot directory
+  withCurrentDirectory (SP.fromAbsDir snapshotDir) $
+    mapM_ (runTestCommand snapshotTestContext) (_snapshotTestCommands snapshotTest)
+  where
     snapshotTestContext :: SnapshotTestContext
     snapshotTestContext =
       SnapshotTestContext
