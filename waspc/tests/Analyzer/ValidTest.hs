@@ -1,7 +1,7 @@
 module Analyzer.ValidTest where
 
 import Data.Either (fromRight, isRight)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Analyzer.Parser hiding (withCtx)
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Parser.Valid (validateAst)

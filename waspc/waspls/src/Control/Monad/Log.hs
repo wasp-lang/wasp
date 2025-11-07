@@ -26,5 +26,5 @@ newtype LogT m a = LogT (WriterT [String] m a)
 runLogT :: LogT m a -> m (a, [String])
 runLogT (LogT m) = runWriterT m
 
-instance Monad m => MonadLog (LogT m) where
+instance (Monad m) => MonadLog (LogT m) where
   logM msg = LogT $ tell [msg]

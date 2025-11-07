@@ -15,7 +15,7 @@ import qualified Network.HTTP.Simple as HTTP
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Exception (catch, throwIO)
 
-catchRetryableHttpException :: MonadUnliftIO m => m a -> (HTTP.HttpException -> m a) -> m a
+catchRetryableHttpException :: (MonadUnliftIO m) => m a -> (HTTP.HttpException -> m a) -> m a
 catchRetryableHttpException action handle =
   action
     `catch` ( \e -> case e of
@@ -45,6 +45,7 @@ httpJSONThatThrowsIfNot2xx request = do
 
   let statusCode = HTTP.getResponseStatusCode response
   when (statusCode < 200 || statusCode >= 300) $
-    throwIO $ HTTP.HttpExceptionRequest request (HTTP.C.StatusCodeException (void response) "")
+    throwIO $
+      HTTP.HttpExceptionRequest request (HTTP.C.StatusCodeException (void response) "")
 
   return $ Aeson.eitherDecode $ HTTP.getResponseBody response

@@ -278,7 +278,7 @@ validateUniqueDeclarationNames spec =
       checkIfDeclarationsAreUnique "job" (AS.getJobs spec)
     ]
   where
-    checkIfDeclarationsAreUnique :: IsDecl a => String -> [(String, a)] -> [ValidationError]
+    checkIfDeclarationsAreUnique :: (IsDecl a) => String -> [(String, a)] -> [ValidationError]
     checkIfDeclarationsAreUnique declTypeName decls = case duplicateDeclNames of
       [] -> []
       (firstDuplicateDeclName : _) ->
@@ -442,4 +442,7 @@ getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
 getLowestNodeVersionUserAllows :: AppSpec -> SV.Version
 getLowestNodeVersionUserAllows spec =
   fromMaybe (error "This should never happen: user Node version range lower bound is Inf") $
-    SVB.versionFromBound $ fst $ SVB.versionBounds $ AS.userNodeVersionRange spec
+    SVB.versionFromBound $
+      fst $
+        SVB.versionBounds $
+          AS.userNodeVersionRange spec

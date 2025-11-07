@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.Telemetry.ProjectTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Cli.Command.Telemetry.Project
   ( checkIfEnvValueIsTruthy,
   )
