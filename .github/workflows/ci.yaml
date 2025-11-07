@@ -7,6 +7,7 @@ on:
     branches:
       - main
       - release
+  # just testing stuff
   pull_request:
   workflow_call:
   workflow_dispatch:
