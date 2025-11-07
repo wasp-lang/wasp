@@ -107,17 +107,17 @@ startPostgreDevDb waspProjectDir appName = do
   --   only when initializing the database -> if it already exists, they will be ignored.
   --   This is how the postgres Docker image works.
   let command =
-          unwords
-              [ "docker run",
-                printf "--name %s" dockerContainerName,
-                "--rm",
-                printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
-                printf "-v %s:%s" dockerVolumeName postgresDockerVolumePath,
-                printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
-                printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
-                printf "--env POSTGRES_DB=%s" dbName,
-                postgresDockerImage
-              ]
+        unwords
+          [ "docker run",
+            printf "--name %s" dockerContainerName,
+            "--rm",
+            printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
+            printf "-v %s:%s" dockerVolumeName postgresDockerVolumePath,
+            printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
+            printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
+            printf "--env POSTGRES_DB=%s" dbName,
+            postgresDockerImage
+          ]
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
@@ -166,6 +166,7 @@ maxDockerContainerNameLength :: Int
 maxDockerContainerNameLength = 63
 
 type PostgresDockerImage = String
+
 type PostgresDockerVolumeMountPath = String
 
 -- | We pin the Postgres Docker image to avoid issues when a new major version of Postgres
@@ -175,6 +176,6 @@ type PostgresDockerVolumeMountPath = String
 waspDevDbPostgresDockerImageSpec :: (PostgresDockerImage, PostgresDockerVolumeMountPath)
 waspDevDbPostgresDockerImageSpec = ("postgres:18", postgresDockerVolumeMountPath)
   where
-  -- | Path inside the Postgres Docker container where the database files are stored.
-  postgresDockerVolumeMountPath :: PostgresDockerVolumeMountPath
-  postgresDockerVolumeMountPath = "/var/lib/postgresql"
+    -- Path inside the Postgres Docker container where the database files are stored.
+    postgresDockerVolumeMountPath :: PostgresDockerVolumeMountPath
+    postgresDockerVolumeMountPath = "/var/lib/postgresql"
