@@ -107,31 +107,24 @@ startPostgreDevDb waspProjectDir appName = do
   --   only when initializing the database -> if it already exists, they will be ignored.
   --   This is how the postgres Docker image works.
   let command =
-        printf
-          ( unwords
-              [ "docker run",
-                "--name %s",
-                "--rm",
-                "--publish %d:5432",
-                "-v %s:/var/lib/postgresql/data",
-                "--env POSTGRES_PASSWORD=%s",
-                "--env POSTGRES_USER=%s",
-                "--env POSTGRES_DB=%s",
-                "postgres"
-              ]
-          )
-          dockerContainerName
-          Dev.Postgres.defaultDevPort
-          dockerVolumeName
-          Dev.Postgres.defaultDevPass
-          Dev.Postgres.defaultDevUser
-          dbName
+        unwords
+          [ "docker run",
+            printf "--name %s" dockerContainerName,
+            "--rm",
+            printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
+            printf "-v %s:%s" dockerVolumeName postgresDockerVolumeMountPath,
+            printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
+            printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
+            printf "--env POSTGRES_DB=%s" dbName,
+            postgresDockerImage
+          ]
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
     dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
     dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
     connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
+    (postgresDockerImage, postgresDockerVolumeMountPath) = waspDevDbPostgresDockerImageSpec
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
     throwIfDevDbPortIsAlreadyInUse = do
@@ -171,3 +164,18 @@ makeWaspDevDbDockerContainerName waspProjectDir appName =
 
 maxDockerContainerNameLength :: Int
 maxDockerContainerNameLength = 63
+
+type PostgresDockerImage = String
+
+type PostgresDockerVolumeMountPath = String
+
+-- | We pin the Postgres Docker image to avoid issues when a new major version of Postgres
+-- is released. We aim to occasionally update this version in Wasp releases.
+-- If you bump the Postgres version here, also check if `postgresDockerVolumeMountPath`
+-- is still correct.
+waspDevDbPostgresDockerImageSpec :: (PostgresDockerImage, PostgresDockerVolumeMountPath)
+waspDevDbPostgresDockerImageSpec = ("postgres:18", postgresDockerVolumeMountPath)
+  where
+    -- Path inside the Postgres Docker container where the database files are stored.
+    postgresDockerVolumeMountPath :: PostgresDockerVolumeMountPath
+    postgresDockerVolumeMountPath = "/var/lib/postgresql"
