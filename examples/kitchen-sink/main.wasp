@@ -27,8 +27,8 @@ app KitchenSink {
         userSignupFields: import { userSignupFields } from "@src/features/auth/providers/google"
       },
       gitHub: {
-        configFn: import { config } from "@src/features/auth/providers/github.js",
-        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/github.js"
+        configFn: import { config } from "@src/features/auth/providers/github",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/github"
       },
       // keycloak: {},
       email: {
@@ -49,11 +49,11 @@ app KitchenSink {
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/",
-    onBeforeSignup: import { onBeforeSignup } from "@src/features/auth/hooks.js",
-    onAfterSignup: import { onAfterSignup } from "@src/features/auth/hooks.js",
-    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/features/auth/hooks.js",
-    onBeforeLogin: import { onBeforeLogin } from "@src/features/auth/hooks.js",
-    onAfterLogin: import { onAfterLogin } from "@src/features/auth/hooks.js",
+    onBeforeSignup: import { onBeforeSignup } from "@src/features/auth/hooks",
+    onAfterSignup: import { onAfterSignup } from "@src/features/auth/hooks",
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/features/auth/hooks",
+    onBeforeLogin: import { onBeforeLogin } from "@src/features/auth/hooks",
+    onAfterLogin: import { onAfterLogin } from "@src/features/auth/hooks",
   },
   server: {
     setupFn: import { setup } from "@src/serverSetup",

@@ -4,9 +4,9 @@ import { github } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { userSignupFields } from '../../../../../../../src/features/auth/providers/github.js'
+import { userSignupFields } from '../../../../../../../src/features/auth/providers/github'
 const _waspUserSignupFields = userSignupFields
-import { config } from '../../../../../../../src/features/auth/providers/github.js'
+import { config } from '../../../../../../../src/features/auth/providers/github'
 const _waspUserDefinedConfigFn = config
 
 const _waspConfig: ProviderConfig = {
