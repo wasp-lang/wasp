@@ -2,7 +2,7 @@ module Generator.JsImportTest where
 
 import StrongPath (Dir, Path, Posix, Rel)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.AppSpec.ExtImport
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.JsImport

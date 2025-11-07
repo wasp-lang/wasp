@@ -1,0 +1,59 @@
+name: Fetch nightly CLI
+description: From an outside repo, fetch the latest nightly CLI build from Wasp's CI runs.
+
+inputs:
+  branch:
+    description: The branch to fetch the nightly build from. Defaults to 'main'.
+    required: false
+    default: main
+  token:
+    description: GitHub token to authenticate the request.
+    required: false
+    default: ${{ github.token }}
+  output-dir:
+    description: Directory to download the CLI build into. Defaults to the current directory.
+    required: false
+    default: "."
+
+runs:
+  using: composite
+
+  steps:
+    - name: Get latest successful run ID
+      id: get_run_id
+      shell: bash
+      run: |
+        run_id=$(
+          gh run list \
+            --workflow "$WORKFLOW_NAME" \
+            --branch "$BRANCH" \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId'
+        )
+        echo "run_id=$run_id" >> $GITHUB_OUTPUT
+      env:
+        GH_REPO: wasp-lang/wasp
+        GH_TOKEN: ${{ inputs.token }}
+        BRANCH: ${{ inputs.branch }}
+        WORKFLOW_NAME:
+          # This name must be in sync with the name used in:
+          # /.github/workflows/ci.yaml
+          "CI"
+
+    - name: Download artifact
+      shell: bash
+      run: |
+        gh run download "$RUN_ID" \
+          --name "$ARTIFACT_NAME" \
+          --dir "$OUTPUT_DIR"
+      env:
+        GH_REPO: wasp-lang/wasp
+        GH_TOKEN: ${{ inputs.token }}
+        RUN_ID: ${{ steps.get_run_id.outputs.run_id }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+        ARTIFACT_NAME:
+          # This is the name of the artifact (not the file), which must be in sync with:
+          # /.github/workflows/ci-waspc-build.yaml
+          "wasp-cli-${{ runner.os == 'Linux' && 'linux' || 'macos' }}-${{ runner.arch == 'ARM64' && 'aarch64' || 'x86_64' }}"

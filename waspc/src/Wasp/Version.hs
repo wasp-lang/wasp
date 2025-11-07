@@ -5,6 +5,6 @@ import qualified Paths_waspc
 import qualified Wasp.SemanticVersion as SV
 
 waspVersion :: SV.Version
-waspVersion = SV.Version (toEnum major) (toEnum minor) (toEnum patch)
-  where
-    DV.Version [major, minor, patch] _ = Paths_waspc.version
+waspVersion = case Paths_waspc.version of
+  DV.Version [major, minor, patch] _ -> SV.Version (toEnum major) (toEnum minor) (toEnum patch)
+  _ -> error "This should never happen. Wasp binary version must have exactly three digits, but it doesn't."

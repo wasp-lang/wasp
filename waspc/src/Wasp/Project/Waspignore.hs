@@ -27,7 +27,7 @@ instance AffectedByWaspignoreFile SourceExternalCodeDir
 instance AffectedByWaspignoreFile SourceExternalPublicDir
 
 getNotIgnoredRelFilePaths ::
-  AffectedByWaspignoreFile d =>
+  (AffectedByWaspignoreFile d) =>
   Path' Abs File' ->
   Path' Abs (Dir d) ->
   IO [Path' (Rel d) File']

@@ -16,7 +16,7 @@ import qualified Wasp.Util.IO as IOUtil
 -- | Uses Node.js to parse JSON with comments by treating it as a JavaScript object.
 -- We use this technique because Aeson can't read JSON with comments and we didn't want to write
 -- a custom parser.
-parseJsonWithComments :: FromJSON a => String -> IO (Either String a)
+parseJsonWithComments :: (FromJSON a) => String -> IO (Either String a)
 parseJsonWithComments jsonStr = do
   let evalScript = "const v = " ++ jsonStr ++ ";console.log(JSON.stringify(v));"
   let cp = P.proc "node" ["-e", evalScript]

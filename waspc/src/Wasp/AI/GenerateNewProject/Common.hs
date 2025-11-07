@@ -95,7 +95,7 @@ instance Aeson.FromJSON AuthProvider where
 -- TODO: Make these relative to WaspProjectDir, via StrongPath?
 type File = (FilePath, Text)
 
-queryChatGPTForJSON :: FromJSON a => ChatGPTParams -> [ChatMessage] -> CodeAgent a
+queryChatGPTForJSON :: (FromJSON a) => ChatGPTParams -> [ChatMessage] -> CodeAgent a
 queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
   where
     -- Retry logic here got a bit complex, here is a short explanation.

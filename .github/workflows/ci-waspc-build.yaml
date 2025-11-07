@@ -76,16 +76,13 @@ jobs:
               apk add zlib-dev zlib-static
 
           - name: macos-x86_64
-            runner: macos-15-intel # Latest image still based on Intel architecture that can be used for free
-
+            runner: macos-15-intel
             # macOS's syscalls are private and change between versions, so we
-            # can't statically link the binary. However, on macOS programs link
-            # to `libSystem`, which is quite stable between releases, so we're
-            # fine depending on it.
+            # can't statically link the binary.
             static: false
 
           - name: macos-aarch64
-            runner: macos-latest # Latest macOS images are already Apple Silicon-based
+            runner: macos-15 # By default an Apple Silicon-based runner.
             static: false # Check the comment above for why we can't statically link on macOS
             install-deps: |
               # We need to install llvm@13 for building on Apple Silicon (prebuilt libraries
@@ -111,10 +108,6 @@ jobs:
               # Install and link the formula
               brew install --formula "$repo_name/$formula_name"
               brew link --force "$repo_name/$formula_name"
-
-              # Workaround for GHC 9.0.2 and Apple Silicon
-              # https://gitlab.haskell.org/ghc/ghc/-/issues/20592
-              echo C_INCLUDE_PATH="`xcrun --show-sdk-path`/usr/include/ffi" >> $GITHUB_ENV
 
     runs-on: ${{ matrix.env.runner }}
     container: ${{ matrix.env.container }}
@@ -147,12 +140,15 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: ./waspc/artifacts/*
-          name: wasp-cli-${{ matrix.env.name }}
+          name:
+            "wasp-cli-${{ matrix.env.name }}"
+            # This name must be in sync with the artifact name used in:
+            # /.github/actions/fetch-nightly-cli/action.yaml
           if-no-files-found: error
 
   build-universal:
     needs: build
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Download macOS binaries
         uses: actions/download-artifact@v5

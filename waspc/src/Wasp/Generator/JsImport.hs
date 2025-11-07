@@ -21,7 +21,7 @@ import Wasp.JsImport
   )
 
 extImportToJsImport ::
-  GeneratedSrcDir d =>
+  (GeneratedSrcDir d) =>
   Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
