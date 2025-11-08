@@ -78,7 +78,7 @@ jobs:
         run: ./tools/install_packages_to_data_dir.sh
 
       - name: Compile Wasp libs and move them into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-13'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
         run: ./tools/install_libs_to_data_dir.sh
 
       - name: Build external dependencies
