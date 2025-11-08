@@ -24,7 +24,7 @@ app MyApp {
 route RootRoute { path: "/", to: DashboardPage }
 
 page DashboardPage {
-  component: import { DashboardPage } from "@src/Dashboard.jsx"
+  component: import { DashboardPage } from "@src/Dashboard"
 }
 ```
 

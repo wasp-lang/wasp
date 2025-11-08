@@ -76,43 +76,43 @@ waspFileExample =
             onAuthFailedRedirectTo: "/login"
           },
           client: {
-            rootComponent: import { Layout } from "@src/Layout.jsx",
+            rootComponent: import { Layout } from "@src/Layout",
           },
         }
 
         route SignupRoute { path: "/signup", to: SignupPage }
         page SignupPage {
-          component: import Signup from "@src/pages/auth/Signup.jsx"
+          component: import Signup from "@src/pages/auth/Signup"
         }
 
         route LoginRoute { path: "/login", to: LoginPage }
         page LoginPage {
-          component: import Login from "@src/pages/auth/Login.jsx"
+          component: import Login from "@src/pages/auth/Login"
         }
 
         route DashboardRoute { path: "/", to: DashboardPage }
         page DashboardPage {
           authRequired: true,
-          component: import Dashboard from "@src/pages/Dashboard.jsx"
+          component: import Dashboard from "@src/pages/Dashboard"
         }
 
         query getUser {
-          fn: import { getUser } from "@src/queries.js",
+          fn: import { getUser } from "@src/queries",
           entities: [User] // Entities that this query operates on.
         }
 
         query getTasks {
-          fn: import { getTasks } from "@src/queries.js",
+          fn: import { getTasks } from "@src/queries",
           entities: [Task]
         }
 
         action createTask {
-          fn: import { createTask } from "@src/actions.js",
+          fn: import { createTask } from "@src/actions",
           entities: [Task]
         }
 
         action updateTask {
-          fn: import { updateTask } from "@src/actions.js",
+          fn: import { updateTask } from "@src/actions",
           entities: [Task]
         }
         ```

@@ -81,12 +81,6 @@ to build the whole `waspc` project.
 This might take a while (e.g. 10 mins) if you are doing it for the very first time, due to having to download all the dependencies (which will later be cached).
 If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" 😀.
 
-> [!NOTE]
-> If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS).
-> The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
->
-> If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/opt/llvm@13/bin:$PATH"`.
-
 ### Run tests
 
 ```sh
