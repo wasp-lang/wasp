@@ -80,6 +80,7 @@ jobs:
       - name: Compile TS packages and move it into the Cabal data dir on Windows
         if: matrix.os == 'windows-latest'
         run: ./tools/install_packages_to_data_dir.ps1
+        shell: pwsh
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
