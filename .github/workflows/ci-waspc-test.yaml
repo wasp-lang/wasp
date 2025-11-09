@@ -77,7 +77,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
         run: ./tools/install_packages_to_data_dir.sh
 
-      - name: Compile TS packages and move it into the Cabal data dir on Windows
+      - name: Compile TS packages and move them into the Cabal data dir on Windows
         if: matrix.os == 'windows-latest'
         run: ./tools/install_packages_to_data_dir.ps1
 
