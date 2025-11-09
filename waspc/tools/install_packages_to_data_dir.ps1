@@ -1,5 +1,5 @@
 # Helper to compile the waspc/packages/* packages locally and in CI.
-# It will then move it into the Cabal data dir (and thus, the installer archive in CI releases).
+# It will then move them into the Cabal data dir (and thus, the installer archive in CI releases).
 # PSVersion 5.1 or higher is required.
 
 # Gets the directory of where this script lives.
@@ -20,7 +20,6 @@ foreach ($package in $packageDirs) {
     try {
         npm install
         npm run build
-        # Remove node_modules directory
         Remove-Item -Path "./node_modules" -Recurse -Force
     }
     finally {
