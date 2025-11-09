@@ -29,7 +29,9 @@ foreach ($package in $packageDirs) {
 
 Push-Location "$dir/.."
 try {
-    Remove-Item -Path "./data/packages" -Recurse -Force
+    if (Test-Path "./data/packages") {
+        Remove-Item -Path "./data/packages" -Recurse -Force
+    }
     Copy-Item -Path "./packages" -Destination "./data/packages" -Recurse
 }
 finally {
