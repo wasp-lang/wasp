@@ -611,6 +611,7 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.GithubRepo
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.Parser
 
 executable wasp-cli
