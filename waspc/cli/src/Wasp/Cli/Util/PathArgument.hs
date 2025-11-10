@@ -1,12 +1,12 @@
 module Wasp.Cli.Util.PathArgument
-  ( PathArgument,
-    getPath,
-    pathReader,
+  ( FilePathArgument,
+    getFilePath,
+    filePathReader,
   )
 where
 
 import Options.Applicative (ReadM, str)
-import StrongPath (Abs, File, Path')
+import StrongPath (Abs, File', Path')
 import StrongPath.FilePath (parseAbsFile)
 import System.Directory (makeAbsolute)
 
@@ -15,11 +15,12 @@ import System.Directory (makeAbsolute)
 -- which kind of path it is, but we also don't want any unsafe transformations
 -- in the meantime; so we make this type opaque until we have access to the IO
 -- monad.
-newtype PathArgument = PathArgument FilePath
+
+newtype FilePathArgument = FilePathArgument FilePath
   deriving (Show, Eq)
 
-pathReader :: ReadM PathArgument
-pathReader = PathArgument <$> str
+filePathReader :: ReadM FilePathArgument
+filePathReader = FilePathArgument <$> str
 
-getPath :: PathArgument -> IO (Path' Abs (File ()))
-getPath (PathArgument filePath) = makeAbsolute filePath >>= parseAbsFile
+getFilePath :: FilePathArgument -> IO (Path' Abs File')
+getFilePath (FilePathArgument filePath) = makeAbsolute filePath >>= parseAbsFile

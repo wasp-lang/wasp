@@ -23,7 +23,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
-import Wasp.Cli.Util.PathArgument (PathArgument)
+import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (ProjectRootDir)
@@ -109,11 +109,11 @@ overrideEnvVarsCommand forced existing =
             intercalate ", " duplicateNames
     Right combined -> return combined
 
-combineEnvVarsWithEnvFiles :: [EnvVar] -> [PathArgument] -> IO [EnvVar]
+combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
 combineEnvVarsWithEnvFiles pairs files = do
   pairsFromFiles <- mapM readEnvVarsFromFile files
   let allEnvVars = pairs <> concat pairsFromFiles
   return $ nubEnvVars allEnvVars
 
-readEnvVarsFromFile :: PathArgument -> IO [EnvVar]
-readEnvVarsFromFile pathArg = PathArgument.getPath pathArg >>= parseDotEnvFile
+readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
+readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile
