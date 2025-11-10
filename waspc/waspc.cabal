@@ -814,6 +814,7 @@ test-suite waspc-e2e-tests
     EphemeralTest.FileSystem
     EphemeralTest.ShellCommands
     EphemeralTest.WaspCompletionEphemeralTest
+    EphemeralTest.WaspNewEphemeralTest
     EphemeralTest.WaspVersionEphemeralTest
     EphemeralTest.WaspInfoEphemeralTest
     EphemeralTest.WaspDockerfileEphemeralTest

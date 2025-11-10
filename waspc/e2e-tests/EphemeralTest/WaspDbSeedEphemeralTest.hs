@@ -1,10 +1,11 @@
 module EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
+import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import WaspProject.ShellCommands (appendToPrismaFile, waspCliMigrate, waspCliCompile, createSeedFile, replaceMainWaspFile, waspCliDbSeed)
 import StrongPath (fromRelFile, (</>))
 import WaspProject.FileSystem (seedsDirInWaspProjectDir, seedsFileInSeedsDir)
+import ShellCommands (WaspNewTemplate(..))
 
 waspDbSeedEphemeralTest :: EphemeralTest
 waspDbSeedEphemeralTest =
@@ -15,7 +16,7 @@ waspDbSeedEphemeralTest =
         (return "! wasp-cli db seed"),
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
-        createEphemeralWaspProjectFromMinimalStarter,
+        (createEphemeralWaspProject Minimal),
       makeEphemeralTestCase
         "Setup: Add a Task model to prisma and migrate"
         ( withInEphemeralWaspProjectDir
@@ -23,10 +24,13 @@ waspDbSeedEphemeralTest =
               appendToPrismaFile taskPrismaModel,
               waspCliMigrate "foo",
               createSeedFile
+                (seedScriptThatPopulatesTasksTableName ++ ".ts")
                 seedScriptThatPopulatesTasksTable,
               createSeedFile
+                (seedScriptThatAssertsTasksTableIsEmptyName ++ ".ts")
                 seedScriptThatAssertsTasksTableIsEmpty,
               createSeedFile
+                (seedScriptThatAssertsTasksTableIsNotEmptyName ++ ".ts")
                 seedScriptThatAssertsTasksTableIsNotEmpty,
               replaceMainWaspFile mainWaspWithSeeds
             ]
@@ -65,9 +69,9 @@ waspDbSeedEphemeralTest =
           "  ],",
           "  db: {",
           "    seeds: [",
-          "      import { " ++ seedScriptThatPopulatesTasksTableName ++ " } from \"@" ++ fromRelFile (seedsDirInWaspProjectDir </> seedsFileInSeedsDir) ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++" } from \"@" ++ fromRelFile (seedsDirInWaspProjectDir </> seedsFileInSeedsDir) ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++" } from \"@" ++ fromRelFile (seedsDirInWaspProjectDir </> seedsFileInSeedsDir) ++ "\"",
+          "      import { " ++ seedScriptThatPopulatesTasksTableName ++ " } from \"@src/db/" ++ seedScriptThatPopulatesTasksTableName ++ "\",",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++" } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "\",",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++" } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "\"",
           "    ]",
           "  },",
           "}",

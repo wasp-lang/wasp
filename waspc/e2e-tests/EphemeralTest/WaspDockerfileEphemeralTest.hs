@@ -1,8 +1,9 @@
 module EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
+import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDockerfile)
+import ShellCommands (WaspNewTemplate(..))
 
 -- TODO: Test `wasp dockerfile` content.
 waspDockerfileEphemeralTest :: EphemeralTest
@@ -14,7 +15,7 @@ waspDockerfileEphemeralTest =
         (return "! wasp-cli dockerfile"), -- we use a string here because `WaspProject.ShellCommands.waspCliDockerfile` has a 'WaspProject.ShellCommands.WaspProjectContext' requirement
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
-        createEphemeralWaspProjectFromMinimalStarter,
+        (createEphemeralWaspProject Minimal),
       makeEphemeralTestCase
         "Should succeed inside of a Wasp project"
         (withInEphemeralWaspProjectDir [waspCliDockerfile])

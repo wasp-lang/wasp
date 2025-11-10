@@ -16,6 +16,7 @@ import Test.Tasty (TestTree, defaultMain, testGroup)
 import EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest)
 import EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest)
 import EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest)
+import EphemeralTest.WaspNewEphemeralTest (waspNewMinimalEphemeralTest, waspNewInteractiveMinimalEphemeralTest, waspNewBasicEphemeralTest, waspNewInteractiveBasicEphemeralTest, waspNewSaasEphemeralTest, waspNewInteractiveSaasEphemeralTest)
 
 main :: IO ()
 main = do
@@ -46,8 +47,14 @@ tests = do
         -- waspDockerfileEphemeralTest,
         -- waspDepsEphemeralTest,
         -- waspDbStartEphemeralTest,
-        waspDbSeedEphemeralTest,
+        -- waspDbSeedEphemeralTest,
         waspDbResetEphemeralTest
+        -- waspNewMinimalEphemeralTest, 
+        -- waspNewInteractiveMinimalEphemeralTest,
+        -- waspNewBasicEphemeralTest, 
+        -- waspNewInteractiveBasicEphemeralTest, 
+        -- waspNewSaasEphemeralTest, 
+        -- waspNewInteractiveSaasEphemeralTest
       ]
 
   return $

@@ -1,13 +1,13 @@
 module EphemeralTest.ShellCommands
   ( EphemeralTestContext (..),
     withInEphemeralWaspProjectDir,
-    createEphemeralWaspProjectFromMinimalStarter,
+    createEphemeralWaspProject,
   )
 where
 
 import Control.Monad.Reader (MonadReader (ask))
 import EphemeralTest.FileSystem (EphemeralDir)
-import ShellCommands (ShellCommand, ShellCommandBuilder, buildShellCommand, waspCliNewMinimalStarter, (~&&))
+import ShellCommands (ShellCommand, ShellCommandBuilder, buildShellCommand, (~&&), waspCliNew, WaspNewTemplate)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
@@ -30,7 +30,7 @@ withInEphemeralWaspProjectDir waspProjectCommandBuilders = do
     ephemeralWaspProjectCommands ephemeralTestContext =
       buildShellCommand (_ephemeralWaspProjectContext ephemeralTestContext) $ sequence waspProjectCommandBuilders
 
-createEphemeralWaspProjectFromMinimalStarter :: ShellCommandBuilder EphemeralTestContext ShellCommand
-createEphemeralWaspProjectFromMinimalStarter = do
+createEphemeralWaspProject :: WaspNewTemplate -> ShellCommandBuilder EphemeralTestContext ShellCommand
+createEphemeralWaspProject template = do
   ephemeralTestContext <- ask
-  waspCliNewMinimalStarter $ _waspProjectName $ _ephemeralWaspProjectContext ephemeralTestContext
+  waspCliNew (_waspProjectName $ _ephemeralWaspProjectContext ephemeralTestContext) template

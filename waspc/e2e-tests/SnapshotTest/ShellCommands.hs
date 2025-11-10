@@ -14,9 +14,8 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
-    waspCliNewMinimalStarter,
     (~&&),
-    (~|),
+    (~|), waspCliNew, WaspNewTemplate (..),
   )
 import SnapshotTest.FileSystem (SnapshotDir, gitRootFromSnapshotDir)
 import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))
@@ -31,7 +30,7 @@ data SnapshotTestContext = SnapshotTestContext
 createSnapshotWaspProjectFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspProjectFromMinimalStarter = do
   snapshotTestContext <- ask
-  waspCliNewMinimalStarter $ _waspProjectName $ _snapshotWaspProjectContext snapshotTestContext
+  waspCliNew (_waspProjectName $ _snapshotWaspProjectContext snapshotTestContext) Minimal
 
 withInSnapshotWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->

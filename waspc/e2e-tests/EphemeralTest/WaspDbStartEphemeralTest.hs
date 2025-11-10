@@ -1,8 +1,9 @@
 module EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
+import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDbStart)
+import ShellCommands (WaspNewTemplate(..))
 
 waspDbStartEphemeralTest :: EphemeralTest
 waspDbStartEphemeralTest =
@@ -13,7 +14,7 @@ waspDbStartEphemeralTest =
         (return "! wasp-cli db start"),
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
-        createEphemeralWaspProjectFromMinimalStarter,
+        (createEphemeralWaspProject Minimal),
       makeEphemeralTestCase
         "Should exit early and successfully inside of a SQLite Wasp project"
         (withInEphemeralWaspProjectDir [waspCliDbStart])

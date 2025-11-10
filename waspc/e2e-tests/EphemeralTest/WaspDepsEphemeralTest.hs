@@ -1,7 +1,8 @@
 module EphemeralTest.WaspDepsEphemeralTest (waspDepsEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
+import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import ShellCommands (WaspNewTemplate(..))
 
 -- TODO: Test `wasp deps` deps chage with installs/uninstalls.
 waspDepsEphemeralTest :: EphemeralTest
@@ -13,7 +14,7 @@ waspDepsEphemeralTest =
         (return "! wasp-cli deps"),
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
-        createEphemeralWaspProjectFromMinimalStarter,
+        (createEphemeralWaspProject Minimal),
       makeEphemeralTestCase
         "Should succeed inside of a Wasp project"
         (withInEphemeralWaspProjectDir [return "wasp-cli deps"])

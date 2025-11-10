@@ -19,9 +19,10 @@ import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (callCommand, readCreateProcessWithExitCode, shell)
 import Test.Tasty (TestTree)
-import Test.Hspec (Spec, expectationFailure, it, runIO)
+import Test.Hspec (Spec, expectationFailure, sequential, it, runIO)
 import Test.Tasty.Hspec (testSpec)
 import WaspProject.ShellCommands (WaspProjectContext (..))
+import System.Directory.Internal.Prelude (unless)
 
 data EphemeralTest = EphemeralTest
   { _ephemeralTestName :: String,
@@ -69,21 +70,20 @@ createAndExecuteEphemeralTest ephemeralDir ephemeralTest = do
     (_ephemeralTestName ephemeralTest)
     (createAndExecuteEphemeralTestCasesSequentially ephemeralDir (_ephemeralTestCases ephemeralTest))
 
--- | Runs ephemeral test cases sequentially while building the test spec.
--- Short-circuits when any of the tests cases fails.
 createAndExecuteEphemeralTestCasesSequentially ::  Path' Abs (Dir EphemeralDir) -> [EphemeralTestCase] -> Spec
-createAndExecuteEphemeralTestCasesSequentially _ [] = return ()
-createAndExecuteEphemeralTestCasesSequentially ephemeralDir (currentTestCase : restOfTestCases) = do
-  (exitCode, stdOut, stdErr) <- runIO $ executeEphemeralTestCase ephemeralDir currentTestCase
-  runIO $ putStrLn stdOut
+createAndExecuteEphemeralTestCasesSequentially ephemeralDir testCases =
+  sequential $ mapM_ (createAndExecuteEphemeralTestCase ephemeralDir) testCases
 
-  it (_ephemeralTestCaseName currentTestCase) $ do
+createAndExecuteEphemeralTestCase :: Path' Abs (Dir EphemeralDir) -> EphemeralTestCase -> Spec
+createAndExecuteEphemeralTestCase ephemeralDir testCase = do
+  (exitCode, stdOut, stdErr) <- runIO $ executeEphemeralTestCase ephemeralDir testCase
+  unless (null stdOut) $ runIO $ putStrLn stdOut
+  unless (null stdErr) $ runIO $ putStrLn stdErr
+
+  it (_ephemeralTestCaseName testCase) $ do
     case exitCode of
       ExitFailure _ -> expectationFailure stdErr
       ExitSuccess -> return ()
-  case exitCode of
-    ExitSuccess -> createAndExecuteEphemeralTestCasesSequentially ephemeralDir restOfTestCases
-    ExitFailure _ -> return ()
 
 executeEphemeralTestCase :: Path' Abs (Dir EphemeralDir) -> EphemeralTestCase -> IO (ExitCode, String, String)
 executeEphemeralTestCase ephemeralDir ephemeralTestCase = do

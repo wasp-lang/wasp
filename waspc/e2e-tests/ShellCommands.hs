@@ -4,6 +4,7 @@
 module ShellCommands
   ( ShellCommand,
     ShellCommandBuilder (..),
+    WaspNewTemplate (..),
     buildShellCommand,
     (~|),
     (~&&),
@@ -12,8 +13,9 @@ module ShellCommands
     createFile,
     appendToFile,
     replaceLineInFile,
-    waspCliNewMinimalStarter,
     waspCliVersion,
+    waspCliNewInteractive,
+    waspCliNew,
     waspCliTelemetry,
     waspCliCompletion,
   )
@@ -105,8 +107,36 @@ replaceLineInFile fileName lineNumber line =
       ++ ".tmp "
       ++ fileName
 
-waspCliNewMinimalStarter :: String -> ShellCommandBuilder context ShellCommand
-waspCliNewMinimalStarter appName = return $ "wasp-cli new " ++ appName ++ " -t minimal"
+data WaspNewTemplate = Minimal | Basic | SaaS 
+
+
+-- waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send -- \"y\r\"; interact'"
+
+waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewInteractive appName template = return $ unwords
+    [
+      "expect -c",
+      "'spawn wasp-cli new;",
+      "expect \"Enter the project name\";",
+      "send -- \"" ++ appName ++ "\r\";",
+      "expect \"Choose a starter template\";",
+      "send -- \"" ++ templateNumber ++ "\r\";",
+      "except \"Creating your project\";",
+      "interact'"
+    ]
+  where
+    templateNumber = case template of 
+      Basic -> "1"
+      Minimal -> "2"
+      SaaS -> "3"
+
+waspCliNew :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNew appName template = return $ "wasp-cli new " ++ appName ++ " -t " ++ templateName
+  where
+    templateName = case template of
+      Basic -> "basic"
+      Minimal -> "minimal"
+      SaaS -> "saas"
 
 waspCliVersion :: ShellCommandBuilder context ShellCommand
 waspCliVersion = return "wasp-cli version"

@@ -28,12 +28,12 @@ import ShellCommands
     (~&&),
     (~?),
   )
-import StrongPath (Abs, Dir, Path', fromAbsDir, (</>), fromRelFile)
+import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.FilePath (joinPath)
 import Wasp.Generator.DbGenerator.Common
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-import WaspProject.FileSystem (seedsDirInWaspProjectDir, seedsFileInSeedsDir)
+import WaspProject.FileSystem (seedsDirInWaspProjectDir)
 
 -- | Context for commands which are run from inside of a Wasp app project.
 data WaspProjectContext = WaspProjectContext
@@ -41,21 +41,19 @@ data WaspProjectContext = WaspProjectContext
     _waspProjectName :: String
   }
 
-createSeedFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-createSeedFile seedContent = do
+createSeedFile :: String -> String -> ShellCommandBuilder WaspProjectContext ShellCommand
+createSeedFile fileName content = do
   waspProjectContext <- ask
   let seedDir = _waspProjectDir waspProjectContext </> seedsDirInWaspProjectDir
-      seedFileName = fromRelFile seedsFileInSeedsDir
 
-  createFile seedDir seedFileName seedContent
+  createFile seedDir fileName content
 
 replaceMainWaspFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-replaceMainWaspFile mainWaspContent = do
+replaceMainWaspFile content = do
   waspProjectContext <- ask
   let waspProjectDir = _waspProjectDir waspProjectContext
   
-  createFile waspProjectDir "main.wasp" mainWaspContent
-
+  createFile waspProjectDir "main.wasp" content
 
 -- NOTE: fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -64,37 +62,11 @@ setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql
 appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspProjectContext ShellCommand
 appendToPrismaFile = appendToFile "schema.prisma"
 
--- TODO:
--- add script file
--- add seed to wasp config
-{-
-1. Solution - simple
-Add all seed scripts at once, assume no existing "seeds" field.
-
-Cases:
-- no db field -> modify "content" to have db
-- else -> just append seeds with field
-
-Bad:
-- wont work on projects with existing seeds
-
-2. Solution - more complex
-Add all seed scripts one per one
-
-Cases:
-- no db field -> add db field
-- no seeds -> add seeds field + seed without comma
-- existing seeds -> prepend to start of array with comma
-
-Bad:
-- complex
--}
-
 waspCliDbStart :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStart = return "wasp-cli db start"
 
 waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send -- \"y\r\"; interact'"
+waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"y\r\"; interact'"
 
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
