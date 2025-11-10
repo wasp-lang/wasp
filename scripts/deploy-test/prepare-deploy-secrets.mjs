@@ -12,7 +12,6 @@ const envVars = readAndParseEnvFile(envFilePath);
 outputSecrets(envVars);
 
 /**
- * Parses command line arguments.
  * @returns {string} Path to the env file
  */
 function parseArgs() {
@@ -27,7 +26,6 @@ function parseArgs() {
 }
 
 /**
- * Reads and parses an env file.
  * @param {string} filePath - Path to the env file
  * @returns {NodeJS.Dict<string>} Parsed environment variables
  */
@@ -43,21 +41,11 @@ function readAndParseEnvFile(filePath) {
  */
 function outputSecrets(envVars) {
   for (const [key, value] of Object.entries(envVars)) {
-    // Skip empty values
+    // Skip empty env var values
     if (!value) {
       continue;
     }
     process.stdout.write("--server-secret\0");
-    process.stdout.write(formatEnvVar(key, value) + "\0");
+    process.stdout.write(`${key}=${value}\0`);
   }
-}
-
-/**
- * Formats an environment variable as KEY=value.
- * @param {string} key - Environment variable key
- * @param {string} value - Environment variable value
- * @returns {string} Formatted environment variable
- */
-function formatEnvVar(key, value) {
-  return `${key}=${value}`;
 }

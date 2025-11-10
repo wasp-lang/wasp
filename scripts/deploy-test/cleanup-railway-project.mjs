@@ -7,7 +7,6 @@ const { projectName } = parseArgs();
 await cleanupRailwayProject(projectName);
 
 /**
- * Cleans up a Railway project by finding and deleting it.
  * @param {string} projectName - Name of the project to delete
  * @returns {Promise<void>}
  */
@@ -27,7 +26,6 @@ async function cleanupRailwayProject(projectName) {
 }
 
 /**
- * Gets a Railway project ID by name.
  * @param {string} projectName - Name of the project to find
  * @returns {Promise<string | null>} Project ID or null if not found
  */
@@ -49,7 +47,7 @@ async function getRailwayProjectId(projectName) {
     }
   `;
 
-  const data = await railwayGraphQL(query, { workspaceId });
+  const data = await fetchRailwayGraphQL(query, { workspaceId });
 
   const project = data.workspace.projects.edges.find(
     /**
@@ -62,7 +60,6 @@ async function getRailwayProjectId(projectName) {
 }
 
 /**
- * Deletes a Railway project by ID.
  * @param {string} projectId - ID of the project to delete
  * @returns {Promise<void>}
  */
@@ -73,17 +70,16 @@ async function deleteRailwayProject(projectId) {
     }
   `;
 
-  await railwayGraphQL(mutation, { projectId });
+  await fetchRailwayGraphQL(mutation, { projectId });
 }
 
 /**
- * Makes a GraphQL request to Railway API.
  * @param {string} query - GraphQL query or mutation
  * @param {Record<string, any>} [variables] - GraphQL variables
  * @returns {Promise<any>} Response data
  * @throws {Error} If the request fails
  */
-async function railwayGraphQL(query, variables) {
+async function fetchRailwayGraphQL(query, variables) {
   const token = getRequiredEnvVar("RAILWAY_API_TOKEN");
 
   const response = await fetch("https://backboard.railway.com/graphql/v2", {
@@ -113,7 +109,6 @@ async function railwayGraphQL(query, variables) {
 }
 
 /**
- * Gets a required environment variable.
  * @param {string} name - Name of the environment variable
  * @returns {string} Value of the environment variable
  * @throws {Error} If the environment variable is not set
@@ -127,7 +122,6 @@ function getRequiredEnvVar(name) {
 }
 
 /**
- * Parses command line arguments.
  * @returns {{projectName: string}} Parsed arguments
  * @throws {Error} If arguments are invalid
  */
@@ -145,7 +139,6 @@ function parseArgs() {
 }
 
 /**
- * Logs a message with a UTC timestamp in HH:MM:SS format.
  * @param {string} message - The message to log
  * @returns {void}
  */
