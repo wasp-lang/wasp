@@ -54,10 +54,15 @@ validateWaspProjectDockerImageBuilds = do
       waspProjectDir = _waspProjectDir waspProjectContext
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          ~? "cd " ++ fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir)
-            ~&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t " ++ dockerImageTag ++ " ."
-            ~&& "docker image rm " ++ dockerImageTag
-            ~&& "cd " ++ fromAbsDir waspProjectDir
+          ~? "cd "
+          ++ fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir)
+            ~&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t "
+          ++ dockerImageTag
+          ++ " ."
+            ~&& "docker image rm "
+          ++ dockerImageTag
+            ~&& "cd "
+          ++ fromAbsDir waspProjectDir
 
 -- | We make the migration name deterministic by forcing it to be
 -- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
@@ -74,9 +79,10 @@ waspCliMigrate migrationName = do
           </> dbRootDirInProjectRootDir
           </> dbMigrationsDirInDbRootDir
    in return $
-        "wasp-cli db migrate-dev --name " ++ migrationName
-          ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
-          ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
+        "wasp-cli db migrate-dev --name "
+          ++ migrationName
+            ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
+            ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
   where
     replaceMigrationDatePrefix migrationDirPath =
       "mv " ++ joinPath [migrationDirPath, "*" ++ migrationName] ++ " " ++ joinPath [migrationDirPath, "no-date-" ++ migrationName]

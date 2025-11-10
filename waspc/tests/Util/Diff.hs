@@ -7,7 +7,7 @@ where
 
 import Data.Algorithm.Diff (Diff, PolyDiff (Both, First, Second), getDiff)
 import Data.List (intercalate)
-import Test.Tasty.Hspec (Expectation, expectationFailure)
+import Test.Hspec (Expectation, expectationFailure)
 
 shouldBeWithDiff :: (Eq a, Diffable a) => a -> a -> Expectation
 shouldBeWithDiff actual expected
@@ -32,7 +32,7 @@ class Diffable a where
 instance Diffable Char where
   toLines c = [[c]]
 
-instance Diffable a => Diffable [a] where
+instance (Diffable a) => Diffable [a] where
   toLines xs = concatMap toLines xs
 
 instance (Diffable a, Diffable b) => Diffable (a, b) where

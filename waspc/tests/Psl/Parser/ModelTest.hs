@@ -4,7 +4,7 @@ import Data.Either (isLeft)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute

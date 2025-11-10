@@ -4,7 +4,7 @@ import Control.DeepSeq
 import Control.Exception (evaluate)
 import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Util
 
 spec_camelToKebabCase :: Spec
