@@ -32,6 +32,12 @@ runs:
             --json databaseId \
             --jq '.[0].databaseId'
         )
+
+        if [ -z "$run_id" ]; then
+          echo "::error::No successful workflow runs found for branch '$BRANCH'."
+          exit 1
+        fi
+
         echo "run_id=$run_id" >> $GITHUB_OUTPUT
       env:
         GH_REPO: wasp-lang/wasp
