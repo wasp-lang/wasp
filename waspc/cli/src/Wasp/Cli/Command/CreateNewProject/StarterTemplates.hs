@@ -27,9 +27,7 @@ import Wasp.Util.Terminal (styleCode)
 -- can be found in the `waspc/data/Cli/starters/README.md` file.
 
 data StarterTemplate
-  = -- | Template from a Github repo.
-    GhRepoStarterTemplate !GhRepo.GithubRepoRef !DirBasedTemplateMetadata
-  | -- | Template from an archive added to a named GitHub Release as an asset.
+  = -- | Template from an archive added to a named GitHub Release as an asset.
     GhRepoReleaseArchiveTemplate !GhRepo.GithubRepoRef !GhRepo.GithubReleaseArchiveName !DirBasedTemplateMetadata
   | -- | Template from a disk, that comes bundled with wasp CLI.
     LocalStarterTemplate !DirBasedTemplateMetadata
@@ -44,7 +42,6 @@ data DirBasedTemplateMetadata = DirBasedTemplateMetadata
   }
 
 instance Show StarterTemplate where
-  show (GhRepoStarterTemplate _ metadata) = _name metadata
   show (GhRepoReleaseArchiveTemplate _ _ metadata) = _name metadata
   show (LocalStarterTemplate metadata) = _name metadata
   show AiGeneratedStarterTemplate = "ai-generated"
@@ -52,7 +49,6 @@ instance Show StarterTemplate where
 instance Interactive.IsOption StarterTemplate where
   showOption = show
 
-  showOptionDescription (GhRepoStarterTemplate _ metadata) = Just $ _description metadata
   showOptionDescription (GhRepoReleaseArchiveTemplate _ _ metadata) = Just $ _description metadata
   showOptionDescription (LocalStarterTemplate metadata) = Just $ _description metadata
   showOptionDescription AiGeneratedStarterTemplate =
@@ -67,7 +63,6 @@ type StartingInstructionsBuilder = String -> String
 -- whose name is provided via projectDirName.
 getTemplateStartingInstructions :: String -> StarterTemplate -> String
 getTemplateStartingInstructions projectDirName = \case
-  GhRepoStarterTemplate _ metadata -> _buildStartingInstructions metadata projectDirName
   GhRepoReleaseArchiveTemplate _ _ metadata -> _buildStartingInstructions metadata projectDirName
   LocalStarterTemplate metadata -> _buildStartingInstructions metadata projectDirName
   AiGeneratedStarterTemplate ->
