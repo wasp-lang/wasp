@@ -51,8 +51,8 @@ jobs:
           # `fly launch` fails if Fly toml files already exist.
           rm -f fly-server.toml fly-client.toml
 
-          echo "Deploying with prefix: $APP_PREFIX (provider: fly)"
-          mapfile -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
+          echo "Deploying with prefix: $APP_PREFIX"
+          mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
           # - The `yes` command is necessary because the `fly launch` command
           # prompts for confirmation.
@@ -118,8 +118,8 @@ jobs:
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           set -e
-          echo "Deploying with prefix: $APP_PREFIX (provider: railway)"
-          mapfile -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
+          echo "Deploying with prefix: $APP_PREFIX"
+          mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately

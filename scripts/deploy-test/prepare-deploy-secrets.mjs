@@ -38,6 +38,7 @@ function readAndParseEnvFile(filePath) {
 
 /**
  * Outputs secrets in the format expected by Wasp deploy commands.
+ * Uses null-byte delimiters to properly handle multiline values and special characters.
  * @param {NodeJS.Dict<string>} envVars - Environment variables to output
  */
 function outputSecrets(envVars) {
@@ -46,8 +47,8 @@ function outputSecrets(envVars) {
     if (!value) {
       continue;
     }
-    console.log("--server-secret");
-    console.log(formatEnvVar(key, value));
+    process.stdout.write("--server-secret\0");
+    process.stdout.write(formatEnvVar(key, value) + "\0");
   }
 }
 
