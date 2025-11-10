@@ -34,6 +34,8 @@ runs:
         )
 
         if [ -z "$run_id" ]; then
+          # Using the ::error:: prefix lets GitHub handle it as a special string, and shows up as a red error in the logs.
+          # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-error-message
           echo "::error::No successful workflow runs found for branch '$BRANCH'."
           exit 1
         fi
