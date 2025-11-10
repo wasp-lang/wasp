@@ -1,12 +1,15 @@
 module Wasp.Cli.Util.PathArgument
   ( FilePathArgument,
+    DirPathArgument,
     getFilePath,
+    getDirPath,
     filePathReader,
+    dirPathReader,
   )
 where
 
 import Options.Applicative (ReadM, str)
-import StrongPath (Abs, File', Path')
+import StrongPath (Abs, Dir', File', Path', parseAbsDir)
 import StrongPath.FilePath (parseAbsFile)
 import System.Directory (makeAbsolute)
 
@@ -19,8 +22,17 @@ import System.Directory (makeAbsolute)
 newtype FilePathArgument = FilePathArgument FilePath
   deriving (Show, Eq)
 
+newtype DirPathArgument = DirPathArgument FilePath
+  deriving (Show, Eq)
+
 filePathReader :: ReadM FilePathArgument
 filePathReader = FilePathArgument <$> str
 
+dirPathReader :: ReadM DirPathArgument
+dirPathReader = DirPathArgument <$> str
+
 getFilePath :: FilePathArgument -> IO (Path' Abs File')
 getFilePath (FilePathArgument filePath) = makeAbsolute filePath >>= parseAbsFile
+
+getDirPath :: DirPathArgument -> IO (Path' Abs Dir')
+getDirPath (DirPathArgument dirPath) = makeAbsolute dirPath >>= parseAbsDir
