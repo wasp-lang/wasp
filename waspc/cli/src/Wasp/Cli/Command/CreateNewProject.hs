@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
+    createNewCustomProject,
   )
 where
 
@@ -9,11 +10,12 @@ import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newCustomProjectArgsParser, newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import qualified Wasp.Cli.Command.CreateNewProject.Common as Common
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
+    obtainNewCustomProjectDescription,
     obtainNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
@@ -22,6 +24,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Util.Parser (parseArguments)
 import qualified Wasp.Message as Msg
@@ -39,6 +42,19 @@ createNewProject args = do
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
 
+-- | It receives all of the arguments that were passed to the `wasp new:custom` command.
+createNewCustomProject :: Arguments -> Command ()
+createNewCustomProject args = do
+  newCustomProjectArgs <-
+    parseArguments "wasp new:custom" newCustomProjectArgsParser args
+      & either Common.throwProjectCreationError return
+
+  newCustomProjectDescription <-
+    obtainNewCustomProjectDescription newCustomProjectArgs
+
+  createProjectOnDisk newCustomProjectDescription
+  liftIO $ printGettingStartedInstructionsForProject newCustomProjectDescription
+
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
   NewProjectDescription
@@ -53,6 +69,8 @@ createProjectOnDisk
         createProjectOnDiskFromGhReleaseArchiveTemplate absWaspProjectDir projectName appName ghRepoRef archiveName' archivePath'
       BundledStarterTemplate {bundledPath = bundledPath'} ->
         liftIO $ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName bundledPath'
+      LocalStarterTemplate {localPath = localPath'} ->
+        liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName localPath'
       AiGeneratedStarterTemplate ->
         AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
 
