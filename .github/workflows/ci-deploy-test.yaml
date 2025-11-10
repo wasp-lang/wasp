@@ -147,5 +147,6 @@ jobs:
       - name: Clean up testing app
         # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
         # want to always clean them up.
-        if: always()
+        # TODO: Remove this once finished with debugging 502 errors on Railway.
+        # if: always()
         run: node ./scripts/deploy-test/cleanup-railway-project.mjs "$APP_PREFIX"
