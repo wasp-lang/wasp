@@ -11,6 +11,8 @@ module WaspProject.ShellCommands
     waspCliMigrate,
     waspCliBuild,
     waspCliInfo,
+    createSeedFile,
+    replaceMainWaspFile,
     waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
   )
@@ -22,21 +24,38 @@ import ShellCommands
     ShellCommandBuilder,
     appendToFile,
     replaceLineInFile,
+    createFile,
     (~&&),
-    (~?), createFile,
+    (~?),
   )
-import StrongPath (Abs, Dir, Path', fromAbsDir, (</>), parseRelDir)
+import StrongPath (Abs, Dir, Path', fromAbsDir, (</>), fromRelFile)
 import System.FilePath (joinPath)
 import Wasp.Generator.DbGenerator.Common
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-import Data.Maybe (fromJust)
+import WaspProject.FileSystem (seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 
 -- | Context for commands which are run from inside of a Wasp app project.
 data WaspProjectContext = WaspProjectContext
   { _waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     _waspProjectName :: String
   }
+
+createSeedFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+createSeedFile seedContent = do
+  waspProjectContext <- ask
+  let seedDir = _waspProjectDir waspProjectContext </> seedsDirInWaspProjectDir
+      seedFileName = fromRelFile seedsFileInSeedsDir
+
+  createFile seedDir seedFileName seedContent
+
+replaceMainWaspFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+replaceMainWaspFile mainWaspContent = do
+  waspProjectContext <- ask
+  let waspProjectDir = _waspProjectDir waspProjectContext
+  
+  createFile waspProjectDir "main.wasp" mainWaspContent
+
 
 -- NOTE: fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -71,38 +90,14 @@ Bad:
 - complex
 -}
 
-
-createSeedScript :: String -> String -> ShellCommandBuilder WaspProjectContext ShellCommand
-createSeedScript seedName seedContent = do
-  waspProjectContext <- ask
-  let seedDirRelPath = "src/db/seeds"
-      seedDir = _waspProjectDir waspProjectContext </> fromJust (parseRelDir seedDirRelPath)
-      seedImportStatement = unwords ["import {", seedName, "} from \"@src/", seedDirRelPath, "/", seedName, "\""]
-
-  createFile seedDir seedName seedContent
-
-  -- find "db: {", if not found write db field:
-  -- db: {
-  -- }
-
-  -- find "seeds: [", if not found seeds field with first seed:
-  -- seeds: [
-  --   import { someSeed } from "@src/db/seeds/someSeed"
-  -- ]
-  -- else, prepend seed with comma to start of array
-  -- seeds: [
-  --   import { newerSeed } from "@src/db/seeds/newerSeed",
-  --   import { someSeed } from "@src/db/seeds/someSeed"
-  -- ]
-
 waspCliDbStart :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStart = return "wasp-cli db start"
 
 waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbReset = return "wasp-cli db reset"
+waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send -- \"y\r\"; interact'"
 
-waspCliDbSeed :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbSeed = return "wasp-cli db seed"
+waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
 
 waspCliCompile :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliCompile = return "wasp-cli compile"

@@ -1,7 +1,10 @@
 module EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter)
+import EphemeralTest.ShellCommands (createEphemeralWaspProjectFromMinimalStarter, withInEphemeralWaspProjectDir)
+import WaspProject.ShellCommands (appendToPrismaFile, waspCliMigrate, waspCliCompile, createSeedFile, replaceMainWaspFile, waspCliDbSeed)
+import StrongPath (fromRelFile, (</>))
+import WaspProject.FileSystem (seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 
 waspDbSeedEphemeralTest :: EphemeralTest
 waspDbSeedEphemeralTest =
@@ -12,13 +15,102 @@ waspDbSeedEphemeralTest =
         (return "! wasp-cli db seed"),
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
-        createEphemeralWaspProjectFromMinimalStarter
-
-      -- NOTE: kitchen-sink has pre-built seed scripts, but do we want something more simple?
-      -- e.g. add 1 task
-        
-      -- should ensure the database is empty (but migrated)
-      -- should seed succesfully
-      -- should ensure the databse is no longer empty
+        createEphemeralWaspProjectFromMinimalStarter,
+      makeEphemeralTestCase
+        "Setup: Add a Task model to prisma and migrate"
+        ( withInEphemeralWaspProjectDir
+            [ waspCliCompile,
+              appendToPrismaFile taskPrismaModel,
+              waspCliMigrate "foo",
+              createSeedFile
+                seedScriptThatPopulatesTasksTable,
+              createSeedFile
+                seedScriptThatAssertsTasksTableIsEmpty,
+              createSeedFile
+                seedScriptThatAssertsTasksTableIsNotEmpty,
+              replaceMainWaspFile mainWaspWithSeeds
+            ]
+        ),
+      makeEphemeralTestCase
+        "Assert the tasks table is initially empty"
+        -- FIXME: find a way without seed commands
+        (withInEphemeralWaspProjectDir [waspCliDbSeed seedScriptThatAssertsTasksTableIsEmptyName]),
+      makeEphemeralTestCase
+        "Should seed the database successfully"
+        (withInEphemeralWaspProjectDir [waspCliDbSeed seedScriptThatPopulatesTasksTableName]),
+      makeEphemeralTestCase
+        "Assert the database is no longer empty"
+        -- FIXME: find a way without seed commands
+        (withInEphemeralWaspProjectDir [waspCliDbSeed seedScriptThatAssertsTasksTableIsNotEmptyName])
     ]
+  where
+    taskPrismaModel =
+      unlines
+        [ "model Task {",
+          "  id          Int     @id @default(autoincrement())",
+          "  description String",
+          "  isDone      Boolean @default(false)",
+          "}"
+        ]
 
+    mainWaspWithSeeds =
+      unlines
+        [ "app waspApp {",
+          "  wasp: {",
+          "    version: \"^0.18.2\"",
+          "  },",
+          "  title: \"wasp-app\",",
+          "  head: [",
+          "    \"<link rel='icon' href='/favicon.ico' />\",",
+          "  ],",
+          "  db: {",
+          "    seeds: [",
+          "      import { " ++ seedScriptThatPopulatesTasksTableName ++ " } from \"@" ++ fromRelFile (seedsDirInWaspProjectDir </> seedsFileInSeedsDir) ++ "\",",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++" } from \"@" ++ fromRelFile (seedsDirInWaspProjectDir </> seedsFileInSeedsDir) ++ "\",",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++" } from \"@" ++ fromRelFile (seedsDirInWaspProjectDir </> seedsFileInSeedsDir) ++ "\"",
+          "    ]",
+          "  },",
+          "}",
+          "route RootRoute { path: \"/\", to: MainPage }",
+          "page MainPage {",
+          "  component: import { MainPage } from \"@src/MainPage\"",
+          "}"
+        ]
+
+    seedScriptThatPopulatesTasksTableName = "populateTasks"
+    seedScriptThatPopulatesTasksTable =
+      unlines
+        [ "import { prisma } from 'wasp/server'",
+          "",
+          "export async function " ++ seedScriptThatPopulatesTasksTableName ++ "() {",
+          "  await prisma.task.create({",
+          "    data: { description: 'Test task', isDone: false }",
+          "  })",
+          "}"
+        ]
+
+    seedScriptThatAssertsTasksTableIsEmptyName = "assertTasksEmpty"
+    seedScriptThatAssertsTasksTableIsEmpty =
+      unlines
+        [ "import { prisma } from 'wasp/server'",
+          "",
+          "export async function " ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "() {",
+          "  const taskCount = await prisma.task.count()",
+          "  if (taskCount !== 0) {",
+          "    throw new Error(`Expected tasks table to be empty, but found ${taskCount} tasks`)",
+          "  }",
+          "}"
+        ]
+
+    seedScriptThatAssertsTasksTableIsNotEmptyName = "assertTasksNotEmpty"
+    seedScriptThatAssertsTasksTableIsNotEmpty =
+      unlines
+        [ "import { prisma } from 'wasp/server'",
+          "",
+          "export async function " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "() {",
+          "  const taskCount = await prisma.task.count()",
+          "  if (taskCount === 0) {",
+          "    throw new Error('Expected tasks table to have data, but it was empty')",
+          "  }",
+          "}"
+        ]

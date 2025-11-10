@@ -19,7 +19,8 @@ import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (callCommand, readCreateProcessWithExitCode, shell)
 import Test.Tasty (TestTree)
-import Test.Tasty.Hspec (Spec, expectationFailure, it, testSpec, runIO)
+import Test.Hspec (Spec, expectationFailure, it, runIO)
+import Test.Tasty.Hspec (testSpec)
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
 data EphemeralTest = EphemeralTest
@@ -73,7 +74,9 @@ createAndExecuteEphemeralTest ephemeralDir ephemeralTest = do
 createAndExecuteEphemeralTestCasesSequentially ::  Path' Abs (Dir EphemeralDir) -> [EphemeralTestCase] -> Spec
 createAndExecuteEphemeralTestCasesSequentially _ [] = return ()
 createAndExecuteEphemeralTestCasesSequentially ephemeralDir (currentTestCase : restOfTestCases) = do
-  (exitCode, _stdOut, stdErr) <- runIO $ executeEphemeralTestCase ephemeralDir currentTestCase
+  (exitCode, stdOut, stdErr) <- runIO $ executeEphemeralTestCase ephemeralDir currentTestCase
+  runIO $ putStrLn stdOut
+
   it (_ephemeralTestCaseName currentTestCase) $ do
     case exitCode of
       ExitFailure _ -> expectationFailure stdErr

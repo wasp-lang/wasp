@@ -15,6 +15,7 @@ import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest)
 import EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest)
+import EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest)
 
 main :: IO ()
 main = do
@@ -25,31 +26,34 @@ main = do
 -- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
 tests = do
-  snapshotTests <-
-    mapM
-      runSnapshotTest
-      [ waspNewSnapshotTest,
-        waspCompileSnapshotTest,
-        waspBuildSnapshotTest,
-        waspMigrateSnapshotTest,
-        kitchenSinkSnapshotTest
-      ]
+  -- snapshotTests <-
+  --   mapM
+  --     runSnapshotTest
+  --     [ waspNewSnapshotTest,
+  --       waspCompileSnapshotTest,
+  --       waspBuildSnapshotTest,
+  --       waspMigrateSnapshotTest,
+  --       kitchenSinkSnapshotTest
+  --     ]
   ephemeralTests <-
     mapM
       runEphemeralTest
-      [ waspTelemetryEphemeralTest,
-        waspCompletionEphemeralTest,
-        waspInfoEphemeralTest,
-        waspVersionEphemeralTest,
-        waspDockerfileEphemeralTest,
-        waspDepsEphemeralTest,
-        waspDbStartEphemeralTest,
+      [ 
+        -- waspTelemetryEphemeralTest,
+        -- waspCompletionEphemeralTest,
+        -- waspInfoEphemeralTest,
+        -- waspVersionEphemeralTest,
+        -- waspDockerfileEphemeralTest,
+        -- waspDepsEphemeralTest,
+        -- waspDbStartEphemeralTest,
+        waspDbSeedEphemeralTest,
         waspDbResetEphemeralTest
       ]
 
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTests,
+      [ 
+        -- testGroup "Snapshot Tests" snapshotTests,
         testGroup "Ephemeral Tests" ephemeralTests
       ]

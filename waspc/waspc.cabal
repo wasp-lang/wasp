@@ -795,9 +795,11 @@ test-suite waspc-e2e-tests
     , hspec                 >= 2.11
     , tasty-hspec           >= 1.2
     , tasty-golden          ^>= 2.3.5
+    , base64-bytestring
   other-modules:
     FileSystem
     ShellCommands
+    WaspProject.FileSystem
     WaspProject.ShellCommands
     SnapshotTest
     SnapshotTest.Snapshot
