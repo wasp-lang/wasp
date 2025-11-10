@@ -5,10 +5,5 @@ export function stripTrailingSlash(url?: string): string | undefined {
 }
 
 export function getOrigin(url: string) {
-  try {
     return new URL(url).origin;
-  } catch {
-    // Do we need to protect ourselves from this error, do we validate it
-    return url;
-  }
 }
