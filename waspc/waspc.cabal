@@ -591,6 +591,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate

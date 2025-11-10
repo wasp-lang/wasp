@@ -3,6 +3,7 @@ module Wasp.Cli.Command.Call where
 data Call
   = New Arguments
   | NewAi Arguments
+  | NewCustom Arguments
   | Start
   | StartDb Arguments
   | Clean
