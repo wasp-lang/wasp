@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( obtainNewProjectDescription,
+    obtainNewCustomProjectDescription,
     NewProjectDescription (..),
     NewProjectName (..),
     NewProjectAppName (..),
@@ -8,29 +9,32 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   )
 where
 
+import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
 import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', fromAbsDir)
 import StrongPath.Path (toPathAbsDir)
+import System.Directory (doesDirectoryExist)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
-  ( NewProjectArgs (..),
+  ( NewCustomProjectArgs (..),
+    NewProjectArgs (..),
   )
-import Wasp.Cli.Command.CreateNewProject.Common
-  ( throwProjectCreationError,
-  )
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplate,
-    defaultStarterTemplate,
+  ( StarterTemplate (LocalStarterTemplate, localPath),
     findTemplateByString,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Project (WaspProjectDir)
+import Wasp.Cli.Util.PathArgument (DirPathArgument)
+import qualified Wasp.Cli.Util.PathArgument as PathArgument
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
 
 data NewProjectDescription = NewProjectDescription
@@ -68,7 +72,9 @@ instance Show NewProjectAppName where
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
 obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates = do
   projectName <- maybe askForName return projectNameArg
-  appName <- parseWaspProjectNameIntoAppName projectName
+  appName <-
+    either throwProjectCreationError pure $
+      parseWaspProjectNameIntoAppName projectName
 
   let prefersInteractive = isNothing projectNameArg
       getFallbackTemplate =
@@ -81,6 +87,16 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
   return $ mkNewProjectDescription projectName appName absWaspProjectDir template
 
+obtainNewCustomProjectDescription :: NewCustomProjectArgs -> Command NewProjectDescription
+obtainNewCustomProjectDescription NewCustomProjectArgs {_customProjectName = projectNameArg, _customTemplatePath = templatePathArg} = do
+  projectName <- maybe askForName return projectNameArg
+  appName <-
+    either throwProjectCreationError pure $
+      parseWaspProjectNameIntoAppName projectName
+  template <- findCustomTemplateOrThrow templatePathArg
+  absWaspProjectDir <- obtainAvailableProjectDirPath projectName
+  return $ mkNewProjectDescription projectName appName absWaspProjectDir template
+
 askForName :: Command String
 askForName =
   liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
@@ -89,11 +105,11 @@ askForTemplate :: [StarterTemplate] -> Command StarterTemplate
 askForTemplate starterTemplates =
   liftIO $ Interactive.askToChoose "Choose a starter template" $ fromList starterTemplates
 
-parseWaspProjectNameIntoAppName :: String -> Command NewProjectAppName
+parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName
-  | isValidWaspIdentifier appName = pure $ NewProjectAppName appName
+  | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
   | otherwise =
-      throwProjectCreationError . intercalate "\n" $
+      Left . intercalate "\n" $
         [ "The project's name is not in the valid format!",
           indent 2 "- It can start with a letter or an underscore.",
           indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
@@ -113,6 +129,18 @@ findTemplateOrThrow availableTemplates templateName = case findTemplateByString 
         <> "' doesn't exist. Available starter templates are: "
         <> intercalate ", " (map show availableTemplates)
         <> "."
+
+findCustomTemplateOrThrow :: DirPathArgument -> Command StarterTemplate
+findCustomTemplateOrThrow templatePathArg = do
+  absTemplatePath <- liftIO $ PathArgument.getDirPath templatePathArg
+  templateExists <- liftIO $ doesDirectoryExist $ fromAbsDir absTemplatePath
+
+  unless templateExists $ do
+    throwProjectCreationError $
+      "The provided template path does not exist or is not a directory: "
+        ++ show templatePathArg
+
+  return $ LocalStarterTemplate {localPath = absTemplatePath}
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
 obtainAvailableProjectDirPath projectName = do

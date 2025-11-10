@@ -17,9 +17,9 @@ import Wasp.Cli.Command.BuildStart (buildStart)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
-import Wasp.Cli.Command.CreateNewProject (createNewProject)
+import Wasp.Cli.Command.CreateNewProject (createNewCustomProject, createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates (availableStarterTemplates)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -51,6 +51,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
         ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
+        ("new:custom" : newCustomArgs) -> Command.Call.NewCustom newCustomArgs
         ["start"] -> Command.Call.Start
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ["clean"] -> Command.Call.Clean
@@ -89,6 +90,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
+    Command.Call.NewCustom newCustomArgs -> runCommand $ createNewCustomProject newCustomArgs
     Command.Call.NewAi newAiArgs -> case newAiArgs of
       ["--stdout", projectName, appDescription, projectConfigJson] ->
         runCommand $
