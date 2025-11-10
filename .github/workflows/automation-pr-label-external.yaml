@@ -1,12 +1,12 @@
 name: "Automation - Label external PRs"
 
-#####################################################
-# CAUTION: Do not checkout the PR in this workflow! #
-#####################################################
+############################################################
+# CAUTION: This workflow should not check out the PR code! #
+############################################################
 # The `pull_request_target` event is only intended for simple automations on the
-# PRs themselves (e.g., labeling, commenting). If you checkout the PR code here,
-# you are running untrusted code and giving it access to our repository secrets,
-# which is a major security risk.
+# PRs themselves (e.g., labeling, commenting). If we checked out the PR code here,
+# we would be running untrusted code and giving it access to our repository
+# secrets, which is a major security risk.
 #
 # More info at:
 # https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
