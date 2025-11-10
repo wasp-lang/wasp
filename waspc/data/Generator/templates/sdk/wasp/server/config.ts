@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { env } from './env.js'
-import { stripTrailingSlash } from '../universal/url.js'
+import { stripTrailingSlash, getOrigin } from '../universal/url.js'
 
 type NodeEnv = typeof env.NODE_ENV
 
@@ -24,7 +24,7 @@ const serverUrl = stripTrailingSlash(env["{= serverUrlEnvVarName =}"])
 
 const allowedCORSOriginsPerEnv: Record<NodeEnv, string | string[]> = {
   development: '*',
-  production: [frontendUrl]
+  production: [getOrigin(frontendUrl)]
 }
 const allowedCORSOrigins = allowedCORSOriginsPerEnv[env.NODE_ENV]
 
