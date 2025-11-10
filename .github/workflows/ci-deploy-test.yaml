@@ -39,6 +39,8 @@ jobs:
       - uses: ./.github/actions/prepare-deploy-test
 
       - name: Install Fly CLI
+        # NOTE: We tell users to install the latest version of Fly CLI,
+        # so we use it here too.
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Deploy app to Fly
@@ -51,6 +53,12 @@ jobs:
 
           echo "Deploying with prefix: $APP_PREFIX (provider: fly)"
           mapfile -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
+          # NOTE:
+          # - The `yes` command is necessary because the `fly launch` command
+          # prompts for confirmation.
+          # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
+          # word splitting (i.e., force Bash to interpret the flags separately
+          # instead of passing it as a single string value).
           yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Smoke test deployed app
@@ -69,7 +77,22 @@ jobs:
           # Run smoke test
           node ../../scripts/deploy-test/smoke-test-deployed-test-app.mjs "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
 
+  cleanup_fly_deploy_test:
+    name: Clean up Fly deployment test apps
+    runs-on: ubuntu-latest
+    needs: test_fly_deployment
+
+    steps:
+      - uses: superfly/flyctl-actions/setup-flyctl@v1
+        with:
+          # NOTE: We pinned the Fly because we don't want the changes in the
+          # Fly CLI to affect our cleanup procedure. `fly destroy` isn't a part
+          # of Wasp, we're just incidentally using the same tool Wasp uses.
+          version: v0.3.164
+
       - name: Clean up testing app
+        # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
+        # want to always clean them up.
         if: always()
         run: |
           # NOTE: We are relying on Wasp's naming conventions here
@@ -97,6 +120,10 @@ jobs:
           set -e
           echo "Deploying with prefix: $APP_PREFIX (provider: railway)"
           mapfile -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
+          # NOTE:
+          # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
+          # word splitting (i.e., force Bash to interpret the flags separately
+          # instead of passing it as a single string value).
           wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Smoke test deployed app
@@ -118,5 +145,7 @@ jobs:
           node ../../scripts/deploy-test/smoke-test-deployed-test-app.mjs "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
 
       - name: Clean up testing app
+        # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
+        # want to always clean them up.
         if: always()
         run: node ./scripts/deploy-test/cleanup-railway-project.mjs "$APP_PREFIX"
