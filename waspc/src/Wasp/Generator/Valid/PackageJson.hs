@@ -128,8 +128,8 @@ makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
 -- in the opposite list -- runtime deps vs. devDeps).
 makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
 makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
-  whenS (inOppositeDep notPresentValidator pkgJson) $
-    inCorrectDep correctVersionValidator pkgJson
+  whenS (inOppositeDepList notPresentValidator pkgJson) $
+    inCorrectDepList correctVersionValidator pkgJson
   where
     notPresentValidator :: V.Validator (Maybe P.PackageVersion) Bool
     notPresentValidator Nothing = pure True
@@ -142,10 +142,10 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
 
-    inCorrectDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    inCorrectDep = inDependency depType dep
-    inOppositeDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    inOppositeDep = inDependency (oppositeForDepType depType) dep
+    inCorrectDepList :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
+    inCorrectDepList = inDependency depType dep
+    inOppositeDepList :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
+    inOppositeDepList = inDependency (oppositeForDepType depType) dep
 
     oppositeForDepType :: DependencyType -> DependencyType
     oppositeForDepType Runtime = Development
