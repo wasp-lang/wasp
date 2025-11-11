@@ -59,6 +59,14 @@ failure message' =
         fileName = Nothing
       }
 
+eqJust :: (Eq a, Show a) => a -> Validator' (Maybe a)
+eqJust expected (Just actual)
+  | actual == expected = success
+  | otherwise =
+      failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
+eqJust expected Nothing =
+  failure $ "Missing value, expected " ++ show expected ++ "."
+
 instance Show ValidationError where
   show
     ( ValidationError
