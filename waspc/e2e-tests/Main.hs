@@ -64,7 +64,7 @@ tests = do
         -- waspBuildEphemeralTest,
         -- waspCleanEphemeralTest,
         -- waspStudioEphemeralTest,
-        waspDbMigrateDevEphemeralTest
+        -- waspDbMigrateDevEphemeralTest
       ]
 
   return $

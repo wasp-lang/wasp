@@ -17,7 +17,7 @@ import ShellCommands
   )
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Exit (ExitCode (..))
-import System.Process (callCommand, readCreateProcessWithExitCode, shell)
+import System.Process (callCommand, readCreateProcessWithExitCode, shell, CreateProcess (..), StdStream (..), createProcess, waitForProcess)
 import Test.Tasty (TestTree)
 import Test.Hspec (Spec, expectationFailure, sequential, it, runIO)
 import Test.Tasty.Hspec (testSpec)
@@ -71,25 +71,32 @@ createAndExecuteEphemeralTest ephemeralDir ephemeralTest = do
     (createAndExecuteEphemeralTestCasesSequentially ephemeralDir (_ephemeralTestCases ephemeralTest))
 
 createAndExecuteEphemeralTestCasesSequentially ::  Path' Abs (Dir EphemeralDir) -> [EphemeralTestCase] -> Spec
-createAndExecuteEphemeralTestCasesSequentially ephemeralDir testCases =
-  sequential $ mapM_ (createAndExecuteEphemeralTestCase ephemeralDir) testCases
+createAndExecuteEphemeralTestCasesSequentially ephemeralDir ephemeralTestCases =
+  sequential $ mapM_ (createAndExecuteEphemeralTestCase ephemeralDir) ephemeralTestCases
 
 createAndExecuteEphemeralTestCase :: Path' Abs (Dir EphemeralDir) -> EphemeralTestCase -> Spec
-createAndExecuteEphemeralTestCase ephemeralDir testCase = do
-  (exitCode, stdOut, stdErr) <- runIO $ executeEphemeralTestCase ephemeralDir testCase
-  unless (null stdOut) $ runIO $ putStrLn stdOut
-  unless (null stdErr) $ runIO $ putStrLn stdErr
+createAndExecuteEphemeralTestCase ephemeralDir ephemeralTestCase = do
+  runIO $ putStrLn $ "Executing test case: " ++ ephemeralTestCaseName
+  runIO $ putStrLn $ "Command: " ++ ephemeralTestCaseCommand
 
-  it (_ephemeralTestCaseName testCase) $ do
+  (_,_,_,processHandle) <- runIO $ createProcess (shell ephemeralTestCaseCommand) { cwd = Just $ fromAbsDir ephemeralDir
+              , std_in  = Inherit
+              , std_out = Inherit
+              , std_err = Inherit
+              }
+  exitCode <- runIO $ waitForProcess processHandle
+
+  runIO $ putStrLn $ "Finished with exit code: " ++ show exitCode
+
+  it (_ephemeralTestCaseName ephemeralTestCase) $ do
     case exitCode of
-      ExitFailure _ -> expectationFailure stdErr
+      ExitFailure _ -> expectationFailure $ "Command failed: " ++ ephemeralTestCaseCommand
       ExitSuccess -> return ()
 
-executeEphemeralTestCase :: Path' Abs (Dir EphemeralDir) -> EphemeralTestCase -> IO (ExitCode, String, String)
-executeEphemeralTestCase ephemeralDir ephemeralTestCase = do
-  putStrLn $ "Executing test case: " ++ ephemeralTestCaseCommand
-  readCreateProcessWithExitCode (shell ("cd " ++ fromAbsDir ephemeralDir ~&& ephemeralTestCaseCommand)) ""
   where
+    ephemeralTestCaseName :: String
+    ephemeralTestCaseName = _ephemeralTestCaseName ephemeralTestCase
+
     ephemeralTestCaseCommand :: ShellCommand
     ephemeralTestCaseCommand = buildShellCommand ephemeralTestContext (_ephemeralTestCaseCommandBuilder ephemeralTestCase)
 

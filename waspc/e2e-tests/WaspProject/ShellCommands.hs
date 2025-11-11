@@ -81,8 +81,11 @@ waspCliDbMigrateDevDev migrationName = do
             ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
             ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
   where
+    -- NOTE: We supress the `mv` error, because if we call `wasp db migrate-dev` 
+    -- when there is nothing to migrate, it succeeds but creates no files.
+    replaceMigrationDatePrefix :: FilePath -> ShellCommand
     replaceMigrationDatePrefix migrationDirPath =
-      "mv " ++ joinPath [migrationDirPath, "*" ++ migrationName] ++ " " ++ joinPath [migrationDirPath, "no-date-" ++ migrationName]
+      "mv " ++ joinPath [migrationDirPath, "*" ++ migrationName] ++ " " ++ joinPath [migrationDirPath, "no-date-" ++ migrationName] ++ " 2>/dev/null || true"
 
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
