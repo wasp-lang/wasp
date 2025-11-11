@@ -78,7 +78,6 @@ genServer spec =
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
-    <++> genViewsDir spec
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genApis spec
@@ -223,16 +222,6 @@ genNodemon =
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
       waspProjectDirFromAppComponentDir </> srcDirInWaspProjectDir
 
-genViewsDir :: AppSpec -> Generator [FileDraft]
-genViewsDir spec
-  | AS.isBuild spec = return []
-  | otherwise =
-      sequence
-        [ genFileCopy [relfile|views/wrong-port.ts|]
-        ]
-  where
-    genFileCopy = return . C.mkSrcTmplFd
-
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
@@ -240,6 +229,7 @@ genSrcDir spec =
       genServerJs spec
     ]
     <++> genRoutesDir spec
+    <++> genViewsDir spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
@@ -296,6 +286,16 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+genViewsDir :: AppSpec -> Generator [FileDraft]
+genViewsDir spec
+  | AS.isBuild spec = return []
+  | otherwise =
+      sequence
+        [ genFileCopy [relfile|views/wrong-port.ts|]
+        ]
+  where
+    genFileCopy = return . C.mkSrcTmplFd
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =
