@@ -105,10 +105,10 @@ dependenciesValidator =
 -- with the correct version.
 makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
 makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
-  inDependency depType dep checkVersion
+  inDependency depType dep optionalVersionValidator
   where
-    checkVersion :: V.Validator' (Maybe P.PackageVersion)
-    checkVersion actualVersion =
+    optionalVersionValidator :: V.Validator' (Maybe P.PackageVersion)
+    optionalVersionValidator actualVersion =
       case (expectedPkgVersion ==) <$> actualVersion of
         Just True -> V.success
         Just False -> incorrectVersionError
@@ -128,24 +128,24 @@ makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
 -- in the opposite list -- runtime deps vs. devDeps).
 makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
 makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
-  whenS (oppositeDep checkNotPresent pkgJson) $
-    correctDep checkCorrectVersion pkgJson
+  whenS (inOppositeDep notPresentValidator pkgJson) $
+    inCorrectDep correctVersionValidator pkgJson
   where
-    checkNotPresent :: V.Validator (Maybe P.PackageVersion) Bool
-    checkNotPresent Nothing = pure True
-    checkNotPresent _ = wrongDepTypeError
+    notPresentValidator :: V.Validator (Maybe P.PackageVersion) Bool
+    notPresentValidator Nothing = pure True
+    notPresentValidator _ = wrongDepTypeError
 
-    checkCorrectVersion :: V.Validator (Maybe P.PackageVersion) ()
-    checkCorrectVersion actualVersion =
+    correctVersionValidator :: V.Validator (Maybe P.PackageVersion) ()
+    correctVersionValidator actualVersion =
       case (expectedPkgVersion ==) <$> actualVersion of
         Just True -> V.success
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
 
-    correctDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    correctDep = inDependency depType dep
-    oppositeDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    oppositeDep = inDependency (oppositeForDepType depType) dep
+    inCorrectDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
+    inCorrectDep = inDependency depType dep
+    inOppositeDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
+    inOppositeDep = inDependency (oppositeForDepType depType) dep
 
     oppositeForDepType :: DependencyType -> DependencyType
     oppositeForDepType Runtime = Development
