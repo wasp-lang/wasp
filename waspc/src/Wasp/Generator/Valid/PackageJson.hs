@@ -44,7 +44,7 @@ workspacesValidator =
 
     makeWorskpaceIncludedValidator :: String -> V.Validator' [String]
     makeWorskpaceIncludedValidator expectedWorkspace actualWorkspaces
-      | expectedWorkspace `elem` actualWorkspaces = pure ()
+      | expectedWorkspace `elem` actualWorkspaces = V.success
       | otherwise = makeMissingWorkspaceError expectedWorkspace
 
     makeMissingWorkspaceError expectedWorkspace =
@@ -110,9 +110,9 @@ makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
     checkVersion :: V.Validator' (Maybe P.PackageVersion)
     checkVersion actualVersion =
       case (expectedPkgVersion ==) <$> actualVersion of
-        Just True -> pure ()
+        Just True -> V.success
         Just False -> incorrectVersionError
-        Nothing -> pure ()
+        Nothing -> V.success
 
     incorrectVersionError =
       V.failure $
@@ -138,7 +138,7 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
     checkCorrectVersion :: V.Validator (Maybe P.PackageVersion) ()
     checkCorrectVersion actualVersion =
       case (expectedPkgVersion ==) <$> actualVersion of
-        Just True -> pure ()
+        Just True -> V.success
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
 

@@ -56,7 +56,7 @@ validateSrcTsConfig config =
 
 eqJust :: (Eq a, Show a) => a -> V.Validator' (Maybe a)
 eqJust expected (Just actual)
-  | actual == expected = pure ()
+  | actual == expected = V.success
   | otherwise =
       V.failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
 eqJust expected Nothing =

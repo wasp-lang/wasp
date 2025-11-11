@@ -47,6 +47,9 @@ inField (fieldName, fieldGetter) innerValidator =
 mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
 mapErrors = first . fmap
 
+success :: Validation ()
+success = pure ()
+
 failure :: String -> Validation b
 failure message' =
   V.failure $
