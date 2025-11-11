@@ -22,64 +22,28 @@ type DependencySpecification = (P.PackageName, P.PackageVersion)
 validatePackageJson :: P.PackageJson -> [GeneratorError]
 validatePackageJson pkgJson =
   GenericGeneratorError . show
-    <$> V.execValidator validatePackageJsonContents pkgJson
+    <$> V.execValidator packageJsonValidator pkgJson
   where
-    validatePackageJsonContents :: V.Validator' P.PackageJson
-    validatePackageJsonContents =
+    packageJsonValidator :: V.Validator' P.PackageJson
+    packageJsonValidator =
       V.withFileName "package.json" $
         V.all
-          [ validateWorkspaces,
-            validateRuntimeDeps,
-            validateDevDeps,
-            validateOptionalDeps
+          [ workspacesValidator,
+            dependenciesValidator
           ]
 
-    validateRuntimeDeps :: V.Validator' P.PackageJson
-    validateRuntimeDeps =
-      V.all $
-        validateRequiredDependency Runtime
-          <$> [ ("wasp", "file:.wasp/out/sdk/wasp"),
-                -- Installing the wrong version of "react-router-dom" can make users believe that they
-                -- can use features that are not available in the version that Wasp supports.
-                ("react-router-dom", show D.reactRouterVersion),
-                ("react", show D.reactVersion),
-                ("react-dom", show D.reactVersion)
-              ]
-
-    validateDevDeps :: V.Validator' P.PackageJson
-    validateDevDeps =
-      V.all $
-        validateRequiredDependency Development
-          <$> [ ("vite", show D.viteVersion),
-                ("prisma", show prismaVersion)
-              ]
-
-    validateOptionalDeps :: V.Validator' P.PackageJson
-    validateOptionalDeps =
-      V.all $
-        [ validateOptionalDependency depType dep
-          | depType <- [Runtime, Development],
-            dep <-
-              [ ("typescript", show typescriptVersion),
-                ("@types/react", show D.reactTypesVersion),
-                ("@types/express", show expressTypesVersion)
-              ]
-        ]
-
--- | Validates that the 'workspaces' property in package.json includes all
--- expected workspaces used by Wasp.
-validateWorkspaces :: V.Validator' P.PackageJson
-validateWorkspaces =
+workspacesValidator :: V.Validator' P.PackageJson
+workspacesValidator =
   V.fieldValidator ("workspaces", P.workspaces) $ \case
-    Just workspaces -> allWorkspacesIncluded workspaces
+    Just actualWorkspaces -> requiredWorkspacesIncludedValidator actualWorkspaces
     Nothing -> workspacesNotDefinedError
   where
-    allWorkspacesIncluded :: V.Validator' [String]
-    allWorkspacesIncluded =
-      V.all $ workspaceIncluded <$> expectedWorkspaces
+    requiredWorkspacesIncludedValidator :: V.Validator' [String]
+    requiredWorkspacesIncludedValidator =
+      V.all $ makeWorskpaceIncludedValidator <$> expectedWorkspaces
 
-    workspaceIncluded :: String -> V.Validator' [String]
-    workspaceIncluded expectedWorkspace actualWorkspaces
+    makeWorskpaceIncludedValidator :: String -> V.Validator' [String]
+    makeWorskpaceIncludedValidator expectedWorkspace actualWorkspaces
       | expectedWorkspace `elem` actualWorkspaces = pure ()
       | otherwise = makeMissingWorkspaceError expectedWorkspace
 
@@ -97,11 +61,51 @@ validateWorkspaces =
 
     expectedWorkspaces = S.toList NW.workspaceGlobs
 
+dependenciesValidator :: V.Validator' P.PackageJson
+dependenciesValidator =
+  V.all
+    [ runtimeDepsValidator,
+      developmentDepsValidator,
+      optionalDepsValidator
+    ]
+  where
+    runtimeDepsValidator :: V.Validator' P.PackageJson
+    runtimeDepsValidator =
+      V.all $
+        makeRequiredDepValidator Runtime
+          <$> [ ("wasp", "file:.wasp/out/sdk/wasp"),
+                -- Installing the wrong version of "react-router-dom" can make users believe that they
+                -- can use features that are not available in the version that Wasp supports.
+                ("react-router-dom", show D.reactRouterVersion),
+                ("react", show D.reactVersion),
+                ("react-dom", show D.reactVersion)
+              ]
+
+    developmentDepsValidator :: V.Validator' P.PackageJson
+    developmentDepsValidator =
+      V.all $
+        makeRequiredDepValidator Development
+          <$> [ ("vite", show D.viteVersion),
+                ("prisma", show prismaVersion)
+              ]
+
+    optionalDepsValidator :: V.Validator' P.PackageJson
+    optionalDepsValidator =
+      V.all $
+        [ makeOptionalDepValidator depType dep
+          | depType <- [Runtime, Development],
+            dep <-
+              [ ("typescript", show typescriptVersion),
+                ("@types/react", show D.reactTypesVersion),
+                ("@types/express", show expressTypesVersion)
+              ]
+        ]
+
 -- | Validates that an optional dependency is either not present, or present
 -- with the correct version.
-validateOptionalDependency :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
-validateOptionalDependency depType dep@(pkgName, expectedPkgVersion) =
-  dependencyValidator depType dep checkVersion
+makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
+makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
+  makeDependencyValidator depType dep checkVersion
   where
     checkVersion :: V.Validator' (Maybe P.PackageVersion)
     checkVersion actualVersion =
@@ -122,8 +126,8 @@ validateOptionalDependency depType dep@(pkgName, expectedPkgVersion) =
 -- list with the correct version. It shows an appropriate error message
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
-validateRequiredDependency :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
-validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
+makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
+makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
   whenS (oppositeDep checkNotPresent pkgJson) $
     correctDep checkCorrectVersion pkgJson
   where
@@ -139,9 +143,9 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
         Nothing -> missingPackageError
 
     correctDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    correctDep = dependencyValidator depType dep
+    correctDep = makeDependencyValidator depType dep
     oppositeDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    oppositeDep = dependencyValidator (oppositeForDepType depType) dep
+    oppositeDep = makeDependencyValidator (oppositeForDepType depType) dep
 
     oppositeForDepType :: DependencyType -> DependencyType
     oppositeForDepType Runtime = Development
@@ -173,12 +177,12 @@ validateRequiredDependency depType dep@(pkgName, expectedPkgVersion) pkgJson =
 
 -- | Runs the validator on a specific dependency of the input, setting the appropriate path for
 -- errors.
-dependencyValidator ::
+makeDependencyValidator ::
   DependencyType ->
   DependencySpecification ->
   V.Validator (Maybe P.PackageVersion) a ->
   V.Validator P.PackageJson a
-dependencyValidator depType (pkgName, _) versionStringValidator =
+makeDependencyValidator depType (pkgName, _) versionStringValidator =
   V.fieldValidator (fieldForDepType depType) $
     V.fieldValidator (pkgName, M.lookup pkgName) versionStringValidator
 

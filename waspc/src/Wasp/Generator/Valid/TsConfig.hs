@@ -10,7 +10,7 @@ import qualified Wasp.Generator.Valid.Validator as V
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig config =
   GenericGeneratorError . show
-    <$> V.execValidator validateTsConfigContents config
+    <$> V.execValidator tsConfigValidator config
   where
     -- References for understanding the required compiler options:
     --   - The comments in templates/sdk/wasp/tsconfig.json
@@ -18,16 +18,16 @@ validateSrcTsConfig config =
     --   - https://www.totaltypescript.com/tsconfig-cheat-sheet
     --   - https://www.typescriptlang.org/tsconfig/
 
-    validateTsConfigContents :: V.Validator T.TsConfig ()
-    validateTsConfigContents =
+    tsConfigValidator :: V.Validator T.TsConfig ()
+    tsConfigValidator =
       V.withFileName "tsconfig.json" $
         V.all
           [ V.fieldValidator ("include", T.include) $ eqJust ["src"],
-            V.fieldValidator ("compilerOptions", T.compilerOptions) validateCompilerOptions
+            V.fieldValidator ("compilerOptions", T.compilerOptions) compilerOptionsValidator
           ]
 
-    validateCompilerOptions :: V.Validator T.CompilerOptions ()
-    validateCompilerOptions =
+    compilerOptionsValidator :: V.Validator T.CompilerOptions ()
+    compilerOptionsValidator =
       V.all
         [ V.fieldValidator ("module", T._module) $ eqJust "esnext",
           V.fieldValidator ("target", T.target) $ eqJust "esnext",
