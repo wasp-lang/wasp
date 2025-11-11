@@ -4,6 +4,7 @@ module Wasp.Generator.Valid.PackageJson
 where
 
 import Control.Selective (whenS)
+import Data.List (intercalate)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -71,7 +72,7 @@ validateWorkspaces :: V.Validator' P.PackageJson
 validateWorkspaces =
   V.fieldValidator ("workspaces", P.workspaces) $ \case
     Just workspaces -> allWorkspacesIncluded workspaces
-    Nothing -> noWorkspacesPropertyError
+    Nothing -> workspacesNotDefinedError
   where
     allWorkspacesIncluded :: V.Validator' [String]
     allWorkspacesIncluded =
@@ -88,10 +89,10 @@ validateWorkspaces =
           ++ show expectedWorkspace
           ++ " to be included."
 
-    noWorkspacesPropertyError =
+    workspacesNotDefinedError =
       V.failure $
-        "Wasp requires the value "
-          ++ show expectedWorkspaces
+        "Wasp requires the field to be an array, and include the following values: "
+          ++ intercalate ", " (show <$> expectedWorkspaces)
           ++ "."
 
     expectedWorkspaces = S.toList NW.workspaceGlobs
