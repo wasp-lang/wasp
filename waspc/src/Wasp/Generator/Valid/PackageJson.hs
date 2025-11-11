@@ -59,7 +59,7 @@ workspacesValidator =
           ++ intercalate ", " (show <$> expectedWorkspaces)
           ++ "."
 
-    expectedWorkspaces = S.toList NW.workspaceGlobs
+    expectedWorkspaces = S.toList NW.requiredWorkspaceGlobs
 
 dependenciesValidator :: V.Validator' P.PackageJson
 dependenciesValidator =
