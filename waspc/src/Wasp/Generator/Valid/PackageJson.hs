@@ -34,7 +34,7 @@ validatePackageJson pkgJson =
 
 workspacesValidator :: V.Validator' P.PackageJson
 workspacesValidator =
-  V.fieldValidator ("workspaces", P.workspaces) $ \case
+  V.inField ("workspaces", P.workspaces) $ \case
     Just actualWorkspaces -> requiredWorkspacesIncludedValidator actualWorkspaces
     Nothing -> workspacesNotDefinedError
   where
@@ -105,7 +105,7 @@ dependenciesValidator =
 -- with the correct version.
 makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
 makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
-  makeDependencyValidator depType dep checkVersion
+  inDependency depType dep checkVersion
   where
     checkVersion :: V.Validator' (Maybe P.PackageVersion)
     checkVersion actualVersion =
@@ -143,9 +143,9 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
         Nothing -> missingPackageError
 
     correctDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    correctDep = makeDependencyValidator depType dep
+    correctDep = inDependency depType dep
     oppositeDep :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
-    oppositeDep = makeDependencyValidator (oppositeForDepType depType) dep
+    oppositeDep = inDependency (oppositeForDepType depType) dep
 
     oppositeForDepType :: DependencyType -> DependencyType
     oppositeForDepType Runtime = Development
@@ -177,14 +177,14 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
 
 -- | Runs the validator on a specific dependency of the input, setting the appropriate path for
 -- errors.
-makeDependencyValidator ::
+inDependency ::
   DependencyType ->
   DependencySpecification ->
   V.Validator (Maybe P.PackageVersion) a ->
   V.Validator P.PackageJson a
-makeDependencyValidator depType (pkgName, _) versionStringValidator =
-  V.fieldValidator (fieldForDepType depType) $
-    V.fieldValidator (pkgName, M.lookup pkgName) versionStringValidator
+inDependency depType (pkgName, _) versionStringValidator =
+  V.inField (fieldForDepType depType) $
+    V.inField (pkgName, M.lookup pkgName) versionStringValidator
 
 fieldForDepType :: DependencyType -> (String, P.PackageJson -> P.DependenciesMap)
 fieldForDepType Runtime = ("dependencies", P.dependencies)

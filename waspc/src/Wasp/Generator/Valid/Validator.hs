@@ -38,8 +38,8 @@ withFileName fileName' innerValidator =
     setFileName err = err {fileName = Just fileName'}
 
 -- | Runs the validator on a specific field of the input, adding the field name to the error path.
-fieldValidator :: (String, a -> b) -> Validator b result -> Validator a result
-fieldValidator (fieldName, fieldGetter) innerValidator =
+inField :: (String, a -> b) -> Validator b result -> Validator a result
+inField (fieldName, fieldGetter) innerValidator =
   mapErrors prependFieldName . innerValidator . fieldGetter
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}

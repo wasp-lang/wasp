@@ -22,36 +22,36 @@ validateSrcTsConfig config =
     tsConfigValidator =
       V.withFileName "tsconfig.json" $
         V.all
-          [ V.fieldValidator ("include", T.include) $ eqJust ["src"],
-            V.fieldValidator ("compilerOptions", T.compilerOptions) compilerOptionsValidator
+          [ V.inField ("include", T.include) $ eqJust ["src"],
+            V.inField ("compilerOptions", T.compilerOptions) compilerOptionsValidator
           ]
 
     compilerOptionsValidator :: V.Validator T.CompilerOptions ()
     compilerOptionsValidator =
       V.all
-        [ V.fieldValidator ("module", T._module) $ eqJust "esnext",
-          V.fieldValidator ("target", T.target) $ eqJust "esnext",
+        [ V.inField ("module", T._module) $ eqJust "esnext",
+          V.inField ("target", T.target) $ eqJust "esnext",
           -- Since Wasp ends up bundling the user code, `bundler` is the most
           -- appropriate `moduleResolution` option.
-          V.fieldValidator ("moduleResolution", T.moduleResolution) $ eqJust "bundler",
-          V.fieldValidator ("moduleDetection", T.moduleDetection) $ eqJust "force",
+          V.inField ("moduleResolution", T.moduleResolution) $ eqJust "bundler",
+          V.inField ("moduleDetection", T.moduleDetection) $ eqJust "force",
           -- `isolatedModules` prevents users from using features that don't work
           -- with transpilers and would fail when Wasp bundles the code with rollup
           -- (e.g., const enums)
-          V.fieldValidator ("isolatedModules", T.isolatedModules) $ eqJust True,
-          V.fieldValidator ("jsx", T.jsx) $ eqJust "preserve",
-          V.fieldValidator ("strict", T.strict) $ eqJust True,
-          V.fieldValidator ("esModuleInterop", T.esModuleInterop) $ eqJust True,
-          V.fieldValidator ("lib", T.lib) $ eqJust ["dom", "dom.iterable", "esnext"],
-          V.fieldValidator ("allowJs", T.allowJs) $ eqJust True,
+          V.inField ("isolatedModules", T.isolatedModules) $ eqJust True,
+          V.inField ("jsx", T.jsx) $ eqJust "preserve",
+          V.inField ("strict", T.strict) $ eqJust True,
+          V.inField ("esModuleInterop", T.esModuleInterop) $ eqJust True,
+          V.inField ("lib", T.lib) $ eqJust ["dom", "dom.iterable", "esnext"],
+          V.inField ("allowJs", T.allowJs) $ eqJust True,
           -- Wasp internally uses TypeScript's project references to compile the
           -- code. Referenced projects may not disable emit, so we must specify an
           -- `outDir`.
-          V.fieldValidator ("outDir", T.outDir) $ eqJust ".wasp/out/user",
+          V.inField ("outDir", T.outDir) $ eqJust ".wasp/out/user",
           -- The composite flag is required because Wasp uses project references
           -- (i.e., web app and server reference user code as a subproject)
-          V.fieldValidator ("composite", T.composite) $ eqJust True,
-          V.fieldValidator ("skipLibCheck", T.skipLibCheck) $ eqJust True
+          V.inField ("composite", T.composite) $ eqJust True,
+          V.inField ("skipLibCheck", T.skipLibCheck) $ eqJust True
         ]
 
 eqJust :: (Eq a, Show a) => a -> V.Validator' (Maybe a)
