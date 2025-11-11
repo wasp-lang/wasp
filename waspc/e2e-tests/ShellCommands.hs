@@ -109,9 +109,7 @@ replaceLineInFile fileName lineNumber line =
 
 data WaspNewTemplate = Minimal | Basic | SaaS 
 
-
--- waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send -- \"y\r\"; interact'"
-
+-- FIXME: not working
 waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNewInteractive appName template = return $ unwords
     [

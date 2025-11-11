@@ -8,7 +8,7 @@ import SnapshotTest.ShellCommands
 import WaspProject.ShellCommands
   ( appendToPrismaFile,
     waspCliCompile,
-    waspCliMigrate,
+    waspCliDbMigrateDevDev,
   )
 
 waspMigrateSnapshotTest :: SnapshotTest
@@ -19,7 +19,7 @@ waspMigrateSnapshotTest =
       withInSnapshotWaspProjectDir
         [ waspCliCompile,
           appendToPrismaFile taskPrismaModel,
-          waspCliMigrate "foo"
+          waspCliDbMigrateDevDev "foo"
         ]
     ]
   where

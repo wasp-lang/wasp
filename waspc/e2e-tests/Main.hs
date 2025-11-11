@@ -17,6 +17,11 @@ import EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest)
 import EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest)
 import EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest)
 import EphemeralTest.WaspNewEphemeralTest (waspNewMinimalEphemeralTest, waspNewInteractiveMinimalEphemeralTest, waspNewBasicEphemeralTest, waspNewInteractiveBasicEphemeralTest, waspNewSaasEphemeralTest, waspNewInteractiveSaasEphemeralTest)
+import EphemeralTest.WaspBuildEphemeralTest (waspBuildEphemeralTest)
+import EphemeralTest.WaspCleanEphemeralTest (waspCleanEphemeralTest)
+import EphemeralTest.WaspCompileEphemeralTest (waspCompileEphemeralTest)
+import EphemeralTest.WaspStudioEphemeralTest (waspStudioEphemeralTest)
+import EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest)
 
 main :: IO ()
 main = do
@@ -48,13 +53,18 @@ tests = do
         -- waspDepsEphemeralTest,
         -- waspDbStartEphemeralTest,
         -- waspDbSeedEphemeralTest,
-        waspDbResetEphemeralTest
+        -- waspDbResetEphemeralTest,
         -- waspNewMinimalEphemeralTest, 
         -- waspNewInteractiveMinimalEphemeralTest,
         -- waspNewBasicEphemeralTest, 
         -- waspNewInteractiveBasicEphemeralTest, 
         -- waspNewSaasEphemeralTest, 
-        -- waspNewInteractiveSaasEphemeralTest
+        -- waspNewInteractiveSaasEphemeralTest,
+        -- waspCompileEphemeralTest,
+        -- waspBuildEphemeralTest,
+        -- waspCleanEphemeralTest,
+        -- waspStudioEphemeralTest,
+        waspDbMigrateDevEphemeralTest
       ]
 
   return $

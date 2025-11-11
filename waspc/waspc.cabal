@@ -813,13 +813,20 @@ test-suite waspc-e2e-tests
     EphemeralTest
     EphemeralTest.FileSystem
     EphemeralTest.ShellCommands
+    EphemeralTest.WaspCleanEphemeralTest
+    EphemeralTest.WaspCompileEphemeralTest
+    EphemeralTest.WaspBuildEphemeralTest
     EphemeralTest.WaspCompletionEphemeralTest
     EphemeralTest.WaspNewEphemeralTest
+    EphemeralTest.WaspStartEphemeralTest
+    EphemeralTest.WaspStudioEphemeralTest
     EphemeralTest.WaspVersionEphemeralTest
     EphemeralTest.WaspInfoEphemeralTest
     EphemeralTest.WaspDockerfileEphemeralTest
     EphemeralTest.WaspTelemetryEphemeralTest
     EphemeralTest.WaspDepsEphemeralTest
     EphemeralTest.WaspDbStartEphemeralTest
+    EphemeralTest.WaspDbMigrateDevEphemeralTest
     EphemeralTest.WaspDbSeedEphemeralTest
     EphemeralTest.WaspDbResetEphemeralTest
+    EphemeralTest.WaspDbStudioEphemeralTest

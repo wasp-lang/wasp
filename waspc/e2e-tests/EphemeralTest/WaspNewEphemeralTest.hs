@@ -6,9 +6,6 @@ module EphemeralTest.WaspNewEphemeralTest (waspNewMinimalEphemeralTest, waspNewI
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import ShellCommands (waspCliNew, WaspNewTemplate (..), waspCliNewInteractive)
 
-
-
-
 waspNewMinimalEphemeralTest :: EphemeralTest
 waspNewMinimalEphemeralTest = 
   makeEphemeralTest

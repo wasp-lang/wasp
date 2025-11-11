@@ -2,7 +2,7 @@ module EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import WaspProject.ShellCommands (waspCliDbStart)
+import WaspProject.ShellCommands (waspCliDbStart, setWaspDbToPSQL)
 import ShellCommands (WaspNewTemplate(..))
 
 waspDbStartEphemeralTest :: EphemeralTest
@@ -17,7 +17,10 @@ waspDbStartEphemeralTest =
         (createEphemeralWaspProject Minimal),
       makeEphemeralTestCase
         "Should exit early and successfully inside of a SQLite Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliDbStart])
+        (withInEphemeralWaspProjectDir [waspCliDbStart]),
+      makeEphemeralTestCase
+        "Setup: Modify Wasp project to use Postgresql"
+        (withInEphemeralWaspProjectDir [setWaspDbToPSQL])
       -- questions: 
       -- how do we run db non-interactively?
       -- how do we know when the db is started?

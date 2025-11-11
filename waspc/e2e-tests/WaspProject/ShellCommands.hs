@@ -8,8 +8,12 @@ module WaspProject.ShellCommands
     waspCliDbReset,
     waspCliDbSeed,
     waspCliCompile,
-    waspCliMigrate,
+    waspCliDbMigrateDevDev,
     waspCliBuild,
+    waspCliStart,
+    waspCliClean,
+    waspCliStudio,
+    waspCliDbStudio,
     waspCliInfo,
     createSeedFile,
     replaceMainWaspFile,
@@ -41,6 +45,73 @@ data WaspProjectContext = WaspProjectContext
     _waspProjectName :: String
   }
 
+waspCliCompile :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliCompile = return "wasp-cli compile"
+
+waspCliBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliBuild = return "wasp-cli build"
+
+-- FIXME: figure out long lasting processes
+waspCliStart :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliStart = return "wasp-cli start"
+
+waspCliClean :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliClean = return "wasp-cli clean"
+
+waspCliDbStart :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbStart = return "wasp-cli db start"
+
+-- | We make the migration name deterministic by forcing it to be
+-- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
+-- This is important for snapshot testing as we don't want a different migration name each time.
+-- Caveat: this does mean that we can't have two migrations with the same name in a project.
+waspCliDbMigrateDevDev :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbMigrateDevDev migrationName = do
+  waspProjectContext <- ask
+  let waspMigrationsDir = _waspProjectDir waspProjectContext </> dbMigrationsDirInWaspProjectDir
+      waspOutMigrationsDir =
+        _waspProjectDir waspProjectContext
+          </> dotWaspDirInWaspProjectDir
+          </> generatedCodeDirInDotWaspDir
+          </> dbRootDirInProjectRootDir
+          </> dbMigrationsDirInDbRootDir
+   in return $
+        "wasp-cli db migrate-dev --name "
+          ++ migrationName
+            ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
+            ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
+  where
+    replaceMigrationDatePrefix migrationDirPath =
+      "mv " ++ joinPath [migrationDirPath, "*" ++ migrationName] ++ " " ++ joinPath [migrationDirPath, "no-date-" ++ migrationName]
+
+waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
+
+-- FIXME: figure out interactivity
+waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"y\r\"; interact'"
+
+-- FIXME: figure out long lasting processes
+waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbStudio = return "wasp-cli db studio"
+
+waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliInfo = return "wasp-cli info"
+
+waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDockerfile = return "wasp-cli dockerfile"
+
+-- FIXME: figure out long lasting processes
+waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliStudio = return "wasp-cli studio"
+
+-- NOTE: fragile, assumes line numbers do not change.
+setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
+setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
+
+appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspProjectContext ShellCommand
+appendToPrismaFile = appendToFile "schema.prisma"
+
 createSeedFile :: String -> String -> ShellCommandBuilder WaspProjectContext ShellCommand
 createSeedFile fileName content = do
   waspProjectContext <- ask
@@ -54,34 +125,6 @@ replaceMainWaspFile content = do
   let waspProjectDir = _waspProjectDir waspProjectContext
   
   createFile waspProjectDir "main.wasp" content
-
--- NOTE: fragile, assumes line numbers do not change.
-setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
-setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
-
-appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspProjectContext ShellCommand
-appendToPrismaFile = appendToFile "schema.prisma"
-
-waspCliDbStart :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbStart = return "wasp-cli db start"
-
-waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"y\r\"; interact'"
-
-waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
-
-waspCliCompile :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliCompile = return "wasp-cli compile"
-
-waspCliBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliBuild = return "wasp-cli build"
-
-waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInfo = return "wasp-cli info"
-
-waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDockerfile = return "wasp-cli dockerfile"
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
@@ -101,26 +144,3 @@ buildAndRemoveWaspProjectDockerImage = do
           ++ dockerImageTag
             ~&& "cd "
           ++ fromAbsDir waspProjectDir
-
--- | We make the migration name deterministic by forcing it to be
--- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
--- This is important for snapshot testing as we don't want a different migration name each time.
--- Caveat: this does mean that we can't have two migrations with the same name in a project.
-waspCliMigrate :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliMigrate migrationName = do
-  waspProjectContext <- ask
-  let waspMigrationsDir = _waspProjectDir waspProjectContext </> dbMigrationsDirInWaspProjectDir
-      waspOutMigrationsDir =
-        _waspProjectDir waspProjectContext
-          </> dotWaspDirInWaspProjectDir
-          </> generatedCodeDirInDotWaspDir
-          </> dbRootDirInProjectRootDir
-          </> dbMigrationsDirInDbRootDir
-   in return $
-        "wasp-cli db migrate-dev --name "
-          ++ migrationName
-            ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
-            ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
-  where
-    replaceMigrationDatePrefix migrationDirPath =
-      "mv " ++ joinPath [migrationDirPath, "*" ++ migrationName] ++ " " ++ joinPath [migrationDirPath, "no-date-" ++ migrationName]

@@ -2,9 +2,7 @@ module EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import WaspProject.ShellCommands (appendToPrismaFile, waspCliMigrate, waspCliCompile, createSeedFile, replaceMainWaspFile, waspCliDbSeed)
-import StrongPath (fromRelFile, (</>))
-import WaspProject.FileSystem (seedsDirInWaspProjectDir, seedsFileInSeedsDir)
+import WaspProject.ShellCommands (appendToPrismaFile, waspCliDbMigrateDevDev, waspCliCompile, createSeedFile, replaceMainWaspFile, waspCliDbSeed)
 import ShellCommands (WaspNewTemplate(..))
 
 waspDbSeedEphemeralTest :: EphemeralTest
@@ -22,7 +20,7 @@ waspDbSeedEphemeralTest =
         ( withInEphemeralWaspProjectDir
             [ waspCliCompile,
               appendToPrismaFile taskPrismaModel,
-              waspCliMigrate "foo",
+              waspCliDbMigrateDevDev "foo",
               createSeedFile
                 (seedScriptThatPopulatesTasksTableName ++ ".ts")
                 seedScriptThatPopulatesTasksTable,
