@@ -1530,7 +1530,7 @@
             "file",
             "server/package.json"
         ],
-        "2ac151d73ea5a55117a5048e7f1d282ceecef8be36e73113a81a802c4d64a9c2"
+        "d3ed6224c2da78cf43005b4f755e04a5c3f0d3233ab8d7179c4d896546e48747"
     ],
     [
         [
@@ -1999,7 +1999,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "b3ab06b7e21f6563bf258aa1b5027886645940bfe5d5aea12c4c83a90aa8b5bd"
+        "418a9575769e4b3d575e44a0d714d79ff8800f79c509775d57bf1a075bf7447f"
     ],
     [
         [
@@ -2228,6 +2228,13 @@
     [
         [
             "file",
+            "server/src/views/wrong-port.ts"
+        ],
+        "bf2ad3cb09d4558309dfe6b9cee9281ed1df35bc66bbb93c255fed6dab99938d"
+    ],
+    [
+        [
+            "file",
             "server/src/webSocket/initialization.ts"
         ],
         "834aa5aec6302c6ae44624cd4142acb8c0d0fe83c8ca5211577ed7e1c6b2cfc4"
@@ -2238,13 +2245,6 @@
             "server/tsconfig.json"
         ],
         "949371883586daa391e4c740deab221a2c96fa2be1f159e82eb5a129d4a5134a"
-    ],
-    [
-        [
-            "file",
-            "server/views/wrong-port.html.ejs"
-        ],
-        "bae5a1f2af8fe8d1ed1cc1eb91d27970eea036af4072d248c0ab7997a7e0691f"
     ],
     [
         [

@@ -5,17 +5,22 @@ import auth from './auth/index.js'
 import apis from './apis/index.js'
 import { rootCrudRouter } from './crud/index.js'
 import { config } from 'wasp/server'
+import { makeWrongPortPage } from '../views/wrong-port.js'
 
 
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
-router.get('/', middleware, function (_req, res) {
-  res.render("wrong-port.html.ejs", {
-    appName: "KitchenSink",
-    frontendUrl: config.frontendUrl
-  });
-})
+router.get('/', middleware,
+    function (_req, res) {
+      const data = {
+        appName: "KitchenSink",
+        frontendUrl: config.frontendUrl
+      };
+      const wrongPortPage = makeWrongPortPage(data);
+      res.status(200).type('html').send(wrongPortPage);
+    }
+)
 
 router.use('/auth', middleware, auth)
 router.use('/operations', middleware, operations)

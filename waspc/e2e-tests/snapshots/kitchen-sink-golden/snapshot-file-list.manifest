@@ -1131,9 +1131,9 @@ wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
-wasp-app/.wasp/out/server/views/wrong-port.html.ejs
 wasp-app/.wasp/out/web-app/.env
 wasp-app/.wasp/out/web-app/.gitignore
 wasp-app/.wasp/out/web-app/README.md
