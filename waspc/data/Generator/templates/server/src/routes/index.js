@@ -13,23 +13,30 @@ import { rootCrudRouter } from './crud/index.js'
 {=/ areThereAnyCrudRoutes =}
 {=# isDevelopment =}
 import { config } from 'wasp/server'
+import { makeWrongPortPage } from '../views/wrong-port.js'
 {=/ isDevelopment =}
 
 
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
-router.get('/', middleware, function (_req, res) {
+router.get('/', middleware,
   {=# isDevelopment =}
-  res.render("wrong-port.html.ejs", {
-    appName: "{= appName =}",
-    frontendUrl: config.frontendUrl
-  });
+    function (_req, res) {
+      const data = {
+        appName: "{= appName =}",
+        frontendUrl: config.frontendUrl
+      };
+      const wrongPortPage = makeWrongPortPage(data);
+      res.status(200).type('html').send(wrongPortPage);
+    }
   {=/ isDevelopment =}
   {=^ isDevelopment =}
-  res.status(200).send();
+    function (_req, res) {
+      res.status(200).send();
+    }
   {=/ isDevelopment =}
-})
+)
 
 {=# isAuthEnabled =}
 router.use('/auth', middleware, auth)

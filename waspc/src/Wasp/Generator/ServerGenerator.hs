@@ -165,7 +165,6 @@ npmDepsFromWasp spec =
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersion)
             ]
-            ++ depsRequiredByViews spec
             ++ depsRequiredByWebSockets spec,
         N.devDependencies =
           Npm.Dependency.fromList
@@ -185,12 +184,6 @@ npmDepsFromWasp spec =
         peerDependencies = []
       }
   where
-    depsRequiredByViews spec'
-      | AS.isBuild spec' = []
-      | otherwise =
-          [ Npm.Dependency.make ("ejs", "^3.1.10")
-          ]
-
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
@@ -235,10 +228,10 @@ genViewsDir spec
   | AS.isBuild spec = return []
   | otherwise =
       sequence
-        [ genFileCopy [relfile|views/wrong-port.html.ejs|]
+        [ genFileCopy [relfile|views/wrong-port.ts|]
         ]
   where
-    genFileCopy = return . C.mkTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
