@@ -1,15 +1,14 @@
 module WaspProject.FileSystem
-  ( 
-    SeedsDir,
+  ( SeedsDir,
     SeedsFile,
     seedsDirInWaspProjectDir,
     seedsFileInSeedsDir,
   )
 where
-  
+
+import Data.Maybe (fromJust)
 import StrongPath
 import Wasp.Project.Common (WaspProjectDir)
-import Data.Maybe (fromJust)
 
 data SeedsDir
 

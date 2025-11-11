@@ -2,8 +2,8 @@ module EphemeralTest.WaspStartEphemeralTest (waspStartEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliStart)
-import ShellCommands (WaspNewTemplate(..), ShellCommandBuilder, ShellCommand)
 
 -- FIXME: @waspCliStart@ - figure out long lasting processes
 waspStartEphemeralTest :: EphemeralTest
@@ -29,9 +29,9 @@ waspStartEphemeralTest =
         "Should succeed inside of a compiled Wasp project"
         (withInEphemeralWaspProjectDir [waspCliStart])
     ]
-    where
-      waspCliStartFails :: ShellCommandBuilder context ShellCommand
-      waspCliStartFails = return "! wasp-cli start"
+  where
+    waspCliStartFails :: ShellCommandBuilder context ShellCommand
+    waspCliStartFails = return "! wasp-cli start"
 
-      assertDirectoryExists :: FilePath -> ShellCommandBuilder context ShellCommand
-      assertDirectoryExists dirFilePath = return $ "[ -d '" ++ dirFilePath ++ "' ]"
+    assertDirectoryExists :: FilePath -> ShellCommandBuilder context ShellCommand
+    assertDirectoryExists dirFilePath = return $ "[ -d '" ++ dirFilePath ++ "' ]"

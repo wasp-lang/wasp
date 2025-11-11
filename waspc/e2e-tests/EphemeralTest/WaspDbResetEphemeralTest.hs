@@ -2,8 +2,8 @@ module EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import WaspProject.ShellCommands (appendToPrismaFile, waspCliDbMigrateDevDev, waspCliCompile, createSeedFile, replaceMainWaspFile, waspCliDbReset, waspCliDbSeed)
-import ShellCommands (WaspNewTemplate(..))
+import ShellCommands (WaspNewTemplate (..))
+import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbReset, waspCliDbSeed)
 
 -- | We include a seeding script as part of the ephemeral test,
 -- because Wasp skips the seeding during the reset (unlike Prisma).
@@ -78,8 +78,8 @@ waspDbResetEphemeralTest =
           "  db: {",
           "    seeds: [",
           "      import { " ++ seedScriptThatPopulatesTasksTableName ++ " } from \"@src/db/" ++ seedScriptThatPopulatesTasksTableName ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++" } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++" } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "\"",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++ " } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "\",",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ " } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "\"",
           "    ]",
           "  },",
           "}",

@@ -2,8 +2,8 @@ module EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import WaspProject.ShellCommands (waspCliDbStart, setWaspDbToPSQL)
-import ShellCommands (WaspNewTemplate(..))
+import ShellCommands (WaspNewTemplate (..))
+import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliDbStart)
 
 -- FIXME: @waspCliDbStart@ - figure out long lasting processes
 waspDbStartEphemeralTest :: EphemeralTest
@@ -26,4 +26,3 @@ waspDbStartEphemeralTest =
         "Should succeed inside of a Wasp project"
         (withInEphemeralWaspProjectDir [waspCliDbStart])
     ]
-

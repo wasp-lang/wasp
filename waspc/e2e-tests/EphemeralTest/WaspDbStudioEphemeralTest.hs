@@ -2,10 +2,10 @@ module EphemeralTest.WaspDbStudioEphemeralTest (waspDbStudioEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate(..))
+import ShellCommands (WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliDbStudio)
 
--- | NOTE: We don't test feature content since it's prisma feature. 
+-- | NOTE: We don't test feature content since it's prisma feature.
 -- FIXME: @waspCliDbStudio@ - figure out long lasting processes
 waspDbStudioEphemeralTest :: EphemeralTest
 waspDbStudioEphemeralTest =

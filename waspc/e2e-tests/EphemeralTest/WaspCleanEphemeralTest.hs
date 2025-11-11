@@ -2,8 +2,8 @@ module EphemeralTest.WaspCleanEphemeralTest (waspCleanEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliClean, waspCliCompile)
-import ShellCommands (WaspNewTemplate(..), ShellCommandBuilder, ShellCommand)
 
 waspCleanEphemeralTest :: EphemeralTest
 waspCleanEphemeralTest =
@@ -31,9 +31,9 @@ waspCleanEphemeralTest =
         "Assert `node_modules` directory does not exist"
         (withInEphemeralWaspProjectDir [assertDirectoryDoesNotExist "node_modules"])
     ]
-    where
-      waspCliCleanFails :: ShellCommandBuilder context ShellCommand
-      waspCliCleanFails = return "! wasp-cli clean"
+  where
+    waspCliCleanFails :: ShellCommandBuilder context ShellCommand
+    waspCliCleanFails = return "! wasp-cli clean"
 
-      assertDirectoryDoesNotExist :: FilePath -> ShellCommandBuilder context ShellCommand
-      assertDirectoryDoesNotExist dirFilePath = return $ "[ ! -d '" ++ dirFilePath ++ "' ]"
+    assertDirectoryDoesNotExist :: FilePath -> ShellCommandBuilder context ShellCommand
+    assertDirectoryDoesNotExist dirFilePath = return $ "[ ! -d '" ++ dirFilePath ++ "' ]"

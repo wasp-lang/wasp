@@ -13,9 +13,11 @@ import FileSystem
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
+    WaspNewTemplate (..),
     buildShellCommand,
+    waspCliNew,
     (~&&),
-    (~|), waspCliNew, WaspNewTemplate (..),
+    (~|),
   )
 import SnapshotTest.FileSystem (SnapshotDir, gitRootFromSnapshotDir)
 import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, fromRelDir, (</>))

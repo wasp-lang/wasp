@@ -28,8 +28,8 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     appendToFile,
-    replaceLineInFile,
     createFile,
+    replaceLineInFile,
     (~&&),
     (~?),
   )
@@ -85,7 +85,7 @@ waspCliDbMigrateDevDev migrationName = do
             ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
             ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
   where
-    -- NOTE: We supress the `mv` error, because if we call `wasp db migrate-dev` 
+    -- NOTE: We supress the `mv` error, because if we call `wasp db migrate-dev`
     -- when there is nothing to migrate, it succeeds but creates no files.
     replaceMigrationDatePrefix :: FilePath -> ShellCommand
     replaceMigrationDatePrefix migrationDirPath =

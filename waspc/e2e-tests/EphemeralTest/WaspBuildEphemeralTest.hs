@@ -2,8 +2,8 @@ module EphemeralTest.WaspBuildEphemeralTest (waspBuildEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild)
-import ShellCommands (WaspNewTemplate(..), ShellCommandBuilder, ShellCommand)
 
 waspBuildEphemeralTest :: EphemeralTest
 waspBuildEphemeralTest =
@@ -32,9 +32,9 @@ waspBuildEphemeralTest =
         "Assert `node_modules` directory exists"
         (withInEphemeralWaspProjectDir [assertDirectoryExists "node_modules"])
     ]
-    where
-      waspCliBuildFails :: ShellCommandBuilder context ShellCommand
-      waspCliBuildFails = return "! wasp-cli build"
+  where
+    waspCliBuildFails :: ShellCommandBuilder context ShellCommand
+    waspCliBuildFails = return "! wasp-cli build"
 
-      assertDirectoryExists :: FilePath -> ShellCommandBuilder context ShellCommand
-      assertDirectoryExists dirFilePath = return $ "[ -d '" ++ dirFilePath ++ "' ]"
+    assertDirectoryExists :: FilePath -> ShellCommandBuilder context ShellCommand
+    assertDirectoryExists dirFilePath = return $ "[ -d '" ++ dirFilePath ++ "' ]"

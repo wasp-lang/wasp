@@ -16,13 +16,13 @@ import ShellCommands
     (~&&),
   )
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
+import System.Directory.Internal.Prelude (unless)
 import System.Exit (ExitCode (..))
-import System.Process (callCommand, readCreateProcessWithExitCode, shell, CreateProcess (..), StdStream (..), createProcess, waitForProcess)
+import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, readCreateProcessWithExitCode, shell, waitForProcess)
+import Test.Hspec (Spec, expectationFailure, it, runIO, sequential)
 import Test.Tasty (TestTree)
-import Test.Hspec (Spec, expectationFailure, sequential, it, runIO)
 import Test.Tasty.Hspec (testSpec)
 import WaspProject.ShellCommands (WaspProjectContext (..))
-import System.Directory.Internal.Prelude (unless)
 
 data EphemeralTest = EphemeralTest
   { _ephemeralTestName :: String,
@@ -49,7 +49,7 @@ makeEphemeralTestCase testCaseName commandBuilder =
       _ephemeralTestCaseCommandBuilder = commandBuilder
     }
 
--- | Runs a 'EphemeralTest' by executing all ephemeral test cases' shell commands and then checking their exit code. 
+-- | Runs a 'EphemeralTest' by executing all ephemeral test cases' shell commands and then checking their exit code.
 -- It executes the commands while builing the 'Spec', because we force sequential execution of ephemeral test cases.
 runEphemeralTest :: EphemeralTest -> IO TestTree
 runEphemeralTest ephemeralTest = do
@@ -70,7 +70,7 @@ createAndExecuteEphemeralTest ephemeralDir ephemeralTest = do
     (_ephemeralTestName ephemeralTest)
     (createAndExecuteEphemeralTestCasesSequentially ephemeralDir (_ephemeralTestCases ephemeralTest))
 
-createAndExecuteEphemeralTestCasesSequentially ::  Path' Abs (Dir EphemeralDir) -> [EphemeralTestCase] -> Spec
+createAndExecuteEphemeralTestCasesSequentially :: Path' Abs (Dir EphemeralDir) -> [EphemeralTestCase] -> Spec
 createAndExecuteEphemeralTestCasesSequentially ephemeralDir ephemeralTestCases =
   sequential $ mapM_ (createAndExecuteEphemeralTestCase ephemeralDir) ephemeralTestCases
 
@@ -79,11 +79,15 @@ createAndExecuteEphemeralTestCase ephemeralDir ephemeralTestCase = do
   runIO $ putStrLn $ "Executing test case: " ++ ephemeralTestCaseName
   runIO $ putStrLn $ "Command: " ++ ephemeralTestCaseCommand
 
-  (_,_,_,processHandle) <- runIO $ createProcess (shell ephemeralTestCaseCommand) { cwd = Just $ fromAbsDir ephemeralDir
-              , std_in  = Inherit
-              , std_out = Inherit
-              , std_err = Inherit
-              }
+  (_, _, _, processHandle) <-
+    runIO $
+      createProcess
+        (shell ephemeralTestCaseCommand)
+          { cwd = Just $ fromAbsDir ephemeralDir,
+            std_in = Inherit,
+            std_out = Inherit,
+            std_err = Inherit
+          }
   exitCode <- runIO $ waitForProcess processHandle
 
   runIO $ putStrLn $ "Finished with exit code: " ++ show exitCode
@@ -92,7 +96,6 @@ createAndExecuteEphemeralTestCase ephemeralDir ephemeralTestCase = do
     case exitCode of
       ExitFailure _ -> expectationFailure $ "Command failed: " ++ ephemeralTestCaseCommand
       ExitSuccess -> return ()
-
   where
     ephemeralTestCaseName :: String
     ephemeralTestCaseName = _ephemeralTestCaseName ephemeralTestCase

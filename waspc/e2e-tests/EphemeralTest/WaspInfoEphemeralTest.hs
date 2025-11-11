@@ -2,10 +2,10 @@ module EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import ShellCommands (WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliInfo)
-import ShellCommands (WaspNewTemplate(..))
 
--- TODO: Test `wasp info` values change properly: 
+-- TODO: Test `wasp info` values change properly:
 -- name, database, project dir size, last compile.
 waspInfoEphemeralTest :: EphemeralTest
 waspInfoEphemeralTest =

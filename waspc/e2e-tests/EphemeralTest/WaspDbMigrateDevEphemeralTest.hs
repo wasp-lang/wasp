@@ -1,16 +1,20 @@
 module EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest) where
 
+import Control.Monad.Reader (MonadReader (ask))
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate(..), ShellCommandBuilder, ShellCommand, (~&&))
-import WaspProject.ShellCommands (waspCliDbMigrateDevDev, appendToPrismaFile, WaspProjectContext (..))
-import Control.Monad.Reader (MonadReader (ask))
-import StrongPath ((</>), fromAbsDir)
-import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-import Wasp.Project.Common
-    ( dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir )
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), (~&&))
+import StrongPath (fromAbsDir, (</>))
 import Wasp.Generator.DbGenerator.Common
-    ( dbRootDirInProjectRootDir, dbMigrationsDirInDbRootDir )
+  ( dbMigrationsDirInDbRootDir,
+    dbRootDirInProjectRootDir,
+  )
+import Wasp.Project.Common
+  ( dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+  )
+import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
+import WaspProject.ShellCommands (WaspProjectContext (..), appendToPrismaFile, waspCliDbMigrateDevDev)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
 waspDbMigrateDevEphemeralTest :: EphemeralTest
@@ -29,14 +33,14 @@ waspDbMigrateDevEphemeralTest =
       makeEphemeralTestCase
         "Setup: Add a Task model to prisma"
         ( withInEphemeralWaspProjectDir
-            [ appendToPrismaFile taskPrismaModel ]
+            [appendToPrismaFile taskPrismaModel]
         ),
       makeEphemeralTestCase
         "Should succeed creating a new migration inside of a Wasp project"
         (withInEphemeralWaspProjectDir [waspCliDbMigrateDevDev "yes_migration"]),
       makeEphemeralTestCase
         "Assert migration directories exists"
-        (withInEphemeralWaspProjectDir [assertMigrationDirsExist "yes_migration" ])
+        (withInEphemeralWaspProjectDir [assertMigrationDirsExist "yes_migration"])
     ]
   where
     waspCliDbMigrateDevFails :: ShellCommandBuilder context ShellCommand
@@ -62,7 +66,13 @@ assertMigrationDirsExist migrationName = do
           </> dbRootDirInProjectRootDir
           </> dbMigrationsDirInDbRootDir
   return $
-    "cd " ++ fromAbsDir waspMigrationsDir
-      ~&& "[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]"
-      ~&& "cd " ++ fromAbsDir waspOutMigrationsDir
-      ~&& "[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]"
+    "cd "
+      ++ fromAbsDir waspMigrationsDir
+        ~&& "[ -d \"$(find . -type d -name '*"
+      ++ migrationName
+      ++ "*' -print -quit)\" ]"
+        ~&& "cd "
+      ++ fromAbsDir waspOutMigrationsDir
+        ~&& "[ -d \"$(find . -type d -name '*"
+      ++ migrationName
+      ++ "*' -print -quit)\" ]"

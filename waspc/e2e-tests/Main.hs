@@ -1,8 +1,15 @@
 import EphemeralTest (runEphemeralTest)
+import EphemeralTest.WaspBuildEphemeralTest (waspBuildEphemeralTest)
+import EphemeralTest.WaspCleanEphemeralTest (waspCleanEphemeralTest)
+import EphemeralTest.WaspCompileEphemeralTest (waspCompileEphemeralTest)
 import EphemeralTest.WaspCompletionEphemeralTest (waspCompletionEphemeralTest)
+import EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest)
+import EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest)
+import EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest)
 import EphemeralTest.WaspDepsEphemeralTest (waspDepsEphemeralTest)
 import EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest)
 import EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest)
+import EphemeralTest.WaspNewEphemeralTest (waspNewBasicEphemeralTest, waspNewInteractiveBasicEphemeralTest, waspNewInteractiveMinimalEphemeralTest, waspNewInteractiveSaasEphemeralTest, waspNewMinimalEphemeralTest, waspNewSaasEphemeralTest)
 import EphemeralTest.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest)
 import EphemeralTest.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 import SnapshotTest (runSnapshotTest)
@@ -13,13 +20,6 @@ import SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import SnapshotTest.WaspNewSnapshotTest (waspNewSnapshotTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest)
-import EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest)
-import EphemeralTest.WaspNewEphemeralTest (waspNewMinimalEphemeralTest, waspNewInteractiveMinimalEphemeralTest, waspNewBasicEphemeralTest, waspNewInteractiveBasicEphemeralTest, waspNewSaasEphemeralTest, waspNewInteractiveSaasEphemeralTest)
-import EphemeralTest.WaspBuildEphemeralTest (waspBuildEphemeralTest)
-import EphemeralTest.WaspCleanEphemeralTest (waspCleanEphemeralTest)
-import EphemeralTest.WaspCompileEphemeralTest (waspCompileEphemeralTest)
-import EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest)
 
 main :: IO ()
 main = do
@@ -43,11 +43,11 @@ tests = do
     mapM
       runEphemeralTest
       [ -- general Wasp commads
-        waspNewMinimalEphemeralTest, 
+        waspNewMinimalEphemeralTest,
         waspNewInteractiveMinimalEphemeralTest,
-        waspNewBasicEphemeralTest, 
-        waspNewInteractiveBasicEphemeralTest, 
-        waspNewSaasEphemeralTest, 
+        waspNewBasicEphemeralTest,
+        waspNewInteractiveBasicEphemeralTest,
+        waspNewSaasEphemeralTest,
         waspNewInteractiveSaasEphemeralTest,
         waspTelemetryEphemeralTest,
         waspCompletionEphemeralTest,
@@ -73,7 +73,6 @@ tests = do
   return $
     testGroup
       "E2E tests"
-      [ 
-        testGroup "Snapshot Tests" snapshotTests,
+      [ testGroup "Snapshot Tests" snapshotTests,
         testGroup "Ephemeral Tests" ephemeralTests
       ]

@@ -7,7 +7,7 @@ where
 
 import Control.Monad.Reader (MonadReader (ask))
 import EphemeralTest.FileSystem (EphemeralDir)
-import ShellCommands (ShellCommand, ShellCommandBuilder, buildShellCommand, (~&&), waspCliNew, WaspNewTemplate)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate, buildShellCommand, waspCliNew, (~&&))
 import StrongPath (Abs, Dir, Path', fromAbsDir)
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
@@ -22,9 +22,11 @@ withInEphemeralWaspProjectDir ::
 withInEphemeralWaspProjectDir waspProjectCommandBuilders = do
   ephemeralTestContext <- ask
   return $
-    "cd " ++ fromAbsDir (_waspProjectDir $ _ephemeralWaspProjectContext ephemeralTestContext)
-      ~&& foldr1 (~&&) (ephemeralWaspProjectCommands ephemeralTestContext)
-      ~&& "cd " ++ fromAbsDir (_ephemeralDir ephemeralTestContext)
+    "cd "
+      ++ fromAbsDir (_waspProjectDir $ _ephemeralWaspProjectContext ephemeralTestContext)
+        ~&& foldr1 (~&&) (ephemeralWaspProjectCommands ephemeralTestContext)
+        ~&& "cd "
+      ++ fromAbsDir (_ephemeralDir ephemeralTestContext)
   where
     ephemeralWaspProjectCommands :: EphemeralTestContext -> [ShellCommand]
     ephemeralWaspProjectCommands ephemeralTestContext =

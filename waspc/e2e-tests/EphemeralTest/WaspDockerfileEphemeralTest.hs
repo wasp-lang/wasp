@@ -2,8 +2,8 @@ module EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest) w
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import ShellCommands (WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliDockerfile)
-import ShellCommands (WaspNewTemplate(..))
 
 -- TODO: Test `wasp dockerfile` content.
 waspDockerfileEphemeralTest :: EphemeralTest

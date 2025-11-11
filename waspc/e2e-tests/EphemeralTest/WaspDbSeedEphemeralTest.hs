@@ -2,8 +2,8 @@ module EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import WaspProject.ShellCommands (appendToPrismaFile, waspCliDbMigrateDevDev, waspCliCompile, createSeedFile, replaceMainWaspFile, waspCliDbSeed)
-import ShellCommands (WaspNewTemplate(..))
+import ShellCommands (WaspNewTemplate (..))
+import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbSeed)
 
 waspDbSeedEphemeralTest :: EphemeralTest
 waspDbSeedEphemeralTest =
@@ -68,8 +68,8 @@ waspDbSeedEphemeralTest =
           "  db: {",
           "    seeds: [",
           "      import { " ++ seedScriptThatPopulatesTasksTableName ++ " } from \"@src/db/" ++ seedScriptThatPopulatesTasksTableName ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++" } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++" } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "\"",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++ " } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "\",",
+          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ " } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "\"",
           "    ]",
           "  },",
           "}",

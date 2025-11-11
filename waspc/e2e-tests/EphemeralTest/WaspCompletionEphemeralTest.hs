@@ -26,5 +26,9 @@ waspCompletionEphemeralTest =
     assertWaspCliCompletion :: String -> String -> ShellCommandBuilder context ShellCommand
     assertWaspCliCompletion query expectedCompletion =
       return $
-        "export COMP_LINE='" ++ query ++ "'"
-          ~&& "[ \"$(wasp-cli completion:list)\" = \"" ++ expectedCompletion ++ "\" ]"
+        "export COMP_LINE='"
+          ++ query
+          ++ "'"
+            ~&& "[ \"$(wasp-cli completion:list)\" = \""
+          ++ expectedCompletion
+          ++ "\" ]"

@@ -22,10 +22,10 @@ module ShellCommands
 where
 
 import Control.Monad.Reader (MonadReader, Reader, runReader)
-import StrongPath (Path', Abs, fromAbsFile, parseRelFile, (</>), fromAbsDir, Dir)
-import Data.Maybe (fromJust)
-import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Base64 as B64
+import qualified Data.ByteString.Char8 as C8
+import Data.Maybe (fromJust)
+import StrongPath (Abs, Dir, Path', fromAbsDir, fromAbsFile, parseRelFile, (</>))
 
 -- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 -- TODO: In future, find a good way to test `wasp-cli start`.
@@ -107,21 +107,22 @@ replaceLineInFile fileName lineNumber line =
       ++ ".tmp "
       ++ fileName
 
-data WaspNewTemplate = Minimal | Basic | SaaS 
+data WaspNewTemplate = Minimal | Basic | SaaS
 
 waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNewInteractive appName template = return $ unwords
-    [
-      "expect -c",
-      "'spawn wasp-cli new;",
-      "expect \"Enter the project name\";",
-      "send -- \"" ++ appName ++ "\r\";",
-      "expect \"Choose a starter template\";",
-      "send -- \"" ++ templateNumber ++ "\r\";",
-      "interact'"
-    ]
+waspCliNewInteractive appName template =
+  return $
+    unwords
+      [ "expect -c",
+        "'spawn wasp-cli new;",
+        "expect \"Enter the project name\";",
+        "send -- \"" ++ appName ++ "\r\";",
+        "expect \"Choose a starter template\";",
+        "send -- \"" ++ templateNumber ++ "\r\";",
+        "interact'"
+      ]
   where
-    templateNumber = case template of 
+    templateNumber = case template of
       Basic -> "1"
       Minimal -> "2"
       SaaS -> "3"

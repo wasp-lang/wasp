@@ -2,7 +2,7 @@ module EphemeralTest.WaspDepsEphemeralTest (waspDepsEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate(..))
+import ShellCommands (WaspNewTemplate (..))
 
 -- TODO: Test `wasp deps` deps chage with installs/uninstalls.
 waspDepsEphemeralTest :: EphemeralTest
