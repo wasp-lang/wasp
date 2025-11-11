@@ -13,18 +13,13 @@ import SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import SnapshotTest.WaspNewSnapshotTest (waspNewSnapshotTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest)
 import EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest)
 import EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest)
 import EphemeralTest.WaspNewEphemeralTest (waspNewMinimalEphemeralTest, waspNewInteractiveMinimalEphemeralTest, waspNewBasicEphemeralTest, waspNewInteractiveBasicEphemeralTest, waspNewSaasEphemeralTest, waspNewInteractiveSaasEphemeralTest)
 import EphemeralTest.WaspBuildEphemeralTest (waspBuildEphemeralTest)
 import EphemeralTest.WaspCleanEphemeralTest (waspCleanEphemeralTest)
 import EphemeralTest.WaspCompileEphemeralTest (waspCompileEphemeralTest)
-import EphemeralTest.WaspStudioEphemeralTest (waspStudioEphemeralTest)
 import EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest)
-import EphemeralTest.WaspStartEphemeralTest (waspStartEphemeralTest)
-import EphemeralTest.WaspDbStudioEphemeralTest (waspDbStudioEphemeralTest)
-import EphemeralTest.WaspBuildStartEphemeralTest (waspBuildStartEphemeralTest)
 
 main :: IO ()
 main = do
@@ -35,15 +30,15 @@ main = do
 -- TODO: Investigate automatically discovering the tests.
 tests :: IO TestTree
 tests = do
-  -- snapshotTests <-
-  --   mapM
-  --     runSnapshotTest
-  --     [ waspNewSnapshotTest,
-  --       waspCompileSnapshotTest,
-  --       waspBuildSnapshotTest,
-  --       waspMigrateSnapshotTest,
-  --       kitchenSinkSnapshotTest
-  --     ]
+  snapshotTests <-
+    mapM
+      runSnapshotTest
+      [ waspNewSnapshotTest,
+        waspCompileSnapshotTest,
+        waspBuildSnapshotTest,
+        waspMigrateSnapshotTest,
+        kitchenSinkSnapshotTest
+      ]
   ephemeralTests <-
     mapM
       runEphemeralTest
@@ -79,6 +74,6 @@ tests = do
     testGroup
       "E2E tests"
       [ 
-        -- testGroup "Snapshot Tests" snapshotTests,
+        testGroup "Snapshot Tests" snapshotTests,
         testGroup "Ephemeral Tests" ephemeralTests
       ]
