@@ -98,7 +98,10 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
 
     export const serverMiddlewareFn = (middlewareConfig) => {
       // Example of adding extra domains to CORS.
-      middlewareConfig.set('cors', cors({ origin: [...config.allowedCorsOrigins, 'https://example1.com', 'https://example2.com'] }))
+
+      if (config.allowedCORSOrigins !== '*') {
+        middlewareConfig.set('cors', cors({ origin: [...config.allowedCorsOrigins, 'https://example1.com', 'https://example2.com'] }))
+      }
       return middlewareConfig
     }
     ```
@@ -121,7 +124,9 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
 
     export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
       // Example of adding an extra domains to CORS.
-      middlewareConfig.set('cors', cors({ origin: [...config.allowedCORSOrigins, 'https://example1.com', 'https://example2.com'] }))
+      if (config.allowedCORSOrigins !== '*') {
+        middlewareConfig.set('cors', cors({ origin: [...config.allowedCORSOrigins, 'https://example1.com', 'https://example2.com'] }))
+      }
       return middlewareConfig
     }
     ```

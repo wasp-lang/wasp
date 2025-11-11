@@ -47,10 +47,11 @@ function addCustomRoute(app: Application) {
 
 export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   // Example of adding an extra domain to CORS.
-  console.log("ligma origini", config.allowedCORSOrigins)
-  middlewareConfig.set(
-    "cors",
-    cors({ origin: [config.frontendUrl, "http://127.0.0.1:3000"] }),
-  );
+  if (config.allowedCORSOrigins !== "*") {
+    middlewareConfig.set(
+      "cors",
+      cors({ origin: [...config.allowedCORSOrigins, "http://127.0.0.1:3000"] }),
+    );
+  }
   return middlewareConfig;
 };
