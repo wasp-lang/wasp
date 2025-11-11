@@ -163,27 +163,27 @@ Add the following to the `main.wasp` file:
 
     route LoginRoute { path: "/login", to: LoginPage }
     page LoginPage {
-      component: import { Login } from "@src/pages/auth.jsx"
+      component: import { Login } from "@src/pages/auth"
     }
 
     route SignupRoute { path: "/signup", to: SignupPage }
     page SignupPage {
-      component: import { Signup } from "@src/pages/auth.jsx"
+      component: import { Signup } from "@src/pages/auth"
     }
 
     route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
     page RequestPasswordResetPage {
-      component: import { RequestPasswordReset } from "@src/pages/auth.jsx",
+      component: import { RequestPasswordReset } from "@src/pages/auth",
     }
 
     route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
     page PasswordResetPage {
-      component: import { PasswordReset } from "@src/pages/auth.jsx",
+      component: import { PasswordReset } from "@src/pages/auth",
     }
 
     route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
     page EmailVerificationPage {
-      component: import { EmailVerification } from "@src/pages/auth.jsx",
+      component: import { EmailVerification } from "@src/pages/auth",
     }
     ```
   </TabItem>
@@ -194,27 +194,27 @@ Add the following to the `main.wasp` file:
 
     route LoginRoute { path: "/login", to: LoginPage }
     page LoginPage {
-      component: import { Login } from "@src/pages/auth.tsx"
+      component: import { Login } from "@src/pages/auth"
     }
 
     route SignupRoute { path: "/signup", to: SignupPage }
     page SignupPage {
-      component: import { Signup } from "@src/pages/auth.tsx"
+      component: import { Signup } from "@src/pages/auth"
     }
 
     route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
     page RequestPasswordResetPage {
-      component: import { RequestPasswordReset } from "@src/pages/auth.tsx",
+      component: import { RequestPasswordReset } from "@src/pages/auth",
     }
 
     route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
     page PasswordResetPage {
-      component: import { PasswordReset } from "@src/pages/auth.tsx",
+      component: import { PasswordReset } from "@src/pages/auth",
     }
 
     route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
     page EmailVerificationPage {
-      component: import { EmailVerification } from "@src/pages/auth.tsx",
+      component: import { EmailVerification } from "@src/pages/auth",
     }
     ```
   </TabItem>
@@ -672,18 +672,18 @@ Let's go over the options we can specify when using email authentication.
         userEntity: User,
         methods: {
           email: {
-            userSignupFields: import { userSignupFields } from "@src/auth.js",
+            userSignupFields: import { userSignupFields } from "@src/auth",
             fromField: {
               name: "My App",
               email: "hello@itsme.com"
             },
             emailVerification: {
               clientRoute: EmailVerificationRoute,
-              getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email.js",
+              getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email",
             },
             passwordReset: {
               clientRoute: PasswordResetRoute,
-              getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email.js",
+              getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email",
             },
           },
         },
@@ -704,18 +704,18 @@ Let's go over the options we can specify when using email authentication.
         userEntity: User,
         methods: {
           email: {
-            userSignupFields: import { userSignupFields } from "@src/auth.js",
+            userSignupFields: import { userSignupFields } from "@src/auth",
             fromField: {
               name: "My App",
               email: "hello@itsme.com"
             },
             emailVerification: {
               clientRoute: EmailVerificationRoute,
-              getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email.js",
+              getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email",
             },
             passwordReset: {
               clientRoute: PasswordResetRoute,
-              getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email.js",
+              getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email",
             },
           },
         },

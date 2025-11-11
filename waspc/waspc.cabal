@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.18.2
+version:        0.18.3
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -582,9 +582,8 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
-    Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhRepo
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive
-    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
