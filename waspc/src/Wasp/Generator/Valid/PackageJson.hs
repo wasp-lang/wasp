@@ -1,5 +1,11 @@
 module Wasp.Generator.Valid.PackageJson
   ( validatePackageJson,
+
+    -- * Exported for testing only
+    makeOptionalDepValidator,
+    makeRequiredDepValidator,
+    inDependency,
+    DependencyType (..),
   )
 where
 

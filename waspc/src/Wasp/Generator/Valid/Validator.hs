@@ -20,6 +20,7 @@ data ValidationError = ValidationError
     fieldPath :: [String],
     fileName :: Maybe String
   }
+  deriving (Eq)
 
 -- | Executes the given validator on the input and returns a list of validation errors. If there are
 -- no errors, returns an empty list.

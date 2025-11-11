@@ -722,6 +722,8 @@ test-suite waspc-tests
     Project.DbTest
     Paths_waspc
     Generator.NpmDependenciesTest
+    Generator.Valid.PackageJsonTest
+    Generator.Valid.ValidatorTest
     JsImportTest
 
 test-suite waspls-tests
