@@ -2,12 +2,13 @@ module EphemeralTest.WaspStudioEphemeralTest (waspStudioEphemeralTest)  where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import WaspProject.ShellCommands (waspCliStudio)
 import ShellCommands (WaspNewTemplate(..), ShellCommandBuilder, ShellCommand)
+import WaspProject.ShellCommands (waspCliStudio)
 
 -- | NOTE: Once it evolves it will probably have it’s own
 -- playwright tests inside of the TS package. 
 -- So we will tests just that the command works.
+-- FIXME: @waspCliStudio@ - figure out long lasting processes
 waspStudioEphemeralTest :: EphemeralTest
 waspStudioEphemeralTest =
   makeEphemeralTest

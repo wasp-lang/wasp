@@ -90,9 +90,8 @@ waspCliDbMigrateDevDev migrationName = do
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
 
--- FIXME: figure out interactivity
-waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbReset = return "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"y\r\"; interact'"
+waspCliDbReset :: Bool -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbReset reset = return $ "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"" ++ if reset then "y" else "n" ++ "\r\"; interact'"
 
 -- FIXME: figure out long lasting processes
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -104,7 +103,6 @@ waspCliInfo = return "wasp-cli info"
 waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDockerfile = return "wasp-cli dockerfile"
 
--- FIXME: figure out long lasting processes
 waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStudio = return "wasp-cli studio"
 
@@ -126,7 +124,7 @@ replaceMainWaspFile :: String -> ShellCommandBuilder WaspProjectContext ShellCom
 replaceMainWaspFile content = do
   waspProjectContext <- ask
   let waspProjectDir = _waspProjectDir waspProjectContext
-  
+
   createFile waspProjectDir "main.wasp" content
 
 -- | Builds and deletes the Docker image for a Wasp app.

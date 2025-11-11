@@ -63,7 +63,7 @@ tests = do
         -- waspCompileEphemeralTest,
         -- waspBuildEphemeralTest,
         -- waspCleanEphemeralTest,
-        -- waspStudioEphemeralTest,
+        waspStudioEphemeralTest
         -- waspDbMigrateDevEphemeralTest
       ]
 

@@ -5,6 +5,7 @@ import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralW
 import WaspProject.ShellCommands (waspCliDbStart, setWaspDbToPSQL)
 import ShellCommands (WaspNewTemplate(..))
 
+-- FIXME: @waspCliDbStart@ - figure out long lasting processes
 waspDbStartEphemeralTest :: EphemeralTest
 waspDbStartEphemeralTest =
   makeEphemeralTest
@@ -20,10 +21,9 @@ waspDbStartEphemeralTest =
         (withInEphemeralWaspProjectDir [waspCliDbStart]),
       makeEphemeralTestCase
         "Setup: Modify Wasp project to use Postgresql"
-        (withInEphemeralWaspProjectDir [setWaspDbToPSQL])
-      -- questions: 
-      -- how do we run db non-interactively?
-      -- how do we know when the db is started?
-      -- how do we stop the process?
+        (withInEphemeralWaspProjectDir [setWaspDbToPSQL]),
+      makeEphemeralTestCase
+        "Should succeed inside of a Wasp project"
+        (withInEphemeralWaspProjectDir [waspCliDbStart])
     ]
 

@@ -5,7 +5,7 @@ import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralW
 import WaspProject.ShellCommands (waspCliStart)
 import ShellCommands (WaspNewTemplate(..), ShellCommandBuilder, ShellCommand)
 
--- FIXME: waspCliStart
+-- FIXME: @waspCliStart@ - figure out long lasting processes
 waspStartEphemeralTest :: EphemeralTest
 waspStartEphemeralTest =
   makeEphemeralTest

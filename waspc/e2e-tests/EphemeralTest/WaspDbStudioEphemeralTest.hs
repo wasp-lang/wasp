@@ -1,10 +1,12 @@
 module EphemeralTest.WaspDbStudioEphemeralTest (waspDbStudioEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject)
+import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (WaspNewTemplate(..))
+import WaspProject.ShellCommands (waspCliDbStudio)
 
 -- | NOTE: We don't test feature content since it's prisma feature. 
+-- FIXME: @waspCliDbStudio@ - figure out long lasting processes
 waspDbStudioEphemeralTest :: EphemeralTest
 waspDbStudioEphemeralTest =
   makeEphemeralTest
@@ -14,9 +16,8 @@ waspDbStudioEphemeralTest =
         (return "! wasp-cli db studio"),
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal)
-      -- questions: 
-      -- how do we run db non-interactively?
-      -- how do we know when the db is started?
-      -- how do we stop the process?
+        (createEphemeralWaspProject Minimal),
+      makeEphemeralTestCase
+        "Should succeed inside of a uncompiled Wasp project"
+        (withInEphemeralWaspProjectDir [waspCliDbStudio])
     ]
