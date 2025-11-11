@@ -22,6 +22,7 @@ env:
 
 jobs:
   build:
+    name: Build Wasp
     strategy:
       fail-fast: false
 
