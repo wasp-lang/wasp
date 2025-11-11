@@ -109,7 +109,6 @@ replaceLineInFile fileName lineNumber line =
 
 data WaspNewTemplate = Minimal | Basic | SaaS 
 
--- FIXME: not working
 waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNewInteractive appName template = return $ unwords
     [
@@ -119,7 +118,6 @@ waspCliNewInteractive appName template = return $ unwords
       "send -- \"" ++ appName ++ "\r\";",
       "expect \"Choose a starter template\";",
       "send -- \"" ++ templateNumber ++ "\r\";",
-      "except \"Creating your project\";",
       "interact'"
     ]
   where

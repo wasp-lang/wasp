@@ -22,6 +22,9 @@ import EphemeralTest.WaspCleanEphemeralTest (waspCleanEphemeralTest)
 import EphemeralTest.WaspCompileEphemeralTest (waspCompileEphemeralTest)
 import EphemeralTest.WaspStudioEphemeralTest (waspStudioEphemeralTest)
 import EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest)
+import EphemeralTest.WaspStartEphemeralTest (waspStartEphemeralTest)
+import EphemeralTest.WaspDbStudioEphemeralTest (waspDbStudioEphemeralTest)
+import EphemeralTest.WaspBuildStartEphemeralTest (waspBuildStartEphemeralTest)
 
 main :: IO ()
 main = do
@@ -44,27 +47,32 @@ tests = do
   ephemeralTests <-
     mapM
       runEphemeralTest
-      [ 
-        -- waspTelemetryEphemeralTest,
-        -- waspCompletionEphemeralTest,
-        -- waspInfoEphemeralTest,
-        -- waspVersionEphemeralTest,
-        -- waspDockerfileEphemeralTest,
-        -- waspDepsEphemeralTest,
-        -- waspDbStartEphemeralTest,
-        -- waspDbSeedEphemeralTest,
-        -- waspDbResetEphemeralTest,
-        -- waspNewMinimalEphemeralTest, 
-        -- waspNewInteractiveMinimalEphemeralTest,
-        -- waspNewBasicEphemeralTest, 
-        -- waspNewInteractiveBasicEphemeralTest, 
-        -- waspNewSaasEphemeralTest, 
-        -- waspNewInteractiveSaasEphemeralTest,
-        -- waspCompileEphemeralTest,
-        -- waspBuildEphemeralTest,
-        -- waspCleanEphemeralTest,
-        waspStudioEphemeralTest
-        -- waspDbMigrateDevEphemeralTest
+      [ -- general Wasp commads
+        waspNewMinimalEphemeralTest, 
+        waspNewInteractiveMinimalEphemeralTest,
+        waspNewBasicEphemeralTest, 
+        waspNewInteractiveBasicEphemeralTest, 
+        waspNewSaasEphemeralTest, 
+        waspNewInteractiveSaasEphemeralTest,
+        waspTelemetryEphemeralTest,
+        waspCompletionEphemeralTest,
+        waspVersionEphemeralTest,
+        -- Wasp project commands
+        waspCompileEphemeralTest,
+        -- FIXME: waspStartEphemeralTest,
+        waspBuildEphemeralTest,
+        -- FIXME: waspBuildStartEphemeralTest,
+        waspCleanEphemeralTest,
+        waspInfoEphemeralTest,
+        waspDepsEphemeralTest,
+        waspDockerfileEphemeralTest,
+        -- FIXME: waspStudioEphemeralTest,
+        -- Wasp project db commands
+        -- FIXME: waspDbStartEphemeralTest,
+        -- FIXME: waspDbStudioEphemeralTest,
+        waspDbSeedEphemeralTest,
+        waspDbResetEphemeralTest,
+        waspDbMigrateDevEphemeralTest
       ]
 
   return $

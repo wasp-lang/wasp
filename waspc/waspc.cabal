@@ -813,6 +813,7 @@ test-suite waspc-e2e-tests
     EphemeralTest
     EphemeralTest.FileSystem
     EphemeralTest.ShellCommands
+    EphemeralTest.WaspBuildStartEphemeralTest
     EphemeralTest.WaspCleanEphemeralTest
     EphemeralTest.WaspCompileEphemeralTest
     EphemeralTest.WaspBuildEphemeralTest

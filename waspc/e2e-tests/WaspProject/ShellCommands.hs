@@ -10,6 +10,7 @@ module WaspProject.ShellCommands
     waspCliCompile,
     waspCliDbMigrateDevDev,
     waspCliBuild,
+    waspCliBuildStart,
     waspCliStart,
     waspCliClean,
     waspCliStudio,
@@ -48,12 +49,15 @@ data WaspProjectContext = WaspProjectContext
 waspCliCompile :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliCompile = return "wasp-cli compile"
 
+waspCliStart :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliStart = return "wasp-cli start"
+
 waspCliBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliBuild = return "wasp-cli build"
 
--- FIXME: figure out long lasting processes
-waspCliStart :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliStart = return "wasp-cli start"
+-- TODO: improve args situation
+waspCliBuildStart :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliBuildStart args = return $ "wasp-cli build start " ++ args
 
 waspCliClean :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliClean = return "wasp-cli clean"
@@ -91,9 +95,8 @@ waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
 
 waspCliDbReset :: Bool -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbReset reset = return $ "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"" ++ if reset then "y" else "n" ++ "\r\"; interact'"
+waspCliDbReset reset = return $ "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"" ++ (if reset then "y" else "n") ++ "\r\"; interact'"
 
--- FIXME: figure out long lasting processes
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "wasp-cli db studio"
 
