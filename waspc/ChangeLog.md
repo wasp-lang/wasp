@@ -18,6 +18,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed a type error with the default `NODE_ENV` value in the server env validation schema. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
+- Fixed frontend routing when serving the client from a non-root subpath/basedir ([#3322](https://github.com/wasp-lang/wasp/pull/3322))
+- Fixed CORS issues when serving the client on a non-root subpath/basedir ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
 
 ### 🔧 Small improvements
 
