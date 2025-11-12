@@ -1,23 +1,6 @@
 import type { Props } from "@theme/BlogLayout";
 import BlogSidebar from "@theme/BlogSidebar";
 import Layout from "@theme/Layout";
-import clsx from "clsx";
-
-/*
-
-            className={clsx('col', {
-              'col--7': hasSidebar,
-              'col--9 col--offset-1': !hasSidebar,
-            })}
-            className={`
-              container
-              grid grid-cols-1 xl:grid-cols-3 gap-3
-            `}
-
-      <div className="container margin-vert--lg">
-              'col--10 col--offset-1': !hasSidebar,
-
-*/
 
 // NOTE(matija): this component is used both when listing all the posts (on /blog) and when rendering a
 // specific blog post.
@@ -30,27 +13,26 @@ export default function BlogLayout(props: Props) {
   // the blog post is a list of blog posts.
   const isListOfBlogPosts = !toc;
 
+  const seoSchemaOrgData = {
+    itemScope: true,
+    itemType: "http://schema.org/Blog",
+  };
+
   return (
     <Layout {...layoutProps}>
-      <div
-        className={clsx({
-          "margin-vert--lg container": !isListOfBlogPosts,
-        })}
-      >
-        <div className="row">
-          {!isListOfBlogPosts && <BlogSidebar sidebar={sidebar} />}
-          <main
-            className={clsx("col", {
-              "col--7": !isListOfBlogPosts,
-            })}
-            itemScope
-            itemType="http://schema.org/Blog"
-          >
-            {children}
-          </main>
-          {toc && <div className="col col--2">{toc}</div>}
+      {isListOfBlogPosts ? (
+        <main {...seoSchemaOrgData}>{children}</main>
+      ) : (
+        <div className="margin-vert--lg container">
+          <div className="row">
+            <BlogSidebar sidebar={sidebar} />
+            <main className="col col--7" {...seoSchemaOrgData}>
+              {children}
+            </main>
+            <div className="col col--2">{toc}</div>
+          </div>
         </div>
-      </div>
+      )}
     </Layout>
   );
 }
