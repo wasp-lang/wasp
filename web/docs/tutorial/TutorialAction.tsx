@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 /*
 `TutorialAction` component is related to the Tutorial Actions Executor (TACTE) which you can find in the `web/tutorial-actions-executor` folder.
 
@@ -62,25 +62,29 @@ function useCopy(textToCopy: string): {
   handleCopy: () => void;
 } {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleCopy = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
+
+    timeoutRef.current = setTimeout(() => {
+      setCopied(false);
+      timeoutRef.current = null;
+    }, 1500);
   };
 
   useEffect(() => {
-    if (!copied) {
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      setCopied(false);
-    }, 1500);
-
     return () => {
-      clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
-  }, [copied]);
+  }, []);
 
   return { copied, handleCopy };
 }
