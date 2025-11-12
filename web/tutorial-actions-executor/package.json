@@ -4,10 +4,10 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "tacte": "tsx ./src/index.ts",
     "edit-patch-action": "npm run tacte -- edit-patch-action --app-name TodoApp --output-dir ./.result --tutorial-dir ../docs/tutorial",
     "generate-app": "npm run tacte -- generate-app --app-name TodoApp --output-dir ./.result --tutorial-dir ../docs/tutorial",
     "list-actions": "npm run tacte -- list-actions --app-name TodoApp --output-dir ./.result --tutorial-dir ../docs/tutorial",
+    "tacte": "tsx ./src/index.ts",
     "test": "vitest run"
   },
   "dependencies": {
