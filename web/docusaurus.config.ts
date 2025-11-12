@@ -32,7 +32,7 @@ const config: Config = {
     announcementBar: {
       id: "design-aithon",
       content:
-       '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
+        '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
       backgroundColor: "#8b5cf6",
       textColor: "#fff",
       isCloseable: false,

@@ -2,7 +2,6 @@ import Link from "@docusaurus/Link";
 import { useRef, useState } from "react";
 import { Star } from "react-feather";
 import Transition from "../../lib/Transition";
-import Announcement from "./Announcement";
 import { DiscordIcon, GitHubIcon, TwitterIcon } from "./SocialIcons";
 
 const Nav = () => {
