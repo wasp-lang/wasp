@@ -18,7 +18,7 @@ export const makeWrongPortPage = ({
 }: {
   appName: string;
   frontendUrl: string;
-}) => /* HTML */ `
+}): string => /* HTML */ `
   <!doctype html>
   <html lang="en">
     <head>
