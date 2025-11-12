@@ -20,15 +20,16 @@ import qualified System.Info
 -- It can be just "node", or "node.exe", or relative or full path, ... .
 type ExecName = FilePath
 
--- | Resolve given executable name (e.g. "node") to the version of the name that resolves
--- successfully and the corresponding full path to which it resolves.
+-- | Resolve given executable name (e.g. "node") to the full executable path.
 --
--- "Version of the name" because we might try a couple of different versions of the name till we
--- find one that resolves (e.g. for "node" we might also try "node.cmd" and "node.exe" on Windows).
+-- Note that filename of the resolved path might not be exactly equal to the provided executable
+-- name, but may have additional extension (e.g. "node" might resolve to "/some/path/node.cmd").
 --
--- The resolved path corresponds to the program that would be executed by
--- 'System.Process.createProcess' if exec name was provided as 'System.Process.RawCommand'. Check
--- 'System.Process.findExecutable' for more details since that is what we use internally.
+-- The reason why we return resolved absolute executable path and not just the resolved filename
+-- (e.g. "node.cmd" for "node") is that, as per Haskell docs, when passing just the filename to
+-- 'System.Process.createProcess', we can get unexpected resolution if 'cwd' option is set.
+-- For example it can resolve to "npm.cmd" in the local ".node_modules" instead of a global one.
+-- So it is better to stick with absolute paths.
 --
 -- Motivation for this function was mainly driven by how exec names are resolved when executing a
 -- process on Windows.
@@ -37,15 +38,16 @@ type ExecName = FilePath
 -- But on Windows, that will normally fail, since there is no "npm" really but instead "npm.cmd" or
 -- "npm.exe". In that case, we want to figure out what exactly is the right exec name to use.
 -- Note that we don't have to bother with this when using 'System.Process.shell' instead of
--- 'System.Process.proc', but at the price of abandoning any argument escaping.
+-- 'System.Process.proc', becuase then the shell will do system resolution for us,
+-- but at the price of abandoning any argument escaping.
 --
 -- Throws IOError if it failed to resolve the name.
 --
--- Example: resolveExecNameIO "npm" -> ("npm.cmd", "C:\...\npm.cmd")
-resolveExecNameIO :: ExecName -> IO (ExecName, Path' Abs File')
+-- Example: resolveExecNameIO "npm" -> "C:\...\npm.cmd"
+resolveExecNameIO :: ExecName -> IO (Path' Abs File')
 resolveExecNameIO execName = do
-  firstJustM (\name -> ((name,) <$>) <$> findExecutable name) execNamesToLookForByPriorityDesc >>= \case
-    Just (execName', execPath) -> (execName',) <$> parseAbsFile execPath
+  firstJustM findExecutable execNamesToLookForByPriorityDesc >>= \case
+    Just execPath -> parseAbsFile execPath
     Nothing ->
       (throwIO . userError . unlines)
         [ "Could not find '" <> execName <> "' executable on your system.",
