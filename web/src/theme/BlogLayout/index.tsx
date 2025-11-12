@@ -45,10 +45,7 @@ function SingleBlogPostLayout({ sidebar, toc, children }: BlogLayoutProps) {
 function MainContent({
   children,
   className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+}: React.PropsWithChildren<{ className?: string }>) {
   return (
     <main className={className} itemScope itemType="http://schema.org/Blog">
       {children}
