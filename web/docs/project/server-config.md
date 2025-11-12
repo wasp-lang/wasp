@@ -13,8 +13,8 @@ You can configure the behavior of the server via the `server` field of `app` dec
       title: "My app",
       // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
       }
     }
     ```
@@ -26,8 +26,8 @@ You can configure the behavior of the server via the `server` field of `app` dec
       title: "My app",
       // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
       }
     }
     ```
@@ -167,8 +167,8 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
       title: "My app",
       // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
       }
     }
     ```
@@ -180,8 +180,8 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
       title: "My app",
       // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode.js",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode.js"
+        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
+        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
       }
     }
     ```

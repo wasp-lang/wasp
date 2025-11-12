@@ -73,6 +73,8 @@ const browserRouter = createBrowserRouter([{
     ...waspDefinedRoutes,
     ...userDefinedRoutes,
   ],
-}])
+}], {
+  basename: '/',
+})
 
 export const router = <RouterProvider router={browserRouter} />

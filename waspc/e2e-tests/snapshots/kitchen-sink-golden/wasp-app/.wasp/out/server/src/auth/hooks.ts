@@ -8,11 +8,11 @@ import type {
   OnAfterLoginHook,
   InternalAuthHookParams,
 } from 'wasp/server/auth'
-import { onBeforeSignup as onBeforeSignupHook_ext } from '../../../../../src/features/auth/hooks.js'
-import { onAfterSignup as onAfterSignupHook_ext } from '../../../../../src/features/auth/hooks.js'
-import { onAfterEmailVerified as onAfterEmailVerifiedHook_ext } from '../../../../../src/features/auth/hooks.js'
-import { onBeforeLogin as onBeforeLoginHook_ext } from '../../../../../src/features/auth/hooks.js'
-import { onAfterLogin as onAfterLoginHook_ext } from '../../../../../src/features/auth/hooks.js'
+import { onBeforeSignup as onBeforeSignupHook_ext } from '../../../../../src/features/auth/hooks'
+import { onAfterSignup as onAfterSignupHook_ext } from '../../../../../src/features/auth/hooks'
+import { onAfterEmailVerified as onAfterEmailVerifiedHook_ext } from '../../../../../src/features/auth/hooks'
+import { onBeforeLogin as onBeforeLoginHook_ext } from '../../../../../src/features/auth/hooks'
+import { onAfterLogin as onAfterLoginHook_ext } from '../../../../../src/features/auth/hooks'
 
 /*
   These are "internal hook functions" based on the user defined hook functions.

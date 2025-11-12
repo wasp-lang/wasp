@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "tsc && vite build",
-    "copy": "npm run build && cp -r ./dist/* ../public",
+    "copy": "npm run build && node -e \"require('fs').cpSync('dist', '../public', { recursive: true });\"",
     "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"

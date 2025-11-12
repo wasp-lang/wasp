@@ -24,7 +24,7 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Util.Parser (parseArguments)
-import Wasp.Db.Postgres (defaultDockerImageForPostgres)
+import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -63,11 +63,14 @@ startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
     <$> Opt.strOption
+      -- TODO: we are missing DB mount path option here, we have the default value for
+      -- the db image AND the mount path in Wasp.Db.Postgres.defaultPostgresDockerImageSpec
+      -- but we should allow users to override both of these and not just the db image.
       ( Opt.long "db-image"
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
           <> Opt.showDefault
-          <> Opt.value defaultDockerImageForPostgres
+          <> Opt.value (fst defaultPostgresDockerImageSpec)
       )
 
 data StartDbArgs = StartDbArgs
@@ -134,32 +137,24 @@ startPostgresDevDb waspProjectDir appName dbDockerImage = do
   --   only when initializing the database -> if it already exists, they will be ignored.
   --   This is how the postgres Docker image works.
   let command =
-        printf
-          ( unwords
-              [ "docker run",
-                "--name %s",
-                "--rm",
-                "--publish %d:5432",
-                "-v %s:/var/lib/postgresql/data",
-                "--env POSTGRES_PASSWORD=%s",
-                "--env POSTGRES_USER=%s",
-                "--env POSTGRES_DB=%s",
-                "%s"
-              ]
-          )
-          dockerContainerName
-          Dev.Postgres.defaultDevPort
-          dockerVolumeName
-          Dev.Postgres.defaultDevPass
-          Dev.Postgres.defaultDevUser
-          dbName
-          dbDockerImage
+        unwords
+          [ "docker run",
+            printf "--name %s" dockerContainerName,
+            "--rm",
+            printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
+            printf "-v %s:%s" dockerVolumeName dockerVolumeMountPath,
+            printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
+            printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
+            printf "--env POSTGRES_DB=%s" dbName,
+            dbDockerImage
+          ]
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
     dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
     dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
     connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
+    dockerVolumeMountPath = snd defaultPostgresDockerImageSpec
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
     throwIfDevDbPortIsAlreadyInUse = do
