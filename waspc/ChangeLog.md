@@ -22,7 +22,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🔧 Small improvements
 
 - Creating a new OpenSaaS project is now much faster (around 20x faster in our testing!). ([#3196](https://github.com/wasp-lang/wasp/pull/3196))
-- When navigating to the server's root route in development mode (e.g., `http://localhost:3001/`), Wasp now displays a helpful message indicating the server is running and provides a link to the frontend URL. ([#3213](https://github.com/wasp-lang/wasp/pull/3213))
+- Wasp now displays a helpful message when navigating to the backend port, pointing you to the frontend. ([#3213](https://github.com/wasp-lang/wasp/pull/3213))
 
 ### 📖 Documentation
 
