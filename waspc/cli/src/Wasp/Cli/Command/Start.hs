@@ -84,7 +84,7 @@ ui =
                   B.padLeftRight 1 $ B.str "3:Db",
                   B.padLeftRight 1 $ B.str "4:All"
                 ],
-          B.border $ B.padAll 1 $ B.center $ B.str "Here come the logs!",
+          B.padAll 1 $ B.center $ B.str "Here come the logs!",
           B.border $ B.vLimit 1 $ B.hBox [B.padLeftRight 1 $ B.str "footer", B.fill ' ']
         ]
 
