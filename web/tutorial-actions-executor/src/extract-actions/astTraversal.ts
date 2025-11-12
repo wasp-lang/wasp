@@ -4,7 +4,7 @@ import { visit } from "unist-util-visit";
 
 import type { Action, ActionId } from "../actions/actions.js";
 
-export const TUTORIAL_COMPONENT_NAME = "TutorialAction";
+export const TUTORIAL_ACTION_NODE_NAME = "TutorialAction";
 
 export type TutorialActionNode = {
   id: ActionId;
@@ -16,7 +16,7 @@ export function extractTutorialActionNodes(ast: Root): TutorialActionNode[] {
   const nodes: TutorialActionNode[] = [];
 
   visit(ast, "mdxJsxFlowElement", (node) => {
-    if (node.name === TUTORIAL_COMPONENT_NAME) {
+    if (node.name === TUTORIAL_ACTION_NODE_NAME) {
       nodes.push(
         createTutorialActionNode(
           getAttributeValue(node, "id"),

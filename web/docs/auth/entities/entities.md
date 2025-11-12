@@ -598,7 +598,7 @@ Below is a simplified version of a custom signup action which you probably would
     // ...
 
     action customSignup {
-      fn: import { signup } from "@src/auth/signup.js",
+      fn: import { signup } from "@src/auth/signup",
       entities: [User]
     }
     ```
@@ -666,7 +666,7 @@ Below is a simplified version of a custom signup action which you probably would
     // ...
 
     action customSignup {
-      fn: import { signup } from "@src/auth/signup.js",
+      fn: import { signup } from "@src/auth/signup",
       entities: [User]
     }
     ```

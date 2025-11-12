@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 /*
 `TutorialAction` component is related to the Tutorial Actions Executor (TACTE) which you can find in the `web/tutorial-actions-executor` folder.
 
@@ -39,13 +39,7 @@ function TutorialActionDebugInfo({
   action,
   children,
 }: React.PropsWithChildren<ActionProps>) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(id);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
+  const { copied, handleCopy } = useCopy(id);
 
   return (
     <div style={containerStyle}>
@@ -61,6 +55,38 @@ function TutorialActionDebugInfo({
       {children && <div style={childrenContainerStyle}>{children}</div>}
     </div>
   );
+}
+
+function useCopy(textToCopy: string): {
+  copied: boolean;
+  handleCopy: () => void;
+} {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleCopy = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+
+    timeoutRef.current = setTimeout(() => {
+      setCopied(false);
+      timeoutRef.current = null;
+    }, 1500);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return { copied, handleCopy };
 }
 
 const containerStyle: React.CSSProperties = {

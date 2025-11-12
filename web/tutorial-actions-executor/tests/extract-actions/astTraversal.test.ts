@@ -7,7 +7,7 @@ import {
   createTutorialActionNode,
   extractTutorialActionNodes,
   getAttributeValue,
-  TUTORIAL_COMPONENT_NAME,
+  TUTORIAL_ACTION_NODE_NAME,
   type TutorialActionNode,
 } from "../../src/extract-actions/astTraversal";
 
@@ -104,7 +104,7 @@ describe("extractTutorialActionNodes", () => {
     }
     return {
       type: "mdxJsxFlowElement",
-      name: TUTORIAL_COMPONENT_NAME,
+      name: TUTORIAL_ACTION_NODE_NAME,
       attributes,
       children: [],
     } as MdxJsxFlowElement;

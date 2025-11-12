@@ -1,4 +1,4 @@
-name: "Test - E2E Starters"
+name: "Test - Starters"
 
 on:
   workflow_call:
@@ -7,8 +7,8 @@ env:
   WASP_TELEMETRY_DISABLE: 1
 
 jobs:
-  test-wasp-config:
-    name: Test wasp-config
+  test-starters:
+    name: Test starters
     runs-on: ubuntu-22.04
     steps:
       - uses: "actions/checkout@v5"

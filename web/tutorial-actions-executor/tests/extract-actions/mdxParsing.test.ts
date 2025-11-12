@@ -14,7 +14,7 @@ import {
   mdxWithNoActions,
   mdxWithNonTutorialActionComponents,
   mdxWithUnknownActionType,
-} from "./exampleMdxFiles";
+} from "./mdxFileFixtures";
 
 describe("getActionsFromMdxContent", () => {
   const context = {

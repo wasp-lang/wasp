@@ -4,7 +4,7 @@
 
 Wasp docs have a tutorial that walks users through building a complete Wasp application step-by-step.
 
-Next to the text that explains each step, we added `<TutorialAction>` components that define machine-executable steps,
+Next to the text that explains each step, we added `<TutorialAction>` components that define machine-executable actions,
 like "create a new Wasp app", "add authentication", "create a Task entity", etc.
 This CLI tool reads those tutorial files, extracts the actions, and executes them in sequence
 to create a fully functional Wasp application.
