@@ -31,7 +31,7 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
-import Wasp.Util.Docker (DockerImageName)
+import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -53,7 +53,12 @@ start args = do
 
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgresDevDb waspProjectDir appName (dbImage startDbArgs)
+    AS.App.Db.PostgreSQL ->
+      startPostgresDevDb
+        waspProjectDir
+        appName
+        (dbImage startDbArgs)
+        (dbVolumeMountPath startDbArgs)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
@@ -63,18 +68,23 @@ startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
     <$> Opt.strOption
-      -- TODO: we are missing DB mount path option here, we have the default value for
-      -- the db image AND the mount path in Wasp.Db.Postgres.defaultPostgresDockerImageSpec
-      -- but we should allow users to override both of these and not just the db image.
       ( Opt.long "db-image"
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
           <> Opt.showDefault
           <> Opt.value (fst defaultPostgresDockerImageSpec)
       )
+    <*> Opt.strOption
+      ( Opt.long "db-volume-mount-path"
+          <> Opt.metavar "PATH"
+          <> Opt.help "Path inside Docker container where database files are stored"
+          <> Opt.showDefault
+          <> Opt.value (snd defaultPostgresDockerImageSpec)
+      )
 
 data StartDbArgs = StartDbArgs
-  { dbImage :: DockerImageName
+  { dbImage :: DockerImageName,
+    dbVolumeMountPath :: DockerVolumeMountPath
   }
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
@@ -111,8 +121,8 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> String -> Command ()
-startPostgresDevDb waspProjectDir appName dbDockerImage = do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DockerImageName -> DockerVolumeMountPath -> Command ()
+startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
@@ -124,9 +134,10 @@ startPostgresDevDb waspProjectDir appName dbDockerImage = do
         "",
         "Additional info:",
         " ℹ Using Docker image: " <> dbDockerImage,
+        "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> connectionUrl,
-        " ℹ Database data is persisted in a docker volume with the following name"
+        " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
         "     " <> dockerVolumeName
       ]
@@ -142,7 +153,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage = do
             printf "--name %s" dockerContainerName,
             "--rm",
             printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
-            printf "-v %s:%s" dockerVolumeName dockerVolumeMountPath,
+            printf "-v %s:%s" dockerVolumeName dbDockerVolumeMountPath,
             printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
             printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
             printf "--env POSTGRES_DB=%s" dbName,
@@ -154,7 +165,6 @@ startPostgresDevDb waspProjectDir appName dbDockerImage = do
     dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
     dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
     connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
-    dockerVolumeMountPath = snd defaultPostgresDockerImageSpec
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
     throwIfDevDbPortIsAlreadyInUse = do
