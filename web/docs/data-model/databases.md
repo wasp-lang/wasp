@@ -101,7 +101,7 @@ If you need to customise the development database, you can use the following opt
 
 - `--db-volume-mount-path`: Specify the volume mount path inside the container
 
-  You only need to set this option if your custom `--db-image` is based on **Postgres 17 or older** (check `postgres:15` example below). 
+  You only need to set this option if your custom `--db-image` is based on **PostgreSQL 17 or older** (check the `postgres:15` example below). 
   
   If the volume mount path is incorrect, the data won't be persisted in your development database.
 
