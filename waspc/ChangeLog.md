@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.18.3 (Unreleased)
+## 0.19.0 (Unreleased)
 
 ### ⚠️ Breaking Changes
 
@@ -22,6 +22,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🔧 Small improvements
 
 - Creating a new OpenSaaS project is now much faster (around 20x faster in our testing!). ([#3196](https://github.com/wasp-lang/wasp/pull/3196))
+- Wasp now displays a helpful message when navigating to the backend port, pointing you to the frontend. ([#3213](https://github.com/wasp-lang/wasp/pull/3213))
 
 ### 📖 Documentation
 
@@ -486,7 +487,6 @@ We had to make a couple of breaking changes to reach the new simpler Auth API:
    - After: Use `user.getFirstProviderUserId()` directly on the user object.
 
 5. You don't need to use `findUserIdentity` any more:
-
    - Before: Relied on `findUserIdentity` to check which user identity exists.
    - After: Directly check `user.identities.<provider>` existence.
 

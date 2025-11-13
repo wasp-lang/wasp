@@ -1,14 +1,13 @@
-import * as path from "path";
+import * as path from "node:path";
+import { describe, expect, test } from "vitest";
 import { getExportsOfFiles } from "../src/exports";
-
-// TODO(before merge): run these tests in CI
 
 /**
  * Get an absolute path to a test file
- * @param filename Name of test file inside __dirname/exportTests directory
+ * @param filename Name of test file inside ${dirname}/exportTests directory
  */
 function getTestFilePath(filename: string): string {
-  return path.join(__dirname, "exportTests", filename);
+  return path.join(import.meta.dirname, "exportTests", filename);
 }
 
 const testFiles = {
