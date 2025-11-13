@@ -33,8 +33,9 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
 
   - [ ] I added **unit tests** for my change. <!-- If not, explain why. -->
   - [ ] _(if you fixed a bug)_ I added a **regression test** for the bug I fixed. <!-- If not, explain why. -->
-  - [ ] _(if you added/updated a feature)_ I added/updated **e2e tests** at `examples/kitchen-sink/e2e-tests`.
-  - [ ] _(if you added/updated a feature)_ I updated the **starter templates** at `waspc/data/Cli/templates`, as needed.
+  - [ ] _(if you added/updated a feature)_ I added/updated **e2e tests** in `examples/kitchen-sink/e2e-tests`.
+  - [ ] _(if you added/updated a feature)_ I updated the **starter templates** in `waspc/data/Cli/templates`, as needed.
+  - [ ] _(if you added/updated a feature)_ I updated the **example apps** in `examples/`, as needed.
 
 - 📜 Documentation:
 
@@ -42,7 +43,7 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
 
 - 🆕 Changelog: _(if change is more than just code/docs improvement)_
   - [ ] I updated `waspc/ChangeLog.md` with a **user-friendly** description of the change.
-  - [ ] _(if you did a breaking change)_ I added a step to the current **migration guide** at `web/docs/migration-guides/`.
+  - [ ] _(if you did a breaking change)_ I added a step to the current **migration guide** in `web/docs/migration-guides/`.
   - [ ] I **bumped the `version`** in `waspc/waspc.cabal` to reflect the changes I introduced.
 
 <!--
