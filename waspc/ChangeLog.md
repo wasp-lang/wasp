@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.18.3 (Unreleased)
+## 0.19.0 (Unreleased)
 
 ### ⚠️ Breaking Changes
 
@@ -487,7 +487,6 @@ We had to make a couple of breaking changes to reach the new simpler Auth API:
    - After: Use `user.getFirstProviderUserId()` directly on the user object.
 
 5. You don't need to use `findUserIdentity` any more:
-
    - Before: Relied on `findUserIdentity` to check which user identity exists.
    - After: Directly check `user.identities.<provider>` existence.
 
