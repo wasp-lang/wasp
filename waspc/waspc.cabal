@@ -115,12 +115,13 @@ library
   build-tool-depends:
       alex:alex
   build-depends:
-    -- NOTE: Some packages use four digits for versioning, others use two, some
-    -- even use two. We specify three digits everywhere where we can to keep
-    -- things clean and consistent. It shouldn't make a difference in practice
-    -- as the patches (fourth digits) are still within the range. Exceptions
-    -- are packages that use only two digits (e.g., cryptonite) where we're
-    -- forced to adapt and use two digits as well.
+    -- NOTE: Some packages use four digits for versioning, others use three,
+    -- and some even use two.
+    -- We specify three digits everywhere where we can to keep things clean and
+    -- consistent. It shouldn't make a difference in practice as the patches
+    -- (fourth digits) are still within the range. Exceptions are packages that
+    -- use only two digits (e.g., cryptonite) where we're forced to adapt and
+    -- use two digits as well.
     , base                  >= 4.18 && < 5
     , Glob                  ^>= 0.10.2
     , containers            ^>= 0.6.7
