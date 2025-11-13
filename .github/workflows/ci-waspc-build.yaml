@@ -22,7 +22,6 @@ env:
 
 jobs:
   build:
-    name: Build Wasp
     strategy:
       fail-fast: false
 
@@ -88,7 +87,7 @@ jobs:
 
     runs-on: ${{ matrix.env.runner }}
     container: ${{ matrix.env.container }}
-    name: build (${{ matrix.env.name }})
+    name: Build Wasp (${{ matrix.env.name }})
 
     steps:
       - uses: actions/checkout@v5
@@ -125,6 +124,7 @@ jobs:
           if-no-files-found: error
 
   build-universal:
+    name: Build Wasp (universal)
     needs: build
     runs-on: macos-15
     steps:
