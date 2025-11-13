@@ -13,8 +13,8 @@ defaults:
     working-directory: waspc
 
 jobs:
-  build:
-    name: Build Wasp
+  test:
+    name: Test waspc
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
