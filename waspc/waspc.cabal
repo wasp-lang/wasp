@@ -115,6 +115,10 @@ library
   build-tool-depends:
       alex:alex
   build-depends:
+    -- NOTE: Some packages use 4 digits for versioning, others use 3.
+    -- We specify three digits everywhere to keep things clean and consistent.
+    -- It shouldn't make a difference in practice as the patches (fourth
+    -- digits) are still within the range.
     , base                  >= 4.18 && < 5
     , Glob                  ^>= 0.10.2
     , containers            ^>= 0.6.7
@@ -135,7 +139,7 @@ library
     , split                 ^>= 0.2.5
     , conduit-extra         ^>= 1.3.7
     , process               ^>= 1.6.19
-    , cryptohash-sha256     ^>= 0.11.102.1
+    , cryptohash-sha256     ^>= 0.11.102
     , mustache              ^>= 2.4.2
     , parsec                ^>= 3.1.16
     , path                  ^>= 0.9.5
@@ -155,7 +159,7 @@ library
     , extra                 ^>= 1.7.16
     , dotenv                ^>= 0.11.0
     , network               ^>= 3.1.4
-    , neat-interpolation    ^>= 0.5.1.4
+    , neat-interpolation    ^>= 0.5.1
     , megaparsec            ^>= 9.5.0
   other-modules: Paths_waspc
   exposed-modules:
@@ -516,7 +520,7 @@ library waspls
     , utf8-string
     , unordered-containers
     , waspc
-    , directory ^>= 1.3.6.0
+    , directory
     , filepath
 
 library cli-lib
@@ -537,7 +541,7 @@ library cli-lib
     , cryptonite
     , fsnotify
     , http-conduit
-    , optparse-applicative ^>=0.18.1.0
+    , optparse-applicative ^>=0.18.1
     , path
     , path-io
     , pretty-simple
@@ -552,8 +556,8 @@ library cli-lib
     , unliftio
     , unordered-containers
     , bytestring
-    , tar ^>=0.6.3.0
-    , zlib ^>=0.7.1.0
+    , tar ^>=0.6.3
+    , zlib ^>=0.7.1
     , temporary ^>=1.3
   other-modules:
     Paths_waspc
