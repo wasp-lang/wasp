@@ -17,12 +17,10 @@ import StrongPath.Path (toPathAbsDir)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
-import Wasp.Cli.Command.CreateNewProject.Common
-  ( throwProjectCreationError,
-  )
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( StarterTemplate,
-    defaultStarterTemplate,
     findTemplateByString,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
