@@ -89,9 +89,7 @@ In case you might want to connect to the dev database through the external tool 
 
 ##### Customising the dev database {#custom-database}
 
-Wasp development database by default uses:
-- [`postgres:18`](https://hub.docker.com/_/postgres/tags?name=18) Docker image,
-- and the `/var/lib/postgresql` volume mount path.
+The Wasp development database uses the [PostgreSQL 18 Docker image](https://hub.docker.com/_/postgres/tags?name=18) by default, and will set up its data volumes according to their guidance.
 
 If you need to customise the development database, you can use the following options:
 
