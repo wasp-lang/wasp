@@ -36,6 +36,7 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
   - [ ] _(if you added/updated a feature)_ I added/updated **e2e tests** in `examples/kitchen-sink/e2e-tests`.
   - [ ] _(if you added/updated a feature)_ I updated the **starter templates** in `waspc/data/Cli/templates`, as needed.
   - [ ] _(if you added/updated a feature)_ I updated the **example apps** in `examples/`, as needed.
+    - [ ] _(if you updated the tutorial)_ Update the appropriate section of the docs.
 
 - 📜 Documentation:
 
