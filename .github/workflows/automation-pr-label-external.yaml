@@ -41,3 +41,4 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           LABEL_NAME: ${{ env.external_label_name }}
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
