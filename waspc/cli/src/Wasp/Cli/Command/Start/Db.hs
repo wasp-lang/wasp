@@ -53,7 +53,12 @@ start args = do
 
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgresDevDb waspProjectDir appName (dbImage startDbArgs) (dbVolumeMountPath startDbArgs)
+    AS.App.Db.PostgreSQL ->
+      startPostgresDevDb
+        waspProjectDir
+        appName
+        (dbImage startDbArgs)
+        (dbVolumeMountPath startDbArgs)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
@@ -129,7 +134,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
         "",
         "Additional info:",
         " ℹ Using Docker image: " <> dbDockerImage,
-        " ℹ Docker volume mount path inside container: " <> dbDockerVolumeMountPath,
+        "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> connectionUrl,
         " ℹ Database data is persisted in a Docker volume with the following name"

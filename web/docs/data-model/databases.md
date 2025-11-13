@@ -89,17 +89,23 @@ In case you might want to connect to the dev database through the external tool 
 
 ##### Customising the dev database {#custom-database}
 
-  You can customize the development database using two options:
+Wasp development database by default uses:
+- [`postgres:18`](https://hub.docker.com/_/postgres/tags?name=18) Docker image,
+- and the `/var/lib/postgresql` volume mount path.
 
-  - `--db-image`: Specify a custom Docker image
-      
-    Useful for PostgreSQL extensions or specific versions (for example, PostGIS, pgvector, etc.). Wasp uses the [`postgres:18`](https://hub.docker.com/_/postgres/tags?name=18) Docker image by default.
+If you need to customise the development database, you can use the following options:
 
-  - `--db-volume-mount-path`: Specify the volume mount path inside the container
+- `--db-image`: Specify a custom Docker image
+    
+  Useful for PostgreSQL extensions or specific versions (for example, PostGIS, pgvector, etc.). 
+
+- `--db-volume-mount-path`: Specify the volume mount path inside the container
+
+  You only need to set this option if your custom `--db-image` is based on **Postgres 17 or older** (check `postgres:15` example below). 
   
-    You only need to worry about this if your custom `--db-image` is based on **Postgres 17 or older**. If the volume mount path is incorrect, the data won't be persisted in your development database.
+  If the volume mount path is incorrect, the data won't be persisted in your development database.
 
-Here are some examples of using these options:
+Here are some examples of customising the development database:
 
 ```bash
 # Use default PostgreSQL image:
