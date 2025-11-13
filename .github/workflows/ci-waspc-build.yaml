@@ -75,6 +75,44 @@ jobs:
               # Cabal dependencies
               apk add zlib-dev zlib-static
 
+          - name: linux-aarch64
+            runner: ubuntu-24.04-arm
+            # We use an old Ubuntu version so we can link to a low `glibc` version.
+            # `glibc` is backwards-compatible but not forwards-compatible, so it
+            # is a good idea to use the oldest version we reasonably can. Otherwise,
+            # the wasp binary would possibly not work on the system using an older
+            # glibc than what it was built with (e.g. an older Ubuntu version).
+            container: ubuntu:20.04
+            static: false
+            install-deps: |
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update -y
+              # GHCup dependencies (https://www.haskell.org/ghcup/install/#version-2004-2010)
+              apt-get install -y build-essential curl libffi-dev libffi7 libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5
+              # Cabal dependencies
+              apt-get install -y zlib1g-dev
+
+          - name: linux-aarch64-static
+            runner: ubuntu-24.04-arm
+            # actions/setup-node does not work in alpine.
+            # https://github.com/actions/setup-node/issues/1293 To work around
+            # this, we use the alpine variant of the official node image, which
+            # already has a working Node.js version installed.
+            # We also pin the `alpine` version to a specific one we have tested,
+            # since newer releases might have different versions of the
+            # libraries we depend on.
+            container: node:${{ inputs.node-version }}-alpine3.21
+            skip-node-install: true
+            static: true
+            install-deps: |
+              apk update
+              # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
+              apk add binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
+              # `./run` script dependencies
+              apk add bash
+              # Cabal dependencies
+              apk add zlib-dev zlib-static
+
           - name: macos-x86_64
             runner: macos-15-intel
             # macOS's syscalls are private and change between versions, so we

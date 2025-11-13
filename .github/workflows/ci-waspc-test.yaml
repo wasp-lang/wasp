@@ -30,6 +30,7 @@ jobs:
           # and link the binaries statically:
           # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
+          - ubuntu-24.04-arm
           - macos-15-intel
           - windows-latest
         node-version:
@@ -67,14 +68,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-15-intel'
         run: |
           cd packages/ts-inspect
           npm ci
           npm test
 
       - name: Compile TS packages and move it into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-15-intel'
         run: ./tools/install_packages_to_data_dir.sh
 
       - name: Compile TS packages and move them into the Cabal data dir on Windows
@@ -92,7 +93,7 @@ jobs:
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
 
       - name: Install `wasp-cli`
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
         run: cabal install
 
       - name: Run `waspc` e2e tests
