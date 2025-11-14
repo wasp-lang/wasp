@@ -2,6 +2,13 @@
     [
         [
             "file",
+            "../out/libs/wasp.sh-lib-auth-6694d659.tgz"
+        ],
+        "6694d6598a69c21fab2fb590357943b9ed9e891babd27a027959e83ae9ac55c5"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -214,7 +221,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "0285c06f313ad19bbf20c23fe0854165ceaff52ae361d3ce24e2a6c2b8dddc71"
+        "5e7518c0e877fea332bf4f90f183b2a3b8e68e508a053ae2bc1710205fe11c3a"
     ],
     [
         [
@@ -438,7 +445,7 @@
             "file",
             "Dockerfile"
         ],
-        "63b1c901866e3b9dd8d0c53866369ab7b567b5d8290991e7246d98dcf2b597e9"
+        "e9df5d4aa22ba07231de1678a1eafe090d84574b3e4342f4d8004fba2a224c74"
     ],
     [
         [
@@ -446,6 +453,13 @@
             "db/schema.prisma"
         ],
         "98426d54df43304f01a97c496cfff3a70d47d94c066f16685dd7035ef2510e46"
+    ],
+    [
+        [
+            "file",
+            "libs/wasp.sh-lib-auth-6694d659.tgz"
+        ],
+        "6694d6598a69c21fab2fb590357943b9ed9e891babd27a027959e83ae9ac55c5"
     ],
     [
         [
@@ -480,7 +494,7 @@
             "file",
             "server/package.json"
         ],
-        "36c13c1716d9545177736e774d8480b9f4097d5e6eb9a48a15c02c2f1aeca87f"
+        "4ea2cc3684f54c0ee28b4a4d46e322307918d5a72fe25cbe7e84ccb6ecfbdc3a"
     ],
     [
         [
@@ -711,7 +725,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "0771ae124347aaa7f22ccdf35bd3e3b4ff8faa41f27efc67f8e171c86ed9bce5"
+        "d509ac7e32f3b22edfa42c9d2f61eebc9068add52c0e4ddc300bdc300bada207"
     ],
     [
         [

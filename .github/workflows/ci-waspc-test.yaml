@@ -74,9 +74,13 @@ jobs:
           npm ci
           npm test
 
-      - name: Compile TS packages and move it into the Cabal data dir
+      - name: Compile TS packages and move them into the Cabal data dir
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: ./tools/install_packages_to_data_dir.sh
+
+      - name: Compile Wasp libs and move them into the Cabal data dir
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: ./tools/install_libs_to_data_dir.sh
 
       - name: Compile TS packages and move them into the Cabal data dir on Windows
         if: runner.os == 'Windows'
