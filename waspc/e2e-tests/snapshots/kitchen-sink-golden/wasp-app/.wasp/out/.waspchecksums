@@ -2006,7 +2006,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "91e02dad5992e7dbbe618c034d23b55025fb2dbd060d209b8b1e18779809b748"
+        "418a9575769e4b3d575e44a0d714d79ff8800f79c509775d57bf1a075bf7447f"
     ],
     [
         [
@@ -2235,6 +2235,13 @@
     [
         [
             "file",
+            "server/src/views/wrong-port.ts"
+        ],
+        "cc8fc19e919c4d22ec6095a60446dd4f52dc864112e6b379ae35ec45c5b04b16"
+    ],
+    [
+        [
+            "file",
             "server/src/webSocket/initialization.ts"
         ],
         "834aa5aec6302c6ae44624cd4142acb8c0d0fe83c8ca5211577ed7e1c6b2cfc4"
@@ -2384,7 +2391,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "d399429d021a311b6365b377ebb92e98208a416cde12ebbe55fcd08a8e29cd67"
+        "f9900199f287c99bb6478e2d7a55dd263b6630d2c7e5a876a99f10c4db75e6e8"
     ],
     [
         [

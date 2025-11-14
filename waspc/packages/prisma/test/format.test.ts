@@ -1,14 +1,14 @@
-import fs from "fs";
-import * as path from "path";
-import util from "util";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { beforeAll, describe, expect, test } from "vitest";
 import { formatSchema } from "../src/format";
 
 /**
  * Get an absolute path to a test file.
- * @param filename Name of test file inside __dirname/formatTests directory.
+ * @param filename Name of test file inside ${dirname}/formatTests directory.
  */
 function testFilePath(filename: string): string {
-  return path.join(__dirname, "formatTests", filename);
+  return path.join(import.meta.dirname, "formatTests", filename);
 }
 
 const testSchemaPsls = {
@@ -24,7 +24,7 @@ const testSchemaPsls = {
 async function fetchTestSchemaPsl(
   testSchemaName: keyof typeof testSchemaPsls,
 ): Promise<string> {
-  return util.promisify(fs.readFile)(testSchemaPsls[testSchemaName], "utf8");
+  return fs.readFile(testSchemaPsls[testSchemaName], "utf8");
 }
 
 describe("format.ts", () => {

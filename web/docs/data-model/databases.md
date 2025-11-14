@@ -89,22 +89,36 @@ In case you might want to connect to the dev database through the external tool 
 
 ##### Customising the dev database {#custom-database}
 
-You can also specify a custom Docker image to use for the database with the `--db-image` option. This is particularly useful when you need PostgreSQL with specific extensions (like PostGIS for geographic data, pgvector for embeddings, etc.), or an older version. By default, Wasp uses the latest official [PostgreSQL Docker image](https://hub.docker.com/_/postgres).
+The Wasp development database uses the [PostgreSQL 18 Docker image](https://hub.docker.com/_/postgres/tags?name=18) by default, and will set up its data volumes according to their guidance.
+
+If you need to customise the development database, you can use the following options:
+
+- `--db-image`: Specify a custom Docker image
+    
+  Useful for PostgreSQL extensions or specific versions (for example, PostGIS, pgvector, etc.). 
+
+- `--db-volume-mount-path`: Specify the volume mount path inside the container
+
+  You only need to set this option if your custom `--db-image` is based on **PostgreSQL 17 or older** (check the `postgres:15` example below). 
+  
+  If the volume mount path is incorrect, the data won't be persisted in your development database.
+
+Here are some examples of customising the development database:
 
 ```bash
 # Use default PostgreSQL image:
 wasp start db
 # Same as:
-wasp start db --db-image postgres
-
-# Use PostgreSQL version 15:
-wasp start db --db-image postgres:15
+wasp start db --db-image postgres:18
 
 # Use PostgreSQL with PostGIS extension for geographic data:
-wasp start db --db-image postgis/postgis:14-3.2
+wasp start db --db-image postgis/postgis:18-3.6 
 
 # Use PostgreSQL with pgvector extension for AI embeddings:
-wasp start db --db-image pgvector/pgvector:pg16
+wasp start db --db-image pgvector/pgvector:pg18
+
+# Use PostgreSQL version 15 (requires different volume path):
+wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
 ```
 
 :::note

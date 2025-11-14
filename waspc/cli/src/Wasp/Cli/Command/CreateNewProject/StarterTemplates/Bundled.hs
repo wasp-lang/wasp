@@ -1,5 +1,5 @@
-module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
-  ( createProjectOnDiskFromLocalTemplate,
+module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled
+  ( createProjectOnDiskFromBundledTemplate,
   )
 where
 
@@ -11,14 +11,14 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTem
 import qualified Wasp.Data as Data
 import Wasp.Project (WaspProjectDir)
 
-createProjectOnDiskFromLocalTemplate ::
+createProjectOnDiskFromBundledTemplate ::
   Path' Abs (Dir WaspProjectDir) -> NewProjectName -> NewProjectAppName -> Path' Rel' Dir' -> IO ()
-createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName templatePath = do
-  copyLocalTemplateToNewProjectDir templatePath
+createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName templatePath = do
+  copyBundledTemplateToNewProjectDir templatePath
   replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
   where
-    copyLocalTemplateToNewProjectDir :: Path' Rel' Dir' -> IO ()
-    copyLocalTemplateToNewProjectDir templateDir = do
+    copyBundledTemplateToNewProjectDir :: Path' Rel' Dir' -> IO ()
+    copyBundledTemplateToNewProjectDir templateDir = do
       dataDir <- Data.getAbsDataDirPath
       let absLocalTemplateDir =
             dataDir </> [reldir|Cli/starters|] </> templateDir
