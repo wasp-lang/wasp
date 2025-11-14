@@ -143,7 +143,10 @@ to ensure nothing has changed unexpectedly.
 - Generated output: `e2e-tests/.result/`.
 - Snapshots: `e2e-tests/__snapshots__/`.
 
-**Updating Snapshots:**
+#### Updating Snapshots
 
-When you intentionally change the tutorial action executor behavior, delete the `__snapshots__` folder
-and re-run the tests to generate new snapshots.
+When you intentionally change the tutorial action executor behavior, run the tests in update mode:
+
+```bash
+$ npm run test --update
+```
