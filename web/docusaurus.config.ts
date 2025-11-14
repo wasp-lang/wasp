@@ -63,15 +63,22 @@ const config: Config = {
       },
       items: [
         {
+          type: "docsVersionDropdown",
+          position: "left",
+          className: "navbar-item-docs-version-dropdown",
+        },
+        {
           type: "docsVersion",
           position: "left",
           label: "Docs",
           className: "navbar-item-docs navbar-item-outside",
         },
         {
-          type: "docsVersionDropdown",
+          type: "docsVersion",
           position: "left",
-          className: "navbar-item-docs-version-dropdown",
+          label: "Reference",
+          to: "/docs/api",
+          className: "navbar-item-docs navbar-item-outside",
         },
         {
           to: "blog",
@@ -235,6 +242,24 @@ const config: Config = {
         },
       };
     },
+    [
+      "docusaurus-plugin-typedoc",
+      {
+        entryPoints: ["../reference/src/**/*.ts"],
+        tsconfig: "../reference/tsconfig.json",
+        router: "module",
+        sidebar: { typescript: true },
+        useCodeBlocks: true,
+        parametersFormat: "htmlTable",
+        disableSources: true,
+        plugin: ["typedoc-plugin-frontmatter"],
+        mergeReadme: true,
+        frontmatterGlobals: {
+          custom_edit_url: null,
+          displayed_sidebar: "reference",
+        },
+      },
+    ],
   ],
 };
 
