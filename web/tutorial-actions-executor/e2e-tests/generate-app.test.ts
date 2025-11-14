@@ -1,14 +1,20 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { $, glob } from "zx";
 
+const currentDirPath = path.dirname(new URL(import.meta.url).pathname);
+
 const TEST_APP_NAME = "e2e-test-app";
-const TEST_OUTPUT_DIR = "./e2e-tests/.result";
-const TEST_TUTORIAL_DIR = "./e2e-tests/fixtures/tutorial";
+const TEST_OUTPUT_DIR = path.join(currentDirPath, ".result");
+const TEST_TUTORIAL_DIR = path.join(currentDirPath, "fixtures", "tutorial");
 const WASP_CLI_COMMAND = process.env.WASP_CLI_COMMAND ?? "wasp-cli";
 
 describe("generate-app e2e", () => {
+  beforeAll(async () => {
+    await fs.rm(TEST_OUTPUT_DIR, { recursive: true, force: true });
+  });
+
   it(
     "should generate app from tutorial actions and match snapshots",
     async () => {
