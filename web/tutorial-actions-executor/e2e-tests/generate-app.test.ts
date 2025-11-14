@@ -1,6 +1,7 @@
-import path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { $, fs, glob } from "zx";
+import { $, glob } from "zx";
 
 const TEST_APP_NAME = "e2e-test-app";
 const TEST_OUTPUT_DIR = "./e2e-tests/.result";
@@ -25,25 +26,27 @@ describe("generate-app e2e", () => {
 
       const projectDirPath = path.join(TEST_OUTPUT_DIR, TEST_APP_NAME);
 
-      function getProjectFileContent(pathInProject: string): string {
-        return fs.readFileSync(path.join(projectDirPath, pathInProject), "utf-8");
-      }
-
-      const fileList = await getProjectFileList(projectDirPath);
-      expect(fileList).toMatchSnapshot("file-structure");
-
-      const testUtilsContent = getProjectFileContent("src/testUtils.ts");
-      expect(testUtilsContent).toMatchSnapshot("test-utils");
-
-      const schemaContent = getProjectFileContent("schema.prisma");
-      expect(schemaContent).toMatchSnapshot("prisma-schema");
-
-      const gitLog = await getGitLog(projectDirPath);
-      expect(gitLog).toMatchSnapshot("git-commits");
+      expect(await getProjectFileList(projectDirPath)).toMatchSnapshot(
+        "file-structure",
+      );
+      expect(
+        await getProjectFileContent(projectDirPath, "src/testUtils.ts"),
+      ).toMatchSnapshot("test-utils");
+      expect(
+        await getProjectFileContent(projectDirPath, "schema.prisma"),
+      ).toMatchSnapshot("prisma-schema");
+      expect(await getGitLog(projectDirPath)).toMatchSnapshot("git-commits");
     },
     60 * 1000, // Test timeout
   );
 });
+
+function getProjectFileContent(
+  projectDirPath: string,
+  pathInProject: string,
+): Promise<string> {
+  return fs.readFile(path.join(projectDirPath, pathInProject), "utf-8");
+}
 
 async function getProjectFileList(projectDirPath: string): Promise<string[]> {
   const files = await glob("**/*", {
@@ -66,5 +69,5 @@ async function getGitLog(projectDirPath: string): Promise<string> {
  * Prisma migration files contain timestamps which change between test runs.
  */
 function normalizeTimestamps(content: string): string {
-  return content.replace(/\d{14}/g, "TIMESTAMP");
+  return content.replace(/\d{14}/g, "NORMALIZED_TIMESTAMP_E2E");
 }
