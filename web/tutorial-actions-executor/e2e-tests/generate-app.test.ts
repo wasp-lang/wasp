@@ -25,8 +25,8 @@ describe("generate-app e2e", () => {
 
       const projectDirPath = path.join(TEST_OUTPUT_DIR, TEST_APP_NAME);
 
-      function getProjectFileContent(filePath: string): string {
-        return fs.readFileSync(path.join(projectDirPath, filePath), "utf-8");
+      function getProjectFileContent(pathInProject: string): string {
+        return fs.readFileSync(path.join(projectDirPath, pathInProject), "utf-8");
       }
 
       const fileList = await getProjectFileList(projectDirPath);
