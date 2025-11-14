@@ -35,6 +35,6 @@ export async function generateApp(
   });
   log(
     "success",
-    `Tutorial app has been successfully generated in ${tutorialApp.dirPath}`,
+    `Tutorial app has been successfully generated in ${tutorialApp.appDirPath}`,
   );
 }

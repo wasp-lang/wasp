@@ -67,13 +67,13 @@ export const editPatchActionCommand = createTacteCommand("edit-patch-action")
     } else {
       log(
         "info",
-        `Skipping app generation, using existing app in ${tutorialApp.dirPath}`,
+        `Skipping app generation, using existing app in ${tutorialApp.appDirPath}`,
       );
     }
 
     log("info", `Editing action ${action.displayName}...`);
 
-    await editPatchActionPatch({ appDir: tutorialApp.dirPath, action });
+    await editPatchActionPatch({ appDir: tutorialApp.appDirPath, action });
 
     await extractCommitsIntoPatches(actions, tutorialApp);
 
@@ -131,7 +131,7 @@ async function extractCommitsIntoPatches(
   for (const action of applyPatchActions) {
     log("info", `Updating patch for action ${action.displayName}`);
     const patch = await generatePatchForAction({
-      appDir: tutorialApp.dirPath,
+      appDir: tutorialApp.appDirPath,
       action,
     });
     await fs.writeFile(action.patchFilePath, patch, "utf-8");

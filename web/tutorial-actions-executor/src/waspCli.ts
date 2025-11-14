@@ -1,7 +1,7 @@
 import { $ } from "zx";
 
 import type { Branded } from "./brandedTypes";
-import type { AppDirPath, AppName, AppParentDirPath } from "./tutorialApp";
+import type { AppDirPath, AppName, OutputDir } from "./tutorialApp";
 
 export type WaspCliCommand = Branded<string, "WaspCliCommand">;
 
@@ -27,13 +27,13 @@ export async function waspDbMigrate({
 export async function waspNew({
   waspCliCommand,
   appName,
-  appParentDirPath,
+  outputDir,
 }: {
   waspCliCommand: WaspCliCommand;
   appName: AppName;
-  appParentDirPath: AppParentDirPath;
+  outputDir: OutputDir;
 }): Promise<void> {
   await $({
-    cwd: appParentDirPath,
+    cwd: outputDir,
   })`${waspCliCommand} new ${appName} -t minimal`;
 }
