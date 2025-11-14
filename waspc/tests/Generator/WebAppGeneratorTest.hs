@@ -61,7 +61,7 @@ spec_WebAppGenerator = do
                 { Npm.PackageJson.name = "testApp",
                   Npm.PackageJson.dependencies = M.empty,
                   Npm.PackageJson.devDependencies = M.empty,
-                  Npm.PackageJson.workspaces = Just $ S.toList NW.workspaceGlobs
+                  Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs
                 },
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
