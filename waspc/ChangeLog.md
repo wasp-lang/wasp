@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.19.0 (Unreleased)
+## 0.19.0
 
 ### ⚠️ Breaking Changes
 
@@ -18,18 +18,21 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🐞 Bug fixes
 
-- Fixed a type error with the default `NODE_ENV` value in the server env validation schema. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
+- Fixed a type error in the generated server app when `process.env.NODE_ENV` is also declared by another dependency in the project. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
 
 ### 🔧 Small improvements
 
 - Creating a new OpenSaaS project is now much faster (around 20x faster in our testing!). ([#3196](https://github.com/wasp-lang/wasp/pull/3196))
-- Wasp now displays a helpful message when navigating to the backend port, pointing you to the frontend. ([#3213](https://github.com/wasp-lang/wasp/pull/3213))
+- In development mode, Wasp displays a helpful message when navigating to the backend port, pointing you to your app's main URL. ([#3213](https://github.com/wasp-lang/wasp/pull/3213))
 
 ### 📖 Documentation
 
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
-- Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory ([#3085](github.com/wasp-lang/wasp/issues/3085))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+
+### 🧩 Other changes
+
+- Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory in our repo. ([#3085](https://github.com/wasp-lang/wasp/pull/3197))
 
 ## 0.18.2
 
