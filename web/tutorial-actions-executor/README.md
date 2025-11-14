@@ -137,7 +137,7 @@ Snapshot testing captures the output of the tutorial action executor (generated 
 and stores it as a "snapshot". On subsequent test runs, the output is compared against the stored snapshot
 to ensure nothing has changed unexpectedly.
 
-**E2E Test Structure:**
+#### E2E Test Structure
 
 - Test fixtures: `e2e-tests/fixtures/tutorial/` contains minimal tutorial files used for testing.
 - Generated output: `e2e-tests/.result/`.
