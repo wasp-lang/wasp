@@ -33,37 +33,37 @@ export async function executeActions({
           initWaspAppWithGitRepo({
             waspCliCommand,
             appName: tutorialApp.name,
-            appParentDirPath: tutorialApp.parentDirPath,
-            appDirPath: tutorialApp.dirPath,
+            outputDir: tutorialApp.outputDir,
+            appDirPath: tutorialApp.appDirPath,
             mainBranchName,
           }),
         );
         break;
       case "APPLY_PATCH":
         try {
-          await applyPatchForAction({ appDir: tutorialApp.dirPath, action });
+          await applyPatchForAction({ appDir: tutorialApp.appDirPath, action });
         } catch (err) {
           log(
             "error",
             `Failed to apply patch for action ${action.displayName}:\n${err}`,
           );
           await regeneratePatchForAction({
-            appDir: tutorialApp.dirPath,
+            appDir: tutorialApp.appDirPath,
             action,
           });
-          await applyPatchForAction({ appDir: tutorialApp.dirPath, action });
+          await applyPatchForAction({ appDir: tutorialApp.appDirPath, action });
         }
         break;
       case "MIGRATE_DB":
         await waspDbMigrate({
           waspCliCommand,
-          appDir: tutorialApp.dirPath,
+          appDir: tutorialApp.appDirPath,
           migrationName: action.id,
         });
         break;
       default:
         assertUnreachable(action, `Unknown action '${action}'`);
     }
-    await commitActionChanges({ appDir: tutorialApp.dirPath, action });
+    await commitActionChanges({ appDir: tutorialApp.appDirPath, action });
   }
 }

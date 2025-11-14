@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generate-app e2e > should generate app from tutorial actions and match snapshots > file-structure 1`] = `
+[
+  "main.wasp",
+  "migrations/NORMALIZED_TIMESTAMP_E2E_migrate_db/migration.sql",
+  "migrations/migration_lock.toml",
+  "package-lock.json",
+  "package.json",
+  "public/favicon.ico",
+  "schema.prisma",
+  "src/Main.css",
+  "src/MainPage.tsx",
+  "src/assets/logo.svg",
+  "src/testUtils.ts",
+  "src/vite-env.d.ts",
+  "tsconfig.json",
+  "vite.config.ts",
+]
+`;
+
+exports[`generate-app e2e > should generate app from tutorial actions and match snapshots > git-commits 1`] = `
+"migrate-db
+
+migrations/NORMALIZED_TIMESTAMP_E2E_migrate_db/migration.sql
+migrations/migration_lock.toml
+package-lock.json
+add-model
+
+schema.prisma
+add-test-file
+
+src/testUtils.ts
+create-test-app
+
+.gitignore
+.waspignore
+.wasproot
+main.wasp
+package.json
+public/.gitkeep
+public/favicon.ico
+schema.prisma
+src/Main.css
+src/MainPage.tsx
+src/assets/logo.svg
+src/vite-env.d.ts
+tsconfig.json
+vite.config.ts
+"
+`;
+
+exports[`generate-app e2e > should generate app from tutorial actions and match snapshots > prisma-schema 1`] = `
+"datasource db {
+  provider = "sqlite"
+  // Wasp requires that the url is set to the DATABASE_URL environment variable.
+  url      = env("DATABASE_URL")
+}
+
+// Wasp requires the \`prisma-client-js\` generator to be present.
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  createdAt DateTime @default(now())
+}
+"
+`;
+
+exports[`generate-app e2e > should generate app from tutorial actions and match snapshots > test-utils 1`] = `
+"export function testHelper() {
+  return "test helper function";
+}
+"
+`;
