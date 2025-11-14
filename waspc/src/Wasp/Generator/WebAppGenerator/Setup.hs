@@ -1,5 +1,5 @@
-module Wasp.Generator.WebAppGenerator.Start
-  ( startWebApp,
+module Wasp.Generator.WebAppGenerator.Setup
+  ( installNpmDependencies,
   )
 where
 
@@ -10,7 +10,7 @@ import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Node.Executables (npmExec)
 
-startWebApp :: Path' Abs (Dir ProjectRootDir) -> J.Job
-startWebApp projectDir = do
+installNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> J.Job
+installNpmDependencies projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-  runNodeCommandAsJob webAppDir npmExec ["start"] J.WebApp
+  runNodeCommandAsJob webAppDir npmExec ["install"] J.WebApp
