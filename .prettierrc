@@ -8,5 +8,6 @@
   "semi": true,
   "singleQuote": false,
   "jsxSingleQuote": false,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "printWidth": 100
 }
