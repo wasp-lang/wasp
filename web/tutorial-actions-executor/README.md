@@ -80,7 +80,7 @@ All commands require the following options to set up the tutorial app configurat
 
 - `--app-name <name>`: Name of the app to generate.
 - `--output-dir <path>`: Directory where the app will be generated.
-- `--tutorial-dir <path>`: Directory containing the tutorial tutorial files.
+- `--tutorial-dir <path>`: Directory containing the tutorial files.
 
 For example:
 
