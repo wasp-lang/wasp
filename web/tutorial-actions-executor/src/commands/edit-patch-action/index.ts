@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 
-import { Command, Option } from "@commander-js/extra-typings";
+import { Option } from "@commander-js/extra-typings";
 import { ProcessOutput } from "zx";
 
 import { confirm, select } from "@inquirer/prompts";
@@ -25,15 +25,11 @@ import {
   type TutorialApp,
 } from "../../tutorialApp";
 import type { WaspCliCommand } from "../../waspCli";
-import {
-  appNameOption,
-  outputDirOption,
-  tutorialDirOption,
-  waspCliCommandOption,
-} from "../commonOptions";
+import { waspCliCommandOption } from "../commonOptions";
 import { generateApp } from "../generate-app";
+import { createTacteCommand } from "../tacteCommand";
 
-export const editPatchActionCommand = new Command("edit-patch-action")
+export const editPatchActionCommand = createTacteCommand("edit-patch-action")
   .description("Edit a patch action in the tutorial app")
   .addOption(new Option("--action-id <id>", "ID of the action to edit"))
   .addOption(
@@ -43,9 +39,6 @@ export const editPatchActionCommand = new Command("edit-patch-action")
     ),
   )
   .addOption(waspCliCommandOption)
-  .addOption(appNameOption)
-  .addOption(outputDirOption)
-  .addOption(tutorialDirOption)
   .action(async (args) => {
     const {
       actionId,

@@ -1,24 +1,15 @@
-import { Command } from "@commander-js/extra-typings";
-
 import type { Action } from "../../actions/actions";
 import { getActionsFromTutorialFiles } from "../../extract-actions";
 import { log } from "../../log";
 import { createTutorialApp, type TutorialApp } from "../../tutorialApp";
 import type { WaspCliCommand } from "../../waspCli";
-import {
-  appNameOption,
-  outputDirOption,
-  tutorialDirOption,
-  waspCliCommandOption,
-} from "../commonOptions";
+import { waspCliCommandOption } from "../commonOptions";
+import { createTacteCommand } from "../tacteCommand";
 import { executeActions } from "./execute-actions";
 
-export const generateAppCommand = new Command("generate-app")
+export const generateAppCommand = createTacteCommand("generate-app")
   .description("Generate a new Wasp app based on the tutorial actions")
   .addOption(waspCliCommandOption)
-  .addOption(appNameOption)
-  .addOption(outputDirOption)
-  .addOption(tutorialDirOption)
   .action(async ({ waspCliCommand, appName, outputDir, tutorialDir }) => {
     const tutorialApp = createTutorialApp({
       appName,

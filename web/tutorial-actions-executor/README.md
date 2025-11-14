@@ -79,7 +79,7 @@ Shows actions grouped by tutorial file, including each action's `id` and `kind`.
 All commands require the following options to set up the tutorial app configuration:
 
 - `--app-name <name>`: Name of the app to generate.
-- `--output-dir <path>`: Directory where the app will be generated.
+- `--output-dir <path>`: Directory where the app will be generated (default: `./.result`)
 - `--tutorial-dir <path>`: Directory containing the tutorial files.
 
 For example:
@@ -90,7 +90,7 @@ npm run generate-app -- --app-name MyApp --output-dir ./custom-output --tutorial
 
 ### Patch File Management
 
-- Patch files are stored in configured dir e.g. for the Wasp tutorial `./docs/tutorial/patches/`.
+- Patch files need to exist in the `patches` dir in the configured tutorial dir
 - Files are named using the source file and action ID.
 - Each patch file contains a Git diff for that specific action.
 
