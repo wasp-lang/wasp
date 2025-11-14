@@ -11,11 +11,11 @@ const FlyRegionSchemaLegacy = z.object({
 });
 
 export const FlyRegionListSchema = z.union([
-  // older version (capitalized fields)
+  // version before flyctl v0.3.121
   z.array(FlyRegionSchemaLegacy),
-  // version as of flyctl v0.3.121 (lowercase fields, array format)
+  // version as of flyctl v0.3.121
   z.array(FlyRegionSchema),
-  // version as of flyctl v0.3.214 (object with Regions field)
+  // version as of flyctl v0.3.214
   z.object({
     Regions: z.array(FlyRegionSchema),
   }),
