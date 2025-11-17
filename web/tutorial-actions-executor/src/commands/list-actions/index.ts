@@ -1,18 +1,23 @@
 import { basename } from "path";
 
-import { Command } from "@commander-js/extra-typings";
 import { chalk } from "zx";
 
 import type { Action } from "../../actions/actions";
 import { getActionsFromTutorialFiles } from "../../extract-actions";
-import { tutorialApp } from "../../tutorialApp";
+import { createTutorialApp } from "../../tutorialApp";
+import { createTacteCommand } from "../tacteCommand";
 
 type SourceFileName = string;
 type ActionsGroupedByFile = Map<SourceFileName, Action[]>;
 
-export const listActionsCommand = new Command("list-actions")
+export const listActionsCommand = createTacteCommand("list-actions")
   .description("List all actions in the tutorial")
-  .action(async () => {
+  .action(async ({ appName, outputDir, tutorialDir }) => {
+    const tutorialApp = createTutorialApp({
+      appName,
+      outputDir,
+      tutorialDir,
+    });
     const actions = await getActionsFromTutorialFiles(tutorialApp);
     const actionsGroupedByFile = groupActionsBySourceFile(actions);
     displayGroupedActions(actionsGroupedByFile);

@@ -54,15 +54,14 @@ npm run edit-patch-action -- --wasp-cli-command wasp
 
 This command:
 
-- Generates the app from scratch using `generate-app` command.
+- Generates the app from scratch using generate-app command.
   - Generating the apps results in having each action as a separate commit in Git history.
-- "Rewinds" the app to the commit _before_ the specified action.
-- Applies changes from specified action to the working directory but does not commit them.
-- Allows you to edit the code as needed.
-- Asks you to confirm when you are done, and then creates a new patch for the action.
-- Reapplies all subsequent actions on top of the modified action.
-  - There might be conflicts between your new changes and subsequent actions.
-  - If so, you will need to resolve them manually.
+- "Rewinds" the app to the commit of the specified action and allows you to make changes
+  to its code as needed.
+- Asks you to confirm when you are done, updates the commit of the action with the changes
+  you did, and reapplies all subsequent commits on top of it.
+  - There might be conflicts between your new changes and subsequent commits.
+    If so, you will need to resolve them manually.
 
 ### 3. List Actions (`npm run list-actions`)
 
@@ -74,9 +73,23 @@ npm run list-actions
 
 Shows actions grouped by tutorial file, including each action's `id` and `kind`.
 
+### Required Command Options
+
+All commands require the following options to set up the tutorial app configuration:
+
+- `--app-name <name>`: Name of the app to generate.
+- `--output-dir <path>`: Directory where the app will be generated (default: `./.result`)
+- `--tutorial-dir <path>`: Directory containing the tutorial files.
+
+For example:
+
+```bash
+npm run generate-app -- --app-name MyApp --output-dir ./custom-output --tutorial-dir ./my-tutorial
+```
+
 ### Patch File Management
 
-- Patch files are stored in `./docs/tutorial/patches/`.
+- Patch files need to exist in the `patches` dir in the configured tutorial dir
 - Files are named using the source file and action ID.
 - Each patch file contains a Git diff for that specific action.
 
@@ -104,3 +117,35 @@ The tool extracts these components and uses:
 
 - `id`: Unique identifier for the action (becomes commit message),
 - `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`).
+
+## Testing
+
+The project includes both unit tests and end-to-end (e2e) snapshot tests.
+
+You can run all tests using:
+
+```bash
+npm run test
+```
+
+### E2E Snapshot Tests
+
+E2E tests verify the entire tutorial action execution flow using snapshot testing.
+
+Snapshot testing captures the output of the tutorial action executor (generated files, git history, etc.)
+and stores it as a "snapshot". On subsequent test runs, the output is compared against the stored snapshot
+to ensure nothing has changed unexpectedly.
+
+#### E2E Test Structure
+
+- Test fixtures: `e2e-tests/fixtures/tutorial/` contains minimal tutorial files used for testing.
+- Generated output: `e2e-tests/.result/`.
+- Snapshots: `e2e-tests/__snapshots__/`.
+
+#### Updating Snapshots
+
+When you intentionally change the tutorial action executor behavior, run the tests in update mode:
+
+```bash
+$ npm run test --update
+```
