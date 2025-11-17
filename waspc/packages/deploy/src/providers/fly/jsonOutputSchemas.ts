@@ -16,9 +16,11 @@ export const FlyRegionListSchema = z.union([
   // version as of flyctl v0.3.121
   z.array(FlyRegionSchema),
   // version as of flyctl v0.3.214
-  z.object({
-    Regions: z.array(FlyRegionSchema),
-  }),
+  z
+    .object({
+      Regions: z.array(FlyRegionSchema),
+    })
+    .transform((data) => data.Regions),
 ]);
 
 export const FlySecretListSchema = z.union([

@@ -72,10 +72,7 @@ export async function assertRegionIsValid(region: string): Promise<void> {
 
 async function regionExists(regionCode: string): Promise<boolean> {
   const proc = await $`flyctl platform regions -j`.verbose(false);
-  const regionsData = FlyRegionListSchema.parse(proc.json());
-  const regions = Array.isArray(regionsData)
-    ? regionsData
-    : regionsData.Regions;
+  const regions = FlyRegionListSchema.parse(proc.json());
 
   return regions.some((r) => {
     const code = "code" in r ? r.code : r.Code;
