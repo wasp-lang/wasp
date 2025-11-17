@@ -25,6 +25,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Creating a new OpenSaaS project is now much faster (around 20x faster in our testing!). ([#3196](https://github.com/wasp-lang/wasp/pull/3196))
 - In development mode, Wasp displays a helpful message when navigating to the backend port, pointing you to your app's main URL. ([#3213](https://github.com/wasp-lang/wasp/pull/3213))
+- Raised the internal minimal requirement of Tailwind CSS from `^3.2.7` to `^3.4.17` to ensure compatibility with ESM config files. ([#3377](https://github.com/wasp-lang/wasp/issues/3377))
 
 ### 📖 Documentation
 
