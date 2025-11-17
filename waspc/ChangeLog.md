@@ -28,6 +28,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 📖 Documentation
 
+- Updated Tailwind CSS installation command in docs from exact version `3.2.7` to `@3` to ensure compatibility with Wasp 0.18.0+ ESM config files. ([#3377](https://github.com/wasp-lang/wasp/issues/3377))
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
 
