@@ -13,8 +13,8 @@ defaults:
     working-directory: waspc
 
 jobs:
-  build:
-    name: Build Wasp
+  test:
+    name: Test waspc
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -31,6 +31,7 @@ jobs:
           # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
           - macos-15-intel
+          - macos-15 # Apple Silicon
           - windows-latest
         node-version:
           - "latest"
@@ -67,15 +68,20 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
         run: |
           cd packages/ts-inspect
           npm ci
           npm test
 
       - name: Compile TS packages and move it into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: ./tools/install_packages_to_data_dir.sh
+
+      - name: Compile TS packages and move them into the Cabal data dir on Windows
+        if: runner.os == 'Windows'
+        run: ./tools/install_packages_to_data_dir.ps1
+        shell: pwsh
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies

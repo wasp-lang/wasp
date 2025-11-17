@@ -529,7 +529,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
+        "e6d95c9a6fe716c22dec59fbb33e4072274a89f6c804f8d019a8752664622a12"
     ],
     [
         [
@@ -544,6 +544,13 @@
             "server/src/server.ts"
         ],
         "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
+    ],
+    [
+        [
+            "file",
+            "server/src/views/wrong-port.ts"
+        ],
+        "cc8fc19e919c4d22ec6095a60446dd4f52dc864112e6b379ae35ec45c5b04b16"
     ],
     [
         [
@@ -669,7 +676,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "72f880dba47672ec9fb112a8b88cc8d831458cccddcc891b853a6dc9809a5752"
+        "51979a9b39bf2a0f84e7b3bc81e0f88b250dc950b31ef6aa069ef7a5e9ae4f00"
     ],
     [
         [

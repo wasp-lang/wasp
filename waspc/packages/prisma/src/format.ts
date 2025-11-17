@@ -25,7 +25,7 @@ export async function formatSchema(
     const process = spawn(
       "npx",
       ["prisma", "format", "--schema", tmpPrismaSchemaFile.path],
-      {},
+      { shell: true }, // required for resolving the location of npx on Windows
     );
     process.stderr.on("data", (data) => {
       stderr += data;

@@ -1,20 +1,31 @@
 import * as z from "zod";
 
+const FlyRegionSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+});
+
+const FlyRegionSchemaLegacy = z
+  .object({
+    Code: z.string(),
+    Name: z.string(),
+  })
+  .transform((data) => ({
+    code: data.Code,
+    name: data.Name,
+  }));
+
 export const FlyRegionListSchema = z.union([
-  // older version
-  z.array(
-    z.object({
-      Code: z.string(),
-      Name: z.string(),
-    }),
-  ),
-  // newer version as of flyctl v0.3.121
-  z.array(
-    z.object({
-      code: z.string(),
-      name: z.string(),
-    }),
-  ),
+  // version before flyctl v0.3.121
+  z.array(FlyRegionSchemaLegacy),
+  // version as of flyctl v0.3.121
+  z.array(FlyRegionSchema),
+  // version as of flyctl v0.3.214
+  z
+    .object({
+      Regions: z.array(FlyRegionSchema),
+    })
+    .transform((data) => data.Regions),
 ]);
 
 export const FlySecretListSchema = z.union([
