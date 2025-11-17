@@ -5,10 +5,15 @@ const FlyRegionSchema = z.object({
   name: z.string(),
 });
 
-const FlyRegionSchemaLegacy = z.object({
-  Code: z.string(),
-  Name: z.string(),
-});
+const FlyRegionSchemaLegacy = z
+  .object({
+    Code: z.string(),
+    Name: z.string(),
+  })
+  .transform((data) => ({
+    code: data.Code,
+    name: data.Name,
+  }));
 
 export const FlyRegionListSchema = z.union([
   // version before flyctl v0.3.121

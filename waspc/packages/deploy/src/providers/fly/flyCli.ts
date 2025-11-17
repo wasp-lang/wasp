@@ -75,8 +75,7 @@ async function regionExists(regionCode: string): Promise<boolean> {
   const regions = FlyRegionListSchema.parse(proc.json());
 
   return regions.some((r) => {
-    const code = "code" in r ? r.code : r.Code;
-    return code === regionCode;
+    return r.code === regionCode;
   });
 }
 
