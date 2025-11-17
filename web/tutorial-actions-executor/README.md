@@ -54,15 +54,14 @@ npm run edit-patch-action -- --wasp-cli-command wasp
 
 This command:
 
-- Generates the app from scratch using `generate-app` command.
+- Generates the app from scratch using generate-app command.
   - Generating the apps results in having each action as a separate commit in Git history.
-- "Rewinds" the app to the commit _before_ the specified action.
-- Applies changes from specified action to the working directory but does not commit them.
-- Allows you to edit the code as needed.
-- Asks you to confirm when you are done, and then creates a new patch for the action.
-- Reapplies all subsequent actions on top of the modified action.
-  - There might be conflicts between your new changes and subsequent actions.
-  - If so, you will need to resolve them manually.
+- "Rewinds" the app to the commit of the specified action and allows you to make changes
+  to its code as needed.
+- Asks you to confirm when you are done, updates the commit of the action with the changes
+  you did, and reapplies all subsequent commits on top of it.
+  - There might be conflicts between your new changes and subsequent commits.
+    If so, you will need to resolve them manually.
 
 ### 3. List Actions (`npm run list-actions`)
 
