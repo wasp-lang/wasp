@@ -19,6 +19,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed a type error in the generated server app when `process.env.NODE_ENV` is also declared by another dependency in the project. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
+- Fixed an incompatibility between `wasp deploy fly` and Fly CLI v0.3.214. ([#3372](https://github.com/wasp-lang/wasp/pull/3372))
+- Raised the internal requirement of Tailwind CSS from `^3.2.7` to `^3.4.17` to ensure compatibility with ESM config files. ([#3380](https://github.com/wasp-lang/wasp/issues/3380))
 
 ### 🔧 Small improvements
 
@@ -27,6 +29,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 📖 Documentation
 
+- Updated Tailwind CSS installation command in docs from exact version `3.2.7` to `3` (latest v3) to ensure compatibility with Wasp 0.18.0+ ESM config files. ([#3377](https://github.com/wasp-lang/wasp/issues/3377))
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
 

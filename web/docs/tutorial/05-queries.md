@@ -4,6 +4,7 @@ title: 5. Querying the Database
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
+import { TutorialAction } from './TutorialAction';
 
 We want to know which tasks we need to do, so let's list them!
 
@@ -24,6 +25,7 @@ We'll create a new Query called `getTasks`. We'll need to declare the Query in t
 
 We need to add a **query** declaration to `main.wasp` so that Wasp knows it exists:
 
+<TutorialAction id="query-get-tasks" action="APPLY_PATCH">
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```wasp title="main.wasp"
@@ -39,6 +41,7 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
       entities: [Task]
     }
     ```
+
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
@@ -59,8 +62,10 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
     :::note
     To generate the types used in the next section, make sure that `wasp start` is still running.
     :::
+
   </TabItem>
 </Tabs>
+</TutorialAction>
 
 ### Implementing a Query
 
@@ -72,17 +77,19 @@ We need to add a **query** declaration to `main.wasp` so that Wasp knows it exis
   Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` declaration:
 </ShowForTs>
 
+<TutorialAction id="query-get-tasks-impl" action="APPLY_PATCH">
+
 ```ts title="src/queries.ts" auto-js
-import type { Task } from 'wasp/entities'
-import type { GetTasks } from 'wasp/server/operations'
+import type { Task } from "wasp/entities";
+import type { GetTasks } from "wasp/server/operations";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   return context.entities.Task.findMany({
-    orderBy: { id: 'asc' },
-  })
-}
+    orderBy: { id: "asc" },
+  });
+};
 ```
-
+</TutorialAction>
 <ShowForTs>
 Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
 
@@ -116,25 +123,27 @@ While we implement Queries on the server, Wasp generates client-side functions t
 
 This makes it easy for us to use the `getTasks` Query we just created in our React component:
 
+<TutorialAction id="main-page-tasks" action="APPLY_PATCH">
+
 ```tsx title="src/MainPage.tsx" auto-js
-import type { Task } from 'wasp/entities'
+import type { Task } from "wasp/entities";
 // highlight-next-line
-import { getTasks, useQuery } from 'wasp/client/operations'
+import { getTasks, useQuery } from "wasp/client/operations";
 
 export const MainPage = () => {
   // highlight-start
-  const { data: tasks, isLoading, error } = useQuery(getTasks)
+  const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
     <div>
       {tasks && <TasksList tasks={tasks} />}
 
-      {isLoading && 'Loading...'}
-      {error && 'Error: ' + error}
+      {isLoading && "Loading..."}
+      {error && "Error: " + error}
     </div>
-  )
+  );
   // highlight-end
-}
+};
 
 // highlight-start
 const TaskView = ({ task }: { task: Task }) => {
@@ -143,11 +152,11 @@ const TaskView = ({ task }: { task: Task }) => {
       <input type="checkbox" id={String(task.id)} checked={task.isDone} />
       {task.description}
     </div>
-  )
-}
+  );
+};
 
 const TasksList = ({ tasks }: { tasks: Task[] }) => {
-  if (!tasks?.length) return <div>No tasks</div>
+  if (!tasks?.length) return <div>No tasks</div>;
 
   return (
     <div>
@@ -155,10 +164,11 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
         <TaskView task={task} key={idx} />
       ))}
     </div>
-  )
-}
+  );
+};
 // highlight-end
 ```
+</TutorialAction>
 
 Most of this code is regular React, the only exception being the <ShowForJs>two</ShowForJs><ShowForTs>three</ShowForTs> special `wasp` imports:
 
@@ -172,7 +182,7 @@ Most of this code is regular React, the only exception being the <ShowForJs>two<
   - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
   - `Task` - The type for the Task entity defined in `schema.prisma`.
 
-  Notice how you don't need to annotate the type of the Query's return value: Wasp uses the types you defined while implementing the Query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
+Notice how you don't need to annotate the type of the Query's return value: Wasp uses the types you defined while implementing the Query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
 </ShowForTs>
 
 We could have called the Query directly using `getTasks()`, but the `useQuery` hook makes it reactive: React will re-render the component every time the Query changes. Remember that Wasp automatically refreshes Queries whenever the data is modified.
