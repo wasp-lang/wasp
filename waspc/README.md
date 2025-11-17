@@ -475,9 +475,11 @@ If doing this, steps are the following:
    The script will throw some warnings which you should accept.
 3. Once the draft release is created on Github, use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
 4. Since our installer installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing a `-v` flag to the installer! That way user's don't get in touch with it, but we can install and use it normally:
-  ```sh
-  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0-rc
-  ```
+
+```sh
+curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0-rc
+```
+
 5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/Release-checklists-1c718a74854c804abfb6f1cc3a8ef49f?p=2ab18a74854c8098b0dae3b03e858772&pm=s) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
 
 ## Documentation
