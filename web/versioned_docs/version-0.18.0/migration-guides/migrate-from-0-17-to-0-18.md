@@ -134,7 +134,7 @@ Update the Tailwind configuration files' extensions from `.cjs` to `.js`:
 - `tailwind.config.cjs` ➝ `tailwind.config.js`
 - `postcss.config.cjs` ➝ `postcss.config.js`
 
-If you're using Tailwind CSS, make sure to update to the latest v3 to ensure compatibility with the new ESM configuration:
+Make sure to update to the latest v3 to ensure compatibility with the new ESM configuration:
 
 ```bash
 npm install -D tailwindcss@3
