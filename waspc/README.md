@@ -441,7 +441,6 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Create an RC and do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
 - 👉 Consider enriching and polishing the `ChangeLog.md` a bit:
   - If you modify `ChangeLog.md``: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
-  If you modify it, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
 - 👉 Update your local repository state to have all remote changes (`git fetch`).\*\*
 - 👉 Update the RC branch to contain changes from `release` by running `git merge release` while on the `rc-<version>` branch. Resolve any conflicts.
 - Take a versioned "snapshot" of the current docs by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the README in the `web` dir for more details. Commit this change to the RC branch.
@@ -479,7 +478,7 @@ If doing this, steps are the following:
   ```sh
   curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0-rc
   ```
-5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/Release-checklists-1c718a74854c804abfb6f1cc3a8ef49f?p=2ab18a74854c8098b0dae3b03e858772&pm=s) and go through the "Before release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
+5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/Release-checklists-1c718a74854c804abfb6f1cc3a8ef49f?p=2ab18a74854c8098b0dae3b03e858772&pm=s) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
 
 ## Documentation
 
