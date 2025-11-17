@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { $, glob } from "zx";
 
-const currentDirPath = path.dirname(new URL(import.meta.url).pathname);
+const currentDirPath = import.meta.dirname;
 
 const TEST_APP_NAME = "e2e-test-app";
 const TEST_OUTPUT_DIR = path.join(currentDirPath, ".result");
