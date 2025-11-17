@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
-    "@inquirer/prompts": "^7.8.0",
+    "@inquirer/prompts": "^8.0.1",
     "acorn": "8.15.0",
-    "commander": "^14.0.0",
-    "dedent": "^1.6.0",
+    "commander": "^14.0.2",
+    "dedent": "^1.7.0",
     "mdast-util-from-markdown": "^2.0.2",
     "mdast-util-frontmatter": "^2.0.1",
     "mdast-util-mdx": "^3.0.0",
@@ -24,13 +24,13 @@
     "micromark-extension-mdx-jsx": "^3.0.2",
     "parse-git-diff": "0.0.19",
     "remark-comment": "^1.0.0",
-    "tsx": "^4.20.3",
+    "tsx": "^4.20.6",
     "unist-util-visit": "^5.0.0",
-    "zx": "^8.5.3"
+    "zx": "^8.8.5"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/mdast": "^4.0.4",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.10"
   }
 }
