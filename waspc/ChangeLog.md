@@ -19,6 +19,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed a type error in the generated server app when `process.env.NODE_ENV` is also declared by another dependency in the project. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
+- Fixed an incompatibility between `wasp deploy fly` and Fly CLI v0.3.214. ([#3372](https://github.com/wasp-lang/wasp/pull/3372))
 
 ### 🔧 Small improvements
 
