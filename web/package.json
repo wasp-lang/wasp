@@ -30,7 +30,7 @@
     "classnames": "^2.3.2",
     "clsx": "^1.2.1",
     "front-matter": "^4.0.2",
-    "glob": "^11.0.2",
+    "glob": "^11.1.0",
     "plugin-image-zoom": "github:flexanalytics/plugin-image-zoom",
     "postcss": "^8.4.19",
     "prism-react-renderer": "^2.4.1",
