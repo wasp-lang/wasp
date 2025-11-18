@@ -1,6 +1,6 @@
-import { defineConfig, type Options } from "tsdown";
+import { defineConfig, type UserConfig } from "tsdown";
 
-const commonTsDownOptions: Options = {
+const commonTsDownOptions: UserConfig = {
   outDir: "dist",
   dts: {
     sourcemap: true,
@@ -15,14 +15,16 @@ function createNewEntry({
 }: {
   name: string;
   entryPath: string;
-  platform: Options["platform"];
-}): Options {
+  platform: UserConfig["platform"];
+}): UserConfig {
   return {
     ...commonTsDownOptions,
     entry: {
       [name]: entryPath,
     },
     platform,
+    // When using `node` platform, this option ensures the output extension remains `.js` and not `.mjs`.
+    fixedExtension: false,
   };
 }
 
