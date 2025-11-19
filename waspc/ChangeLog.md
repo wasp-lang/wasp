@@ -15,6 +15,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - You can now specify which PostgreSQL image to use in `wasp start db` with the `--db-image` argument. ([#3182](https://github.com/wasp-lang/wasp/pull/3182))
 - You can now specify which PostgreSQL image to use in `wasp deploy railway` with the `--db-image` argument. ([#3184](https://github.com/wasp-lang/wasp/pull/3184))
 - You can now specify which PostgreSQL image to use in `wasp deploy fly` with the `--db-image` argument. ([#3187](https://github.com/wasp-lang/wasp/pull/3187))
+- Improved DX around `allowedCORSOrigins` ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
 
 ### 🐞 Bug fixes
 
