@@ -443,7 +443,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   Mage itself, as a Wasp app, doesn't have to be using the latest Wasp version to run, but the apps it is producing should.
 - 👉 `ChangeLog.md` and the version in `waspc.cabal` should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing `ChangeLog.md` a bit even if all the data is already there. Also make sure the `ChangeLog.md` specifies the correct version of Wasp.
   - If you modify `ChangeLog.md` or `waspc.cabal`, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
-- 👉 Update your local repository state to have all remote changes (`git fetch`).\*\*
+- 👉 Update your local repository state to have all remote changes (`git fetch`).
 - 👉 Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
 - Take a versioned "snapshot" of the current docs by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the README in the `web` dir for more details. Commit this change to `main`.
 - 👉 Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
