@@ -35,7 +35,7 @@ import StrongPath (Abs, Dir, File, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
-import System.FilePath (equalFilePath, makeRelative, takeFileName)
+import System.FilePath (equalFilePath, isExtensionOf, makeRelative, takeFileName)
 import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
@@ -114,7 +114,7 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile = do
         >>= filterM doesFileExist -- only files, no directories
         >>= mapM SP.parseAbsFile
       where
-        filterIgnoredFileNames = flip notElem ignoredFileNames . takeFileName
+        filterIgnoredFileNames = createFilenameFilter [flip notElem ignoredFileNames, not . isTgzFile]
         ignoredFileNames =
           [ ".DS_Store",
             "node_modules"
@@ -140,7 +140,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
         >>= filterM doesFileExist -- only files, no directories
         >>= mapM SP.parseAbsFile
       where
-        filterIgnoredFileNames = flip notElem ignoredFileNames . takeFileName
+        filterIgnoredFileNames = createFilenameFilter [flip notElem ignoredFileNames, not . isTgzFile]
         ignoredFileNames =
           [ ".DS_Store",
             "node_modules",
@@ -198,3 +198,14 @@ defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFile
     mapCurrentToGoldenSnapshotFile :: Path' Abs (File SnapshotFile) -> Path' Abs (File SnapshotFile)
     mapCurrentToGoldenSnapshotFile currentSnapshotFile =
       goldenSnapshotDir </> fromJust (SP.parseRelFile $ makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile))
+
+isTgzFile :: FilePath -> Bool
+isTgzFile = (".tgz" `isExtensionOf`)
+
+type FileName = String
+
+createFilenameFilter :: [FileName -> Bool] -> FilePath -> Bool
+createFilenameFilter predicates =
+  \path ->
+    let filename = takeFileName path
+     in all ($ filename) predicates
