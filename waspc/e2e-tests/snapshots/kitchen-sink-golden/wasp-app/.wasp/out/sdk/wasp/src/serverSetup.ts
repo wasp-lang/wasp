@@ -49,7 +49,7 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   // Example of adding an extra domain to CORS.
   middlewareConfig.set(
     "cors",
-    cors({ origin: [config.frontendUrl, "http://127.0.0.1:3000"] }),
+    cors({ origin: [...config.allowedCORSOrigins, "http://127.0.0.1:3000"] }),
   );
   return middlewareConfig;
 };

@@ -1,0 +1,19 @@
+diff --git a/src/MainPage.tsx b/src/MainPage.tsx
+index ec559d7..bc435c6 100644
+--- a/src/MainPage.tsx
++++ b/src/MainPage.tsx
+@@ -1,4 +1,5 @@
+ import type { ChangeEvent, FormEvent } from "react";
++import type { AuthUser } from "wasp/auth";
+ import {
+   createTask,
+   getTasks,
+@@ -7,7 +8,7 @@ import {
+ } from "wasp/client/operations";
+ import type { Task } from "wasp/entities";
+ 
+-export const MainPage = () => {
++export const MainPage = ({ user }: { user: AuthUser }) => {
+   const { data: tasks, isLoading, error } = useQuery(getTasks);
+ 
+   return (

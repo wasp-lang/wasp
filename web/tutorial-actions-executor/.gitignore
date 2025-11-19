@@ -1,0 +1,3 @@
+node_modules/
+.result/
+e2e-tests/.result/
