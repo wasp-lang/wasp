@@ -456,8 +456,8 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
-- Announce the new release in Discord if it makes sense.
-- Go back to [Notion](https://www.notion.so/wasp-lang/Release-checklists-1c718a74854c804abfb6f1cc3a8ef49f?p=2ab18a74854c8098b0dae3b03e858772&pm=s) and go through the "After the release" section of the checklist.
+- Announce the new release in Discord.
+- Go back to [Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "After the release" section of the checklist.
 
 #### Determining next version
 
@@ -480,7 +480,7 @@ If doing this, steps are the following:
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0-rc
 ```
 
-5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/Release-checklists-1c718a74854c804abfb6f1cc3a8ef49f?p=2ab18a74854c8098b0dae3b03e858772&pm=s) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
+5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
 
 ## Documentation
 
