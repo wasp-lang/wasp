@@ -9,7 +9,7 @@ title: Migration from 0.18.X to 0.19.X
 Wasp now enables npm workspaces for managing the generated app. This change makes our dependency system more reliable, and better prepares us for future features. It also makes installs faster overall and reduces the size of each project on your disk. This is largely transparent, and you shouldn't notice any difference in how you develop your app.
 
 ### Breaking API change for `config.allowedCORSOrigins`
-The type of `config.allowedCORSOrigins` imported from `wasp/server` no longer has type `string | string[]`. It now has type `(String | RegExp)[]`.
+The type of `config.allowedCORSOrigins` (imported from `wasp/server`) was changed from `string | string[]` to `(String | RegExp)[]`.
 This was done to make Wasp's CORS system more compsable with the `cors` package.
 
 ## How to migrate?
