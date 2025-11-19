@@ -4,14 +4,13 @@ This library exports code related to Wasp's auth which is used in the generated 
 
 ## What's inside
 
-The library has multiple exports:
+The has multiple entry points:
 
 - `sdk` - used in the Wasp SDK in any runtime (`@wasp.sh/lib-auth/sdk`)
 - `sdk/browser` - used in the Wasp SDK in the browser runtime (`@wasp.sh/lib-auth/sdk/browser`)
 - `server` - used in the `server` app (`@wasp.sh/lib-auth/server`)
 
-If you are writing browser-only code, make sure to put it in a `<name>/browser` export.
-For example, if writing browser-only code for the `sdk` export, put it in `sdk/browser`.
+Read more about the naming convention for exports in the parent [README](../README.md#lib-exports-naming-convention).
 
 ### Lib version
 
