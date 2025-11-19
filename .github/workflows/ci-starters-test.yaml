@@ -27,7 +27,7 @@ jobs:
 
       - name: Install node dependencies
         working-directory: waspc/starters-e2e-tests
-        run: npm install
+        run: npm ci
 
       - name: Run starters e2e tests
         working-directory: waspc/starters-e2e-tests
