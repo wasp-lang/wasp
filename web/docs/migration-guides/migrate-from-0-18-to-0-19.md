@@ -48,8 +48,9 @@ rm package-lock.json
 wasp ts-setup # ONLY if you are using the Wasp TS Config
 ```
 
-### 3. Fix type errors related to `config.allowedCORSOrigins`
-Search your codebase for the string `allowedCorsOrigins` and fix potential type errors around its usage.
+### 3. Fix type errors caused by `config.allowedCORSOrigins`
+Search your codebase for the string `allowedCORSOrigins` and fix any potential type errors around its usage.
+If the search returns no results, it means you aren't using this feature and there's nothing to fix.
 
 ### 4. Enjoy your updated Wasp app
 
