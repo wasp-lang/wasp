@@ -16,15 +16,15 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - You can now specify a custom volume mount path for the development database with the `--db-volume-mount-path` option in `wasp start db`. ([#3362](https://github.com/wasp-lang/wasp/pull/3362))
 - You can now specify which PostgreSQL image to use in `wasp deploy railway` with the `--db-image` argument. ([#3184](https://github.com/wasp-lang/wasp/pull/3184))
 - You can now specify which PostgreSQL image to use in `wasp deploy fly` with the `--db-image` argument. ([#3187](https://github.com/wasp-lang/wasp/pull/3187))
-- Improved DX around `allowedCORSOrigins` ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
+- It's now simpler to extend our default CORS rules. ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
 
 ### 🐞 Bug fixes
 
 - Fixed a type error in the generated server app when `process.env.NODE_ENV` is also declared by another dependency in the project. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
 - Fixed an incompatibility between `wasp deploy fly` and Fly CLI v0.3.214. ([#3372](https://github.com/wasp-lang/wasp/pull/3372))
 - Raised the internal requirement of Tailwind CSS from `^3.2.7` to `^3.4.17` to ensure compatibility with ESM config files. ([#3380](https://github.com/wasp-lang/wasp/issues/3380))
-- Fixed frontend routing when serving the client from a non-root subpath/basedir ([#3322](https://github.com/wasp-lang/wasp/pull/3322))
-- Fixed CORS issues when serving the client on a non-root subpath/basedir ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
+- Fixed an error with routing when serving the client from a subpath in a domain. ([#3322](https://github.com/wasp-lang/wasp/pull/3322))
+- Fixed an error with CORS when serving the client from a subpath in a domain. ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
 
 ### 🔧 Small improvements
 

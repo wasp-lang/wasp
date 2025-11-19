@@ -8,9 +8,9 @@ title: Migration from 0.18.X to 0.19.X
 
 Wasp now enables npm workspaces for managing the generated app. This change makes our dependency system more reliable, and better prepares us for future features. It also makes installs faster overall and reduces the size of each project on your disk. This is largely transparent, and you shouldn't notice any difference in how you develop your app.
 
-### Breaking API change for `config.allowedCORSOrigins`
-The type of `config.allowedCORSOrigins` (imported from `wasp/server`) was changed from `string | string[]` to `(String | RegExp)[]`.
-This was done to make Wasp's CORS system more compsable with the `cors` package.
+### The type of `config.allowedCORSOrigins` has changed
+
+The type of `config.allowedCORSOrigins` (imported from `wasp/server`) was changed from `string | string[]` to `(string | RegExp)[]`, which is always an array. Now, it's simpler to extend our default CORS rules if you just want to add extra domains to the list.
 
 ## How to migrate?
 
@@ -50,6 +50,9 @@ wasp ts-setup # ONLY if you are using the Wasp TS Config
 
 ### 3. Fix type errors caused by `config.allowedCORSOrigins`
 Search your codebase for the string `allowedCORSOrigins` and fix any potential type errors around its usage.
+### 3. Fix type errors caused by `config.allowedCORSOrigins`
+Search your codebase for the string `allowedCORSOrigins` and fix any potential type errors around its usage. You can follow [our middleware guide](../advanced/middleware-config.md) for the recommended way to extend the CORS configuration.
+
 If the search returns no results, it means you aren't using this feature and there's nothing to fix.
 
 ### 4. Enjoy your updated Wasp app
