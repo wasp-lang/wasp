@@ -11,7 +11,7 @@ type Config = {
   databaseUrl: string;
   frontendUrl: string;
   serverUrl: string;
-  allowedCORSOrigins: '*' | string[];
+  allowedCORSOrigins: (string | RegExp)[];
   {=# isAuthEnabled =}
   auth: {
     jwtSecret: string;
@@ -23,7 +23,7 @@ const frontendUrl = stripTrailingSlash(env['{= clientUrlEnvVarName =}'])
 const serverUrl = stripTrailingSlash(env['{= serverUrlEnvVarName =}'])
 
 const allowedCORSOriginsPerEnv: Record<NodeEnv, Config['allowedCORSOrigins']> = {
-  development: '*',
+  development: [/.*/],
   production: [getOrigin(frontendUrl)]
 }
 const allowedCORSOrigins = allowedCORSOriginsPerEnv[env.NODE_ENV]
