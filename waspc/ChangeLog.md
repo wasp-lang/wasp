@@ -7,6 +7,7 @@
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-18-to-0-19) for step-by-step documentation on how to upgrade.
 
 - Wasp now requires your project's `package.json` to contain `"workspaces": [".wasp/build/*", ".wasp/out/*"]`. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+- The type of `config.allowedCORSOrigins` (from `wasp/server`) was changed from `string | string[]` to `(string | RegExp)[]`.
 
 ### 🎉 New Features
 
