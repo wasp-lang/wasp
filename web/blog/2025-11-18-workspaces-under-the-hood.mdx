@@ -71,7 +71,7 @@ However, there's a core of functionality that you can expect across different pa
 
 As you can see, **workspaces let us mix and match the advantages of both having a single big package or many small ones**. You get the encapsulation and separation of concerns of small packages, while still being able to share dependencies and code easily.
 
-Let's look into these last two, why are they useful, and how they're implemented:
+The first feature doesn't require much explanation, as it's just the natural way of working with multiple packages. Let's look into the other two, why are they useful, and how they're implemented:
 
 :::note
 
@@ -118,7 +118,7 @@ In order for common dependencies between workspace to work properly, they need t
 
 This is where the package manager's dependency resolution algorithm came into play. Most package managers are already deduplicating and sharing dependencies for a single project. So they just need to do the same, but considering all the workspaces as part of the same project.
 
-**They used a well-designed shortcut:** when looking at how to resolve dependencies, we'll just consider all the workspaces as if they were dependencies of a single big package. This way, the existing dependency resolution algorithm can be reused without changes.
+Package managers take a shortcut: when looking at how to resolve dependencies, they just **consider all the workspaces as if they were dependencies of a single big package**. This way, the existing dependency resolution algorithm can be reused without changes.
 
 And you can see this in action in the lockfile of any workspaces project. Here's a simplified example lockfile for a regular package, no workspaces:
 
