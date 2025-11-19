@@ -6,8 +6,8 @@ authors: [cprecioso]
 tags: [wasp, inside-wasp, open-source, wasp-citizen]
 ---
 
-import TabItem from "@theme/TabItem"
-import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
 
 There comes a time in the life of every project when technical leadership starts thinking: "Oh damn, should we turn this to a monorepo?". This question has been buzzing more and more in the past few years, and thankfully, the answer now does not involve as many custom tools as it did before. The JS ecosystem especially has been hard at work creating versatile infrastructure for big monorepos, and most bleeding-edge open source projects have migrated to one big repo with their whole source code inventory.
 
@@ -15,7 +15,9 @@ There comes a time in the life of every project when technical leadership starts
 
 One of the key technologies in powering today's JS monorepos is **the workspace**. Workspaces are an interesting feature set in JavaScript package managers, that let you organize code in encapsulated libraries, but keep most of the advantages of working with a single package. And while workspaces are fundamental building block of today's monorepos, they can be used in smaller projects as well, to great effect.
 
-In this post, I'll walk you through what a workspace is, and how they work under the hood. We'll touch a couple of concepts regarding how JS package managers work, and how Node.js finds the installed dependencies. But don't worry! The most scary thing in the post will be a couple of simplified extracts from a yarn lockfile. If that's the level of scary you can handle, you're good to go :)
+In this post, I'll walk you through what a workspace is, and how they work under the hood. We'll touch a couple of concepts regarding how JS package managers work, and how Node.js finds the installed dependencies. But don't worry! The most scary thing in the post will be a couple of simplified extracts from a yarn lockfile. If that's the level of scary you can handle, you're good to go 💪.
+
+To be clear, this is a technical explanation of a feature that we're using internally in Wasp. **If you're only interested in making Wasp apps, you won't miss anything by skipping this post!** But if you're curious about how things work under the hood, or want to use workspaces in your own projects, read on!
 
 :::tip Hey, what's Wasp?
 
@@ -27,13 +29,17 @@ Wasp is the quickest way to create a full-stack app, a web framework that seamle
 
 :::
 
-## Why does Wasp care about workspaces?
+## What are workspaces, anyway? {#definition}
 
-As part of our push for Wasp 1.0, we're working on a project internally called [Wasp Citizen](https://github.com/wasp-lang/wasp/issues/3119). We're tweaking the way we generate Wasp apps, and we realized that workspaces solve many of our headaches. The next release of Wasp (out soon!) will use workspaces under the hood.
+In general terms, workspaces are a feature in npm, Yarn, pnpm and others, that provide **a way to organize multiple JavaScript packages in a single project, each acting as their own encapsulated unit, but able to depend on one another easily.**
 
-But don't fret! **Your Wasp app will still be a single package project, and you don't need to learn anything new**, everything will work as before. Internally, the generated code will use workspaces to make development more robust and avoid dependency mismatch errors. If that piques your curiosity, the rest of the post will give you some background on how it works.
+Their two main behaviors are that dependencies in common are shared (for example, if two packages depend on `react`, they both work with the same installed version), and that package can import each other by name (so a `pkg-a` can just `import("pkg-b")` without extra ceremony).
 
-## A brief history of workspaces
+Seems simple enough, right? Well, it can be; but the building blocks are quite interesting, and require a bit of a dive into how package managers and Node.js work. If that's interesting for you, keep on reading!
+
+The workspaces feature also comes after a long evolution of tooling and how we develop JS projects, so let's start with a bit of history. (You can [skip to the next section](#features) if you're only interested in the technical aspects)
+
+## How workspaces came to be
 
 If you've been developing JavaScript for a bit, you'll agree the second half of the 2010s was the moment when the professionalization of JS development started to trickle down to the average developer. Specifically, the rise of Babel and Webpack allowed us to have a modern development experience, one that more closely resembled what other programming languages had for years. A proper module system, and the ability to target a newer version of the language, all while still supporting older runtimes.
 
@@ -47,21 +53,15 @@ Their internal tooling was soon released under the name [Lerna](https://github.c
 
 Yarn exploded in popularity, and, in time, other package managers followed suit, adding support for Yarn's best features, including workspaces. pnpm added the feature soon after, in 2018; but we had to wait until 2021 to have native workspaces support in npm.
 
-## What are workspaces?
+## Workspace features {#features}
 
-This is a trick question. But not in a bad way! In general terms:
+Which features a workspaces project has is a bit of a trick question. Why? Because the exact definition of what a workspace is, and the ways in which it can depend on another, depends on the package manager you're using.
 
-**Workspaces are a way to organize multiple JS packages in a single repository, each acting as their own encapsulated unit, but able to easily depend on one another.**
+[The definition I gave above](#definition) is more of an obsevation of what the main package managers have in common, than a prescriptive specification. Indeed, **there isn't a "workspaces spec"**, so each package manager has its own take on it, with different configuration formats, commands, and even different ways to declare dependencies.
 
-Seems simple enough, right? So why is it a trick question? Because the exact definition of what a workspace is, and the ways in which it can depend on another, depends on the package manager you're using. There's no single unified "workspaces spec", so each package manager has its own take on it, with different configuration formats, commands, and even different ways to declare dependencies.
-
-However, the core functionality that you can expect from workspaces is mostly the same across package managers[^pkg-manager-specifics]. You declare a root folder that contains multiple sub-packages. Each of these packages is called a _workspace_, and the whole set of workspaces is a _project_[^yarn-glossary].
-
-[^pkg-manager-specifics]: The specifics of how to configure each of these features, and any extra features, will depend on the package manager you're using. For example, Yarn requires you to specifically declare workspace dependencies while npm automatically links all of them. Throughout this post, **we'll be using the npm behavior as reference**, since it's the most widely used package manager. But the general concepts apply to any of them.
+However, there's a core of functionality that you can expect across different package managers: You declare a root folder that contains multiple sub-packages. Each of these packages is called a _workspace_, and the whole set of workspaces is a _project_[^yarn-glossary]. From then on, three main features become available:
 
 [^yarn-glossary]: Yarn has a great [glossary](https://yarnpkg.com/advanced/lexicon) that you can check out if you want to get specific definitions for a package-manager-related term, and pointers to which feature they're a part of.
-
-From then on, three main features are expected from workspaces:
 
 - **Each workspace is its own full package, _as if it was an independent project_.** Mainly, this means that each workspace has its own `package.json` file, where it declares its own dependencies, configuration, and scripts; without caring about the insides of other packages.
 
@@ -73,7 +73,11 @@ As you can see, **workspaces let us mix and match the advantages of both having 
 
 Let's look into these last two, why are they useful, and how they're implemented:
 
-## Workspace features
+:::note
+
+As we've mentioned, the exact implementation details of workspaces depend on the package manager you're using. In this post, **we'll be using npm's implementation as a reference**, since it's the most widely used package manager. But the general concepts apply to any of them.
+
+:::
 
 ### The dependencies of the whole project are resolved together
 
@@ -320,7 +324,7 @@ In general, workspaces are best suited for projects that:
 
 That's why workspaces are mostly used in monorepos! Almost by definition, they satisfy all of these criteria. Wasp uses them outside of the monorepo context, because the packages we generate are tightly coupled, and evolve together; so we get a lot of value from using workspaces.
 
-Some scenarios where I'd discourage using workspaces are:
+However, there are some scenarios where I'd discourage using workspaces:
 
 - If you don't have a good reason to split your code into multiple packages, don't do it just to use workspaces. They solve many problems, but it's better if you don't have those problems in the first place!
 - If your packages are mostly independent, and don't share many dependencies, workspaces won't give you much value. For example, I wouldn't use workspaces to link all of the random libraries in my `~/dev` folder.
@@ -328,6 +332,12 @@ Some scenarios where I'd discourage using workspaces are:
 - If your project is split amongst multiple repositories, using workspaces will make them not self-contained anymore, and will need to be checked out all together to work. Unless you're very sure of your use case, I'd work on either unlinking the repos altogether, or merging them into a single monorepo.
 
 [^recommend-yarn]: Yarn has some great features that force you to be exhaustive about how your workspaces are structured. By default, you have to [explicitly declare which other workspaces you depend on](https://yarnpkg.com/features/workspaces#cross-references). They also have a [workspace constraints feature](https://yarnpkg.com/features/constraints) that lets you enforce rules on which packages can depend on which others. This one has a steep learning curve, but it's worth it if you're working on a very big monorepo.
+
+## Why does Wasp care about workspaces?
+
+As part of our push for Wasp 1.0, we're working on a project internally called [Wasp Citizen](https://github.com/wasp-lang/wasp/issues/3119). Our generated apps are written to a `.wasp` folder inside the user's project, and does need to share dependencies between different packages. We realized that workspaces solve many of our headaches, and the next release of Wasp (out soon!) will enable workspaces in your projects.
+
+But don't fret! **Your Wasp app will still be a single package project, and you don't need to learn anything new**, everything will work as before. Internally, the generated code will use workspaces to make development more robust and avoid dependency mismatch errors. That translates to a better experience for you, fewer weird bugs for us, and quicker installs for everyone.
 
 ## Go off!
 
@@ -338,4 +348,3 @@ Until next time, happy coding!
 ---
 
 {/* The triple dash here is nice to separate the main content from the footnotes that will be inserted under it. Docusaurus doesn't do this automatically. */}
-
