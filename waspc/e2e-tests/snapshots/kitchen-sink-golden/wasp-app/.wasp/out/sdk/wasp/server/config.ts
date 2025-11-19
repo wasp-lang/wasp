@@ -10,7 +10,7 @@ type Config = {
   databaseUrl: string;
   frontendUrl: string;
   serverUrl: string;
-  allowedCORSOrigins: '*' | string[];
+  allowedCORSOrigins: (string | RegExp)[];
   auth: {
     jwtSecret: string;
   }
@@ -20,7 +20,7 @@ const frontendUrl = stripTrailingSlash(env['WASP_WEB_CLIENT_URL'])
 const serverUrl = stripTrailingSlash(env['WASP_SERVER_URL'])
 
 const allowedCORSOriginsPerEnv: Record<NodeEnv, Config['allowedCORSOrigins']> = {
-  development: '*',
+  development: [/.*/],
   production: [getOrigin(frontendUrl)]
 }
 const allowedCORSOrigins = allowedCORSOriginsPerEnv[env.NODE_ENV]
