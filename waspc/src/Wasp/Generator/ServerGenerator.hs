@@ -229,6 +229,7 @@ genSrcDir spec =
       genServerJs spec
     ]
     <++> genRoutesDir spec
+    <++> genViewsDir spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
@@ -278,11 +279,23 @@ genRoutesIndex spec =
           "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
-          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
+          "isDevelopment" .= (not $ AS.isBuild spec :: Bool),
+          "appName" .= (fst $ getApp spec :: String)
         ]
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+genViewsDir :: AppSpec -> Generator [FileDraft]
+genViewsDir spec
+  | AS.isBuild spec = return []
+  | otherwise =
+      sequence
+        [ genFileCopy [relfile|views/wrong-port.ts|]
+        ]
+  where
+    genFileCopy = return . C.mkSrcTmplFd
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =

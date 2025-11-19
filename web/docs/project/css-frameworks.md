@@ -13,7 +13,7 @@ Wasp works great with [Tailwind CSS](https://v3.tailwindcss.com/), a utility-fir
 1. Install Tailwind as a development dependency.
 
 ```bash
-npm install -D tailwindcss@3.2.7
+npm install -D tailwindcss@3
 ```
 
 2. Add `./tailwind.config.js`.
