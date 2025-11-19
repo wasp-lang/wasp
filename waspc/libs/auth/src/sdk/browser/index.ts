@@ -1,10 +1,16 @@
 import { createContext, useContext } from "react";
 
+/**
+ * Used to display error messages in auth components.
+ */
 export type ErrorMessage = {
   title: string;
   description?: string;
 };
 
+/**
+ * Context used across different auth components to share loading and message state.
+ */
 export const AuthContext = createContext({
   isLoading: false,
   setIsLoading: (isLoading: boolean) => {},
