@@ -435,13 +435,13 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - Create and merge new PRs if necessary (i.e., if there are breaking changes or new features it should make use of but aren't in one of the `merge-before-release` PRs).
 - 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
   - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
-- 👉 Update your local repository state to have all remote changes (`git fetch`).\*\*
-- 👉 Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
+- 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
+- 👉 Update your local repository state to have all remote changes (`git fetch`).
 - 👉 Branch out from the latest commit you want to release (most likely just `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.19.1`) and do the rest of the steps from there.
 - 👉 Create an RC and do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
 - 👉 Consider enriching and polishing the `ChangeLog.md` a bit:
-  - If you modify `ChangeLog.md``: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
-- 👉 Update your local repository state to have all remote changes (`git fetch`).\*\*
+  - If you modify `ChangeLog.md`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
+- 👉 Update your local repository state to have all remote changes (`git fetch`).
 - 👉 Update the RC branch to contain changes from `release` by running `git merge release` while on the `rc-<version>` branch. Resolve any conflicts.
 - Take a versioned "snapshot" of the current docs by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the README in the `web` dir for more details. Commit this change to the RC branch.
   - This will do some checks, tag it with new release version, and push it.
