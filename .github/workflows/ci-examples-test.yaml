@@ -41,7 +41,7 @@ jobs:
         working-directory: examples/${{ matrix.example }}
         run: |
           if [ -f *.wasp.ts ]; then
-            wasp ts-setup
+            wasp-cli ts-setup
           fi
 
       # We must compile the project to generate the Wasp libs before installing deps
