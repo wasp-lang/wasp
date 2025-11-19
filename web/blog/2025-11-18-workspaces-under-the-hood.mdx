@@ -63,11 +63,11 @@ However, there's a core of functionality that you can expect across different pa
 
 [^yarn-glossary]: Yarn has a great [glossary](https://yarnpkg.com/advanced/lexicon) that you can check out if you want to get specific definitions for a package-manager-related term, and pointers to which feature they're a part of.
 
- - **Each workspace is its own full package, _as if it were an independent project_.** Each workspace has its own `package.json`, where it declares dependencies, configuration, and scripts without worrying about the insides of other packages.
+- **Each workspace is its own full package, _as if it were an independent project_.** Each workspace has its own `package.json`, where it declares dependencies, configuration, and scripts without worrying about the insides of other packages.
 
- - **The dependencies of the whole project are resolved together, _as if they were a single package_.** For example, if two workspaces depend on the same package, it will only be installed once and shared between all the dependents (assuming the version ranges are compatible, of course).
+- **The dependencies of the whole project are resolved together, _as if they were a single package_.** For example, if two workspaces depend on the same package, it will only be installed once and shared between all the dependents (assuming the version ranges are compatible, of course).
 
- - **Workspaces can depend on each other by name, _as if they were regular dependencies_.** Thus, in a project with many workspaces, my `pkg-a` can just import my `pkg-b`, and everything works as expected.
+- **Workspaces can depend on each other by name, _as if they were regular dependencies_.** Thus, in a project with many workspaces, my `pkg-a` can just import my `pkg-b`, and everything works as expected.
 
 **Workspaces let us mix and match the advantages of both having a single big package, or many small ones**. You get the encapsulation and separation of concerns of small packages while still being able to share dependencies and code easily.
 
@@ -86,8 +86,6 @@ As mentioned, the exact implementation details of workspaces depend on the packa
 Imagine having a project with many independent packages. Let's say, maybe... [157(!)](https://github.com/babel/babel/tree/main/packages) You'd have to run `npm install` in each and every workspace folder, plus the ongoing maintenance nightmare of keeping all those dependency versions in sync. Actually, it would be worse than that: if each package had its own `node_modules`, you'd end up with infinitely many copies of the same dependencies installed in different places.
 
 :::info Why is having multiple copies of the same dependency a problem?
-
-<a id="multiple-deps-issue"></a>
 
 This is not only an annoyance and a waste of disk space, but it can also lead to hard-to-debug runtime errors. For example, in JavaScript, the same class, defined in two different places, is considered different, even if their code is identical[^react-aside].
 
@@ -271,7 +269,7 @@ Package managers take this into account when installing dependencies, and arrang
 
 :::
 
-Right out of the gate, we know we don't want to generate multiple copies of the same workspace in different `node_modules`, because we'd have the same problems [we discussed before](#multiple-deps-issue). The tool we can use to have "pointers" to the same folder in multiple places is [the symlink](https://en.wikipedia.org/wiki/Symbolic_link). To quickly refresh: it's just a special type of file that points to another file or folder, so when you access the symlink you're redirected to the target.
+Right out of the gate, we know we don't want to generate multiple copies of the same workspace in different `node_modules`, because we'd have the same problems we discussed before. The tool we can use to have "pointers" to the same folder in multiple places is [the symlink](https://en.wikipedia.org/wiki/Symbolic_link). To quickly refresh: it's just a special type of file that points to another file or folder, so when you access the symlink you're redirected to the target.
 
 So now, this just becomes a problem of how to arrange the symlinks in the `node_modules` folders for Node.js. And if you spend a bit of time thinking about it, the solution becomes clear: **we'll create a symlink to each workspace in the top-level `node_modules` folder**. This way, no matter where we are in the project, Node.js will always find the workspace in the first `node_modules` folder it looks at:
 
