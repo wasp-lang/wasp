@@ -448,6 +448,7 @@ library
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.StrongPath
+    Wasp.Util.System
     Wasp.Util.Terminal
     Wasp.Util.TH
     Wasp.Util.WebRouterPath
