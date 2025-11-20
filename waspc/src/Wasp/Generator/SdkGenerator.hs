@@ -193,7 +193,8 @@ genPackageJson spec = do
       [relfile|package.json|]
       ( Just $
           object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
+            [ "sdkPackageName" .= C.sdkPackageName,
+              "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps,
               "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry npmDeps
             ]
