@@ -205,7 +205,4 @@ isTgzFile = (".tgz" `isExtensionOf`)
 type FileName = String
 
 createFilenameFilter :: [FileName -> Bool] -> FilePath -> Bool
-createFilenameFilter predicates =
-  \path ->
-    let filename = takeFileName path
-     in all ($ filename) predicates
+createFilenameFilter predicates filePath = all ($ takeFileName filePath) predicates

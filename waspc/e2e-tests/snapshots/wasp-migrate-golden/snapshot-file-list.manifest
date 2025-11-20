@@ -11,7 +11,6 @@ wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
 wasp-app/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 wasp-app/.wasp/out/installedNpmDepsLog.json
-wasp-app/.wasp/out/libs/wasp.sh-lib-auth-6694d659.tgz
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
