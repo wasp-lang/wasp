@@ -1,5 +1,11 @@
 # Changelog
 
+## Next
+
+### 📖 Documentation
+
+- Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
+
 ## 0.19.0
 
 ### ⚠️ Breaking Changes
