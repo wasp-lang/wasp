@@ -17,6 +17,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🐞 Bug fixes
 
+- Fixed node/npm/npx/prisma command resolution on Windows, which was one of the main stoppers of supporting Wasp on native Windows. ([#3258](https://github.com/wasp-lang/wasp/pull/3258)).
 - Fixed a type error with the default `NODE_ENV` value in the server env validation schema. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
 
 ### 🔧 Small improvements
@@ -29,6 +30,9 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory ([#3085](github.com/wasp-lang/wasp/issues/3085))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+
+### 🌟 Contributors
+- Big thanks to @MetaMModern and @nodtem66 for crucial work in releasing the fix for node commands resolution on Windows.
 
 ## 0.18.2
 
