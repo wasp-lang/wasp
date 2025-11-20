@@ -8,7 +8,7 @@ script_dir=$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)
 waspc_dir=$script_dir/..
 data_packages_dir=$waspc_dir/data/packages
 
-# Cleanup old packages in data dir.
+# Clean up old packages in data dir.
 rm -rf "${data_packages_dir:?data_packages_dir must be set before cleanup}"
 mkdir -p "$data_packages_dir"
 

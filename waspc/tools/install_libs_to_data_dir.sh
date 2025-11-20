@@ -7,7 +7,7 @@ script_dir=$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)
 waspc_dir=$script_dir/..
 data_libs_dir=$waspc_dir/data/Generator/libs
 
-# Cleanup old libs.
+# Clean up old libs.
 rm -rf "${data_libs_dir:?data_libs_dir must be set before cleanup}"
 mkdir -p "$data_libs_dir"
 
@@ -18,7 +18,7 @@ for lib_dir in "$waspc_dir"/libs/*; do
     echo "Installing $lib lib ($lib_dir)"
     cd "$lib_dir"
     npm install
-    # Cleanup old lib tarballs.
+    # Clean up old lib tarballs.
     rm -f ./*.tgz
     npm pack
     cp ./*.tgz "$data_libs_dir"
