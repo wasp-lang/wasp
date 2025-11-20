@@ -18,7 +18,7 @@ describe("jwt helpers", () => {
     vi.useRealTimers();
   });
 
-  const exampleSub = "test";
+  const exampleJwtSub = "test";
   const exampleCreationTime = new Date("2025-01-01T00:00:00Z");
   const validJWTForExampleSubAndCreationTime =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzM1NjkzMjAwfQ.K6XyTELjkuNoiJFIhdsIB58IWA8BiyIJ7M2SIGUTHSg";
@@ -26,7 +26,7 @@ describe("jwt helpers", () => {
   describe("createJWT", () => {
     it("should create a JWT", async () => {
       vi.setSystemTime(exampleCreationTime);
-      const token = await createJWT({ sub: exampleSub }, defaultOptions);
+      const token = await createJWT({ sub: exampleJwtSub }, defaultOptions);
 
       expect(token).toEqual(validJWTForExampleSubAndCreationTime);
     });
@@ -34,15 +34,15 @@ describe("jwt helpers", () => {
 
   describe("validateJWT", () => {
     it("should validate a JWT", async () => {
-      const jwt = await createJWT({ sub: exampleSub }, defaultOptions);
+      const jwt = await createJWT({ sub: exampleJwtSub }, defaultOptions);
 
       const payload = await validateJWT<{ sub: string }>(jwt);
 
-      expect(payload.sub).toBe(exampleSub);
+      expect(payload.sub).toBe(exampleJwtSub);
     });
     it("should throw an error for an expired JWT", async () => {
       vi.setSystemTime(exampleCreationTime);
-      const jwt = await createJWT({ sub: exampleSub }, defaultOptions);
+      const jwt = await createJWT({ sub: exampleJwtSub }, defaultOptions);
 
       const twoHoursLater = new Date(exampleCreationTime);
       twoHoursLater.setHours(twoHoursLater.getHours() + 2);
@@ -64,7 +64,7 @@ function testTamperingWithPartOfJWTToken(
   expectedError: RegExp,
 ) {
   it(`should throw an error when ${partName} is invalid`, async () => {
-    const jwt = await createJWT({ sub: "payload" }, defaultOptions);
+    const jwt = await createJWT({ sub: "some-value" }, defaultOptions);
     const tamperedJWT = modifyPartOfJWTToken(jwt, partIndex, "abc");
 
     await expect(validateJWT<{ sub: string }>(tamperedJWT)).rejects.toThrow(
