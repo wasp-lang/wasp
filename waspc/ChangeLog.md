@@ -17,6 +17,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🐞 Bug fixes
 
+- Fixed terminal output on Windows: now it is unstyled on Windows, since ansi codes are often not shown correctly on Win shells. This default behaviour can be explicitly controlled via `WASP_TERMINAL_STYLING=0|1` env var.
 - Fixed a type error with the default `NODE_ENV` value in the server env validation schema. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
 
 ### 🔧 Small improvements
