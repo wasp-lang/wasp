@@ -15,14 +15,14 @@ where
 
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
-import StrongPath.TH (relfile)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
+import Wasp.Node.NodeModules (getPathToExecutableInNodeModules)
+import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir, waspProjectDirFromProjectRootDir)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectRootDir migrateArgs =
@@ -178,4 +178,7 @@ absPrismaExecutableFp :: Path' Abs (Dir WaspProjectDir) -> FilePath
 absPrismaExecutableFp waspProjectDir = SP.fromAbsFile prismaExecutableAbs
   where
     prismaExecutableAbs :: Path' Abs File'
-    prismaExecutableAbs = waspProjectDir </> [relfile|./node_modules/.bin/prisma|]
+    prismaExecutableAbs =
+      waspProjectDir
+        </> nodeModulesDirInWaspProjectDir
+        </> SP.castRel (getPathToExecutableInNodeModules "prisma")
