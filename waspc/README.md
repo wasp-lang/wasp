@@ -233,6 +233,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
 - `libs/` -> internal npm packages (WaspLibs) that are bundled with Wasp and copied into generated apps (see [WaspLibs](#wasplibs) for more details)
+- `packages/` -> TypeScript packages used by Wasp compiler (see [TypeScript Packages](#typescript-packages) for more details)
 - `data/Cli/starters/` -> starter templates for new projects
 
 ### Typescript packages
