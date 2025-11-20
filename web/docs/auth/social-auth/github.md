@@ -77,8 +77,8 @@ model User {
 
 To use GitHub as an authentication method, you'll first need to create a GitHub App and provide Wasp with your client key and secret. Here's how you do it:
 
-1. Create a GitHub account if you do not already have one: https://github.com/.
-2. Create and configure a new GitHub App here: https://github.com/settings/apps.
+1. Create a GitHub account if you do not already have one: https://github.com.
+2. Create and configure a new GitHub App: https://github.com/settings/apps.
    
    ![GitHub App Screenshot 1](/img/github-social-login/github-app-1.png)
 
