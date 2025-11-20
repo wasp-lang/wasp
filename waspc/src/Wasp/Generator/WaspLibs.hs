@@ -22,11 +22,10 @@ genWaspLibs spec = do
         (libsDestDir </> WaspLib.getTarballPathInLibsRootDir waspLib)
         (WaspLib.waspDataDirTarballAbsPath waspLib)
 
-    -- We need to accomodate the SDK hacks with libs, so we copy the libs
-    -- differently depending on the context:
-    -- 1. When running `wasp start` - copy them only to the `.wasp/out` dir
-    -- 2. When running `wasp build` - copy them to the `.wasp/build` AND
-    --   `.wasp/out` dir.
+    -- When we build the app for production, the Wasp SDK is not generated inside the
+    -- build directory (to understand why read: https://github.com/wasp-lang/wasp/issues/1769),
+    -- and since libs are required both inside the build directory and next to the SDK,
+    -- we need to copy them to both locations.
     libsDestDirs =
       if AS.isBuild spec
         then [libsRootDirInGeneratedCodeDir, libsRootDirNextToSdk]
