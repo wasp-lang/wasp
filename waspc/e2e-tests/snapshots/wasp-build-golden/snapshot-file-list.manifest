@@ -5,7 +5,6 @@ wasp-app/.wasp/build/.waspinfo
 wasp-app/.wasp/build/Dockerfile
 wasp-app/.wasp/build/db/schema.prisma
 wasp-app/.wasp/build/installedNpmDepsLog.json
-wasp-app/.wasp/build/libs/wasp.sh-lib-auth-6694d659.tgz
 wasp-app/.wasp/build/package-lock.json
 wasp-app/.wasp/build/package.json
 wasp-app/.wasp/build/sdk/wasp/api/events.ts
@@ -331,7 +330,6 @@ wasp-app/.wasp/build/web-app/tsconfig.vite.json
 wasp-app/.wasp/build/web-app/vite.config.ts
 wasp-app/.wasp/build/web-app/vite/detectServerImports.ts
 wasp-app/.wasp/build/web-app/vite/validateEnv.ts
-wasp-app/.wasp/out/libs/wasp.sh-lib-auth-6694d659.tgz
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
