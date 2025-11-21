@@ -3,6 +3,7 @@ title: 1. Creating a New Project
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { TutorialAction } from './TutorialAction';
 
 :::info
 You'll need to have the latest version of Wasp installed locally to follow this tutorial. If you haven't installed it yet, check out the [QuickStart](../quick-start) guide!
@@ -24,9 +25,12 @@ You can find the complete code of the app we're about to build [here](https://gi
 
 To setup a new Wasp project, run the following command in your terminal:
 
+<TutorialAction id="create-wasp-app" action="INIT_APP" starterTemplateName="minimal">
+
 ```sh
 wasp new TodoApp -t minimal
 ```
+</TutorialAction>
 
 <small>
 

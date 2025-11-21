@@ -1,5 +1,5 @@
 import { env } from './env.js'
-import { stripTrailingSlash } from '../universal/url.js'
+import { stripTrailingSlash, getOrigin } from '../universal/url.js'
 
 type NodeEnv = typeof env.NODE_ENV
 
@@ -10,15 +10,15 @@ type Config = {
   databaseUrl: string;
   frontendUrl: string;
   serverUrl: string;
-  allowedCORSOrigins: string | string[];
+  allowedCORSOrigins: (string | RegExp)[];
 }
 
-const frontendUrl = stripTrailingSlash(env["WASP_WEB_CLIENT_URL"])
-const serverUrl = stripTrailingSlash(env["WASP_SERVER_URL"])
+const frontendUrl = stripTrailingSlash(env['WASP_WEB_CLIENT_URL'])
+const serverUrl = stripTrailingSlash(env['WASP_SERVER_URL'])
 
-const allowedCORSOriginsPerEnv: Record<NodeEnv, string | string[]> = {
-  development: '*',
-  production: [frontendUrl]
+const allowedCORSOriginsPerEnv: Record<NodeEnv, Config['allowedCORSOrigins']> = {
+  development: [/.*/],
+  production: [getOrigin(frontendUrl)]
 }
 const allowedCORSOrigins = allowedCORSOriginsPerEnv[env.NODE_ENV]
 
