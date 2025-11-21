@@ -21,6 +21,7 @@ import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Job (Job, JobMessage, JobType)
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
@@ -35,12 +36,13 @@ import qualified Wasp.Util.IO as IOUitl
 -- It collects the output produced by these commands to pass them along to IO with a prefix.
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
+  [WaspLib.WaspLib] ->
   Path' Abs (Dir ProjectRootDir) ->
   IO (Either GeneratorError ())
-installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
+installNpmDependenciesWithInstallRecord spec waspLibs dstDir = runExceptT $ do
   messagesChan <- liftIO newChan
 
-  allNpmDeps <- getAllNpmDeps spec & onLeftThrowError
+  allNpmDeps <- getAllNpmDeps spec waspLibs & onLeftThrowError
 
   shouldInstallNpmDeps <-
     liftIO $

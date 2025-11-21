@@ -2,7 +2,7 @@ import {
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from 'express';
-import { parseCookies } from 'oslo/cookie';
+import { parseCookies } from '@wasp.sh/lib-auth/node';
 
 import type { ProviderConfig } from 'wasp/auth/providers/types';
 import { config } from 'wasp/server';

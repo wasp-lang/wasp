@@ -71,7 +71,7 @@ relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.f
     removeTrailingSlash = reverse . dropWhile (== '/') . reverse
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
-makeSdkImportPath path = [reldirP|wasp|] </> path
+makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
@@ -81,3 +81,6 @@ serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
 getOperationTypeName :: AS.Operation.Operation -> String
 getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
+sdkPackageName :: String
+sdkPackageName = "wasp"

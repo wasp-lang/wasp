@@ -6,7 +6,7 @@ import Test.Hspec
 import Util.Prisma (getPrismaModelBody)
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.DbGenerator.Auth (injectAuth)
-import Wasp.Generator.Monad (runGenerator)
+import Wasp.Generator.Monad (makeGeneratorConfig, runGenerator)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -69,7 +69,9 @@ spec_GeneratorAuthInjectionTest = do
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]
-        let (_generatorWarnings, generatorResult) = runGenerator $ injectAuth allEntities userEntity
+        let waspLibs = []
+        let config = makeGeneratorConfig waspLibs
+        let (_generatorWarnings, generatorResult) = runGenerator config $ injectAuth allEntities userEntity
          in generatorResult
               `shouldBe` Right
                 [ userEntityWithInjectedRelationship,
