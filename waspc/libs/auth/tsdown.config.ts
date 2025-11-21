@@ -30,18 +30,18 @@ function createNewEntry({
 
 export default defineConfig([
   createNewEntry({
-    name: "sdk",
-    entryPath: "./src/sdk/index.ts",
+    name: "index",
+    entryPath: "./src/index.ts",
     platform: "neutral",
   }),
   createNewEntry({
-    name: "sdk-browser",
-    entryPath: "./src/sdk/browser/index.ts",
+    name: "browser",
+    entryPath: "./src/browser/index.ts",
     platform: "browser",
   }),
   createNewEntry({
-    name: "server",
-    entryPath: "./src/server/index.ts",
+    name: "node",
+    entryPath: "./src/node/index.ts",
     platform: "node",
   }),
 ]);

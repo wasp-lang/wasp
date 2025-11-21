@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createJWTHelpers, TimeSpan } from "../../src/sdk/jwt";
+import { createJWTHelpers, TimeSpan } from "../src/node/jwt";
 
 const secret = new TextEncoder().encode("my-secret-key");
 const { createJWT, validateJWT } = createJWTHelpers(secret, "HS256");

@@ -48,57 +48,50 @@ the checksum changes, and `npm` will install the new version of the lib.
 
 ## Lib Exports Naming Convention
 
-Libs can have code for different usage places:
+Libs can be used in different contexts:
 
 - Server,
 - Web app,
-- SDK.
+- Wasp SDK.
 
-Each piece of code can be for different runtimes:
+So each piece of code can be for different runtimes:
 
 - Node.js,
 - Browser,
 - Neutral (can be used in both runtimes).
 
-Server and Web app usage places are always tied to a specific runtime
-(Server -> Node.js, Web app -> Browser). SDK can have code for both runtimes
-or for a specific runtime.
-
 Here's the list of possible exports you can have in a lib:
 
-| Export Path     | Node.js | Browser | Description                    |
-| --------------- | ------- | ------- | ------------------------------ |
-| `./server`      | ✅      | ❌      | Code used in the `server` app  |
-| `./web-app`     | ❌      | ✅      | Code used in the `web-app` app |
-| `./sdk`         | ✅      | ✅      | SDK code for both runtimes     |
-| `./sdk/browser` | ❌      | ✅      | SDK code for browser only      |
-| `./sdk/node`    | ✅      | ❌      | SDK code for Node.js only      |
+| Export Path | Node.js | Browser | Description                  |
+| ----------- | ------- | ------- | ---------------------------- |
+| `./index`   | ✅      | ✅      | Code used in both runtimes   |
+| `./node`    | ✅      | ❌      | Code used in Node.js runtime |
+| `./browser` | ❌      | ✅      | Code used in browser runtime |
 
-For example, if you have an `auth` lib that has code used in the `server` app, the SDK for both runtimes,
-and some browser-only SDK code, you would have the following exports in `auth/package.json`:
+For example, if you have an `auth` lib that has code that's for both runtimes, browser only code and Node.js only code you would have the following exports in `auth/package.json`:
 
 ```json
 "exports": {
-    "./sdk": {
-      "types": "./dist/sdk.d.ts",
-      "default": "./dist/sdk.js"
-    },
-    "./sdk/browser": {
-      "types": "./dist/sdk-browser.d.ts",
-      "default": "./dist/sdk-browser.js"
-    },
-    "./server": {
-      "types": "./dist/server.d.ts",
-      "default": "./dist/server.js"
-    }
+  "./index": {
+    "types": "./dist/index.d.ts",
+    "default": "./dist/index.js"
   },
+  "./node": {
+    "types": "./dist/node.d.ts",
+    "default": "./dist/node.js"
+  },
+  "./browser": {
+    "types": "./dist/browser.d.ts",
+    "default": "./dist/browser.js"
+  }
+},
 ```
 
 Which would expose the following import paths:
 
-- `@wasp.sh/lib-auth/server` (for server-only code),
-- `@wasp.sh/lib-auth/sdk` (for SDK code for both runtimes),
-- and `@wasp.sh/lib-auth/sdk/browser` (for browser-only SDK code).
+- `@wasp.sh/lib-auth` (for both runtimes),
+- `@wasp.sh/lib-auth/node` (for Node.js only code),
+- `@wasp.sh/lib-auth/browser` (for browser-only code).
 
 ## Testing Libs Locally
 

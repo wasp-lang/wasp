@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hashPassword, verifyPassword } from "../../src/sdk/password";
+import { hashPassword, verifyPassword } from "../src/node/password";
 
 describe("password utilities", () => {
   async function expectHashingToSucceed(password: string): Promise<void> {

@@ -4,17 +4,17 @@
   "type": "module",
   "license": "MIT",
   "exports": {
-    "./sdk": {
-      "types": "./dist/sdk.d.ts",
-      "default": "./dist/sdk.js"
+    "./index": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
-    "./sdk/browser": {
-      "types": "./dist/sdk-browser.d.ts",
-      "default": "./dist/sdk-browser.js"
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "default": "./dist/node.js"
     },
-    "./server": {
-      "types": "./dist/server.d.ts",
-      "default": "./dist/server.js"
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
     }
   },
   "files": [
