@@ -144,6 +144,7 @@ const sidebars: SidebarsConfig = {
                 "deployment/deployment-methods/wasp-deploy/overview",
                 "deployment/deployment-methods/wasp-deploy/fly",
                 "deployment/deployment-methods/wasp-deploy/railway",
+                "deployment/deployment-methods/wasp-deploy/ci-cd",
               ],
             },
             "deployment/deployment-methods/paas",
