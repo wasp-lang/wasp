@@ -28,7 +28,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Fixed terminal output on Windows: now it is unstyled on Windows, since ansi codes are often not shown correctly on Win shells.
   This default behaviour can be explicitly controlled via `WASP_TERMINAL_STYLING=0|1` env var. ([#3403](https://github.com/wasp-lang/wasp/pull/3403))
-- Fixed a type error with the default `NODE_ENV` value in the server env validation schema. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
 - Fixed a type error in the generated server app when `process.env.NODE_ENV` is also declared by another dependency in the project. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
 - Fixed an incompatibility between `wasp deploy fly` and Fly CLI v0.3.214. ([#3372](https://github.com/wasp-lang/wasp/pull/3372))
 - Raised the internal requirement of Tailwind CSS from `^3.2.7` to `^3.4.17` to ensure compatibility with ESM config files. ([#3380](https://github.com/wasp-lang/wasp/issues/3380))
