@@ -87,6 +87,11 @@ jobs:
         run: ./tools/install_packages_to_data_dir.ps1
         shell: pwsh
 
+      - name: Compile Wasp libs and move them into the Cabal data dir on Windows
+        if: runner.os == 'Windows'
+        run: ./tools/install_libs_to_data_dir.ps1
+        shell: pwsh
+
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
