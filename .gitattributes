@@ -6,3 +6,5 @@
 /examples/** linguist-documentation
 
 **/package-lock.json linguist-generated=true
+
+*.snap linguist-generated
