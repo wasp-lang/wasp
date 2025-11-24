@@ -93,6 +93,10 @@ jobs:
       - name: Build wasp code
         run: cabal build all
 
+      - name: Run `wasp new:ai` smoke test
+        working-directory: ${{ runner.temp }}
+        run: cabal run --project-dir=${{ github.workspace }}/waspc wasp-cli -- new:ai todoApp "A simple todo app with one main page that lists all the tasks. User can create new tasks by providing their description, toggle existing ones, or edit their description. User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database." "{}"
+
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
 
@@ -100,4 +104,3 @@ jobs:
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
         run: ./run test:waspc:e2e
-
