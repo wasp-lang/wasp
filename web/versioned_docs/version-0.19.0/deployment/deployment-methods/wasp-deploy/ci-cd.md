@@ -1,5 +1,5 @@
 ---
-title: CI/CD Scenarios
+title: CI/CD Deployment
 ---
 
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
@@ -25,10 +25,10 @@ The workflow needs to include the following steps:
 3. Install any provider-specific dependencies
 4. Deploy the application using `wasp deploy <provider> deploy`
 
-You need to make sure that the **provider-specific environment variables** (for example, provider API keys) are set up correctly before deploying. We show which variables are required and how to set them up in the Github Actions [example](#github-actions-workflow).
+To be able to deploy your apps to the deployment providers, you need to provide **provider-specific API keys** in the
+environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
 
-
-## Github Actions workflow
+## Github Actions workflow {#github-actions-workflow}
 
 Let's take a look at an example CI/CD workflow for Github Actions for each of the supported providers.
 
@@ -49,11 +49,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      # You must add FLY_API_TOKEN to your Repository Secrets
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      WASP_VERSION: 0.19.0
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -61,13 +60,16 @@ jobs:
           node-version: '22'
 
       - name: Install Wasp
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0
+        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy
         run: wasp deploy fly deploy
+        env:
+          # You must add FLY_API_TOKEN to your Repository Secrets
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 ```
 
 </TabItem>
@@ -89,11 +91,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      # You must add RAILWAY_API_TOKEN to your Repository Secrets
-      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+      WASP_VERSION: 0.19.0
+      RAILWAY_PROJECT_NAME: my-project-name
+      RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -101,13 +104,16 @@ jobs:
           node-version: '22'
 
       - name: Install Wasp
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0
+        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
       - name: Deploy
-        run: wasp deploy railway deploy my-project-name --existing-project-id MY_PROJECT_ID
+        run: wasp deploy railway deploy $RAILWAY_PROJECT_NAME --existing-project-id $RAILWAY_PROJECT_ID
+        env:
+          # You must add RAILWAY_API_TOKEN to your Repository Secrets
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
 ```
 </TabItem>
 </Tabs>
