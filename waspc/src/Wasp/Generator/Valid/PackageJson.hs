@@ -111,8 +111,8 @@ dependenciesValidator =
 -- | Validates that an optional dependency is either not present, or present
 -- with the correct version.
 makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
-makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
-  inDependency depType dep optionalVersionValidator
+makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
+  inDependency depType pkgName optionalVersionValidator
   where
     optionalVersionValidator :: V.Validator (Maybe P.PackageVersion)
     optionalVersionValidator actualVersion =
@@ -150,9 +150,9 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) =
         Nothing -> missingPackageError
 
     inCorrectDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
-    inCorrectDepList = inDependency depType dep
+    inCorrectDepList = inDependency depType pkgName
     inOppositeDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
-    inOppositeDepList = inDependency (oppositeForDepType depType) dep
+    inOppositeDepList = inDependency (oppositeForDepType depType) pkgName
 
     oppositeForDepType :: DependencyType -> DependencyType
     oppositeForDepType Runtime = Development
@@ -186,10 +186,10 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) =
 -- record, setting the appropriate path for errors.
 inDependency ::
   DependencyType ->
-  DependencySpecification ->
+  P.PackageName ->
   V.Validator (Maybe P.PackageVersion) ->
   V.Validator P.PackageJson
-inDependency depType (pkgName, _) versionStringValidator =
+inDependency depType pkgName versionStringValidator =
   V.inField (fieldForDepType depType) $
     V.inField (pkgName, M.lookup pkgName) versionStringValidator
 
