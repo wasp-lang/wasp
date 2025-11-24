@@ -21,7 +21,7 @@ postgresMaxDbNameLength = 63
 
 -- | We pin the Postgres Docker image to avoid issues when a new major version of Postgres
 -- is released. We aim to occasionally update this version in Wasp releases.
--- If you bump the Postgres version here, also check if `postgresDockerVolumeMountPath`
+-- If you bump the Postgres version here, also check if `dockerVolumeMountPath`
 -- is still correct.
 defaultPostgresDockerImageSpec :: (DockerImageName, DockerVolumeMountPath)
 defaultPostgresDockerImageSpec = ("postgres:18", dockerVolumeMountPath)

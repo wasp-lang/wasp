@@ -9,7 +9,7 @@ import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
 import type { SetupDbResult } from "./types.js";
 
-export const defaultPostgresDbImage = "postgres:16" as DockerImageName;
+export const defaultPostgresDbImage = "postgres:18" as DockerImageName;
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
