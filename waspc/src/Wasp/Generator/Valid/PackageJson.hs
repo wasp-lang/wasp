@@ -38,17 +38,19 @@ validatePackageJson pkgJson =
             dependenciesValidator
           ]
 
+type WorkspaceName = String
+
 workspacesValidator :: V.Validator' P.PackageJson
 workspacesValidator =
   V.inField ("workspaces", P.workspaces) $ \case
     Just actualWorkspaces -> requiredWorkspacesIncludedValidator actualWorkspaces
     Nothing -> workspacesNotDefinedError
   where
-    requiredWorkspacesIncludedValidator :: V.Validator' [String]
+    requiredWorkspacesIncludedValidator :: V.Validator' [WorkspaceName]
     requiredWorkspacesIncludedValidator =
       V.all $ makeWorskpaceIncludedValidator <$> expectedWorkspaces
 
-    makeWorskpaceIncludedValidator :: String -> V.Validator' [String]
+    makeWorskpaceIncludedValidator :: WorkspaceName -> V.Validator' [WorkspaceName]
     makeWorskpaceIncludedValidator expectedWorkspace actualWorkspaces
       | expectedWorkspace `elem` actualWorkspaces = V.success
       | otherwise = makeMissingWorkspaceError expectedWorkspace
