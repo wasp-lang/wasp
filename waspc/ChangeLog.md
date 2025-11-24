@@ -6,6 +6,9 @@
 
 - Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
 
+### 🔧 Small improvements
+- `wasp build start` now errors when users forget to specify environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
+
 ## 0.19.0
 
 ### ⚠️ Breaking Changes
