@@ -52,7 +52,7 @@ makeBuildStartConfig appSpec args projectDir = do
   userClientEnvVars <-
     liftIO $
       combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
-  when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedErrorMsg
+  when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let waspClientEnvVars =
         [ (WebApp.serverUrlEnvVarName, serverUrl')
@@ -90,7 +90,7 @@ makeBuildStartConfig appSpec args projectDir = do
     clientUrl' = getDefaultDevClientUrl appSpec
 
     serverUrl' = defaultDevServerUrl
-    noEnvVarsSpecifiedErrorMsg =
+    noEnvVarsSpecifiedMsg =
       CommandError
         "No env vars specified"
         $ "You called "
