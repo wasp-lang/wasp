@@ -75,21 +75,27 @@ model User {
 
 ### 3. Creating a GitHub OAuth App
 
-To use GitHub as an authentication method, you'll first need to create a GitHub OAuth App and provide Wasp with your client key and secret. Here's how you do it:
+To use GitHub as an authentication method, you'll first need to create a GitHub App and provide Wasp with your client key and secret. Here's how you do it:
 
-1. Log into your GitHub account and navigate to: https://github.com/settings/developers.
-2. Select **New OAuth App**.
-3. Supply required information.
+1. Create a GitHub account if you do not already have one: https://github.com.
+2. Create and configure a new GitHub App: https://github.com/settings/apps.
+   
+   ![GitHub App Screenshot 1](/img/github-social-login/github-app-1.png)
 
-<img alt="GitHub Applications Screenshot" src={useBaseUrl('img/integrations-github-1.png')} width="400px" />
+3. We have to fill out **App name** and **Homepage URL** fields. 
+   Additionally we will add our authorization **Callback URL**s:
+    - For development, put: `http://localhost:3001/auth/github/callback`.
+    - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
 
-- For **Authorization callback URL**:
-  - For development, put: `http://localhost:3001/auth/github/callback`.
-  - Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/github/callback`.
+   ![GitHub App Screenshot 2](/img/github-social-login/github-app-2.png)
 
-4. Hit **Register application**.
-5. Hit **Generate a new client secret** on the next page.
-6. Copy your Client ID and Client secret as you'll need them in the next step.
+4. We will turn off the **Active** checkbox under the Webhook title, and then we can click **Create GitHub App**.
+
+   ![GitHub App Screenshot 3](/img/github-social-login/github-app-3.png)
+
+5. Finally, we can click **Generate a new client secret** button and then copy both **Client ID** and **Client secret**.
+
+   ![GitHub App Screenshot 4](/img/github-social-login/github-app-4.png)
 
 ### 4. Adding Environment Variables
 

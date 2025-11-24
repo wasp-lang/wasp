@@ -5,7 +5,7 @@ import '../auth-styles.css'
 import { config } from 'wasp/client'
 import { clsx } from '../util'
 
-import { useAuthContext } from '@wasp.sh/lib-auth/sdk/browser'
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import {
   Form,
   FormInput,

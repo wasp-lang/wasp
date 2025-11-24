@@ -83,7 +83,7 @@ npm run check:types
 
 ### Verifying type exports
 
-This check uses `arethetypeswrong` under the hood which:
+This check uses [`arethetypeswrong`](https://github.com/arethetypeswrong/arethetypeswrong.github.io) under the hood which:
 
 > attempts to analyze npm package contents for issues with their TypeScript types,
 > particularly ESM-related module resolution issues
@@ -94,7 +94,8 @@ To check the type exports are okay run:
 npm run check:type-exports
 ```
 
-You want to see `🟢` for all ESM items.
+You want to see `🟢` for all ESM related check since this library will be only imported using ESM. This means the library's
+types will resolve correctly when used in the SDK, the server and the web app.
 
 ## Building the library
 

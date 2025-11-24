@@ -30,15 +30,9 @@ data WaspLib = WaspLib
 
 makeWaspLib :: String -> IO WaspLib
 makeWaspLib waspLibPackageName = do
-  -- Libs have a fixed version "0.0.0" which means we use the same version for the tarballs
-  -- in the data directory (e.g. lib-0.0.0.tgz). When the tarballs are copied to the generated project directory,
-  -- the tarball filename version is replaced with the checksum of the tarball (e.g. lib-<checksum>.tgz).
-  --
-  -- We use the <checksum> in the filename to avoid npm caching issues, as npm won't update it's cache
-  -- if the version is the same, even if the content of the tarball has changed. So we need to make sure
-  -- that the filename is different whenever the content changes, we use the checksum for that.
-  -- We didn't want to bump the version of the libs on every change, as we consider them to be an internal
-  -- implementation detail and they change often during development.
+  -- Wasp lib tarballs have a fixed version 0.0.0 (lib-auth-0.0.0.tgz) when shipped with Wasp.
+  -- When the libs are copied to a generated project, the 0.0.0 is replaced with the lib's
+  -- checksum to avoid npm cache issues. See `waspc/libs/README.md` for detailed explanation.
   waspDataDirTarballAbsPath' <- (</> tarballFilenameAsRelFile (Npm.Tarball.makeTarballFilename waspLibPackageName "0.0.0")) <$> getAbsLibsSourceDirPath
   generatedCodeDirTarballFilename' <- Npm.Tarball.makeTarballFilename waspLibPackageName <$> computeTarballChecksum waspDataDirTarballAbsPath'
 

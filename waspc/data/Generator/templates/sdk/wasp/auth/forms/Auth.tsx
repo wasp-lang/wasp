@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { useState, useMemo } from 'react'
-import { AuthContext, type ErrorMessage } from '@wasp.sh/lib-auth/sdk/browser'
+import { AuthContext, type ErrorMessage } from '@wasp.sh/lib-auth/browser'
 import styles from './Auth.module.css'
 import './internal/auth-styles.css'
 import { tokenObjToCSSVars } from "./internal/util"

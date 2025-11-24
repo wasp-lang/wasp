@@ -69,7 +69,20 @@ genViteConfig spec = C.mkTmplFdWithData viteConfigTmplFile . getTmplData <$> Gen
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    getDepsExcludedFromOptimization waspLibs = sdkPackageName : map WaspLib.packageName waspLibs
+    getDepsExcludedFromOptimization waspLibs =
+      -- Why do we exclude Wasp SDK from optimization?
+      -- - Wasp SDK is a dep that's regenerated over time and we don't want Vite to optimize it
+      --   and cache it (which would break hot module reloading).
+      -- - Accidentally, we don't need to do this because Wasp SDK is symlinked and Vite would
+      --   exclude it anyways - but we are keeping it here because we want to be explicit.
+      --   Read more: https://vite.dev/guide/dep-pre-bundling#monorepos-and-linked-dependencies
+      sdkPackageName
+        :
+        -- Wasp libs are excluded from optimization because they are internal npm packages that
+        -- have a dummy `0.0.0` version which means once they are cached by Vite, they aren't
+        -- updated even though the lib changes.
+        -- Read more about libs versioning in `waspc/libs/README.md`.
+        map WaspLib.packageName waspLibs
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir

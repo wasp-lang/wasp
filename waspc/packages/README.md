@@ -1,8 +1,8 @@
 # Testing Packages Locally
 
 Run `./run build:packages` to compile the packages and copy
-them into `waspc/data/`. Then you can use `cabal run` as normal, or you can
-`cabal install` and then use `wasp-cli`.
+them into `waspc/data/`. Then you can use `./run wasp-cli` as normal, or you can
+run `./run install` and then use `wasp-cli`.
 
 # Adding a New Package
 

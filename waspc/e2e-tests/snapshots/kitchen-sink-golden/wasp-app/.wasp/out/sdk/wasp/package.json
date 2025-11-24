@@ -6,7 +6,7 @@
     "@testing-library/jest-dom": "^6.3.0",
     "@testing-library/react": "^14.1.2",
     "@vitest/ui": "^1.2.1",
-    "@wasp.sh/lib-auth": "file:../../libs/wasp.sh-lib-auth-6a1b99d0.tgz",
+    "@wasp.sh/lib-auth": "file:../../libs/wasp.sh-lib-auth-564b609d.tgz",
     "arctic": "^1.2.1",
     "autoprefixer": "^10.4.13",
     "axios": "^1.4.0",

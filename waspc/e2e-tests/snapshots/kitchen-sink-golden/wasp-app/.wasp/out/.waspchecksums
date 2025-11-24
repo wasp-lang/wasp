@@ -60,7 +60,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/Auth.tsx"
         ],
-        "be9ff6cc854e03d83516e51811dc245bd2b0db6425bb37ecf79a193385cd303d"
+        "785bac055550f92ce94b9457dd157a2a59e298081791ccff98b11c29162408e9"
     ],
     [
         [
@@ -144,28 +144,28 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "4c7ce9fdbc12295b5f24623577f51a96720302eacc0b4edbe97aa9b0b5e3c74d"
+        "4a26d174868012e139dac4b5c26b9e4e72ba9557442e68aa5205a0900b5b3ba4"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx"
         ],
-        "7fc0d5793241f4525751ba2228b2e085d11e59d5e47d0d47eae0b1ab73c6041d"
+        "0cffa908694b6eb863d094c1e0027fd92876fe58e244a2ee092ef2aa38f07c12"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "cec0aca9337d0af0bf1e618b881bca5fedb0fe15a763fb18d43c0777f2900f90"
+        "ee5011e21da2b61ea5f0c559671bb4da8f858dfcd287febd54d405418df20a86"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "2556b28e708164e32591fd8d8bf6f3cfbb19715575c347720d4d570a78f015f8"
+        "5a28b39456410abe26c4cf5230032564e4a22294af7259abddb1176b91e78861"
     ],
     [
         [
@@ -263,7 +263,7 @@
             "file",
             "../out/sdk/wasp/auth/jwt.ts"
         ],
-        "320f54b8487961c634a80d8957af8fb09795a9ee1579ffc0c2014d211afbe43a"
+        "5df76c69b9aae0cabe91ab0e93217a3f618097d7f02a7e10e4fbcc92b05b0aef"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "../out/sdk/wasp/auth/password.ts"
         ],
-        "1e5ceb2fa59135c13a902d910e66ebe4af07358e9c41c6f20442594e5b971987"
+        "081a715926ee3bd14700d32cfc4d6c27994b205c52ad28e741406f2c9b5ceb84"
     ],
     [
         [
@@ -641,7 +641,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "b86ac687e72d3a17fa61bbf2d73e988c73ba8d555b18fde238d7c5c2a5294b7d"
+        "7e6dcd6224161c01ecb778d8971d7ece48d8f82352f3e9114f24115465732259"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "2b97e6356358223ff1eb41a4a37b7d725d76b9ad02e4130f9a1e076eebba1adc"
+        "9d9b57bd3ad748fe7f63c6487772c1c3386873dc28001565a8cb315b75b1df54"
     ],
     [
         [
@@ -1411,7 +1411,7 @@
             "file",
             "../out/sdk/wasp/src/serverSetup.ts"
         ],
-        "5f0772d8722b7ed2f1cc06e914dbaece26e581755db63532dede188fa1d8f709"
+        "cea1f0eba8624e7b8bc6b6dd1e91058ab9ddece8c2a577356ecd5444c9c2f183"
     ],
     [
         [
@@ -1453,7 +1453,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
+        "f5ad6be8ea444a098e54ceb2f6645e3c9f484c234e9e9ce568a7fa39ed168ccf"
     ],
     [
         [
@@ -1500,9 +1500,9 @@
     [
         [
             "file",
-            "libs/wasp.sh-lib-auth-6a1b99d0.tgz"
+            "libs/wasp.sh-lib-auth-564b609d.tgz"
         ],
-        "6a1b99d01abdc71c5c73dbec9e71f77eae1fe5587bde97bf76eebaff73f68d27"
+        "564b609d7d4bcc6dbe4a7866bffcf36a8d78713c16fb2b3d40b66c594b459144"
     ],
     [
         [
@@ -1537,7 +1537,7 @@
             "file",
             "server/package.json"
         ],
-        "c959f4c64097e393936d23be71f3e9267b01d9c69a8711df2743bbd01dfc34b7"
+        "e17e2c4852e031b2992e9b6cdfe494deb1644edc6b603e92ed2f8a8f72c9f150"
     ],
     [
         [
@@ -1775,7 +1775,7 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "9675dcedcdec3f5c202e22d0ef113101b1f945267aec8aba9784affe73554647"
+        "8171c10fd4a07294f0b1121575bb1a3cfba0859167e3f4dab6004b6eff0d7f73"
     ],
     [
         [
