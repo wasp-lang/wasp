@@ -8,15 +8,11 @@ $wascpDir = Resolve-Path "$dir/.."
 $dataLibsDir = Join-Path $wascpDir "data/Generator/libs"
 
 # Clean up old libs.
-if ([string]::IsNullOrEmpty($dataLibsDir)) {
-    throw "dataLibsDir must be set before cleanup"
-}
 if (Test-Path $dataLibsDir) {
     Remove-Item -Path $dataLibsDir -Recurse -Force
 }
 New-Item -Path $dataLibsDir -ItemType Directory -Force | Out-Null
 
-# Build and copy libs to data dir.
 $libDirs = Get-ChildItem -Path "$wascpDir/libs" -Directory
 
 foreach ($lib in $libDirs) {

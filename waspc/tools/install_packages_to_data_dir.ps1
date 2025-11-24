@@ -8,9 +8,6 @@ $wascpDir = Resolve-Path "$dir/.."
 $dataPackagesDir = Join-Path $wascpDir "data/packages"
 
 # Clean up old packages in data dir.
-if ([string]::IsNullOrEmpty($dataPackagesDir)) {
-    throw "dataPackagesDir must be set before cleanup"
-}
 if (Test-Path $dataPackagesDir) {
     Remove-Item -Path $dataPackagesDir -Recurse -Force
 }
@@ -21,12 +18,12 @@ $packageDirs = Get-ChildItem -Path "$wascpDir/packages" -Directory
 foreach ($package in $packageDirs) {
     $packageDir = $package.FullName
     $packageName = $package.Name
-    
+
     # We're only installing the dependencies here to verify that the build
     # works, that's why the node_modules folder is removed immediately after.
     # The real dependency installation happens in Haskell.
     Write-Host "Installing $packageName ($packageDir)"
-    
+
     Push-Location $packageDir
     try {
         npm install
