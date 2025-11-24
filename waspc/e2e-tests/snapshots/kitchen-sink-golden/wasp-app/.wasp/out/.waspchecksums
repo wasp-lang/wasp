@@ -781,7 +781,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "2b97e6356358223ff1eb41a4a37b7d725d76b9ad02e4130f9a1e076eebba1adc"
+        "9d9b57bd3ad748fe7f63c6487772c1c3386873dc28001565a8cb315b75b1df54"
     ],
     [
         [
@@ -1411,7 +1411,7 @@
             "file",
             "../out/sdk/wasp/src/serverSetup.ts"
         ],
-        "5f0772d8722b7ed2f1cc06e914dbaece26e581755db63532dede188fa1d8f709"
+        "cea1f0eba8624e7b8bc6b6dd1e91058ab9ddece8c2a577356ecd5444c9c2f183"
     ],
     [
         [
@@ -1453,7 +1453,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
+        "f5ad6be8ea444a098e54ceb2f6645e3c9f484c234e9e9ce568a7fa39ed168ccf"
     ],
     [
         [
