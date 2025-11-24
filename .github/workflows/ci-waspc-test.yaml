@@ -3,6 +3,10 @@ name: "Test - waspc"
 on:
   workflow_call:
   workflow_dispatch:
+  push:
+    # TODO: remove before merging
+    branches:
+      - filip-wasp-ai-ci
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -92,11 +96,8 @@ jobs:
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
 
-      - name: Install `wasp-cli`
-        if: matrix.os == 'ubuntu-22.04'
-        run: cabal install
-
       - name: Run `waspc` e2e tests
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
         run: ./run test:waspc:e2e
+
