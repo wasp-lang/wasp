@@ -433,7 +433,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - Update Open Saas:
   - Check and merge all Open Saas PRs with the label `merge-before-release`.
   - Create and merge new PRs if necessary (i.e., if there are breaking changes or new features it should make use of but aren't in one of the `merge-before-release` PRs).
-  - Update [the template tag in StarterTemplates.hs](https://github.com/wasp-lang/wasp/blob/a963125327c3ef5270207e685d0c3a426c9e3553/waspc/cli/src/Wasp/Cli/Command/CreateNewProject/StarterTemplates.hs#L189). It will point to a non-existing version of OpenSaas for the time being, that's ok.
+  - Update [the template tag in StarterTemplates.hs](https://github.com/wasp-lang/wasp/blob/a963125327c3ef5270207e685d0c3a426c9e3553/waspc/cli/src/Wasp/Cli/Command/CreateNewProject/StarterTemplates.hs#L189). It will point to a non-existing version of OpenSaas for now. That's ok, we'll handle that later.
 - 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
   - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
 - 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
