@@ -12,7 +12,8 @@ import Data.List (foldl')
 
 -- | Applies the Wasp CLI standardized code styling to a string.
 styleCode :: String -> String
-styleCode = applyStyles [Bold]
+styleCode "" = ""
+styleCode str = ansiEscapeCode ++ getAnsiCodeFor Bold ++ str ++ ansiEscapeCode ++ ansiResetBoldDimCode
 
 data Style
   = Black
@@ -41,7 +42,7 @@ data Style
 applyStyles :: [Style] -> String -> String
 applyStyles [] str = str
 applyStyles _ "" = ""
-applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetBoldDimCode
+applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetAllCode
   where
     applyStyle s style = ansiEscapeCode ++ getAnsiCodeFor style ++ s
 
