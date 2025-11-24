@@ -134,6 +134,12 @@ Update the Tailwind configuration files' extensions from `.cjs` to `.js`:
 - `tailwind.config.cjs` ➝ `tailwind.config.js`
 - `postcss.config.cjs` ➝ `postcss.config.js`
 
+Make sure to update to the latest v3 to ensure compatibility with the new ESM configuration:
+
+```bash
+npm install -D tailwindcss@3
+```
+
 ### 5. Check your compatibility with Vite 7
 
 Wasp now uses Vite 7 for better performance and stability. This includes some breaking changes, but we don't expect Wasp apps to be affected by them. If you are using Vite features directly in your app, you should check the migration guides for [v5](https://v5.vite.dev/guide/migration.html), [v6](https://v6.vite.dev/guide/migration.html), and [v7](https://v7.vite.dev/guide/migration.html). We expect most Wasp apps to be unaffected by these changes.
