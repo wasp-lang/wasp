@@ -12,6 +12,7 @@ module Wasp.Cli.Command.BuildStart.Config
   )
 where
 
+import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
@@ -31,6 +32,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
@@ -44,22 +46,23 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir = do
-  let waspServerEnvVars =
-        [ (Server.clientUrlEnvVarName, clientUrl'),
-          (Server.serverUrlEnvVarName, serverUrl')
-        ]
   userServerEnvVars <-
     liftIO $
       combineEnvVarsWithEnvFiles (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
-  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
+  userClientEnvVars <-
+    liftIO $
+      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
+  when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedErrorMsg
 
   let waspClientEnvVars =
         [ (WebApp.serverUrlEnvVarName, serverUrl')
         ]
-  userClientEnvVars <-
-    liftIO $
-      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
+      waspServerEnvVars =
+        [ (Server.clientUrlEnvVarName, clientUrl'),
+          (Server.serverUrlEnvVarName, serverUrl')
+        ]
   clientEnvVars' <- overrideEnvVarsCommand waspClientEnvVars userClientEnvVars
+  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
 
   return $
     BuildStartConfig
@@ -87,6 +90,15 @@ makeBuildStartConfig appSpec args projectDir = do
     clientUrl' = getDefaultDevClientUrl appSpec
 
     serverUrl' = defaultDevServerUrl
+    noEnvVarsSpecifiedErrorMsg =
+      CommandError
+        "No env vars specified"
+        $ "You called "
+          ++ styleCode "wasp build start"
+          ++ " without specifying any environment variables for the started apps (client and server)."
+          ++ "\nThis is a mistake. Run "
+          ++ styleCode "wasp build start --help"
+          ++ " to see how to to specify them."
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =

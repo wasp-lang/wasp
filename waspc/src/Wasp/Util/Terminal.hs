@@ -4,7 +4,7 @@ module Wasp.Util.Terminal
     applyStyles,
     getAnsiCodeFor,
     ansiEscapeCode,
-    ansiResetCode,
+    ansiResetAllCode,
   )
 where
 
@@ -41,7 +41,7 @@ data Style
 applyStyles :: [Style] -> String -> String
 applyStyles [] str = str
 applyStyles _ "" = ""
-applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetCode
+applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetBoldDimCode
   where
     applyStyle s style = ansiEscapeCode ++ getAnsiCodeFor style ++ s
 
@@ -69,5 +69,8 @@ getAnsiCodeFor Blink = "[5m" -- Blink does not work in all terminal emulators (e
 ansiEscapeCode :: String
 ansiEscapeCode = "\ESC"
 
-ansiResetCode :: String
-ansiResetCode = "[0m"
+ansiResetAllCode :: String
+ansiResetAllCode = "[0m"
+
+ansiResetBoldDimCode :: String
+ansiResetBoldDimCode = "[22m"
