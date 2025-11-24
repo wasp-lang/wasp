@@ -18,7 +18,7 @@ validateSrcTsConfig config =
     --   - https://www.totaltypescript.com/tsconfig-cheat-sheet
     --   - https://www.typescriptlang.org/tsconfig/
 
-    tsConfigValidator :: V.Validator T.TsConfig ()
+    tsConfigValidator :: V.Validator T.TsConfig
     tsConfigValidator =
       V.withFileName "tsconfig.json" $
         V.all
@@ -26,7 +26,7 @@ validateSrcTsConfig config =
             V.inField ("compilerOptions", T.compilerOptions) compilerOptionsValidator
           ]
 
-    compilerOptionsValidator :: V.Validator T.CompilerOptions ()
+    compilerOptionsValidator :: V.Validator T.CompilerOptions
     compilerOptionsValidator =
       V.all
         [ V.inField ("module", T._module) $ V.eqJust "esnext",

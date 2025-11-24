@@ -9,11 +9,9 @@ import Data.Maybe (catMaybes)
 import qualified Validation as V
 import Wasp.Util (indent)
 
-type Validator' input = Validator input ()
+type Validator input = input -> Validation
 
-type Validator input result = input -> Validation result
-
-type Validation result = V.Validation (NonEmpty ValidationError) result
+type Validation = V.Validation (NonEmpty ValidationError) ()
 
 data ValidationError = ValidationError
   { message :: String,
@@ -24,34 +22,46 @@ data ValidationError = ValidationError
 
 -- | Executes the given validator on the input and returns a list of validation errors. If there are
 -- no errors, returns an empty list.
-execValidator :: Validator input result -> input -> [ValidationError]
+execValidator :: Validator input -> input -> [ValidationError]
 execValidator validator =
   maybe [] NE.toList . V.failureToMaybe . validator
 
-all :: [Validator a b] -> Validator a ()
-all = fmap void . V.validateAll
+-- | Combines multiple validators into one that succeeds only if all of them succeed.
+-- Accumulates errors.
+all :: [Validator a] -> Validator a
+all vs = void . V.validateAll vs
+
+-- | Combines two validators into one that succeeds only if both succeed.
+-- Short-circuits on the first failure.
+and :: Validator input -> Validator input -> Validator input
+and v1 v2 value
+  | V.isFailure result1 = result1
+  | otherwise = result2
+  where
+    result1 = v1 value
+    result2 = v2 value
 
 -- | Adds file name context to validation errors produced by the inner validator.
-withFileName :: String -> Validator a result -> Validator a result
+withFileName :: String -> Validator a -> Validator a
 withFileName fileName' innerValidator =
   mapErrors setFileName . innerValidator
   where
     setFileName err = err {fileName = Just fileName'}
 
 -- | Runs the validator on a specific field of the input, adding the field name to the error path.
-inField :: (String, a -> b) -> Validator b result -> Validator a result
+inField :: (String, a -> b) -> Validator b -> Validator a
 inField (fieldName, fieldGetter) innerValidator =
   mapErrors prependFieldName . innerValidator . fieldGetter
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 
-mapErrors :: (ValidationError -> ValidationError) -> Validation a -> Validation a
+mapErrors :: (ValidationError -> ValidationError) -> Validation -> Validation
 mapErrors = first . fmap
 
-success :: Validation ()
+success :: Validation
 success = pure ()
 
-failure :: String -> Validation b
+failure :: String -> Validation
 failure message' =
   V.failure $
     ValidationError
@@ -60,7 +70,7 @@ failure message' =
         fileName = Nothing
       }
 
-eqJust :: (Eq a, Show a) => a -> Validator' (Maybe a)
+eqJust :: (Eq a, Show a) => a -> Validator (Maybe a)
 eqJust expected (Just actual)
   | actual == expected = success
   | otherwise =

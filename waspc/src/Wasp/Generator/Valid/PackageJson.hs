@@ -9,7 +9,6 @@ module Wasp.Generator.Valid.PackageJson
   )
 where
 
-import Control.Selective (whenS)
 import Data.List (intercalate)
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -30,7 +29,7 @@ validatePackageJson pkgJson =
   GenericGeneratorError . show
     <$> V.execValidator packageJsonValidator pkgJson
   where
-    packageJsonValidator :: V.Validator' P.PackageJson
+    packageJsonValidator :: V.Validator P.PackageJson
     packageJsonValidator =
       V.withFileName "package.json" $
         V.all
@@ -40,17 +39,17 @@ validatePackageJson pkgJson =
 
 type WorkspaceName = String
 
-workspacesValidator :: V.Validator' P.PackageJson
+workspacesValidator :: V.Validator P.PackageJson
 workspacesValidator =
   V.inField ("workspaces", P.workspaces) $ \case
     Just actualWorkspaces -> requiredWorkspacesIncludedValidator actualWorkspaces
     Nothing -> workspacesNotDefinedError
   where
-    requiredWorkspacesIncludedValidator :: V.Validator' [WorkspaceName]
+    requiredWorkspacesIncludedValidator :: V.Validator [WorkspaceName]
     requiredWorkspacesIncludedValidator =
       V.all $ makeWorskpaceIncludedValidator <$> expectedWorkspaces
 
-    makeWorskpaceIncludedValidator :: WorkspaceName -> V.Validator' [WorkspaceName]
+    makeWorskpaceIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
     makeWorskpaceIncludedValidator expectedWorkspace actualWorkspaces
       | expectedWorkspace `elem` actualWorkspaces = V.success
       | otherwise = makeMissingWorkspaceError expectedWorkspace
@@ -69,7 +68,7 @@ workspacesValidator =
 
     expectedWorkspaces = S.toList NW.requiredWorkspaceGlobs
 
-dependenciesValidator :: V.Validator' P.PackageJson
+dependenciesValidator :: V.Validator P.PackageJson
 dependenciesValidator =
   V.all
     [ runtimeDepsValidator,
@@ -77,7 +76,7 @@ dependenciesValidator =
       optionalDepsValidator
     ]
   where
-    runtimeDepsValidator :: V.Validator' P.PackageJson
+    runtimeDepsValidator :: V.Validator P.PackageJson
     runtimeDepsValidator =
       V.all $
         makeRequiredDepValidator Runtime
@@ -89,7 +88,7 @@ dependenciesValidator =
                 ("react-dom", show D.reactVersion)
               ]
 
-    developmentDepsValidator :: V.Validator' P.PackageJson
+    developmentDepsValidator :: V.Validator P.PackageJson
     developmentDepsValidator =
       V.all $
         makeRequiredDepValidator Development
@@ -97,7 +96,7 @@ dependenciesValidator =
                 ("prisma", show prismaVersion)
               ]
 
-    optionalDepsValidator :: V.Validator' P.PackageJson
+    optionalDepsValidator :: V.Validator P.PackageJson
     optionalDepsValidator =
       V.all $
         [ makeOptionalDepValidator depType dep
@@ -111,11 +110,11 @@ dependenciesValidator =
 
 -- | Validates that an optional dependency is either not present, or present
 -- with the correct version.
-makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
+makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
 makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
   inDependency depType dep optionalVersionValidator
   where
-    optionalVersionValidator :: V.Validator' (Maybe P.PackageVersion)
+    optionalVersionValidator :: V.Validator (Maybe P.PackageVersion)
     optionalVersionValidator actualVersion =
       case (expectedPkgVersion ==) <$> actualVersion of
         Just True -> V.success
@@ -134,25 +133,25 @@ makeOptionalDepValidator depType dep@(pkgName, expectedPkgVersion) =
 -- list with the correct version. It shows an appropriate error message
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
-makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator' P.PackageJson
-makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
-  whenS (inOppositeDepList notPresentValidator pkgJson) $
-    inCorrectDepList correctVersionValidator pkgJson
+makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
+makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) =
+  inOppositeDepList notPresentValidator
+    `V.and` inCorrectDepList correctVersionValidator
   where
-    notPresentValidator :: V.Validator (Maybe P.PackageVersion) Bool
-    notPresentValidator Nothing = pure True
+    notPresentValidator :: V.Validator (Maybe P.PackageVersion)
+    notPresentValidator Nothing = V.success
     notPresentValidator _ = wrongDepTypeError
 
-    correctVersionValidator :: V.Validator (Maybe P.PackageVersion) ()
+    correctVersionValidator :: V.Validator (Maybe P.PackageVersion)
     correctVersionValidator actualVersion =
       case (expectedPkgVersion ==) <$> actualVersion of
         Just True -> V.success
         Just False -> incorrectPackageVersionError
         Nothing -> missingPackageError
 
-    inCorrectDepList :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
+    inCorrectDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inCorrectDepList = inDependency depType dep
-    inOppositeDepList :: V.Validator (Maybe P.PackageVersion) a -> V.Validator P.PackageJson a
+    inOppositeDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inOppositeDepList = inDependency (oppositeForDepType depType) dep
 
     oppositeForDepType :: DependencyType -> DependencyType
@@ -188,8 +187,8 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) pkgJson =
 inDependency ::
   DependencyType ->
   DependencySpecification ->
-  V.Validator (Maybe P.PackageVersion) a ->
-  V.Validator P.PackageJson a
+  V.Validator (Maybe P.PackageVersion) ->
+  V.Validator P.PackageJson
 inDependency depType (pkgName, _) versionStringValidator =
   V.inField (fieldForDepType depType) $
     V.inField (pkgName, M.lookup pkgName) versionStringValidator
