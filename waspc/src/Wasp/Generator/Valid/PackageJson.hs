@@ -182,8 +182,8 @@ makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) =
           ++ show expectedPkgVersion
           ++ "."
 
--- | Runs the validator on a specific dependency of the input, setting the appropriate path for
--- errors.
+-- | Runs the validator on a specific dependency of the given PackageJson
+-- record, setting the appropriate path for errors.
 inDependency ::
   DependencyType ->
   DependencySpecification ->
