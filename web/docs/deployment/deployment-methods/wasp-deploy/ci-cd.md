@@ -10,7 +10,7 @@ You can use CI/CD platforms like Github Actions to re-deploy your application au
 
 ### Prerequisites
 
-Make sure to first deploy your application from your local machine using `wasp deploy <provider> launch`. The `launch` command creates services for your application in the deployment provider and deploys them. After your application is deployed, you can use `wasp deploy <provider> deploy` in a CI/CD workflow to re-deploy it.
+Make sure to first deploy your application from your local machine using `wasp deploy <provider> launch`. The `launch` command creates services for your application in the deployment provider and deploys them. After your application is deployed, you are able to use `wasp deploy <provider> deploy` in a CI/CD workflow to re-deploy it.
 
 <WaspDeployProvidersGrid />
 
@@ -25,7 +25,7 @@ The workflow needs to include the following steps:
 3. Install any provider-specific dependencies
 4. Deploy the application using `wasp deploy <provider> deploy`
 
-To be able to deploy your apps to the deployment providers, you need to provide **provider-specific API keys** in the
+To be able to deploy your apps to the deployment providers, you need to set **provider-specific API keys** in the
 environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
 
 ## Github Actions workflow {#github-actions-workflow}
