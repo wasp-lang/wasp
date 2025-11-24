@@ -87,6 +87,24 @@ spec_Validator = do
       let errors = V.message <$> V.execValidator validator Nothing
       errors `shouldBe` ["Missing value, expected \"expected\"."]
 
+  describe "and" $ do
+    it "succeeds when both validators succeed" $ do
+      let validator = V.and (const V.success) (const V.success)
+      V.execValidator validator () `shouldBe` []
+
+    it "returns failure from the second validator when the first succeeds" $ do
+      let validator = V.and (const V.success) (const $ V.failure "second failed")
+      let errors = V.message <$> V.execValidator validator ()
+      errors `shouldBe` ["second failed"]
+
+    it "short-circuits when the first validator fails" $ do
+      let validator =
+            V.and
+              (const $ V.failure "first failed")
+              (\_ -> error "Second validator should not run")
+      let errors = V.message <$> V.execValidator validator ()
+      errors `shouldBe` ["first failed"]
+
   describe "all" $ do
     it "succeeds when all validators succeed" $ do
       let validators = [const V.success, const V.success, const V.success]
