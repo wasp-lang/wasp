@@ -23,8 +23,8 @@ data ValidationError = ValidationError
 -- | Executes the given validator on the input and returns a list of validation errors. If there are
 -- no errors, returns an empty list.
 execValidator :: Validator input -> input -> [ValidationError]
-execValidator validator =
-  maybe [] NE.toList . V.failureToMaybe . validator
+execValidator validator value =
+  V.validation NE.toList (const []) $ validator value
 
 -- | Combines multiple validators into one that succeeds only if all of them succeed.
 -- Accumulates errors.
