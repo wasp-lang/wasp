@@ -4,7 +4,7 @@ title: CI/CD Deployment
 
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
 
-Once you deploy your application with `wasp deploy <provider> launch` locally, you can use CI/CD platforms like Github Actions to re-deploy your application automatically whenever changes are pushed to your repository.
+You can use CI/CD platforms like Github Actions to re-deploy your application automatically whenever changes are pushed to your repository.
 
 ## Re-deploying from CI/CD
 
