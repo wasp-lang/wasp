@@ -10,7 +10,7 @@ Once you deploy your application with `wasp deploy <provider> launch` locally, y
 
 ### Prerequisites
 
-Make sure you set up your application locally before you can deploy it using CI/CD. You do this by running `wasp deploy <provider> launch` which creates your application in the deployment provider and deploys it.
+Make sure to first deploy your application from your local machine using `wasp deploy <provider> launch`. The `launch` command creates services for your application in the deployment provider and deploys them. After your application is deployed, you can use `wasp deploy <provider> deploy` in a CI/CD workflow to re-deploy it.
 
 <WaspDeployProvidersGrid />
 
@@ -60,6 +60,7 @@ jobs:
           node-version: '22'
 
       - name: Install Wasp
+        # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
         run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
 
       - name: Install Flyctl
@@ -104,6 +105,7 @@ jobs:
           node-version: '22'
 
       - name: Install Wasp
+        # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
         run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
 
       - name: Install Railway CLI
@@ -117,5 +119,3 @@ jobs:
 ```
 </TabItem>
 </Tabs>
-
-We pinned the Wasp CLI version in the workflow file to avoid issues when a new Wasp version is released.
