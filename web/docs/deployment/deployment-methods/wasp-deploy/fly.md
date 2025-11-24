@@ -5,6 +5,7 @@ title-llm: Automated Deployment to Fly.io with Wasp CLI
 
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
+import CiCdMention from './\_ci-cd-mention.md'
 
 [Fly.io](https://fly.io/) is a platform for running containerized apps and microservices on servers around the world. It makes deploying and managing your apps straightforward with minimal setup.
 
@@ -54,6 +55,8 @@ You should include these files in your version control so that you can deploy yo
 <LaunchCommandEnvVars />
 
 If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
+
+<CiCdMention />
 
 ## Using a Custom Domain For Your App {#custom-domain}
 
