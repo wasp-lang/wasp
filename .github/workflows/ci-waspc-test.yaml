@@ -7,10 +7,13 @@ on:
 env:
   WASP_TELEMETRY_DISABLE: 1
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_TESTING_KEY }}
+  # NOTE: Duplicated in defaults->run->working-directory
+  PROJECT_DIR: ${{ github.workspace }}/waspc
 
 defaults:
   run:
     shell: bash
+    # NOTE: Duplicated in env.PROJECT_DIR
     working-directory: waspc
 
 jobs:
@@ -100,7 +103,7 @@ jobs:
       - name: Run `wasp new:ai` smoke test
         if: runner.os != 'Windows' # Skip windows for now
         working-directory: ${{ runner.temp }}
-        run: cabal --project-dir=${{ github.workspace }}/waspc run wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
+        run: cabal --project-dir=${{ env.PROJECT_DIR }} run wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
         env:
           APP_TITLE: todoApp
           APP_DESCRIPTION: "A simple todo app with one main page that lists all the tasks. User can create new tasks by providing their description, toggle existing ones, or edit their description. User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database."
