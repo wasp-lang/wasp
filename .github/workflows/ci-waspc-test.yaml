@@ -10,6 +10,7 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_TESTING_KEY }}
 
 defaults:
   run:
