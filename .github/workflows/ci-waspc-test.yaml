@@ -93,8 +93,8 @@ jobs:
 
       - name: Run `wasp new:ai` smoke test
         if: runner.os != 'Windows' # Skip windows for now
-        # working-directory: ${{ runner.temp }}
-        run: cabal run wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
+        working-directory: ${{ runner.temp }}
+        run: cabal run --project-dir=${{ github.workspace }}/waspc wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
         env:
           APP_TITLE: todoApp
           APP_DESCRIPTION: "A simple todo app with one main page that lists all the tasks. User can create new tasks by providing their description, toggle existing ones, or edit their description. User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database."
