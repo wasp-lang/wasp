@@ -3,10 +3,6 @@ name: "Test - waspc"
 on:
   workflow_call:
   workflow_dispatch:
-  push:
-    # TODO: remove before merging
-    branches:
-      - filip-wasp-ai-ci
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -22,6 +18,7 @@ jobs:
     name: Test waspc
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
