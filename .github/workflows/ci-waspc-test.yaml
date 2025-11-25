@@ -93,7 +93,7 @@ jobs:
 
       - name: Run `wasp new:ai` smoke test
         if: runner.os != 'Windows' # Skip windows for now
-        working-directory: ${{ runner.temp }}
+        # working-directory: ${{ runner.temp }}
         run: cabal run wasp-cli -- new:ai $APP_TITLE  $APP_DESCRIPTION $CONFIG_JSON
         env:
           APP_TITLE: todoApp
