@@ -177,6 +177,7 @@ function makeFlyDeployCommand(): Command {
     .description("(Re-)Deploy existing app to Fly.io")
     .option("--skip-client", "do not deploy the web client")
     .option("--skip-server", "do not deploy the server")
+    .option("--custom-server-url <url>", "custom server URL to use")
     .addLocalBuildOption()
     .action(deployFn);
 }
