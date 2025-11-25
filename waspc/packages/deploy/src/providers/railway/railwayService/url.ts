@@ -36,7 +36,7 @@ export async function generateServiceUrl(
     throw new Error(`There was a problem getting a domain for ${serviceName}.`);
   }
 
-  if (result.stdout.includes("Domains already exists on the service:")) {
+  if (result.stdout.includes("Domains already exist on the service:")) {
     return extractServiceUrlFromString(result.stdout);
   } else {
     return RailwayCliDomainSchema.parse(result.json()).domain;
