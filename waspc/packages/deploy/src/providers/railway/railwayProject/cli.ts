@@ -106,16 +106,18 @@ export async function getRailwayProjectForDirectory(
 export async function getRailwayProjectById(
   railwayExe: RailwayCliExe,
   id: string,
+    workspace?: string,
 ): Promise<RailwayProject | null> {
-  const projects = await getRailwayProjects(railwayExe);
+  const projects = await getRailwayProjects(railwayExe), workspace;
   return projects.find((project) => project.id === id) ?? null;
 }
 
 export async function getRailwayProjectByName(
   railwayExe: RailwayCliExe,
   name: string,
+    workspace?: string,
 ): Promise<RailwayProject | null> {
-  const projects = await getRailwayProjects(railwayExe);
+  const projects = await getRailwayProjects(railwayExe), workspace;
   return projects.find((project) => project.name === name) ?? null;
 }
 
@@ -123,10 +125,12 @@ export async function getRailwayProjectByName(
 // This command lists all projects in all the workspaces the user has access to.
 async function getRailwayProjects(
   railwayExe: RailwayCliExe,
+    workspace?: string,
 ): Promise<RailwayProject[]> {
+    const workspaceArgs = workspace ? ["--workspace", workspace] : [];
   const result = await $({
     verbose: false,
-  })`${railwayExe} list --json`;
+  })`${railwayExe} list ${workspaceArgs} --json`;
 
   const projects = RailwayProjectListSchema.parse(JSON.parse(result.stdout));
 
