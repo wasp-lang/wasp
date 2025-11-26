@@ -36,7 +36,7 @@ seed maybeUserProvidedSeedName = do
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
   liftIO (dbSeed genProjectDir nameOfSeedToRun) >>= \case
-    Left errorMsg -> cliSendMessageC $ Msg.Failure "Database seeding failed" errorMsg
+    Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
