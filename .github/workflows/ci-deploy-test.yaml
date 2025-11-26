@@ -114,7 +114,8 @@ jobs:
       - uses: ./.github/actions/prepare-deploy-test
 
       - name: Install Railway CLI
-        run: npm install -g @railway/cli
+        # TODO: remove the version pinning after we fix https://github.com/wasp-lang/wasp/issues/3427
+        run: npm install -g @railway/cli@4.11.1
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
