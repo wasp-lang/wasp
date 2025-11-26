@@ -20,9 +20,9 @@ import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
 import qualified Wasp.Data as Data
 import Wasp.Project.Common (WaspProjectDir)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import Wasp.Util.Terminal (styleCode)
-import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as Version
 
 -- More on how starter templates work in Wasp, including the development process,
