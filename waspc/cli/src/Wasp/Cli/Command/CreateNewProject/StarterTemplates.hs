@@ -22,6 +22,8 @@ import qualified Wasp.Data as Data
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO (listDirectoryDeep, readFileStrict)
 import Wasp.Util.Terminal (styleCode)
+import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Version as Version
 
 -- More on how starter templates work in Wasp, including the development process,
 -- can be found in the `waspc/data/Cli/starters/README.md` file.
@@ -181,12 +183,14 @@ simpleGhReleaseArchiveTemplate (repoName, assetName) (tmplDisplayName, tmplDescr
 waspGhOrgName :: String
 waspGhOrgName = "wasp-lang"
 
--- NOTE: As version of Wasp CLI changes, so we should update this tag name here,
---   and also create it on gh repos of templates.
---   By tagging templates for each version of Wasp CLI, we ensure that each release of
---   Wasp CLI uses correct version of templates, that work with it.
+-- | Git tag for external templates, constructed dynamically from the Wasp version.
+-- By tagging templates for each version of Wasp CLI, we ensure that each release of
+-- Wasp CLI uses correct version of templates, that work with it.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = "wasp-v0.19-template"
+waspVersionTemplateGitTag = mkTemplateGitTag Version.waspVersion
+  where
+    mkTemplateGitTag :: SV.Version -> String
+    mkTemplateGitTag (SV.Version major minor _) = "wasp-v" ++ show major ++ "." ++ show minor ++ "-template"
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates
