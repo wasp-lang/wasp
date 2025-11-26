@@ -36,7 +36,7 @@ export async function generateServiceUrl(
     throw new Error(`There was a problem getting a domain for ${serviceName}.`);
   }
 
-  // NOTE: Railway CLI 4.11.2+ fixed a typo and we want to stay backwards compatible
+  // NOTE: Railway CLI 4.11.2 fixed a typo and we want to stay backwards compatible
   const domainAlreadyExistsPattern = /Domains already exists? on the service:/;
   if (domainAlreadyExistsPattern.test(result.stdout)) {
     return extractServiceUrlFromString(result.stdout);
