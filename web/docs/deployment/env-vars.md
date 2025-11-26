@@ -37,7 +37,9 @@ You can provide production env vars to your server code in production by definin
 
 ::::caution Set the required env vars
 
-Make sure to go through [all the required server env vars](../project/env-vars.md#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL` etc. and set them up in your production environment.
+Make sure to go through [all the required server env vars](../project/env-vars.md#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL` etc. and set them up in your production environment.
+
+While some env vars like `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` have default values in development, they are **required in production** and must be explicitly set.
 
 **If you are using the [Wasp CLI](./deployment-methods/wasp-deploy/overview.md)** deployment method, Wasp will set the general configuration env vars for you, but you will need to set the rest of the env vars yourself (like the ones for OAuth auth methods or any other custom env vars you might have defined).
 ::::

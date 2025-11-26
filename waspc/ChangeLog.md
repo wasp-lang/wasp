@@ -6,6 +6,10 @@
 
 - Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
 
+### 🔧 Small improvements
+
+- Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
+
 ## 0.19.0
 
 ### ⚠️ Breaking Changes
