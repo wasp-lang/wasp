@@ -2,6 +2,10 @@
 
 ## Next
 
+### 🎉 New Features
+
+- Added `--custom-server-url` option to `wasp deploy fly` and `wasp deploy railway` commands. ([#3431](https://github.com/wasp-lang/wasp/issues/3431))
+
 ### 📖 Documentation
 
 - Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
