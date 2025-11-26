@@ -4,13 +4,11 @@ module Wasp.Cli.Command.CreateNewProject
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.Function ((&))
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
-import qualified Wasp.Cli.Command.CreateNewProject.Common as Common
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     obtainNewProjectDescription,
@@ -24,18 +22,14 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Util.Parser (parseArguments)
+import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Terminal as Term
 
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
-createNewProject args = do
-  newProjectArgs <-
-    parseArguments "wasp new" newProjectArgsParser args
-      & either Common.throwProjectCreationError return
-
-  newProjectDescription <- obtainNewProjectDescription newProjectArgs availableStarterTemplates
+createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
+  newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
