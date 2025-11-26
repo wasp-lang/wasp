@@ -40,8 +40,9 @@ import qualified Wasp.Util.Network.Socket as Socket
 -- in Wasp configuration and spins up a database of appropriate type.
 start :: Arguments -> Command ()
 start args = do
+  parseResult <- parseArguments "wasp start db" startDbArgsParser args
   startDbArgs <-
-    parseArguments "wasp start db" startDbArgsParser args
+    parseResult
       & either (E.throwError . CommandError "Invalid arguments") return
 
   InWaspProject waspProjectDir <- require

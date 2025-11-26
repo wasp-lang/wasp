@@ -25,8 +25,9 @@ import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
 buildStart args = do
+  parseResult <- parseArguments "wasp build start" buildStartArgsParser args
   buildStartArgs <-
-    parseArguments "wasp build start" buildStartArgsParser args
+    parseResult
       & either (throwError . CommandError "Parsing arguments failed") return
 
   BuildDirExists _ <- require

@@ -31,8 +31,9 @@ import qualified Wasp.Util.Terminal as Term
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
+  parseResult <- parseArguments "wasp new" newProjectArgsParser args
   newProjectArgs <-
-    parseArguments "wasp new" newProjectArgsParser args
+    parseResult
       & either Common.throwProjectCreationError return
 
   newProjectDescription <- obtainNewProjectDescription newProjectArgs availableStarterTemplates
