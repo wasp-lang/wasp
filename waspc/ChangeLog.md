@@ -6,6 +6,12 @@
 
 - Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
 
+## 0.19.1
+
+### 🐞 Bug fixes
+
+- Fixed the logic for detecting the existing service domain for Railway in `wasp deploy` ([#3454](https://github.com/wasp-lang/wasp/pull/3454))
+
 ## 0.19.0
 
 ### ⚠️ Breaking Changes
