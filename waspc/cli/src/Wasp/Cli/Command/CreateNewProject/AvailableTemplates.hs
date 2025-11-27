@@ -106,7 +106,7 @@ openSaasStarterTemplate =
     )
 
 -- NOTE: As version of Wasp CLI changes, so we should update this tag name here,
---   and also create it on gh repos of templates.
+--   and also create it on the GitHub repos of templates.
 --   By tagging templates for each version of Wasp CLI, we ensure that each release of
 --   Wasp CLI uses correct version of templates, that work with it.
 waspVersionTemplateGitTag :: String
