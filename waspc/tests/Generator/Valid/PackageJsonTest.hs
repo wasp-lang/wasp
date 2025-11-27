@@ -33,7 +33,7 @@ spec_PackageJson = do
           (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
           ["Wasp requires package \"optional-pkg\" to be version \"1.0.0\" if present."]
 
-    it "sets correct field path for dependencies" $
+    it "sets the correct field path in errors" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
         testErrorsHaveCorrectFieldPath
@@ -71,7 +71,7 @@ spec_PackageJson = do
           (pkgJson `withDep` (oppositeDepType, ("required-pkg", "1.0.0")))
           ["Wasp requires package \"required-pkg\" to be in \"" <> fieldName <> "\"."]
 
-    it "sets correct field path" $
+    it "sets the correct field path in errors" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
         testErrorsHaveCorrectFieldPath
@@ -80,7 +80,7 @@ spec_PackageJson = do
           [fieldName, "required-pkg"]
 
   describe "inDependency" $ do
-    it "runs validator on dependency value" $
+    it "runs validator on dependency version value" $
       forEachCase $ \depType pkgJson -> do
         let isExpectedValidator = V.eqJust "1.0.0"
         testSuccess
@@ -95,20 +95,16 @@ spec_PackageJson = do
           (inDependency depType "missing-pkg" isNothingValidator)
           pkgJson
 
-    it "sets correct field path with nested fields" $
+    it "sets the correct field path in errors" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
-
         let alwaysFailValidator = const $ V.failure "test error"
-        let validator =
-              inDependency depType "test-pkg" alwaysFailValidator
-
         testErrorsHaveCorrectFieldPath
-          validator
+          (inDependency depType "test-pkg" alwaysFailValidator)
           pkgJson
           [fieldName, "test-pkg"]
 
-    it "looks in correct dependency type only" $ do
+    it "looks in correct dependency list only" $ do
       let pkgJson =
             mockPackageJsonEmpty
               `withDep` (Runtime, ("pkg-a", "1.0.0"))
