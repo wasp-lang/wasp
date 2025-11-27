@@ -167,15 +167,9 @@ testFailure validator value expectedErrors = do
 testErrorsHaveCorrectFieldPath :: V.Validator a -> a -> [String] -> IO ()
 testErrorsHaveCorrectFieldPath validator value expectedPath = do
   let errors = V.execValidator validator value
-
-  mapM_
-    (`shouldBe` expectedPath)
-    (V.fieldPath <$> errors)
+  mapM_ (`shouldBe` expectedPath) (V.fieldPath <$> errors)
 
 testErrorsHaveCorrectFileName :: V.Validator a -> a -> Maybe String -> IO ()
 testErrorsHaveCorrectFileName validator value expectedFileName = do
   let errors = V.execValidator validator value
-
-  mapM_
-    (`shouldBe` expectedFileName)
-    (V.fileName <$> errors)
+  mapM_ (`shouldBe` expectedFileName) (V.fileName <$> errors)
