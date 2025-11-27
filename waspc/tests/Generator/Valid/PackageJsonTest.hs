@@ -36,7 +36,6 @@ spec_PackageJson = do
     it "sets correct field path for dependencies" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
-
         testErrorsHaveCorrectFieldPath
           (makeOptionalDepValidator depType ("optional-pkg", "1.0.0"))
           (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
@@ -67,7 +66,6 @@ spec_PackageJson = do
       forEachCase $ \depType pkgJson -> do
         let oppositeDepType = depTypeToOpposite depType
         let fieldName = depTypeToFieldName depType
-
         testFailure
           (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
           (pkgJson `withDep` (oppositeDepType, ("required-pkg", "1.0.0")))
@@ -76,7 +74,6 @@ spec_PackageJson = do
     it "sets correct field path" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
-
         testErrorsHaveCorrectFieldPath
           (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
           (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
@@ -86,7 +83,6 @@ spec_PackageJson = do
     it "runs validator on dependency value" $
       forEachCase $ \depType pkgJson -> do
         let isExpectedValidator = V.eqJust "1.0.0"
-
         testSuccess
           (inDependency depType "test-pkg" isExpectedValidator)
           (pkgJson `withDep` (depType, ("test-pkg", "1.0.0")))
@@ -95,7 +91,6 @@ spec_PackageJson = do
       forEachCase $ \depType pkgJson -> do
         let isNothingValidator Nothing = V.success
             isNothingValidator _ = V.failure "Should be Nothing"
-
         testSuccess
           (inDependency depType "missing-pkg" isNothingValidator)
           pkgJson
@@ -148,10 +143,7 @@ testFailure validator pkgJson expectedErrors = do
 testErrorsHaveCorrectFieldPath :: V.Validator P.PackageJson -> P.PackageJson -> [String] -> IO ()
 testErrorsHaveCorrectFieldPath validator pkgJson expectedPath = do
   let errors = V.execValidator validator pkgJson
-
-  mapM_
-    (`shouldBe` expectedPath)
-    (V.fieldPath <$> errors)
+  mapM_ (`shouldBe` expectedPath) (V.fieldPath <$> errors)
 
 mockPackageJson :: P.PackageJson
 mockPackageJson =
