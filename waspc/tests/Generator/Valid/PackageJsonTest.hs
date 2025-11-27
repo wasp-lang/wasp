@@ -37,7 +37,7 @@ spec_PackageJson = do
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
 
-        testFieldPath
+        testErrorsHaveCorrectFieldPath
           (makeOptionalDepValidator depType ("optional-pkg", "1.0.0"))
           (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
           [fieldName, "optional-pkg"]
@@ -77,7 +77,7 @@ spec_PackageJson = do
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
 
-        testFieldPath
+        testErrorsHaveCorrectFieldPath
           (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
           (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
           [fieldName, "required-pkg"]
@@ -108,7 +108,7 @@ spec_PackageJson = do
         let validator =
               inDependency depType "test-pkg" alwaysFailValidator
 
-        testFieldPath
+        testErrorsHaveCorrectFieldPath
           validator
           pkgJson
           [fieldName, "test-pkg"]
@@ -145,8 +145,8 @@ testFailure validator pkgJson expectedErrors = do
   let errors = V.execValidator validator pkgJson
   (V.message <$> errors) `shouldBe` expectedErrors
 
-testFieldPath :: V.Validator P.PackageJson -> P.PackageJson -> [String] -> IO ()
-testFieldPath validator pkgJson expectedPath = do
+testErrorsHaveCorrectFieldPath :: V.Validator P.PackageJson -> P.PackageJson -> [String] -> IO ()
+testErrorsHaveCorrectFieldPath validator pkgJson expectedPath = do
   let errors = V.execValidator validator pkgJson
 
   mapM_

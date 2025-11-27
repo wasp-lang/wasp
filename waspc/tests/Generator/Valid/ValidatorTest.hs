@@ -48,7 +48,7 @@ spec_Validator = do
     it "creates error with empty field path and no file name" $ do
       let validator = const $ V.failure "test"
 
-      testFieldPath
+      testErrorsHaveCorrectFieldPath
         validator
         ()
         []
@@ -91,7 +91,7 @@ spec_Validator = do
       let innerValidator = const $ V.failure "invalid"
       let validator = V.inField ("username", id) innerValidator
 
-      testFieldPath
+      testErrorsHaveCorrectFieldPath
         validator
         ()
         ["username"]
@@ -120,7 +120,7 @@ spec_Validator = do
       let innerValidator' = V.inField ("email", id) innerValidator
       let validator = V.inField ("user", id) innerValidator'
 
-      testFieldPath
+      testErrorsHaveCorrectFieldPath
         validator
         ()
         ["user", "email"]
@@ -225,7 +225,7 @@ spec_Validator = do
         ()
         (Just "config.json")
 
-      testFieldPath
+      testErrorsHaveCorrectFieldPath
         validator
         ()
         ["database"]
@@ -267,8 +267,8 @@ testFailure validator value expectedErrors = do
   let errors = V.execValidator validator value
   (V.message <$> errors) `shouldBe` expectedErrors
 
-testFieldPath :: V.Validator a -> a -> [String] -> IO ()
-testFieldPath validator value expectedPath = do
+testErrorsHaveCorrectFieldPath :: V.Validator a -> a -> [String] -> IO ()
+testErrorsHaveCorrectFieldPath validator value expectedPath = do
   let errors = V.execValidator validator value
 
   mapM_
