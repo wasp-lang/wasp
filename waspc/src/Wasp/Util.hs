@@ -44,7 +44,6 @@ module Wasp.Util
   )
 where
 
-import Control.Applicative (liftA2)
 import Control.Monad (unless, when)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson

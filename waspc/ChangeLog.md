@@ -10,6 +10,10 @@
 
 - Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
 
+### 🔧 Small improvements
+
+- `wasp build start` now errors when users forget to specify environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
+
 ## 0.19.0
 
 ### ⚠️ Breaking Changes
