@@ -21,6 +21,7 @@ import qualified Wasp.Generator.Valid.Validator as V
 import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 data DependencyType = Runtime | Development
+  deriving (Show)
 
 type DependencySpecification = (P.PackageName, P.PackageVersion)
 
