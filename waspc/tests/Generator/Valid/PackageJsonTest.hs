@@ -10,113 +10,102 @@ import Wasp.Generator.Valid.PackageJson
     makeRequiredDepValidator,
   )
 import qualified Wasp.Generator.Valid.Validator as V
+import Prelude hiding (fail)
 
 spec_PackageJson :: Spec
 spec_PackageJson = do
   describe "makeOptionalDepValidator" $ do
     it "succeeds when optional dependency is not present" $
       forEachCase $ \depType pkgJson -> do
-        testSuccess
-          (makeOptionalDepValidator depType ("optional-pkg", "1.0.0"))
-          pkgJson
+        makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
+          <-- pkgJson
+          ~> []
 
     it "succeeds when optional dependency has correct version" $
       forEachCase $ \depType pkgJson -> do
-        testSuccess
-          (makeOptionalDepValidator depType ("optional-pkg", "1.0.0"))
-          (pkgJson `withDep` (depType, ("optional-pkg", "1.0.0")))
+        makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
+          <-- (pkgJson `withDep` (depType, ("optional-pkg", "1.0.0")))
+          ~> []
 
     it "fails when optional dependency has wrong version" $
       forEachCase $ \depType pkgJson -> do
-        testFailure
-          (makeOptionalDepValidator depType ("optional-pkg", "1.0.0"))
-          (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
-          ["Wasp requires package \"optional-pkg\" to be version \"1.0.0\" if present."]
+        makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
+          <-- (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
+          ~> ["Wasp requires package \"optional-pkg\" to be version \"1.0.0\" if present."]
 
     it "sets the correct field path in errors" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
-        testErrorsHaveCorrectFieldPath
-          (makeOptionalDepValidator depType ("optional-pkg", "1.0.0"))
-          (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
-          [fieldName, "optional-pkg"]
+        makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
+          <-- (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
+          ~~> (([fieldName, "optional-pkg"] ==) . V.fieldPath)
 
   describe "makeRequiredDepValidator" $ do
     it "succeeds when required dependency is present with correct version" $
       forEachCase $ \depType pkgJson -> do
-        testSuccess
-          (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
-          (pkgJson `withDep` (depType, ("required-pkg", "1.0.0")))
+        makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+          <-- (pkgJson `withDep` (depType, ("required-pkg", "1.0.0")))
+          ~> []
 
     it "fails when required dependency is missing" $
       forEachCase $ \depType pkgJson -> do
-        testFailure
-          (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
-          pkgJson
-          ["Wasp requires package \"required-pkg\" with version \"1.0.0\"."]
+        makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+          <-- pkgJson
+          ~> ["Wasp requires package \"required-pkg\" with version \"1.0.0\"."]
 
     it "fails when required dependency has wrong version" $
       forEachCase $ \depType pkgJson -> do
-        testFailure
-          (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
-          (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
-          ["Wasp requires package \"required-pkg\" to be version \"1.0.0\"."]
+        makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+          <-- (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
+          ~> ["Wasp requires package \"required-pkg\" to be version \"1.0.0\"."]
 
     it "fails when required dependency is in the opposite list" $
       forEachCase $ \depType pkgJson -> do
         let oppositeDepType = depTypeToOpposite depType
-        let fieldName = depTypeToFieldName depType
-        testFailure
-          (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
-          (pkgJson `withDep` (oppositeDepType, ("required-pkg", "1.0.0")))
-          ["Wasp requires package \"required-pkg\" to be in \"" <> fieldName <> "\"."]
+            fieldName = depTypeToFieldName depType
+        makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+          <-- (pkgJson `withDep` (oppositeDepType, ("required-pkg", "1.0.0")))
+          ~> ["Wasp requires package \"required-pkg\" to be in \"" <> fieldName <> "\"."]
 
     it "sets the correct field path in errors" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
-        testErrorsHaveCorrectFieldPath
-          (makeRequiredDepValidator depType ("required-pkg", "1.0.0"))
-          (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
-          [fieldName, "required-pkg"]
+        makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+          <-- (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
+          ~~> (([fieldName, "required-pkg"] ==) . V.fieldPath)
 
   describe "inDependency" $ do
     it "runs validator on dependency version value" $
       forEachCase $ \depType pkgJson -> do
-        let isExpectedValidator = V.eqJust "1.0.0"
-        testSuccess
-          (inDependency depType "test-pkg" isExpectedValidator)
-          (pkgJson `withDep` (depType, ("test-pkg", "1.0.0")))
+        inDependency depType "test-pkg" (V.eqJust "1.0.0")
+          <-- (pkgJson `withDep` (depType, ("test-pkg", "1.0.0")))
+          ~> []
 
     it "passes Nothing when dependency is missing" $
       forEachCase $ \depType pkgJson -> do
-        let isNothingValidator Nothing = V.success
-            isNothingValidator _ = V.failure "Should be Nothing"
-        testSuccess
-          (inDependency depType "missing-pkg" isNothingValidator)
-          pkgJson
+        inDependency depType "missing-pkg" (maybe V.success $ const $ V.failure "Should be Nothing")
+          <-- pkgJson
+          ~> []
 
     it "sets the correct field path in errors" $
       forEachCase $ \depType pkgJson -> do
         let fieldName = depTypeToFieldName depType
-        let alwaysFailValidator = const $ V.failure "test error"
-        testErrorsHaveCorrectFieldPath
-          (inDependency depType "test-pkg" alwaysFailValidator)
-          pkgJson
-          [fieldName, "test-pkg"]
+            alwaysFailValidator = const $ V.failure "test error"
+        inDependency depType "test-pkg" alwaysFailValidator
+          <-- pkgJson
+          ~~> (([fieldName, "test-pkg"] ==) . V.fieldPath)
 
     it "looks in correct dependency list only" $ do
       let pkgJson =
             mockPackageJsonEmpty
               `withDep` (Runtime, ("pkg-a", "1.0.0"))
               `withDep` (Development, ("pkg-b", "2.0.0"))
-
-      testSuccess
-        (inDependency Runtime "pkg-a" $ V.eqJust "1.0.0")
-        pkgJson
-
-      testSuccess
-        (inDependency Development "pkg-b" $ V.eqJust "2.0.0")
-        pkgJson
+      inDependency Runtime "pkg-a" (V.eqJust "1.0.0")
+        <-- pkgJson
+        ~> []
+      inDependency Development "pkg-b" (V.eqJust "2.0.0")
+        <-- pkgJson
+        ~> []
 
 -- | Runs a test for each combination of DependencyType and empty/mock PackageJson
 forEachCase :: (DependencyType -> P.PackageJson -> Expectation) -> Expectation
@@ -126,20 +115,6 @@ forEachCase fn =
       | depType <- [Runtime, Development],
         pkgJson <- [mockPackageJson, mockPackageJsonEmpty]
     ]
-
-testSuccess :: V.Validator P.PackageJson -> P.PackageJson -> IO ()
-testSuccess validator pkgJson =
-  V.execValidator validator pkgJson `shouldBe` []
-
-testFailure :: V.Validator P.PackageJson -> P.PackageJson -> [String] -> IO ()
-testFailure validator pkgJson expectedErrors = do
-  let errors = V.execValidator validator pkgJson
-  (V.message <$> errors) `shouldBe` expectedErrors
-
-testErrorsHaveCorrectFieldPath :: V.Validator P.PackageJson -> P.PackageJson -> [String] -> IO ()
-testErrorsHaveCorrectFieldPath validator pkgJson expectedPath = do
-  let errors = V.execValidator validator pkgJson
-  mapM_ (`shouldBe` expectedPath) (V.fieldPath <$> errors)
 
 mockPackageJson :: P.PackageJson
 mockPackageJson =
@@ -169,3 +144,17 @@ depTypeToFieldName Development = "devDependencies"
 depTypeToOpposite :: DependencyType -> DependencyType
 depTypeToOpposite Runtime = Development
 depTypeToOpposite Development = Runtime
+
+-- | Checks that the validator produces exactly the expected error messages
+(~>) :: V.Validator () -> [String] -> Expectation
+validator ~> expectedErrorMessages =
+  V.message <$> V.execValidator validator () `shouldBe` expectedErrorMessages
+
+-- | Checks that all the validator errors satisfy a given predicate
+(~~>) :: V.Validator () -> (V.ValidationError -> Bool) -> Expectation
+validator ~~> f =
+  mapM_ (`shouldSatisfy` f) (V.execValidator validator ())
+
+-- | Forces a specific input for the Validator
+(<--) :: V.Validator a -> a -> V.Validator ()
+validator <-- value = const $ validator value
