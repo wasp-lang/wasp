@@ -1,14 +1,16 @@
 # Changelog
 
+## Next
+
+### 🔧 Small improvements
+
+- Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
+
 ## 0.19.1
 
 ### 🐞 Bug fixes
 
 - Fixed logic for getting Railway service domains in `wasp deploy railway` with Railway CLI 4.11.2 and greater. ([#3454](https://github.com/wasp-lang/wasp/pull/3454))
-
-### 🔧 Small improvements
-
-- Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
 
 ## 0.19.0
 
