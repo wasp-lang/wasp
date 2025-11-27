@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "a4086ae99097e09dca75ecd97015f8186e60c47608934e26182659e6c843803d"
+        "2e31d73ff05d229c589e71b02a2707e3c881fe949206897825bc7496ba5050e1"
     ],
     [
         [
@@ -1089,7 +1089,7 @@
             "file",
             "../out/sdk/wasp/src/features/auth/hooks.ts"
         ],
-        "518343105f72a01cf38c57003f0fdec385e091355771377fe1776c90c0098520"
+        "cc918249b14d7984dad2e4d119cd948db12960c651c2236ebd4aadbd26d5e0ba"
     ],
     [
         [
@@ -1131,7 +1131,7 @@
             "file",
             "../out/sdk/wasp/src/features/auth/pages/ProfilePage.tsx"
         ],
-        "7df4b7071c20f82cc8a78999590ba9598c3ee0270ef205776054fa3834da1132"
+        "bc787521015b6b18699d7c79a6b6b361d0745a0be84fa3afa908b6a50d9a2b64"
     ],
     [
         [
@@ -1285,7 +1285,7 @@
             "file",
             "../out/sdk/wasp/src/features/operations/components/Todo.test.tsx"
         ],
-        "032d39543284ad30602543a0afac464570481d7424c6e6eb7d01a6057841b844"
+        "5fe00b0abb7220ba97761d0c5a427551c660b08522efab2a0a7dc7fef390f614"
     ],
     [
         [
@@ -1488,14 +1488,14 @@
             "dir",
             "db/migrations/"
         ],
-        "c1a9f431e8e0c337f888ce1dd19ce5deb24c6818f1e28a30b1def672f3513bb9"
+        "2dc548537e754f932c13d246ee84e7a4694b27687e4f0c1446a9797428fe1500"
     ],
     [
         [
             "file",
             "db/schema.prisma"
         ],
-        "c751059882d2993eb2aa76f7f6a2c506217148de35b37777c18678759f61adc6"
+        "0c62bb376ae204c687219387c06a25a9aef4bed05e7592526dbe1542bae59643"
     ],
     [
         [
