@@ -86,7 +86,7 @@ spec_Validator = do
       let validator = V.eqJust ("expected" :: String)
       testFailure validator Nothing ["Missing value, expected \"expected\"."]
 
-  describe "validatorand" $ do
+  describe "and" $ do
     it "valid and valid -> valid" $ do
       testSuccess (alwaysSucceed `V.and` alwaysSucceed) ()
 
