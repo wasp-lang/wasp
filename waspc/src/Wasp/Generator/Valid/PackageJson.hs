@@ -134,7 +134,7 @@ makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
 makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
-makeRequiredDepValidator depType dep@(pkgName, expectedPkgVersion) =
+makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
   inOppositeDepList notPresentValidator
     `V.and` inCorrectDepList correctVersionValidator
   where
