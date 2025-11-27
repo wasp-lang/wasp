@@ -10,6 +10,7 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import qualified Wasp.Cli.Command.CreateNewProject.Common as Common
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
@@ -18,7 +19,6 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( DirBasedTemplateMetadata (_path),
     StarterTemplate (..),
-    availableStarterTemplates,
     getTemplateStartingInstructions,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
