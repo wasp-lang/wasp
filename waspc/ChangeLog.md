@@ -2,6 +2,10 @@
 
 ## Next
 
+### 🐞 Bug fixes
+
+- Fixed email verification hook being called multiple times. ([#3458](https://github.com/wasp-lang/wasp/pull/3458))
+
 ### 🔧 Small improvements
 
 - Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
