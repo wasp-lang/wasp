@@ -17,8 +17,7 @@ import Wasp.Cli.Command.CreateNewProject.ProjectDescription
     obtainNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( DirBasedTemplateMetadata (_path),
-    StarterTemplate (..),
+  ( StarterTemplate (..),
     getTemplateStartingInstructions,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
@@ -50,10 +49,10 @@ createProjectOnDisk
     } = do
     cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
     case template of
-      GhRepoReleaseArchiveTemplate ghRepoRef assetName metadata ->
-        createProjectOnDiskFromGhReleaseArchiveTemplate absWaspProjectDir projectName appName ghRepoRef assetName $ _path metadata
-      BundledStarterTemplate metadata ->
-        liftIO $ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName $ _path metadata
+      GhRepoReleaseArchiveTemplate {repo = ghRepoRef, archiveName = archiveName', archivePath = archivePath'} ->
+        createProjectOnDiskFromGhReleaseArchiveTemplate absWaspProjectDir projectName appName ghRepoRef archiveName' archivePath'
+      BundledStarterTemplate {bundledPath = bundledPath'} ->
+        liftIO $ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName bundledPath'
       AiGeneratedStarterTemplate ->
         AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
 
