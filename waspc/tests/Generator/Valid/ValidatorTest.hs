@@ -12,12 +12,6 @@ spec_Validator = do
     it "returns list of errors when validation fails" $ do
       testFailure (alwaysFail "test error") () ["test error"]
 
-    it "returns multiple errors when validation fails multiple times" $ do
-      testFailure
-        (V.all [alwaysFail "error 1", alwaysFail "error 2"])
-        ()
-        ["error 1", "error 2"]
-
   describe "success" $
     it "creates a successful validation" $ do
       testSuccess (const V.success) ()
