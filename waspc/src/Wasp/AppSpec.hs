@@ -89,7 +89,6 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File'),
     srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
     srcTsConfig :: TsConfig
   }

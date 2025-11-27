@@ -3,9 +3,9 @@ import { type Plugin, loadEnv } from 'vite'
 import {
   getValidatedEnvOrError,
   formatZodEnvErrors,
-} from 'wasp/env/validation'
-import { clientEnvSchema } from 'wasp/client/env/schema'
-import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
+} from '../../env/validation.js'
+import { clientEnvSchema } from '../env/schema.js'
+import { getColorizedConsoleFormatString } from '../../universal/ansiColors.js'
 
 const redColorFormatString = getColorizedConsoleFormatString('red');
 

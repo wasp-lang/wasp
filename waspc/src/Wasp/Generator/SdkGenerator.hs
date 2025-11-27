@@ -57,6 +57,7 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator (depsRequiredByJobs, genN
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
+import Wasp.Generator.SdkGenerator.Vite (genVite)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -108,8 +109,6 @@ genSdk spec =
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
-      genFileCopy [relfile|client/test/vitest/helpers.tsx|],
-      genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
@@ -140,6 +139,7 @@ genSdk spec =
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
+    <++> genVite spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -222,9 +222,8 @@ npmDepsForSdk spec =
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
-          ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
-          -- These deps need to be installed in the SDK becasue when we run client tests,
+          -- These deps need to be installed in the SDK because when we run tests,
           -- we are running them from the project root dir and PostCSS and Tailwind
           -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
           ++ depsRequiredByTailwind spec
@@ -240,17 +239,6 @@ npmDepsForSdk spec =
           [ ("@tanstack/react-query", reactQueryVersion)
           ]
     }
-
-depsRequiredForTesting :: [Npm.Dependency.Dependency]
-depsRequiredForTesting =
-  Npm.Dependency.fromList
-    [ ("vitest", "^1.2.1"),
-      ("@vitest/ui", "^1.2.1"),
-      ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^14.1.2"),
-      ("@testing-library/jest-dom", "^6.3.0"),
-      ("msw", "^1.1.0")
-    ]
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData

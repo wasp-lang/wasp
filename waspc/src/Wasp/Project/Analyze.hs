@@ -38,7 +38,6 @@ import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
 import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
-import Wasp.Project.Vite (findCustomViteConfigPath)
 import Wasp.Project.WaspFile (analyzeWaspFile, findWaspFile)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
@@ -88,7 +87,6 @@ constructAppSpec ::
 constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls srcTsConfigPath = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
   externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
-  customViteConfigPath <- findCustomViteConfigPath waspDir
 
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
@@ -111,7 +109,6 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
             AS.isBuild = CompileOptions.isBuild compileOptions,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.devDatabaseUrl = devDbUrl,
-            AS.customViteConfigPath = customViteConfigPath,
             AS.packageJson = EC._packageJson externalConfigs,
             AS.srcTsConfigPath = srcTsConfigPath,
             AS.srcTsConfig = EC._srcTsConfig externalConfigs,

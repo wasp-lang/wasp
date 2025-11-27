@@ -338,6 +338,8 @@ library
     Wasp.Generator.SdkGenerator.Server.JobGenerator
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
+    Wasp.Generator.SdkGenerator.Vite
+    Wasp.Generator.SdkGenerator.Vite.VitePlugin
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
@@ -371,8 +373,6 @@ library
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
-    Wasp.Generator.WebAppGenerator.Vite
-    Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
@@ -400,7 +400,7 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
-    Wasp.Project.Vite
+
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.WaspFile.WaspLang

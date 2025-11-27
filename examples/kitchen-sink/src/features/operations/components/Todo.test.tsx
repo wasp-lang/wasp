@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { expect, test } from "vitest";
 import { type AuthUser } from "wasp/auth";
 import { getDate, getTasks } from "wasp/client/operations";
-import { mockServer, renderInContext } from "wasp/client/test";
+import { mockServer, renderInContext } from "../../../vitest/helpers";
 
 import { getMe } from "wasp/client/auth";
 import { App } from "../../../App";
