@@ -15,6 +15,7 @@ model User {
   isOnAfterSignupHookCalled        Boolean @default(false)
   isOnAfterLoginHookCalled         Boolean @default(false)
   isOnAfterEmailVerifiedHookCalled Boolean @default(false)
+  numTimesOnAfterEmailVerifiedCalled  Int     @default(0)
 
   tasks                 Task[]
   address               String?
