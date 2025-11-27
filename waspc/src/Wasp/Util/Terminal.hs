@@ -5,10 +5,23 @@ module Wasp.Util.Terminal
     getAnsiCodeFor,
     ansiEscapeCode,
     ansiResetCode,
+    isStylingDisabled,
   )
 where
 
 import Data.List (foldl')
+import GHC.IO (unsafePerformIO)
+import System.Environment (lookupEnv)
+import Wasp.Util.System (isEnvVarValueTruthy, isSystemWindows)
+
+-- Combo of this function being top level form and NOINLINE ensures that the IO action
+-- executes only once per lifetime of the program.
+{-# NOINLINE isStylingDisabled #-}
+isStylingDisabled :: Bool
+isStylingDisabled =
+  case unsafePerformIO (lookupEnv "WASP_TERMINAL_STYLING") of
+    Nothing -> isSystemWindows
+    Just v -> isEnvVarValueTruthy v
 
 -- | Applies the Wasp CLI standardized code styling to a string.
 styleCode :: String -> String
@@ -39,6 +52,7 @@ data Style
 -- | Given a string, returns decorated string that when printed in terminal
 -- will have same content as original string but will also exibit specified styles.
 applyStyles :: [Style] -> String -> String
+applyStyles _ str | isStylingDisabled = str
 applyStyles [] str = str
 applyStyles _ "" = ""
 applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetCode

@@ -18,11 +18,11 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
-import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Job as J
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Util.System (isSystemWindows)
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -86,7 +86,7 @@ runProcessAsJob process jobType chan =
     -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
     terminateStreamingProcess streamingProcessHandle = do
       let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      if System.Info.os == "mingw32"
+      if isSystemWindows
         then P.terminateProcess processHandle
         else P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
