@@ -7,10 +7,12 @@ spec_Validator :: Spec
 spec_Validator = do
   describe "execValidator" $ do
     it "returns empty list when validation succeeds" $ do
-      testSuccess alwaysSucceed ()
+      V.execValidator alwaysSucceed ()
+        `shouldBe` []
 
     it "returns list of errors when validation fails" $ do
-      testFailure (alwaysFail "test error") () ["test error"]
+      V.execValidator (alwaysFail "test error") ()
+        `shouldBe` [V.ValidationError {V.message = "test error", V.fieldPath = [], V.fileName = Nothing}]
 
   describe "success" $
     it "creates a successful validation" $ do
