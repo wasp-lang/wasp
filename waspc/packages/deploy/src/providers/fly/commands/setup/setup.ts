@@ -1,13 +1,9 @@
-import { $, chalk, question } from "zx";
+import { $, chalk, question, cd } from "zx";
 
 import { getFullCommandName } from "../../../../common/commander.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
-import {
-  cdToClientBuildDir,
-  cdToServerBuildDir,
-} from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
   DeploymentInstructions,
@@ -25,6 +21,10 @@ import {
   serverTomlExistsInProject,
 } from "../../tomlFile.js";
 import { SetupCmdOptions } from "./SetupCmdOptions.js";
+import { 
+  getClientBuildDir, 
+  getServerBuildDir 
+} from "../../../../common/waspProject.js";
 
 const internalPortOptionRegex = /internal_port = \d+/g;
 const serverAppPort = 8080;
@@ -70,8 +70,8 @@ async function setupServer(
   waspSays(
     `Setting up server app with name ${deploymentInstructions.serverFlyAppName}`,
   );
-
-  cdToServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  const serverBuildDir = getServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  cd(serverBuildDir);
   deleteLocalToml();
 
   const launchArgs = [
@@ -160,8 +160,8 @@ async function setupClient(
   waspSays(
     `Setting up client app with name ${deploymentInstructions.clientFlyAppName}`,
   );
-
-  cdToClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  const clientBuildDir = getClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  cd(clientBuildDir);
   deleteLocalToml();
 
   const launchArgs = [
