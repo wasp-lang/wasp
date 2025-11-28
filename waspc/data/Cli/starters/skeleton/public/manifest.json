@@ -1,6 +1,5 @@
-{{={= =}=}}
 {
-  "name": "{= appName =}",
+  "name": "__waspAppName__",
   "icons": [
     {
       "src": "favicon.ico",

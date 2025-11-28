@@ -27,8 +27,6 @@ data-files:
   --   Check https://github.com/haskell/cabal/issues/5883 for more details.
   Generator/templates/Dockerfile
   Generator/templates/dockerignore
-  Generator/templates/react-app/gitignore
-  Generator/templates/react-app/npmrc
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma
@@ -325,6 +323,10 @@ library
     Wasp.Generator.SdkGenerator.Client.CrudG
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
+    Wasp.Generator.SdkGenerator.Client.AppGenerator
+    Wasp.Generator.SdkGenerator.Client.ComponentsGenerator
+    Wasp.Generator.SdkGenerator.Client.RouterComponentGenerator
+    Wasp.Generator.SdkGenerator.Client.AuthPagesGenerator
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.DepVersions
@@ -363,14 +365,9 @@ library
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
-    Wasp.Generator.WebAppGenerator
-    Wasp.Generator.WebAppGenerator.JsImport
-    Wasp.Generator.WebAppGenerator.AuthG
-    Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
-    Wasp.Generator.WebAppGenerator.DepVersions
-    Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Start
+    Wasp.Generator.SdkGenerator.Auth.Common
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
@@ -691,7 +688,6 @@ test-suite waspc-tests
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad
-    Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
     Generator.CrudTest

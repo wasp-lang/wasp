@@ -78,6 +78,7 @@ genWaspPlugin spec tmplFile = return $ SDK.mkTmplFdWithData tmplFile tmplData
         [ "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
           "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirWaspProjectDir,
           "defaultClientPort" .= C.defaultClientPort,
+          "buildOutputDir" .= (".wasp/out/web-app/build" :: String),
           "vitest"
             .= object
               [ "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")

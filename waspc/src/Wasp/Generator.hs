@@ -23,9 +23,7 @@ import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
-import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import Wasp.Generator.Valid (validateAppSpec)
-import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -55,12 +53,10 @@ writeWebAppCode spec dstDir sendMessage = do
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
-  genWebApp spec
-    <++> genServer spec
+  genServer spec
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
-    <++> genTailwindConfigFiles spec
 
 -- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
 writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()
