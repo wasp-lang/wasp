@@ -517,7 +517,6 @@ spec_AppSpecValid = do
           AS.userDockerfileContents = Nothing,
           AS.tailwindConfigFilesRelocators = [],
           AS.devDatabaseUrl = Nothing,
-          AS.customViteConfigPath = Nothing,
           AS.srcTsConfigPath = [relfile|tsconfig.json|],
           AS.srcTsConfig =
             T.TsConfig
