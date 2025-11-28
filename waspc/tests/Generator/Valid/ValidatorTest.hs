@@ -21,19 +21,19 @@ spec_Validator = do
                    ]
 
   describe "helper functions" $ do
-    it "success" $ do
+    specify "success" $ do
       const V.success ~> []
 
-    it "failure" $ do
+    specify "failure" $ do
       const (V.failure "error") ~> ["error"]
 
-    it "and" $ do
+    specify "and" $ do
       V.and succeed succeed ~> []
       V.and (fail "left") succeed ~> ["left"]
       V.and succeed (fail "right") ~> ["right"]
       V.and (fail "left") (fail "right") ~> ["left"]
 
-    it "all" $ do
+    specify "all" $ do
       V.all [] ~> []
       V.all [succeed] ~> []
       V.all [succeed, succeed] ~> []
@@ -41,13 +41,13 @@ spec_Validator = do
       V.all [fail "error 1", fail "error 2"] ~> ["error 1", "error 2"]
       V.all [succeed, fail "error 1", succeed, fail "error 2"] ~> ["error 1", "error 2"]
 
-    it "withFileName" $ do
+    specify "withFileName" $ do
       V.withFileName "config.json" succeed ~> []
       V.withFileName "config.json" (fail "error") ~> ["error"]
       V.withFileName "config.json" (fail "error")
         ~~> ((Just "config.json" ==) . V.fileName)
 
-    it "inField" $ do
+    specify "inField" $ do
       V.inField ("foo", id) succeed ~> []
       V.inField ("foo", id) (fail "error") ~> ["error"]
       V.inField ("foo", id) (fail "error")
@@ -55,12 +55,12 @@ spec_Validator = do
       V.inField ("foo", id) (V.inField ("bar", id) (fail "error"))
         ~~> ((["foo", "bar"] ==) . V.fieldPath)
 
-    it "eqJust" $ do
+    specify "eqJust" $ do
       V.eqJust True <-- Just True ~> []
       V.eqJust True <-- Just False ~> ["Expected True but got False."]
       V.eqJust True <-- Nothing ~> ["Missing value, expected True."]
 
-  it "combined usage" $ do
+  specify "combined usage" $ do
     let mockData = Map.fromList [("database", "mysql")] :: Map.Map String String
 
         validator =
