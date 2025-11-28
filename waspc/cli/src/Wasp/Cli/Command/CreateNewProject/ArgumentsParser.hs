@@ -6,7 +6,7 @@ module Wasp.Cli.Command.CreateNewProject.ArgumentsParser
 where
 
 import Control.Applicative ((<|>))
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 import Wasp.Cli.Util.PathArgument (DirPathArgument)
 
 data NewProjectArgs = NewProjectArgs
@@ -22,15 +22,15 @@ newProjectArgsParser :: Opt.Parser NewProjectArgs
 newProjectArgsParser =
   NewProjectArgs
     <$> Opt.optional projectNameParser
-    <*> Opt.optional templateArg
+    <*> Opt.optional templateArgParser
   where
     projectNameParser :: Opt.Parser String
     projectNameParser =
       Opt.strArgument $
         Opt.metavar "PROJECT_NAME"
 
-    templateArg :: Opt.Parser NewProjectTemplateArg
-    templateArg =
+    templateArgParser :: Opt.Parser NewProjectTemplateArg
+    templateArgParser =
       (Named <$> templateNameParser)
         <|> (Custom <$> customTemplatePathParser)
 
