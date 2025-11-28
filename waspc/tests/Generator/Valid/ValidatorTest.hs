@@ -62,7 +62,6 @@ spec_Validator = do
 
   specify "combined usage" $ do
     let mockData = Map.fromList [("database", "mysql")] :: Map.Map String String
-
         validator =
           V.withFileName "config.json" $
             V.all
