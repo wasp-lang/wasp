@@ -21,9 +21,11 @@ spec_Validator = do
                    ]
 
   describe "helper functions" $ do
-    it "success" $ const V.success ~> []
+    it "success" $ do
+      const V.success ~> []
 
-    it "failure" $ const (V.failure "error") ~> ["error"]
+    it "failure" $ do
+      const (V.failure "error") ~> ["error"]
 
     it "and" $ do
       V.and succeed succeed ~> []
