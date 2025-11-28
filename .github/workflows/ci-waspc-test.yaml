@@ -14,7 +14,7 @@ defaults:
 
 jobs:
   test:
-    name: Test waspc
+    name: Test waspc (${{ matrix.os }}, Node ${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
