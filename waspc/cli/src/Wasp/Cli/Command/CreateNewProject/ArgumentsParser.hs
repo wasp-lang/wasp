@@ -5,8 +5,8 @@ module Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   )
 where
 
-import Control.Applicative ((<|>))
-import Options.Applicative qualified as Opt
+import Control.Applicative (optional, (<|>))
+import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.PathArgument (DirPathArgument)
 
 data NewProjectArgs = NewProjectArgs
@@ -21,8 +21,8 @@ data NewProjectTemplateArg
 newProjectArgsParser :: Opt.Parser NewProjectArgs
 newProjectArgsParser =
   NewProjectArgs
-    <$> Opt.optional projectNameParser
-    <*> Opt.optional templateArgParser
+    <$> optional projectNameParser
+    <*> optional templateArgParser
   where
     projectNameParser :: Opt.Parser String
     projectNameParser =
