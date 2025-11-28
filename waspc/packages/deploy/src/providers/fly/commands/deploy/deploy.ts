@@ -1,4 +1,4 @@
-import { $, fs } from "zx";
+import { $, cd, fs } from "zx";
 
 import { buildClient } from "../../../../common/clientApp.js";
 import { getFullCommandName } from "../../../../common/commander.js";
@@ -8,8 +8,8 @@ import {
 } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  cdToClientBuildDir,
-  cdToServerBuildDir,
+  getClientBuildDir,
+  getServerBuildDir,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
@@ -87,7 +87,7 @@ async function deployServer(
 ) {
   waspSays("Deploying your server now...");
 
-  cdToServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  cd(getServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
   copyProjectServerTomlLocally(deploymentInstructions.tomlFilePaths);
 
   // Make sure we have a DATABASE_URL present. If not, they need to create/attach their DB first.
@@ -115,7 +115,7 @@ async function deployClient(
 ) {
   waspSays("Deploying your client now...");
 
-  cdToClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  cd(getClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
   copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
 
   const serverFlyAppUrl = getFlyAppUrl(deploymentInstructions.serverFlyAppName);
