@@ -7,6 +7,19 @@ import Prelude hiding (fail)
 
 spec_Validator :: Spec
 spec_Validator = do
+  describe "execValidator" $ do
+    it "returns empty list when validation succeeds" $ do
+      V.execValidator (const V.success) () `shouldBe` []
+
+    it "returns list of errors when validation fails" $ do
+      V.execValidator (const $ V.failure "test error") ()
+        `shouldBe` [ V.ValidationError
+                       { V.message = "test error",
+                         V.fieldPath = [],
+                         V.fileName = Nothing
+                       }
+                   ]
+
   describe "helper functions" $ do
     it "success" $ const V.success ~> []
 
@@ -45,63 +58,50 @@ spec_Validator = do
       V.eqJust True <-- Just False ~> ["Expected True but got False."]
       V.eqJust True <-- Nothing ~> ["Missing value, expected True."]
 
-  describe "execValidator" $ do
-    it "returns empty list when validation succeeds" $ do
-      V.execValidator (const V.success) () `shouldBe` []
+  it "combined usage" $ do
+    let mockData = Map.fromList [("database", "mysql")] :: Map.Map String String
 
-    it "returns list of errors when validation fails" $ do
-      V.execValidator (const $ V.failure "test error") ()
-        `shouldBe` [ V.ValidationError
-                       { V.message = "test error",
-                         V.fieldPath = [],
-                         V.fileName = Nothing
-                       }
-                   ]
+        validator =
+          V.withFileName "config.json" $
+            V.all
+              [ V.inField ("database", Map.lookup "database") $
+                  V.all
+                    [ fail "connection failed",
+                      fail "timeout occurred",
+                      fail "some unknown error" `V.and` fail "some other error",
+                      V.eqJust "postgres"
+                    ],
+                V.inField ("host", Map.lookup "host") $
+                  V.eqJust "localhost"
+              ]
 
-    it "combined usage" $ do
-      let mockData = Map.fromList [("database", "mysql")] :: Map.Map String String
-
-          validator =
-            V.withFileName "config.json" $
-              V.all
-                [ V.inField ("database", Map.lookup "database") $
-                    V.all
-                      [ fail "connection failed",
-                        fail "timeout occurred",
-                        fail "some unknown error" `V.and` fail "some other error",
-                        V.eqJust "postgres"
-                      ],
-                  V.inField ("host", Map.lookup "host") $
-                    V.eqJust "localhost"
-                ]
-
-      V.execValidator validator mockData
-        `shouldBe` [ V.ValidationError
-                       { message = "connection failed",
-                         fieldPath = ["database"],
-                         fileName = Just "config.json"
-                       },
-                     V.ValidationError
-                       { message = "timeout occurred",
-                         fieldPath = ["database"],
-                         fileName = Just "config.json"
-                       },
-                     V.ValidationError
-                       { message = "some unknown error",
-                         fieldPath = ["database"],
-                         fileName = Just "config.json"
-                       },
-                     V.ValidationError
-                       { message = "Expected \"postgres\" but got \"mysql\".",
-                         fieldPath = ["database"],
-                         fileName = Just "config.json"
-                       },
-                     V.ValidationError
-                       { message = "Missing value, expected \"localhost\".",
-                         fieldPath = ["host"],
-                         fileName = Just "config.json"
-                       }
-                   ]
+    V.execValidator validator mockData
+      `shouldBe` [ V.ValidationError
+                     { message = "connection failed",
+                       fieldPath = ["database"],
+                       fileName = Just "config.json"
+                     },
+                   V.ValidationError
+                     { message = "timeout occurred",
+                       fieldPath = ["database"],
+                       fileName = Just "config.json"
+                     },
+                   V.ValidationError
+                     { message = "some unknown error",
+                       fieldPath = ["database"],
+                       fileName = Just "config.json"
+                     },
+                   V.ValidationError
+                     { message = "Expected \"postgres\" but got \"mysql\".",
+                       fieldPath = ["database"],
+                       fileName = Just "config.json"
+                     },
+                   V.ValidationError
+                     { message = "Missing value, expected \"localhost\".",
+                       fieldPath = ["host"],
+                       fileName = Just "config.json"
+                     }
+                 ]
 
 succeed :: a -> V.Validation
 succeed = const V.success
