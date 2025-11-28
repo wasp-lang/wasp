@@ -30,6 +30,9 @@ export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
     where: { id: user.id },
     data: {
       isOnAfterEmailVerifiedHookCalled: true,
+      numTimesOnAfterEmailVerifiedCalled: {
+        increment: 1,
+      },
     },
   });
 };

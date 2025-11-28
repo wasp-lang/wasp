@@ -65,6 +65,7 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
               <HookStatus
                 hookName="onAfterEmailVerified"
                 isCalled={user.isOnAfterEmailVerifiedHookCalled}
+                callCount={user.numTimesOnAfterEmailVerifiedCalled}
               />
               <HookStatus
                 hookName="onAfterLogin"
@@ -81,9 +82,11 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
 const HookStatus = ({
   hookName,
   isCalled,
+  callCount,
 }: {
   hookName: "onAfterSignup" | "onAfterEmailVerified" | "onAfterLogin";
   isCalled: boolean;
+  callCount?: number;
 }) => {
   return (
     <SimpleCard>
@@ -92,16 +95,23 @@ const HookStatus = ({
         data-testid={`hook-status-${hookName}`}
       >
         <span className="text-sm text-gray-600">{hookName}</span>
-        <span
-          className={cn(
-            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-            isCalled && "bg-green-100 text-green-800",
-            !isCalled && "bg-gray-100 text-gray-800",
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+              isCalled && "bg-green-100 text-green-800",
+              !isCalled && "bg-gray-100 text-gray-800",
+            )}
+            data-testid="status"
+          >
+            {isCalled ? "Called" : "Not Called"}
+          </span>
+          {callCount !== undefined && (
+            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+              Count: <span data-testid="call-count">{callCount}</span>
+            </span>
           )}
-          data-testid="status"
-        >
-          {isCalled ? "Called" : "Not Called"}
-        </span>
+        </div>
       </div>
     </SimpleCard>
   );

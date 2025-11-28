@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
@@ -34,9 +34,13 @@ export const VerifyEmailForm = () => {
     }
   }
 
+  const isFirstRender = useRef(true)
   useEffect(() => {
-    submitForm()
-  }, [location])
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      submitForm()
+    }
+  }, [])
 
   return <>{isLoading && <Message>Verifying email...</Message>}</>
 }

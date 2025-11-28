@@ -54,13 +54,24 @@ test.describe("auth hooks", () => {
     ).toHaveText("Called");
 
     const expectedEmailVerificationStatus = isRunningInDevMode()
-      ? "Not Called"
-      : "Called";
+      ? {
+          callCount: 0,
+          statusName: "Not Called",
+        }
+      : {
+          callCount: 1,
+          statusName: "Called",
+        };
     await expect(
       page
         .getByTestId("hook-status-onAfterEmailVerified")
         .getByTestId("status"),
-    ).toHaveText(expectedEmailVerificationStatus);
+    ).toHaveText(expectedEmailVerificationStatus.statusName);
+    await expect(
+      page
+        .getByTestId("hook-status-onAfterEmailVerified")
+        .getByTestId("call-count"),
+    ).toHaveText(expectedEmailVerificationStatus.callCount.toString());
   });
 
   /*
