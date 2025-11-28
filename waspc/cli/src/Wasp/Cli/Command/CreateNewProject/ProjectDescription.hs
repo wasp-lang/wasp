@@ -8,7 +8,6 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   )
 where
 
-import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
@@ -16,7 +15,6 @@ import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
 import StrongPath.Path (toPathAbsDir)
-import StrongPath.Types (Dir')
 import System.Directory (doesDirectoryExist)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
