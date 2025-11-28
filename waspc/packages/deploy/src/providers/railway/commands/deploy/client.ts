@@ -24,7 +24,10 @@ export async function deployClient({
     serverAppPort,
     options,
   );
-  const clientBuildArtefactsDir = await buildClient(serverServiceUrl, options);
+  const clientBuildArtefactsDir = await buildClient(
+    options.customServerUrl ?? serverServiceUrl,
+    options,
+  );
 
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {

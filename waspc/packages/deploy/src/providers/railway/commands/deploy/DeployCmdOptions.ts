@@ -5,4 +5,5 @@ export interface DeployCmdOptions extends CommonCmdOptions {
   skipClient?: boolean;
   skipServer?: boolean;
   existingProjectId?: RailwayProjectId;
+  customServerUrl?: string;
 }

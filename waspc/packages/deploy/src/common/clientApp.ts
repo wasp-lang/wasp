@@ -10,7 +10,10 @@ export const serverUrlEnvVarName = "REACT_APP_API_URL";
 
 export async function buildClient(
   defaultServerAppUrl: string,
-  { waspProjectDir }: { waspProjectDir: WaspProjectDir },
+  {
+    waspProjectDir,
+    customServerUrl,
+  }: { waspProjectDir: WaspProjectDir; customServerUrl?: string },
 ): Promise<string> {
   waspSays("Building web client for production...");
   waspSays(
@@ -22,7 +25,8 @@ export async function buildClient(
 
   await npmCli(["install"]);
 
-  const serverUrl = getServerAppUrlEnvValue() ?? defaultServerAppUrl;
+  const serverUrl =
+    customServerUrl ?? getServerAppUrlEnvValue() ?? defaultServerAppUrl;
   await npmCli(["run", "build"], {
     env: {
       ...process.env,
