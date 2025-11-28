@@ -42,7 +42,8 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
   // For now we just rely on the suffix naming convention and infer from toml files.
   if (!serverTomlExistsInProject(tomlFilePaths)) {
     waspSays(
-      `${tomlFilePaths.serverTomlPath
+      `${
+        tomlFilePaths.serverTomlPath
       } missing. Skipping server deploy. Perhaps you need to run "${getFullCommandName(
         flySetupCommand,
       )}" first?`,
@@ -61,7 +62,8 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
 
   if (!clientTomlExistsInProject(tomlFilePaths)) {
     waspSays(
-      `${tomlFilePaths.clientTomlPath
+      `${
+        tomlFilePaths.clientTomlPath
       } missing. Skipping client deploy. Perhaps you need to run "${getFullCommandName(
         flySetupCommand,
       )}" first?`,
