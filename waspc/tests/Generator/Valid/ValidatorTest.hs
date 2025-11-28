@@ -20,17 +20,14 @@ spec_Validator = do
                        }
                    ]
 
-  describe "helper validators" $ do
+  describe "Validator constructor helpers" $ do
     specify "success" $ do
       const V.success ~> []
 
     specify "failure" $ do
       const (V.failure "error") ~> ["error"]
 
-    -- We have now tested the basic `success` and `failure` validators above,
-    -- so for the rest of the tests we can use them, through the `succeed`
-    -- and `fail` shorthands.
-
+  describe "Validator combinators" $ do
     specify "and" $ do
       V.and succeed succeed ~> []
       V.and (fail "left") succeed ~> ["left"]
@@ -64,49 +61,49 @@ spec_Validator = do
       V.eqJust True <-- Just False ~> ["Expected True but got False."]
       V.eqJust True <-- Nothing ~> ["Missing value, expected True."]
 
-  specify "combined usage" $ do
-    let mockData = Map.fromList [("database", "mysql")] :: Map.Map String String
-        validator =
-          V.withFileName "config.json" $
-            V.all
-              [ V.inField ("database", Map.lookup "database") $
-                  V.all
-                    [ fail "connection failed",
-                      fail "timeout occurred",
-                      fail "some unknown error" `V.and` fail "some other error",
-                      V.eqJust "postgres"
-                    ],
-                V.inField ("host", Map.lookup "host") $
-                  V.eqJust "localhost"
-              ]
+    specify "combined usage" $ do
+      let mockData = Map.fromList [("database", "mysql")] :: Map.Map String String
+          validator =
+            V.withFileName "config.json" $
+              V.all
+                [ V.inField ("database", Map.lookup "database") $
+                    V.all
+                      [ fail "connection failed",
+                        fail "timeout occurred",
+                        fail "some unknown error" `V.and` fail "some other error",
+                        V.eqJust "postgres"
+                      ],
+                  V.inField ("host", Map.lookup "host") $
+                    V.eqJust "localhost"
+                ]
 
-    V.execValidator validator mockData
-      `shouldBe` [ V.ValidationError
-                     { message = "connection failed",
-                       fieldPath = ["database"],
-                       fileName = Just "config.json"
-                     },
-                   V.ValidationError
-                     { message = "timeout occurred",
-                       fieldPath = ["database"],
-                       fileName = Just "config.json"
-                     },
-                   V.ValidationError
-                     { message = "some unknown error",
-                       fieldPath = ["database"],
-                       fileName = Just "config.json"
-                     },
-                   V.ValidationError
-                     { message = "Expected \"postgres\" but got \"mysql\".",
-                       fieldPath = ["database"],
-                       fileName = Just "config.json"
-                     },
-                   V.ValidationError
-                     { message = "Missing value, expected \"localhost\".",
-                       fieldPath = ["host"],
-                       fileName = Just "config.json"
-                     }
-                 ]
+      V.execValidator validator mockData
+        `shouldBe` [ V.ValidationError
+                       { message = "connection failed",
+                         fieldPath = ["database"],
+                         fileName = Just "config.json"
+                       },
+                     V.ValidationError
+                       { message = "timeout occurred",
+                         fieldPath = ["database"],
+                         fileName = Just "config.json"
+                       },
+                     V.ValidationError
+                       { message = "some unknown error",
+                         fieldPath = ["database"],
+                         fileName = Just "config.json"
+                       },
+                     V.ValidationError
+                       { message = "Expected \"postgres\" but got \"mysql\".",
+                         fieldPath = ["database"],
+                         fileName = Just "config.json"
+                       },
+                     V.ValidationError
+                       { message = "Missing value, expected \"localhost\".",
+                         fieldPath = ["host"],
+                         fileName = Just "config.json"
+                       }
+                   ]
 
 succeed :: a -> V.Validation
 succeed = const V.success
