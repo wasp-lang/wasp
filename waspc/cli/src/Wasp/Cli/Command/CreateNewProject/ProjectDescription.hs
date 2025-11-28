@@ -19,7 +19,10 @@ import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesDirectoryExist)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
-import qualified Wasp.Cli.Command.CreateNewProject.ArgumentsParser as Args
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+  ( NewProjectArgs (..),
+    NewProjectTemplateArg (..),
+  )
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
@@ -66,8 +69,8 @@ instance Show NewProjectAppName where
     - Project name is required.
     - Template name is required, we ask the user to choose from available templates.
 -}
-obtainNewProjectDescription :: Args.NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescription Args.NewProjectArgs {_projectName = projectNameArg, _templateArg = templateArg} starterTemplates = do
+obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
+obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateArg = templateArg} starterTemplates = do
   projectName <- maybe askForName return projectNameArg
   appName <-
     either throwProjectCreationError pure $
@@ -105,10 +108,10 @@ parseWaspProjectNameIntoAppName projectName
   where
     appName = kebabToCamelCase projectName
 
-findTemplateOrThrow :: [StarterTemplate] -> Args.NewProjectTemplateArg -> Command StarterTemplate
+findTemplateOrThrow :: [StarterTemplate] -> NewProjectTemplateArg -> Command StarterTemplate
 findTemplateOrThrow availableTemplates = \case
-  (Args.NamedTemplateArg templateName) -> findNamedTemplate templateName
-  (Args.CustomTemplateDirArg templatePathArg) -> findCustomTemplate templatePathArg
+  (NamedTemplateArg templateName) -> findNamedTemplate templateName
+  (CustomTemplateDirArg templatePathArg) -> findCustomTemplate templatePathArg
   where
     findNamedTemplate templateName =
       case findTemplateByString availableTemplates templateName of
