@@ -15,8 +15,8 @@ data NewProjectArgs = NewProjectArgs
   }
 
 data NewProjectTemplateArg
-  = Named String
-  | Custom DirPathArgument
+  = NamedTemplateArg String
+  | CustomTemplateDirArg DirPathArgument
 
 newProjectArgsParser :: Opt.Parser NewProjectArgs
 newProjectArgsParser =
@@ -31,8 +31,8 @@ newProjectArgsParser =
 
     templateArgParser :: Opt.Parser NewProjectTemplateArg
     templateArgParser =
-      (Named <$> templateNameParser)
-        <|> (Custom <$> customTemplatePathParser)
+      (NamedTemplateArg <$> templateNameParser)
+        <|> (CustomTemplateDirArg <$> customTemplatePathParser)
 
     templateNameParser :: Opt.Parser String
     templateNameParser =

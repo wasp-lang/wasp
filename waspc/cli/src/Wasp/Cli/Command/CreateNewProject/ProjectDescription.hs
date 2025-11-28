@@ -108,8 +108,8 @@ parseWaspProjectNameIntoAppName projectName
 
 findTemplateOrThrow :: [StarterTemplate] -> Args.NewProjectTemplateArg -> Command StarterTemplate
 findTemplateOrThrow availableTemplates = \case
-  (Args.Named templateName) -> findNamedTemplate templateName
-  (Args.Custom templatePathArg) -> findCustomTemplate templatePathArg
+  (Args.NamedTemplateArg templateName) -> findNamedTemplate templateName
+  (Args.CustomTemplateDirArg templatePathArg) -> findCustomTemplate templatePathArg
   where
     findNamedTemplate templateName =
       case findTemplateByString availableTemplates templateName of
