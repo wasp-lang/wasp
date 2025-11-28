@@ -20,7 +20,7 @@ spec_Validator = do
                        }
                    ]
 
-  describe "helper functions" $ do
+  describe "helper validators" $ do
     specify "success" $ do
       const V.success ~> []
 
