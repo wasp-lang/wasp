@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    /* Basic options */
+    "target": "esnext",
+    "jsx": "react-jsx",
+    "lib": ["esnext", "dom", "DOM.Iterable"],
+    "skipLibCheck": true,
+
+    /* Modules */
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "module": "preserve",
+    "verbatimModuleSyntax": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    /* Declarations */
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true
+  },
+  "include": ["src", "tests"]
+}
