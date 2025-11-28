@@ -7,7 +7,6 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.Function ((&))
 import Data.Maybe (isJust)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
@@ -23,7 +22,7 @@ import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Util.Parser (parseArguments)
+import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
@@ -39,11 +38,7 @@ import qualified Wasp.Util.Network.Socket as Socket
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
 start :: Arguments -> Command ()
-start args = do
-  startDbArgs <-
-    parseArguments "wasp start db" startDbArgsParser args
-      & either (E.throwError . CommandError "Invalid arguments") return
-
+start = withArguments "wasp start db" startDbArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir
 
@@ -57,8 +52,8 @@ start args = do
       startPostgresDevDb
         waspProjectDir
         appName
-        (dbImage startDbArgs)
-        (dbVolumeMountPath startDbArgs)
+        (dbImage args)
+        (dbVolumeMountPath args)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $

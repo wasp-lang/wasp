@@ -18,7 +18,6 @@ module Wasp.Psl.Parser.Common
   )
 where
 
-import Control.Applicative (liftA2)
 import Data.Functor (void)
 import Data.Void (Void)
 import Text.Megaparsec
