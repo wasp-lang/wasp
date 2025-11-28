@@ -33,6 +33,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🐞 Bug fixes
 
+- Fixed node/npm/npx/prisma command resolution on Windows, which was one of the main stoppers of supporting Wasp on native Windows. ([#3258](https://github.com/wasp-lang/wasp/pull/3258)).
 - Fixed a type error in the generated server app when `process.env.NODE_ENV` is also declared by another dependency in the project. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
 - Fixed an incompatibility between `wasp deploy fly` and Fly CLI v0.3.214. ([#3372](https://github.com/wasp-lang/wasp/pull/3372))
 - Raised the internal requirement of Tailwind CSS from `^3.2.7` to `^3.4.17` to ensure compatibility with ESM config files. ([#3380](https://github.com/wasp-lang/wasp/issues/3380))
@@ -54,6 +55,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🧩 Other changes
 
 - Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory in our repo. ([#3085](https://github.com/wasp-lang/wasp/pull/3197))
+
+### 🌟 Contributors
+
+- Big thanks to @MetaMModern and @nodtem66 for crucial work in releasing the fix for node commands resolution on Windows ([#3258](https://github.com/wasp-lang/wasp/pull/3258)) and other related issues.
 
 ## 0.18.2
 
