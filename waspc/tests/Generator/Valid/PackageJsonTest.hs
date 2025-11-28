@@ -148,6 +148,7 @@ validator ~> expectedErrorMessages =
 validator ~~> f =
   mapM_ (`shouldSatisfy` f) (V.execValidator validator ())
 
--- | Forces a specific input for the Validator
+-- | Passes the given input to the `Validator`, and turns it into a `Validator ()`.
+-- This way we can use our shorthand operators, which only supply `()`.
 (<--) :: V.Validator a -> a -> V.Validator ()
 validator <-- value = const $ validator value
