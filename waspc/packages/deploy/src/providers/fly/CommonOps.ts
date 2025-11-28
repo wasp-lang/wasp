@@ -1,9 +1,9 @@
+import { cd } from "zx";
 import { WaspProjectDir } from "../../common/brandedTypes.js";
 import {
   getClientBuildDir,
   getServerBuildDir,
 } from "../../common/waspProject.js";
-import { cd } from "zx";
 import {
   clientTomlExistsInProject,
   copyLocalClientTomlToProject,
