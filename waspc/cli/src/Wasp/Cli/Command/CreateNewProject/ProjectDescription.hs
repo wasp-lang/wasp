@@ -16,6 +16,7 @@ import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
 import StrongPath.Path (toPathAbsDir)
+import StrongPath.Types (Dir')
 import System.Directory (doesDirectoryExist)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
@@ -31,6 +32,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Cli.Util.PathArgument (DirPathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
@@ -77,12 +79,14 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
       parseWaspProjectNameIntoAppName projectName
 
   let prefersInteractive = isNothing projectNameArg
-      getFallbackTemplate =
-        if prefersInteractive
-          then askForTemplate starterTemplates
-          else return defaultStarterTemplate
 
-  template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateArg
+  template <- case templateArg of
+    Just (NamedTemplateArg templateName) -> findNamedTemplate starterTemplates templateName
+    Just (CustomTemplateDirArg templatePath) -> findCustomTemplate templatePath
+    Nothing ->
+      if prefersInteractive
+        then askForTemplate starterTemplates
+        else return defaultStarterTemplate
 
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
   return $ mkNewProjectDescription projectName appName absWaspProjectDir template
@@ -108,23 +112,12 @@ parseWaspProjectNameIntoAppName projectName
   where
     appName = kebabToCamelCase projectName
 
-findTemplateOrThrow :: [StarterTemplate] -> NewProjectTemplateArg -> Command StarterTemplate
-findTemplateOrThrow availableTemplates = \case
-  (NamedTemplateArg templateName) -> findNamedTemplate templateName
-  (CustomTemplateDirArg templatePathArg) -> findCustomTemplate templatePathArg
+findNamedTemplate :: [StarterTemplate] -> String -> Command StarterTemplate
+findNamedTemplate availableTemplates templateName =
+  maybe invalidTemplateNameError return $
+    findTemplateByString availableTemplates templateName
   where
-    findNamedTemplate templateName =
-      case findTemplateByString availableTemplates templateName of
-        Just template -> return template
-        Nothing -> throwInvalidTemplateNameError templateName
-
-    findCustomTemplate templatePath = do
-      absTemplatePath <- liftIO $ PathArgument.getDirPath templatePath
-      templateExists <- liftIO $ doesDirectoryExist $ fromAbsDir absTemplatePath
-      unless templateExists $ throwInvalidCustomTemplatePathError absTemplatePath
-      return $ LocalStarterTemplate {localPath = absTemplatePath}
-
-    throwInvalidTemplateNameError templateName =
+    invalidTemplateNameError =
       throwProjectCreationError $
         "The template "
           <> show templateName
@@ -132,10 +125,18 @@ findTemplateOrThrow availableTemplates = \case
           <> intercalate ", " (map show availableTemplates)
           <> "."
 
-    throwInvalidCustomTemplatePathError templatePath =
+findCustomTemplate :: DirPathArgument -> Command StarterTemplate
+findCustomTemplate templatePath = do
+  absTemplatePath <- liftIO $ PathArgument.getDirPath templatePath
+  templateExists <- liftIO $ doesDirectoryExist $ fromAbsDir absTemplatePath
+  if templateExists
+    then return $ LocalStarterTemplate {localPath = absTemplatePath}
+    else makeInvalidCustomTemplatePathError absTemplatePath
+  where
+    makeInvalidCustomTemplatePathError absTemplatePath =
       throwProjectCreationError $
         "The directory "
-          <> show (fromAbsDir templatePath)
+          <> show (fromAbsDir absTemplatePath)
           <> " doesn't exist or can't be found."
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
