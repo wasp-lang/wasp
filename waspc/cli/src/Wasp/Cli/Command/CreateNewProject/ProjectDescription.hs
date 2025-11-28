@@ -13,21 +13,25 @@ import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
 import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', fromAbsDir)
 import StrongPath.Path (toPathAbsDir)
+import System.Directory (doesDirectoryExist)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),
+    TemplateArg (..),
   )
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplate,
+  ( StarterTemplate (LocalStarterTemplate, localPath),
     findTemplateByString,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Cli.Util.PathArgument (DirPathArgument)
+import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
 
@@ -50,12 +54,14 @@ instance Show NewProjectAppName where
 
 {-
   There are two ways of getting the project description:
+
   1. From CLI arguments
 
-     wasp new <project-name> [-t <template-name>]
+     wasp new <project-name> [-t <template-name> | -c <template-dir>]
 
     - Project name is required.
-    - Template name is optional, if not provided, we use the default template.
+    - Template name/dir is optional, if not provided, we use the default template.
+
   2. Interactively
 
      wasp new
@@ -64,19 +70,21 @@ instance Show NewProjectAppName where
     - Template name is required, we ask the user to choose from available templates.
 -}
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates = do
+obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateArg = templateArg} starterTemplates = do
   projectName <- maybe askForName return projectNameArg
   appName <-
     either throwProjectCreationError pure $
       parseWaspProjectNameIntoAppName projectName
 
   let prefersInteractive = isNothing projectNameArg
-      getFallbackTemplate =
-        if prefersInteractive
-          then askForTemplate starterTemplates
-          else return defaultStarterTemplate
 
-  template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateNameArg
+  template <- case templateArg of
+    Just (NamedTemplate templateName) -> findNamedTemplate starterTemplates templateName
+    Just (CustomTemplate templatePath) -> findCustomTemplate templatePath
+    Nothing ->
+      if prefersInteractive
+        then askForTemplate starterTemplates
+        else return defaultStarterTemplate
 
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
   return $ mkNewProjectDescription projectName appName absWaspProjectDir template
@@ -102,17 +110,32 @@ parseWaspProjectNameIntoAppName projectName
   where
     appName = kebabToCamelCase projectName
 
-findTemplateOrThrow :: [StarterTemplate] -> String -> Command StarterTemplate
-findTemplateOrThrow availableTemplates templateName = case findTemplateByString availableTemplates templateName of
-  Just template -> return template
-  Nothing -> throwProjectCreationError invalidTemplateNameError
+findNamedTemplate :: [StarterTemplate] -> String -> Command StarterTemplate
+findNamedTemplate availableTemplates templateName =
+  maybe throwInvalidTemplateNameError return $
+    findTemplateByString availableTemplates templateName
   where
-    invalidTemplateNameError =
-      "The template '"
-        <> templateName
-        <> "' doesn't exist. Available starter templates are: "
-        <> intercalate ", " (map show availableTemplates)
-        <> "."
+    throwInvalidTemplateNameError =
+      throwProjectCreationError $
+        "The template "
+          <> show templateName
+          <> " doesn't exist. Available starter templates are: "
+          <> intercalate ", " (map show availableTemplates)
+          <> "."
+
+findCustomTemplate :: DirPathArgument -> Command StarterTemplate
+findCustomTemplate templatePath = do
+  absTemplatePath <- liftIO $ PathArgument.getDirPath templatePath
+  templateExists <- liftIO $ doesDirectoryExist $ fromAbsDir absTemplatePath
+  if templateExists
+    then return $ LocalStarterTemplate {localPath = absTemplatePath}
+    else throwInvalidCustomTemplatePathError absTemplatePath
+  where
+    throwInvalidCustomTemplatePathError absTemplatePath =
+      throwProjectCreationError $
+        "The directory "
+          <> show (fromAbsDir absTemplatePath)
+          <> " doesn't exist or can't be found."
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
 obtainAvailableProjectDirPath projectName = do
