@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
-    createNewCustomProject,
   )
 where
 
@@ -10,12 +9,11 @@ import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newCustomProjectArgsParser, newProjectArgsParser)
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import qualified Wasp.Cli.Command.CreateNewProject.Common as Common
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
-    obtainNewCustomProjectDescription,
     obtainNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
@@ -41,19 +39,6 @@ createNewProject args = do
 
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
-
--- | It receives all of the arguments that were passed to the `wasp new:custom` command.
-createNewCustomProject :: Arguments -> Command ()
-createNewCustomProject args = do
-  newCustomProjectArgs <-
-    parseArguments "wasp new:custom" newCustomProjectArgsParser args
-      & either Common.throwProjectCreationError return
-
-  newCustomProjectDescription <-
-    obtainNewCustomProjectDescription newCustomProjectArgs
-
-  createProjectOnDisk newCustomProjectDescription
-  liftIO $ printGettingStartedInstructionsForProject newCustomProjectDescription
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk

@@ -1,27 +1,38 @@
 module Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),
+    NewProjectTemplateArg (..),
     newProjectArgsParser,
-    NewCustomProjectArgs (..),
-    newCustomProjectArgsParser,
   )
 where
 
+import Control.Applicative ((<|>))
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.PathArgument (DirPathArgument, dirPathReader)
+import Wasp.Cli.Util.PathArgument (DirPathArgument)
 
 data NewProjectArgs = NewProjectArgs
   { _projectName :: Maybe String,
-    _templateName :: Maybe String
+    _templateArg :: Maybe NewProjectTemplateArg
   }
+
+data NewProjectTemplateArg
+  = Named String
+  | Custom DirPathArgument
 
 newProjectArgsParser :: Opt.Parser NewProjectArgs
 newProjectArgsParser =
   NewProjectArgs
     <$> Opt.optional projectNameParser
-    <*> Opt.optional templateNameParser
+    <*> Opt.optional templateArg
   where
     projectNameParser :: Opt.Parser String
-    projectNameParser = Opt.strArgument $ Opt.metavar "PROJECT_NAME"
+    projectNameParser =
+      Opt.strArgument $
+        Opt.metavar "PROJECT_NAME"
+
+    templateArg :: Opt.Parser NewProjectTemplateArg
+    templateArg =
+      (Named <$> templateNameParser)
+        <|> (Custom <$> customTemplatePathParser)
 
     templateNameParser :: Opt.Parser String
     templateNameParser =
@@ -31,24 +42,8 @@ newProjectArgsParser =
           <> Opt.metavar "TEMPLATE_NAME"
           <> Opt.help "Template to use for the new project"
 
-data NewCustomProjectArgs = NewCustomProjectArgs
-  { _customProjectName :: Maybe String,
-    _customTemplatePath :: DirPathArgument
-  }
-
-newCustomProjectArgsParser :: Opt.Parser NewCustomProjectArgs
-newCustomProjectArgsParser =
-  NewCustomProjectArgs
-    <$> Opt.optional projectNameParser
-    <*> templateNameParser
-  where
-    projectNameParser :: Opt.Parser String
-    projectNameParser = Opt.strArgument $ Opt.metavar "PROJECT_NAME"
-
-    templateNameParser :: Opt.Parser DirPathArgument
-    templateNameParser =
-      Opt.option dirPathReader $
-        Opt.long "path"
-          <> Opt.short 'p'
-          <> Opt.metavar "TEMPLATE_PATH"
-          <> Opt.help "Path to the local directory to use as a starter template"
+    customTemplatePathParser :: Opt.Parser DirPathArgument
+    customTemplatePathParser =
+      Opt.strOption $
+        Opt.long "custom-template"
+          <> Opt.internal

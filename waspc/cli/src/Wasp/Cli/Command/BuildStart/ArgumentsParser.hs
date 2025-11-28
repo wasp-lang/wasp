@@ -6,7 +6,7 @@ where
 
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
-import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
+import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import Wasp.Env (EnvVar)
 
 data BuildStartArgs = BuildStartArgs
@@ -44,7 +44,7 @@ buildStartArgsParser =
 
     makeEnvironmentFileParser :: String -> String -> Opt.Parser FilePathArgument
     makeEnvironmentFileParser targetName longOptionName =
-      Opt.option filePathReader $
+      Opt.strOption $
         Opt.long longOptionName
           <> Opt.metavar "FILE_PATH"
           <> Opt.help ("Load environment variables for the " <> targetName <> " from a file (can be used multiple times)")

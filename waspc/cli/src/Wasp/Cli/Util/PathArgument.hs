@@ -3,12 +3,10 @@ module Wasp.Cli.Util.PathArgument
     DirPathArgument,
     getFilePath,
     getDirPath,
-    filePathReader,
-    dirPathReader,
   )
 where
 
-import Options.Applicative (ReadM, str)
+import Data.String (IsString (..))
 import StrongPath (Abs, Dir', File', Path', parseAbsDir)
 import StrongPath.FilePath (parseAbsFile)
 import System.Directory (makeAbsolute)
@@ -19,17 +17,15 @@ import System.Directory (makeAbsolute)
 -- in the meantime; so we make these types opaque until we have access to the IO
 -- monad.
 
-newtype FilePathArgument = FilePathArgument FilePath
-  deriving (Show, Eq)
+newtype FilePathArgument = FilePathArgument FilePath deriving (Show, Eq)
 
-newtype DirPathArgument = DirPathArgument FilePath
-  deriving (Show, Eq)
+newtype DirPathArgument = DirPathArgument FilePath deriving (Show, Eq)
 
-filePathReader :: ReadM FilePathArgument
-filePathReader = FilePathArgument <$> str
+instance IsString FilePathArgument where
+  fromString = FilePathArgument . fromString
 
-dirPathReader :: ReadM DirPathArgument
-dirPathReader = DirPathArgument <$> str
+instance IsString DirPathArgument where
+  fromString = DirPathArgument . fromString
 
 getFilePath :: FilePathArgument -> IO (Path' Abs File')
 getFilePath (FilePathArgument filePath) = makeAbsolute filePath >>= parseAbsFile

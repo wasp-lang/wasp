@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( obtainNewProjectDescription,
-    obtainNewCustomProjectDescription,
     NewProjectDescription (..),
     NewProjectName (..),
     NewProjectAppName (..),
@@ -20,10 +19,7 @@ import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesDirectoryExist)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
-  ( NewCustomProjectArgs (..),
-    NewProjectArgs (..),
-  )
+import qualified Wasp.Cli.Command.CreateNewProject.ArgumentsParser as Args
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
@@ -32,7 +28,6 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Cli.Util.PathArgument (DirPathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
@@ -56,12 +51,14 @@ instance Show NewProjectAppName where
 
 {-
   There are two ways of getting the project description:
+
   1. From CLI arguments
 
-     wasp new <project-name> [-t <template-name>]
+     wasp new <project-name> [-t <template-name> | -c <template-dir>]
 
     - Project name is required.
-    - Template name is optional, if not provided, we use the default template.
+    - Template name/dir is optional, if not provided, we use the default template.
+
   2. Interactively
 
      wasp new
@@ -69,8 +66,8 @@ instance Show NewProjectAppName where
     - Project name is required.
     - Template name is required, we ask the user to choose from available templates.
 -}
-obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates = do
+obtainNewProjectDescription :: Args.NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
+obtainNewProjectDescription Args.NewProjectArgs {_projectName = projectNameArg, _templateArg = templateArg} starterTemplates = do
   projectName <- maybe askForName return projectNameArg
   appName <-
     either throwProjectCreationError pure $
@@ -82,18 +79,8 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
           then askForTemplate starterTemplates
           else return defaultStarterTemplate
 
-  template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateNameArg
+  template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateArg
 
-  absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  return $ mkNewProjectDescription projectName appName absWaspProjectDir template
-
-obtainNewCustomProjectDescription :: NewCustomProjectArgs -> Command NewProjectDescription
-obtainNewCustomProjectDescription NewCustomProjectArgs {_customProjectName = projectNameArg, _customTemplatePath = templatePathArg} = do
-  projectName <- maybe askForName return projectNameArg
-  appName <-
-    either throwProjectCreationError pure $
-      parseWaspProjectNameIntoAppName projectName
-  template <- findCustomTemplateOrThrow templatePathArg
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
   return $ mkNewProjectDescription projectName appName absWaspProjectDir template
 
@@ -118,29 +105,35 @@ parseWaspProjectNameIntoAppName projectName
   where
     appName = kebabToCamelCase projectName
 
-findTemplateOrThrow :: [StarterTemplate] -> String -> Command StarterTemplate
-findTemplateOrThrow availableTemplates templateName = case findTemplateByString availableTemplates templateName of
-  Just template -> return template
-  Nothing -> throwProjectCreationError invalidTemplateNameError
+findTemplateOrThrow :: [StarterTemplate] -> Args.NewProjectTemplateArg -> Command StarterTemplate
+findTemplateOrThrow availableTemplates = \case
+  (Args.Named templateName) -> findNamedTemplate templateName
+  (Args.Custom templatePathArg) -> findCustomTemplate templatePathArg
   where
-    invalidTemplateNameError =
-      "The template '"
-        <> templateName
-        <> "' doesn't exist. Available starter templates are: "
-        <> intercalate ", " (map show availableTemplates)
-        <> "."
+    findNamedTemplate templateName =
+      case findTemplateByString availableTemplates templateName of
+        Just template -> return template
+        Nothing -> throwInvalidTemplateNameError templateName
 
-findCustomTemplateOrThrow :: DirPathArgument -> Command StarterTemplate
-findCustomTemplateOrThrow templatePathArg = do
-  absTemplatePath <- liftIO $ PathArgument.getDirPath templatePathArg
-  templateExists <- liftIO $ doesDirectoryExist $ fromAbsDir absTemplatePath
+    findCustomTemplate templatePath = do
+      absTemplatePath <- liftIO $ PathArgument.getDirPath templatePath
+      templateExists <- liftIO $ doesDirectoryExist $ fromAbsDir absTemplatePath
+      unless templateExists $ throwInvalidCustomTemplatePathError absTemplatePath
+      return $ LocalStarterTemplate {localPath = absTemplatePath}
 
-  unless templateExists $ do
-    throwProjectCreationError $
-      "The provided template path does not exist or is not a directory: "
-        ++ show templatePathArg
+    throwInvalidTemplateNameError templateName =
+      throwProjectCreationError $
+        "The template "
+          <> show templateName
+          <> " doesn't exist. Available starter templates are: "
+          <> intercalate ", " (map show availableTemplates)
+          <> "."
 
-  return $ LocalStarterTemplate {localPath = absTemplatePath}
+    throwInvalidCustomTemplatePathError templatePath =
+      throwProjectCreationError $
+        "The directory"
+          <> show templatePath
+          <> " doesn't exist or can't be found."
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
 obtainAvailableProjectDirPath projectName = do
