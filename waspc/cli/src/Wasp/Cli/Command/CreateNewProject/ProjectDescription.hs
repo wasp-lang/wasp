@@ -112,10 +112,10 @@ parseWaspProjectNameIntoAppName projectName
 
 findNamedTemplate :: [StarterTemplate] -> String -> Command StarterTemplate
 findNamedTemplate availableTemplates templateName =
-  maybe invalidTemplateNameError return $
+  maybe throwInvalidTemplateNameError return $
     findTemplateByString availableTemplates templateName
   where
-    invalidTemplateNameError =
+    throwInvalidTemplateNameError =
       throwProjectCreationError $
         "The template "
           <> show templateName
@@ -129,9 +129,9 @@ findCustomTemplate templatePath = do
   templateExists <- liftIO $ doesDirectoryExist $ fromAbsDir absTemplatePath
   if templateExists
     then return $ LocalStarterTemplate {localPath = absTemplatePath}
-    else makeInvalidCustomTemplatePathError absTemplatePath
+    else throwInvalidCustomTemplatePathError absTemplatePath
   where
-    makeInvalidCustomTemplatePathError absTemplatePath =
+    throwInvalidCustomTemplatePathError absTemplatePath =
       throwProjectCreationError $
         "The directory "
           <> show (fromAbsDir absTemplatePath)

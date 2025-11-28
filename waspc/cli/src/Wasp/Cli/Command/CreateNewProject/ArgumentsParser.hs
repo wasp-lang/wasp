@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),
-    NewProjectTemplateArg (..),
+    TemplateArg (..),
     newProjectArgsParser,
   )
 where
@@ -11,12 +11,12 @@ import Wasp.Cli.Util.PathArgument (DirPathArgument)
 
 data NewProjectArgs = NewProjectArgs
   { _projectName :: Maybe String,
-    _templateArg :: Maybe NewProjectTemplateArg
+    _templateArg :: Maybe TemplateArg
   }
 
-data NewProjectTemplateArg
-  = NamedTemplateArg String
-  | CustomTemplateDirArg DirPathArgument
+data TemplateArg
+  = NamedTemplate String
+  | CustomTemplate DirPathArgument
 
 newProjectArgsParser :: Opt.Parser NewProjectArgs
 newProjectArgsParser =
@@ -29,10 +29,10 @@ newProjectArgsParser =
       Opt.strArgument $
         Opt.metavar "PROJECT_NAME"
 
-    templateArgParser :: Opt.Parser NewProjectTemplateArg
+    templateArgParser :: Opt.Parser TemplateArg
     templateArgParser =
-      (NamedTemplateArg <$> templateNameParser)
-        <|> (CustomTemplateDirArg <$> customTemplatePathParser)
+      (NamedTemplate <$> templateNameParser)
+        <|> (CustomTemplate <$> customTemplatePathParser)
 
     templateNameParser :: Opt.Parser String
     templateNameParser =
