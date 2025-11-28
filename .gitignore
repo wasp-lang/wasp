@@ -12,3 +12,6 @@
 .vscode/
 
 node_modules/
+
+# Generated API docs
+web/docs/api/**/*
