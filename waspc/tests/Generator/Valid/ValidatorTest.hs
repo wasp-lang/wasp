@@ -27,6 +27,10 @@ spec_Validator = do
     specify "failure" $ do
       const (V.failure "error") ~> ["error"]
 
+    -- We have now tested the basic `success` and `failure` validators above,
+    -- so for the rest of the tests we can use them, through the `succeed`
+    -- and `fail` shorthands.
+
     specify "and" $ do
       V.and succeed succeed ~> []
       V.and (fail "left") succeed ~> ["left"]
