@@ -11,8 +11,8 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
+import Wasp.Generator.SdkGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
 
 data PackageRequirement
   = RequiredRuntime

@@ -35,19 +35,29 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion)
+import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion, typescriptVersion)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
+import Wasp.Generator.SdkGenerator.Client.AppGenerator (genClientApp)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
+import Wasp.Generator.SdkGenerator.Client.AuthPagesGenerator (genClientAuthPages)
+import Wasp.Generator.SdkGenerator.Client.ComponentsGenerator (genClientComponents)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
+import Wasp.Generator.SdkGenerator.Client.RouterComponentGenerator (genClientRouterComponent)
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
+import Wasp.Generator.SdkGenerator.DepVersions
+  ( axiosVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactVersion,
+    tailwindCssVersion,
+  )
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
@@ -68,12 +78,6 @@ import Wasp.Generator.ServerGenerator.DepVersions
   )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.DepVersions
-  ( axiosVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactVersion,
-  )
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
@@ -138,6 +142,10 @@ genSdk spec =
     <++> genNewEmailSenderApi spec
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
+    <++> genClientApp spec
+    <++> genClientComponents spec
+    <++> genClientRouterComponent spec
+    <++> genClientAuthPages spec
     <++> genEnvValidation spec
     <++> genVite spec
   where
@@ -206,8 +214,11 @@ npmDepsForSdk spec =
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
+            -- React and ReactDOM versions should always match.
+            ("react-dom", show reactVersion),
             ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
+            ("@tanstack/react-query", reactQueryVersion),
             ("superjson", show superjsonVersion)
           ]
           ++ depsRequiredForAuth spec
@@ -232,12 +243,20 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
             ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion)
+            ("@types/express-serve-static-core", show expressTypesVersion),
+            -- TypeScript and React types (moved from web-app)
+            ("typescript", show typescriptVersion),
+            ("@types/react", "^18.0.37"),
+            ("@types/react-dom", "^18.0.11"),
+            ("@vitejs/plugin-react", "^4.7.0"),
+            -- NOTE: Make sure to bump the version of the tsconfig
+            -- when updating Vite or React versions
+            ("@tsconfig/vite-react", "^7.0.0"),
+            -- For loading .env.client files in Vite
+            ("dotenv", "^16.3.1"),
+            ("dotenv-expand", "^10.0.0")
           ],
-      N.peerDependencies =
-        Npm.Dependency.fromList
-          [ ("@tanstack/react-query", reactQueryVersion)
-          ]
+      N.peerDependencies = []
     }
 
 genClientConfigFile :: Generator FileDraft

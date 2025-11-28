@@ -77,8 +77,6 @@ data AppSpec = AppSpec
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Env variables to be provided to the server only during the development.
     devEnvVarsServer :: [EnvVar],
-    -- | Env variables to be provided to the client only during the development.
-    devEnvVarsClient :: [EnvVar],
     -- | If true, it means project is being compiled for production/deployment -> it is being "built".
     -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
     isBuild :: Bool,

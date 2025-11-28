@@ -512,7 +512,6 @@ spec_AppSpecValid = do
               },
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
-          AS.devEnvVarsClient = [],
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
           AS.tailwindConfigFilesRelocators = [],

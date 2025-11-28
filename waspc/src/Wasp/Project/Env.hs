@@ -1,6 +1,5 @@
 module Wasp.Project.Env
   ( readDotEnvServer,
-    readDotEnvClient,
     warnIfTheDotEnvPresent,
     dotEnvServer,
     dotEnvClient,
@@ -19,9 +18,6 @@ dotEnvClient = [relfile|.env.client|]
 
 readDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO [EnvVar]
 readDotEnvServer waspDir = readDotEnvFileInWaspProjectDir waspDir dotEnvServer
-
-readDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO [EnvVar]
-readDotEnvClient waspDir = readDotEnvFileInWaspProjectDir waspDir dotEnvClient
 
 -- | Checks if .env exists in wasp dir, and produces a warning if so.
 -- We have this function because Wasp doesn't use ".env", but still user
