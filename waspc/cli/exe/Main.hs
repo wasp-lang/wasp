@@ -33,7 +33,6 @@ import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
-import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.TsConfigSetup (tsConfigSetup)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
@@ -70,7 +69,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ("test" : testArgs) -> Command.Call.Test testArgs
         _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -122,7 +120,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
-    Command.Call.Test testArgs -> runCommand $ test testArgs
     Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.

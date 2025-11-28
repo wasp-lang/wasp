@@ -360,7 +360,6 @@ library
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
-    Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
@@ -372,7 +371,6 @@ library
     Wasp.Generator.WebAppGenerator.DepVersions
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Start
-    Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
@@ -400,7 +398,6 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
-
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.WaspFile.WaspLang
@@ -609,7 +606,6 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
-    Wasp.Cli.Command.Test
     Wasp.Cli.Command.TsConfigSetup
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
