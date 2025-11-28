@@ -15,7 +15,6 @@ import Data.List.NonEmpty (fromList)
 import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
-import qualified StrongPath as SP
 import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesDirectoryExist)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
@@ -133,7 +132,7 @@ findTemplateOrThrow availableTemplates = \case
     throwInvalidCustomTemplatePathError templatePath =
       throwProjectCreationError $
         "The directory "
-          <> show (SP.fromAbsDir templatePath)
+          <> show (fromAbsDir templatePath)
           <> " doesn't exist or can't be found."
 
 obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
