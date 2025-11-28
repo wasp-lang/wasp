@@ -20,7 +20,7 @@ import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),
-    NewProjectTemplateArg (..),
+    TemplateArg (..),
   )
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
@@ -79,8 +79,8 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
   let prefersInteractive = isNothing projectNameArg
 
   template <- case templateArg of
-    Just (NamedTemplateArg templateName) -> findNamedTemplate starterTemplates templateName
-    Just (CustomTemplateDirArg templatePath) -> findCustomTemplate templatePath
+    Just (NamedTemplate templateName) -> findNamedTemplate starterTemplates templateName
+    Just (CustomTemplate templatePath) -> findCustomTemplate templatePath
     Nothing ->
       if prefersInteractive
         then askForTemplate starterTemplates
