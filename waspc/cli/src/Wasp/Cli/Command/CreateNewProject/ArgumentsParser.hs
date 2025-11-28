@@ -46,4 +46,6 @@ newProjectArgsParser =
     customTemplatePathParser =
       Opt.strOption $
         Opt.long "custom-template"
+          -- This is an internal option only intended for internal testing usage,
+          -- so we don't want to show help for it.
           <> Opt.internal
