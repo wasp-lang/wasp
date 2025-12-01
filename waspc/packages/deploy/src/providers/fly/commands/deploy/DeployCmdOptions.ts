@@ -1,6 +1,6 @@
-import { CommonCmdOptions, LocalBuildOptions } from "../../CommonCmdOptions.js";
+import { CommonCmdOptions } from "../../CommonCmdOptions.js";
 
-export interface DeployCmdOptions extends CommonCmdOptions, LocalBuildOptions {
+export interface DeployCmdOptions extends CommonCmdOptions {
   skipClient?: boolean;
   skipServer?: boolean;
   customServerUrl?: string;
