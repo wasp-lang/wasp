@@ -14,6 +14,7 @@ runs:
       if: >
         ! contains(
           fromJson('[
+            "*",
             "linux-x86_64",
             "linux-x86_64-static",
             "macos-x86_64",
@@ -34,6 +35,20 @@ runs:
         echo "artifact-name=wasp-cli-${{ inputs.build-name }}" >> $GITHUB_OUTPUT
         echo "tarball-name=wasp-${{ inputs.build-name }}.tar.gz" >> $GITHUB_OUTPUT
 
+    - name: Set npm triple
+      id: set-npm-triple
+      if: inputs.build-name != '*' && inputs.build-name != 'macos-universal'
+      shell: sh
+      run: |
+        case '${{ inputs.build-name }}' in
+          linux-x86_64) npm_triple='["linux","x64","glibc"]' ;;
+          linux-x86_64-static) npm_triple='["linux","x64","musl"]' ;;
+          macos-x86_64) npm_triple='["darwin","x64"]' ;;
+          macos-aarch64) npm_triple='["darwin","arm64"]' ;;
+        esac
+
+        echo "npm-triple=$npm_triple" >>"$GITHUB_OUTPUT"
+
 outputs:
   artifact-name:
     value: ${{ steps.set-artifact-names.outputs.artifact-name }}
@@ -41,3 +56,6 @@ outputs:
   tarball-name:
     value: ${{ steps.set-artifact-names.outputs.tarball-name }}
     description: "The name of the tarball inside the artifact."
+  npm-triple:
+    value: ${{ steps.set-npm-triple.outputs.npm-triple }}
+    description: "The JSON-encoded npm triple corresponding to the build (if applicable)."

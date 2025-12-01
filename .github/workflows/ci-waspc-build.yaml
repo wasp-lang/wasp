@@ -23,6 +23,7 @@ env:
 jobs:
   build:
     outputs:
+      waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
       output_linux-x86_64: ${{ steps.set-outputs.outputs.output_linux-x86_64 }}
       output_linux-x86_64-static: ${{ steps.set-outputs.outputs.output_linux-x86_64-static }}
       output_macos-x86_64: ${{ steps.set-outputs.outputs.output_macos-x86_64 }}
@@ -142,6 +143,7 @@ jobs:
             echo "$OUTPUT_DATA"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
+          echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
 
   build-universal:
     name: Build Wasp (universal)
@@ -198,3 +200,56 @@ jobs:
         with:
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           path: ./${{ steps.compute-artifact-names.outputs.tarball-name }}
+
+  make-npm-packages:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Compute artifact names for download
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-download-artifact-names
+        with:
+          build-name: "*"
+
+      - uses: actions/download-artifact@v6
+        with:
+          path: "./download/"
+          pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
+
+      - name: Copy artifacts to input folder
+        run: |
+          mkdir -p ./input/
+          cp ./download/*/* ./input/
+
+      - name: Create data file
+        env:
+          INPUT_DATA: ${{ toJson(needs.build.outputs) }}
+        run: |
+          echo "$INPUT_DATA" |
+          jq '
+            {
+              version: .waspc_version,
+              tarballs:
+                with_entries(select(.key | startswith("output_")))
+                | map(
+                    fromjson
+                    | {
+                        fileName: .["tarball-name"],
+                        target: (.["npm-triple"] | fromjson)
+                      }
+                  )
+            }
+          ' > ./input/data.json
+
+      - name: Create npm packages
+        run: |
+          ./scripts/make-npm-packages/run.bash ./input/ ./output/
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: wasp-npm-packages
+          path: ./output/
