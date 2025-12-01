@@ -14,7 +14,7 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (ProjectRootDir, dropExtensionFromImportPath)
+import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
