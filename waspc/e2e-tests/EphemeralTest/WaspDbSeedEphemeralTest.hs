@@ -4,6 +4,7 @@ import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (WaspNewTemplate (..))
 import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbSeed)
+import Wasp.Version (waspVersion)
 
 waspDbSeedEphemeralTest :: EphemeralTest
 waspDbSeedEphemeralTest =
@@ -59,7 +60,7 @@ waspDbSeedEphemeralTest =
       unlines
         [ "app waspApp {",
           "  wasp: {",
-          "    version: \"^0.18.2\"",
+          "    version: \"^" ++ show waspVersion ++ "\"",
           "  },",
           "  title: \"wasp-app\",",
           "  head: [",

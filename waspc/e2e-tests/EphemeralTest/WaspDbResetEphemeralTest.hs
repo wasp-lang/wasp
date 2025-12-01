@@ -4,6 +4,7 @@ import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (WaspNewTemplate (..))
 import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbReset, waspCliDbSeed)
+import Wasp.Version (waspVersion)
 
 -- | We include a seeding script as part of the ephemeral test,
 -- because Wasp skips the seeding during the reset (unlike Prisma).
@@ -69,7 +70,7 @@ waspDbResetEphemeralTest =
       unlines
         [ "app waspApp {",
           "  wasp: {",
-          "    version: \"^0.18.2\"",
+          "    version: \"^" ++ show waspVersion ++ "\"",
           "  },",
           "  title: \"wasp-app\",",
           "  head: [",

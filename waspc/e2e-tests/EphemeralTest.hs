@@ -13,12 +13,10 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
-    (~&&),
   )
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
-import System.Directory.Internal.Prelude (unless)
 import System.Exit (ExitCode (..))
-import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, readCreateProcessWithExitCode, shell, waitForProcess)
+import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
 import Test.Hspec (Spec, expectationFailure, it, runIO, sequential)
 import Test.Tasty (TestTree)
 import Test.Tasty.Hspec (testSpec)
