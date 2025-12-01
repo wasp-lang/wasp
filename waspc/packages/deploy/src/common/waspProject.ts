@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "node:path";
 
-import { cd } from "zx";
 import { WaspCliExe, WaspProjectDir } from "./brandedTypes.js";
 import { assertDirExists, assertDirPathIsAbsolute } from "./validation.js";
 import { createCommandWithCwd } from "./zx.js";
@@ -35,16 +34,6 @@ export function assertWaspProjectDirIsAbsoluteAndPresent(
 
 export function buildDirExists(waspProjectDir: WaspProjectDir): boolean {
   return fs.existsSync(getWaspBuildDir(waspProjectDir));
-}
-
-export function cdToServerBuildDir(waspProjectDir: WaspProjectDir): void {
-  const serverBuildDir = getServerBuildDir(waspProjectDir);
-  cd(serverBuildDir);
-}
-
-export function cdToClientBuildDir(waspProjectDir: WaspProjectDir): void {
-  const clientBuildDir = getClientBuildDir(waspProjectDir);
-  cd(clientBuildDir);
 }
 
 export function getServerBuildArtefactsDir(

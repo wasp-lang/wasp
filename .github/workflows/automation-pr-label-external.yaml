@@ -16,28 +16,24 @@ on:
     types:
       - opened
       - reopened
-
-env:
-  external_label_name: "external"
-  internal_author_associations_json:
-    # Possible values here:
-    # https://docs.github.com/en/graphql/reference/enums#commentauthorassociation
-    '[ "MEMBER", "COLLABORATOR", "OWNER" ]'
+      - ready_for_review
 
 jobs:
-  label-external-pr:
+  label-external-prs:
     name: Label external PRs
-
     runs-on: ubuntu-latest
 
     permissions:
       pull-requests: write
 
+    # We check if the PR comes from a different repo than ours:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+
     steps:
       - name: Label external PR
-        if: ${{ !contains(fromJSON(env.internal_author_associations_json), github.event.pull_request.author_association) }}
         run: gh pr edit "$PR_NUMBER" --add-label "$LABEL_NAME"
         env:
+          LABEL_NAME: "external"
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          LABEL_NAME: ${{ env.external_label_name }}
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

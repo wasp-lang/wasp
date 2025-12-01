@@ -256,7 +256,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "307d8db970e747fe9f07a75c0122b3d2415fb876ee47ec437e0f806baa2d5191"
+        "0aa2b45db4b3667f245458cc2ec765374d40e6ad7894a3cd024aa95bd9cb08f8"
     ],
     [
         [
@@ -410,7 +410,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
+        "f5ad6be8ea444a098e54ceb2f6645e3c9f484c234e9e9ce568a7fa39ed168ccf"
     ],
     [
         [
@@ -522,7 +522,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
+        "e6d95c9a6fe716c22dec59fbb33e4072274a89f6c804f8d019a8752664622a12"
     ],
     [
         [
@@ -537,6 +537,13 @@
             "server/src/server.ts"
         ],
         "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
+    ],
+    [
+        [
+            "file",
+            "server/src/views/wrong-port.ts"
+        ],
+        "cc8fc19e919c4d22ec6095a60446dd4f52dc864112e6b379ae35ec45c5b04b16"
     ],
     [
         [

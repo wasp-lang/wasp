@@ -19,7 +19,7 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates (availableStarterTemplates)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -176,9 +176,9 @@ printUsage =
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
-        cmd   "    start db [--db-image <image>]",
+        cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
-              "                          Optionally specify a custom Docker image.",
+              "                          Optionally specify a custom Docker image or Docker volume mount path.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
@@ -241,9 +241,10 @@ printDbUsage =
               "",
         title "COMMANDS",
         cmd $ intercalate "\n" [
-              "  start [--db-image <image>]   Alias for `wasp start db`.",
+              "  start [--db-image <image>] [--db-volume-mount-path <path>]",
+              "                               Alias for `wasp start db`.",
               "                               Starts managed development database for you.",
-              "                               Optionally specify a custom Docker image."
+              "                               Optionally specify a custom Docker image or Docker volume mount path."
         ],
         cmd   "  reset                        Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
