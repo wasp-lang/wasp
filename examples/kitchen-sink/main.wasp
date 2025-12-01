@@ -61,8 +61,6 @@ app KitchenSink {
     envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
   },
   client: {
-    rootComponent: import { App } from "@src/App",
-    setupFn: import { setup } from "@src/clientSetup",
     envValidationSchema: import { clientEnvValidationSchema } from "@src/env",
   },
   db: {

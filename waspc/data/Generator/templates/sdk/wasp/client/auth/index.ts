@@ -27,3 +27,5 @@ export {
 } from '../../auth/useAuth'
 
 export { default as logout } from '../../auth/logout'
+
+export { default as createAuthRequiredPage } from './pages/createAuthRequiredPage'

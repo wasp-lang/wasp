@@ -30,16 +30,13 @@ data-files:
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma
-  Generator/templates/**/*.toml
   Generator/templates/**/*.css
   Generator/templates/**/*.ts
   Generator/templates/**/*.json
-  Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
-  Generator/templates/**/*.png
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
@@ -362,6 +359,7 @@ library
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
+    Wasp.Generator.UserDirGenerator
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
