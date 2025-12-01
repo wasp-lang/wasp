@@ -13,6 +13,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ProjectRootDir, dropExtensionFromImportPath)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -47,7 +48,8 @@ genUserDirRoutes spec = do
     tmplData =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
-          "pages" .= map createPageTemplateData (AS.getPages spec)
+          "pages" .= map createPageTemplateData (AS.getPages spec),
+          "isAuthUsed" .= isAuthEnabled spec
         ]
 
 data RouteTemplateData = RouteTemplateData
