@@ -9,8 +9,8 @@ env:
   PROJECT_DIR: ${{ github.workspace }}/waspc
 
 jobs:
-  test-starters:
-    name: Test starters
+  test-wasp-ai:
+    name: Test Wasp AI
     runs-on: ubuntu-22.04
     steps:
       - uses: "actions/checkout@v5"

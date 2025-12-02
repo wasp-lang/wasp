@@ -45,5 +45,5 @@ jobs:
     secrets: inherit
 
   wasp-ai-test:
-    uses: ./.github/workflows/ci-waspc-test.yaml
+    uses: ./.github/workflows/ci-wasp-ai-test.yaml
     secrets: inherit
