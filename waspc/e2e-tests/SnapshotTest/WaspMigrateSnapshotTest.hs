@@ -1,5 +1,7 @@
 module SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) where
 
+import qualified Data.Text as T
+import NeatInterpolation (trimming)
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands
   ( createSnapshotWaspProjectFromMinimalStarter,
@@ -23,11 +25,12 @@ waspMigrateSnapshotTest =
         ]
     ]
   where
+    taskPrismaModel :: T.Text
     taskPrismaModel =
-      unlines
-        [ "model Task {",
-          "  id          Int     @id @default(autoincrement())",
-          "  description String",
-          "  isDone      Boolean @default(false)",
-          "}"
-        ]
+      [trimming|
+        model Task {
+          id          Int     @id @default(autoincrement())
+          description String
+          isDone      Boolean @default(false)
+        }
+      |]

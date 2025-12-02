@@ -1,7 +1,9 @@
 module EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest) where
 
+import qualified Data.Text as T
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import NeatInterpolation (trimming)
 import ShellCommands (WaspNewTemplate (..))
 import Wasp.Version (waspVersion)
 import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbReset, waspCliDbSeed)
@@ -25,13 +27,13 @@ waspDbResetEphemeralTest =
               appendToPrismaFile taskPrismaModel,
               waspCliDbMigrateDevDev "foo",
               createSeedFile
-                (seedScriptThatPopulatesTasksTableName ++ ".ts")
+                (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
                 seedScriptThatPopulatesTasksTable,
               createSeedFile
-                (seedScriptThatAssertsTasksTableIsEmptyName ++ ".ts")
+                (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
                 seedScriptThatAssertsTasksTableIsEmpty,
               createSeedFile
-                (seedScriptThatAssertsTasksTableIsNotEmptyName ++ ".ts")
+                (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
                 seedScriptThatAssertsTasksTableIsNotEmpty,
               replaceMainWaspFile mainWaspWithSeeds
             ]
@@ -39,91 +41,99 @@ waspDbResetEphemeralTest =
       makeEphemeralTestCase
         "Assert the tasks table is initially empty"
         -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed seedScriptThatAssertsTasksTableIsEmptyName]),
+        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName]),
       makeEphemeralTestCase
         "Setup: Add tasks to the tasks table"
         -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed seedScriptThatPopulatesTasksTableName]),
+        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName]),
       makeEphemeralTestCase
         "Assert the database is no longer empty"
         -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed seedScriptThatAssertsTasksTableIsNotEmptyName]),
+        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName]),
       makeEphemeralTestCase
         "Should reset the database successfully"
         (withInEphemeralWaspProjectDir [waspCliDbReset True]),
       makeEphemeralTestCase
         "Assert the tasks table is empty"
         -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed seedScriptThatAssertsTasksTableIsEmptyName])
+        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName])
     ]
   where
+    taskPrismaModel :: T.Text
     taskPrismaModel =
-      unlines
-        [ "model Task {",
-          "  id          Int     @id @default(autoincrement())",
-          "  description String",
-          "  isDone      Boolean @default(false)",
-          "}"
-        ]
+      [trimming|
+        model Task {
+          id          Int     @id @default(autoincrement())
+          description String
+          isDone      Boolean @default(false)
+        }
+      |]
 
+    mainWaspWithSeeds :: T.Text
     mainWaspWithSeeds =
-      unlines
-        [ "app waspApp {",
-          "  wasp: {",
-          "    version: \"^" ++ show waspVersion ++ "\"",
-          "  },",
-          "  title: \"wasp-app\",",
-          "  head: [",
-          "    \"<link rel='icon' href='/favicon.ico' />\",",
-          "  ],",
-          "  db: {",
-          "    seeds: [",
-          "      import { " ++ seedScriptThatPopulatesTasksTableName ++ " } from \"@src/db/" ++ seedScriptThatPopulatesTasksTableName ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsEmptyName ++ " } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "\",",
-          "      import { " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ " } from \"@src/db/" ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "\"",
-          "    ]",
-          "  },",
-          "}",
-          "route RootRoute { path: \"/\", to: MainPage }",
-          "page MainPage {",
-          "  component: import { MainPage } from \"@src/MainPage\"",
-          "}"
-        ]
+      [trimming|
+        app waspApp {
+          wasp: {
+            version: "^$textWaspVersion"
+          },
+          title: "wasp-app",
+          head: [
+            "<link rel='icon' href='/favicon.ico' />",
+          ],
+          db: {
+            seeds: [
+              import { $seedScriptThatPopulatesTasksTableName } from "@src/db/$seedScriptThatPopulatesTasksTableName",
+              import { $seedScriptThatAssertsTasksTableIsEmptyName } from "@src/db/$seedScriptThatAssertsTasksTableIsEmptyName",
+              import { $seedScriptThatAssertsTasksTableIsNotEmptyName } from "@src/db/$seedScriptThatAssertsTasksTableIsNotEmptyName"
+            ]
+          },
+        }
+        route RootRoute { path: "/", to: MainPage }
+        page MainPage {
+          component: import { MainPage } from "@src/MainPage"
+        }
+      |]
 
+    seedScriptThatPopulatesTasksTableName :: T.Text
     seedScriptThatPopulatesTasksTableName = "populateTasks"
     seedScriptThatPopulatesTasksTable =
-      unlines
-        [ "import { prisma } from 'wasp/server'",
-          "",
-          "export async function " ++ seedScriptThatPopulatesTasksTableName ++ "() {",
-          "  await prisma.task.create({",
-          "    data: { description: 'Test task', isDone: false }",
-          "  })",
-          "}"
-        ]
+      [trimming|
+        import { prisma } from 'wasp/server'
+        
+        export async function $seedScriptThatPopulatesTasksTableName() {
+          await prisma.task.create({
+            data: { description: 'Test task', isDone: false }
+          })
+        }
+      |]
 
+    seedScriptThatAssertsTasksTableIsEmptyName :: T.Text
     seedScriptThatAssertsTasksTableIsEmptyName = "assertTasksEmpty"
     seedScriptThatAssertsTasksTableIsEmpty =
-      unlines
-        [ "import { prisma } from 'wasp/server'",
-          "",
-          "export async function " ++ seedScriptThatAssertsTasksTableIsEmptyName ++ "() {",
-          "  const taskCount = await prisma.task.count()",
-          "  if (taskCount !== 0) {",
-          "    throw new Error(`Expected tasks table to be empty, but found ${taskCount} tasks`)",
-          "  }",
-          "}"
-        ]
+      [trimming|
+        import { prisma } from 'wasp/server'
+        
+        export async function $seedScriptThatAssertsTasksTableIsEmptyName() {
+          const taskCount = await prisma.task.count()
+          if (taskCount !== 0) {
+            throw new Error(`Expected tasks table to be empty, but found $${taskCount} tasks`)
+          }
+        }
+      |]
 
+    seedScriptThatAssertsTasksTableIsNotEmptyName :: T.Text
     seedScriptThatAssertsTasksTableIsNotEmptyName = "assertTasksNotEmpty"
     seedScriptThatAssertsTasksTableIsNotEmpty =
-      unlines
-        [ "import { prisma } from 'wasp/server'",
-          "",
-          "export async function " ++ seedScriptThatAssertsTasksTableIsNotEmptyName ++ "() {",
-          "  const taskCount = await prisma.task.count()",
-          "  if (taskCount === 0) {",
-          "    throw new Error('Expected tasks table to have data, but it was empty')",
-          "  }",
-          "}"
-        ]
+      [trimming|
+        import { prisma } from 'wasp/server'
+        
+        export async function $seedScriptThatAssertsTasksTableIsNotEmptyName() {
+          const taskCount = await prisma.task.count()
+          if (taskCount === 0) {
+            throw new Error('Expected tasks table to have data, but it was empty')
+          }
+        }
+      |]
+
+    textWaspVersion :: T.Text
+    textWaspVersion = T.pack . show $ waspVersion

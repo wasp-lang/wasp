@@ -811,6 +811,7 @@ test-suite waspc-e2e-tests
     , tasty-hspec
     , tasty-golden
     , base64-bytestring
+    , neat-interpolation
   other-modules:
     FileSystem
     ShellCommands

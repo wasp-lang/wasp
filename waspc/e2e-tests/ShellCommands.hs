@@ -25,6 +25,7 @@ import Control.Monad.Reader (MonadReader, Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import Data.Maybe (fromJust)
+import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path', fromAbsDir, fromAbsFile, parseRelFile, (</>))
 
 -- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
@@ -73,39 +74,35 @@ infixl 4 ~?
 
 -- General commands
 
--- NOTE: Pretty fragile. Can't handle spaces in args, *nix only, etc.
--- TODO: Franjo: copied from old code, check if we can improve further.
-createFile :: Path' Abs (Dir parentDir) -> String -> String -> ShellCommandBuilder context ShellCommand
-createFile parentDir fileName fileContent = return $ createParentDirCmd ~&& writeContentsToFileCmd
+createFile :: Path' Abs (Dir parentDir) -> String -> T.Text -> ShellCommandBuilder context ShellCommand
+createFile parentDir fileName fileContent = return $ createParentDir ~&& writeContentsToFile
   where
-    createParentDirCmd = "mkdir -p " ++ fromAbsDir parentDir
-    -- writeContentsToFileCmd = "cat << 'EOF' > " ++ fromAbsFile destinationFile ++ "\n" ++ fileContent ++ "\nEOF\n"
-    writeContentsToFileCmd = "printf %s " ++ base64FileContent ++ " | base64 -d > " ++ fromAbsFile destinationFile
+    createParentDir :: ShellCommand
+    createParentDir = "mkdir -p " ++ fromAbsDir parentDir
 
-    base64FileContent = C8.unpack . B64.encode . C8.pack $ fileContent
+    writeContentsToFile :: ShellCommand
+    writeContentsToFile = "printf %s " ++ base64FileContent ++ " | base64 -d > " ++ fromAbsFile destinationFile
+
+    -- Using base64 encoding for file content helps us escape dealing with special characters.
+    base64FileContent = C8.unpack . B64.encode . C8.pack . T.unpack $ fileContent
     destinationFile = parentDir </> fromJust (parseRelFile fileName)
 
-appendToFile :: FilePath -> String -> ShellCommandBuilder context ShellCommand
+appendToFile :: FilePath -> T.Text -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =
   -- NOTE: Using `show` to preserve newlines in string.
-  return $ "printf " ++ show (content ++ "\n") ++ " >> " ++ fileName
+  return $ "printf " ++ show (T.unpack content ++ "\n") ++ " >> " ++ fileName
 
 replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder context ShellCommand
 replaceLineInFile fileName lineNumber line =
   return $
-    "awk 'NR=="
-      ++ show lineNumber
-      ++ "{$0="
-      ++ show line
-      ++ "}1' "
-      ++ fileName
-      ++ " > "
-      ++ fileName
-      ++ ".tmp"
-        ~&& "mv "
-      ++ fileName
-      ++ ".tmp "
-      ++ fileName
+    unwords ["awk", "'", ifLineNumberMatches, replaceWholeLine, printCurrentLine, "'", fileName, ">", tempFileName]
+      ~&& unwords ["mv", tempFileName, fileName]
+  where
+    ifLineNumberMatches = "NR==" ++ show lineNumber
+    replaceWholeLine = "{$0=" ++ show line ++ "}"
+    printCurrentLine = "1"
+
+    tempFileName = fileName ++ ".tmp"
 
 data WaspNewTemplate = Minimal | Basic | SaaS
 

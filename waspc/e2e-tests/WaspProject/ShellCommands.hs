@@ -24,6 +24,7 @@ module WaspProject.ShellCommands
 where
 
 import Control.Monad.Reader (MonadReader (ask))
+import qualified Data.Text as T
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -95,7 +96,17 @@ waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
 
 waspCliDbReset :: Bool -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbReset reset = return $ "expect -c 'spawn wasp-cli db reset; expect \"?\"; send \"" ++ (if reset then "y" else "n") ++ "\r\"; interact'"
+waspCliDbReset reset =
+  return $
+    unwords
+      [ "expect -c",
+        "'spawn wasp-cli db reset;",
+        "expect \"?\";",
+        "send \"" ++ resetAnswer ++ "\r\";",
+        "interact'"
+      ]
+  where
+    resetAnswer = if reset then "y" else "n"
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "wasp-cli db studio"
@@ -113,17 +124,17 @@ waspCliStudio = return "wasp-cli studio"
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
 setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 
-appendToPrismaFile :: FilePath -> ShellCommandBuilder WaspProjectContext ShellCommand
+appendToPrismaFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 appendToPrismaFile = appendToFile "schema.prisma"
 
-createSeedFile :: String -> String -> ShellCommandBuilder WaspProjectContext ShellCommand
+createSeedFile :: String -> T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 createSeedFile fileName content = do
   waspProjectContext <- ask
   let seedDir = _waspProjectDir waspProjectContext </> seedsDirInWaspProjectDir
 
   createFile seedDir fileName content
 
-replaceMainWaspFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+replaceMainWaspFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 replaceMainWaspFile content = do
   waspProjectContext <- ask
   let waspProjectDir = _waspProjectDir waspProjectContext
@@ -139,12 +150,7 @@ buildAndRemoveWaspProjectDockerImage = do
       waspProjectDir = _waspProjectDir waspProjectContext
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          ~? "cd "
-          ++ fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir)
-            ~&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t "
-          ++ dockerImageTag
-          ++ " ."
-            ~&& "docker image rm "
-          ++ dockerImageTag
-            ~&& "cd "
-          ++ fromAbsDir waspProjectDir
+          ~? unwords ["cd", fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir)]
+          ~&& unwords ["docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t", dockerImageTag, "."]
+          ~&& unwords ["docker image rm", dockerImageTag]
+          ~&& unwords ["cd", fromAbsDir waspProjectDir]

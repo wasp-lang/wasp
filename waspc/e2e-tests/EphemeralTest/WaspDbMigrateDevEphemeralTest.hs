@@ -1,8 +1,10 @@
 module EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest) where
 
 import Control.Monad.Reader (MonadReader (ask))
+import qualified Data.Text as T
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
+import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), (~&&))
 import StrongPath (fromAbsDir, (</>))
 import Wasp.Generator.DbGenerator.Common
@@ -46,14 +48,15 @@ waspDbMigrateDevEphemeralTest =
     waspCliDbMigrateDevFails :: ShellCommandBuilder context ShellCommand
     waspCliDbMigrateDevFails = return "! wasp-cli db migrate-dev"
 
+    taskPrismaModel :: T.Text
     taskPrismaModel =
-      unlines
-        [ "model Task {",
-          "  id          Int     @id @default(autoincrement())",
-          "  description String",
-          "  isDone      Boolean @default(false)",
-          "}"
-        ]
+      [trimming|
+        model Task {
+          id          Int     @id @default(autoincrement())
+          description String
+          isDone      Boolean @default(false)
+        }
+      |]
 
 assertMigrationDirsExist :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 assertMigrationDirsExist migrationName = do
