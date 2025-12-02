@@ -17,11 +17,11 @@ import ShellCommands
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
-import Test.Hspec (Spec, expectationFailure, it, runIO, sequential, describe)
-import Test.Tasty (TestTree, sequentialTestGroup, DependencyType (..))
-import WaspProject.ShellCommands (WaspProjectContext (..))
+import Test.Hspec (Spec, describe, expectationFailure, it, runIO, sequential)
 import Test.Hspec.Runner (Config (..), defaultConfig)
+import Test.Tasty (DependencyType (..), TestTree, sequentialTestGroup)
 import Test.Tasty.Hspec (testSpec)
+import WaspProject.ShellCommands (WaspProjectContext (..))
 
 data EphemeralTest = EphemeralTest
   { _ephemeralTestName :: String,

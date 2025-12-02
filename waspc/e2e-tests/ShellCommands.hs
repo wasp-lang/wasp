@@ -25,7 +25,7 @@ import Control.Monad.Reader (MonadReader, Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
-import StrongPath (Abs, File, File', Path', fromAbsDir, fromAbsFile, parent)
+import StrongPath (Abs, File', Path', fromAbsDir, fromAbsFile, parent)
 
 -- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 -- TODO: In future, find a good way to test `wasp-cli start`.
