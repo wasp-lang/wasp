@@ -103,7 +103,7 @@ waspCliDbReset reset =
       [ "expect -c",
         "'",
         "spawn wasp-cli db reset;",
-        "expect \"?\";",
+        "expect \"Are you sure you want to reset your database? All data will be lost.\";",
         "send \"" ++ resetAnswer ++ "\r\";",
         "interact",
         "'"
