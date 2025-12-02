@@ -1,0 +1,65 @@
+name: "Test - Wasp npm packages"
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - { os: ubuntu-latest } # Regular Linux with Glibc
+          - { os: ubuntu-latest, container: node:22-alpine } # Linux with Musl
+          - { os: macos-latest } # Apple Silicon
+          - { os: macos-15-intel } # Apple Intel
+
+    name: "${{ matrix.runner.container || matrix.runner.os }}"
+
+    runs-on: ${{ matrix.runner.os }}
+    container: ${{ matrix.runner.container }}
+
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: wasp-npm-packages
+
+      - name: Publish and run Wasp npm packages
+        env:
+          TEST_REGISTRY_URL: http://localhost:4873
+          TEST_REGISTRY_CONFIG: |
+            storage: "$HOME/.verdaccio/storage"
+            log: { type: stdout, format: pretty, level: info }
+            max_body_size: 1000mb # Needed because Wasp packages are large
+            packages: { '**': { access: $all, publish: $all } }
+        run: |
+          set -eux
+
+          # Install global packages
+          npm install -g npm-cli-login@1 verdaccio@6
+
+          # Create registry config
+          mkdir -p "$HOME/.config/verdaccio/"
+          echo "$TEST_REGISTRY_CONFIG" > "$HOME/.config/verdaccio/config.yaml"
+
+          # Start local registry
+          verdaccio &
+
+          # Wait for registry to be ready
+          until curl -sSf "$TEST_REGISTRY_URL/-/ping" >/dev/null; do
+            sleep 1
+          done
+
+          # Set registry and login
+          npm-cli-login -u fake-user -p fake-password -e fake@email.com -r "$TEST_REGISTRY_URL"
+          npm config set registry "$TEST_REGISTRY_URL"
+
+          # Publish all packages to the test registry
+          for pkg_dir in ./wasp*/; do
+            npm publish "$pkg_dir"
+          done
+
+          # Test installing and using the Wasp CLI from the test registry
+          npx -y @wasp.sh/wasp-cli version
+
+          exit 0 # Done, do not wait for registry to exit
