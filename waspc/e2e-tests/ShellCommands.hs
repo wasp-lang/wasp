@@ -24,9 +24,8 @@ where
 import Control.Monad.Reader (MonadReader, Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
-import Data.Maybe (fromJust)
 import qualified Data.Text as T
-import StrongPath (Abs, Dir, Path', fromAbsDir, fromAbsFile, parseRelFile, (</>))
+import StrongPath (Abs, File, File', Path', fromAbsDir, fromAbsFile, parent)
 
 -- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 -- TODO: In future, find a good way to test `wasp-cli start`.
@@ -72,18 +71,17 @@ infixl 4 ~?
 
 -- General commands
 
-createFile :: Path' Abs (Dir parentDir) -> String -> T.Text -> ShellCommandBuilder context ShellCommand
-createFile parentDir fileName fileContent = return $ createParentDir ~&& writeContentsToFile
+createFile :: Path' Abs File' -> T.Text -> ShellCommandBuilder context ShellCommand
+createFile file fileContent = return $ createParentDir ~&& writeContentsToFile
   where
     createParentDir :: ShellCommand
-    createParentDir = "mkdir -p " ++ fromAbsDir parentDir
+    createParentDir = "mkdir -p " ++ fromAbsDir (parent file)
 
     writeContentsToFile :: ShellCommand
-    writeContentsToFile = "printf %s " ++ base64FileContent ++ " | base64 -d > " ++ fromAbsFile destinationFile
+    writeContentsToFile = "printf %s " ++ base64FileContent ++ " | base64 -d > " ++ fromAbsFile file
 
     -- Using base64 encoding for file content helps us escape dealing with special characters.
     base64FileContent = C8.unpack . B64.encode . C8.pack . T.unpack $ fileContent
-    destinationFile = parentDir </> fromJust (parseRelFile fileName)
 
 appendToFile :: FilePath -> T.Text -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =
@@ -93,7 +91,8 @@ appendToFile fileName content =
 replaceLineInFile :: FilePath -> Int -> String -> ShellCommandBuilder context ShellCommand
 replaceLineInFile fileName lineNumber line =
   return $
-    unwords ["awk", "'", ifLineNumberMatches, replaceWholeLine, printCurrentLine, "'", fileName, ">", tempFileName]
+    unwords
+      ["awk", "'", ifLineNumberMatches, replaceWholeLine, printCurrentLine, "'", fileName, ">", tempFileName]
       ~&& unwords ["mv", tempFileName, fileName]
   where
     ifLineNumberMatches = "NR==" ++ show lineNumber

@@ -24,6 +24,7 @@ module WaspProject.ShellCommands
 where
 
 import Control.Monad.Reader (MonadReader (ask))
+import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import ShellCommands
   ( ShellCommand,
@@ -34,7 +35,7 @@ import ShellCommands
     (~&&),
     (~?),
   )
-import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
+import StrongPath (Abs, Dir, Path', fromAbsDir, parseRelFile, (</>))
 import System.FilePath (joinPath)
 import Wasp.Generator.DbGenerator.Common
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
@@ -131,15 +132,17 @@ createSeedFile :: String -> T.Text -> ShellCommandBuilder WaspProjectContext She
 createSeedFile fileName content = do
   waspProjectContext <- ask
   let seedDir = _waspProjectDir waspProjectContext </> seedsDirInWaspProjectDir
+      seedFile = seedDir </> fromJust (parseRelFile fileName)
 
-  createFile seedDir fileName content
+  createFile seedFile content
 
 replaceMainWaspFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 replaceMainWaspFile content = do
   waspProjectContext <- ask
   let waspProjectDir = _waspProjectDir waspProjectContext
+      mainWaspFile = waspProjectDir </> fromJust (parseRelFile "main.wasp")
 
-  createFile waspProjectDir "main.wasp" content
+  createFile mainWaspFile content
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
