@@ -7,7 +7,7 @@ module EphemeralTest
   )
 where
 
-import EphemeralTest.FileSystem (EphemeralDir, asWaspProjectDir, ephemeralWaspProjectDirInEphemeralDir, getEphemeralDir)
+import EphemeralTest.FileSystem (EphemeralDir, asWaspProjectDir, ephemeralWaspProjectDirInEphemeralDir, getEphemeralDir, getEphemeralTestsTempDir)
 import EphemeralTest.ShellCommands (EphemeralTestContext (..))
 import ShellCommands
   ( ShellCommand,
@@ -58,6 +58,9 @@ runEphemeralTest ephemeralTest = do
 
 setupEphemeralTest :: Path' Abs (Dir EphemeralDir) -> IO ()
 setupEphemeralTest ephemeralDir = do
+  ephemeralTestsTempDir <- getEphemeralTestsTempDir
+
+  callCommand $ "mkdir -p " ++ fromAbsDir ephemeralTestsTempDir
   callCommand $ "rm -rf " ++ fromAbsDir ephemeralDir
   callCommand $ "mkdir " ++ fromAbsDir ephemeralDir
 
