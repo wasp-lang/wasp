@@ -111,12 +111,6 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
             ],
             alias: [
               {
-                // Resolve wasp/* imports to the wasp SDK package
-                // This is needed because the SDK's compiled code imports from itself using "wasp/*"
-                find: /^wasp\/(.+)$/,
-                replacement: path.join(process.cwd(), "node_modules/wasp/$1"),
-              },
-              {
                 // Vite doesn't look for `.prisma/client` imports in the `node_modules`
                 // folder. We point it to the correct place here.
                 // TODO: Check if we can remove when updating Prisma (#2504)
