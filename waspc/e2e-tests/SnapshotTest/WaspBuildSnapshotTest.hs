@@ -1,4 +1,4 @@
-module Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
+module SnapshotTest.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands
@@ -6,8 +6,8 @@ import SnapshotTest.ShellCommands
     withInSnapshotWaspProjectDir,
   )
 import WaspProject.ShellCommands
-  ( setWaspDbToPSQL,
-    validateWaspProjectDockerImageBuilds,
+  ( validateWaspProjectDockerImageBuilds,
+    setWaspDbToPSQL,
     waspCliBuild,
   )
 
