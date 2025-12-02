@@ -24,7 +24,6 @@ module WaspProject.ShellCommands
 where
 
 import Control.Monad.Reader (MonadReader (ask))
-import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import ShellCommands
   ( ShellCommand,
@@ -35,12 +34,12 @@ import ShellCommands
     (~&&),
     (~?),
   )
-import StrongPath (Abs, Dir, Path', fromAbsDir, parseRelFile, (</>))
+import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.FilePath (joinPath)
-import Wasp.Generator.DbGenerator.Common
+import Wasp.Generator.DbGenerator.Common ( dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir )
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-import WaspProject.FileSystem (seedsDirInWaspProjectDir)
+import WaspProject.FileSystem (seedsDirInWaspProjectDir, seedsFileInSeedsDir, mainWaspFileInWaspProjectDir)
 
 -- | Context for commands which are run from inside of a Wasp app project.
 data WaspProjectContext = WaspProjectContext
@@ -134,7 +133,7 @@ createSeedFile :: String -> T.Text -> ShellCommandBuilder WaspProjectContext She
 createSeedFile fileName content = do
   waspProjectContext <- ask
   let seedDir = _waspProjectDir waspProjectContext </> seedsDirInWaspProjectDir
-      seedFile = seedDir </> fromJust (parseRelFile fileName)
+      seedFile = seedDir </> seedsFileInSeedsDir fileName
 
   createFile seedFile content
 
@@ -142,7 +141,7 @@ replaceMainWaspFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCom
 replaceMainWaspFile content = do
   waspProjectContext <- ask
   let waspProjectDir = _waspProjectDir waspProjectContext
-      mainWaspFile = waspProjectDir </> fromJust (parseRelFile "main.wasp")
+      mainWaspFile = waspProjectDir </> mainWaspFileInWaspProjectDir
 
   createFile mainWaspFile content
 
