@@ -4,7 +4,7 @@ import qualified Data.Text as T
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import NeatInterpolation (trimming)
-import ShellCommands (WaspNewTemplate (..))
+import ShellCommands (WaspNewTemplate (..), ShellCommandBuilder, ShellCommand)
 import Wasp.Version (waspVersion)
 import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 
@@ -16,7 +16,7 @@ waspDbResetEphemeralTest =
     "wasp-db-reset"
     [ makeEphemeralTestCase
         "Should fail outside of a Wasp project"
-        (return "! wasp-cli db reset"),
+        waspCliDbResetFails,
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
         (createEphemeralWaspProject Minimal),
@@ -59,6 +59,9 @@ waspDbResetEphemeralTest =
         (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName])
     ]
   where
+    waspCliDbResetFails :: ShellCommandBuilder context ShellCommand
+    waspCliDbResetFails = return "! wasp-cli db reset"
+    
     taskPrismaModel :: T.Text
     taskPrismaModel =
       [trimming|

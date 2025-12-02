@@ -1,7 +1,7 @@
 {-
 NOTE: We don't test the @ai@ template in @waspc@ e2e tests.
 -}
-module EphemeralTest.WaspNewEphemeralTest (waspNewMinimalEphemeralTest, waspNewInteractiveMinimalEphemeralTest, waspNewBasicEphemeralTest, waspNewInteractiveBasicEphemeralTest, waspNewSaasEphemeralTest, waspNewInteractiveSaasEphemeralTest) where
+module EphemeralTest.WaspNewEphemeralTest (waspNewMinimalEphemeralTest, waspNewMinimalInteractiveEphemeralTest, waspNewBasicEphemeralTest, waspNewBasicInteractiveEphemeralTest, waspNewSaasEphemeralTest, waspNewSaasInteractiveEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import ShellCommands (WaspNewTemplate (..), waspCliNew, waspCliNewInteractive)
@@ -15,8 +15,8 @@ waspNewMinimalEphemeralTest =
         (waspCliNew "wasp-app" Minimal)
     ]
 
-waspNewInteractiveMinimalEphemeralTest :: EphemeralTest
-waspNewInteractiveMinimalEphemeralTest =
+waspNewMinimalInteractiveEphemeralTest :: EphemeralTest
+waspNewMinimalInteractiveEphemeralTest =
   makeEphemeralTest
     "wasp-new-minimal-interactive"
     [ makeEphemeralTestCase
@@ -33,8 +33,8 @@ waspNewBasicEphemeralTest =
         (waspCliNew "wasp-app" Basic)
     ]
 
-waspNewInteractiveBasicEphemeralTest :: EphemeralTest
-waspNewInteractiveBasicEphemeralTest =
+waspNewBasicInteractiveEphemeralTest :: EphemeralTest
+waspNewBasicInteractiveEphemeralTest =
   makeEphemeralTest
     "wasp-new-basic-interactive"
     [ makeEphemeralTestCase
@@ -51,8 +51,8 @@ waspNewSaasEphemeralTest =
         (waspCliNew "wasp-app" SaaS)
     ]
 
-waspNewInteractiveSaasEphemeralTest :: EphemeralTest
-waspNewInteractiveSaasEphemeralTest =
+waspNewSaasInteractiveEphemeralTest :: EphemeralTest
+waspNewSaasInteractiveEphemeralTest =
   makeEphemeralTest
     "wasp-new-saas-interactive"
     [ makeEphemeralTestCase

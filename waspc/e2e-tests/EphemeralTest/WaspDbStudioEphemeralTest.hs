@@ -2,7 +2,7 @@ module EphemeralTest.WaspDbStudioEphemeralTest (waspDbStudioEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate (..))
+import ShellCommands (WaspNewTemplate (..), ShellCommandBuilder, ShellCommand)
 import WaspProject.ShellCommands (waspCliDbStudio)
 
 -- | NOTE: We don't test feature content since it's prisma feature.
@@ -13,7 +13,7 @@ waspDbStudioEphemeralTest =
     "wasp-db-studio"
     [ makeEphemeralTestCase
         "Should fail outside of a Wasp project"
-        (return "! wasp-cli db studio"),
+        waspCliDbStudioFails,
       makeEphemeralTestCase
         "Setup: Create Wasp project from minimal starter"
         (createEphemeralWaspProject Minimal),
@@ -21,3 +21,6 @@ waspDbStudioEphemeralTest =
         "Should succeed inside of a uncompiled Wasp project"
         (withInEphemeralWaspProjectDir [waspCliDbStudio])
     ]
+  where
+    waspCliDbStudioFails :: ShellCommandBuilder context ShellCommand
+    waspCliDbStudioFails = return "! wasp-cli db studio"

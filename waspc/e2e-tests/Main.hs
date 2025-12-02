@@ -9,7 +9,7 @@ import EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest)
 import EphemeralTest.WaspDepsEphemeralTest (waspDepsEphemeralTest)
 import EphemeralTest.WaspDockerfileEphemeralTest (waspDockerfileEphemeralTest)
 import EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest)
-import EphemeralTest.WaspNewEphemeralTest (waspNewBasicEphemeralTest, waspNewInteractiveBasicEphemeralTest, waspNewInteractiveMinimalEphemeralTest, waspNewInteractiveSaasEphemeralTest, waspNewMinimalEphemeralTest, waspNewSaasEphemeralTest)
+import EphemeralTest.WaspNewEphemeralTest (waspNewBasicEphemeralTest, waspNewBasicInteractiveEphemeralTest, waspNewMinimalInteractiveEphemeralTest, waspNewSaasInteractiveEphemeralTest, waspNewMinimalEphemeralTest, waspNewSaasEphemeralTest)
 import EphemeralTest.WaspTelemetryEphemeralTest (waspTelemetryEphemeralTest)
 import EphemeralTest.WaspVersionEphemeralTest (waspVersionEphemeralTest)
 import SnapshotTest (runSnapshotTest)
@@ -44,11 +44,11 @@ tests = do
       runEphemeralTest
       [ -- general Wasp commads
         waspNewMinimalEphemeralTest,
-        waspNewInteractiveMinimalEphemeralTest,
+        waspNewMinimalInteractiveEphemeralTest,
         waspNewBasicEphemeralTest,
-        waspNewInteractiveBasicEphemeralTest,
+        waspNewBasicInteractiveEphemeralTest,
         waspNewSaasEphemeralTest,
-        waspNewInteractiveSaasEphemeralTest,
+        waspNewSaasInteractiveEphemeralTest,
         waspTelemetryEphemeralTest,
         waspCompletionEphemeralTest,
         waspVersionEphemeralTest,

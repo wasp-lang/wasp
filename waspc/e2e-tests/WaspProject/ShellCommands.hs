@@ -16,6 +16,7 @@ module WaspProject.ShellCommands
     waspCliStudio,
     waspCliDbStudio,
     waspCliInfo,
+    waspCliDeps,
     createSeedFile,
     replaceMainWaspFile,
     waspCliDockerfile,
@@ -115,6 +116,9 @@ waspCliDbStudio = return "wasp-cli db studio"
 
 waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliInfo = return "wasp-cli info"
+
+waspCliDeps :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDeps = return "wasp-cli deps"
 
 waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDockerfile = return "wasp-cli dockerfile"
