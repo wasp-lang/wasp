@@ -19,6 +19,12 @@ waspCompileEphemeralTest =
         "Should succeed inside of a uncompiled Wasp project"
         (withInEphemeralWaspProjectDir [waspCliCompile]),
       makeEphemeralTestCase
+        "Assert `.wasp` directory exists"
+        (withInEphemeralWaspProjectDir [assertDirectoryExists ".wasp"]),
+      makeEphemeralTestCase
+        "Assert `node_modules` directory exists"
+        (withInEphemeralWaspProjectDir [assertDirectoryExists "node_modules"]),
+      makeEphemeralTestCase
         "Should succeed inside of a compiled Wasp project"
         (withInEphemeralWaspProjectDir [waspCliCompile]),
       makeEphemeralTestCase

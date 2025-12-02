@@ -2,7 +2,7 @@ module EphemeralTest.WaspDbStartEphemeralTest (waspDbStartEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate (..), ShellCommandBuilder, ShellCommand)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliDbStart)
 
 -- FIXME: @waspCliDbStart@ - figure out long lasting processes

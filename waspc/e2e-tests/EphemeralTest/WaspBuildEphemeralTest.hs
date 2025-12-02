@@ -24,7 +24,7 @@ waspBuildEphemeralTest =
       makeEphemeralTestCase
         "Should succeed inside of a Postgresql Wasp project"
         (withInEphemeralWaspProjectDir [waspCliBuild]),
-      -- `wasp build` should compile the project
+      -- `wasp build` should also compile the project.
       makeEphemeralTestCase
         "Assert `.wasp` directory exists"
         (withInEphemeralWaspProjectDir [assertDirectoryExists ".wasp"]),

@@ -8,7 +8,7 @@ module WaspProject.FileSystem
 where
 
 import Data.Maybe (fromJust)
-import StrongPath (Path', Rel, Dir, parseRelFile, reldir, relfile, File')
+import StrongPath (Dir, File', Path', Rel, parseRelFile, reldir, relfile)
 import Wasp.Project.Common (WaspProjectDir)
 
 data SeedsDir

@@ -2,7 +2,7 @@ module EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate (..), ShellCommandBuilder, ShellCommand)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliInfo)
 
 -- TODO: Test `wasp info` values change properly:

@@ -10,7 +10,7 @@ where
 
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, getE2eTestsDir)
-import StrongPath
+import StrongPath (Abs, Dir, Path, Path', Rel, castDir, parseRelDir, (</>))
 import Wasp.Project.Common (WaspProjectDir)
 
 data EphemeralDir

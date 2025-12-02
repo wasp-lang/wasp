@@ -37,10 +37,10 @@ import ShellCommands
   )
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.FilePath (joinPath)
-import Wasp.Generator.DbGenerator.Common ( dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir )
+import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir)
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-import WaspProject.FileSystem (seedsDirInWaspProjectDir, seedsFileInSeedsDir, mainWaspFileInWaspProjectDir)
+import WaspProject.FileSystem (mainWaspFileInWaspProjectDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 
 -- | Context for commands which are run from inside of a Wasp app project.
 data WaspProjectContext = WaspProjectContext

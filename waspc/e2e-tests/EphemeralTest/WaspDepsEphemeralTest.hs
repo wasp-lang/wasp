@@ -2,7 +2,7 @@ module EphemeralTest.WaspDepsEphemeralTest (waspDepsEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate (..), ShellCommandBuilder, ShellCommand)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliDeps)
 
 -- TODO: Test that deps change with installs/uninstalls.

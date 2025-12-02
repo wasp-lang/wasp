@@ -22,11 +22,9 @@ withInEphemeralWaspProjectDir ::
 withInEphemeralWaspProjectDir waspProjectCommandBuilders = do
   ephemeralTestContext <- ask
   return $
-    "cd "
-      ++ fromAbsDir (_waspProjectDir $ _ephemeralWaspProjectContext ephemeralTestContext)
-        ~&& foldr1 (~&&) (ephemeralWaspProjectCommands ephemeralTestContext)
-        ~&& "cd "
-      ++ fromAbsDir (_ephemeralDir ephemeralTestContext)
+    unwords ["cd", fromAbsDir (_waspProjectDir $ _ephemeralWaspProjectContext ephemeralTestContext)]
+      ~&& foldr1 (~&&) (ephemeralWaspProjectCommands ephemeralTestContext)
+      ~&& unwords ["cd", fromAbsDir (_ephemeralDir ephemeralTestContext)]
   where
     ephemeralWaspProjectCommands :: EphemeralTestContext -> [ShellCommand]
     ephemeralWaspProjectCommands ephemeralTestContext =

@@ -2,7 +2,7 @@ module EphemeralTest.WaspDbStudioEphemeralTest (waspDbStudioEphemeralTest) where
 
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
-import ShellCommands (WaspNewTemplate (..), ShellCommandBuilder, ShellCommand)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import WaspProject.ShellCommands (waspCliDbStudio)
 
 -- | NOTE: We don't test feature content since it's prisma feature.
