@@ -28,7 +28,6 @@ jobs:
         run: ./run install
 
       - name: Run `wasp new:ai` smoke test
-        if: runner.os != 'Windows' # Skip windows for now
         working-directory: ${{ runner.temp }}
         run: cabal --project-dir=${{ env.PROJECT_DIR }} run wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
         env:
