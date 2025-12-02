@@ -96,9 +96,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: cabal install
 
-      - name: On MacOS, skip e2e tests with Docker since it is not installed
-        if: runner.os == 'macOS'
-        run: export WASP_E2E_TESTS_SKIP_DOCKER=1
-
       - name: Run `waspc` e2e tests
+        env:
+          WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
         run: ./run test:waspc:e2e
