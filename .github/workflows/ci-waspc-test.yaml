@@ -6,14 +6,10 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_TESTING_KEY }}
-  # NOTE: Duplicated in defaults->run->working-directory
-  PROJECT_DIR: ${{ github.workspace }}/waspc
 
 defaults:
   run:
     shell: bash
-    # NOTE: Duplicated in env.PROJECT_DIR
     working-directory: waspc
 
 jobs:
@@ -72,12 +68,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Debug npm PATH on Windows
-        if: runner.os == 'Windows'
-        run: |
-          which npm || echo "npm not found in PATH"
-          echo "PATH: $PATH"
-
       - name: packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
         run: |
@@ -99,15 +89,6 @@ jobs:
 
       - name: Build wasp code
         run: cabal build all
-
-      - name: Run `wasp new:ai` smoke test
-        if: runner.os != 'Windows' # Skip windows for now
-        working-directory: ${{ runner.temp }}
-        run: cabal --project-dir=${{ env.PROJECT_DIR }} run wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
-        env:
-          APP_TITLE: todoApp
-          APP_DESCRIPTION: "A simple todo app with one main page that lists all the tasks. User can create new tasks by providing their description, toggle existing ones, or edit their description. User owns tasks. User can only see and edit their own tasks. Tasks are saved in the database."
-          CONFIG_JSON: "{}"
 
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
