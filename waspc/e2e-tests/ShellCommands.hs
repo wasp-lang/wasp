@@ -109,12 +109,14 @@ waspCliNewInteractive appName template =
   return $
     unwords
       [ "expect -c",
-        "'spawn wasp-cli new;",
+        "'",
+        "spawn wasp-cli new;",
         "expect \"Enter the project name\";",
         "send -- \"" ++ appName ++ "\r\";",
         "expect \"Choose a starter template\";",
         "send -- \"" ++ templateNumber ++ "\r\";",
-        "interact'"
+        "interact",
+        "'"
       ]
   where
     templateNumber = case template of
@@ -123,7 +125,7 @@ waspCliNewInteractive appName template =
       SaaS -> "3"
 
 waspCliNew :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNew appName template = return $ "wasp-cli new " ++ appName ++ " -t " ++ templateName
+waspCliNew appName template = return $ unwords ["wasp-cli", "new", appName, "-t", templateName]
   where
     templateName = case template of
       Basic -> "basic"
