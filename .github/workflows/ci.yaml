@@ -40,6 +40,11 @@ jobs:
     uses: ./.github/workflows/ci-waspc-build.yaml
     secrets: inherit
 
+  npm-package-test:
+    needs: waspc-build
+    uses: ./.github/workflows/ci-npm-package-test.yaml
+    secrets: inherit
+
   waspc-test:
     uses: ./.github/workflows/ci-waspc-test.yaml
     secrets: inherit
