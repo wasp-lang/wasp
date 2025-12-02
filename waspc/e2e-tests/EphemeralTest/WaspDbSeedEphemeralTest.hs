@@ -3,8 +3,8 @@ module EphemeralTest.WaspDbSeedEphemeralTest (waspDbSeedEphemeralTest) where
 import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (WaspNewTemplate (..))
-import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbSeed)
 import Wasp.Version (waspVersion)
+import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbSeed)
 
 waspDbSeedEphemeralTest :: EphemeralTest
 waspDbSeedEphemeralTest =
