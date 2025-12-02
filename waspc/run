@@ -30,7 +30,7 @@ INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"
 WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests"
-WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/snapshots/*-golden"
+WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/SnapshotTest/snapshots/*-golden"
 WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
 WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
