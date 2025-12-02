@@ -87,6 +87,8 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
           define,
           optimizeDeps: {
             exclude: ["wasp"],
+            // TODO: figure out why is this necessary
+            include: ["@prisma/client"]
           },
           server: {
             port: {= defaultClientPort =},
@@ -98,11 +100,7 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
             outDir: "{= buildOutputDir =}",
           },
           resolve: {
-            // Preserve symlinks so that wasp package symlink works correctly
             preserveSymlinks: true,
-            // These packages rely on a single instance per page. Not deduping them
-            // causes runtime errors (e.g., hook rule violation in react, QueryClient
-            // instance error in react-query, Invariant Error in react-router-dom).
             dedupe: [
               "react",
               "react-dom",
@@ -116,6 +114,11 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
                 // TODO: Check if we can remove when updating Prisma (#2504)
                 find: /^\.prisma\/(.+)$/,
                 replacement: path.join("{= projectDir =}", "node_modules/.prisma/$1"),
+              },
+              // TODO: figure out why is this necessary
+              {
+                find: "use-sync-external-store/shim/index.js",
+                replacement: "react",
               },
             ],
           },
