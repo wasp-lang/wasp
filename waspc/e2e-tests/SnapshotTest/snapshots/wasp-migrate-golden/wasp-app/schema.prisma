@@ -13,4 +13,3 @@ model Task {
   description String
   isDone      Boolean @default(false)
 }
-
