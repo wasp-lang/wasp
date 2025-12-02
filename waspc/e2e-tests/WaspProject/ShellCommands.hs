@@ -8,7 +8,7 @@ module WaspProject.ShellCommands
     waspCliDbReset,
     waspCliDbSeed,
     waspCliCompile,
-    waspCliDbMigrateDevDev,
+    waspCliDbMigrateDev,
     waspCliBuild,
     waspCliBuildStart,
     waspCliStart,
@@ -71,8 +71,8 @@ waspCliDbStart = return "wasp-cli db start"
 -- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
 -- This is important for snapshot testing as we don't want a different migration name each time.
 -- Caveat: this does mean that we can't have two migrations with the same name in a project.
-waspCliDbMigrateDevDev :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbMigrateDevDev migrationName = do
+waspCliDbMigrateDev :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbMigrateDev migrationName = do
   waspProjectContext <- ask
   let waspMigrationsDir = _waspProjectDir waspProjectContext </> dbMigrationsDirInWaspProjectDir
       waspOutMigrationsDir =
@@ -101,10 +101,12 @@ waspCliDbReset reset =
   return $
     unwords
       [ "expect -c",
-        "'spawn wasp-cli db reset;",
+        "'",
+        "spawn wasp-cli db reset;",
         "expect \"?\";",
         "send \"" ++ resetAnswer ++ "\r\";",
-        "interact'"
+        "interact",
+        "'"
       ]
   where
     resetAnswer = if reset then "y" else "n"
@@ -121,7 +123,7 @@ waspCliDockerfile = return "wasp-cli dockerfile"
 waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStudio = return "wasp-cli studio"
 
--- NOTE: fragile, assumes line numbers do not change.
+-- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
 setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
 

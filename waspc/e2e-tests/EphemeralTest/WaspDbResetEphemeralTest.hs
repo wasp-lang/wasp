@@ -6,7 +6,7 @@ import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralW
 import NeatInterpolation (trimming)
 import ShellCommands (WaspNewTemplate (..))
 import Wasp.Version (waspVersion)
-import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbReset, waspCliDbSeed)
+import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 
 -- | We include a seeding script as part of the ephemeral test,
 -- because Wasp skips the seeding during the reset (unlike Prisma).
@@ -25,7 +25,7 @@ waspDbResetEphemeralTest =
         ( withInEphemeralWaspProjectDir
             [ waspCliCompile,
               appendToPrismaFile taskPrismaModel,
-              waspCliDbMigrateDevDev "foo",
+              waspCliDbMigrateDev "foo",
               createSeedFile
                 (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
                 seedScriptThatPopulatesTasksTable,

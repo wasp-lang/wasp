@@ -6,7 +6,7 @@ import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralW
 import NeatInterpolation (trimming)
 import ShellCommands (WaspNewTemplate (..))
 import Wasp.Version (waspVersion)
-import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDevDev, waspCliDbSeed)
+import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 
 waspDbSeedEphemeralTest :: EphemeralTest
 waspDbSeedEphemeralTest =
@@ -23,7 +23,7 @@ waspDbSeedEphemeralTest =
         ( withInEphemeralWaspProjectDir
             [ waspCliCompile,
               appendToPrismaFile taskPrismaModel,
-              waspCliDbMigrateDevDev "foo",
+              waspCliDbMigrateDev "foo",
               createSeedFile
                 (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
                 seedScriptThatPopulatesTasksTable,
