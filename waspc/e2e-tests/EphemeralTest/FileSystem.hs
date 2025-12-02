@@ -12,16 +12,16 @@ where
 
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, getE2eTestsDir)
-import StrongPath (Abs, Dir, Path, Path', Rel, castDir, parseRelDir, (</>), reldir)
+import StrongPath (Abs, Dir, Path, Path', Rel, castDir, parseRelDir, reldir, (</>))
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | The directory where all ephemeral tests' artifacts are stored.
 data EphemeralTestsTempDir
 
-ephemeralTestsTempDirInE2eTestsDir ::  Path' (Rel E2eTestsDir) (Dir EphemeralTestsTempDir)
+ephemeralTestsTempDirInE2eTestsDir :: Path' (Rel E2eTestsDir) (Dir EphemeralTestsTempDir)
 ephemeralTestsTempDirInE2eTestsDir = [reldir|EphemeralTest/temp|]
 
-getEphemeralTestsTempDir ::  IO (Path' Abs (Dir EphemeralTestsTempDir))
+getEphemeralTestsTempDir :: IO (Path' Abs (Dir EphemeralTestsTempDir))
 getEphemeralTestsTempDir = (</> ephemeralTestsTempDirInE2eTestsDir) <$> getE2eTestsDir
 
 -- | The directory inside a 'EphemeralTestsTempDir' where artifacts for a specific ephemeral test are stored.
