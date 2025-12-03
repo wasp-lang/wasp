@@ -10,7 +10,9 @@ import StrongPath (reldir)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate (..), TemplateMetadata (..))
 import qualified Wasp.Cli.GithubRepo as GhRepo
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util.Terminal (styleCode, styleText)
+import Wasp.Version (waspVersion)
 
 availableStarterTemplates :: [StarterTemplate]
 availableStarterTemplates =
@@ -116,9 +118,10 @@ openSaasStarterTemplate =
         )
     }
 
--- NOTE: As version of Wasp CLI changes, so we should update this tag name here,
---   and also create it on the GitHub repos of templates.
---   By tagging templates for each version of Wasp CLI, we ensure that each release of
---   Wasp CLI uses correct version of templates, that work with it.
+-- | Git tag for external templates, constructed dynamically from the current Wasp version.
+-- Example: `wasp-v0.19-template`.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = "wasp-v0.19-template"
+waspVersionTemplateGitTag =
+  "wasp-v" ++ show major ++ "." ++ show minor ++ "-template"
+  where
+    (SV.Version major minor _) = waspVersion
