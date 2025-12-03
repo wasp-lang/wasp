@@ -128,6 +128,7 @@ function makeRailwayDeployCommand(): Command {
       "--existing-project-id [projectId]",
       "use existing project for deployment",
     )
+    .option("--custom-server-url <url>", "custom server URL to use")
     .action(deployFn);
 }
 
