@@ -14,34 +14,34 @@ import qualified Wasp.Message as Msg
 
 withArguments :: String -> Opt.Parser a -> (a -> Command ()) -> Arguments -> Command ()
 withArguments cmdName parser onSuccess args =
-  dispatch $ parseArguments cmdName parser args
-  where
-    dispatch (Success result) = do
+  case parseArguments cmdName parser args of
+    (ArgsParsed result) -> do
       onSuccess result
-    dispatch (Failure _ helpMessage) = do
+    (ParseFailure helpMessage) -> do
       throwError $ CommandError "Parsing arguments failed" helpMessage
-    dispatch (Stop helpMessage) = do
+    (ShowHelp helpMessage) -> do
       cliSendMessageC $ Msg.Info helpMessage
       return ()
 
-data ArgsResult a
-  = Success a
-  | Failure Int String
-  | Stop String
+data ArgsParseResult args
+  = ArgsParsed args
+  | ParseFailure String
+  | ShowHelp String
 
-parseArguments :: String -> Opt.Parser a -> Arguments -> ArgsResult a
+parseArguments :: String -> Opt.Parser a -> Arguments -> ArgsParseResult a
 parseArguments cmdName parser args =
   parserResultToArgsResult cmdName $
     Opt.execParserPure Opt.defaultPrefs parserInfo args
   where
     parserInfo = Opt.info (parser <**> Opt.helper) Opt.fullDesc
 
-parserResultToArgsResult :: String -> Opt.ParserResult a -> ArgsResult a
-parserResultToArgsResult _ (Opt.Success success) = Success success
+parserResultToArgsResult :: String -> Opt.ParserResult a -> ArgsParseResult a
+parserResultToArgsResult _ (Opt.Success success) = ArgsParsed success
 parserResultToArgsResult cmdName (Opt.CompletionInvoked _) =
   error $ "Completion invoked when parsing '" <> cmdName <> "', but this should never happen"
 parserResultToArgsResult cmdName (Opt.Failure failure) =
-  failureToArgsResult $ Opt.execFailure failure cmdName
-  where
-    failureToArgsResult (help, EC.ExitSuccess, _) = Stop $ show help
-    failureToArgsResult (help, EC.ExitFailure exitCodeInt, _) = Failure exitCodeInt $ show help
+  case Opt.execFailure failure cmdName of
+    (help, EC.ExitSuccess, _) ->
+      ShowHelp $ show help
+    (help, EC.ExitFailure _, _) ->
+      ParseFailure $ show help
