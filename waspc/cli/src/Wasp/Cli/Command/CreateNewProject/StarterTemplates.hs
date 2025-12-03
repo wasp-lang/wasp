@@ -183,14 +183,13 @@ simpleGhReleaseArchiveTemplate (repoName, assetName) (tmplDisplayName, tmplDescr
 waspGhOrgName :: String
 waspGhOrgName = "wasp-lang"
 
--- | Git tag for external templates, constructed dynamically from the Wasp version.
--- By tagging templates for each version of Wasp CLI, we ensure that each release of
--- Wasp CLI uses correct version of templates, that work with it.
+-- | Git tag for external templates, constructed dynamically from the current Wasp version.
+-- Example: `wasp-v0.19-template`.
 waspVersionTemplateGitTag :: String
-waspVersionTemplateGitTag = mkTemplateGitTag Version.waspVersion
+waspVersionTemplateGitTag =
+  "wasp-v" ++ show major ++ "." ++ show minor ++ "-template"
   where
-    mkTemplateGitTag :: SV.Version -> String
-    mkTemplateGitTag (SV.Version major minor _) = "wasp-v" ++ show major ++ "." ++ show minor ++ "-template"
+    (SV.Version major minor _) = Version.waspVersion
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates
