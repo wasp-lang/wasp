@@ -5,6 +5,7 @@ module Wasp.Util.Terminal
     getAnsiCodeFor,
     ansiEscapeCode,
     ansiResetCode,
+    styleText,
   )
 where
 
@@ -13,6 +14,12 @@ import Data.List (foldl')
 -- | Applies the Wasp CLI standardized code styling to a string.
 styleCode :: String -> String
 styleCode = applyStyles [Bold]
+
+-- | Applies the Wasp CLI standardized text styling to a string. Currently, this
+-- is a no-op, but it exists for future-proofing. And to make consecutive calls
+-- to styleCode and styleText look similar.
+styleText :: String -> String
+styleText = id
 
 data Style
   = Black
