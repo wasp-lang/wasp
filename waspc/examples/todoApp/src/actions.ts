@@ -1,12 +1,12 @@
 import { type Task } from 'wasp/entities'
 import { HttpError } from 'wasp/server'
+import { sayHi } from '@util'
 import type {
   CreateTask,
   DeleteCompletedTasks,
   ToggleAllTasks,
   UpdateTaskIsDone,
 } from 'wasp/server/operations'
-import { getSomeResource } from './serverSetup.js'
 
 export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
   task,
@@ -27,11 +27,7 @@ export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
     },
   })
 
-  console.log(
-    'New task created! Btw, current value of someResource is: ' +
-      getSomeResource()
-  )
-
+  sayHi()
   return newTask
 }
 

@@ -1,7 +1,8 @@
 {{={= =}=}}
 import esbuild from 'rollup-plugin-esbuild'
-import alias from '@rollup/plugin-alias';
 import resolve from '@rollup/plugin-node-resolve';
+import { resolveProjectPath } from "wasp/dev"
+import path from 'path'
 
 export default [
   createBundle('src/server.ts', 'bundle/server.js'),
@@ -9,6 +10,34 @@ export default [
   createBundle('src/dbSeed.ts', 'bundle/dbSeed.js'),
   {=/ areDbSeedsDefined =}
 ]
+
+function resolvePathAliases(aliasesToSrcPaths = {}) {
+  return {
+    name: 'path-alias-resolver',
+    async resolveId(importeeString, importerAbsPath, resolveOptions) {
+      const userDefinedLookupLocation = aliasesToSrcPaths[importeeString]
+
+      if (userDefinedLookupLocation === undefined) {
+        return null;
+      }
+
+      const absWorkingDir = process.cwd()
+      const waspProjectDirAbsPath = path.resolve(absWorkingDir, resolveProjectPath("./"))
+      const lookupLocationAbs = path.resolve(waspProjectDirAbsPath, userDefinedLookupLocation)
+      const lookupLocationFromImporterPath = "./" + path.relative(path.dirname(importerAbsPath), lookupLocationAbs)
+
+      const result = await this.resolve(lookupLocationFromImporterPath, importerAbsPath, { ...resolveOptions, skipSelf: true })
+      // TODO: debugging output, remove
+      // console.table({
+      //   userDefinedAlias: importeeString,
+      //   userDefinedLookupLocation,
+      //   importerAbsPath,
+      //   lookupLocationFromImporterPath,
+      // })
+      return result
+    }
+  };
+}
 
 function createBundle(inputFilePath, outputFilePath) {
   return {
@@ -20,12 +49,9 @@ function createBundle(inputFilePath, outputFilePath) {
     },
     plugins: [
       resolve(),
-      alias({
-        entries: [
-          {=# aliases =}
-          { find: '{= find =}', replacement: '{= replacement =}' },
-          {=/ aliases =}
-        ]
+      resolvePathAliases({
+        '@util': './src/util.js',
+        '@components': './src/components',
       }),
       esbuild({
         target: 'esnext',

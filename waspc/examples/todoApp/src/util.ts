@@ -1,5 +1,5 @@
 export function sayHi() {
-    console.log("This is coming from shared function.")
+    console.log("This is coming from the shared function.")
 }
 
 
