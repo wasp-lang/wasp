@@ -75,7 +75,7 @@ TEST_CMD="cabal test && \
 RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 
 # Utility
-GET_VERSION_CMD="cabal repl waspc -v0 <<<'putStrLn $ Data.Version.showVersion Paths_waspc.version'"
+GET_WASPC_VERSION_CMD="cabal repl waspc -v0 <<< 'putStrLn $ Data.Version.showVersion Paths_waspc.version'"
 GHCID_CMD="ghcid --command=cabal repl"
 # HLS version below should be one that works with the GHC version from the
 # `with-compiler` field in `cabal.project`
@@ -177,7 +177,7 @@ print_usage() {
   echo ""
   print_usage_cmd "ghcup-set" \
     "Sets the correct version of GHC and Cabal for this project (via GHCup)."
-  print_usage_cmd "get-version" \
+  print_usage_cmd "get-waspc-version" \
     "Gets the current version of waspc from the Haskell project."
 }
 
@@ -305,8 +305,8 @@ case $COMMAND in
   ghcup-set)
     echo_and_eval "$GHCUP_SET"
     ;;
-  get-version)
-    echo_and_eval "$GET_VERSION_CMD"
+  get-waspc-version)
+    echo_and_eval "$GET_WASPC_VERSION_CMD"
     ;;
   *)
     print_usage
