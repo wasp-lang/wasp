@@ -56,7 +56,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: "actions/checkout@v5"
+      - uses: "actions/checkout@v6"
 
       - name: Set up Haskell
         uses: ./.github/actions/setup-haskell
@@ -64,7 +64,7 @@ jobs:
           cabal-project-dir: waspc
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
 
