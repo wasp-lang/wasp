@@ -15,13 +15,9 @@ import qualified Wasp.Message as Msg
 withArguments :: String -> Opt.Parser a -> (a -> Command ()) -> Arguments -> Command ()
 withArguments cmdName parser onSuccess args =
   case parseArguments cmdName parser args of
-    (ArgsParsed result) -> do
-      onSuccess result
-    (ParseFailure helpMessage) -> do
-      throwError $ CommandError "Parsing arguments failed" helpMessage
-    (ShowHelp helpMessage) -> do
-      cliSendMessageC $ Msg.Info helpMessage
-      return ()
+    (ArgsParsed result) -> onSuccess result
+    (ParseFailure helpMessage) -> throwError $ CommandError "Parsing arguments failed" helpMessage
+    (ShowHelp helpMessage) -> cliSendMessageC $ Msg.Info helpMessage
 
 data ArgsParseResult args
   = ArgsParsed args
@@ -36,9 +32,7 @@ parseArguments cmdName parser args =
       error $ "Completion invoked when parsing '" <> cmdName <> "', but this should never happen"
     (Opt.Failure failure) ->
       case Opt.execFailure failure cmdName of
-        (help, EC.ExitSuccess, _) ->
-          ShowHelp $ show help
-        (help, EC.ExitFailure _, _) ->
-          ParseFailure $ show help
+        (help, EC.ExitSuccess, _) -> ShowHelp $ show help
+        (help, EC.ExitFailure _, _) -> ParseFailure $ show help
   where
     parserInfo = Opt.info (parser <**> Opt.helper) Opt.fullDesc
