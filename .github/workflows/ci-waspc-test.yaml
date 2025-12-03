@@ -17,6 +17,7 @@ jobs:
     name: Test waspc
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
@@ -91,10 +92,6 @@ jobs:
 
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
-
-      - name: Install `wasp-cli`
-        if: matrix.os == 'ubuntu-22.04'
-        run: cabal install
 
       - name: Run `waspc` e2e tests
         env:
