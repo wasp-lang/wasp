@@ -30,18 +30,15 @@ data ArgsParseResult args
 
 parseArguments :: String -> Opt.Parser a -> Arguments -> ArgsParseResult a
 parseArguments cmdName parser args =
-  parserResultToArgsResult cmdName $
-    Opt.execParserPure Opt.defaultPrefs parserInfo args
+  case Opt.execParserPure Opt.defaultPrefs parserInfo args of
+    (Opt.Success success) -> ArgsParsed success
+    (Opt.CompletionInvoked _) ->
+      error $ "Completion invoked when parsing '" <> cmdName <> "', but this should never happen"
+    (Opt.Failure failure) ->
+      case Opt.execFailure failure cmdName of
+        (help, EC.ExitSuccess, _) ->
+          ShowHelp $ show help
+        (help, EC.ExitFailure _, _) ->
+          ParseFailure $ show help
   where
     parserInfo = Opt.info (parser <**> Opt.helper) Opt.fullDesc
-
-parserResultToArgsResult :: String -> Opt.ParserResult a -> ArgsParseResult a
-parserResultToArgsResult _ (Opt.Success success) = ArgsParsed success
-parserResultToArgsResult cmdName (Opt.CompletionInvoked _) =
-  error $ "Completion invoked when parsing '" <> cmdName <> "', but this should never happen"
-parserResultToArgsResult cmdName (Opt.Failure failure) =
-  case Opt.execFailure failure cmdName of
-    (help, EC.ExitSuccess, _) ->
-      ShowHelp $ show help
-    (help, EC.ExitFailure _, _) ->
-      ParseFailure $ show help
