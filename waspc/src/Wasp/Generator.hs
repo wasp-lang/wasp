@@ -23,6 +23,7 @@ import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
+import Wasp.Generator.UserDirGenerator (genUserDir)
 import Wasp.Generator.Valid (validateAppSpec)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
@@ -57,6 +58,7 @@ genApp spec =
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
+    <++> genUserDir spec
 
 -- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
 writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()
