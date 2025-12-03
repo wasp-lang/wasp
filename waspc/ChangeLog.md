@@ -4,7 +4,7 @@
 
 ### 🐞 Bug fixes
 
-- Fixed email verification hook being called multiple times. ([#3458](https://github.com/wasp-lang/wasp/pull/3458))
+- Fixed `onAfterEmailVerified` hook being called twice while in development mode. ([#3458](https://github.com/wasp-lang/wasp/pull/3458))
 
 ### 🔧 Small improvements
 
