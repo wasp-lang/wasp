@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.WebAppGenerator.RouterGenerator
-  ( genRouter,
+module Wasp.Generator.SdkGenerator.Client.RouterComponentGenerator
+  ( genClientRouterComponent,
   )
 where
 
@@ -9,9 +9,8 @@ import Data.Aeson (ToJSON (..), object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (find)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
+import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
-import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -22,12 +21,13 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
+import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
-import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
-import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
+import qualified Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.Generator.WebAppGenerator.Common as WebAppC
+import Wasp.JsImport (JsImport (..), JsImportPath (..), applyJsImportAlias, getJsImportStmtAndIdentifier)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -73,8 +73,8 @@ instance ToJSON PageTemplateData where
       [ "importStatement" .= _importStmt pageTD
       ]
 
-genRouter :: AppSpec -> Generator [FileDraft]
-genRouter spec =
+genClientRouterComponent :: AppSpec -> Generator [FileDraft]
+genClientRouterComponent spec =
   sequence
     [ genRouterTsx spec
     ]
@@ -82,14 +82,11 @@ genRouter spec =
 genRouterTsx :: AppSpec -> Generator FileDraft
 genRouterTsx spec = do
   return $
-    C.mkTmplFdWithDstAndData
-      (asTmplFile $ [reldir|src|] </> routerPath)
-      targetPath
-      (Just $ toJSON templateData)
+    C.mkTmplFdWithData
+      [relfile|client/router/router.tsx|]
+      (toJSON templateData)
   where
-    routerPath = [relfile|router.tsx|]
     templateData = createRouterTemplateData spec
-    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
 createRouterTemplateData :: AppSpec -> RouterTemplateData
 createRouterTemplateData spec =
@@ -98,8 +95,8 @@ createRouterTemplateData spec =
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
-      _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
-      _baseDir = SP.fromAbsDirP $ C.getBaseDir spec
+      _rootComponent = GJI.jsImportToImportJson $ extImportToSdkSrcRelativeImport <$> maybeRootComponent,
+      _baseDir = SP.fromAbsDirP $ WebAppC.getBaseDir spec
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
@@ -142,19 +139,22 @@ determineRouteTargetComponent spec (_, route) =
         else targetPageName
 
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
-createPageTemplateData page =
+createPageTemplateData (pageName, page) =
   PageTemplateData
     { _importStmt = importStmt
     }
   where
     importStmt :: String
-    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport relPathToWebAppSrcDir pageComponent
+    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just pageName) $ extImportToSdkSrcRelativeImport $ AS.Page.component page
 
-    pageComponent :: AS.ExtImport.ExtImport
-    pageComponent = AS.Page.component $ snd page
-
-    importAlias :: String
-    importAlias = fst page
-
-relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
-relPathToWebAppSrcDir = [reldirP|./|]
+extImportToSdkSrcRelativeImport :: AS.ExtImport.ExtImport -> JsImport
+extImportToSdkSrcRelativeImport extImport@(AS.ExtImport.ExtImport extImportName extImportPath) =
+  JsImport
+    { _path = RelativeImportPath relativePath,
+      _name = importName,
+      _importAlias = Just $ AS.ExtImport.importIdentifier extImport ++ "_ext"
+    }
+  where
+    relativePathPrefix = [SP.reldirP|../../src|]
+    relativePath = dropExtensionFromImportPath $ relativePathPrefix </> SP.castRel extImportPath
+    importName = GJI.extImportNameToJsImportName extImportName

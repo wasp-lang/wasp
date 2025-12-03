@@ -12,7 +12,6 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Generator.ServerGenerator as SG
-import qualified Wasp.Generator.WebAppGenerator as WG
 
 data AllNpmDeps = AllNpmDeps
   { _userNpmDeps :: !N.NpmDepsFromUser, -- Deps coming from user's package.json .
@@ -28,8 +27,10 @@ instance FromJSON AllNpmDeps
 getAllNpmDeps :: AppSpec -> Either String AllNpmDeps
 getAllNpmDeps spec =
   let userNpmDeps = N.getUserNpmDepsForPackage spec
+      -- Webapp deps are now part of SDK, so we pass empty deps for webapp
+      emptyWebAppDeps = N.NpmDepsFromWasp $ N.NpmDepsForPackage [] [] []
       errorOrWaspFrameworkNpmDeps =
-        N.buildWaspFrameworkNpmDeps spec (SG.npmDepsFromWasp spec) (WG.npmDepsFromWasp spec)
+        N.buildWaspFrameworkNpmDeps spec (SG.npmDepsFromWasp spec) emptyWebAppDeps
       waspSdkNpmDeps = SdkGenerator.npmDepsForSdk spec
    in case errorOrWaspFrameworkNpmDeps of
         Left message -> Left $ "determining npm deps to install failed: " ++ message
