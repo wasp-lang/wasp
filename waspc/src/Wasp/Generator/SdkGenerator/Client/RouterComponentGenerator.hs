@@ -9,7 +9,7 @@ import Data.Aeson (ToJSON (..), object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (find)
 import Data.Maybe (fromMaybe)
-import StrongPath (relfile)
+import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -21,12 +21,13 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
+import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import qualified Wasp.Generator.SdkGenerator.JsImport as SdkJsImport
 import qualified Wasp.Generator.WebAppGenerator.Common as WebAppC
-import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
+import Wasp.JsImport (JsImport (..), JsImportPath (..), applyJsImportAlias, getJsImportStmtAndIdentifier)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -94,7 +95,7 @@ createRouterTemplateData spec =
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
-      _rootComponent = SdkJsImport.extImportToImportJson maybeRootComponent,
+      _rootComponent = GJI.jsImportToImportJson $ extImportToSdkSrcRelativeImport <$> maybeRootComponent,
       _baseDir = SP.fromAbsDirP $ WebAppC.getBaseDir spec
     }
   where
@@ -138,16 +139,22 @@ determineRouteTargetComponent spec (_, route) =
         else targetPageName
 
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
-createPageTemplateData page =
+createPageTemplateData (pageName, page) =
   PageTemplateData
     { _importStmt = importStmt
     }
   where
     importStmt :: String
-    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ SdkJsImport.extImportToJsImport pageComponent
+    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just pageName) $ extImportToSdkSrcRelativeImport $ AS.Page.component page
 
-    pageComponent :: AS.ExtImport.ExtImport
-    pageComponent = AS.Page.component $ snd page
-
-    importAlias :: String
-    importAlias = fst page
+extImportToSdkSrcRelativeImport :: AS.ExtImport.ExtImport -> JsImport
+extImportToSdkSrcRelativeImport extImport@(AS.ExtImport.ExtImport extImportName extImportPath) =
+  JsImport
+    { _path = RelativeImportPath relativePath,
+      _name = importName,
+      _importAlias = Just $ AS.ExtImport.importIdentifier extImport ++ "_ext"
+    }
+  where
+    relativePathPrefix = [SP.reldirP|../../src|]
+    relativePath = dropExtensionFromImportPath $ relativePathPrefix </> SP.castRel extImportPath
+    importName = GJI.extImportNameToJsImportName extImportName

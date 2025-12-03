@@ -6,8 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust)
-import qualified FilePath.Extra as FP.Extra
-import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, relfile, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
@@ -15,9 +14,8 @@ import Wasp.Generator.Common (WebAppRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as SDK
-import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 
 data VitePluginName = DetectServerImports | ValidateEnv | Wasp | ViteIndex
   deriving (Enum, Bounded)
@@ -76,7 +74,7 @@ genWaspPlugin spec tmplFile = return $ SDK.mkTmplFdWithData tmplFile tmplData
     tmplData =
       object
         [ "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
-          "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirWaspProjectDir,
+          "projectDir" .= (SP.fromRelDir $ [reldir|.|]),
           "defaultClientPort" .= C.defaultClientPort,
           "buildOutputDir" .= (".wasp/out/web-app/build" :: String),
           "vitest"
@@ -84,10 +82,3 @@ genWaspPlugin spec tmplFile = return $ SDK.mkTmplFdWithData tmplFile tmplData
               [ "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-
-    relPathFromWebAppRootDirWaspProjectDir :: Path Posix (Rel C.WebAppRootDir) (Dir WaspProjectDir)
-    relPathFromWebAppRootDirWaspProjectDir =
-      fromJust $
-        SP.parseRelDirP $
-          FP.Extra.reversePosixPath $
-            SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> webAppRootDirInProjectRootDir)
