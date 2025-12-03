@@ -1,8 +1,9 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
 import { AuthContext } from '../../Auth'
+import { useEffectOnce } from '../../../../client/hooks.js'
 
 // PRIVATE API
 export const VerifyEmailForm = () => {
@@ -34,13 +35,9 @@ export const VerifyEmailForm = () => {
     }
   }
 
-  const isFirstRender = useRef(true)
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      submitForm()
-    }
-  }, [])
+  useEffectOnce(() => {
+    submitForm()
+  })
 
   return <>{isLoading && <Message>Verifying email...</Message>}</>
 }

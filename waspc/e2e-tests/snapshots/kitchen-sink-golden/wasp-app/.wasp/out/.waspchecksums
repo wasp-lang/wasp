@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "2e31d73ff05d229c589e71b02a2707e3c881fe949206897825bc7496ba5050e1"
+        "550373cd0d664c5890be37a39bd92de3f6887cabb28ed731d8db34a7407eb554"
     ],
     [
         [
@@ -436,6 +436,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/hooks.ts"
+        ],
+        "71364b89472b1ad19b34967e4c701af40ea5f97065dc74ada9b43ffd9b2a8989"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/index.ts"
         ],
         "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
@@ -641,7 +648,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "1591f79fc9e60bcf4708bcb11d1ead6042def086e0523dce8089512ee67d73e1"
+        "e7a4e4e086dc882783346019c677818ee8eeb7cc9d3589557ef48d3b18d8c31b"
     ],
     [
         [
@@ -2321,7 +2328,7 @@
             "file",
             "web-app/src/auth/pages/OAuthCallback.tsx"
         ],
-        "6414299e9cb46702b8daca23563991a46e70ef8e9ea985bc5d4fe48d2c646132"
+        "9f6e02152b2e15212ce7fee8f1ce5480d59ceab6786452f05592203ffec68e5a"
     ],
     [
         [
