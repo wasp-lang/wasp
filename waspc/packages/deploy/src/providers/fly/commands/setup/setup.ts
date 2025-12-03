@@ -1,12 +1,12 @@
-import { $, chalk, question } from "zx";
+import { $, cd, chalk, question } from "zx";
 
 import { getFullCommandName } from "../../../../common/commander.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  cdToClientBuildDir,
-  cdToServerBuildDir,
+  getClientBuildDir,
+  getServerBuildDir,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
@@ -71,7 +71,7 @@ async function setupServer(
     `Setting up server app with name ${deploymentInstructions.serverFlyAppName}`,
   );
 
-  cdToServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  cd(getServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
   deleteLocalToml();
 
   const launchArgs = [
@@ -161,7 +161,7 @@ async function setupClient(
     `Setting up client app with name ${deploymentInstructions.clientFlyAppName}`,
   );
 
-  cdToClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir);
+  cd(getClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
   deleteLocalToml();
 
   const launchArgs = [

@@ -164,6 +164,8 @@ library
     , network               ^>= 3.1.4
     , neat-interpolation    ^>= 0.5.1
     , megaparsec            ^>= 9.5.0
+    , validation-selective  ^>= 0.2.0
+    , selective             ^>= 0.7.0
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -362,6 +364,7 @@ library
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
+    Wasp.Generator.Valid.Validator
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
@@ -585,6 +588,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject
     Wasp.Cli.Command.CreateNewProject.AI
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+    Wasp.Cli.Command.CreateNewProject.AvailableTemplates
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
@@ -729,6 +733,8 @@ test-suite waspc-tests
     Project.DbTest
     Paths_waspc
     Generator.NpmDependenciesTest
+    Generator.Valid.PackageJsonTest
+    Generator.Valid.ValidatorTest
     JsImportTest
 
 test-suite waspls-tests
