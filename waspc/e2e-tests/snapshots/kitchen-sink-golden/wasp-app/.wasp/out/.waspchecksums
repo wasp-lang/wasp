@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "a4086ae99097e09dca75ecd97015f8186e60c47608934e26182659e6c843803d"
+        "550373cd0d664c5890be37a39bd92de3f6887cabb28ed731d8db34a7407eb554"
     ],
     [
         [
@@ -436,6 +436,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/hooks.ts"
+        ],
+        "71364b89472b1ad19b34967e4c701af40ea5f97065dc74ada9b43ffd9b2a8989"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/index.ts"
         ],
         "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
@@ -641,7 +648,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "1591f79fc9e60bcf4708bcb11d1ead6042def086e0523dce8089512ee67d73e1"
+        "e7a4e4e086dc882783346019c677818ee8eeb7cc9d3589557ef48d3b18d8c31b"
     ],
     [
         [
@@ -1089,7 +1096,7 @@
             "file",
             "../out/sdk/wasp/src/features/auth/hooks.ts"
         ],
-        "518343105f72a01cf38c57003f0fdec385e091355771377fe1776c90c0098520"
+        "cc918249b14d7984dad2e4d119cd948db12960c651c2236ebd4aadbd26d5e0ba"
     ],
     [
         [
@@ -1131,7 +1138,7 @@
             "file",
             "../out/sdk/wasp/src/features/auth/pages/ProfilePage.tsx"
         ],
-        "7df4b7071c20f82cc8a78999590ba9598c3ee0270ef205776054fa3834da1132"
+        "bc787521015b6b18699d7c79a6b6b361d0745a0be84fa3afa908b6a50d9a2b64"
     ],
     [
         [
@@ -1285,7 +1292,7 @@
             "file",
             "../out/sdk/wasp/src/features/operations/components/Todo.test.tsx"
         ],
-        "032d39543284ad30602543a0afac464570481d7424c6e6eb7d01a6057841b844"
+        "5fe00b0abb7220ba97761d0c5a427551c660b08522efab2a0a7dc7fef390f614"
     ],
     [
         [
@@ -1488,14 +1495,14 @@
             "dir",
             "db/migrations/"
         ],
-        "c1a9f431e8e0c337f888ce1dd19ce5deb24c6818f1e28a30b1def672f3513bb9"
+        "2dc548537e754f932c13d246ee84e7a4694b27687e4f0c1446a9797428fe1500"
     ],
     [
         [
             "file",
             "db/schema.prisma"
         ],
-        "c751059882d2993eb2aa76f7f6a2c506217148de35b37777c18678759f61adc6"
+        "0c62bb376ae204c687219387c06a25a9aef4bed05e7592526dbe1542bae59643"
     ],
     [
         [
@@ -2321,7 +2328,7 @@
             "file",
             "web-app/src/auth/pages/OAuthCallback.tsx"
         ],
-        "6414299e9cb46702b8daca23563991a46e70ef8e9ea985bc5d4fe48d2c646132"
+        "9f6e02152b2e15212ce7fee8f1ce5480d59ceab6786452f05592203ffec68e5a"
     ],
     [
         [

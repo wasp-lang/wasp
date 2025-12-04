@@ -37,6 +37,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/hooks.ts"
+        ],
+        "71364b89472b1ad19b34967e4c701af40ea5f97065dc74ada9b43ffd9b2a8989"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/index.ts"
         ],
         "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
@@ -221,7 +228,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "0285c06f313ad19bbf20c23fe0854165ceaff52ae361d3ce24e2a6c2b8dddc71"
+        "aaeb8ebf04690e896dae346334ca26efc965251cb0aa6dcac209b05069af7198"
     ],
     [
         [

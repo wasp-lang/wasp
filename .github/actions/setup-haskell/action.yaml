@@ -15,7 +15,7 @@ inputs:
     description: |
       The version of Cabal to install.
     required: false
-    default: "3.10.2.0"
+    default: "3.12.1.0"
 
   cabal-project-dir:
     description: |

@@ -27,8 +27,9 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
-import Wasp.Cli.Util.EnvVarArgument (EnvVarFileArgument, readEnvVarFile)
-import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars)
+import Wasp.Cli.Util.PathArgument (FilePathArgument)
+import qualified Wasp.Cli.Util.PathArgument as PathArgument
+import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -129,3 +130,6 @@ combineEnvVarsWithEnvFiles inlineEnvVars files = do
   envVarsFromFiles <- mapM readEnvVarFile files
   let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars
+
+readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
+readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile

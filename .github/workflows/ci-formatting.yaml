@@ -13,9 +13,9 @@ jobs:
   prettier:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           cache: "npm"
           node-version: "22"
@@ -33,7 +33,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Parse oromolu version
         working-directory: waspc
