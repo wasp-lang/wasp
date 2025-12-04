@@ -4,6 +4,7 @@ module Wasp.Generator.WebAppGenerator.DepVersions
     axiosVersion,
     reactVersion,
     reactTypesVersion,
+    reactDomTypesVersion,
     viteVersion,
   )
 where
@@ -27,6 +28,9 @@ reactVersion = SV.backwardsCompatibleWith $ SV.Version 18 2 0
 
 reactTypesVersion :: SV.ComparatorSet
 reactTypesVersion = SV.backwardsCompatibleWith $ SV.Version 18 0 37 -- follows React major version
+
+reactDomTypesVersion :: SV.ComparatorSet
+reactDomTypesVersion = SV.backwardsCompatibleWith $ SV.Version 18 0 11
 
 viteVersion :: SV.ComparatorSet
 viteVersion = SV.backwardsCompatibleWith $ SV.Version 7 0 6

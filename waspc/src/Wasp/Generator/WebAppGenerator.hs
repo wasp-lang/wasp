@@ -38,8 +38,10 @@ import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.DepVersions
   ( axiosVersion,
+    reactDomTypesVersion,
     reactQueryVersion,
     reactRouterVersion,
+    reactTypesVersion,
     reactVersion,
   )
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
@@ -160,8 +162,8 @@ npmDepsFromWasp _spec =
             [ -- TODO: Allow users to choose whether they want to use TypeScript
               -- in their projects and install these dependencies accordingly.
               ("typescript", show typescriptVersion),
-              ("@types/react", "^18.0.37"),
-              ("@types/react-dom", "^18.0.11"),
+              ("@types/react", show reactTypesVersion),
+              ("@types/react-dom", show reactDomTypesVersion),
               ("@vitejs/plugin-react", "^4.7.0"),
               -- NOTE: Make sure to bump the version of the tsconfig
               -- when updating Vite or React versions
