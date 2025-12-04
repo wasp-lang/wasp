@@ -36,7 +36,7 @@ jobs:
       name: fly-deploy-test
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/prepare-deploy-test
 

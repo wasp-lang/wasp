@@ -12,7 +12,7 @@ runs:
       uses: ./.github/actions/setup-haskell
 
     - name: Setup Node
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         cache: "npm"
         node-version: lts/*
