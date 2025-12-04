@@ -77,7 +77,7 @@ jobs:
           CLIENT_HOSTNAME=$(get_fly_app_hostname fly-client.toml)
 
           # Run smoke test
-          node ../../scripts/deploy-test/smoke-test-deployed-test-app.mjs "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
+          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
@@ -144,7 +144,7 @@ jobs:
           CLIENT_HOSTNAME=$(get_railway_service_hostname "$client_service_name")
 
           # Run smoke test
-          node ../../scripts/deploy-test/smoke-test-deployed-test-app.mjs "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
+          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project
