@@ -13,12 +13,10 @@ import Data.List (intercalate)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
+import qualified Wasp.Generator.DepVersions as D
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
-import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import qualified Wasp.Generator.Valid.Validator as V
-import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 data DependencyType = Runtime | Development
   deriving (Show)
@@ -94,7 +92,7 @@ dependenciesValidator =
       V.all $
         makeRequiredDepValidator Development
           <$> [ ("vite", show D.viteVersion),
-                ("prisma", show prismaVersion)
+                ("prisma", show D.prismaVersion)
               ]
 
     optionalDepsValidator :: V.Validator P.PackageJson
@@ -103,9 +101,9 @@ dependenciesValidator =
         [ makeOptionalDepValidator depType dep
           | depType <- [Runtime, Development],
             dep <-
-              [ ("typescript", show typescriptVersion),
+              [ ("typescript", show D.typescriptVersion),
                 ("@types/react", show D.reactTypesVersion),
-                ("@types/express", show expressTypesVersion)
+                ("@types/express", show D.expressTypesVersion)
               ]
         ]
 
