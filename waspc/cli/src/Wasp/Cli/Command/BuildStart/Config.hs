@@ -125,9 +125,9 @@ overrideEnvVarsCommand forced existing =
             intercalate ", " duplicateNames
     Right combined -> return combined
 
-combineEnvVarsWithEnvFiles :: [EnvVar] -> [EnvVarFileArgument] -> IO [EnvVar]
+combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
 combineEnvVarsWithEnvFiles inlineEnvVars files = do
-  envVarsFromFiles <- mapM readEnvVarFile files
+  envVarsFromFiles <- mapM readEnvVarsFromFile files
   let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars
 
