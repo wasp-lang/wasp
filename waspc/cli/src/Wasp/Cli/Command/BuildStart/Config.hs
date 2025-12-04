@@ -17,12 +17,15 @@ import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
+import qualified Options.Applicative as Opt
+import qualified Options.Applicative.Help as Opt.Help
+import Options.Applicative.Help.Core (parserHelp)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.EnvVarArgument (EnvVarFileArgument, readEnvVarFile)
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars)
@@ -95,10 +98,11 @@ makeBuildStartConfig appSpec args projectDir = do
         "No env vars specified"
         $ "You called "
           ++ styleCode "wasp build start"
-          ++ " without specifying any environment variables for the started apps (client and server)."
-          ++ "\nThis is a mistake. Run "
-          ++ styleCode "wasp build start --help"
-          ++ " to see how to to specify them."
+          ++ " without specifying any environment variables for the started apps (client and server).\n"
+          ++ helpMessage
+    helpMessage =
+      Opt.Help.renderHelp (Opt.prefColumns Opt.defaultPrefs) $
+        parserHelp Opt.defaultPrefs buildStartArgsParser
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
@@ -121,7 +125,7 @@ overrideEnvVarsCommand forced existing =
     Right combined -> return combined
 
 combineEnvVarsWithEnvFiles :: [EnvVar] -> [EnvVarFileArgument] -> IO [EnvVar]
-combineEnvVarsWithEnvFiles pairs files = do
-  pairsFromFiles <- mapM readEnvVarFile files
-  let allEnvVars = pairs <> concat pairsFromFiles
+combineEnvVarsWithEnvFiles inlineEnvVars files = do
+  envVarsFromFiles <- mapM readEnvVarFile files
+  let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars
