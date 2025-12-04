@@ -25,7 +25,8 @@ Snapshots are compared in two ways:
 
 For more details, check out the `waspc/e2e-tests/SnapshotTest.hs` file.
 
-Snapshots are saved in the `waspc/e2e-tests/snapshots/` directory.
+Snapshot tests are executed in the `SnapshotDir`.
+The `SnapshotDir`s are created in the `waspc/e2e-tests/SnapshotTest/snapshots/` directory.
 While the exact files within a snapshot aren’t strictly defined, they usually have the following structure:
 
 ```yaml
@@ -34,11 +35,10 @@ While the exact files within a snapshot aren’t strictly defined, they usually 
 #   `<snapshot-type>` = `current` or `golden`.
 
 e2e-tests/
-└── snapshots/
-    └── <name>-<snapshot-type>/  # snapshot dirctory, e.g. `wasp-build-current`, `wasp-build-golden`
-        ├── wasp-app/
-        └── snapshot-file-list.manifest
+└── SnapshotTest/
+    └── snapshots/
+        └── <name>-<snapshot-type>/  # snapshot dirctory, e.g. `wasp-build-current`, `wasp-build-golden`
+            ├── wasp-app/ # contains the Wasp app for that snapshot test
+            ├── ...
+            └── snapshot-file-list.manifest # lists the files that should exist in the snapshot directory
 ```
-
-`wasp-app` contains the Wasp app for that snapshot.
-`snapshot-file-list.manifest` lists the files that should exist in the snapshot directory.
