@@ -114,7 +114,7 @@ jobs:
       - uses: ./.github/actions/prepare-deploy-test
 
       - name: Install Railway CLI
-        run: npm install -g @railway/cli
+        run: npm install -g @railway/cli@4.11.1
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -154,5 +154,7 @@ jobs:
     # want to always clean them up.
     if: always()
     steps:
+      - uses: actions/checkout@v5
+
       - name: Clean up test project
         run: node ./scripts/deploy-test/cleanup-railway-project.mjs "$APP_PREFIX"
