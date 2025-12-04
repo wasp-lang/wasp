@@ -12,16 +12,20 @@ module Wasp.Cli.Command.BuildStart.Config
   )
 where
 
+import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
+import qualified Options.Applicative as Opt
+import qualified Options.Applicative.Help as Opt.Help
+import Options.Applicative.Help.Core (parserHelp)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
@@ -32,6 +36,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
@@ -45,22 +50,23 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir = do
-  let waspServerEnvVars =
-        [ (Server.clientUrlEnvVarName, clientUrl'),
-          (Server.serverUrlEnvVarName, serverUrl')
-        ]
   userServerEnvVars <-
     liftIO $
       combineEnvVarsWithEnvFiles (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
-  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
+  userClientEnvVars <-
+    liftIO $
+      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
+  when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let waspClientEnvVars =
         [ (WebApp.serverUrlEnvVarName, serverUrl')
         ]
-  userClientEnvVars <-
-    liftIO $
-      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
+      waspServerEnvVars =
+        [ (Server.clientUrlEnvVarName, clientUrl'),
+          (Server.serverUrlEnvVarName, serverUrl')
+        ]
   clientEnvVars' <- overrideEnvVarsCommand waspClientEnvVars userClientEnvVars
+  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
 
   return $
     BuildStartConfig
@@ -88,6 +94,16 @@ makeBuildStartConfig appSpec args projectDir = do
     clientUrl' = getDefaultDevClientUrl appSpec
 
     serverUrl' = defaultDevServerUrl
+    noEnvVarsSpecifiedMsg =
+      CommandError
+        "No env vars specified"
+        $ "You called "
+          ++ styleCode "wasp build start"
+          ++ " without specifying any environment variables for the started apps (client and server).\n"
+          ++ helpMessage
+    helpMessage =
+      Opt.Help.renderHelp (Opt.prefColumns Opt.defaultPrefs) $
+        parserHelp Opt.defaultPrefs buildStartArgsParser
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
@@ -110,9 +126,9 @@ overrideEnvVarsCommand forced existing =
     Right combined -> return combined
 
 combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
-combineEnvVarsWithEnvFiles pairs files = do
-  pairsFromFiles <- mapM readEnvVarsFromFile files
-  let allEnvVars = pairs <> concat pairsFromFiles
+combineEnvVarsWithEnvFiles inlineEnvVars files = do
+  envVarsFromFiles <- mapM readEnvVarsFromFile files
+  let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars
 
 readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
