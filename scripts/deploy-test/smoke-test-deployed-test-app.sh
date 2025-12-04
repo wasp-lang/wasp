@@ -6,10 +6,9 @@
 
 set -euo pipefail
 
-readonly REQUEST_TIMEOUT_SECONDS=30
-readonly MAX_RETRIES=4
+readonly MAX_RETRIES=10
 readonly RETRY_DELAY_SECONDS=30
-readonly CURL_RETRY_OPTS="--retry $MAX_RETRIES --retry-all-errors --retry-delay $RETRY_DELAY_SECONDS --max-time $REQUEST_TIMEOUT_SECONDS --fail --silent --show-error"
+readonly CURL_RETRY_OPTS="--fail --retry $MAX_RETRIES --retry-all-errors --retry-delay $RETRY_DELAY_SECONDS --show-error"
 readonly EXPECTED_CLIENT_TEXT="Wasp Kitchen Sink"
 
 log() {
