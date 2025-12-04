@@ -9,10 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         runner:
-          - { os: ubuntu-latest } # Regular Linux with Glibc
-          - { os: ubuntu-latest, container: node:22-alpine } # Linux with Musl
-          - { os: macos-latest } # Apple Silicon
-          - { os: macos-15-intel } # Apple Intel
+          - # Regular Linux with Glibc
+            os: ubuntu-latest
+          - # Linux with Musl
+            os: ubuntu-latest
+            container: node:22-alpine
+            install-deps: apk add curl
+          - # Apple Silicon
+            os: macos-latest
+          - # Apple Intel
+            os: macos-15-intel
 
     name: "${{ matrix.runner.container || matrix.runner.os }}"
 
@@ -23,6 +29,10 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           name: wasp-npm-packages
+
+      - name: Install dependencies
+        if: matrix.runner.install-deps
+        run: ${{ matrix.runner.install-deps }}
 
       - name: Publish and run Wasp npm packages
         env:
