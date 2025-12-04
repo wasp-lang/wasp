@@ -9,7 +9,8 @@
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
     "env:push": "npx dotenv-vault@latest push development .env.server",
     "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
-    "test:install-deps": "playwright install --with-deps"
+    "test:install-deps": "playwright install --with-deps",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@tanstack/react-query": "~4.41.0",
@@ -27,14 +28,20 @@
     "@playwright/test": "1.51.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@types/chai": "^5.2.2",
     "@types/express": "^5.0.0",
     "@types/react": "^18.0.37",
     "@types/uuid": "^9.0.8",
+    "@vitest/ui": "^4.0.14",
     "@wasp.sh/wasp-app-runner": "^0.0.8",
+    "jsdom": "^27.2.0",
+    "msw": "^2.12.3",
     "prisma": "5.19.1",
     "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",
-    "vite": "^7.0.6"
+    "vite": "^7.0.6",
+    "vitest": "^4.0.14"
   }
 }

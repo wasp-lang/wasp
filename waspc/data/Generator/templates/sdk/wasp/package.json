@@ -63,8 +63,7 @@
       "./server/utils": "./dist/server/utils.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./client/test/*": "./dist/client/test/*.js",
+
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/crud/*": "./dist/server/crud/*.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -112,7 +111,8 @@
       "./server/jobs": "./dist/server/jobs/index.js",
       "./server/operations": "./dist/server/operations/index.js",
       "./client/router": "./dist/client/router/index.js",
-      "./client/test": "./dist/client/test/index.js",
+      {=! Used by user's root vite.config.ts, documented. =}
+      "./client/vite": "./dist/client/vite/index.js",
       "./client": "./dist/client/index.js",
       "./dev": "./dist/dev/index.js",
       "./env": "./dist/env/index.js",
