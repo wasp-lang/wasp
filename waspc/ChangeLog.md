@@ -2,13 +2,21 @@
 
 ## Next
 
-### 📖 Documentation
+### 🐞 Bug fixes
 
-- Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
+- Fixed `onAfterEmailVerified` hook being called twice while in development mode. ([#3458](https://github.com/wasp-lang/wasp/pull/3458))
 
 ### 🔧 Small improvements
 
 - Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
+- Wasp now reports better errors for invalid `package.json` or `tsconfig.json` files. ([#3262](https://github.com/wasp-lang/wasp/pull/3262))
+- Wasp returns a proper exit code when using the `-h,--help` flag with `wasp build start`, `wasp start db`, and `wasp new`. ([#3440](https://github.com/wasp-lang/wasp/pull/3440))
+
+## 0.19.1
+
+### 🐞 Bug fixes
+
+- Fixed logic for getting Railway service domains in `wasp deploy railway` with Railway CLI 4.11.2 and greater. ([#3454](https://github.com/wasp-lang/wasp/pull/3454))
 
 ## 0.19.0
 
@@ -46,6 +54,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Updated Tailwind CSS installation command in docs from exact version `3.2.7` to `3` (latest v3) to ensure compatibility with Wasp 0.18.0+ ESM config files. ([#3377](https://github.com/wasp-lang/wasp/issues/3377))
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+- Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
 
 ### 🧩 Other changes
 

@@ -113,6 +113,7 @@ genSdk spec =
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
+      genFileCopy [relfile|client/hooks.ts|],
       genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,

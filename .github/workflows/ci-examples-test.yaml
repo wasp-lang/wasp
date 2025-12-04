@@ -23,13 +23,13 @@ jobs:
           - kitchen-sink
 
     steps:
-      - uses: "actions/checkout@v5"
+      - uses: "actions/checkout@v6"
 
       - uses: ./.github/actions/setup-haskell
         with:
           cabal-project-dir: waspc
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
 

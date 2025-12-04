@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.19.0
+version:        0.19.2
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -165,6 +165,8 @@ library
     , network               ^>= 3.1.4
     , neat-interpolation    ^>= 0.5.1
     , megaparsec            ^>= 9.5.0
+    , validation-selective  ^>= 0.2.0
+    , selective             ^>= 0.7.0
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -364,6 +366,7 @@ library
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
+    Wasp.Generator.Valid.Validator
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
@@ -591,6 +594,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject
     Wasp.Cli.Command.CreateNewProject.AI
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+    Wasp.Cli.Command.CreateNewProject.AvailableTemplates
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
@@ -625,6 +629,7 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.GithubRepo
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.Parser
 
 executable wasp-cli
@@ -735,6 +740,8 @@ test-suite waspc-tests
     Paths_waspc
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.TarballTest
+    Generator.Valid.PackageJsonTest
+    Generator.Valid.ValidatorTest
     JsImportTest
 
 test-suite waspls-tests

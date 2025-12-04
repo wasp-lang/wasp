@@ -41,6 +41,7 @@
     "./client/auth": "./dist/client/auth/index.js",
     "./client/crud": "./dist/client/crud/index.js",
     "./client/env/schema": "./dist/client/env/schema.js",
+    "./client/hooks": "./dist/client/hooks.js",
     "./client/operations": "./dist/client/operations/index.js",
     "./client/operations/rpc": "./dist/client/operations/rpc.js",
     "./client/router": "./dist/client/router/index.js",

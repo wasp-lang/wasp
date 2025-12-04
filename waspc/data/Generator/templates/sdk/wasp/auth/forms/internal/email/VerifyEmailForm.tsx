@@ -1,8 +1,8 @@
-import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
+import { useEffectOnce } from '../../../../client/hooks.js'
 
 // PRIVATE API
 export const VerifyEmailForm = () => {
@@ -34,9 +34,9 @@ export const VerifyEmailForm = () => {
     }
   }
 
-  useEffect(() => {
+  useEffectOnce(() => {
     submitForm()
-  }, [location])
+  })
 
   return <>{isLoading && <Message>Verifying email...</Message>}</>
 }
