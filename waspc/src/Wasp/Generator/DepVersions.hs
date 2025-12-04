@@ -1,18 +1,14 @@
 module Wasp.Generator.DepVersions
-  ( -- General
-    prismaVersion,
+  ( prismaVersion,
     superjsonVersion,
     typescriptVersion,
-    -- React ecosystem
     reactVersion,
     reactTypesVersion,
     reactDomTypesVersion,
     reactRouterVersion,
     reactQueryVersion,
-    -- Express
     expressVersionStr,
     expressTypesVersion,
-    -- Other
     axiosVersion,
     viteVersion,
     tailwindCssVersion,
