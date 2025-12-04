@@ -90,7 +90,7 @@ jobs:
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@v1
         with:
-          # NOTE: We pinned the Fly because we don't want the changes in the
+          # NOTE: We pinned the Fly version because we don't want the changes in the
           # Fly CLI to affect our cleanup procedure. `fly destroy` isn't a part
           # of Wasp, we're just incidentally using the same tool Wasp uses.
           version: v0.3.164
