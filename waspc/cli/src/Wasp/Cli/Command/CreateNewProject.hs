@@ -20,6 +20,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local (createProjectOnDiskFromLocalTemplate)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg
@@ -47,6 +48,8 @@ createProjectOnDisk
         createProjectOnDiskFromGhReleaseArchiveTemplate absWaspProjectDir projectName appName ghRepoRef archiveName' archivePath'
       BundledStarterTemplate {bundledPath = bundledPath'} ->
         liftIO $ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName bundledPath'
+      LocalStarterTemplate {localPath = localPath'} ->
+        liftIO $ createProjectOnDiskFromLocalTemplate absWaspProjectDir projectName appName localPath'
       AiGeneratedStarterTemplate ->
         AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
 
