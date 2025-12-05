@@ -50,7 +50,7 @@ import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
-import Wasp.Generator.ServerGenerator.AuthG (genAuth)
+import Wasp.Generator.ServerGenerator.AuthG (depsRequiredByAuth, genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
@@ -164,6 +164,7 @@ npmDepsFromWasp spec =
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersion)
             ]
+            ++ depsRequiredByAuth spec
             ++ depsRequiredByWebSockets spec,
         N.devDependencies =
           Npm.Dependency.fromList

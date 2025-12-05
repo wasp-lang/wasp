@@ -59,7 +59,6 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
-import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.DepVersions
   ( expressTypesVersion,
@@ -213,14 +212,6 @@ npmDepsForSdk spec =
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec
-          -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
-          -- lists prisma/client as a dependency.
-          -- Installing it inside .wasp/out/server/node_modules would also
-          -- install prisma/client in the same folder, which would cause our
-          -- runtime to load the wrong (uninitialized prisma/client).
-          -- TODO(filip): Find a better way to handle duplicate
-          -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
-          ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
