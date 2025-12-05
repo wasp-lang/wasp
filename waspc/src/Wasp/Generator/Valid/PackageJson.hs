@@ -13,12 +13,19 @@ import Data.List (intercalate)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
+import Wasp.Generator.DepVersions
+  ( expressTypesVersion,
+    prismaVersion,
+    reactDomVersion,
+    reactRouterVersion,
+    reactTypesVersion,
+    reactVersion,
+    typescriptVersion,
+    viteVersion,
+  )
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
-import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
 import qualified Wasp.Generator.Valid.Validator as V
-import qualified Wasp.Generator.WebAppGenerator.DepVersions as D
 
 data DependencyType = Runtime | Development
   deriving (Show)
@@ -84,16 +91,16 @@ dependenciesValidator =
           <$> [ ("wasp", "file:.wasp/out/sdk/wasp"),
                 -- Installing the wrong version of "react-router-dom" can make users believe that they
                 -- can use features that are not available in the version that Wasp supports.
-                ("react-router-dom", show D.reactRouterVersion),
-                ("react", show D.reactVersion),
-                ("react-dom", show D.reactVersion)
+                ("react-router-dom", show reactRouterVersion),
+                ("react", show reactVersion),
+                ("react-dom", show reactDomVersion)
               ]
 
     developmentDepsValidator :: V.Validator P.PackageJson
     developmentDepsValidator =
       V.all $
         makeRequiredDepValidator Development
-          <$> [ ("vite", show D.viteVersion),
+          <$> [ ("vite", show viteVersion),
                 ("prisma", show prismaVersion)
               ]
 
@@ -104,7 +111,7 @@ dependenciesValidator =
           | depType <- [Runtime, Development],
             dep <-
               [ ("typescript", show typescriptVersion),
-                ("@types/react", show D.reactTypesVersion),
+                ("@types/react", show reactTypesVersion),
                 ("@types/express", show expressTypesVersion)
               ]
         ]

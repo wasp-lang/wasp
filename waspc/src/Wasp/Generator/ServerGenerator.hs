@@ -43,7 +43,12 @@ import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
-import Wasp.Generator.DepVersions (superjsonVersion, typescriptVersion)
+import Wasp.Generator.DepVersions
+  ( expressTypesVersion,
+    expressVersionStr,
+    superjsonVersion,
+    typescriptVersion,
+  )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
@@ -54,7 +59,6 @@ import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
-import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion, expressVersionStr)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
