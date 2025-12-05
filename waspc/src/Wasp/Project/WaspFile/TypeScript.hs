@@ -29,6 +29,7 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Node.Executables (npxExec)
 import Wasp.Project.Common
   ( CompileError,
     WaspProjectDir,
@@ -71,7 +72,7 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
       (readJobMessagesAndPrintThemPrefixed chan)
       ( runNodeCommandAsJob
           waspProjectDir
-          "npx"
+          npxExec
           -- We're using tsc to compile the *.wasp.ts file into a JS file.
           --
           -- The tsconfig.wasp.json is configured to give our users with the
@@ -125,7 +126,7 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
       (readJobMessagesAndPrintThemPrefixed chan)
       ( runNodeCommandAsJob
           waspProjectDir
-          "npx"
+          npxExec
           -- TODO: Figure out how to keep running instructions in a single
           -- place (e.g., this is string the same as the package name, but it's
           -- repeated in two places).

@@ -11,6 +11,7 @@ import Wasp.Cli.Command.Require (InWaspProject (InWaspProject))
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Node.Executables (npmExec)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackageInstallationPath)
 
 -- | Prepares the project for using Wasp's TypeScript SDK.
@@ -32,7 +33,7 @@ installWaspConfigPackage chan projectDir = do
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob projectDir "npm" ["install", "--save-dev", "file:" ++ installationPath] J.Wasp chan)
+      (runNodeCommandAsJob projectDir npmExec ["install", "--save-dev", "file:" ++ installationPath] J.Wasp chan)
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure _ -> Left "Failed to install wasp-config package"
