@@ -34,6 +34,7 @@ typescriptVersion = SV.Version 5 8 2
 reactVersion :: SV.ComparatorSet
 reactVersion = SV.backwardsCompatibleWith $ SV.Version 18 2 0
 
+-- React and ReactDOM versions should always match.
 reactDomVersion :: SV.ComparatorSet
 reactDomVersion = reactVersion
 

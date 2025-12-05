@@ -153,7 +153,6 @@ npmDepsFromWasp _spec =
           Npm.Dependency.fromList
             [ ("axios", show axiosVersion),
               ("react", show reactVersion),
-              -- React and ReactDOM versions should always match.
               ("react-dom", show reactDomVersion),
               ("@tanstack/react-query", reactQueryVersion),
               ("react-router-dom", show reactRouterVersion)
