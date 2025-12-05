@@ -103,7 +103,7 @@ dotEnvInWebAppRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
+  webAppDeps <- N.ensureNoConflictWithUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -111,8 +111,8 @@ genPackageJson spec waspDependencies = do
       ( Just $
           object
             [ "packageName" .= webAppPackageName spec,
-              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+              "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]

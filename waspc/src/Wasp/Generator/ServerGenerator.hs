@@ -124,7 +124,7 @@ genTsConfigJson spec = do
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
+  serverPackageDeps <- N.ensureNoConflictWithUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -132,8 +132,8 @@ genPackageJson spec waspDependencies = do
       ( Just $
           object
             [ "packageName" .= serverPackageName spec,
-              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+              "depsChunk" .= N.getDependenciesPackageJsonEntry serverPackageDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverPackageDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
