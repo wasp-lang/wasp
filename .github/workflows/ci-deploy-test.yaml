@@ -25,8 +25,6 @@ env:
   FLY_ORG: wasp-testing
   RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
   RAILWAY_WASP_WORKSPACE_ID: ${{ secrets.RAILWAY_WASP_WORKSPACE_ID }}
-  DEPLOY_INFO_DIR: /tmp/deploy-info
-  CACHE_KEY_PREFIX: deploy-info
 
 jobs:
   test_fly_deployment:
