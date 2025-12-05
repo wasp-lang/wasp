@@ -3,6 +3,7 @@ module Wasp.Generator.DepVersions
     superjsonVersion,
     typescriptVersion,
     reactVersion,
+    reactDomVersion,
     reactTypesVersion,
     reactDomTypesVersion,
     reactRouterVersion,
@@ -32,6 +33,9 @@ typescriptVersion = SV.Version 5 8 2
 
 reactVersion :: SV.ComparatorSet
 reactVersion = SV.backwardsCompatibleWith $ SV.Version 18 2 0
+
+reactDomVersion :: SV.ComparatorSet
+reactDomVersion = reactVersion
 
 reactTypesVersion :: SV.ComparatorSet
 reactTypesVersion = SV.backwardsCompatibleWith $ SV.Version 18 0 37 -- follows React major version

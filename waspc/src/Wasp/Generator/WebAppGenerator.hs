@@ -31,6 +31,7 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.DepVersions
   ( axiosVersion,
     reactDomTypesVersion,
+    reactDomVersion,
     reactQueryVersion,
     reactRouterVersion,
     reactTypesVersion,
@@ -153,7 +154,7 @@ npmDepsFromWasp _spec =
             [ ("axios", show axiosVersion),
               ("react", show reactVersion),
               -- React and ReactDOM versions should always match.
-              ("react-dom", show reactVersion),
+              ("react-dom", show reactDomVersion),
               ("@tanstack/react-query", reactQueryVersion),
               ("react-router-dom", show reactRouterVersion)
             ],
