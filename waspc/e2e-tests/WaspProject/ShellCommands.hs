@@ -96,20 +96,9 @@ waspCliDbMigrateDev migrationName = do
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
 
-waspCliDbReset :: Bool -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbReset reset =
-  return $
-    unwords
-      [ "expect -c",
-        "'",
-        "spawn wasp-cli db reset;",
-        "expect \"Are you sure you want to reset your database? All data will be lost.\";",
-        "send \"" ++ resetAnswer ++ "\r\";",
-        "interact",
-        "'"
-      ]
-  where
-    resetAnswer = if reset then "y" else "n"
+waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDbReset =
+  return "wasp-cli db reset --force"
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "wasp-cli db studio"

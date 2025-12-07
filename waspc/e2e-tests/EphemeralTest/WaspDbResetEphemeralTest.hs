@@ -52,7 +52,7 @@ waspDbResetEphemeralTest =
         (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName]),
       makeEphemeralTestCase
         "Should reset the database successfully"
-        (withInEphemeralWaspProjectDir [waspCliDbReset True]),
+        (withInEphemeralWaspProjectDir [waspCliDbReset]),
       makeEphemeralTestCase
         "Assert the tasks table is empty"
         -- FIXME: find a way without seed commands

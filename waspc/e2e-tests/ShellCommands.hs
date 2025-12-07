@@ -106,17 +106,7 @@ data WaspNewTemplate = Minimal | Basic | SaaS
 waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNewInteractive appName template =
   return $
-    unwords
-      [ "expect -c",
-        "'",
-        "spawn wasp-cli new;",
-        "expect \"Enter the project name\";",
-        "send -- \"" ++ appName ++ "\r\";",
-        "expect \"Choose a starter template\";",
-        "send -- \"" ++ templateNumber ++ "\r\";",
-        "interact",
-        "'"
-      ]
+    unwords ["printf", "\"" ++ appName ++ "\n" ++ templateNumber ++ "\n\""] ~| "wasp-cli new"
   where
     templateNumber = case template of
       Basic -> "1"
