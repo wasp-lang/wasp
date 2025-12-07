@@ -29,7 +29,6 @@ reset optionalResetArgs = do
 resetDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Command ()
 resetDatabase optionalResetArgs genProjectDir = do
   cliSendMessageC $ Msg.Start "Resetting the database..."
-  -- liftIO tryMigrate >>= \case
   liftIO tryReset >>= \case
     Left errorMsg -> throwError $ CommandError "Database reset failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database reset successful."
@@ -43,6 +42,6 @@ parseResetArgs resetArgs = do
   go resetArgs defaultResetArgs
   where
     go :: [String] -> ResetArgs -> Either String ResetArgs
-    go [] rArgs = Right rArgs
-    go ("--force" : rest) rArgs = go rest $ rArgs {_force = True}
+    go [] currentResetArgs = Right currentResetArgs
+    go ("--force" : rest) currentResetArgs = go rest $ currentResetArgs {_force = True}
     go unknown _ = Left $ "Unknown reset arg(s): " ++ unwords unknown
