@@ -24,10 +24,10 @@ reset optionalResetArgs = do
           </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
 
-  migrateDatabase optionalResetArgs genProjectDir
+  resetDatabase optionalResetArgs genProjectDir
 
-migrateDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Command ()
-migrateDatabase optionalResetArgs genProjectDir = do
+resetDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Command ()
+resetDatabase optionalResetArgs genProjectDir = do
   cliSendMessageC $ Msg.Start "Resetting the database..."
   -- liftIO tryMigrate >>= \case
   liftIO tryReset >>= \case
