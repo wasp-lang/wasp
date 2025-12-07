@@ -45,4 +45,4 @@ parseResetArgs resetArgs = do
     go :: [String] -> ResetArgs -> Either String ResetArgs
     go [] rArgs = Right rArgs
     go ("--force" : rest) rArgs = go rest $ rArgs {_force = True}
-    go unknown _ = Left $ "Unknown migrate arg(s): " ++ unwords unknown
+    go unknown _ = Left $ "Unknown reset arg(s): " ++ unwords unknown
