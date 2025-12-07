@@ -27,6 +27,7 @@ import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
     MigrateArgs,
     RefreshOnLastDbConcurrenceChecksumFile (..),
+    ResetArgs,
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
@@ -128,14 +129,15 @@ removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir
 -- Resets the database: drops all data and applies all migrations from scratch.
 dbReset ::
   Path' Abs (Dir ProjectRootDir) ->
+  ResetArgs ->
   IO (Either String ())
-dbReset genProjectDir = do
+dbReset genProjectDir resetArgs = do
   -- We are doing quite a move here, resetting the whole db, so best to delete the checksum file,
   -- which will force Wasp to do a deep check of migrations next time, just to be sure.
   removeDbSchemaChecksumFile genProjectDir dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.reset genProjectDir chan
+    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.reset genProjectDir resetArgs chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c

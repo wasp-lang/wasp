@@ -224,7 +224,7 @@ dbCli args = case args of
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
+  "reset" : optionalResetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset optionalResetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
   ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
@@ -246,7 +246,7 @@ printDbUsage =
               "                               Starts managed development database for you.",
               "                               Optionally specify a custom Docker image or Docker volume mount path."
         ],
-        cmd   "  reset                        Drops all data and tables from development database and re-applies all migrations.",
+        cmd   "  reset [--force]              Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
               "                               If there are multiple seeds, you can specify a seed to execute by providing its name,",
               "                               or if not then you will be asked to provide the name interactively.",
