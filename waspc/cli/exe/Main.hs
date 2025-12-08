@@ -246,7 +246,7 @@ printDbUsage =
               "                               Starts managed development database for you.",
               "                               Optionally specify a custom Docker image or Docker volume mount path."
         ],
-        cmd   "  reset [--force]              Drops all data and tables from development database and re-applies all migrations.",
+        cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
               "                               If there are multiple seeds, you can specify a seed to execute by providing its name,",
               "                               or if not then you will be asked to provide the name interactively.",
