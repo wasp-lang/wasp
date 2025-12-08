@@ -20,17 +20,13 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 reset :: Arguments -> Command ()
-reset = withArguments "wasp db reset" resetArgsParser $ \args -> do
+reset = withArguments "wasp db reset" resetArgsParser $ \resetArgs -> do
   InWaspProject waspProjectDir <- require
   let genProjectDir =
         waspProjectDir
           </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
 
-  resetDatabase genProjectDir args
-
-resetDatabase :: Path' Abs (Dir ProjectRootDir) -> ResetArgs -> Command ()
-resetDatabase genProjectDir resetArgs = do
   cliSendMessageC $ Msg.Start "Resetting the database..."
   liftIO (dbReset genProjectDir resetArgs) >>= \case
     Left errorMsg -> throwError $ CommandError "Database reset failed" errorMsg
