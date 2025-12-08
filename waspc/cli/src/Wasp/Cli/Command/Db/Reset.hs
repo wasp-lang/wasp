@@ -1,47 +1,45 @@
 module Wasp.Cli.Command.Db.Reset
   ( reset,
+    ResetArgs (..),
   )
 where
 
-import Control.Monad.Error.Class (liftEither)
-import Control.Monad.Except (ExceptT (..), runExceptT, throwError)
+import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (ResetArgs (..), defaultResetArgs)
+import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
-reset :: [String] -> Command ()
-reset optionalResetArgs = do
+reset :: Arguments -> Command ()
+reset = withArguments "wasp db reset" resetArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
   let genProjectDir =
         waspProjectDir
           </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
 
-  resetDatabase optionalResetArgs genProjectDir
+  resetDatabase genProjectDir args
 
-resetDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Command ()
-resetDatabase optionalResetArgs genProjectDir = do
+resetDatabase :: Path' Abs (Dir ProjectRootDir) -> ResetArgs -> Command ()
+resetDatabase genProjectDir resetArgs = do
   cliSendMessageC $ Msg.Start "Resetting the database..."
-  liftIO tryReset >>= \case
+  liftIO (dbReset genProjectDir resetArgs) >>= \case
     Left errorMsg -> throwError $ CommandError "Database reset failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database reset successfully."
-  where
-    tryReset = runExceptT $ do
-      resetArgs <- liftEither $ parseResetArgs optionalResetArgs
-      ExceptT $ dbReset genProjectDir resetArgs
 
-parseResetArgs :: [String] -> Either String ResetArgs
-parseResetArgs resetArgs = do
-  go resetArgs defaultResetArgs
-  where
-    go :: [String] -> ResetArgs -> Either String ResetArgs
-    go [] currentResetArgs = Right currentResetArgs
-    go ("--force" : rest) currentResetArgs = go rest $ currentResetArgs {_force = True}
-    go unknown _ = Left $ "Unknown reset arg(s): " ++ unwords unknown
+resetArgsParser :: Opt.Parser ResetArgs
+resetArgsParser =
+  ResetArgs
+    <$> Opt.switch
+      ( Opt.long "force"
+          <> Opt.help "Skip the confirmation prompt"
+      )
