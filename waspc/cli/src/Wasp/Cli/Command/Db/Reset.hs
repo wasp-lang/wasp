@@ -31,7 +31,7 @@ resetDatabase optionalResetArgs genProjectDir = do
   cliSendMessageC $ Msg.Start "Resetting the database..."
   liftIO tryReset >>= \case
     Left errorMsg -> throwError $ CommandError "Database reset failed" errorMsg
-    Right () -> cliSendMessageC $ Msg.Success "Database reset successful."
+    Right () -> cliSendMessageC $ Msg.Success "Database reset successfully."
   where
     tryReset = runExceptT $ do
       resetArgs <- liftEither $ parseResetArgs optionalResetArgs

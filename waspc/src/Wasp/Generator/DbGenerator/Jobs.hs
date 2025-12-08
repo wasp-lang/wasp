@@ -105,8 +105,7 @@ reset projectRootDir resetArgs =
         --   happening automatically on reset is too aggressive / confusing.
         "--skip-seed"
       ]
-        ++ forceArg
-    forceArg = if _force resetArgs then ["--force"] else []
+        ++ if _force resetArgs then ["--force"] else []
 
 -- | Runs `prisma db seed`, which executes the seeding script specified in package.json in
 --   prisma.seed field.
