@@ -34,7 +34,7 @@ resetDatabase genProjectDir resetArgs = do
   cliSendMessageC $ Msg.Start "Resetting the database..."
   liftIO (dbReset genProjectDir resetArgs) >>= \case
     Left errorMsg -> throwError $ CommandError "Database reset failed" errorMsg
-    Right () -> cliSendMessageC $ Msg.Success "Database reset successfully."
+    Right () -> cliSendMessageC $ Msg.Success "Database reset successfully!"
 
 resetArgsParser :: Opt.Parser ResetArgs
 resetArgsParser =
