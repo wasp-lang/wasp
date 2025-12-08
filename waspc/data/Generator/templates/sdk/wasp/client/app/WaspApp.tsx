@@ -1,16 +1,13 @@
 {{={= =}=}}
 import React from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { Outlet } from 'react-router-dom'
 
-import { router } from '../router/router'
+import { getRouter } from '../router/router'
 import {
   initializeQueryClient,
   queryClientInitialized,
 } from '../operations'
-
-{=# setupFn.isDefined =}
-{=& setupFn.importStatement =}
-{=/ setupFn.isDefined =}
 
 {=# areWebSocketsUsed =}
 import { WebSocketProvider } from '../webSocket/WebSocketProvider'
@@ -18,26 +15,26 @@ import { WebSocketProvider } from '../webSocket/WebSocketProvider'
 
 let isAppInitialized = false
 
-export function WaspApp() {
+const DefaultAppComponent = () => <Outlet />
+
+type WaspAppInput = {
+  AppComponent?: React.ComponentType;
+  routes: Record<string, React.ComponentType>;
+}
+
+export function getWaspApp({
+  AppComponent = DefaultAppComponent,
+  routes,
+}: WaspAppInput): React.ReactNode {
   if (!isAppInitialized) {
-    startApp()
+    initializeQueryClient()
     isAppInitialized = true
   }
 
-  return <WaspAppContent />
+  return <WaspApp AppComponent={AppComponent} routes={routes} />
 }
 
-function startApp() {
-  {=# setupFn.isDefined =}
-  // Run setup function if defined (non-blocking)
-  Promise.resolve({= setupFn.importIdentifier =}()).catch((error) => {
-    console.error('Error in setup function:', error)
-  })
-  {=/ setupFn.isDefined =}
-  initializeQueryClient()
-}
-
-function WaspAppContent() {
+function WaspApp({ AppComponent, routes }: Required<WaspAppInput>) {
   const [queryClient, setQueryClient] = React.useState<any>(null)
 
   React.useEffect(() => {
@@ -47,6 +44,11 @@ function WaspAppContent() {
   if (!queryClient) {
     return null
   }
+
+  const router = getRouter({
+    AppComponent,
+    routesMapping: routes,
+  })
 
   return (
     <QueryClientProvider client={queryClient}>

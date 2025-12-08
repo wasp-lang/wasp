@@ -1,17 +1,6 @@
 {{={= =}=}}
 import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-{=# rootComponent.isDefined =}
-{=& rootComponent.importStatement =}
-{=/ rootComponent.isDefined =}
-
-{=# isAuthEnabled =}
-import createAuthRequiredPage from "../auth/pages/createAuthRequiredPage"
-{=/ isAuthEnabled =}
-
-{=# pagesToImport =}
-{=& importStatement =}
-{=/ pagesToImport =}
 
 {=# isExternalAuthEnabled =}
 import { OAuthCallbackPage } from "../auth/pages/OAuthCallback"
@@ -21,39 +10,38 @@ import { DefaultRootErrorBoundary } from '../components/DefaultRootErrorBoundary
 
 import { routes } from './index'
 
-export const routeNameToRouteComponent = {
-  {=# routes =}
-  {= name =}: {= targetComponent =},
-  {=/ routes =}
-} as const;
+export function getRouter({
+  routesMapping,
+  AppComponent,
+}: {
+  routesMapping: Record<string, React.ComponentType>,
+  AppComponent: React.ComponentType,
+}) {
+  const waspDefinedRoutes = [
+    {=# isExternalAuthEnabled =}
+    {
+      path: "{= oAuthCallbackPath =}",
+      Component: OAuthCallbackPage,
+    },
+    {=/ isExternalAuthEnabled =}
+  ]
+  const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
+    return {
+      path: route.to,
+      Component: routesMapping[routeKey],
+    }
+  })
 
-const waspDefinedRoutes = [
-  {=# isExternalAuthEnabled =}
-  {
-    path: "{= oAuthCallbackPath =}",
-    Component: OAuthCallbackPage,
-  },
-  {=/ isExternalAuthEnabled =}
-]
-const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
-  return {
-    path: route.to,
-    Component: routeNameToRouteComponent[routeKey],
-  }
-})
-
-const browserRouter = createBrowserRouter([{
-  path: '/',
-  {=# rootComponent.isDefined =}
-  element: <{= rootComponent.importIdentifier =} />,
-  {=/ rootComponent.isDefined =}
-  ErrorBoundary: DefaultRootErrorBoundary,
-  children: [
-    ...waspDefinedRoutes,
-    ...userDefinedRoutes,
-  ],
-}], {
-  basename: '{= baseDir =}',
-})
-
-export const router = <RouterProvider router={browserRouter} />
+  const browserRouter = createBrowserRouter([{
+    path: '/',
+    element: <AppComponent />,
+    ErrorBoundary: DefaultRootErrorBoundary,
+    children: [
+      ...waspDefinedRoutes,
+      ...userDefinedRoutes,
+    ],
+  }], {
+    basename: '{= baseDir =}',
+  })
+  return <RouterProvider router={browserRouter} />;
+}
