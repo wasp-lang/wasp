@@ -87,14 +87,6 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
           define,
           optimizeDeps: {
             exclude: ["wasp"],
-            // Since the Wasp SDK is excluded from optimizations, any code that comes
-            // from the SDK won't be optimized. This means any code that might not be
-            // suited for the browser e.g. CJS modules, won't be optimized.
-            // Since the user code is imported from the SDK, this means any deps used
-            // in the user code will not be optimized. In our case, we found that:
-            // - React Query is not optimized and browser reports errors
-            // - Prisma is not optimized and browser reports errors
-            include: ["@prisma/client", "@tanstack/react-query"]
           },
           server: {
             port: {= defaultClientPort =},
