@@ -1,6 +1,7 @@
 module Wasp.Generator.SdkGenerator.JsImport
   ( extOperationImportToImportJson,
     extImportToImportJson,
+    extImportToJsImport,
   )
 where
 
