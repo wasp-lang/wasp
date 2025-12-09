@@ -92,11 +92,7 @@ reset :: Path' Abs (Dir ProjectRootDir) -> ResetArgs -> J.Job
 reset projectRootDir resetArgs =
   runPrismaCommandAsJobFromWaspServerDir
     projectRootDir
-    prismaArgs
-  where
-    schema = projectRootDir </> dbSchemaFileInProjectRootDir
-    prismaArgs =
-      [ "migrate",
+    ( [ "migrate",
         "reset",
         "--schema",
         SP.fromAbsFile schema,
@@ -106,6 +102,9 @@ reset projectRootDir resetArgs =
         "--skip-seed"
       ]
         ++ if force resetArgs then ["--force"] else []
+    )
+  where
+    schema = projectRootDir </> dbSchemaFileInProjectRootDir
 
 -- | Runs `prisma db seed`, which executes the seeding script specified in package.json in
 --   prisma.seed field.
