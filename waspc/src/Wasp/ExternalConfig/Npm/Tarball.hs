@@ -30,11 +30,8 @@ makeTarballFilename packageName version =
       ]
 
 packageNameToTarballPrefix :: String -> String
-packageNameToTarballPrefix = sanitize
+packageNameToTarballPrefix = removeStartingAtSymbol . slashesToDashes
   where
-    sanitize :: String -> String
-    sanitize = removeStartingAtSymbol . slashesToDashes
-
     removeStartingAtSymbol :: String -> String
     removeStartingAtSymbol ('@' : xs) = xs
     removeStartingAtSymbol xs = xs
