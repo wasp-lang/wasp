@@ -90,7 +90,7 @@ jobs:
     name: Build Wasp (${{ matrix.env.name }})
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install dependencies
         if: ${{ matrix.env.install-deps }}
@@ -100,7 +100,7 @@ jobs:
         with:
           extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         if: ${{ !matrix.env.skip-node-install }}
         with:
           node-version: ${{ inputs.node-version }}
