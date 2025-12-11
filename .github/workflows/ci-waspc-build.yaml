@@ -206,6 +206,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    name: Make npm packages
     steps:
       - uses: actions/checkout@v6
 
@@ -213,7 +214,7 @@ jobs:
         uses: ./.github/actions/compute-artifact-names
         id: compute-download-artifact-names
         with:
-          build-name: "*"
+          build-name: all
 
       - uses: actions/download-artifact@v6
         with:
@@ -223,14 +224,15 @@ jobs:
       - name: Copy artifacts to input folder
         run: |
           mkdir -p ./input/
-          cp ./download/*/* ./input/
+          cp ./download/${{ steps.compute-download-artifact-names.outputs.artifact-name }}/* ./input/
 
-      - name: Create data file
+      - name: Create build metadata file
         env:
           INPUT_DATA: ${{ toJson(needs.build.outputs) }}
-        run: |
-          echo "$INPUT_DATA" |
-          jq '
+          JQ_PROGRAM:
+            # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
+            # We'll wrangle the data from the build jobs into that schema here.
+            |
             {
               version: .waspc_version,
               tarballs:
@@ -239,15 +241,23 @@ jobs:
                     fromjson
                     | {
                         fileName: .["tarball-name"],
-                        target: (.["npm-triple"] | fromjson)
+                        target: (.["npm-target"] | fromjson)
                       }
                   )
             }
-          ' > ./input/data.json
+        run: echo "$INPUT_DATA" | jq "$JQ_PROGRAM" > ./input/data.json
 
-      - name: Create npm packages
-        run: |
-          ./scripts/make-npm-packages/run.bash ./input/ ./output/
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies for script
+        working-directory: ./scripts/make-npm-packages
+        run: npm ci
+
+      - name: Run packager script
+        run: node ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
 
       - uses: actions/upload-artifact@v5
         with:
