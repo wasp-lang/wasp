@@ -1,4 +1,4 @@
-module Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
+module SnapshotTest.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
 
 import ShellCommands
   ( ShellCommand,
@@ -19,7 +19,7 @@ kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
   makeSnapshotTest
     "kitchen-sink"
-    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink/|],
+    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
       withInSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           normalizePostgresConnectionString,
