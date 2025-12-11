@@ -9,12 +9,12 @@ module Wasp.Generator.NpmDependencies
     getNpmDepsConflicts,
     NpmDepsForPackage (..),
     conflictErrorToMessage,
-    genNpmDepsForPackage,
     NpmDepsForFramework,
     NpmDepsFromWasp (..),
     NpmDepsFromUser (..),
     buildWaspFrameworkNpmDeps,
     getDependencyOverridesPackageJsonEntry,
+    ensureNoConflictWithUserDeps,
   )
 where
 
@@ -67,20 +67,18 @@ data DependencyConflictError = DependencyConflictError
   }
   deriving (Show, Eq)
 
--- | Generate a NpmDepsForPackage by combining wasp dependencies with user dependencies
---   derived from AppSpec, or if there are conflicts, fail with error messages.
-genNpmDepsForPackage :: AppSpec -> NpmDepsFromWasp -> Generator NpmDepsForPackage
-genNpmDepsForPackage spec npmDepsFromWasp
-  | null conflictErrors = return $ waspDepsToPackageDeps npmDepsFromWasp
+ensureNoConflictWithUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
+ensureNoConflictWithUserDeps waspDeps userDeps
+  | null conflicts = return $ waspDepsToPackageDeps waspDeps
   | otherwise =
       logAndThrowGeneratorError $
         GenericGeneratorError $
           intercalate "\n " $
             map
               conflictErrorToMessage
-              conflictErrors
+              conflicts
   where
-    conflictErrors = getNpmDepsConflicts npmDepsFromWasp (getUserNpmDepsForPackage spec)
+    conflicts = getNpmDepsConflicts waspDeps userDeps
 
 buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
 buildWaspFrameworkNpmDeps spec fromServer fromWebApp
