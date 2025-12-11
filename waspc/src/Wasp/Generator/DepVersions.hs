@@ -52,7 +52,7 @@ reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 7 10 1
 -- have support for patch versions https://github.com/wasp-lang/wasp/issues/2941
 
 reactQueryVersion :: String
-reactQueryVersion = "~4.41.0"
+reactQueryVersion = "~4.42.0"
 
 expressVersionStr :: String
 expressVersionStr = "~5.1.0"
