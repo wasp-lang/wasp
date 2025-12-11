@@ -26,8 +26,10 @@ data LibsSourceDir
 --   └── wasp.sh-lib-other-<checksum>.tgz
 data LibsRootDir
 
--- We are repeating the SDK hack here - becuase the libs needs to be next to
--- the SDK.
+-- We are following the locaton of the SDK because of the
+-- hack from `Wasp.Generator.SdkGenerator.sdkRootDirInProjectRootDir`.
+-- To understand the hack, read this issue:
+-- https://github.com/wasp-lang/wasp/issues/1769
 libsRootDirNextToSdk :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
 libsRootDirNextToSdk =
   [reldir|../|]

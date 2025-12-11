@@ -50,6 +50,7 @@ mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
 
 -- To understand what's going on here, read this issue:
 -- https://github.com/wasp-lang/wasp/issues/1769
+-- NOTE: We repeat this hack in `Wasp.Generator.WaspLibs.libsRootDirNextToSdk`.
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir =
   [reldir|../|]
