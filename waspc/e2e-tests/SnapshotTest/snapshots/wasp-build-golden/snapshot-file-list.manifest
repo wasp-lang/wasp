@@ -12,6 +12,7 @@ wasp-app/.wasp/build/sdk/wasp/api/index.ts
 wasp-app/.wasp/build/sdk/wasp/client/config.ts
 wasp-app/.wasp/build/sdk/wasp/client/env.ts
 wasp-app/.wasp/build/sdk/wasp/client/env/schema.ts
+wasp-app/.wasp/build/sdk/wasp/client/hooks.ts
 wasp-app/.wasp/build/sdk/wasp/client/index.ts
 wasp-app/.wasp/build/sdk/wasp/client/operations/actions/core.ts
 wasp-app/.wasp/build/sdk/wasp/client/operations/actions/index.ts
@@ -54,6 +55,10 @@ wasp-app/.wasp/build/sdk/wasp/dist/client/env/schema.d.ts
 wasp-app/.wasp/build/sdk/wasp/dist/client/env/schema.d.ts.map
 wasp-app/.wasp/build/sdk/wasp/dist/client/env/schema.js
 wasp-app/.wasp/build/sdk/wasp/dist/client/env/schema.js.map
+wasp-app/.wasp/build/sdk/wasp/dist/client/hooks.d.ts
+wasp-app/.wasp/build/sdk/wasp/dist/client/hooks.d.ts.map
+wasp-app/.wasp/build/sdk/wasp/dist/client/hooks.js
+wasp-app/.wasp/build/sdk/wasp/dist/client/hooks.js.map
 wasp-app/.wasp/build/sdk/wasp/dist/client/index.d.ts
 wasp-app/.wasp/build/sdk/wasp/dist/client/index.d.ts.map
 wasp-app/.wasp/build/sdk/wasp/dist/client/index.js
@@ -335,6 +340,7 @@ wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
 wasp-app/.wasp/out/sdk/wasp/client/env.ts
 wasp-app/.wasp/out/sdk/wasp/client/env/schema.ts
+wasp-app/.wasp/out/sdk/wasp/client/hooks.ts
 wasp-app/.wasp/out/sdk/wasp/client/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -377,6 +383,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.js

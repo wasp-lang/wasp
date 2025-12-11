@@ -26,11 +26,11 @@ jobs:
       name: fly-deploy-test
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-haskell
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           cache: "npm"
           node-version: "22"
