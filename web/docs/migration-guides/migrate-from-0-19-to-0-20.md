@@ -41,8 +41,6 @@ Change some dependency versions in your `package.json` file:
   "dependencies": {
     // ...
     // highlight-next-line
-    "@tanstack/react-query": "~4.42.0",
-    // highlight-next-line
     "react": "^19.2.1",
     // highlight-next-line
     "react-dom": "^19.2.1",
