@@ -9,6 +9,7 @@ module Wasp.Generator.DbGenerator.Common
     defaultMigrateArgs,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
     MigrateArgs (..),
+    ResetArgs (..),
     RefreshOnLastDbConcurrenceChecksumFile (..),
     DbSchemaChecksumOnLastDbConcurrenceFile,
     DbSchemaChecksumOnLastGenerateFile,
@@ -100,6 +101,10 @@ data MigrateArgs = MigrateArgs
 
 defaultMigrateArgs :: MigrateArgs
 defaultMigrateArgs = MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = False}
+
+data ResetArgs = ResetArgs
+  { force :: Bool
+  }
 
 -- | This type tells us what we need to do with the DbSchemaChecksumOnLastDbConcurrenceFile.
 data RefreshOnLastDbConcurrenceChecksumFile
