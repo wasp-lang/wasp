@@ -88,6 +88,8 @@ This check uses [`arethetypeswrong`](https://github.com/arethetypeswrong/arethet
 > attempts to analyze npm package contents for issues with their TypeScript types,
 > particularly ESM-related module resolution issues
 
+We use the `--profile esm-only` when running the check because we only care about the ESM related checks since this library will be only imported using ESM.
+
 To check the type exports are okay run:
 
 ```bash
