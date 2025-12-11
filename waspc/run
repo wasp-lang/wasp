@@ -127,6 +127,8 @@ print_usage() {
     "Builds the TypeScript projects under packages/."
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under libs/."
+  print_usage_cmd "build:libs:dev" \
+    "Builds the Wasp libs with random versions for cache busting during development."
   echo ""
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
@@ -204,6 +206,9 @@ case $COMMAND in
     ;;
   build:libs)
     echo_and_eval "$WASP_LIBS_COMPILE"
+    ;;
+  build:libs:dev)
+    echo_and_eval "USE_RANDOM_LIB_VERSION=1 $WASP_LIBS_COMPILE"
     ;;
   install)
     echo_and_eval "$INSTALL_CMD"

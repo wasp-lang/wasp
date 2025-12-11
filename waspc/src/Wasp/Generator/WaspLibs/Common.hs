@@ -2,6 +2,7 @@ module Wasp.Generator.WaspLibs.Common
   ( libsRootDirNextToSdk,
     libsRootDirInGeneratedCodeDir,
     libsSrcDirPathInDataDir,
+    libsManifestPathInDataDir,
     libsRootDirFromSdkDir,
     libsRootDirFromServerDir,
     getAbsLibsSourceDirPath,
@@ -10,7 +11,7 @@ module Wasp.Generator.WaspLibs.Common
   )
 where
 
-import StrongPath (Abs, Dir, Path', Rel, Rel', basename, reldir, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, Rel', basename, reldir, relfile, (</>))
 import qualified Wasp.Data as Data
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
@@ -22,8 +23,8 @@ data LibsSourceDir
 --
 -- LibsRootDir has a flat structure with tarball files at the top level:
 --   libs/
---   ├── wasp.sh-lib-auth-<checksum>.tgz
---   └── wasp.sh-lib-other-<checksum>.tgz
+--   ├── wasp.sh-lib-auth-<wasp-version>.tgz
+--   └── wasp.sh-lib-other-<wasp-version>.tgz
 data LibsRootDir
 
 -- We are following the locaton of the SDK because of the
@@ -41,6 +42,9 @@ libsRootDirInGeneratedCodeDir = [reldir|libs|]
 
 libsSrcDirPathInDataDir :: Path' (Rel Data.DataDir) (Dir LibsSourceDir)
 libsSrcDirPathInDataDir = [reldir|Generator/libs|]
+
+libsManifestPathInDataDir :: Path' (Rel LibsSourceDir) File'
+libsManifestPathInDataDir = [relfile|manifest.json|]
 
 libsRootDirFromSdkDir :: Path' Rel' (Dir LibsRootDir)
 libsRootDirFromSdkDir = [reldir|../../|] </> libsRootDirInGeneratedCodeDir
