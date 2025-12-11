@@ -20,6 +20,9 @@ build-type:     Simple
 extra-source-files:
   README.md
   ChangeLog.md
+  -- NOTE: We need to add manifest.json here for GHC to recompile the
+  -- Wasp.Generator.WaspLib.Manifest.TH module when the manifest changes
+  data/Generator/libs/manifest.json
 data-files:
   -- NOTE: cabal has this weird rule that * doesn't capture file extension, nor can you provide just *,
   --   it has to be followed by extension, which is why we have to manually list all of the extensions,
@@ -379,6 +382,8 @@ library
     Wasp.Generator.WaspLibs
     Wasp.Generator.WaspLibs.AvailableLibs
     Wasp.Generator.WaspLibs.Common
+    Wasp.Generator.WaspLibs.Manifest
+    Wasp.Generator.WaspLibs.Manifest.TH
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport

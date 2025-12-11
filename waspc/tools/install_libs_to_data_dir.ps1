@@ -7,11 +7,15 @@ $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $wascpDir = Resolve-Path "$dir/.."
 $dataLibsDir = Join-Path $wascpDir "data/Generator/libs"
 
+
 # Clean up old libs.
 if (Test-Path $dataLibsDir) {
     Remove-Item -Path $dataLibsDir -Recurse -Force
 }
 New-Item -Path $dataLibsDir -ItemType Directory -Force | Out-Null
+
+$manifestFile = Join-Path $dataLibsDir "manifest.json"
+$manifest = @{}
 
 $libDirs = Get-ChildItem -Path "$wascpDir/libs" -Directory
 
@@ -27,9 +31,30 @@ foreach ($lib in $libDirs) {
         # Clean up old lib tarballs.
         Remove-Item -Path "./*.tgz" -Force -ErrorAction SilentlyContinue
         npm pack
-        Copy-Item -Path "./*.tgz" -Destination $dataLibsDir
+
+        $packageJsonObj = Get-Content -Path "package.json" -Raw | ConvertFrom-Json
+        $packageName = $packageJsonObj.name
+        $originalTarballFileName = (Get-Item "./*.tgz").Name
+
+        if ($env:USE_RANDOM_LIB_VERSION) {
+            $tarballPrefix = $originalTarballFileName -replace '-[^-]+\.tgz$', ''
+            $randomHex = [guid]::NewGuid().ToString("N").Substring(0, 16)
+            $randomLibVersion = "0.0.0-dev-$randomHex"
+            $newTarballFileName = "$tarballPrefix-$randomLibVersion.tgz"
+            Rename-Item -Path $originalTarballFileName -NewName $newTarballFileName
+            Write-Host "Renamed $originalTarballFileName -> $newTarballFileName"
+        } else {
+            $newTarballFileName = $originalTarballFileName
+        }
+
+        $manifest[$packageName] = $newTarballFileName
+
+        Copy-Item -Path $newTarballFileName -Destination $dataLibsDir
     }
     finally {
         Pop-Location
     }
 }
+
+$manifest | ConvertTo-Json | Set-Content -Path $manifestFile
+Write-Host "Generated manifest at: $manifestFile"
