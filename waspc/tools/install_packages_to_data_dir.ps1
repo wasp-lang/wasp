@@ -4,18 +4,26 @@
 
 # Gets the directory of where this script lives.
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$wascpDir = Resolve-Path "$dir/.."
+$dataPackagesDir = Join-Path $wascpDir "data/packages"
 
-$packageDirs = Get-ChildItem -Path "$dir/../packages" -Directory
+# Clean up old packages in data dir.
+if (Test-Path $dataPackagesDir) {
+    Remove-Item -Path $dataPackagesDir -Recurse -Force
+}
+New-Item -Path $dataPackagesDir -ItemType Directory -Force | Out-Null
+
+$packageDirs = Get-ChildItem -Path "$wascpDir/packages" -Directory
 
 foreach ($package in $packageDirs) {
     $packageDir = $package.FullName
     $packageName = $package.Name
-    
+
     # We're only installing the dependencies here to verify that the build
     # works, that's why the node_modules folder is removed immediately after.
     # The real dependency installation happens in Haskell.
     Write-Host "Installing $packageName ($packageDir)"
-    
+
     Push-Location $packageDir
     try {
         npm install
@@ -27,12 +35,9 @@ foreach ($package in $packageDirs) {
     }
 }
 
-Push-Location "$dir/.."
+Push-Location $wascpDir
 try {
-    if (Test-Path "./data/packages") {
-        Remove-Item -Path "./data/packages" -Recurse -Force
-    }
-    Copy-Item -Path "./packages" -Destination "./data/packages" -Recurse
+    Copy-Item -Path "./packages/*" -Destination $dataPackagesDir -Recurse
 }
 finally {
     Pop-Location

@@ -1,13 +1,14 @@
-import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
-import { AuthContext } from '../../Auth'
+
 
 // PRIVATE API
 export const ForgotPasswordForm = () => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<{ email: string }>()
-  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)
+  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useAuthContext()
 
   const onSubmit = async (data) => {
     setIsLoading(true)

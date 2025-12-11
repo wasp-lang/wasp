@@ -25,6 +25,7 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
+import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.Valid.Validator as V
 
 data DependencyType = Runtime | Development
@@ -88,7 +89,7 @@ dependenciesValidator =
     runtimeDepsValidator =
       V.all $
         makeRequiredDepValidator Runtime
-          <$> [ ("wasp", "file:.wasp/out/sdk/wasp"),
+          <$> [ (sdkPackageName, "file:.wasp/out/sdk/wasp"),
                 -- Installing the wrong version of "react-router-dom" can make users believe that they
                 -- can use features that are not available in the version that Wasp supports.
                 ("react-router-dom", show reactRouterVersion),

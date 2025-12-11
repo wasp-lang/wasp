@@ -1,11 +1,10 @@
-import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
 import { config } from 'wasp/client'
 import { clsx } from '../util'
 
-import { AuthContext } from '../../Auth'
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import {
   Form,
   FormInput,
@@ -51,7 +50,7 @@ export const LoginSignupForm = ({
     setErrorMessage,
     setSuccessMessage,
     setIsLoading,
-  } = useContext(AuthContext)
+  } = useAuthContext();
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   const navigate = useNavigate();
