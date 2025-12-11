@@ -7,14 +7,6 @@ $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $wascpDir = Resolve-Path "$dir/.."
 $dataLibsDir = Join-Path $wascpDir "data/Generator/libs"
 
-if ($env:USE_RANDOM_LIB_VERSION) {
-    $randomHex = [guid]::NewGuid().ToString("N").Substring(0, 16)
-    $libVersion = "0.0.0-dev-$randomHex"
-    Write-Host "USE_RANDOM_LIB_VERSION is set - using random version for cache busting: $libVersion"
-} else {
-    $libVersion = & "$wascpDir/run.bat" get-waspc-version | Select-Object -Last 1
-    Write-Host "Setting lib versions to: $libVersion"
-}
 
 # Clean up old libs.
 if (Test-Path $dataLibsDir) {
@@ -44,17 +36,15 @@ foreach ($lib in $libDirs) {
         $packageName = $packageJsonObj.name
         $originalTarballFileName = (Get-Item "./*.tgz").Name
 
-        # Extract the package name prefix from the original tarball
-        # e.g., wasp.sh-lib-auth-0.0.0.tgz -> wasp.sh-lib-auth
-        $tarballPrefix = $originalTarballFileName -replace '-[^-]+\.tgz$', ''
-
-        $newTarballFileName = "$tarballPrefix-$libVersion.tgz"
-
-        if ($originalTarballFileName -ne $newTarballFileName) {
+        if ($env:USE_RANDOM_LIB_VERSION) {
+            $tarballPrefix = $originalTarballFileName -replace '-[^-]+\.tgz$', ''
+            $randomHex = [guid]::NewGuid().ToString("N").Substring(0, 16)
+            $randomLibVersion = "0.0.0-dev-$randomHex"
+            $newTarballFileName = "$tarballPrefix-$randomLibVersion.tgz"
             Rename-Item -Path $originalTarballFileName -NewName $newTarballFileName
             Write-Host "Renamed $originalTarballFileName -> $newTarballFileName"
         } else {
-            Write-Host "Tarball already has the correct name: $newTarballFileName"
+            $newTarballFileName = $originalTarballFileName
         }
 
         $manifest[$packageName] = $newTarballFileName
