@@ -63,7 +63,7 @@ prettyShowSrcLinesOfErrorRgn
                         then insertAt stylingEnd endColNum line
                         else line ++ stylingEnd
                     stylingStart = T.ansiEscapeCode ++ T.getAnsiCodeFor T.Red
-                    stylingEnd = T.ansiEscapeCode ++ T.ansiResetCode
+                    stylingEnd = T.ansiEscapeCode ++ T.ansiResetAllCode
                  in (lineNum, if lineContainsError then lineWithStylingStartAndEnd else line)
             )
             srcLines
