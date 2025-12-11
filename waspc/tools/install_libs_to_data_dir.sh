@@ -18,9 +18,18 @@ for lib_dir in "$waspc_dir"/libs/*; do
     echo "Installing $lib lib ($lib_dir)"
     cd "$lib_dir"
     npm install
-    # Clean up old lib tarballs.
-    rm -f ./*.tgz
-    npm pack
-    cp ./*.tgz "$data_libs_dir"
+    npm run build
+
+    # Copy only necessary files (not node_modules, test files, etc.)
+    # We copy: package.json, dist/, and any other essential files
+    dest_lib_dir="$data_libs_dir/$lib"
+    mkdir -p "$dest_lib_dir"
+    cp package.json "$dest_lib_dir/"
+    if [[ -d dist ]]; then
+      cp -r dist "$dest_lib_dir/"
+    fi
+    if [[ -f README.md ]]; then
+      cp README.md "$dest_lib_dir/"
+    fi
   fi
 done

@@ -37,6 +37,7 @@ import Wasp.Generator.WaspLibs (genWaspLibs)
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
+import qualified Wasp.Data as Data
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
 
@@ -53,8 +54,9 @@ writeWebAppCode spec dstDir sendMessage = do
   case validateAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
-      waspLibs <- WaspLibs.AvailableLibs.makeWaspLibs
-      let config = makeGeneratorConfig waspLibs
+      dataDirPath <- Data.getAbsDataDirPath
+      let waspLibs = WaspLibs.AvailableLibs.waspLibs
+      let config = makeGeneratorConfig dataDirPath waspLibs
       let (generatorWarnings, generatorResult) = runGenerator config $ genApp spec
 
       case generatorResult of

@@ -29,6 +29,7 @@ import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, makeGeneratorConfig, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
+import qualified Wasp.Data as Data
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
 genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
@@ -63,8 +64,9 @@ compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Te
 compileAndRenderDockerfile spec = do
   -- We make a generator config with no WaspLibs because they are not needed
   -- for Dockerfile generation.
+  dataDirPath <- Data.getAbsDataDirPath
   let waspLibs = []
-  let config = makeGeneratorConfig waspLibs
+  let config = makeGeneratorConfig dataDirPath waspLibs
 
   let (_, generatorResult) = runGenerator config $ genDockerfile spec
   case generatorResult of

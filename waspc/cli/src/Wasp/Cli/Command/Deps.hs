@@ -29,7 +29,7 @@ deps = do
       (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
       return
       appSpecOrAnalyzerErrors
-  waspLibs <- liftIO WaspLibs.AvailableLibs.makeWaspLibs
+  let waspLibs = WaspLibs.AvailableLibs.waspLibs
 
   liftIO $ putStrLn $ depsMessage appSpec waspLibs
 

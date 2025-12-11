@@ -11,6 +11,7 @@ module Wasp.Generator.Monad
     runGenerator,
     makeGeneratorConfig,
     getWaspLibs,
+    getDataDirPath,
   )
 where
 
@@ -21,10 +22,13 @@ import Control.Monad.RWS.Lazy
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Control.Monad.State (State, runStateT)
 import Data.List.NonEmpty (NonEmpty, fromList)
+import StrongPath (Abs, Dir, Path')
+import qualified Wasp.Data as Data
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 
 data GeneratorConfig = GeneratorConfig
-  { gcWaspLibs :: [WaspLib.WaspLib]
+  { gcWaspLibs :: [WaspLib.WaspLib],
+    gcDataDirPath :: Path' Abs (Dir Data.DataDir)
   }
 
 -- | Generator is a monad transformer stack where we abstract away the underlying
@@ -100,8 +104,15 @@ logAndThrowGeneratorError e = logGeneratorError >> throwError e
 catchGeneratorError :: Generator a -> (GeneratorError -> Generator a) -> Generator a
 catchGeneratorError = MonadExcept.catchError
 
-makeGeneratorConfig :: [WaspLib.WaspLib] -> GeneratorConfig
-makeGeneratorConfig waspLibs = GeneratorConfig {gcWaspLibs = waspLibs}
+makeGeneratorConfig :: Path' Abs (Dir Data.DataDir) -> [WaspLib.WaspLib] -> GeneratorConfig
+makeGeneratorConfig dataDirPath waspLibs =
+  GeneratorConfig
+    { gcWaspLibs = waspLibs,
+      gcDataDirPath = dataDirPath
+    }
 
 getWaspLibs :: Generator [WaspLib.WaspLib]
 getWaspLibs = gcWaspLibs <$> ask
+
+getDataDirPath :: Generator (Path' Abs (Dir Data.DataDir))
+getDataDirPath = gcDataDirPath <$> ask

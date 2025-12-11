@@ -282,7 +282,6 @@ library
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
-    Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -739,7 +738,6 @@ test-suite waspc-tests
     Project.DbTest
     Paths_waspc
     ExternalConfig.Npm.NpmDependenciesTest
-    ExternalConfig.Npm.TarballTest
     Generator.Valid.PackageJsonTest
     Generator.Valid.ValidatorTest
     JsImportTest

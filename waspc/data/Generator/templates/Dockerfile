@@ -38,8 +38,8 @@ COPY package-lock.json .
 COPY tsconfig*.json .
 COPY server .wasp/build/server
 COPY sdk .wasp/out/sdk
-# We copy Wasp libs twice, because server needs them in .wasp/build/libs
-# and SDK needs them in .wasp/out/libs becuase the SDK needs to live in the
+# We copy Wasp lib directories twice, because server needs them in .wasp/build/libs
+# and SDK needs them in .wasp/out/libs because the SDK needs to live in the
 # out directory to be accessible to the client code: https://github.com/wasp-lang/wasp/issues/1769
 COPY libs .wasp/build/libs
 COPY libs .wasp/out/libs

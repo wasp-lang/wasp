@@ -1,6 +1,7 @@
 module Generator.WebAppGeneratorTest where
 
 import Data.Either (fromRight)
+import Data.Maybe (fromJust)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Fixtures
@@ -26,6 +27,7 @@ import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Version as WV
+import qualified Wasp.Data as Data
 
 -- TODO(martin): We could maybe define Arbitrary instance for AppSpec, define properties
 -- over generator functions and then do property testing on them, that would be cool.
@@ -100,7 +102,8 @@ spec_WebAppGenerator = do
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
       let waspLibs = []
-      let config = makeGeneratorConfig waspLibs
+      let dummyDataDirPath = fromJust $ SP.parseAbsDir "/dummy/data"
+      let config = makeGeneratorConfig dummyDataDirPath waspLibs
       let fileDrafts =
             fromRight
               (error "Expected Right but got Left")

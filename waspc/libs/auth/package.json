@@ -26,8 +26,7 @@
     "check:coverage": "vitest run --coverage",
     "check:type-exports": "attw -P --profile esm-only",
     "check:types": "tsc --noEmit",
-    "dev": "vitest dev",
-    "prepare": "npm run build"
+    "dev": "vitest dev"
   },
   "peerDependencies": {
     "react": "^18.2.0"

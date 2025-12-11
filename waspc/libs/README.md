@@ -24,24 +24,14 @@ Instead, we use a fixed version `0.0.0` in the `package.json` of each lib.
 They are considered to be an implementation detail of the Wasp CLI, so their version
 is whatever version the Wasp CLI is.
 
-When the Wasp CLI is shipped, the libs are packaged and shipped with it in the
-`waspc/data/` folder, and the Wasp CLI uses these local copies of the libs
-when generating the Wasp app.
-
-### `npm` cache busting
-
-`npm` caches installed packages based on their version, so if we used a fixed version
-like `0.0.0` for the libs, when a user updates their Wasp CLI `npm` would use the
-cached version of the lib instead of the new version that came with the updated Wasp CLI.
-
-To avoid this, the Wasp CLI computes a checksum of the tarball of the lib and uses
-that as the version when generating the Wasp app. This way, if a lib changes,
-the checksum changes, and `npm` will install the new version of the lib.
+When the Wasp CLI is shipped, the libs are built and shipped with it in the
+`waspc/data/Generator/libs/` folder. The Wasp CLI copies these lib directories
+to the generated Wasp app and installs them as local file dependencies.
 
 ```json
 {
   "dependencies": {
-    "@wasp/lib-name": "file:./libs/lib-name-<checksum>.tgz"
+    "@wasp.sh/lib-auth": "file:../../libs/auth"
   }
 }
 ```
@@ -99,9 +89,9 @@ Wasp Libs are npm libraries you develop in isolation and test them using unit te
 
 When you want to test how they integrate with the Wasp CLI and the generated app,
 you need to make sure the Wasp CLI can find them.
-To do that, you need to copy the compiled libs to the `waspc/data/` folder, which is
+To do that, you need to build the libs and copy them to the `waspc/data/Generator/libs/` folder, which is
 packaged with the Wasp CLI.
-Run `./run build:libs` to compile the libs and copy them into `data/`.
+Run `./run build:libs` to build the libs and copy them into `data/Generator/libs/`.
 Then you can use `./run wasp-cli` as you normally would.
 
 ## Adding a New Lib
@@ -115,8 +105,8 @@ Keep in mind:
 - `package.json` should include a `files` field that specifies which files
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
-The package will be packaged using `npm pack` and the resulting tarball will
-be copied to `waspc/data/libs/` by the `./run build:libs` script.
+The entire lib directory (with built files) will be copied to `waspc/data/Generator/libs/<lib-name>/`
+by the `./run build:libs` script.
 
 Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
 module so that the Wasp CLI knows about it.
