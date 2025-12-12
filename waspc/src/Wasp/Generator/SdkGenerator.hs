@@ -100,10 +100,11 @@ genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
     [ genFileCopy [relfile|../tsconfig.json|],
+      genFileCopy [relfile|../tsconfig.sdk.json|],
       genFileCopy [relfile|../core/tsconfig.json|],
+      genFileCopy [relfile|../copy-assets.js|],
       genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
-      genFileCopy [relfile|scripts/copy-assets.js|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],
