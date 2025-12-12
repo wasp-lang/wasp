@@ -10,6 +10,14 @@ describe("parseProcessArgsOrThrow", () => {
     ]);
   });
 
+  test("should parse arguments correctly even if node has absolute path", () => {
+    expectParseProcessArgsToSucceed([
+      "main.wasp.js",
+      "output.json",
+      JSON.stringify(["entity1"]),
+    ], "/usr/bin/node");
+  });
+
   test("should parse 0 entities correctly", () => {
     expectParseProcessArgsToSucceed(["main.wasp.js", "output.json", "[]"]);
   });
@@ -59,8 +67,8 @@ describe("parseProcessArgsOrThrow", () => {
     ]);
   });
 
-  function expectParseProcessArgsToSucceed(args: string[]) {
-    const result = parseProcessArgsOrThrow(["node", "run.js", ...args]);
+  function expectParseProcessArgsToSucceed(args: string[], nodeExec: string = "node") {
+    const result = parseProcessArgsOrThrow([nodeExec, "run.js", ...args]);
 
     const [waspTsSpecPath, outputFilePath, entityNames] = args;
     expect(result).toEqual({

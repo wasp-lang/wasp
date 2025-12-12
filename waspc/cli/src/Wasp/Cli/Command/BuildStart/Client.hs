@@ -12,13 +12,14 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
+import Wasp.Node.Executables (npmExec)
 
 buildClient :: BuildStartConfig -> ExceptJob
 buildClient config =
   runNodeCommandAsJobWithExtraEnv
     envVars
     webAppDir
-    "npm"
+    npmExec
     ["run", "build"]
     J.WebApp
     & toExceptJob (("Building the client failed with exit code: " <>) . show)
@@ -31,7 +32,7 @@ startClient :: BuildStartConfig -> ExceptJob
 startClient config =
   runNodeCommandAsJob
     webAppDir
-    "npm"
+    npmExec
     [ "run",
       "preview", -- `preview` launches a static file server for the built client.
       "--",
