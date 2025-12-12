@@ -49,7 +49,7 @@ export function DocumentCard({
       <Divider />
       <CardBody>
         <ScrollShadow className="max-h-[200px]">
-          <Markdown>{document.content}</Markdown>
+          <div className="markdown"><Markdown>{document.content}</Markdown></div>
         </ScrollShadow>
       </CardBody>
       {footerContent && (
