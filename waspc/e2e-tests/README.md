@@ -1,21 +1,48 @@
 # End-to-End tests for `waspc`
 
-The purpose of `e2e-tests` is to **verify that the Wasp binary works as expected**.
+The purpose of e2e tests is to **verify that the Wasp binary works as expected**.
 We are not concerned with the internal implementation, only its interface and outputs.
 
 ## More on purpose
 
-**Interface** is exposed through the Wasp CLI (called `waspc`).
+**Interface** is exposed through the Wasp CLI.
 We want to test the behavior of all of the Wasp CLI commands.
 Every command is treated as a black box.
 
-The main **outputs** of the `waspc` is a Wasp application.
-We want to validate that CLI commands correctly generate or modify applications.
+The main **outputs** of `waspc` are Wasp applications.
+We want to validate that CLI commands correctly generate or modify Wasp applications.
 In addition to applications, we also cover secondary outputs, such as the installation and uninstallation of the CLI itself, `bash` completions, and more.
 
-## Snapshot tests
+## Test varaints
 
-We primarily test the `waspc` binary outputs using snapshot tests.
+`waspc e2e-tests` consist of two different tests variants:
+
+1. **Ephemeral Tests**: tests whose output we don't need to save
+2. **Snapshot Tests**: tests whose output we want to save
+
+### Ephemeral tests
+
+We test Wasp CLI commands whose outputs we can discard.
+
+Ephemeral tests **sequentially execute their test cases** in the `EhpemeralDir`.
+Ther `EhpemeralDir`s are created in the `waspc/e2e-tests/EphemeralTest/temp/` diectory.
+While the exact files within a `EhpemeralDir` aren’t strictly defined, they usually have the following structure:
+
+```yaml
+# Where:
+#   `<name>` = the ephemeral test's name.
+
+e2e-tests/
+└── EphemeralTest/
+    └── temp/
+        └── <name>/  # ephemeral dirctory, e.g. `wasp-info`
+            ├── wasp-app/ # contains the Wasp app for that ephemeral test
+            └── ...
+```
+
+### Snapshot tests
+
+We test Wasp application outputs primarily using snapshot tests.
 Snapshot tests compare the current test outputs (`current` snapshot) against the expected test outputs (`golden` snapshot).
 
 Snapshots are compared in two ways:

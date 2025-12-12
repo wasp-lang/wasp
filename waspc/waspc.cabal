@@ -807,9 +807,12 @@ test-suite waspc-e2e-tests
     , hspec
     , tasty-hspec
     , tasty-golden
+    , base64-bytestring
+    , neat-interpolation
   other-modules:
     FileSystem
     ShellCommands
+    WaspProject.FileSystem
     WaspProject.ShellCommands
     SnapshotTest
     SnapshotTest.Snapshot
@@ -820,3 +823,24 @@ test-suite waspc-e2e-tests
     SnapshotTest.WaspMigrateSnapshotTest
     SnapshotTest.WaspCompileSnapshotTest
     SnapshotTest.WaspBuildSnapshotTest
+    EphemeralTest
+    EphemeralTest.FileSystem
+    EphemeralTest.ShellCommands
+    EphemeralTest.WaspBuildStartEphemeralTest
+    EphemeralTest.WaspCleanEphemeralTest
+    EphemeralTest.WaspCompileEphemeralTest
+    EphemeralTest.WaspBuildEphemeralTest
+    EphemeralTest.WaspCompletionEphemeralTest
+    EphemeralTest.WaspNewEphemeralTest
+    EphemeralTest.WaspStartEphemeralTest
+    EphemeralTest.WaspStudioEphemeralTest
+    EphemeralTest.WaspVersionEphemeralTest
+    EphemeralTest.WaspInfoEphemeralTest
+    EphemeralTest.WaspDockerfileEphemeralTest
+    EphemeralTest.WaspTelemetryEphemeralTest
+    EphemeralTest.WaspDepsEphemeralTest
+    EphemeralTest.WaspDbStartEphemeralTest
+    EphemeralTest.WaspDbMigrateDevEphemeralTest
+    EphemeralTest.WaspDbSeedEphemeralTest
+    EphemeralTest.WaspDbResetEphemeralTest
+    EphemeralTest.WaspDbStudioEphemeralTest

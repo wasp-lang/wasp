@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeSynonymInstances #-}
-
 module SnapshotTest.ShellCommands
   ( SnapshotTestContext (..),
     createSnapshotWaspProjectFromMinimalStarter,
@@ -15,8 +13,9 @@ import FileSystem
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
+    WaspNewTemplate (..),
     buildShellCommand,
-    waspCliNewMinimalStarter,
+    waspCliNew,
     (~&&),
     (~|),
   )
@@ -33,7 +32,7 @@ data SnapshotTestContext = SnapshotTestContext
 createSnapshotWaspProjectFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspProjectFromMinimalStarter = do
   snapshotTestContext <- ask
-  waspCliNewMinimalStarter $ _waspProjectName $ _snapshotWaspProjectContext snapshotTestContext
+  waspCliNew (_waspProjectName $ _snapshotWaspProjectContext snapshotTestContext) Minimal
 
 withInSnapshotWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->
