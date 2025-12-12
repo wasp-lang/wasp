@@ -99,14 +99,16 @@ buildSdk projectRootDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ genFileCopy [relfile|vite-env.d.ts|],
+    [ genFileCopy [relfile|../tsconfig.json|],
+      genFileCopy [relfile|../core/tsconfig.json|],
+      genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|prisma-runtime-library.d.ts|],
       genFileCopy [relfile|scripts/copy-assets.js|],
       genFileCopy [relfile|api/index.ts|],
       genFileCopy [relfile|api/events.ts|],
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
-      genFileCopy [relfile|server/HttpError.ts|],
+      genFileCopy [relfile|../core/server/HttpError.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/hooks.ts|],
@@ -185,8 +187,8 @@ genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
   return $
     C.mkTmplFdWithDstAndData
-      [relfile|package.json|]
-      [relfile|package.json|]
+      [relfile|../package.json|]
+      [relfile|../package.json|]
       ( Just $
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
