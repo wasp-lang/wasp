@@ -1,6 +1,6 @@
 import Mailgun from 'mailgun.js';
 import { getDefaultFromField } from "../helpers.js";
-import type { MailgunEmailProvider, EmailSender } from "../types";
+import type { EmailSender, MailgunEmailProvider } from "../types.js";
 
 // PRIVATE API
 export function initMailgunEmailSender(
