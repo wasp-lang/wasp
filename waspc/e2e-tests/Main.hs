@@ -55,7 +55,7 @@ tests = do
         -- Wasp project commands
         waspCompileEphemeralTest,
         -- NOTE(Franjo): The following tests have the `FIXME` comment because they
-        -- are long running processes, i.e. can run for infinite amount of time. 
+        -- are long running processes, i.e. can run for infinite amount of time.
         -- While test cases for these CLI commands are written, because I dind't
         -- find a reliable way to test long running processes yet, I've commented
         -- them out. If you have an idea on how to make them works, do let me know.
