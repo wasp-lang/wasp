@@ -3,6 +3,7 @@
 ## Next
 
 ### ⚠️ Breaking Changes
+
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-19-to-0-20) for step-by-step documentation on how to upgrade.
 
 - Wasp now uses **React 19**!
