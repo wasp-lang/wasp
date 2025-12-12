@@ -34,7 +34,11 @@ export const makeSubPackage = ({
   console.log("Wrote package.json to:", outPkgFilePath);
 
   console.log("Extracting tarball contents...");
-  execaSync`tar -xzvf ${tarballPath} -C ${outputDirPath}`;
+  execaSync({
+    // We want to see the extraction logs in our logs
+    quiet: false,
+    stderr: "inherit",
+  })`tar -xzvf ${tarballPath} -C ${outputDirPath}`;
 
   console.log("Subpackage created at:", outputDirPath);
 
@@ -71,6 +75,15 @@ function generatePackageJson(
   pkg.os = [target.os];
   pkg.cpu = [target.cpu];
   if (target.libc) pkg.libc = [target.libc];
+
+  // npm strips the executable bit from files in packages, so we use the "bin"
+  // field to let npm know it needs to mark it as executable upon install.
+  pkg.bin = {
+    // The name doesn't matter (and in fact we don't want users to call it
+    // directly), so we'll make it clear.
+    [`__internal_wasp-${target.os}-${target.cpu}-${target.libc ?? "unknown"}`]:
+      "wasp-bin",
+  };
 
   console.log("Filled out package.json fields");
   console.groupEnd();
