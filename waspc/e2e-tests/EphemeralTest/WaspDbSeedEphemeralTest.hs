@@ -36,6 +36,15 @@ waspDbSeedEphemeralTest =
               replaceMainWaspFile mainWaspWithSeeds
             ]
         ),
+      -- Both in 'WaspDbResetEphemeralTest.hs' and in `WaspDbSeedEphemeralTest.hs`
+      -- I have the following comments with `FIXME`.
+      -- This is because I needed access database to either do some action or assert state.
+      -- I didn't want to bring in any extra dependencies.
+      -- I wanted it to be database agnostic.
+      -- The only way I found to do it through Wasp was by using the seeding scripts.
+      -- They can only return the exit code, but that is enough.
+      -- An alternative would be to directly use the `npx prisma execute` from the server files,
+      -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       makeEphemeralTestCase
         "Assert the tasks table is initially empty"
         -- FIXME: find a way without seed commands
