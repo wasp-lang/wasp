@@ -2,7 +2,7 @@
   "dependencies": {
     "@prisma/client": "5.19.1",
     "@testing-library/jest-dom": "^6.3.0",
-    "@testing-library/react": "^14.1.2",
+    "@testing-library/react": "^16.3.0",
     "@vitest/ui": "^1.2.1",
     "axios": "^1.4.0",
     "express": "~5.1.0",
@@ -10,7 +10,7 @@
     "mitt": "3.0.0",
     "msw": "^1.1.0",
     "prisma": "5.19.1",
-    "react": "^18.2.0",
+    "react": "^19.2.1",
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^6.26.2",
     "superjson": "^2.2.1",
@@ -89,7 +89,7 @@
   "license": "ISC",
   "name": "wasp",
   "peerDependencies": {
-    "@tanstack/react-query": "~4.41.0"
+    "@tanstack/react-query": "~4.42.0"
   },
   "private": true,
   "scripts": {

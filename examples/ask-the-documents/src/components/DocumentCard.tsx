@@ -9,7 +9,7 @@ import {
 } from "@heroui/react";
 import { searchDocuments } from "wasp/client/operations";
 
-import ReactMarkdown from "react-markdown";
+import Markdown from "react-markdown";
 import { LinkIcon } from "./LinkIcons";
 
 type Document = Awaited<ReturnType<typeof searchDocuments>>[number]["document"];
@@ -49,7 +49,9 @@ export function DocumentCard({
       <Divider />
       <CardBody>
         <ScrollShadow className="max-h-[200px]">
-          <ReactMarkdown className="markdown">{document.content}</ReactMarkdown>
+          <div className="markdown">
+            <Markdown>{document.content}</Markdown>
+          </div>
         </ScrollShadow>
       </CardBody>
       {footerContent && (

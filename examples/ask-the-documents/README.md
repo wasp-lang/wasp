@@ -25,7 +25,7 @@ This is an example Wasp app that supports:
 2. Start the database with:
 
    ```bash
-   wasp start db --db-image pgvector/pgvector:pg17
+   wasp start db --db-image pgvector/pgvector:pg18
    ```
 
 3. Copy `.env.server.example` to `.env.server` and fill out the environment variables.
