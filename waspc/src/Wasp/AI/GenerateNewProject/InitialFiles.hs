@@ -166,6 +166,7 @@ generatePackageJson newProjectDetails =
           "typescript": "5.8.2",
           "vite": "^7.0.6",
           "@types/react": "^19.2.7",
+          "@types/react-dom": "^19.2.3",
           "prisma": "5.19.1"
         }
       }

@@ -112,6 +112,7 @@ dependenciesValidator =
             dep <-
               [ ("typescript", show typescriptVersion),
                 ("@types/react", show reactTypesVersion),
+                ("@types/react-dom", show reactDomTypesVersion),
                 ("@types/express", show expressTypesVersion)
               ]
         ]
