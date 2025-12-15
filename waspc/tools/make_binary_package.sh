@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
+# Bash "Strict Mode" http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+set -x # Log the commands being run, for easy debugging.
 
 # Takes last wasp binary built by cabal and packages it together with data
 # into .tar.gz package.
