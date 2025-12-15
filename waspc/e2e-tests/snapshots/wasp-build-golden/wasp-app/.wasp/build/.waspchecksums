@@ -2,9 +2,9 @@
     [
         [
             "file",
-            "../out/libs/wasp.sh-lib-auth-564b609d.tgz"
+            "../out/libs/wasp.sh-lib-auth-0.19.2.tgz"
         ],
-        "564b609d7d4bcc6dbe4a7866bffcf36a8d78713c16fb2b3d40b66c594b459144"
+        "a5ac2246a5a864191eaae9aef03103e58dea5647f266cad562794d84484fadb5"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "d251ba2c37269d1af3f350db6d6757ffcb63d7bbc4785eb8ba9006d1660c5e8e"
+        "ecb88c41b7f16000e11ffd8d75a88d21466542f43a0c7ad90c2d44af10ab280d"
     ],
     [
         [
@@ -464,9 +464,9 @@
     [
         [
             "file",
-            "libs/wasp.sh-lib-auth-564b609d.tgz"
+            "libs/wasp.sh-lib-auth-0.19.2.tgz"
         ],
-        "564b609d7d4bcc6dbe4a7866bffcf36a8d78713c16fb2b3d40b66c594b459144"
+        "a5ac2246a5a864191eaae9aef03103e58dea5647f266cad562794d84484fadb5"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "server/package.json"
         ],
-        "b2fa10e85db1bad966cf83713a52f03a3ba8aa5ea448527eeb0f5750746057c3"
+        "96861603f98ba04200a84d58424edf752702e281aaacf806597ad0010e249ce9"
     ],
     [
         [
