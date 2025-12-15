@@ -19,7 +19,9 @@ RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
 # Building
-WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
+WASP_PACKAGES_COMPILE="for pkg in ${SCRIPT_DIR}/data/packages/*/package.json; do \
+  (cd \$(dirname \$pkg) && npm install && npm run build); \
+done"
 BUILD_HS_CMD="cabal build all"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
 BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
