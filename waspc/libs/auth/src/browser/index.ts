@@ -25,5 +25,3 @@ export const useAuthContext = () => {
   }
   return context;
 };
-
-console.log("Libs doing the real talk #3");

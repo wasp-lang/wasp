@@ -274,6 +274,7 @@ case $COMMAND in
     mv package-lock.json.tmp package-lock.json
 
     echo -e "${YELLOW}Running wasp-cli compile...${RESET}"
+    # Compiling the project copies the new lib tarball to the out dir.
     eval "$RUN_CMD compile"
     if [ $? -ne 0 ]; then
       echo -e "${RED}Error: wasp-cli compile failed.${RESET}"
