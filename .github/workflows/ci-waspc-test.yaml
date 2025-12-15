@@ -68,10 +68,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: packages/ts-inspect - Run tests
+      - name: data/packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
         run: |
-          cd packages/ts-inspect
+          cd data/packages/ts-inspect
           npm ci
           npm test
 
