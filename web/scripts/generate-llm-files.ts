@@ -19,35 +19,15 @@ const GITHUB_RAW_BASE_URL =
 const WASP_BASE_URL = "https://wasp.sh/";
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 
-generateFiles();
+const LLMS_TXT_INTRO = `# Wasp
+Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.`;
 
-/**
- * Assembles the overview content for llms.txt from its component sections.
- */
-function buildLlmsTxtContent(
-  overviewDocsSection: string,
-  blogSectionContent: string,
-): string {
-  const introContent = `# Wasp
-Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.
+const LLMS_TXT_MISC = `## Miscellaneous
+- [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
+- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
 `;
 
-  const miscSectionContent = `
-## Miscellaneous
-- [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
-- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)`;
-
-  return (
-    introContent +
-    "\n" +
-    overviewDocsSection +
-    "\n" +
-    blogSectionContent +
-    "\n" +
-    miscSectionContent +
-    "\n"
-  );
-}
+generateFiles();
 
 /**
  * Main function to generate the LLM-friendly doc files.
@@ -72,25 +52,47 @@ async function generateFiles() {
         generateLlmsFullTxt: isLatest,
       });
 
-    const llmsTxtContent = buildLlmsTxtContent(
-      overviewDocsSection,
-      blogSectionContent,
-    );
-
-    // Latest version outputs to llms.txt, others to llms-{version}.txt
-    const outputFilename = isLatest ? "llms.txt" : `llms-${version}.txt`;
-    const outputPath = path.join(STATIC_DIR, outputFilename);
-    await fs.writeFile(outputPath, llmsTxtContent, "utf8");
-    console.log(`  Generated: ${outputFilename}`);
+    const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
+    await writeLlmsTxtFile(filename, overviewDocsSection, blogSectionContent);
 
     if (isLatest) {
-      const fullOutputPath = path.join(STATIC_DIR, "llms-full.txt");
-      await fs.writeFile(fullOutputPath, llmsFullTxtContent.trim(), "utf8");
-      console.log(`  Generated: llms-full.txt`);
+      await writeLlmsFullTxtFile(llmsFullTxtContent);
     }
   }
 
   console.log("🎉 LLM files generation completed successfully.");
+}
+
+async function writeLlmsTxtFile(
+  filename: string,
+  overviewDocsSection: string,
+  blogSectionContent: string,
+): Promise<void> {
+  const content = buildLlmsTxtContent(overviewDocsSection, blogSectionContent);
+  const outputPath = path.join(STATIC_DIR, filename);
+  await fs.writeFile(outputPath, content, "utf8");
+  console.log(`  Generated: ${filename}`);
+}
+
+async function writeLlmsFullTxtFile(content: string): Promise<void> {
+  const outputPath = path.join(STATIC_DIR, "llms-full.txt");
+  await fs.writeFile(outputPath, content.trim(), "utf8");
+  console.log(`  Generated: llms-full.txt`);
+}
+
+/**
+ * Assembles the overview content for llms.txt from its component sections.
+ */
+function buildLlmsTxtContent(
+  overviewDocsSection: string,
+  blogSectionContent: string,
+): string {
+  return [
+    LLMS_TXT_INTRO,
+    overviewDocsSection,
+    blogSectionContent,
+    LLMS_TXT_MISC,
+  ].join("\n\n");
 }
 
 /**
