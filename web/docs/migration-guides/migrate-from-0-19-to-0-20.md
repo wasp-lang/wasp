@@ -2,9 +2,13 @@
 title: Migration from 0.19.X to 0.20.X
 ---
 
-To install Wasp 0.20.0 on Linux / OSX / WSL (Windows), open your terminal and run:
+To install the latest version of Wasp on Linux / OSX / WSL (Windows), open your terminal and run:
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh
+```
+If you're reading this far into the future when Wasp 0.20.0 is no longer the newest version of Wasp, you can pass a version argument to the install script:
+```sh
+curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.20.0
 ```
 
 ## What's new in 0.20.X?
