@@ -17,9 +17,6 @@ import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
-import qualified Options.Applicative as Opt
-import qualified Options.Applicative.Help as Opt.Help
-import Options.Applicative.Help.Core (parserHelp)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -27,6 +24,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
+import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
@@ -100,10 +98,7 @@ makeBuildStartConfig appSpec args projectDir = do
         $ "You called "
           ++ styleCode "wasp build start"
           ++ " without specifying any environment variables for the started apps (client and server).\n"
-          ++ helpMessage
-    helpMessage =
-      Opt.Help.renderHelp (Opt.prefColumns Opt.defaultPrefs) $
-        parserHelp Opt.defaultPrefs buildStartArgsParser
+          ++ getParserHelpMessage buildStartArgsParser
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
