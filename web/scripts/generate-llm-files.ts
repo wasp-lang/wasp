@@ -38,10 +38,14 @@ Wasp is a full-stack framework with batteries included for React, Node.js, and P
 - [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)`;
 
   return (
-    introContent + "\n" +
-    overviewDocsSection + "\n" +
-    blogSectionContent + "\n" +
-    miscSectionContent + "\n"
+    introContent +
+    "\n" +
+    overviewDocsSection +
+    "\n" +
+    blogSectionContent +
+    "\n" +
+    miscSectionContent +
+    "\n"
   );
 }
 
