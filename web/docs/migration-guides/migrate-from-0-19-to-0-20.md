@@ -7,7 +7,7 @@ To install Wasp 0.20.0 on Linux / OSX / WSL (Windows), open your terminal and ru
 curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
-## What's new in 0.20.0?
+## What's new in 0.20.X?
 
 ### Wasp now uses React 19
 
@@ -33,7 +33,7 @@ app MyApp {
 
 ### 2. Update `package.json` dependencies to versions compatible with React 19
 
-Change some dependency versions in your `package.json` file:
+Bump the version numbers for the React dependencies in your `package.json` file:
 
 ```json title="package.json"
 {
@@ -44,16 +44,18 @@ Change some dependency versions in your `package.json` file:
     "react": "^19.2.1",
     // highlight-next-line
     "react-dom": "^19.2.1",
-  }
+  },
   "devDependencies": {
     // ...
     // highlight-next-line
     "@types/react": "^19.2.7",
+    // highlight-next-line
+    "@types/react-dom": "^19.2.3",
   }
 }
 ```
 
-To complate the dependency updates, run the following commands in your terminal:
+To complete the dependency updates, run the following commands in your terminal:
 
 ```bash
 wasp clean
