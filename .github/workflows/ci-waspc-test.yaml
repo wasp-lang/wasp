@@ -75,6 +75,15 @@ jobs:
           npm ci
           npm test
 
+      - name: Compile TS packages
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: ./run build:packages
+
+      - name: Compile TS packages
+        if: runner.os == 'Windows'
+        run: ./run.ps1 build:packages
+        shell: pwsh
+
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
