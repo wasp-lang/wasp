@@ -19,8 +19,7 @@ config objects and orchestrate the use of these libs.
 
 ## Lib Version
 
-We don't version the libraries by semantic versioning like usual npm packages.
-Instead, we use a fixed version `0.0.0` in the `package.json` of each lib.
+We version the libraries as the current Wasp compiler version e.g. `0.19.2`.
 They are considered to be an implementation detail of the Wasp CLI, so their version
 is whatever version the Wasp CLI is.
 
@@ -28,22 +27,24 @@ When the Wasp CLI is shipped, the libs are packaged and shipped with it in the
 `waspc/data/` folder, and the Wasp CLI uses these local copies of the libs
 when generating the Wasp app.
 
-### `npm` cache busting
+### `npm` cache busting (when developing the libs)
 
-`npm` caches installed packages based on their version, so if we used a fixed version
-like `0.0.0` for the libs, when a user updates their Wasp CLI `npm` would use the
-cached version of the lib instead of the new version that came with the updated Wasp CLI.
+`npm` caches installed packages based on their version, and since we use a fixed version
+for the libs, rebuilding the libs and installing them in a Wasp app again will not bust the cache. 
 
-To avoid this, the Wasp CLI computes a checksum of the tarball of the lib and uses
-that as the version when generating the Wasp app. This way, if a lib changes,
-the checksum changes, and `npm` will install the new version of the lib.
+To bust the cache, we have to delete the `node_modules` folder and the `package-lock.json` file.
 
-```json
-{
-  "dependencies": {
-    "@wasp/lib-name": "file:./libs/lib-name-<checksum>.tgz"
-  }
-}
+Run in the root of the Wasp app you are testing after each change to the libs:
+```bash
+rm -rf node_modules package-lock.json
+```
+
+WIP: faster command, but messier:
+```bash
+jq 'del(.packages["node_modules/@wasp.sh/lib-auth"])' package-lock.json > package-lock.json.tmp && \
+mv package-lock.json.tmp package-lock.json && \
+wasp-cli compile && \
+npm install --force
 ```
 
 ## Lib Exports Naming Convention
