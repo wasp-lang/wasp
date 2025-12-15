@@ -1,12 +1,9 @@
 {
+  // TODO: Eventually switch to user's config.
   "extends": "../tsconfig.sdk.json",
   "compilerOptions": {
-    // We require node types, but we didn't include them explictly.
-    // We rather inherited them transitively through other packages
-    // used by the SDK.
-    "types": [
-      "@testing-library/jest-dom",
-      "node"
-    ],
+    "outDir": "../dist/core",
+    "tsBuildInfoFile": "../dist/core/.tsbuildinfo",
   },
+  "include": ["."]
 }
