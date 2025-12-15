@@ -100,7 +100,7 @@ async function processDocumentationFiles(
   version: string,
   { generateLlmsFullTxt = false } = {},
 ): Promise<{ overviewDocsSection: string; llmsFullTxtContent: string }> {
-  let overviewDocsSection = `## Individual documentation sections and guides for version ${version}:\n`;
+  let overviewDocsSection = `## Documentation Raw Text URLs -- Version ${version}:\n`;
   let llmsFullTxtContent = "";
 
   const orderedDocIds = flattenSidebarItemsToDocIds(docsSidebarItems);
