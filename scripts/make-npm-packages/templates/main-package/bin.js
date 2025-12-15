@@ -11,10 +11,10 @@ const debug = debuglog("wasp-bin-wrapper");
 
 try {
   const childProcessExitCode = await main();
-  debug(`Wasp process exited with code: ${childProcessExitCode}`);
+  debug("Wasp process exited with code: %d", childProcessExitCode);
   process.exitCode = childProcessExitCode;
 } catch (error) {
-  debug("Error in launching Wasp:", error);
+  debug("Error in launching Wasp: %o", error);
   // An error happened while trying to find or run the Wasp executable.
   // Report it and exit with an unknown failure error code.
   // Errors inside the Wasp process itself are not in this wrapper, as they are
@@ -22,7 +22,7 @@ try {
   CLIError.log(error);
   process.exitCode = -1;
 } finally {
-  debug("Exiting Wasp wrapper process with code:", process.exitCode);
+  debug("Exiting Wasp wrapper process with code: %d", process.exitCode);
 }
 
 async function main() {
@@ -45,20 +45,26 @@ async function getSubPackage() {
     { with: { type: "json" } }
   );
 
-  debug("Loaded main package data:", JSON.stringify(data, null, 2));
+  debug("Loaded main package data: %j", data);
 
   const { platform, arch } = process;
   const libc =
-    platform === "linux" ? (isGlibc() ? "glibc" : "musl") : "unknown";
+    platform === "linux"
+      ? isGlibc()
+        ? "glibc"
+        : "musl"
+      : /** @satisfies {typeof import("../../src/schema/output-data.ts").noLibcName} */ (
+          "unknown"
+        );
 
-  debug(`Selecting sub-package for ${platform} / ${arch} / ${libc}`);
+  debug("Selecting sub-package for %s / %s / %s", platform, arch, libc);
 
   const selectedSubPackage = data.subPackages[platform]?.[arch]?.[libc];
   if (!selectedSubPackage) {
     throw new CLIError("Wasp is not supported on this platform.");
   }
 
-  debug("Selected sub-package:", JSON.stringify(selectedSubPackage, null, 2));
+  debug("Selected sub-package: %j", selectedSubPackage);
 
   /** @type {{ default: import("../../src/schema/output-data.ts").SubPackageAPI }} */
   const importedPackage = await import(selectedSubPackage.packageName).catch(
@@ -67,7 +73,7 @@ async function getSubPackage() {
     ),
   );
 
-  debug("Imported sub-package:", JSON.stringify(importedPackage, null, 2));
+  debug("Imported sub-package: %j", importedPackage);
 
   return importedPackage.default;
 }
@@ -79,9 +85,9 @@ async function runWasp(
   },
 ) {
   try {
-    debug("Running Wasp executable at path:", waspBinPath);
-    debug("Using data directory at path:", dataDirPath);
-    debug("Passing arguments:", process.argv.slice(2));
+    debug("Running Wasp executable at path: %s", waspBinPath);
+    debug("Using data directory at path: %s", dataDirPath);
+    debug("Passing arguments: %j", process.argv.slice(2));
 
     execFileSync(waspBinPath, process.argv.slice(2), {
       env: { ...process.env, waspc_datadir: dataDirPath },
@@ -92,15 +98,15 @@ async function runWasp(
 
     return 0;
   } catch (/** @type {any} */ e) {
-    debug("Wasp execution failed with error:", e);
+    debug("Wasp execution failed with error: %o", e);
     // We do a loose equality check because the documentation points to this property
     // being `number | undefined`, but from testing it seems it can also be `null`.
     if (e.status != undefined) {
       // The executed process ran correctly, but exited with a non-zero status
       // code. This is not considered an error in the scope of this wrapper,
       // so we just return the exit code.
-      debug("We got an exit code from Wasp:", e.status);
-      return e.status;
+      debug("We got an exit code from Wasp: %d", e.status);
+      return /** @type {number} */ (e.status);
     } else {
       throw e;
     }
@@ -112,9 +118,9 @@ async function runWasp(
 function isGlibc() {
   try {
     const report = /** @type {any} */ (processReport.getReport()).header;
-    debug("Process report header:", JSON.stringify(report, null, 2));
+    debug("Process report header: %j", report);
     const hasGlibc = Boolean(report.glibcVersionRuntime);
-    debug("Has glibc:", hasGlibc);
+    debug("Has glibc: %s");
     return hasGlibc;
   } catch {
     debug("Failed to get process report, assuming not glibc.");

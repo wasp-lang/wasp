@@ -1,5 +1,14 @@
 import * as z from "zod";
-import { exists, isDir, PathSchema } from "./util.ts";
+import type { CheckFn } from "zod/v4/core";
+import type { NpmTarget } from "./input-data.ts";
+import { noLibcName } from "./output-data.ts";
+import { isDirPath, pathExists, PathSchema } from "./util.ts";
+
+const PLACEHOLDERS = {
+  os: "$os",
+  cpu: "$cpu",
+  libc: "$libc",
+};
 
 export const ARGS_OPTIONS = {
   help: { type: "boolean", short: "h" },
@@ -8,27 +17,37 @@ export const ARGS_OPTIONS = {
   "main-package-name": { type: "string", default: "@wasp.sh/wasp-cli" },
   "sub-package-name": {
     type: "string",
-    default: "@wasp.sh/wasp-cli-$os-$cpu-$libc",
+    default: `@wasp.sh/wasp-cli-${PLACEHOLDERS.os}-${PLACEHOLDERS.cpu}-${PLACEHOLDERS.libc}`,
   },
 } as const;
 
-const includesPlaceholder = (placeholder: string) =>
-  [
-    (s: string) => s.includes(placeholder),
-    `Must contain the ${placeholder} placeholder`,
-  ] as const;
-
 export const ArgsSchema = z.object({
-  "input-dir": PathSchema().check(isDir).check(exists),
-  "output-dir": PathSchema().check(isDir),
+  "input-dir": PathSchema().check(isDirPath).check(pathExists),
+  "output-dir": PathSchema().check(isDirPath),
   "main-package-name": z.string().nonempty(),
   "sub-package-name": z
     .string()
-    .refine(...includesPlaceholder("$os"))
-    .refine(...includesPlaceholder("$cpu"))
-    .refine(...includesPlaceholder("$libc"))
+    .check(checkIncludesPlaceholder(PLACEHOLDERS.os))
+    .check(checkIncludesPlaceholder(PLACEHOLDERS.cpu))
+    .check(checkIncludesPlaceholder(PLACEHOLDERS.libc))
     .transform(
-      (s) => (os: string, cpu: string, libc: string) =>
-        s.replace("$os", os).replace("$cpu", cpu).replace("$libc", libc),
+      (s) =>
+        ({ os, cpu, libc = noLibcName }: NpmTarget) =>
+          s
+            .replace(PLACEHOLDERS.os, os)
+            .replace(PLACEHOLDERS.cpu, cpu)
+            .replace(PLACEHOLDERS.libc, libc),
     ),
 });
+
+function checkIncludesPlaceholder(placeholder: string): CheckFn<string> {
+  return (ctx) => {
+    if (!ctx.value.includes(placeholder)) {
+      ctx.issues.push({
+        code: "custom",
+        input: ctx.value,
+        message: `Must contain the ${placeholder} placeholder`,
+      });
+    }
+  };
+}

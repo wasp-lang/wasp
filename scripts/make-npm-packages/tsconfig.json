@@ -1,5 +1,4 @@
 {
-  "include": ["./src/**/*"],
   "compilerOptions": {
     "strict": true,
     "target": "esnext",
@@ -7,5 +6,6 @@
     "erasableSyntaxOnly": true,
     "noEmit": true,
     "allowImportingTsExtensions": true
-  }
+  },
+  "include": ["./src/**/*"]
 }

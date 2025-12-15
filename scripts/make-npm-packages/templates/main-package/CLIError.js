@@ -1,7 +1,7 @@
 // @ts-check
 
 /*
-This Error wrapper exists to ensure a consisten human-friendly error reporting
+This Error wrapper exists to ensure a consistent human-friendly error reporting
 experience for errors that occur in the CLI.
 
 In general, errors in this wrapper only happen when something is wrong in the

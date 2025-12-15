@@ -1,10 +1,17 @@
 import * as z from "zod";
-import { exists, isFile, type Path, PathSchema } from "./util.ts";
+import { isFilePath, type Path, pathExists, PathSchema } from "./util.ts";
+
+const NpmTargetSchema = z.object({
+  os: z.string(),
+  cpu: z.string(),
+  libc: z.string().optional(),
+});
+export type NpmTarget = z.infer<typeof NpmTargetSchema>;
 
 export const TarballDataSchema = (inputDir: Path) =>
   z.object({
-    fileName: PathSchema(inputDir).check(isFile).check(exists),
-    target: z.tuple([z.string(), z.string(), z.string().optional()]),
+    fileName: PathSchema(inputDir).check(isFilePath).check(pathExists),
+    target: NpmTargetSchema,
   });
 export type TarballData = z.infer<ReturnType<typeof TarballDataSchema>>;
 

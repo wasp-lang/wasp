@@ -7,15 +7,18 @@ import { makeSubPackage } from "./generator/sub-package.ts";
 import { ARGS_OPTIONS, ArgsSchema } from "./schema/args.ts";
 import { BuildDataSchema } from "./schema/input-data.ts";
 
-(function main() {
-  const args = parseArgs({ strict: true, options: ARGS_OPTIONS });
+const args = parseArgs({ strict: true, options: ARGS_OPTIONS });
 
-  if (args.values.help) {
-    console.log("Available options:", ARGS_OPTIONS);
-    return;
-  }
-
-  console.log("Running program with options:", { ...args.values });
+if (args.values.help) {
+  console.log(`Available options: ${ARGS_OPTIONS}`);
+} else {
+  console.log(
+    `Running program with options: ${JSON.stringify(
+      { ...args.values },
+      null,
+      2,
+    )}`,
+  );
 
   const {
     "input-dir": inputDir,
@@ -25,31 +28,28 @@ import { BuildDataSchema } from "./schema/input-data.ts";
   } = ArgsSchema.parse(args.values);
 
   const dataFilePath = fs.readJsonSync(path.join(inputDir, "data.json"));
-  console.log("Reading input data from:", dataFilePath);
+  console.log(`Reading input data from: ${dataFilePath}`);
   const data = BuildDataSchema(inputDir).parse(dataFilePath);
 
   console.group("Creating subpackages in:", outputDir);
   const createdSubPackages = data.tarballs.map((tarballData) => {
-    const {
-      fileName: inputTarballPath,
-      target: [os, cpu, libc],
-    } = tarballData;
+    const { fileName: inputTarballPath, target } = tarballData;
 
     console.group("Creating subpackage");
-    console.log("Input tarball path:", inputTarballPath);
-    console.log("Target:", { os, cpu, libc });
+    console.log(`Input tarball path: ${inputTarballPath}`);
+    console.log(`Target: ${JSON.stringify(target, null, 2)}`);
 
-    const subPackageName = makeSubPackageName(os, cpu, libc || "unknown");
+    const subPackageName = makeSubPackageName(target);
     const subPackageOutputDir = path.join(outputDir, slugify(subPackageName));
 
-    console.log("Subpackage name:", subPackageName);
-    console.log("Subpackage output dir:", subPackageOutputDir);
+    console.log(`Subpackage name: ${subPackageName}`);
+    console.log(`Subpackage output dir: ${subPackageOutputDir}`);
 
     makeSubPackage({
       packageName: subPackageName,
       packageVersion: data.version,
       tarballPath: inputTarballPath,
-      target: { os, cpu, libc },
+      target,
       outputDirPath: subPackageOutputDir,
     });
 
@@ -68,8 +68,8 @@ import { BuildDataSchema } from "./schema/input-data.ts";
 
   const mainPackageOutputDir = path.join(outputDir, slugify(mainPackageName));
 
-  console.log("Main package name:", mainPackageName);
-  console.log("Main package output dir:", mainPackageOutputDir);
+  console.log(`Main package name: ${mainPackageName}`);
+  console.log(`Main package output dir: ${mainPackageOutputDir}`);
 
   makeMainPackage({
     packageName: mainPackageName,
@@ -79,4 +79,4 @@ import { BuildDataSchema } from "./schema/input-data.ts";
   });
 
   console.groupEnd();
-})();
+}

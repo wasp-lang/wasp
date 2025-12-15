@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import * as path from "node:path";
 import * as z from "zod";
-import type { ParsePayload } from "zod/v4/core";
+import type { CheckFn } from "zod/v4/core";
 
 export const PathSchema = (from = process.cwd()) =>
   z
@@ -10,12 +10,30 @@ export const PathSchema = (from = process.cwd()) =>
     .brand<"Path">();
 export type Path = z.infer<ReturnType<typeof PathSchema>>;
 
-const createStatChecker =
-  ({ kind, checkFn }: { kind: string; checkFn: (stat: fs.Stats) => boolean }) =>
-  (ctx: ParsePayload<Path>) => {
+export const pathExists: CheckFn<Path> = (ctx) => {
+  if (!fs.existsSync(ctx.value)) {
+    ctx.issues.push({
+      code: "custom",
+      input: ctx.value,
+      message: "Path does not exist.",
+    });
+  }
+};
+
+export const isDirPath = createPathCheckerFn("directory", (stat) =>
+  stat.isDirectory(),
+);
+export const isFilePath = createPathCheckerFn("file", (stat) => stat.isFile());
+
+function createPathCheckerFn(
+  kind: string,
+  checkValid: (stat: fs.Stats) => boolean,
+): CheckFn<Path> {
+  return (ctx) => {
     try {
       const stat = fs.statSync(ctx.value);
-      if (!checkFn(stat)) {
+      const isValid = checkValid(stat);
+      if (!isValid) {
         ctx.issues.push({
           code: "custom",
           input: ctx.value,
@@ -23,7 +41,8 @@ const createStatChecker =
         });
       }
     } catch (err: any) {
-      // If the error is ENOENT, the path does not exist, which is acceptable.
+      // If the error is ENOENT, the path does not exist, which is acceptable
+      // (we may want to create the path later), so we don't throw an error.
       if (err.code !== "ENOENT") {
         ctx.issues.push({
           code: "custom",
@@ -33,20 +52,4 @@ const createStatChecker =
       }
     }
   };
-
-export const [isDir, isFile] = (
-  [
-    { kind: "directory", checkFn: (stat) => stat.isDirectory() },
-    { kind: "file", checkFn: (stat) => stat.isFile() },
-  ] as Parameters<typeof createStatChecker>[0][]
-).map(createStatChecker);
-
-export const exists = (ctx: ParsePayload<Path>) => {
-  if (!fs.existsSync(ctx.value)) {
-    ctx.issues.push({
-      code: "custom",
-      input: ctx.value,
-      message: "Path does not exist.",
-    });
-  }
-};
+}

@@ -15,10 +15,9 @@ The main package uses npm's `optionalDependencies` to install the correct platfo
 
 ### Main Package
 
-- Contains a CLI wrapper (`bin.js`) that detects the installed platform-specific sub-package
-- Uses `Promise.any()` to load the first available sub-package. Only fails if none are found.
+- Contains a CLI wrapper (`bin.js`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
 - Executes the native binary with proper environment variables for the data directory
-- Declares all sub-packages as optional dependencies (so a non-matching platform doesn't cause installation failure)
+- Declares all sub-packages as optional dependencies (so all the other non-matching platforms doesn't cause installation failure)
 
 ### Sub-packages
 
@@ -66,7 +65,7 @@ The input directory must contain a `data.json` file with the following structure
 Each tarball entry specifies:
 
 - `fileName` - Path to the tarball (relative to input-dir)
-- `target` - Array of `[os, cpu, libc?]` identifying the platform
+- `target` - Object of `{os, cpu, libc?}` identifying the platform
 
 ### Output
 
