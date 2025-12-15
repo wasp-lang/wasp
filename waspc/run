@@ -260,7 +260,7 @@ case $COMMAND in
     ;;
   libs:bust-cache)
     if [ ! -f "package-lock.json" ]; then
-      echo -e "${RED}Error: package-lock.json not found. This command must be run from a Wasp app directory.${RESET}"
+      echo -e "${RED}Error: package-lock.json not found.${RESET}"
       exit 1
     fi
 
