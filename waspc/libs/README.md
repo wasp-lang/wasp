@@ -30,21 +30,21 @@ when generating the Wasp app.
 ### `npm` cache busting (when developing the libs)
 
 `npm` caches installed packages based on their version, and since we use a fixed version
-for the libs, rebuilding the libs and installing them in a Wasp app again will not bust the cache. 
+for the libs, rebuilding the libs and installing them in a Wasp app again will not bust the cache.
 
-To bust the cache, we have to delete the `node_modules` folder and the `package-lock.json` file.
+To bust the cache, use the `bust-libs-cache` command from the root of your Wasp app:
 
-Run in the root of the Wasp app you are testing after each change to the libs:
 ```bash
-rm -rf node_modules package-lock.json
+<waspc-project-root>/run bust-libs-cache
 ```
 
-WIP: faster command, but messier:
+This command removes all `@wasp.sh/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
+and reinstalls packages. It's faster than deleting the entire `node_modules` directory since it only
+targets Wasp lib packages.
+
+Alternatively, you can manually delete the `node_modules` folder and `package-lock.json` file:
 ```bash
-jq 'del(.packages["node_modules/@wasp.sh/lib-auth"])' package-lock.json > package-lock.json.tmp && \
-mv package-lock.json.tmp package-lock.json && \
-wasp-cli compile && \
-npm install --force
+rm -rf node_modules package-lock.json
 ```
 
 ## Lib Exports Naming Convention

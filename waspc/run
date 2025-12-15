@@ -128,6 +128,9 @@ print_usage() {
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under libs/."
   echo ""
+  print_usage_cmd "bust-libs-cache" \
+    "Busts the npm cache for all @wasp.sh/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
+  echo ""
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
   echo ""
@@ -254,6 +257,37 @@ case $COMMAND in
     ;;
   wasp-cli)
     echo_and_eval "$RUN_CMD"
+    ;;
+  libs:bust-cache)
+    if [ ! -f "package-lock.json" ]; then
+      echo -e "${RED}Error: package-lock.json not found. This command must be run from a Wasp app directory.${RESET}"
+      exit 1
+    fi
+
+    echo -e "${YELLOW}Removing @wasp.sh/lib-* packages from package-lock.json...${RESET}"
+    jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > package-lock.json.tmp
+    if [ $? -ne 0 ]; then
+      echo -e "${RED}Error: jq command failed. Make sure jq is installed.${RESET}"
+      rm -f package-lock.json.tmp
+      exit 1
+    fi
+    mv package-lock.json.tmp package-lock.json
+
+    echo -e "${YELLOW}Running wasp-cli compile...${RESET}"
+    eval "$RUN_CMD compile"
+    if [ $? -ne 0 ]; then
+      echo -e "${RED}Error: wasp-cli compile failed.${RESET}"
+      exit 1
+    fi
+
+    echo -e "${YELLOW}Running npm install --force...${RESET}"
+    npm install --force
+    if [ $? -ne 0 ]; then
+      echo -e "${RED}Error: npm install failed.${RESET}"
+      exit 1
+    fi
+
+    echo -e "${GREEN}Successfully busted cache for all @wasp.sh/lib-* packages!${RESET}"
     ;;
   stan)
     echo_and_eval "$STAN_CMD"
