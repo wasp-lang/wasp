@@ -58,7 +58,7 @@ async function generateFiles() {
 
   for (const version of versionsJson) {
     const isLatest = version === latestVersion;
-    console.log(`Processing version ${version}${isLatest ? " (latest)" : ""}...`);
+    console.log(`Processing version ${version}...`);
 
     const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
     const sidebarItems = await loadVersionedSidebar(version);
