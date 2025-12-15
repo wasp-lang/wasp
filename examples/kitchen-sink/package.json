@@ -30,6 +30,7 @@
     "@types/chai": "^5.2.2",
     "@types/express": "^5.0.0",
     "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@types/uuid": "^9.0.8",
     "@wasp.sh/wasp-app-runner": "^0.0.8",
     "prisma": "5.19.1",
