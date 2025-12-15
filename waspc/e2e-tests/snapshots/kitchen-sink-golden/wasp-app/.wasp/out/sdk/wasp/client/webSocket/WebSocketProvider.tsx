@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, Context } from 'react'
+import { createContext, useState, useEffect, Context, ReactNode } from 'react'
 import { io, Socket } from 'socket.io-client'
 
 import { getSessionId } from 'wasp/client/api'
@@ -47,7 +47,7 @@ export const WebSocketContext: Context<WebSocketContextValue> = createContext<We
 });
 
 // PRIVATE API
-export function WebSocketProvider({ children }: { children: JSX.Element }) {
+export function WebSocketProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(socket.connected)
 
   useEffect(() => {

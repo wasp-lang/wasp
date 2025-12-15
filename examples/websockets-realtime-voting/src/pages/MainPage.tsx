@@ -58,9 +58,13 @@ const MainPage = () => {
                 </div>
                 <div className="absolute bottom-5 right-5">
                   {username && !option.votes.includes(username) ? (
-                    <Button onClick={() => handleVote(option.id)}>Vote</Button>
+                    <Button color="cyan" onClick={() => handleVote(option.id)}>
+                      Vote
+                    </Button>
                   ) : (
-                    <Button disabled>Voted</Button>
+                    <Button color="cyan" disabled>
+                      Voted
+                    </Button>
                   )}
                   {!user}
                 </div>
