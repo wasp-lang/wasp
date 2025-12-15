@@ -15,7 +15,7 @@
     "@playwright/test": "1.51.1",
     "@wasp.sh/wasp-app-runner": "^0.0.7",
     "commander": "^14.0.0",
-    "zx": "^8.8.0"
+    "zx": "^8.8.5"
   },
   "devDependencies": {
     "@types/node": "^24.0.1",
