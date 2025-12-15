@@ -10,8 +10,6 @@
     ],
     "skipLibCheck": true,
     "allowJs": true,
-    "rootDir": ".",
-    "outDir": "dist",
     "composite": true,
 
     /* Strictness and type checking */
@@ -82,7 +80,7 @@
          Types for jest-dom are not recognized automatically and Typescript complains
          about missing types e.g. when using `toBeInTheDocument` and other matchers.
       */
-      "@testing-library/jest-dom"
+      "node"
     ],
     /*
        The `incremental` option enables faster SDK compilation, less Vite HMR
@@ -93,11 +91,7 @@
     */
     "incremental": true,
   },
-  "include": [
-    "."
-  ],
   "exclude": [
     "node_modules",
-    "dist"
   ]
 }
