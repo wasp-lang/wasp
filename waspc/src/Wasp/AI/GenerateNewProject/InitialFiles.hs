@@ -159,7 +159,7 @@ generatePackageJson newProjectDetails =
           "wasp": "file:.wasp/out/sdk/wasp",
           "react": "^19.2.1",
           "react-dom": "^19.2.1",
-          "react-router-dom": "^6.26.2",
+          "react-router-dom": "^7.10.1",
           "tailwindcss": "^3.4.17"
         },
         "devDependencies": {
