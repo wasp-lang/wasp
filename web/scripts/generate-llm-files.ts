@@ -7,22 +7,16 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import docsSidebarConfig from "../sidebars.js";
-import versionsJson from "../versions.json"
+import versionsJson from "../versions.json";
 
 const SITE_ROOT = process.cwd();
 const STATIC_DIR = path.join(SITE_ROOT, "static/");
-const DOCS_DIR = path.join(SITE_ROOT, "docs/");
 const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs/");
 const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars/");
 const BLOG_DIR = path.join(SITE_ROOT, "blog/");
 const GITHUB_RAW_BASE_URL =
   "https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/"; // Use the release branch
 const WASP_BASE_URL = "https://wasp.sh/";
-const LLM_FULL_FILENAME = "llms-full.txt";
-const LLM_OVERVIEW_FILENAME = "llms.txt";
-const LLMS_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_OVERVIEW_FILENAME);
-const LLMS_FULL_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_FULL_FILENAME);
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 
 generateFiles();
@@ -31,61 +25,65 @@ generateFiles();
  * Assembles the overview content for llms.txt from its component sections.
  */
 function buildLlmsTxtContent(
-  version: string,
   overviewDocsSection: string,
   blogSectionContent: string,
 ): string {
-  const introContent = `
-# Wasp
+  const introContent = `# Wasp
 Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.
-
-## Individual documentation sections and guides for version ${version}:
 `;
 
-const miscSectionContent = `
+  const miscSectionContent = `
 ## Miscellaneous
 - [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
-- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
-`;
+- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)`;
+
   return (
-    introContent +
-    overviewDocsSection +
-    blogSectionContent +
-    miscSectionContent
+    introContent + "\n" +
+    overviewDocsSection + "\n" +
+    blogSectionContent + "\n" +
+    miscSectionContent + "\n"
   );
 }
 
 /**
  * Main function to generate the LLM-friendly doc files.
- * It orchestrates the process by fetching and processing documentation and blog files,
- * and then writing the final output to the static directory.
+ * Loops through all versioned docs and generates llms.txt files for each.
+ * The latest version also gets llms-full.txt generated.
  */
 async function generateFiles() {
   console.log("Starting LLM file generation...");
 
-  if (!Array.isArray(docsSidebarConfig.docs)) {
-    throw new Error(
-      "Sidebar configuration for docs is not an array. Please check the sidebars.ts file.",
-    );
-  }
-
-  const { overviewDocsSection, llmsFullTxtContent } =
-    await processDocumentationFiles(docsSidebarConfig.docs);
   const blogSectionContent = await processBlogFiles();
-
   const latestVersion = versionsJson[0];
-  const llmsTxtContent = buildLlmsTxtContent(
-    latestVersion,
-    overviewDocsSection,
-    blogSectionContent,
-  );
 
-  await writeOutputFiles(llmsTxtContent, llmsFullTxtContent);
+  for (const version of versionsJson) {
+    const isLatest = version === latestVersion;
+    console.log(`Processing version ${version}${isLatest ? " (latest)" : ""}...`);
 
-  // Generate versioned LLM files (skip the first/latest version as it's covered by main docs)
-  const olderVersions = versionsJson.slice(1);
-  for (const version of olderVersions) {
-    await generateVersionedLlmsFile(version, blogSectionContent);
+    const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
+    const sidebarItems = await loadVersionedSidebar(version);
+
+    const { overviewDocsSection, llmsFullTxtContent } =
+      await processDocumentationFiles(sidebarItems, docsDir, version, {
+        generateLlmsFullTxt: isLatest,
+      });
+
+    const llmsTxtContent = buildLlmsTxtContent(
+      overviewDocsSection,
+      blogSectionContent,
+    );
+
+    // Latest version outputs to llms.txt, others to llms-{version}.txt
+    const outputFilename = isLatest ? "llms.txt" : `llms-${version}.txt`;
+    const outputPath = path.join(STATIC_DIR, outputFilename);
+    await fs.writeFile(outputPath, llmsTxtContent, "utf8");
+    console.log(`  Generated: ${outputFilename}`);
+
+    if (isLatest) {
+      const fullOutputPath = path.join(STATIC_DIR, "llms-full.txt");
+      await fs.writeFile(fullOutputPath, llmsFullTxtContent.trim(), "utf8");
+      console.log(`  Generated: llms-full.txt`);
+    }
   }
 
   console.log("🎉 LLM files generation completed successfully.");
@@ -98,10 +96,11 @@ async function generateFiles() {
  */
 async function processDocumentationFiles(
   docsSidebarItems: SidebarItemConfig[],
-  docsDir: string = DOCS_DIR,
-  { generateLlmsFullTxt = true } = {},
+  docsDir: string,
+  version: string,
+  { generateLlmsFullTxt = false } = {},
 ): Promise<{ overviewDocsSection: string; llmsFullTxtContent: string }> {
-  let overviewDocsSection = "";
+  let overviewDocsSection = `## Individual documentation sections and guides for version ${version}:\n`;
   let llmsFullTxtContent = "";
 
   const orderedDocIds = flattenSidebarItemsToDocIds(docsSidebarItems);
@@ -443,58 +442,6 @@ function constructBlogUrl(filename: string): string {
   const slug = slugParts.join("-");
   const blogPath = `${WASP_BASE_URL}blog/${year}/${month}/${day}/${slug}`;
   return blogPath.replace(/\\/g, "/");
-}
-
-/**
- * Writes the LLM-friendly content to their respective output files.
- */
-async function writeOutputFiles(
-  llmsTxtContent: string,
-  llmsFullTxtContent: string,
-): Promise<void> {
-  console.log("Writing output files to static/ ...");
-
-  await fs.writeFile(LLMS_TXT_FILE_PATH, llmsTxtContent.trim(), "utf8");
-  console.log(`Generated overview file: ${LLMS_TXT_FILE_PATH}`);
-
-  await fs.writeFile(
-    LLMS_FULL_TXT_FILE_PATH,
-    llmsFullTxtContent.trim(),
-    "utf8",
-  );
-  console.log(`Generated full concatenated file: ${LLMS_FULL_TXT_FILE_PATH}`);
-}
-
-/**
- * Generates an LLM-friendly documentation file for a specific versioned documentation set.
- * Creates an overview file with links to each document in the version, plus blog posts.
- */
-async function generateVersionedLlmsFile(
-  version: string,
-  blogSectionContent: string,
-): Promise<void> {
-  console.log(`Processing versioned docs for version ${version}...`);
-
-  const versionedDocsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
-  const versionedSidebarItems = await loadVersionedSidebar(version);
-
-  const { overviewDocsSection } = await processDocumentationFiles(
-    versionedSidebarItems,
-    versionedDocsDir,
-    { generateLlmsFullTxt: false },
-  );
-
-  const versionedLlmsTxtContent = buildLlmsTxtContent(
-    version,
-    overviewDocsSection,
-    blogSectionContent,
-  );
-
-  const outputFilename = `llms-${version}.txt`;
-  const outputPath = path.join(STATIC_DIR, outputFilename);
-
-  await fs.writeFile(outputPath, versionedLlmsTxtContent.trim(), "utf8");
-  console.log(`Generated versioned llms.txt file: ${outputPath}`);
 }
 
 /**
