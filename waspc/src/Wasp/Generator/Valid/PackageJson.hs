@@ -16,6 +16,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions
   ( expressTypesVersion,
     prismaVersion,
+    reactDomTypesVersion,
     reactDomVersion,
     reactRouterVersion,
     reactTypesVersion,
