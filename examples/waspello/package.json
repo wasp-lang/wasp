@@ -28,6 +28,6 @@
     "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
-    "wasp-config": "file:../../../../.cabal/store/ghc-9.6.7/wspc-0.20.0-3ec5caff/share/packages/wasp-config"
+    "wasp-config": "file:../../../../.cabal/store/ghc-9.6.7/wspc-0.20.0-d8cb4817/share/packages/wasp-config"
   }
 }
