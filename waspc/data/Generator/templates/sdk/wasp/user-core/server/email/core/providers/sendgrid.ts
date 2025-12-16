@@ -1,6 +1,6 @@
 import SendGrid from "@sendgrid/mail";
-import { getDefaultFromField } from "../helpers.js";
-import type { EmailSender, SendGridProvider } from "../types.js";
+import { getDefaultFromField } from "../helpers";
+import type { EmailSender, SendGridProvider } from "../types";
 
 // PRIVATE API
 export function initSendGridEmailSender(
