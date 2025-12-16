@@ -1,16 +1,16 @@
 import { Route } from 'wasp/client'
-import { callOperation, makeOperationRoute } from '../internal/index.js'
+import { callOperation, makeOperationRoute } from '../internal/index'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from '../internal/resources.js'
+} from '../internal/resources'
 import type {
   GenericBackendOperation,
   GenericOperationRpc,
   OperationRpcFor,
   Query,
   QueryMetadata,
-} from '../rpc.js'
+} from '../rpc'
 
 // PRIVATE API (used in the SDK)
 // todo: find ways to remove this duplication and make the type more precise.

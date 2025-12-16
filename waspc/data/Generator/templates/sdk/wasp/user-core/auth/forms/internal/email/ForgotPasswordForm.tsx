@@ -1,8 +1,15 @@
-import { useContext } from 'react'
-import { useForm } from 'react-hook-form'
-import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
-import { AuthContext } from '../../Auth.jsx'
-import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form.jsx'
+import { useContext } from "react";
+import { useForm } from "react-hook-form";
+import { requestPasswordReset } from "../../../email/actions/passwordReset.js";
+import { AuthContext } from "../../Auth";
+import {
+  Form,
+  FormError,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+  SubmitButton,
+} from "../Form";
 
 // PRIVATE API
 export const ForgotPasswordForm = () => {

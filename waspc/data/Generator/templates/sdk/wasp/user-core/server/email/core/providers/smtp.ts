@@ -1,6 +1,6 @@
 import { createTransport } from "nodemailer";
-import { formatFromField, getDefaultFromField } from "../helpers.js";
-import type { EmailSender, SMTPEmailProvider } from "../types.js";
+import { formatFromField, getDefaultFromField } from "../helpers";
+import type { EmailSender, SMTPEmailProvider } from "../types";
 
 // PRIVATE API
 export function initSmtpEmailSender(config: SMTPEmailProvider): EmailSender {
