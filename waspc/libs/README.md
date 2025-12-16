@@ -27,22 +27,6 @@ When the Wasp CLI is shipped, the libs are packaged and shipped with it in the
 `waspc/data/` folder, and the Wasp CLI uses these local copies of the libs
 when generating the Wasp app.
 
-### `npm` cache busting (when developing the libs)
-
-`npm` caches installed packages based on their version, and since we use a fixed version
-for the libs, rebuilding the libs and installing them in a Wasp app again will install
-the updated code. The code will be cached by `npm`.
-
-To bust the cache, use the `libs:bust-cache` command from the root of your Wasp app:
-
-```bash
-./run libs:bust-cache
-```
-
-This command removes all `@wasp.sh/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
-and reinstalls packages. It's faster than deleting the entire `node_modules` directory and removing
-the `package-lock.json` file since it only targets Wasp lib packages.
-
 ## Lib Exports Naming Convention
 
 Libs can be used in different contexts:
@@ -100,6 +84,20 @@ To do that, you need to copy the compiled libs to the `waspc/data/` folder, whic
 packaged with the Wasp CLI.
 Run `./run build:libs` to compile the libs and copy them into `data/`.
 Then you can use `./run wasp-cli` as you normally would.
+
+### `npm` cache busting
+
+`npm` caches the installed packages based on their version. Since we don't change the lib version with each code change, rebuilding the libs and installing them in a Wasp app will install the old cached version.
+
+To bust the cache, use the `libs:bust-cache` command from the root of the Wasp app:
+
+```bash
+./run libs:bust-cache
+```
+
+This command removes all `@wasp.sh/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
+and reinstalls packages. It's faster than deleting the entire `node_modules` directory and removing
+the `package-lock.json` file since it only targets Wasp lib packages.
 
 ## Adding a New Lib
 
