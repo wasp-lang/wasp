@@ -4,7 +4,7 @@ import * as path from "node:path";
 import type { PackageJson } from "type-fest";
 import { TEMPLATES_DIR, copyStaticFiles } from "../common.ts";
 import type { NpmTarget } from "../schema/input-data.ts";
-import { noLibcName } from "../schema/output-data.ts";
+import { UNDEFINED_LIBC_NAME } from "../schema/output-data.ts";
 import type { Path } from "../schema/util.ts";
 
 const TEMPLATE_DIR = path.join(TEMPLATES_DIR, "sub-package");
@@ -71,7 +71,7 @@ function generatePackageJson(
   pkg.bin = {
     // The name doesn't matter (and in fact we don't want users to call it
     // directly), so we'll make it clear.
-    [`__internal_wasp-${target.os}-${target.cpu}-${target.libc ?? noLibcName}`]:
+    [`__internal_wasp-${target.os}-${target.cpu}-${target.libc ?? UNDEFINED_LIBC_NAME}`]:
       "wasp-bin",
   };
 

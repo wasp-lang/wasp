@@ -3,7 +3,10 @@ import * as path from "node:path";
 import type { PackageJson } from "type-fest";
 import { TEMPLATES_DIR, copyStaticFiles } from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
-import { noLibcName, type MainPackageData } from "../schema/output-data.ts";
+import {
+  UNDEFINED_LIBC_NAME,
+  type MainPackageData,
+} from "../schema/output-data.ts";
 
 const TEMPLATE_DIR = path.join(TEMPLATES_DIR, "main-package");
 const TEMPLATE_STATIC_FILES = ["bin.js", "CLIError.js"];
@@ -76,7 +79,7 @@ function writeDataFile(
 
   const pkgPaths = { subPackages: {} } as MainPackageData;
   for (const subPackage of subPackages) {
-    const { os, cpu, libc = noLibcName } = subPackage.data.target;
+    const { os, cpu, libc = UNDEFINED_LIBC_NAME } = subPackage.data.target;
     pkgPaths.subPackages[os] ??= {};
     pkgPaths.subPackages[os][cpu] ??= {};
     pkgPaths.subPackages[os][cpu][libc] = {

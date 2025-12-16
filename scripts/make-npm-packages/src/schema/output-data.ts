@@ -5,13 +5,13 @@ export interface SubPackageInfo {
 // This can be any string representing a lack of a defined libc for the build
 // (e.g. macOS or Windows don't use libc in the same way Linux does).
 // The usual convention is to call it "unknown".
-export const noLibcName = "unknown" as const;
+export const UNDEFINED_LIBC_NAME = "unknown" as const;
 
 export interface MainPackageData {
   subPackages: {
     [os: string]: {
       [arch: string]: {
-        [libc: string | typeof noLibcName]: SubPackageInfo;
+        [libc: string | typeof UNDEFINED_LIBC_NAME]: SubPackageInfo;
       };
     };
   };

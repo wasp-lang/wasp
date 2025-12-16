@@ -1,7 +1,7 @@
 import * as z from "zod";
 import type { CheckFn } from "zod/v4/core";
 import type { NpmTarget } from "./input-data.ts";
-import { noLibcName } from "./output-data.ts";
+import { UNDEFINED_LIBC_NAME } from "./output-data.ts";
 import { isDirPath, pathExists, PathSchema } from "./util.ts";
 
 const PLACEHOLDERS = {
@@ -32,7 +32,7 @@ export const ArgsSchema = z.object({
     .check(checkIncludesPlaceholder(PLACEHOLDERS.libc))
     .transform(
       (s) =>
-        ({ os, cpu, libc = noLibcName }: NpmTarget) =>
+        ({ os, cpu, libc = UNDEFINED_LIBC_NAME }: NpmTarget) =>
           s
             .replace(PLACEHOLDERS.os, os)
             .replace(PLACEHOLDERS.cpu, cpu)

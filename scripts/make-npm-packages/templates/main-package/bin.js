@@ -53,7 +53,7 @@ async function getSubPackage() {
       ? isGlibc()
         ? "glibc"
         : "musl"
-      : /** @satisfies {typeof import("../../src/schema/output-data.ts").noLibcName} */ (
+      : /** @satisfies {typeof import("../../src/schema/output-data.ts").UNDEFINED_LIBC_NAME} */ (
           "unknown"
         );
 
