@@ -44,8 +44,8 @@ STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run 
 
 function run_examples_e2e_tests() {
   local paths=(
-    "examples/tutorials/todoApp"
-    "examples/tutorials/todoAppTs"
+    "examples/tutorials/TodoApp"
+    "examples/tutorials/TodoAppTs"
     "examples/waspello"
     "examples/waspleau"
     "examples/websockets-realtime-voting"
@@ -143,7 +143,7 @@ print_usage() {
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \
-    "Executes only cli tests. Builds the project first if needed."
+    "Executes only waspls tests. Builds the project first if needed."
   print_usage_cmd "test:kitchen-sink" \
     "Executes only kitchen-sink e2e tests. Installs deps first if needed."
   print_usage_cmd "test:examples" \

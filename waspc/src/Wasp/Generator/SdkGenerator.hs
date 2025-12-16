@@ -250,7 +250,7 @@ depsRequiredForTesting =
     [ ("vitest", "^1.2.1"),
       ("@vitest/ui", "^1.2.1"),
       ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^14.1.2"),
+      ("@testing-library/react", "^16.3.0"),
       ("@testing-library/jest-dom", "^6.3.0"),
       ("msw", "^1.1.0")
     ]
