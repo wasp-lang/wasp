@@ -24,8 +24,6 @@ runs:
         )
       shell: sh
       run: |
-        # Using the ::error:: prefix lets GitHub handle it as a special string, and shows up as a red error in the logs.
-        # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-error-message
         echo '::error::Invalid build name provided: ${{ inputs.build-name }}.'
         exit 1
 

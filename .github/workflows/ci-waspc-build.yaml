@@ -175,26 +175,21 @@ jobs:
 
       - name: Unpack, create universal binary and pack
         run: |
-          set -ex # Fail on error and print each command
+          set -eux # Fail on error and print each command
 
-          input_files=(
-            "$X86_64_TARBALL_NAME"
-            "$AARCH64_TARBALL_NAME"
-          )
+          mkdir x86_64 aarch64 universal
 
-          # Extract each architecture
-          i=0;
-          for file in "${input_files[@]}"; do
-            mkdir "arch-$i"
-            tar -xzf "$file" -C "arch-$i"
-            i=$((i + 1))
-          done
+          # Unpack both architectures
+          tar -xzf "$X86_64_TARBALL_NAME" -C x86_64
+          tar -xzf "$AARCH64_TARBALL_NAME" -C aarch64
 
-          mkdir universal
           # Create the universal binary
-          lipo -create arch-*/wasp-bin -output universal/wasp-bin
+          lipo \
+            -create "x86_64/wasp-bin" "aarch64/wasp-bin" \
+            -output "universal/wasp-bin"
+
           # Copy the data folder too (we take the first one, should be identical in both)
-          cp -R "arch-0/data" universal/
+          cp -R "x86_64/data/" "universal/"
 
           # Pack back up
           tar -czf ${{ steps.compute-artifact-names.outputs.tarball-name }} -C universal .
