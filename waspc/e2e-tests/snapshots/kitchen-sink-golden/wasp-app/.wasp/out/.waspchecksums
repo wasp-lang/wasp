@@ -571,7 +571,7 @@
             "file",
             "../out/sdk/wasp/client/webSocket/WebSocketProvider.tsx"
         ],
-        "29d6bcfe68344e9e0ac73009ff1173189255bedb97ebeaad4f2e894a6a28c6d5"
+        "1898aea06682511a9cb126258664d28763632105acbbbe976de58dd4e010d2fc"
     ],
     [
         [
@@ -648,7 +648,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "443cd6ec73eec6cc97f5a2a2911b4cb0fd1bca97f2eac818906a421c4f854720"
+        "076cd765427d85fbe0d037c5bc7315f2dfca6ecbff15c02bc6008e2c5f0cf9e1"
     ],
     [
         [
@@ -1507,9 +1507,9 @@
     [
         [
             "file",
-            "libs/wasp.sh-lib-auth-0.19.2.tgz"
+            "libs/wasp.sh-lib-auth-0.20.0.tgz"
         ],
-        "a5ac2246a5a864191eaae9aef03103e58dea5647f266cad562794d84484fadb5"
+        "301f9d45c3a6ab46e338d9abc024c85f2b33fefa5feeceefaff3d25b712ef3ea"
     ],
     [
         [
@@ -1544,7 +1544,7 @@
             "file",
             "server/package.json"
         ],
-        "6101ca71741de7bce651a664cfb8100d8d17968bf0c39a350f995b4ece63ec83"
+        "0520482e168f3108b13b045ac6bdd5587373939a67413fd92f3e7c9469301e94"
     ],
     [
         [
@@ -2300,7 +2300,7 @@
             "file",
             "web-app/package.json"
         ],
-        "81e196ff68faea1ad0202d41c73d99da66caa3c2d5cdac610cc3afa7bcdf4002"
+        "b629fd6f73427a18bd1a3ea6bf7d5b4bba253baf976b34209eb7257a68ffe201"
     ],
     [
         [
@@ -2426,7 +2426,7 @@
             "file",
             "web-app/tailwind.config.js"
         ],
-        "e7072b73c58e47375dc6e43aee81c14f35dbfbca80d7608c1e913274427a39f5"
+        "f2c171d1af2ff63c41d1a9f6368b8132c11d8c4952ef05da38e6367c381d6880"
     ],
     [
         [
