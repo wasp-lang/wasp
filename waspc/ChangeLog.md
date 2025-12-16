@@ -24,7 +24,7 @@
 
 ### 🔧 Small improvements
 
-- `wasp build start` now errors when users forget to specify environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
+- `wasp build start` now shows an error if you forget to specify any environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
 
 ## 0.19.0
 
