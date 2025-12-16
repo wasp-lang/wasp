@@ -24,7 +24,7 @@ withArguments cmdName parser onSuccess args =
 
 getParserHelpMessage :: Opt.Parser a -> String
 getParserHelpMessage =
-  Opt.Help.renderHelp (Opt.prefColumns parserPreferences) . parserHelp Opt.defaultPrefs
+  Opt.Help.renderHelp (Opt.prefColumns parserPreferences) . parserHelp parserPreferences
 
 data ArgsParseResult args
   = ArgsParsed args
