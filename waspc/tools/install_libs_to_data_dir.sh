@@ -17,8 +17,8 @@ mkdir -p "$data_libs_dir"
 for lib_dir in "$waspc_dir"/libs/*; do
   if [[ -d "$lib_dir" ]]; then
     cd "$lib_dir"
-    lib_name=$(jq -r '.name' package.json)
-    lib_version=$(jq -r '.version' package.json)
+    lib_name=$(grep '"name"' package.json | cut -d'"' -f4)
+    lib_version=$(grep '"version"' package.json | cut -d'"' -f4)
     echo "Installing $lib_name lib ($lib_dir)"
 
     if [[ "$lib_version" != "$waspc_version" ]]; then
