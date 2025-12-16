@@ -1,0 +1,43 @@
+name: Compute artifact names
+description: Central place for computing the artifact names in the CI builds.
+
+inputs:
+  build-name:
+    description: The build name (e.g., linux-x86_64, macos-aarch64, etc.)
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Check valid build name
+      if: >
+        ! contains(
+          fromJson('[
+            "linux-x86_64",
+            "linux-x86_64-static",
+            "macos-x86_64",
+            "macos-aarch64",
+            "macos-universal"
+          ]'),
+          inputs.build-name
+        )
+      shell: sh
+      run: |
+        echo '::error::Invalid build name provided: ${{ inputs.build-name }}.'
+        exit 1
+
+    - name: Set artifact names
+      id: set-artifact-names
+      shell: sh
+      run: |
+        echo "artifact-name=wasp-cli-${{ inputs.build-name }}" >> $GITHUB_OUTPUT
+        echo "tarball-name=wasp-${{ inputs.build-name }}.tar.gz" >> $GITHUB_OUTPUT
+
+outputs:
+  artifact-name:
+    value: ${{ steps.set-artifact-names.outputs.artifact-name }}
+    description: "The name of the artifact attached to the CI build."
+  tarball-name:
+    value: ${{ steps.set-artifact-names.outputs.tarball-name }}
+    description: "The name of the tarball inside the artifact."
