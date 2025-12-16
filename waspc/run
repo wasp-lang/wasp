@@ -46,8 +46,8 @@ STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run 
 
 function run_examples_e2e_tests() {
   local paths=(
-    "examples/tutorials/todoApp"
-    "examples/tutorials/todoAppTs"
+    "examples/tutorials/TodoApp"
+    "examples/tutorials/TodoAppTs"
     "examples/waspello"
     "examples/waspleau"
     "examples/websockets-realtime-voting"
