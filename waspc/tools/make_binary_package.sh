@@ -18,20 +18,21 @@ CABAL_PROJECT_ROOT_PATH="$(cabal list-bin wasp-cli | sed s/\\/dist-newstyle.*//)
 WASP_BINARY_PATH="$(cabal list-bin wasp-cli)"
 cp "$WASP_BINARY_PATH" "$TMP_DIR/wasp-bin"
 
-# This pipeline of three commands copies the data files declared in the Cabal
-# file into the tmp dir to be packaged.
-#
-# 1. List all the files considered by Cabal to be part of the source (including
-# the declared data files).
-# 2. Filter to get only the files in the "data" dir.
-# 3. Copy the files in that list from the project root to the tmp dir to be
-# packaged.
-#
-# We use rsync to recreate the directory structure properly, plus it has a nice
-# `--files-from=-` option to read from stdin the list of files to be copied.
-cabal sdist --list-only \
-  | grep "^\./data/" \
-  | rsync -av --files-from=- "$CABAL_PROJECT_ROOT_PATH" "$TMP_DIR"
+CABAL_DATA_FILE_PATHS=$(
+  # List all the files considered by Cabal to be part of the source (including
+  # the declared data files).
+  cabal sdist --list-only \
+    | grep "^\./data/" # And now filter to only get the files in the "data" dir.
+)
+for data_file_path in $CABAL_DATA_FILE_PATHS; do
+  source_path="$CABAL_PROJECT_ROOT_PATH/$data_file_path"
+  dest_path="$TMP_DIR/$data_file_path"
+
+  # Make sure the parent directories in the output exist.
+  mkdir -p "$(dirname "$dest_path")"
+
+  cp "$source_path" "$dest_path"
+done
 
 tar -czf "$DST" -C "$TMP_DIR" .
 
