@@ -2,7 +2,17 @@ import { Outlet } from "react-router-dom";
 import { logout, useAuth } from "wasp/client/auth";
 import "./Main.css";
 
-import { Avatar, Dropdown, Flowbite, Navbar } from "flowbite-react";
+import {
+  Avatar,
+  Dropdown,
+  DropdownDivider,
+  DropdownHeader,
+  DropdownItem,
+  Navbar,
+  NavbarBrand,
+  NavbarToggle,
+  ThemeProvider,
+} from "flowbite-react";
 import Logo from "./logo.png";
 
 const customTheme = {
@@ -17,15 +27,15 @@ export const Layout = () => {
   const { data: user } = useAuth();
 
   return (
-    <Flowbite theme={{ theme: customTheme }}>
+    <ThemeProvider theme={customTheme}>
       <div className="p-8">
         <Navbar fluid rounded>
-          <Navbar.Brand className="cursor-pointer">
+          <NavbarBrand className="cursor-pointer">
             <img alt="Fox Logo" className="mr-3 h-6 sm:h-9" src={Logo} />
             <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
               Undecisive Fox App
             </span>
-          </Navbar.Brand>
+          </NavbarBrand>
           {user && (
             <div className="user-dropdown flex md:order-2">
               <Dropdown
@@ -38,18 +48,18 @@ export const Layout = () => {
                   />
                 }
               >
-                <Dropdown.Header>
+                <DropdownHeader>
                   <span className="block text-sm">
                     {user.getFirstProviderUserId()}
                   </span>
-                </Dropdown.Header>
-                <Dropdown.Item>Dashboard</Dropdown.Item>
-                <Dropdown.Item>Settings</Dropdown.Item>
-                <Dropdown.Item>Earnings</Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item onClick={logout}>Sign out</Dropdown.Item>
+                </DropdownHeader>
+                <DropdownItem>Dashboard</DropdownItem>
+                <DropdownItem>Settings</DropdownItem>
+                <DropdownItem>Earnings</DropdownItem>
+                <DropdownDivider />
+                <DropdownItem onClick={logout}>Sign out</DropdownItem>
               </Dropdown>
-              <Navbar.Toggle />
+              <NavbarToggle />
             </div>
           )}
           {/* <Navbar.Collapse>
@@ -66,6 +76,6 @@ export const Layout = () => {
           <Outlet />
         </div>
       </div>
-    </Flowbite>
+    </ThemeProvider>
   );
 };
