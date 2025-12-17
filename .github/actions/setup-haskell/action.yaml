@@ -34,17 +34,29 @@ runs:
   using: composite
 
   steps:
+    - run: pwd
+      shell: bash
+
+    - run: df -h
+      shell: bash
+
     - uses: haskell-actions/setup@v2
       id: setup-haskell
       with:
         ghc-version: ${{ inputs.ghc-version }}
         cabal-version: ${{ inputs.cabal-version }}
 
+    - run: df -h
+      shell: bash
+
     - name: Verify Haskell setup
       shell: bash
       run: |
         ghc --version
         cabal --version
+
+    - run: df -h
+      shell: bash
 
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v4.2.3/examples.md#haskell---cabal
@@ -73,3 +85,6 @@ runs:
           cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key-segment }}-${{ inputs.ghc-version }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
         restore-keys: |
           cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.extra-cache-key-segment }}-${{ inputs.ghc-version }}-
+
+    - run: df -h
+      shell: bash
