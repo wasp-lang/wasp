@@ -32,6 +32,7 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           name: wasp-npm-packages
+          path: packages/
 
       - name: Install dependencies
         if: matrix.runner.install-deps
@@ -73,7 +74,7 @@ jobs:
           npm config set registry "$TEST_REGISTRY_URL"
 
           # Publish all packages to the test registry
-          for pkg_dir in ./wasp*/; do
+          for pkg_dir in ./packages/*; do
             npm publish "$pkg_dir"
           done
 
