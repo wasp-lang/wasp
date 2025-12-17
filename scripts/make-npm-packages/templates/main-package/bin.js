@@ -120,7 +120,7 @@ function isGlibc() {
     const report = /** @type {any} */ (processReport.getReport()).header;
     debug("Process report header: %j", report);
     const hasGlibc = Boolean(report.glibcVersionRuntime);
-    debug("Has glibc: %s");
+    debug("Has glibc: %s", hasGlibc);
     return hasGlibc;
   } catch {
     debug("Failed to get process report, assuming not glibc.");
