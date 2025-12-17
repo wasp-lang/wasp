@@ -14,6 +14,7 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           name: wasp-npm-packages
+          path: packages/
 
       - name: Publish Wasp npm packages
-        run: npx pkg-pr-new publish --bin ./wasp*/
+        run: npx pkg-pr-new publish --bin ./packages/*
