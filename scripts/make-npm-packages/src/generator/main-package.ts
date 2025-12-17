@@ -9,7 +9,7 @@ import {
 } from "../schema/output-data.ts";
 
 const TEMPLATE_DIR = path.join(TEMPLATES_DIR, "main-package");
-const TEMPLATE_STATIC_FILES = ["bin.js", "CLIError.js"];
+const TEMPLATE_STATIC_FILES = ["bin.js", "CLIError.js", "readme.md"];
 
 const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
 

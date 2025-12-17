@@ -8,7 +8,7 @@ import { UNDEFINED_LIBC_NAME } from "../schema/output-data.ts";
 import type { Path } from "../schema/util.ts";
 
 const TEMPLATE_DIR = path.join(TEMPLATES_DIR, "sub-package");
-const TEMPLATE_STATIC_FILES = ["main.js"];
+const TEMPLATE_STATIC_FILES = ["main.js", "readme.md"];
 
 export const makeSubPackage = ({
   packageName,
