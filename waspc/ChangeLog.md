@@ -30,6 +30,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Fixed logic for getting Railway service domains in `wasp deploy railway` with Railway CLI 4.11.2 and greater. ([#3454](https://github.com/wasp-lang/wasp/pull/3454))
 
+### 🔧 Small improvements
+
+- `wasp build start` now shows an error if you forget to specify any environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
+
 ## 0.19.0
 
 ### ⚠️ Breaking Changes

@@ -147,7 +147,7 @@ print_usage() {
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \
-    "Executes only cli tests. Builds the project first if needed."
+    "Executes only waspls tests. Builds the project first if needed."
   print_usage_cmd "test:kitchen-sink" \
     "Executes only kitchen-sink e2e tests. Installs deps first if needed."
   print_usage_cmd "test:examples" \

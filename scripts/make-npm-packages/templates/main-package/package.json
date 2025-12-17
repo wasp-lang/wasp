@@ -1,0 +1,23 @@
+{
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "bin": {
+    "wasp": "bin.js"
+  }
+}
