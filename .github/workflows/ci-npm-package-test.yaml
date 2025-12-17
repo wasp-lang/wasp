@@ -1,0 +1,85 @@
+name: "Test - Wasp npm packages"
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - # Regular Linux with Glibc
+            os: ubuntu-latest
+
+          - # Linux with Musl
+            os: ubuntu-latest
+            container: node:22-alpine
+            install-deps: apk add curl
+
+          - # Apple Silicon
+            os: macos-latest
+
+          - # Apple Intel
+            os: macos-15-intel
+
+    name: "${{ matrix.runner.container || matrix.runner.os }}"
+
+    runs-on: ${{ matrix.runner.os }}
+    container: ${{ matrix.runner.container }}
+
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: wasp-npm-packages
+          path: packages/
+
+      - name: Install dependencies
+        if: matrix.runner.install-deps
+        run: ${{ matrix.runner.install-deps }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Publish and run Wasp npm packages
+        env:
+          TEST_REGISTRY_URL: http://localhost:4873
+          TEST_REGISTRY_CONFIG: |
+            storage: "$HOME/.verdaccio/storage"
+            log: { type: stdout, format: pretty, level: info }
+            max_body_size: 1000mb # Needed because Wasp packages are large
+            packages: { '**': { access: $all, publish: $all } }
+        run: |
+          set -eux
+
+          # Install global packages
+          npm install -g npm-cli-login@1 verdaccio@6
+
+          # Create registry config
+          mkdir -p "$HOME/.config/verdaccio"
+          echo "$TEST_REGISTRY_CONFIG" > "$HOME/.config/verdaccio/config.yaml"
+
+          # Start local registry
+          verdaccio &
+
+          # Wait for registry to be ready
+          until curl -sSf "$TEST_REGISTRY_URL/-/ping" >/dev/null; do
+            sleep 1
+          done
+
+          # Set registry and login
+          npm-cli-login -u fake-user -p fake-password -e fake@email.com -r "$TEST_REGISTRY_URL"
+          npm config set registry "$TEST_REGISTRY_URL"
+
+          # Publish all packages to the test registry
+          for pkg_dir in ./packages/*; do
+            npm publish "$pkg_dir"
+          done
+
+          # Test installing and using the Wasp CLI from the test registry
+          # We'll enable debug logging in the wrapper to see if it can find and run the Wasp binary.
+          NODE_DEBUG=wasp-bin-wrapper npx -y @wasp.sh/wasp-cli version
+
+          exit 0 # Done, do not wait for registry to exit
