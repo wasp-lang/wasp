@@ -47,7 +47,8 @@ export async function startAppInBuildMode({
   // Start both client and server (client needs to be running before the server
   // because `playwright` tests start executing as soon as the server is up)
   startClientApp({ pathToApp }).catch((error) => {
-    logger.error(`Failed to start client app with exit code: ${error.exitCode ?? 'unknown'}`);
+    const exitCode = error?.exitCode ?? 'unknown';
+    logger.error(`Failed to start client app with exit code: ${exitCode}`);
     process.exit(1);
   });
 
@@ -59,5 +60,6 @@ export async function startAppInBuildMode({
 
   // Keep the process alive indefinitely while child processes are running.
   // The ChildProcessManager will handle cleanup on SIGINT/SIGTERM.
-  await new Promise(() => {});
+  // This promise never resolves, which is intentional.
+  await new Promise<never>(() => {});
 }

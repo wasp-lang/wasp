@@ -134,7 +134,8 @@ function runServerAppContainer({
       imageName,
     ],
   }).catch((error) => {
-    logger.error(`Failed to start server app container: ${containerName} with exit code: ${error.exitCode ?? 'unknown'}`);
+    const exitCode = error?.exitCode ?? 'unknown';
+    logger.error(`Failed to start server app container: ${containerName} with exit code: ${exitCode}`);
     process.exit(1);
   });
 }
