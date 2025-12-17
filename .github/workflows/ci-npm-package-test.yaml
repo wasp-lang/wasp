@@ -16,10 +16,6 @@ jobs:
             os: ubuntu-latest
             container: node:22-alpine
             install-deps: apk add curl
-            skip-node-install:
-              # actions/setup-node is not supported in Alpine containers:
-              # https://github.com/actions/setup-node/issues/1293#issuecomment-2885489369
-              true
 
           - # Apple Silicon
             os: macos-latest
@@ -42,7 +38,6 @@ jobs:
         run: ${{ matrix.runner.install-deps }}
 
       - name: Setup Node.js
-        if: ! matrix.runner.skip-node-install
         uses: actions/setup-node@v6
         with:
           node-version: "22"
