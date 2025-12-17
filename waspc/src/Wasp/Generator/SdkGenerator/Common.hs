@@ -56,6 +56,9 @@ sdkRootDirInProjectRootDir =
     </> basename generatedCodeDirInDotWaspDir
     </> sdkRootDirInGeneratedCodeDir
 
+realSdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
+realSdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
+
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp/user-core|]
 
