@@ -8,7 +8,7 @@ data GithubRepoRef = GithubRepoRef
   { _repoOwner :: GithubRepoOwner,
     _repoName :: GithubRepoName,
     -- Which point in repo history to download (a branch or commit hash).
-    _repoReferenceName :: GithubRepoReferenceName
+    _repoTagName :: GithubRepoReferenceName
   }
   deriving (Show, Eq)
 
@@ -36,7 +36,7 @@ fetchFolderFromGithubReleaseArchiveToDisk githubRepoRef assetName folderInArchiv
       GithubRepoRef
         { _repoName = repoName,
           _repoOwner = repoOwner,
-          _repoReferenceName = repoReferenceName
+          _repoTagName = repoTagName
         }
       assetName' =
-        intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoReferenceName, assetName']
+        intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoTagName, assetName']
