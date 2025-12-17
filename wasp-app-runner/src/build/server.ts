@@ -43,6 +43,47 @@ export async function buildAndRunServerApp({
   });
 }
 
+export async function buildServerApp({
+  appName,
+  pathToApp,
+}: {
+  appName: AppName;
+  pathToApp: PathToApp;
+}): Promise<void> {
+  const { imageName } = createAppSpecificServerBuildDockerNames({
+    appName,
+    pathToApp,
+  });
+
+  await buildServerAppContainer({
+    pathToApp,
+    imageName,
+  });
+}
+
+export function startServerApp({
+  appName,
+  pathToApp,
+  extraEnv,
+}: {
+  appName: AppName;
+  pathToApp: PathToApp;
+  extraEnv: EnvVars;
+}): void {
+  const { imageName, containerName } = createAppSpecificServerBuildDockerNames({
+    appName,
+    pathToApp,
+  });
+
+  // This starts a long running process, so we don't await it.
+  runServerAppContainer({
+    pathToApp,
+    imageName,
+    containerName,
+    extraEnv,
+  });
+}
+
 async function buildServerAppContainer({
   pathToApp,
   imageName,
@@ -64,7 +105,7 @@ async function buildServerAppContainer({
   }
 }
 
-async function runServerAppContainer({
+function runServerAppContainer({
   pathToApp,
   imageName,
   containerName,
@@ -74,9 +115,9 @@ async function runServerAppContainer({
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
   extraEnv: EnvVars;
-}): Promise<void> {
+}): void {
   const logger = createLogger("server-start-app");
-  const { exitCode } = await spawnWithLog({
+  spawnWithLog({
     name: "server-start-app",
     cmd: "docker",
     args: [
@@ -92,12 +133,12 @@ async function runServerAppContainer({
       containerName,
       imageName,
     ],
+  }).then(({ exitCode }) => {
+    if (exitCode !== 0) {
+      logger.error(`Failed to start server app container: ${containerName}`);
+      process.exit(1);
+    }
   });
-
-  if (exitCode !== 0) {
-    logger.error(`Failed to start server app container: ${containerName}`);
-    process.exit(1);
-  }
 }
 
 function getDockerEnvVarsArgs({
