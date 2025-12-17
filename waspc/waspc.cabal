@@ -546,6 +546,7 @@ library cli-lib
     , cryptonite
     , fsnotify
     , http-conduit
+    , http-types
     , optparse-applicative ^>=0.18.1
     , path
     , path-io
@@ -620,6 +621,7 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.GithubRepo
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.Http
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.Parser
 
