@@ -19,6 +19,12 @@ runs:
   using: composite
 
   steps:
+    - name: Compute artifact names
+      uses: ./.github/actions/compute-artifact-names
+      id: compute-artifact-names
+      with:
+        build-name: ${{ runner.os == 'Linux' && 'linux' || 'macos' }}-${{ runner.arch == 'ARM64' && 'aarch64' || 'x86_64' }}
+
     - name: Get latest successful run ID
       id: get_run_id
       shell: bash
@@ -61,7 +67,9 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
         RUN_ID: ${{ steps.get_run_id.outputs.run_id }}
         OUTPUT_DIR: ${{ inputs.output-dir }}
-        ARTIFACT_NAME:
-          # This is the name of the artifact (not the file), which must be in sync with:
-          # /.github/workflows/ci-waspc-build.yaml
-          "wasp-cli-${{ runner.os == 'Linux' && 'linux' || 'macos' }}-${{ runner.arch == 'ARM64' && 'aarch64' || 'x86_64' }}"
+        ARTIFACT_NAME: ${{ steps.compute-artifact-names.outputs.artifact-name }}
+
+outputs:
+  artifact-path:
+    description: "The path to the downloaded artifact directory."
+    value: ${{ inputs.output-dir }}/${{ steps.compute-artifact-names.outputs.artifact-name }}
