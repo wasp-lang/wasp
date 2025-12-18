@@ -8,6 +8,14 @@ on:
         required: true
         type: string
 
+      override-npm-package-version:
+        description: >
+          If set, overrides the version of npm packages to publish.
+          Useful for publishing an RC version.
+          Leading 'v' will be stripped if present.
+        required: false
+        type: string
+
 env:
   WASP_TELEMETRY_DISABLE: 1
 
@@ -43,7 +51,9 @@ jobs:
             # We'll wrangle the data from the build jobs into that schema here.
             |
             {
-              version: .waspc_version,
+              version:
+                ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || '.waspc_version' }}
+                | ltrimstr("v"),
               tarballs:
                 with_entries(select(.key | startswith("output_")))
                 | map(

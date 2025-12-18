@@ -5,9 +5,21 @@ on:
     branches:
       - main
       - release
+
   pull_request:
+
   workflow_call:
+    inputs: &inputs
+      override-npm-package-version:
+        description: >
+          If set, overrides the version of npm packages to publish.
+          Useful for publishing an RC version.
+          Leading 'v' will be stripped if present.
+        required: false
+        type: string
+
   workflow_dispatch:
+    inputs: *inputs # Reuse the inputs above
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -44,6 +56,7 @@ jobs:
     secrets: inherit
     with:
       build-outputs: ${{ toJson(needs.waspc-build.outputs) }}
+      override-npm-package-version: ${{ inputs.override-npm-package-version }}
 
   npm-package-test:
     needs: npm-package-build
