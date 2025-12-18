@@ -7,6 +7,8 @@ $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $wascpDir = Resolve-Path "$dir/.."
 $dataLibsDir = Join-Path $wascpDir "data/Generator/libs"
 
+$waspVersion = & "$wascpDir/run.ps1" get-waspc-version
+
 # Clean up old libs.
 if (Test-Path $dataLibsDir) {
     Remove-Item -Path $dataLibsDir -Recurse -Force
@@ -17,12 +19,22 @@ $libDirs = Get-ChildItem -Path "$wascpDir/libs" -Directory
 
 foreach ($lib in $libDirs) {
     $libDir = $lib.FullName
-    $libName = $lib.Name
-
-    Write-Host "Installing $libName lib ($libDir)"
+    $packageJsonPath = Join-Path $libDir "package.json"
 
     Push-Location $libDir
     try {
+        $packageJson = Get-Content $packageJsonPath | ConvertFrom-Json
+        $libName = $packageJson.name
+        $libVersion = $packageJson.version
+
+        Write-Host "Installing $libName lib ($libDir)"
+
+        if ($libVersion -ne $waspVersion) {
+            Write-Error "ERROR: $libName lib version ($libVersion) != current Wasp version ($waspVersion)."
+            Write-Error "       Update the lib version in package.json to $waspVersion."
+            exit 1
+        }
+
         npm install
         # Clean up old lib tarballs.
         Remove-Item -Path "./*.tgz" -Force -ErrorAction SilentlyContinue

@@ -9,7 +9,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List.NonEmpty (NonEmpty)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Text (Text)
 import StrongPath (File, File', Path', Rel, relfile)
 import qualified StrongPath as SP
@@ -61,10 +61,10 @@ genDockerignore _ =
 -- | Helper to return what the Dockerfile content will be based on the AppSpec.
 compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Text)
 compileAndRenderDockerfile spec = do
-  -- We make a generator config with no WaspLibs because they are not needed
+  -- We make a generator config with no libs source dir because it's not needed
   -- for Dockerfile generation.
-  let waspLibs = []
-  let config = makeGeneratorConfig waspLibs
+  let mockLibsSourceDir = fromJust $ SP.parseAbsDir "/"
+  let config = makeGeneratorConfig mockLibsSourceDir
 
   let (_, generatorResult) = runGenerator config $ genDockerfile spec
   case generatorResult of

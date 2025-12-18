@@ -10,7 +10,7 @@ module Wasp.Generator.Monad
     logGeneratorWarning,
     runGenerator,
     makeGeneratorConfig,
-    getWaspLibs,
+    getLibsSourceDir,
   )
 where
 
@@ -21,10 +21,11 @@ import Control.Monad.RWS.Lazy
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Control.Monad.State (State, runStateT)
 import Data.List.NonEmpty (NonEmpty, fromList)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import StrongPath (Abs, Dir, Path')
+import Wasp.Generator.WaspLibs.Common (LibsSourceDir)
 
 data GeneratorConfig = GeneratorConfig
-  { gcWaspLibs :: [WaspLib.WaspLib]
+  { libsSourceDir :: Path' Abs (Dir LibsSourceDir)
   }
 
 -- | Generator is a monad transformer stack where we abstract away the underlying
@@ -100,8 +101,8 @@ logAndThrowGeneratorError e = logGeneratorError >> throwError e
 catchGeneratorError :: Generator a -> (GeneratorError -> Generator a) -> Generator a
 catchGeneratorError = MonadExcept.catchError
 
-makeGeneratorConfig :: [WaspLib.WaspLib] -> GeneratorConfig
-makeGeneratorConfig waspLibs = GeneratorConfig {gcWaspLibs = waspLibs}
+makeGeneratorConfig :: Path' Abs (Dir LibsSourceDir) -> GeneratorConfig
+makeGeneratorConfig = GeneratorConfig
 
-getWaspLibs :: Generator [WaspLib.WaspLib]
-getWaspLibs = gcWaspLibs <$> ask
+getLibsSourceDir :: Generator (Path' Abs (Dir LibsSourceDir))
+getLibsSourceDir = libsSourceDir <$> ask

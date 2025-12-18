@@ -22,8 +22,8 @@ data LibsSourceDir
 --
 -- LibsRootDir has a flat structure with tarball files at the top level:
 --   libs/
---   ├── wasp.sh-lib-auth-<checksum>.tgz
---   └── wasp.sh-lib-other-<checksum>.tgz
+--   ├── wasp.sh-lib-auth-<wasp-version>.tgz
+--   └── wasp.sh-lib-other-<wasp-version>.tgz
 data LibsRootDir
 
 -- We are following the locaton of the SDK because of the

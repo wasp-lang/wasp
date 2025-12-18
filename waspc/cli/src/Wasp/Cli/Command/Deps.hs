@@ -13,8 +13,6 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
@@ -29,12 +27,11 @@ deps = do
       (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
       return
       appSpecOrAnalyzerErrors
-  waspLibs <- liftIO WaspLibs.AvailableLibs.makeWaspLibs
 
-  liftIO $ putStrLn $ depsMessage appSpec waspLibs
+  liftIO $ putStrLn $ depsMessage appSpec
 
-depsMessage :: AppSpec -> [WaspLib.WaspLib] -> String
-depsMessage appSpec waspLibs =
+depsMessage :: AppSpec -> String
+depsMessage appSpec =
   unlines $
     [ "",
       title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
@@ -42,12 +39,12 @@ depsMessage appSpec waspLibs =
     ]
       ++ printDeps
         "Server dependencies:"
-        ( N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec waspLibs
+        ( N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
         )
       ++ [""]
       ++ printDeps
         "Server devDependencies:"
-        ( N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec waspLibs
+        ( N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
         )
       ++ [""]
       ++ printDeps
