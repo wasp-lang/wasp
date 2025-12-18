@@ -9,7 +9,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now uses **React 19**! ([#3489](https://github.com/wasp-lang/wasp/pull/3489))
   - Check the following upgrade guide to see how to update your code: https://react.dev/blog/2024/04/25/react-19-upgrade-guide.
   - For Wasp-related updates, check the migration guide above.
-  
+
 ### 🎉 New Features
 
 - You can now use the `--force` flag with `wasp db reset` to run the database reset non-interactively ([#3480](https://github.com/wasp-lang/wasp/pull/3480))
