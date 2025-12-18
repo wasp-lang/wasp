@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.Cli.Command.News
   ( news,
@@ -7,20 +9,20 @@ module Wasp.Cli.Command.News
   )
 where
 
+import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (FromJSON (parseJSON), decode, genericParseJSON)
+import Data.Aeson (FromJSON, decode)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Functor ((<&>))
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust, isJust)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Data.Time (UTCTime, defaultTimeLocale, formatTime)
 import qualified Data.Time as T
 import GHC.Generics
-import GHC.IO (unsafePerformIO)
 import Network.HTTP.Simple (getResponseBody, httpBS, parseRequest)
 import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
 import qualified System.Directory as SD
@@ -58,77 +60,61 @@ news = liftIO $ do
   currentTime <- T.getCurrentTime
   saveLocalNewsInfo $
     info
-      { _lastFetched = Just currentTime,
-        _seenNewsIds =
-          _seenNewsIds info
-            `Set.union` Set.fromList (_wneId <$> newsEntries)
+      { lastFetched = Just currentTime,
+        seenNewsIds =
+          seenNewsIds info
+            `Set.union` Set.fromList ((.id) <$> newsEntries)
       }
 
 ifNewsStaleUpdateAndShowUnseen :: IO ()
 ifNewsStaleUpdateAndShowUnseen = do
-  localNewsInfo <- obtainLocalNewsInfo
-  whenM (areNewsStale localNewsInfo) $ do
-    unseenNews <- filter (not . wasNewsEntrySeen localNewsInfo) <$> fetchNews
-    printNews unseenNews
-    currentTime <- T.getCurrentTime
-    saveLocalNewsInfo $ localNewsInfo {_lastFetched = Just currentTime}
-
-{-# NOINLINE waspNewsServerUrl #-}
-waspNewsServerUrl :: String
-waspNewsServerUrl =
-  fromMaybe "https://news.wasp.sh" $ unsafePerformIO $ lookupEnv "WASP_NEWS_SERVER_URL"
+  isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_NEWS_DISABLE"
+  unless isWaspNewsDisabled $ do
+    localNewsInfo <- obtainLocalNewsInfo
+    whenM (areNewsStale localNewsInfo) $ do
+      unseenNews <- filter (not . wasNewsEntrySeen localNewsInfo) <$> fetchNews
+      printNews unseenNews
+      currentTime <- T.getCurrentTime
+      saveLocalNewsInfo $ localNewsInfo {lastFetched = Just currentTime}
 
 data NewsEntry = NewsEntry
-  { _wneId :: !String,
-    _wneTitle :: !String,
-    _wneBody :: !String,
-    _wneLevel :: !String,
-    _wnePublishedAt :: !UTCTime
+  { id :: !String,
+    title :: !String,
+    body :: !String,
+    level :: !String,
+    publishedAt :: !UTCTime
   }
   deriving (Generic, Show)
 
-instance FromJSON NewsEntry where
-  parseJSON =
-    genericParseJSON $
-      Aeson.defaultOptions {Aeson.fieldLabelModifier = modifyFieldLabel}
-    where
-      modifyFieldLabel "_wneId" = "id"
-      modifyFieldLabel "_wneLevel" = "level"
-      modifyFieldLabel "_wneTitle" = "title"
-      modifyFieldLabel "_wneBody" = "body"
-      modifyFieldLabel "_wnePublishedAt" = "publishedAt"
-      modifyFieldLabel other = other
+instance FromJSON NewsEntry
 
 printNewsEntry :: NewsEntry -> IO ()
 printNewsEntry entry = do
   putStrLn ""
   putStrLn $
-    Term.applyStyles [Term.Bold] title
+    Term.applyStyles [Term.Bold] entry.title
       <> " "
       <> Term.applyStyles [Term.Bold] (replicate dotCount '.')
       <> " "
       <> Term.applyStyles [Term.Yellow, Term.Bold] dateText
   putStrLn $
-    levelPrint
+    showLevelInColor entry.level
       <> "\n"
-      <> Term.applyStyles [Term.Grey] (indent 2 $ wrapText (maxColumns - 2) body)
+      <> Term.applyStyles [Term.Grey] (indent 2 $ wrapText (maxColumns - 2) entry.body)
   where
-    title = _wneTitle entry
-    level = _wneLevel entry
-    body = _wneBody entry
-    dateText = formatTime defaultTimeLocale "%Y-%m-%d" (_wnePublishedAt entry)
-    dotCount = max minDotsCount (maxColumns - length title - length dateText - 2)
+    dateText = formatTime defaultTimeLocale "%Y-%m-%d" (publishedAt entry)
+    dotCount = max minDotsCount (maxColumns - length entry.title - length dateText - 2)
     maxColumns = 80
     minDotsCount = 5
-    levelPrint =
-      "Severity: "
-        ++ ( case level of
-               "high" -> Term.applyStyles [Term.Red]
-               "moderate" -> Term.applyStyles [Term.Yellow]
-               "low" -> Term.applyStyles [Term.Blue]
-               _ -> error "Invalid"
-           )
-          level
+
+showLevelInColor :: String -> String
+showLevelInColor newsLevel = styleLevel newsLevel
+  where
+    styleLevel = case newsLevel of
+      "high" -> Term.applyStyles [Term.Red]
+      "moderate" -> Term.applyStyles [Term.Yellow]
+      "low" -> Term.applyStyles [Term.Blue]
+      _ -> error "Invalid"
 
 wrapText :: Int -> String -> String
 wrapText maxLen text = go 0 [] (words text)
@@ -161,7 +147,7 @@ printNews newsEntries = do
   mapM_ printNewsEntry newsEntries
 
 wasNewsEntrySeen :: LocalNewsInfo -> NewsEntry -> Bool
-wasNewsEntrySeen info entry = _wneId entry `Set.member` _seenNewsIds info
+wasNewsEntrySeen info entry = entry.id `Set.member` seenNewsIds info
 
 -- | TODO: Improve error handling.
 obtainLocalNewsInfo :: IO LocalNewsInfo
@@ -174,17 +160,18 @@ obtainLocalNewsInfo = do
   where
     readLocalNewsInfoFromFile filePath = do
       fileContent <- IOUtil.readFileStrict filePath
+      -- TODO: figure out what to do if this file is invalid
       return $ fromJust $ Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
     newLocalNewsInfoFromFile =
       LocalNewsInfo
-        { _lastFetched = Nothing,
-          _seenNewsIds = Set.empty
+        { lastFetched = Nothing,
+          seenNewsIds = Set.empty
         }
 
 -- | News cache state stored on disk.
 data LocalNewsInfo = LocalNewsInfo
-  { _lastFetched :: Maybe T.UTCTime,
-    _seenNewsIds :: Set String
+  { lastFetched :: Maybe T.UTCTime,
+    seenNewsIds :: Set String
   }
   deriving (Generic, Show)
 
@@ -193,17 +180,19 @@ instance Aeson.FromJSON LocalNewsInfo
 instance Aeson.ToJSON LocalNewsInfo
 
 areNewsStale :: LocalNewsInfo -> IO Bool
-areNewsStale info = case _lastFetched info of
+areNewsStale info = case info.lastFetched of
   Nothing -> return True
-  (Just lastFetched) -> isOlderThan24Hours lastFetched
+  (Just lastFetched') -> isOlderThan24Hours lastFetched'
 
 -- | TODO: Better error handling.
 fetchNews :: IO [NewsEntry]
 fetchNews = do
-  response <- httpBS =<< parseRequest waspNewsServerUrl
+  response <- httpBS =<< parseRequest waspNewsUrl
   let responseBody = L.fromStrict $ getResponseBody response
   -- TODO: This fromJust here is not a good error handling, we should propagate instead.
   return $ fromJust $ decode responseBody
+  where
+    waspNewsUrl = "https://news.wasp.sh"
 
 -- | TODO: Instead reuse similar function from telemetry (it is 12 hours though).
 isOlderThan24Hours :: T.UTCTime -> IO Bool
