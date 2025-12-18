@@ -3,7 +3,6 @@
   "extends": "../tsconfig.sdk.json",
   "compilerOptions": {
     "outDir": "../dist/core",
-    "tsBuildInfoFile": "../dist/core/.tsbuildinfo",
   },
   "include": ["."]
 }

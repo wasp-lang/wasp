@@ -3,7 +3,6 @@
   "extends": "../tsconfig.sdk.json",
   "compilerOptions": {
     "outDir": "../dist/user-core",
-    "tsBuildInfoFile": "../dist/user-core/.tsbuildinfo",
   },
   "include": ["."],
   // TODO: Interpolate through Haskell?
