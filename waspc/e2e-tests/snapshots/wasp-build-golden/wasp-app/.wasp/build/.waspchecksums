@@ -37,6 +37,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/hooks.ts"
+        ],
+        "71364b89472b1ad19b34967e4c701af40ea5f97065dc74ada9b43ffd9b2a8989"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/index.ts"
         ],
         "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
@@ -214,7 +221,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "0285c06f313ad19bbf20c23fe0854165ceaff52ae361d3ce24e2a6c2b8dddc71"
+        "a56536fe6cebbe04868579359f80cc2b24501aa70de7a31a65571763ed825753"
     ],
     [
         [
@@ -256,7 +263,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "307d8db970e747fe9f07a75c0122b3d2415fb876ee47ec437e0f806baa2d5191"
+        "0aa2b45db4b3667f245458cc2ec765374d40e6ad7894a3cd024aa95bd9cb08f8"
     ],
     [
         [
@@ -410,7 +417,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
+        "f5ad6be8ea444a098e54ceb2f6645e3c9f484c234e9e9ce568a7fa39ed168ccf"
     ],
     [
         [
@@ -438,7 +445,7 @@
             "file",
             "Dockerfile"
         ],
-        "5c9d66be7272242f3674404c32e84f87ca9dc6ddcdc2dd07539bb7d66f5c630c"
+        "63b1c901866e3b9dd8d0c53866369ab7b567b5d8290991e7246d98dcf2b597e9"
     ],
     [
         [
@@ -480,7 +487,7 @@
             "file",
             "server/package.json"
         ],
-        "c383ad9dc6a627391d43876d1548f2e475a54ded41e6d025b946041c2694d19d"
+        "36c13c1716d9545177736e774d8480b9f4097d5e6eb9a48a15c02c2f1aeca87f"
     ],
     [
         [
@@ -522,7 +529,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
+        "635739ddcbd7f22b52dd5fa44f8ac5a8ebed914e64404701ae5b4796f44e97ac"
     ],
     [
         [
@@ -585,7 +592,7 @@
             "file",
             "web-app/package.json"
         ],
-        "f2dbf78e5de5f267551ed82f3909b4672ee486d59b44aee299b434be3b481f67"
+        "5c3bef79c7f14899375bae564475b148c3168f5a742982fc29e4f7801e2762ea"
     ],
     [
         [
@@ -662,7 +669,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "72f880dba47672ec9fb112a8b88cc8d831458cccddcc891b853a6dc9809a5752"
+        "51979a9b39bf2a0f84e7b3bc81e0f88b250dc950b31ef6aa069ef7a5e9ae4f00"
     ],
     [
         [

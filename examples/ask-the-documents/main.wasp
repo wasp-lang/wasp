@@ -1,6 +1,6 @@
 app askTheDocuments {
   wasp: {
-    version: "^0.18.0"
+    version: "^0.20.0"
   },
   title: "PG Vector Example",
   auth: {
@@ -57,6 +57,6 @@ action deleteDocument {
 }
 
 action deleteAllDocuments {
-  fn: import { deleteAllDocuments } from "@src/documents", 
+  fn: import { deleteAllDocuments } from "@src/documents",
   entities: [Document]
 }

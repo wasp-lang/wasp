@@ -1,4 +1,3 @@
-wasp-app/.env.client.example
 wasp-app/.env.server
 wasp-app/.env.server.example
 wasp-app/.env.vault
@@ -18,6 +17,7 @@ wasp-app/.wasp/out/db/migrations/20250122145423_headless_tests_update/migration.
 wasp-app/.wasp/out/db/migrations/20250321140734_add_visibility_enum/migration.sql
 wasp-app/.wasp/out/db/migrations/20250403101137_add_email_verification_hook/migration.sql
 wasp-app/.wasp/out/db/migrations/20250604115050_uppercase_text_job_request/migration.sql
+wasp-app/.wasp/out/db/migrations/20251127110727_add_on_after_email_verified_hook_call_count/migration.sql
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
@@ -84,6 +84,7 @@ wasp-app/.wasp/out/sdk/wasp/client/crud/operationsHelpers.ts
 wasp-app/.wasp/out/sdk/wasp/client/crud/tasks.ts
 wasp-app/.wasp/out/sdk/wasp/client/env.ts
 wasp-app/.wasp/out/sdk/wasp/client/env/schema.ts
+wasp-app/.wasp/out/sdk/wasp/client/hooks.ts
 wasp-app/.wasp/out/sdk/wasp/client/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -337,6 +338,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.js
@@ -1030,10 +1035,8 @@ wasp-app/.wasp/out/sdk/wasp/universal/validators.ts
 wasp-app/.wasp/out/sdk/wasp/vite-env.d.ts
 wasp-app/.wasp/out/server/.env
 wasp-app/.wasp/out/server/.gitignore
-wasp-app/.wasp/out/server/.npmrc
 wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/nodemon.json
-wasp-app/.wasp/out/server/package-lock.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
@@ -1134,15 +1137,14 @@ wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/web-app/.env
 wasp-app/.wasp/out/web-app/.gitignore
-wasp-app/.wasp/out/web-app/.npmrc
 wasp-app/.wasp/out/web-app/README.md
 wasp-app/.wasp/out/web-app/index.html
 wasp-app/.wasp/out/web-app/netlify.toml
-wasp-app/.wasp/out/web-app/package-lock.json
 wasp-app/.wasp/out/web-app/package.json
 wasp-app/.wasp/out/web-app/postcss.config.js
 wasp-app/.wasp/out/web-app/public/.gitkeep
@@ -1190,7 +1192,8 @@ wasp-app/e2e-tests/tests/serialization.spec.ts
 wasp-app/e2e-tests/tests/streaming.spec.ts
 wasp-app/e2e-tests/tests/user-api.spec.ts
 wasp-app/e2e-tests/tests/websocket.spec.ts
-wasp-app/ensure_app_compiles_and_builds.sh
+wasp-app/fly-client.toml
+wasp-app/fly-server.toml
 wasp-app/main.wasp
 wasp-app/migrations/20230404165422_initial/migration.sql
 wasp-app/migrations/20230816133128_add_address/migration.sql
@@ -1203,6 +1206,7 @@ wasp-app/migrations/20250122145423_headless_tests_update/migration.sql
 wasp-app/migrations/20250321140734_add_visibility_enum/migration.sql
 wasp-app/migrations/20250403101137_add_email_verification_hook/migration.sql
 wasp-app/migrations/20250604115050_uppercase_text_job_request/migration.sql
+wasp-app/migrations/20251127110727_add_on_after_email_verified_hook_call_count/migration.sql
 wasp-app/migrations/migration_lock.toml
 wasp-app/package-lock.json
 wasp-app/package.json

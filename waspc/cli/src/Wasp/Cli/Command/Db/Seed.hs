@@ -36,7 +36,7 @@ seed maybeUserProvidedSeedName = do
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
   liftIO (dbSeed genProjectDir nameOfSeedToRun) >>= \case
-    Left errorMsg -> cliSendMessageC $ Msg.Failure "Database seeding failed" errorMsg
+    Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
@@ -75,7 +75,9 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
         then return userProvidedSeedName
         else
           (E.throwError . CommandError "Invalid seed name") $
-            "There is no seed with the name " <> userProvidedSeedName <> "."
+            "There is no seed with the name "
+              <> userProvidedSeedName
+              <> "."
               <> ("\nValid seed names are: " <> intercalate ", " (NE.toList seedNames) <> ".")
 
     getSeedsFromAppSpecOrThrowIfNone :: Command (NE.NonEmpty AS.ExtImport.ExtImport)

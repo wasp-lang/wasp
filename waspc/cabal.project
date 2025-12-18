@@ -1,4 +1,4 @@
-with-compiler: ghc-9.0.2
+with-compiler: ghc-9.6.7
 
 packages: .
 
@@ -16,8 +16,15 @@ package waspc
 -- building multiple packages at once, for example external dependencies.
 jobs: $ncpus
 
+-- We need this to for the HLS to work in tests. When e updated to GHC 9.2.8,
+-- Cabal stopped including tests in the build plan. We don't fully understand
+-- how Cabal chooses when it requires the flag to include tests, so we always
+-- enable it.
+-- Context: https://github.com/wasp-lang/wasp/pull/3286#discussion_r2490111116
+tests: True
+
 -- Ensures that tests print their output to stdout as they execute.
 test-show-details: direct
 
 -- WARNING: Run cabal update if your local package index is older than this date.
-index-state: 2023-03-09T09:15:49Z
+index-state: 2025-11-13T06:13:14Z

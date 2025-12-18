@@ -5,7 +5,7 @@
     "@prisma/client": "5.19.1",
     "@socket.io/component-emitter": "^4.0.0",
     "@testing-library/jest-dom": "^6.3.0",
-    "@testing-library/react": "^14.1.2",
+    "@testing-library/react": "^16.3.0",
     "@vitest/ui": "^1.2.1",
     "arctic": "^1.2.1",
     "autoprefixer": "^10.4.13",
@@ -20,13 +20,13 @@
     "pg-boss": "^8.4.2",
     "postcss": "^8.4.21",
     "prisma": "5.19.1",
-    "react": "^18.2.0",
+    "react": "^19.2.1",
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^6.26.2",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "superjson": "^2.2.1",
-    "tailwindcss": "^3.2.7",
+    "tailwindcss": "^3.4.17",
     "vitest": "^1.2.1",
     "zod": "^3.23.8"
   },
@@ -53,6 +53,7 @@
     "./client/auth": "./dist/client/auth/index.js",
     "./client/crud": "./dist/client/crud/index.js",
     "./client/env/schema": "./dist/client/env/schema.js",
+    "./client/hooks": "./dist/client/hooks.js",
     "./client/operations": "./dist/client/operations/index.js",
     "./client/operations/rpc": "./dist/client/operations/rpc.js",
     "./client/router": "./dist/client/router/index.js",
@@ -101,7 +102,7 @@
   "license": "ISC",
   "name": "wasp",
   "peerDependencies": {
-    "@tanstack/react-query": "~4.41.0"
+    "@tanstack/react-query": "~4.42.0"
   },
   "private": true,
   "scripts": {

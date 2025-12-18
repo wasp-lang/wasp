@@ -12,7 +12,9 @@ module Wasp.Cli.Command.BuildStart.Config
   )
 where
 
-import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
+import Control.Monad (when)
+import Control.Monad.Except (MonadError (throwError))
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
 import StrongPath ((</>))
@@ -20,16 +22,19 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
-import Wasp.Cli.Util.EnvVarArgument (EnvVarFileArgument, readEnvVarFile)
-import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars)
+import Wasp.Cli.Util.Parser (getParserHelpMessage)
+import Wasp.Cli.Util.PathArgument (FilePathArgument)
+import qualified Wasp.Cli.Util.PathArgument as PathArgument
+import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
@@ -43,22 +48,23 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir = do
-  let waspServerEnvVars =
-        [ (Server.clientUrlEnvVarName, clientUrl'),
-          (Server.serverUrlEnvVarName, serverUrl')
-        ]
   userServerEnvVars <-
     liftIO $
       combineEnvVarsWithEnvFiles (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
-  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
+  userClientEnvVars <-
+    liftIO $
+      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
+  when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let waspClientEnvVars =
         [ (WebApp.serverUrlEnvVarName, serverUrl')
         ]
-  userClientEnvVars <-
-    liftIO $
-      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
+      waspServerEnvVars =
+        [ (Server.clientUrlEnvVarName, clientUrl'),
+          (Server.serverUrlEnvVarName, serverUrl')
+        ]
   clientEnvVars' <- overrideEnvVarsCommand waspClientEnvVars userClientEnvVars
+  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
 
   return $
     BuildStartConfig
@@ -86,6 +92,18 @@ makeBuildStartConfig appSpec args projectDir = do
     clientUrl' = getDefaultDevClientUrl appSpec
 
     serverUrl' = defaultDevServerUrl
+    noEnvVarsSpecifiedMsg =
+      CommandError
+        "No env vars specified"
+        $ "You called "
+          ++ styleCode "wasp build start"
+          ++ " without specifying any environment variables for the started apps (client and server). This is likely a mistake, as all apps require some env vars: https://wasp.sh/docs/project/env-vars.\n\n"
+          ++ "To faithfully simulate the production environment, "
+          ++ styleCode "wasp build start"
+          ++ " won't automatically read your "
+          ++ styleCode ".env"
+          ++ " files unless you explicitly tell it. "
+          ++ getParserHelpMessage buildStartArgsParser
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
@@ -107,8 +125,11 @@ overrideEnvVarsCommand forced existing =
             intercalate ", " duplicateNames
     Right combined -> return combined
 
-combineEnvVarsWithEnvFiles :: [EnvVar] -> [EnvVarFileArgument] -> IO [EnvVar]
-combineEnvVarsWithEnvFiles pairs files = do
-  pairsFromFiles <- mapM readEnvVarFile files
-  let allEnvVars = pairs <> concat pairsFromFiles
+combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
+combineEnvVarsWithEnvFiles inlineEnvVars files = do
+  envVarsFromFiles <- mapM readEnvVarsFromFile files
+  let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars
+
+readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
+readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile

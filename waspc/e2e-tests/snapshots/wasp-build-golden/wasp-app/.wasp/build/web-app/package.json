@@ -12,19 +12,24 @@
     ]
   },
   "dependencies": {
-    "@tanstack/react-query": "~4.41.0",
-    "axios": "^1.4.0"
+    "@tanstack/react-query": "~4.42.0",
+    "axios": "^1.4.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
     "@tsconfig/vite-react": "^7.0.0",
-    "@types/react-dom": "^18.0.11",
-    "@vitejs/plugin-react": "^4.7.0"
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "5.8.2"
   },
   "engineStrict": true,
   "engines": {
     "node": ">=22.12.0"
   },
-  "name": "waspApp",
+  "name": "@wasp.sh/generated-webapp-build",
   "overrides": {
     "rollup": "4.44.0"
   },

@@ -1,7 +1,7 @@
 module Analyzer.Parser.ParseErrorTest where
 
 import Analyzer.TestUtil (ctx, pos, rgn, wctx)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.Token
 import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet

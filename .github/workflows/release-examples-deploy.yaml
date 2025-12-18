@@ -38,6 +38,7 @@ jobs:
           - examples/waspleau
           - examples/websockets-realtime-voting
           - examples/ask-the-documents
+          - examples/kitchen-sink
 
     name: Deploy ${{ matrix.app-dir }}
 
@@ -56,9 +57,9 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           cache: "npm"
           node-version: "22"

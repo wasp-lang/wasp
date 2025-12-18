@@ -1,4 +1,4 @@
-name: "Test - E2E Starters"
+name: "Test - Starters"
 
 on:
   workflow_call:
@@ -7,17 +7,17 @@ env:
   WASP_TELEMETRY_DISABLE: 1
 
 jobs:
-  test-wasp-config:
-    name: Test wasp-config
+  test-starters:
+    name: Test starters
     runs-on: ubuntu-22.04
     steps:
-      - uses: "actions/checkout@v5"
+      - uses: "actions/checkout@v6"
 
       - uses: ./.github/actions/setup-haskell
         with:
           cabal-project-dir: waspc
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
 
@@ -28,10 +28,6 @@ jobs:
       - name: Install node dependencies
         working-directory: waspc/starters-e2e-tests
         run: npm ci
-
-      - name: Install playwright dependencies
-        working-directory: waspc/starters-e2e-tests
-        run: npx playwright install --with-deps
 
       - name: Run starters e2e tests
         working-directory: waspc/starters-e2e-tests

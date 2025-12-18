@@ -1,25 +1,86 @@
 # Changelog
 
-## 0.18.2 (Unreleased)
+## 0.20.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-19-to-0-20) for step-by-step documentation on how to upgrade.
+
+- Wasp now uses **React 19**! ([#3489](https://github.com/wasp-lang/wasp/pull/3489))
+  - Check the following upgrade guide to see how to update your code: https://react.dev/blog/2024/04/25/react-19-upgrade-guide.
+  - For Wasp-related updates, check the migration guide above.
 
 ### 🎉 New Features
 
-- You can now specify which PostgreSQL image to use in `wasp start db` with the `--db-image` argument. ([#3182](https://github.com/wasp-lang/wasp/pull/3182))
-- You can now specify which PostgreSQL image to use in `wasp deploy railway` with the `--db-image` argument. ([#3184](https://github.com/wasp-lang/wasp/pull/3184))
-- You can now specify which PostgreSQL image to use in `wasp deploy fly` with the `--db-image` argument. ([#3187](https://github.com/wasp-lang/wasp/pull/3187))
+- You can now use the `--force` flag with `wasp db reset` to run the database reset non-interactively ([#3480](https://github.com/wasp-lang/wasp/pull/3480))
 
 ### 🐞 Bug fixes
 
-- Fixed a type error with the default `NODE_ENV` value in the server env validation schema. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
+- Fixed `onAfterEmailVerified` hook being called twice while in development mode. ([#3458](https://github.com/wasp-lang/wasp/pull/3458))
+
+### 🔧 Small improvements
+
+- Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
+- Wasp now reports better errors for invalid `package.json` or `tsconfig.json` files. ([#3262](https://github.com/wasp-lang/wasp/pull/3262))
+- Wasp returns a proper exit code when using the `-h,--help` flag with `wasp build start`, `wasp start db`, and `wasp new`. ([#3440](https://github.com/wasp-lang/wasp/pull/3440))
+
+## 0.19.1
+
+### 🐞 Bug fixes
+
+- Fixed logic for getting Railway service domains in `wasp deploy railway` with Railway CLI 4.11.2 and greater. ([#3454](https://github.com/wasp-lang/wasp/pull/3454))
+
+### 🔧 Small improvements
+
+- `wasp build start` now shows an error if you forget to specify any environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
+
+## 0.19.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-18-to-0-19) for step-by-step documentation on how to upgrade.
+
+- Wasp now requires your project's `package.json` to contain `"workspaces": [".wasp/build/*", ".wasp/out/*"]`. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+- The type of `config.allowedCORSOrigins` (from `wasp/server`) was changed from `string | string[]` to `(string | RegExp)[]`.
+
+### 🎉 New Features
+
+- Wasp now uses npm workspaces to manage our generated code. This makes our dependency system more reliable, improves install performance and reduces the size of each project on disk. ([#3159](https://github.com/wasp-lang/wasp/pull/3159))
+- You can now specify which PostgreSQL image to use in `wasp start db` with the `--db-image` argument. ([#3182](https://github.com/wasp-lang/wasp/pull/3182))
+- You can now specify a custom volume mount path for the development database with the `--db-volume-mount-path` option in `wasp start db`. ([#3362](https://github.com/wasp-lang/wasp/pull/3362))
+- You can now specify which PostgreSQL image to use in `wasp deploy railway` with the `--db-image` argument. ([#3184](https://github.com/wasp-lang/wasp/pull/3184))
+- You can now specify which PostgreSQL image to use in `wasp deploy fly` with the `--db-image` argument. ([#3187](https://github.com/wasp-lang/wasp/pull/3187))
+- It's now simpler to extend our default CORS rules. ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
+
+### 🐞 Bug fixes
+
+- Fixed a type error in the generated server app when `process.env.NODE_ENV` is also declared by another dependency in the project. ([#3189](https://github.com/wasp-lang/wasp/pull/3189))
+- Fixed an incompatibility between `wasp deploy fly` and Fly CLI v0.3.214. ([#3372](https://github.com/wasp-lang/wasp/pull/3372))
+- Raised the internal requirement of Tailwind CSS from `^3.2.7` to `^3.4.17` to ensure compatibility with ESM config files. ([#3380](https://github.com/wasp-lang/wasp/issues/3380))
+- Fixed an error with routing when serving the client from a subpath in a domain. ([#3322](https://github.com/wasp-lang/wasp/pull/3322))
+- Fixed an error with CORS when serving the client from a subpath in a domain. ([#3339](https://github.com/wasp-lang/wasp/pull/3339))
 
 ### 🔧 Small improvements
 
 - Creating a new OpenSaaS project is now much faster (around 20x faster in our testing!). ([#3196](https://github.com/wasp-lang/wasp/pull/3196))
+- In development mode, Wasp displays a helpful message when navigating to the backend port, pointing you to your app's main URL. ([#3213](https://github.com/wasp-lang/wasp/pull/3213))
 
 ### 📖 Documentation
 
+- Updated Tailwind CSS installation command in docs from exact version `3.2.7` to `3` (latest v3) to ensure compatibility with Wasp 0.18.0+ ESM config files. ([#3377](https://github.com/wasp-lang/wasp/issues/3377))
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+- Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
+
+### 🧩 Other changes
+
+- Wasp's `kitchen-sink` application has been moved to the public examples (`examples/`) directory in our repo. ([#3085](https://github.com/wasp-lang/wasp/pull/3197))
+
+## 0.18.2
+
+### 🐞 Bug fixes
+
+- Wasp dev database (`wasp start db`) now uses a pinned PostgreSQL version (`postgres:18`) with the correct volume mount path. ([#3323](https://github.com/wasp-lang/wasp/pull/3323))
 
 ## 0.18.1
 
@@ -472,7 +533,6 @@ We had to make a couple of breaking changes to reach the new simpler Auth API:
    - After: Use `user.getFirstProviderUserId()` directly on the user object.
 
 5. You don't need to use `findUserIdentity` any more:
-
    - Before: Relied on `findUserIdentity` to check which user identity exists.
    - After: Directly check `user.identities.<provider>` existence.
 

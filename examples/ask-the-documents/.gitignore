@@ -16,3 +16,6 @@ node_modules/
 !.env.project
 !.env.vault
 !.env.server.example
+
+# Playwright
+test-results/

@@ -1,10 +1,10 @@
 app whereDoWeEat {
   wasp: {
-    version: "^0.18.1"
+    version: "^0.20.0"
   },
   title: "where-do-we-eat",
   client: {
-    rootComponent: import { Layout } from "@src/Layout.jsx",
+    rootComponent: import { Layout } from "@src/Layout",
   },
   auth: {
     userEntity: User,
@@ -14,22 +14,22 @@ app whereDoWeEat {
     }
   },
   webSocket: {
-    fn: import { webSocketFn } from "@src/ws-server.js",
+    fn: import { webSocketFn } from "@src/ws-server",
   }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@src/pages/MainPage.tsx",
+  component: import Main from "@src/pages/MainPage",
   authRequired: true
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@src/pages/LoginPage.jsx"
+  component: import { LoginPage } from "@src/pages/LoginPage"
 }
 
 route RegisterRoute { path: "/signup", to: RegisterPage }
 page RegisterPage {
-  component: import { SignupPage } from "@src/pages/SignupPage.jsx"
+  component: import { SignupPage } from "@src/pages/SignupPage"
 }

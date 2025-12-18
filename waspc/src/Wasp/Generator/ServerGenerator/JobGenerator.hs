@@ -58,7 +58,8 @@ genRegisterJob (jobName, job) =
 
     jobPerformFn =
       SJI.extImportToImportJson relPathFromJobsDirToServerSrcDir $
-        Just $ (J.fn . J.perform) job
+        Just $
+          (J.fn . J.perform) job
 
     relPathFromJobsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromJobsDirToServerSrcDir = [reldirP|../|]

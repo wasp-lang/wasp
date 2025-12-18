@@ -2,7 +2,7 @@
 
 module Wasp.Generator.WebAppGenerator
   ( genWebApp,
-    npmDepsForWasp,
+    npmDepsFromWasp,
   )
 where
 
@@ -28,19 +28,23 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.DepVersions (typescriptVersion)
+import Wasp.Generator.DepVersions
+  ( axiosVersion,
+    reactDomTypesVersion,
+    reactDomVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactTypesVersion,
+    reactVersion,
+    typescriptVersion,
+  )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.NpmWorkspaces (webAppPackageName)
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.DepVersions
-  ( axiosVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactVersion,
-  )
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.WebAppGenerator.Vite (genVite)
@@ -59,11 +63,11 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genAppTsConfigJson spec,
       genFileCopy [relfile|netlify.toml|],
-      genPackageJson spec (npmDepsForWasp spec),
-      genNpmrc,
+      genPackageJson spec (npmDepsFromWasp spec),
       genGitignore,
       genIndexHtml spec
     ]
+    <++> genNpmrc spec
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
@@ -100,18 +104,18 @@ genDotEnv spec =
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
 
-genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
+genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
+  webAppDeps <- N.ensureNoConflictWithUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "appName" .= (fst (getApp spec) :: String),
-              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+            [ "packageName" .= webAppPackageName spec,
+              "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
@@ -123,39 +127,50 @@ genPackageJson spec waspDependencies = do
           ("rollup", "4.44.0")
         ]
 
-genNpmrc :: Generator FileDraft
-genNpmrc =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|npmrc|])
-      (C.asWebAppFile [relfile|.npmrc|])
-      Nothing
+genNpmrc :: AppSpec -> Generator [FileDraft]
+genNpmrc spec
+  -- We only use `.npmrc` to force `npm` to error out if the Node.js version is incompatible.
+  --
+  -- In dev mode, we already check the Node.js version ourselves before running any `npm` commands,
+  -- so we don't need this there.
+  --
+  -- We do expect users to manually go into the generated directories when bundling the built ouput.
+  -- So we do add the `.npmrc` there to help them avoid using an incompatible Node.js version.
+  | AS.isBuild spec =
+      return
+        [ C.mkTmplFdWithDstAndData
+            (C.asTmplFile [relfile|npmrc|])
+            (C.asWebAppFile [relfile|.npmrc|])
+            Nothing
+        ]
+  | otherwise = return []
 
-npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
-npmDepsForWasp _spec =
-  N.NpmDepsForWasp
-    { N.waspDependencies =
-        Npm.Dependency.fromList
-          [ ("axios", show axiosVersion),
-            ("react", show reactVersion),
-            -- React and ReactDOM versions should always match.
-            ("react-dom", show reactVersion),
-            ("@tanstack/react-query", reactQueryVersion),
-            ("react-router-dom", show reactRouterVersion)
-          ],
-      N.waspDevDependencies =
-        Npm.Dependency.fromList
-          [ -- TODO: Allow users to choose whether they want to use TypeScript
-            -- in their projects and install these dependencies accordingly.
-            ("typescript", show typescriptVersion),
-            ("@types/react", "^18.0.37"),
-            ("@types/react-dom", "^18.0.11"),
-            ("@vitejs/plugin-react", "^4.7.0"),
-            -- NOTE: Make sure to bump the version of the tsconfig
-            -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^7.0.0")
-          ]
-    }
+npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
+npmDepsFromWasp _spec =
+  N.NpmDepsFromWasp $
+    N.NpmDepsForPackage
+      { N.dependencies =
+          Npm.Dependency.fromList
+            [ ("axios", show axiosVersion),
+              ("react", show reactVersion),
+              ("react-dom", show reactDomVersion),
+              ("@tanstack/react-query", reactQueryVersion),
+              ("react-router-dom", show reactRouterVersion)
+            ],
+        N.devDependencies =
+          Npm.Dependency.fromList
+            [ -- TODO: Allow users to choose whether they want to use TypeScript
+              -- in their projects and install these dependencies accordingly.
+              ("typescript", show typescriptVersion),
+              ("@types/react", show reactTypesVersion),
+              ("@types/react-dom", show reactDomTypesVersion),
+              ("@vitejs/plugin-react", "^4.7.0"),
+              -- NOTE: Make sure to bump the version of the tsconfig
+              -- when updating Vite or React versions
+              ("@tsconfig/vite-react", "^7.0.0")
+            ],
+        N.peerDependencies = []
+      }
 
 genGitignore :: Generator FileDraft
 genGitignore =

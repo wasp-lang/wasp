@@ -7,7 +7,6 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.Function ((&))
 import Data.Maybe (isJust)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
@@ -23,15 +22,15 @@ import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Util.Parser (parseArguments)
-import Wasp.Db.Postgres (defaultDockerImageForPostgres)
+import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
-import Wasp.Util.Docker (DockerImageName)
+import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -39,11 +38,7 @@ import qualified Wasp.Util.Network.Socket as Socket
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
 start :: Arguments -> Command ()
-start args = do
-  startDbArgs <-
-    parseArguments "wasp start db" startDbArgsParser args
-      & either (E.throwError . CommandError "Invalid arguments") return
-
+start = withArguments "wasp start db" startDbArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir
 
@@ -53,7 +48,12 @@ start args = do
 
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgresDevDb waspProjectDir appName (dbImage startDbArgs)
+    AS.App.Db.PostgreSQL ->
+      startPostgresDevDb
+        waspProjectDir
+        appName
+        (dbImage args)
+        (dbVolumeMountPath args)
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
@@ -67,11 +67,19 @@ startDbArgsParser =
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
           <> Opt.showDefault
-          <> Opt.value defaultDockerImageForPostgres
+          <> Opt.value (fst defaultPostgresDockerImageSpec)
+      )
+    <*> Opt.strOption
+      ( Opt.long "db-volume-mount-path"
+          <> Opt.metavar "PATH"
+          <> Opt.help "Path inside Docker container where database files are stored"
+          <> Opt.showDefault
+          <> Opt.value (snd defaultPostgresDockerImageSpec)
       )
 
 data StartDbArgs = StartDbArgs
-  { dbImage :: DockerImageName
+  { dbImage :: DockerImageName,
+    dbVolumeMountPath :: DockerVolumeMountPath
   }
 
 throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
@@ -108,8 +116,8 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> String -> Command ()
-startPostgresDevDb waspProjectDir appName dbDockerImage = do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DockerImageName -> DockerVolumeMountPath -> Command ()
+startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
@@ -121,9 +129,10 @@ startPostgresDevDb waspProjectDir appName dbDockerImage = do
         "",
         "Additional info:",
         " ℹ Using Docker image: " <> dbDockerImage,
+        "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> connectionUrl,
-        " ℹ Database data is persisted in a docker volume with the following name"
+        " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
         "     " <> dockerVolumeName
       ]
@@ -134,26 +143,17 @@ startPostgresDevDb waspProjectDir appName dbDockerImage = do
   --   only when initializing the database -> if it already exists, they will be ignored.
   --   This is how the postgres Docker image works.
   let command =
-        printf
-          ( unwords
-              [ "docker run",
-                "--name %s",
-                "--rm",
-                "--publish %d:5432",
-                "-v %s:/var/lib/postgresql/data",
-                "--env POSTGRES_PASSWORD=%s",
-                "--env POSTGRES_USER=%s",
-                "--env POSTGRES_DB=%s",
-                "%s"
-              ]
-          )
-          dockerContainerName
-          Dev.Postgres.defaultDevPort
-          dockerVolumeName
-          Dev.Postgres.defaultDevPass
-          Dev.Postgres.defaultDevUser
-          dbName
-          dbDockerImage
+        unwords
+          [ "docker run",
+            printf "--name %s" dockerContainerName,
+            "--rm",
+            printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
+            printf "-v %s:%s" dockerVolumeName dbDockerVolumeMountPath,
+            printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
+            printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
+            printf "--env POSTGRES_DB=%s" dbName,
+            dbDockerImage
+          ]
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName

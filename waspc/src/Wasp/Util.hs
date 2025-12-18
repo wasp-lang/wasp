@@ -44,21 +44,20 @@ module Wasp.Util
   )
 where
 
-import Control.Applicative (liftA2)
 import Control.Monad (unless, when)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as Key
+import qualified Data.Aeson.KeyMap as KM
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
-import qualified Data.HashMap.Strict as M
 import Data.List (group, intercalate, sort)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
@@ -107,8 +106,8 @@ headSafe xs = Just (head xs)
 second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
 second3 f (x, y, z) = (x, f y, z)
 
-jsonSet :: Text.Text -> Aeson.Value -> Aeson.Value -> Aeson.Value
-jsonSet key value (Aeson.Object o) = Aeson.Object $ M.insert key value o
+jsonSet :: Key.Key -> Aeson.Value -> Aeson.Value -> Aeson.Value
+jsonSet key value (Aeson.Object o) = Aeson.Object $ KM.insert key value o
 jsonSet _ _ _ = error "Input JSON must be an object"
 
 indent :: Int -> String -> String
@@ -138,10 +137,11 @@ indent numSpaces = intercalate "\n" . map (toEmptyStringIfAllWhiteSpace . (inden
 --      Written to file bar.txt
 -- @
 concatShortPrefixAndText :: String -> String -> String
-concatShortPrefixAndText prefix "" = prefix
 concatShortPrefixAndText prefix text =
-  let (l : ls) = lines text
-   in prefix ++ l ++ if null ls then "" else "\n" ++ indent (length prefix) (intercalate "\n" ls)
+  prefix <> case lines text of
+    [] -> ""
+    [l] -> l
+    (l : ls) -> l <> "\n" <> indent (length prefix) (intercalate "\n" ls)
 
 -- | Given a prefix and text, concatenates them in the following manner:
 -- - If just one line of text:
@@ -189,21 +189,21 @@ trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
 infixr 5 <++>
 
-(<++>) :: Applicative f => f [a] -> f [a] -> f [a]
+(<++>) :: (Applicative f) => f [a] -> f [a] -> f [a]
 (<++>) = liftA2 (++)
 
 infixr 5 <:>
 
-(<:>) :: Applicative f => f a -> f [a] -> f [a]
+(<:>) :: (Applicative f) => f a -> f [a] -> f [a]
 (<:>) = liftA2 (:)
 
-ifM :: Monad m => m Bool -> m a -> m a -> m a
+ifM :: (Monad m) => m Bool -> m a -> m a -> m a
 ifM p x y = p >>= \b -> if b then x else y
 
-whenM :: Monad m => m Bool -> m () -> m ()
+whenM :: (Monad m) => m Bool -> m () -> m ()
 whenM ma mb = ma >>= (`when` mb)
 
-unlessM :: Monad m => m Bool -> m () -> m ()
+unlessM :: (Monad m) => m Bool -> m () -> m ()
 unlessM ma mb = ma >>= (`unless` mb)
 
 type Checksum = Hex
@@ -272,5 +272,5 @@ textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
 secondsToMicroSeconds :: Int -> Int
 secondsToMicroSeconds = (* 1000000)
 
-findDuplicateElems :: Ord a => [a] -> [a]
+findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map head . filter ((> 1) . length) . group . sort

@@ -37,6 +37,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/hooks.ts"
+        ],
+        "71364b89472b1ad19b34967e4c701af40ea5f97065dc74ada9b43ffd9b2a8989"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/index.ts"
         ],
         "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
@@ -214,7 +221,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "0285c06f313ad19bbf20c23fe0854165ceaff52ae361d3ce24e2a6c2b8dddc71"
+        "a56536fe6cebbe04868579359f80cc2b24501aa70de7a31a65571763ed825753"
     ],
     [
         [
@@ -256,7 +263,7 @@
             "file",
             "../out/sdk/wasp/server/config.ts"
         ],
-        "307d8db970e747fe9f07a75c0122b3d2415fb876ee47ec437e0f806baa2d5191"
+        "0aa2b45db4b3667f245458cc2ec765374d40e6ad7894a3cd024aa95bd9cb08f8"
     ],
     [
         [
@@ -410,7 +417,7 @@
             "file",
             "../out/sdk/wasp/universal/url.ts"
         ],
-        "58ff4ad8ffc79264d7215461571d909f3c5fb177ff32c67058d1da9cd4115d6e"
+        "f5ad6be8ea444a098e54ceb2f6645e3c9f484c234e9e9ce568a7fa39ed168ccf"
     ],
     [
         [
@@ -438,7 +445,7 @@
             "file",
             "Dockerfile"
         ],
-        "5c9d66be7272242f3674404c32e84f87ca9dc6ddcdc2dd07539bb7d66f5c630c"
+        "63b1c901866e3b9dd8d0c53866369ab7b567b5d8290991e7246d98dcf2b597e9"
     ],
     [
         [
@@ -464,13 +471,6 @@
     [
         [
             "file",
-            "server/.npmrc"
-        ],
-        "8a74b1091affea3c71c2cf04acbaa38c4a51a261a9a98dcc9e96473d07a85a27"
-    ],
-    [
-        [
-            "file",
             "server/README.md"
         ],
         "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
@@ -487,7 +487,7 @@
             "file",
             "server/package.json"
         ],
-        "c383ad9dc6a627391d43876d1548f2e475a54ded41e6d025b946041c2694d19d"
+        "b9f00bea8378f11f83deb21f26f90526617e204c2449055ad88627316ed7db08"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "4e285034bd873a88d032d6331013191fea9899a6256b57838d25d94d272a5e75"
+        "e6d95c9a6fe716c22dec59fbb33e4072274a89f6c804f8d019a8752664622a12"
     ],
     [
         [
@@ -544,6 +544,13 @@
             "server/src/server.ts"
         ],
         "b58b023d27d41801136784aba57e2708eb1b47024adcc4fd179be1a10ff54899"
+    ],
+    [
+        [
+            "file",
+            "server/src/views/wrong-port.ts"
+        ],
+        "cc8fc19e919c4d22ec6095a60446dd4f52dc864112e6b379ae35ec45c5b04b16"
     ],
     [
         [
@@ -565,13 +572,6 @@
             "web-app/.gitignore"
         ],
         "d373417ea2a8844e3b7a1515aab123e90fbeb4b7225144d55d243d9f6f04f73a"
-    ],
-    [
-        [
-            "file",
-            "web-app/.npmrc"
-        ],
-        "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "web-app/package.json"
         ],
-        "f2dbf78e5de5f267551ed82f3909b4672ee486d59b44aee299b434be3b481f67"
+        "b629fd6f73427a18bd1a3ea6bf7d5b4bba253baf976b34209eb7257a68ffe201"
     ],
     [
         [
@@ -676,7 +676,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "72f880dba47672ec9fb112a8b88cc8d831458cccddcc891b853a6dc9809a5752"
+        "51979a9b39bf2a0f84e7b3bc81e0f88b250dc950b31ef6aa069ef7a5e9ae4f00"
     ],
     [
         [

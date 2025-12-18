@@ -10,6 +10,7 @@ wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
 wasp-app/.wasp/out/sdk/wasp/client/env.ts
 wasp-app/.wasp/out/sdk/wasp/client/env/schema.ts
+wasp-app/.wasp/out/sdk/wasp/client/hooks.ts
 wasp-app/.wasp/out/sdk/wasp/client/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -52,6 +53,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.js
@@ -285,10 +290,8 @@ wasp-app/.wasp/out/sdk/wasp/universal/validators.ts
 wasp-app/.wasp/out/sdk/wasp/vite-env.d.ts
 wasp-app/.wasp/out/server/.env
 wasp-app/.wasp/out/server/.gitignore
-wasp-app/.wasp/out/server/.npmrc
 wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/nodemon.json
-wasp-app/.wasp/out/server/package-lock.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/app.js
@@ -298,14 +301,13 @@ wasp-app/.wasp/out/server/src/middleware/operations.ts
 wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/web-app/.env
 wasp-app/.wasp/out/web-app/.gitignore
-wasp-app/.wasp/out/web-app/.npmrc
 wasp-app/.wasp/out/web-app/README.md
 wasp-app/.wasp/out/web-app/index.html
 wasp-app/.wasp/out/web-app/netlify.toml
-wasp-app/.wasp/out/web-app/package-lock.json
 wasp-app/.wasp/out/web-app/package.json
 wasp-app/.wasp/out/web-app/public/.gitkeep
 wasp-app/.wasp/out/web-app/public/favicon.ico

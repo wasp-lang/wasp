@@ -9,6 +9,7 @@ module Wasp.Generator.DbGenerator.Common
     defaultMigrateArgs,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
     MigrateArgs (..),
+    ResetArgs (..),
     RefreshOnLastDbConcurrenceChecksumFile (..),
     DbSchemaChecksumOnLastDbConcurrenceFile,
     DbSchemaChecksumOnLastGenerateFile,
@@ -65,10 +66,10 @@ dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) (File PrismaDbSchema)
 dbSchemaFileInDbRootDir = [relfile|schema.prisma|]
 
-dbRootDirFromAppComponentDir :: AppComponentRootDir d => Path' (Rel d) (Dir DbRootDir)
+dbRootDirFromAppComponentDir :: (AppComponentRootDir d) => Path' (Rel d) (Dir DbRootDir)
 dbRootDirFromAppComponentDir = [reldir|../db|]
 
-dbSchemaFileFromAppComponentDir :: AppComponentRootDir d => Path' (Rel d) (File PrismaDbSchema)
+dbSchemaFileFromAppComponentDir :: (AppComponentRootDir d) => Path' (Rel d) (File PrismaDbSchema)
 dbSchemaFileFromAppComponentDir = dbRootDirFromAppComponentDir </> dbSchemaFileInDbRootDir
 
 dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
@@ -100,6 +101,10 @@ data MigrateArgs = MigrateArgs
 
 defaultMigrateArgs :: MigrateArgs
 defaultMigrateArgs = MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = False}
+
+data ResetArgs = ResetArgs
+  { force :: Bool
+  }
 
 -- | This type tells us what we need to do with the DbSchemaChecksumOnLastDbConcurrenceFile.
 data RefreshOnLastDbConcurrenceChecksumFile
