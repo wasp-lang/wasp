@@ -1,7 +1,8 @@
 module Generator.AuthInjectionTest where
 
-import Data.Maybe (maybeToList)
+import Data.Maybe (fromJust, maybeToList)
 import NeatInterpolation (trimming)
+import qualified StrongPath as SP
 import Test.Hspec
 import Util.Prisma (getPrismaModelBody)
 import qualified Wasp.AppSpec.Entity as AS.Entity
@@ -69,8 +70,8 @@ spec_GeneratorAuthInjectionTest = do
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]
-        let waspLibs = []
-        let config = makeGeneratorConfig waspLibs
+        let mockLibsSourceDir = fromJust $ SP.parseAbsDir "/"
+        let config = makeGeneratorConfig mockLibsSourceDir
         let (_generatorWarnings, generatorResult) = runGenerator config $ injectAuth allEntities userEntity
          in generatorResult
               `shouldBe` Right

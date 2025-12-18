@@ -12,8 +12,8 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.Monad as Generator
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
+import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator.Common
   ( WebAppTemplatesDir,
@@ -54,7 +54,7 @@ relPathFromWebAppRootDirWaspProjectDir =
         SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
 genViteConfig :: AppSpec -> Generator FileDraft
-genViteConfig spec = C.mkTmplFdWithData viteConfigTmplFile . getTmplData <$> Generator.getWaspLibs
+genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile . getTmplData $ WaspLibs.AvailableLibs.waspLibs
   where
     getTmplData waspLibs =
       object

@@ -3,6 +3,7 @@ module Wasp.Generator.WaspLibs.WaspLib
     makeWaspLib,
     makeLocalNpmDepFromWaspLib,
     getTarballPathInLibsRootDir,
+    getTarballAbsPathInLibsSourceDir,
   )
 where
 
@@ -10,7 +11,7 @@ import StrongPath (Abs, Dir, File', Path', Rel, Rel', fromRelFile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.ExternalConfig.Npm.Tarball (TarballFilename, tarballFilenameAsRelFile)
 import qualified Wasp.ExternalConfig.Npm.Tarball as Npm.Tarball
-import Wasp.Generator.WaspLibs.Common (LibsRootDir, getAbsLibsSourceDirPath)
+import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir)
 import qualified Wasp.Version
 
 {-
@@ -21,23 +22,17 @@ import qualified Wasp.Version
 -}
 data WaspLib = WaspLib
   { packageName :: String,
-    waspDataDirTarballAbsPath :: Path' Abs File',
     tarballFilename :: TarballFilename
   }
 
-makeWaspLib :: String -> IO WaspLib
-makeWaspLib waspLibPackageName = do
-  let tarballFilename' = Npm.Tarball.makeTarballFilename waspLibPackageName waspVersionStr
-  waspDataDirTarballAbsPath' <- (</> tarballFilenameAsRelFile tarballFilename') <$> getAbsLibsSourceDirPath
-
-  return $
-    WaspLib
-      { packageName = waspLibPackageName,
-        waspDataDirTarballAbsPath = waspDataDirTarballAbsPath',
-        tarballFilename = tarballFilename'
-      }
+makeWaspLib :: String -> WaspLib
+makeWaspLib waspLibPackageName =
+  WaspLib
+    { packageName = waspLibPackageName,
+      tarballFilename = Npm.Tarball.makeTarballFilename waspLibPackageName waspVersionStr
+    }
   where
-    waspVersionStr = show $ Wasp.Version.waspVersion
+    waspVersionStr = show Wasp.Version.waspVersion
 
 makeLocalNpmDepFromWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
 makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
@@ -48,3 +43,9 @@ makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageN
 -- Tarballs are stored at the top level of LibsRootDir (flat structure, no subdirectories).
 getTarballPathInLibsRootDir :: WaspLib -> Path' (Rel LibsRootDir) File'
 getTarballPathInLibsRootDir = tarballFilenameAsRelFile . tarballFilename
+
+getTarballAbsPathInLibsSourceDir :: Path' Abs (Dir LibsSourceDir) -> WaspLib -> Path' Abs File'
+getTarballAbsPathInLibsSourceDir libsSourceDir =
+  (libsSourceDir </>)
+    . tarballFilenameAsRelFile
+    . tarballFilename

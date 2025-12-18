@@ -34,7 +34,7 @@ import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
 import Wasp.Generator.WaspLibs (genWaspLibs)
-import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
+import Wasp.Generator.WaspLibs.Common (getAbsLibsSourceDirPath)
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
@@ -53,8 +53,7 @@ writeWebAppCode spec dstDir sendMessage = do
   case validateAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
-      waspLibs <- WaspLibs.AvailableLibs.makeWaspLibs
-      let config = makeGeneratorConfig waspLibs
+      config <- makeGeneratorConfig <$> getAbsLibsSourceDirPath
       let (generatorWarnings, generatorResult) = runGenerator config $ genApp spec
 
       case generatorResult of
@@ -62,7 +61,7 @@ writeWebAppCode spec dstDir sendMessage = do
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
           writeDotWaspInfo dstDir
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec waspLibs dstDir sendMessage
+          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
