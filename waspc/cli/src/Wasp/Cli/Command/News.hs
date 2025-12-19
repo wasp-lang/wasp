@@ -62,12 +62,20 @@ news = liftIO $ do
   info <- obtainLocalNewsInfo
   currentTime <- T.getCurrentTime
   saveLocalNewsInfo $
-    info
-      { lastFetched = Just currentTime,
-        seenNewsIds =
-          seenNewsIds info
-            `Set.union` Set.fromList ((.id) <$> newsEntries)
-      }
+    setLastFetchedTimestamp currentTime $
+      markNewsAsSeen newsEntries info
+
+setLastFetchedTimestamp :: UTCTime -> LocalNewsInfo -> LocalNewsInfo
+setLastFetchedTimestamp time info =
+  info
+    { lastFetched = Just time
+    }
+
+markNewsAsSeen :: [NewsEntry] -> LocalNewsInfo -> LocalNewsInfo
+markNewsAsSeen newsEntries info =
+  info
+    { seenNewsIds = seenNewsIds info `Set.union` Set.fromList ((.id) <$> newsEntries)
+    }
 
 handleNews :: IO ()
 handleNews = do
@@ -80,26 +88,32 @@ handleNews = do
       case fetchResult of
         Nothing -> return ()
         Just newsEntries -> do
-          printRelevantUnseenNews localNewsInfo newsEntries
+          updatedLocalNewsInfo <- printRelevantUnseenNews localNewsInfo newsEntries
           currentTime <- T.getCurrentTime
-          saveLocalNewsInfo $ localNewsInfo {lastFetched = Just currentTime}
+          saveLocalNewsInfo $ setLastFetchedTimestamp currentTime updatedLocalNewsInfo
 
-printRelevantUnseenNews :: LocalNewsInfo -> [NewsEntry] -> IO ()
-printRelevantUnseenNews localNewsInfo newsEntries = printAndMaybeAsk relevantUnseenNews
+printRelevantUnseenNews :: LocalNewsInfo -> [NewsEntry] -> IO LocalNewsInfo
+printRelevantUnseenNews localNewsInfo newsEntries = printAndMaybeAsk localNewsInfo relevantUnseenNews
   where
     relevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
     isRelevant = (`elem` ["high", "moderate"]) . level
     isUnseen = not . wasNewsEntrySeen localNewsInfo
 
-printAndMaybeAsk :: [NewsEntry] -> IO ()
-printAndMaybeAsk newsEntries = do
+printAndMaybeAsk :: LocalNewsInfo -> [NewsEntry] -> IO LocalNewsInfo
+printAndMaybeAsk localNewsInfo newsEntries = do
   printNews newsEntries
-  when thereAreCriticalNews askForConfirmation
+  if thereAreCriticalNews
+    then do
+      askForConfirmation
+      return $ markNewsAsSeen newsEntries localNewsInfo
+    else
+      return localNewsInfo
   where
     thereAreCriticalNews = any ((== "high") . level) newsEntries
     askForConfirmation = do
-      answer <- askForInput "\nPlease type 'ok' to confirm you've read the announcements: "
-      unless (answer == "yes") askForConfirmation
+      let requiredAnswer = "ok"
+      answer <- askForInput $ "\nPlease type '" ++ requiredAnswer ++ "' to confirm you've read the announcements: "
+      unless (answer == requiredAnswer) askForConfirmation
 
 fetchNewsWithTimeout :: Int -> IO (Maybe [NewsEntry])
 fetchNewsWithTimeout timeoutSeconds = do
