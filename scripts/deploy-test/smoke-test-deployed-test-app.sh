@@ -25,8 +25,8 @@ log() {
 }
 
 fetch() {
-    CURL_RETRY_OPTS="--fail --retry $MAX_RETRIES --retry-all-errors --retry-delay $RETRY_DELAY_SECONDS --show-error"
-    curl $CURL_RETRY_OPTS "$@"
+  CURL_RETRY_OPTS="--fail --retry $MAX_RETRIES --retry-all-errors --retry-delay $RETRY_DELAY_SECONDS --show-error"
+  curl $CURL_RETRY_OPTS "$@"
 }
 
 smoke_test_server() {
