@@ -2,7 +2,8 @@
   "name": "askTheDocuments",
   "type": "module",
   "workspaces": [
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ],
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
@@ -23,8 +24,7 @@
     "react-hook-form": "^7.45.4",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.26.2",
-    "tailwindcss": "^4.1.18",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",

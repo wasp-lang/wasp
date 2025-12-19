@@ -150,10 +150,10 @@ generatePackageJson newProjectDetails =
         "name": "${appName}",
         "type": "module",
         "workspaces": [
-          ".wasp/out/*"
+          ".wasp/out/*",
+          ".wasp/out/sdk/wasp"
         ],
         "dependencies": {
-          "wasp": "file:.wasp/out/sdk/wasp",
           "react": "^19.2.1",
           "react-dom": "^19.2.1",
           "react-router-dom": "^6.26.2",
