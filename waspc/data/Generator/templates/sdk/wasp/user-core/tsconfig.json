@@ -1,0 +1,12 @@
+{
+  // TODO: Eventually switch to user's config.
+  "extends": "../tsconfig.sdk.json",
+  "compilerOptions": {
+    "outDir": "../dist/user-core",
+  },
+  "include": ["."],
+  // TODO: Interpolate through Haskell?
+  "references": [
+    { "path": "../core" }
+  ],
+}

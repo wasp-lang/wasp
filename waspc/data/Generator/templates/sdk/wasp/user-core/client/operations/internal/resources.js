@@ -1,4 +1,4 @@
-import { queryClientInitialized } from '../queryClient.js'
+import { queryClientInitialized } from '../queryClient'
 import { makeUpdateHandlersMap } from './updateHandlersMap'
 import { hashQueryKey } from '@tanstack/react-query'
 

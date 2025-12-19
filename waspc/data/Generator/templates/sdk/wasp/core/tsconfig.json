@@ -1,0 +1,8 @@
+{
+  // TODO: Eventually switch to user's config.
+  "extends": "../tsconfig.sdk.json",
+  "compilerOptions": {
+    "outDir": "../dist/core",
+  },
+  "include": ["."]
+}
