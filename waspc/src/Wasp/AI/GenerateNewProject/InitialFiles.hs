@@ -157,15 +157,16 @@ generatePackageJson newProjectDetails =
         ],
         "dependencies": {
           "wasp": "file:.wasp/out/sdk/wasp",
-          "react": "^18.2.0",
-          "react-dom": "^18.2.0",
+          "react": "^19.2.1",
+          "react-dom": "^19.2.1",
           "react-router-dom": "^6.26.2",
           "tailwindcss": "^3.4.17"
         },
         "devDependencies": {
           "typescript": "5.8.2",
           "vite": "^7.0.6",
-          "@types/react": "^18.0.37",
+          "@types/react": "^19.2.7",
+          "@types/react-dom": "^19.2.3",
           "prisma": "5.19.1"
         }
       }

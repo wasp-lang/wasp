@@ -16,6 +16,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.DepVersions
   ( expressTypesVersion,
     prismaVersion,
+    reactDomTypesVersion,
     reactDomVersion,
     reactRouterVersion,
     reactTypesVersion,
@@ -112,6 +113,7 @@ dependenciesValidator =
             dep <-
               [ ("typescript", show typescriptVersion),
                 ("@types/react", show reactTypesVersion),
+                ("@types/react-dom", show reactDomTypesVersion),
                 ("@types/express", show expressTypesVersion)
               ]
         ]
