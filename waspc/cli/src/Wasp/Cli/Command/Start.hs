@@ -13,7 +13,7 @@ import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.News (ifNewsStaleUpdateAndShowUnseen)
+import Wasp.Cli.Command.News (handleNews)
 import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), FromOutDir (FromOutDir), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
@@ -25,12 +25,7 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWas
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  liftIO $ do
-    let microsecondsInASecond = 1000000
-        threadDelaySeconds = threadDelay . (* microsecondsInASecond)
-    newsThread <- async ifNewsStaleUpdateAndShowUnseen
-    void $ race (threadDelaySeconds 2) (waitCatch newsThread)
-
+  liftIO handleNews
   InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 

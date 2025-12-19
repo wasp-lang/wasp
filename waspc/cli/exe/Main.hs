@@ -4,6 +4,7 @@ import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
+import Control.Monad.IO.Class (liftIO)
 import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
@@ -29,8 +30,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
-import Wasp.Cli.Command.News (news)
-import Wasp.Cli.Command.Start (start)
+import Wasp.Cli.Command.News (handleNews, news)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
@@ -105,7 +105,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             appDescription
             projectConfigJson
       _unknownCommand -> printWaspNewAiUsage >> exitFailure
-    Command.Call.Start -> runCommand start
+    -- Todo: remove once done testing
+    Command.Call.Start -> runCommand (liftIO handleNews)
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.TsSetup -> runCommand tsConfigSetup
