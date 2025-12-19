@@ -6,9 +6,16 @@
 
 set -euo pipefail
 
+if [[ $# -ne 2 ]]; then
+  echo "Usage: $0 <server-url> <client-url>" >&2
+  exit 1
+fi
+
+SERVER_URL=$1
+CLIENT_URL=$2
+
 readonly MAX_RETRIES=10
 readonly RETRY_DELAY_SECONDS=30
-readonly CURL_RETRY_OPTS="--fail --retry $MAX_RETRIES --retry-all-errors --retry-delay $RETRY_DELAY_SECONDS --show-error"
 readonly EXPECTED_CLIENT_TEXT="Wasp Kitchen Sink"
 
 log() {
@@ -17,14 +24,9 @@ log() {
   echo "[$timestamp] $*"
 }
 
-parse_args() {
-  if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 <server-hostname> <client-hostname>" >&2
-    exit 1
-  fi
-
-  SERVER_URL="https://$1"
-  CLIENT_URL="https://$2"
+fetch() {
+    CURL_RETRY_OPTS="--fail --retry $MAX_RETRIES --retry-all-errors --retry-delay $RETRY_DELAY_SECONDS --show-error"
+    curl $CURL_RETRY_OPTS "$@"
 }
 
 smoke_test_server() {
@@ -32,7 +34,7 @@ smoke_test_server() {
   log "[Server] Hitting $url"
 
   local response
-  response=$(curl $CURL_RETRY_OPTS -X POST -H "Content-Type: application/json" "$url")
+  response=$(fetch -X POST "$url")
 
   if ! echo "$response" | jq -e '.json' > /dev/null; then
     echo "Server response missing expected \"json\" field" >&2
@@ -46,7 +48,7 @@ smoke_test_client() {
   log "[Client] Hitting $CLIENT_URL"
 
   local response
-  response=$(curl $CURL_RETRY_OPTS "$CLIENT_URL")
+  response=$(fetch "$CLIENT_URL")
 
   if ! echo "$response" | grep -q "$EXPECTED_CLIENT_TEXT"; then
     echo "Client HTML does not contain expected text '$EXPECTED_CLIENT_TEXT'" >&2
@@ -56,13 +58,7 @@ smoke_test_client() {
   log "[Client] Success"
 }
 
-main() {
-  parse_args "$@"
+smoke_test_server
+smoke_test_client
 
-  smoke_test_server
-  smoke_test_client
-
-  log "All smoke tests passed"
-}
-
-main "$@"
+log "All smoke tests passed"

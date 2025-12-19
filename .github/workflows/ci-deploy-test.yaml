@@ -46,8 +46,6 @@ jobs:
       - name: Deploy app to Fly
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
-          set -e
-
           # `fly launch` fails if Fly toml files already exist.
           rm -f fly-server.toml fly-client.toml
 
@@ -64,8 +62,6 @@ jobs:
       - name: Smoke test deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
-          set -e
-
           # Get deployed app hostnames
           function get_fly_app_hostname() {
             config_file="$1"
@@ -75,7 +71,7 @@ jobs:
           CLIENT_HOSTNAME=$(get_fly_app_hostname fly-client.toml)
 
           # Run smoke test
-          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
+          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "https://$SERVER_HOSTNAME" "https://$CLIENT_HOSTNAME"
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
@@ -117,7 +113,6 @@ jobs:
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
-          set -e
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
@@ -129,8 +124,6 @@ jobs:
       - name: Smoke test deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
-          set -e
-
           # Get deployed app hostnames
           function get_railway_service_hostname() {
             service_name="$1"
@@ -142,7 +135,7 @@ jobs:
           CLIENT_HOSTNAME=$(get_railway_service_hostname "$client_service_name")
 
           # Run smoke test
-          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "$SERVER_HOSTNAME" "$CLIENT_HOSTNAME"
+          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "https://$SERVER_HOSTNAME" "https://$CLIENT_HOSTNAME"
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project
