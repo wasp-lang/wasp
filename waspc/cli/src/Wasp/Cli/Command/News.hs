@@ -32,7 +32,7 @@ import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
 import Wasp.Cli.Interactive (askForInput)
-import Wasp.Util (ifM, indent, trim, whenM)
+import Wasp.Util (ifM, indent, isOlderThanNHours, trim, whenM)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 
@@ -231,7 +231,7 @@ instance Aeson.ToJSON LocalNewsInfo
 areNewsStale :: LocalNewsInfo -> IO Bool
 areNewsStale info = case info.lastFetched of
   Nothing -> return True
-  (Just lastFetched') -> isOlderThan24Hours lastFetched'
+  (Just lastFetched') -> isOlderThanNHours 24 lastFetched'
 
 -- | TODO: Better error handling.
 fetchNews :: IO [NewsEntry]
@@ -242,12 +242,3 @@ fetchNews = do
   let responseBody = L.fromStrict $ getResponseBody response
   -- TODO: This fromJust here is not a good error handling, we should propagate instead.
   return $ fromJust $ decode responseBody
-
--- | TODO: Instead reuse similar function from telemetry (it is 12 hours though).
-isOlderThan24Hours :: T.UTCTime -> IO Bool
-isOlderThan24Hours time = do
-  now <- T.getCurrentTime
-  let secondsSinceLastFetch = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
-  return $
-    let numSecondsInHour = 3600
-     in secondsSinceLastFetch > 24 * numSecondsInHour
