@@ -55,14 +55,17 @@ import qualified Wasp.Util.Terminal as Term
 
 news :: Command ()
 news = liftIO $ do
-  newsEntries <- fetchNews
+  (newsEntries, lastFetchedTimestamp) <- fetchNews
 
-  printNews newsEntries
+  printNewsReport $
+    NewsReport
+      { newsToShow = newsEntries,
+        requireConfirmation = False
+      }
 
   info <- obtainLocalNewsInfo
-  currentTime <- T.getCurrentTime
   saveLocalNewsInfo $
-    setLastFetchedTimestamp currentTime $
+    setLastFetchedTimestamp lastFetchedTimestamp $
       markNewsAsSeen newsEntries info
 
 setLastFetchedTimestamp :: UTCTime -> LocalNewsInfo -> LocalNewsInfo
@@ -87,41 +90,45 @@ handleNews = do
       debug "Fetch timed out"
       case fetchResult of
         Nothing -> return ()
-        Just newsEntries -> do
-          updatedLocalNewsInfo <- printRelevantUnseenNews localNewsInfo newsEntries
-          currentTime <- T.getCurrentTime
-          saveLocalNewsInfo $ setLastFetchedTimestamp currentTime updatedLocalNewsInfo
+        Just (newsEntries, lastFetchedTimestamp) -> do
+          let newsReport = getNewsReport localNewsInfo newsEntries
+          printNewsReport newsReport
+          saveLocalNewsInfo $ setLastFetchedTimestamp lastFetchedTimestamp localNewsInfo
 
-printRelevantUnseenNews :: LocalNewsInfo -> [NewsEntry] -> IO LocalNewsInfo
-printRelevantUnseenNews localNewsInfo newsEntries = printAndMaybeAsk localNewsInfo relevantUnseenNews
+data NewsReport = NewsReport
+  { newsToShow :: [NewsEntry],
+    requireConfirmation :: Bool
+  }
+
+getNewsReport :: LocalNewsInfo -> [NewsEntry] -> NewsReport
+getNewsReport localNewsInfo newsEntries =
+  NewsReport
+    { newsToShow = relevantUnseenNews,
+      requireConfirmation = thereAreCriticalNews
+    }
   where
+    thereAreCriticalNews = any ((== "high") . level) relevantUnseenNews
     relevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
     isRelevant = (`elem` ["high", "moderate"]) . level
     isUnseen = not . wasNewsEntrySeen localNewsInfo
 
-printAndMaybeAsk :: LocalNewsInfo -> [NewsEntry] -> IO LocalNewsInfo
-printAndMaybeAsk localNewsInfo newsEntries = do
-  printNews newsEntries
-  if thereAreCriticalNews
-    then do
-      askForConfirmation
-      return $ markNewsAsSeen newsEntries localNewsInfo
-    else
-      return localNewsInfo
+printNewsReport :: NewsReport -> IO ()
+printNewsReport newsReport = do
+  mapM_ printNewsEntry newsReport.newsToShow
+  when newsReport.requireConfirmation askForConfirmation
   where
-    thereAreCriticalNews = any ((== "high") . level) newsEntries
     askForConfirmation = do
       let requiredAnswer = "ok"
       answer <- askForInput $ "\nPlease type '" ++ requiredAnswer ++ "' to confirm you've read the announcements: "
       unless (answer == requiredAnswer) askForConfirmation
 
-fetchNewsWithTimeout :: Int -> IO (Maybe [NewsEntry])
+fetchNewsWithTimeout :: Int -> IO (Maybe ([NewsEntry], UTCTime))
 fetchNewsWithTimeout timeoutSeconds = do
   let microsecondsInASecond = 1000000
   fetchResult <- race (threadDelay $ timeoutSeconds * microsecondsInASecond) fetchNews
   return $ case fetchResult of
     Left () -> Nothing
-    Right entries -> Just entries
+    Right result -> Just result
 
 debug :: String -> IO ()
 debug message = print message
@@ -190,11 +197,6 @@ saveLocalNewsInfo localNewsInfo = do
   newsCacheFile <- getNewsCacheFilePath
   IOUtil.writeFile newsCacheFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsInfo
 
-printNews :: [NewsEntry] -> IO ()
-printNews newsEntries = do
-  -- waspSays $ asWaspStartMessage "Here's some news for ya!"
-  mapM_ printNewsEntry newsEntries
-
 wasNewsEntrySeen :: LocalNewsInfo -> NewsEntry -> Bool
 wasNewsEntrySeen info entry = entry.id `Set.member` seenNewsIds info
 
@@ -234,11 +236,14 @@ areNewsStale info = case info.lastFetched of
   (Just lastFetched') -> isOlderThanNHours 24 lastFetched'
 
 -- | TODO: Better error handling.
-fetchNews :: IO [NewsEntry]
+fetchNews :: IO ([NewsEntry], UTCTime)
 fetchNews = do
   waspNewsUrl <- fromMaybe "https://news.wasp.sh" <$> lookupEnv "WASP_NEWS_SERVER_URL"
+
   debug "fetching"
   response <- httpBS =<< parseRequest waspNewsUrl
   let responseBody = L.fromStrict $ getResponseBody response
+
+  currentTime <- T.getCurrentTime
   -- TODO: This fromJust here is not a good error handling, we should propagate instead.
-  return $ fromJust $ decode responseBody
+  return (fromJust $ decode responseBody, currentTime)
