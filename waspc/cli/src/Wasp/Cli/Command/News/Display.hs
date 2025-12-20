@@ -3,7 +3,7 @@
 module Wasp.Cli.Command.News.Display (printNewsEntry) where
 
 import Data.Time (defaultTimeLocale, formatTime)
-import Wasp.Cli.Command.News.Common (NewsEntry (..))
+import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 
@@ -26,14 +26,11 @@ printNewsEntry entry = do
     maxColumns = 80
     minDotsCount = 5
 
-showLevelInColor :: String -> String
-showLevelInColor newsLevel = styleLevel newsLevel
-  where
-    styleLevel = case newsLevel of
-      "high" -> Term.applyStyles [Term.Red]
-      "moderate" -> Term.applyStyles [Term.Yellow]
-      "low" -> Term.applyStyles [Term.Blue]
-      _ -> error "Invalid"
+showLevelInColor :: NewsLevel -> String
+showLevelInColor newsLevel = case newsLevel of
+  High -> Term.applyStyles [Term.Red] "high"
+  Moderate -> Term.applyStyles [Term.Yellow] "moderate"
+  Low -> Term.applyStyles [Term.Blue] "low"
 
 wrapText :: Int -> String -> String
 wrapText maxLen text = go 0 [] (words text)

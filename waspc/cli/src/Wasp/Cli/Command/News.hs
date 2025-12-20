@@ -14,7 +14,7 @@ import Data.Time (UTCTime)
 import qualified Data.Time as T
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.News.Common (NewsEntry (..))
+import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (printNewsEntry)
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Persistence
@@ -91,9 +91,9 @@ getAutomaticNewsReport currentTime localNewsInfo newsEntries =
           else []
     }
   where
-    requireConfirmation = any ((== "high") . level) allRelevantUnseenNews
+    requireConfirmation = any ((== High) . level) allRelevantUnseenNews
     allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
-    isRelevant = (`elem` ["high", "moderate"]) . level
+    isRelevant = (>= Moderate) . level
     isUnseen = not . wasNewsEntrySeen localNewsInfo
 
 printNewsReportAndUpdateLocalInfo :: NewsReport -> IO ()
