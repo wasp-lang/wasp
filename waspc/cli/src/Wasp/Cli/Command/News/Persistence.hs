@@ -8,7 +8,7 @@ module Wasp.Cli.Command.News.Persistence
     saveLocalNewsInfo,
     wasNewsEntrySeen,
     areNewsStale,
-    setLastFetchedTimestamp,
+    setLastReportTimestamp,
     markNewsAsSeen,
   )
 where
@@ -61,13 +61,13 @@ obtainLocalNewsInfo = do
       return $ fromJust $ Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
     newLocalNewsInfoFromFile =
       LocalNewsInfo
-        { lastFetched = Nothing,
+        { lastReportAt = Nothing,
           seenNewsIds = Set.empty
         }
 
 -- | News cache state stored on disk.
 data LocalNewsInfo = LocalNewsInfo
-  { lastFetched :: Maybe T.UTCTime,
+  { lastReportAt :: Maybe T.UTCTime,
     seenNewsIds :: Set String
   }
   deriving (Generic, Show)
@@ -77,14 +77,14 @@ instance Aeson.FromJSON LocalNewsInfo
 instance Aeson.ToJSON LocalNewsInfo
 
 areNewsStale :: LocalNewsInfo -> IO Bool
-areNewsStale info = case info.lastFetched of
+areNewsStale info = case info.lastReportAt of
   Nothing -> return True
-  (Just lastFetched') -> isOlderThanNHours 24 lastFetched'
+  (Just lastReportAt') -> isOlderThanNHours 24 lastReportAt'
 
-setLastFetchedTimestamp :: T.UTCTime -> LocalNewsInfo -> LocalNewsInfo
-setLastFetchedTimestamp time info =
+setLastReportTimestamp :: T.UTCTime -> LocalNewsInfo -> LocalNewsInfo
+setLastReportTimestamp time info =
   info
-    { lastFetched = Just time
+    { lastReportAt = Just time
     }
 
 markNewsAsSeen :: [NewsEntry] -> LocalNewsInfo -> LocalNewsInfo

@@ -23,7 +23,7 @@ import Wasp.Cli.Command.News.Persistence
     markNewsAsSeen,
     obtainLocalNewsInfo,
     saveLocalNewsInfo,
-    setLastFetchedTimestamp,
+    setLastReportTimestamp,
     wasNewsEntrySeen,
   )
 import Wasp.Cli.Interactive (askForInput)
@@ -54,7 +54,7 @@ news = liftIO $ do
     NewsReport
       { newsToShow = newsEntries,
         newsToConsiderSeen = newsEntries,
-        lastReportCalculatedAt = currentTime,
+        createdAt = currentTime,
         requireConfirmation = False
       }
 
@@ -73,7 +73,7 @@ handleNews = do
 
 data NewsReport = NewsReport
   { newsToShow :: [NewsEntry],
-    lastReportCalculatedAt :: UTCTime,
+    createdAt :: UTCTime,
     newsToConsiderSeen :: [NewsEntry],
     requireConfirmation :: Bool
   }
@@ -84,7 +84,7 @@ getAutomaticNewsReport currentTime localNewsInfo newsEntries =
   NewsReport
     { newsToShow = allRelevantUnseenNews,
       requireConfirmation,
-      lastReportCalculatedAt = currentTime,
+      createdAt = currentTime,
       newsToConsiderSeen =
         if requireConfirmation
           then allRelevantUnseenNews
@@ -115,5 +115,5 @@ printNewsReportAndUpdateLocalInfo newsReport = do
       -- How does it even work without any lock problems?
       info <- obtainLocalNewsInfo
       saveLocalNewsInfo $
-        setLastFetchedTimestamp newsReport.lastReportCalculatedAt $
+        setLastReportTimestamp newsReport.createdAt $
           markNewsAsSeen newsReport.newsToConsiderSeen info
