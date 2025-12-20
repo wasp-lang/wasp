@@ -1,0 +1,94 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+
+module Wasp.Cli.Command.News.Persistence
+  ( LocalNewsInfo,
+    obtainLocalNewsInfo,
+    saveLocalNewsInfo,
+    wasNewsEntrySeen,
+    areNewsStale,
+    setLastFetchedTimestamp,
+    markNewsAsSeen,
+  )
+where
+
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
+import Data.Functor ((<&>))
+import Data.Maybe (fromJust)
+import Data.Set (Set)
+import qualified Data.Set as Set
+import qualified Data.Text as Text
+import qualified Data.Time as T
+import GHC.Generics
+import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
+import qualified System.Directory as SD
+import Wasp.Cli.Command.News.Common (NewsEntry (..))
+import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
+import Wasp.Util (ifM, isOlderThanNHours)
+import qualified Wasp.Util.IO as IOUtil
+
+getNewsCacheFilePath :: IO (Path' Abs File')
+getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
+
+ensureNewsCacheFileParentDirExists :: IO ()
+ensureNewsCacheFileParentDirExists = do
+  parentDir <- parent <$> getNewsCacheFilePath
+  SD.createDirectoryIfMissing True $ fromAbsDir parentDir
+
+saveLocalNewsInfo :: LocalNewsInfo -> IO ()
+saveLocalNewsInfo localNewsInfo = do
+  ensureNewsCacheFileParentDirExists
+  newsCacheFile <- getNewsCacheFilePath
+  IOUtil.writeFile newsCacheFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsInfo
+
+wasNewsEntrySeen :: LocalNewsInfo -> NewsEntry -> Bool
+wasNewsEntrySeen info entry = entry.id `Set.member` seenNewsIds info
+
+-- | TODO: Improve error handling.
+obtainLocalNewsInfo :: IO LocalNewsInfo
+obtainLocalNewsInfo = do
+  cacheFile <- getNewsCacheFilePath
+  ifM
+    (IOUtil.doesFileExist cacheFile)
+    (readLocalNewsInfoFromFile cacheFile)
+    (return newLocalNewsInfoFromFile)
+  where
+    readLocalNewsInfoFromFile filePath = do
+      fileContent <- IOUtil.readFileStrict filePath
+      -- TODO: figure out what to do if this file is invalid
+      return $ fromJust $ Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
+    newLocalNewsInfoFromFile =
+      LocalNewsInfo
+        { lastFetched = Nothing,
+          seenNewsIds = Set.empty
+        }
+
+-- | News cache state stored on disk.
+data LocalNewsInfo = LocalNewsInfo
+  { lastFetched :: Maybe T.UTCTime,
+    seenNewsIds :: Set String
+  }
+  deriving (Generic, Show)
+
+instance Aeson.FromJSON LocalNewsInfo
+
+instance Aeson.ToJSON LocalNewsInfo
+
+areNewsStale :: LocalNewsInfo -> IO Bool
+areNewsStale info = case info.lastFetched of
+  Nothing -> return True
+  (Just lastFetched') -> isOlderThanNHours 24 lastFetched'
+
+setLastFetchedTimestamp :: T.UTCTime -> LocalNewsInfo -> LocalNewsInfo
+setLastFetchedTimestamp time info =
+  info
+    { lastFetched = Just time
+    }
+
+markNewsAsSeen :: [NewsEntry] -> LocalNewsInfo -> LocalNewsInfo
+markNewsAsSeen newsEntries info =
+  info
+    { seenNewsIds = seenNewsIds info `Set.union` Set.fromList ((.id) <$> newsEntries)
+    }
