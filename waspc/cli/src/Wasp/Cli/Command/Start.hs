@@ -3,10 +3,8 @@ module Wasp.Cli.Command.Start
   )
 where
 
-import Control.Concurrent (threadDelay)
-import Control.Concurrent.Async (async, race, waitCatch)
+import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
-import Control.Monad (void)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
