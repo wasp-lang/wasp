@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.Cli.Command.News.Persistence
-  ( LocalNewsInfo,
+  ( LocalNewsInfo (..),
     obtainLocalNewsInfo,
     saveLocalNewsInfo,
     wasNewsEntrySeen,
@@ -70,7 +70,7 @@ data LocalNewsInfo = LocalNewsInfo
   { lastReportAt :: Maybe T.UTCTime,
     seenNewsIds :: Set String
   }
-  deriving (Generic, Show)
+  deriving (Generic, Show, Eq)
 
 instance Aeson.FromJSON LocalNewsInfo
 

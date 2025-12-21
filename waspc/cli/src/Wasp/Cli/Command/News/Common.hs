@@ -29,7 +29,7 @@ data NewsEntry = NewsEntry
     level :: !NewsLevel,
     publishedAt :: !UTCTime
   }
-  deriving (Generic, Show)
+  deriving (Generic, Show, Eq)
 
 instance FromJSON NewsEntry
 

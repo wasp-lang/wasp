@@ -4,6 +4,9 @@
 module Wasp.Cli.Command.News
   ( news,
     handleNews,
+    -- Exported for testing
+    getAutomaticNewsReport,
+    NewsReport (..),
   )
 where
 
@@ -48,13 +51,11 @@ import Wasp.Util (whenM)
 news :: Command ()
 news = liftIO $ do
   newsEntries <- fetchNews
-  currentTime <- T.getCurrentTime
 
   printNewsReportAndUpdateLocalInfo $
     NewsReport
       { newsToShow = newsEntries,
         newsToConsiderSeen = newsEntries,
-        createdAt = currentTime,
         requireConfirmation = False
       }
 
@@ -67,24 +68,22 @@ handleNews = do
       fetchNewsWithTimeout 2 >>= \case
         Nothing -> return ()
         Just newsEntries -> do
-          currentTime <- T.getCurrentTime
-          let newsReport = getAutomaticNewsReport currentTime localNewsInfo newsEntries
+          let newsReport = getAutomaticNewsReport localNewsInfo newsEntries
           printNewsReportAndUpdateLocalInfo newsReport
 
 data NewsReport = NewsReport
   { newsToShow :: [NewsEntry],
-    createdAt :: UTCTime,
     newsToConsiderSeen :: [NewsEntry],
     requireConfirmation :: Bool
   }
+  deriving (Show, Eq)
 
 -- TODO: better name
-getAutomaticNewsReport :: UTCTime -> LocalNewsInfo -> [NewsEntry] -> NewsReport
-getAutomaticNewsReport currentTime localNewsInfo newsEntries =
+getAutomaticNewsReport :: LocalNewsInfo -> [NewsEntry] -> NewsReport
+getAutomaticNewsReport localNewsInfo newsEntries =
   NewsReport
     { newsToShow = allRelevantUnseenNews,
       requireConfirmation,
-      createdAt = currentTime,
       newsToConsiderSeen =
         if requireConfirmation
           then allRelevantUnseenNews
@@ -114,6 +113,7 @@ printNewsReportAndUpdateLocalInfo newsReport = do
       -- TODO: obtaining local news twice (here and in caller), fix problem
       -- How does it even work without any lock problems?
       info <- obtainLocalNewsInfo
+      currentTime <- T.getCurrentTime
       saveLocalNewsInfo $
-        setLastReportTimestamp newsReport.createdAt $
+        setLastReportTimestamp currentTime $
           markNewsAsSeen newsReport.newsToConsiderSeen info

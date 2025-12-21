@@ -778,6 +778,8 @@ test-suite wasp-cli-tests
     , base
     , waspc
     , cli-lib
+    , containers
+    , time
     , QuickCheck
     , tasty
     , hspec
@@ -787,6 +789,7 @@ test-suite wasp-cli-tests
     DbMigrateTest
     TerminalTest
     Paths_waspc
+    Wasp.Cli.Command.NewsTest
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
