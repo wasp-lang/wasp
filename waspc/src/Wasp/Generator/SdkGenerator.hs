@@ -14,8 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path', Rel, relfile, (</>), toFilePath, castRel, fromRelDir, castDir)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -336,20 +335,26 @@ genFile file
   where
     extension = FP.takeExtension filePath
     fileName = FP.takeFileName filePath
-    filePath = SP.toFilePath $ EC.filePathInExtCodeDir file
+    filePath = toFilePath $ EC.filePathInExtCodeDir file
 
 genResourceFile :: EC.CodeFile -> Generator FileDraft
-genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
+genResourceFile file = return $ FD.createCopyFileDraft destFile srcFile
   where
-    relDstPath = sdkRootDirInProjectRootDir </> extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
-    absSrcPath = EC.fileAbsPath file
+    destFile = sdkRootDirInProjectRootDir
+      </> castDir (castRel (sdkTemplatesProjectDirInSdkTemplatesRootDir SdkUserCoreProject))
+      </> extSrcDirInSdkRootDir
+      </> castRel (EC._pathInExtCodeDir file)
+    srcFile = EC.fileAbsPath file
 
 genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
-genSourceFile file = return $ FD.createTextFileDraft relDstPath text
+genSourceFile file = return $ FD.createTextFileDraft destFile text
   where
+    destFile = sdkRootDirInProjectRootDir
+      </> castDir (castRel (sdkTemplatesProjectDirInSdkTemplatesRootDir SdkUserCoreProject))
+      </> extSrcDirInSdkRootDir
+      </> castRel filePathInSrcExtCodeDir
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
     text = EC.fileText file
-    relDstPath = sdkRootDirInProjectRootDir </> extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
@@ -400,7 +405,7 @@ genDevIndex =
     makeSdkProjectTmplFdWithData
       SdkUserCoreProject
       [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+      (object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir])
   where
     waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromAppComponentDir
