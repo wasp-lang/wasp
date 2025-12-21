@@ -4,12 +4,7 @@ module Wasp.Generator.SdkGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath
-  ( File',
-    Path',
-    Rel,
-    relfile,
-  )
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -23,7 +18,7 @@ import Wasp.Generator.SdkGenerator.Auth.AuthFormsG (genAuthForms)
 import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
@@ -66,19 +61,19 @@ genAuth spec =
         <++> genIndexTs auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-    genFileCopy = return . C.mkTmplFd
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
 genUseAuth :: AS.Auth.Auth -> Generator FileDraft
-genUseAuth auth = return $ C.mkTmplFdWithData [relfile|auth/useAuth.ts|] tmplData
+genUseAuth auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|auth/useAuth.ts|] tmplData
   where
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
-genLuciaTs auth = return $ C.mkTmplFdWithData [relfile|auth/lucia.ts|] tmplData
+genLuciaTs auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|auth/lucia.ts|] tmplData
   where
     tmplData =
       object
@@ -90,7 +85,7 @@ genLuciaTs auth = return $ C.mkTmplFdWithData [relfile|auth/lucia.ts|] tmplData
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
-genSessionTs auth = return $ C.mkTmplFdWithData [relfile|auth/session.ts|] tmplData
+genSessionTs auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|auth/session.ts|] tmplData
   where
     tmplData =
       object
@@ -103,7 +98,7 @@ genSessionTs auth = return $ C.mkTmplFdWithData [relfile|auth/session.ts|] tmplD
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genUtils :: AS.Auth.Auth -> Generator FileDraft
-genUtils auth = return $ C.mkTmplFdWithData relUtilsFilePath tmplData
+genUtils auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|auth/utils.ts|] tmplData
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
     tmplData =
@@ -121,12 +116,9 @@ genUtils auth = return $ C.mkTmplFdWithData relUtilsFilePath tmplData
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]
 
-    relUtilsFilePath :: Path' (Rel C.SdkTemplatesDir) File'
-    relUtilsFilePath = [relfile|auth/utils.ts|]
-
 genIndexTs :: AS.Auth.Auth -> Generator [FileDraft]
 genIndexTs auth =
-  return [C.mkTmplFdWithData [relfile|auth/index.ts|] tmplData]
+  return [makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|auth/index.ts|] tmplData]
   where
     tmplData =
       object
@@ -137,7 +129,7 @@ genIndexTs auth =
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvdersIndex auth = return $ C.mkTmplFdWithData [relfile|auth/providers/index.ts|] tmplData
+genProvdersIndex auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|auth/providers/index.ts|] tmplData
   where
     tmplData =
       object
@@ -150,7 +142,7 @@ genProvdersIndex auth = return $ C.mkTmplFdWithData [relfile|auth/providers/inde
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
-genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/types.ts|] tmplData
+genProvidersTypes auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|auth/providers/types.ts|] tmplData
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

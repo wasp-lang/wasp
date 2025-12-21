@@ -16,7 +16,7 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
@@ -30,10 +30,10 @@ genWebSockets spec
         ]
   | otherwise = return []
   where
-    genFileCopy = return . C.mkTmplFd
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genWebSocketServerIndex :: AppSpec -> Generator FileDraft
-genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSocket/index.ts|] tmplData
+genWebSocketServerIndex spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|server/webSocket/index.ts|] tmplData
   where
     tmplData =
       object
@@ -45,7 +45,7 @@ genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSo
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
 genWebSocketProvider :: AppSpec -> Generator FileDraft
-genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
+genWebSocketProvider spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)

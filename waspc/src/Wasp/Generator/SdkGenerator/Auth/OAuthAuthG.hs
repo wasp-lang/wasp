@@ -4,8 +4,8 @@ module Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (File', Path', Rel', reldir, relfile)
-import qualified StrongPath as SP
+import StrongPath (reldir, relfile, (</>))
+import StrongPath.Types
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
@@ -18,7 +18,7 @@ import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
@@ -45,11 +45,10 @@ genHelpers auth =
 
     mkHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     mkHelpersFd provider helpersFp =
-      mkTmplFdWithDstAndData
-        [relfile|auth/helpers/_Provider.tsx|]
-        (SP.castRel $ [reldir|auth/helpers|] SP.</> helpersFp)
-        (Just tmplData)
+      makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
       where
+        destFile = [reldir|auth/helpers|] </> helpersFp
+        tmplFile = [relfile|auth/helpers/_Provider.tsx|]
         tmplData =
           object
             [ "signInPath" .= OAuth.serverLoginUrl provider,

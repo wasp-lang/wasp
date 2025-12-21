@@ -1,28 +1,29 @@
-module Wasp.Generator.SdkGenerator.EmailSender.Providers
+module Wasp.Generator.SdkGenerator.Server.EmailSender.Providers
   ( smtp,
     sendGrid,
     mailgun,
     dummy,
-    providersDirInSdkTemplatesDir,
+    serverProvidersDirInSdkTemplatesDir,
     EmailSenderProvider (..),
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, reldir, relfile)
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Generator.SdkGenerator.Common
+import Wasp.Generator.SdkGenerator.Server.Common
+
+data ServerProvidersTemplatesDir
+
+serverProvidersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerProvidersTemplatesDir)
+serverProvidersDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email/core/providers|]
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel ProvidersDir) File'
+    setupFnFile :: Path' (Rel ServerProvidersTemplatesDir) File'
   }
   deriving (Show, Eq)
-
-data ProvidersDir
-
-providersDirInSdkTemplatesDir :: Path' (Rel C.SdkTemplatesDir) (Dir ProvidersDir)
-providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]
 
 smtp :: EmailSenderProvider
 smtp =

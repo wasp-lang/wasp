@@ -5,31 +5,37 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import StrongPath (relfile)
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Client.Common
+import Wasp.Generator.SdkGenerator.Common
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
+
+clientRouterDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+clientRouterDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|router|]
 
 genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genFileCopy [relfile|client/router/types.ts|],
-      genFileCopy [relfile|client/router/linkHelpers.ts|],
-      genFileCopy [relfile|client/router/Link.tsx|]
+      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|types.ts|],
+      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|linkHelpers.ts|],
+      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|Link.tsx|]
     ]
   where
-    genFileCopy = return . C.mkTmplFd
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ C.mkTmplFdWithData [relfile|client/router/index.ts|] tmplData
+genIndexTs spec =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplData =
-      object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
+    tmplFile = clientRouterDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+    tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
 createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
 createRouteTemplateData (name, route) =

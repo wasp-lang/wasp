@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, isJust, maybeToList)
-import StrongPath (File', Path', Rel, relfile, (</>))
+import StrongPath (relfile, (</>), Path', Rel, Dir', reldir)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.EmailSender (EmailSender)
@@ -16,9 +16,13 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
-import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
+import Wasp.Generator.SdkGenerator.Common
+import qualified Wasp.Generator.SdkGenerator.Server.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
+import Wasp.Generator.SdkGenerator.Server.Common
+
+serverEmailDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+serverEmailDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email|]
 
 genNewEmailSenderApi :: AppSpec -> Generator [FileDraft]
 genNewEmailSenderApi spec = case maybeEmailSender of
@@ -32,9 +36,10 @@ genNewEmailSenderApi spec = case maybeEmailSender of
     maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
-genIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
+genIndex email = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
-    tmplPath = [relfile|server/email/index.ts|]
+    tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCore :: EmailSender -> Generator [FileDraft]
@@ -47,13 +52,15 @@ genCore email =
     <++> genEmailSenderProviderSetupFn email
 
 genCoreIndex :: EmailSender -> Generator FileDraft
-genCoreIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreIndex email = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
-    tmplPath = [relfile|server/email/core/index.ts|]
+    tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
-genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreTypes email = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
     tmplPath = [relfile|server/email/core/types.ts|]
     tmplData =
@@ -62,9 +69,10 @@ genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
     defaultFromField = AS.EmailSender.defaultFrom email
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
-genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreHelpers email = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
-    tmplPath = [relfile|server/email/core/helpers.ts|]
+    tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/helpers.ts|]
     tmplData =
       object
         [ "defaultFromField"
@@ -89,7 +97,8 @@ genEmailSenderProviderSetupFn email =
     provider :: Providers.EmailSenderProvider
     provider = getEmailSenderProvider email
 
-    tmplPath = Providers.providersDirInSdkTemplatesDir </> Providers.setupFnFile provider
+    tmplPath = Providers.serverProvidersDirInSdkTemplatesDir </> Providers.setupFnFile provider
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
@@ -104,6 +113,3 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.SendGrid -> Providers.sendGrid
   AS.EmailSender.Mailgun -> Providers.mailgun
   AS.EmailSender.Dummy -> Providers.dummy
-
-genFileCopy :: Path' (Rel C.SdkTemplatesDir) File' -> Generator FileDraft
-genFileCopy = return . C.mkTmplFd

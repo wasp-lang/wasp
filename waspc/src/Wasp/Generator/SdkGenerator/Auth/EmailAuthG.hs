@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.EmailAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (relfile)
+import StrongPath (Dir', Path', Rel, castRel, reldir, relfile, (</>))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (emailAuthProvider)
@@ -18,10 +18,14 @@ import Wasp.Generator.AuthProviders.Email
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.SdkGenerator.Server.Common
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
+
+emailAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+emailAuthDirInSdkTemplatesProjectDir = [reldir|auth/email|]
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
@@ -34,7 +38,11 @@ genEmailAuth auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
-genIndex = return $ C.mkTmplFd [relfile|auth/email/index.ts|]
+genIndex =
+  return $
+    makeSdkProjectTmplFd SdkUserCoreProject tmplFile
+  where
+    tmplFile = emailAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
@@ -48,47 +56,54 @@ genActions auth =
 genLoginAction :: Generator FileDraft
 genLoginAction =
   return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/login.ts|]
-      (object ["loginPath" .= serverLoginUrl emailAuthProvider])
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  where
+    tmplFile = emailAuthDirInSdkTemplatesProjectDir </> [relfile|actions/login.ts|]
+    tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
   return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/signup.ts|]
-      ( object
-          [ "signupPath" .= serverSignupUrl emailAuthProvider,
-            "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields
-          ]
-      )
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
+    tmplFile = emailAuthDirInSdkTemplatesProjectDir </> [relfile|actions/signup.ts|]
+    tmplData =
+      object
+        [ "signupPath" .= serverSignupUrl emailAuthProvider,
+          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields
+        ]
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     authMethods = AS.Auth.methods auth
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
   return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/passwordReset.ts|]
-      ( object
-          [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
-            "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
-          ]
-      )
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  where
+    tmplFile = emailAuthDirInSdkTemplatesProjectDir </> [relfile|actions/passwordReset.ts|]
+    tmplData =
+      object
+        [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
+          "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
+        ]
 
 genVerifyEmailAction :: Generator FileDraft
 genVerifyEmailAction =
   return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/verifyEmail.ts|]
-      (object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider])
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  where
+    tmplFile = emailAuthDirInSdkTemplatesProjectDir </> [relfile|actions/verifyEmail.ts|]
+    tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
 
 genServerUtils :: AS.Auth.Auth -> Generator FileDraft
-genServerUtils auth = return $ C.mkTmplFdWithData tmplFile tmplData
+genServerUtils auth =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-    tmplFile = [relfile|server/auth/email/utils.ts|]
+    -- TODO(franjo): This one is server specific so we have to 'castRel' since the rest
+    -- of code assumes the email auth path is relative to 'SdkTemplatesProjectDir'.
+    -- Do we move this out to 'Server.Auth.EmailAuthG.hs'?
+    tmplFile = serverTemplatesDirInSdkTemplatesDir </> castRel emailAuthDirInSdkTemplatesProjectDir </> [relfile|utils.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
@@ -97,3 +112,4 @@ genServerUtils auth = return $ C.mkTmplFdWithData tmplFile tmplData
           "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
           "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
         ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
