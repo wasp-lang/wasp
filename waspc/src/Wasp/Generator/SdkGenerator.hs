@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>), toFilePath, castRel, fromRelDir, castDir)
+import StrongPath (Abs, Dir, Path', Rel, relfile, (</>), toFilePath, castRel, fromRelDir)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -94,9 +94,9 @@ buildSdk projectRootDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ return $ makeSdkProjectTmplFd SdkCoreProject [relfile|tsconfig.json|], -- franjo#1
+    [ return $ makeSdkProjectTmplFd SdkCoreProject [relfile|tsconfig.json|],
       return $ makeSdkProjectTmplFd SdkCoreProject [relfile|server/HttpError.ts|],
-      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|tsconfig.json|], -- franjo#2
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|tsconfig.json|], 
       return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|vite-env.d.ts|],
       return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|prisma-runtime-library.d.ts|],
       return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|api/index.ts|],
@@ -139,7 +139,7 @@ genSdk spec =
 genRootSdkFiles :: AppSpec -> Generator [FileDraft]
 genRootSdkFiles spec =
   sequence
-    [ return $ makeSdkRootTmplFile [relfile|tsconfig.json|], -- franjo#3
+    [ return $ makeSdkRootTmplFile [relfile|tsconfig.json|], 
       return $ makeSdkRootTmplFile [relfile|tsconfig.sdk.json|],
       return $ makeSdkRootTmplFile [relfile|copy-assets.js|],
       genPackageJson spec
@@ -341,7 +341,6 @@ genResourceFile :: EC.CodeFile -> Generator FileDraft
 genResourceFile file = return $ FD.createCopyFileDraft destFile srcFile
   where
     destFile = sdkRootDirInProjectRootDir
-      </> castDir (castRel (sdkTemplatesProjectDirInSdkTemplatesRootDir SdkUserCoreProject))
       </> extSrcDirInSdkRootDir
       </> castRel (EC._pathInExtCodeDir file)
     srcFile = EC.fileAbsPath file
@@ -350,7 +349,6 @@ genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
 genSourceFile file = return $ FD.createTextFileDraft destFile text
   where
     destFile = sdkRootDirInProjectRootDir
-      </> castDir (castRel (sdkTemplatesProjectDirInSdkTemplatesRootDir SdkUserCoreProject))
       </> extSrcDirInSdkRootDir
       </> castRel filePathInSrcExtCodeDir
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file

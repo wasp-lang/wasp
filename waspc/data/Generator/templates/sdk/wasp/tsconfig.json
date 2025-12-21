@@ -2,8 +2,8 @@
   "references": [
     // TODO: interpolate through Haskell?
     { "path": "./core" },
-    { "path": "./user-core" },
+    { "path": "./user-core" }
   ],
   "files": [],
-  "include": [],
+  "include": []
 }

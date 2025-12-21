@@ -41,7 +41,7 @@ sdkTemplatesRootDirInTemplatesDir = [reldir|sdk/wasp|]
 -- This includes any tsconfig project that is not the root project itself ('SdkTemplatesRootDir').
 data SdkTemplatesProjectDir
 
-data SdkProject = SdkCoreProject | SdkUserCoreProject
+data SdkProject = SdkCoreProject | SdkUserCoreProject | SdkExtSrcProject
 
 sdkTemplatesProjectDirInSdkTemplatesRootDir :: SdkProject -> Path' (Rel SdkTemplatesRootDir) (Dir SdkTemplatesProjectDir)
 sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
@@ -49,6 +49,7 @@ sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
     case sdkTmplProject of
       SdkCoreProject -> "core/"
       SdkUserCoreProject -> "user-core/"
+      SdkExtSrcProject -> "src/" 
 
 makeSdkRootTmplFileWithDestAndData ::
   Path' (Rel SdkRootDir) File' ->
