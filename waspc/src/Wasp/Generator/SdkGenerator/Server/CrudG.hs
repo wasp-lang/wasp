@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
+import StrongPath (relfile, Path', Dir', reldir, Rel, (</>))
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
@@ -13,9 +13,10 @@ import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    mkTmplFdWithData,
-  )
+import Wasp.Generator.SdkGenerator.Server.Common
+
+serverCurdDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+serverCurdDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|crud|]
 
 genNewServerCrudApi :: AppSpec -> Generator [FileDraft]
 genNewServerCrudApi spec =
@@ -27,15 +28,12 @@ genNewServerCrudApi spec =
     areThereAnyCruds = not $ null cruds
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
-genCrudIndex spec cruds =
-  return $ mkTmplFdWithData tmplFile tmplData
+genCrudIndex spec cruds = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = serverCrudDirInSdkTemplatesDir </> [relfile|index.ts|]
+    tmplFile = serverCurdDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
     getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
     getCrudOperationJsonFromCrud (name, crud) = getCrudOperationJson name crud idField
       where
         idField = getIdFieldFromCrudEntity spec crud
-
-serverCrudDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverCrudDirInSdkTemplatesDir = [reldir|server/crud|]

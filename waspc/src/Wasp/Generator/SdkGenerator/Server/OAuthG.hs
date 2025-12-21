@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (fromJust, isJust)
-import StrongPath (Dir', File', Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>), parseRelFile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -25,11 +25,11 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    mkTmplFd,
-    mkTmplFdWithData,
-  )
 import Wasp.Util ((<++>))
+import Wasp.Generator.SdkGenerator.Server.Common
+
+serverOauthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+serverOauthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth/oauth|]
 
 genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuth auth
@@ -37,8 +37,8 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genServerOAuthFileCopy [relfile|oneTimeCode.ts|],
-          genServerOAuthFileCopy [relfile|provider.ts|]
+          genFileCopy $ serverOauthDirInSdkTemplatesProjectDir </> [relfile|oneTimeCode.ts|],
+          genFileCopy $ serverOauthDirInSdkTemplatesProjectDir </> [relfile|provider.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
@@ -46,22 +46,24 @@ genOAuth auth
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
+  where
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genIndexTs auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+genIndexTs auth = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|]
+    tmplFile = serverOauthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "enabledProviders" .= getEnabledAuthProvidersJson auth
         ]
 
 genRedirectHelper :: Generator FileDraft
-genRedirectHelper =
-  return $ mkTmplFdWithData tmplFile tmplData
+genRedirectHelper = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|]
+    tmplFile = serverOauthDirInSdkTemplatesProjectDir </> [relfile|redirect.ts|]
     tmplData =
       object
         [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
@@ -81,26 +83,23 @@ genOAuthProvider provider maybeUserConfig
 genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
-genOAuthConfig provider =
-  return $ mkTmplFdWithData tmplFile tmplData
+genOAuthConfig provider = return $ 
+  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile
-    providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
+    tmplFile = serverOauthDirInSdkTemplatesProjectDir </> [reldir|providers|] </> providerTsFile
     tmplData =
       object
         [ "providerId" .= OAuth.providerId provider,
           "displayName" .= OAuth.displayName provider
         ]
 
+    providerTsFile :: Path' (Rel ()) File'
+    providerTsFile = fromJust $ parseRelFile $ providerId ++ ".ts"
+
+    providerId = OAuth.providerId provider
+
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
   [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
-
-serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
-
-genServerOAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
-genServerOAuthFileCopy =
-  return . mkTmplFd . (serverOAuthDirInSdkTemplatesDir </>)

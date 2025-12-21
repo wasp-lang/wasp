@@ -17,9 +17,6 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
-    mkTmplFdWithData,
-  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
@@ -27,17 +24,17 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genServerIndex spec,
-          genClientIndex,
-          genClientWebSocketProvider spec
+        [ genWebSocketServerIndex spec,
+          genFileCopy [relfile|client/webSocket/index.ts|],
+          genWebSocketProvider spec
         ]
   | otherwise = return []
-
-genServerIndex :: AppSpec -> Generator FileDraft
-genServerIndex spec =
-  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = [relfile|server/webSocket/index.ts|]
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
+
+genWebSocketServerIndex :: AppSpec -> Generator FileDraft
+genWebSocketServerIndex spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|server/webSocket/index.ts|] tmplData
+  where
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -47,20 +44,12 @@ genServerIndex spec =
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
-genClientIndex :: Generator FileDraft
-genClientIndex =
-  return $ mkTmplFd tempFile
+genWebSocketProvider :: AppSpec -> Generator FileDraft
+genWebSocketProvider spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
   where
-    tempFile = [relfile|client/webSocket/index.ts|]
-
-genClientWebSocketProvider :: AppSpec -> Generator FileDraft
-genClientWebSocketProvider spec =
-  return $ mkTmplFdWithData tmplFile tmplData
-  where
-    tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
-    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
-    shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
+    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
 
 depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec =

@@ -5,33 +5,36 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Client.Common
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    mkTmplFd,
-    mkTmplFdWithData,
-  )
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
+
+clientRouterDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+clientRouterDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|router|]
 
 genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genClientRouterFileCopy [relfile|types.ts|],
-      genClientRouterFileCopy [relfile|linkHelpers.ts|],
-      genClientRouterFileCopy [relfile|Link.tsx|]
+      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|types.ts|],
+      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|linkHelpers.ts|],
+      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|Link.tsx|]
     ]
+  where
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|]
+    tmplFile = clientRouterDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
 createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
@@ -53,10 +56,3 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
-
-clientRouterDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-clientRouterDirInSdkTemplatesDir = [reldir|client/router|]
-
-genClientRouterFileCopy :: Path' Rel' File' -> Generator FileDraft
-genClientRouterFileCopy =
-  return . mkTmplFd . (clientRouterDirInSdkTemplatesDir </>)

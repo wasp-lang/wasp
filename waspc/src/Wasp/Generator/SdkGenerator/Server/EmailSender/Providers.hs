@@ -1,20 +1,27 @@
-module Wasp.Generator.SdkGenerator.EmailSender.Providers
+module Wasp.Generator.SdkGenerator.Server.EmailSender.Providers
   ( smtp,
     sendGrid,
     mailgun,
     dummy,
+    serverProvidersDirInSdkTemplatesDir,
     EmailSenderProvider (..),
   )
 where
 
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Generator.SdkGenerator.Common
+import Wasp.Generator.SdkGenerator.Server.Common
+
+data ServerProvidersTemplatesDir
+
+serverProvidersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerProvidersTemplatesDir)
+serverProvidersDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email/core/providers|]
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel SdkTemplatesDir) File'
+    setupFnFile :: Path' (Rel ServerProvidersTemplatesDir) File'
   }
   deriving (Show, Eq)
 
@@ -22,7 +29,7 @@ smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = Just nodeMailerDependency,
-      setupFnFile = [relfile|server/email/core/providers/smtp.ts|]
+      setupFnFile = [relfile|smtp.ts|]
     }
   where
     nodeMailerVersionRange :: SV.Range
@@ -35,7 +42,7 @@ sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = Just sendGridDependency,
-      setupFnFile = [relfile|server/email/core/providers/sendgrid.ts|]
+      setupFnFile = [relfile|sendgrid.ts|]
     }
   where
     sendGridVersionRange :: SV.Range
@@ -48,7 +55,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = Just mailgunDependency,
-      setupFnFile = [relfile|server/email/core/providers/mailgun.ts|]
+      setupFnFile = [relfile|mailgun.ts|]
     }
   where
     mailgunVersionRange :: SV.Range
@@ -61,5 +68,5 @@ dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
     { npmDependency = Nothing,
-      setupFnFile = [relfile|server/email/core/providers/dummy.ts|]
+      setupFnFile = [relfile|dummy.ts|]
     }

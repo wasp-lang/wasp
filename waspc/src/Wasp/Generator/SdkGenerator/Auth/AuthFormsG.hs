@@ -18,39 +18,39 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    mkTmplFd,
-    mkTmplFdWithData,
-  )
-
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
 
+authFormsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+authFormsDirInSdkTemplatesProjectDir = [reldir|auth/forms|]
+
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
-    [ genAuthComponent auth,
+    [ genAuthFormsFileCopy [relfile|Login.tsx|],
+      genAuthFormsFileCopy [relfile|Signup.tsx|],
       genAuthFormsFileCopy [relfile|Auth.module.css|],
-      genTypes auth,
-      genAuthFormsFileCopy [relfile|Login.tsx|],
-      genAuthFormsFileCopy [relfile|Signup.tsx|]
+      genAuthComponent auth,
+      genTypes auth
     ]
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|]
+    tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|Auth.tsx|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = authFormsDirInSdkTemplatesDir </> [relfile|types.ts|]
+    tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|types.ts|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
@@ -124,36 +124,37 @@ genInternalAuthComponents auth =
           genAuthFormsFileCopy [relfile|internal/social/SocialIcons.module.css|]
         ]
 
+-- TODO(franjo): fix this nested @where@ block mess
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
-genLoginSignupForm auth =
-  sequence
-    [ return $ mkTmplFdWithData tmplFile tmplData,
-      genAuthFormsFileCopy [relfile|internal/common/LoginSignupForm.module.css|]
-    ]
+genLoginSignupForm auth = return [genComponent, genCss]
   where
-    tmplFile = authFormsDirInSdkTemplatesDir </> [relfile|internal/common/LoginSignupForm.tsx|]
-    tmplData =
-      object
-        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-          "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
-          "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
-          "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
-          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
-          "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-          "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
-        ]
-    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
-    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+    genComponent = makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+      where
+        tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|internal/common/LoginSignupForm.tsx|]
+        tmplData =
+          object
+            [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+              "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
+              "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
+              "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+              "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
+              "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
+              "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
+              "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
+              "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
+              "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+            ]
+        areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
+        isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+    genCss = makeSdkProjectTmplFd SdkUserCoreProject tmplFile
+      where
+        tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|internal/common/LoginSignupForm.module.css|]
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
 
-authFormsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-authFormsDirInSdkTemplatesDir = [reldir|auth/forms|]
-
 genAuthFormsFileCopy :: Path' Rel' File' -> Generator FileDraft
 genAuthFormsFileCopy =
-  return . mkTmplFd . (authFormsDirInSdkTemplatesDir </>)
+  return
+    . makeSdkProjectTmplFd SdkUserCoreProject
+    . (authFormsDirInSdkTemplatesProjectDir </>)

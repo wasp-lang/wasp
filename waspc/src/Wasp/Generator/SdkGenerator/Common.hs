@@ -12,42 +12,14 @@ import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
 import Wasp.Util (toUpperFirst)
 
+-- | SDK root directory in a generated Wasp project.
 data SdkRootDir
 
-data SdkTemplatesDir
+-- | The path of SDK root in any generated project (e.g. `out` or `build`).
+sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
+sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp/|]
 
-data ClientTemplatesDir
-
-data ServerTemplatesDir
-
-asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
-asTmplFile = SP.castRel
-
-mkTmplFdWithDstAndData ::
-  Path' (Rel SdkTemplatesDir) File' ->
-  Path' (Rel SdkRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
-  createTemplateFileDraft
-    (sdkRootDirInProjectRootDir </> relDstPath)
-    (sdkTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
-
-mkTmplFdWithDst :: Path' (Rel SdkTemplatesDir) File' -> Path' (Rel SdkRootDir) File' -> FileDraft
-mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
-
-mkTmplFdWithData ::
-  Path' (Rel SdkTemplatesDir) File' ->
-  Aeson.Value ->
-  FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstPath (Just tmplData)
-  where
-    relDstPath = castRel relSrcPath
-
-mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
-mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
-
+-- | Currently, all generated projects have the same SDK root.
 -- To understand what's going on here, read this issue:
 -- https://github.com/wasp-lang/wasp/issues/1769
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
@@ -56,17 +28,81 @@ sdkRootDirInProjectRootDir =
     </> basename generatedCodeDirInDotWaspDir
     </> sdkRootDirInGeneratedCodeDir
 
-realSdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-realSdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
-
-sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp/user-core|]
-
-sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
-sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp/user-core|]
-
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|src|]
+
+-- | SDK root directory in 'data.Generator.templates'.
+data SdkTemplatesRootDir
+
+sdkTemplatesRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesRootDir)
+sdkTemplatesRootDirInTemplatesDir = [reldir|sdk/wasp|]
+
+-- | SDK tsconfig project directory.
+-- This includes any tsconfig project that is not the root project itself ('SdkTemplatesRootDir').
+data SdkTemplatesProjectDir
+
+data SdkProject = SdkCoreProject | SdkUserCoreProject
+
+sdkTemplatesProjectDirInSdkTemplatesRootDir :: SdkProject -> Path' (Rel SdkTemplatesRootDir) (Dir SdkTemplatesProjectDir)
+sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
+  fromJust . parseRelDir $
+    case sdkTmplProject of
+      SdkCoreProject -> "core/"
+      SdkUserCoreProject -> "user-core/"
+
+makeSdkRootTmplFileWithDestAndData ::
+  Path' (Rel SdkRootDir) File' ->
+  Path' (Rel SdkTemplatesRootDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+makeSdkRootTmplFileWithDestAndData destFile tmplFile tmplData =
+  createTemplateFileDraft
+    (sdkRootDirInProjectRootDir </> destFile)
+    (sdkTemplatesRootDirInTemplatesDir </> tmplFile)
+    tmplData
+
+makeSdkRootTmplFileWithData ::
+  Path' (Rel SdkTemplatesRootDir) File' ->
+  Aeson.Value ->
+  FileDraft
+makeSdkRootTmplFileWithData tmplFile tmplData =
+  makeSdkRootTmplFileWithDestAndData (castRel tmplFile) tmplFile (Just tmplData)
+
+makeSdkRootTmplFile ::
+  Path' (Rel SdkTemplatesRootDir) File' ->
+  FileDraft
+makeSdkRootTmplFile tmplFile =
+  makeSdkRootTmplFileWithDestAndData (castRel tmplFile) tmplFile Nothing
+
+-- TODO(franjo): can I do this without casting?
+makeSdkProjectTmplFdWithDestAndData ::
+  Path' (Rel SdkTemplatesProjectDir) File' ->
+  SdkProject ->
+  Path' (Rel SdkTemplatesProjectDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+makeSdkProjectTmplFdWithDestAndData destFile sdkTmplProject tmplFile tmplData =
+  createTemplateFileDraft
+    (castDir sdkRootDirInProjectRootDir </> sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject </> destFile)
+    (sdkTemplatesRootDirInTemplatesDir </> sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject </> tmplFile)
+    tmplData
+
+makeSdkProjectTmplFdWithData ::
+  SdkProject ->
+  Path' (Rel SdkTemplatesProjectDir) File' ->
+  Aeson.Value ->
+  FileDraft
+makeSdkProjectTmplFdWithData sdkTmplProject tmplFile tmplData =
+  makeSdkProjectTmplFdWithDestAndData (castRel tmplFile) sdkTmplProject tmplFile (Just tmplData)
+
+makeSdkProjectTmplFd ::
+  SdkProject ->
+  Path' (Rel SdkTemplatesProjectDir) File' ->
+  FileDraft
+makeSdkProjectTmplFd sdkTmplProject tmplFile =
+  makeSdkProjectTmplFdWithDestAndData (castRel tmplFile) sdkTmplProject tmplFile Nothing
+
+-- TODO(franjo): find out what to do with these
 
 relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
 relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.fromRelDirP path
@@ -75,12 +111,6 @@ relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.f
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
 makeSdkImportPath path = [reldirP|wasp|] </> path
-
-clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
-clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
-
-serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
-serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
 getOperationTypeName :: AS.Operation.Operation -> String
 getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"

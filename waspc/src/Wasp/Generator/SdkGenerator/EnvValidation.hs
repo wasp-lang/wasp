@@ -17,7 +17,7 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -33,10 +33,12 @@ genEnvValidation spec =
 
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
-  return
-    [ C.mkTmplFd [relfile|env/index.ts|],
-      C.mkTmplFd [relfile|env/validation.ts|]
+  sequence
+    [ genFileCopy [relfile|env/index.ts|],
+      genFileCopy [relfile|env/validation.ts|]
     ]
+  where
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec = sequence [genServerEnv spec]
@@ -48,12 +50,12 @@ genClientEnvFiles spec =
       genFileCopy [relfile|client/env.ts|]
     ]
   where
-    genFileCopy = return . C.mkTmplFd
+    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genServerEnv :: AppSpec -> Generator FileDraft
-genServerEnv spec = return $ C.mkTmplFdWithData tmplFile tmplData
+genServerEnv spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
-    tmplFile = [relfile|server/env.ts|]
+    tmplPath = [relfile|server/env.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
@@ -75,7 +77,7 @@ genServerEnv spec = return $ C.mkTmplFdWithData tmplFile tmplData
     app = snd $ getApp spec
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
-genClientEnvSchema spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =

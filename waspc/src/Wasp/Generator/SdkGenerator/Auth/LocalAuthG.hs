@@ -4,28 +4,30 @@ module Wasp.Generator.SdkGenerator.Auth.LocalAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (localAuthProvider)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    mkTmplFd,
-    mkTmplFdWithData,
-  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
+
+localAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+localAuthDirInSdkTemplatesProjectDir = [reldir|auth/username|]
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genLocalAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
       sequence
-        [ genLocalAuthDirFileCopy [relfile|index.ts|]
+        [ genIndex
         ]
         <++> genActions auth
   | otherwise = return []
+
+genIndex :: Generator FileDraft
+genIndex = return $ makeSdkProjectTmplFd SdkUserCoreProject $ localAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
@@ -35,15 +37,19 @@ genActions auth =
     ]
 
 genLoginAction :: Generator FileDraft
-genLoginAction = return $ mkTmplFdWithData tmplFile tmplData
+genLoginAction =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|]
+    tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|actions/login.ts|]
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
-genSignupAction auth = return $ mkTmplFdWithData tmplFile tmplData
+genSignupAction auth =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = localAuthDirInSdkTemplatesDir </> [relfile|actions/signup.ts|]
+    tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|actions/signup.ts|]
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl localAuthProvider,
@@ -51,10 +57,3 @@ genSignupAction auth = return $ mkTmplFdWithData tmplFile tmplData
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
-
-localAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-localAuthDirInSdkTemplatesDir = [reldir|auth/username|]
-
-genLocalAuthDirFileCopy :: Path' Rel' File' -> Generator FileDraft
-genLocalAuthDirFileCopy =
-  return . mkTmplFd . (localAuthDirInSdkTemplatesDir </>)

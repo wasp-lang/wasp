@@ -22,7 +22,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.SdkGenerator.Common (realSdkRootDirInGeneratedCodeDir, sdkRootDirInGeneratedCodeDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( CompileError,
@@ -30,7 +30,6 @@ import Wasp.Project.Common
     WaspProjectDir,
     buildDirInDotWaspDir,
     dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
     getSrcTsConfigInWaspProjectDir,
     packageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
@@ -64,7 +63,7 @@ build = do
 
   -- We are using the same SDK location for both build and start. Read this issue
   -- for the full story: https://github.com/wasp-lang/wasp/issues/1769
-  let sdkDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> realSdkRootDirInGeneratedCodeDir
+  let sdkDir = buildDir </> sdkRootDirInProjectRootDir
   doesSdkDirExist <- liftIO $ doesDirectoryExist sdkDir
   when doesSdkDirExist $ do
     cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out/sdk directory..."
@@ -107,8 +106,8 @@ build = do
 
       liftIO $
         copyDirectory
-          (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> realSdkRootDirInGeneratedCodeDir)
-          (buildDir </> realSdkRootDirInGeneratedCodeDir)
+          (buildDir </> sdkRootDirInProjectRootDir)
+          (buildDir </> sdkRootDirInGeneratedCodeDir)
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
