@@ -1,12 +1,14 @@
 {
-  // TODO: Eventually switch to user's config.
+  // TODO: Eventually split 'user-core' and 'src'
+  // into two different tsconfig projects.
   "extends": "../tsconfig.sdk.json",
   "compilerOptions": {
-    "outDir": "../dist/user-core",
+    "rootDir": "..",
+    "outDir": "../dist/"
   },
-  "include": ["."],
+  "include": [".", "../src"],
   // TODO: Interpolate through Haskell?
   "references": [
-    { "path": "../core" }
-  ],
+    { "path": "../core" },
+  ]
 }

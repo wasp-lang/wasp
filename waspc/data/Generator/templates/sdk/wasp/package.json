@@ -5,149 +5,145 @@
   "private": true,
   "type": "module",
   "scripts": {
-      "build": "tsc -b && node ./copy-assets.js",
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
-    },
+    "build": "tsc -b && node ./copy-assets.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
+  },
   {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
   {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
-      {=! todo(filip): Check all exports when done with SDK generation =}
-      {=!  Some of the statements in the comments might become incorrect. =}
-      {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      {=! TODO: interpolate through Haskell? =}
-      "./core/storage": "./dist/user-core/core/storage.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./core/serialization": "./dist/user-core/core/serialization/index.js",
-      "./core/auth": "./dist/user-core/core/auth.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/helpers/user": "./dist/user-core/auth/helpers/user.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/session": "./dist/user-core/auth/session.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/user": "./dist/user-core/auth/user.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/providers/types": "./dist/user-core/auth/providers/types.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/types": "./dist/user-core/auth/types.js",
-      {=!  Used by users, documented. =}
-      "./auth/utils": "./dist/user-core/auth/utils.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/password": "./dist/user-core/auth/password.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/jwt": "./dist/user-core/auth/jwt.js",
-      {=!  Used by user, documented. =}
-      "./auth/validation": "./dist/user-core/auth/validation.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/pages/createAuthRequiredPage": "./dist/user-core/auth/pages/createAuthRequiredPage.jsx",
-      {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
-      "./api/events": "./dist/user-core/api/events.js",
-      {=!  Used by users, documented. =}
-      "./operations": "./dist/user-core/operations/index.js",
-      {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
-      {=!  expose it here (which leaks it to our users). We could avoid this by =}
-      {=!  using relative imports inside SDK code (instead of library imports), =}
-      {=!  but I didn't have time to implement it. =}
-      "./src/*": "./dist/user-core/src/*.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./operations/*": "./dist/user-core/operations/*",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./universal/url": "./dist/user-core/universal/url.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./universal/types": "./dist/user-core/universal/types.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./universal/validators": "./dist/user-core/universal/validators.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./universal/ansiColors": "./dist/user-core/universal/ansiColors.js",
-      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
-      "./server/utils": "./dist/user-core/server/utils.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/auth/email": "./dist/user-core/server/auth/email/index.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./client/test/*": "./dist/user-core/client/test/*.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/crud/*": "./dist/user-core/server/crud/*.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/email/core/types": "./dist/user-core/server/email/core/types.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/auth/email/utils": "./dist/user-core/server/auth/email/utils.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/jobs/*": "./dist/user-core/server/jobs/*.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
-      "./server/jobs/core/pgBoss": "./dist/user-core/server/jobs/core/pgBoss/index.js",
+    {=! todo(filip): Check all exports when done with SDK generation =}
+    {=!  Some of the statements in the comments might become incorrect. =}
+    {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    {=! TODO: interpolate through Haskell? =}
+    "./core/storage": "./dist/user-core/core/storage.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./core/serialization": "./dist/user-core/core/serialization/index.js",
+    "./core/auth": "./dist/user-core/core/auth.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/helpers/user": "./dist/user-core/auth/helpers/user.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/session": "./dist/user-core/auth/session.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/user": "./dist/user-core/auth/user.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/providers/types": "./dist/user-core/auth/providers/types.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/types": "./dist/user-core/auth/types.js",
+    {=!  Used by users, documented. =}
+    "./auth/utils": "./dist/user-core/auth/utils.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/password": "./dist/user-core/auth/password.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/jwt": "./dist/user-core/auth/jwt.js",
+    {=!  Used by user, documented. =}
+    "./auth/validation": "./dist/user-core/auth/validation.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./auth/pages/createAuthRequiredPage": "./dist/user-core/auth/pages/createAuthRequiredPage.jsx",
+    {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
+    "./api/events": "./dist/user-core/api/events.js",
+    {=!  Used by users, documented. =}
+    "./operations": "./dist/user-core/operations/index.js",
+    {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
+    {=!  expose it here (which leaks it to our users). We could avoid this by =}
+    {=!  using relative imports inside SDK code (instead of library imports), =}
+    {=!  but I didn't have time to implement it. =}
+    "./src/*": "./dist/src/*.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./operations/*": "./dist/user-core/operations/*",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./universal/url": "./dist/user-core/universal/url.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./universal/types": "./dist/user-core/universal/types.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./universal/validators": "./dist/user-core/universal/validators.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./universal/ansiColors": "./dist/user-core/universal/ansiColors.js",
+    {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
+    "./server/utils": "./dist/user-core/server/utils.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./server/auth/email": "./dist/user-core/server/auth/email/index.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./client/test/*": "./dist/user-core/client/test/*.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./server/crud/*": "./dist/user-core/server/crud/*.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./server/email/core/types": "./dist/user-core/server/email/core/types.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./server/auth/email/utils": "./dist/user-core/server/auth/email/utils.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./server/jobs/*": "./dist/user-core/server/jobs/*.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
+    "./server/jobs/core/pgBoss": "./dist/user-core/server/jobs/core/pgBoss/index.js",
 
-      {=! Used by the framework client code, reconsider during refactoring. =}
-      "./client/webSocket/WebSocketProvider": "./dist/user-core/client/webSocket/WebSocketProvider.jsx",
-      {=! Still needed, reconsider during refactoring. =}
-      "./server/types": "./dist/user-core/server/types/index.js",
-      {=! Used by the framework server code, reconsider during refactoring. =}
-      "./server/middleware": "./dist/user-core/server/middleware/index.js",
+    {=! Used by the framework client code, reconsider during refactoring. =}
+    "./client/webSocket/WebSocketProvider": "./dist/user-core/client/webSocket/WebSocketProvider.jsx",
+    {=! Still needed, reconsider during refactoring. =}
+    "./server/types": "./dist/user-core/server/types/index.js",
+    {=! Used by the framework server code, reconsider during refactoring. =}
+    "./server/middleware": "./dist/user-core/server/middleware/index.js",
 
-      {=! ================= NEW API HERE =================== =}
-      {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
-      {=! Private: [] =}
-      "./server": "./dist/user-core/server/index.js",
-      {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}
-      {=! Private: [] =}
-      "./server/api": "./dist/user-core/server/api/index.js",
-      {=! Public: { api }  =}
-      {=! Private: [sdk] =}
-      "./client/api": "./dist/user-core/api/index.js",
-      {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
-      {=! Private: [] =}
-      "./client/webSocket": "./dist/user-core/client/webSocket/index.js",
-      {=! Public: { type WebSocketDefinition, type WaspSocketData } =}
-      {=! Private: [server, sdk] =}
-      "./server/webSocket": "./dist/user-core/server/webSocket/index.js",
-      "./entities": "./dist/user-core/entities/index.js",
-      "./auth": "./dist/user-core/auth/index.js",
-      "./auth/providers": "./dist/user-core/auth/providers/index.js",
-      "./client/auth": "./dist/user-core/client/auth/index.js",
-      "./client/operations": "./dist/user-core/client/operations/index.js",
-      "./server/auth": "./dist/user-core/server/auth/index.js",
-      "./server/crud": "./dist/user-core/server/crud/index.js",
-      "./client/crud": "./dist/user-core/client/crud/index.js",
-      "./server/email": "./dist/user-core/server/email/index.js",
-      "./server/jobs": "./dist/user-core/server/jobs/index.js",
-      "./server/operations": "./dist/user-core/server/operations/index.js",
-      "./client/router": "./dist/user-core/client/router/index.js",
-      "./client/test": "./dist/user-core/client/test/index.js",
-      "./client/hooks": "./dist/user-core/client/hooks.js",
-      "./client": "./dist/user-core/client/index.js",
-      "./dev": "./dist/user-core/dev/index.js",
-      "./env": "./dist/user-core/env/index.js",
-      {=! Private: [client] =}
-      "./env/validation": "./dist/user-core/env/validation.js",
-      {=! Private: [client, sdk] =}
-      "./client/env/schema": "./dist/user-core/client/env/schema.js",
+    {=! ================= NEW API HERE =================== =}
+    {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
+    {=! Private: [] =}
+    "./server": "./dist/user-core/server/index.js",
+    {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}
+    {=! Private: [] =}
+    "./server/api": "./dist/user-core/server/api/index.js",
+    {=! Public: { api }  =}
+    {=! Private: [sdk] =}
+    "./client/api": "./dist/user-core/api/index.js",
+    {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
+    {=! Private: [] =}
+    "./client/webSocket": "./dist/user-core/client/webSocket/index.js",
+    {=! Public: { type WebSocketDefinition, type WaspSocketData } =}
+    {=! Private: [server, sdk] =}
+    "./server/webSocket": "./dist/user-core/server/webSocket/index.js",
+    "./entities": "./dist/user-core/entities/index.js",
+    "./auth": "./dist/user-core/auth/index.js",
+    "./auth/providers": "./dist/user-core/auth/providers/index.js",
+    "./client/auth": "./dist/user-core/client/auth/index.js",
+    "./client/operations": "./dist/user-core/client/operations/index.js",
+    "./server/auth": "./dist/user-core/server/auth/index.js",
+    "./server/crud": "./dist/user-core/server/crud/index.js",
+    "./client/crud": "./dist/user-core/client/crud/index.js",
+    "./server/email": "./dist/user-core/server/email/index.js",
+    "./server/jobs": "./dist/user-core/server/jobs/index.js",
+    "./server/operations": "./dist/user-core/server/operations/index.js",
+    "./client/router": "./dist/user-core/client/router/index.js",
+    "./client/test": "./dist/user-core/client/test/index.js",
+    "./client/hooks": "./dist/user-core/client/hooks.js",
+    "./client": "./dist/user-core/client/index.js",
+    "./dev": "./dist/user-core/dev/index.js",
+    "./env": "./dist/user-core/env/index.js",
+    {=! Private: [client] =}
+    "./env/validation": "./dist/user-core/env/validation.js",
+    {=! Private: [client, sdk] =}
+    "./client/env/schema": "./dist/user-core/client/env/schema.js",
 
-      {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
-      {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}
-      "./client/operations/rpc": "./dist/user-core/client/operations/rpc.js",
-      "./server/operations/actions":  "./dist/user-core/server/operations/actions/index.js",
-      "./server/operations/queries": "./dist/user-core/server/operations/queries/index.js",
-      "./server/_types": "./dist/user-core/server/_types/index.js"
-
-   },
-   {=!
-     TypeScript doesn't care about the redirects we define above in "exports" field; those
-     are used only in runtime. TypeScript instead follows exact path as stated in an import when
-     trying to find the type declarations. Therefore, when "exports" redirect doesn't match the path
-     it redirects to, we need to also let TypeScript know about it, and that can be done with
-     `typesVersions` field below.
-   =}
-   "typesVersions": {
-     "*": {
-       "client/api": ["api/index.ts"]
-     }
-   },
-   "license": "ISC",
-    "include": [
-      "src/**/*"
-   ],
-   {=& depsChunk =},
-   {=& devDepsChunk =},
-   {=& peerDepsChunk =}
+    {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
+    {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}
+    "./client/operations/rpc": "./dist/user-core/client/operations/rpc.js",
+    "./server/operations/actions":  "./dist/user-core/server/operations/actions/index.js",
+    "./server/operations/queries": "./dist/user-core/server/operations/queries/index.js",
+    "./server/_types": "./dist/user-core/server/_types/index.js"
+  },
+  {=!
+    TypeScript doesn't care about the redirects we define above in "exports" field; those
+    are used only in runtime. TypeScript instead follows exact path as stated in an import when
+    trying to find the type declarations. Therefore, when "exports" redirect doesn't match the path
+    it redirects to, we need to also let TypeScript know about it, and that can be done with
+    `typesVersions` field below.
+  =}
+  "typesVersions": {
+    "*": {
+      "client/api": ["api/index.ts"]
+    }
+  },
+  "license": "ISC",
+  {=& depsChunk =},
+  {=& devDepsChunk =},
+  {=& peerDepsChunk =}
 }
