@@ -14,8 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path', Rel, relfile, (</>), toFilePath, castRel, fromRelDir, castDir)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -336,7 +335,7 @@ genFile file
   where
     extension = FP.takeExtension filePath
     fileName = FP.takeFileName filePath
-    filePath = SP.toFilePath $ EC.filePathInExtCodeDir file
+    filePath = toFilePath $ EC.filePathInExtCodeDir file
 
     genSourceFile :: EC.CodeFile -> Generator FileDraft
     genSourceFile = return . FD.createTextFileDraft destFile . EC.fileText
@@ -346,8 +345,9 @@ genFile file
 
     destFile =
       sdkRootDirInProjectRootDir
+        </> castDir (castRel (sdkTemplatesProjectDirInSdkTemplatesRootDir SdkUserCoreProject))
         </> extSrcDirInSdkRootDir
-        </> SP.castRel (EC.filePathInExtCodeDir file)
+        </> castRel (EC.filePathInExtCodeDir file)
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
@@ -398,7 +398,7 @@ genDevIndex =
     makeSdkProjectTmplFdWithData
       SdkUserCoreProject
       [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+      (object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir])
   where
     waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromAppComponentDir
