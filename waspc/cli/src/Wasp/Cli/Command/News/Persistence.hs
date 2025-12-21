@@ -16,7 +16,7 @@ where
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Functor ((<&>))
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -46,7 +46,6 @@ saveLocalNewsInfo localNewsInfo = do
 wasNewsEntrySeen :: LocalNewsInfo -> NewsEntry -> Bool
 wasNewsEntrySeen info entry = entry.id `Set.member` seenNewsIds info
 
--- | TODO: Improve error handling.
 obtainLocalNewsInfo :: IO LocalNewsInfo
 obtainLocalNewsInfo = do
   cacheFile <- getNewsCacheFilePath
@@ -55,10 +54,13 @@ obtainLocalNewsInfo = do
     (readLocalNewsInfoFromFile cacheFile)
     (return newLocalNewsInfoFromFile)
   where
+    -- TODO: perhaps better name, it might default if it fails reading
     readLocalNewsInfoFromFile filePath = do
       fileContent <- IOUtil.readFileStrict filePath
-      -- TODO: figure out what to do if this file is invalid
-      return $ fromJust $ Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
+      let maybeLocalNewsInfo =
+            Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
+      return $ fromMaybe newLocalNewsInfoFromFile maybeLocalNewsInfo
+
     newLocalNewsInfoFromFile =
       LocalNewsInfo
         { lastReportAt = Nothing,
