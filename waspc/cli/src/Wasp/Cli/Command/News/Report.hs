@@ -32,8 +32,8 @@ data NewsReport = NewsReport
   }
   deriving (Show, Eq)
 
-makeVoluntaryNewsReport :: [NewsEntry] -> NewsReport
-makeVoluntaryNewsReport newsEntries =
+makeVoluntaryNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
+makeVoluntaryNewsReport _currentState newsEntries =
   NewsReport
     { newsToShow = newsEntries,
       newsToConsiderSeen = newsEntries,
@@ -41,11 +41,11 @@ makeVoluntaryNewsReport newsEntries =
     }
 
 makeMandatoryNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeMandatoryNewsReport localNewsState newsEntries
+makeMandatoryNewsReport currentState newsEntries
   | isFirstTimeUser = showNothingAndMarkAllAsSeen
-  | otherwise = makeMandatoryNewsReportForExistingUser localNewsState newsEntries
+  | otherwise = makeMandatoryNewsReportForExistingUser currentState newsEntries
   where
-    isFirstTimeUser = isNothing localNewsState.lastReportAt
+    isFirstTimeUser = isNothing currentState.lastReportAt
 
     showNothingAndMarkAllAsSeen =
       NewsReport
@@ -55,7 +55,7 @@ makeMandatoryNewsReport localNewsState newsEntries
         }
 
 makeMandatoryNewsReportForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeMandatoryNewsReportForExistingUser localNewsState newsEntries =
+makeMandatoryNewsReportForExistingUser currentState newsEntries =
   NewsReport
     { newsToShow = allRelevantUnseenNews,
       requireConfirmation,
@@ -68,7 +68,7 @@ makeMandatoryNewsReportForExistingUser localNewsState newsEntries =
     requireConfirmation = any ((== High) . level) allRelevantUnseenNews
     allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
     isRelevant = (>= Moderate) . level
-    isUnseen = not . wasNewsEntrySeen localNewsState
+    isUnseen = not . wasNewsEntrySeen currentState
 
 printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
 printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do

@@ -42,7 +42,7 @@ news =
     Right newsEntries -> liftIO $ do
       localNewsState <- obtainLocalNewsState
       printNewsReportAndUpdateLocalState localNewsState $
-        makeVoluntaryNewsReport newsEntries
+        makeVoluntaryNewsReport localNewsState newsEntries
 
 fetchAndReportMandatoryNews :: IO ()
 fetchAndReportMandatoryNews = do
