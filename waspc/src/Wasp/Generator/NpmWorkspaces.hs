@@ -14,7 +14,6 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
-    buildDirInDotWaspDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
   )
@@ -26,9 +25,8 @@ import Wasp.Project.Common
 requiredWorkspaceGlobs :: Set String
 requiredWorkspaceGlobs =
   fromList
-    [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
-      makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
-      -- TODO: Add SDK as a workspace (#3233)
+    [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+    -- TODO: Add SDK as a workspace (#3233)
     ]
   where
     makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> String

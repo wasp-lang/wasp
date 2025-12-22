@@ -23,7 +23,7 @@ import ShellCommands
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.FilePath (joinPath)
 import Wasp.Generator.DbGenerator.Common
-import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- | Context for commands which are run from inside of a Wasp app project.
@@ -55,7 +55,7 @@ validateWaspProjectDockerImageBuilds = do
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
           ~? "cd "
-          ++ fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir)
+          ++ fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir)
             ~&& "docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t "
           ++ dockerImageTag
           ++ " ."
