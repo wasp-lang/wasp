@@ -7,18 +7,17 @@ import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Util (indent, wrapString)
 import qualified Wasp.Util.Terminal as Term
 
-displayNewsEntry :: NewsEntry -> IO ()
-displayNewsEntry newsEntry = do
-  putStrLn $
-    Term.applyStyles [Term.Bold] newsEntry.title
-      <> " "
-      <> Term.applyStyles [Term.Bold] (replicate dotCount '.')
-      <> " "
-      <> Term.applyStyles [Term.Yellow, Term.Bold] dateText
-  putStrLn $
-    showLevelInColor newsEntry.level
-      <> "\n"
-      <> Term.applyStyles [Term.Grey] (indent 2 $ wrapString (maxColumns - 2) newsEntry.body)
+displayNewsEntry :: NewsEntry -> String
+displayNewsEntry newsEntry =
+  Term.applyStyles [Term.Bold] newsEntry.title
+    <> " "
+    <> Term.applyStyles [Term.Bold] (replicate dotCount '.')
+    <> " "
+    <> Term.applyStyles [Term.Yellow, Term.Bold] dateText
+    <> "\n"
+    <> showLevelInColor newsEntry.level
+    <> "\n"
+    <> Term.applyStyles [Term.Grey] (indent 2 $ wrapString (maxColumns - 2) newsEntry.body)
   where
     dateText = formatTime defaultTimeLocale "%Y-%m-%d" newsEntry.publishedAt
     dotCount = max minDotsCount (maxColumns - length newsEntry.title - length dateText - 2)
