@@ -5,6 +5,8 @@ import Control.Exception (evaluate)
 import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Test.Hspec
+import Test.Hspec.QuickCheck (prop)
+import Test.QuickCheck
 import Wasp.Util
 
 spec_camelToKebabCase :: Spec
@@ -140,6 +142,38 @@ spec_insertAt = do
     it "insert given list at the end of host list if index is equal or bigger than host list length" $ do
       insertAt [0] 3 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
       insertAt [0] 4 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
+
+spec_wrapString :: Spec
+spec_wrapString = do
+  describe "wrapString" $ do
+    it "returns empty string for empty input" $ do
+      wrapString 10 "" `shouldBe` ""
+
+    it "returns single line when text fits" $ do
+      wrapString 20 "hello world" `shouldBe` "hello world"
+
+    it "wraps text that exceeds max length" $ do
+      wrapString 10 "hello world" `shouldBe` "hello\nworld"
+
+    it "wraps text into multiple lines" $ do
+      wrapString 10 "one two three four" `shouldBe` "one two\nthree four"
+
+    it "includes long word at start of line even if it exceeds max length" $ do
+      wrapString 5 "extraordinary day is extraordinary" `shouldBe` "extraordinary\nday\nis\nextraordinary"
+
+    prop "preserves all words in order" $
+      \maxLen str -> words str == words (wrapString maxLen str)
+
+    prop "does not produce lines longer than max length unless unavoidable" $
+      \maxLen str ->
+        let lns = lines (wrapString maxLen str)
+         in all (\l -> length l <= maxLen || length (words l) == 1) lns
+
+    prop "does not produce empty lines" $
+      \maxLen str -> null str || notElem "" (lines (wrapString maxLen str))
+
+    prop "treats negative numbers as zero" $
+      \(Negative n) str -> wrapString n str == wrapString 0 str
 
 spec_hex :: Spec
 spec_hex = do
