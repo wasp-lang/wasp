@@ -4,8 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (reldir, relfile, (</>))
-import StrongPath.Types
+import StrongPath (reldir, relfile, (</>), Path', Rel', File')
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
