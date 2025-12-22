@@ -105,8 +105,8 @@ build = do
           (buildDir </> castRel srcDirInWaspProjectDir)
 
       -- Even though the build code references `.wasp/out/sdk` in `package.json`,
-      -- we need the `.wasp/build/sdk` to exists for the `.wasp/build/Dockerfile`
-      -- which copies `.wasp/build/sdk` to .wasp/out/sdk`.
+      -- we need `.wasp/build/sdk` to exists because `.wasp/build/Dockerfile`
+      -- copies `.wasp/build/sdk` to `.wasp/out/sdk`.
       liftIO $
         copyDirectory
           (buildDir </> sdkRootDirInProjectRootDir)
