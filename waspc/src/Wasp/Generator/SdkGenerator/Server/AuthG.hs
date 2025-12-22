@@ -37,8 +37,7 @@ genNewServerApi spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
@@ -50,8 +49,7 @@ genAuthIndex auth =
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverAuthDirInSdkTemplatesProjectDir </> [relfile|user.ts|]
     tmplData =
@@ -67,8 +65,7 @@ genAuthUser auth =
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverAuthDirInSdkTemplatesProjectDir </> [relfile|hooks.ts|]
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]

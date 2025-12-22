@@ -53,8 +53,7 @@ genOAuth auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
@@ -64,8 +63,7 @@ genIndexTs auth =
 
 genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|redirect.ts|]
     tmplData =
@@ -88,8 +86,7 @@ genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
 genOAuthConfig provider =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [reldir|providers|] </> providerTsFile
     providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"

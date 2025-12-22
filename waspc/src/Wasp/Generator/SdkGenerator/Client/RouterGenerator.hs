@@ -26,8 +26,7 @@ genNewClientRouterApi spec =
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = clientRouterDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]

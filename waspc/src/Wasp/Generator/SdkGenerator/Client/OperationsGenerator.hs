@@ -56,8 +56,7 @@ genActions spec =
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = clientOpsDirInSdkTemplatesProjectDir </> [relfile|queries/index.ts|]
     tmplData =
@@ -67,8 +66,7 @@ genQueriesIndex spec =
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplF tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplF tmplData
   where
     tmplF = clientOpsDirInSdkTemplatesProjectDir </> [relfile|actions/index.ts|]
     tmplData =
