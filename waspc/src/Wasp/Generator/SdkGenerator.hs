@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>), toFilePath, castRel, fromRelDir)
+import StrongPath (Abs, Dir, Path', Rel, castRel, fromRelDir, relfile, toFilePath, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -95,7 +95,7 @@ genSdk spec =
   sequence
     [ return $ makeSdkProjectTmplFd SdkCoreProject [relfile|tsconfig.json|],
       return $ makeSdkProjectTmplFd SdkCoreProject [relfile|server/HttpError.ts|],
-      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|tsconfig.json|], 
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|tsconfig.json|],
       return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|vite-env.d.ts|],
       return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|prisma-runtime-library.d.ts|],
       return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|api/index.ts|],
@@ -138,7 +138,7 @@ genSdk spec =
 genRootSdkFiles :: AppSpec -> Generator [FileDraft]
 genRootSdkFiles spec =
   sequence
-    [ return $ makeSdkRootTmplFile [relfile|tsconfig.json|], 
+    [ return $ makeSdkRootTmplFile [relfile|tsconfig.json|],
       return $ makeSdkRootTmplFile [relfile|tsconfig.sdk.json|],
       return $ makeSdkRootTmplFile [relfile|copy-assets.js|],
       genPackageJson spec
@@ -339,17 +339,19 @@ genExternalFile file
 genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
 genExternalResourceFile file = return $ createCopyFileDraft destFile srcFile
   where
-    destFile = sdkRootDirInProjectRootDir
-      </> extSrcDirInSdkRootDir
-      </> castRel (EF.filePathInExtCodeDir file)
+    destFile =
+      sdkRootDirInProjectRootDir
+        </> extSrcDirInSdkRootDir
+        </> castRel (EF.filePathInExtCodeDir file)
     srcFile = EF.fileAbsPath file
 
 genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
 genExternalSourceFile file = return $ createTextFileDraft destFile srcFile
   where
-    destFile = sdkRootDirInProjectRootDir
-      </> extSrcDirInSdkRootDir
-      </> castRel (EF.filePathInExtCodeDir file)
+    destFile =
+      sdkRootDirInProjectRootDir
+        </> extSrcDirInSdkRootDir
+        </> castRel (EF.filePathInExtCodeDir file)
     srcFile = EF.fileText file
 
 genUniversalDir :: Generator [FileDraft]

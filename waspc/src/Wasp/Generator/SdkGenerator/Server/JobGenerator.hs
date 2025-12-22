@@ -11,7 +11,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (File', Path, Posix, Rel, reldir, relfile, relfileP, (</>), Path', Dir', parseRelFile, fromRelFileP, Rel')
+import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.JSON as AS.JSON
@@ -24,10 +24,10 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+import Wasp.Generator.SdkGenerator.Server.Common
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
-import Wasp.Generator.SdkGenerator.Server.Common
 
 serverJobsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
 serverJobsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|jobs|]
@@ -58,12 +58,13 @@ genIndexTs jobs = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplF
         ]
 
 genJob :: (String, Job) -> Generator FileDraft
-genJob (jobName, job) = return $ 
-  makeSdkProjectTmplFdWithDestAndData 
-    destFile
-    SdkUserCoreProject
-    tmplFile 
-    (Just tmplData)
+genJob (jobName, job) =
+  return $
+    makeSdkProjectTmplFdWithDestAndData
+      destFile
+      SdkUserCoreProject
+      tmplFile
+      (Just tmplData)
   where
     destFile = [reldir|server/jobs|] </> fromJust (parseRelFile $ jobName ++ ".ts")
     tmplFile = serverJobsDirInSdkTemplatesProjectDir </> [relfile|_job.ts|]

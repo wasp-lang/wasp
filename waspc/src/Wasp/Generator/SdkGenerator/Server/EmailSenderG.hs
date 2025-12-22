@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, isJust, maybeToList)
-import StrongPath (relfile, (</>), Path', Rel, Dir', reldir)
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.EmailSender (EmailSender)
@@ -17,9 +17,9 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+import Wasp.Generator.SdkGenerator.Server.Common
 import qualified Wasp.Generator.SdkGenerator.Server.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
-import Wasp.Generator.SdkGenerator.Server.Common
 
 serverEmailDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
 serverEmailDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email|]
@@ -36,8 +36,9 @@ genNewEmailSenderApi spec = case maybeEmailSender of
     maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
-genIndex email = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+genIndex email =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
     tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
@@ -52,15 +53,17 @@ genCore email =
     <++> genEmailSenderProviderSetupFn email
 
 genCoreIndex :: EmailSender -> Generator FileDraft
-genCoreIndex email = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+genCoreIndex email =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
     tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
-genCoreTypes email = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+genCoreTypes email =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
     tmplPath = [relfile|server/email/core/types.ts|]
     tmplData =
@@ -69,8 +72,9 @@ genCoreTypes email = return $
     defaultFromField = AS.EmailSender.defaultFrom email
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
-genCoreHelpers email = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+genCoreHelpers email =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
   where
     tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/helpers.ts|]
     tmplData =

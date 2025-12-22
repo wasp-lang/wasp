@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (fromJust, isJust)
-import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>), parseRelFile)
+import StrongPath (Dir', File', Path', Rel, parseRelFile, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -25,8 +25,8 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-import Wasp.Util ((<++>))
 import Wasp.Generator.SdkGenerator.Server.Common
+import Wasp.Util ((<++>))
 
 serverOauthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
 serverOauthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth/oauth|]
@@ -50,8 +50,9 @@ genOAuth auth
     genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genIndexTs auth = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genIndexTs auth =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverOauthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
@@ -60,8 +61,9 @@ genIndexTs auth = return $
         ]
 
 genRedirectHelper :: Generator FileDraft
-genRedirectHelper = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genRedirectHelper =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverOauthDirInSdkTemplatesProjectDir </> [relfile|redirect.ts|]
     tmplData =
@@ -83,8 +85,9 @@ genOAuthProvider provider maybeUserConfig
 genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
-genOAuthConfig provider = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genOAuthConfig provider =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverOauthDirInSdkTemplatesProjectDir </> [reldir|providers|] </> providerTsFile
     tmplData =
