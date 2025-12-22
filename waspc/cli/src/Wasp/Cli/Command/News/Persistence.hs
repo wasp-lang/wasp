@@ -50,25 +50,18 @@ obtainLocalNewsState = do
     tryReadingLocalNewsStateOrUseEmpty stateFile =
       fromMaybe emptyLocalNewsState <$> readJsonFile stateFile
     emptyLocalNewsState =
-      LocalNewsState
-        { lastReportAt = Nothing,
-          seenNewsIds = Set.empty
-        }
+      LocalNewsState {lastReportAt = Nothing, seenNewsIds = Set.empty}
 
 wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
 wasNewsEntrySeen state entry = entry.id `Set.member` state.seenNewsIds
 
 setLastReportTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
-setLastReportTimestamp time state =
-  state
-    { lastReportAt = Just time
-    }
+setLastReportTimestamp time state = state {lastReportAt = Just time}
 
 markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
-markNewsAsSeen newsEntries state =
-  state
-    { seenNewsIds = seenNewsIds state `Set.union` Set.fromList (map (.id) newsEntries)
-    }
+markNewsAsSeen newsEntries state = state {seenNewsIds = unionOfOldAndNewIds}
+  where
+    unionOfOldAndNewIds = seenNewsIds state <> Set.fromList (map (.id) newsEntries)
 
 ensureNewsStateFileParentDirExists :: IO ()
 ensureNewsStateFileParentDirExists = do
