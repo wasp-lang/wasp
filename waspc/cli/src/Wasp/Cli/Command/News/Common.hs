@@ -10,7 +10,7 @@ import Data.Aeson (FromJSON (..), genericParseJSON)
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
 import Data.Time (UTCTime)
-import GHC.Generics
+import GHC.Generics (Generic)
 
 data NewsEntry = NewsEntry
   { id :: !String,
