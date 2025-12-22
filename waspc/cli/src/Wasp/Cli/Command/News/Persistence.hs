@@ -7,7 +7,7 @@ module Wasp.Cli.Command.News.Persistence
     obtainLocalNewsState,
     saveLocalNewsState,
     wasNewsEntrySeen,
-    areNewsStale,
+    isItTimeForAMandatoryReport,
     setLastReportTimestamp,
     markNewsAsSeen,
   )
@@ -46,9 +46,6 @@ saveLocalNewsState localNewsState = do
   newsStateFile <- getNewsStateFilePath
   IOUtil.writeFile newsStateFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsState
 
-wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
-wasNewsEntrySeen state entry = entry.id `Set.member` seenNewsIds state
-
 obtainLocalNewsState :: IO LocalNewsState
 obtainLocalNewsState = do
   stateFile <- getNewsStateFilePath
@@ -69,10 +66,8 @@ obtainLocalNewsState = do
           seenNewsIds = Set.empty
         }
 
-areNewsStale :: LocalNewsState -> IO Bool
-areNewsStale state = case state.lastReportAt of
-  Nothing -> return True
-  Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
+wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
+wasNewsEntrySeen state entry = entry.id `Set.member` seenNewsIds state
 
 setLastReportTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
 setLastReportTimestamp time state =
