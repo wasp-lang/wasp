@@ -45,10 +45,10 @@ obtainLocalNewsState = do
   stateFile <- getNewsStateFilePath
   ifM
     (IOUtil.doesFileExist stateFile)
-    (readLocalNewsStateFromFile stateFile)
+    (tryReadingLocalNewsStateOrUseEmpty stateFile)
     (return emptyLocalNewsState)
   where
-    readLocalNewsStateFromFile stateFile =
+    tryReadingLocalNewsStateOrUseEmpty stateFile =
       fromMaybe emptyLocalNewsState <$> readJsonFile stateFile
     emptyLocalNewsState =
       LocalNewsState
