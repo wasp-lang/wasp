@@ -61,7 +61,7 @@ setLastReportTimestamp time state = state {lastReportAt = Just time}
 markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
 markNewsAsSeen newsEntries state = state {seenNewsIds = unionOfOldAndNewIds}
   where
-    unionOfOldAndNewIds = seenNewsIds state <> Set.fromList (map (.id) newsEntries)
+    unionOfOldAndNewIds = state.seenNewsIds <> Set.fromList (map (.id) newsEntries)
 
 getNewsStateFilePath :: IO (Path' Abs File')
 getNewsStateFilePath = do
