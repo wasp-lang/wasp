@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Wasp.Cli.Command.NewsTest where
+module Wasp.Cli.Command.News.ReportTest where
 
 import Data.Maybe (isNothing)
 import qualified Data.Set as Set
@@ -9,9 +9,9 @@ import qualified Data.Time as T
 import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
 import Test.QuickCheck
-import Wasp.Cli.Command.News (NewsReport (..), getMandatoryNewsReport, getMandatoryNewsReportForExistingUser)
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Persistence (LocalNewsInfo (..))
+import Wasp.Cli.Command.News.Report (NewsReport (..), makeMandatoryNewsReport, makeMandatoryNewsReportForExistingUser)
 
 instance Arbitrary NewsLevel where
   arbitrary = elements [Low, Moderate, High]
@@ -36,32 +36,32 @@ arbitraryUTCTime = T.UTCTime <$> arbitraryDay <*> pure 0
   where
     arbitraryDay = T.fromGregorian <$> choose (2020, 2025) <*> choose (1, 12) <*> choose (1, 28)
 
-spec_getMandatoryNewsReport :: Spec
-spec_getMandatoryNewsReport = do
-  describe "getMandatoryNewsReport" $ do
+spec_makeMandatoryNewsReport :: Spec
+spec_makeMandatoryNewsReport = do
+  describe "makeMandatoryNewsReport" $ do
     it "shows nothing and marks all as seen for first time users" $ do
       let firstTimeUserInfo = LocalNewsInfo {lastReportAt = Nothing, seenNewsIds = Set.empty}
           newsEntries =
             [ NewsEntry {id = "1", title = "News 1", body = "Body 1", level = High, publishedAt = someTime},
               NewsEntry {id = "2", title = "News 2", body = "Body 2", level = Moderate, publishedAt = someTime}
             ]
-          report = getMandatoryNewsReport firstTimeUserInfo newsEntries
+          report = makeMandatoryNewsReport firstTimeUserInfo newsEntries
       report.newsToShow `shouldBe` []
       report.requireConfirmation `shouldBe` False
       report.newsToConsiderSeen `shouldBe` newsEntries
 
-    prop "delegates to getMandatoryNewsReportForExistingUser for existing users" $
+    prop "delegates to makeMandatoryNewsReportForExistingUser for existing users" $
       \localNewsInfo newsEntries ->
         not (isFirstTimeUser localNewsInfo) ==>
-          getMandatoryNewsReport localNewsInfo newsEntries
-            == getMandatoryNewsReportForExistingUser localNewsInfo newsEntries
+          makeMandatoryNewsReport localNewsInfo newsEntries
+            == makeMandatoryNewsReportForExistingUser localNewsInfo newsEntries
   where
     someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
     isFirstTimeUser info = isNothing info.lastReportAt
 
-spec_getMandatoryNewsReportForExistingUser :: Spec
-spec_getMandatoryNewsReportForExistingUser = do
-  describe "getMandatoryNewsReportForExistingUser" $ do
+spec_makeMandatoryNewsReportForExistingUser :: Spec
+spec_makeMandatoryNewsReportForExistingUser = do
+  describe "makeMandatoryNewsReportForExistingUser" $ do
     prop "only shows news that are at least moderate level" $
       testReportProperty $ \_ _ report ->
         all ((>= Moderate) . (.level)) report.newsToShow
@@ -91,5 +91,5 @@ spec_getMandatoryNewsReportForExistingUser = do
          in all (`elem` report.newsToShow) relevantUnseenNews
   where
     testReportProperty assertProperty localNewsInfoInput newsEntriesInput =
-      let report = getMandatoryNewsReportForExistingUser localNewsInfoInput newsEntriesInput
+      let report = makeMandatoryNewsReportForExistingUser localNewsInfoInput newsEntriesInput
        in assertProperty localNewsInfoInput newsEntriesInput report

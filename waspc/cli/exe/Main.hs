@@ -30,7 +30,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
-import Wasp.Cli.Command.News (handleNews, news)
+import Wasp.Cli.Command.News (fetchAndReportMandatoryNews, news)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
@@ -106,7 +106,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             projectConfigJson
       _unknownCommand -> printWaspNewAiUsage >> exitFailure
     -- Todo: remove once done testing
-    Command.Call.Start -> runCommand (liftIO handleNews)
+    Command.Call.Start -> runCommand (liftIO fetchAndReportMandatoryNews)
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.TsSetup -> runCommand tsConfigSetup

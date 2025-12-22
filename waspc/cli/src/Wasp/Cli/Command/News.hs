@@ -1,36 +1,30 @@
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.Cli.Command.News
   ( news,
-    handleNews,
+    fetchAndReportMandatoryNews,
     -- Exported for testing
-    getMandatoryNewsReport,
-    getMandatoryNewsReportForExistingUser,
+    makeMandatoryNewsReport,
+    makeMandatoryNewsReportForExistingUser,
     NewsReport (..),
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (unless)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isJust, isNothing)
-import qualified Data.Time as T
+import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
-import Wasp.Cli.Command.News.Display (printNewsEntry)
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
-import Wasp.Cli.Command.News.Persistence
-  ( LocalNewsInfo (lastReportAt),
-    areNewsStale,
-    markNewsAsSeen,
-    obtainLocalNewsInfo,
-    saveLocalNewsInfo,
-    setLastReportTimestamp,
-    wasNewsEntrySeen,
+import Wasp.Cli.Command.News.Persistence (areNewsStale, obtainLocalNewsInfo)
+import Wasp.Cli.Command.News.Report
+  ( NewsReport (..),
+    makeMandatoryNewsReport,
+    makeMandatoryNewsReportForExistingUser,
+    makeVoluntaryNewsReport,
+    printNewsReportAndUpdateLocalInfo,
   )
-import Wasp.Cli.Interactive (askForInput)
 import Wasp.Util (whenM)
 
 {-
@@ -55,15 +49,11 @@ news =
     Left err -> throwError $ CommandError "Wasp news failed" err
     Right newsEntries ->
       liftIO $
-        printNewsReportAndUpdateLocalInfo
-          NewsReport
-            { newsToShow = newsEntries,
-              newsToConsiderSeen = newsEntries,
-              requireConfirmation = False
-            }
+        printNewsReportAndUpdateLocalInfo $
+          makeVoluntaryNewsReport newsEntries
 
-handleNews :: IO ()
-handleNews = do
+fetchAndReportMandatoryNews :: IO ()
+fetchAndReportMandatoryNews = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_NEWS_DISABLE"
   unless isWaspNewsDisabled $ do
     localNewsInfo <- obtainLocalNewsInfo
@@ -72,66 +62,5 @@ handleNews = do
         -- TODO: missing prefix for nicer output.
         Left _err -> putStrLn "Couldn't fetch Wasp news, skipping."
         Right newsEntries -> do
-          let newsReport = getMandatoryNewsReport localNewsInfo newsEntries
+          let newsReport = makeMandatoryNewsReport localNewsInfo newsEntries
           printNewsReportAndUpdateLocalInfo newsReport
-
-data NewsReport = NewsReport
-  { newsToShow :: [NewsEntry],
-    newsToConsiderSeen :: [NewsEntry],
-    requireConfirmation :: Bool
-  }
-  deriving (Show, Eq)
-
-getMandatoryNewsReport :: LocalNewsInfo -> [NewsEntry] -> NewsReport
-getMandatoryNewsReport localNewsInfo newsEntries
-  | isFirstTimeUser = showNothingAndMarkAllAsSeen
-  | otherwise = getMandatoryNewsReportForExistingUser localNewsInfo newsEntries
-  where
-    isFirstTimeUser = isNothing localNewsInfo.lastReportAt
-
-    showNothingAndMarkAllAsSeen =
-      NewsReport
-        { newsToShow = [],
-          requireConfirmation = False,
-          newsToConsiderSeen = newsEntries
-        }
-
--- TODO: better name
-getMandatoryNewsReportForExistingUser :: LocalNewsInfo -> [NewsEntry] -> NewsReport
-getMandatoryNewsReportForExistingUser localNewsInfo newsEntries =
-  NewsReport
-    { newsToShow = allRelevantUnseenNews,
-      requireConfirmation,
-      newsToConsiderSeen =
-        if requireConfirmation
-          then allRelevantUnseenNews
-          else []
-    }
-  where
-    requireConfirmation = any ((== High) . level) allRelevantUnseenNews
-    allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
-    isRelevant = (>= Moderate) . level
-    isUnseen = not . wasNewsEntrySeen localNewsInfo
-
-printNewsReportAndUpdateLocalInfo :: NewsReport -> IO ()
-printNewsReportAndUpdateLocalInfo newsReport = do
-  reportNews
-  when newsReport.requireConfirmation askForConfirmation
-  saveNewsReport
-  where
-    reportNews = do
-      mapM_ printNewsEntry newsReport.newsToShow
-
-    askForConfirmation = do
-      let requiredAnswer = "ok"
-      answer <- askForInput $ "\nPlease type '" ++ requiredAnswer ++ "' to confirm you've read the announcements: "
-      unless (answer == requiredAnswer) askForConfirmation
-
-    saveNewsReport = do
-      -- TODO: obtaining local news twice (here and in caller), fix problem
-      -- How does it even work without any lock problems?
-      info <- obtainLocalNewsInfo
-      currentTime <- T.getCurrentTime
-      saveLocalNewsInfo $
-        setLastReportTimestamp currentTime $
-          markNewsAsSeen newsReport.newsToConsiderSeen info
