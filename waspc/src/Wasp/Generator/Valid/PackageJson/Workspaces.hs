@@ -15,18 +15,29 @@ type WorkspaceName = String
 requiredWorkspaces :: [WorkspaceName]
 requiredWorkspaces = S.toList NW.requiredWorkspaceGlobs
 
+forbiddenWorkspaces :: [WorkspaceName]
+forbiddenWorkspaces = [".wasp/build/*"]
+
 workspacesValidator :: V.Validator P.PackageJson
 workspacesValidator =
   V.inField ("workspaces", P.workspaces) $
-    V.all [requiredWorkspaceValidator]
+    V.all
+      [ requiredWorkspaceValidator,
+        forbiddenWorkspaceValidator
+      ]
+      .
       -- We treat a missing workspaces field as an empty list, for validation purposes.
       -- This way, we can show errors about missing required workspaces.
       -- Using anything else than an array here would be caught by earlier JSON schema validation.
-      . fromMaybe []
+      fromMaybe []
   where
     requiredWorkspaceValidator :: V.Validator [WorkspaceName]
     requiredWorkspaceValidator =
       V.all $ makeWorkspaceIncludedValidator <$> requiredWorkspaces
+
+    forbiddenWorkspaceValidator :: V.Validator [WorkspaceName]
+    forbiddenWorkspaceValidator =
+      V.all $ makeWorkspaceNotIncludedValidator <$> forbiddenWorkspaces
 
 makeWorkspaceIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
 makeWorkspaceIncludedValidator expectedWorkspace =
@@ -38,3 +49,14 @@ makeWorkspaceIncludedValidator expectedWorkspace =
         "Wasp requires "
           ++ show expectedWorkspace
           ++ " to be included."
+
+makeWorkspaceNotIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
+makeWorkspaceNotIncludedValidator forbiddenWorkspace =
+  bool V.success forbiddenWorkspaceError
+    . elem forbiddenWorkspace
+  where
+    forbiddenWorkspaceError =
+      V.failure $
+        "Wasp requires "
+          ++ show forbiddenWorkspace
+          ++ " not to be included."
