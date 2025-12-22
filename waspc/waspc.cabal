@@ -361,6 +361,8 @@ library
     Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.PackageJson.Dependencies
+    Wasp.Generator.Valid.PackageJson.Workspaces
     Wasp.Generator.Valid.TsConfig
     Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
