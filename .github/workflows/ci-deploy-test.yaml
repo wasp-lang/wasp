@@ -1,6 +1,10 @@
 name: "Test - Wasp Deploy"
 
 on:
+  push:
+    # TODO: remove before merging this PR
+    branches:
+      - miho-railway-deployment-test-ci
   workflow_call:
     secrets:
       FLY_GITHUB_TESTING_TOKEN:
@@ -10,99 +14,69 @@ on:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
-
-  APP_PREFIX: ci-${{ github.sha }}
+  # - We use run_id because it's shorter than commit SHA since
+  # the max length for project name in Railway is 25 characters.
+  # - We append run_attempt to avoid name collisions on job retries,
+  # becuase run_id is the same across retries.
+  APP_PREFIX: ci-${{ github.run_id }}-${{ github.run_attempt }}
+  APP_TO_DEPLOY: examples/kitchen-sink
   FLY_API_TOKEN: ${{ secrets.FLY_GITHUB_TESTING_TOKEN }}
   FLY_REGION: dfw
-  APP_TO_DEPLOY: examples/kitchen-sink
+  FLY_ORG: wasp-testing
+  RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_GITHUB_TESTING_TOKEN }}
+  RAILWAY_WASP_WORKSPACE_ID: ${{ secrets.RAILWAY_WASP_WORKSPACE_ID }}
 
 jobs:
-  fly_deploy_app:
-    name: Deploy Wasp app
-
+  test_fly_deployment:
+    name: Test Fly deployment
     runs-on: ubuntu-latest
-
     environment:
       name: fly-deploy-test
 
     steps:
       - uses: actions/checkout@v6
 
-      - uses: ./.github/actions/setup-haskell
+      - uses: ./.github/actions/prepare-deploy-test
 
-      - uses: actions/setup-node@v6
-        with:
-          cache: "npm"
-          node-version: "22"
-
-      - name: Install Wasp CLI
-        working-directory: waspc
-        run: ./run install
-
+      - name: Install Fly CLI
         # NOTE: We tell users to install the latest version of Fly CLI,
         # so we use it here too.
-      - uses: superfly/flyctl-actions/setup-flyctl@v1
+        uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - name: Deploy App to Fly.io
+      - name: Deploy app to Fly
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
-          set -e
-
           # `fly launch` fails if Fly toml files already exist.
-          rm -f fly-server.toml fly-client.toml 
-
-          # NOTE: This assumes env var values don't contain:
-          #   - The character `#`.
-          #   - An empty line (i.e., there are no multiline env values).
-          mapfile -t ENV_VAR_ARGUMENTS < <(
-            cat .env.server.example |
-            sed -E 's/#.*//' |
-            awk 'NF {$1=$1;print}' |
-            sed -E 's/^/--server-secret\n/'
-          )
+          rm -f fly-server.toml fly-client.toml
 
           echo "Deploying with prefix: $APP_PREFIX"
+          mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
           # - The `yes` command is necessary because the `fly launch` command
           # prompts for confirmation.
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org wasp-testing "${ENV_VAR_ARGUMENTS[@]}"
+          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
 
-      - name: Save deployed app hostnames
-        id: save_hostnames
+      - name: Smoke test deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
-          echo "server_hostname=$(flyctl status -j -c fly-server.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
-          echo "client_hostname=$(flyctl status -j -c fly-client.toml | jq -r '.Hostname')" >> "$GITHUB_OUTPUT"
+          # Get deployed app hostnames
+          function get_fly_app_hostname() {
+            config_file="$1"
+            flyctl status -j -c "$config_file" | jq -r '.Hostname'
+          }
+          SERVER_HOSTNAME=$(get_fly_app_hostname fly-server.toml)
+          CLIENT_HOSTNAME=$(get_fly_app_hostname fly-client.toml)
 
-    outputs:
-      server_hostname: ${{ steps.save_hostnames.outputs.server_hostname }}
-      client_hostname: ${{ steps.save_hostnames.outputs.client_hostname }}
+          # Run smoke test
+          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "https://$SERVER_HOSTNAME" "https://$CLIENT_HOSTNAME"
 
-  smoke_test_app:
-    name: Run smoke tests on deployed app
-
+  cleanup_fly_deploy_test:
+    name: Clean up Fly deployment test apps
     runs-on: ubuntu-latest
-    needs: fly_deploy_app
-    env:
-      SERVER_HOSTNAME: ${{ needs.fly_deploy_app.outputs.server_hostname }}
-      CLIENT_HOSTNAME: ${{ needs.fly_deploy_app.outputs.client_hostname }}
-
-    steps:
-      - name: Smoke test the server
-        run: |
-          curl --fail --silent -X POST https://$SERVER_HOSTNAME/operations/get-date | jq '.json'
-
-      - name: Smoke test the client
-        run: |
-          curl --fail --silent https://$CLIENT_HOSTNAME | grep 'Wasp Kitchen Sink'
-
-  fly_destroy_app:
-    runs-on: ubuntu-latest
-    name: Clean up deployed Fly app
-    needs: [fly_deploy_app, smoke_test_app]
+    needs: test_fly_deployment
     # NOTE: Fly deployments can sometimes "fail" but still deploy the apps. We
     # want to always clean them up.
     if: always()
@@ -110,14 +84,68 @@ jobs:
     steps:
       - uses: superfly/flyctl-actions/setup-flyctl@v1
         with:
-          # NOTE: We pinned the Fly because we don't want the changes in the
+          # NOTE: We pinned the Fly version because we don't want the changes in the
           # Fly CLI to affect our cleanup procedure. `fly destroy` isn't a part
           # of Wasp, we're just incidentally using the same tool Wasp uses.
           version: v0.3.164
 
-      - name: Clean up testing app from Fly.io
+      - name: Clean up test apps
         run: |
           # NOTE: We are relying on Wasp's naming conventions here
           flyctl apps destroy -y $APP_PREFIX-server || true
           flyctl apps destroy -y $APP_PREFIX-client || true
           flyctl apps destroy -y $APP_PREFIX-db || true
+
+  test_railway_deployment:
+    name: Test Railway deployment
+    runs-on: ubuntu-latest
+    environment:
+      name: railway-deploy-test
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/prepare-deploy-test
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@4.11.1
+
+      - name: Deploy app to Railway
+        working-directory: ${{ env.APP_TO_DEPLOY }}
+        run: |
+          echo "Deploying with prefix: $APP_PREFIX"
+          mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
+          # NOTE:
+          # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
+          # word splitting (i.e., force Bash to interpret the flags separately
+          # instead of passing it as a single string value).
+          wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
+
+      - name: Smoke test deployed app
+        working-directory: ${{ env.APP_TO_DEPLOY }}
+        run: |
+          # Get deployed app hostnames
+          function get_railway_service_hostname() {
+            service_name="$1"
+            railway status --json | jq -r --arg NAME "$service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain'
+          }
+          server_service_name="${APP_PREFIX}-server"
+          client_service_name="${APP_PREFIX}-client"
+          SERVER_HOSTNAME=$(get_railway_service_hostname "$server_service_name")
+          CLIENT_HOSTNAME=$(get_railway_service_hostname "$client_service_name")
+
+          # Run smoke test
+          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "https://$SERVER_HOSTNAME" "https://$CLIENT_HOSTNAME"
+
+  cleanup_railway_deploy_test:
+    name: Clean up Railway deployment project
+    runs-on: ubuntu-latest
+    needs: test_railway_deployment
+    # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
+    # want to always clean them up.
+    if: always()
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Clean up test project
+        run: node ./scripts/deploy-test/cleanup-railway-project.mjs "$APP_PREFIX"
