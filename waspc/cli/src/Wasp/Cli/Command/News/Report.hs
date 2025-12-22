@@ -4,7 +4,7 @@
 module Wasp.Cli.Command.News.Report
   ( NewsReport (..),
     makeVoluntaryNewsReport,
-    isTimeForMandatoryReport,
+    isTimeForMandatoryNewsReport,
     printNewsReportAndUpdateLocalState,
     makeMandatoryNewsReport,
     -- Exported only for testing purposes
@@ -16,7 +16,7 @@ import Control.Monad (unless, when)
 import Data.Maybe (isNothing)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
-import Wasp.Cli.Command.News.Display (printNewsEntry)
+import Wasp.Cli.Command.News.Display (displayNewsEntry)
 import Wasp.Cli.Command.News.Persistence
   ( LocalNewsState (lastReportAt),
     markNewsAsSeen,
@@ -83,7 +83,7 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   when newsReport.requireConfirmation askForConfirmation
   saveNewsReport
   where
-    reportNews = mapM_ printNewsEntry newsReport.newsToShow
+    reportNews = mapM_ displayNewsEntry newsReport.newsToShow
 
     askForConfirmation = do
       let requiredAnswer = "ok"

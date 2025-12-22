@@ -11,7 +11,7 @@ import Test.Hspec.QuickCheck (prop)
 import Test.QuickCheck
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Persistence (LocalNewsState (..))
-import Wasp.Cli.Command.News.Report (NewsReport (..), makeMandatoryNewsReport, makeMandatoryNewsReportForExistingUser)
+import Wasp.Cli.Command.News.Report (NewsReport (..), makeMandatoryNewsReport, makeMandatoryNewsReportForExistingUser, makeVoluntaryNewsReport)
 
 instance Arbitrary NewsLevel where
   arbitrary = elements [Low, Moderate, High]
@@ -52,9 +52,9 @@ spec_makeMandatoryNewsReport = do
 
     prop "delegates to makeMandatoryNewsReportForExistingUser for existing users" $
       \localNewsState newsEntries ->
-        not (isFirstTimeUser localNewsState) ==>
-          makeMandatoryNewsReport localNewsState newsEntries
-            == makeMandatoryNewsReportForExistingUser localNewsState newsEntries
+        not (isFirstTimeUser localNewsState)
+          ==> makeMandatoryNewsReport localNewsState newsEntries
+          == makeMandatoryNewsReportForExistingUser localNewsState newsEntries
   where
     someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
     isFirstTimeUser state = isNothing state.lastReportAt
@@ -62,7 +62,7 @@ spec_makeMandatoryNewsReport = do
 spec_makeMandatoryNewsReportForExistingUser :: Spec
 spec_makeMandatoryNewsReportForExistingUser = do
   describe "makeMandatoryNewsReportForExistingUser" $ do
-    prop "only shows news that are at least moderate level" $
+    prop "only shows news that are at least moderate" $
       testReportProperty $ \_ _ report ->
         all ((>= Moderate) . (.level)) report.newsToShow
 
@@ -70,7 +70,7 @@ spec_makeMandatoryNewsReportForExistingUser = do
       testReportProperty $ \localNewsState _ report ->
         not $ any ((`Set.member` localNewsState.seenNewsIds) . (.id)) report.newsToShow
 
-    prop "requires confirmation if and only if high priority news is shown" $
+    prop "requires confirmation if and only if at least one high priority news entry is shown" $
       testReportProperty $ \_ _ report ->
         report.requireConfirmation == any ((== High) . (.level)) report.newsToShow
 
@@ -92,4 +92,23 @@ spec_makeMandatoryNewsReportForExistingUser = do
   where
     testReportProperty assertProperty localNewsStateInput newsEntriesInput =
       let report = makeMandatoryNewsReportForExistingUser localNewsStateInput newsEntriesInput
+       in assertProperty localNewsStateInput newsEntriesInput report
+
+spec_makeVoluntaryNewsReport :: Spec
+spec_makeVoluntaryNewsReport = do
+  describe "makeVoluntaryNewsReport" $ do
+    prop "shows all news entries" $
+      testReportProperty $ \_ newsEntries report ->
+        report.newsToShow == newsEntries
+
+    prop "marks all news entries as seen" $
+      testReportProperty $ \_ newsEntries report ->
+        report.newsToConsiderSeen == newsEntries
+
+    prop "never requires confirmation" $
+      testReportProperty $ \_ _ report ->
+        not report.requireConfirmation
+  where
+    testReportProperty assertProperty localNewsStateInput newsEntriesInput =
+      let report = makeVoluntaryNewsReport localNewsStateInput newsEntriesInput
        in assertProperty localNewsStateInput newsEntriesInput report
