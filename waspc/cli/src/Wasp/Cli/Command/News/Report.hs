@@ -14,7 +14,6 @@ where
 
 import Control.Monad (unless, when)
 import Data.List (intercalate)
-import Data.Maybe (isNothing)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (displayNewsEntry)
