@@ -141,6 +141,47 @@ spec_insertAt = do
       insertAt [0] 3 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
       insertAt [0] 4 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
 
+spec_wrapString :: Spec
+spec_wrapString = do
+  describe "wrapString" $ do
+    it "returns an empty string for empty input" $ do
+      wrapString 10 "" `shouldBe` ""
+
+    it "returns a single line when text fits" $ do
+      wrapString 20 "hello world" `shouldBe` "hello world"
+
+    it "wraps a string that exceeds max length" $ do
+      wrapString 10 "hello world" `shouldBe` "hello\nworld"
+
+    it "never breaks long words even if they exceed max length" $ do
+      wrapString 5 "extraordinary day is extraordinary" `shouldBe` "extraordinary\nday\nis\nextraordinary"
+
+    it "wraps text with many words into multiple lines" $ do
+      wrapString 20 "one two three four five six seven eight nine ten"
+        `shouldBe` "one two three four\nfive six seven eight\nnine ten"
+
+    it "treats newlines as spaces" $ do
+      wrapString 15 "hello\nworld this\nis a test"
+        `shouldBe` "hello world\nthis is a test"
+
+    it "handles multiple consecutive long words" $ do
+      wrapString 5 "internationalization globalization"
+        `shouldBe` "internationalization\nglobalization"
+
+    it "collapses multiple spaces between words" $ do
+      wrapString 20 "hello   world  this   is   spacy"
+        `shouldBe` "hello world this is\nspacy"
+
+    it "collapses whitespace-only input to empty string" $ do
+      wrapString 10 "   " `shouldBe` ""
+
+    it "returns each word on its own line when maxLength is 0" $ do
+      wrapString 0 "one two three"
+        `shouldBe` "one\ntwo\nthree"
+
+    it "treats negative maxLength as zero" $ do
+      wrapString (-5) "one two" `shouldBe` wrapString 0 "one two"
+
 spec_hex :: Spec
 spec_hex = do
   it "Correctly transforms bytestring to hex" $ do
@@ -161,3 +202,22 @@ spec_findDuplicateElems = do
 
   it "Returns empty list for empty list" $ do
     findDuplicateElems ([] :: [Int]) `shouldBe` []
+
+spec_checkIfEnvValueIsTruthy :: Spec
+spec_checkIfEnvValueIsTruthy = do
+  it "Correctly determines if different env values are truthy" $ do
+    let testCases =
+          [ (Nothing, False),
+            (Just "", False),
+            (Just "false", False),
+            (Just "False", False),
+            (Just "FALSE", False),
+            (Just "true", True),
+            (Just "something", True),
+            (Just "0", True),
+            (Just "1", True),
+            (Just "falsy", True),
+            (Just "foo", True)
+          ]
+    checkIfEnvValueIsTruthy . fst <$> testCases
+      `shouldBe` snd <$> testCases
