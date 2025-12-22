@@ -3,52 +3,35 @@
 
 module Wasp.Cli.Command.News.ReportTest where
 
-import Data.Maybe (isNothing)
 import qualified Data.Set as Set
 import qualified Data.Time as T
 import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
 import Test.QuickCheck
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
-import Wasp.Cli.Command.News.Persistence (LocalNewsState (..))
-import Wasp.Cli.Command.News.Report (NewsReport (..), makeMandatoryNewsReport, makeMandatoryNewsReportForExistingUser, makeVoluntaryNewsReport)
-
-instance Arbitrary NewsLevel where
-  arbitrary = elements [Low, Moderate, High]
-
-instance Arbitrary NewsEntry where
-  arbitrary =
-    NewsEntry
-      <$> arbitrary
-      <*> arbitrary
-      <*> arbitrary
-      <*> arbitrary
-      <*> arbitraryUTCTime
-
-instance Arbitrary LocalNewsState where
-  arbitrary =
-    LocalNewsState
-      <$> (Just <$> arbitraryUTCTime)
-      <*> (Set.fromList <$> arbitrary)
-
-arbitraryUTCTime :: Gen T.UTCTime
-arbitraryUTCTime = T.UTCTime <$> arbitraryDay <*> pure 0
-  where
-    arbitraryDay = T.fromGregorian <$> choose (2020, 2025) <*> choose (1, 12) <*> choose (1, 28)
+import Wasp.Cli.Command.News.Persistence (LocalNewsState (..), emptyLocalNewsState)
+import Wasp.Cli.Command.News.Report
+  ( NewsReport (..),
+    makeMandatoryNewsReport,
+    makeMandatoryNewsReportForExistingUser,
+    makeVoluntaryNewsReport,
+  )
 
 spec_makeMandatoryNewsReport :: Spec
 spec_makeMandatoryNewsReport = do
   describe "makeMandatoryNewsReport" $ do
     it "shows nothing and marks all as seen for first time users" $ do
-      let firstTimeUserState = LocalNewsState {lastReportAt = Nothing, seenNewsIds = Set.empty}
-          newsEntries =
+      let newsEntries =
             [ NewsEntry {id = "1", title = "News 1", body = "Body 1", level = High, publishedAt = someTime},
               NewsEntry {id = "2", title = "News 2", body = "Body 2", level = Moderate, publishedAt = someTime}
             ]
-          report = makeMandatoryNewsReport firstTimeUserState newsEntries
-      report.newsToShow `shouldBe` []
-      report.requireConfirmation `shouldBe` False
-      report.newsToConsiderSeen `shouldBe` newsEntries
+
+      makeMandatoryNewsReport emptyLocalNewsState newsEntries
+        `shouldBe` NewsReport
+          { newsToShow = [],
+            requireConfirmation = False,
+            newsToConsiderSeen = newsEntries
+          }
 
     prop "delegates to makeMandatoryNewsReportForExistingUser for existing users" $
       \localNewsState newsEntries ->
@@ -57,14 +40,14 @@ spec_makeMandatoryNewsReport = do
           == makeMandatoryNewsReportForExistingUser localNewsState newsEntries
   where
     someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
-    isFirstTimeUser state = isNothing state.lastReportAt
+    isFirstTimeUser state = state == emptyLocalNewsState
 
 spec_makeMandatoryNewsReportForExistingUser :: Spec
 spec_makeMandatoryNewsReportForExistingUser = do
   describe "makeMandatoryNewsReportForExistingUser" $ do
     prop "only shows news that are at least moderate" $
       testReportProperty $ \_ _ report ->
-        all ((>= Moderate) . (.level)) report.newsToShow
+        all ((>= Moderate) . level) report.newsToShow
 
     prop "does not show news that were previously seen" $
       testReportProperty $ \localNewsState _ report ->
@@ -72,7 +55,7 @@ spec_makeMandatoryNewsReportForExistingUser = do
 
     prop "requires confirmation if and only if at least one high priority news entry is shown" $
       testReportProperty $ \_ _ report ->
-        report.requireConfirmation == any ((== High) . (.level)) report.newsToShow
+        report.requireConfirmation == any ((== High) . level) report.newsToShow
 
     prop "marks all shown news as seen when confirmation is required" $
       testReportProperty $ \_ _ report ->
@@ -86,7 +69,7 @@ spec_makeMandatoryNewsReportForExistingUser = do
     prop "shows all relevant unseen news" $
       testReportProperty $ \localNewsState newsEntries report ->
         let relevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
-            isRelevant = (>= Moderate) . (.level)
+            isRelevant = (>= Moderate) . level
             isUnseen entry = entry.id `Set.notMember` localNewsState.seenNewsIds
          in all (`elem` report.newsToShow) relevantUnseenNews
   where
@@ -112,3 +95,25 @@ spec_makeVoluntaryNewsReport = do
     testReportProperty assertProperty localNewsStateInput newsEntriesInput =
       let report = makeVoluntaryNewsReport localNewsStateInput newsEntriesInput
        in assertProperty localNewsStateInput newsEntriesInput report
+
+instance Arbitrary NewsLevel where
+  arbitrary = elements [Low, Moderate, High]
+
+instance Arbitrary NewsEntry where
+  arbitrary =
+    NewsEntry
+      <$> arbitrary
+      <*> arbitrary
+      <*> arbitrary
+      <*> arbitrary
+      <*> arbitraryUTCTime
+
+instance Arbitrary LocalNewsState where
+  arbitrary =
+    (LocalNewsState . Just <$> arbitraryUTCTime)
+      <*> (Set.fromList <$> arbitrary)
+
+arbitraryUTCTime :: Gen T.UTCTime
+arbitraryUTCTime = T.UTCTime <$> arbitraryDay <*> pure 0
+  where
+    arbitraryDay = T.fromGregorian <$> choose (2020, 2025) <*> choose (1, 12) <*> choose (1, 28)

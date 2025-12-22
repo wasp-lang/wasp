@@ -19,6 +19,7 @@ import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (displayNewsEntry)
 import Wasp.Cli.Command.News.Persistence
   ( LocalNewsState (lastReportAt),
+    emptyLocalNewsState,
     markNewsAsSeen,
     saveLocalNewsState,
     setLastReportTimestamp,
@@ -47,7 +48,7 @@ makeMandatoryNewsReport currentState newsEntries
   | isFirstTimeUser = showNothingAndMarkAllAsSeen
   | otherwise = makeMandatoryNewsReportForExistingUser currentState newsEntries
   where
-    isFirstTimeUser = isNothing currentState.lastReportAt
+    isFirstTimeUser = currentState == emptyLocalNewsState
     showNothingAndMarkAllAsSeen =
       NewsReport
         { newsToShow = [],
