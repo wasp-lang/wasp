@@ -36,16 +36,14 @@ genNewClientAuth spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = clientAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
 genAuthUi :: AS.Auth.Auth -> Generator FileDraft
 genAuthUi auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = clientAuthDirInSdkTemplatesProjectDir </> [relfile|ui.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth

@@ -15,7 +15,7 @@ import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', fromRelFileP, par
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.JSON as AS.JSON
-import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss))
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -41,7 +41,8 @@ genNewJobsApi spec =
         <++> genJobExecutors spec
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
-genIndexTs jobs = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genIndexTs jobs =
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverJobsDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["jobs" .= map getJobTmplData jobs]
@@ -53,8 +54,7 @@ genIndexTs jobs = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplF
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return $
-    makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
+  return $ makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
   where
     destFile = [reldir|server/jobs|] </> fromJust (parseRelFile $ jobName ++ ".ts")
     tmplFile = serverJobsDirInSdkTemplatesProjectDir </> [relfile|_job.ts|]

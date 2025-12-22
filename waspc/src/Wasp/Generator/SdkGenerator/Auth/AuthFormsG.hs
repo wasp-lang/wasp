@@ -36,16 +36,14 @@ genAuthForms auth =
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|Auth.tsx|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|types.ts|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]

@@ -33,8 +33,10 @@ genWebSockets spec
     genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genWebSocketServerIndex :: AppSpec -> Generator FileDraft
-genWebSocketServerIndex spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|server/webSocket/index.ts|] tmplData
+genWebSocketServerIndex spec =
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
+    tmplFile = [relfile|server/webSocket/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -45,11 +47,12 @@ genWebSocketServerIndex spec = return $ makeSdkProjectTmplFdWithData SdkUserCore
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
 genWebSocketProvider :: AppSpec -> Generator FileDraft
-genWebSocketProvider spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
+genWebSocketProvider spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
-    shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
+    tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
 depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec =
