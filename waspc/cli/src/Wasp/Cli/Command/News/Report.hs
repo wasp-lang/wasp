@@ -13,6 +13,7 @@ module Wasp.Cli.Command.News.Report
 where
 
 import Control.Monad (unless, when)
+import Data.List (intercalate)
 import Data.Maybe (isNothing)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
@@ -83,7 +84,8 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   when newsReport.requireConfirmation askForConfirmation
   updateLocalNewsState
   where
-    reportNews = mapM_ displayNewsEntry newsReport.newsToShow
+    reportNews =
+      putStrLn $ intercalate "\n\n" $ map displayNewsEntry newsReport.newsToShow
 
     askForConfirmation = do
       let requiredAnswer = "ok"
