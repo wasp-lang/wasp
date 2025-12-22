@@ -17,21 +17,36 @@ import Wasp.Cli.Command.News.Report
     makeVoluntaryNewsReport,
   )
 
+spec_makeVoluntaryNewsReport :: Spec
+spec_makeVoluntaryNewsReport = do
+  describe "makeVoluntaryNewsReport" $ do
+    prop "shows all news entries" $
+      testReportProperty $ \_ newsEntries report ->
+        report.newsToShow == newsEntries
+
+    prop "marks all news entries as seen" $
+      testReportProperty $ \_ newsEntries report ->
+        report.newsToConsiderSeen == newsEntries
+
+    prop "never requires confirmation" $
+      testReportProperty $ \_ _ report ->
+        not report.requireConfirmation
+  where
+    testReportProperty assertProperty localNewsStateInput newsEntriesInput =
+      let report = makeVoluntaryNewsReport localNewsStateInput newsEntriesInput
+       in assertProperty localNewsStateInput newsEntriesInput report
+
 spec_makeMandatoryNewsReport :: Spec
 spec_makeMandatoryNewsReport = do
   describe "makeMandatoryNewsReport" $ do
-    it "shows nothing and marks all as seen for first time users" $ do
-      let newsEntries =
-            [ NewsEntry {id = "1", title = "News 1", body = "Body 1", level = High, publishedAt = someTime},
-              NewsEntry {id = "2", title = "News 2", body = "Body 2", level = Moderate, publishedAt = someTime}
-            ]
-
-      makeMandatoryNewsReport emptyLocalNewsState newsEntries
-        `shouldBe` NewsReport
-          { newsToShow = [],
-            requireConfirmation = False,
-            newsToConsiderSeen = newsEntries
-          }
+    prop "shows nothing and marks all as seen for first time users" $
+      \newsEntries ->
+        makeMandatoryNewsReport emptyLocalNewsState newsEntries
+          == NewsReport
+            { newsToShow = [],
+              requireConfirmation = False,
+              newsToConsiderSeen = newsEntries
+            }
 
     prop "delegates to makeMandatoryNewsReportForExistingUser for existing users" $
       \localNewsState newsEntries ->
@@ -39,7 +54,6 @@ spec_makeMandatoryNewsReport = do
           ==> makeMandatoryNewsReport localNewsState newsEntries
           == makeMandatoryNewsReportForExistingUser localNewsState newsEntries
   where
-    someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
     isFirstTimeUser state = state == emptyLocalNewsState
 
 spec_makeMandatoryNewsReportForExistingUser :: Spec
@@ -65,35 +79,20 @@ spec_makeMandatoryNewsReportForExistingUser = do
       testReportProperty $ \_ _ report ->
         report.requireConfirmation || null report.newsToConsiderSeen
 
-    -- TODO: This test is basically the implementation
-    prop "shows all relevant unseen news" $
-      testReportProperty $ \localNewsState newsEntries report ->
-        let relevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
-            isRelevant = (>= Moderate) . level
-            isUnseen entry = entry.id `Set.notMember` localNewsState.seenNewsIds
-         in all (`elem` report.newsToShow) relevantUnseenNews
+    it "shows all unseen moderate+ news" $ do
+      let state = LocalNewsState (Just someTime) (Set.singleton "seen-1")
+          newsEntries =
+            [ NewsEntry "seen-1" "Seen High" "" High someTime,
+              NewsEntry "unseen-1" "Unseen High" "" High someTime,
+              NewsEntry "unseen-2" "Unseen Moderate" "" Moderate someTime,
+              NewsEntry "unseen-3" "Unseen Low" "" Low someTime
+            ]
+          report = makeMandatoryNewsReportForExistingUser state newsEntries
+      map (.id) report.newsToShow `shouldMatchList` ["unseen-1", "unseen-2"]
   where
+    someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
     testReportProperty assertProperty localNewsStateInput newsEntriesInput =
       let report = makeMandatoryNewsReportForExistingUser localNewsStateInput newsEntriesInput
-       in assertProperty localNewsStateInput newsEntriesInput report
-
-spec_makeVoluntaryNewsReport :: Spec
-spec_makeVoluntaryNewsReport = do
-  describe "makeVoluntaryNewsReport" $ do
-    prop "shows all news entries" $
-      testReportProperty $ \_ newsEntries report ->
-        report.newsToShow == newsEntries
-
-    prop "marks all news entries as seen" $
-      testReportProperty $ \_ newsEntries report ->
-        report.newsToConsiderSeen == newsEntries
-
-    prop "never requires confirmation" $
-      testReportProperty $ \_ _ report ->
-        not report.requireConfirmation
-  where
-    testReportProperty assertProperty localNewsStateInput newsEntriesInput =
-      let report = makeVoluntaryNewsReport localNewsStateInput newsEntriesInput
        in assertProperty localNewsStateInput newsEntriesInput report
 
 instance Arbitrary NewsLevel where
@@ -110,7 +109,8 @@ instance Arbitrary NewsEntry where
 
 instance Arbitrary LocalNewsState where
   arbitrary =
-    (LocalNewsState . Just <$> arbitraryUTCTime)
+    LocalNewsState
+      <$> oneof [pure Nothing, Just <$> arbitraryUTCTime]
       <*> (Set.fromList <$> arbitrary)
 
 arbitraryUTCTime :: Gen T.UTCTime
