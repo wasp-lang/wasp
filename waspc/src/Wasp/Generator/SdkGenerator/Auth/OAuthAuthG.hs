@@ -36,14 +36,14 @@ genOAuthHelpers auth =
         [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
       ]
   where
-    slackHelpers = makeOAuthHelpersFd slackAuthProvider [relfile|Slack.tsx|]
-    discordHelpers = makeOAuthHelpersFd discordAuthProvider [relfile|Discord.tsx|]
-    gitHubHelpers = makeOAuthHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
-    googleHelpers = makeOAuthHelpersFd googleAuthProvider [relfile|Google.tsx|]
-    keycloakHelpers = makeOAuthHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
+    slackHelpers = makeOAuthHelpersFds slackAuthProvider [relfile|Slack.tsx|]
+    discordHelpers = makeOAuthHelpersFds discordAuthProvider [relfile|Discord.tsx|]
+    gitHubHelpers = makeOAuthHelpersFds gitHubAuthProvider [relfile|GitHub.tsx|]
+    googleHelpers = makeOAuthHelpersFds googleAuthProvider [relfile|Google.tsx|]
+    keycloakHelpers = makeOAuthHelpersFds keycloakAuthProvider [relfile|Keycloak.tsx|]
 
-    makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
-    makeOAuthHelpersFd provider helpersFp =
+    makeOAuthHelpersFds :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
+    makeOAuthHelpersFds provider helpersFp =
       makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
       where
         destFile = [reldir|auth/helpers|] </> helpersFp
