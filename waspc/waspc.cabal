@@ -606,10 +606,12 @@ library cli-lib
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
+    Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Common
     Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.News.Fetching
     Wasp.Cli.Command.News.Persistence
+    Wasp.Cli.Command.News.Report
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
@@ -782,12 +784,15 @@ test-suite wasp-cli-tests
     , hspec
     , tasty-hspec
     , tasty-quickcheck
+    , containers
+    , time
   other-modules:
     DbMigrateTest
     TerminalTest
     Paths_waspc
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Command.News.ReportTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
