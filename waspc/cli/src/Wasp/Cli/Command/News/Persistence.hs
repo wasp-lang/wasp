@@ -13,7 +13,6 @@ module Wasp.Cli.Command.News.Persistence
 where
 
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Functor ((<&>))
 import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -57,7 +56,7 @@ obtainLocalNewsState = do
         }
 
 wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
-wasNewsEntrySeen state entry = entry.id `Set.member` seenNewsIds state
+wasNewsEntrySeen state entry = entry.id `Set.member` state.seenNewsIds
 
 setLastReportTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
 setLastReportTimestamp time state =
@@ -68,13 +67,15 @@ setLastReportTimestamp time state =
 markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
 markNewsAsSeen newsEntries state =
   state
-    { seenNewsIds = seenNewsIds state `Set.union` Set.fromList ((.id) <$> newsEntries)
+    { seenNewsIds = seenNewsIds state `Set.union` Set.fromList (map (.id) newsEntries)
     }
-
-getNewsStateFilePath :: IO (Path' Abs File')
-getNewsStateFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
 
 ensureNewsStateFileParentDirExists :: IO ()
 ensureNewsStateFileParentDirExists = do
   parentDir <- parent <$> getNewsStateFilePath
   SD.createDirectoryIfMissing True $ fromAbsDir parentDir
+
+getNewsStateFilePath :: IO (Path' Abs File')
+getNewsStateFilePath = do
+  waspCacheDir <- getWaspCacheDir <$> getUserCacheDir
+  return $ waspCacheDir </> [relfile|news.json|]
