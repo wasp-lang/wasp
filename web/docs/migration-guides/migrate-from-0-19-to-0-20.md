@@ -68,7 +68,9 @@ wasp ts-setup # ONLY if you are using the Wasp TS Config
 ```
 
 ### 3. Update your code to work with React 19
-The easiest way to update your code to work with React 19 is following their official guide: https://react.dev/blog/2024/04/25/react-19-upgrade-guide. There aren't many breaking changes so the update should be pretty smooth.
+The easiest way to update your code to work with React 19 is following their [official guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide). There aren't many breaking changes so the update should be pretty smooth.
+
+You might need to update some of your third‑party dependencies to versions that explicitly support React 19.
 
 ### 4. Update your app to work with `@testing-library/react` 16.x.x
 Search your codebase for `@testing-library/react` and fix any potential errors around its usage. Check their changelogs for breaking changes introduced since the last version (14.x.x):
