@@ -15,9 +15,6 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.Server.Common
 
-serverCurdDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverCurdDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|crud|]
-
 genNewServerCrudApi :: AppSpec -> Generator [FileDraft]
 genNewServerCrudApi spec =
   if areThereAnyCruds
@@ -38,3 +35,6 @@ genCrudIndex spec cruds =
     getCrudOperationJsonFromCrud (name, crud) = getCrudOperationJson name crud idField
       where
         idField = getIdFieldFromCrudEntity spec crud
+
+serverCurdDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+serverCurdDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|crud|]

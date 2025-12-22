@@ -20,9 +20,6 @@ import Wasp.Util ((<++>))
 
 data ServerAuthTemplatesDir
 
-serverAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerAuthTemplatesDir)
-serverAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth|]
-
 genNewServerApi :: AppSpec -> Generator [FileDraft]
 genNewServerApi spec =
   case maybeAuth of
@@ -79,17 +76,18 @@ genHooks auth =
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genServerAuthFileCopy [relfile|email/index.ts|]]
+    then sequence [genServerAuthFileCopy SdkUserCoreProject [relfile|email/index.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genServerAuthFileCopy [relfile|username.ts|]]
+    then sequence [genServerAuthFileCopy SdkUserCoreProject [relfile|username.ts|]]
     else return []
 
-genServerAuthFileCopy :: Path' (Rel ServerAuthTemplatesDir) File' -> Generator FileDraft
-genServerAuthFileCopy =
-  return
-    . makeSdkProjectTmplFd SdkUserCoreProject
-    . (serverAuthDirInSdkTemplatesProjectDir </>)
+serverAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerAuthTemplatesDir)
+serverAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth|]
+
+genServerAuthFileCopy :: SdkProject -> Path' (Rel ServerAuthTemplatesDir) File' -> Generator FileDraft
+genServerAuthFileCopy sdkProject =
+  return . makeSdkProjectTmplFd sdkProject . (serverAuthDirInSdkTemplatesProjectDir </>)

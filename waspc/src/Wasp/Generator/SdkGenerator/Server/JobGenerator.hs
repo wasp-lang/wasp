@@ -29,12 +29,6 @@ import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
 
-serverJobsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverJobsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|jobs|]
-
--- TODO: fix server only goes from sdk project dir?
--- TODO: fix server only goes system, how to force posix?
-
 genNewJobsApi :: AppSpec -> Generator [FileDraft]
 genNewJobsApi spec =
   case getJobs spec of
@@ -60,11 +54,7 @@ genIndexTs jobs = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplF
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
-    makeSdkProjectTmplFdWithDestAndData
-      destFile
-      SdkUserCoreProject
-      tmplFile
-      (Just tmplData)
+    makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
   where
     destFile = [reldir|server/jobs|] </> fromJust (parseRelFile $ jobName ++ ".ts")
     tmplFile = serverJobsDirInSdkTemplatesProjectDir </> [relfile|_job.ts|]
@@ -121,23 +111,14 @@ getImportJsonForJobDefinition jobName =
 genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
-  _someJobs ->
-    return $
-      makeSdkProjectTmplFd SdkUserCoreProject (serverJobsDirInSdkTemplatesProjectDir </> [relfile|core/job.ts|]) : genAllJobExecutors
-  where
-    genAllJobExecutors = concatMap genJobExecutor jobExecutors
-
-    -- Per each defined job executor, we generate the needed files.
-    genJobExecutor :: JobExecutor -> [FileDraft]
-    genJobExecutor PgBoss =
-      [ genServerJobFileCopy [relfile|core/pgBoss/pgBoss.ts|],
-        genServerJobFileCopy [relfile|core/pgBoss/pgBossJob.ts|],
-        genServerJobFileCopy [relfile|core/pgBoss/types.ts|],
-        genServerJobFileCopy [relfile|core/pgBoss/index.ts|]
+  _anyJob ->
+    sequence
+      [ genServerJobFileCopy SdkUserCoreProject [relfile|core/job.ts|],
+        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/pgBoss.ts|],
+        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/pgBossJob.ts|],
+        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/types.ts|],
+        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/index.ts|]
       ]
-
-    genServerJobFileCopy :: Path' Rel' File' -> FileDraft
-    genServerJobFileCopy = makeSdkProjectTmplFd SdkUserCoreProject . (serverJobsDirInSdkTemplatesProjectDir </>)
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
@@ -149,3 +130,10 @@ pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 
 depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
+
+serverJobsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+serverJobsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|jobs|]
+
+genServerJobFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
+genServerJobFileCopy sdkProject =
+  return . makeSdkProjectTmplFd sdkProject . (serverJobsDirInSdkTemplatesProjectDir </>)

@@ -14,9 +14,6 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
-localAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-localAuthDirInSdkTemplatesProjectDir = [reldir|auth/username|]
-
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genLocalAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
@@ -27,7 +24,9 @@ genLocalAuth auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
-genIndex = return $ makeSdkProjectTmplFd SdkUserCoreProject $ localAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+genIndex = return $ makeSdkProjectTmplFd SdkUserCoreProject tmplFile
+  where
+    tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
@@ -37,17 +36,13 @@ genActions auth =
     ]
 
 genLoginAction :: Generator FileDraft
-genLoginAction =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genLoginAction = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|actions/login.ts|]
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
-genSignupAction auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genSignupAction auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|actions/signup.ts|]
     tmplData =
@@ -57,3 +52,6 @@ genSignupAction auth =
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
+
+localAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+localAuthDirInSdkTemplatesProjectDir = [reldir|auth/username|]

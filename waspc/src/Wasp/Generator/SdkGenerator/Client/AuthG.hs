@@ -3,7 +3,7 @@ module Wasp.Generator.SdkGenerator.Client.AuthG
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
@@ -14,11 +14,6 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.Common
 import Wasp.Generator.SdkGenerator.Common
 import Wasp.Util ((<++>))
-
-data ClientAuthTemplatesDir
-
-clientAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ClientAuthTemplatesDir)
-clientAuthDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|auth|]
 
 genNewClientAuth :: AppSpec -> Generator [FileDraft]
 genNewClientAuth spec =
@@ -97,8 +92,9 @@ genAuthGitHub auth =
     then sequence [genClientAuthFileCopy [relfile|github.ts|]]
     else return []
 
-genClientAuthFileCopy :: Path' (Rel ClientAuthTemplatesDir) File' -> Generator FileDraft
+clientAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+clientAuthDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|auth|]
+
+genClientAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
 genClientAuthFileCopy =
-  return
-    . makeSdkProjectTmplFd SdkUserCoreProject
-    . (clientAuthDirInSdkTemplatesProjectDir </>)
+  return . makeSdkProjectTmplFd SdkUserCoreProject . (clientAuthDirInSdkTemplatesProjectDir </>)

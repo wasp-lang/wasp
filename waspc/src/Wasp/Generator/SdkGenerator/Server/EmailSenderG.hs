@@ -21,9 +21,6 @@ import Wasp.Generator.SdkGenerator.Server.Common
 import qualified Wasp.Generator.SdkGenerator.Server.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
 
-serverEmailDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverEmailDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email|]
-
 genNewEmailSenderApi :: AppSpec -> Generator [FileDraft]
 genNewEmailSenderApi spec = case maybeEmailSender of
   Just emailSender ->
@@ -38,9 +35,9 @@ genNewEmailSenderApi spec = case maybeEmailSender of
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email =
   return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+    tmplFile = serverEmailDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCore :: EmailSender -> Generator [FileDraft]
@@ -48,24 +45,24 @@ genCore email =
   sequence
     [ genCoreIndex email,
       genCoreTypes email,
-      genCoreHelpers email
+      genCoreHelpers email,
+      genEmailSenderProviderSetupFn email
     ]
-    <++> genEmailSenderProviderSetupFn email
 
 genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex email =
   return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/index.ts|]
+    tmplFile = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
 genCoreTypes email =
   return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplPath = [relfile|server/email/core/types.ts|]
+    tmplFile = [relfile|server/email/core/types.ts|]
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
     isDefaultFromFieldDefined = isJust defaultFromField
@@ -74,9 +71,9 @@ genCoreTypes email =
 genCoreHelpers :: EmailSender -> Generator FileDraft
 genCoreHelpers email =
   return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplPath = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/helpers.ts|]
+    tmplFile = serverEmailDirInSdkTemplatesProjectDir </> [relfile|core/helpers.ts|]
     tmplData =
       object
         [ "defaultFromField"
@@ -92,17 +89,12 @@ genCoreHelpers email =
     maybeName = defaultFromField >>= AS.EmailSender.name
     defaultFromField = AS.EmailSender.defaultFrom email
 
-genEmailSenderProviderSetupFn :: EmailSender -> Generator [FileDraft]
+genEmailSenderProviderSetupFn :: EmailSender -> Generator FileDraft
 genEmailSenderProviderSetupFn email =
-  sequence
-    [ genFileCopy tmplPath
-    ]
+  return $ makeSdkProjectTmplFd SdkUserCoreProject tmplFile
   where
-    provider :: Providers.EmailSenderProvider
-    provider = getEmailSenderProvider email
-
-    tmplPath = Providers.serverProvidersDirInSdkTemplatesDir </> Providers.setupFnFile provider
-    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
+    tmplFile = Providers.serverProvidersDirInSdkTemplatesDir </> Providers.setupFnFile emailSenderProvider
+    emailSenderProvider = getEmailSenderProvider email
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
@@ -117,3 +109,6 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.SendGrid -> Providers.sendGrid
   AS.EmailSender.Mailgun -> Providers.mailgun
   AS.EmailSender.Dummy -> Providers.dummy
+
+serverEmailDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+serverEmailDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email|]
