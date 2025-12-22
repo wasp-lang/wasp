@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.News.Fetching
-  ( fetchNews,
-    fetchNewsWithTimeout,
+  ( fetchNewsWithTimeout,
+    fetchNews,
   )
 where
 

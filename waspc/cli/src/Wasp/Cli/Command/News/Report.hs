@@ -5,6 +5,7 @@ module Wasp.Cli.Command.News.Report
   ( NewsReport (..),
     makeVoluntaryNewsReport,
     makeMandatoryNewsReport,
+    -- Exported only for testing purposes
     makeMandatoryNewsReportForExistingUser,
     printNewsReportAndUpdateLocalInfo,
   )
@@ -18,7 +19,6 @@ import Wasp.Cli.Command.News.Display (printNewsEntry)
 import Wasp.Cli.Command.News.Persistence
   ( LocalNewsInfo (lastReportAt),
     markNewsAsSeen,
-    obtainLocalNewsInfo,
     saveLocalNewsInfo,
     setLastReportTimestamp,
     wasNewsEntrySeen,
@@ -70,14 +70,13 @@ makeMandatoryNewsReportForExistingUser localNewsInfo newsEntries =
     isRelevant = (>= Moderate) . level
     isUnseen = not . wasNewsEntrySeen localNewsInfo
 
-printNewsReportAndUpdateLocalInfo :: NewsReport -> IO ()
-printNewsReportAndUpdateLocalInfo newsReport = do
+printNewsReportAndUpdateLocalInfo :: LocalNewsInfo -> NewsReport -> IO ()
+printNewsReportAndUpdateLocalInfo localNewsInfoBeforeReport newsReport = do
   reportNews
   when newsReport.requireConfirmation askForConfirmation
   saveNewsReport
   where
-    reportNews = do
-      mapM_ printNewsEntry newsReport.newsToShow
+    reportNews = mapM_ printNewsEntry newsReport.newsToShow
 
     askForConfirmation = do
       let requiredAnswer = "ok"
@@ -85,10 +84,7 @@ printNewsReportAndUpdateLocalInfo newsReport = do
       unless (answer == requiredAnswer) askForConfirmation
 
     saveNewsReport = do
-      -- TODO: obtaining local news twice (here and in caller), fix problem
-      -- How does it even work without any lock problems?
-      info <- obtainLocalNewsInfo
       currentTime <- T.getCurrentTime
       saveLocalNewsInfo $
         setLastReportTimestamp currentTime $
-          markNewsAsSeen newsReport.newsToConsiderSeen info
+          markNewsAsSeen newsReport.newsToConsiderSeen localNewsInfoBeforeReport

@@ -29,13 +29,16 @@ import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
 import Wasp.Util (ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 
-getNewsCacheFilePath :: IO (Path' Abs File')
-getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
+-- | News cache state stored on disk.
+data LocalNewsInfo = LocalNewsInfo
+  { lastReportAt :: Maybe T.UTCTime,
+    seenNewsIds :: Set String
+  }
+  deriving (Generic, Show, Eq)
 
-ensureNewsCacheFileParentDirExists :: IO ()
-ensureNewsCacheFileParentDirExists = do
-  parentDir <- parent <$> getNewsCacheFilePath
-  SD.createDirectoryIfMissing True $ fromAbsDir parentDir
+instance Aeson.FromJSON LocalNewsInfo
+
+instance Aeson.ToJSON LocalNewsInfo
 
 saveLocalNewsInfo :: LocalNewsInfo -> IO ()
 saveLocalNewsInfo localNewsInfo = do
@@ -52,36 +55,24 @@ obtainLocalNewsInfo = do
   ifM
     (IOUtil.doesFileExist cacheFile)
     (readLocalNewsInfoFromFile cacheFile)
-    (return newLocalNewsInfoFromFile)
+    (return emptyLocalNewsInfo)
   where
-    -- TODO: perhaps better name, it might default if it fails reading
     readLocalNewsInfoFromFile filePath = do
       fileContent <- IOUtil.readFileStrict filePath
       let maybeLocalNewsInfo =
             Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
-      return $ fromMaybe newLocalNewsInfoFromFile maybeLocalNewsInfo
+      return $ fromMaybe emptyLocalNewsInfo maybeLocalNewsInfo
 
-    newLocalNewsInfoFromFile =
+    emptyLocalNewsInfo =
       LocalNewsInfo
         { lastReportAt = Nothing,
           seenNewsIds = Set.empty
         }
 
--- | News cache state stored on disk.
-data LocalNewsInfo = LocalNewsInfo
-  { lastReportAt :: Maybe T.UTCTime,
-    seenNewsIds :: Set String
-  }
-  deriving (Generic, Show, Eq)
-
-instance Aeson.FromJSON LocalNewsInfo
-
-instance Aeson.ToJSON LocalNewsInfo
-
 areNewsStale :: LocalNewsInfo -> IO Bool
 areNewsStale info = case info.lastReportAt of
   Nothing -> return True
-  (Just lastReportAt') -> isOlderThanNHours 24 lastReportAt'
+  Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
 
 setLastReportTimestamp :: T.UTCTime -> LocalNewsInfo -> LocalNewsInfo
 setLastReportTimestamp time info =
@@ -94,3 +85,11 @@ markNewsAsSeen newsEntries info =
   info
     { seenNewsIds = seenNewsIds info `Set.union` Set.fromList ((.id) <$> newsEntries)
     }
+
+getNewsCacheFilePath :: IO (Path' Abs File')
+getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
+
+ensureNewsCacheFileParentDirExists :: IO ()
+ensureNewsCacheFileParentDirExists = do
+  parentDir <- parent <$> getNewsCacheFilePath
+  SD.createDirectoryIfMissing True $ fromAbsDir parentDir

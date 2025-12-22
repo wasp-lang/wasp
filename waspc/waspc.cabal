@@ -607,6 +607,7 @@ library cli-lib
     Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.News.Fetching
     Wasp.Cli.Command.News.Persistence
+    Wasp.Cli.Command.News.Report
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
@@ -789,7 +790,7 @@ test-suite wasp-cli-tests
     DbMigrateTest
     TerminalTest
     Paths_waspc
-    Wasp.Cli.Command.NewsTest
+    Wasp.Cli.Command.News.ReportTest
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
