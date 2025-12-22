@@ -8,7 +8,7 @@ where
 
 import Control.Monad.Except (ExceptT (..), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (FromJSON, ToJSON, Value (..), decode, eitherDecode, encode)
+import Data.Aeson (FromJSON, ToJSON, Value (..), decodeStrict, eitherDecode, encode)
 import StrongPath (Abs, File, Path')
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
@@ -33,7 +33,7 @@ updateJsonFile updateFn jsonFilePath = runExceptT $ do
   liftIO $ writeJsonFile jsonFilePath $ updateFn jsonContent
 
 readJsonFile :: (FromJSON a) => Path' Abs (File f) -> IO (Maybe a)
-readJsonFile = fmap decode . IOUtil.readFileBytes
+readJsonFile = fmap decodeStrict . IOUtil.readFileBytesStrict
 
 writeJsonFile :: (ToJSON a) => Path' Abs (File f) -> a -> IO ()
 writeJsonFile file = IOUtil.writeFileBytes file . encode
