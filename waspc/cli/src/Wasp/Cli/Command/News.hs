@@ -22,15 +22,12 @@ import Wasp.Util (whenM)
 
 {-
   TODO list
-  - Check the TODOS from this file.
-  - Properly type and validate stuff on the server.
-  - Decide how to deliver the news on the server.
-  - Improve how the news look like in the terminal.
   - Test what happens when we add new news on the server.
-  - Thoroughly review the code (there are probably some hacks left over).
 
   Future:
   - Figure out what to do with the versions affected field.
+  - Properly type and validate stuff on the server.
+  - Decide how to deliver the news on the server.
   - Maybe include the project in the monorepo (might make deployment more difficult).
   - Figure out how to end tests.
   - In `wasp news` output, mark the unread/new news

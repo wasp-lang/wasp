@@ -194,7 +194,7 @@ printUsage =
         cmd   "    info                  Prints basic information about the current Wasp project.",
         cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
-        cmd   "    news                  Check out the latest news.",
+        cmd   "    news                  Prints out the latest Wasp-related news.",
               "",
         title "EXAMPLES",
               "  wasp new MyApp",

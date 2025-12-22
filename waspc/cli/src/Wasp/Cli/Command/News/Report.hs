@@ -5,10 +5,10 @@ module Wasp.Cli.Command.News.Report
   ( NewsReport (..),
     makeVoluntaryNewsReport,
     isTimeForMandatoryReport,
+    printNewsReportAndUpdateLocalState,
     makeMandatoryNewsReport,
     -- Exported only for testing purposes
     makeMandatoryNewsReportForExistingUser,
-    printNewsReportAndUpdateLocalState,
   )
 where
 
