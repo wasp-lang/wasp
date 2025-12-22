@@ -10,7 +10,6 @@ import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
-import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
@@ -42,15 +41,11 @@ requiredWorkspaceGlobs =
           ++ show inputDir
           ++ ")"
 
-serverPackageName :: AS.AppSpec -> String
+serverPackageName :: String
 serverPackageName = workspacePackageName "server"
 
-webAppPackageName :: AS.AppSpec -> String
+webAppPackageName :: String
 webAppPackageName = workspacePackageName "webapp"
 
-workspacePackageName :: String -> AS.AppSpec -> String
-workspacePackageName baseName spec = "@wasp.sh/generated-" ++ baseName ++ "-" ++ modeName
-  where
-    modeName
-      | AS.isProduction spec = "build"
-      | otherwise = "dev"
+workspacePackageName :: String -> String
+workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName
