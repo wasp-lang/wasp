@@ -16,9 +16,6 @@ import qualified Wasp.SemanticVersion as SV
 
 data ServerProvidersTemplatesDir
 
-serverProvidersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerProvidersTemplatesDir)
-serverProvidersDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email/core/providers|]
-
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
     setupFnFile :: Path' (Rel ServerProvidersTemplatesDir) File'
@@ -70,3 +67,6 @@ dummy =
     { npmDependency = Nothing,
       setupFnFile = [relfile|dummy.ts|]
     }
+
+serverProvidersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerProvidersTemplatesDir)
+serverProvidersDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email/core/providers|]

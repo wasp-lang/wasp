@@ -43,7 +43,9 @@ data SdkTemplatesProjectDir
 
 data SdkProject = SdkCoreProject | SdkUserCoreProject | SdkExtSrcProject
 
-sdkTemplatesProjectDirInSdkTemplatesRootDir :: SdkProject -> Path' (Rel SdkTemplatesRootDir) (Dir SdkTemplatesProjectDir)
+sdkTemplatesProjectDirInSdkTemplatesRootDir ::
+  SdkProject ->
+  Path' (Rel SdkTemplatesRootDir) (Dir SdkTemplatesProjectDir)
 sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
   fromJust . parseRelDir $
     case sdkTmplProject of
@@ -75,7 +77,6 @@ makeSdkRootTmplFile ::
 makeSdkRootTmplFile tmplFile =
   makeSdkRootTmplFileWithDestAndData (castRel tmplFile) tmplFile Nothing
 
--- TODO(franjo): can I do this without casting?
 makeSdkProjectTmplFdWithDestAndData ::
   Path' (Rel SdkTemplatesProjectDir) File' ->
   SdkProject ->
@@ -102,8 +103,6 @@ makeSdkProjectTmplFd ::
   FileDraft
 makeSdkProjectTmplFd sdkTmplProject tmplFile =
   makeSdkProjectTmplFdWithDestAndData (castRel tmplFile) sdkTmplProject tmplFile Nothing
-
--- TODO(franjo): find out what to do with these
 
 relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
 relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.fromRelDirP path

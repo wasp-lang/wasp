@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
@@ -15,19 +15,14 @@ import Wasp.Generator.SdkGenerator.Client.Common
 import Wasp.Generator.SdkGenerator.Common
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
-clientRouterDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-clientRouterDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|router|]
-
 genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|types.ts|],
-      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|linkHelpers.ts|],
-      genFileCopy $ clientRouterDirInSdkTemplatesProjectDir </> [relfile|Link.tsx|]
+      genClientRouterFileCopy SdkUserCoreProject [relfile|types.ts|],
+      genClientRouterFileCopy SdkUserCoreProject [relfile|linkHelpers.ts|],
+      genClientRouterFileCopy SdkUserCoreProject [relfile|Link.tsx|]
     ]
-  where
-    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
@@ -56,3 +51,10 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
+
+clientRouterDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+clientRouterDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|router|]
+
+genClientRouterFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
+genClientRouterFileCopy sdkProject =
+  return . makeSdkProjectTmplFd sdkProject . (clientRouterDirInSdkTemplatesProjectDir </>)

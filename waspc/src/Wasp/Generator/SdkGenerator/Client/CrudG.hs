@@ -6,7 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -18,23 +18,19 @@ import Wasp.Generator.SdkGenerator.Client.Common
 import Wasp.Generator.SdkGenerator.Common
 import Wasp.Util ((<++>))
 
-clientCrudDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-clientCrudDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|crud|]
-
 genNewClientCrudApi :: AppSpec -> Generator [FileDraft]
 genNewClientCrudApi spec =
   if areThereAnyCruds
     then
       sequence
         [ genCrudIndex spec cruds,
-          genFileCopy $ clientCrudDirInSdkTemplatesProjectDir </> [relfile|operationsHelpers.ts|]
+          genClientCrudFileCopy SdkUserCoreProject [relfile|operationsHelpers.ts|]
         ]
         <++> genCrudOperations spec cruds
     else return []
   where
     cruds = getCruds spec
     areThereAnyCruds = not $ null cruds
-    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds =
@@ -59,3 +55,10 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         tmplFile = clientCrudDirInSdkTemplatesProjectDir </> [relfile|_crud.ts|]
         tmplData = getCrudOperationJson name crud idField
         idField = getIdFieldFromCrudEntity spec crud
+
+clientCrudDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+clientCrudDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|crud|]
+
+genClientCrudFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
+genClientCrudFileCopy sdkProject =
+  return . makeSdkProjectTmplFd sdkProject . (clientCrudDirInSdkTemplatesProjectDir </>)

@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (reldir, relfile, (</>), Path', Rel', File')
+import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
@@ -36,20 +36,20 @@ genHelpers auth =
         [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
       ]
   where
-    slackHelpers = mkHelpersFd slackAuthProvider [relfile|Slack.tsx|]
-    discordHelpers = mkHelpersFd discordAuthProvider [relfile|Discord.tsx|]
-    gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
-    googleHelpers = mkHelpersFd googleAuthProvider [relfile|Google.tsx|]
-    keycloakHelpers = mkHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
+    slackHelpers = genHelper slackAuthProvider [relfile|Slack.tsx|]
+    discordHelpers = genHelper discordAuthProvider [relfile|Discord.tsx|]
+    gitHubHelpers = genHelper gitHubAuthProvider [relfile|GitHub.tsx|]
+    googleHelpers = genHelper googleAuthProvider [relfile|Google.tsx|]
+    keycloakHelpers = genHelper keycloakAuthProvider [relfile|Keycloak.tsx|]
 
-    mkHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
-    mkHelpersFd provider helpersFp =
-      makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
-      where
-        destFile = [reldir|auth/helpers|] </> helpersFp
-        tmplFile = [relfile|auth/helpers/_Provider.tsx|]
-        tmplData =
-          object
-            [ "signInPath" .= OAuth.serverLoginUrl provider,
-              "displayName" .= OAuth.displayName provider
-            ]
+genHelper :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
+genHelper provider helpersFp =
+  makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
+  where
+    destFile = [reldir|auth/helpers|] </> helpersFp
+    tmplFile = [relfile|auth/helpers/_Provider.tsx|]
+    tmplData =
+      object
+        [ "signInPath" .= OAuth.serverLoginUrl provider,
+          "displayName" .= OAuth.displayName provider
+        ]

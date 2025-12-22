@@ -24,9 +24,6 @@ import Wasp.Generator.SdkGenerator.Server.Common
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
-emailAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-emailAuthDirInSdkTemplatesProjectDir = [reldir|auth/email|]
-
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
   | AS.Auth.isEmailAuthEnabled auth =
@@ -38,11 +35,28 @@ genEmailAuth auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
-genIndex =
-  return $
-    makeSdkProjectTmplFd SdkUserCoreProject tmplFile
+genIndex = return $ makeSdkProjectTmplFd SdkUserCoreProject tmplFile
   where
     tmplFile = emailAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+
+genServerUtils :: AS.Auth.Auth -> Generator FileDraft
+genServerUtils auth =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  where
+    -- TODO(franjo): This one is server specific so we have to 'castRel' since the rest
+    -- of code assumes the email auth path is relative to 'SdkTemplatesProjectDir'.
+    -- Do we move this out to 'Server.Auth.EmailAuthG.hs'?
+    tmplFile = serverTemplatesDirInSdkTemplatesDir </> castRel emailAuthDirInSdkTemplatesProjectDir </> [relfile|utils.ts|]
+    tmplData =
+      object
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+          "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
+        ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
@@ -95,21 +109,5 @@ genVerifyEmailAction =
     tmplFile = emailAuthDirInSdkTemplatesProjectDir </> [relfile|actions/verifyEmail.ts|]
     tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
 
-genServerUtils :: AS.Auth.Auth -> Generator FileDraft
-genServerUtils auth =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
-  where
-    -- TODO(franjo): This one is server specific so we have to 'castRel' since the rest
-    -- of code assumes the email auth path is relative to 'SdkTemplatesProjectDir'.
-    -- Do we move this out to 'Server.Auth.EmailAuthG.hs'?
-    tmplFile = serverTemplatesDirInSdkTemplatesDir </> castRel emailAuthDirInSdkTemplatesProjectDir </> [relfile|utils.ts|]
-    tmplData =
-      object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
-        ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
+emailAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+emailAuthDirInSdkTemplatesProjectDir = [reldir|auth/email|]

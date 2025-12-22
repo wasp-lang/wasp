@@ -22,15 +22,12 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
 
-authFormsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-authFormsDirInSdkTemplatesProjectDir = [reldir|auth/forms|]
-
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
-    [ genAuthFormsFileCopy [relfile|Login.tsx|],
-      genAuthFormsFileCopy [relfile|Signup.tsx|],
-      genAuthFormsFileCopy [relfile|Auth.module.css|],
+    [ genAuthFormsFileCopy SdkUserCoreProject [relfile|Login.tsx|],
+      genAuthFormsFileCopy SdkUserCoreProject [relfile|Signup.tsx|],
+      genAuthFormsFileCopy SdkUserCoreProject [relfile|Auth.module.css|],
       genAuthComponent auth,
       genTypes auth
     ]
@@ -57,9 +54,9 @@ genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailForms auth =
   genConditionally isEmailAuthEnabled $
     sequence
-      [ genAuthFormsFileCopy [relfile|ResetPassword.tsx|],
-        genAuthFormsFileCopy [relfile|ForgotPassword.tsx|],
-        genAuthFormsFileCopy [relfile|VerifyEmail.tsx|]
+      [ genAuthFormsFileCopy SdkUserCoreProject [relfile|ResetPassword.tsx|],
+        genAuthFormsFileCopy SdkUserCoreProject [relfile|ForgotPassword.tsx|],
+        genAuthFormsFileCopy SdkUserCoreProject [relfile|VerifyEmail.tsx|]
       ]
   where
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
@@ -67,8 +64,8 @@ genEmailForms auth =
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
   sequence
-    [ genAuthFormsFileCopy [relfile|internal/auth-styles.css|],
-      genAuthFormsFileCopy [relfile|internal/util.ts|]
+    [ genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/auth-styles.css|],
+      genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/util.ts|]
     ]
     <++> genLoginSignupForm auth
     <++> genFormComponent
@@ -79,30 +76,30 @@ genInternalAuthComponents auth =
   where
     genFormComponent =
       sequence
-        [ genAuthFormsFileCopy [relfile|internal/Form.tsx|],
-          genAuthFormsFileCopy [relfile|internal/Form.module.css|]
+        [ genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/Form.tsx|],
+          genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/Form.module.css|]
         ]
 
     genMessageComponent =
       sequence
-        [ genAuthFormsFileCopy [relfile|internal/Message.tsx|],
-          genAuthFormsFileCopy [relfile|internal/Message.module.css|]
+        [ genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/Message.tsx|],
+          genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/Message.module.css|]
         ]
 
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
-          [ genAuthFormsFileCopy [relfile|internal/email/VerifyEmailForm.tsx|],
-            genAuthFormsFileCopy [relfile|internal/email/useEmail.ts|],
-            genAuthFormsFileCopy [relfile|internal/email/ForgotPasswordForm.tsx|],
-            genAuthFormsFileCopy [relfile|internal/email/ResetPasswordForm.tsx|]
+          [ genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/email/VerifyEmailForm.tsx|],
+            genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/email/useEmail.ts|],
+            genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/email/ForgotPasswordForm.tsx|],
+            genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/email/ResetPasswordForm.tsx|]
           ]
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
     genUsernameAndPasswordComponents =
       genConditionally isUsernameAndPasswordAuthEnabled $
         sequence
-          [ genAuthFormsFileCopy [relfile|internal/usernameAndPassword/useUsernameAndPassword.ts|]
+          [ genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/usernameAndPassword/useUsernameAndPassword.ts|]
           ]
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
@@ -114,14 +111,14 @@ genInternalAuthComponents auth =
 
     genSocialButtonComponent =
       sequence
-        [ genAuthFormsFileCopy [relfile|internal/social/SocialButton.tsx|],
-          genAuthFormsFileCopy [relfile|internal/social/SocialButton.module.css|]
+        [ genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/social/SocialButton.tsx|],
+          genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/social/SocialButton.module.css|]
         ]
 
     genSocialIconsComponent =
       sequence
-        [ genAuthFormsFileCopy [relfile|internal/social/SocialIcons.tsx|],
-          genAuthFormsFileCopy [relfile|internal/social/SocialIcons.module.css|]
+        [ genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/social/SocialIcons.tsx|],
+          genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/social/SocialIcons.module.css|]
         ]
 
 -- TODO(franjo): fix this nested @where@ block mess
@@ -153,8 +150,11 @@ genLoginSignupForm auth = return [genComponent, genCss]
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
 
-genAuthFormsFileCopy :: Path' Rel' File' -> Generator FileDraft
-genAuthFormsFileCopy =
+authFormsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+authFormsDirInSdkTemplatesProjectDir = [reldir|auth/forms|]
+
+genAuthFormsFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
+genAuthFormsFileCopy sdkProject =
   return
-    . makeSdkProjectTmplFd SdkUserCoreProject
+    . makeSdkProjectTmplFd sdkProject
     . (authFormsDirInSdkTemplatesProjectDir </>)
