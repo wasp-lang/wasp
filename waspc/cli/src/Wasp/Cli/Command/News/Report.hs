@@ -48,7 +48,6 @@ makeMandatoryNewsReport currentState newsEntries
   | otherwise = makeMandatoryNewsReportForExistingUser currentState newsEntries
   where
     isFirstTimeUser = isNothing currentState.lastReportAt
-
     showNothingAndMarkAllAsSeen =
       NewsReport
         { newsToShow = [],
@@ -81,16 +80,18 @@ printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
 printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   reportNews
   when newsReport.requireConfirmation askForConfirmation
-  saveNewsReport
+  updateLocalNewsState
   where
     reportNews = mapM_ displayNewsEntry newsReport.newsToShow
 
     askForConfirmation = do
       let requiredAnswer = "ok"
-      answer <- askForInput $ "\nPlease type '" ++ requiredAnswer ++ "' to confirm you've read the announcements: "
+      answer <-
+        askForInput $
+          "\nPlease type '" ++ requiredAnswer ++ "' to confirm you've read the announcements: "
       unless (answer == requiredAnswer) askForConfirmation
 
-    saveNewsReport = do
+    updateLocalNewsState = do
       currentTime <- T.getCurrentTime
       saveLocalNewsState $
         setLastReportTimestamp currentTime $
