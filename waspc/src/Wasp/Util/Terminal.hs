@@ -31,6 +31,7 @@ data Style
   | Magenta
   | Cyan
   | White
+  | Grey
   | BlackBg
   | RedBg
   | GreenBg
@@ -42,7 +43,6 @@ data Style
   | Bold
   | Underline
   | Blink
-  | Grey
   deriving (Show, Eq)
 
 -- | Given a string, returns decorated string that when printed in terminal
@@ -63,6 +63,7 @@ getAnsiCodeFor Blue = "[34m"
 getAnsiCodeFor Magenta = "[35m"
 getAnsiCodeFor Cyan = "[36m"
 getAnsiCodeFor White = "[37m"
+getAnsiCodeFor Grey = "[90m"
 getAnsiCodeFor BlackBg = "[40m"
 getAnsiCodeFor RedBg = "[41m"
 getAnsiCodeFor GreenBg = "[42m"
@@ -74,7 +75,6 @@ getAnsiCodeFor WhiteBg = "[47m"
 getAnsiCodeFor Bold = "[1m"
 getAnsiCodeFor Underline = "[4m"
 getAnsiCodeFor Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).
-getAnsiCodeFor Grey = "[90m"
 
 ansiEscapeCode :: String
 ansiEscapeCode = "\ESC"
