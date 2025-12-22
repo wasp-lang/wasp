@@ -55,9 +55,14 @@ jobs:
           DATABASE_PROVIDER=$($GITHUB_WORKSPACE/scripts/get-wasp-database-provider.sh wasp-cli)
           echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
 
+      - name: Prepare wasp-app-runner
+        working-directory: wasp-app-runner
+        run: npm install && npm run build
+
       - name: Run DEV e2e tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         env:
+          WASP_APP_RUNNER_CLI: ${{ github.workspace }}/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
         run: npm run test
@@ -67,6 +72,7 @@ jobs:
         if: steps.extract-db-provider.outputs.provider != 'sqlite'
         working-directory: examples/${{ matrix.example }}
         env:
+          WASP_APP_RUNNER_CLI: ${{ github.workspace }}/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: build
         run: npm run test
