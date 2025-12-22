@@ -21,7 +21,7 @@ displayNewsEntry newsEntry = do
       <> "\n"
       <> Term.applyStyles [Term.Grey] (indent 2 $ wrapString (maxColumns - 2) newsEntry.body)
   where
-    dateText = formatTime defaultTimeLocale "%Y-%m-%d" (publishedAt newsEntry)
+    dateText = formatTime defaultTimeLocale "%Y-%m-%d" newsEntry.publishedAt
     dotCount = max minDotsCount (maxColumns - length newsEntry.title - length dateText - 2)
     maxColumns = 80
     minDotsCount = 5
