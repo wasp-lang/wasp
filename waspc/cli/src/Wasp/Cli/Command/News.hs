@@ -11,9 +11,10 @@ import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
-import Wasp.Cli.Command.News.Persistence (areNewsStale, obtainLocalNewsState)
+import Wasp.Cli.Command.News.Persistence (obtainLocalNewsState)
 import Wasp.Cli.Command.News.Report
-  ( makeMandatoryNewsReport,
+  ( isTimeForMandatoryReport,
+    makeMandatoryNewsReport,
     makeVoluntaryNewsReport,
     printNewsReportAndUpdateLocalState,
   )
@@ -49,7 +50,7 @@ fetchAndReportMandatoryNews = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_NEWS_DISABLE"
   unless isWaspNewsDisabled $ do
     localNewsState <- obtainLocalNewsState
-    whenM (areNewsStale localNewsState) $ do
+    whenM (isTimeForMandatoryReport localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
         -- TODO: missing prefix for nicer output. Should we even output anything?
         Left _err -> putStrLn "Couldn't fetch Wasp news, skipping."
