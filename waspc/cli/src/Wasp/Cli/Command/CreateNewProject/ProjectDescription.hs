@@ -11,23 +11,24 @@ where
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
+import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path')
 import StrongPath.Path (toPathAbsDir)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
-import Wasp.Cli.Command.CreateNewProject.Common
-  ( throwProjectCreationError,
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+  ( NewProjectArgs (..),
   )
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( StarterTemplate,
-    defaultStarterTemplate,
     findTemplateByString,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
-import Wasp.Project (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
 
 data NewProjectDescription = NewProjectDescription
@@ -37,12 +38,12 @@ data NewProjectDescription = NewProjectDescription
     _absWaspProjectDir :: Path' Abs (Dir WaspProjectDir)
   }
 
-data NewProjectName = NewProjectName String
+newtype NewProjectName = NewProjectName String
 
 instance Show NewProjectName where
   show (NewProjectName name) = name
 
-data NewProjectAppName = NewProjectAppName String
+newtype NewProjectAppName = NewProjectAppName String
 
 instance Show NewProjectAppName where
   show (NewProjectAppName name) = name
@@ -63,46 +64,50 @@ instance Show NewProjectAppName where
     - Template name is required, we ask the user to choose from available templates.
 -}
 obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates =
-  case projectNameArg of
-    Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplates
-    Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplates
+obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplates = do
+  projectName <- maybe askForName return projectNameArg
+  appName <-
+    either throwProjectCreationError pure $
+      parseWaspProjectNameIntoAppName projectName
 
-obtainNewProjectDescriptionFromCliArgs :: String -> Maybe String -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescriptionFromCliArgs projectName templateNameArg availableTemplates =
-  obtainNewProjectDescriptionFromProjectNameAndTemplateArg
-    projectName
-    templateNameArg
-    availableTemplates
-    (return defaultStarterTemplate)
+  let prefersInteractive = isNothing projectNameArg
+      getFallbackTemplate =
+        if prefersInteractive
+          then askForTemplate starterTemplates
+          else return defaultStarterTemplate
 
-obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplate] -> Command NewProjectDescription
-obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
-  projectName <- liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
-  obtainNewProjectDescriptionFromProjectNameAndTemplateArg
-    projectName
-    templateNameArg
-    availableTemplates
-    (liftIO askForTemplateName)
-  where
-    askForTemplateName = Interactive.askToChoose "Choose a starter template" $ fromList availableTemplates
+  template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateNameArg
 
-obtainNewProjectDescriptionFromProjectNameAndTemplateArg ::
-  String ->
-  Maybe String ->
-  [StarterTemplate] ->
-  Command StarterTemplate ->
-  Command NewProjectDescription
-obtainNewProjectDescriptionFromProjectNameAndTemplateArg projectName templateNameArg availableTemplates obtainTemplateWhenNoArg = do
   absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  selectedTemplate <- maybe obtainTemplateWhenNoArg findTemplateOrThrow templateNameArg
-  mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
+  return $ mkNewProjectDescription projectName appName absWaspProjectDir template
+
+askForName :: Command String
+askForName =
+  liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
+
+askForTemplate :: [StarterTemplate] -> Command StarterTemplate
+askForTemplate starterTemplates =
+  liftIO $ Interactive.askToChoose "Choose a starter template" $ fromList starterTemplates
+
+parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
+parseWaspProjectNameIntoAppName projectName
+  | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
+  | otherwise =
+      Left . intercalate "\n" $
+        [ "The project's name is not in the valid format!",
+          indent 2 "- It can start with a letter or an underscore.",
+          indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
+          indent 2 "- It can't be a Wasp keyword."
+        ]
   where
-    findTemplateOrThrow :: String -> Command StarterTemplate
-    findTemplateOrThrow templateName = case findTemplateByString availableTemplates templateName of
-      Just template -> return template
-      Nothing -> throwProjectCreationError $ makeInvalidTemplateNameError templateName
-    makeInvalidTemplateNameError templateName =
+    appName = kebabToCamelCase projectName
+
+findTemplateOrThrow :: [StarterTemplate] -> String -> Command StarterTemplate
+findTemplateOrThrow availableTemplates templateName = case findTemplateByString availableTemplates templateName of
+  Just template -> return template
+  Nothing -> throwProjectCreationError invalidTemplateNameError
+  where
+    invalidTemplateNameError =
       "The template '"
         <> templateName
         <> "' doesn't exist. Available starter templates are: "
@@ -126,26 +131,11 @@ obtainAvailableProjectDirPath projectName = do
         throwProjectCreationError $
           "Directory \"" ++ projectDirName ++ "\" is not empty."
 
-mkNewProjectDescription :: String -> Path' Abs (Dir WaspProjectDir) -> StarterTemplate -> Command NewProjectDescription
-mkNewProjectDescription projectName absWaspProjectDir template = do
-  appName <- either throwProjectCreationError pure $ parseWaspProjectNameIntoAppName projectName
-  return $
-    NewProjectDescription
-      { _projectName = NewProjectName projectName,
-        _appName = appName,
-        _template = template,
-        _absWaspProjectDir = absWaspProjectDir
-      }
-
-parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
-parseWaspProjectNameIntoAppName projectName
-  | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
-  | otherwise =
-      Left . intercalate "\n" $
-        [ "The project's name is not in the valid format!",
-          indent 2 "- It can start with a letter or an underscore.",
-          indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
-          indent 2 "- It can't be a Wasp keyword."
-        ]
-  where
-    appName = kebabToCamelCase projectName
+mkNewProjectDescription :: String -> NewProjectAppName -> Path' Abs (Dir WaspProjectDir) -> StarterTemplate -> NewProjectDescription
+mkNewProjectDescription projectName appName absWaspProjectDir template =
+  NewProjectDescription
+    { _projectName = NewProjectName projectName,
+      _appName = appName,
+      _template = template,
+      _absWaspProjectDir = absWaspProjectDir
+    }

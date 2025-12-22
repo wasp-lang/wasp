@@ -1,174 +1,208 @@
 module Wasp.Generator.Valid.PackageJson
   ( validatePackageJson,
+
+    -- * Exported for testing only
+    makeOptionalDepValidator,
+    makeRequiredDepValidator,
+    inDependency,
+    DependencyType (..),
   )
 where
 
-import Control.Applicative ((<|>))
 import Data.List (intercalate)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.DepVersions (prismaVersion, typescriptVersion)
+import Wasp.Generator.DepVersions
+  ( expressTypesVersion,
+    prismaVersion,
+    reactDomTypesVersion,
+    reactDomVersion,
+    reactRouterVersion,
+    reactTypesVersion,
+    reactVersion,
+    typescriptVersion,
+    viteVersion,
+  )
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import qualified Wasp.Generator.NpmWorkspaces as NW
-import Wasp.Generator.ServerGenerator.DepVersions (expressTypesVersion)
-import Wasp.Generator.WebAppGenerator.DepVersions (reactRouterVersion, reactTypesVersion, reactVersion, viteVersion)
+import qualified Wasp.Generator.Valid.Validator as V
 
-data PackageRequirement
-  = RequiredRuntime
-  | RequiredDevelopment
-  | Optional
+data DependencyType = Runtime | Development
+  deriving (Show)
 
-type PackageSpecification = (P.PackageName, P.PackageVersion)
+type DependencySpecification = (P.PackageName, P.PackageVersion)
 
-validatePackageJson ::
-  P.PackageJson ->
-  [GeneratorError]
-validatePackageJson packageJson =
-  validateRuntimeDependencies packageJson
-    ++ validateDevelopmentDependencies packageJson
-    ++ validateOptionalDependencies packageJson
-    ++ validateWorkspaces packageJson
+validatePackageJson :: P.PackageJson -> [GeneratorError]
+validatePackageJson pkgJson =
+  GenericGeneratorError . show
+    <$> V.execValidator packageJsonValidator pkgJson
+  where
+    packageJsonValidator :: V.Validator P.PackageJson
+    packageJsonValidator =
+      V.withFileName "package.json" $
+        V.all
+          [ workspacesValidator,
+            dependenciesValidator
+          ]
 
-validateRuntimeDependencies :: P.PackageJson -> [GeneratorError]
-validateRuntimeDependencies packageJson =
-  concat
-    [ validateRuntime ("wasp", "file:.wasp/out/sdk/wasp"),
-      validateRuntime ("react-router-dom", show reactRouterVersion),
-      -- Installing the wrong version of "react-router-dom" can make users believe that they
-      -- can use features that are not available in the version that Wasp supports.
-      validateRuntime ("react", show reactVersion),
-      validateRuntime ("react-dom", show reactVersion)
+type WorkspaceName = String
+
+workspacesValidator :: V.Validator P.PackageJson
+workspacesValidator =
+  V.inField ("workspaces", P.workspaces) $ \case
+    Just actualWorkspaces -> requiredWorkspacesIncludedValidator actualWorkspaces
+    Nothing -> workspacesNotDefinedError
+  where
+    requiredWorkspacesIncludedValidator :: V.Validator [WorkspaceName]
+    requiredWorkspacesIncludedValidator =
+      V.all $ makeWorskpaceIncludedValidator <$> expectedWorkspaces
+
+    makeWorskpaceIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
+    makeWorskpaceIncludedValidator expectedWorkspace actualWorkspaces
+      | expectedWorkspace `elem` actualWorkspaces = V.success
+      | otherwise = makeMissingWorkspaceError expectedWorkspace
+
+    makeMissingWorkspaceError expectedWorkspace =
+      V.failure $
+        "Wasp requires "
+          ++ show expectedWorkspace
+          ++ " to be included."
+
+    workspacesNotDefinedError =
+      V.failure $
+        "Wasp requires the field to be an array, and include the following values: "
+          ++ intercalate ", " (show <$> expectedWorkspaces)
+          ++ "."
+
+    expectedWorkspaces = S.toList NW.requiredWorkspaceGlobs
+
+dependenciesValidator :: V.Validator P.PackageJson
+dependenciesValidator =
+  V.all
+    [ runtimeDepsValidator,
+      developmentDepsValidator,
+      optionalDepsValidator
     ]
   where
-    validateRuntime packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredRuntime
+    runtimeDepsValidator :: V.Validator P.PackageJson
+    runtimeDepsValidator =
+      V.all $
+        makeRequiredDepValidator Runtime
+          <$> [ ("wasp", "file:.wasp/out/sdk/wasp"),
+                -- Installing the wrong version of "react-router-dom" can make users believe that they
+                -- can use features that are not available in the version that Wasp supports.
+                ("react-router-dom", show reactRouterVersion),
+                ("react", show reactVersion),
+                ("react-dom", show reactDomVersion)
+              ]
 
-validateDevelopmentDependencies :: P.PackageJson -> [GeneratorError]
-validateDevelopmentDependencies packageJson =
-  concat
-    [ validateDevelopment ("vite", show viteVersion),
-      validateDevelopment ("prisma", show prismaVersion)
-    ]
+    developmentDepsValidator :: V.Validator P.PackageJson
+    developmentDepsValidator =
+      V.all $
+        makeRequiredDepValidator Development
+          <$> [ ("vite", show viteVersion),
+                ("prisma", show prismaVersion)
+              ]
+
+    optionalDepsValidator :: V.Validator P.PackageJson
+    optionalDepsValidator =
+      V.all $
+        [ makeOptionalDepValidator depType dep
+          | depType <- [Runtime, Development],
+            dep <-
+              [ ("typescript", show typescriptVersion),
+                ("@types/react", show reactTypesVersion),
+                ("@types/react-dom", show reactDomTypesVersion),
+                ("@types/express", show expressTypesVersion)
+              ]
+        ]
+
+-- | Validates that an optional dependency is either not present, or present
+-- with the correct version.
+makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
+makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
+  inDependency depType pkgName optionalVersionValidator
   where
-    validateDevelopment packageSpec = validatePackageJsonDependency packageJson packageSpec RequiredDevelopment
+    optionalVersionValidator :: V.Validator (Maybe P.PackageVersion)
+    optionalVersionValidator actualVersion =
+      case (expectedPkgVersion ==) <$> actualVersion of
+        Just True -> V.success
+        Just False -> incorrectVersionError
+        Nothing -> V.success
 
-validateOptionalDependencies :: P.PackageJson -> [GeneratorError]
-validateOptionalDependencies packageJson =
-  concat
-    [ validateOptional ("typescript", show typescriptVersion),
-      validateOptional ("@types/react", show reactTypesVersion),
-      validateOptional ("@types/express", show expressTypesVersion)
-    ]
+    incorrectVersionError =
+      V.failure $
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " to be version "
+          ++ show expectedPkgVersion
+          ++ " if present."
+
+-- | Validates that a required dependency is present in the correct dependency
+-- list with the correct version. It shows an appropriate error message
+-- otherwise (with an explicit check for the case when the dependency is present
+-- in the opposite list -- runtime deps vs. devDeps).
+makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
+makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
+  inOppositeDepList notPresentValidator
+    `V.and` inCorrectDepList correctVersionValidator
   where
-    validateOptional packageSpec = validatePackageJsonDependency packageJson packageSpec Optional
+    notPresentValidator :: V.Validator (Maybe P.PackageVersion)
+    notPresentValidator Nothing = V.success
+    notPresentValidator _ = wrongDepTypeError
 
-validateWorkspaces :: P.PackageJson -> [GeneratorError]
-validateWorkspaces = validateRequiredWorkspaces . P.workspaces
-  where
-    validateRequiredWorkspaces Nothing = [missingWorkspacesError]
-    validateRequiredWorkspaces (Just definedWorkspacesList)
-      | NW.workspaceGlobs `S.isSubsetOf` definedWorkspaces = []
-      | otherwise = [makeWrongWorkspacesError definedWorkspaces]
-      where
-        definedWorkspaces = S.fromList definedWorkspacesList
+    correctVersionValidator :: V.Validator (Maybe P.PackageVersion)
+    correctVersionValidator actualVersion =
+      case (expectedPkgVersion ==) <$> actualVersion of
+        Just True -> V.success
+        Just False -> incorrectPackageVersionError
+        Nothing -> missingPackageError
 
-    makeWrongWorkspacesError definedWorkspaces =
-      GenericGeneratorError $
-        unwords
-          [ "Wasp requires package.json \"workspaces\" to include:",
-            showSet NW.workspaceGlobs ++ ".",
-            "You are missing:",
-            showSet (NW.workspaceGlobs `S.difference` definedWorkspaces) ++ "."
-          ]
+    inCorrectDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
+    inCorrectDepList = inDependency depType pkgName
+    inOppositeDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
+    inOppositeDepList = inDependency (oppositeForDepType depType) pkgName
 
-    missingWorkspacesError =
-      GenericGeneratorError $
-        unwords
-          [ "Wasp requires package.json \"workspaces\" to be present with the value and include values:",
-            showSet NW.workspaceGlobs ++ "."
-          ]
+    oppositeForDepType :: DependencyType -> DependencyType
+    oppositeForDepType Runtime = Development
+    oppositeForDepType Development = Runtime
 
-    showSet = intercalate ", " . fmap show . S.toList
+    wrongDepTypeError =
+      V.failure $
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " to be in "
+          ++ show (fst $ fieldForDepType depType)
+          ++ "."
 
-validatePackageJsonDependency :: P.PackageJson -> PackageSpecification -> PackageRequirement -> [GeneratorError]
-validatePackageJsonDependency packageJson (packageName, expectedPackageVersion) requirement =
-  case maybePackageJsonDepedency of
-    Just actualPackageVersion ->
-      if actualPackageVersion == expectedPackageVersion
-        then []
-        else [incorrectPackageVersionErrorMessage]
-    Nothing ->
-      if isInWrongLocation requirement
-        then [wrongDependencyTypeErrorMessage]
-        else getMissingPackageError requirement
-  where
-    maybePackageJsonDepedency :: Maybe P.PackageVersion
-    maybePackageJsonDepedency = case requirement of
-      RequiredRuntime -> M.lookup packageName $ P.dependencies packageJson
-      RequiredDevelopment -> M.lookup packageName $ P.devDependencies packageJson
-      Optional ->
-        M.lookup packageName (P.dependencies packageJson)
-          <|> M.lookup packageName (P.devDependencies packageJson)
+    missingPackageError =
+      V.failure $
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " with version "
+          ++ show expectedPkgVersion
+          ++ "."
 
-    isInWrongLocation :: PackageRequirement -> Bool
-    isInWrongLocation = \case
-      RequiredRuntime -> M.member packageName (P.devDependencies packageJson)
-      RequiredDevelopment -> M.member packageName (P.dependencies packageJson)
-      Optional -> False
+    incorrectPackageVersionError =
+      V.failure $
+        "Wasp requires package "
+          ++ show pkgName
+          ++ " to be version "
+          ++ show expectedPkgVersion
+          ++ "."
 
-    getMissingPackageError :: PackageRequirement -> [GeneratorError]
-    getMissingPackageError = \case
-      RequiredRuntime -> [missingRequiredPackageErrorMessage]
-      RequiredDevelopment -> [missingRequiredPackageErrorMessage]
-      Optional -> []
+-- | Runs the validator on a specific dependency of the given PackageJson
+-- record, setting the appropriate path for errors.
+inDependency ::
+  DependencyType ->
+  P.PackageName ->
+  V.Validator (Maybe P.PackageVersion) ->
+  V.Validator P.PackageJson
+inDependency depType pkgName versionStringValidator =
+  V.inField (fieldForDepType depType) $
+    V.inField (pkgName, M.lookup pkgName) versionStringValidator
 
-    incorrectPackageVersionErrorMessage :: GeneratorError
-    incorrectPackageVersionErrorMessage =
-      GenericGeneratorError $
-        unwords
-          [ "Wasp requires package",
-            show packageName,
-            "to be version",
-            show expectedPackageVersion,
-            "in package.json."
-          ]
-
-    missingRequiredPackageErrorMessage :: GeneratorError
-    missingRequiredPackageErrorMessage =
-      GenericGeneratorError $
-        unwords
-          [ "Wasp requires package",
-            show packageName,
-            "with version",
-            show expectedPackageVersion,
-            "to be in",
-            show $ getExpectedPackageJsonDependencyKey requirement,
-            "in package.json."
-          ]
-
-    wrongDependencyTypeErrorMessage :: GeneratorError
-    wrongDependencyTypeErrorMessage =
-      GenericGeneratorError $
-        unwords $
-          [ "Wasp requires package",
-            show packageName,
-            "to be in",
-            show $ getExpectedPackageJsonDependencyKey requirement
-          ]
-            ++ ( case getOppositePackageJsonDependencyKey requirement of
-                   Just oppositeKey -> ["and not in", show oppositeKey]
-                   Nothing -> []
-               )
-            ++ ["in package.json."]
-
-getExpectedPackageJsonDependencyKey :: PackageRequirement -> String
-getExpectedPackageJsonDependencyKey = \case
-  RequiredRuntime -> "dependencies"
-  RequiredDevelopment -> "devDependencies"
-  Optional -> "dependencies or devDependencies"
-
-getOppositePackageJsonDependencyKey :: PackageRequirement -> Maybe String
-getOppositePackageJsonDependencyKey = \case
-  RequiredRuntime -> Just "devDependencies"
-  RequiredDevelopment -> Just "dependencies"
-  Optional -> Nothing
+fieldForDepType :: DependencyType -> (String, P.PackageJson -> P.DependenciesMap)
+fieldForDepType Runtime = ("dependencies", P.dependencies)
+fieldForDepType Development = ("devDependencies", P.devDependencies)

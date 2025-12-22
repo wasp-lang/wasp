@@ -1,0 +1,43 @@
+name: "Test - Wasp AI"
+
+on:
+  workflow_call:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_TESTING_KEY }}
+  PROJECT_DIR: ${{ github.workspace }}/waspc
+
+jobs:
+  test-wasp-ai:
+    name: Test Wasp AI
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: "actions/checkout@v6"
+
+      - uses: ./.github/actions/setup-haskell
+        with:
+          cabal-project-dir: waspc
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+
+      - name: Install `wasp-cli`
+        working-directory: waspc
+        run: ./run install
+
+      - name: Run `wasp new:ai` smoke test
+        working-directory: ${{ runner.temp }}
+        # NOTE: This is just a smoke test, we aren't trying to run or compile
+        # the generated app. We are only trying to avoid late discovery of bugs
+        # such as this one: https://github.com/wasp-lang/wasp/issues/2951
+        run: cabal --project-dir=${{ env.PROJECT_DIR }} run wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
+        env:
+          APP_TITLE: todoApp
+          APP_DESCRIPTION: >
+            A simple todo app with one main page that lists all the tasks. User
+            can create new tasks by providing their description, toggle
+            existing ones, or edit their description. User owns tasks. User can
+            only see and edit their own tasks. Tasks are saved in the database.
+          CONFIG_JSON: "{}"

@@ -1,0 +1,39 @@
+name: "Automation - Label external PRs"
+
+############################################################
+# CAUTION: This workflow should not check out the PR code! #
+############################################################
+# The `pull_request_target` event is only intended for simple automations on the
+# PRs themselves (e.g., labeling, commenting). If we checked out the PR code here,
+# we would be running untrusted code and giving it access to our repository
+# secrets, which is a major security risk.
+#
+# More info at:
+# https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+
+jobs:
+  label-external-prs:
+    name: Label external PRs
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    # We check if the PR comes from a different repo than ours:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+
+    steps:
+      - name: Label external PR
+        run: gh pr edit "$PR_NUMBER" --add-label "$LABEL_NAME"
+        env:
+          LABEL_NAME: "external"
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
