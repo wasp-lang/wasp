@@ -35,8 +35,8 @@ data LocalNewsState = LocalNewsState
 
 saveLocalNewsState :: LocalNewsState -> IO ()
 saveLocalNewsState localNewsState = do
-  ensureNewsStateFileParentDirExists
   newsStateFile <- getNewsStateFilePath
+  SD.createDirectoryIfMissing True $ fromAbsDir $ parent newsStateFile
   writeJsonFile newsStateFile localNewsState
 
 obtainLocalNewsState :: IO LocalNewsState
@@ -62,11 +62,6 @@ markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
 markNewsAsSeen newsEntries state = state {seenNewsIds = unionOfOldAndNewIds}
   where
     unionOfOldAndNewIds = seenNewsIds state <> Set.fromList (map (.id) newsEntries)
-
-ensureNewsStateFileParentDirExists :: IO ()
-ensureNewsStateFileParentDirExists = do
-  parentDir <- parent <$> getNewsStateFilePath
-  SD.createDirectoryIfMissing True $ fromAbsDir parentDir
 
 getNewsStateFilePath :: IO (Path' Abs File')
 getNewsStateFilePath = do
