@@ -19,6 +19,8 @@ module Wasp.Util
     concatPrefixAndText,
     insertAt,
     leftPad,
+    trim,
+    wrapString,
     (<++>),
     (<:>),
     bytestringToHex,
@@ -38,7 +40,6 @@ module Wasp.Util
     whenM,
     naiveTrimJSON,
     textToLazyBS,
-    trim,
     secondsToMicroSeconds,
     findDuplicateElems,
     isOlderThanNHours,
@@ -189,6 +190,23 @@ insertAt theInsert idx host =
 
 trim :: String -> String
 trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+
+wrapString :: Int -> String -> String
+wrapString maxLength = intercalate "\n" . map unwords . groupWordsIntoLines . words
+  where
+    groupWordsIntoLines :: [String] -> [[String]]
+    groupWordsIntoLines [] = []
+    groupWordsIntoLines ws =
+      let (line, rest) = takeLine maxLength ws
+       in line : groupWordsIntoLines rest
+
+    takeLine :: Int -> [String] -> ([String], [String])
+    takeLine _ [] = ([], [])
+    takeLine remainingLength (w : ws)
+      | length w > remainingLength && remainingLength /= maxLength = ([], w : ws)
+      | otherwise =
+          let (taken, leftover) = takeLine (remainingLength - length w - 1) ws
+           in (w : taken, leftover)
 
 infixr 5 <++>
 
