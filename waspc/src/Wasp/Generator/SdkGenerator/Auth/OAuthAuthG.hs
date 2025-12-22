@@ -22,11 +22,11 @@ import Wasp.Generator.SdkGenerator.Common
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
-      genHelpers auth
+      genOAuthHelpers auth
   | otherwise = return []
 
-genHelpers :: AS.Auth.Auth -> Generator [FileDraft]
-genHelpers auth =
+genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genOAuthHelpers auth =
   return $
     concat
       [ [slackHelpers | AS.Auth.isSlackAuthEnabled auth],
@@ -36,20 +36,20 @@ genHelpers auth =
         [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
       ]
   where
-    slackHelpers = genHelper slackAuthProvider [relfile|Slack.tsx|]
-    discordHelpers = genHelper discordAuthProvider [relfile|Discord.tsx|]
-    gitHubHelpers = genHelper gitHubAuthProvider [relfile|GitHub.tsx|]
-    googleHelpers = genHelper googleAuthProvider [relfile|Google.tsx|]
-    keycloakHelpers = genHelper keycloakAuthProvider [relfile|Keycloak.tsx|]
+    slackHelpers = makeOAuthHelpersFd slackAuthProvider [relfile|Slack.tsx|]
+    discordHelpers = makeOAuthHelpersFd discordAuthProvider [relfile|Discord.tsx|]
+    gitHubHelpers = makeOAuthHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
+    googleHelpers = makeOAuthHelpersFd googleAuthProvider [relfile|Google.tsx|]
+    keycloakHelpers = makeOAuthHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
 
-genHelper :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
-genHelper provider helpersFp =
-  makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
-  where
-    destFile = [reldir|auth/helpers|] </> helpersFp
-    tmplFile = [relfile|auth/helpers/_Provider.tsx|]
-    tmplData =
-      object
-        [ "signInPath" .= OAuth.serverLoginUrl provider,
-          "displayName" .= OAuth.displayName provider
-        ]
+    makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
+    makeOAuthHelpersFd provider helpersFp =
+      makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
+      where
+        destFile = [reldir|auth/helpers|] </> helpersFp
+        tmplFile = [relfile|auth/helpers/_Provider.tsx|]
+        tmplData =
+          object
+            [ "signInPath" .= OAuth.serverLoginUrl provider,
+              "displayName" .= OAuth.displayName provider
+            ]
