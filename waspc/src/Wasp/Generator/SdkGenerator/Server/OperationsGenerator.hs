@@ -10,7 +10,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir, Dir', File', Path', Rel, reldir, relfile, (</>), castRel)
+import StrongPath (Dir, Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -22,8 +22,8 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-import Wasp.Generator.SdkGenerator.Server.Common
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
+import Wasp.Generator.SdkGenerator.Server.Common
 import Wasp.Util (toUpperFirst)
 
 data ServerOpsTemplatesDir
@@ -113,8 +113,9 @@ genOperationTypesFile ::
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
-genOperationTypesFile tmplFile operations isAuthEnabledGlobally = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplData =
       object

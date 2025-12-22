@@ -110,7 +110,7 @@ build = do
       liftIO $
         copyDirectory
           (buildDir </> sdkRootDirInProjectRootDir)
-          (buildDir </> sdkRootDirInGeneratedCodeDir) 
+          (buildDir </> sdkRootDirInGeneratedCodeDir)
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir

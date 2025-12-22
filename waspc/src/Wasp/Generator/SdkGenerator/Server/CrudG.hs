@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import StrongPath (relfile, Path', Dir', reldir, Rel, (</>))
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
@@ -28,8 +28,9 @@ genNewServerCrudApi spec =
     areThereAnyCruds = not $ null cruds
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
-genCrudIndex spec cruds = return $ 
-  makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genCrudIndex spec cruds =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = serverCurdDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]

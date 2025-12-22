@@ -14,9 +14,9 @@ import qualified Wasp.AppSpec.Api as Api
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.ServerGenerator.ApiRoutesG (getApiEntitiesObject, isAuthEnabledForApi)
 import Wasp.Util (toUpperFirst)
-import Wasp.Generator.SdkGenerator.Common
 
 genServerApi :: AppSpec -> Generator [FileDraft]
 genServerApi spec =
