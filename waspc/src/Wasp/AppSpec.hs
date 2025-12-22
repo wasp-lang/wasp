@@ -21,6 +21,8 @@ module Wasp.AppSpec
     getApiNamespaces,
     getCruds,
     userNodeVersionRange,
+    isProduction,
+    isDevelopment,
   )
 where
 
@@ -49,6 +51,7 @@ import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -79,9 +82,7 @@ data AppSpec = AppSpec
     devEnvVarsServer :: [EnvVar],
     -- | Env variables to be provided to the client only during the development.
     devEnvVarsClient :: [EnvVar],
-    -- | If true, it means project is being compiled for production/deployment -> it is being "built".
-    -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
-    isBuild :: Bool,
+    buildType :: BuildType.BuildType,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
     -- | A list of paths to Tailwind specific config files and where to copy them.
@@ -160,3 +161,9 @@ asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
 --   In the meantime, we determine it based on the oldest node version that Wasp supports.
 userNodeVersionRange :: AppSpec -> SV.Range
 userNodeVersionRange _ = SV.Range [SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion]
+
+isProduction :: AppSpec -> Bool
+isProduction spec = buildType spec == BuildType.Production
+
+isDevelopment :: AppSpec -> Bool
+isDevelopment spec = buildType spec == BuildType.Development

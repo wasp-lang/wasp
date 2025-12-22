@@ -26,6 +26,7 @@ import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
 -- | Same like 'compileWithOptions', but with default compile options.
@@ -117,7 +118,7 @@ defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
 defaultCompileOptions waspProjectDir =
   CompileOptions
     { waspProjectDirPath = waspProjectDir,
-      isBuild = False,
+      buildType = BuildType.Development,
       sendMessage = cliSendMessage,
       generatorWarningsFilter = id
     }

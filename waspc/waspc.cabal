@@ -388,6 +388,7 @@ library
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
+    Wasp.Project.BuildType
     Wasp.Project.Common
     Wasp.Project.Db
     Wasp.Project.Db.Dev.Postgres
