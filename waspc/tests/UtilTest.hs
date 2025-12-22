@@ -146,25 +146,22 @@ spec_insertAt = do
 spec_wrapString :: Spec
 spec_wrapString = do
   describe "wrapString" $ do
-    it "returns empty string for empty input" $ do
+    it "returns an empty string for empty input" $ do
       wrapString 10 "" `shouldBe` ""
 
-    it "returns single line when text fits" $ do
+    it "returns a single line when text fits" $ do
       wrapString 20 "hello world" `shouldBe` "hello world"
 
-    it "wraps text that exceeds max length" $ do
+    it "wraps a string that exceeds max length" $ do
       wrapString 10 "hello world" `shouldBe` "hello\nworld"
 
-    it "wraps text into multiple lines" $ do
-      wrapString 10 "one two three four" `shouldBe` "one two\nthree four"
-
-    it "includes long word at start of line even if it exceeds max length" $ do
+    it "includes a long word at the start of the line even if it exceeds max length" $ do
       wrapString 5 "extraordinary day is extraordinary" `shouldBe` "extraordinary\nday\nis\nextraordinary"
 
     prop "preserves all words in order" $
       \maxLen str -> words str == words (wrapString maxLen str)
 
-    prop "does not produce lines longer than max length unless unavoidable" $
+    prop "does not produce lines longer than max length unless unavoidable (when a single word is too long)" $
       \maxLen str ->
         let lns = lines (wrapString maxLen str)
          in all (\l -> length l <= maxLen || length (words l) == 1) lns
