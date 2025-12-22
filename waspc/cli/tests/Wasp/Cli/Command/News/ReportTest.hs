@@ -8,6 +8,7 @@ import qualified Data.Time as T
 import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
 import Test.QuickCheck
+import Test.QuickCheck.Arbitrary.Generic (genericArbitrary)
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Persistence (LocalNewsState (..), emptyLocalNewsState)
 import Wasp.Cli.Command.News.Report
@@ -96,24 +97,16 @@ spec_makeMandatoryNewsReportForExistingUser = do
        in assertProperty localNewsStateInput newsEntriesInput report
 
 instance Arbitrary NewsLevel where
-  arbitrary = elements [Low, Moderate, High]
+  arbitrary = genericArbitrary
 
 instance Arbitrary NewsEntry where
-  arbitrary =
-    NewsEntry
-      <$> arbitrary
-      <*> arbitrary
-      <*> arbitrary
-      <*> arbitrary
-      <*> arbitraryUTCTime
+  arbitrary = genericArbitrary
 
 instance Arbitrary LocalNewsState where
-  arbitrary =
-    LocalNewsState
-      <$> oneof [pure Nothing, Just <$> arbitraryUTCTime]
-      <*> (Set.fromList <$> arbitrary)
+  arbitrary = genericArbitrary
 
-arbitraryUTCTime :: Gen T.UTCTime
-arbitraryUTCTime = T.UTCTime <$> arbitraryDay <*> pure 0
-  where
-    arbitraryDay = T.fromGregorian <$> choose (2020, 2025) <*> choose (1, 12) <*> choose (1, 28)
+instance Arbitrary T.UTCTime where
+  arbitrary = T.UTCTime <$> arbitraryDay <*> arbitraryDiffTime
+    where
+      arbitraryDay = T.fromGregorian <$> choose (2010, 2020) <*> choose (1, 12) <*> choose (1, 28)
+      arbitraryDiffTime = T.secondsToDiffTime <$> choose (0, 86399)

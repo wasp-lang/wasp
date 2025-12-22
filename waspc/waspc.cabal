@@ -780,6 +780,7 @@ test-suite wasp-cli-tests
     , waspc
     , cli-lib
     , QuickCheck
+    , generic-arbitrary
     , tasty
     , hspec
     , tasty-hspec
