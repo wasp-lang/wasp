@@ -605,6 +605,8 @@ library cli-lib
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
+    Wasp.Cli.Command.News.Common
+    Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
