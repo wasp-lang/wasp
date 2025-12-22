@@ -4,24 +4,20 @@ module Wasp.Cli.Command.News.Fetching
   )
 where
 
-import Control.Concurrent (threadDelay)
-import Control.Concurrent.Async (race)
 import Control.Exception (try)
 import Data.Functor ((<&>))
 import Data.Maybe (fromMaybe)
 import Network.HTTP.Simple (HttpException, parseRequest)
 import System.Environment (lookupEnv)
+import System.Timeout (timeout)
 import Wasp.Cli.Command.News.Common (NewsEntry)
 import Wasp.Util.Network.HTTP (httpJSONThatThrowsIfNot2xx)
 
 fetchNewsWithTimeout :: Int -> IO (Either String [NewsEntry])
 fetchNewsWithTimeout timeoutSeconds =
-  race timeout fetchNews <&> \case
-    Left () -> Left "News fetching timed out"
-    Right newsEntries -> newsEntries
+  timeout timeoutMicroseconds fetchNews <&> fromMaybe (Left "News fetching timed out")
   where
-    timeout = threadDelay $ timeoutSeconds * microsecondsInASecond
-    microsecondsInASecond = 1000000
+    timeoutMicroseconds = timeoutSeconds * 1000000
 
 fetchNews :: IO (Either String [NewsEntry])
 fetchNews = do
