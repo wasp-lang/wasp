@@ -5,7 +5,8 @@ module Wasp.Cli.Command.News
   ( news,
     handleNews,
     -- Exported for testing
-    getAutomaticNewsReport,
+    getMandatoryNewsReport,
+    getMandatoryNewsReportForExistingUser,
     NewsReport (..),
   )
 where
@@ -13,7 +14,7 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, isNothing)
 import qualified Data.Time as T
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
@@ -21,7 +22,7 @@ import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (printNewsEntry)
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Persistence
-  ( LocalNewsInfo,
+  ( LocalNewsInfo (lastReportAt),
     areNewsStale,
     markNewsAsSeen,
     obtainLocalNewsInfo,
@@ -71,7 +72,7 @@ handleNews = do
         -- TODO: missing prefix for nicer output.
         Left _err -> putStrLn "Couldn't fetch Wasp news, skipping."
         Right newsEntries -> do
-          let newsReport = getAutomaticNewsReport localNewsInfo newsEntries
+          let newsReport = getMandatoryNewsReport localNewsInfo newsEntries
           printNewsReportAndUpdateLocalInfo newsReport
 
 data NewsReport = NewsReport
@@ -81,9 +82,23 @@ data NewsReport = NewsReport
   }
   deriving (Show, Eq)
 
+getMandatoryNewsReport :: LocalNewsInfo -> [NewsEntry] -> NewsReport
+getMandatoryNewsReport localNewsInfo newsEntries
+  | isFirstTimeUser = showNothingAndMarkAllAsSeen
+  | otherwise = getMandatoryNewsReportForExistingUser localNewsInfo newsEntries
+  where
+    isFirstTimeUser = isNothing localNewsInfo.lastReportAt
+
+    showNothingAndMarkAllAsSeen =
+      NewsReport
+        { newsToShow = [],
+          requireConfirmation = False,
+          newsToConsiderSeen = newsEntries
+        }
+
 -- TODO: better name
-getAutomaticNewsReport :: LocalNewsInfo -> [NewsEntry] -> NewsReport
-getAutomaticNewsReport localNewsInfo newsEntries =
+getMandatoryNewsReportForExistingUser :: LocalNewsInfo -> [NewsEntry] -> NewsReport
+getMandatoryNewsReportForExistingUser localNewsInfo newsEntries =
   NewsReport
     { newsToShow = allRelevantUnseenNews,
       requireConfirmation,
