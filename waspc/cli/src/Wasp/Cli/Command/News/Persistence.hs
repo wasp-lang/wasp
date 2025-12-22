@@ -50,7 +50,6 @@ obtainLocalNewsState = do
   where
     readLocalNewsStateFromFile stateFile =
       fromMaybe emptyLocalNewsState <$> readJsonFile stateFile
-
     emptyLocalNewsState =
       LocalNewsState
         { lastReportAt = Nothing,
