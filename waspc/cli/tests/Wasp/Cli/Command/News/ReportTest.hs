@@ -51,9 +51,9 @@ spec_makeMandatoryNewsReport = do
 
     prop "delegates to makeMandatoryNewsReportForExistingUser for existing users" $
       \localNewsState newsEntries ->
-        not (isFirstTimeUser localNewsState)
-          ==> makeMandatoryNewsReport localNewsState newsEntries
-          == makeMandatoryNewsReportForExistingUser localNewsState newsEntries
+        not (isFirstTimeUser localNewsState) ==>
+          makeMandatoryNewsReport localNewsState newsEntries
+            == makeMandatoryNewsReportForExistingUser localNewsState newsEntries
   where
     isFirstTimeUser state = state == emptyLocalNewsState
 
