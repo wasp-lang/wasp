@@ -9,7 +9,6 @@ import qualified Wasp.Util.Terminal as Term
 
 displayNewsEntry :: NewsEntry -> IO ()
 displayNewsEntry newsEntry = do
-  putStrLn ""
   putStrLn $
     Term.applyStyles [Term.Bold] newsEntry.title
       <> " "
