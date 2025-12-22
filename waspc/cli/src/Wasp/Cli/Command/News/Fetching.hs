@@ -4,12 +4,12 @@ module Wasp.Cli.Command.News.Fetching
   )
 where
 
-import System.Timeout (timeout)
 import Control.Exception (try)
 import Data.Functor ((<&>))
 import Data.Maybe (fromMaybe)
 import Network.HTTP.Simple (HttpException, parseRequest)
 import System.Environment (lookupEnv)
+import System.Timeout (timeout)
 import Wasp.Cli.Command.News.Common (NewsEntry)
 import Wasp.Util.Network.HTTP (httpJSONThatThrowsIfNot2xx)
 
