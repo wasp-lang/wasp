@@ -7,7 +7,6 @@ module Wasp.Cli.Command.News.Persistence
     obtainLocalNewsState,
     saveLocalNewsState,
     wasNewsEntrySeen,
-    isItTimeForAMandatoryReport,
     setLastReportTimestamp,
     markNewsAsSeen,
   )
@@ -26,7 +25,7 @@ import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
 import qualified System.Directory as SD
 import Wasp.Cli.Command.News.Common (NewsEntry (..))
 import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
-import Wasp.Util (ifM, isOlderThanNHours)
+import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
 
 -- | News state stored on disk.
