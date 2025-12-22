@@ -12,13 +12,11 @@ module Wasp.Cli.Command.News.Persistence
   )
 where
 
-import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Functor ((<&>))
 import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
-import qualified Data.Text as Text
 import qualified Data.Time as T
 import GHC.Generics
 import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
@@ -27,23 +25,20 @@ import Wasp.Cli.Command.News.Common (NewsEntry (..))
 import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
 import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Json (readJsonFile, writeJsonFile)
 
 -- | News state stored on disk.
 data LocalNewsState = LocalNewsState
   { lastReportAt :: Maybe T.UTCTime,
     seenNewsIds :: Set String
   }
-  deriving (Generic, Show, Eq)
-
-instance Aeson.FromJSON LocalNewsState
-
-instance Aeson.ToJSON LocalNewsState
+  deriving (Generic, Show, Eq, FromJSON, ToJSON)
 
 saveLocalNewsState :: LocalNewsState -> IO ()
 saveLocalNewsState localNewsState = do
   ensureNewsStateFileParentDirExists
   newsStateFile <- getNewsStateFilePath
-  IOUtil.writeFile newsStateFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsState
+  writeJsonFile newsStateFile localNewsState
 
 obtainLocalNewsState :: IO LocalNewsState
 obtainLocalNewsState = do
@@ -53,11 +48,8 @@ obtainLocalNewsState = do
     (readLocalNewsStateFromFile stateFile)
     (return emptyLocalNewsState)
   where
-    readLocalNewsStateFromFile filePath = do
-      fileContent <- IOUtil.readFileStrict filePath
-      let maybeLocalNewsState =
-            Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
-      return $ fromMaybe emptyLocalNewsState maybeLocalNewsState
+    readLocalNewsStateFromFile stateFile =
+      fromMaybe emptyLocalNewsState <$> readJsonFile stateFile
 
     emptyLocalNewsState =
       LocalNewsState
