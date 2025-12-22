@@ -6,14 +6,11 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (castRel, relDirToPosix, (</>))
+import StrongPath ((</>), castRel, relDirToPosix)
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (dropExtensionFromImportPath)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.SdkGenerator.Common
-  ( extSrcDirInSdkRootDir,
-    makeSdkImportPath,
-  )
+import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (JsImport (..), JsImportPath (..))
 
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
@@ -35,6 +32,6 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
       _importAlias = Just $ EI.importIdentifier extImport ++ "_ext"
     }
   where
-    importPath = makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
-    extCodeDirP = fromJust $ relDirToPosix extSrcDirInSdkRootDir
+    importPath = C.makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
+    extCodeDirP = fromJust $ relDirToPosix C.extSrcDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName

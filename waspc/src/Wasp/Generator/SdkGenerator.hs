@@ -22,7 +22,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.ExternalFiles as EC
+import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -45,8 +45,7 @@ import Wasp.Generator.DepVersions
     superjsonVersion,
     tailwindCssVersion,
   )
-import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -324,35 +323,34 @@ installNpmDependencies projectDir =
 
 -- | Takes external code files from Wasp and generates them in new location as part of the generated project.
 -- It might not just copy them but also do some changes on them, as needed.
-genExternalCodeDir :: [EC.CodeFile] -> Generator [FileDraft]
-genExternalCodeDir = sequence . mapMaybe genFile
+genExternalCodeDir :: [EF.CodeFile] -> Generator [FileDraft]
+genExternalCodeDir = sequence . mapMaybe genExternalFile
 
-genFile :: EC.CodeFile -> Maybe (Generator FileDraft)
-genFile file
+genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
+genExternalFile file
   | fileName == "tsconfig.json" = Nothing
-  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genSourceFile file
-  | otherwise = Just $ genResourceFile file
+  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genExternalSourceFile file
+  | otherwise = Just $ genExternalResourceFile file
   where
     extension = FP.takeExtension filePath
     fileName = FP.takeFileName filePath
-    filePath = toFilePath $ EC.filePathInExtCodeDir file
+    filePath = toFilePath $ EF.filePathInExtCodeDir file
 
-genResourceFile :: EC.CodeFile -> Generator FileDraft
-genResourceFile file = return $ FD.createCopyFileDraft destFile srcFile
+genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
+genExternalResourceFile file = return $ createCopyFileDraft destFile srcFile
   where
     destFile = sdkRootDirInProjectRootDir
       </> extSrcDirInSdkRootDir
-      </> castRel (EC._pathInExtCodeDir file)
-    srcFile = EC.fileAbsPath file
+      </> castRel (EF.filePathInExtCodeDir file)
+    srcFile = EF.fileAbsPath file
 
-genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
-genSourceFile file = return $ FD.createTextFileDraft destFile text
+genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
+genExternalSourceFile file = return $ createTextFileDraft destFile srcFile
   where
     destFile = sdkRootDirInProjectRootDir
       </> extSrcDirInSdkRootDir
-      </> castRel filePathInSrcExtCodeDir
-    filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
-    text = EC.fileText file
+      </> castRel (EF.filePathInExtCodeDir file)
+    srcFile = EF.fileText file
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =

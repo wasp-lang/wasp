@@ -25,7 +25,7 @@ sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp/|]
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir =
   [reldir|../|]
-    </> basename generatedCodeDirInDotWaspDir
+    </> generatedCodeDirInDotWaspDir
     </> sdkRootDirInGeneratedCodeDir
 
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
@@ -49,7 +49,7 @@ sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
     case sdkTmplProject of
       SdkCoreProject -> "core/"
       SdkUserCoreProject -> "user-core/"
-      SdkExtSrcProject -> "src/" 
+      SdkExtSrcProject -> toFilePath extSrcDirInSdkRootDir
 
 makeSdkRootTmplFileWithDestAndData ::
   Path' (Rel SdkRootDir) File' ->
