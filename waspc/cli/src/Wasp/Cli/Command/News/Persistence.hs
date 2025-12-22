@@ -18,7 +18,7 @@ import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Time as T
-import GHC.Generics
+import GHC.Generics (Generic)
 import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
 import qualified System.Directory as SD
 import Wasp.Cli.Command.News.Common (NewsEntry (..))
