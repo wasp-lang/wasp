@@ -29,21 +29,21 @@ genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthHelpers auth =
   return $
     concat
-      [ [slackHelpers | AS.Auth.isSlackAuthEnabled auth],
-        [discordHelpers | AS.Auth.isDiscordAuthEnabled auth],
-        [gitHubHelpers | AS.Auth.isGitHubAuthEnabled auth],
-        [googleHelpers | AS.Auth.isGoogleAuthEnabled auth],
-        [keycloakHelpers | AS.Auth.isKeycloakAuthEnabled auth]
+      [ [slackHelpersFd | AS.Auth.isSlackAuthEnabled auth],
+        [discordHelpersFd | AS.Auth.isDiscordAuthEnabled auth],
+        [gitHubHelpersFd | AS.Auth.isGitHubAuthEnabled auth],
+        [googleHelpersFd | AS.Auth.isGoogleAuthEnabled auth],
+        [keycloakHelpersFd | AS.Auth.isKeycloakAuthEnabled auth]
       ]
   where
-    slackHelpers = makeOAuthHelpersFds slackAuthProvider [relfile|Slack.tsx|]
-    discordHelpers = makeOAuthHelpersFds discordAuthProvider [relfile|Discord.tsx|]
-    gitHubHelpers = makeOAuthHelpersFds gitHubAuthProvider [relfile|GitHub.tsx|]
-    googleHelpers = makeOAuthHelpersFds googleAuthProvider [relfile|Google.tsx|]
-    keycloakHelpers = makeOAuthHelpersFds keycloakAuthProvider [relfile|Keycloak.tsx|]
+    slackHelpersFd = makeOAuthHelpersFd slackAuthProvider [relfile|Slack.tsx|]
+    discordHelpersFd = makeOAuthHelpersFd discordAuthProvider [relfile|Discord.tsx|]
+    gitHubHelpersFd = makeOAuthHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
+    googleHelpersFd = makeOAuthHelpersFd googleAuthProvider [relfile|Google.tsx|]
+    keycloakHelpersFd = makeOAuthHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
 
-    makeOAuthHelpersFds :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
-    makeOAuthHelpersFds provider helpersFp =
+    makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
+    makeOAuthHelpersFd provider helpersFp =
       makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
       where
         destFile = [reldir|auth/helpers|] </> helpersFp
