@@ -6,7 +6,7 @@ import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
-import Test.QuickCheck
+import Test.QuickCheck (Negative (..))
 import Wasp.Util
 
 spec_camelToKebabCase :: Spec
