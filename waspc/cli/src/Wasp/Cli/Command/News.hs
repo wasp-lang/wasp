@@ -47,7 +47,7 @@ fetchAndReportMandatoryNews = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_NEWS_DISABLE"
   unless isWaspNewsDisabled $ do
     localNewsState <- obtainLocalNewsState
-    whenM (isTimeForMandatoryReport localNewsState) $ do
+    whenM (isTimeForMandatoryNewsReport localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
         -- TODO: missing prefix for nicer output. Should we even output anything?
         Left _err -> putStrLn "Couldn't fetch Wasp news, skipping."

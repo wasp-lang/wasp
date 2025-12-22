@@ -42,11 +42,6 @@ makeVoluntaryNewsReport _currentState newsEntries =
       requireConfirmation = False
     }
 
-isTimeForMandatoryReport :: LocalNewsState -> IO Bool
-isTimeForMandatoryReport state = case state.lastReportAt of
-  Nothing -> return True
-  Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
-
 makeMandatoryNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
 makeMandatoryNewsReport currentState newsEntries
   | isFirstTimeUser = showNothingAndMarkAllAsSeen
@@ -76,6 +71,11 @@ makeMandatoryNewsReportForExistingUser currentState newsEntries =
     allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
     isRelevant = (>= Moderate) . level
     isUnseen = not . wasNewsEntrySeen currentState
+
+isTimeForMandatoryNewsReport :: LocalNewsState -> IO Bool
+isTimeForMandatoryNewsReport state = case state.lastReportAt of
+  Nothing -> return True
+  Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
 
 printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
 printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
