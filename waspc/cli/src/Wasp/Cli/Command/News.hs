@@ -11,12 +11,12 @@ module Wasp.Cli.Command.News
 where
 
 import Control.Monad (unless, when)
+import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
-import Data.Time (UTCTime)
 import qualified Data.Time as T
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (printNewsEntry)
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
@@ -49,15 +49,17 @@ import Wasp.Util (whenM)
 -}
 
 news :: Command ()
-news = liftIO $ do
-  newsEntries <- fetchNews
-
-  printNewsReportAndUpdateLocalInfo $
-    NewsReport
-      { newsToShow = newsEntries,
-        newsToConsiderSeen = newsEntries,
-        requireConfirmation = False
-      }
+news =
+  liftIO fetchNews >>= \case
+    Left err -> throwError $ CommandError "Wasp news failed" err
+    Right newsEntries ->
+      liftIO $
+        printNewsReportAndUpdateLocalInfo
+          NewsReport
+            { newsToShow = newsEntries,
+              newsToConsiderSeen = newsEntries,
+              requireConfirmation = False
+            }
 
 handleNews :: IO ()
 handleNews = do
@@ -66,8 +68,9 @@ handleNews = do
     localNewsInfo <- obtainLocalNewsInfo
     whenM (areNewsStale localNewsInfo) $ do
       fetchNewsWithTimeout 2 >>= \case
-        Nothing -> return ()
-        Just newsEntries -> do
+        -- TODO: missing prefix for nicer output.
+        Left _err -> putStrLn "Couldn't fetch Wasp news, skipping."
+        Right newsEntries -> do
           let newsReport = getAutomaticNewsReport localNewsInfo newsEntries
           printNewsReportAndUpdateLocalInfo newsReport
 
