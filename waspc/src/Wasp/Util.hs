@@ -41,6 +41,7 @@ module Wasp.Util
     trim,
     secondsToMicroSeconds,
     findDuplicateElems,
+    isOlderThanNHours,
   )
 where
 
@@ -58,6 +59,8 @@ import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Time as T
+import Numeric.Natural (Natural)
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
@@ -274,3 +277,11 @@ secondsToMicroSeconds = (* 1000000)
 
 findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map head . filter ((> 1) . length) . group . sort
+
+isOlderThanNHours :: Natural -> T.UTCTime -> IO Bool
+isOlderThanNHours nHours time = do
+  now <- T.getCurrentTime
+  let secondsSinceLastCheckIn = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
+  return $
+    let numSecondsInHour = 3600
+     in secondsSinceLastCheckIn > fromIntegral nHours * numSecondsInHour

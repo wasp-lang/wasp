@@ -36,7 +36,7 @@ import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
-import Wasp.Util (ifM)
+import Wasp.Util (ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 
 considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
@@ -50,7 +50,7 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
 
   shouldSendData <- case relevantLastCheckIn of
     Nothing -> return True
-    Just lastCheckIn -> isOlderThan12Hours lastCheckIn
+    Just lastCheckIn -> isOlderThanNHours 12 lastCheckIn
 
   when shouldSendData $ do
     telemetryContext <- getTelemetryContext
@@ -58,14 +58,6 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
     projectCache' <- newProjectCache projectCache
     writeProjectTelemetryFile telemetryCacheDirPath projectHash projectCache'
   where
-    isOlderThan12Hours :: T.UTCTime -> IO Bool
-    isOlderThan12Hours time = do
-      now <- T.getCurrentTime
-      let secondsSinceLastCheckIn = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
-      return $
-        let numSecondsInHour = 3600
-         in secondsSinceLastCheckIn > 12 * numSecondsInHour
-
     newProjectCache :: ProjectTelemetryCache -> IO ProjectTelemetryCache
     newProjectCache currentProjectCache = do
       now <- T.getCurrentTime
