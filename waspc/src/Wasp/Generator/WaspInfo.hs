@@ -1,6 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Generator.WaspInfo (persist, checkIfCleanBuildNeeded) where
+module Wasp.Generator.WaspInfo
+  ( persist,
+    checkIfCleanBuildNeeded,
+    WaspInfo (..),
+    safeRead,
+  )
+where
 
 import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.Aeson.Types (FromJSON)

@@ -2,7 +2,6 @@
   "name": "waspello",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
     ".wasp/out/*"
   ],
   "scripts": {

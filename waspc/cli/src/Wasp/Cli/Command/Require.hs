@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Wasp.Cli.Command.Require
   ( -- * Asserting Requirements
 
@@ -26,9 +24,9 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
-    BuildDirExists (BuildDirExists),
+    GeneratedCodeIsProduction (GeneratedCodeIsProduction),
+    GeneratedCodeIsDevelopment (GeneratedCodeIsDevelopment),
     DbConnectionEstablished (DbConnectionEstablished),
-    FromOutDir (FromOutDir),
   )
 where
 
@@ -40,9 +38,10 @@ import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
+import qualified Wasp.Generator.WaspInfo as WaspInfo
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
 
@@ -82,29 +81,24 @@ instance Requirable InWaspProject where
               ++ " you are running this command from a Wasp project."
           )
 
-data FromOutDir = FromOutDir deriving (Typeable)
+data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
--- TODO: Implement a `FromBuildDir` instance of `DbConnectionEstablished` as well. (#2858)
--- The reason why we haven't implemented it already is because `.wasp/build` dir
--- by design does not have some files like `.env` or `prisma.schema`, which
--- makes it tricky to determine the database location. See the linked issue for
--- more details.
-
-data DbConnectionEstablished fromDir = DbConnectionEstablished fromDir deriving (Typeable)
-
-instance Requirable (DbConnectionEstablished FromOutDir) where
+instance Requirable DbConnectionEstablished where
   checkRequirement = do
     -- NOTE: 'InWaspProject' does not depend on this requirement, so this
     -- call to 'require' will not result in an infinite loop.
     InWaspProject waspProjectDir <- require
+    GeneratedCodeIsDevelopment <- require
+
     let outDir =
           waspProjectDir
             SP.</> Project.Common.dotWaspDirInWaspProjectDir
             SP.</> Project.Common.generatedCodeDirInDotWaspDir
+
     dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
 
     if dbIsRunning
-      then return $ DbConnectionEstablished FromOutDir
+      then return DbConnectionEstablished
       else throwError noDbError
     where
       noDbError =
@@ -114,19 +108,41 @@ instance Requirable (DbConnectionEstablished FromOutDir) where
               ++ " You can easily start a managed dev database with `wasp start db`."
           )
 
-data BuildDirExists = BuildDirExists (SP.Path' SP.Abs (SP.Dir ProjectRootDir)) deriving (Typeable)
+data GeneratedCodeIsDevelopment = GeneratedCodeIsDevelopment deriving (Typeable)
 
-instance Requirable BuildDirExists where
-  checkRequirement = do
-    InWaspProject waspProjectDir <- require
-    let buildDir =
-          waspProjectDir
-            SP.</> Project.Common.dotWaspDirInWaspProjectDir
-            SP.</> Project.Common.buildDirInDotWaspDir
-    doesBuildDirExist <- liftIO $ doesPathExist $ SP.fromAbsDir buildDir
-    unless doesBuildDirExist $ do
-      throwError $
-        CommandError
-          "Built app does not exist"
-          "You can build the app with the `wasp build` command."
-    return $ BuildDirExists buildDir
+instance Requirable GeneratedCodeIsDevelopment where
+  checkRequirement =
+    checkGeneratedCode BuildType.Development >>= \case
+      True -> return GeneratedCodeIsDevelopment
+      False ->
+        throwError $
+          CommandError
+            "Built app does not exist"
+            "You can build the app with the `wasp start` or `wasp compile` commands."
+
+data GeneratedCodeIsProduction = GeneratedCodeIsProduction deriving (Typeable)
+
+instance Requirable GeneratedCodeIsProduction where
+  checkRequirement =
+    checkGeneratedCode BuildType.Production >>= \case
+      True -> return GeneratedCodeIsProduction
+      False ->
+        throwError $
+          CommandError
+            "Built app does not exist"
+            "You can build the app with the `wasp build` command."
+
+checkGeneratedCode :: BuildType.BuildType -> Command Bool
+checkGeneratedCode expectedBuildType = do
+  InWaspProject waspProjectDir <- require
+
+  let generatedCodeDir =
+        waspProjectDir
+          SP.</> Project.Common.dotWaspDirInWaspProjectDir
+          SP.</> Project.Common.generatedCodeDirInDotWaspDir
+
+  buildType <-
+    (WaspInfo.buildType <$>)
+      <$> liftIO (WaspInfo.safeRead generatedCodeDir)
+
+  return $ buildType == Just expectedBuildType
