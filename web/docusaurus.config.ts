@@ -247,6 +247,7 @@ function getScripts() {
 
   const prodOnlyScripts: DocusaurusConfig["scripts"] = [
     { src: "/scripts/posthog.js", defer: true },
+    { src: "/scripts/reo-dev.js", defer: true },
     // Using Cloudflare Workers to proxy the analytics script
     {
       src: "/waspara/wasp/script.js",
