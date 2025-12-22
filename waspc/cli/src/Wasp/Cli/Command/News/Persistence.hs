@@ -3,9 +3,9 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.Cli.Command.News.Persistence
-  ( LocalNewsInfo (..),
-    obtainLocalNewsInfo,
-    saveLocalNewsInfo,
+  ( LocalNewsState (..),
+    obtainLocalNewsState,
+    saveLocalNewsState,
     wasNewsEntrySeen,
     areNewsStale,
     setLastReportTimestamp,
@@ -29,67 +29,67 @@ import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
 import Wasp.Util (ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 
--- | News cache state stored on disk.
-data LocalNewsInfo = LocalNewsInfo
+-- | News state stored on disk.
+data LocalNewsState = LocalNewsState
   { lastReportAt :: Maybe T.UTCTime,
     seenNewsIds :: Set String
   }
   deriving (Generic, Show, Eq)
 
-instance Aeson.FromJSON LocalNewsInfo
+instance Aeson.FromJSON LocalNewsState
 
-instance Aeson.ToJSON LocalNewsInfo
+instance Aeson.ToJSON LocalNewsState
 
-saveLocalNewsInfo :: LocalNewsInfo -> IO ()
-saveLocalNewsInfo localNewsInfo = do
-  ensureNewsCacheFileParentDirExists
-  newsCacheFile <- getNewsCacheFilePath
-  IOUtil.writeFile newsCacheFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsInfo
+saveLocalNewsState :: LocalNewsState -> IO ()
+saveLocalNewsState localNewsState = do
+  ensureNewsStateFileParentDirExists
+  newsStateFile <- getNewsStateFilePath
+  IOUtil.writeFile newsStateFile $ ByteStringLazyUTF8.toString $ Aeson.encode localNewsState
 
-wasNewsEntrySeen :: LocalNewsInfo -> NewsEntry -> Bool
-wasNewsEntrySeen info entry = entry.id `Set.member` seenNewsIds info
+wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
+wasNewsEntrySeen state entry = entry.id `Set.member` seenNewsIds state
 
-obtainLocalNewsInfo :: IO LocalNewsInfo
-obtainLocalNewsInfo = do
-  cacheFile <- getNewsCacheFilePath
+obtainLocalNewsState :: IO LocalNewsState
+obtainLocalNewsState = do
+  stateFile <- getNewsStateFilePath
   ifM
-    (IOUtil.doesFileExist cacheFile)
-    (readLocalNewsInfoFromFile cacheFile)
-    (return emptyLocalNewsInfo)
+    (IOUtil.doesFileExist stateFile)
+    (readLocalNewsStateFromFile stateFile)
+    (return emptyLocalNewsState)
   where
-    readLocalNewsInfoFromFile filePath = do
+    readLocalNewsStateFromFile filePath = do
       fileContent <- IOUtil.readFileStrict filePath
-      let maybeLocalNewsInfo =
+      let maybeLocalNewsState =
             Aeson.decode $ ByteStringLazyUTF8.fromString $ Text.unpack fileContent
-      return $ fromMaybe emptyLocalNewsInfo maybeLocalNewsInfo
+      return $ fromMaybe emptyLocalNewsState maybeLocalNewsState
 
-    emptyLocalNewsInfo =
-      LocalNewsInfo
+    emptyLocalNewsState =
+      LocalNewsState
         { lastReportAt = Nothing,
           seenNewsIds = Set.empty
         }
 
-areNewsStale :: LocalNewsInfo -> IO Bool
-areNewsStale info = case info.lastReportAt of
+areNewsStale :: LocalNewsState -> IO Bool
+areNewsStale state = case state.lastReportAt of
   Nothing -> return True
   Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
 
-setLastReportTimestamp :: T.UTCTime -> LocalNewsInfo -> LocalNewsInfo
-setLastReportTimestamp time info =
-  info
+setLastReportTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
+setLastReportTimestamp time state =
+  state
     { lastReportAt = Just time
     }
 
-markNewsAsSeen :: [NewsEntry] -> LocalNewsInfo -> LocalNewsInfo
-markNewsAsSeen newsEntries info =
-  info
-    { seenNewsIds = seenNewsIds info `Set.union` Set.fromList ((.id) <$> newsEntries)
+markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
+markNewsAsSeen newsEntries state =
+  state
+    { seenNewsIds = seenNewsIds state `Set.union` Set.fromList ((.id) <$> newsEntries)
     }
 
-getNewsCacheFilePath :: IO (Path' Abs File')
-getNewsCacheFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
+getNewsStateFilePath :: IO (Path' Abs File')
+getNewsStateFilePath = getUserCacheDir <&> (</> [relfile|news.json|]) . getWaspCacheDir
 
-ensureNewsCacheFileParentDirExists :: IO ()
-ensureNewsCacheFileParentDirExists = do
-  parentDir <- parent <$> getNewsCacheFilePath
+ensureNewsStateFileParentDirExists :: IO ()
+ensureNewsStateFileParentDirExists = do
+  parentDir <- parent <$> getNewsStateFilePath
   SD.createDirectoryIfMissing True $ fromAbsDir parentDir

@@ -7,7 +7,7 @@ module Wasp.Cli.Command.News.Report
     makeMandatoryNewsReport,
     -- Exported only for testing purposes
     makeMandatoryNewsReportForExistingUser,
-    printNewsReportAndUpdateLocalInfo,
+    printNewsReportAndUpdateLocalState,
   )
 where
 
@@ -17,9 +17,9 @@ import qualified Data.Time as T
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (printNewsEntry)
 import Wasp.Cli.Command.News.Persistence
-  ( LocalNewsInfo (lastReportAt),
+  ( LocalNewsState (lastReportAt),
     markNewsAsSeen,
-    saveLocalNewsInfo,
+    saveLocalNewsState,
     setLastReportTimestamp,
     wasNewsEntrySeen,
   )
@@ -40,12 +40,12 @@ makeVoluntaryNewsReport newsEntries =
       requireConfirmation = False
     }
 
-makeMandatoryNewsReport :: LocalNewsInfo -> [NewsEntry] -> NewsReport
-makeMandatoryNewsReport localNewsInfo newsEntries
+makeMandatoryNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
+makeMandatoryNewsReport localNewsState newsEntries
   | isFirstTimeUser = showNothingAndMarkAllAsSeen
-  | otherwise = makeMandatoryNewsReportForExistingUser localNewsInfo newsEntries
+  | otherwise = makeMandatoryNewsReportForExistingUser localNewsState newsEntries
   where
-    isFirstTimeUser = isNothing localNewsInfo.lastReportAt
+    isFirstTimeUser = isNothing localNewsState.lastReportAt
 
     showNothingAndMarkAllAsSeen =
       NewsReport
@@ -54,8 +54,8 @@ makeMandatoryNewsReport localNewsInfo newsEntries
           newsToConsiderSeen = newsEntries
         }
 
-makeMandatoryNewsReportForExistingUser :: LocalNewsInfo -> [NewsEntry] -> NewsReport
-makeMandatoryNewsReportForExistingUser localNewsInfo newsEntries =
+makeMandatoryNewsReportForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsReport
+makeMandatoryNewsReportForExistingUser localNewsState newsEntries =
   NewsReport
     { newsToShow = allRelevantUnseenNews,
       requireConfirmation,
@@ -68,10 +68,10 @@ makeMandatoryNewsReportForExistingUser localNewsInfo newsEntries =
     requireConfirmation = any ((== High) . level) allRelevantUnseenNews
     allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
     isRelevant = (>= Moderate) . level
-    isUnseen = not . wasNewsEntrySeen localNewsInfo
+    isUnseen = not . wasNewsEntrySeen localNewsState
 
-printNewsReportAndUpdateLocalInfo :: LocalNewsInfo -> NewsReport -> IO ()
-printNewsReportAndUpdateLocalInfo localNewsInfoBeforeReport newsReport = do
+printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
+printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   reportNews
   when newsReport.requireConfirmation askForConfirmation
   saveNewsReport
@@ -85,6 +85,6 @@ printNewsReportAndUpdateLocalInfo localNewsInfoBeforeReport newsReport = do
 
     saveNewsReport = do
       currentTime <- T.getCurrentTime
-      saveLocalNewsInfo $
+      saveLocalNewsState $
         setLastReportTimestamp currentTime $
-          markNewsAsSeen newsReport.newsToConsiderSeen localNewsInfoBeforeReport
+          markNewsAsSeen newsReport.newsToConsiderSeen localNewsStateBeforeReport
