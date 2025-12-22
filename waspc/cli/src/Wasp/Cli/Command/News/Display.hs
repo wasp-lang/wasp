@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 
-module Wasp.Cli.Command.News.Display (printNewsEntry) where
+module Wasp.Cli.Command.News.Display (displayNewsEntry) where
 
 import Data.Time (defaultTimeLocale, formatTime)
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
 import Wasp.Util (indent, wrapString)
 import qualified Wasp.Util.Terminal as Term
 
-printNewsEntry :: NewsEntry -> IO ()
-printNewsEntry entry = do
+displayNewsEntry :: NewsEntry -> IO ()
+displayNewsEntry entry = do
   putStrLn ""
   putStrLn $
     Term.applyStyles [Term.Bold] entry.title
