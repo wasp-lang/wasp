@@ -6,7 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 {=/ rootComponent.isDefined =}
 
 {=# isAuthEnabled =}
-import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
+import createAuthRequiredPage from "../auth/pages/createAuthRequiredPage"
 {=/ isAuthEnabled =}
 
 {=# pagesToImport =}
@@ -14,12 +14,12 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 {=/ pagesToImport =}
 
 {=# isExternalAuthEnabled =}
-import { OAuthCallbackPage } from "./auth/pages/OAuthCallback"
+import { OAuthCallbackPage } from "../auth/pages/OAuthCallback"
 {=/ isExternalAuthEnabled =}
 
-import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+import { DefaultRootErrorBoundary } from '../components/DefaultRootErrorBoundary'
 
-import { routes } from 'wasp/client/router'
+import { routes } from './index'
 
 export const routeNameToRouteComponent = {
   {=# routes =}
