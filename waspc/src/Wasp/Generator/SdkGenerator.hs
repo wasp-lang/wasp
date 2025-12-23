@@ -35,7 +35,17 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion)
+import Wasp.Generator.DepVersions
+  ( axiosVersion,
+    expressTypesVersion,
+    expressVersionStr,
+    prismaVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactVersion,
+    superjsonVersion,
+    tailwindCssVersion,
+  )
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
@@ -47,7 +57,6 @@ import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as Clien
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
@@ -62,18 +71,8 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.DepVersions
-  ( expressTypesVersion,
-    expressVersionStr,
-  )
 import qualified Wasp.Generator.TailwindConfigFile as TCF
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.DepVersions
-  ( axiosVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactVersion,
-  )
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
@@ -109,6 +108,7 @@ genSdk spec =
       genFileCopy [relfile|core/storage.ts|],
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
+      genFileCopy [relfile|client/hooks.ts|],
       genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,

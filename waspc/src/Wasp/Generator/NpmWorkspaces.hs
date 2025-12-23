@@ -1,7 +1,7 @@
 module Wasp.Generator.NpmWorkspaces
   ( serverPackageName,
     webAppPackageName,
-    workspaceGlobs,
+    requiredWorkspaceGlobs,
   )
 where
 
@@ -23,8 +23,8 @@ import Wasp.Project.Common
 -- workspace is a glob that matches all packages in a certain directory.
 --
 -- The glob syntax is POSIX-path-like, but not actually a path, so it's represented as a String.
-workspaceGlobs :: Set String
-workspaceGlobs =
+requiredWorkspaceGlobs :: Set String
+requiredWorkspaceGlobs =
   fromList
     [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
       makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir

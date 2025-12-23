@@ -13,7 +13,7 @@ import { askDocuments } from "wasp/client/operations";
 
 import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
-import ReactMarkdown from "react-markdown";
+import Markdown from "react-markdown";
 import { SearchIcon } from "../SearchIcon";
 
 export function AskTheDocumentsForm() {
@@ -68,9 +68,9 @@ export function AskTheDocumentsForm() {
         <div className="mt-4">
           <Card>
             <CardBody>
-              <ReactMarkdown className="markdown">
-                {askDocumentsMutation.data.answer}
-              </ReactMarkdown>
+              <div className="markdown">
+                <Markdown>{askDocumentsMutation.data.answer}</Markdown>
+              </div>
 
               {groupedSources.length > 0 && (
                 <>

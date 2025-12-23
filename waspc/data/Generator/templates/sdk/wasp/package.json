@@ -113,6 +113,7 @@
       "./client/router": "./dist/client/router/index.js",
       {=! Used by user's root vite.config.ts, documented. =}
       "./client/vite": "./dist/client/vite/index.js",
+      "./client/hooks": "./dist/client/hooks.js",
       "./client": "./dist/client/index.js",
       "./dev": "./dist/dev/index.js",
       "./env": "./dist/env/index.js",
