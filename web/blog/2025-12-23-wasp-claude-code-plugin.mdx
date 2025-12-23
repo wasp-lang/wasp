@@ -7,24 +7,19 @@ tags: [wasp, ai, claude-code]
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
-## Why Claude Code Needs a Wasp Plugin
+## Get Even More Out of Claude Code with the Wasp Plugin
 
-[Claude Code](https://docs.anthropic.com/en/docs/claude-code) is a great coding assistant, but it doesn't always know how to leverage Wasp's batteries-included, full-stack framework features. And that's not entirely its fault.
+Batteries-included frameworks are a great match for AI-assisted coding tools like [Claude Code](https://docs.anthropic.com/en/docs/claude-code). The frameworks themselves are opinionated and already take care of a lot of routine tasks and boilerplate, which makes the AI's output more deterministic and predictable. 
+
+In effect, frameworks like Wasp take care of a lot of grunt work for you and your AI assistants, shifting the focus to the more complex and creative parts of your app.
+
+And now with Claude Code's plugin system, which bundles skills, commands, hooks, and rules, you can tweak things so that you're getting the absolute most out of Claude Code in your projects.
 
 {/* truncate */}
 
-On one hand, Wasp is built on top of popular tools that developers (and AI) know and love, like React, ExpressJS, Prisma, and Tanstack Query. Because of this it may sometimes defer to building directly with those tools rather than leveraging Wasp.
+But configuring, testing, and maintaining all these Claude Code features for your specific projects and tools can be a lot of work. Almost as much as just writing the code yourself (ironic, isn't it?)!
 
-<ImgWithCaption
-    alt="Claude Code before the Wasp plugin"
-    source="img/cc-plugin/cc-before.webp"
-/>
-
-Take authentication, for example. If you tell Claude to help you add google auth to your app, it wouldn't be *entirely* wrong to suggest adding a library like AuthJS or Better Auth to your app. But as Wasp developers we know Wasp can take care of that for us in a few lines of code — Claude might not.
-
-On the other hand, as an emerging framework, Claude may hallucinate Wasp patterns, use outdated syntax, and make incorrect assumptions about how your full-stack app should be built.
-
-To solve these issues, the Wasp team has developed a [Claude Code plugin](https://github.com/wasp-lang/claude-plugins/tree/main/plugins/wasp) to turn Claude into a true Wasp expert.
+Luckily for you, the the Wasp Team has created the [Wasp Claude Code plugin](https://github.com/wasp-lang/claude-plugins/tree/main/plugins/wasp), curated with the help of community and their own experience, that ensures you are getting the most out of Claude Code and Wasp when using them together.
 
 <div className="video-container">
   <iframe src="https://www.youtube.com/embed/beUTJYW65Bw?si=_CmEU1f3r1sTZW69" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
