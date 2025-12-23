@@ -7,6 +7,7 @@ import { spawnAndCollectOutput, spawnWithLog } from "./process.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
+export type WaspVersion = Branded<string, "WaspVersion">;
 
 export function waspMigrateDb({
   waspCliCmd,
@@ -64,6 +65,40 @@ export function waspBuild({
     args: ["build"],
     cwd: pathToApp,
   });
+}
+
+export async function getWaspVersion({
+  waspCliCmd,
+  pathToApp,
+}: {
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
+}): Promise<{ waspVersion: WaspVersion }> {
+  const logger = createLogger("wasp-info");
+  const { stdoutData, exitCode } = await spawnAndCollectOutput({
+    name: "wasp-version",
+    cmd: waspCliCmd,
+    args: ["version"],
+    cwd: pathToApp,
+  });
+  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
+
+  if (exitCode !== 0) {
+    logger.error(`Failed to get wasp version: ${stdoutDataWithoutAnsiChars}`);
+    process.exit(1);
+  }
+
+  const [firstLine] = stdoutData.split("\n");
+  const waspVersion = firstLine?.trim();
+
+  if (!waspVersion) {
+    logger.error("Failed to get wasp version");
+    process.exit(1);
+  }
+
+  return {
+    waspVersion: waspVersion as WaspVersion,
+  };
 }
 
 export async function waspInfo({
