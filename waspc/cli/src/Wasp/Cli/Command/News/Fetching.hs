@@ -10,7 +10,7 @@ import Data.Maybe (fromMaybe)
 import Network.HTTP.Simple (HttpException, parseRequest)
 import System.Environment (lookupEnv)
 import System.Timeout (timeout)
-import Wasp.Cli.Command.News.Common (NewsEntry)
+import Wasp.Cli.Command.News.Core (NewsEntry)
 import Wasp.Util.Network.HTTP (httpJSONThatThrowsIfNot2xx)
 
 fetchNewsWithTimeout :: Int -> IO (Either String [NewsEntry])

@@ -607,7 +607,7 @@ library cli-lib
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.News
-    Wasp.Cli.Command.News.Common
+    Wasp.Cli.Command.News.Core
     Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.News.Fetching
     Wasp.Cli.Command.News.Persistence

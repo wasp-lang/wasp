@@ -4,7 +4,7 @@ module Wasp.Cli.Command.News.Display (showNewsEntry) where
 
 import Data.List (intercalate)
 import Data.Time (defaultTimeLocale, formatTime)
-import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
+import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Util (indent, wrapString)
 import qualified Wasp.Util.Terminal as Term
 
