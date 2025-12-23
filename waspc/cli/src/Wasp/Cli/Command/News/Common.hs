@@ -24,9 +24,9 @@ data NewsEntry = NewsEntry
 instance FromJSON NewsEntry
 
 data NewsLevel
-  = Low
-  | Moderate
-  | High
+  = Info
+  | Important
+  | Critical
   deriving (Eq, Ord, Show, Generic)
 
 instance FromJSON NewsLevel where
