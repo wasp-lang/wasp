@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { type AxiosResponse } from "axios";
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from 'wasp/client/auth'
 import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'
+import { useEffectOnce } from 'wasp/client/hooks'
 import { MessageLoading, MessageError } from "../../components/Message";
 import { FullPageWrapper } from "../../components/FullPageWrapper";
 
@@ -11,7 +12,7 @@ const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 
 export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();
-  
+
   if (user !== undefined && user !== null) {
     return <Navigate to="/" replace />;
   }
@@ -66,13 +67,9 @@ function useOAuthCallbackHandler() {
     }
   }
 
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      handleCallback();
-    }
-  }, []);
+  useEffectOnce(() => {
+    handleCallback();
+  });
 
   return {
     user,

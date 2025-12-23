@@ -29,6 +29,7 @@ const mockTasks = [
       isOnAfterSignupHookCalled: true,
       isOnAfterLoginHookCalled: true,
       isOnAfterEmailVerifiedHookCalled: true,
+      numTimesOnAfterEmailVerifiedCalled: 1,
       address: "123 Main St",
       auth: {
         id: "1",

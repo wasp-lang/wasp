@@ -1,16 +1,38 @@
 # Changelog
 
-## Next
+## 0.20.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-19-to-0-20) for step-by-step documentation on how to upgrade.
+
+- Wasp now uses **React 19**! ([#3489](https://github.com/wasp-lang/wasp/pull/3489))
+  - Check the following upgrade guide to see how to update your code: https://react.dev/blog/2024/04/25/react-19-upgrade-guide.
+  - For Wasp-related updates, check the migration guide above.
+
+### 🎉 New Features
+
+- You can now use the `--force` flag with `wasp db reset` to run the database reset non-interactively ([#3480](https://github.com/wasp-lang/wasp/pull/3480))
+
+### 🐞 Bug fixes
+
+- Fixed `onAfterEmailVerified` hook being called twice while in development mode. ([#3458](https://github.com/wasp-lang/wasp/pull/3458))
 
 ### 🔧 Small improvements
 
 - Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
+- Wasp now reports better errors for invalid `package.json` or `tsconfig.json` files. ([#3262](https://github.com/wasp-lang/wasp/pull/3262))
+- Wasp returns a proper exit code when using the `-h,--help` flag with `wasp build start`, `wasp start db`, and `wasp new`. ([#3440](https://github.com/wasp-lang/wasp/pull/3440))
 
 ## 0.19.1
 
 ### 🐞 Bug fixes
 
 - Fixed logic for getting Railway service domains in `wasp deploy railway` with Railway CLI 4.11.2 and greater. ([#3454](https://github.com/wasp-lang/wasp/pull/3454))
+
+### 🔧 Small improvements
+
+- `wasp build start` now shows an error if you forget to specify any environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
 
 ## 0.19.0
 

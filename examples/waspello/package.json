@@ -10,18 +10,19 @@
     "test:install-deps": "playwright install --with-deps"
   },
   "dependencies": {
-    "@hello-pangea/dnd": "^17.0.0",
-    "classnames": "2.3.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-feather": "2.0.10",
+    "@hello-pangea/dnd": "^18.0.1",
+    "classnames": "^2.5.1",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-feather": "^2.0.10",
     "react-router-dom": "^6.26.2",
-    "react-tiny-popover": "7.1.0",
+    "react-tiny-popover": "^8.1.6",
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
-    "@types/react": "^18.0.37",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@wasp.sh/wasp-app-runner": "^0.0.8",
     "prisma": "5.19.1",
     "tailwindcss": "^3.2.7",
