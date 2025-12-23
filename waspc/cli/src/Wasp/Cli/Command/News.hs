@@ -38,8 +38,7 @@ fetchAndReportMandatoryNews = do
     localNewsState <- obtainLocalNewsState
     whenM (isTimeForMandatoryNewsReport localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
-        -- TODO: missing prefix for nicer output. Should we even output anything?
-        Left _err -> putStrLn "Couldn't fetch Wasp news, skipping."
+        Left _err -> return () -- Wasp stays silent on purpose
         Right newsEntries ->
           printNewsReportAndUpdateLocalState localNewsState $
             makeMandatoryNewsReport localNewsState newsEntries
