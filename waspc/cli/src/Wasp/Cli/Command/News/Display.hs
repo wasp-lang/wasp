@@ -26,6 +26,6 @@ displayNewsEntry newsEntry =
 
 showLevelInColor :: NewsLevel -> String
 showLevelInColor newsLevel = case newsLevel of
-  High -> Term.applyStyles [Term.Red] "High"
-  Moderate -> Term.applyStyles [Term.Yellow] "Moderate"
-  Low -> Term.applyStyles [Term.Blue] "Low"
+  Critical -> Term.applyStyles [Term.Red] "Critical"
+  Important -> Term.applyStyles [Term.Yellow] "Important"
+  Info -> Term.applyStyles [Term.Blue] "Info"
