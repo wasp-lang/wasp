@@ -72,13 +72,9 @@ spec_makeMandatoryNewsReportForExistingUser = do
       testReportProperty $ \_ _ report ->
         report.requireConfirmation == any ((== Critical) . level) report.newsToShow
 
-    prop "marks all shown news as seen when confirmation is required" $
+    prop "marks all shown news as seen" $
       testReportProperty $ \_ _ report ->
-        not report.requireConfirmation || report.newsToConsiderSeen == report.newsToShow
-
-    prop "does not mark any news as seen when confirmation is not required" $
-      testReportProperty $ \_ _ report ->
-        report.requireConfirmation || null report.newsToConsiderSeen
+        report.newsToShow == report.newsToConsiderSeen
 
     it "shows all unseen important+ news" $ do
       let state = LocalNewsState (Just someTime) (Set.singleton "seen-1")
