@@ -543,6 +543,7 @@ library cli-lib
     , exceptions
     , lens
     , lens-aeson ^>=1.2.3
+    , containers
     , cryptonite
     , fsnotify
     , http-conduit
@@ -601,6 +602,12 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.News
+    Wasp.Cli.Command.News.Common
+    Wasp.Cli.Command.News.Display
+    Wasp.Cli.Command.News.Fetching
+    Wasp.Cli.Command.News.Persistence
+    Wasp.Cli.Command.News.Report
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
@@ -772,6 +779,8 @@ test-suite wasp-cli-tests
     , base
     , waspc
     , cli-lib
+    , containers
+    , time
     , QuickCheck
     , tasty
     , hspec
@@ -781,6 +790,7 @@ test-suite wasp-cli-tests
     DbMigrateTest
     TerminalTest
     Paths_waspc
+    Wasp.Cli.Command.News.ReportTest
     Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
