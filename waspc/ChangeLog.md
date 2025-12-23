@@ -4,7 +4,7 @@
 
 ### 🎉 New Features
 
-- `wasp news` - A new command you can use to stay up to date with the latest Wasp announcements and releases directly from your terminal. Wasp also periodically notifies you of important news (such as security vulnerabilities) during `wasp start`. You can disable this behavior by setting `WASP_AUTO_NEWS_DISABLE=true`. ([#3549](https://github.com/wasp-lang/wasp/pull/3549)).
+- `wasp news` - A new command you can use to stay up to date with the latest Wasp announcements and releases directly from your terminal. Wasp also periodically notifies you of important news (such as security vulnerabilities) during `wasp start`. You can disable this behavior by setting `WASP_AUTO_NEWS_DISABLE=1`. ([#3549](https://github.com/wasp-lang/wasp/pull/3549)).
 
 ## 0.20.0
 
