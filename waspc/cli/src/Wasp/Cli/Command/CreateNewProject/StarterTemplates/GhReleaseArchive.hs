@@ -51,7 +51,9 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
             "If you want to use an older Wasp version:",
             "Visit " ++ releasesUrl ++ " to see available releases,",
             "and install the Wasp version that matches the latest release tag available by running:",
+            "",
             "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
+            "",
             "Then you can try creating your project again."
           ]
 
