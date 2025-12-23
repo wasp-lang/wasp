@@ -18,25 +18,12 @@ import Wasp.Cli.Command.News.Report
     makeVoluntaryNewsReport,
     printNewsReportAndUpdateLocalState,
   )
-import Wasp.Util (whenM)
-
-{-
-  TODO list
-  - Test what happens when we add new news on the server.
-
-  Future:
-  - Figure out what to do with the versions affected field.
-  - Properly type and validate stuff on the server.
-  - Decide how to deliver the news on the server.
-  - Maybe include the project in the monorepo (might make deployment more difficult).
-  - Figure out how to end tests.
-  - In `wasp news` output, mark the unread/new news
--}
+import Wasp.Util (checkIfOnCi, whenM)
 
 news :: Command ()
 news =
   liftIO fetchNews >>= \case
-    Left err -> throwError $ CommandError "Wasp news failed" err
+    Left err -> throwError $ CommandError "Getting Wasp news failed" err
     Right newsEntries -> liftIO $ do
       localNewsState <- obtainLocalNewsState
       printNewsReportAndUpdateLocalState localNewsState $
@@ -44,13 +31,13 @@ news =
 
 fetchAndReportMandatoryNews :: IO ()
 fetchAndReportMandatoryNews = do
-  isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_NEWS_DISABLE"
-  unless isWaspNewsDisabled $ do
+  isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
+  isOnCi <- checkIfOnCi
+  unless (isWaspNewsDisabled || isOnCi) $ do
     localNewsState <- obtainLocalNewsState
     whenM (isTimeForMandatoryNewsReport localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
-        -- TODO: missing prefix for nicer output. Should we even output anything?
-        Left _err -> putStrLn "Couldn't fetch Wasp news, skipping."
+        Left _err -> return () -- Wasp stays silent on purpose
         Right newsEntries ->
           printNewsReportAndUpdateLocalState localNewsState $
             makeMandatoryNewsReport localNewsState newsEntries

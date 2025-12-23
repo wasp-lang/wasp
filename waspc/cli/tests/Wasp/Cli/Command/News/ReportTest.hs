@@ -9,7 +9,7 @@ import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
 import Test.QuickCheck
 import Test.QuickCheck.Arbitrary.Generic (genericArbitrary)
-import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
+import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Persistence (LocalNewsState (..), emptyLocalNewsState)
 import Wasp.Cli.Command.News.Report
   ( NewsReport (..),
@@ -60,17 +60,17 @@ spec_makeMandatoryNewsReport = do
 spec_makeMandatoryNewsReportForExistingUser :: Spec
 spec_makeMandatoryNewsReportForExistingUser = do
   describe "makeMandatoryNewsReportForExistingUser" $ do
-    prop "only shows news that are at least moderate" $
+    prop "only shows news that are at least important" $
       testReportProperty $ \_ _ report ->
-        all ((>= Moderate) . level) report.newsToShow
+        all ((>= Important) . level) report.newsToShow
 
     prop "does not show news that were previously seen" $
       testReportProperty $ \localNewsState _ report ->
         not $ any ((`Set.member` localNewsState.seenNewsIds) . (.id)) report.newsToShow
 
-    prop "requires confirmation if and only if at least one high priority news entry is shown" $
+    prop "requires confirmation if and only if at least one critical priority news entry is shown" $
       testReportProperty $ \_ _ report ->
-        report.requireConfirmation == any ((== High) . level) report.newsToShow
+        report.requireConfirmation == any ((== Critical) . level) report.newsToShow
 
     prop "marks all shown news as seen when confirmation is required" $
       testReportProperty $ \_ _ report ->
@@ -80,13 +80,13 @@ spec_makeMandatoryNewsReportForExistingUser = do
       testReportProperty $ \_ _ report ->
         report.requireConfirmation || null report.newsToConsiderSeen
 
-    it "shows all unseen moderate+ news" $ do
+    it "shows all unseen important+ news" $ do
       let state = LocalNewsState (Just someTime) (Set.singleton "seen-1")
           newsEntries =
-            [ NewsEntry "seen-1" "Seen High" "" High someTime,
-              NewsEntry "unseen-1" "Unseen High" "" High someTime,
-              NewsEntry "unseen-2" "Unseen Moderate" "" Moderate someTime,
-              NewsEntry "unseen-3" "Unseen Low" "" Low someTime
+            [ NewsEntry "seen-1" "Seen Critical" "" Critical someTime,
+              NewsEntry "unseen-1" "Unseen Critical" "" Critical someTime,
+              NewsEntry "unseen-2" "Unseen Important" "" Important someTime,
+              NewsEntry "unseen-3" "Unseen Info" "" Info someTime
             ]
           report = makeMandatoryNewsReportForExistingUser state newsEntries
       map (.id) report.newsToShow `shouldMatchList` ["unseen-1", "unseen-2"]

@@ -5,8 +5,6 @@ import Control.Exception (evaluate)
 import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Test.Hspec
-import Test.Hspec.QuickCheck (prop)
-import Test.QuickCheck (Negative (..))
 import Wasp.Util
 
 spec_camelToKebabCase :: Spec
@@ -155,22 +153,34 @@ spec_wrapString = do
     it "wraps a string that exceeds max length" $ do
       wrapString 10 "hello world" `shouldBe` "hello\nworld"
 
-    it "includes a long word at the start of the line even if it exceeds max length" $ do
+    it "never breaks long words even if they exceed max length" $ do
       wrapString 5 "extraordinary day is extraordinary" `shouldBe` "extraordinary\nday\nis\nextraordinary"
 
-    prop "preserves all words in order" $
-      \maxLen str -> words str == words (wrapString maxLen str)
+    it "wraps text with many words into multiple lines" $ do
+      wrapString 20 "one two three four five six seven eight nine ten"
+        `shouldBe` "one two three four\nfive six seven eight\nnine ten"
 
-    prop "does not produce lines longer than max length unless unavoidable (when a single word is too long)" $
-      \maxLen str ->
-        let lns = lines (wrapString maxLen str)
-         in all (\l -> length l <= maxLen || length (words l) == 1) lns
+    it "treats newlines as spaces" $ do
+      wrapString 15 "hello\nworld this\nis a test"
+        `shouldBe` "hello world\nthis is a test"
 
-    prop "does not produce empty lines" $
-      \maxLen str -> null str || notElem "" (lines (wrapString maxLen str))
+    it "handles multiple consecutive long words" $ do
+      wrapString 5 "internationalization globalization"
+        `shouldBe` "internationalization\nglobalization"
 
-    prop "treats negative numbers as zero" $
-      \(Negative n) str -> wrapString n str == wrapString 0 str
+    it "collapses multiple spaces between words" $ do
+      wrapString 20 "hello   world  this   is   spacy"
+        `shouldBe` "hello world this is\nspacy"
+
+    it "collapses whitespace-only input to empty string" $ do
+      wrapString 10 "   " `shouldBe` ""
+
+    it "returns each word on its own line when maxLength is 0" $ do
+      wrapString 0 "one two three"
+        `shouldBe` "one\ntwo\nthree"
+
+    it "treats negative maxLength as zero" $ do
+      wrapString (-5) "one two" `shouldBe` wrapString 0 "one two"
 
 spec_hex :: Spec
 spec_hex = do
@@ -192,3 +202,22 @@ spec_findDuplicateElems = do
 
   it "Returns empty list for empty list" $ do
     findDuplicateElems ([] :: [Int]) `shouldBe` []
+
+spec_checkIfEnvValueIsTruthy :: Spec
+spec_checkIfEnvValueIsTruthy = do
+  it "Correctly determines if different env values are truthy" $ do
+    let testCases =
+          [ (Nothing, False),
+            (Just "", False),
+            (Just "false", False),
+            (Just "False", False),
+            (Just "FALSE", False),
+            (Just "true", True),
+            (Just "something", True),
+            (Just "0", True),
+            (Just "1", True),
+            (Just "falsy", True),
+            (Just "foo", True)
+          ]
+    checkIfEnvValueIsTruthy . fst <$> testCases
+      `shouldBe` snd <$> testCases

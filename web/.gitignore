@@ -21,5 +21,4 @@ yarn-error.log*
 .vercel
 
 # LLM files
-llms.txt
-llms-full.txt
+llms*.txt

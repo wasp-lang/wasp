@@ -12,11 +12,11 @@ module Wasp.Cli.Command.News.Report
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (unless)
 import Data.List (intercalate)
 import qualified Data.Time as T
-import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
-import Wasp.Cli.Command.News.Display (displayNewsEntry)
+import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
+import Wasp.Cli.Command.News.Display (showNewsEntry)
 import Wasp.Cli.Command.News.Persistence
   ( LocalNewsState (lastReportAt),
     emptyLocalNewsState,
@@ -27,6 +27,7 @@ import Wasp.Cli.Command.News.Persistence
   )
 import Wasp.Cli.Interactive (askForInput)
 import Wasp.Util (isOlderThanNHours)
+import Wasp.Util.Terminal (styleCode)
 
 data NewsReport = NewsReport
   { newsToShow :: [NewsEntry],
@@ -80,17 +81,21 @@ isTimeForMandatoryNewsReport state = case state.lastReportAt of
 printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
 printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   reportNews
-  when newsReport.requireConfirmation askForConfirmation
+  if newsReport.requireConfirmation
+    then askForConfirmation
+    else putStrLn $ "\nRun " ++ styleCode "wasp news" ++ " if you don't want to see these news again."
   updateLocalNewsState
   where
     reportNews =
-      putStrLn $ intercalate "\n\n" $ map displayNewsEntry newsReport.newsToShow
+      putStrLn $ intercalate "\n\n" $ map showNewsEntry newsReport.newsToShow
 
     askForConfirmation = do
-      let requiredAnswer = "ok"
+      let requiredAnswer = "y"
       answer <-
         askForInput $
-          "\nPlease type '" ++ requiredAnswer ++ "' to confirm you've read the announcements: "
+          "\nSome announcements are critical. Please confirm you've read them by typing '"
+            ++ requiredAnswer
+            ++ "'"
       unless (answer == requiredAnswer) askForConfirmation
 
     updateLocalNewsState = do
