@@ -16,7 +16,7 @@ import Control.Monad (unless, when)
 import Data.List (intercalate)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
-import Wasp.Cli.Command.News.Display (displayNewsEntry)
+import Wasp.Cli.Command.News.Display (showNewsEntry)
 import Wasp.Cli.Command.News.Persistence
   ( LocalNewsState (lastReportAt),
     emptyLocalNewsState,
@@ -84,7 +84,7 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   updateLocalNewsState
   where
     reportNews =
-      putStrLn $ intercalate "\n\n" $ map displayNewsEntry newsReport.newsToShow
+      putStrLn $ intercalate "\n\n" $ map showNewsEntry newsReport.newsToShow
 
     askForConfirmation = do
       let requiredAnswer = "ok"
