@@ -11,7 +11,7 @@ module Wasp.Cli.Command.Compile
   )
 where
 
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
@@ -23,11 +23,13 @@ import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
+import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command [CompileWarning]
@@ -51,6 +53,16 @@ compileWithOptions options = do
         waspProjectDir
           </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
+
+  doesOutDirExist <- liftIO $ doesDirectoryExist outDir
+  shouldBeCleanCompile <-
+    maybe True (WaspInfo.needsCleanBuild $ buildType options)
+      <$> liftIO (WaspInfo.safeRead outDir)
+
+  when (shouldBeCleanCompile && doesOutDirExist) $ do
+    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out directory..."
+    liftIO $ removeDirectory outDir
+    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/out directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
