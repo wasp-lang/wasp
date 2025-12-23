@@ -44,6 +44,8 @@ module Wasp.Util
     findDuplicateElems,
     isOlderThanNHours,
     checkIfOnCi,
+    -- Exported only for testing purposes
+    checkIfEnvValueIsTruthy,
   )
 where
 
@@ -67,8 +69,8 @@ import qualified Data.Text.Lazy.Encoding as TLE
 import qualified Data.Time as T
 import Numeric.Natural (Natural)
 import StrongPath (File, Path')
-import qualified System.Environment as ENV
 import qualified StrongPath as SP
+import qualified System.Environment as ENV
 import Text.Printf (printf)
 
 camelToKebabCase :: String -> String
@@ -323,10 +325,10 @@ checkIfOnCi =
         "CONTINUOUS_INTEGRATION", -- Travis CI, Cirrus CI
         "RUN_ID" -- TaskCluster, dsari
       ]
-  where
-    checkIfEnvValueIsTruthy :: Maybe String -> Bool
-    checkIfEnvValueIsTruthy Nothing = False
-    checkIfEnvValueIsTruthy (Just v)
-      | null v = False
-      | (toLower <$> v) == "false" = False
-      | otherwise = True
+
+checkIfEnvValueIsTruthy :: Maybe String -> Bool
+checkIfEnvValueIsTruthy Nothing = False
+checkIfEnvValueIsTruthy (Just v)
+  | null v = False
+  | (toLower <$> v) == "false" = False
+  | otherwise = True
