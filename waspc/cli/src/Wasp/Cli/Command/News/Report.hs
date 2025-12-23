@@ -87,10 +87,12 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
       putStrLn $ intercalate "\n\n" $ map showNewsEntry newsReport.newsToShow
 
     askForConfirmation = do
-      let requiredAnswer = "ok"
+      let requiredAnswer = "y"
       answer <-
         askForInput $
-          "\nPlease type '" ++ requiredAnswer ++ "' to confirm you've read the announcements: "
+          "\nSome announcements are critical. Please confirm you've read them by typing '"
+            ++ requiredAnswer
+            ++ "' .\n"
       unless (answer == requiredAnswer) askForConfirmation
 
     updateLocalNewsState = do
