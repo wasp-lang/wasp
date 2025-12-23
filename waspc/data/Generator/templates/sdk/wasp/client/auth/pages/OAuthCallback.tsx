@@ -1,10 +1,11 @@
 {{={= =}=}}
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { type AxiosResponse } from "axios";
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from 'wasp/client/auth'
 import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'
+import { useEffectOnce } from 'wasp/client/hooks'
 import { MessageLoading, MessageError } from "../../components/Message";
 import { FullPageWrapper } from "../../components/FullPageWrapper";
 
@@ -67,13 +68,9 @@ function useOAuthCallbackHandler() {
     }
   }
 
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      handleCallback();
-    }
-  }, []);
+  useEffectOnce(() => {
+    handleCallback();
+  });
 
   return {
     user,
