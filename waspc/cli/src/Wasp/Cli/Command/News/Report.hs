@@ -92,7 +92,7 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
         askForInput $
           "\nSome announcements are critical. Please confirm you've read them by typing '"
             ++ requiredAnswer
-            ++ "' .\n"
+            ++ "'"
       unless (answer == requiredAnswer) askForConfirmation
 
     updateLocalNewsState = do
