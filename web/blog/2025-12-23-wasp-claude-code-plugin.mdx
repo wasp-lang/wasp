@@ -7,11 +7,6 @@ tags: [wasp, ai, claude-code]
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
-<ImgWithCaption
-    alt="Wasp and Claude Code holiday banner"
-    source="img/cc-plugin/banner.webp"
-/>
-
 ## Why Claude Code Needs a Wasp Plugin
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is a great coding assistant, but it doesn't always know how to leverage Wasp's batteries-included, full-stack framework features. And that's not entirely its fault.
@@ -30,6 +25,10 @@ Take authentication, for example. If you tell Claude to help you add google auth
 On the other hand, as an emerging framework, Claude may hallucinate Wasp patterns, use outdated syntax, and make incorrect assumptions about how your full-stack app should be built.
 
 To solve these issues, the Wasp team has developed a [Claude Code plugin](https://github.com/wasp-lang/claude-plugins/tree/main/plugins/wasp) to turn Claude into a true Wasp expert.
+
+<div className="video-container">
+  <iframe src="https://www.youtube.com/embed/beUTJYW65Bw?si=_CmEU1f3r1sTZW69" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
+</div>
 
 ## Turn Claude into a Wasp Expert
 
@@ -69,11 +68,6 @@ With the plugin installed, Claude turns into a true Wasp expert by:
 3. **Guided workflows** — Skills and commands so Claude can walk you through setting up Wasp's batteries-included features: auth, email, database, deploying, etc.
 4. **Full debugging visibility** — Start managed databases, dev servers, and connect browser console access so Claude has full development and debugging visibility across the entire stack
 
-<ImgWithCaption
-    alt="Claude Code fetching Wasp documentation"
-    source="img/cc-plugin/fetching-docs.webp"
-/>
-
 The result: Claude actually understands Wasp instead of guessing and can get the most out of Wasp features to help you spend less time managing boilerplate or debugging errors, and more time building and shipping app features.
 
 ## Give Claude the Wheel, Or Let it Be Your Backseat Driver
@@ -88,9 +82,10 @@ For example, Claude can use the Plugin's skills to easily setup, run and monitor
 
 By leveraging these Wasp features, you give Claude *instant* access to logs across the entire stack and can drastically reduce development and debugging feedback loops.
 
-<video width="100%" controls>
-  <source src="/img/cc-plugin/demo.mp4" type="video/mp4" />
-</video>
+<ImgWithCaption
+    alt="Claude Code fetching Wasp documentation"
+    source="img/cc-plugin/fetching-docs.webp"
+/>
 
 On top of that, we've added hooks to ensure Claude checks your project's Wasp version and always pulls the correct LLM-friendly docs before performing important Wasp-related tasks.
 
