@@ -44,7 +44,7 @@ module Wasp.Util
     findDuplicateElems,
     isOlderThanNHours,
     checkIfOnCi,
-    -- Exported only for testing purposes
+    -- NOTE: Exported only for testing purposes
     checkIfEnvValueIsTruthy,
   )
 where

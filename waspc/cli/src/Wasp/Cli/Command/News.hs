@@ -13,8 +13,7 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Persistence (obtainLocalNewsState)
 import Wasp.Cli.Command.News.Report
-  ( NewsReport (..),
-    isTimeForMandatoryNewsReport,
+  ( isTimeForMandatoryNewsReport,
     makeMandatoryNewsReport,
     makeVoluntaryNewsReport,
     printNewsReportAndUpdateLocalState,
