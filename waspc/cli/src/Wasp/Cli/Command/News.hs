@@ -4,7 +4,6 @@ module Wasp.Cli.Command.News
   )
 where
 
-import Control.Concurrent (threadDelay)
 import Control.Monad (unless)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)

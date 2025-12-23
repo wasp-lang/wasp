@@ -83,7 +83,7 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   reportNews
   if newsReport.requireConfirmation
     then askForConfirmation
-    else putStrLn $ "\nRun " ++ styleCode "wasp news" ++ " to confirm you've read this message."
+    else putStrLn $ "\nRun " ++ styleCode "wasp news" ++ " if you don't want to see these news again."
   updateLocalNewsState
   where
     reportNews =
