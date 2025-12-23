@@ -67,9 +67,9 @@ makeMandatoryNewsReportForExistingUser currentState newsEntries =
           else []
     }
   where
-    requireConfirmation = any ((== High) . level) allRelevantUnseenNews
+    requireConfirmation = any ((== Critical) . level) allRelevantUnseenNews
     allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
-    isRelevant = (>= Moderate) . level
+    isRelevant = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen currentState
 
 isTimeForMandatoryNewsReport :: LocalNewsState -> IO Bool
