@@ -10,19 +10,20 @@ import { doesFileExits } from "../files.js";
 import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
+import type { VersionSettings } from "../versions.js";
 import type { AppName } from "../waspCli.js";
-
-const serverAppDir = ".wasp/build";
 
 // Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
 export async function buildAndRunServerApp({
   appName,
   pathToApp,
   extraEnv,
+  versionSettings,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
+  versionSettings: VersionSettings;
 }): Promise<void> {
   const { imageName, containerName } = createAppSpecificServerBuildDockerNames({
     appName,
@@ -32,6 +33,7 @@ export async function buildAndRunServerApp({
   await buildServerAppContainer({
     pathToApp,
     imageName,
+    versionSettings,
   });
 
   // This starts a long running process, so we don't await it.
@@ -46,9 +48,11 @@ export async function buildAndRunServerApp({
 async function buildServerAppContainer({
   pathToApp,
   imageName,
+  versionSettings: { serverAppDir },
 }: {
   pathToApp: PathToApp;
   imageName: ServerBuildImageName;
+  versionSettings: VersionSettings;
 }): Promise<void> {
   const logger = createLogger("server-build-app");
   const { exitCode } = await spawnWithLog({
