@@ -1,0 +1,111 @@
+---
+title: "The Claude Code Plugin for Wasp is Here 🔌"
+authors: [vinny]
+image: /img/cc-plugin/banner.webp
+tags: [wasp, ai, claude-code]
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+
+## Why Claude Code Needs a Wasp Plugin
+
+[Claude Code](https://docs.anthropic.com/en/docs/claude-code) is a great coding assistant, but it doesn't always know how to leverage Wasp's batteries-included, full-stack framework features. And that's not entirely its fault.
+
+{/* truncate */}
+
+On one hand, Wasp is built on top of popular tools that developers (and AI) know and love, like React, ExpressJS, Prisma, and Tanstack Query. Because of this it may sometimes defer to building directly with those tools rather than leveraging Wasp.
+
+<ImgWithCaption
+    alt="Claude Code before the Wasp plugin"
+    source="img/cc-plugin/cc-before.webp"
+/>
+
+Take authentication, for example. If you tell Claude to help you add google auth to your app, it wouldn't be *entirely* wrong to suggest adding a library like AuthJS or Better Auth to your app. But as Wasp developers we know Wasp can take care of that for us in a few lines of code — Claude might not.
+
+On the other hand, as an emerging framework, Claude may hallucinate Wasp patterns, use outdated syntax, and make incorrect assumptions about how your full-stack app should be built.
+
+To solve these issues, the Wasp team has developed a [Claude Code plugin](https://github.com/wasp-lang/claude-plugins/tree/main/plugins/wasp) to turn Claude into a true Wasp expert.
+
+<div className="video-container">
+  <iframe src="https://www.youtube.com/embed/beUTJYW65Bw?si=_CmEU1f3r1sTZW69" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
+</div>
+
+## Turn Claude into a Wasp Expert
+
+Claude Code knows it can't do everything perfectly, which is why it allows for user-defined commands, skills, hooks, and rules, which act as sources of knowledge and guardrails when working in your project.
+
+We've done the tedious work for you, and bundled a bunch of the essentials into the Claude Code plugin for Wasp.
+
+Here's how you can try it once you've got [Wasp](https://wasp.sh) and [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed:
+
+1. Add the Wasp x Claude Code Plugin Marketplace:
+
+```bash
+claude plugin marketplace add wasp-lang/claude-plugins
+```
+
+2. Install the plugin:
+
+```bash
+claude plugin install wasp@wasp-plugins --scope project
+```
+
+3. Once installed, initialize the plugin in a Claude Code session and follow the instructions:
+
+```bash
+/wasp:init
+```
+
+<ImgWithCaption
+    alt="Wasp plugin initialization"
+    source="img/cc-plugin/plugin-init.webp"
+/>
+
+With the plugin installed, Claude turns into a true Wasp expert by:
+
+1. **Using the right documentation** — Automatically fetches the correct Wasp docs for your project's version during development and debugging
+2. **Avoiding common mistakes** — Provides Wasp-specific tips, patterns, and best practices so Claude doesn't hallucinate or use outdated approaches
+3. **Guided workflows** — Skills and commands so Claude can walk you through setting up Wasp's batteries-included features: auth, email, database, deploying, etc.
+4. **Full debugging visibility** — Start managed databases, dev servers, and connect browser console access so Claude has full development and debugging visibility across the entire stack
+
+The result: Claude actually understands Wasp instead of guessing and can get the most out of Wasp features to help you spend less time managing boilerplate or debugging errors, and more time building and shipping app features.
+
+## Give Claude the Wheel, Or Let it Be Your Backseat Driver
+
+One of the most important features of the plugin is that it gives Claude everything it needs to get your Wasp app setup and running locally, with full visibility into what's going on with your app.
+
+For example, Claude can use the Plugin's skills to easily setup, run and monitor Wasp's:
+
+- managed Postgres DB server,
+- local development servers, and
+- a Chrome instance
+
+By leveraging these Wasp features, you give Claude *instant* access to logs across the entire stack and can drastically reduce development and debugging feedback loops.
+
+<ImgWithCaption
+    alt="Claude Code fetching Wasp documentation"
+    source="img/cc-plugin/fetching-docs.webp"
+/>
+
+On top of that, we've added hooks to ensure Claude checks your project's Wasp version and always pulls the correct LLM-friendly docs before performing important Wasp-related tasks.
+
+Here are some examples of things you can ask Claude to help with:
+
+- *"Add `Google authentication` to my app"*
+- *"Migrate the database from `SQLite` to `PostgreSQL` and start it for me"*
+- *"Deploy my app to `Railway` for me"*
+- *"Help me add `ShadCN UI` to my app to build a dashboard"*
+- *"Start a new SaaS app using `Wasp's SaaS starter template`"*
+- *"Why isn't my `recurring job` working?"*
+
+With the Wasp plugin, Claude Code will know exactly how to take care of these tasks in your Wasp app, and can take full control of implementation, or guide you through the process.
+
+We've also loaded the plugin with straight-forward slash commands, such as `/wasp:help` so that you can always quickly reference what the plugin can do.
+
+## What's Next
+
+The focus for the first iteration of the plugin was to give Claude good fundamentals Wasp knowledge.
+
+For the future, we'll expand it with better guardrails and more skills and workflows to really speed up development. We'll also be adding a separate plugin for [Open SaaS](https://opensaas.sh), our open-source SaaS starter built on Wasp, to get you shipping SaaS apps easier and quicker.
+
+And if you have any feedback or ideas on how to improve the plugin, [let us know](https://github.com/wasp-lang/claude-plugins/issues).
