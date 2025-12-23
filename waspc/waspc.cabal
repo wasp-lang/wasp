@@ -561,6 +561,7 @@ library cli-lib
     , unliftio
     , unordered-containers
     , bytestring
+    , containers
     , tar ^>=0.6.3
     , zlib ^>=0.7.1
     , temporary ^>=1.3
@@ -608,6 +609,7 @@ library cli-lib
     Wasp.Cli.Command.News.Core
     Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.News.Fetching
+    Wasp.Cli.Command.News.Persistence
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
