@@ -4,6 +4,7 @@ module Wasp.Cli.Command.News
   )
 where
 
+import Control.Concurrent (threadDelay)
 import Control.Monad (unless)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -13,30 +14,18 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Persistence (obtainLocalNewsState)
 import Wasp.Cli.Command.News.Report
-  ( isTimeForMandatoryNewsReport,
+  ( NewsReport (..),
+    isTimeForMandatoryNewsReport,
     makeMandatoryNewsReport,
     makeVoluntaryNewsReport,
     printNewsReportAndUpdateLocalState,
   )
-import Wasp.Util (whenM)
-
-{-
-  TODO list
-  - Test what happens when we add new news on the server.
-
-  Future:
-  - Figure out what to do with the versions affected field.
-  - Properly type and validate stuff on the server.
-  - Decide how to deliver the news on the server.
-  - Maybe include the project in the monorepo (might make deployment more difficult).
-  - Figure out how to end tests.
-  - In `wasp news` output, mark the unread/new news
--}
+import Wasp.Util (checkIfOnCi, whenM)
 
 news :: Command ()
 news =
   liftIO fetchNews >>= \case
-    Left err -> throwError $ CommandError "Wasp news failed" err
+    Left err -> throwError $ CommandError "Getting Wasp news failed" err
     Right newsEntries -> liftIO $ do
       localNewsState <- obtainLocalNewsState
       printNewsReportAndUpdateLocalState localNewsState $
@@ -45,7 +34,8 @@ news =
 fetchAndReportMandatoryNews :: IO ()
 fetchAndReportMandatoryNews = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
-  unless isWaspNewsDisabled $ do
+  isOnCi <- checkIfOnCi
+  unless (isWaspNewsDisabled || isOnCi) $ do
     localNewsState <- obtainLocalNewsState
     whenM (isTimeForMandatoryNewsReport localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case

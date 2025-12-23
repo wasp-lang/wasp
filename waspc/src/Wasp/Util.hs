@@ -43,6 +43,7 @@ module Wasp.Util
     secondsToMicroSeconds,
     findDuplicateElems,
     isOlderThanNHours,
+    checkIfOnCi,
   )
 where
 
@@ -66,6 +67,7 @@ import qualified Data.Text.Lazy.Encoding as TLE
 import qualified Data.Time as T
 import Numeric.Natural (Natural)
 import StrongPath (File, Path')
+import qualified System.Environment as ENV
 import qualified StrongPath as SP
 import Text.Printf (printf)
 
@@ -303,3 +305,28 @@ isOlderThanNHours nHours time = do
   return $
     let numSecondsInHour = 3600
      in secondsSinceLastCheckIn > fromIntegral nHours * numSecondsInHour
+
+-- | Checks if the code is running in a CI environment.
+-- Inspired by https://github.com/watson/ci-info/blob/master/index.js
+checkIfOnCi :: IO Bool
+checkIfOnCi =
+  any checkIfEnvValueIsTruthy
+    <$> mapM
+      ENV.lookupEnv
+      [ "BUILD_ID", -- Jenkins, Codeship
+        "BUILD_NUMBER", -- Jenkins, TeamCity
+        "CI", -- Github actions, Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, Codeship, dsari
+        "CI_APP_ID", -- Appflow
+        "CI_BUILD_ID", -- Appflow
+        "CI_BUILD_NUMBER", -- Appflow
+        "CI_NAME", -- Codeship and others
+        "CONTINUOUS_INTEGRATION", -- Travis CI, Cirrus CI
+        "RUN_ID" -- TaskCluster, dsari
+      ]
+  where
+    checkIfEnvValueIsTruthy :: Maybe String -> Bool
+    checkIfEnvValueIsTruthy Nothing = False
+    checkIfEnvValueIsTruthy (Just v)
+      | null v = False
+      | (toLower <$> v) == "false" = False
+      | otherwise = True

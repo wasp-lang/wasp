@@ -12,10 +12,10 @@ module Wasp.Cli.Command.News.Report
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (unless)
 import Data.List (intercalate)
 import qualified Data.Time as T
-import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
+import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (showNewsEntry)
 import Wasp.Cli.Command.News.Persistence
   ( LocalNewsState (lastReportAt),
@@ -27,6 +27,7 @@ import Wasp.Cli.Command.News.Persistence
   )
 import Wasp.Cli.Interactive (askForInput)
 import Wasp.Util (isOlderThanNHours)
+import Wasp.Util.Terminal (styleCode)
 
 data NewsReport = NewsReport
   { newsToShow :: [NewsEntry],
@@ -80,7 +81,9 @@ isTimeForMandatoryNewsReport state = case state.lastReportAt of
 printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
 printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
   reportNews
-  when newsReport.requireConfirmation askForConfirmation
+  if newsReport.requireConfirmation
+    then askForConfirmation
+    else putStrLn $ "\nRun " ++ styleCode "wasp news" ++ " to confirm you've read this message."
   updateLocalNewsState
   where
     reportNews =

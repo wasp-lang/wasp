@@ -9,7 +9,7 @@ import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
 import Test.QuickCheck
 import Test.QuickCheck.Arbitrary.Generic (genericArbitrary)
-import Wasp.Cli.Command.News.Common (NewsEntry (..), NewsLevel (..))
+import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Persistence (LocalNewsState (..), emptyLocalNewsState)
 import Wasp.Cli.Command.News.Report
   ( NewsReport (..),

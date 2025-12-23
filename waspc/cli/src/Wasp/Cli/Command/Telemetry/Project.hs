@@ -5,8 +5,6 @@ module Wasp.Cli.Command.Telemetry.Project
     considerSendingData,
     readProjectTelemetryCacheFile,
     getTimeOfLastTelemetryDataSent,
-    -- NOTE: for testing only
-    checkIfEnvValueIsTruthy,
   )
 where
 
@@ -17,7 +15,6 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import qualified Data.ByteString.UTF8 as ByteStringUTF8
-import Data.Char (toLower)
 import Data.Functor ((<&>))
 import Data.List (intercalate, intersect)
 import Data.Maybe (fromJust, fromMaybe)
@@ -36,7 +33,7 @@ import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
-import Wasp.Util (ifM, isOlderThanNHours)
+import Wasp.Util (checkIfOnCi, ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 
 considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
@@ -81,31 +78,6 @@ getTelemetryContext = do
         (SIO.hIsTerminalDevice SIO.stdout `catchError` const (return True))
           <&> \case True -> ""; False -> "NON_INTERACTIVE_SHELL"
       ]
-  where
-    -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
-    -- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo).
-    checkIfOnCi :: IO Bool
-    checkIfOnCi =
-      any checkIfEnvValueIsTruthy
-        <$> mapM
-          ENV.lookupEnv
-          [ "BUILD_ID", -- Jenkins, Codeship
-            "BUILD_NUMBER", -- Jenkins, TeamCity
-            "CI", -- Github actions, Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, Codeship, dsari
-            "CI_APP_ID", -- Appflow
-            "CI_BUILD_ID", -- Appflow
-            "CI_BUILD_NUMBER", -- Appflow
-            "CI_NAME", -- Codeship and others
-            "CONTINUOUS_INTEGRATION", -- Travis CI, Cirrus CI
-            "RUN_ID" -- TaskCluster, dsari
-          ]
-
-checkIfEnvValueIsTruthy :: Maybe String -> Bool
-checkIfEnvValueIsTruthy Nothing = False
-checkIfEnvValueIsTruthy (Just v)
-  | null v = False
-  | (toLower <$> v) == "false" = False
-  | otherwise = True
 
 -- * Project hash.
 
