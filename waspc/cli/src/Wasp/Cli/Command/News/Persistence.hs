@@ -20,7 +20,7 @@ import qualified Data.Time as T
 import GHC.Generics (Generic)
 import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
 import qualified System.Directory as SD
-import Wasp.Cli.Command.News.Common (NewsEntry (..))
+import Wasp.Cli.Command.News.Core (NewsEntry (..))
 import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
 import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
