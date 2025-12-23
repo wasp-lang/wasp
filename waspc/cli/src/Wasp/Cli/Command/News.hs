@@ -44,7 +44,7 @@ news =
 
 fetchAndReportMandatoryNews :: IO ()
 fetchAndReportMandatoryNews = do
-  isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_NEWS_DISABLE"
+  isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
   unless isWaspNewsDisabled $ do
     localNewsState <- obtainLocalNewsState
     whenM (isTimeForMandatoryNewsReport localNewsState) $ do
