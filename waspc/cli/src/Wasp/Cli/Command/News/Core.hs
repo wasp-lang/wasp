@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Cli.Command.News.Common
+module Wasp.Cli.Command.News.Core
   ( NewsEntry (..),
     NewsLevel (..),
   )
