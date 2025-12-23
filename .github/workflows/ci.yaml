@@ -1,6 +1,4 @@
 name: "CI"
-# This name must be in sync with the name used in:
-# /.github/actions/fetch-nightly-cli/action.yaml
 
 on:
   push:

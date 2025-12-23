@@ -1,6 +1,12 @@
 # Changelog
 
-## Next
+## 0.20.1
+
+### 🎉 New Features
+
+- `wasp news` - A new command you can use to stay up to date with the latest Wasp announcements and releases directly from your terminal. Wasp also periodically notifies you of important news (such as security vulnerabilities) during `wasp start`. You can disable this behavior by setting `WASP_AUTO_NEWS_DISABLE=1`. ([#3549](https://github.com/wasp-lang/wasp/pull/3549)).
+
+## 0.20.0
 
 ### ⚠️ Breaking Changes
 
@@ -9,6 +15,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now uses **React 19**! ([#3489](https://github.com/wasp-lang/wasp/pull/3489))
   - Check the following upgrade guide to see how to update your code: https://react.dev/blog/2024/04/25/react-19-upgrade-guide.
   - For Wasp-related updates, check the migration guide above.
+
+### 🎉 New Features
+
+- You can now use the `--force` flag with `wasp db reset` to run the database reset non-interactively ([#3480](https://github.com/wasp-lang/wasp/pull/3480))
 
 ### 🐞 Bug fixes
 
@@ -19,10 +29,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
 - Wasp now reports better errors for invalid `package.json` or `tsconfig.json` files. ([#3262](https://github.com/wasp-lang/wasp/pull/3262))
 - Wasp returns a proper exit code when using the `-h,--help` flag with `wasp build start`, `wasp start db`, and `wasp new`. ([#3440](https://github.com/wasp-lang/wasp/pull/3440))
-
-### 🎉 New Features
-
-- You can now use the `--force` flag with `wasp db reset` to run the database reset non-interactively ([#3480](https://github.com/wasp-lang/wasp/pull/3480))
 
 ## 0.19.1
 
