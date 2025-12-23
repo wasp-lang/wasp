@@ -1,6 +1,9 @@
 .wasp/
 node_modules/
 
+# Generated Wasp files
+src/routes.generated.tsx
+
 # Ignore all dotenv files by default to prevent accidentally committing any secrets.
 # To include specific dotenv files, use the `!` operator or adjust these rules.
 .env

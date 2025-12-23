@@ -1,2 +1,2 @@
 // PUBLIC API
-export { WaspApp } from './WaspApp'
+export { getWaspApp } from './WaspApp'
