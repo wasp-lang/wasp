@@ -308,8 +308,8 @@ isOlderThanNHours nHours time = do
     let numSecondsInHour = 3600
      in secondsSinceLastCheckIn > fromIntegral nHours * numSecondsInHour
 
--- | Checks if the code is running in a CI environment.
--- Inspired by https://github.com/watson/ci-info/blob/master/index.js
+-- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
+-- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo).
 checkIfOnCi :: IO Bool
 checkIfOnCi =
   any checkIfEnvValueIsTruthy
