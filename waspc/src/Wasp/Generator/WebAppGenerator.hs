@@ -47,7 +47,6 @@ import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
-import Wasp.Generator.WebAppGenerator.Vite (genVite)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common
@@ -71,7 +70,6 @@ genWebApp spec = do
     <++> genSrcDir spec
     <++> genPublicDir spec
     <++> genDotEnv spec
-    <++> genVite spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -220,7 +218,6 @@ genSrcDir spec =
     [ genFileCopy [relfile|logo.png|],
       genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|vite-env.d.ts|],
-      genFileCopy [relfile|test/vitest/setup.ts|],
       genFileCopy [relfile|components/Message.tsx|],
       genFileCopy [relfile|components/Loader.tsx|],
       genFileCopy [relfile|components/Loader.module.css|],

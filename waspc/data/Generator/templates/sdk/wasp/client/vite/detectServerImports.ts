@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { type Plugin } from 'vite'
 import path from 'path'
-import { resolveProjectPath } from 'wasp/dev'
+import { resolveProjectPath } from '../../dev/index.js'
 
 export function detectServerImports(): Plugin {
   return {
