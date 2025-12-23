@@ -12,7 +12,7 @@ module Wasp.Cli.Command.News.Report
   )
 where
 
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Data.List (intercalate)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
@@ -27,7 +27,6 @@ import Wasp.Cli.Command.News.Persistence
   )
 import Wasp.Cli.Interactive (askForInput)
 import Wasp.Util (isOlderThanNHours)
-import Wasp.Util.Terminal (styleCode)
 
 data NewsReport = NewsReport
   { newsToShow :: [NewsEntry],
@@ -62,10 +61,7 @@ makeMandatoryNewsReportForExistingUser currentState newsEntries =
   NewsReport
     { newsToShow = allRelevantUnseenNews,
       requireConfirmation,
-      newsToConsiderSeen =
-        if requireConfirmation
-          then allRelevantUnseenNews
-          else []
+      newsToConsiderSeen = allRelevantUnseenNews
     }
   where
     requireConfirmation = any ((== Critical) . level) allRelevantUnseenNews
@@ -80,10 +76,9 @@ isTimeForMandatoryNewsReport state = case state.lastReportAt of
 
 printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
 printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
-  reportNews
-  if newsReport.requireConfirmation
-    then askForConfirmation
-    else putStrLn $ "\nRun " ++ styleCode "wasp news" ++ " if you don't want to see these news again."
+  unless (null newsReport.newsToShow) $ do
+    reportNews
+    when newsReport.requireConfirmation askForConfirmation
   updateLocalNewsState
   where
     reportNews =
@@ -93,7 +88,7 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
       let requiredAnswer = "y"
       answer <-
         askForInput $
-          "\nSome announcements are critical. Please confirm you've read them by typing '"
+          "\nThere are critical annoucements above. Please confirm you've read them by typing '"
             ++ requiredAnswer
             ++ "'"
       unless (answer == requiredAnswer) askForConfirmation
