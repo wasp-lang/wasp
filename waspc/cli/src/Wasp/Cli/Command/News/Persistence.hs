@@ -6,6 +6,7 @@ module Wasp.Cli.Command.News.Persistence
   ( LocalNewsState (..),
     obtainLocalNewsState,
     saveLocalNewsState,
+    emptyLocalNewsState,
     wasNewsEntrySeen,
     setLastReportTimestamp,
     markNewsAsSeen,
@@ -49,8 +50,10 @@ obtainLocalNewsState = do
   where
     tryReadingLocalNewsStateOrUseEmpty stateFile =
       fromMaybe emptyLocalNewsState <$> readJsonFile stateFile
-    emptyLocalNewsState =
-      LocalNewsState {lastReportAt = Nothing, seenNewsIds = Set.empty}
+
+emptyLocalNewsState :: LocalNewsState
+emptyLocalNewsState =
+  LocalNewsState {lastReportAt = Nothing, seenNewsIds = Set.empty}
 
 wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
 wasNewsEntrySeen state entry = entry.id `Set.member` state.seenNewsIds
