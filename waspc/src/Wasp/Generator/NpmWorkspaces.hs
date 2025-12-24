@@ -10,7 +10,7 @@ import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
     dotWaspDirInWaspProjectDir,
@@ -24,16 +24,19 @@ import Wasp.Project.Common
 requiredWorkspaceGlobs :: Set String
 requiredWorkspaceGlobs =
   fromList
-    [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
-    -- TODO: Add SDK as a workspace (#3233)
+    [ allProjectsInDir $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
+      relDirToGlob $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir
     ]
   where
-    makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> String
-    makeGlobFromProjectRoot projectRootDir =
-      relDirToPosixString projectRootDir FP.</> "*"
+    allProjectsInDir :: Path' (Rel WaspProjectDir) (Dir a) -> String
+    allProjectsInDir dir = relDirToGlob dir FP.</> "*"
 
-    relDirToPosixString inputDir =
-      SP.fromRelDirP $ fromRight (makeNonPosixError inputDir) $ SP.relDirToPosix inputDir
+    relDirToGlob :: Path' (Rel WaspProjectDir) (Dir a) -> String
+    relDirToGlob inputDir =
+      FP.dropTrailingPathSeparator $
+        SP.fromRelDirP $
+          fromRight (makeNonPosixError inputDir) $
+            SP.relDirToPosix inputDir
 
     makeNonPosixError inputDir =
       error $

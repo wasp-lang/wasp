@@ -1,14 +1,13 @@
 {
   "name": "__waspAppName__",
   "type": "module",
-  "workspaces": [".wasp/out/*"],
+  "workspaces": [".wasp/out/*", ".wasp/out/sdk/wasp"],
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.57.0",
     "react-router-dom": "^6.26.2",
-    "tailwind-merge": "~2.6.0",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "tailwind-merge": "~2.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
