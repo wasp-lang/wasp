@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const WASP_APP_RUNNER_CLI = process.env.WASP_APP_RUNNER_CLI ?? "run-wasp-app";
 const WASP_RUN_MODE = process.env.WASP_RUN_MODE ?? "dev";
+const WASP_CLI_CMD = process.env.WASP_CLI_CMD ?? "wasp-cli";
 
 export const WASP_SERVER_PORT = 3001;
 
@@ -48,7 +50,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `run-wasp-app ${WASP_RUN_MODE} --path-to-app=../ --wasp-cli-cmd=wasp-cli`,
+    command: `${WASP_APP_RUNNER_CLI} ${WASP_RUN_MODE} --path-to-app=../ --wasp-cli-cmd=${WASP_CLI_CMD}`,
     // Wait for the backend to start
     url: `http://localhost:${WASP_SERVER_PORT}`,
     reuseExistingServer: !process.env.CI,
