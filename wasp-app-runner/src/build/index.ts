@@ -2,8 +2,11 @@ import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
 import { startLocalSmtpServer } from "../smtp.js";
 import { type AppName, waspBuild } from "../waspCli.js";
-import { buildAndRunClientApp } from "./client.js";
-import { buildAndRunServerApp } from "./server.js";
+import { buildClientApp, startClientApp } from "./client.js";
+import { buildServerApp, startServerApp } from "./server.js";
+import { createLogger } from "../logging.js";
+
+const logger = createLogger("build");
 
 // Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
 export async function startAppInBuildMode({
@@ -33,16 +36,30 @@ export async function startAppInBuildMode({
 
   await startLocalSmtpServer();
 
-  // Client needs to be running before the server
-  // because `playwright` tests start executing as soon
-  // as the server is up.
-  await buildAndRunClientApp({
-    pathToApp,
+  // Build both client and server in parallel
+  await Promise.all([
+    buildClientApp({ pathToApp }),
+    buildServerApp({ appName, pathToApp }),
+  ]);
+
+  logger.info("Both client and server builds completed. Starting applications...");
+
+  // Start both client and server (client needs to be running before the server
+  // because `playwright` tests start executing as soon as the server is up)
+  startClientApp({ pathToApp }).catch((error) => {
+    const exitCode = error?.exitCode ?? 'unknown';
+    logger.error(`Failed to start client app with exit code: ${exitCode}`);
+    process.exit(1);
   });
 
-  await buildAndRunServerApp({
+  startServerApp({
     appName,
     pathToApp,
     extraEnv: dbEnvVars,
   });
+
+  // Keep the process alive indefinitely while child processes are running.
+  // The ChildProcessManager will handle cleanup on SIGINT/SIGTERM.
+  // This promise never resolves, which is intentional.
+  await new Promise<never>(() => {});
 }

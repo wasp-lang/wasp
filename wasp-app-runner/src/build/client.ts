@@ -32,7 +32,7 @@ export async function buildAndRunClientApp({
   });
 }
 
-async function buildClientApp({
+export async function buildClientApp({
   pathToApp,
 }: {
   pathToApp: PathToApp;
@@ -56,7 +56,7 @@ async function buildClientApp({
   });
 }
 
-async function startClientApp({
+export async function startClientApp({
   pathToApp,
 }: {
   pathToApp: PathToApp;
