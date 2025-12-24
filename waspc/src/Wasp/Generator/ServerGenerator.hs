@@ -135,7 +135,7 @@ genPackageJson spec waspDependencies = do
       (C.asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= serverPackageName spec,
+            [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),

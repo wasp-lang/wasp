@@ -15,7 +15,7 @@ import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (BuildDirExists (BuildDirExists), InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require (GeneratedCodeIsProduction (GeneratedCodeIsProduction), InWaspProject (InWaspProject))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
@@ -24,7 +24,7 @@ import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
-  BuildDirExists _ <- require
+  GeneratedCodeIsProduction <- require
 
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir

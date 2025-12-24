@@ -7,24 +7,28 @@ import { doesFileExits } from "../files.js";
 import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
-
-const clientAppDir = ".wasp/build/web-app";
+import type { VersionSettings } from "../versions.js";
 
 // Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
 export async function buildAndRunClientApp({
   pathToApp,
+  versionSettings,
 }: {
   pathToApp: PathToApp;
+  versionSettings: VersionSettings;
 }): Promise<void> {
   const logger = createLogger("client-build-and-run-app");
-  const { exitCode: buildExitCode } = await buildClientApp({ pathToApp });
+  const { exitCode: buildExitCode } = await buildClientApp({
+    pathToApp,
+    versionSettings,
+  });
   if (buildExitCode !== 0) {
     logger.error("Failed to build client app.");
     process.exit(1);
   }
 
   // This starts a long running process, so we don't await it.
-  startClientApp({ pathToApp }).then(({ exitCode }) => {
+  startClientApp({ pathToApp, versionSettings }).then(({ exitCode }) => {
     if (exitCode !== 0) {
       logger.error("Failed to start client app.");
       process.exit(1);
@@ -34,8 +38,10 @@ export async function buildAndRunClientApp({
 
 async function buildClientApp({
   pathToApp,
+  versionSettings: { clientAppDir },
 }: {
   pathToApp: PathToApp;
+  versionSettings: VersionSettings;
 }): Promise<{ exitCode: number | null }> {
   const defaultRequiredEnv = {
     REACT_APP_API_URL: "http://localhost:3001",
@@ -58,8 +64,10 @@ async function buildClientApp({
 
 async function startClientApp({
   pathToApp,
+  versionSettings: { clientAppDir },
 }: {
   pathToApp: PathToApp;
+  versionSettings: VersionSettings;
 }): Promise<{
   exitCode: number | null;
 }> {

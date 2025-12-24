@@ -94,7 +94,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
   where
-    dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
+    dstDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -354,7 +354,7 @@ genFile file
 genResourceFile :: EC.CodeFile -> Generator FileDraft
 genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
+    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
     absSrcPath = EC.fileAbsPath file
 
 genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
@@ -362,7 +362,7 @@ genSourceFile file = return $ FD.createTextFileDraft relDstPath text
   where
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
     text = EC.fileText file
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =

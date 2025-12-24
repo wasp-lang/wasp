@@ -33,7 +33,7 @@ import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
@@ -80,7 +80,7 @@ makeBuildStartConfig appSpec args projectDir = do
     appUniqueId' = makeAppUniqueId projectDir appName
     (appName, _) = ASV.getApp appSpec
 
-    buildDir' = projectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
+    buildDir' = projectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
     -- NOTE(carlos): For now, creating these URLs and ports below uses the default
     -- values we've hardcoded in the generator. In the future, we might want to make
