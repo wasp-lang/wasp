@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Server.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -14,9 +14,11 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
+import Wasp.Generator.SdkGenerator.Server.Common
 import Wasp.Util ((<++>))
+
+data ServerAuthTemplatesDir
 
 genNewServerApi :: AppSpec -> Generator [FileDraft]
 genNewServerApi spec =
@@ -35,11 +37,9 @@ genNewServerApi spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|server/auth/index.ts|]
-      tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
+    tmplFile = serverAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
@@ -49,13 +49,9 @@ genAuthIndex auth =
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|server/auth/user.ts|]
-      tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-
+    tmplFile = serverAuthDirInSdkTemplatesProjectDir </> [relfile|user.ts|]
     tmplData =
       object
         [ "userEntityName" .= userEntityName,
@@ -65,23 +61,30 @@ genAuthUser auth =
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
-genHooks auth = return $ C.mkTmplFdWithData [relfile|server/auth/hooks.ts|] tmplData
+genHooks auth =
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
+    tmplFile = serverAuthDirInSdkTemplatesProjectDir </> [relfile|hooks.ts|]
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genFileCopy [relfile|server/auth/email/index.ts|]]
+    then sequence [genServerAuthFileCopy SdkUserCoreProject [relfile|email/index.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genFileCopy [relfile|server/auth/username.ts|]]
+    then sequence [genServerAuthFileCopy SdkUserCoreProject [relfile|username.ts|]]
     else return []
 
-genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> Generator FileDraft
-genFileCopy = return . C.mkTmplFd
+serverAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerAuthTemplatesDir)
+serverAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth|]
+
+genServerAuthFileCopy :: SdkProject -> Path' (Rel ServerAuthTemplatesDir) File' -> Generator FileDraft
+genServerAuthFileCopy sdkProject =
+  return . makeSdkProjectTmplFd sdkProject . (serverAuthDirInSdkTemplatesProjectDir </>)

@@ -14,8 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path', Rel, castRel, fromRelDir, relfile, toFilePath, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -23,7 +22,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.ExternalFiles as EC
+import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -46,8 +45,7 @@ import Wasp.Generator.DepVersions
     superjsonVersion,
     tailwindCssVersion,
   )
-import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -55,7 +53,7 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -75,12 +73,8 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
-import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Db as Db
-import qualified Wasp.SemanticVersion.Version as SV
-  ( Version (major),
-  )
 import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
@@ -89,36 +83,36 @@ buildSdk projectRootDir = do
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob dstDir "npm" ["run", "build"] J.Wasp chan)
-  case exitCode of
-    ExitSuccess -> return $ Right ()
-    ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
+      (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
   where
-    dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
+    sdkRootDir = projectRootDir </> sdkRootDirInProjectRootDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ genFileCopy [relfile|vite-env.d.ts|],
-      genFileCopy [relfile|prisma-runtime-library.d.ts|],
-      genFileCopy [relfile|scripts/copy-assets.js|],
-      genFileCopy [relfile|api/index.ts|],
-      genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/storage.ts|],
-      genFileCopy [relfile|server/index.ts|],
-      genFileCopy [relfile|server/HttpError.ts|],
-      genFileCopy [relfile|client/test/vitest/helpers.tsx|],
-      genFileCopy [relfile|client/test/index.ts|],
-      genFileCopy [relfile|client/hooks.ts|],
-      genFileCopy [relfile|client/index.ts|],
+    [ return $ makeSdkProjectTmplFd SdkCoreProject [relfile|tsconfig.json|],
+      return $ makeSdkProjectTmplFd SdkCoreProject [relfile|server/HttpError.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|tsconfig.json|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|vite-env.d.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|prisma-runtime-library.d.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|api/index.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|api/events.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|core/storage.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|server/index.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|client/test/vitest/helpers.tsx|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|client/test/index.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|client/hooks.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
-      genTsConfigJson,
       genServerUtils spec,
-      genPackageJson spec,
       genDbClient spec,
       genDevIndex
     ]
+    <++> genRootSdkFiles spec
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
@@ -129,8 +123,8 @@ genSdk spec =
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
-    <++> genMiddleware spec
-    <++> genExportedTypesDir spec
+    <++> genMiddleware
+    <++> genExportedTypesDir
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
@@ -140,8 +134,27 @@ genSdk spec =
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
-  where
-    genFileCopy = return . C.mkTmplFd
+
+genRootSdkFiles :: AppSpec -> Generator [FileDraft]
+genRootSdkFiles spec =
+  sequence
+    [ return $ makeSdkRootTmplFile [relfile|tsconfig.json|],
+      return $ makeSdkRootTmplFile [relfile|tsconfig.sdk.json|],
+      return $ makeSdkRootTmplFile [relfile|copy-assets.js|],
+      genPackageJson spec
+    ]
+
+genPackageJson :: AppSpec -> Generator FileDraft
+genPackageJson spec =
+  return $
+    makeSdkRootTmplFileWithData
+      [relfile|package.json|]
+      ( object
+          [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
+            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
+            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+          ]
+      )
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
@@ -152,48 +165,32 @@ genEntitiesAndServerTypesDirs spec =
     ]
   where
     entitiesIndexFileDraft =
-      C.mkTmplFdWithDstAndData
+      makeSdkProjectTmplFdWithData
+        SdkUserCoreProject
         [relfile|entities/index.ts|]
-        [relfile|entities/index.ts|]
-        ( Just $
-            object
-              [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName,
-                "authEntityName" .= DbAuth.authEntityName,
-                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
-              ]
+        ( object
+            [ "entities" .= allEntities,
+              "isAuthEnabled" .= isJust maybeUserEntityName,
+              "authEntityName" .= DbAuth.authEntityName,
+              "authIdentityEntityName" .= DbAuth.authIdentityEntityName
+            ]
         )
     taggedEntitiesFileDraft =
-      C.mkTmplFdWithDstAndData
+      makeSdkProjectTmplFdWithData
+        SdkUserCoreProject
         [relfile|server/_types/taggedEntities.ts|]
-        [relfile|server/_types/taggedEntities.ts|]
-        (Just $ object ["entities" .= allEntities])
+        (object ["entities" .= allEntities])
     typesIndexFileDraft =
-      C.mkTmplFdWithDstAndData
+      makeSdkProjectTmplFdWithData
+        SdkUserCoreProject
         [relfile|server/_types/index.ts|]
-        [relfile|server/_types/index.ts|]
-        ( Just $
-            object
-              [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName
-              ]
+        ( object
+            [ "entities" .= allEntities,
+              "isAuthEnabled" .= isJust maybeUserEntityName
+            ]
         )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
-
-genPackageJson :: AppSpec -> Generator FileDraft
-genPackageJson spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      [relfile|package.json|]
-      [relfile|package.json|]
-      ( Just $
-          object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-              "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
-            ]
-      )
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
@@ -253,9 +250,11 @@ depsRequiredForTesting =
     ]
 
 genClientConfigFile :: Generator FileDraft
-genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+genClientConfigFile =
+  return $
+    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    relConfigFilePath = [relfile|client/config.ts|]
+    tmplFile = [relfile|client/config.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
@@ -264,8 +263,8 @@ genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
-      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+    [ makeSdkProjectTmplFd SdkUserCoreProject [relfile|core/serialization/custom-register.ts|],
+      makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|core/serialization/index.ts|] tmplData
     ]
       ++ maybeToList prismaSerializationFile
   where
@@ -275,15 +274,15 @@ genCoreSerializationDir spec =
         ]
 
     prismaSerializationFile
-      | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
+      | entitiesExist = Just $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|core/serialization/prisma.ts|]
       | otherwise = Nothing
 
     entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+genServerConfigFile spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    relConfigFilePath = [relfile|server/config.ts|]
+    tmplFile = [relfile|server/config.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -292,20 +291,6 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplDat
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
-
--- todo(filip): remove this duplication, we have almost the same thing in the
--- ServerGenerator.
-genTsConfigJson :: Generator FileDraft
-genTsConfigJson = do
-  return $
-    C.mkTmplFdWithDstAndData
-      [relfile|tsconfig.json|]
-      [relfile|tsconfig.json|]
-      ( Just $
-          object
-            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
-            ]
-      )
 
 depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
@@ -338,62 +323,66 @@ installNpmDependencies projectDir =
 
 -- | Takes external code files from Wasp and generates them in new location as part of the generated project.
 -- It might not just copy them but also do some changes on them, as needed.
-genExternalCodeDir :: [EC.CodeFile] -> Generator [FileDraft]
-genExternalCodeDir = sequence . mapMaybe genFile
+genExternalCodeDir :: [EF.CodeFile] -> Generator [FileDraft]
+genExternalCodeDir = sequence . mapMaybe genExternalFile
 
-genFile :: EC.CodeFile -> Maybe (Generator FileDraft)
-genFile file
+genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
+genExternalFile file
   | fileName == "tsconfig.json" = Nothing
-  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genSourceFile file
-  | otherwise = Just $ genResourceFile file
+  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genExternalSourceFile file
+  | otherwise = Just $ genExternalResourceFile file
   where
     extension = FP.takeExtension filePath
     fileName = FP.takeFileName filePath
-    filePath = SP.toFilePath $ EC.filePathInExtCodeDir file
+    filePath = toFilePath $ EF.filePathInExtCodeDir file
 
-genResourceFile :: EC.CodeFile -> Generator FileDraft
-genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
+genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
+genExternalResourceFile file = return $ createCopyFileDraft destFile srcFile
   where
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
-    absSrcPath = EC.fileAbsPath file
+    destFile =
+      sdkRootDirInProjectRootDir
+        </> extSrcDirInSdkRootDir
+        </> castRel (EF.filePathInExtCodeDir file)
+    srcFile = EF.fileAbsPath file
 
-genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
-genSourceFile file = return $ FD.createTextFileDraft relDstPath text
+genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
+genExternalSourceFile file = return $ createTextFileDraft destFile srcFile
   where
-    filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
-    text = EC.fileText file
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+    destFile =
+      sdkRootDirInProjectRootDir
+        </> extSrcDirInSdkRootDir
+        </> castRel (EF.filePathInExtCodeDir file)
+    srcFile = EF.fileText file
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ C.mkTmplFd [relfile|universal/url.ts|],
-      C.mkTmplFd [relfile|universal/types.ts|],
-      C.mkTmplFd [relfile|universal/validators.ts|],
-      C.mkTmplFd [relfile|universal/predicates.ts|],
-      C.mkTmplFd [relfile|universal/ansiColors.ts|]
+    [ makeSdkProjectTmplFd SdkUserCoreProject [relfile|universal/url.ts|],
+      makeSdkProjectTmplFd SdkUserCoreProject [relfile|universal/types.ts|],
+      makeSdkProjectTmplFd SdkUserCoreProject [relfile|universal/validators.ts|],
+      makeSdkProjectTmplFd SdkUserCoreProject [relfile|universal/predicates.ts|],
+      makeSdkProjectTmplFd SdkUserCoreProject [relfile|universal/ansiColors.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
-genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
+genServerUtils spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
-genExportedTypesDir :: AppSpec -> Generator [FileDraft]
-genExportedTypesDir _spec =
-  return [C.mkTmplFd [relfile|server/types/index.ts|]]
+genExportedTypesDir :: Generator [FileDraft]
+genExportedTypesDir =
+  return [makeSdkProjectTmplFd SdkUserCoreProject [relfile|server/types/index.ts|]]
 
-genMiddleware :: AppSpec -> Generator [FileDraft]
-genMiddleware _spec =
+genMiddleware :: Generator [FileDraft]
+genMiddleware =
   sequence
-    [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
-      return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
+    [ return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|server/middleware/index.ts|],
+      return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
-
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
@@ -401,7 +390,8 @@ genDbClient spec = do
           ]
 
   return $
-    C.mkTmplFdWithData
+    makeSdkProjectTmplFdWithData
+      SdkUserCoreProject
       [relfile|server/dbClient.ts|]
       tmplData
   where
@@ -410,9 +400,10 @@ genDbClient spec = do
 genDevIndex :: Generator FileDraft
 genDevIndex =
   return $
-    C.mkTmplFdWithData
+    makeSdkProjectTmplFdWithData
+      SdkUserCoreProject
       [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+      (object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir])
   where
     waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromAppComponentDir

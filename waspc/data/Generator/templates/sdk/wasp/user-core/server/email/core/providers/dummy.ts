@@ -1,7 +1,6 @@
+import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors';
+import { getDefaultFromField } from "../helpers";
 import { DummyEmailProvider, EmailSender } from "../types";
-import { getDefaultFromField } from "../helpers.js";
-
-import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
 
 const yellowColorFormatString = getColorizedConsoleFormatString('yellow');
 

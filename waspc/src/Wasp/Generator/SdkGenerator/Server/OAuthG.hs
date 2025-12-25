@@ -6,15 +6,21 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (fromJust, isJust)
-import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Dir', File', Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider, slackAuthProvider)
+import Wasp.Generator.AuthProviders
+  ( discordAuthProvider,
+    getEnabledAuthProvidersJson,
+    gitHubAuthProvider,
+    googleAuthProvider,
+    keycloakAuthProvider,
+    slackAuthProvider,
+  )
 import Wasp.Generator.AuthProviders.OAuth
   ( OAuthAuthProvider,
     clientOAuthCallbackPath,
@@ -25,8 +31,8 @@ import Wasp.Generator.AuthProviders.OAuth
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
+import Wasp.Generator.SdkGenerator.Server.Common
 import Wasp.Util ((<++>))
 
 genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -35,8 +41,8 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|oneTimeCode.ts|],
-          genFileCopy $ oauthDirInSdkTemplatesDir </> [relfile|provider.ts|]
+          genServerAuthFileCopy SdkUserCoreProject [relfile|oneTimeCode.ts|],
+          genServerAuthFileCopy SdkUserCoreProject [relfile|provider.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
@@ -44,22 +50,22 @@ genOAuth auth
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
-  where
-    genFileCopy = return . C.mkTmplFd
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genIndexTs auth = return $ C.mkTmplFdWithData tmplFile tmplData
+genIndexTs auth =
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = oauthDirInSdkTemplatesDir </> [relfile|index.ts|]
+    tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "enabledProviders" .= getEnabledAuthProvidersJson auth
         ]
 
 genRedirectHelper :: Generator FileDraft
-genRedirectHelper = return $ C.mkTmplFdWithData tmplFile tmplData
+genRedirectHelper =
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = oauthDirInSdkTemplatesDir </> [relfile|redirect.ts|]
+    tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|redirect.ts|]
     tmplData =
       object
         [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
@@ -79,19 +85,16 @@ genOAuthProvider provider maybeUserConfig
 genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
-genOAuthConfig provider = return $ C.mkTmplFdWithData tmplFile tmplData
+genOAuthConfig provider =
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
-    tmplFile = oauthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile
+    tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [reldir|providers|] </> providerTsFile
+    providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
     tmplData =
       object
         [ "providerId" .= OAuth.providerId provider,
           "displayName" .= OAuth.displayName provider
         ]
-
-    providerTsFile :: Path' (Rel ()) File'
-    providerTsFile = fromJust $ SP.parseRelFile $ providerId ++ ".ts"
-
-    providerId = OAuth.providerId provider
 
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
@@ -99,5 +102,9 @@ depsRequiredByOAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
-oauthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-oauthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
+serverOAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
+serverOAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth/oauth|]
+
+genServerAuthFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
+genServerAuthFileCopy sdkProject =
+  return . makeSdkProjectTmplFd sdkProject . (serverOAuthDirInSdkTemplatesProjectDir </>)
