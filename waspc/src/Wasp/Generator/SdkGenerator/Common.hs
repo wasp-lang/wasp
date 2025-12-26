@@ -50,6 +50,7 @@ mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
 
 -- To understand what's going on here, read this issue:
 -- https://github.com/wasp-lang/wasp/issues/1769
+-- NOTE: We repeat this hack in `Wasp.Generator.WaspLibs.libsRootDirNextToSdk`.
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir =
   [reldir|../|]
@@ -71,7 +72,7 @@ relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.f
     removeTrailingSlash = reverse . dropWhile (== '/') . reverse
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
-makeSdkImportPath path = [reldirP|wasp|] </> path
+makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
@@ -81,3 +82,6 @@ serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
 getOperationTypeName :: AS.Operation.Operation -> String
 getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
+sdkPackageName :: String
+sdkPackageName = "wasp"

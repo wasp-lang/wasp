@@ -21,6 +21,7 @@ import Wasp.AI.GenerateNewProject.Common
     getProjectPrimaryColor,
   )
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
+import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
@@ -156,7 +157,7 @@ generatePackageJson newProjectDetails =
           ".wasp/out/*"
         ],
         "dependencies": {
-          "wasp": "file:.wasp/out/sdk/wasp",
+          "${sdkPackageNameText}": "file:.wasp/out/sdk/wasp",
           "react": "^19.2.1",
           "react-dom": "^19.2.1",
           "react-router-dom": "^6.26.2",
@@ -175,6 +176,7 @@ generatePackageJson newProjectDetails =
   )
   where
     appName = T.pack $ _projectAppName newProjectDetails
+    sdkPackageNameText = T.pack sdkPackageName
 
 generateLoginJsPage :: File
 generateLoginJsPage =
