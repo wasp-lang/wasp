@@ -12,6 +12,7 @@ import Data.Aeson (FromJSON, ToJSON, Value (..), decodeStrict, eitherDecode, enc
 import StrongPath (Abs, File, Path')
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
+import Wasp.Node.Executables (nodeExec)
 import Wasp.Util.Aeson (decodeFromString)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -21,7 +22,7 @@ import qualified Wasp.Util.IO as IOUtil
 parseJsonWithComments :: (FromJSON a) => String -> IO (Either String a)
 parseJsonWithComments jsonStr = do
   let evalScript = "const v = " ++ jsonStr ++ ";console.log(JSON.stringify(v));"
-  let cp = P.proc "node" ["-e", evalScript]
+  let cp = P.proc nodeExec ["-e", evalScript]
   (exitCode, response, stderr) <- P.readCreateProcessWithExitCode cp ""
   case exitCode of
     ExitSuccess -> return $ decodeFromString response

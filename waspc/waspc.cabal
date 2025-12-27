@@ -383,7 +383,9 @@ library
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Process
     Wasp.Message
+    Wasp.Node.Executables
     Wasp.Node.Internal
+    Wasp.Node.NodeModules
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Project
@@ -455,6 +457,7 @@ library
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.StrongPath
+    Wasp.Util.System
     Wasp.Util.Terminal
     Wasp.Util.TH
     Wasp.Util.WebRouterPath

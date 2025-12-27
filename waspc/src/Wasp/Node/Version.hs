@@ -10,6 +10,7 @@ where
 import Data.Conduit.Process.Typed (ExitCode (..))
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Process (readProcessWithExitCode)
+import Wasp.Node.Executables (nodeExec, npmExec)
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SV
@@ -48,8 +49,8 @@ checkUserNodeAndNpmMeetWaspRequirements = do
     (VersionCheckFail nodeError, _) -> VersionCheckFail nodeError
     (_, VersionCheckFail npmError) -> VersionCheckFail npmError
   where
-    checkUserNodeVersion = checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion
-    checkUserNpmVersion = checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
+    checkUserNodeVersion = checkUserToolVersion nodeExec ["--version"] oldestWaspSupportedNodeVersion
+    checkUserNpmVersion = checkUserToolVersion npmExec ["--version"] oldestWaspSupportedNpmVersion
 
 checkUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
 checkUserToolVersion commandName commandArgs oldestSupportedToolVersion = do
