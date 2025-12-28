@@ -144,15 +144,15 @@ genSdk spec =
 genRootFiles :: AppSpec -> Generator [FileDraft]
 genRootFiles spec =
   sequence
-    [ return $ makeSdkProjectTmplFd SdkRooProject [relfile|tsconfig.json|],
-      return $ makeSdkProjectTmplFd SdkRooProject [relfile|tsconfig.sdk.json|],
-      return $ makeSdkProjectTmplFd SdkRooProject [relfile|copy-assets.js|],
+    [ return $ makeSdkProjectTmplFd SdkRootProject [relfile|tsconfig.json|],
+      return $ makeSdkProjectTmplFd SdkRootProject [relfile|tsconfig.sdk.json|],
+      return $ makeSdkProjectTmplFd SdkRootProject [relfile|copy-assets.js|],
       genPackageJson spec
     ]
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
-  return $ makeSdkProjectTmplFdWithData SdkRooProject [relfile|package.json|] tmplData
+  return $ makeSdkProjectTmplFdWithData SdkRootProject [relfile|package.json|] tmplData
   where
     tmplData =
       object
