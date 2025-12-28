@@ -50,7 +50,7 @@ sdkTemplatesProjectDirInSdkTemplatesRootDir ::
 sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
   fromJust . parseRelDir $
     case sdkTmplProject of
-      SdkRooProject -> "../"
+      SdkRooProject -> "./"
       SdkCoreProject -> "core/"
       SdkUserCoreProject -> "user-core/"
       SdkExtSrcProject -> toFilePath extSrcDirInSdkRootDir
