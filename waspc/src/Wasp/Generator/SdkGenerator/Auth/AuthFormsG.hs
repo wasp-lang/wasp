@@ -124,31 +124,29 @@ genInternalAuthComponents auth =
           genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/social/SocialIcons.module.css|]
         ]
 
--- TODO(franjo): fix this nested @where@ block mess
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
-genLoginSignupForm auth = return [genComponent, genCss]
+genLoginSignupForm auth =
+  sequence
+    [ return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData,
+      genAuthFormsFileCopy SdkUserCoreProject [relfile|internal/common/LoginSignupForm.module.css|]
+    ]
   where
-    genComponent = makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
-      where
-        tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|internal/common/LoginSignupForm.tsx|]
-        tmplData =
-          object
-            [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-              "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
-              "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
-              "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-              "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
-              "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
-              "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-              "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-              "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-              "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
-            ]
-        areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
-        isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
-    genCss = makeSdkProjectTmplFd SdkUserCoreProject tmplFile
-      where
-        tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|internal/common/LoginSignupForm.module.css|]
+    tmplFile = authFormsDirInSdkTemplatesProjectDir </> [relfile|internal/common/LoginSignupForm.tsx|]
+    tmplData =
+      object
+        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+          "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
+          "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
+          "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
+          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
+          "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
+          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
+          "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+        ]
+    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
+    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
