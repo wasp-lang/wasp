@@ -3,7 +3,6 @@ module Wasp.Generator.SdkGenerator.Common where
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
-import qualified StrongPath as SP
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -105,7 +104,7 @@ makeSdkProjectTmplFd sdkTmplProject tmplFile =
   makeSdkProjectTmplFdWithDestAndData (castRel tmplFile) sdkTmplProject tmplFile Nothing
 
 relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
-relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.fromRelDirP path
+relDirToRelFileP path = fromJust $ parseRelFileP $ removeTrailingSlash $ fromRelDirP path
   where
     removeTrailingSlash = reverse . dropWhile (== '/') . reverse
 

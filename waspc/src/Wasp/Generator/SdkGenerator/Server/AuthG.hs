@@ -15,7 +15,12 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-import Wasp.Generator.SdkGenerator.Server.Common
+  ( SdkProject (..),
+    SdkTemplatesProjectDir,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+  )
+import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import Wasp.Util ((<++>))
 
 data ServerAuthTemplatesDir

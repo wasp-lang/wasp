@@ -5,11 +5,7 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson.Types as Aeson.Types
-import StrongPath
-  ( reldir,
-    relfile,
-    (</>),
-  )
+import StrongPath (reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -20,6 +16,9 @@ import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, ge
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    makeSdkProjectTmplFdWithDestAndData,
+  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
 genCrud :: AppSpec -> Generator [FileDraft]

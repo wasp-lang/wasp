@@ -1,6 +1,6 @@
 module Wasp.Generator.SdkGenerator.Server.Common where
 
-import StrongPath
+import StrongPath (Dir, Path', Rel, reldir)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesProjectDir)
 
 data ServerTemplatesDir

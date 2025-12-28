@@ -54,6 +54,14 @@ import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    extSrcDirInSdkRootDir,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+    makeSdkRootTmplFile,
+    makeSdkRootTmplFileWithData,
+    sdkRootDirInProjectRootDir,
+  )
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)

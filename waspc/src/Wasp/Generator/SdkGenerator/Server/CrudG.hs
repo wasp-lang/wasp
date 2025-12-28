@@ -13,7 +13,11 @@ import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-import Wasp.Generator.SdkGenerator.Server.Common
+  ( SdkProject (..),
+    SdkTemplatesProjectDir,
+    makeSdkProjectTmplFdWithData,
+  )
+import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 
 genNewServerCrudApi :: AppSpec -> Generator [FileDraft]
 genNewServerCrudApi spec =

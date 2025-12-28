@@ -11,8 +11,13 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common
+import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    SdkTemplatesProjectDir,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+  )
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
 genNewClientRouterApi :: AppSpec -> Generator [FileDraft]

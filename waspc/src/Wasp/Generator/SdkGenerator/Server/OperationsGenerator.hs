@@ -22,8 +22,14 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    SdkRootDir,
+    SdkTemplatesProjectDir,
+    getOperationTypeName,
+    makeSdkProjectTmplFdWithData,
+  )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
-import Wasp.Generator.SdkGenerator.Server.Common
+import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import Wasp.Util (toUpperFirst)
 
 genOperations :: AppSpec -> Generator [FileDraft]

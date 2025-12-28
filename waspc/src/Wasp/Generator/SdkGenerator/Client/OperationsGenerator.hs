@@ -4,8 +4,7 @@ import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (Pair)
 import Data.Maybe (fromJust)
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Dir, File', Path', Rel, relDirToPosix, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -14,8 +13,16 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common
+import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    SdkTemplatesProjectDir,
+    getOperationTypeName,
+    makeSdkImportPath,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+    relDirToRelFileP,
+  )
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
@@ -127,7 +134,7 @@ getOperationTypeData operation = tmplData
       makeSdkImportPath $
         relDirToRelFileP $
           fromJust $
-            SP.relDirToPosix $
+            relDirToPosix $
               serverOperationsDirInSdkRootDir operation
 
 clientOpsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ClientOpsTemplatesDir)
