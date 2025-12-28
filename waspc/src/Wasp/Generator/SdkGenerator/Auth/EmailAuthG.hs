@@ -25,7 +25,7 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkProjectTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.SdkGenerator.Server.Common
+import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
