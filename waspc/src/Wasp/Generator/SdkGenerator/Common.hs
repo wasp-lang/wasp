@@ -42,7 +42,7 @@ sdkTemplatesRootDirInTemplatesDir = [reldir|sdk/wasp|]
 data SdkTemplatesProjectDir
 
 -- | SDK tsconfig project.
-data SdkProject = SdkRooProject | SdkCoreProject | SdkUserCoreProject | SdkExtSrcProject
+data SdkProject = SdkRootProject | SdkCoreProject | SdkUserCoreProject | SdkExtSrcProject
 
 sdkTemplatesProjectDirInSdkTemplatesRootDir ::
   SdkProject ->
@@ -50,7 +50,7 @@ sdkTemplatesProjectDirInSdkTemplatesRootDir ::
 sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
   fromJust . parseRelDir $
     case sdkTmplProject of
-      SdkRooProject -> "./"
+      SdkRootProject -> "./"
       SdkCoreProject -> "core/"
       SdkUserCoreProject -> "user-core/"
       SdkExtSrcProject -> toFilePath extSrcDirInSdkRootDir
