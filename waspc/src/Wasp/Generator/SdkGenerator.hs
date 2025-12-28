@@ -58,8 +58,6 @@ import Wasp.Generator.SdkGenerator.Common
     extSrcDirInSdkRootDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
-    makeSdkRootTmplFile,
-    makeSdkRootTmplFileWithData,
     sdkRootDirInProjectRootDir,
   )
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
@@ -117,10 +115,10 @@ genSdk spec =
       genClientConfigFile,
       genServerConfigFile spec,
       genServerUtils spec,
-      genDbClient spec,
+      genServerDbClient spec,
       genDevIndex
     ]
-    <++> genRootSdkFiles spec
+    <++> genRootFiles spec
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
@@ -131,8 +129,8 @@ genSdk spec =
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
-    <++> genMiddleware
-    <++> genExportedTypesDir
+    <++> genServerMiddleware
+    <++> genServerExportedTypesDir
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
@@ -143,26 +141,25 @@ genSdk spec =
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
 
-genRootSdkFiles :: AppSpec -> Generator [FileDraft]
-genRootSdkFiles spec =
+genRootFiles :: AppSpec -> Generator [FileDraft]
+genRootFiles spec =
   sequence
-    [ return $ makeSdkRootTmplFile [relfile|tsconfig.json|],
-      return $ makeSdkRootTmplFile [relfile|tsconfig.sdk.json|],
-      return $ makeSdkRootTmplFile [relfile|copy-assets.js|],
+    [ return $ makeSdkProjectTmplFd SdkRooProject [relfile|tsconfig.json|],
+      return $ makeSdkProjectTmplFd SdkRooProject [relfile|tsconfig.sdk.json|],
+      return $ makeSdkProjectTmplFd SdkRooProject [relfile|copy-assets.js|],
       genPackageJson spec
     ]
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
-  return $
-    makeSdkRootTmplFileWithData
-      [relfile|package.json|]
-      ( object
-          [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
-          ]
-      )
+  return $ makeSdkProjectTmplFdWithData SdkRooProject [relfile|package.json|] tmplData
+  where
+    tmplData =
+      object
+        [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
+          "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
+          "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+        ]
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
@@ -259,8 +256,7 @@ depsRequiredForTesting =
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
-  return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
   where
     tmplFile = [relfile|client/config.ts|]
     tmplData =
@@ -321,7 +317,8 @@ depsRequiredByTailwind spec =
         ]
     else []
 
--- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
+-- TODO(filip): Figure out where this belongs.
+-- Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166.
 -- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =
@@ -329,7 +326,8 @@ installNpmDependencies projectDir =
 
 -- todo(filip): consider reorganizing/splitting the file.
 
--- | Takes external code files from Wasp and generates them in new location as part of the generated project.
+-- | Takes external code files from Wasp,
+-- and generates them in a new location as part of the generated project.
 -- It might not just copy them but also do some changes on them, as needed.
 genExternalCodeDir :: [EF.CodeFile] -> Generator [FileDraft]
 genExternalCodeDir = sequence . mapMaybe genExternalFile
@@ -340,27 +338,20 @@ genExternalFile file
   | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genExternalSourceFile file
   | otherwise = Just $ genExternalResourceFile file
   where
-    extension = FP.takeExtension filePath
     fileName = FP.takeFileName filePath
+    extension = FP.takeExtension filePath
     filePath = toFilePath $ EF.filePathInExtCodeDir file
 
-genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
-genExternalResourceFile file = return $ createCopyFileDraft destFile srcFile
-  where
-    destFile =
-      sdkRootDirInProjectRootDir
-        </> extSrcDirInSdkRootDir
-        </> castRel (EF.filePathInExtCodeDir file)
-    srcFile = EF.fileAbsPath file
+    genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
+    genExternalSourceFile = return . createTextFileDraft destFile . EF.fileText
 
-genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
-genExternalSourceFile file = return $ createTextFileDraft destFile srcFile
-  where
+    genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
+    genExternalResourceFile = return . createCopyFileDraft destFile . EF.fileAbsPath
+
     destFile =
       sdkRootDirInProjectRootDir
         </> extSrcDirInSdkRootDir
         </> castRel (EF.filePathInExtCodeDir file)
-    srcFile = EF.fileText file
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
@@ -373,23 +364,24 @@ genUniversalDir =
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
-genServerUtils spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|server/utils.ts|] tmplData
+genServerUtils spec =
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
-genExportedTypesDir :: Generator [FileDraft]
-genExportedTypesDir =
+genServerExportedTypesDir :: Generator [FileDraft]
+genServerExportedTypesDir =
   return [makeSdkProjectTmplFd SdkUserCoreProject [relfile|server/types/index.ts|]]
 
-genMiddleware :: Generator [FileDraft]
-genMiddleware =
+genServerMiddleware :: Generator [FileDraft]
+genServerMiddleware =
   sequence
     [ return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|server/middleware/index.ts|],
       return $ makeSdkProjectTmplFd SdkUserCoreProject [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
-genDbClient :: AppSpec -> Generator FileDraft
-genDbClient spec = do
+genServerDbClient :: AppSpec -> Generator FileDraft
+genServerDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
   let tmplData =
         object
@@ -407,11 +399,7 @@ genDbClient spec = do
 
 genDevIndex :: Generator FileDraft
 genDevIndex =
-  return $
-    makeSdkProjectTmplFdWithData
-      SdkUserCoreProject
-      [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir])
+  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject [relfile|dev/index.ts|] tmplData
   where
-    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
-      waspProjectDirFromAppComponentDir
+    tmplData = object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir]
+    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
