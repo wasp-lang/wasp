@@ -17,8 +17,8 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Generator.SdkGenerator.Server.Common
-import qualified Wasp.Generator.SdkGenerator.Server.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
 
 genNewEmailSenderApi :: AppSpec -> Generator [FileDraft]
