@@ -22,7 +22,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedProjectDir, sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( CompileError,
@@ -104,13 +104,13 @@ build = do
           (waspProjectDir </> srcDirInWaspProjectDir)
           (buildDir </> castRel srcDirInWaspProjectDir)
 
-      -- Even though the build code references `.wasp/out/sdk` in `package.json`,
+      -- Even though the build code references `.wasp/out/sdk` in user's `package.json`,
       -- we need `.wasp/build/sdk` to exists because `.wasp/build/Dockerfile`
       -- copies `.wasp/build/sdk` to `.wasp/out/sdk`.
       liftIO $
         copyDirectory
           (buildDir </> sdkRootDirInProjectRootDir)
-          (buildDir </> sdkRootDirInGeneratedCodeDir)
+          (buildDir </> sdkRootDirInGeneratedProjectDir)
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir

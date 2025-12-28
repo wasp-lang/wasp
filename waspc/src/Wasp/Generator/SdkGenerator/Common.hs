@@ -14,33 +14,35 @@ import Wasp.Util (toUpperFirst)
 -- | SDK root directory in a generated Wasp project.
 data SdkRootDir
 
--- | The path of SDK root in any generated project (e.g. `out` or `build`).
-sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp/|]
+-- | SDK root directory from any generated project directory (e.g. `out` or `build`).
+sdkRootDirInGeneratedProjectDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
+sdkRootDirInGeneratedProjectDir = [reldir|sdk/wasp/|]
 
--- | Currently, all generated projects have the same SDK root.
+-- | Currently, all generated projects point to the same SDK root (`.wasp/out/sdk/wasp`).
 -- To understand what's going on here, read this issue:
 -- https://github.com/wasp-lang/wasp/issues/1769
 sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir =
   [reldir|../|]
     </> generatedCodeDirInDotWaspDir
-    </> sdkRootDirInGeneratedCodeDir
+    </> sdkRootDirInGeneratedProjectDir
 
+-- | External `src` directory refers to the user's `src` directory.
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|src|]
 
--- | SDK root directory in 'data.Generator.templates'.
+-- | SDK root directory in data files templates directory.
 data SdkTemplatesRootDir
 
 sdkTemplatesRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesRootDir)
 sdkTemplatesRootDirInTemplatesDir = [reldir|sdk/wasp|]
 
--- | SDK tsconfig project directory.
--- This includes any tsconfig project that is not the root project itself ('SdkTemplatesRootDir').
+-- | Directory of some SDK tsconfig project. See 'SdkProject'.
+-- In the case of 'RootSdkProject' the directory is the same as 'SdkTemplatesRootDir'.
 data SdkTemplatesProjectDir
 
-data SdkProject = SdkCoreProject | SdkUserCoreProject | SdkExtSrcProject
+-- | SDK tsconfig project.
+data SdkProject = SdkRooProject | SdkCoreProject | SdkUserCoreProject | SdkExtSrcProject
 
 sdkTemplatesProjectDirInSdkTemplatesRootDir ::
   SdkProject ->
@@ -48,33 +50,10 @@ sdkTemplatesProjectDirInSdkTemplatesRootDir ::
 sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
   fromJust . parseRelDir $
     case sdkTmplProject of
+      SdkRooProject -> "../"
       SdkCoreProject -> "core/"
       SdkUserCoreProject -> "user-core/"
       SdkExtSrcProject -> toFilePath extSrcDirInSdkRootDir
-
-makeSdkRootTmplFileWithDestAndData ::
-  Path' (Rel SdkRootDir) File' ->
-  Path' (Rel SdkTemplatesRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-makeSdkRootTmplFileWithDestAndData destFile tmplFile tmplData =
-  createTemplateFileDraft
-    (sdkRootDirInProjectRootDir </> destFile)
-    (sdkTemplatesRootDirInTemplatesDir </> tmplFile)
-    tmplData
-
-makeSdkRootTmplFileWithData ::
-  Path' (Rel SdkTemplatesRootDir) File' ->
-  Aeson.Value ->
-  FileDraft
-makeSdkRootTmplFileWithData tmplFile tmplData =
-  makeSdkRootTmplFileWithDestAndData (castRel tmplFile) tmplFile (Just tmplData)
-
-makeSdkRootTmplFile ::
-  Path' (Rel SdkTemplatesRootDir) File' ->
-  FileDraft
-makeSdkRootTmplFile tmplFile =
-  makeSdkRootTmplFileWithDestAndData (castRel tmplFile) tmplFile Nothing
 
 makeSdkProjectTmplFdWithDestAndData ::
   Path' (Rel SdkTemplatesProjectDir) File' ->
