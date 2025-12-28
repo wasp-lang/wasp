@@ -38,7 +38,7 @@ sdkTemplatesRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesR
 sdkTemplatesRootDirInTemplatesDir = [reldir|sdk/wasp|]
 
 -- | Directory of some SDK tsconfig project. See 'SdkProject'.
--- In the case of 'RootSdkProject' the directory is the same as 'SdkTemplatesRootDir'.
+-- In the case of 'SdkRootProject' the directory is the same as 'SdkTemplatesRootDir'.
 data SdkTemplatesProjectDir
 
 -- | SDK tsconfig project.
