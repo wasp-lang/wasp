@@ -20,6 +20,11 @@ import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    SdkTemplatesProjectDir,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)

@@ -10,8 +10,8 @@ where
 
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.SdkGenerator.Common
-import Wasp.Generator.SdkGenerator.Server.Common
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesProjectDir)
+import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.SemanticVersion as SV
 
 data ServerProvidersTemplatesDir

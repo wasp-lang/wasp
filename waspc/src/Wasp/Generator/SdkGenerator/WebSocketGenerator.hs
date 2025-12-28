@@ -17,6 +17,10 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 

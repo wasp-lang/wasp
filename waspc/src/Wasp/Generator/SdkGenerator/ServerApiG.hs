@@ -15,6 +15,10 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    SdkTemplatesProjectDir,
+    makeSdkProjectTmplFdWithData,
+  )
 import Wasp.Generator.ServerGenerator.ApiRoutesG (getApiEntitiesObject, isAuthEnabledForApi)
 import Wasp.Util (toUpperFirst)
 

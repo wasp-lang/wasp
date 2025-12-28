@@ -24,7 +24,14 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-import Wasp.Generator.SdkGenerator.Server.Common
+  ( SdkProject (..),
+    SdkTemplatesProjectDir,
+    makeSdkImportPath,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+    makeSdkProjectTmplFdWithDestAndData,
+  )
+import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util

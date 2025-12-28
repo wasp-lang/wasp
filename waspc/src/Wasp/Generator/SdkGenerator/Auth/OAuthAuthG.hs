@@ -18,6 +18,9 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (..),
+    makeSdkProjectTmplFdWithDestAndData,
+  )
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth

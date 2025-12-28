@@ -6,16 +6,21 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Dir', File', Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
 import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common
+import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (SdkUserCoreProject),
+    SdkTemplatesProjectDir,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+    makeSdkProjectTmplFdWithDestAndData,
+  )
 import Wasp.Util ((<++>))
 
 genNewClientCrudApi :: AppSpec -> Generator [FileDraft]
@@ -50,7 +55,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
     genCrudOperation (name, crud) =
       makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
       where
-        destFile = [reldir|client/crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
+        destFile = [reldir|client/crud|] </> fromJust (parseRelFile (name ++ ".ts"))
         tmplFile = clientCrudDirInSdkTemplatesProjectDir </> [relfile|_crud.ts|]
         tmplData = getCrudOperationJson name crud idField
         idField = getIdFieldFromCrudEntity spec crud

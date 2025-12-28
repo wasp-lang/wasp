@@ -11,8 +11,13 @@ import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common
+import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
+  ( SdkProject (SdkUserCoreProject),
+    SdkTemplatesProjectDir,
+    makeSdkProjectTmplFd,
+    makeSdkProjectTmplFdWithData,
+  )
 import Wasp.Util ((<++>))
 
 genNewClientAuth :: AppSpec -> Generator [FileDraft]
