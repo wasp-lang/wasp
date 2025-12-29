@@ -28,29 +28,21 @@ import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
 import Wasp.Util (ifM)
 import Wasp.Util.Terminal (styleCode)
 
--- | A news action represents what to show and how to handle user interaction.
 data NewsAction
-  = -- | User ran `wasp news`: show all, mark all as seen
-    ShowAllAndMarkSeen [NewsEntry]
-  | -- | First-time user, wasp-initiated: mark all as seen without showing anything
-    MarkSeenWithoutShowing [NewsEntry]
-  | -- | Has critical news, wasp-initiated: require confirmation before marking as seen
-    ShowWithConfirmation [NewsEntry]
-  | -- | Important but not critical, wasp-initiated: show news without marking as seen
-    ShowWithoutMarkingSeen [NewsEntry]
+  = ShowAllAndMarkSeen [NewsEntry]
+  | MarkSeenWithoutShowing [NewsEntry]
+  | ShowWithConfirmation [NewsEntry]
+  | ShowWithoutMarkingSeen [NewsEntry]
   deriving (Show, Eq)
 
--- | Create an action for when the user explicitly runs `wasp news`.
 makeUserInvokedNewsAction :: [NewsEntry] -> NewsAction
 makeUserInvokedNewsAction = ShowAllAndMarkSeen
 
--- | Create an action for wasp-initiated news display (e.g., after `wasp start`).
 makeWaspInvokedNewsAction :: LocalNewsState -> [NewsEntry] -> NewsAction
 makeWaspInvokedNewsAction currentState allNewsEntries
   | currentState == emptyLocalNewsState = MarkSeenWithoutShowing allNewsEntries
   | otherwise = makeWaspInvokedNewsActionForExistingUser currentState allNewsEntries
 
--- | Create an action for an existing user when wasp initiates the news display.
 makeWaspInvokedNewsActionForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsAction
 makeWaspInvokedNewsActionForExistingUser currentState newsEntries
   | hasCriticalNews = ShowWithConfirmation relevantUnseenNews
@@ -61,7 +53,6 @@ makeWaspInvokedNewsActionForExistingUser currentState newsEntries
     isRelevant = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen currentState
 
--- | Execute a news action: print news, handle confirmation, and update state.
 executeNewsAction :: LocalNewsState -> NewsAction -> IO ()
 executeNewsAction localState = \case
   ShowAllAndMarkSeen news -> do
