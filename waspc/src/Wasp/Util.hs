@@ -303,10 +303,10 @@ findDuplicateElems = map head . filter ((> 1) . length) . group . sort
 isOlderThanNHours :: Natural -> T.UTCTime -> IO Bool
 isOlderThanNHours nHours time = do
   now <- T.getCurrentTime
-  let secondsSinceLastCheckIn = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
+  let diffSeconds = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
   return $
     let numSecondsInHour = 3600
-     in secondsSinceLastCheckIn > fromIntegral nHours * numSecondsInHour
+     in diffSeconds > fromIntegral nHours * numSecondsInHour
 
 -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
 -- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo).
