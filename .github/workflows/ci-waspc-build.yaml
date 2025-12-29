@@ -123,7 +123,7 @@ jobs:
         env:
           LC_ALL: C.UTF-8 # In some Docker containers the LOCALE is not UTF-8 by default
         run: |
-          ./run build:all${{ matrix.env.static && ':static' || '' }}
+          ./run ${{ matrix.env.static && 'build:static' || 'build' }}
           mkdir -p artifacts
           ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
 

@@ -17,10 +17,10 @@ $RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- $Args"
 
 switch ($Command) {
     "build" {
-        Invoke-Expression $BUILD_HS_CMD
-    }
-    "build:all" {
         Invoke-Expression $BUILD_ALL_CMD
+    }
+    "build:hs" {
+        Invoke-Expression $BUILD_HS_CMD
     }
     "build:packages" {
         Invoke-Expression $WASP_PACKAGES_COMPILE
@@ -33,8 +33,9 @@ switch ($Command) {
         Write-Host "  run <command>"
         Write-Host ""
         Write-Host "COMMANDS"
-        Write-Host "  build             Builds the Haskell project."
-        Write-Host "  build:all         Builds the Haskell project + all sub-projects (i.e. TS packages)."
+        Write-Host "  build             Builds the Haskell project + all sub-projects (i.e. TS packages)."
+        Write-Host "  build:hs          Builds the Haskell project only."
+        Write-Host "  build:packages    Builds the TypeScript projects under data/packages/."
         Write-Host "  wasp-cli <args>   Runs the dev version of wasp executable while forwarding arguments."
         Write-Host "                    Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
     }
