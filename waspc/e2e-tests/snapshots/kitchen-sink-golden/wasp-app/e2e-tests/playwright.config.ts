@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const WASP_APP_RUNNER_CLI_CMD = process.env.WASP_APP_RUNNER_CLI_CMD ?? "run-wasp-app";
+const WASP_APP_RUNNER_CLI_CMD =
+  process.env.WASP_APP_RUNNER_CLI_CMD ?? "run-wasp-app";
 const WASP_RUN_MODE = process.env.WASP_RUN_MODE ?? "dev";
 const WASP_CLI_CMD = process.env.WASP_CLI_CMD ?? "wasp-cli";
 
