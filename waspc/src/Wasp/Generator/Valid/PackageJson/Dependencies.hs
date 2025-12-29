@@ -96,6 +96,7 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 
     inCorrectDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inCorrectDepList = inDependency depType pkgName
+
     inOppositeDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inOppositeDepList = inDependency (oppositeForDepType depType) pkgName
 

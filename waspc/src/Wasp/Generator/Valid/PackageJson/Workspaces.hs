@@ -4,7 +4,7 @@ module Wasp.Generator.Valid.PackageJson.Workspaces
 where
 
 import Data.Bool (bool)
-import Data.Maybe (fromMaybe)
+import Data.List (intercalate)
 import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Generator.NpmWorkspaces as NW
@@ -18,15 +18,18 @@ requiredWorkspaces = S.toList NW.requiredWorkspaceGlobs
 workspacesValidator :: V.Validator P.PackageJson
 workspacesValidator =
   V.inField ("workspaces", P.workspaces) $
-    V.all [requiredWorkspaceValidator]
-      -- We treat a missing workspaces field as an empty list, for validation purposes.
-      -- This way, we can show errors about missing required workspaces.
-      -- Using anything else than an array here would be caught by earlier JSON schema validation.
-      . fromMaybe []
+    maybe noWorkspacesDefinedError $
+      V.all [requiredWorkspaceValidator]
   where
     requiredWorkspaceValidator :: V.Validator [WorkspaceName]
     requiredWorkspaceValidator =
       V.all $ makeWorkspaceIncludedValidator <$> requiredWorkspaces
+
+    noWorkspacesDefinedError =
+      V.failure $
+        "Wasp requires the field to be an array, and include the following values: "
+          ++ intercalate ", " (show <$> requiredWorkspaces)
+          ++ "."
 
 makeWorkspaceIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
 makeWorkspaceIncludedValidator expectedWorkspace =
@@ -35,6 +38,6 @@ makeWorkspaceIncludedValidator expectedWorkspace =
   where
     missingWorkspaceError =
       V.failure $
-        "Wasp requires "
+        "Wasp requires workspace"
           ++ show expectedWorkspace
           ++ " to be included."
