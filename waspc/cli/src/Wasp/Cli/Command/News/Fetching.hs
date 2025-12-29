@@ -26,7 +26,6 @@ fetchNews = do
   requestResult <- try $ httpJSONThatThrowsIfNot2xx =<< parseRequest waspNewsUrl
 
   return $ case requestResult of
-    -- TODO: Can I get the status code easily
     Left (_ :: HttpException) -> Left "Failed to fetch news from server."
     Right (Left jsonError) -> Left $ "Failed to decode news JSON: " ++ jsonError
     Right (Right news) -> Right news
