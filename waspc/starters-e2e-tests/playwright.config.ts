@@ -6,7 +6,8 @@ assert(
   WASP_APP_PATH,
   "Environment variable WASP_APP_PATH must be set to the path of the Wasp app to test.",
 );
-const WASP_APP_RUNNER_CLI = process.env.WASP_APP_RUNNER_CLI ?? "run-wasp-app";
+const WASP_APP_RUNNER_CLI_CMD =
+  process.env.WASP_APP_RUNNER_CLI_CMD ?? "run-wasp-app";
 const WASP_RUN_MODE = process.env.WASP_RUN_MODE ?? "dev";
 const WASP_CLI_CMD = process.env.WASP_CLI_CMD ?? "wasp-cli";
 
@@ -55,7 +56,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `${WASP_APP_RUNNER_CLI} ${WASP_RUN_MODE} --path-to-app=${WASP_APP_PATH} --wasp-cli-cmd=${WASP_CLI_CMD}`,
+    command: `${WASP_APP_RUNNER_CLI_CMD} ${WASP_RUN_MODE} --path-to-app=${WASP_APP_PATH} --wasp-cli-cmd=${WASP_CLI_CMD}`,
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: false,

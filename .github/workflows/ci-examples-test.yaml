@@ -62,7 +62,7 @@ jobs:
       - name: Run DEV e2e tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         env:
-          WASP_APP_RUNNER_CLI: ${{ github.workspace }}/wasp-app-runner/bin/index.js
+          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
         run: npm run test
@@ -72,7 +72,7 @@ jobs:
         if: steps.extract-db-provider.outputs.provider != 'sqlite'
         working-directory: examples/${{ matrix.example }}
         env:
-          WASP_APP_RUNNER_CLI: ${{ github.workspace }}/wasp-app-runner/bin/index.js
+          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: build
         run: npm run test
