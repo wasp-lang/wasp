@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
-module Wasp.Cli.Command.News.Persistence
+module Wasp.Cli.Command.News.LocalNewsState
   ( LocalNewsState,
     obtainLocalNewsState,
     saveLocalNewsState,

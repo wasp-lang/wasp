@@ -610,7 +610,7 @@ library cli-lib
     Wasp.Cli.Command.News.Core
     Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.News.Fetching
-    Wasp.Cli.Command.News.Persistence
+    Wasp.Cli.Command.News.LocalNewsState
     Wasp.Cli.Command.News.Report
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common

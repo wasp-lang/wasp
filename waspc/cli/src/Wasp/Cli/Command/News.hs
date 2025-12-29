@@ -11,7 +11,7 @@ import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
-import Wasp.Cli.Command.News.Persistence (areNewsStale, obtainLocalNewsState)
+import Wasp.Cli.Command.News.LocalNewsState (areNewsStale, obtainLocalNewsState)
 import Wasp.Cli.Command.News.Report
   ( makeMandatoryNewsReport,
     makeVoluntaryNewsReport,

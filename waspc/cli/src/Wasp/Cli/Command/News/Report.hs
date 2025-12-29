@@ -16,7 +16,7 @@ import Data.List (intercalate)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (showNewsEntry)
-import Wasp.Cli.Command.News.Persistence
+import Wasp.Cli.Command.News.LocalNewsState
   ( LocalNewsState,
     emptyLocalNewsState,
     markNewsAsSeen,
