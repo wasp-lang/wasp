@@ -4,7 +4,7 @@
 
 module Wasp.Cli.Command.News.LocalNewsState
   ( LocalNewsState,
-    obtainLocalNewsState,
+    loadLocalNewsState,
     saveLocalNewsState,
     emptyLocalNewsState,
     areNewsStale,
@@ -40,8 +40,8 @@ saveLocalNewsState localNewsState = do
   SD.createDirectoryIfMissing True $ fromAbsDir $ parent newsStateFile
   writeJsonFile newsStateFile localNewsState
 
-obtainLocalNewsState :: IO LocalNewsState
-obtainLocalNewsState = do
+loadLocalNewsState :: IO LocalNewsState
+loadLocalNewsState = do
   stateFile <- getNewsStateFilePath
   ifM
     (IOUtil.doesFileExist stateFile)

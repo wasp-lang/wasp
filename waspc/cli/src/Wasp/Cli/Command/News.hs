@@ -11,7 +11,7 @@ import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
-import Wasp.Cli.Command.News.LocalNewsState (areNewsStale, obtainLocalNewsState)
+import Wasp.Cli.Command.News.LocalNewsState (areNewsStale, loadLocalNewsState)
 import Wasp.Cli.Command.News.Report
   ( makeMandatoryNewsReport,
     makeVoluntaryNewsReport,
@@ -24,7 +24,7 @@ news =
   liftIO fetchNews >>= \case
     Left err -> throwError $ CommandError "Getting Wasp news failed" err
     Right newsEntries -> liftIO $ do
-      localNewsState <- obtainLocalNewsState
+      localNewsState <- loadLocalNewsState
       printNewsReportAndUpdateLocalState localNewsState $
         makeVoluntaryNewsReport localNewsState newsEntries
 
@@ -33,7 +33,7 @@ fetchAndReportMandatoryNews = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
   isOnCi <- checkIfOnCi
   unless (isWaspNewsDisabled || isOnCi) $ do
-    localNewsState <- obtainLocalNewsState
+    localNewsState <- loadLocalNewsState
     whenM (areNewsStale localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
         Left _err -> return () -- Wasp stays silent on purpose
