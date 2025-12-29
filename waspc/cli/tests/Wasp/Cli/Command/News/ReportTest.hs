@@ -17,6 +17,7 @@ import Wasp.Cli.Command.News.LocalNewsState
   )
 import Wasp.Cli.Command.News.Report
   ( NewsReport (..),
+    NewsReportInitiator (..),
     makeMandatoryNewsReport,
     makeMandatoryNewsReportForExistingUser,
     makeVoluntaryNewsReport,
@@ -49,6 +50,7 @@ spec_makeMandatoryNewsReport = do
         makeMandatoryNewsReport emptyLocalNewsState newsEntries
           == NewsReport
             { newsToShow = [],
+              initiator = Wasp,
               requireConfirmation = False,
               newsToConsiderSeen = newsEntries
             }

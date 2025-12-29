@@ -8,10 +8,11 @@ module Wasp.Cli.Command.News.Report
     makeMandatoryNewsReport,
     -- Exported only for testing purposes
     makeMandatoryNewsReportForExistingUser,
+    NewsReportInitiator (..),
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import Data.List (intercalate)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
@@ -25,9 +26,14 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasNewsEntrySeen,
   )
 import Wasp.Cli.Interactive (askForInput)
+import Wasp.Util (ifM)
+import Wasp.Util.Terminal (styleCode)
+
+data NewsReportInitiator = Wasp | User deriving (Show, Eq)
 
 data NewsReport = NewsReport
   { newsToShow :: [NewsEntry],
+    initiator :: NewsReportInitiator,
     newsToConsiderSeen :: [NewsEntry],
     requireConfirmation :: Bool
   }
@@ -36,7 +42,8 @@ data NewsReport = NewsReport
 makeVoluntaryNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
 makeVoluntaryNewsReport _currentState newsEntries =
   NewsReport
-    { newsToShow = newsEntries,
+    { initiator = User,
+      newsToShow = newsEntries,
       newsToConsiderSeen = newsEntries,
       requireConfirmation = False
     }
@@ -49,7 +56,8 @@ makeMandatoryNewsReport currentState newsEntries
     isFirstTimeUser = currentState == emptyLocalNewsState
     showNothingAndMarkAllAsSeen =
       NewsReport
-        { newsToShow = [],
+        { initiator = Wasp,
+          newsToShow = [],
           requireConfirmation = False,
           newsToConsiderSeen = newsEntries
         }
@@ -57,7 +65,8 @@ makeMandatoryNewsReport currentState newsEntries
 makeMandatoryNewsReportForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsReport
 makeMandatoryNewsReportForExistingUser currentState newsEntries =
   NewsReport
-    { newsToShow = allRelevantUnseenNews,
+    { initiator = Wasp,
+      newsToShow = allRelevantUnseenNews,
       requireConfirmation,
       newsToConsiderSeen = allRelevantUnseenNews
     }
@@ -67,15 +76,36 @@ makeMandatoryNewsReportForExistingUser currentState newsEntries =
     isRelevant = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen currentState
 
+-- newsToConsiderSeen -> newsToMarkAsSeen
+-- requireConfirmation -> requiresConfirmation
+
+showNewsReport :: NewsReport -> String
+showNewsReport newsReport = intercalate "\n\n" $ map showNewsEntry newsReport.newsToShow
+
 printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
-printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
-  unless (null newsReport.newsToShow) $ do
-    reportNews
-    when newsReport.requireConfirmation askForConfirmation
-  updateLocalNewsState
+printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = case newsReport of
+  NewsReport {initiator = Wasp} -> printWaspInitiatedReport
+  NewsReport {initiator = User} -> printUserInitiatedReport
   where
-    reportNews =
-      putStrLn $ intercalate "\n\n" $ map showNewsEntry newsReport.newsToShow
+    thereAreNewsToShow = not $ null newsReport.newsToShow
+    printWaspInitiatedReport = do
+      when thereAreNewsToShow $ putStrLn $ showNewsReport newsReport
+      if newsReport.requireConfirmation
+        then
+          ifM
+            askForConfirmation
+            updateTimestampAndMarkNewsAsSeen
+            updateTimestampWithoutMarkingNewsAsSeen
+        else do
+          when thereAreNewsToShow $ putStrLn $ "Run " ++ styleCode "wasp news" ++ " to mark news as seen."
+          updateTimestampWithoutMarkingNewsAsSeen
+
+    printUserInitiatedReport = do
+      when thereAreNewsToShow $ putStrLn $ showNewsReport newsReport
+      updateTimestampAndMarkNewsAsSeen
+
+    updateTimestampAndMarkNewsAsSeen = updateLocalNewsState newsReport.newsToConsiderSeen
+    updateTimestampWithoutMarkingNewsAsSeen = updateLocalNewsState []
 
     askForConfirmation = do
       let requiredAnswer = "y"
@@ -84,10 +114,10 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
           "\nThere are critical annoucements above. Please confirm you've read them by typing '"
             ++ requiredAnswer
             ++ "'"
-      unless (answer == requiredAnswer) askForConfirmation
+      return $ answer == requiredAnswer
 
-    updateLocalNewsState = do
+    updateLocalNewsState newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
       saveLocalNewsState $
         setLastReportTimestamp currentTime $
-          markNewsAsSeen newsReport.newsToConsiderSeen localNewsStateBeforeReport
+          markNewsAsSeen newsToMarkAsSeen localNewsStateBeforeReport
