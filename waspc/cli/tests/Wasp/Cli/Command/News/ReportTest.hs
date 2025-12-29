@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -16,73 +17,54 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasNewsEntrySeen,
   )
 import Wasp.Cli.Command.News.Report
-  ( NewsReport (..),
-    NewsReportInitiator (..),
-    makeUserInvokedNewsReport,
-    makeWaspInvokedNewsReport,
-    makeWaspInvokedNewsReportForExistingUser,
+  ( NewsAction (..),
+    makeUserInvokedNewsAction,
+    makeWaspInvokedNewsAction,
+    makeWaspInvokedNewsActionForExistingUser,
   )
 
-spec_makeUserInvokedNewsReport :: Spec
-spec_makeUserInvokedNewsReport = do
-  describe "makeUserInvokedNewsReport" $ do
-    prop "shows all news entries" $
-      testReportProperty $ \_ newsEntries report ->
-        report.newsToShow == newsEntries
-
-    prop "marks all news entries as seen" $
-      testReportProperty $ \_ newsEntries report ->
-        report.newsToConsiderSeen == newsEntries
-
-    prop "never requires confirmation" $
-      testReportProperty $ \_ _ report ->
-        not report.requireConfirmation
-  where
-    testReportProperty assertProperty localNewsStateInput newsEntriesInput =
-      let report = makeUserInvokedNewsReport localNewsStateInput newsEntriesInput
-       in assertProperty localNewsStateInput newsEntriesInput report
-
-spec_makeWaspInvokedNewsReport :: Spec
-spec_makeWaspInvokedNewsReport = do
-  describe "makeWaspInvokedNewsReport" $ do
-    prop "shows nothing and marks all as seen for first time users" $
+spec_makeUserInvokedNewsAction :: Spec
+spec_makeUserInvokedNewsAction = do
+  describe "makeUserInvokedNewsAction" $ do
+    prop "creates ShowAllAndMarkSeen with all news entries" $
       \newsEntries ->
-        makeWaspInvokedNewsReport emptyLocalNewsState newsEntries
-          == NewsReport
-            { newsToShow = [],
-              initiator = Wasp,
-              requireConfirmation = False,
-              newsToConsiderSeen = newsEntries
-            }
+        makeUserInvokedNewsAction newsEntries == ShowAllAndMarkSeen newsEntries
 
-    prop "delegates to makeWaspInvokedNewsReportForExistingUser for existing users" $
+spec_makeWaspInvokedNewsAction :: Spec
+spec_makeWaspInvokedNewsAction = do
+  describe "makeWaspInvokedNewsAction" $ do
+    prop "creates MarkSeenWithoutShowing for first time users" $
+      \newsEntries ->
+        makeWaspInvokedNewsAction emptyLocalNewsState newsEntries
+          == MarkSeenWithoutShowing newsEntries
+
+    prop "delegates to makeWaspInvokedNewsActionForExistingUser for existing users" $
       \localNewsState newsEntries ->
         not (isFirstTimeUser localNewsState) ==>
-          makeWaspInvokedNewsReport localNewsState newsEntries
-            == makeWaspInvokedNewsReportForExistingUser localNewsState newsEntries
+          makeWaspInvokedNewsAction localNewsState newsEntries
+            == makeWaspInvokedNewsActionForExistingUser localNewsState newsEntries
   where
     isFirstTimeUser state = state == emptyLocalNewsState
 
-spec_makeWaspInvokedNewsReportForExistingUser :: Spec
-spec_makeWaspInvokedNewsReportForExistingUser = do
-  describe "makeWaspInvokedNewsReportForExistingUser" $ do
-    prop "only shows news that are at least important" $
-      testReportProperty $ \_ _ report ->
-        all ((>= Important) . level) report.newsToShow
+spec_makeWaspInvokedNewsActionForExistingUser :: Spec
+spec_makeWaspInvokedNewsActionForExistingUser = do
+  describe "makeWaspInvokedNewsActionForExistingUser" $ do
+    prop "only includes news that are at least important" $
+      testActionProperty $ \_ _ news ->
+        all ((>= Important) . level) news
 
-    prop "does not show news that were previously seen" $
-      testReportProperty $ \localNewsState _ report ->
-        not $ any (wasNewsEntrySeen localNewsState) report.newsToShow
+    prop "does not include news that were previously seen" $
+      testActionProperty $ \localNewsState _ news ->
+        not $ any (wasNewsEntrySeen localNewsState) news
 
-    prop "requires confirmation if and only if at least one critical priority news entry is shown" $
-      testReportProperty $ \_ _ report ->
-        report.requireConfirmation == any ((== Critical) . level) report.newsToShow
+    prop "creates ShowWithConfirmation if and only if at least one critical news entry exists" $
+      \localNewsState newsEntries ->
+        let action = makeWaspInvokedNewsActionForExistingUser localNewsState newsEntries
+            news = getNewsFromAction action
+            hasCritical = any ((== Critical) . level) news
+         in hasCritical == isShowWithConfirmation action
 
-    prop "marks all shown news as seen" $
-      testReportProperty $ \_ _ report ->
-        report.newsToShow == report.newsToConsiderSeen
-
-    it "shows all unseen important+ news" $ do
+    it "includes all unseen important+ news" $ do
       let seenNewsEntry = NewsEntry "seen-1" "Seen Critical" "" Critical someTime
           unseenNewsEntries =
             [ NewsEntry "unseen-1" "Unseen Critical" "" Critical someTime,
@@ -91,14 +73,26 @@ spec_makeWaspInvokedNewsReportForExistingUser = do
             ]
           newsState = markNewsAsSeen [seenNewsEntry] emptyLocalNewsState
           allNewsEntries = seenNewsEntry : unseenNewsEntries
-          report = makeWaspInvokedNewsReportForExistingUser newsState allNewsEntries
+          action = makeWaspInvokedNewsActionForExistingUser newsState allNewsEntries
 
-      map (.id) report.newsToShow `shouldMatchList` ["unseen-1", "unseen-2"]
+      map (.id) (getNewsFromAction action) `shouldMatchList` ["unseen-1", "unseen-2"]
   where
     someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
-    testReportProperty assertProperty localNewsStateInput newsEntriesInput =
-      let report = makeWaspInvokedNewsReportForExistingUser localNewsStateInput newsEntriesInput
-       in assertProperty localNewsStateInput newsEntriesInput report
+    testActionProperty assertProperty localNewsStateInput newsEntriesInput =
+      let action = makeWaspInvokedNewsActionForExistingUser localNewsStateInput newsEntriesInput
+          news = getNewsFromAction action
+       in assertProperty localNewsStateInput newsEntriesInput news
+
+getNewsFromAction :: NewsAction -> [NewsEntry]
+getNewsFromAction = \case
+  ShowAllAndMarkSeen news -> news
+  MarkSeenWithoutShowing news -> news
+  ShowWithConfirmation news -> news
+  ShowWithoutMarkingSeen news -> news
+
+isShowWithConfirmation :: NewsAction -> Bool
+isShowWithConfirmation (ShowWithConfirmation _) = True
+isShowWithConfirmation _ = False
 
 instance Arbitrary NewsLevel where
   arbitrary = genericArbitrary

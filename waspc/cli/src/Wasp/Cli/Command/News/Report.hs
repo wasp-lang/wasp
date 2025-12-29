@@ -1,18 +1,17 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.Cli.Command.News.Report
-  ( NewsReport (..),
-    makeUserInvokedNewsReport,
-    printNewsReportAndUpdateLocalState,
-    makeWaspInvokedNewsReport,
+  ( NewsAction (..),
+    makeUserInvokedNewsAction,
+    executeNewsAction,
+    makeWaspInvokedNewsAction,
     -- Exported only for testing purposes
-    makeWaspInvokedNewsReportForExistingUser,
-    NewsReportInitiator (..),
+    makeWaspInvokedNewsActionForExistingUser,
   )
 where
 
-import Control.Monad (when)
+import Control.Monad (unless)
 import Data.List (intercalate)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
@@ -29,98 +28,62 @@ import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
 import Wasp.Util (ifM)
 import Wasp.Util.Terminal (styleCode)
 
-{-
-What I want to test
-
-- fresh news, context (who initated), state -> what to show
-- news to show, context  -> ask for confirmation
-- all news, confirmation, context, state -> what to consider seen
-
-Examples:
-  - Wasp initiates, state is empty -> mark all as seen, show nothing
-  - Wasp initiates, state exists -> show relevant news
-    - relevant contain critical -> requie confirmation
-      - user confirmed -> mark as seen
-    - relevant don't contain cricical -> don't require confirmation, don't mark as seen
-  - User initiates -> show everything, mark everything as seen
--}
-
-data NewsReportInitiator = Wasp | User deriving (Show, Eq)
-
-data NewsReport = NewsReport
-  { newsToShow :: [NewsEntry],
-    initiator :: NewsReportInitiator,
-    newsToConsiderSeen :: [NewsEntry],
-    requireConfirmation :: Bool
-  }
+-- | A news action represents what to show and how to handle user interaction.
+data NewsAction
+  = -- | User ran `wasp news`: show all, mark all as seen
+    ShowAllAndMarkSeen [NewsEntry]
+  | -- | First-time user, wasp-initiated: mark all as seen without showing anything
+    MarkSeenWithoutShowing [NewsEntry]
+  | -- | Has critical news, wasp-initiated: require confirmation before marking as seen
+    ShowWithConfirmation [NewsEntry]
+  | -- | Important but not critical, wasp-initiated: show news without marking as seen
+    ShowWithoutMarkingSeen [NewsEntry]
   deriving (Show, Eq)
 
-makeUserInvokedNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeUserInvokedNewsReport _currentState newsEntries =
-  NewsReport
-    { initiator = User,
-      newsToShow = newsEntries,
-      newsToConsiderSeen = newsEntries,
-      requireConfirmation = False
-    }
+-- | Create an action for when the user explicitly runs `wasp news`.
+makeUserInvokedNewsAction :: [NewsEntry] -> NewsAction
+makeUserInvokedNewsAction = ShowAllAndMarkSeen
 
-makeWaspInvokedNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeWaspInvokedNewsReport currentState newsEntries
-  | isFirstTimeUser = showNothingAndMarkAllAsSeen
-  | otherwise = makeWaspInvokedNewsReportForExistingUser currentState newsEntries
-  where
-    isFirstTimeUser = currentState == emptyLocalNewsState
-    showNothingAndMarkAllAsSeen =
-      NewsReport
-        { initiator = Wasp,
-          newsToShow = [],
-          requireConfirmation = False,
-          newsToConsiderSeen = newsEntries
-        }
+-- | Create an action for wasp-initiated news display (e.g., after `wasp start`).
+makeWaspInvokedNewsAction :: LocalNewsState -> [NewsEntry] -> NewsAction
+makeWaspInvokedNewsAction currentState allNewsEntries
+  | currentState == emptyLocalNewsState = MarkSeenWithoutShowing allNewsEntries
+  | otherwise = makeWaspInvokedNewsActionForExistingUser currentState allNewsEntries
 
-makeWaspInvokedNewsReportForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeWaspInvokedNewsReportForExistingUser currentState newsEntries =
-  NewsReport
-    { initiator = Wasp,
-      newsToShow = allRelevantUnseenNews,
-      requireConfirmation,
-      newsToConsiderSeen = allRelevantUnseenNews
-    }
+-- | Create an action for an existing user when wasp initiates the news display.
+makeWaspInvokedNewsActionForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsAction
+makeWaspInvokedNewsActionForExistingUser currentState newsEntries
+  | hasCriticalNews = ShowWithConfirmation relevantUnseenNews
+  | otherwise = ShowWithoutMarkingSeen relevantUnseenNews
   where
-    requireConfirmation = any ((== Critical) . level) allRelevantUnseenNews
-    allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
+    hasCriticalNews = any ((== Critical) . level) relevantUnseenNews
+    relevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
     isRelevant = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen currentState
 
--- newsToConsiderSeen -> newsToMarkAsSeen
--- requireConfirmation -> requiresConfirmation
-
-showNewsReport :: NewsReport -> String
-showNewsReport newsReport = intercalate "\n\n" $ map showNewsEntry newsReport.newsToShow
-
-printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
-printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = case newsReport of
-  NewsReport {initiator = Wasp} -> printWaspInitiatedReport
-  NewsReport {initiator = User} -> printUserInitiatedReport
+-- | Execute a news action: print news, handle confirmation, and update state.
+executeNewsAction :: LocalNewsState -> NewsAction -> IO ()
+executeNewsAction localState = \case
+  ShowAllAndMarkSeen news -> do
+    printNews news
+    updateStateWithNews news
+  MarkSeenWithoutShowing news ->
+    updateStateWithNews news
+  ShowWithConfirmation news -> do
+    printNews news
+    ifM askUserForConfirmation (updateStateWithNews news) updateStateOnly
+  ShowWithoutMarkingSeen news -> do
+    printNews news
+    unless (null news) $
+      putStrLn $
+        "Run " ++ styleCode "wasp news" ++ " to mark news as seen."
+    updateStateOnly
   where
-    printWaspInitiatedReport = do
-      when thereAreNewsToShow $ putStrLn $ showNewsReport newsReport
-      if newsReport.requireConfirmation
-        then
-          ifM
-            askUserForConfirmation
-            updateTimestampAndMarkNewsAsSeen
-            updateTimestampWithoutMarkingNewsAsSeen
-        else do
-          when thereAreNewsToShow $ putStrLn $ "Run " ++ styleCode "wasp news" ++ " to mark news as seen."
-          updateTimestampWithoutMarkingNewsAsSeen
-
-    printUserInitiatedReport = do
-      when thereAreNewsToShow $ putStrLn $ showNewsReport newsReport
-      updateTimestampAndMarkNewsAsSeen
-
-    updateTimestampAndMarkNewsAsSeen = updateLocalNewsState newsReport.newsToConsiderSeen
-    updateTimestampWithoutMarkingNewsAsSeen = updateLocalNewsState []
+    printNews news =
+      unless (null news) $
+        putStrLn $
+          intercalate "\n\n" $
+            map showNewsEntry news
 
     askUserForConfirmation =
       askForConfirmationWithTimeout
@@ -128,10 +91,11 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = case 
         "y"
         10
 
-    thereAreNewsToShow = not $ null newsReport.newsToShow
+    updateStateWithNews news = updateLocalState news
+    updateStateOnly = updateLocalState []
 
-    updateLocalNewsState newsToMarkAsSeen = do
+    updateLocalState newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
       saveLocalNewsState $
         setLastReportTimestamp currentTime $
-          markNewsAsSeen newsToMarkAsSeen localNewsStateBeforeReport
+          markNewsAsSeen newsToMarkAsSeen localState
