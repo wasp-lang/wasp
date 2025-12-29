@@ -9,7 +9,9 @@ on:
   pull_request:
 
   workflow_call:
-    inputs: &inputs
+    inputs:
+      # This is a YAML "anchor", lets us reuse this same block below
+      &inputs
       override-npm-package-version:
         description: >
           If set, overrides the version of npm packages to publish.
@@ -19,7 +21,9 @@ on:
         type: string
 
   workflow_dispatch:
-    inputs: *inputs # Reuse the inputs above
+    inputs:
+      # This is a YAML "alias", reuses the block defined above
+      *inputs
 
 concurrency:
   group: ci-${{ github.ref }}
