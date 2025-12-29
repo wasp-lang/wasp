@@ -5,6 +5,7 @@ module Wasp.Cli.Interactive
     askToChoose,
     askToChoose',
     askForRequiredInput,
+    askForConfirmationWithTimeout,
     IsOption (..),
     Option (..),
   )
@@ -16,8 +17,10 @@ import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import System.IO (hFlush, stdout)
+import System.Timeout (timeout)
 import Text.Read (readMaybe)
 import qualified Wasp.Util.Terminal as Term
 
@@ -127,6 +130,13 @@ askToChoose question options = do
 
 askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
+
+askForConfirmationWithTimeout :: String -> String -> Int -> IO Bool
+askForConfirmationWithTimeout message requiredAnswer timeoutSeconds = do
+  maybeAnswer <- timeout timeoutMicroseconds $ askForInput message
+  return $ fromMaybe "" maybeAnswer == requiredAnswer
+  where
+    timeoutMicroseconds = timeoutSeconds * 1000000
 
 repeatIfNull :: (Foldable t) => IO (t a) -> IO (t a)
 repeatIfNull action = repeatUntil null "This field cannot be empty." action

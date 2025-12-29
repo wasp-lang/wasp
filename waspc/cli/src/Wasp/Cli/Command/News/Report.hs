@@ -25,9 +25,25 @@ import Wasp.Cli.Command.News.LocalNewsState
     setLastReportTimestamp,
     wasNewsEntrySeen,
   )
-import Wasp.Cli.Interactive (askForInput)
+import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
 import Wasp.Util (ifM)
 import Wasp.Util.Terminal (styleCode)
+
+{-
+What I want to test
+
+- fresh news, context (who initated), state -> what to show
+- news to show, context  -> ask for confirmation
+- all news, confirmation, context, state -> what to consider seen
+
+Examples:
+  - Wasp initiates, state is empty -> mark all as seen, show nothing
+  - Wasp initiates, state exists -> show relevant news
+    - relevant contain critical -> requie confirmation
+      - user confirmed -> mark as seen
+    - relevant don't contain cricical -> don't require confirmation, don't mark as seen
+  - User initiates -> show everything, mark everything as seen
+-}
 
 data NewsReportInitiator = Wasp | User deriving (Show, Eq)
 
@@ -92,7 +108,7 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = case 
       if newsReport.requireConfirmation
         then
           ifM
-            askForConfirmation
+            askUserForConfirmation
             updateTimestampAndMarkNewsAsSeen
             updateTimestampWithoutMarkingNewsAsSeen
         else do
@@ -106,14 +122,11 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = case 
     updateTimestampAndMarkNewsAsSeen = updateLocalNewsState newsReport.newsToConsiderSeen
     updateTimestampWithoutMarkingNewsAsSeen = updateLocalNewsState []
 
-    askForConfirmation = do
-      let requiredAnswer = "y"
-      answer <-
-        askForInput $
-          "\nThere are critical annoucements above. Please confirm you've read them by typing '"
-            ++ requiredAnswer
-            ++ "'"
-      return $ answer == requiredAnswer
+    askUserForConfirmation =
+      askForConfirmationWithTimeout
+        "\nThere are critical annoucements above. Please confirm you've read them by typing 'y'"
+        "y"
+        10
 
     thereAreNewsToShow = not $ null newsReport.newsToShow
 
