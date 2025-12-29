@@ -12,7 +12,7 @@ import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.LocalNewsState (areNewsStale, loadLocalNewsState)
-import Wasp.Cli.Command.News.Report
+import Wasp.Cli.Command.News.Action
   ( executeNewsAction,
     makeUserInvokedNewsAction,
     makeWaspInvokedNewsAction,

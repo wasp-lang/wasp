@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
-module Wasp.Cli.Command.News.Report
+module Wasp.Cli.Command.News.Action
   ( NewsAction (..),
     makeUserInvokedNewsAction,
     executeNewsAction,

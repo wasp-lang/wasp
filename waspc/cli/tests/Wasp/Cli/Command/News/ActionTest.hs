@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Wasp.Cli.Command.News.ReportTest where
+module Wasp.Cli.Command.News.ActionTest where
 
 import qualified Data.Time as T
 import Test.Hspec
@@ -16,7 +16,7 @@ import Wasp.Cli.Command.News.LocalNewsState
     markNewsAsSeen,
     wasNewsEntrySeen,
   )
-import Wasp.Cli.Command.News.Report
+import Wasp.Cli.Command.News.Action
   ( NewsAction (..),
     makeUserInvokedNewsAction,
     makeWaspInvokedNewsAction,
