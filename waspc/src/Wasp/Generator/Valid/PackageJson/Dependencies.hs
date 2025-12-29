@@ -146,9 +146,9 @@ inDependency ::
   P.PackageName ->
   V.Validator (Maybe P.PackageVersion) ->
   V.Validator P.PackageJson
-inDependency depType pkgName versionStringValidator =
+inDependency depType pkgName versionValidator =
   V.inField (fieldForDepType depType) $
-    V.inField (pkgName, M.lookup pkgName) versionStringValidator
+    V.inField (pkgName, M.lookup pkgName) versionValidator
 
 fieldForDepType :: DependencyType -> (String, P.PackageJson -> P.DependenciesMap)
 fieldForDepType Runtime = ("dependencies", P.dependencies)
