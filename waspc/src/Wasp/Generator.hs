@@ -47,8 +47,7 @@ writeWebAppCode spec dstDir sendMessage = do
         Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
-          waspInfo <- WaspInfo.generate $ AS.buildType spec
-          WaspInfo.write waspInfo dstDir
+          WaspInfo.persist dstDir $ AS.buildType spec
           (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 

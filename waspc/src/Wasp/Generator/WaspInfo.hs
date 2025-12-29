@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Generator.WaspInfo where
+module Wasp.Generator.WaspInfo (persist, checkNeedsCleanBuild) where
 
 import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.Aeson.Types (FromJSON)
@@ -24,38 +24,41 @@ instance FromJSON WaspInfo
 
 instance ToJSON WaspInfo
 
-data WaspInfoPath
+data WaspInfoFile
 
-waspInfoInProjectRootDir :: Path' (Rel ProjectRootDir) (File WaspInfoPath)
+waspInfoInProjectRootDir :: Path' (Rel ProjectRootDir) (File WaspInfoFile)
 waspInfoInProjectRootDir = [relfile|.waspinfo|]
+
+persist :: Path' Abs (Dir ProjectRootDir) -> BuildType -> IO ()
+persist projectRootDir currentBuildType = do
+  encodeFile (toFilePath waspInfoFile) . generateWaspInfo =<< getCurrentTime
+  where
+    generateWaspInfo currentTime =
+      WaspInfo
+        { waspVersion = currentVersion,
+          generatedAt = currentTime,
+          buildType = currentBuildType
+        }
+
+    waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
+    currentVersion = showVersion Paths_waspc.version
+
+checkNeedsCleanBuild :: Path' Abs (Dir ProjectRootDir) -> BuildType -> IO Bool
+checkNeedsCleanBuild outDir currentBuildType =
+  maybe True (needsCleanBuild currentBuildType) <$> safeRead outDir
 
 safeRead :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe WaspInfo)
 safeRead projectRootDir = do
-  let waspInfoPath = projectRootDir </> waspInfoInProjectRootDir
+  let waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
 
-  doesFileExist waspInfoPath >>= \case
+  doesFileExist waspInfoFile >>= \case
     False -> return Nothing
-    True -> decodeFileStrict $ toFilePath waspInfoPath
-
--- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
-generate :: BuildType -> IO WaspInfo
-generate buildType' = do
-  currentTime <- getCurrentTime
-  return
-    WaspInfo
-      { waspVersion = showVersion Paths_waspc.version,
-        generatedAt = currentTime,
-        buildType = buildType'
-      }
-
--- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
-write :: WaspInfo -> Path' Abs (Dir ProjectRootDir) -> IO ()
-write waspInfo dstDir = do
-  encodeFile
-    (toFilePath $ dstDir </> waspInfoInProjectRootDir)
-    waspInfo
+    True -> decodeFileStrict $ toFilePath waspInfoFile
 
 needsCleanBuild :: BuildType -> WaspInfo -> Bool
-needsCleanBuild buildType' oldInfo =
-  (waspVersion oldInfo /= showVersion Paths_waspc.version)
-    || (buildType oldInfo /= buildType')
+needsCleanBuild currentBuildType storedInfo =
+  (storedVersion /= currentVersion) || (storedBuildType /= currentBuildType)
+  where
+    storedVersion = waspVersion storedInfo
+    currentVersion = showVersion Paths_waspc.version
+    storedBuildType = buildType storedInfo

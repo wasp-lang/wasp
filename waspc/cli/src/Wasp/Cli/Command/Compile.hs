@@ -54,10 +54,10 @@ compileWithOptions options = do
           </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
 
-  doesOutDirExist <- liftIO $ doesDirectoryExist outDir
   shouldBeCleanCompile <-
-    maybe True (WaspInfo.needsCleanBuild $ buildType options)
-      <$> liftIO (WaspInfo.safeRead outDir)
+    liftIO $ WaspInfo.checkNeedsCleanBuild outDir $ buildType options
+
+  doesOutDirExist <- liftIO $ doesDirectoryExist outDir
 
   when (shouldBeCleanCompile && doesOutDirExist) $ do
     cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out directory..."
