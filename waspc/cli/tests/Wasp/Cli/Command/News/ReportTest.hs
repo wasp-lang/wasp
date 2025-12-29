@@ -20,7 +20,6 @@ import Wasp.Cli.Command.News.Report
   ( NewsAction (..),
     makeUserInvokedNewsAction,
     makeWaspInvokedNewsAction,
-    makeWaspInvokedNewsActionForExistingUser,
   )
 
 spec_makeUserInvokedNewsAction :: Spec
@@ -33,55 +32,46 @@ spec_makeUserInvokedNewsAction = do
 spec_makeWaspInvokedNewsAction :: Spec
 spec_makeWaspInvokedNewsAction = do
   describe "makeWaspInvokedNewsAction" $ do
-    prop "creates MarkSeenWithoutShowing for first time users" $
-      \newsEntries ->
-        makeWaspInvokedNewsAction emptyLocalNewsState newsEntries
-          == MarkSeenWithoutShowing newsEntries
+    describe "for first time users" $ do
+      prop "creates MarkSeenWithoutShowing with all news" $
+        \newsEntries ->
+          makeWaspInvokedNewsAction emptyLocalNewsState newsEntries
+            == MarkSeenWithoutShowing newsEntries
 
-    prop "delegates to makeWaspInvokedNewsActionForExistingUser for existing users" $
-      \localNewsState newsEntries ->
-        not (isFirstTimeUser localNewsState) ==>
-          makeWaspInvokedNewsAction localNewsState newsEntries
-            == makeWaspInvokedNewsActionForExistingUser localNewsState newsEntries
-  where
-    isFirstTimeUser state = state == emptyLocalNewsState
+    describe "for existing users" $ do
+      prop "only includes news that are at least important" $
+        forExistingUser $ \localNewsState newsEntries ->
+          let news = getNewsFromAction $ makeWaspInvokedNewsAction localNewsState newsEntries
+           in all ((>= Important) . level) news
 
-spec_makeWaspInvokedNewsActionForExistingUser :: Spec
-spec_makeWaspInvokedNewsActionForExistingUser = do
-  describe "makeWaspInvokedNewsActionForExistingUser" $ do
-    prop "only includes news that are at least important" $
-      testActionProperty $ \_ _ news ->
-        all ((>= Important) . level) news
+      prop "does not include news that were previously seen" $
+        forExistingUser $ \localNewsState newsEntries ->
+          let news = getNewsFromAction $ makeWaspInvokedNewsAction localNewsState newsEntries
+           in not $ any (wasNewsEntrySeen localNewsState) news
 
-    prop "does not include news that were previously seen" $
-      testActionProperty $ \localNewsState _ news ->
-        not $ any (wasNewsEntrySeen localNewsState) news
+      prop "creates ShowWithConfirmation iff at least one critical news entry exists" $
+        forExistingUser $ \localNewsState newsEntries ->
+          let action = makeWaspInvokedNewsAction localNewsState newsEntries
+              news = getNewsFromAction action
+              hasCritical = any ((== Critical) . level) news
+           in hasCritical == isShowWithConfirmation action
 
-    prop "creates ShowWithConfirmation if and only if at least one critical news entry exists" $
-      \localNewsState newsEntries ->
-        let action = makeWaspInvokedNewsActionForExistingUser localNewsState newsEntries
-            news = getNewsFromAction action
-            hasCritical = any ((== Critical) . level) news
-         in hasCritical == isShowWithConfirmation action
+      it "includes all unseen important+ news" $ do
+        let seenNewsEntry = NewsEntry "seen-1" "Seen Critical" "" Critical someTime
+            unseenNewsEntries =
+              [ NewsEntry "unseen-1" "Unseen Critical" "" Critical someTime,
+                NewsEntry "unseen-2" "Unseen Important" "" Important someTime,
+                NewsEntry "unseen-3" "Unseen Info" "" Info someTime
+              ]
+            newsState = markNewsAsSeen [seenNewsEntry] emptyLocalNewsState
+            allNewsEntries = seenNewsEntry : unseenNewsEntries
+            action = makeWaspInvokedNewsAction newsState allNewsEntries
 
-    it "includes all unseen important+ news" $ do
-      let seenNewsEntry = NewsEntry "seen-1" "Seen Critical" "" Critical someTime
-          unseenNewsEntries =
-            [ NewsEntry "unseen-1" "Unseen Critical" "" Critical someTime,
-              NewsEntry "unseen-2" "Unseen Important" "" Important someTime,
-              NewsEntry "unseen-3" "Unseen Info" "" Info someTime
-            ]
-          newsState = markNewsAsSeen [seenNewsEntry] emptyLocalNewsState
-          allNewsEntries = seenNewsEntry : unseenNewsEntries
-          action = makeWaspInvokedNewsActionForExistingUser newsState allNewsEntries
-
-      map (.id) (getNewsFromAction action) `shouldMatchList` ["unseen-1", "unseen-2"]
+        map (.id) (getNewsFromAction action) `shouldMatchList` ["unseen-1", "unseen-2"]
   where
     someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
-    testActionProperty assertProperty localNewsStateInput newsEntriesInput =
-      let action = makeWaspInvokedNewsActionForExistingUser localNewsStateInput newsEntriesInput
-          news = getNewsFromAction action
-       in assertProperty localNewsStateInput newsEntriesInput news
+    forExistingUser prop' localNewsState newsEntries =
+      not (localNewsState == emptyLocalNewsState) ==> prop' localNewsState newsEntries
 
 getNewsFromAction :: NewsAction -> [NewsEntry]
 getNewsFromAction = \case

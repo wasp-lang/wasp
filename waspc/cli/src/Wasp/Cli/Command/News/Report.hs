@@ -6,8 +6,6 @@ module Wasp.Cli.Command.News.Report
     makeUserInvokedNewsAction,
     executeNewsAction,
     makeWaspInvokedNewsAction,
-    -- Exported only for testing purposes
-    makeWaspInvokedNewsActionForExistingUser,
   )
 where
 
@@ -41,15 +39,11 @@ makeUserInvokedNewsAction = ShowAllAndMarkSeen
 makeWaspInvokedNewsAction :: LocalNewsState -> [NewsEntry] -> NewsAction
 makeWaspInvokedNewsAction currentState allNewsEntries
   | currentState == emptyLocalNewsState = MarkSeenWithoutShowing allNewsEntries
-  | otherwise = makeWaspInvokedNewsActionForExistingUser currentState allNewsEntries
-
-makeWaspInvokedNewsActionForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsAction
-makeWaspInvokedNewsActionForExistingUser currentState newsEntries
   | hasCriticalNews = ShowWithConfirmation relevantUnseenNews
   | otherwise = ShowWithoutMarkingSeen relevantUnseenNews
   where
     hasCriticalNews = any ((== Critical) . level) relevantUnseenNews
-    relevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
+    relevantUnseenNews = filter isRelevant . filter isUnseen $ allNewsEntries
     isRelevant = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen currentState
 
