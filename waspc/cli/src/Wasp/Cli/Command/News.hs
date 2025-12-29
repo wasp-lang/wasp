@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.News
   ( news,
-    fetchAndReportMandatoryNews,
+    fetchAndReportWaspInvokedNewsIfDue,
   )
 where
 
@@ -13,8 +13,8 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.LocalNewsState (areNewsStale, loadLocalNewsState)
 import Wasp.Cli.Command.News.Report
-  ( makeMandatoryNewsReport,
-    makeVoluntaryNewsReport,
+  ( makeUserInvokedNewsReport,
+    makeWaspInvokedNewsReport,
     printNewsReportAndUpdateLocalState,
   )
 import Wasp.Util (checkIfOnCi, whenM)
@@ -26,10 +26,10 @@ news =
     Right newsEntries -> liftIO $ do
       localNewsState <- loadLocalNewsState
       printNewsReportAndUpdateLocalState localNewsState $
-        makeVoluntaryNewsReport localNewsState newsEntries
+        makeUserInvokedNewsReport localNewsState newsEntries
 
-fetchAndReportMandatoryNews :: IO ()
-fetchAndReportMandatoryNews = do
+fetchAndReportWaspInvokedNewsIfDue :: IO ()
+fetchAndReportWaspInvokedNewsIfDue = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
   isOnCi <- checkIfOnCi
   unless (isWaspNewsDisabled || isOnCi) $ do
@@ -39,4 +39,4 @@ fetchAndReportMandatoryNews = do
         Left _err -> return () -- Wasp stays silent on purpose
         Right newsEntries ->
           printNewsReportAndUpdateLocalState localNewsState $
-            makeMandatoryNewsReport localNewsState newsEntries
+            makeWaspInvokedNewsReport localNewsState newsEntries

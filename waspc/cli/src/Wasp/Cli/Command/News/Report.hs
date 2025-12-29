@@ -3,11 +3,11 @@
 
 module Wasp.Cli.Command.News.Report
   ( NewsReport (..),
-    makeVoluntaryNewsReport,
+    makeUserInvokedNewsReport,
     printNewsReportAndUpdateLocalState,
-    makeMandatoryNewsReport,
+    makeWaspInvokedNewsReport,
     -- Exported only for testing purposes
-    makeMandatoryNewsReportForExistingUser,
+    makeWaspInvokedNewsReportForExistingUser,
     NewsReportInitiator (..),
   )
 where
@@ -39,8 +39,8 @@ data NewsReport = NewsReport
   }
   deriving (Show, Eq)
 
-makeVoluntaryNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeVoluntaryNewsReport _currentState newsEntries =
+makeUserInvokedNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
+makeUserInvokedNewsReport _currentState newsEntries =
   NewsReport
     { initiator = User,
       newsToShow = newsEntries,
@@ -48,10 +48,10 @@ makeVoluntaryNewsReport _currentState newsEntries =
       requireConfirmation = False
     }
 
-makeMandatoryNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeMandatoryNewsReport currentState newsEntries
+makeWaspInvokedNewsReport :: LocalNewsState -> [NewsEntry] -> NewsReport
+makeWaspInvokedNewsReport currentState newsEntries
   | isFirstTimeUser = showNothingAndMarkAllAsSeen
-  | otherwise = makeMandatoryNewsReportForExistingUser currentState newsEntries
+  | otherwise = makeWaspInvokedNewsReportForExistingUser currentState newsEntries
   where
     isFirstTimeUser = currentState == emptyLocalNewsState
     showNothingAndMarkAllAsSeen =
@@ -62,8 +62,8 @@ makeMandatoryNewsReport currentState newsEntries
           newsToConsiderSeen = newsEntries
         }
 
-makeMandatoryNewsReportForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsReport
-makeMandatoryNewsReportForExistingUser currentState newsEntries =
+makeWaspInvokedNewsReportForExistingUser :: LocalNewsState -> [NewsEntry] -> NewsReport
+makeWaspInvokedNewsReportForExistingUser currentState newsEntries =
   NewsReport
     { initiator = Wasp,
       newsToShow = allRelevantUnseenNews,
@@ -87,7 +87,6 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = case 
   NewsReport {initiator = Wasp} -> printWaspInitiatedReport
   NewsReport {initiator = User} -> printUserInitiatedReport
   where
-    thereAreNewsToShow = not $ null newsReport.newsToShow
     printWaspInitiatedReport = do
       when thereAreNewsToShow $ putStrLn $ showNewsReport newsReport
       if newsReport.requireConfirmation
@@ -115,6 +114,8 @@ printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = case 
             ++ requiredAnswer
             ++ "'"
       return $ answer == requiredAnswer
+
+    thereAreNewsToShow = not $ null newsReport.newsToShow
 
     updateLocalNewsState newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
