@@ -27,7 +27,6 @@ import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, writeJsonFile)
 
--- | News state stored on disk.
 data LocalNewsState = LocalNewsState
   { lastReportAt :: Maybe T.UTCTime,
     seenNewsIds :: Set String
