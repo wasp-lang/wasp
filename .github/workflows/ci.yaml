@@ -10,8 +10,7 @@ on:
 
   workflow_call:
     inputs:
-      # This is a YAML "anchor", lets us reuse this same block below
-      &inputs
+      &inputs # This is a YAML "anchor", lets us reuse this same block below
       override-npm-package-version:
         description: >
           If set, overrides the version of npm packages to publish.
@@ -21,9 +20,7 @@ on:
         type: string
 
   workflow_dispatch:
-    inputs:
-      # This is a YAML "alias", reuses the block defined above
-      *inputs
+    inputs: *inputs # This is a YAML "alias", reuses the block defined above
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -59,7 +56,7 @@ jobs:
     uses: ./.github/workflows/ci-npm-package-build.yaml
     secrets: inherit
     with:
-      build-outputs: ${{ toJson(needs.waspc-build.outputs) }}
+      build-outputs-json: ${{ toJson(needs.waspc-build.outputs) }}
       override-npm-package-version: ${{ inputs.override-npm-package-version }}
 
   npm-package-test:

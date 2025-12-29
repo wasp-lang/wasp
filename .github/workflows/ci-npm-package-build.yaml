@@ -3,7 +3,7 @@ name: "Build - Wasp npm packages"
 on:
   workflow_call:
     inputs:
-      build-outputs:
+      build-outputs-json:
         description: "The returned outputs from the build workflow, as a JSON string"
         required: true
         type: string
@@ -45,17 +45,17 @@ jobs:
 
       - name: Create build metadata file
         env:
-          INPUT_DATA: ${{ inputs.build-outputs}}
+          INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
+          OVERRIDE_VERSION_JSON: ${{ fromJson(inputs.override-npm-package-version || '') }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
             # We'll wrangle the data from the build jobs into that schema here.
             |
             {
-              version:
-                ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || '.waspc_version' }}
-                | ltrimstr("v"),
+              version: ($overrideVersion // $inputData.waspc_version) | ltrimstr("v"),
               tarballs:
-                with_entries(select(.key | startswith("output_")))
+                $inputData
+                | with_entries(select(.key | startswith("output_")))
                 | map(
                     fromjson
                     | {
@@ -64,7 +64,14 @@ jobs:
                       }
                   )
             }
-        run: echo "$INPUT_DATA" | jq "$JQ_PROGRAM" > ./input/data.json
+        run: >
+          jq
+            --null-input
+            --argjson inputData "$INPUT_DATA_JSON"
+            --argjson overrideVersion "$OVERRIDE_VERSION_JSON"
+            "$JQ_PROGRAM"
+            > ./input/data.json
+          cat ./input/data.json # For debugging purposes
 
       - uses: actions/setup-node@v6
         with:
