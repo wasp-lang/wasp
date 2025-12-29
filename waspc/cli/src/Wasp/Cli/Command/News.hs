@@ -11,10 +11,9 @@ import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
-import Wasp.Cli.Command.News.Persistence (obtainLocalNewsState)
+import Wasp.Cli.Command.News.Persistence (areNewsStale, obtainLocalNewsState)
 import Wasp.Cli.Command.News.Report
-  ( isTimeForMandatoryNewsReport,
-    makeMandatoryNewsReport,
+  ( makeMandatoryNewsReport,
     makeVoluntaryNewsReport,
     printNewsReportAndUpdateLocalState,
   )
@@ -35,7 +34,7 @@ fetchAndReportMandatoryNews = do
   isOnCi <- checkIfOnCi
   unless (isWaspNewsDisabled || isOnCi) $ do
     localNewsState <- obtainLocalNewsState
-    whenM (isTimeForMandatoryNewsReport localNewsState) $ do
+    whenM (areNewsStale localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
         Left _err -> return () -- Wasp stays silent on purpose
         Right newsEntries ->

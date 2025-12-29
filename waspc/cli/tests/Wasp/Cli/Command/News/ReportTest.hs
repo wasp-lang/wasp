@@ -3,14 +3,13 @@
 
 module Wasp.Cli.Command.News.ReportTest where
 
-import qualified Data.Set as Set
 import qualified Data.Time as T
 import Test.Hspec
 import Test.Hspec.QuickCheck (prop)
 import Test.QuickCheck
 import Test.QuickCheck.Arbitrary.Generic (genericArbitrary)
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
-import Wasp.Cli.Command.News.Persistence (LocalNewsState (..), emptyLocalNewsState)
+import Wasp.Cli.Command.News.Persistence (LocalNewsState, emptyLocalNewsState, markNewsAsSeen, wasNewsEntrySeen)
 import Wasp.Cli.Command.News.Report
   ( NewsReport (..),
     makeMandatoryNewsReport,
@@ -66,7 +65,7 @@ spec_makeMandatoryNewsReportForExistingUser = do
 
     prop "does not show news that were previously seen" $
       testReportProperty $ \localNewsState _ report ->
-        not $ any ((`Set.member` localNewsState.seenNewsIds) . (.id)) report.newsToShow
+        not $ any (wasNewsEntrySeen localNewsState) report.newsToShow
 
     prop "requires confirmation if and only if at least one critical priority news entry is shown" $
       testReportProperty $ \_ _ report ->
@@ -77,14 +76,16 @@ spec_makeMandatoryNewsReportForExistingUser = do
         report.newsToShow == report.newsToConsiderSeen
 
     it "shows all unseen important+ news" $ do
-      let state = LocalNewsState (Just someTime) (Set.singleton "seen-1")
-          newsEntries =
-            [ NewsEntry "seen-1" "Seen Critical" "" Critical someTime,
-              NewsEntry "unseen-1" "Unseen Critical" "" Critical someTime,
+      let seenNewsEntry = NewsEntry "seen-1" "Seen Critical" "" Critical someTime
+          unseenNewsEntries =
+            [ NewsEntry "unseen-1" "Unseen Critical" "" Critical someTime,
               NewsEntry "unseen-2" "Unseen Important" "" Important someTime,
               NewsEntry "unseen-3" "Unseen Info" "" Info someTime
             ]
-          report = makeMandatoryNewsReportForExistingUser state newsEntries
+          newsState = markNewsAsSeen [seenNewsEntry] emptyLocalNewsState
+          allNewsEntries = seenNewsEntry : unseenNewsEntries
+          report = makeMandatoryNewsReportForExistingUser newsState allNewsEntries
+
       map (.id) report.newsToShow `shouldMatchList` ["unseen-1", "unseen-2"]
   where
     someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0

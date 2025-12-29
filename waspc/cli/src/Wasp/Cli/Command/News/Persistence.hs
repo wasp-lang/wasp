@@ -3,10 +3,11 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.Cli.Command.News.Persistence
-  ( LocalNewsState (..),
+  ( LocalNewsState,
     obtainLocalNewsState,
     saveLocalNewsState,
     emptyLocalNewsState,
+    areNewsStale,
     wasNewsEntrySeen,
     setLastReportTimestamp,
     markNewsAsSeen,
@@ -23,7 +24,7 @@ import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
 import qualified System.Directory as SD
 import Wasp.Cli.Command.News.Core (NewsEntry (..))
 import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
-import Wasp.Util (ifM)
+import Wasp.Util (ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, writeJsonFile)
 
@@ -64,6 +65,11 @@ markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
 markNewsAsSeen newsEntries state = state {seenNewsIds = unionOfOldAndNewIds}
   where
     unionOfOldAndNewIds = state.seenNewsIds <> Set.fromList (map (.id) newsEntries)
+
+areNewsStale :: LocalNewsState -> IO Bool
+areNewsStale state = case state.lastReportAt of
+  Nothing -> return True
+  Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
 
 getNewsStateFilePath :: IO (Path' Abs File')
 getNewsStateFilePath = do

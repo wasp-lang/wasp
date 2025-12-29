@@ -4,7 +4,6 @@
 module Wasp.Cli.Command.News.Report
   ( NewsReport (..),
     makeVoluntaryNewsReport,
-    isTimeForMandatoryNewsReport,
     printNewsReportAndUpdateLocalState,
     makeMandatoryNewsReport,
     -- Exported only for testing purposes
@@ -18,7 +17,7 @@ import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (showNewsEntry)
 import Wasp.Cli.Command.News.Persistence
-  ( LocalNewsState (lastReportAt),
+  ( LocalNewsState,
     emptyLocalNewsState,
     markNewsAsSeen,
     saveLocalNewsState,
@@ -26,7 +25,6 @@ import Wasp.Cli.Command.News.Persistence
     wasNewsEntrySeen,
   )
 import Wasp.Cli.Interactive (askForInput)
-import Wasp.Util (isOlderThanNHours)
 
 data NewsReport = NewsReport
   { newsToShow :: [NewsEntry],
@@ -68,11 +66,6 @@ makeMandatoryNewsReportForExistingUser currentState newsEntries =
     allRelevantUnseenNews = filter isRelevant . filter isUnseen $ newsEntries
     isRelevant = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen currentState
-
-isTimeForMandatoryNewsReport :: LocalNewsState -> IO Bool
-isTimeForMandatoryNewsReport state = case state.lastReportAt of
-  Nothing -> return True
-  Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
 
 printNewsReportAndUpdateLocalState :: LocalNewsState -> NewsReport -> IO ()
 printNewsReportAndUpdateLocalState localNewsStateBeforeReport newsReport = do
