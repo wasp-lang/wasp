@@ -18,10 +18,10 @@ import Wasp.Cli.Command.News.Display (showNewsEntry)
 import Wasp.Cli.Command.News.LocalNewsState
   ( LocalNewsState,
     emptyLocalNewsState,
-    wasLastLisingMoreThanNHoursAgo,
     markNewsAsSeen,
     saveLocalNewsState,
     setLastListingTimestamp,
+    wasLastLisingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
 import Wasp.Cli.Interactive (askForConfirmationWithTimeout, waitForNSeconds)
@@ -67,8 +67,7 @@ processNewsListing localState listing = do
     putStrLn $
       "\nIf you don't want to see these messages again, run "
         ++ styleCode "wasp news"
-        ++ " to confirm you read them."
-    waitForNSeconds 5
+        ++ " to confirm you've seen them."
 
   shouldMarkNewsAsSeen <-
     if isConfirmationRequired localState listing
