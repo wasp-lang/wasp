@@ -7,7 +7,7 @@ import {
   ServerBuildImageName,
 } from "../docker.js";
 import { doesFileExits } from "../files.js";
-import { waitUntilHTTP } from "../http.js";
+import { waitUntilAppReady } from "../http.js";
 import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
@@ -67,7 +67,7 @@ export async function runServerAppContainer({
 }): Promise<{ processPromise: Promise<{ exitCode: number | null }> }> {
   const logger = createLogger("server-start-app");
 
-  const childProcess = spawnWithLog({
+  const serverAppProcess = spawnWithLog({
     name: "server-start-app",
     cmd: "docker",
     args: [
@@ -85,16 +85,16 @@ export async function runServerAppContainer({
     ],
   });
 
-  const exitCodePromise = childProcess.then(({ exitCode }) => {
+  const serverAppExitCodePromise = serverAppProcess.then(({ exitCode }) => {
     if (exitCode !== 0) {
       logger.error(`Failed to start server app container: ${containerName}`);
       process.exit(1);
     }
   });
 
-  await Promise.race([waitUntilHTTP({ port: 3001 }), exitCodePromise]);
+  await Promise.race([waitUntilAppReady({ port: 3001 }), serverAppExitCodePromise]);
 
-  return { processPromise: childProcess };
+  return { processPromise: serverAppProcess };
 }
 
 function getDockerEnvVarsArgs({

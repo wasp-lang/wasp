@@ -1,7 +1,7 @@
 import pRetry from "p-retry";
 import { createLogger } from "./logging.js";
 
-export async function waitUntilHTTP({
+export async function waitUntilAppReady({
   port,
   checkIntervalMs = 500,
   timeoutMs = 60_000,
@@ -17,7 +17,7 @@ export async function waitUntilHTTP({
   await pRetry(
     async (attempt) => {
       logger.info(
-        `(${attempt}/${maxAttempts}) Checking if HTTP works on port ${port}...`,
+        `(${attempt}/${maxAttempts}) Checking if app on port ${port} is ready...`,
       );
       // We don't care about the response, just that we can connect.
       await fetch(`http://localhost:${port}`);
