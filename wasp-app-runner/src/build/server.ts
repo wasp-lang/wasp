@@ -92,7 +92,10 @@ export async function runServerAppContainer({
     }
   });
 
-  await Promise.race([waitUntilAppReady({ port: 3001 }), serverAppExitCodePromise]);
+  await Promise.race([
+    waitUntilAppReady({ port: 3001 }),
+    serverAppExitCodePromise,
+  ]);
 
   return { processPromise: serverAppProcess };
 }

@@ -76,7 +76,10 @@ export async function startClientApp({
     }
   });
 
-  await Promise.race([waitUntilAppReady({ port: 3000 }), clientAppExitCodePromise]);
+  await Promise.race([
+    waitUntilAppReady({ port: 3000 }),
+    clientAppExitCodePromise,
+  ]);
 
   return { processPromise: clientAppProcess };
 }
