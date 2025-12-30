@@ -6,64 +6,12 @@ import fs from "node:fs";
 import { type Plugin, mergeConfig } from "vite";
 import { detectServerImports } from "./detectServerImports.js";
 import { validateEnv } from "./validateEnv.js";
+import { virtualFiles } from "./virtualFiles.js";
 import { parse as dotenvParse } from "dotenv";
 import { expand as dotenvExpand } from "dotenv-expand";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
-}
-
-// Generated content for virtual files
-function getVirtualIndexTsxContent(): string {
-  return `import React from "react";
-import ReactDOM from "react-dom/client";
-import { getWaspApp } from "wasp/client/app";
-{=& appComponentImport =}
-{=& clientSetupImport =}
-import { routes } from "./routes.generated";
-
-{=# hasClientSetup =}
-setup();
-{=/ hasClientSetup =}
-
-const app = getWaspApp({
-{=# hasAppComponent =}
-  AppComponent: App,
-{=/ hasAppComponent =}
-  routes,
-});
-
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>{app}</React.StrictMode>,
-);
-`;
-}
-
-function getVirtualRoutesContent(): string {
-  return `{= routesContent =}`;
-}
-
-function getIndexHtmlContent(): string {
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
-    />
-    <link rel="manifest" href="/manifest.json" />
-
-    <title>{= htmlTitle =}</title>
-  </head>
-
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
-  </body>
-</html>
-`;
 }
 
 /**
@@ -112,100 +60,14 @@ function loadClientEnv(
 }
 
 export function wasp(options?: WaspPluginOptions): Plugin[] {
-  let projectRoot: string;
-
   return [
-    {
-      name: "wasp-virtual-files",
-      enforce: "pre",
-      configResolved(config) {
-        projectRoot = config.root;
-      },
-      resolveId(id) {
-        // Intercept requests for /src/index.tsx and resolve to virtual module
-        if (id === "/src/index.tsx" || id === "src/index.tsx") {
-          // Return the absolute path where the file would be
-          // This gives proper context for resolving relative imports
-          return path.resolve(projectRoot, "src/index.tsx");
-        }
-        // Intercept requests for routes.generated.tsx
-        if (id === "/src/routes.generated.tsx" || id === "src/routes.generated.tsx" || id === "./routes.generated.tsx" || id === "./routes.generated") {
-          return path.resolve(projectRoot, "src/routes.generated.tsx");
-        }
-      },
-      load(id) {
-        const indexTsxPath = path.resolve(projectRoot, "src/index.tsx");
-        const routesPath = path.resolve(projectRoot, "src/routes.generated.tsx");
-
-        // Return the virtual module content for index.tsx
-        if (id === indexTsxPath) {
-          return {
-            code: getVirtualIndexTsxContent(),
-            map: null,
-          };
-        }
-        // Return the virtual module content for routes.generated.tsx
-        if (id === routesPath) {
-          return {
-            code: getVirtualRoutesContent(),
-            map: null,
-          };
-        }
-      },
-      configureServer(server) {
-        // Stage 1: SPA fallback - rewrite URLs (runs early, mimics Vite's htmlFallbackMiddleware)
-        server.middlewares.use((req, _res, next) => {
-          if (
-            (req.method === "GET" || req.method === "HEAD") &&
-            req.url !== "/favicon.ico" &&
-            (req.headers.accept === undefined ||
-              req.headers.accept === "" ||
-              req.headers.accept.includes("text/html") ||
-              req.headers.accept.includes("*/*"))
-          ) {
-            const url = req.url || "/";
-            // If it's a route (no extension, not a special Vite path), rewrite to /index.html
-            if (!url.includes(".") && !url.startsWith("/@")) {
-              req.url = "/index.html";
-            }
-          }
-          next();
-        });
-
-        // Stage 2: Serve transformed index.html (runs after Vite's middleware)
-        return () => {
-          server.middlewares.use(async (req, res, next) => {
-            if (req.url === "/" || req.url === "/index.html") {
-              try {
-                const html = getIndexHtmlContent();
-                const transformedHtml = await server.transformIndexHtml(
-                  req.url,
-                  html
-                );
-
-                res.setHeader("Content-Type", "text/html");
-                res.end(transformedHtml);
-                return;
-              } catch (e) {
-                return next(e);
-              }
-            }
-
-            next();
-          });
-        };
-      },
-      transformIndexHtml() {
-        // Return the generated HTML for build mode
-        return getIndexHtmlContent();
-      },
-    } as Plugin,
+    virtualFiles(),
     validateEnv(),
     ...react(options?.reactOptions),
     detectServerImports(),
     {
       name: "wasp-config",
-      config(config, { mode }) {
+      config(config) {
         const envPrefix = "REACT_APP_";
 
         // Load ONLY .env.client to prevent server env vars from leaking into client bundle.

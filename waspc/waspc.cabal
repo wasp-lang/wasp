@@ -339,6 +339,7 @@ library
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.Vite
+    Wasp.Generator.SdkGenerator.Vite.VirtualFiles
     Wasp.Generator.SdkGenerator.Vite.VitePlugin
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.ServerGenerator
@@ -359,7 +360,6 @@ library
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
-    Wasp.Generator.UserDirGenerator
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.TsConfig
