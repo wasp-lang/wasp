@@ -27,9 +27,9 @@ workspacesValidator =
 
     noWorkspacesDefinedError =
       V.failure $
-        "Wasp requires the field to be an array, and include the following values: "
+        "Wasp requires \"workspaces\" to have the value: ["
           ++ intercalate ", " (show <$> requiredWorkspaces)
-          ++ "."
+          ++ "]."
 
 makeWorkspaceIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
 makeWorkspaceIncludedValidator expectedWorkspace =
