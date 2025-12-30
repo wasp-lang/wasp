@@ -16,6 +16,19 @@ export function virtualFiles(): Plugin {
   return {
     name: "wasp-virtual-files",
     enforce: "pre",
+    config(config) {
+      // Set appType to 'custom' to prevent Vite from requiring index.html
+      // We generate our own HTML in the generateBundle hook
+      return {
+        appType: "custom",
+        build: {
+          rollupOptions: {
+            // Use virtual index.tsx as entry point instead of index.html
+            input: path.resolve(config.root || process.cwd(), indexTsxFileName),
+          },
+        },
+      };
+    },
     configResolved(config) {
       projectRoot = config.root;
       // Using absolute paths gives proper context for resolving relative imports.
@@ -24,7 +37,8 @@ export function virtualFiles(): Plugin {
     },
     resolveId(id) {
       // Intercept requests for /src/index.tsx and resolve to virtual module
-      if (id === `/${indexTsxFileName}`) {
+      // Also resolve the absolute path (used by build.rollupOptions.input)
+      if (id === `/${indexTsxFileName}` || indexTsxPath) {
         return indexTsxPath;
       }
       // Intercept requests for routes.generated.tsx
@@ -89,9 +103,34 @@ export function virtualFiles(): Plugin {
         });
       };
     },
-    transformIndexHtml() {
-      // Return the generated HTML for build mode
-      return getIndexHtmlContent();
+    generateBundle(_options, bundle) {
+      // Find the entry chunk to get the actual output filename
+      let entryFileName: string | undefined;
+      for (const [fileName, chunk] of Object.entries(bundle)) {
+        if (chunk.type === "chunk" && chunk.isEntry) {
+          entryFileName = fileName;
+          break;
+        }
+      }
+
+      if (!entryFileName) {
+        throw new Error("Could not find entry chunk in bundle");
+      }
+
+      // Generate index.html with the correct script reference
+      const baseHtml = getIndexHtmlContent();
+      // Replace the dev script src with the built script path
+      const html = baseHtml.replace(
+        `<script type="module" src="/${indexTsxFileName}"></script>`,
+        `<script type="module" src="/${entryFileName}"></script>`
+      );
+
+      // Emit the HTML file
+      this.emitFile({
+        type: "asset",
+        fileName: "index.html",
+        source: html,
+      });
     },
   };
 }

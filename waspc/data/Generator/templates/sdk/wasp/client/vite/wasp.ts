@@ -109,13 +109,18 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
               "@tanstack/react-query",
               "react-router-dom",
             ],
-            alias: [
+alias: [
               {
                 // Vite doesn't look for `.prisma/client` imports in the `node_modules`
                 // folder. We point it to the correct place here.
                 // TODO: Check if we can remove when updating Prisma (#2504)
-                find: /^\.prisma\/(.+)$/,
-                replacement: path.join("{= projectDir =}", "node_modules/.prisma/$1"),
+                find: /^\.prisma\/client\/(.+)$/,
+                replacement: path.join("{= projectDir =}", "node_modules/.prisma/client/$1.js"),
+              },
+              {
+                // Handle bare .prisma/client import
+                find: /^\.prisma\/client$/,
+                replacement: path.join("{= projectDir =}", "node_modules/.prisma/client"),
               },
             ],
           },
