@@ -18,17 +18,17 @@ import Wasp.Cli.Command.News.Display (showNewsEntry)
 import Wasp.Cli.Command.News.LocalNewsState
   ( LocalNewsState,
     emptyLocalNewsState,
-    isLastReportOrderThanNHours,
+    wasLastLisingMoreThanNHoursAgo,
     markNewsAsSeen,
     saveLocalNewsState,
-    setLastReportTimestamp,
+    setLastListingTimestamp,
     wasNewsEntrySeen,
   )
 import Wasp.Cli.Interactive (askForConfirmationWithTimeout, waitForNSeconds)
 import Wasp.Util.Terminal (styleCode)
 
 shouldWaspInvokeNews :: LocalNewsState -> IO Bool
-shouldWaspInvokeNews = isLastReportOrderThanNHours 24
+shouldWaspInvokeNews = wasLastLisingMoreThanNHoursAgo 24
 
 data NewsListing
   = UserRequestedAllNews [NewsEntry]
@@ -47,20 +47,20 @@ getNewsToShow localState = \case
     isUnseen = not . wasNewsEntrySeen localState
 
 isConfirmationRequired :: LocalNewsState -> NewsListing -> Bool
-isConfirmationRequired localState action = case action of
+isConfirmationRequired localState listing = case listing of
   UserRequestedAllNews _ -> False
-  WaspRequestedMustSeeNews _ -> any ((== Critical) . level) (getNewsToShow localState action)
+  WaspRequestedMustSeeNews _ -> any ((== Critical) . level) (getNewsToShow localState listing)
 
 getNewsToMarkAsSeen :: LocalNewsState -> NewsListing -> [NewsEntry]
-getNewsToMarkAsSeen state action = case action of
+getNewsToMarkAsSeen state listing = case listing of
   UserRequestedAllNews news -> news
   WaspRequestedMustSeeNews allNews
     | userHasNoNewsHistory state -> allNews
-    | isConfirmationRequired state action -> getNewsToShow state action
+    | isConfirmationRequired state listing -> getNewsToShow state listing
     | otherwise -> []
 
 processNewsListing :: LocalNewsState -> NewsListing -> IO ()
-processNewsListing localState action = do
+processNewsListing localState listing = do
   printNews
 
   when shouldTellUserAboutTheNewsCommand $ do
@@ -71,12 +71,12 @@ processNewsListing localState action = do
     waitForNSeconds 5
 
   shouldMarkNewsAsSeen <-
-    if isConfirmationRequired localState action
+    if isConfirmationRequired localState listing
       then askUserForConfirmation
       else return True
 
   if shouldMarkNewsAsSeen
-    then updateTimestampAndMarkAsSeen (getNewsToMarkAsSeen localState action)
+    then updateTimestampAndMarkAsSeen (getNewsToMarkAsSeen localState listing)
     else updateTimestampAndMarkAsSeen []
   where
     printNews =
@@ -85,12 +85,12 @@ processNewsListing localState action = do
           intercalate "\n\n" $
             map showNewsEntry newsToShow
 
-    newsToShow = getNewsToShow localState action
+    newsToShow = getNewsToShow localState listing
 
-    shouldTellUserAboutTheNewsCommand = case action of
+    shouldTellUserAboutTheNewsCommand = case listing of
       UserRequestedAllNews _ -> False
       WaspRequestedMustSeeNews _ ->
-        not (null newsToShow) && not (isConfirmationRequired localState action)
+        not (null newsToShow) && not (isConfirmationRequired localState listing)
 
     askUserForConfirmation =
       askForConfirmationWithTimeout
@@ -101,7 +101,7 @@ processNewsListing localState action = do
     updateTimestampAndMarkAsSeen newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
       saveLocalNewsState $
-        setLastReportTimestamp currentTime $
+        setLastListingTimestamp currentTime $
           markNewsAsSeen newsToMarkAsSeen localState
 
 userHasNoNewsHistory :: LocalNewsState -> Bool

@@ -7,9 +7,9 @@ module Wasp.Cli.Command.News.LocalNewsState
     loadLocalNewsState,
     saveLocalNewsState,
     emptyLocalNewsState,
-    isLastReportOrderThanNHours,
+    wasLastLisingMoreThanNHoursAgo,
     wasNewsEntrySeen,
-    setLastReportTimestamp,
+    setLastListingTimestamp,
     markNewsAsSeen,
   )
 where
@@ -30,7 +30,7 @@ import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, writeJsonFile)
 
 data LocalNewsState = LocalNewsState
-  { lastReportAt :: Maybe T.UTCTime,
+  { lastListingAt :: Maybe T.UTCTime,
     seenNewsIds :: Set String
   }
   deriving (Generic, Show, Eq, FromJSON, ToJSON)
@@ -54,23 +54,24 @@ loadLocalNewsState = do
 
 emptyLocalNewsState :: LocalNewsState
 emptyLocalNewsState =
-  LocalNewsState {lastReportAt = Nothing, seenNewsIds = Set.empty}
+  LocalNewsState {lastListingAt = Nothing, seenNewsIds = Set.empty}
 
 wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
 wasNewsEntrySeen state entry = entry.id `Set.member` state.seenNewsIds
 
-setLastReportTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
-setLastReportTimestamp time state = state {lastReportAt = Just time}
+setLastListingTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
+setLastListingTimestamp time state = state {lastListingAt = Just time}
 
 markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
-markNewsAsSeen newsEntries state = state {seenNewsIds = unionOfOldAndNewIds}
+markNewsAsSeen newsToMark state = state {seenNewsIds = newSeenIds <> oldSeenIds}
   where
-    unionOfOldAndNewIds = state.seenNewsIds <> Set.fromList (map (.id) newsEntries)
+    oldSeenIds = state.seenNewsIds
+    newSeenIds = Set.fromList $ map (.id) newsToMark
 
-isLastReportOrderThanNHours :: Natural -> LocalNewsState -> IO Bool
-isLastReportOrderThanNHours nHours state = case state.lastReportAt of
+wasLastLisingMoreThanNHoursAgo :: Natural -> LocalNewsState -> IO Bool
+wasLastLisingMoreThanNHoursAgo nHours state = case state.lastListingAt of
   Nothing -> return True
-  Just lastReportAt' -> isOlderThanNHours nHours lastReportAt'
+  Just lastListingAt' -> isOlderThanNHours nHours lastListingAt'
 
 getNewsStateFilePath :: IO (Path' Abs File')
 getNewsStateFilePath = do

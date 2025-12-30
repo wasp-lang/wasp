@@ -73,10 +73,10 @@ spec_isConfirmationRequired = do
     describe "for WaspRequestedMustSeeNews" $ do
       prop "returns True iff at least one critical news entry would be shown" $
         forExistingUser $ \localNewsState newsEntries ->
-          let action = WaspRequestedMustSeeNews newsEntries
-              news = getNewsToShow localNewsState action
+          let listing = WaspRequestedMustSeeNews newsEntries
+              news = getNewsToShow localNewsState listing
               hasCritical = any ((== Critical) . level) news
-           in hasCritical == isConfirmationRequired localNewsState action
+           in hasCritical == isConfirmationRequired localNewsState listing
 
 spec_getNewsMarkedAsSeen :: Spec
 spec_getNewsMarkedAsSeen = do
@@ -100,8 +100,8 @@ spec_getNewsMarkedAsSeen = do
                   NewsEntry "info-1" "Info" "" Info someTime
                 ]
               newsState = markNewsAsSeen [dummySeenEntry] emptyLocalNewsState
-              action = WaspRequestedMustSeeNews newsEntries
-              toMark = getNewsToMarkAsSeen newsState action
+              listing = WaspRequestedMustSeeNews newsEntries
+              toMark = getNewsToMarkAsSeen newsState listing
 
           map (.id) toMark `shouldMatchList` ["critical-1"]
 
@@ -113,8 +113,8 @@ spec_getNewsMarkedAsSeen = do
                   NewsEntry "info-1" "Info" "" Info someTime
                 ]
               newsState = markNewsAsSeen [dummySeenEntry] emptyLocalNewsState
-              action = WaspRequestedMustSeeNews newsEntries
-              toMark = getNewsToMarkAsSeen newsState action
+              listing = WaspRequestedMustSeeNews newsEntries
+              toMark = getNewsToMarkAsSeen newsState listing
 
           toMark `shouldBe` []
   where
