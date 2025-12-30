@@ -1,145 +1,95 @@
 {-# LANGUAGE OverloadedRecordDot #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Wasp.Cli.Command.News.ListingTest where
 
 import qualified Data.Time as T
 import Test.Hspec
-import Test.Hspec.QuickCheck (prop)
-import Test.QuickCheck
-import Test.QuickCheck.Arbitrary.Generic (genericArbitrary)
+import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Listing
   ( NewsListing (..),
     getNewsToMarkAsSeen,
     getNewsToShow,
     isConfirmationRequired,
   )
-import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.LocalNewsState
-  ( LocalNewsState,
-    emptyLocalNewsState,
+  ( emptyLocalNewsState,
     markNewsAsSeen,
-    wasNewsEntrySeen,
   )
 
 spec_getNewsToShow :: Spec
 spec_getNewsToShow = do
   describe "getNewsToShow" $ do
     describe "for UserRequestedAllNews" $ do
-      prop "returns all news entries" $
-        \localNewsState newsEntries ->
-          getNewsToShow localNewsState (UserRequestedAllNews newsEntries) == newsEntries
+      it "returns all news entries including seen ones" $ do
+        let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+            newsToShow = getNewsToShow newsState (UserRequestedAllNews allNews)
+        newsToShow `shouldMatchList` allNews
 
     describe "for WaspRequestedMustSeeNews" $ do
-      describe "for first time users" $ do
-        prop "returns empty list" $
-          \newsEntries ->
-            null (getNewsToShow emptyLocalNewsState (WaspRequestedMustSeeNews newsEntries))
+      it "returns an empty list when there is no previous news history" $ do
+        getNewsToShow emptyLocalNewsState (WaspRequestedMustSeeNews allNews) `shouldBe` []
 
-      describe "for existing users" $ do
-        prop "only includes news that are at least important" $
-          forExistingUser $ \localNewsState newsEntries ->
-            let news = getNewsToShow localNewsState (WaspRequestedMustSeeNews newsEntries)
-             in all ((>= Important) . level) news
-
-        prop "does not include news that were previously seen" $
-          forExistingUser $ \localNewsState newsEntries ->
-            let news = getNewsToShow localNewsState (WaspRequestedMustSeeNews newsEntries)
-             in not $ any (wasNewsEntrySeen localNewsState) news
-
-        it "includes all unseen important+ news" $ do
-          let seenNewsEntry = NewsEntry "seen-1" "Seen Critical" "" Critical someTime
-              unseenNewsEntries =
-                [ NewsEntry "unseen-1" "Unseen Critical" "" Critical someTime,
-                  NewsEntry "unseen-2" "Unseen Important" "" Important someTime,
-                  NewsEntry "unseen-3" "Unseen Info" "" Info someTime
-                ]
-              newsState = markNewsAsSeen [seenNewsEntry] emptyLocalNewsState
-              allNewsEntries = seenNewsEntry : unseenNewsEntries
-              news = getNewsToShow newsState (WaspRequestedMustSeeNews allNewsEntries)
-
-          map (.id) news `shouldMatchList` ["unseen-1", "unseen-2"]
-  where
-    someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
+      it "returns unseen news that are important or higher when there is previous news history" $ do
+        let newsState = markNewsAsSeen [critical1, important1] emptyLocalNewsState
+            newsToShow = getNewsToShow newsState (WaspRequestedMustSeeNews allNews)
+        newsToShow `shouldMatchList` [important2, critical2]
 
 spec_isConfirmationRequired :: Spec
 spec_isConfirmationRequired = do
   describe "isConfirmationRequired" $ do
-    describe "for UserRequestedAllNews" $ do
-      prop "returns False" $
-        \localNewsState newsEntries ->
-          not (isConfirmationRequired localNewsState (UserRequestedAllNews newsEntries))
+    it "always returns False for UserRequestedAllNews with critical news" $ do
+      let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+      isConfirmationRequired newsState (UserRequestedAllNews allNews)
+        `shouldBe` False
 
     describe "for WaspRequestedMustSeeNews" $ do
-      prop "returns True iff at least one critical news entry would be shown" $
-        forExistingUser $ \localNewsState newsEntries ->
-          let listing = WaspRequestedMustSeeNews newsEntries
-              news = getNewsToShow localNewsState listing
-              hasCritical = any ((== Critical) . level) news
-           in hasCritical == isConfirmationRequired localNewsState listing
+      it "returns True when unseen news include critical news" $ do
+        let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+        isConfirmationRequired newsState (WaspRequestedMustSeeNews allNews)
+          `shouldBe` True
+
+      it "returns False when unseen news don't include critical news" $ do
+        let newsState = markNewsAsSeen [critical1, critical2] emptyLocalNewsState
+        isConfirmationRequired newsState (WaspRequestedMustSeeNews allNews)
+          `shouldBe` False
 
 spec_getNewsMarkedAsSeen :: Spec
 spec_getNewsMarkedAsSeen = do
-  describe "getNewsMarkedAsSeen" $ do
-    describe "for UserRequestedAllNews" $ do
-      prop "returns all news entries" $
-        \localNewsState newsEntries ->
-          getNewsToMarkAsSeen localNewsState (UserRequestedAllNews newsEntries) == newsEntries
+  describe "getNewsToMarkAsSeen" $ do
+    it "returns all news entries for UserRequestedAllNews" $ do
+      let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+          toMark = getNewsToMarkAsSeen newsState (UserRequestedAllNews allNews)
+      toMark `shouldMatchList` allNews
 
     describe "for WaspRequestedMustSeeNews" $ do
-      describe "for first time users" $ do
-        prop "returns all news entries" $
-          \newsEntries ->
-            getNewsToMarkAsSeen emptyLocalNewsState (WaspRequestedMustSeeNews newsEntries) == newsEntries
+      it "returns all news entries when there is no news history" $ do
+        let toMark = getNewsToMarkAsSeen emptyLocalNewsState (WaspRequestedMustSeeNews allNews)
+        toMark `shouldMatchList` allNews
 
-      describe "for existing users with critical news" $ do
-        it "returns news to show (if user confirms)" $ do
-          let dummySeenEntry = NewsEntry "seen-1" "Seen" "" Info someTime
-              newsEntries =
-                [ NewsEntry "critical-1" "Critical" "" Critical someTime,
-                  NewsEntry "info-1" "Info" "" Info someTime
-                ]
-              newsState = markNewsAsSeen [dummySeenEntry] emptyLocalNewsState
-              listing = WaspRequestedMustSeeNews newsEntries
-              toMark = getNewsToMarkAsSeen newsState listing
+      it "returns unseen important+ news when there are unseen critical news and there is news history" $ do
+        let newsState = markNewsAsSeen [important2, info2, critical2] emptyLocalNewsState
+            toMark = getNewsToMarkAsSeen newsState (WaspRequestedMustSeeNews allNews)
+        toMark `shouldMatchList` [important1, critical1]
 
-          map (.id) toMark `shouldMatchList` ["critical-1"]
+      it "returns an empty list when there are no unseen critical news and there is news history" $ do
+        let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+            toMark = getNewsToMarkAsSeen newsState (WaspRequestedMustSeeNews [important1, info2])
+        toMark `shouldBe` []
 
-      describe "for existing users with no critical news" $ do
-        it "returns empty list" $ do
-          let dummySeenEntry = NewsEntry "seen-1" "Seen" "" Info someTime
-              newsEntries =
-                [ NewsEntry "important-1" "Important" "" Important someTime,
-                  NewsEntry "info-1" "Info" "" Info someTime
-                ]
-              newsState = markNewsAsSeen [dummySeenEntry] emptyLocalNewsState
-              listing = WaspRequestedMustSeeNews newsEntries
-              toMark = getNewsToMarkAsSeen newsState listing
+allNews :: [NewsEntry]
+allNews = [info1, info2, important1, important2, critical1, critical2]
 
-          toMark `shouldBe` []
-  where
-    someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
+someTime :: T.UTCTime
+someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
 
-forExistingUser ::
-  (Testable prop) =>
-  (LocalNewsState -> [NewsEntry] -> prop) ->
-  LocalNewsState ->
-  [NewsEntry] ->
-  Property
-forExistingUser prop' localNewsState newsEntries =
-  (localNewsState /= emptyLocalNewsState) ==> prop' localNewsState newsEntries
+critical1, critical2 :: NewsEntry
+critical1 = NewsEntry "critical-1" "Critical 1" "" Critical someTime
+critical2 = NewsEntry "critical-2" "Critical 2" "" Critical someTime
 
-instance Arbitrary NewsLevel where
-  arbitrary = genericArbitrary
+important1, important2 :: NewsEntry
+important1 = NewsEntry "important-1" "Important 1" "" Important someTime
+important2 = NewsEntry "important-2" "Important 2" "" Important someTime
 
-instance Arbitrary NewsEntry where
-  arbitrary = genericArbitrary
-
-instance Arbitrary LocalNewsState where
-  arbitrary = genericArbitrary
-
-instance Arbitrary T.UTCTime where
-  arbitrary = T.UTCTime <$> arbitraryDay <*> arbitraryDiffTime
-    where
-      arbitraryDay = T.fromGregorian <$> choose (2010, 2020) <*> choose (1, 12) <*> choose (1, 28)
-      arbitraryDiffTime = T.secondsToDiffTime <$> choose (0, 86399)
+info1, info2 :: NewsEntry
+info1 = NewsEntry "info-1" "Info 1" "" Info someTime
+info2 = NewsEntry "info-2" "Info 2" "" Info someTime

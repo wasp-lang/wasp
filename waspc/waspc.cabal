@@ -611,7 +611,7 @@ library cli-lib
     Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.News.Fetching
     Wasp.Cli.Command.News.LocalNewsState
-    Wasp.Cli.Command.News.Action
+    Wasp.Cli.Command.News.Listing
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
@@ -792,7 +792,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Paths_waspc
     Wasp.Cli.Util.EnvVarArgumentTest
-    Wasp.Cli.Command.News.ActionTest
+    Wasp.Cli.Command.News.ListingTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
