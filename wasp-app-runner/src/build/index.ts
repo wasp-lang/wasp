@@ -33,7 +33,7 @@ export async function startAppInBuildMode({
   await startLocalSmtpServer();
 
   /*
-    We do the client build first, then the server build. Then it starts the
+    We do the client and server builds first, in parallel. Then it starts the
     client build, waits until it's up; and only then starts the server build.
     Then it waits for both processes.
 
@@ -41,12 +41,13 @@ export async function startAppInBuildMode({
     starts, as `playwright` tests start executing as soon as the server is up.
   */
 
-  await buildClientApp({ pathToApp });
-
-  const { containerName, imageName } = await buildServerAppContainer({
-    appName,
-    pathToApp,
-  });
+  const [, { containerName, imageName }] = await Promise.all([
+    buildClientApp({ pathToApp }),
+    buildServerAppContainer({
+      appName,
+      pathToApp,
+    }),
+  ]);
 
   const { processPromise: startClientProcessPromise } = await startClientApp({
     pathToApp,
