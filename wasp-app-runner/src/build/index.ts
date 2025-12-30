@@ -61,5 +61,5 @@ export async function startAppInBuildMode({
       extraEnv: dbEnvVars,
     });
 
-  await Promise.all([startClientProcessPromise, startServerProcessPromise]);
+  await Promise.race([startClientProcessPromise, startServerProcessPromise]);
 }
