@@ -6,12 +6,14 @@ module Wasp.Cli.Interactive
     askToChoose',
     askForRequiredInput,
     askForConfirmationWithTimeout,
+    waitForNSeconds,
     IsOption (..),
     Option (..),
   )
 where
 
 import Control.Applicative ((<|>))
+import Control.Concurrent (threadDelay)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.List (intercalate)
@@ -22,6 +24,7 @@ import qualified Data.Text as T
 import System.IO (hFlush, stdout)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
+import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.Terminal as Term
 
 {-
@@ -149,6 +152,9 @@ repeatUntil predicate errorMessage action = do
       putStrLn $ Term.applyStyles [Term.Red] errorMessage
       repeatUntil predicate errorMessage action
     else return result
+
+waitForNSeconds :: Int -> IO ()
+waitForNSeconds nSeconds = threadDelay $ secondsToMicroSeconds nSeconds
 
 prompt :: IO String
 prompt = do

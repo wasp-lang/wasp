@@ -2,14 +2,15 @@
 
 module Wasp.Cli.Command.News.Action
   ( NewsAction (..),
-    makeUserInvokedNewsAction,
+    getNewsToShow,
+    isConfirmationRequired,
+    getNewsToMarkAsSeen,
     executeNewsAction,
     shouldWaspInvokeNews,
-    makeWaspInvokedNewsAction,
   )
 where
 
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Data.List (intercalate)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
@@ -23,68 +24,82 @@ import Wasp.Cli.Command.News.LocalNewsState
     setLastReportTimestamp,
     wasNewsEntrySeen,
   )
-import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
-import Wasp.Util (ifM)
+import Wasp.Cli.Interactive (askForConfirmationWithTimeout, waitForNSeconds)
 import Wasp.Util.Terminal (styleCode)
 
 data NewsAction
-  = ShowAllAndMarkSeen [NewsEntry] -- wasp news
-  | MarkSeenWithoutShowing [NewsEntry] -- wasp start + no previous state
-  | ShowWithConfirmation [NewsEntry] -- wasp start + there are critical news
-  | ShowWithoutMarkingSeen [NewsEntry] -- wasp start + no critical news
+  = UserRequestsAllNews [NewsEntry]
+  | WaspRequestsMustSeeNews [NewsEntry]
   deriving (Show, Eq)
 
 shouldWaspInvokeNews :: LocalNewsState -> IO Bool
 shouldWaspInvokeNews = isLastReportOrderThanNHours 24
 
--- Try martin's idea with two sum types.
-
-makeUserInvokedNewsAction :: [NewsEntry] -> NewsAction
-makeUserInvokedNewsAction = ShowAllAndMarkSeen
-
-makeWaspInvokedNewsAction :: LocalNewsState -> [NewsEntry] -> NewsAction
-makeWaspInvokedNewsAction currentState allNewsEntries
-  | userHasNoNewsHistory = MarkSeenWithoutShowing allNewsEntries
-  | thereAreCriticalNews = ShowWithConfirmation relevantUnseenNews
-  | otherwise = ShowWithoutMarkingSeen relevantUnseenNews
+getNewsToShow :: LocalNewsState -> NewsAction -> [NewsEntry]
+getNewsToShow localState = \case
+  UserRequestsAllNews allNews -> allNews
+  WaspRequestsMustSeeNews allNews
+    | userHasNoNewsHistory localState -> []
+    | otherwise -> unseenNewsThatUserMustSee allNews
   where
-    userHasNoNewsHistory = currentState == emptyLocalNewsState
-    thereAreCriticalNews = any ((== Critical) . level) relevantUnseenNews
-    relevantUnseenNews = filter isRelevant . filter isUnseen $ allNewsEntries
-    isRelevant = (>= Important) . level
-    isUnseen = not . wasNewsEntrySeen currentState
+    unseenNewsThatUserMustSee = filter isMustSee . filter isUnseen
+    isMustSee = (>= Important) . level
+    isUnseen = not . wasNewsEntrySeen localState
+
+isConfirmationRequired :: LocalNewsState -> NewsAction -> Bool
+isConfirmationRequired localState action = case action of
+  UserRequestsAllNews _ -> False
+  WaspRequestsMustSeeNews _ -> any ((== Critical) . level) (getNewsToShow localState action)
+
+getNewsToMarkAsSeen :: LocalNewsState -> NewsAction -> [NewsEntry]
+getNewsToMarkAsSeen state action = case action of
+  UserRequestsAllNews news -> news
+  WaspRequestsMustSeeNews allNews
+    | userHasNoNewsHistory state -> allNews
+    | isConfirmationRequired state action -> getNewsToShow state action
+    | otherwise -> []
+
+userHasNoNewsHistory :: LocalNewsState -> Bool
+userHasNoNewsHistory = (== emptyLocalNewsState)
 
 executeNewsAction :: LocalNewsState -> NewsAction -> IO ()
-executeNewsAction localState = \case
-  ShowAllAndMarkSeen news -> do
-    printNews news
-    updateTimestampAndMarkAsSeen news
-  MarkSeenWithoutShowing news ->
-    updateTimestampAndMarkAsSeen news
-  ShowWithoutMarkingSeen news -> do
-    printNews news
-    unless (null news) $ putStrLn $ "Run " ++ styleCode "wasp news" ++ " to mark news as seen."
-    updateTimestampWithoutMarkingNewsAsSeen
-  ShowWithConfirmation news -> do
-    printNews news
-    ifM
-      askUserForConfirmation
-      (updateTimestampAndMarkAsSeen news)
-      updateTimestampWithoutMarkingNewsAsSeen
+executeNewsAction localState action = do
+  printNews
+
+  when shouldTellUserAboutTheNewsCommand $ do
+    putStrLn $
+      "\nIf you don't want to see these messages again, run "
+        ++ styleCode "wasp news"
+        ++ " to confirm you read them."
+    waitForNSeconds 5
+
+  shouldMarkNewsAsSeen <-
+    if isConfirmationRequired localState action
+      then askUserForConfirmation
+      else return True
+
+  if shouldMarkNewsAsSeen
+    then updateTimestampAndMarkAsSeen (getNewsToMarkAsSeen localState action)
+    else updateTimestampAndMarkAsSeen []
   where
-    printNews news =
-      unless (null news) $
+    printNews =
+      unless (null newsToShow) $
         putStrLn $
           intercalate "\n\n" $
-            map showNewsEntry news
+            map showNewsEntry newsToShow
+
+    newsToShow = getNewsToShow localState action
+
+    shouldTellUserAboutTheNewsCommand = case action of
+      UserRequestsAllNews _ -> False
+      WaspRequestsMustSeeNews _ ->
+        not (null newsToShow) && not (isConfirmationRequired localState action)
 
     askUserForConfirmation =
       askForConfirmationWithTimeout
         "\nThere are critical annoucements above. Please confirm you've read them by typing 'y'"
         "y"
         10
-
-    updateTimestampWithoutMarkingNewsAsSeen = updateTimestampAndMarkAsSeen []
 
     updateTimestampAndMarkAsSeen newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime

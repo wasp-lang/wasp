@@ -11,9 +11,8 @@ import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Action
-  ( executeNewsAction,
-    makeUserInvokedNewsAction,
-    makeWaspInvokedNewsAction,
+  ( NewsAction (..),
+    executeNewsAction,
     shouldWaspInvokeNews,
   )
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
@@ -25,7 +24,7 @@ news = do
   newsEntries <- either (throwError . CommandError "Getting Wasp news failed") pure =<< liftIO fetchNews
   liftIO $ do
     localNewsState <- loadLocalNewsState
-    executeNewsAction localNewsState $ makeUserInvokedNewsAction newsEntries
+    executeNewsAction localNewsState $ UserRequestsAllNews newsEntries
 
 fetchAndReportMustSeeNewsIfDue :: IO ()
 fetchAndReportMustSeeNewsIfDue = do
@@ -37,5 +36,4 @@ fetchAndReportMustSeeNewsIfDue = do
       fetchNewsWithTimeout 2 >>= \case
         Left _err -> return () -- Wasp stays silent on purpose
         Right newsEntries ->
-          executeNewsAction localNewsState $
-            makeWaspInvokedNewsAction localNewsState newsEntries
+          executeNewsAction localNewsState $ WaspRequestsMustSeeNews newsEntries
