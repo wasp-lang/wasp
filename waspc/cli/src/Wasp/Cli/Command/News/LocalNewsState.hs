@@ -7,7 +7,7 @@ module Wasp.Cli.Command.News.LocalNewsState
     loadLocalNewsState,
     saveLocalNewsState,
     emptyLocalNewsState,
-    areNewsStale,
+    isLastReportOrderThanNHours,
     wasNewsEntrySeen,
     setLastReportTimestamp,
     markNewsAsSeen,
@@ -20,6 +20,7 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Time as T
 import GHC.Generics (Generic)
+import Numeric.Natural (Natural)
 import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
 import qualified System.Directory as SD
 import Wasp.Cli.Command.News.Core (NewsEntry (..))
@@ -66,10 +67,10 @@ markNewsAsSeen newsEntries state = state {seenNewsIds = unionOfOldAndNewIds}
   where
     unionOfOldAndNewIds = state.seenNewsIds <> Set.fromList (map (.id) newsEntries)
 
-areNewsStale :: LocalNewsState -> IO Bool
-areNewsStale state = case state.lastReportAt of
+isLastReportOrderThanNHours :: Natural -> LocalNewsState -> IO Bool
+isLastReportOrderThanNHours nHours state = case state.lastReportAt of
   Nothing -> return True
-  Just lastReportAt' -> isOlderThanNHours 24 lastReportAt'
+  Just lastReportAt' -> isOlderThanNHours nHours lastReportAt'
 
 getNewsStateFilePath :: IO (Path' Abs File')
 getNewsStateFilePath = do

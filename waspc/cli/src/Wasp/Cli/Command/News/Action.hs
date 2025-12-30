@@ -4,6 +4,7 @@ module Wasp.Cli.Command.News.Action
   ( NewsAction (..),
     makeUserInvokedNewsAction,
     executeNewsAction,
+    shouldWaspInvokeNews,
     makeWaspInvokedNewsAction,
   )
 where
@@ -16,6 +17,7 @@ import Wasp.Cli.Command.News.Display (showNewsEntry)
 import Wasp.Cli.Command.News.LocalNewsState
   ( LocalNewsState,
     emptyLocalNewsState,
+    isLastReportOrderThanNHours,
     markNewsAsSeen,
     saveLocalNewsState,
     setLastReportTimestamp,
@@ -26,22 +28,28 @@ import Wasp.Util (ifM)
 import Wasp.Util.Terminal (styleCode)
 
 data NewsAction
-  = ShowAllAndMarkSeen [NewsEntry]
-  | MarkSeenWithoutShowing [NewsEntry]
-  | ShowWithConfirmation [NewsEntry]
-  | ShowWithoutMarkingSeen [NewsEntry]
+  = ShowAllAndMarkSeen [NewsEntry] -- wasp news
+  | MarkSeenWithoutShowing [NewsEntry] -- wasp start + no previous state
+  | ShowWithConfirmation [NewsEntry] -- wasp start + there are critical news
+  | ShowWithoutMarkingSeen [NewsEntry] -- wasp start + no critical news
   deriving (Show, Eq)
+
+shouldWaspInvokeNews :: LocalNewsState -> IO Bool
+shouldWaspInvokeNews = isLastReportOrderThanNHours 24
+
+-- Try martin's idea with two sum types.
 
 makeUserInvokedNewsAction :: [NewsEntry] -> NewsAction
 makeUserInvokedNewsAction = ShowAllAndMarkSeen
 
 makeWaspInvokedNewsAction :: LocalNewsState -> [NewsEntry] -> NewsAction
 makeWaspInvokedNewsAction currentState allNewsEntries
-  | currentState == emptyLocalNewsState = MarkSeenWithoutShowing allNewsEntries
-  | hasCriticalNews = ShowWithConfirmation relevantUnseenNews
+  | userHasNoNewsHistory = MarkSeenWithoutShowing allNewsEntries
+  | thereAreCriticalNews = ShowWithConfirmation relevantUnseenNews
   | otherwise = ShowWithoutMarkingSeen relevantUnseenNews
   where
-    hasCriticalNews = any ((== Critical) . level) relevantUnseenNews
+    userHasNoNewsHistory = currentState == emptyLocalNewsState
+    thereAreCriticalNews = any ((== Critical) . level) relevantUnseenNews
     relevantUnseenNews = filter isRelevant . filter isUnseen $ allNewsEntries
     isRelevant = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen currentState

@@ -14,9 +14,10 @@ import Wasp.Cli.Command.News.Action
   ( executeNewsAction,
     makeUserInvokedNewsAction,
     makeWaspInvokedNewsAction,
+    shouldWaspInvokeNews,
   )
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
-import Wasp.Cli.Command.News.LocalNewsState (areNewsStale, loadLocalNewsState)
+import Wasp.Cli.Command.News.LocalNewsState (loadLocalNewsState)
 import Wasp.Util (checkIfOnCi, whenM)
 
 news :: Command ()
@@ -26,13 +27,14 @@ news = do
     localNewsState <- loadLocalNewsState
     executeNewsAction localNewsState $ makeUserInvokedNewsAction newsEntries
 
+-- Must see
 fetchAndReportWaspInvokedNewsIfDue :: IO ()
 fetchAndReportWaspInvokedNewsIfDue = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
   isOnCi <- checkIfOnCi
   unless (isWaspNewsDisabled || isOnCi) $ do
     localNewsState <- loadLocalNewsState
-    whenM (areNewsStale localNewsState) $ do
+    whenM (shouldWaspInvokeNews localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
         Left _err -> return () -- Wasp stays silent on purpose
         Right newsEntries ->
