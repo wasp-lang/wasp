@@ -22,6 +22,10 @@ With this change, we will not require you to upgrade Tailwind CSS in lockstep wi
 
 In previous versions of Wasp, we used a custom way of handling Tailwind CSS configuration files, which tightly coupled us to a specific version. Due to the new Vite installation method in version 4, we can simplify our support, and remove all custom steps. Now Tailwind CSS is just a regular dependency in your Wasp app like any other.
 
+### Merged the `.wasp/out` and `.wasp/build` directories
+
+In previous versions of Wasp, there were two separate directories for generated code: `.wasp/out` (used in development mode) and `.wasp/build` (used in production mode). Starting from Wasp 0.21.X, only the `.wasp/out` directory is used for generated code in both development and production modes. This change simplifies the project structure and reduces confusion.
+
 ### Upgraded to Vitest 4
 
 Wasp has upgraded its testing framework from Vitest 1 all the way to Vitest 4. This brings a lot of improvements, especially in terms of performance and stability. Most users should not notice any breaking changes, but if you have custom test setups or configurations, please refer to the [Vitest migration guide](https://vitest.dev/guide/migration.html) for more details.
@@ -42,7 +46,46 @@ app MyApp {
 }
 ```
 
-### 2. Upgrade Tailwind CSS to v4
+### 2. Remove the `.wasp/build/*` workspace from your project
+
+We don't use the `.wasp/build/*` directories anymore, so you should remove them from the list of workspaces in your `package.json` file. Keep the `.wasp/out/*` workspace as it is still needed:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "workspaces": [
+    // highlight-next-line
+    ".wasp/build/*",
+    ".wasp/out/*"
+  ]
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```json title="package.json"
+{
+  "workspaces": [
+    ".wasp/out/*"
+  ]
+}
+```
+
+</TabItem>
+</Tabs>
+
+Now, we will clean up the old `.wasp/build` directory (to avoid any potential conflicts), and let `npm` pick up the new workspace configuration. You can do this by running the following command in your terminal:
+
+```sh
+wasp clean
+wasp ts-setup # if you're using the TS Spec
+wasp compile
+```
+
+### 23 Upgrade Tailwind CSS to v4
 
 **If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
 
@@ -131,7 +174,29 @@ app MyApp {
 
 If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../project/css-frameworks.md#tailwind).
 
-### 3. Upgrade Vitest tests to v4
+### 4. Update your custom Dockerfile
+
+**If you don't have a `Dockerfile` in your project folder, you can skip this step.**
+
+If you have a custom `Dockerfile` in your project, you need to update it to reference the new `.wasp/out` directory instead of the removed `.wasp/build` directory.
+
+This can be a quite straightforward find-and-replace operation:
+- **Find** `.wasp/build`
+- **Replace** with `.wasp/out`
+
+### 5. Update your custom deployment scripts
+
+**If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
+
+If you have custom deployment scripts, you'll need to update them to reference the new `.wasp/out` directory instead of the removed `.wasp/build` directory.
+
+This can be a quite straightforward find-and-replace operation:
+- **Find** `.wasp/build`
+- **Replace** with `.wasp/out`
+
+You can check our updated [deployment methods guide](../deployment/deployment-methods/overview.md) and [CI/CD guide](../deployment/ci-cd.md) for reference on the correct deployment steps.
+
+### 6. Upgrade Vitest tests to v4
 
 **If you don't have test files in your project, you can skip this step.**
 
@@ -141,6 +206,6 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 4. Enjoy your updated Wasp app
+### 7. Enjoy your updated Wasp app
 
 That's it!

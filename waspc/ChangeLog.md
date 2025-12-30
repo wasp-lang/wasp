@@ -8,6 +8,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Wasp now has **Tailwind CSS 4** support, and v3 support has been dropped. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 - Wasp now uses **Vitest 4** for testing. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
+- Removed the `.wasp/build` directory. Wasp now only uses `.wasp/out` for generated code, both in development and production mode. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
 
 ### 🎉 New Features
 
@@ -16,6 +17,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🔧 Small improvements
 
 - We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
+- Running a Wasp in development or production mode won't modify your `package-lock.json` file anymore. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
 - We updated the `basic` starter template to the latest best practices for React 19 + TypeScript apps. This applies to new projects created with `wasp new -t basic`, and older projects are unaffected. ([#3572](https://github.com/wasp-lang/wasp/pull/3572))
 - We updated the testing environment to JSDOM 27 for more up-to-date mocking. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - We updated our API mocking to MSW 2 for better performance and reliability. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
@@ -539,22 +541,18 @@ const doneTasks = await getTasks(getTasks.queryCacheKey, { isDone: true });
 We had to make a couple of breaking changes to reach the new simpler Auth API:
 
 1. You don't need to use `getUsername` to access the username:
-
    - Before: Used `getUsername` to access the username.
    - After: Directly use `user.identities.username?.id`.
 
 2. You don't need to use `getEmail` to access the email:
-
    - Before: Used `getEmail` to access the email.
    - After: Directly use `user.identities.email?.id`.
 
 3. Better API for accessing `providerData`:
-
    - Before: Required complex logic to access typed provider data.
    - After: Directly use `user.identities.<provider>.<value>` for typed access.
 
 4. Better API for accessing `getFirstProviderUserId`:
-
    - Before: Used `getFirstProviderUserId(user)` to get the ID.
    - After: Use `user.getFirstProviderUserId()` directly on the user object.
 
@@ -1916,9 +1914,7 @@ You can now use the Tailwind CSS framework in your project by simply adding two 
 ### BREAKING CHANGES
 
 - The `EmailAndPassword` auth method has been renamed `usernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
-
   - This means the `auth.userEntity` model should now have field called `username` (instead of `email`, as before).
-
     - If you'd like to treat the old `email` field as `username`, you can create a migration file like so:
 
       ```bash
