@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Generator.WaspInfo (persist, checkNeedsCleanBuild) where
+module Wasp.Generator.WaspInfo (persist, checkIfCleanBuildNeeded) where
 
 import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.Aeson.Types (FromJSON)
@@ -43,8 +43,8 @@ persist projectRootDir currentBuildType = do
     waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
     currentVersion = showVersion Paths_waspc.version
 
-checkNeedsCleanBuild :: Path' Abs (Dir ProjectRootDir) -> BuildType -> IO Bool
-checkNeedsCleanBuild outDir currentBuildType =
+checkIfCleanBuildNeeded :: Path' Abs (Dir ProjectRootDir) -> BuildType -> IO Bool
+checkIfCleanBuildNeeded outDir currentBuildType =
   maybe True (needsCleanBuild currentBuildType) <$> safeRead outDir
 
 safeRead :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe WaspInfo)
