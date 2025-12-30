@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
-module Wasp.Cli.Command.News.Action
+module Wasp.Cli.Command.News.Report
   ( NewsAction (..),
     makeUserInvokedNewsAction,
     executeNewsAction,
@@ -50,25 +51,18 @@ executeNewsAction :: LocalNewsState -> NewsAction -> IO ()
 executeNewsAction localState = \case
   ShowAllAndMarkSeen news -> do
     printNews news
-    updateTimestampAndMarkAsSeen news
+    updateStateWithNews news
   MarkSeenWithoutShowing news ->
-    updateTimestampAndMarkAsSeen news
+    updateStateWithNews news
+  ShowWithConfirmation news -> do
+    printNews news
+    ifM askUserForConfirmation (updateStateWithNews news) updateStateOnly
   ShowWithoutMarkingSeen news -> do
     printNews news
     unless (null news) $ putStrLn $ "Run " ++ styleCode "wasp news" ++ " to mark news as seen."
-    updateTimestampWithoutMarkingNewsAsSeen
-  ShowWithConfirmation news -> do
-    printNews news
-    ifM
-      askUserForConfirmation
-      (updateTimestampAndMarkAsSeen news)
-      updateTimestampWithoutMarkingNewsAsSeen
+    updateStateOnly
   where
-    printNews news =
-      unless (null news) $
-        putStrLn $
-          intercalate "\n\n" $
-            map showNewsEntry news
+    printNews news = unless (null news) $ putStrLn $ intercalate "\n\n" $ map showNewsEntry news
 
     askUserForConfirmation =
       askForConfirmationWithTimeout
@@ -76,9 +70,10 @@ executeNewsAction localState = \case
         "y"
         10
 
-    updateTimestampWithoutMarkingNewsAsSeen = updateTimestampAndMarkAsSeen []
+    updateStateWithNews news = updateLocalState news
+    updateStateOnly = updateLocalState []
 
-    updateTimestampAndMarkAsSeen newsToMarkAsSeen = do
+    updateLocalState newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
       saveLocalNewsState $
         setLastReportTimestamp currentTime $
