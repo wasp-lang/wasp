@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.News
   ( news,
-    fetchAndReportWaspInvokedNewsIfDue,
+    fetchAndReportMustSeeNewsIfDue,
   )
 where
 
@@ -27,9 +27,8 @@ news = do
     localNewsState <- loadLocalNewsState
     executeNewsAction localNewsState $ makeUserInvokedNewsAction newsEntries
 
--- Must see
-fetchAndReportWaspInvokedNewsIfDue :: IO ()
-fetchAndReportWaspInvokedNewsIfDue = do
+fetchAndReportMustSeeNewsIfDue :: IO ()
+fetchAndReportMustSeeNewsIfDue = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
   isOnCi <- checkIfOnCi
   unless (isWaspNewsDisabled || isOnCi) $ do
