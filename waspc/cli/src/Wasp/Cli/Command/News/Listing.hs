@@ -1,11 +1,11 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Wasp.Cli.Command.News.Action
-  ( NewsAction (..),
+module Wasp.Cli.Command.News.Listing
+  ( NewsListing (..),
     getNewsToShow,
     isConfirmationRequired,
     getNewsToMarkAsSeen,
-    executeNewsAction,
+    processNewsListing,
     shouldWaspInvokeNews,
   )
 where
@@ -27,18 +27,18 @@ import Wasp.Cli.Command.News.LocalNewsState
 import Wasp.Cli.Interactive (askForConfirmationWithTimeout, waitForNSeconds)
 import Wasp.Util.Terminal (styleCode)
 
-data NewsAction
-  = UserRequestsAllNews [NewsEntry]
-  | WaspRequestsMustSeeNews [NewsEntry]
-  deriving (Show, Eq)
-
 shouldWaspInvokeNews :: LocalNewsState -> IO Bool
 shouldWaspInvokeNews = isLastReportOrderThanNHours 24
 
-getNewsToShow :: LocalNewsState -> NewsAction -> [NewsEntry]
+data NewsListing
+  = UserRequestedAllNews [NewsEntry]
+  | WaspRequestedMustSeeNews [NewsEntry]
+  deriving (Show, Eq)
+
+getNewsToShow :: LocalNewsState -> NewsListing -> [NewsEntry]
 getNewsToShow localState = \case
-  UserRequestsAllNews allNews -> allNews
-  WaspRequestsMustSeeNews allNews
+  UserRequestedAllNews allNews -> allNews
+  WaspRequestedMustSeeNews allNews
     | userHasNoNewsHistory localState -> []
     | otherwise -> unseenNewsThatUserMustSee allNews
   where
@@ -46,24 +46,21 @@ getNewsToShow localState = \case
     isMustSee = (>= Important) . level
     isUnseen = not . wasNewsEntrySeen localState
 
-isConfirmationRequired :: LocalNewsState -> NewsAction -> Bool
+isConfirmationRequired :: LocalNewsState -> NewsListing -> Bool
 isConfirmationRequired localState action = case action of
-  UserRequestsAllNews _ -> False
-  WaspRequestsMustSeeNews _ -> any ((== Critical) . level) (getNewsToShow localState action)
+  UserRequestedAllNews _ -> False
+  WaspRequestedMustSeeNews _ -> any ((== Critical) . level) (getNewsToShow localState action)
 
-getNewsToMarkAsSeen :: LocalNewsState -> NewsAction -> [NewsEntry]
+getNewsToMarkAsSeen :: LocalNewsState -> NewsListing -> [NewsEntry]
 getNewsToMarkAsSeen state action = case action of
-  UserRequestsAllNews news -> news
-  WaspRequestsMustSeeNews allNews
+  UserRequestedAllNews news -> news
+  WaspRequestedMustSeeNews allNews
     | userHasNoNewsHistory state -> allNews
     | isConfirmationRequired state action -> getNewsToShow state action
     | otherwise -> []
 
-userHasNoNewsHistory :: LocalNewsState -> Bool
-userHasNoNewsHistory = (== emptyLocalNewsState)
-
-executeNewsAction :: LocalNewsState -> NewsAction -> IO ()
-executeNewsAction localState action = do
+processNewsListing :: LocalNewsState -> NewsListing -> IO ()
+processNewsListing localState action = do
   printNews
 
   when shouldTellUserAboutTheNewsCommand $ do
@@ -91,8 +88,8 @@ executeNewsAction localState action = do
     newsToShow = getNewsToShow localState action
 
     shouldTellUserAboutTheNewsCommand = case action of
-      UserRequestsAllNews _ -> False
-      WaspRequestsMustSeeNews _ ->
+      UserRequestedAllNews _ -> False
+      WaspRequestedMustSeeNews _ ->
         not (null newsToShow) && not (isConfirmationRequired localState action)
 
     askUserForConfirmation =
@@ -106,3 +103,6 @@ executeNewsAction localState action = do
       saveLocalNewsState $
         setLastReportTimestamp currentTime $
           markNewsAsSeen newsToMarkAsSeen localState
+
+userHasNoNewsHistory :: LocalNewsState -> Bool
+userHasNoNewsHistory = (== emptyLocalNewsState)
