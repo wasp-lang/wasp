@@ -15,7 +15,6 @@
   "name": "wasp-app",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
     ".wasp/out/*"
   ]
 }
