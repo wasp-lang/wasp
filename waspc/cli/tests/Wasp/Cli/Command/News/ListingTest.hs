@@ -21,7 +21,7 @@ spec_getNewsToShow = do
   describe "getNewsToShow" $ do
     describe "for UserRequestedAllNews" $ do
       it "returns all news entries including seen ones" $ do
-        let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+        let newsState = markNewsAsSeen allNews emptyLocalNewsState
             newsToShow = getNewsToShow newsState (UserRequestedAllNews allNews)
         newsToShow `shouldMatchList` allNews
 
@@ -30,34 +30,34 @@ spec_getNewsToShow = do
         getNewsToShow emptyLocalNewsState (WaspRequestedMustSeeNews allNews) `shouldBe` []
 
       it "returns unseen news that are important or higher when there is previous news history" $ do
-        let newsState = markNewsAsSeen [critical1, important1] emptyLocalNewsState
-            newsToShow = getNewsToShow newsState (WaspRequestedMustSeeNews allNews)
-        newsToShow `shouldMatchList` [important2, critical2]
+        let newsState = markNewsAsSeen [info1, important1] emptyLocalNewsState
+            newsToShow = getNewsToShow newsState (WaspRequestedMustSeeNews [info1, important1, important2, critical1])
+        newsToShow `shouldMatchList` [important2, critical1]
 
 spec_isConfirmationRequired :: Spec
 spec_isConfirmationRequired = do
   describe "isConfirmationRequired" $ do
-    it "always returns False for UserRequestedAllNews with critical news" $ do
-      let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+    it "always returns False for UserRequestedAllNews" $ do
+      let newsState = markNewsAsSeen [] emptyLocalNewsState
       isConfirmationRequired newsState (UserRequestedAllNews allNews)
         `shouldBe` False
 
     describe "for WaspRequestedMustSeeNews" $ do
       it "returns True when unseen news include critical news" $ do
         let newsState = markNewsAsSeen [info1] emptyLocalNewsState
-        isConfirmationRequired newsState (WaspRequestedMustSeeNews allNews)
+        isConfirmationRequired newsState (WaspRequestedMustSeeNews [info1, important1, critical1])
           `shouldBe` True
 
       it "returns False when unseen news don't include critical news" $ do
-        let newsState = markNewsAsSeen [critical1, critical2] emptyLocalNewsState
-        isConfirmationRequired newsState (WaspRequestedMustSeeNews allNews)
+        let newsState = markNewsAsSeen [critical1] emptyLocalNewsState
+        isConfirmationRequired newsState (WaspRequestedMustSeeNews [info1, important1, critical1])
           `shouldBe` False
 
 spec_getNewsMarkedAsSeen :: Spec
 spec_getNewsMarkedAsSeen = do
   describe "getNewsToMarkAsSeen" $ do
     it "returns all news entries for UserRequestedAllNews" $ do
-      let newsState = markNewsAsSeen [info1] emptyLocalNewsState
+      let newsState = markNewsAsSeen allNews emptyLocalNewsState
           toMark = getNewsToMarkAsSeen newsState (UserRequestedAllNews allNews)
       toMark `shouldMatchList` allNews
 
@@ -67,8 +67,8 @@ spec_getNewsMarkedAsSeen = do
         toMark `shouldMatchList` allNews
 
       it "returns unseen important+ news when there are unseen critical news and there is news history" $ do
-        let newsState = markNewsAsSeen [important2, info2, critical2] emptyLocalNewsState
-            toMark = getNewsToMarkAsSeen newsState (WaspRequestedMustSeeNews allNews)
+        let newsState = markNewsAsSeen [critical2] emptyLocalNewsState
+            toMark = getNewsToMarkAsSeen newsState (WaspRequestedMustSeeNews [critical1, critical2, important1])
         toMark `shouldMatchList` [important1, critical1]
 
       it "returns an empty list when there are no unseen critical news and there is news history" $ do
