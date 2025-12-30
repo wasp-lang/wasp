@@ -4,39 +4,20 @@ import * as path from "path";
 import { parse } from "dotenv";
 import type { PathToApp } from "../args.js";
 import { doesFileExits } from "../files.js";
+import { waitUntilHTTP } from "../http.js";
 import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
 
 const clientAppDir = ".wasp/build/web-app";
 
-// Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
-export async function buildAndRunClientApp({
+export async function buildClientApp({
   pathToApp,
 }: {
   pathToApp: PathToApp;
 }): Promise<void> {
-  const logger = createLogger("client-build-and-run-app");
-  const { exitCode: buildExitCode } = await buildClientApp({ pathToApp });
-  if (buildExitCode !== 0) {
-    logger.error("Failed to build client app.");
-    process.exit(1);
-  }
+  const logger = createLogger("client-build-app");
 
-  // This starts a long running process, so we don't await it.
-  startClientApp({ pathToApp }).then(({ exitCode }) => {
-    if (exitCode !== 0) {
-      logger.error("Failed to start client app.");
-      process.exit(1);
-    }
-  });
-}
-
-async function buildClientApp({
-  pathToApp,
-}: {
-  pathToApp: PathToApp;
-}): Promise<{ exitCode: number | null }> {
   const defaultRequiredEnv = {
     REACT_APP_API_URL: "http://localhost:3001",
   };
@@ -47,23 +28,34 @@ async function buildClientApp({
     ...devEnv,
   };
 
-  return spawnWithLog({
+  const { exitCode } = await spawnWithLog({
     name: "client-build-app",
     cmd: "npm",
     args: ["run", "build"],
     cwd: path.join(pathToApp, clientAppDir),
     extraEnv: clientBuildEnv,
   });
+
+  if (exitCode !== 0) {
+    logger.error("Failed to build client app.");
+    process.exit(1);
+  }
 }
 
-async function startClientApp({
+/**
+ * This function returns a Promise that resolves when the client app has started,
+ * or rejects if it fails to start.
+ *
+ * The returned Promise in the object resolves when the client app process exits.
+ */
+export async function startClientApp({
   pathToApp,
 }: {
   pathToApp: PathToApp;
-}): Promise<{
-  exitCode: number | null;
-}> {
-  return spawnWithLog({
+}): Promise<{ processPromise: Promise<{ exitCode: number | null }> }> {
+  const logger = createLogger("client-start-app");
+
+  const childProcess = spawnWithLog({
     name: "client-start-app",
     cmd: "npm",
     args: [
@@ -76,6 +68,17 @@ async function startClientApp({
     ],
     cwd: path.join(pathToApp, clientAppDir),
   });
+
+  const exitCodePromise = childProcess.then(({ exitCode }) => {
+    if (exitCode !== 0) {
+      logger.error("Failed to start client app.");
+      process.exit(1);
+    }
+  });
+
+  await Promise.race([waitUntilHTTP({ port: 3000 }), exitCodePromise]);
+
+  return { processPromise: childProcess };
 }
 
 async function getDevEnvVars({
