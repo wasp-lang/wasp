@@ -16,6 +16,22 @@ on:
         default: "22"
         type: string
         required: false
+    outputs:
+      waspc_version:
+        value: ${{ jobs.build.outputs.waspc_version }}
+        description: "The Wasp version built in this workflow."
+      output_linux-x86_64:
+        value: ${{ jobs.build.outputs.output_linux-x86_64 }}
+        description: "The build output metadata for linux-x86_64."
+      output_linux-x86_64-static:
+        value: ${{ jobs.build.outputs.output_linux-x86_64-static }}
+        description: "The build output metadata for linux-x86_64-static."
+      output_macos-x86_64:
+        value: ${{ jobs.build.outputs.output_macos-x86_64 }}
+        description: "The build output metadata for macos-x86_64."
+      output_macos-aarch64:
+        value: ${{ jobs.build.outputs.output_macos-aarch64 }}
+        description: "The build output metadata for macos-aarch64."
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -200,66 +216,3 @@ jobs:
         with:
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           path: ./${{ steps.compute-artifact-names.outputs.tarball-name }}
-
-  make-npm-packages:
-    needs: build
-
-    runs-on: ubuntu-latest
-
-    name: Make npm packages
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Compute artifact names for download
-        uses: ./.github/actions/compute-artifact-names
-        id: compute-download-artifact-names
-        with:
-          build-name: all
-
-      - uses: actions/download-artifact@v6
-        with:
-          path: "./download/"
-          pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
-
-      - name: Copy artifacts to input folder
-        run: |
-          mkdir -p ./input/
-          cp ./download/${{ steps.compute-download-artifact-names.outputs.artifact-name }}/* ./input/
-
-      - name: Create build metadata file
-        env:
-          INPUT_DATA: ${{ toJson(needs.build.outputs) }}
-          JQ_PROGRAM:
-            # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
-            # We'll wrangle the data from the build jobs into that schema here.
-            |
-            {
-              version: .waspc_version,
-              tarballs:
-                with_entries(select(.key | startswith("output_")))
-                | map(
-                    fromjson
-                    | {
-                        fileName: .["tarball-name"],
-                        target: (.["npm-target"] | fromjson)
-                      }
-                  )
-            }
-        run: echo "$INPUT_DATA" | jq "$JQ_PROGRAM" > ./input/data.json
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          cache: npm
-
-      - name: Install dependencies for script
-        working-directory: ./scripts/make-npm-packages
-        run: npm ci
-
-      - name: Run packager script
-        run: node ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: wasp-npm-packages
-          path: ./output/
