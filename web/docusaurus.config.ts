@@ -54,7 +54,7 @@ const config: Config = {
       },
     },
     navbar: {
-      title: ".wasp (beta)",
+      title: "Wasp (beta)",
       logo: {
         alt: "Wasp logo",
         src: "img/wasp-logo-eqpar-circle.png",
