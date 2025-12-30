@@ -24,7 +24,7 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasLastLisingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
-import Wasp.Cli.Interactive (askForConfirmationWithTimeout, waitForNSeconds)
+import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
 import Wasp.Util.Terminal (styleCode)
 
 shouldWaspInvokeNews :: LocalNewsState -> IO Bool
