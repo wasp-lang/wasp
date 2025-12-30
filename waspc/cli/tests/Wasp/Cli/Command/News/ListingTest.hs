@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Wasp.Cli.Command.News.ListingTest where
 
 import qualified Data.Time as T
