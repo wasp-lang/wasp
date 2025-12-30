@@ -141,8 +141,10 @@ checkGeneratedCode expectedBuildType = do
           SP.</> Project.Common.dotWaspDirInWaspProjectDir
           SP.</> Project.Common.generatedCodeDirInDotWaspDir
 
-  buildType <-
-    (WaspInfo.buildType <$>)
-      <$> liftIO (WaspInfo.safeRead generatedCodeDir)
+  cleanBuildNeeded <-
+    liftIO $
+      WaspInfo.checkIfCleanBuildNeeded
+        generatedCodeDir
+        expectedBuildType
 
-  return $ buildType == Just expectedBuildType
+  return $ not cleanBuildNeeded
