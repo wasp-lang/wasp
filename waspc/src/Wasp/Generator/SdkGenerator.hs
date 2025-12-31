@@ -44,7 +44,6 @@ import Wasp.Generator.DepVersions
     reactRouterVersion,
     reactVersion,
     superjsonVersion,
-    tailwindCssVersion,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
@@ -70,7 +69,6 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.TailwindConfigFile as TCF
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
@@ -224,10 +222,6 @@ npmDepsForSdk spec =
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
-          -- These deps need to be installed in the SDK becasue when we run client tests,
-          -- we are running them from the project root dir and PostCSS and Tailwind
-          -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
-          ++ depsRequiredByTailwind spec
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
         Npm.Dependency.fromList
@@ -316,17 +310,6 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
         [ -- Argon2 is used for hashing passwords.
           ("@node-rs/argon2", "^1.8.3")
         ]
-
-depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByTailwind spec =
-  if TCF.isTailwindUsed spec
-    then
-      Npm.Dependency.fromList
-        [ ("tailwindcss", show tailwindCssVersion),
-          ("postcss", "^8.4.21"),
-          ("autoprefixer", "^10.4.13")
-        ]
-    else []
 
 -- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.

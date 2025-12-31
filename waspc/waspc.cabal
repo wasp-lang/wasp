@@ -292,8 +292,6 @@ library
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
     Wasp.Generator.DepVersions
-    Wasp.Generator.TailwindConfigFile
-    Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
