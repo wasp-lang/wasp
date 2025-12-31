@@ -72,7 +72,7 @@ setLastListingTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
 setLastListingTimestamp time state = state {lastListingAt = Just time}
 
 markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
-markNewsAsSeen newsToMark state = state {seenNewsIds = newSeenIds <> oldSeenIds}
+markNewsAsSeen newsToMark state = state {seenNewsIds = oldSeenIds <> newSeenIds}
   where
     oldSeenIds = state.seenNewsIds
     newSeenIds = Set.fromList $ map (.id) newsToMark
