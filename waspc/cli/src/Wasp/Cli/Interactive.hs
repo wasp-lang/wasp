@@ -15,6 +15,7 @@ where
 import Control.Applicative ((<|>))
 import Data.Foldable (find)
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
@@ -136,13 +137,13 @@ tryGettingConfirmationWithTimeout message requiredAnswer timeoutSeconds = do
   isInteractive <- hIsTerminalDevice stdin
   if not isInteractive
     then return $ Left NonInteractiveShell
-    else do
-      maybeAnswer <- timeout timeoutMicroseconds (askForInput message)
-      return $ case maybeAnswer of
-        Nothing -> Left Timeout
-        Just actualAnswer
-          | actualAnswer == requiredAnswer -> Right ()
-          | otherwise -> Left $ WrongAnswer actualAnswer
+    else
+      timeout timeoutMicroseconds (askForInput message)
+        <&> \case
+          Nothing -> Left Timeout
+          Just actualAnswer
+            | actualAnswer == requiredAnswer -> Right ()
+            | otherwise -> Left $ WrongAnswer actualAnswer
   where
     timeoutMicroseconds = timeoutSeconds * 10 ^ (6 :: Int)
 
