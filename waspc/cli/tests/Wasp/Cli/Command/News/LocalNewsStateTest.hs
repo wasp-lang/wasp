@@ -23,7 +23,7 @@ spec_markNewsAsSeen = do
           state2 = markNewsAsSeen [newsEntry2] state1
       wasNewsEntrySeen state2 newsEntry1 `shouldBe` True
       wasNewsEntrySeen state2 newsEntry2 `shouldBe` True
-      wasNewsEntrySeen state newsEntry3 `shouldBe` False
+      wasNewsEntrySeen state2 newsEntry3 `shouldBe` False
   where
     newsEntry1 = NewsEntry "news-1" "News 1" "" Info someTime
     newsEntry2 = NewsEntry "news-2" "News 2" "" Info someTime

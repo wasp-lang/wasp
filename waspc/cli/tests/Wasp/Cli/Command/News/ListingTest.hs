@@ -24,9 +24,9 @@ spec_getNewsToShow :: Spec
 spec_getNewsToShow = do
   describe "getNewsToShow" $ do
     describe "for UserListingAllNews" $ do
-      it "returns all news in the listing" $ do
-        let newsState = markNewsAsSeen mockAllNews emptyLocalNewsState
-        getNewsToShow newsState (UserListingAllNews mockAllNews) `shouldBe` mockAllNews
+      prop "returns all news in the listing regardless of local news state" $
+        forAll anyLocalNewsState $ \newsState ->
+          getNewsToShow newsState (UserListingAllNews mockAllNews) === mockAllNews
 
     describe "for WaspListingMustSeeNews" $ do
       it "returns unseen news that are at least important" $ do
@@ -38,9 +38,9 @@ spec_isConfirmationRequired :: Spec
 spec_isConfirmationRequired = do
   describe "isConfirmationRequired" $ do
     describe "for UserListingAllNews" $ do
-      it "returns False" $ do
-        let newsState = markNewsAsSeen mockAllNews emptyLocalNewsState
-        isConfirmationRequired newsState (UserListingAllNews mockAllNews) `shouldBe` False
+      prop "returns False regardless of local news state" $
+        forAll anyLocalNewsState $ \newsState ->
+          isConfirmationRequired newsState (UserListingAllNews mockAllNews) === False
 
     -- TODO: bad test, too similar to implementation
     describe "for WaspListingMustSeeNews" $ do
@@ -72,12 +72,14 @@ spec_getNewsToMarkAsSeen = do
           isConfirmationRequired newsState listing ==>
             getNewsToMarkAsSeen newsState listing === getNewsToShow newsState listing
 
+anyLocalNewsState :: Gen LocalNewsState
+anyLocalNewsState = markNewsAsSeen <$> subsetOf mockAllNews <*> pure emptyLocalNewsState
+
 waspListingScenario :: Gen (LocalNewsState, NewsListing)
 waspListingScenario = do
-  seenNews <- subsetOf mockAllNews
+  newsState <- anyLocalNewsState
   newsInListing <- subsetOf mockAllNews
-  let newsState = markNewsAsSeen seenNews emptyLocalNewsState
-      listing = WaspListingMustSeeNews newsInListing
+  let listing = WaspListingMustSeeNews newsInListing
   return (newsState, listing)
 
 subsetOf :: [a] -> Gen [a]
