@@ -1,12 +1,23 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Wasp.Cli.Command.News.Listing
-  ( NewsListing (..),
+  ( -- * News Listing
+
+    -- This modules captures all decisions Wasp has to make when showing Wasp
+    -- news:
+    --   - Which news to show under which context (i.e., who requested it).
+    --   - Which news to mark as seen.
+    --   - Whether the user should interactively confirm they've read the news.
+    --   - etc.
+    --
+    -- We tried to caputure most of the logic in pure function to make it
+    -- simplify testing.
+    NewsListing (..),
     getNewsToShow,
     isConfirmationRequired,
     getNewsToMarkAsSeen,
     processNewsListing,
-    shouldWaspInvokeNews,
+    shouldWaspListMustSeeNews,
     getNewsFromListing,
   )
 where
@@ -28,8 +39,8 @@ import Wasp.Cli.Command.News.LocalNewsState
 import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
 import Wasp.Util.Terminal (styleCode)
 
-shouldWaspInvokeNews :: LocalNewsState -> IO Bool
-shouldWaspInvokeNews = wasLastLisingMoreThanNHoursAgo 24
+shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
+shouldWaspListMustSeeNews = wasLastLisingMoreThanNHoursAgo 24
 
 data NewsListing
   = UserRequestedAllNews [NewsEntry]

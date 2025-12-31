@@ -21,10 +21,19 @@ import qualified Data.Set as Set
 import qualified Data.Time as T
 import GHC.Generics (Generic)
 import Numeric.Natural (Natural)
-import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
+import StrongPath
+  ( Abs,
+    File,
+    Path',
+    Rel,
+    fromAbsDir,
+    parent,
+    relfile,
+    (</>),
+  )
 import qualified System.Directory as SD
 import Wasp.Cli.Command.News.Core (NewsEntry (..))
-import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
+import Wasp.Cli.FileSystem (WaspCacheDir, getUserCacheDir, getWaspCacheDir)
 import Wasp.Util (ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, writeJsonFile)
@@ -73,7 +82,12 @@ wasLastLisingMoreThanNHoursAgo nHours state = case state.lastListingAt of
   Nothing -> return True
   Just lastListingAt' -> isOlderThanNHours nHours lastListingAt'
 
-getNewsStateFilePath :: IO (Path' Abs File')
+getNewsStateFilePath :: IO (Path' Abs (File LocalNewsStateFile))
 getNewsStateFilePath = do
   waspCacheDir <- getWaspCacheDir <$> getUserCacheDir
-  return $ waspCacheDir </> [relfile|news.json|]
+  return $ waspCacheDir </> newsStateFileInUserCacheDir
+
+data LocalNewsStateFile
+
+newsStateFileInUserCacheDir :: Path' (Rel WaspCacheDir) (File LocalNewsStateFile)
+newsStateFileInUserCacheDir = [relfile|news.json|]

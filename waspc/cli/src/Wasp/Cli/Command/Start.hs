@@ -11,7 +11,7 @@ import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.News (fetchAndReportMustSeeNewsIfDue)
+import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), FromOutDir (FromOutDir), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
@@ -23,7 +23,14 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWas
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  liftIO fetchAndReportMustSeeNewsIfDue
+  -- We only perform the periodic news check in wasp start to avoid being too agressive:
+  --   - We don't want to accidentally trigger news it in CI, and wasp start
+  --   generally shouldn't be used in CI.
+  --   - It would be annoying if news came out at you while you were doing
+  --   something like `wasp db migrate-dev`
+  -- Therefore, it's best to keep it contained/expected. This way we know
+  -- exactly which workflows it could possibly interrupt (LLMs, CIs, people...)
+  liftIO fetchAndListMustSeeNewsIfDue
   InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
