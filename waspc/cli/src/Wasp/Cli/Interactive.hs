@@ -6,7 +6,6 @@ module Wasp.Cli.Interactive
     askToChoose',
     askForRequiredInput,
     askForConfirmationWithTimeout,
-    waitForNSeconds,
     IsOption (..),
     Option (..),
   )

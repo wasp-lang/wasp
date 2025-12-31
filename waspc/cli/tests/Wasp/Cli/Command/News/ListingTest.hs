@@ -23,7 +23,7 @@ spec_getNewsToShow :: Spec
 spec_getNewsToShow = do
   describe "getNewsToShow" $ do
     describe "for UserRequestedAllNews" $ do
-      it "always returns all news in the listing" $ do
+      it "returns all news in the listing" $ do
         let newsState = markNewsAsSeen allNews emptyLocalNewsState
         getNewsToShow newsState (UserRequestedAllNews allNews) `shouldBe` allNews
 
@@ -37,14 +37,14 @@ spec_isConfirmationRequired :: Spec
 spec_isConfirmationRequired = do
   describe "isConfirmationRequired" $ do
     describe "for UserRequestedAllNews" $ do
-      it "always returns False" $ do
+      it "returns False" $ do
         let newsState = markNewsAsSeen allNews emptyLocalNewsState
         isConfirmationRequired newsState (UserRequestedAllNews allNews) `shouldBe` False
 
     -- TODO: bad test, too similar to implementation
     describe "for WaspRequestedMustSeeNews" $ do
       prop "returns True if and only if there is previous news history and newsToShow includes critical news" $
-        forAll scenario $ \(newsState, listing) ->
+        forAll waspInvokedScenario $ \(newsState, listing) ->
           isConfirmationRequired newsState listing
             === (newsState /= emptyLocalNewsState && any ((== Critical) . level) (getNewsToShow newsState listing))
 
@@ -58,22 +58,21 @@ spec_getNewsToMarkAsSeen = do
 
     describe "for WaspRequestedMustSeeNews" $ do
       prop "returns all news when there is no previous news history" $
-        forAll scenario $ \(_, listing) ->
+        forAll waspInvokedScenario $ \(_, listing) ->
           getNewsToMarkAsSeen emptyLocalNewsState listing === getNewsFromListing listing
 
       prop "returns an empty list when there is previous news history and confirmation is not required" $
-        forAll scenario $ \(newsState, listing) ->
-          not (isConfirmationRequired newsState listing)
-            && newsState /= emptyLocalNewsState
-            ==> getNewsToMarkAsSeen newsState listing === []
+        forAll waspInvokedScenario $ \(newsState, listing) ->
+          not (isConfirmationRequired newsState listing) && newsState /= emptyLocalNewsState ==>
+            getNewsToMarkAsSeen newsState listing === []
 
       prop "returns shown news when confirmation is required" $
-        forAll scenario $ \(newsState, listing) ->
+        forAll waspInvokedScenario $ \(newsState, listing) ->
           isConfirmationRequired newsState listing ==>
             getNewsToMarkAsSeen newsState listing === getNewsToShow newsState listing
 
-scenario :: Gen (LocalNewsState, NewsListing)
-scenario = do
+waspInvokedScenario :: Gen (LocalNewsState, NewsListing)
+waspInvokedScenario = do
   seenNews <- subsetOf allNews
   newsInListing <- subsetOf allNews
   let newsState = markNewsAsSeen seenNews emptyLocalNewsState
@@ -81,7 +80,7 @@ scenario = do
   return (newsState, listing)
 
 subsetOf :: [a] -> Gen [a]
-subsetOf xs = elements (subsequences xs)
+subsetOf = elements . subsequences
 
 allNews :: [NewsEntry]
 allNews = [info1, info2, important1, important2, critical1, critical2]
