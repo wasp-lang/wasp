@@ -31,14 +31,14 @@ import Wasp.Cli.Command.News.LocalNewsState
     markNewsAsSeen,
     saveLocalNewsState,
     setLastListingTimestamp,
-    wasLastLisingMoreThanNHoursAgo,
+    wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
 import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
 import Wasp.Util.Terminal (styleCode)
 
 shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
-shouldWaspListMustSeeNews = wasLastLisingMoreThanNHoursAgo 24
+shouldWaspListMustSeeNews = wasLastListingMoreThanNHoursAgo 24
 
 data NewsListing
   = UserListingAllNews {allNews :: [NewsEntry]}

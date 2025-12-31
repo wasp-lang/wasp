@@ -7,7 +7,7 @@ module Wasp.Cli.Command.News.LocalNewsState
     loadLocalNewsState,
     saveLocalNewsState,
     emptyLocalNewsState,
-    wasLastLisingMoreThanNHoursAgo,
+    wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
     setLastListingTimestamp,
     markNewsAsSeen,
@@ -77,8 +77,8 @@ markNewsAsSeen newsToMark state = state {seenNewsIds = oldSeenIds <> newSeenIds}
     oldSeenIds = state.seenNewsIds
     newSeenIds = Set.fromList $ map (.id) newsToMark
 
-wasLastLisingMoreThanNHoursAgo :: Natural -> LocalNewsState -> IO Bool
-wasLastLisingMoreThanNHoursAgo nHours state = case state.lastListingAt of
+wasLastListingMoreThanNHoursAgo :: Natural -> LocalNewsState -> IO Bool
+wasLastListingMoreThanNHoursAgo nHours state = case state.lastListingAt of
   Nothing -> return True
   Just lastListingAt' -> isOlderThanNHours nHours lastListingAt'
 
