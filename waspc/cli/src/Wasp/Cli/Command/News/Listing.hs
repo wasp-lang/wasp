@@ -21,6 +21,7 @@ module Wasp.Cli.Command.News.Listing
 where
 
 import Control.Monad (unless, when)
+import Data.Functor ((<&>))
 import Data.List (intercalate)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
@@ -34,7 +35,7 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
-import Wasp.Cli.Interactive (askForConfirmationWithTimeout)
+import Wasp.Cli.Interactive (tryGettingConfirmationWithTimeout)
 import Wasp.Util.Terminal (styleCode)
 
 shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
@@ -102,10 +103,11 @@ listNews localState listing = do
         not (null newsToShow) && not (isConfirmationRequired localState listing)
 
     getConfirmationFromUser =
-      askForConfirmationWithTimeout
+      tryGettingConfirmationWithTimeout
         "\nThere are critical annoucements above. Please confirm you've read them by typing 'y'"
         "y"
         10
+        <&> either (const False) (const True)
 
     updateTimestampAndMarkAsSeen newsToMarkAsSeen = do
       currentTime <- T.getCurrentTime
