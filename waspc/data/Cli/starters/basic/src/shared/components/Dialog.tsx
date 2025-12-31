@@ -1,10 +1,12 @@
-import React from "react";
+import { MouseEvent, ReactNode, useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { twJoin } from "tailwind-merge";
 
-interface DialogProps extends React.PropsWithChildren {
+interface DialogProps {
   open: boolean;
   onClose: () => void;
   closeOnClickOutside?: boolean;
+  children?: ReactNode;
 }
 
 export function Dialog({
@@ -13,73 +15,51 @@ export function Dialog({
   children,
   closeOnClickOutside = true,
 }: DialogProps) {
-  const dialogRef = React.useRef<HTMLDialogElement>(null);
+  const [dialogRef, setDialogRef] = useState<HTMLDialogElement | null>(null);
 
-  React.useEffect(
+  useEffect(
     function handleShowOrCloseDialog() {
-      const dialog = dialogRef.current;
-      if (!dialog) return;
+      if (!dialogRef) return;
 
-      if (open && !dialog.open) {
-        dialog.showModal();
-      } else if (!open && dialog.open) {
-        dialog.close();
+      if (open && !dialogRef.open) {
+        dialogRef.showModal();
+      } else if (!open && dialogRef.open) {
+        dialogRef.close();
       }
     },
-    [open],
+    [open, dialogRef],
   );
 
-  React.useEffect(
-    function handleCloseOnClickOutside() {
-      if (!closeOnClickOutside) return;
+  const handleClick = useCallback(
+    (e: MouseEvent) => {
+      if (!closeOnClickOutside || !dialogRef) return;
 
-      const dialog = dialogRef.current;
-      if (!dialog) return;
+      const rect = dialogRef.getBoundingClientRect();
+      const clickedOutside =
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom;
 
-      const handleClick = (e: MouseEvent) => {
-        const rect = dialog.getBoundingClientRect();
-        const clickedOutside =
-          e.clientX < rect.left ||
-          e.clientX > rect.right ||
-          e.clientY < rect.top ||
-          e.clientY > rect.bottom;
-
-        if (clickedOutside) {
-          onClose();
-        }
-      };
-
-      dialog.addEventListener("click", handleClick);
-      return () => {
-        dialog.removeEventListener("click", handleClick);
-      };
+      if (clickedOutside) {
+        onClose();
+      }
     },
-    [closeOnClickOutside, onClose],
+    [closeOnClickOutside, onClose, dialogRef],
   );
 
-  React.useEffect(
-    function handlePreventScroll() {
-      if (!open) return;
-
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    },
-    [open],
-  );
-
-  return (
+  return createPortal(
     <dialog
-      ref={dialogRef}
+      ref={setDialogRef}
       className={twJoin(
         "max-h top-[20vh] my-0 flex max-h-[55vh]",
         "bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm",
       )}
       onClose={onClose}
+      onClick={handleClick}
     >
       {children}
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }

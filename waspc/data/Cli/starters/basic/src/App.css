@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  @apply has-[dialog:open]:overflow-hidden;
+}
+
 @layer components {
   .card {
     @apply rounded-xl border border-neutral-200 bg-white shadow-sm transition-all duration-200;

@@ -1,4 +1,6 @@
-export function AuthLayout({ children }: React.PropsWithChildren) {
+import { ReactNode } from "react";
+
+export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex justify-center">
       {/* Auth UI has margin-top on title, so we lower the top padding */}
