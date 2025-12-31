@@ -793,6 +793,7 @@ test-suite wasp-cli-tests
     Paths_waspc
     Wasp.Cli.Util.EnvVarArgumentTest
     Wasp.Cli.Command.News.ListingTest
+    Wasp.Cli.Command.News.LocalNewsStateTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
