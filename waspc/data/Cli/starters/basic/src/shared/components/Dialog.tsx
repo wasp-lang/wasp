@@ -75,7 +75,7 @@ export function Dialog({
       ref={dialogRef}
       className={twJoin(
         "max-h top-[20vh] my-0 flex max-h-[55vh]",
-        "bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm",
+        "bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-xs",
       )}
       onClose={onClose}
     >
