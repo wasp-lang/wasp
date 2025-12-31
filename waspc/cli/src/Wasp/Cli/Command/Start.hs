@@ -23,7 +23,7 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWas
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  -- We only perform the periodic news check in wasp start to avoid being too
+  -- We only perform the periodic news check in `wasp start` to avoid being too
   -- agressive. For example:
   --   - We don't want to accidentally trigger news in CI.
   --   - It would be annoying if news came out at you while you were doing
