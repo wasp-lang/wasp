@@ -51,8 +51,8 @@ getNewsToShow :: LocalNewsState -> NewsListing -> [NewsEntry]
 getNewsToShow localState = \case
   UserRequestedAllNews allNews -> allNews
   WaspRequestedMustSeeNews allNews
-    | userHasNoNewsHistory localState -> []
-    | otherwise -> unseenNewsThatUserMustSee allNews
+    | doesUserHaveNewsHistory localState -> unseenNewsThatUserMustSee allNews
+    | otherwise -> []
   where
     unseenNewsThatUserMustSee = filter ((>= Important) . level) . filter isUnseen
     isUnseen = not . wasNewsEntrySeen localState
@@ -66,7 +66,7 @@ getNewsToMarkAsSeen :: LocalNewsState -> NewsListing -> [NewsEntry]
 getNewsToMarkAsSeen localState listing = case listing of
   UserRequestedAllNews allNews -> allNews
   WaspRequestedMustSeeNews allNews
-    | userHasNoNewsHistory localState -> allNews
+    | not $ doesUserHaveNewsHistory localState -> allNews
     | isConfirmationRequired localState listing -> getNewsToShow localState listing
     | otherwise -> []
 
@@ -114,8 +114,8 @@ processNewsListing localState listing = do
         setLastListingTimestamp currentTime $
           markNewsAsSeen newsToMarkAsSeen localState
 
-userHasNoNewsHistory :: LocalNewsState -> Bool
-userHasNoNewsHistory = (== emptyLocalNewsState)
+doesUserHaveNewsHistory :: LocalNewsState -> Bool
+doesUserHaveNewsHistory = (/= emptyLocalNewsState)
 
 getNewsFromListing :: NewsListing -> [NewsEntry]
 getNewsFromListing = \case
