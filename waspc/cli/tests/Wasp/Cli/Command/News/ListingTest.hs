@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Wasp.Cli.Command.News.ListingTest where
 
 import Data.List (subsequences)
@@ -58,7 +60,7 @@ spec_getNewsToMarkAsSeen = do
     describe "for WaspListingMustSeeNews" $ do
       prop "returns all news when there is no previous news history" $
         forAll waspListingScenario $ \(_, listing) ->
-          getNewsToMarkAsSeen emptyLocalNewsState listing === allNews listing
+          getNewsToMarkAsSeen emptyLocalNewsState listing === listing.allNews
 
       prop "returns an empty list when there is previous news history and confirmation is not required" $
         forAll waspListingScenario $ \(newsState, listing) ->
