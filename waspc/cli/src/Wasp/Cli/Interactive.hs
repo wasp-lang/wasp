@@ -137,7 +137,7 @@ askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
 askForConfirmationWithTimeout :: String -> String -> Int -> IO Bool
 askForConfirmationWithTimeout message requiredAnswer timeoutSeconds = do
   maybeAnswer <- timeout timeoutMicroseconds $ askForInput message
-  return $ fromMaybe "" maybeAnswer == requiredAnswer
+  return $ maybeAnswer == Just requiredAnswer
   where
     timeoutMicroseconds = timeoutSeconds * 1000000
 
@@ -152,9 +152,6 @@ repeatUntil predicate errorMessage action = do
       putStrLn $ Term.applyStyles [Term.Red] errorMessage
       repeatUntil predicate errorMessage action
     else return result
-
-waitForNSeconds :: Int -> IO ()
-waitForNSeconds nSeconds = threadDelay $ secondsToMicroSeconds nSeconds
 
 prompt :: IO String
 prompt = do
