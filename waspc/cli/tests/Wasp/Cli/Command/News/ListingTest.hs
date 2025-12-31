@@ -25,8 +25,8 @@ spec_getNewsToShow = do
   describe "getNewsToShow" $ do
     describe "for UserListingAllNews" $ do
       prop "returns all news in the listing regardless of local news state" $
-        forAll anyLocalNewsState $ \newsState ->
-          getNewsToShow newsState (UserListingAllNews mockAllNews) === mockAllNews
+        forAll userListingScenario $ \(newsState, listing) ->
+          getNewsToShow newsState listing === listing.allNews
 
     describe "for WaspListingMustSeeNews" $ do
       it "returns unseen news that are at least important" $ do
@@ -39,10 +39,9 @@ spec_isConfirmationRequired = do
   describe "isConfirmationRequired" $ do
     describe "for UserListingAllNews" $ do
       prop "returns False regardless of local news state" $
-        forAll anyLocalNewsState $ \newsState ->
-          isConfirmationRequired newsState (UserListingAllNews mockAllNews) === False
+        forAll userListingScenario $ \(newsState, listing) ->
+          isConfirmationRequired newsState listing === False
 
-    -- TODO: bad test, too similar to implementation
     describe "for WaspListingMustSeeNews" $ do
       prop "returns True if and only if there is previous news history and newsToShow includes critical news" $
         forAll waspListingScenario $ \(newsState, listing) ->
@@ -53,9 +52,9 @@ spec_getNewsToMarkAsSeen :: Spec
 spec_getNewsToMarkAsSeen = do
   describe "getNewsToMarkAsSeen" $ do
     describe "for UserListingAllNews" $ do
-      it "returns all news entries" $ do
-        let newsState = markNewsAsSeen mockAllNews emptyLocalNewsState
-        getNewsToMarkAsSeen newsState (UserListingAllNews mockAllNews) `shouldMatchList` mockAllNews
+      prop "always returns all shown news entries" $
+        forAll userListingScenario $ \(newsState, listing) ->
+          getNewsToMarkAsSeen newsState listing === getNewsToShow newsState listing
 
     describe "for WaspListingMustSeeNews" $ do
       prop "returns all news when there is no previous news history" $
@@ -75,12 +74,11 @@ spec_getNewsToMarkAsSeen = do
 anyLocalNewsState :: Gen LocalNewsState
 anyLocalNewsState = markNewsAsSeen <$> subsetOf mockAllNews <*> pure emptyLocalNewsState
 
+userListingScenario :: Gen (LocalNewsState, NewsListing)
+userListingScenario = makeListingScenario UserListingAllNews
+
 waspListingScenario :: Gen (LocalNewsState, NewsListing)
-waspListingScenario = do
-  newsState <- anyLocalNewsState
-  newsInListing <- subsetOf mockAllNews
-  let listing = WaspListingMustSeeNews newsInListing
-  return (newsState, listing)
+waspListingScenario = makeListingScenario WaspListingMustSeeNews
 
 subsetOf :: [a] -> Gen [a]
 subsetOf = elements . subsequences
@@ -102,3 +100,10 @@ important2 = NewsEntry "important-2" "Important 2" "" Important someTime
 info1, info2 :: NewsEntry
 info1 = NewsEntry "info-1" "Info 1" "" Info someTime
 info2 = NewsEntry "info-2" "Info 2" "" Info someTime
+
+makeListingScenario :: ([NewsEntry] -> NewsListing) -> Gen (LocalNewsState, NewsListing)
+makeListingScenario makeNewsListing = do
+  newsState <- anyLocalNewsState
+  newsInListing <- subsetOf mockAllNews
+  let listing = makeNewsListing newsInListing
+  return (newsState, listing)
