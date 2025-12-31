@@ -10,7 +10,7 @@ module Wasp.Cli.Command.News.Listing
     --   - Whether the user should interactively confirm they've read the news.
     --   - etc.
     --
-    -- We tried to caputure most of the logic in pure function to simplify
+    -- We tried to capture most of the logic in pure function to simplify
     -- testing.
     NewsListing (..),
     getNewsToShow,
@@ -114,10 +114,10 @@ processNewsListing localState listing = do
         setLastListingTimestamp currentTime $
           markNewsAsSeen newsToMarkAsSeen localState
 
-doesUserHaveNewsHistory :: LocalNewsState -> Bool
-doesUserHaveNewsHistory = (/= emptyLocalNewsState)
-
 getNewsFromListing :: NewsListing -> [NewsEntry]
 getNewsFromListing = \case
   UserRequestedAllNews allNews -> allNews
   WaspRequestedMustSeeNews allNews -> allNews
+
+doesUserHaveNewsHistory :: LocalNewsState -> Bool
+doesUserHaveNewsHistory = (/= emptyLocalNewsState)
