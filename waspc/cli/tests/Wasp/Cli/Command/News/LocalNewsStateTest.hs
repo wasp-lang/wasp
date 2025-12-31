@@ -18,7 +18,7 @@ spec_markNewsAsSeen = do
       wasNewsEntrySeen state newsEntry2 `shouldBe` True
       wasNewsEntrySeen state newsEntry3 `shouldBe` False
 
-    it "preserves previously seen news entries" $ do
+    it "correctly joins seen entries" $ do
       let state1 = markNewsAsSeen [newsEntry1] emptyLocalNewsState
           state2 = markNewsAsSeen [newsEntry2] state1
       wasNewsEntrySeen state2 newsEntry1 `shouldBe` True
