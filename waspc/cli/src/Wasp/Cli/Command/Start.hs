@@ -23,13 +23,14 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWas
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  -- We only perform the periodic news check in wasp start to avoid being too agressive:
-  --   - We don't want to accidentally trigger news it in CI, and wasp start
-  --   generally shouldn't be used in CI.
+  -- We only perform the periodic news check in wasp start to avoid being too
+  -- agressive. For example:
+  --   - We don't want to accidentally trigger news in CI.
   --   - It would be annoying if news came out at you while you were doing
   --   something like `wasp db migrate-dev`
-  -- Therefore, it's best to keep it contained/expected. This way we know
-  -- exactly which workflows it could possibly interrupt (LLMs, CIs, people...)
+  -- Therefore, it's best to keep the periodic news check contained and
+  -- expected. This way we know exactly which workflows it could possibly
+  -- interrupt (LLMs, CIs, people...).
   liftIO fetchAndListMustSeeNewsIfDue
   InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
