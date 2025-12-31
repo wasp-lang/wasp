@@ -1,16 +1,21 @@
 module Wasp.Cli.Command.News.ListingTest where
 
+import Data.List (subsequences)
 import qualified Data.Time as T
 import Test.Hspec
+import Test.Hspec.QuickCheck (prop)
+import Test.QuickCheck (Gen, elements, forAll, (===), (==>))
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Listing
   ( NewsListing (..),
+    getNewsFromListing,
     getNewsToMarkAsSeen,
     getNewsToShow,
     isConfirmationRequired,
   )
 import Wasp.Cli.Command.News.LocalNewsState
-  ( emptyLocalNewsState,
+  ( LocalNewsState,
+    emptyLocalNewsState,
     markNewsAsSeen,
   )
 
@@ -18,61 +23,65 @@ spec_getNewsToShow :: Spec
 spec_getNewsToShow = do
   describe "getNewsToShow" $ do
     describe "for UserRequestedAllNews" $ do
-      it "returns all news entries including seen ones" $ do
+      it "always returns all news in the listing" $ do
         let newsState = markNewsAsSeen allNews emptyLocalNewsState
-            newsToShow = getNewsToShow newsState (UserRequestedAllNews allNews)
-        newsToShow `shouldMatchList` allNews
+        getNewsToShow newsState (UserRequestedAllNews allNews) `shouldBe` allNews
 
     describe "for WaspRequestedMustSeeNews" $ do
-      it "returns an empty list when there is no previous news history" $ do
-        getNewsToShow emptyLocalNewsState (WaspRequestedMustSeeNews allNews) `shouldBe` []
-
-      it "returns unseen news that are important or higher when there is previous news history" $ do
-        let newsState = markNewsAsSeen [info1, important1] emptyLocalNewsState
-            newsToShow = getNewsToShow newsState (WaspRequestedMustSeeNews [info1, important1, important2, critical1])
-        newsToShow `shouldMatchList` [important2, critical1]
+      it "returns unseen news that are at least important" $ do
+        let newsState = markNewsAsSeen [info1, important1, critical1] emptyLocalNewsState
+        getNewsToShow newsState (WaspRequestedMustSeeNews [info1, important1, important2, critical1, critical2])
+          `shouldMatchList` [important2, critical2]
 
 spec_isConfirmationRequired :: Spec
 spec_isConfirmationRequired = do
   describe "isConfirmationRequired" $ do
-    it "always returns False for UserRequestedAllNews" $ do
-      let newsState = markNewsAsSeen [] emptyLocalNewsState
-      isConfirmationRequired newsState (UserRequestedAllNews allNews)
-        `shouldBe` False
+    describe "for UserRequestedAllNews" $ do
+      it "always returns False" $ do
+        let newsState = markNewsAsSeen allNews emptyLocalNewsState
+        isConfirmationRequired newsState (UserRequestedAllNews allNews) `shouldBe` False
 
+    -- TODO: bad test, too similar to implementation
     describe "for WaspRequestedMustSeeNews" $ do
-      it "returns True when unseen news include critical news" $ do
-        let newsState = markNewsAsSeen [info1] emptyLocalNewsState
-        isConfirmationRequired newsState (WaspRequestedMustSeeNews [info1, important1, critical1])
-          `shouldBe` True
+      prop "returns True if and only if there is previous news history and newsToShow includes critical news" $
+        forAll scenario $ \(newsState, listing) ->
+          isConfirmationRequired newsState listing
+            === (newsState /= emptyLocalNewsState && any ((== Critical) . level) (getNewsToShow newsState listing))
 
-      it "returns False when unseen news don't include critical news" $ do
-        let newsState = markNewsAsSeen [critical1] emptyLocalNewsState
-        isConfirmationRequired newsState (WaspRequestedMustSeeNews [info1, important1, critical1])
-          `shouldBe` False
-
-spec_getNewsMarkedAsSeen :: Spec
-spec_getNewsMarkedAsSeen = do
+spec_getNewsToMarkAsSeen :: Spec
+spec_getNewsToMarkAsSeen = do
   describe "getNewsToMarkAsSeen" $ do
-    it "returns all news entries for UserRequestedAllNews" $ do
-      let newsState = markNewsAsSeen allNews emptyLocalNewsState
-          toMark = getNewsToMarkAsSeen newsState (UserRequestedAllNews allNews)
-      toMark `shouldMatchList` allNews
+    describe "for UserRequestedAllNews" $ do
+      it "returns all news entries" $ do
+        let newsState = markNewsAsSeen allNews emptyLocalNewsState
+        getNewsToMarkAsSeen newsState (UserRequestedAllNews allNews) `shouldMatchList` allNews
 
     describe "for WaspRequestedMustSeeNews" $ do
-      it "returns all news entries when there is no news history" $ do
-        let toMark = getNewsToMarkAsSeen emptyLocalNewsState (WaspRequestedMustSeeNews allNews)
-        toMark `shouldMatchList` allNews
+      prop "returns all news when there is no previous news history" $
+        forAll scenario $ \(_, listing) ->
+          getNewsToMarkAsSeen emptyLocalNewsState listing === getNewsFromListing listing
 
-      it "returns unseen important+ news when there are unseen critical news and there is news history" $ do
-        let newsState = markNewsAsSeen [critical2] emptyLocalNewsState
-            toMark = getNewsToMarkAsSeen newsState (WaspRequestedMustSeeNews [critical1, critical2, important1])
-        toMark `shouldMatchList` [important1, critical1]
+      prop "returns an empty list when there is previous news history and confirmation is not required" $
+        forAll scenario $ \(newsState, listing) ->
+          not (isConfirmationRequired newsState listing)
+            && newsState /= emptyLocalNewsState
+            ==> getNewsToMarkAsSeen newsState listing === []
 
-      it "returns an empty list when there are no unseen critical news and there is news history" $ do
-        let newsState = markNewsAsSeen [info1] emptyLocalNewsState
-            toMark = getNewsToMarkAsSeen newsState (WaspRequestedMustSeeNews [important1, info2])
-        toMark `shouldBe` []
+      prop "returns shown news when confirmation is required" $
+        forAll scenario $ \(newsState, listing) ->
+          isConfirmationRequired newsState listing ==>
+            getNewsToMarkAsSeen newsState listing === getNewsToShow newsState listing
+
+scenario :: Gen (LocalNewsState, NewsListing)
+scenario = do
+  seenNews <- subsetOf allNews
+  newsInListing <- subsetOf allNews
+  let newsState = markNewsAsSeen seenNews emptyLocalNewsState
+      listing = WaspRequestedMustSeeNews newsInListing
+  return (newsState, listing)
+
+subsetOf :: [a] -> Gen [a]
+subsetOf xs = elements (subsequences xs)
 
 allNews :: [NewsEntry]
 allNews = [info1, info2, important1, important2, critical1, critical2]

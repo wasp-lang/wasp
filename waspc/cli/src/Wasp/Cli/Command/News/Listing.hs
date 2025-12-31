@@ -7,6 +7,7 @@ module Wasp.Cli.Command.News.Listing
     getNewsToMarkAsSeen,
     processNewsListing,
     shouldWaspInvokeNews,
+    getNewsFromListing,
   )
 where
 
@@ -42,28 +43,27 @@ getNewsToShow localState = \case
     | userHasNoNewsHistory localState -> []
     | otherwise -> unseenNewsThatUserMustSee allNews
   where
-    unseenNewsThatUserMustSee = filter isMustSee . filter isUnseen
-    isMustSee = (>= Important) . level
+    unseenNewsThatUserMustSee = filter ((>= Important) . level) . filter isUnseen
     isUnseen = not . wasNewsEntrySeen localState
 
 isConfirmationRequired :: LocalNewsState -> NewsListing -> Bool
 isConfirmationRequired localState listing = case listing of
   UserRequestedAllNews _ -> False
-  WaspRequestedMustSeeNews _ -> any ((== Critical) . level) (getNewsToShow localState listing)
+  WaspRequestedMustSeeNews _ -> any ((== Critical) . level) $ getNewsToShow localState listing
 
 getNewsToMarkAsSeen :: LocalNewsState -> NewsListing -> [NewsEntry]
-getNewsToMarkAsSeen state listing = case listing of
-  UserRequestedAllNews news -> news
+getNewsToMarkAsSeen localState listing = case listing of
+  UserRequestedAllNews allNews -> allNews
   WaspRequestedMustSeeNews allNews
-    | userHasNoNewsHistory state -> allNews
-    | isConfirmationRequired state listing -> getNewsToShow state listing
+    | userHasNoNewsHistory localState -> allNews
+    | isConfirmationRequired localState listing -> getNewsToShow localState listing
     | otherwise -> []
 
 processNewsListing :: LocalNewsState -> NewsListing -> IO ()
 processNewsListing localState listing = do
   printNews
 
-  when shouldTellUserAboutTheNewsCommand $ do
+  when shouldTellUserAboutWaspNewsCommand $ do
     putStrLn $
       "\nIf you don't want to see these messages again, run "
         ++ styleCode "wasp news"
@@ -71,7 +71,7 @@ processNewsListing localState listing = do
 
   shouldMarkNewsAsSeen <-
     if isConfirmationRequired localState listing
-      then askUserForConfirmation
+      then getConfirmationFromUser
       else return True
 
   if shouldMarkNewsAsSeen
@@ -86,12 +86,12 @@ processNewsListing localState listing = do
 
     newsToShow = getNewsToShow localState listing
 
-    shouldTellUserAboutTheNewsCommand = case listing of
+    shouldTellUserAboutWaspNewsCommand = case listing of
       UserRequestedAllNews _ -> False
       WaspRequestedMustSeeNews _ ->
         not (null newsToShow) && not (isConfirmationRequired localState listing)
 
-    askUserForConfirmation =
+    getConfirmationFromUser =
       askForConfirmationWithTimeout
         "\nThere are critical annoucements above. Please confirm you've read them by typing 'y'"
         "y"
@@ -105,3 +105,8 @@ processNewsListing localState listing = do
 
 userHasNoNewsHistory :: LocalNewsState -> Bool
 userHasNoNewsHistory = (== emptyLocalNewsState)
+
+getNewsFromListing :: NewsListing -> [NewsEntry]
+getNewsFromListing = \case
+  UserRequestedAllNews allNews -> allNews
+  WaspRequestedMustSeeNews allNews -> allNews
