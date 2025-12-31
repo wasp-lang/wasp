@@ -28,4 +28,4 @@ spec_markNewsAsSeen = do
     newsEntry2 = NewsEntry "news-2" "News 2" "" Info someTime
     newsEntry3 = NewsEntry "news-3" "News 3" "" Info someTime
 
-    someTime = T.UTCTime (T.fromGregorian 2024 1 1) 0
+    someTime = T.UTCTime (T.fromGregorian 2025 1 1) 0
