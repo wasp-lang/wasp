@@ -13,7 +13,7 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Listing
   ( NewsListing (..),
-    processNewsListing,
+    listNews,
     shouldWaspListMustSeeNews,
   )
 import Wasp.Cli.Command.News.LocalNewsState (loadLocalNewsState)
@@ -24,7 +24,7 @@ news = do
   newsEntries <- either (throwError . CommandError "Getting Wasp news failed") pure =<< liftIO fetchNews
   liftIO $ do
     localNewsState <- loadLocalNewsState
-    processNewsListing localNewsState $ UserRequestedAllNews newsEntries
+    listNews localNewsState $ UserListingAllNews newsEntries
 
 fetchAndListMustSeeNewsIfDue :: IO ()
 fetchAndListMustSeeNewsIfDue = do
@@ -34,6 +34,8 @@ fetchAndListMustSeeNewsIfDue = do
     localNewsState <- loadLocalNewsState
     whenM (shouldWaspListMustSeeNews localNewsState) $ do
       fetchNewsWithTimeout 2 >>= \case
-        Left _err -> return () -- Wasp stays silent on purpose
+        -- Wasp stays silent on news fetching errors on purpose: it's not critical
+        -- and we don't want to confuse the user.
+        Left _err -> return ()
         Right newsEntries ->
-          processNewsListing localNewsState $ WaspRequestedMustSeeNews newsEntries
+          listNews localNewsState $ WaspListingMustSeeNews newsEntries

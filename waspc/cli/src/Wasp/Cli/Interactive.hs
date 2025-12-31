@@ -12,18 +12,15 @@ module Wasp.Cli.Interactive
 where
 
 import Control.Applicative ((<|>))
-import Control.Concurrent (threadDelay)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
-import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import System.IO (hFlush, stdout)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
-import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.Terminal as Term
 
 {-
@@ -134,11 +131,10 @@ askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
 
 askForConfirmationWithTimeout :: String -> String -> Int -> IO Bool
-askForConfirmationWithTimeout message requiredAnswer timeoutSeconds = do
-  maybeAnswer <- timeout timeoutMicroseconds $ askForInput message
-  return $ maybeAnswer == Just requiredAnswer
+askForConfirmationWithTimeout message requiredAnswer timeoutSeconds =
+  (== Just requiredAnswer) <$> timeout timeoutMicroseconds (askForInput message)
   where
-    timeoutMicroseconds = timeoutSeconds * 1000000
+    timeoutMicroseconds = timeoutSeconds * 10 ^ (6 :: Int)
 
 repeatIfNull :: (Foldable t) => IO (t a) -> IO (t a)
 repeatIfNull action = repeatUntil null "This field cannot be empty." action

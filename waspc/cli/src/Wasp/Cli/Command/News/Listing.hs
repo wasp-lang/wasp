@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Wasp.Cli.Command.News.Listing
   ( -- * News Listing
@@ -7,18 +8,15 @@ module Wasp.Cli.Command.News.Listing
     -- news under different contexts (i.e., who requested the news listing):
     --   - Which news to show under which context.
     --   - Which news to mark as seen.
-    --   - Whether the user should interactively confirm they've read the news.
+    --   - Whether the user should interactively confirm they have seen the
+    --     news.
     --   - etc.
-    --
-    -- We tried to capture most of the logic in pure function to simplify
-    -- testing.
     NewsListing (..),
     getNewsToShow,
     isConfirmationRequired,
     getNewsToMarkAsSeen,
-    processNewsListing,
+    listNews,
     shouldWaspListMustSeeNews,
-    getNewsFromListing,
   )
 where
 
@@ -43,15 +41,16 @@ shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
 shouldWaspListMustSeeNews = wasLastLisingMoreThanNHoursAgo 24
 
 data NewsListing
-  = UserRequestedAllNews [NewsEntry]
-  | WaspRequestedMustSeeNews [NewsEntry]
+  = UserListingAllNews {allNews :: [NewsEntry]}
+  | WaspListingMustSeeNews {allNews :: [NewsEntry]}
   deriving (Show, Eq)
 
 getNewsToShow :: LocalNewsState -> NewsListing -> [NewsEntry]
 getNewsToShow localState = \case
-  UserRequestedAllNews allNews -> allNews
-  WaspRequestedMustSeeNews allNews
+  UserListingAllNews {allNews} -> allNews
+  WaspListingMustSeeNews {allNews}
     | doesUserHaveNewsHistory localState -> unseenNewsThatUserMustSee allNews
+    -- If the user has no news history, we don't want to hit them with all past news.
     | otherwise -> []
   where
     unseenNewsThatUserMustSee = filter ((>= Important) . level) . filter isUnseen
@@ -59,19 +58,22 @@ getNewsToShow localState = \case
 
 isConfirmationRequired :: LocalNewsState -> NewsListing -> Bool
 isConfirmationRequired localState listing = case listing of
-  UserRequestedAllNews _ -> False
-  WaspRequestedMustSeeNews _ -> any ((== Critical) . level) $ getNewsToShow localState listing
+  UserListingAllNews {} -> False
+  WaspListingMustSeeNews {} -> any ((== Critical) . level) $ getNewsToShow localState listing
 
 getNewsToMarkAsSeen :: LocalNewsState -> NewsListing -> [NewsEntry]
 getNewsToMarkAsSeen localState listing = case listing of
-  UserRequestedAllNews allNews -> allNews
-  WaspRequestedMustSeeNews allNews
+  UserListingAllNews {} -> getNewsToShow localState listing
+  WaspListingMustSeeNews {allNews}
+    -- If the user has no news history, we want to consider all past news seen.
     | not $ doesUserHaveNewsHistory localState -> allNews
     | isConfirmationRequired localState listing -> getNewsToShow localState listing
+    -- We don't want to assume the user saw the news if they haven't confirmed so
+    -- explicitly.
     | otherwise -> []
 
-processNewsListing :: LocalNewsState -> NewsListing -> IO ()
-processNewsListing localState listing = do
+listNews :: LocalNewsState -> NewsListing -> IO ()
+listNews localState listing = do
   printNews
 
   when shouldTellUserAboutWaspNewsCommand $ do
@@ -90,16 +92,13 @@ processNewsListing localState listing = do
     else updateTimestampAndMarkAsSeen []
   where
     printNews =
-      unless (null newsToShow) $
-        putStrLn $
-          intercalate "\n\n" $
-            map showNewsEntry newsToShow
+      unless (null newsToShow) $ putStrLn $ intercalate "\n\n" $ showNewsEntry <$> newsToShow
 
     newsToShow = getNewsToShow localState listing
 
     shouldTellUserAboutWaspNewsCommand = case listing of
-      UserRequestedAllNews _ -> False
-      WaspRequestedMustSeeNews _ ->
+      UserListingAllNews {} -> False
+      WaspListingMustSeeNews {} ->
         not (null newsToShow) && not (isConfirmationRequired localState listing)
 
     getConfirmationFromUser =
@@ -113,11 +112,6 @@ processNewsListing localState listing = do
       saveLocalNewsState $
         setLastListingTimestamp currentTime $
           markNewsAsSeen newsToMarkAsSeen localState
-
-getNewsFromListing :: NewsListing -> [NewsEntry]
-getNewsFromListing = \case
-  UserRequestedAllNews allNews -> allNews
-  WaspRequestedMustSeeNews allNews -> allNews
 
 doesUserHaveNewsHistory :: LocalNewsState -> Bool
 doesUserHaveNewsHistory = (/= emptyLocalNewsState)

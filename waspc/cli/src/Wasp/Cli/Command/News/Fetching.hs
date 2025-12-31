@@ -27,5 +27,5 @@ fetchNews = do
 
   return $ case requestResult of
     Left (_ :: HttpException) -> Left "Failed to fetch news from server."
-    Right (Left _) -> Left "Failed to decode news JSON. This is a temporary problem with the Wasp News server"
+    Right (Left _) -> Left "Failed to decode news JSON. This is a temporary problem with the Wasp News server."
     Right (Right news) -> Right news
