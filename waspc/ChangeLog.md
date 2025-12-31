@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.21.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-20-to-0-21) for step-by-step documentation on how to upgrade.
+
+- Tailwind CSS support has been upgraded to v4, and v3 support has been dropped. Please refer to [our migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-20-to-0-21) for how to configure the new version, and the [Tailwind v4 migration guide](https://tailwindcss.com/docs/upgrade-guide) for details on breaking changes to classes. ((#3571)[https://github.com/wasp-lang/wasp/pull/3571])
+
+### 🎉 New Features
+
+- Wasp now supports Tailwind CSS v4. ((#3571)[https://github.com/wasp-lang/wasp/pull/3571])
+
+### 🔧 Small improvements
+
+- We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ((#3571)[https://github.com/wasp-lang/wasp/pull/3571])
+
 ## 0.20.1
 
 ### 🎉 New Features
@@ -519,22 +535,18 @@ const doneTasks = await getTasks(getTasks.queryCacheKey, { isDone: true });
 We had to make a couple of breaking changes to reach the new simpler Auth API:
 
 1. You don't need to use `getUsername` to access the username:
-
    - Before: Used `getUsername` to access the username.
    - After: Directly use `user.identities.username?.id`.
 
 2. You don't need to use `getEmail` to access the email:
-
    - Before: Used `getEmail` to access the email.
    - After: Directly use `user.identities.email?.id`.
 
 3. Better API for accessing `providerData`:
-
    - Before: Required complex logic to access typed provider data.
    - After: Directly use `user.identities.<provider>.<value>` for typed access.
 
 4. Better API for accessing `getFirstProviderUserId`:
-
    - Before: Used `getFirstProviderUserId(user)` to get the ID.
    - After: Use `user.getFirstProviderUserId()` directly on the user object.
 
@@ -1896,9 +1908,7 @@ You can now use the Tailwind CSS framework in your project by simply adding two 
 ### BREAKING CHANGES
 
 - The `EmailAndPassword` auth method has been renamed `usernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
-
   - This means the `auth.userEntity` model should now have field called `username` (instead of `email`, as before).
-
     - If you'd like to treat the old `email` field as `username`, you can create a migration file like so:
 
       ```bash

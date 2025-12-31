@@ -6,92 +6,102 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Tailwind
 
-Wasp works great with [Tailwind CSS](https://v3.tailwindcss.com/), a utility-first CSS framework. Currently, Wasp supports Tailwind CSS v3, but we are [working on supporting v4](https://github.com/wasp-lang/wasp/issues/2483) as well. You can use Tailwind CSS in your Wasp project by following the steps below.
+Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework. You can use Tailwind CSS v4 and newer, with the [Vite installation method](https://tailwindcss.com/docs/installation/using-vite).
 
 ### Adding Tailwind to your Wasp project
 
-1. Install Tailwind as a development dependency.
+1. Install Tailwind and its Vite plugin.
 
-```bash
-npm install -D tailwindcss@3
-```
+    ```bash
+    npm install tailwindcss
+    npm install -D @tailwindcss/vite
+    ```
 
-2. Add `./tailwind.config.js`.
+1. Add the Tailwind CSS Vite plugin to your `vite.config.ts` file:
 
-```js title="./tailwind.config.js"
-import { resolveProjectPath } from "wasp/dev";
+    ```ts title="vite.config.ts"
+    // highlight-next-line
+    import tailwindcss from '@tailwindcss/vite'
+    import { defineConfig } from 'vite'
 
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
+    export default defineConfig({
+      server: {
+        open: true,
+      },
+      plugins: [
+        // highlight-next-line
+        tailwindcss()
+      ],
+    })
+    ```
 
-:::note The `resolveProjectPath` function
+1. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
 
-Because Wasp copies the configuration files to the generated project, you must wrap any paths in the `content` array with the `resolveProjectPath` function. This function resolves the path to the generated project, so that Tailwind can find your source files.
+    ```css title="src/Main.css" {1}
+    @import "tailwindcss" source(".");
 
-:::
+    /* ... */
+    ```
 
-3. Add `./postcss.config.js`.
+    If your main CSS file is in a different location, adjust the path accordingly so that it points to the `src` folder.
 
-```js title="./postcss.config.js"
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-```
+1. Start using Tailwind 🥳
 
-4. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
+    ```tsx title="src/MainPage.tsx" auto-js
+    // ...
 
-```css title="./src/Main.css" {1-3}
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+    <h1 className="text-3xl font-bold underline">
+      Hello world!
+    </h1>
 
-/* ... */
-```
-
-5. Start using Tailwind 🥳
-
-```jsx title="./src/MainPage.jsx"
-// ...
-
-<h1 className="text-3xl font-bold underline">
-  Hello world!
-</h1>
-
-// ...
-```
+    // ...
+    ```
 
 ### Adding Tailwind Plugins
 
-To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the plugins list in your `tailwind.config.js` file:
+To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the main CSS file with the `@plugin` directive:
 
 ```shell
 npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
 ```
 
-and also
-```js title="./tailwind.config.js" {5-6}
-// ...
-import TailwindTypography from "@tailwindcss/typography";
-import TailwindForms from "@tailwindcss/forms";
+```css title="src/Main.css" {3-4}
+@import "tailwindcss" source(".");
 
-/** @type {import('tailwindcss').Config} */
-export default {
-  // ...
-  plugins: [
-    TailwindTypography,
-    TailwindForms,
-  ],
-  // ...
-}
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+/* ... */
 ```
+
+### Troubleshooting
+
+#### I followed the installation steps but Tailwind classes are not being applied
+
+Due to how Wasp works internally, we need to tell Tailwind explicitly where to look for class names. While our guides walk you through this step, you might have missed it.
+
+To fix this issue, find the CSS file with the `@import "tailwindcss"` directive and add `source(".")` to it.
+
+If you used the default starter templates, the file will be `src/Main.css` or `src/App.css`. If it is in a different location, adjust the path in `source()` accordingly, so that it points to your `src` folder.
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```css title="src/Main.css" {1}
+@import "tailwindcss";
+
+/* ... */
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```css title="src/Main.css" {1}
+@import "tailwindcss" source(".");
+
+/* ... */
+```
+
+</TabItem>
+</Tabs>
