@@ -4,14 +4,14 @@ module Wasp.Cli.Command.News.Listing
   ( -- * News Listing
 
     -- This modules captures all decisions Wasp has to make when showing Wasp
-    -- news:
-    --   - Which news to show under which context (i.e., who requested it).
+    -- news under different contexts (i.e., who requested the news listing):
+    --   - Which news to show under which context.
     --   - Which news to mark as seen.
     --   - Whether the user should interactively confirm they've read the news.
     --   - etc.
     --
-    -- We tried to caputure most of the logic in pure function to make it
-    -- simplify testing.
+    -- We tried to caputure most of the logic in pure function to simplify
+    -- testing.
     NewsListing (..),
     getNewsToShow,
     isConfirmationRequired,
