@@ -27,32 +27,10 @@ const LLMS_TXT_MISC = `## Miscellaneous
 - [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
 `;
 
-/**
- * Builds the full version map section for any llms.txt file.
- * Lists all available versions with their llms.txt URLs.
- * Marks the current version and latest version appropriately.
- */
-function buildVersionMapSection(
-  versions: string[],
-  currentVersion: string,
-): string {
-  const latestVersion = versions[0];
-
-  let section = `## Documentation Maps by Version
-`;
-
-  for (const version of versions) {
-    const filename =
-      version === latestVersion ? "llms.txt" : `llms-${version}.txt`;
-    const url = `${WASP_BASE_URL}${filename}`;
-
-    section += `- [${version}](${url})\n`;
-  }
-
-  return section.trim();
-}
-
-generateFiles();
+generateFiles().catch((err) => {
+  console.error("Failed to generate LLM files:", err);
+  process.exit(1);
+});
 
 /**
  * Main function to generate the LLM-friendly doc files.
@@ -62,8 +40,13 @@ generateFiles();
 async function generateFiles() {
   console.log("Starting LLM file generation...");
 
+  if (!versionsJson || versionsJson.length === 0) {
+    throw new Error("No versions found in versions.json");
+  }
+
   const blogSectionContent = await processBlogFiles();
   const latestVersion = versionsJson[0];
+  const versionedDocsMap = buildVersionedDocsMap(versionsJson);
 
   for (const version of versionsJson) {
     const isLatest = version === latestVersion;
@@ -72,17 +55,15 @@ async function generateFiles() {
     const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
     const sidebarItems = await loadVersionedSidebar(version);
 
-    const { llmsTxtContent, llmsFullTxtContent } =
-      await processDocumentationFiles(sidebarItems, docsDir, version, {
-        generateLlmsFullTxt: isLatest,
-      });
+    const processedDocs = await gatherDocumentation(sidebarItems, docsDir);
+    const documentationMap = buildDocumentationMap(processedDocs);
+    const llmsFullTxtContent = isLatest ? buildFullDocumentation(processedDocs) : "";
 
     const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
-    const versionSection = buildVersionMapSection(versionsJson, version);
     await writeLlmsTxtFile(
       filename,
-      llmsTxtContent,
-      versionSection,
+      documentationMap,
+      versionedDocsMap,
       blogSectionContent,
     );
 
@@ -94,15 +75,28 @@ async function generateFiles() {
   console.log("🎉 LLM files generation completed successfully.");
 }
 
+/**
+ * Builds the full versioned docs map section for all llms.txt files.
+ * Lists all available versions with their llms.txt URLs.
+ */
+function buildVersionedDocsMap(versions: string[]): string {
+  let section = `## Documentation Maps by Version
+`;
+  for (const version of versions) {
+    section += `- [${version}](${WASP_BASE_URL}${version === versions[0] ? "llms.txt" : `llms-${version}.txt`})\n`;
+  }
+  return section.trim();
+}
+
 async function writeLlmsTxtFile(
   filename: string,
-  llmsTxtContent: string,
-  versionSection: string,
+  documentationMap: string,
+  versionedDocsMap: string,
   blogSectionContent: string,
 ): Promise<void> {
   const content = buildLlmsTxtContent(
-    llmsTxtContent,
-    versionSection,
+    documentationMap,
+    versionedDocsMap,
     blogSectionContent,
   );
   const outputPath = path.join(STATIC_DIR, filename);
@@ -120,93 +114,89 @@ async function writeLlmsFullTxtFile(content: string): Promise<void> {
  * Assembles the overview content for llms.txt from its component sections.
  */
 function buildLlmsTxtContent(
-  llmsTxtContent: string,
-  versionSection: string,
+  documentationMap: string,
+  versionedDocsMap: string,
   blogSectionContent: string,
 ): string {
   return [
     LLMS_TXT_INTRO,
-    versionSection,
-    llmsTxtContent,
+    versionedDocsMap,
+    documentationMap,
     blogSectionContent,
     LLMS_TXT_MISC,
   ].join("\n\n");
 }
 
 /**
- * Processes all documentation files based on the sidebar configuration's order.
- * It builds a map of document IDs to file paths, processes each document,
- * and generates both a map of document IDs to their content (llms.txt) and
- * a full concatenated string of the content (llms-full.txt).
+ * Gathers and structures documentation from the sidebar configuration.
+ * Returns a structured object ready for building various output formats.
  */
-async function processDocumentationFiles(
-  docsSidebarItems: SidebarItemConfig[],
+async function gatherDocumentation(
+  sidebarItems: SidebarItemConfig[],
   docsDir: string,
-  version: string,
-  { generateLlmsFullTxt = false } = {},
-): Promise<{ llmsTxtContent: string; llmsFullTxtContent: string }> {
-  let llmsTxtContent = `## Documentation Map\n`;
-  let llmsFullTxtContent = "";
-
-  const orderedDocIds = flattenSidebarItemsToDocIds(docsSidebarItems);
+): Promise<ProcessedDocumentation> {
+  const orderedDocIds = flattenSidebarItemsToDocIds(sidebarItems);
   console.log(
     `Found ${orderedDocIds.length} document IDs in sidebar order for processing.`,
   );
 
-  const sidebarOverviewStructure =
-    getDocsSidebarCategoryStructure(docsSidebarItems);
-
+  const sidebarStructure = getDocsSidebarCategoryStructure(sidebarItems);
   const docIdToPathMap = buildDocIdToPathMap(docsDir);
+  const docInfoMap = await populateDocInfoMap(orderedDocIds, docIdToPathMap, docsDir);
 
-  const docInfoMap = await populateDocInfoMap(
-    orderedDocIds,
-    docIdToPathMap,
-    docsDir,
-  );
-
-  for (const category of sidebarOverviewStructure) {
-    llmsTxtContent += `${category.categoryLabel}\n`;
-    for (const docId of category.docIds) {
-      if (docInfoMap.has(docId)) {
-        const info = docInfoMap.get(docId);
-        const relativeToSiteForGithub = path
+  const categories = sidebarStructure.map((category) => ({
+    label: category.categoryLabel,
+    docs: category.docIds
+      .filter((docId) => docInfoMap.has(docId))
+      .map((docId) => {
+        const info = docInfoMap.get(docId)!;
+        const relativeToSite = path
           .relative(SITE_ROOT, info.absolutePath)
           .replace(/\\/g, "/");
-        const githubRawUrl = GITHUB_RAW_BASE_URL + relativeToSiteForGithub;
+        return {
+          title: info.title,
+          githubRawUrl: GITHUB_RAW_BASE_URL + relativeToSite,
+          processedBody: info.processedBody,
+        };
+      }),
+  }));
 
-        if (
-          category ===
-            sidebarOverviewStructure[sidebarOverviewStructure.length - 1] &&
-          docId === category.docIds[category.docIds.length - 1]
-        ) {
-          llmsTxtContent += `- [${info.title}](${githubRawUrl})`;
-        } else {
-          llmsTxtContent += `- [${info.title}](${githubRawUrl})\n`;
-        }
-      } else {
-        // Warning already issued during docInfoMap population
-      }
+  return { categories };
+}
+
+/**
+ * Builds the documentation map (table of contents) for llms.txt files.
+ */
+function buildDocumentationMap(docs: ProcessedDocumentation): string {
+  const lines: string[] = [];
+
+  for (const category of docs.categories) {
+    lines.push(category.label);
+    for (const doc of category.docs) {
+      lines.push(`- [${doc.title}](${doc.githubRawUrl})`);
     }
   }
 
-  if (generateLlmsFullTxt) {
-    for (const category of sidebarOverviewStructure) {
-      // Add category header as H1 and separator
-      llmsFullTxtContent += `# ${category.categoryLabel}\n\n`;
+  return `## Documentation Map\n${lines.join("\n")}`;
+}
 
-      for (const docId of category.docIds) {
-        if (docInfoMap.has(docId)) {
-          const info = docInfoMap.get(docId);
-          // Add document title as H2
-          llmsFullTxtContent += `## ${info.title}\n\n${info.processedBody}\n\n`;
-        }
-      }
+/**
+ * Builds the full documentation content for llms-full.txt.
+ */
+function buildFullDocumentation(docs: ProcessedDocumentation): string {
+  let content = "";
 
-      // Add category separator
-      llmsFullTxtContent += `------\n\n`;
+  for (const category of docs.categories) {
+    content += `# ${category.label}\n\n`;
+
+    for (const doc of category.docs) {
+      content += `## ${doc.title}\n\n${doc.processedBody}\n\n`;
     }
+
+    content += `------\n\n`;
   }
-  return { llmsTxtContent, llmsFullTxtContent };
+
+  return content;
 }
 
 /**
@@ -222,7 +212,7 @@ function buildDocIdToPathMap(directory: string): Map<string, string> {
     ignore: ["**/_*.md", "**/_*.mdx"],
   });
 
-  const docsRelativePaths = new Map();
+  const docsRelativePaths = new Map<string, string>();
   for (const filePath of allGlobbedRelativeFilePaths) {
     const docId = normalizePathToDocId(filePath);
     if (!docsRelativePaths.has(docId)) {
@@ -237,6 +227,19 @@ type DocDetails = {
   processedBody: string;
   absolutePath: string;
   relativeDocPath: string;
+};
+
+type ProcessedDoc = {
+  title: string;
+  githubRawUrl: string;
+  processedBody: string;
+};
+
+type ProcessedDocumentation = {
+  categories: Array<{
+    label: string;
+    docs: ProcessedDoc[];
+  }>;
 };
 
 /**
@@ -298,12 +301,12 @@ function normalizePathToDocId(filePath: string): string {
     .replace(/\/index$/, "");
 
   const pathSegments = docIdWithoutExtAndIndex.split("/");
-  const lastSegment = pathSegments.pop(); // This will be the filename or last directory name
+  const lastSegment = pathSegments.pop() ?? ""; // This will be the filename or last directory name
 
   // Remove leading "NN-" or "NN." from the filename part, e.g. "01-create" => "create"
   const cleanedLastSegment = lastSegment.replace(/^\d+[-.]/, "");
 
-  let docId;
+  let docId: string;
   if (pathSegments.length > 0) {
     docId = [...pathSegments, cleanedLastSegment].join("/");
   } else {
@@ -353,7 +356,7 @@ function getDocsSidebarCategoryStructure(
  * Recursively traverses the sidebar configuration to produce a flat, ordered list of document IDs.
  */
 function flattenSidebarItemsToDocIds(sidebarItems: SidebarConfig): string[] {
-  let paths = [];
+  let paths: string[] = [];
   // `SidebarConfig` type can be a list or an object - we handle only the list
   // case here, as the sidebar is expected to be an array of items.
   if (!Array.isArray(sidebarItems)) {
@@ -445,17 +448,10 @@ function parseBlogFileDate(file: string): string | null {
     return dateMatch[1];
   }
 
-  // If it doesn't match, check if it's a file type we should warn about.
-  const isIgnoredType =
-    file === "authors.yml" ||
-    file.startsWith("_") ||
-    file.includes("components/");
-
-  if (!isIgnoredType) {
-    console.warn(
-      `Skipping file in web/blog, does not match YYYY-MM-DD-name.md(x) naming convention or is an ignored type: ${file}`,
-    );
-  }
+  // Files not matching the date pattern are already filtered by glob, so just return null
+  console.warn(
+    `Skipping file in web/blog, does not match YYYY-MM-DD-name.md(x) naming convention: ${file}`,
+  );
   return null;
 }
 
@@ -483,7 +479,12 @@ function extractBlogPostTitle(attributes: unknown, filename: string): string {
 function isAttributesWithTitle(
   attributes: unknown,
 ): attributes is { title: string } {
-  return typeof attributes === "object" && "title" in attributes;
+  return (
+    typeof attributes === "object" &&
+    attributes !== null &&
+    "title" in attributes &&
+    typeof (attributes as { title: unknown }).title === "string"
+  );
 }
 
 /**
@@ -510,7 +511,17 @@ async function loadVersionedSidebar(
     `version-${version}-sidebars.json`,
   );
   const sidebarContent = await fs.readFile(sidebarPath, "utf8");
-  const sidebarConfig = JSON.parse(sidebarContent);
+
+  let sidebarConfig: { docs?: unknown };
+  try {
+    sidebarConfig = JSON.parse(sidebarContent);
+  } catch (parseError) {
+    const errorMessage =
+      parseError instanceof Error ? parseError.message : String(parseError);
+    throw new Error(
+      `Failed to parse sidebar JSON for version "${version}" at ${sidebarPath}: ${errorMessage}`,
+    );
+  }
 
   if (!Array.isArray(sidebarConfig.docs)) {
     throw new Error(
@@ -529,7 +540,7 @@ async function loadVersionedSidebar(
 function cleanDocContent(content: string): string {
   if (!content) return "";
 
-  const componentsToReplace = new Set();
+  const componentsToReplace = new Set<string>();
   // NOTE: Not sure if this is needed, as LLMs can probably parse the components's meaning from the context.
   // Regex to capture imports from '@site/src/components/Tag'
   // Example: import MyTag from '...' -> MyTag
