@@ -59,7 +59,9 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 
 ### Adding Tailwind Plugins
 
-To add Tailwind plugins, install them as npm development [dependencies](../project/dependencies) and add them to the main CSS file with the `@plugin` directive:
+Wasp doesn't require any special configuration to use Tailwind plugins. You can follow each plugin's installation instructions as you normally would.
+
+For example, to add the [Tailwind Forms](https://github.com/tailwindlabs/tailwindcss-forms) and [Tailwind Typography](https://github.com/tailwindlabs/tailwindcss-typography) plugins, we can check the installation instructions on their respective documentation pages and follow them as usual:
 
 ```shell
 npm install -D @tailwindcss/forms
