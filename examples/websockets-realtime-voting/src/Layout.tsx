@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { logout, useAuth } from "wasp/client/auth";
 import "./Main.css";
 
+import "flowbite";
 import {
   Avatar,
   Dropdown,

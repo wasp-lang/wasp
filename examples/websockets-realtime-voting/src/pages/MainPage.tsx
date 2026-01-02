@@ -77,7 +77,7 @@ const MainPage = () => {
                       return (
                         <div
                           key={username}
-                          className="username flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow"
+                          className="username flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow-sm"
                         >
                           <div className="mr-2 h-2 w-2 rounded-full bg-green-500"></div>
                           <div className="text-gray-700">{username}</div>
@@ -88,7 +88,7 @@ const MainPage = () => {
                       <div className="text-gray-700">{`...`}</div>
                     )}
                     {option.votes.length > TRUNCATE_SIZE + 1 && (
-                      <div className="flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow">
+                      <div className="flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow-sm">
                         <div className="mr-2 h-2 w-2 rounded-full bg-green-500"></div>
                         <div className="text-gray-700">
                           {option.votes[option.votes.length - 1]}
@@ -102,7 +102,7 @@ const MainPage = () => {
                 {option.votes.length} / {totalVotes}
               </div>
               <div
-                className="absolute inset-0 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
+                className="absolute inset-0 rounded-lg bg-linear-to-r from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
                 style={{
                   width: `${
                     totalVotes > 0
