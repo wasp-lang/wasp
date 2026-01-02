@@ -1,4 +1,4 @@
-import { heroui } from "@heroui/react"
+import { heroui } from "@heroui/react";
 
 // This export relies on a hidden type of a transitive dependency, so TypeScript
 // cannot properly export the inferred type here. We don't use ever this export
