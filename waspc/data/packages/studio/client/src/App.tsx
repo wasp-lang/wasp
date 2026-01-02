@@ -3,7 +3,7 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { lazy, Suspense } from "react";
 import "reactflow/dist/style.css";
 

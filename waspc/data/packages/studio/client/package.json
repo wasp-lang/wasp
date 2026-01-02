@@ -11,27 +11,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@nextui-org/react": "^2.1.12",
+    "@heroui/react": "2.8.7",
     "elkjs": "^0.8.2",
-    "framer-motion": "^10.16.4",
+    "framer-motion": "^12.23.26",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reactflow": "^11.8.3",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "tailwindcss": "^3.3.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react-swc": "^3.3.2",
+    "@vitejs/plugin-react-swc": "^4.2.2",
     "autoprefixer": "^10.4.15",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.29",
-    "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
-    "vite": "^4.5.3"
+    "vite": "^7.3.0"
   }
 }
