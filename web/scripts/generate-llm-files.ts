@@ -37,29 +37,16 @@ function buildVersionMapSection(
   currentVersion: string,
 ): string {
   const latestVersion = versions[0];
-  const isCurrentLatest = currentVersion === latestVersion;
 
-  let section = `This is the llms.txt for Wasp v${currentVersion}${isCurrentLatest ? " (latest)" : ""}.
-
-## Documentation Maps by Version
+  let section = `## Documentation Maps by Version
 `;
 
   for (const version of versions) {
-    const isLatest = version === latestVersion;
-    const isCurrent = version === currentVersion;
-    const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
+    const filename =
+      version === latestVersion ? "llms.txt" : `llms-${version}.txt`;
     const url = `${WASP_BASE_URL}${filename}`;
 
-    let versionLabel = version;
-    if (isLatest && isCurrent) {
-      versionLabel = `${version} (latest) ← current`;
-    } else if (isLatest) {
-      versionLabel = `${version} (latest)`;
-    } else if (isCurrent) {
-      versionLabel = `${version} ← current`;
-    }
-
-    section += `- [${versionLabel}](${url})\n`;
+    section += `- [${version}](${url})\n`;
   }
 
   return section.trim();
@@ -149,7 +136,7 @@ function buildLlmsTxtContent(
 /**
  * Processes all documentation files based on the sidebar configuration's order.
  * It builds a map of document IDs to file paths, processes each document,
- * and generates both a map of document IDs to their content (llms.txt) and 
+ * and generates both a map of document IDs to their content (llms.txt) and
  * a full concatenated string of the content (llms-full.txt).
  */
 async function processDocumentationFiles(
@@ -188,7 +175,8 @@ async function processDocumentationFiles(
         const githubRawUrl = GITHUB_RAW_BASE_URL + relativeToSiteForGithub;
 
         if (
-          category === sidebarOverviewStructure[sidebarOverviewStructure.length - 1] &&
+          category ===
+            sidebarOverviewStructure[sidebarOverviewStructure.length - 1] &&
           docId === category.docIds[category.docIds.length - 1]
         ) {
           llmsTxtContent += `- [${info.title}](${githubRawUrl})`;
