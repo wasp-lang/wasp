@@ -33,7 +33,7 @@ function Header({ user }: { user: AuthUser | null | undefined }) {
   const appName = env.REACT_APP_NAME;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-xs">
+    <header className="backdrop-blur-xs sticky top-0 z-40 border-b border-gray-200 bg-white/80">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">

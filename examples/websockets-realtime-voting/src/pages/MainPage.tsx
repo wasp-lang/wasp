@@ -102,7 +102,7 @@ const MainPage = () => {
                 {option.votes.length} / {totalVotes}
               </div>
               <div
-                className="absolute inset-0 rounded-lg bg-linear-to-r from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
+                className="bg-linear-to-r absolute inset-0 rounded-lg from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
                 style={{
                   width: `${
                     totalVotes > 0

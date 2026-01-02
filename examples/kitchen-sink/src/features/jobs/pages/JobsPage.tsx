@@ -97,7 +97,7 @@ function RequestsList() {
           requests.map((request) => (
             <div
               key={request.id}
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs"
+              className="shadow-xs rounded-xl border border-gray-200 bg-white p-4"
               data-testid="job-request"
             >
               <div className="space-y-3">
@@ -129,7 +129,7 @@ function RequestsList() {
             </div>
           ))
         ) : (
-          <div className="rounded-xl p-8 text-center shadow-xs">
+          <div className="shadow-xs rounded-xl p-8 text-center">
             <span className="text-sm">No requests found.</span>
             <p className="mt-1 text-xs text-gray-500">
               Submit your first job to see it here!

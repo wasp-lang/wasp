@@ -51,7 +51,7 @@ export const ChatPage = () => {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className="rounded-lg border border-gray-100 bg-white p-3 shadow-xs"
+                    className="shadow-xs rounded-lg border border-gray-100 bg-white p-3"
                     data-testid="message"
                   >
                     <div className="mb-1 flex items-center justify-between">
