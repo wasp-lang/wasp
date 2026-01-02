@@ -161,7 +161,7 @@ function FeatureCard({ title, isPublic, ...routeProps }: Feature) {
       <div className="flex items-center gap-2">
         <h3 className="text-sm font-medium leading-tight">{title}</h3>
         {isPublic && (
-          <span className="inline-flex items-center rounded bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700">
+          <span className="inline-flex items-center rounded-sm bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700">
             Public
           </span>
         )}
