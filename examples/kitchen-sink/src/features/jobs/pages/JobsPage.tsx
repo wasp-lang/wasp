@@ -97,7 +97,7 @@ function RequestsList() {
           requests.map((request) => (
             <div
               key={request.id}
-              className="shadow-xs rounded-xl border border-gray-200 bg-white p-4"
+              className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs"
               data-testid="job-request"
             >
               <div className="space-y-3">
@@ -105,7 +105,7 @@ function RequestsList() {
                   <div className="flex-1">
                     <div className="mb-1 text-sm text-gray-600">Input:</div>
                     <div
-                      className="wrap-break-word font-medium text-gray-900"
+                      className="font-medium wrap-break-word text-gray-900"
                       data-testid="input"
                     >
                       "{request.input}"
@@ -118,7 +118,7 @@ function RequestsList() {
                   <div className="border-t border-gray-100 pt-3">
                     <div className="mb-1 text-sm text-gray-600">Output:</div>
                     <div
-                      className="wrap-break-word font-semibold text-gray-900"
+                      className="font-semibold wrap-break-word text-gray-900"
                       data-testid="output"
                     >
                       "{request.output}"
@@ -129,7 +129,7 @@ function RequestsList() {
             </div>
           ))
         ) : (
-          <div className="shadow-xs rounded-xl p-8 text-center">
+          <div className="rounded-xl p-8 text-center shadow-xs">
             <span className="text-sm">No requests found.</span>
             <p className="mt-1 text-xs text-gray-500">
               Submit your first job to see it here!

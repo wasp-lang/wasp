@@ -1,7 +1,7 @@
 @import "tailwindcss" source(".");
 
-@plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-primary-50: #fffee7;
@@ -18,11 +18,11 @@
 }
 
 @utility link {
-  @apply text-primary-600 hover:text-primary-800 focus:ring-primary-500 focus:outline-hidden underline underline-offset-4 focus:ring-2 focus:ring-offset-2;
+  @apply text-primary-600 hover:text-primary-800 focus:ring-primary-500 underline underline-offset-4 focus:ring-2 focus:ring-offset-2 focus:outline-hidden;
 }
 
 @utility card {
-  @apply shadow-xs rounded-xl border border-gray-200 bg-white p-6 transition-all duration-200;
+  @apply rounded-xl border border-gray-200 bg-white p-6 shadow-xs transition-all duration-200;
 }
 
 @utility feature-title {

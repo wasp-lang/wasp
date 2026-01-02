@@ -36,13 +36,13 @@ export const AppNode = ({
       isConnectable={isConnectable}
     />
     <div className="mt-2 flex flex-col items-center justify-center gap-2">
-      <div className="bg-foreground text-background rounded px-1 text-xs">
+      <div className="rounded bg-foreground px-1 text-xs text-background">
         <span>{data.db?.system || "SQLite"}</span>
       </div>
       {data.auth &&
         data.auth.methods.map((method: string) => (
           <div
-            className="bg-foreground text-background rounded px-1 text-xs"
+            className="rounded bg-foreground px-1 text-xs text-background"
             key={method}
           >
             <span>Auth: {method}</span>

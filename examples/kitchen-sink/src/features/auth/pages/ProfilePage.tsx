@@ -118,5 +118,5 @@ const HookStatus = ({
 };
 
 const SimpleCard = ({ children }: React.PropsWithChildren<{}>) => {
-  return <div className="shadow-xs rounded-lg border p-3">{children}</div>;
+  return <div className="rounded-lg border p-3 shadow-xs">{children}</div>;
 };

@@ -56,7 +56,7 @@ const MainPage = () => {
                   <h2 className="text-xl font-semibold">{option.text}</h2>
                   <p className="text-gray-700">{option.description}</p>
                 </div>
-                <div className="absolute bottom-5 right-5">
+                <div className="absolute right-5 bottom-5">
                   {username && !option.votes.includes(username) ? (
                     <Button color="cyan" onClick={() => handleVote(option.id)}>
                       Vote
@@ -98,11 +98,11 @@ const MainPage = () => {
                   </div>
                 )}
               </div>
-              <div className="votes-count absolute right-5 top-5 z-10 rounded-lg bg-gray-100 p-2 text-sm font-semibold">
+              <div className="votes-count absolute top-5 right-5 z-10 rounded-lg bg-gray-100 p-2 text-sm font-semibold">
                 {option.votes.length} / {totalVotes}
               </div>
               <div
-                className="bg-linear-to-r absolute inset-0 rounded-lg from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
+                className="absolute inset-0 rounded-lg bg-linear-to-r from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
                 style={{
                   width: `${
                     totalVotes > 0

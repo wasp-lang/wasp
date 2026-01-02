@@ -30,7 +30,7 @@ export const ApiNode = ({
     </div>
     <div className="font-bold">{data?.label}</div>
     <div className="mt-2 flex items-center justify-center">
-      <div className="bg-foreground text-background rounded px-1 text-xs">
+      <div className="rounded bg-foreground px-1 text-xs text-background">
         <span>
           <strong className="font-bold">{data.httpRoute.method}</strong>{" "}
           {data.httpRoute.path}
