@@ -1,6 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(".");
+
+@source "../index.html";
+
+@source inline("{bg,text}-{pink,emerald}-{300,900}");
+
+/* Hero UI */
+@plugin "./hero.ts";
+@source "../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
+@custom-variant dark (&:is(.dark *));
 
 .flow-container {
   height: calc(100vh - 4rem);

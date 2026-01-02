@@ -5,13 +5,13 @@ export const ApiNode = ({
   sourcePosition = Position.Right,
   isConnectable,
 }: NodeProps) => (
-  <div className={`rounded bg-slate-900 px-6 py-3 text-center text-white`}>
+  <div className={`rounded-sm bg-slate-900 px-6 py-3 text-center text-white`}>
     <Handle
       type="source"
       position={sourcePosition}
       isConnectable={isConnectable}
     />
-    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded bg-slate-300 px-1 text-xs text-slate-900">
+    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded-sm bg-slate-300 px-1 text-xs text-slate-900">
       <span className="mr-1">API</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -30,7 +30,7 @@ export const ApiNode = ({
     </div>
     <div className="font-bold">{data?.label}</div>
     <div className="mt-2 flex items-center justify-center">
-      <div className="rounded bg-foreground px-1 text-xs text-background">
+      <div className="bg-foreground text-background rounded-sm px-1 text-xs">
         <span>
           <strong className="font-bold">{data.httpRoute.method}</strong>{" "}
           {data.httpRoute.path}
