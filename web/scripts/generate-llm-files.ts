@@ -27,6 +27,44 @@ const LLMS_TXT_MISC = `## Miscellaneous
 - [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
 `;
 
+/**
+ * Builds the full version map section for any llms.txt file.
+ * Lists all available versions with their llms.txt URLs.
+ * Marks the current version and latest version appropriately.
+ */
+function buildVersionMapSection(
+  versions: string[],
+  currentVersion: string,
+): string {
+  const latestVersion = versions[0];
+  const isCurrentLatest = currentVersion === latestVersion;
+
+  let section = `This is the llms.txt for Wasp v${currentVersion}${isCurrentLatest ? " (latest)" : ""}.
+
+## Documentation Maps by Version
+`;
+
+  for (const version of versions) {
+    const isLatest = version === latestVersion;
+    const isCurrent = version === currentVersion;
+    const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
+    const url = `${WASP_BASE_URL}${filename}`;
+
+    let versionLabel = version;
+    if (isLatest && isCurrent) {
+      versionLabel = `${version} (latest) ← current`;
+    } else if (isLatest) {
+      versionLabel = `${version} (latest)`;
+    } else if (isCurrent) {
+      versionLabel = `${version} ← current`;
+    }
+
+    section += `- [${versionLabel}](${url})\n`;
+  }
+
+  return section.trim();
+}
+
 generateFiles();
 
 /**
@@ -47,13 +85,19 @@ async function generateFiles() {
     const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
     const sidebarItems = await loadVersionedSidebar(version);
 
-    const { overviewDocsSection, llmsFullTxtContent } =
+    const { llmsTxtContent, llmsFullTxtContent } =
       await processDocumentationFiles(sidebarItems, docsDir, version, {
         generateLlmsFullTxt: isLatest,
       });
 
     const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
-    await writeLlmsTxtFile(filename, overviewDocsSection, blogSectionContent);
+    const versionSection = buildVersionMapSection(versionsJson, version);
+    await writeLlmsTxtFile(
+      filename,
+      llmsTxtContent,
+      versionSection,
+      blogSectionContent,
+    );
 
     if (isLatest) {
       await writeLlmsFullTxtFile(llmsFullTxtContent);
@@ -65,10 +109,15 @@ async function generateFiles() {
 
 async function writeLlmsTxtFile(
   filename: string,
-  overviewDocsSection: string,
+  llmsTxtContent: string,
+  versionSection: string,
   blogSectionContent: string,
 ): Promise<void> {
-  const content = buildLlmsTxtContent(overviewDocsSection, blogSectionContent);
+  const content = buildLlmsTxtContent(
+    llmsTxtContent,
+    versionSection,
+    blogSectionContent,
+  );
   const outputPath = path.join(STATIC_DIR, filename);
   await fs.writeFile(outputPath, content, "utf8");
   console.log(`  Generated: ${filename}`);
@@ -84,12 +133,14 @@ async function writeLlmsFullTxtFile(content: string): Promise<void> {
  * Assembles the overview content for llms.txt from its component sections.
  */
 function buildLlmsTxtContent(
-  overviewDocsSection: string,
+  llmsTxtContent: string,
+  versionSection: string,
   blogSectionContent: string,
 ): string {
   return [
     LLMS_TXT_INTRO,
-    overviewDocsSection,
+    versionSection,
+    llmsTxtContent,
     blogSectionContent,
     LLMS_TXT_MISC,
   ].join("\n\n");
@@ -98,15 +149,16 @@ function buildLlmsTxtContent(
 /**
  * Processes all documentation files based on the sidebar configuration's order.
  * It builds a map of document IDs to file paths, processes each document,
- * and generates both a summarized overview and a full concatenated string of the content.
+ * and generates both a map of document IDs to their content (llms.txt) and 
+ * a full concatenated string of the content (llms-full.txt).
  */
 async function processDocumentationFiles(
   docsSidebarItems: SidebarItemConfig[],
   docsDir: string,
   version: string,
   { generateLlmsFullTxt = false } = {},
-): Promise<{ overviewDocsSection: string; llmsFullTxtContent: string }> {
-  let overviewDocsSection = `## Documentation Raw Text URLs -- Version ${version}:\n`;
+): Promise<{ llmsTxtContent: string; llmsFullTxtContent: string }> {
+  let llmsTxtContent = `## Documentation Map\n`;
   let llmsFullTxtContent = "";
 
   const orderedDocIds = flattenSidebarItemsToDocIds(docsSidebarItems);
@@ -126,7 +178,7 @@ async function processDocumentationFiles(
   );
 
   for (const category of sidebarOverviewStructure) {
-    overviewDocsSection += `${category.categoryLabel}\n`;
+    llmsTxtContent += `${category.categoryLabel}\n`;
     for (const docId of category.docIds) {
       if (docInfoMap.has(docId)) {
         const info = docInfoMap.get(docId);
@@ -134,7 +186,15 @@ async function processDocumentationFiles(
           .relative(SITE_ROOT, info.absolutePath)
           .replace(/\\/g, "/");
         const githubRawUrl = GITHUB_RAW_BASE_URL + relativeToSiteForGithub;
-        overviewDocsSection += `- [${info.title}](${githubRawUrl})\n`;
+
+        if (
+          category === sidebarOverviewStructure[sidebarOverviewStructure.length - 1] &&
+          docId === category.docIds[category.docIds.length - 1]
+        ) {
+          llmsTxtContent += `- [${info.title}](${githubRawUrl})`;
+        } else {
+          llmsTxtContent += `- [${info.title}](${githubRawUrl})\n`;
+        }
       } else {
         // Warning already issued during docInfoMap population
       }
@@ -158,7 +218,7 @@ async function processDocumentationFiles(
       llmsFullTxtContent += `------\n\n`;
     }
   }
-  return { overviewDocsSection, llmsFullTxtContent };
+  return { llmsTxtContent, llmsFullTxtContent };
 }
 
 /**
