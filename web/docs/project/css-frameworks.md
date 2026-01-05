@@ -85,7 +85,7 @@ Due to how Wasp works internally, we need to tell Tailwind explicitly where to l
 
 To fix this issue, find the CSS file with the `@import "tailwindcss"` directive and add `source(".")` to it.
 
-If you used the default starter templates, the file will be `src/Main.css` or `src/App.css`. If it is in a different location, adjust the path in `source()` accordingly, so that it points to your `src` folder.
+If you used the default starter templates, the main CSS file will be located in the `src` dir, for example `src/Main.css` or `src/App.css`. If it is in a different location, adjust the path in `source()` accordingly, so that it points to your `src` folder.
 
 <Tabs>
 <TabItem value="before" label="Before">
