@@ -1,65 +1,10 @@
 {{={= =}=}}
-import path from "node:path";
 import { type Plugin } from "vite";
-import { getIndexTsxContent } from "./virtual-files/index.generated.js";
-import { getRoutesTsxContent } from "./virtual-files/routes.generated.js";
-import { getIndexHtmlContent } from "./virtual-files/indexHtml.js";
+import { getIndexHtmlContent } from "./virtual-files/indexHtml.virtual.js";
 
-const indexTsxFileName = "{= indexTsxFileName =}";
-const routesFileName = "{= routesFileName =}";
-
-export function virtualFiles(): Plugin {
-  let projectRoot: string;
-  let indexTsxPath: string;
-  let routesPath: string;
-
+export function waspHtml(): Plugin {
   return {
-    name: "wasp-virtual-files",
-    enforce: "pre",
-    config(config) {
-      // Set appType to 'custom' to prevent Vite from requiring index.html
-      // We generate our own HTML in the generateBundle hook
-      return {
-        appType: "custom",
-        build: {
-          rollupOptions: {
-            // Use virtual index.tsx as entry point instead of index.html
-            input: path.resolve(config.root || process.cwd(), indexTsxFileName),
-          },
-        },
-      };
-    },
-    configResolved(config) {
-      projectRoot = config.root;
-      // Using absolute paths gives proper context for resolving relative imports.
-      indexTsxPath = path.resolve(projectRoot, indexTsxFileName);
-      routesPath = path.resolve(projectRoot, routesFileName);
-    },
-    resolveId(id) {
-      // Intercept requests for /src/index.tsx and resolve to virtual module
-      // Also resolve the absolute path (used by build.rollupOptions.input)
-      if (id === `/${indexTsxFileName}` || id === indexTsxPath) {
-        return indexTsxPath;
-      }
-      // Intercept requests for routes.generated.tsx
-      if (id === `./${routesFileName}`) {
-        return routesPath;
-      }
-    },
-    load(id) {
-      if (id === indexTsxPath) {
-        return {
-          code: getIndexTsxContent(),
-          map: null,
-        };
-      }
-      if (id === routesPath) {
-        return {
-          code: getRoutesTsxContent(),
-          map: null,
-        };
-      }
-    },
+    name: "wasp-html",
     configureServer(server) {
       // Stage 1: SPA fallback - rewrite URLs (runs early, mimics Vite's htmlFallbackMiddleware)
       server.middlewares.use((req, _res, next) => {
@@ -118,14 +63,11 @@ export function virtualFiles(): Plugin {
       }
 
       // Generate index.html with the correct script reference
-      const baseHtml = getIndexHtmlContent();
-      // Replace the dev script src with the built script path
-      const html = baseHtml.replace(
-        `<script type="module" src="/${indexTsxFileName}"></script>`,
+      const html = getIndexHtmlContent().replace(
+        '<script type="module" src="{= indexVirtualFileName =}"></script>',
         `<script type="module" src="/${entryFileName}"></script>`
       );
 
-      // Emit the HTML file
       this.emitFile({
         type: "asset",
         fileName: "index.html",

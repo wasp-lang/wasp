@@ -16,7 +16,7 @@ export function getIndexHtmlContent(): string {
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script type="module" src="/{= indexTsxFileName =}"></script>
+    <script type="module" src="{= indexVirtualFileName =}"></script>
   </body>
 </html>
 `;

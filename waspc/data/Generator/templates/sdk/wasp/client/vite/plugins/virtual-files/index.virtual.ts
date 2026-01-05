@@ -5,7 +5,7 @@ import ReactDOM from "react-dom/client";
 import { getWaspApp } from "wasp/client/app";
 {=& appComponentImport =}
 {=& clientSetupImport =}
-import { routes } from "./{= routesFileName =}";
+import { routes } from "{= routesVirtualFileName =}";
 
 {=# hasClientSetup =}
 setup();

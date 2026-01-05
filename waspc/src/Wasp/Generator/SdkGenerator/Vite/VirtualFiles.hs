@@ -1,7 +1,5 @@
 module Wasp.Generator.SdkGenerator.Vite.VirtualFiles
   ( genVirtualFileTemplates,
-    indexTsxFileName,
-    routesFileName,
   )
 where
 
@@ -23,13 +21,6 @@ import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as SDK
 import Wasp.JsImport (JsImport (..), JsImportPath (..), applyJsImportAlias, getJsImportStmtAndIdentifier)
-
--- Virtual file names
-indexTsxFileName :: String
-indexTsxFileName = "index.generated.tsx"
-
-routesFileName :: String
-routesFileName = "routes.generated.tsx"
 
 -- Data structures for routes template
 data RoutesTemplateData = RoutesTemplateData
@@ -68,26 +59,26 @@ instance ToJSON PageTemplateData where
       [ "importStatement" .= _pageImportStmt pageTD
       ]
 
--- | Generate virtual file templates that will be loaded by the virtualFiles plugin
+-- | Generate virtual file templates that will be loaded by the waspVirtualModules plugin
 genVirtualFileTemplates :: AppSpec -> Generator [FileDraft]
 genVirtualFileTemplates spec = do
   return
-    [ genVirtualIndexTsxTemplate spec,
+    [ genVirtualIndexTemplate spec,
       genVirtualRoutesTemplate spec,
       genVirtualIndexHtmlTemplate spec
     ]
 
-genVirtualIndexTsxTemplate :: AppSpec -> FileDraft
-genVirtualIndexTsxTemplate spec = SDK.mkTmplFdWithData tmplFile tmplData
+genVirtualIndexTemplate :: AppSpec -> FileDraft
+genVirtualIndexTemplate spec = SDK.mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = SDK.asTmplFile $ [reldir|client/vite/virtual-files|] </> [relfile|index.generated.ts|]
+    tmplFile = SDK.asTmplFile $ virtualFilesDir </> [relfile|index.virtual.ts|]
     tmplData =
       object
-        [ "routesFileName" .= routesFileName,
-          "hasAppComponent" .= isJust maybeRootComponent,
+        [ "hasAppComponent" .= isJust maybeRootComponent,
           "appComponentImport" .= getAppComponentImport maybeRootComponent,
           "hasClientSetup" .= isJust maybeSetupFn,
-          "clientSetupImport" .= getClientSetupImport maybeSetupFn
+          "clientSetupImport" .= getClientSetupImport maybeSetupFn,
+          "routesVirtualFileName" .= ("./routes.virtual.tsx" :: String)
         ]
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
     maybeSetupFn = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
@@ -95,18 +86,23 @@ genVirtualIndexTsxTemplate spec = SDK.mkTmplFdWithData tmplFile tmplData
 genVirtualRoutesTemplate :: AppSpec -> FileDraft
 genVirtualRoutesTemplate spec = SDK.mkTmplFdWithData tmplFile (toJSON templateData)
   where
-    tmplFile = SDK.asTmplFile $ [reldir|client/vite/virtual-files|] </> [relfile|routes.generated.ts|]
+    tmplFile = SDK.asTmplFile $ virtualFilesDir </> [relfile|routes.virtual.ts|]
     templateData = createRoutesTemplateData spec
 
 genVirtualIndexHtmlTemplate :: AppSpec -> FileDraft
 genVirtualIndexHtmlTemplate spec = SDK.mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = SDK.asTmplFile $ [reldir|client/vite/virtual-files|] </> [relfile|indexHtml.ts|]
+    tmplFile = SDK.asTmplFile $ virtualFilesDir </> [relfile|indexHtml.virtual.ts|]
     tmplData =
       object
         [ "htmlTitle" .= AS.App.title (snd $ getApp spec),
-          "indexTsxFileName" .= indexTsxFileName
+          "indexVirtualFileName" .= ("/index.virtual.tsx" :: String)
         ]
+
+virtualFilesDir :: SP.Path' (SP.Rel SDK.SdkTemplatesDir) (SP.Dir VirtualFilesDir)
+virtualFilesDir = [reldir|client/vite/plugins/virtual-files|]
+
+data VirtualFilesDir
 
 -- | Generate the import statement for the App component (rootComponent)
 getAppComponentImport :: Maybe AS.ExtImport.ExtImport -> String

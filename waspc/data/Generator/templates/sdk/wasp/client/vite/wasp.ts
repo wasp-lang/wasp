@@ -4,9 +4,11 @@ import type { Options as ReactOptions } from "@vitejs/plugin-react";
 import path from "node:path";
 import fs from "node:fs";
 import { type Plugin, mergeConfig } from "vite";
-import { detectServerImports } from "./detectServerImports.js";
-import { validateEnv } from "./validateEnv.js";
-import { virtualFiles } from "./virtualFiles.js";
+import { detectServerImports } from "./plugins/detectServerImports.js";
+import { validateEnv } from "./plugins/validateEnv.js";
+import { waspBuildConfig } from "./plugins/waspBuildConfig.js";
+import { waspVirtualModules } from "./plugins/waspVirtualModules.js";
+import { waspHtml } from "./plugins/waspHtml.js";
 import { parse as dotenvParse } from "dotenv";
 import { expand as dotenvExpand } from "dotenv-expand";
 
@@ -61,7 +63,9 @@ function loadClientEnv(
 
 export function wasp(options?: WaspPluginOptions): Plugin[] {
   return [
-    virtualFiles(),
+    waspBuildConfig(),
+    waspVirtualModules(),
+    waspHtml(),
     validateEnv(),
     ...react(options?.reactOptions),
     detectServerImports(),

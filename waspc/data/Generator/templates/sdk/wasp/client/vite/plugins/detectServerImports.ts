@@ -1,33 +1,30 @@
 {{={= =}=}}
 import { type Plugin } from 'vite'
 import path from 'path'
-import { resolveProjectPath } from '../../dev/index.js'
+import { resolveProjectPath } from '../../../dev/index.js'
 
 export function detectServerImports(): Plugin {
   return {
     name: 'wasp-detect-server-imports',
     enforce: 'pre',
-    resolveId(source, importer) {
-      if (!importer) {
-        return
-      }
+    resolveId: {
+      filter: { id: /^wasp\/server/ },
+      handler(source, importer) {
+        if (!importer) {
+          return
+        }
 
-      const pathToUserCode = parsePathToUserCode(importer)
-      if (!pathToUserCode) {
-        return
-      }
+        const pathToUserCode = parsePathToUserCode(importer)
+        if (!pathToUserCode) {
+          return
+        }
 
-      if (isServerImport(source)) {
         throw new Error(
           `Server code cannot be imported in the client code. Import from "${source}" in "${pathToUserCode}" is not allowed.`
         )
-      }
+      },
     },
   }
-}
-
-function isServerImport(moduleName: string): boolean {
-  return moduleName.startsWith('wasp/server')
 }
 
 type RelativePathToUserCode = string & { _brand: 'relativePathToUserCode' }
