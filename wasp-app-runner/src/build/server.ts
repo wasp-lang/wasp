@@ -7,6 +7,7 @@ import {
   ServerBuildImageName,
 } from "../docker.js";
 import { doesFileExits } from "../files.js";
+import { waitUntilAppReady } from "../http.js";
 import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
@@ -14,43 +15,23 @@ import type { AppName } from "../waspCli.js";
 
 const serverAppDir = ".wasp/build";
 
-// Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
-export async function buildAndRunServerApp({
+export async function buildServerAppContainer({
   appName,
   pathToApp,
-  extraEnv,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
-  extraEnv: EnvVars;
-}): Promise<void> {
+}): Promise<{
+  imageName: ServerBuildImageName;
+  containerName: ServerBuildContainerName;
+}> {
+  const logger = createLogger("server-build-app");
+
   const { imageName, containerName } = createAppSpecificServerBuildDockerNames({
     appName,
     pathToApp,
   });
 
-  await buildServerAppContainer({
-    pathToApp,
-    imageName,
-  });
-
-  // This starts a long running process, so we don't await it.
-  runServerAppContainer({
-    pathToApp,
-    imageName,
-    containerName,
-    extraEnv,
-  });
-}
-
-async function buildServerAppContainer({
-  pathToApp,
-  imageName,
-}: {
-  pathToApp: PathToApp;
-  imageName: ServerBuildImageName;
-}): Promise<void> {
-  const logger = createLogger("server-build-app");
   const { exitCode } = await spawnWithLog({
     name: "server-build-app",
     cmd: "docker",
@@ -62,9 +43,18 @@ async function buildServerAppContainer({
     logger.error(`Failed to build server app image: ${imageName}`);
     process.exit(1);
   }
+
+  return { imageName, containerName };
 }
 
-async function runServerAppContainer({
+/**
+ * This function returns a Promise that resolves when the server container app
+ * has started, or rejects if it fails to start.
+ *
+ * The returned Promise in the object resolves when the server container app
+ * process exits.
+ */
+export async function runServerAppContainer({
   pathToApp,
   imageName,
   containerName,
@@ -74,9 +64,10 @@ async function runServerAppContainer({
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
   extraEnv: EnvVars;
-}): Promise<void> {
+}): Promise<{ processPromise: Promise<{ exitCode: number | null }> }> {
   const logger = createLogger("server-start-app");
-  const { exitCode } = await spawnWithLog({
+
+  const serverAppProcess = spawnWithLog({
     name: "server-start-app",
     cmd: "docker",
     args: [
@@ -94,10 +85,19 @@ async function runServerAppContainer({
     ],
   });
 
-  if (exitCode !== 0) {
-    logger.error(`Failed to start server app container: ${containerName}`);
-    process.exit(1);
-  }
+  const serverAppExitCodePromise = serverAppProcess.then(({ exitCode }) => {
+    if (exitCode !== 0) {
+      logger.error(`Failed to start server app container: ${containerName}`);
+      process.exit(1);
+    }
+  });
+
+  await Promise.race([
+    waitUntilAppReady({ port: 3001 }),
+    serverAppExitCodePromise,
+  ]);
+
+  return { processPromise: serverAppProcess };
 }
 
 function getDockerEnvVarsArgs({
