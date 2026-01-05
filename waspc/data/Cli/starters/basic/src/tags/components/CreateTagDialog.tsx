@@ -35,7 +35,6 @@ export function CreateTagDialog() {
                 Create
               </Button>
               <Button
-                form={formId}
                 type="button"
                 onClick={() => setTagDialogOpen(false)}
                 variant="ghost"
