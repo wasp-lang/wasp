@@ -361,6 +361,8 @@ library
     Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.PackageJson.Dependencies
+    Wasp.Generator.Valid.PackageJson.Workspaces
     Wasp.Generator.Valid.TsConfig
     Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
@@ -612,8 +614,8 @@ library cli-lib
     Wasp.Cli.Command.News.Core
     Wasp.Cli.Command.News.Display
     Wasp.Cli.Command.News.Fetching
-    Wasp.Cli.Command.News.Persistence
-    Wasp.Cli.Command.News.Report
+    Wasp.Cli.Command.News.LocalNewsState
+    Wasp.Cli.Command.News.Listing
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
@@ -794,7 +796,8 @@ test-suite wasp-cli-tests
     TerminalTest
     Paths_waspc
     Wasp.Cli.Util.EnvVarArgumentTest
-    Wasp.Cli.Command.News.ReportTest
+    Wasp.Cli.Command.News.ListingTest
+    Wasp.Cli.Command.News.LocalNewsStateTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe

@@ -2,13 +2,14 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
-module Wasp.Cli.Command.News.Persistence
-  ( LocalNewsState (..),
-    obtainLocalNewsState,
+module Wasp.Cli.Command.News.LocalNewsState
+  ( LocalNewsState,
+    loadLocalNewsState,
     saveLocalNewsState,
     emptyLocalNewsState,
+    wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
-    setLastReportTimestamp,
+    setLastListingTimestamp,
     markNewsAsSeen,
   )
 where
@@ -19,17 +20,26 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Time as T
 import GHC.Generics (Generic)
-import StrongPath (Abs, File', Path', fromAbsDir, parent, relfile, (</>))
+import Numeric.Natural (Natural)
+import StrongPath
+  ( Abs,
+    File,
+    Path',
+    Rel,
+    fromAbsDir,
+    parent,
+    relfile,
+    (</>),
+  )
 import qualified System.Directory as SD
 import Wasp.Cli.Command.News.Core (NewsEntry (..))
-import Wasp.Cli.FileSystem (getUserCacheDir, getWaspCacheDir)
-import Wasp.Util (ifM)
+import Wasp.Cli.FileSystem (WaspCacheDir, getUserCacheDir, getWaspCacheDir)
+import Wasp.Util (ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (readJsonFile, writeJsonFile)
 
--- | News state stored on disk.
 data LocalNewsState = LocalNewsState
-  { lastReportAt :: Maybe T.UTCTime,
+  { lastListingAt :: Maybe T.UTCTime,
     seenNewsIds :: Set String
   }
   deriving (Generic, Show, Eq, FromJSON, ToJSON)
@@ -40,8 +50,8 @@ saveLocalNewsState localNewsState = do
   SD.createDirectoryIfMissing True $ fromAbsDir $ parent newsStateFile
   writeJsonFile newsStateFile localNewsState
 
-obtainLocalNewsState :: IO LocalNewsState
-obtainLocalNewsState = do
+loadLocalNewsState :: IO LocalNewsState
+loadLocalNewsState = do
   stateFile <- getNewsStateFilePath
   ifM
     (IOUtil.doesFileExist stateFile)
@@ -53,20 +63,31 @@ obtainLocalNewsState = do
 
 emptyLocalNewsState :: LocalNewsState
 emptyLocalNewsState =
-  LocalNewsState {lastReportAt = Nothing, seenNewsIds = Set.empty}
+  LocalNewsState {lastListingAt = Nothing, seenNewsIds = Set.empty}
 
 wasNewsEntrySeen :: LocalNewsState -> NewsEntry -> Bool
 wasNewsEntrySeen state entry = entry.id `Set.member` state.seenNewsIds
 
-setLastReportTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
-setLastReportTimestamp time state = state {lastReportAt = Just time}
+setLastListingTimestamp :: T.UTCTime -> LocalNewsState -> LocalNewsState
+setLastListingTimestamp time state = state {lastListingAt = Just time}
 
 markNewsAsSeen :: [NewsEntry] -> LocalNewsState -> LocalNewsState
-markNewsAsSeen newsEntries state = state {seenNewsIds = unionOfOldAndNewIds}
+markNewsAsSeen newsToMark state = state {seenNewsIds = oldSeenIds <> newSeenIds}
   where
-    unionOfOldAndNewIds = state.seenNewsIds <> Set.fromList (map (.id) newsEntries)
+    oldSeenIds = state.seenNewsIds
+    newSeenIds = Set.fromList $ map (.id) newsToMark
 
-getNewsStateFilePath :: IO (Path' Abs File')
+wasLastListingMoreThanNHoursAgo :: Natural -> LocalNewsState -> IO Bool
+wasLastListingMoreThanNHoursAgo nHours state = case state.lastListingAt of
+  Nothing -> return True
+  Just lastListingAt' -> isOlderThanNHours nHours lastListingAt'
+
+getNewsStateFilePath :: IO (Path' Abs (File LocalNewsStateFile))
 getNewsStateFilePath = do
   waspCacheDir <- getWaspCacheDir <$> getUserCacheDir
-  return $ waspCacheDir </> [relfile|news.json|]
+  return $ waspCacheDir </> newsStateFileInUserCacheDir
+
+data LocalNewsStateFile
+
+newsStateFileInUserCacheDir :: Path' (Rel WaspCacheDir) (File LocalNewsStateFile)
+newsStateFileInUserCacheDir = [relfile|news.json|]
