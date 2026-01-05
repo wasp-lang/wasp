@@ -1,7 +1,5 @@
 @import "tailwindcss" source(".");
 
-@source "../index.html";
-
 @source inline("{bg,text}-{pink,emerald}-{300,900}");
 
 /* Hero UI */
