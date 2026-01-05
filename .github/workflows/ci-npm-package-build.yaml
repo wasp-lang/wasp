@@ -46,7 +46,7 @@ jobs:
       - name: Create build metadata file
         env:
           INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
-          OVERRIDE_VERSION_JSON: ${{ fromJson(inputs.override-npm-package-version || 'null') }}
+          OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version || 'null' }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
             # We'll wrangle the data from the build jobs into that schema here.
