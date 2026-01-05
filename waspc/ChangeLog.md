@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🔧 Small improvements
+
+- We updated the `basic` starter template to the latest best practices for React 19 + TypeScript apps. This applies to new projects created with `wasp new -t basic`, and older projects are unaffected. ([#3572](https://github.com/wasp-lang/wasp/pull/3572))
+
 ## 0.20.1
 
 ### 🎉 New Features
