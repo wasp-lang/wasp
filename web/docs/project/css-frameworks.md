@@ -43,7 +43,14 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
     /* ... */
     ```
 
-    If your main CSS file is in a different location, adjust the path accordingly so that it points to the `src` folder.
+    :::info
+
+    Make sure to add `source(".")` to the `@import "tailwindcss"` directive. Otherwise Tailwind won't be able to find your class names in the `src` folder and won't generate the corresponding CSS rules.
+
+
+    Moreover, if your main CSS file is in a different location, adjust the path in `source()` accordingly so that it points to the `src` folder. For example, if your main CSS file is located in `src/styles/Main.css` then we'd need to adjust it to be `source("../")`.
+
+    :::
 
 1. Start using Tailwind 🥳
 
