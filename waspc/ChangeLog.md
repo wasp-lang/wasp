@@ -15,6 +15,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🔧 Small improvements
 
 - We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ((#3571)[https://github.com/wasp-lang/wasp/pull/3571])
+- We updated the `basic` starter template to the latest best practices for React 19 + TypeScript apps. This applies to new projects created with `wasp new -t basic`, and older projects are unaffected. ([#3572](https://github.com/wasp-lang/wasp/pull/3572))
 
 ## 0.20.1
 

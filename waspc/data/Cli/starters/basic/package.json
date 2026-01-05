@@ -8,7 +8,7 @@
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-hook-form": "^7.57.0",
+    "react-hook-form": "^7.69.0",
     "react-router-dom": "^6.26.2",
     "tailwind-merge": "~3.4.0",
     "tailwindcss": "^4.1.18",

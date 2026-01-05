@@ -18,6 +18,10 @@
   --color-primary-950: #574500;
 }
 
+body {
+  @apply has-[dialog:open]:overflow-hidden;
+}
+
 @utility card {
   @apply rounded-xl border border-neutral-200 bg-white shadow-xs transition-all duration-200;
 }

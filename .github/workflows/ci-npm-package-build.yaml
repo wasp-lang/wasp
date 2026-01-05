@@ -3,9 +3,17 @@ name: "Build - Wasp npm packages"
 on:
   workflow_call:
     inputs:
-      build-outputs:
+      build-outputs-json:
         description: "The returned outputs from the build workflow, as a JSON string"
         required: true
+        type: string
+
+      override-npm-package-version:
+        description: >
+          If set, overrides the version of npm packages to publish.
+          Useful for publishing an RC version.
+          Leading 'v' will be stripped if present.
+        required: false
         type: string
 
 env:
@@ -37,15 +45,17 @@ jobs:
 
       - name: Create build metadata file
         env:
-          INPUT_DATA: ${{ inputs.build-outputs}}
+          INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
+          OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version || 'null' }}
           JQ_PROGRAM:
             # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
             # We'll wrangle the data from the build jobs into that schema here.
             |
             {
-              version: .waspc_version,
+              version: ($overrideVersion // $inputData.waspc_version) | ltrimstr("v"),
               tarballs:
-                with_entries(select(.key | startswith("output_")))
+                $inputData
+                | with_entries(select(.key | startswith("output_")))
                 | map(
                     fromjson
                     | {
@@ -54,7 +64,15 @@ jobs:
                       }
                   )
             }
-        run: echo "$INPUT_DATA" | jq "$JQ_PROGRAM" > ./input/data.json
+        run: |
+          jq \
+            --null-input \
+            --argjson inputData "$INPUT_DATA_JSON" \
+            --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
+            "$JQ_PROGRAM" \
+            > ./input/data.json
+
+          cat ./input/data.json # For debugging purposes
 
       - uses: actions/setup-node@v6
         with:
@@ -70,5 +88,5 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: wasp-npm-packages
+          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: ./output/
