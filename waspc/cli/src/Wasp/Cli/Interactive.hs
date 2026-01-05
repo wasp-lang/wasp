@@ -5,7 +5,9 @@ module Wasp.Cli.Interactive
     askToChoose,
     askToChoose',
     askForRequiredInput,
+    tryGettingConfirmationWithTimeout,
     IsOption (..),
+    ConfirmationError (..),
     Option (..),
   )
 where
@@ -13,11 +15,13 @@ where
 import Control.Applicative ((<|>))
 import Data.Foldable (find)
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
-import System.IO (hFlush, stdout)
+import System.IO (hFlush, hIsTerminalDevice, stdin, stdout)
+import System.Timeout (timeout)
 import Text.Read (readMaybe)
 import qualified Wasp.Util.Terminal as Term
 
@@ -127,6 +131,23 @@ askToChoose question options = do
 
 askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
+
+tryGettingConfirmationWithTimeout :: String -> String -> Int -> IO (Either ConfirmationError ())
+tryGettingConfirmationWithTimeout message requiredAnswer timeoutSeconds = do
+  isInteractive <- hIsTerminalDevice stdin
+  if not isInteractive
+    then return $ Left NonInteractiveShell
+    else
+      timeout timeoutMicroseconds (askForInput message)
+        <&> \case
+          Nothing -> Left Timeout
+          Just actualAnswer
+            | actualAnswer == requiredAnswer -> Right ()
+            | otherwise -> Left $ WrongAnswer actualAnswer
+  where
+    timeoutMicroseconds = timeoutSeconds * 10 ^ (6 :: Int)
+
+data ConfirmationError = Timeout | NonInteractiveShell | WrongAnswer String
 
 repeatIfNull :: (Foldable t) => IO (t a) -> IO (t a)
 repeatIfNull action = repeatUntil null "This field cannot be empty." action
