@@ -21,6 +21,7 @@ import Wasp.AI.GenerateNewProject.Common
     getProjectPrimaryColor,
   )
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
+import Wasp.Analyzer.Parser.CST (SyntaxKind (Int))
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
@@ -310,8 +311,9 @@ generateMainCssFile newProjectDetails =
 
     primaryColorName = T.pack $ getProjectPrimaryColor newProjectDetails
 
+    tailwindColorDefaultSteps :: [Int]
     tailwindColorDefaultSteps =
-      [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] :: [Int]
+      [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
 generateLayoutComponent :: NewProjectDetails -> File
 generateLayoutComponent newProjectDetails =
