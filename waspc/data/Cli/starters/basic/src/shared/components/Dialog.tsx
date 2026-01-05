@@ -1,4 +1,4 @@
-import { MouseEvent, ReactNode, useCallback, useEffect, useState } from "react";
+import { MouseEvent, ReactNode, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { twJoin } from "tailwind-merge";
 
@@ -15,16 +15,17 @@ export function Dialog({
   children,
   closeOnClickOutside = true,
 }: DialogProps) {
-  const [dialogRef, setDialogRef] = useState<HTMLDialogElement | null>(null);
+  const dialogRef = useRef<HTMLDialogElement >(null);
 
   useEffect(
     function handleShowOrCloseDialog() {
-      if (!dialogRef) return;
+      const dialog = dialogRef.current;
+      if (!dialog) return;
 
-      if (open && !dialogRef.open) {
-        dialogRef.showModal();
-      } else if (!open && dialogRef.open) {
-        dialogRef.close();
+      if (open && !dialog.open) {
+        dialog.showModal();
+      } else if (!open && dialog.open) {
+        dialog.close();
       }
     },
     [open, dialogRef],
@@ -32,9 +33,10 @@ export function Dialog({
 
   const handleClick = useCallback(
     (e: MouseEvent) => {
-      if (!closeOnClickOutside || !dialogRef) return;
+      const dialog = dialogRef.current;
+      if (!closeOnClickOutside || !dialog) return;
 
-      const rect = dialogRef.getBoundingClientRect();
+      const rect = dialog.getBoundingClientRect();
       const clickedOutside =
         e.clientX < rect.left ||
         e.clientX > rect.right ||
@@ -50,7 +52,7 @@ export function Dialog({
 
   return createPortal(
     <dialog
-      ref={setDialogRef}
+      ref={dialogRef}
       className={twJoin(
         "max-h top-[20vh] my-0 flex max-h-[55vh]",
         "bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm",
