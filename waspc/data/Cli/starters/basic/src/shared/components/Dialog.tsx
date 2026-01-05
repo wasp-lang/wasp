@@ -15,7 +15,7 @@ export function Dialog({
   children,
   closeOnClickOutside = true,
 }: DialogProps) {
-  const dialogRef = useRef<HTMLDialogElement >(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(
     function handleShowOrCloseDialog() {
@@ -28,7 +28,7 @@ export function Dialog({
         dialog.close();
       }
     },
-    [open, dialogRef],
+    [open],
   );
 
   const handleClick = useCallback(
@@ -47,7 +47,7 @@ export function Dialog({
         onClose();
       }
     },
-    [closeOnClickOutside, onClose, dialogRef],
+    [closeOnClickOutside, onClose],
   );
 
   return createPortal(
