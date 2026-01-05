@@ -64,13 +64,14 @@ jobs:
                       }
                   )
             }
-        run: >
-          jq
-            --null-input
-            --argjson inputData "$INPUT_DATA_JSON"
-            --argjson overrideVersion "$OVERRIDE_VERSION_JSON"
-            "$JQ_PROGRAM"
+        run: |
+          jq \
+            --null-input \
+            --argjson inputData "$INPUT_DATA_JSON" \
+            --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
+            "$JQ_PROGRAM" \
             > ./input/data.json
+
           cat ./input/data.json # For debugging purposes
 
       - uses: actions/setup-node@v6
