@@ -130,7 +130,6 @@ alias: [
           },
           test: (config.test as any)
             ? {
-              // TODO: note sure if we need to do this if using mergeConfig
                 exclude: [
                   ...((config.test as any).exclude || []),
                   "{= vitest.excludeWaspArtefactsPattern =}",
