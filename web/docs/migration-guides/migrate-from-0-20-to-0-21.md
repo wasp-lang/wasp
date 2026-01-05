@@ -85,7 +85,7 @@ app MyApp {
     npm i -D @tailwindcss/vite
     ```
 
-1. Add the `@tailwindcss/vite` plugin to your `vite.config.js` file.
+1. Add the `@tailwindcss/vite` plugin to your `vite.config.{js,ts}` file.
 
     ```ts title="vite.config.ts"
     // highlight-next-line
