@@ -38,7 +38,7 @@ export function virtualFiles(): Plugin {
     resolveId(id) {
       // Intercept requests for /src/index.tsx and resolve to virtual module
       // Also resolve the absolute path (used by build.rollupOptions.input)
-      if (id === `/${indexTsxFileName}` || indexTsxPath) {
+      if (id === `/${indexTsxFileName}` || id === indexTsxPath) {
         return indexTsxPath;
       }
       // Intercept requests for routes.generated.tsx
