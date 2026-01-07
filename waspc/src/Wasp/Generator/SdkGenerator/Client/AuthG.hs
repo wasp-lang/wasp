@@ -56,48 +56,48 @@ genAuthUi auth =
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genClientAuthFileCopy [relfile|email.ts|]]
+    then sequence [genClientAuthFileCopy UserCoreProject [relfile|email.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genClientAuthFileCopy [relfile|username.ts|]]
+    then sequence [genClientAuthFileCopy UserCoreProject [relfile|username.ts|]]
     else return []
 
 genAuthSlack :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthSlack auth =
   if AS.Auth.isSlackAuthEnabled auth
-    then sequence [genClientAuthFileCopy [relfile|slack.ts|]]
+    then sequence [genClientAuthFileCopy UserCoreProject [relfile|slack.ts|]]
     else return []
 
 genAuthDiscord :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthDiscord auth =
   if AS.Auth.isDiscordAuthEnabled auth
-    then sequence [genClientAuthFileCopy [relfile|discord.ts|]]
+    then sequence [genClientAuthFileCopy UserCoreProject [relfile|discord.ts|]]
     else return []
 
 genAuthGoogle :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGoogle auth =
   if AS.Auth.isGoogleAuthEnabled auth
-    then sequence [genClientAuthFileCopy [relfile|google.ts|]]
+    then sequence [genClientAuthFileCopy UserCoreProject [relfile|google.ts|]]
     else return []
 
 genAuthKeycloak :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthKeycloak auth =
   if AS.Auth.isKeycloakAuthEnabled auth
-    then sequence [genClientAuthFileCopy [relfile|keycloak.ts|]]
+    then sequence [genClientAuthFileCopy UserCoreProject [relfile|keycloak.ts|]]
     else return []
 
 genAuthGitHub :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGitHub auth =
   if AS.Auth.isGitHubAuthEnabled auth
-    then sequence [genClientAuthFileCopy [relfile|github.ts|]]
+    then sequence [genClientAuthFileCopy UserCoreProject [relfile|github.ts|]]
     else return []
 
 clientAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
 clientAuthDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesProjectDir </> [reldir|auth|]
 
-genClientAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
-genClientAuthFileCopy =
-  return . makeSdkProjectTmplFd UserCoreProject . (clientAuthDirInSdkTemplatesProjectDir </>)
+genClientAuthFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
+genClientAuthFileCopy sdkProject =
+  return . makeSdkProjectTmplFd sdkProject . (clientAuthDirInSdkTemplatesProjectDir </>)
