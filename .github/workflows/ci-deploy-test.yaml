@@ -1,10 +1,6 @@
 name: "Test - Wasp Deploy"
 
 on:
-  push:
-    # TODO: remove before merging this PR
-    branches:
-      - miho-railway-deployment-test-ci
   workflow_call:
     secrets:
       FLY_GITHUB_TESTING_TOKEN:
