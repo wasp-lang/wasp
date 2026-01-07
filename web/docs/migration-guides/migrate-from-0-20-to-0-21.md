@@ -40,15 +40,11 @@ app MyApp {
 
 **If you don't have test files in your project, you can skip this step.**
 
-We upgraded our testing support from Vitest v1 to Vitest v4. We expect most tests to work without any changes, but if you have custom test setups or configurations, please upgrade your tests by following the migration guides from Vitest, in order:
+We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breaking changes are related to internal configuration, edge cases, or very advanced usage; so we recommend **first to try running your tests after bumping the Wasp version**, and only read through the migration guides if you encounter issues:
 
-:::note
-Most of the breaking changes are related to internal configuration, edge cases, and very advanced usage, so we recommend first to try running your tests after bumping the Wasp version, and only read through the migration guides if you encounter issues.
-:::
-
-1. Vitest v1 to v2: https://v3.vitest.dev/guide/migration.html#vitest-2
-2. Vitest v2 to v3: https://v3.vitest.dev/guide/migration.html#vitest-3
-3. Vitest v3 to v4: https://vitest.dev/guide/migration.html#vitest-4
+1. [Migration guide from Vitest v1 to v2](https://v3.vitest.dev/guide/migration.html#vitest-2)
+2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
+3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
 ### 3. Enjoy your updated Wasp app
 
