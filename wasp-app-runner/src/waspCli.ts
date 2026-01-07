@@ -1,4 +1,5 @@
 import { stripVTControlCharacters } from "node:util";
+import semver, { SemVer } from "semver";
 
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
@@ -7,7 +8,7 @@ import { spawnAndCollectOutput, spawnWithLog } from "./process.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
-export type WaspVersion = Branded<string, "WaspVersion">;
+export type WaspVersion = Branded<SemVer, "WaspVersion">;
 
 export function waspMigrateDb({
   waspCliCmd,
@@ -89,7 +90,7 @@ export async function getWaspVersion({
   }
 
   const [firstLine] = stdoutData.split("\n");
-  const waspVersion = firstLine?.trim();
+  const waspVersion = semver.parse(firstLine);
 
   if (!waspVersion) {
     logger.error("Failed to get wasp version");
