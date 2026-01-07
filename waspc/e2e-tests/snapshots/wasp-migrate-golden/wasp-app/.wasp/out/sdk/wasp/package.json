@@ -1,20 +1,20 @@
 {
   "dependencies": {
     "@prisma/client": "5.19.1",
-    "@testing-library/jest-dom": "^6.3.0",
-    "@testing-library/react": "^16.3.0",
-    "@vitest/ui": "^1.2.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@vitest/ui": "^4.0.16",
     "axios": "^1.4.0",
     "express": "~5.1.0",
-    "jsdom": "^21.1.1",
+    "jsdom": "^27.4.0",
     "mitt": "3.0.0",
-    "msw": "^1.1.0",
+    "msw": "^2.12.7",
     "prisma": "5.19.1",
     "react": "^19.2.1",
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^6.26.2",
     "superjson": "^2.2.1",
-    "vitest": "^1.2.1",
+    "vitest": "^4.0.16",
     "zod": "^3.23.8"
   },
   "devDependencies": {
