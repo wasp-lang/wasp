@@ -115,8 +115,7 @@ genOperationTypesFile ::
   Bool ->
   Generator FileDraft
 genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
-  return $
-    makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplData =
       object

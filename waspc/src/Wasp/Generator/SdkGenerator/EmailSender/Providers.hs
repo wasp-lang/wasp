@@ -3,23 +3,22 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     sendGrid,
     mailgun,
     dummy,
-    serverProvidersDirInSdkTemplatesDir,
+    EmailProvidersTemplatesDir,
     EmailSenderProvider (..),
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (File', Path', Rel, relfile)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesProjectDir, serverTemplatesDirInSdkTemplatesProjectDir)
 import qualified Wasp.SemanticVersion as SV
-
-data ServerProvidersTemplatesDir
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel ServerProvidersTemplatesDir) File'
+    setupFnFile :: Path' (Rel EmailProvidersTemplatesDir) File'
   }
   deriving (Show, Eq)
+
+data EmailProvidersTemplatesDir
 
 smtp :: EmailSenderProvider
 smtp =
@@ -66,6 +65,3 @@ dummy =
     { npmDependency = Nothing,
       setupFnFile = [relfile|dummy.ts|]
     }
-
-serverProvidersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerProvidersTemplatesDir)
-serverProvidersDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|email/core/providers|]
