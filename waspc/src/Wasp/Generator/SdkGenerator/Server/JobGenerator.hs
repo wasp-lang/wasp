@@ -61,7 +61,7 @@ genIndexTs jobs =
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return $ makeSdkProjectTmplFdWithDestAndData destFile UserCoreProject tmplFile (Just tmplData)
+  return $ makeSdkProjectTmplFdWithDestAndData UserCoreProject destFile tmplFile (Just tmplData)
   where
     destFile = [reldir|server/jobs|] </> fromJust (parseRelFile $ jobName ++ ".ts")
     tmplFile = serverJobsDirInSdkTemplatesProjectDir </> [relfile|_job.ts|]

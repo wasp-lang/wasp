@@ -53,7 +53,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      makeSdkProjectTmplFdWithDestAndData destFile UserCoreProject tmplFile (Just tmplData)
+      makeSdkProjectTmplFdWithDestAndData UserCoreProject destFile tmplFile (Just tmplData)
       where
         destFile = [reldir|client/crud|] </> fromJust (parseRelFile (name ++ ".ts"))
         tmplFile = clientCrudDirInSdkTemplatesProjectDir </> [relfile|_crud.ts|]

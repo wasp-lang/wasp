@@ -41,7 +41,7 @@ makeSdkProjectTmplFd ::
   Path' (Rel SdkTemplatesProjectDir) File' ->
   FileDraft
 makeSdkProjectTmplFd sdkTmplProject tmplFile =
-  makeSdkProjectTmplFdWithDestAndData (castRel tmplFile) sdkTmplProject tmplFile Nothing
+  makeSdkProjectTmplFdWithDestAndData sdkTmplProject (castRel tmplFile) tmplFile Nothing
 
 makeSdkProjectTmplFdWithData ::
   SdkProject ->
@@ -49,15 +49,15 @@ makeSdkProjectTmplFdWithData ::
   Aeson.Value ->
   FileDraft
 makeSdkProjectTmplFdWithData sdkTmplProject tmplFile tmplData =
-  makeSdkProjectTmplFdWithDestAndData (castRel tmplFile) sdkTmplProject tmplFile (Just tmplData)
+  makeSdkProjectTmplFdWithDestAndData sdkTmplProject (castRel tmplFile) tmplFile (Just tmplData)
 
 makeSdkProjectTmplFdWithDestAndData ::
-  Path' (Rel SdkTemplatesProjectDir) File' ->
   SdkProject ->
+  Path' (Rel SdkTemplatesProjectDir) File' ->
   Path' (Rel SdkTemplatesProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-makeSdkProjectTmplFdWithDestAndData destFile sdkTmplProject tmplFile tmplData =
+makeSdkProjectTmplFdWithDestAndData sdkTmplProject destFile tmplFile tmplData =
   createTemplateFileDraft
     (sdkRootDirInProjectRootDir </> castRel (sdkTemplatesProjectDirInSdkTemplatesDir sdkTmplProject) </> destFile)
     (sdkTemplatesDirInTemplatesDir </> sdkTemplatesProjectDirInSdkTemplatesDir sdkTmplProject </> tmplFile)
