@@ -2,9 +2,9 @@
     [
         [
             "file",
-            "../out/libs/wasp.sh-lib-auth-0.20.0.tgz"
+            "../out/libs/wasp.sh-lib-auth-0.21.0.tgz"
         ],
-        "301f9d45c3a6ab46e338d9abc024c85f2b33fefa5feeceefaff3d25b712ef3ea"
+        "07519138f1cce877be4ec4acc5dbdddac2e7fbd3784fccd749e82b8e2659be41"
     ],
     [
         [
@@ -172,7 +172,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+        "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "dca83874c3d675f1cf2e2c7ac2909ddbb76a110197353714df2537d89cdb9254"
+        "9149fe8611825529bc2e1efefaae43cde9088bb4077024ff1b7ea13edafdc7e9"
     ],
     [
         [
@@ -389,14 +389,14 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "7ed6a5aae2db6666937b6b8ce6f941d5ab477f25734e39f310cefde82a634838"
+        "aa6fa5e3fce2b4bed80fc74f1c7018d80dee0f03054374d1dd02076553b50d9a"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "88a24007e020ae73aa75725d89907789ce6331c2ae71d9e2a6b9ce706ebcb376"
+        "df6edb4c166ff8aad37ebebd48be6c3b06e0279357932ea36ea29f2ed28656d7"
     ],
     [
         [
@@ -464,9 +464,9 @@
     [
         [
             "file",
-            "libs/wasp.sh-lib-auth-0.20.0.tgz"
+            "libs/wasp.sh-lib-auth-0.21.0.tgz"
         ],
-        "301f9d45c3a6ab46e338d9abc024c85f2b33fefa5feeceefaff3d25b712ef3ea"
+        "07519138f1cce877be4ec4acc5dbdddac2e7fbd3784fccd749e82b8e2659be41"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "server/package.json"
         ],
-        "221a33774dc697745b61d60d3a53a76b628e237d50ce85dbf1e177e2010612df"
+        "29e4ee567632c4d495d0a68b4cce51f8847d863d190de9d3a710c7aed302287f"
     ],
     [
         [

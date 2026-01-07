@@ -252,12 +252,12 @@ npmDepsForSdk spec =
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
   Npm.Dependency.fromList
-    [ ("vitest", "^1.2.1"),
-      ("@vitest/ui", "^1.2.1"),
-      ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^16.3.0"),
-      ("@testing-library/jest-dom", "^6.3.0"),
-      ("msw", "^1.1.0")
+    [ ("vitest", "^4.0.16"),
+      ("@vitest/ui", "^4.0.16"),
+      ("jsdom", "^27.4.0"),
+      ("@testing-library/react", "^16.3.1"),
+      ("@testing-library/jest-dom", "^6.9.1"),
+      ("msw", "^2.12.7")
     ]
 
 genClientConfigFile :: Generator FileDraft

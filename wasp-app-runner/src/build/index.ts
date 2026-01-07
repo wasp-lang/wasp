@@ -2,10 +2,9 @@ import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
 import { startLocalSmtpServer } from "../smtp.js";
 import { type AppName, waspBuild } from "../waspCli.js";
-import { buildAndRunClientApp } from "./client.js";
-import { buildAndRunServerApp } from "./server.js";
+import { buildClientApp, startClientApp } from "./client.js";
+import { buildServerAppContainer, runServerAppContainer } from "./server.js";
 
-// Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
 export async function startAppInBuildMode({
   waspCliCmd,
   pathToApp,
@@ -33,16 +32,34 @@ export async function startAppInBuildMode({
 
   await startLocalSmtpServer();
 
-  // Client needs to be running before the server
-  // because `playwright` tests start executing as soon
-  // as the server is up.
-  await buildAndRunClientApp({
+  /*
+    We do the client and server builds first, in parallel. Then it starts the
+    client build, waits until it's up; and only then starts the server build.
+    Then it waits for both processes.
+
+    This is because the client needs to be fully started before the server
+    starts, as `playwright` tests start executing as soon as the server is up.
+  */
+
+  const [, { containerName, imageName }] = await Promise.all([
+    buildClientApp({ pathToApp }),
+    buildServerAppContainer({
+      appName,
+      pathToApp,
+    }),
+  ]);
+
+  const { processPromise: startClientProcessPromise } = await startClientApp({
     pathToApp,
   });
 
-  await buildAndRunServerApp({
-    appName,
-    pathToApp,
-    extraEnv: dbEnvVars,
-  });
+  const { processPromise: startServerProcessPromise } =
+    await runServerAppContainer({
+      containerName,
+      imageName,
+      pathToApp,
+      extraEnv: dbEnvVars,
+    });
+
+  await Promise.race([startClientProcessPromise, startServerProcessPromise]);
 }

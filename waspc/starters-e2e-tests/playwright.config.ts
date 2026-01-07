@@ -1,4 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+import assert from "node:assert/strict";
+
+const WASP_APP_PATH = process.env.WASP_APP_PATH;
+assert(
+  WASP_APP_PATH,
+  "Environment variable WASP_APP_PATH must be set to the path of the Wasp app to test.",
+);
+const WASP_APP_RUNNER_CLI_CMD =
+  process.env.WASP_APP_RUNNER_CLI_CMD ?? "run-wasp-app";
+const WASP_RUN_MODE = process.env.WASP_RUN_MODE ?? "dev";
+const WASP_CLI_CMD = process.env.WASP_CLI_CMD ?? "wasp-cli";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -45,7 +56,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `run-wasp-app ${process.env.WASP_RUN_MODE} --path-to-app=${process.env.WASP_APP_PATH} --wasp-cli-cmd=${process.env.WASP_CLI_CMD}`,
+    command: `${WASP_APP_RUNNER_CLI_CMD} ${WASP_RUN_MODE} --path-to-app=${WASP_APP_PATH} --wasp-cli-cmd=${WASP_CLI_CMD}`,
     // Wait for the backend to start
     url: "http://localhost:3001",
     reuseExistingServer: false,

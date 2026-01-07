@@ -1,8 +1,7 @@
 # Testing Packages Locally
 
-Run `./run build:packages` to compile the packages and copy
-them into `waspc/data/`. Then you can use `./run wasp-cli` as normal, or you can
-run `./run install` and then use `wasp-cli`.
+Run `./run build:packages` to compile the packages. Then you can use `./run wasp-cli`
+as normal, or you can `./run install` and then use `wasp-cli`.
 
 # Adding a New Package
 

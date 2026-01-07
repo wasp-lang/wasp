@@ -564,7 +564,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+        "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
     ],
     [
         [
@@ -648,7 +648,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "076cd765427d85fbe0d037c5bc7315f2dfca6ecbff15c02bc6008e2c5f0cf9e1"
+        "22a1700a954b1d95b0d2d20edd9a8e8cc2c5135f95a5579555c64bcd9958466d"
     ],
     [
         [
@@ -1292,7 +1292,7 @@
             "file",
             "../out/sdk/wasp/src/features/operations/components/Todo.test.tsx"
         ],
-        "5fe00b0abb7220ba97761d0c5a427551c660b08522efab2a0a7dc7fef390f614"
+        "26e8e78ccfb1f63d9ce99db5b2b3c58fe7618fb697576cc433b2166d0fcac52f"
     ],
     [
         [
@@ -1432,7 +1432,7 @@
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "88a24007e020ae73aa75725d89907789ce6331c2ae71d9e2a6b9ce706ebcb376"
+        "df6edb4c166ff8aad37ebebd48be6c3b06e0279357932ea36ea29f2ed28656d7"
     ],
     [
         [
@@ -1507,9 +1507,9 @@
     [
         [
             "file",
-            "libs/wasp.sh-lib-auth-0.20.0.tgz"
+            "libs/wasp.sh-lib-auth-0.21.0.tgz"
         ],
-        "301f9d45c3a6ab46e338d9abc024c85f2b33fefa5feeceefaff3d25b712ef3ea"
+        "07519138f1cce877be4ec4acc5dbdddac2e7fbd3784fccd749e82b8e2659be41"
     ],
     [
         [
@@ -1544,7 +1544,7 @@
             "file",
             "server/package.json"
         ],
-        "0520482e168f3108b13b045ac6bdd5587373939a67413fd92f3e7c9469301e94"
+        "da828b689bec89f9562b43b57ada154eb46d0a59e56df6f587f499fd4daaecdb"
     ],
     [
         [

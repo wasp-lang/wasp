@@ -24,6 +24,7 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
@@ -170,7 +171,7 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
     options =
       CompileOptions
         { waspProjectDirPath = waspProjectDir,
-          isBuild = True,
+          buildType = BuildType.Production,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.
           generatorWarningsFilter =

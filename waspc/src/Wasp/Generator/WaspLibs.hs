@@ -33,6 +33,6 @@ genWaspLibs spec = do
     -- and since libs are required both inside the build directory and next to the SDK,
     -- we need to copy them to both locations.
     libsDestDirs =
-      if AS.isBuild spec
+      if AS.isProduction spec
         then [libsRootDirInGeneratedCodeDir, libsRootDirNextToSdk]
         else [libsRootDirInGeneratedCodeDir]

@@ -7,29 +7,22 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import docsSidebarConfig from "../sidebars.js";
+import versionsJson from "../versions.json";
 
 const SITE_ROOT = process.cwd();
 const STATIC_DIR = path.join(SITE_ROOT, "static/");
-const DOCS_DIR = path.join(SITE_ROOT, "docs/");
+const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs/");
+const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars/");
 const BLOG_DIR = path.join(SITE_ROOT, "blog/");
 const GITHUB_RAW_BASE_URL =
   "https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/"; // Use the release branch
 const WASP_BASE_URL = "https://wasp.sh/";
-const LLM_FULL_FILENAME = "llms-full.txt";
-const LLM_OVERVIEW_FILENAME = "llms.txt";
-const LLMS_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_OVERVIEW_FILENAME);
-const LLMS_FULL_TXT_FILE_PATH = path.join(STATIC_DIR, LLM_FULL_FILENAME);
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 
-const OVERVIEW_INTRO_CONTENT = `
-# Wasp
-Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.
+const LLMS_TXT_INTRO = `# Wasp
+Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.`;
 
-## Individual documentation sections and guides:
-`;
-const OVERVIEW_MISC_SECTION_CONTENT = `
-## Miscellaneous
+const LLMS_TXT_MISC = `## Miscellaneous
 - [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
 - [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
 `;
@@ -38,31 +31,68 @@ generateFiles();
 
 /**
  * Main function to generate the LLM-friendly doc files.
- * It orchestrates the process by fetching and processing documentation and blog files,
- * and then writing the final output to the static directory.
+ * Loops through all versioned docs and generates llms.txt files for each.
+ * The latest version also gets llms-full.txt generated.
  */
 async function generateFiles() {
   console.log("Starting LLM file generation...");
 
-  if (!Array.isArray(docsSidebarConfig.docs)) {
-    throw new Error(
-      "Sidebar configuration for docs is not an array. Please check the sidebars.ts file.",
-    );
+  const blogSectionContent = await processBlogFiles();
+  const latestVersion = versionsJson[0];
+
+  for (const version of versionsJson) {
+    const isLatest = version === latestVersion;
+    console.log(`Processing version ${version}...`);
+
+    const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
+    const sidebarItems = await loadVersionedSidebar(version);
+
+    const { overviewDocsSection, llmsFullTxtContent } =
+      await processDocumentationFiles(sidebarItems, docsDir, version, {
+        generateLlmsFullTxt: isLatest,
+      });
+
+    const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
+    await writeLlmsTxtFile(filename, overviewDocsSection, blogSectionContent);
+
+    if (isLatest) {
+      await writeLlmsFullTxtFile(llmsFullTxtContent);
+    }
   }
 
-  const { overviewDocsSection, fullConcatContent } =
-    await processDocumentationFiles(docsSidebarConfig.docs);
-  const blogSectionContent = await processBlogFiles();
+  console.log("🎉 LLM files generation completed successfully.");
+}
 
-  const llmsTxtContent =
-    OVERVIEW_INTRO_CONTENT +
-    overviewDocsSection +
-    blogSectionContent +
-    OVERVIEW_MISC_SECTION_CONTENT;
-  const llmsFullTxtContent = fullConcatContent;
+async function writeLlmsTxtFile(
+  filename: string,
+  overviewDocsSection: string,
+  blogSectionContent: string,
+): Promise<void> {
+  const content = buildLlmsTxtContent(overviewDocsSection, blogSectionContent);
+  const outputPath = path.join(STATIC_DIR, filename);
+  await fs.writeFile(outputPath, content, "utf8");
+  console.log(`  Generated: ${filename}`);
+}
 
-  await writeOutputFiles(llmsTxtContent, llmsFullTxtContent);
-  console.log("🎉 LLM file generation complete.");
+async function writeLlmsFullTxtFile(content: string): Promise<void> {
+  const outputPath = path.join(STATIC_DIR, "llms-full.txt");
+  await fs.writeFile(outputPath, content.trim(), "utf8");
+  console.log(`  Generated: llms-full.txt`);
+}
+
+/**
+ * Assembles the overview content for llms.txt from its component sections.
+ */
+function buildLlmsTxtContent(
+  overviewDocsSection: string,
+  blogSectionContent: string,
+): string {
+  return [
+    LLMS_TXT_INTRO,
+    overviewDocsSection,
+    blogSectionContent,
+    LLMS_TXT_MISC,
+  ].join("\n\n");
 }
 
 /**
@@ -72,9 +102,12 @@ async function generateFiles() {
  */
 async function processDocumentationFiles(
   docsSidebarItems: SidebarItemConfig[],
-): Promise<{ overviewDocsSection: string; fullConcatContent: string }> {
-  let overviewDocsSection = "";
-  let fullConcatContent = "";
+  docsDir: string,
+  version: string,
+  { generateLlmsFullTxt = false } = {},
+): Promise<{ overviewDocsSection: string; llmsFullTxtContent: string }> {
+  let overviewDocsSection = `## Documentation Raw Text URLs -- Version ${version}:\n`;
+  let llmsFullTxtContent = "";
 
   const orderedDocIds = flattenSidebarItemsToDocIds(docsSidebarItems);
   console.log(
@@ -84,9 +117,13 @@ async function processDocumentationFiles(
   const sidebarOverviewStructure =
     getDocsSidebarCategoryStructure(docsSidebarItems);
 
-  const docIdToPathMap = buildDocIdToPathMap(DOCS_DIR);
+  const docIdToPathMap = buildDocIdToPathMap(docsDir);
 
-  const docInfoMap = await populateDocInfoMap(orderedDocIds, docIdToPathMap);
+  const docInfoMap = await populateDocInfoMap(
+    orderedDocIds,
+    docIdToPathMap,
+    docsDir,
+  );
 
   for (const category of sidebarOverviewStructure) {
     overviewDocsSection += `${category.categoryLabel}\n`;
@@ -104,23 +141,24 @@ async function processDocumentationFiles(
     }
   }
 
-  // Build fullConcatContent using sidebar structure with proper heading hierarchy
-  for (const category of sidebarOverviewStructure) {
-    // Add category header as H1 and separator
-    fullConcatContent += `# ${category.categoryLabel}\n\n`;
+  if (generateLlmsFullTxt) {
+    for (const category of sidebarOverviewStructure) {
+      // Add category header as H1 and separator
+      llmsFullTxtContent += `# ${category.categoryLabel}\n\n`;
 
-    for (const docId of category.docIds) {
-      if (docInfoMap.has(docId)) {
-        const info = docInfoMap.get(docId);
-        // Add document title as H2
-        fullConcatContent += `## ${info.title}\n\n${info.processedBody}\n\n`;
+      for (const docId of category.docIds) {
+        if (docInfoMap.has(docId)) {
+          const info = docInfoMap.get(docId);
+          // Add document title as H2
+          llmsFullTxtContent += `## ${info.title}\n\n${info.processedBody}\n\n`;
+        }
       }
-    }
 
-    // Add category separator
-    fullConcatContent += `------\n\n`;
+      // Add category separator
+      llmsFullTxtContent += `------\n\n`;
+    }
   }
-  return { overviewDocsSection, fullConcatContent };
+  return { overviewDocsSection, llmsFullTxtContent };
 }
 
 /**
@@ -162,13 +200,14 @@ type DocDetails = {
 async function populateDocInfoMap(
   orderedDocIds: string[],
   docIdToPathMap: Map<string, string>,
+  docsDir: string,
 ): Promise<Map<string, DocDetails>> {
   const docInfoMap = new Map<string, DocDetails>();
   for (const docId of orderedDocIds) {
     const relativeDocPath = docIdToPathMap.get(docId);
 
     if (relativeDocPath) {
-      const absolutePath = path.join(DOCS_DIR, relativeDocPath);
+      const absolutePath = path.join(docsDir, relativeDocPath);
       try {
         const rawContent = await fs.readFile(absolutePath, "utf8");
         const { attributes, body } = fm(rawContent);
@@ -412,23 +451,26 @@ function constructBlogUrl(filename: string): string {
 }
 
 /**
- * Writes the LLM-friendly content to their respective output files.
+ * Loads and parses a versioned sidebar configuration file.
+ * Returns the docs array from the sidebar config.
  */
-async function writeOutputFiles(
-  llmsTxtContent: string,
-  llmsFullTxtContent: string,
-): Promise<void> {
-  console.log("Writing output files to static/ ...");
-
-  await fs.writeFile(LLMS_TXT_FILE_PATH, llmsTxtContent.trim(), "utf8");
-  console.log(`Generated overview file: ${LLMS_TXT_FILE_PATH}`);
-
-  await fs.writeFile(
-    LLMS_FULL_TXT_FILE_PATH,
-    llmsFullTxtContent.trim(),
-    "utf8",
+async function loadVersionedSidebar(
+  version: string,
+): Promise<SidebarItemConfig[]> {
+  const sidebarPath = path.join(
+    VERSIONED_SIDEBARS_DIR,
+    `version-${version}-sidebars.json`,
   );
-  console.log(`Generated full concatenated file: ${LLMS_FULL_TXT_FILE_PATH}`);
+  const sidebarContent = await fs.readFile(sidebarPath, "utf8");
+  const sidebarConfig = JSON.parse(sidebarContent);
+
+  if (!Array.isArray(sidebarConfig.docs)) {
+    throw new Error(
+      `Versioned sidebar configuration for ${version} does not have a docs array.`,
+    );
+  }
+
+  return sidebarConfig.docs;
 }
 
 /**
