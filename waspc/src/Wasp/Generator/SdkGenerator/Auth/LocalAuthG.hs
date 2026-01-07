@@ -29,7 +29,7 @@ genLocalAuth auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
-genIndex = return $ makeSdkProjectTmplFd SdkUserCoreProject tmplFile
+genIndex = return $ makeSdkProjectTmplFd UserCoreProject tmplFile
   where
     tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
 
@@ -41,13 +41,13 @@ genActions auth =
     ]
 
 genLoginAction :: Generator FileDraft
-genLoginAction = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genLoginAction = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|actions/login.ts|]
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
-genSignupAction auth = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genSignupAction auth = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = localAuthDirInSdkTemplatesProjectDir </> [relfile|actions/signup.ts|]
     tmplData =

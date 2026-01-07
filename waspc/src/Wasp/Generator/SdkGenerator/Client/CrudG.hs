@@ -15,7 +15,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (SdkUserCoreProject),
+  ( SdkProject (UserCoreProject),
     SdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
@@ -29,7 +29,7 @@ genNewClientCrudApi spec =
     then
       sequence
         [ genCrudIndex spec cruds,
-          genClientCrudFileCopy SdkUserCoreProject [relfile|operationsHelpers.ts|]
+          genClientCrudFileCopy UserCoreProject [relfile|operationsHelpers.ts|]
         ]
         <++> genCrudOperations spec cruds
     else return []
@@ -39,7 +39,7 @@ genNewClientCrudApi spec =
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = clientCrudDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
@@ -53,7 +53,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
+      makeSdkProjectTmplFdWithDestAndData destFile UserCoreProject tmplFile (Just tmplData)
       where
         destFile = [reldir|client/crud|] </> fromJust (parseRelFile (name ++ ".ts"))
         tmplFile = clientCrudDirInSdkTemplatesProjectDir </> [relfile|_crud.ts|]

@@ -47,7 +47,7 @@ genOAuthHelpers auth =
 
     makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     makeOAuthHelpersFd provider helpersFp =
-      makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
+      makeSdkProjectTmplFdWithDestAndData destFile UserCoreProject tmplFile (Just tmplData)
       where
         destFile = [reldir|auth/helpers|] </> helpersFp
         tmplFile = [relfile|auth/helpers/_Provider.tsx|]

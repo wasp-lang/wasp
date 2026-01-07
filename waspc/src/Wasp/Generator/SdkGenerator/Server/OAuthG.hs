@@ -46,8 +46,8 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genServerAuthFileCopy SdkUserCoreProject [relfile|oneTimeCode.ts|],
-          genServerAuthFileCopy SdkUserCoreProject [relfile|provider.ts|]
+          genServerAuthFileCopy UserCoreProject [relfile|oneTimeCode.ts|],
+          genServerAuthFileCopy UserCoreProject [relfile|provider.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
@@ -58,7 +58,7 @@ genOAuth auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
@@ -68,7 +68,7 @@ genIndexTs auth =
 
 genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|redirect.ts|]
     tmplData =
@@ -91,7 +91,7 @@ genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
 genOAuthConfig provider =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [reldir|providers|] </> providerTsFile
     providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"

@@ -35,7 +35,7 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      makeSdkProjectTmplFdWithDestAndData destPath SdkUserCoreProject tmplPath (Just tmplData)
+      makeSdkProjectTmplFdWithDestAndData destPath UserCoreProject tmplPath (Just tmplData)
       where
         destPath = [reldir|server/crud|] </> getCrudFilePath name "ts"
         tmplPath = [relfile|server/crud/_operationTypes.ts|]

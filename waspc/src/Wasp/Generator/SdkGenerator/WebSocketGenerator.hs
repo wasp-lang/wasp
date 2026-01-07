@@ -34,11 +34,11 @@ genWebSockets spec
         ]
   | otherwise = return []
   where
-    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
+    genFileCopy = return . makeSdkProjectTmplFd UserCoreProject
 
 genWebSocketServerIndex :: AppSpec -> Generator FileDraft
 genWebSocketServerIndex spec =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = [relfile|server/webSocket/index.ts|]
     tmplData =
@@ -51,7 +51,7 @@ genWebSocketServerIndex spec =
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
 genWebSocketProvider :: AppSpec -> Generator FileDraft
-genWebSocketProvider spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genWebSocketProvider spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]

@@ -35,14 +35,14 @@ genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ -- Not migrated to TS yet
-      genClientOpsFileCopy SdkUserCoreProject [relfile|internal/resources.js|],
-      genClientOpsFileCopy SdkUserCoreProject [relfile|internal/index.ts|],
+      genClientOpsFileCopy UserCoreProject [relfile|internal/resources.js|],
+      genClientOpsFileCopy UserCoreProject [relfile|internal/index.ts|],
       -- Not migrated to TS yet
-      genClientOpsFileCopy SdkUserCoreProject [relfile|internal/updateHandlersMap.js|],
-      genClientOpsFileCopy SdkUserCoreProject [relfile|rpc.ts|],
-      genClientOpsFileCopy SdkUserCoreProject [relfile|hooks.ts|],
-      genClientOpsFileCopy SdkUserCoreProject [relfile|index.ts|],
-      genClientOpsFileCopy SdkUserCoreProject [relfile|queryClient.ts|]
+      genClientOpsFileCopy UserCoreProject [relfile|internal/updateHandlersMap.js|],
+      genClientOpsFileCopy UserCoreProject [relfile|rpc.ts|],
+      genClientOpsFileCopy UserCoreProject [relfile|hooks.ts|],
+      genClientOpsFileCopy UserCoreProject [relfile|index.ts|],
+      genClientOpsFileCopy UserCoreProject [relfile|queryClient.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec
@@ -50,20 +50,20 @@ genOperations spec =
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
   sequence
-    [ genClientOpsFileCopy SdkUserCoreProject [relfile|queries/core.ts|],
+    [ genClientOpsFileCopy UserCoreProject [relfile|queries/core.ts|],
       genQueriesIndex spec
     ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   sequence
-    [ genClientOpsFileCopy SdkUserCoreProject [relfile|actions/core.ts|],
+    [ genClientOpsFileCopy UserCoreProject [relfile|actions/core.ts|],
       genActionsIndex spec
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = clientOpsDirInSdkTemplatesProjectDir </> [relfile|queries/index.ts|]
     tmplData =
@@ -73,7 +73,7 @@ genQueriesIndex spec =
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplF tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplF tmplData
   where
     tmplF = clientOpsDirInSdkTemplatesProjectDir </> [relfile|actions/index.ts|]
     tmplData =
