@@ -1,5 +1,5 @@
 import { stripVTControlCharacters } from "node:util";
-import semver, { SemVer } from "semver";
+import semver, { type SemVer } from "semver";
 
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
