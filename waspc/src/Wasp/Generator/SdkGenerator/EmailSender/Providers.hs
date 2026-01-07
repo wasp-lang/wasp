@@ -3,28 +3,26 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     sendGrid,
     mailgun,
     dummy,
-    EmailProvidersTemplatesDir,
     EmailSenderProvider (..),
   )
 where
 
 import StrongPath (File', Path', Rel, relfile)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesProjectDir)
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel EmailProvidersTemplatesDir) File'
+    setupFnFile :: Path' (Rel SdkTemplatesProjectDir) File'
   }
   deriving (Show, Eq)
-
-data EmailProvidersTemplatesDir
 
 smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = Just nodeMailerDependency,
-      setupFnFile = [relfile|smtp.ts|]
+      setupFnFile = [relfile|server/email/core/providers/smtp.ts|]
     }
   where
     nodeMailerVersionRange :: SV.Range
@@ -37,7 +35,7 @@ sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = Just sendGridDependency,
-      setupFnFile = [relfile|sendgrid.ts|]
+      setupFnFile = [relfile|server/email/core/providers/sendgrid.ts|]
     }
   where
     sendGridVersionRange :: SV.Range
@@ -50,7 +48,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = Just mailgunDependency,
-      setupFnFile = [relfile|mailgun.ts|]
+      setupFnFile = [relfile|server/email/core/providers/mailgun.ts|]
     }
   where
     mailgunVersionRange :: SV.Range
@@ -63,5 +61,5 @@ dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
     { npmDependency = Nothing,
-      setupFnFile = [relfile|dummy.ts|]
+      setupFnFile = [relfile|server/email/core/providers/dummy.ts|]
     }

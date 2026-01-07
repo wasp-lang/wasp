@@ -94,8 +94,7 @@ genEmailSenderProviderSetupFn :: EmailSender -> Generator FileDraft
 genEmailSenderProviderSetupFn email =
   return $ makeSdkProjectTmplFd UserCoreProject tmplFile
   where
-    tmplFile = serverEmailDirInSdkTemplatesProjectDir </> [reldir|core/providers|] </> Providers.setupFnFile emailSenderProvider
-    emailSenderProvider = getEmailSenderProvider email
+    tmplFile = Providers.setupFnFile . getEmailSenderProvider $ email
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
