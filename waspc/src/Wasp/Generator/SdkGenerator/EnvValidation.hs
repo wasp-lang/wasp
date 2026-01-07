@@ -39,9 +39,9 @@ genEnvValidation spec =
 
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
-  sequence
-    [ return $ makeSdkProjectTmplFd UserCoreProject [relfile|env/index.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|env/validation.ts|]
+  return
+    [ makeSdkProjectTmplFd UserCoreProject [relfile|env/index.ts|],
+      makeSdkProjectTmplFd UserCoreProject [relfile|env/validation.ts|]
     ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
