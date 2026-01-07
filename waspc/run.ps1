@@ -14,7 +14,7 @@ $WASP_PACKAGES_COMPILE = "Get-ChildItem `"$PROJECT_ROOT\data\packages\*\package.
 $BUILD_HS_CMD = "cabal build all"
 $BUILD_ALL_CMD = "$WASP_PACKAGES_COMPILE -and $BUILD_HS_CMD"
 $RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- $Args"
-$GET_WASPC_VERSION_CMD = "cabal repl waspc -v0 <<< 'putStrLn $ Data.Version.showVersion Paths_waspc.version'"
+$GET_WASPC_VERSION_CMD = "Write-Output 'putStrLn `$ Data.Version.showVersion Paths_waspc.version' | cabal repl waspc -v0"
 
 switch ($Command) {
     "build" {
