@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (isJust)
-import StrongPath (relfile)
+import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -19,8 +19,10 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkProject (..),
+    clientTemplatesDirInSdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
+    serverTemplatesDirInSdkTemplatesProjectDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
@@ -38,28 +40,27 @@ genEnvValidation spec =
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
   sequence
-    [ genFileCopy [relfile|env/index.ts|],
-      genFileCopy [relfile|env/validation.ts|]
+    [ return $ makeSdkProjectTmplFd UserCoreProject [relfile|env/index.ts|],
+      return $ makeSdkProjectTmplFd UserCoreProject [relfile|env/validation.ts|]
     ]
-  where
-    genFileCopy = return . makeSdkProjectTmplFd UserCoreProject
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
-genServerEnvFiles spec = sequence [genServerEnv spec]
+genServerEnvFiles spec =
+  sequence
+    [ genServerEnv spec
+    ]
 
 genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
   sequence
-    [ genClientEnvSchema spec,
-      genFileCopy [relfile|client/env.ts|]
+    [ genClientEnv,
+      genClientEnvSchema spec
     ]
-  where
-    genFileCopy = return . makeSdkProjectTmplFd UserCoreProject
 
 genServerEnv :: AppSpec -> Generator FileDraft
 genServerEnv spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
-    tmplFile = [relfile|server/env.ts|]
+    tmplFile = serverTemplatesDirInSdkTemplatesProjectDir </> [relfile|server/env.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
@@ -80,10 +81,16 @@ genServerEnv spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFi
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
+genClientEnv :: Generator FileDraft
+genClientEnv =
+  return $ makeSdkProjectTmplFd UserCoreProject tmplFile
+  where
+    tmplFile = clientTemplatesDirInSdkTemplatesProjectDir </> [relfile|env.ts|]
+
 genClientEnvSchema :: AppSpec -> Generator FileDraft
 genClientEnvSchema spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplPath tmplData
   where
-    tmplPath = [relfile|client/env/schema.ts|]
+    tmplPath = clientTemplatesDirInSdkTemplatesProjectDir </> [relfile|env/schema.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
