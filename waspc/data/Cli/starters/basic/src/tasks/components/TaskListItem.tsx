@@ -37,7 +37,7 @@ export function TaskListItem({ task }: TaskListItemProps) {
             checked={task.isDone}
             onChange={setTaskDone}
           />
-          <div className="flex min-w-0 flex-col break-words">
+          <div className="flex min-w-0 flex-col wrap-break-word">
             <p>{task.description}</p>
             <span className="text-xs text-neutral-500">
               {task.createdAt.toLocaleDateString()}

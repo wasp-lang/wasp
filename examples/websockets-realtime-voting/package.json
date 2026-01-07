@@ -11,21 +11,22 @@
   },
   "dependencies": {
     "express": "~5.1.0",
-    "flowbite": "^2.5.0",
-    "flowbite-react": "^0.12.13",
+    "flowbite": "^4.0.1",
+    "flowbite-react": "^0.12.15",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router-dom": "^6.26.2",
+    "tailwindcss": "^4.1.18",
     "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
+    "@tailwindcss/vite": "^4.1.18",
     "@types/express": "^5.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@wasp.sh/wasp-app-runner": "^0.0.11",
     "prisma": "5.19.1",
-    "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",
     "vite": "^7.0.6"
   }

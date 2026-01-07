@@ -1,3 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(".");
+
+/* Flowbite React */
+@import "flowbite-react/plugin/tailwindcss";
+@source "../node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}";

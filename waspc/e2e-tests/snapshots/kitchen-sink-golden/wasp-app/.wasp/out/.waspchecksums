@@ -648,7 +648,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "3b6a5490169bc3dd4e7cbc2ec8335b84d43aa7dd4690822e8638daedb864b313"
+        "9451f88b4f7a7fea472a12c5b0d96eff295dd84617d163adfb2f1208259de115"
     ],
     [
         [
@@ -1005,14 +1005,14 @@
             "file",
             "../out/sdk/wasp/src/App.tsx"
         ],
-        "4aea6368f67e66d8b4641ac7c0f2420318fefeb7b4e59101f98d5c982c86ad25"
+        "8d4226be05a1c3ba97939b54099407fced6dbb02143a6dfe521c7d2985b91f67"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/src/Main.css"
         ],
-        "0aff68fcf5aa2c71b026f7b01b1f7eefde486381a53a75dc8112ce40554b81c3"
+        "2c4649d6a9f72c9f4a62312befa0abecea4ded9dfc6ad16d7e16b25b071bf1e1"
     ],
     [
         [
@@ -1040,21 +1040,21 @@
             "file",
             "../out/sdk/wasp/src/components/Button.tsx"
         ],
-        "2d43f6af8077604399d852aca0c67980074e4af871ca00e84d83c441b2acbc53"
+        "5f9d45b4e7d4284b225c3dd6d8be47b0ab4c1e63d0daf26891673ab995e0e34e"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "1eb9931f67aa8104577fc5797c183bfa4b3e92315c92a4626c86a666dfc6b9f3"
+        "01cd7c17a3ec61a0ce098cc91f68837492c2d18cdb171628bf74a133cfd62a5b"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/src/components/Input.tsx"
         ],
-        "b33c9f4a0c0ec0e962179fcafff2524fc04a383f7199a649ad1fe74d6e3eedff"
+        "a624f7259e854f12ce57795abc30c2045367141c98b44b44bce2e193d47f8d25"
     ],
     [
         [
@@ -1138,7 +1138,7 @@
             "file",
             "../out/sdk/wasp/src/features/auth/pages/ProfilePage.tsx"
         ],
-        "bc787521015b6b18699d7c79a6b6b361d0745a0be84fa3afa908b6a50d9a2b64"
+        "2579275c41127028e339bbe2d470031f37e3bfd45d080c21d061b793d9f63fa6"
     ],
     [
         [
@@ -1208,7 +1208,7 @@
             "file",
             "../out/sdk/wasp/src/features/chat/pages/ChatPage.tsx"
         ],
-        "e319450b310a7ad65fa0e4efbbb186a1281ac7e7b781c0aa07ea4333ab545716"
+        "20bebba889190ba19ddbbd37324320b1ce68718826048dc8e847f23b93020887"
     ],
     [
         [
@@ -1264,7 +1264,7 @@
             "file",
             "../out/sdk/wasp/src/features/jobs/pages/JobsPage.tsx"
         ],
-        "ab0a5ca409106ae167bf258d9ec34ef8c99c06b19724c18575c13cf432e9e12d"
+        "1de498f7806722b117411c46342edd88aa35391ff467f2ba769308bb6c617f62"
     ],
     [
         [
@@ -1299,7 +1299,7 @@
             "file",
             "../out/sdk/wasp/src/features/operations/components/Todo.tsx"
         ],
-        "35558717760d7dc14b52170a7bbaefa102186ef35d31c373f7cfa55a50af8829"
+        "c16efbaadc67f5caa659ec40d6b28113e9d1d98e1ef1e50369df64d58fa35b49"
     ],
     [
         [
@@ -1362,7 +1362,7 @@
             "file",
             "../out/sdk/wasp/src/pages/CatchAllPage.tsx"
         ],
-        "0941e2b7b1388f4c81d09e1d11fac457bc29adaf5305877fcdbf276a7aaf8792"
+        "05f372d43e301eb39eba316d510eb5fb4a24a82ca529ea247b79ced8d6aefbf2"
     ],
     [
         [
@@ -2298,13 +2298,6 @@
     [
         [
             "file",
-            "web-app/postcss.config.js"
-        ],
-        "e32657baf631d7c5f4dc67b4b2ee0ec8e7d5b3c41860e09cddce7c0377cd80bc"
-    ],
-    [
-        [
-            "file",
             "web-app/public/.gitkeep"
         ],
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -2413,13 +2406,6 @@
             "web-app/src/vite-env.d.ts"
         ],
         "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
-    ],
-    [
-        [
-            "file",
-            "web-app/tailwind.config.js"
-        ],
-        "f2c171d1af2ff63c41d1a9f6368b8132c11d8c4952ef05da38e6367c381d6880"
     ],
     [
         [

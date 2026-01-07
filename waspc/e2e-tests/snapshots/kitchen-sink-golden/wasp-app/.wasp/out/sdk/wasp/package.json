@@ -8,7 +8,6 @@
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
     "arctic": "^1.2.1",
-    "autoprefixer": "^10.4.13",
     "axios": "^1.4.0",
     "express": "~5.1.0",
     "jsdom": "^27.4.0",
@@ -18,7 +17,6 @@
     "nodemailer": "^6.9.1",
     "oslo": "^1.1.2",
     "pg-boss": "^8.4.2",
-    "postcss": "^8.4.21",
     "prisma": "5.19.1",
     "react": "^19.2.1",
     "react-hook-form": "^7.45.4",
@@ -26,7 +24,6 @@
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "superjson": "^2.2.1",
-    "tailwindcss": "^3.4.17",
     "vitest": "^4.0.16",
     "zod": "^3.23.8"
   },

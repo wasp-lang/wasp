@@ -1,13 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(".");
+
+@theme {
+  --animate-jumping: jumping 3s ease infinite;
+
+  @keyframes jumping {
+    0%,
+    25% {
+      transform: translateY(0);
+    }
+    10% {
+      transform: translateY(-7px);
+    }
+    30% {
+      transform: translateY(0);
+    }
+  }
+}
 
 body {
-  @apply bg-gradient-to-r from-slate-200 to-sky-100;
+  @apply bg-linear-to-r from-slate-200 to-sky-100;
 }
 
 .button {
-  @apply rounded bg-orange-300 px-6 py-3 text-center font-bold text-gray-700 transition duration-150 hover:bg-orange-200;
+  @apply rounded-sm bg-orange-300 px-6 py-3 text-center font-bold text-gray-700 transition duration-150 hover:bg-orange-200;
 }
 .button.gray {
   @apply bg-slate-200 text-slate-600;
@@ -32,7 +47,7 @@ body {
 }
 input,
 textarea {
-  @apply relative w-full rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300;
+  @apply relative w-full rounded-lg bg-white py-3 pr-10 pl-3 text-left shadow-md focus:outline-hidden focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300;
 }
 
 input[type="text"],

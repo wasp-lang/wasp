@@ -255,7 +255,6 @@ library
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
-    Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
     Wasp.AppSpec.Core.Decl.JSON.TH
@@ -274,7 +273,6 @@ library
     Wasp.AppSpec.Valid
     Wasp.AppSpec.Util
     Wasp.CompileOptions
-    Wasp.ConfigFile
     Wasp.Data
     Wasp.Db.Postgres
     Wasp.Error
@@ -292,8 +290,6 @@ library
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
     Wasp.Generator.DepVersions
-    Wasp.Generator.TailwindConfigFile
-    Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
