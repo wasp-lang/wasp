@@ -24,14 +24,14 @@ genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genClientRouterFileCopy SdkUserCoreProject [relfile|types.ts|],
-      genClientRouterFileCopy SdkUserCoreProject [relfile|linkHelpers.ts|],
-      genClientRouterFileCopy SdkUserCoreProject [relfile|Link.tsx|]
+      genClientRouterFileCopy UserCoreProject [relfile|types.ts|],
+      genClientRouterFileCopy UserCoreProject [relfile|linkHelpers.ts|],
+      genClientRouterFileCopy UserCoreProject [relfile|Link.tsx|]
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = clientRouterDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]

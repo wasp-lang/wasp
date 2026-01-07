@@ -49,7 +49,7 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverJobsDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = object ["jobs" .= map getJobTmplData jobs]
@@ -61,7 +61,7 @@ genIndexTs jobs =
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return $ makeSdkProjectTmplFdWithDestAndData destFile SdkUserCoreProject tmplFile (Just tmplData)
+  return $ makeSdkProjectTmplFdWithDestAndData destFile UserCoreProject tmplFile (Just tmplData)
   where
     destFile = [reldir|server/jobs|] </> fromJust (parseRelFile $ jobName ++ ".ts")
     tmplFile = serverJobsDirInSdkTemplatesProjectDir </> [relfile|_job.ts|]
@@ -120,11 +120,11 @@ genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
     sequence
-      [ genServerJobFileCopy SdkUserCoreProject [relfile|core/job.ts|],
-        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/pgBoss.ts|],
-        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/pgBossJob.ts|],
-        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/types.ts|],
-        genServerJobFileCopy SdkUserCoreProject [relfile|core/pgBoss/index.ts|]
+      [ genServerJobFileCopy UserCoreProject [relfile|core/job.ts|],
+        genServerJobFileCopy UserCoreProject [relfile|core/pgBoss/pgBoss.ts|],
+        genServerJobFileCopy UserCoreProject [relfile|core/pgBoss/pgBossJob.ts|],
+        genServerJobFileCopy UserCoreProject [relfile|core/pgBoss/types.ts|],
+        genServerJobFileCopy UserCoreProject [relfile|core/pgBoss/index.ts|]
       ]
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.

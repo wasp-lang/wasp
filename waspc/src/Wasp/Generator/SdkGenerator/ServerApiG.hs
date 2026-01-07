@@ -35,7 +35,7 @@ genServerApi spec =
 
 genIndexTsWithApiRoutes :: AppSpec -> Generator FileDraft
 genIndexTsWithApiRoutes spec =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     namedApis = AS.getApis spec
     apis = snd <$> namedApis

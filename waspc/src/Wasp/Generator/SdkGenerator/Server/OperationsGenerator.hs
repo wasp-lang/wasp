@@ -44,7 +44,7 @@ genOperations spec =
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genIndexTs spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData =
@@ -55,13 +55,13 @@ genIndexTs spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplF
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genWrappers :: AppSpec -> Generator FileDraft
-genWrappers spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genWrappers spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|wrappers.ts|]
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genQueriesIndex spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|queries/index.ts|]
     tmplData =
@@ -72,7 +72,7 @@ genQueriesIndex spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject 
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+genActionsIndex spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|actions/index.ts|]
     tmplData =
@@ -116,7 +116,7 @@ genOperationTypesFile ::
   Generator FileDraft
 genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
   return $
-    makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+    makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplData =
       object

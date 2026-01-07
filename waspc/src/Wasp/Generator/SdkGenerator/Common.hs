@@ -14,6 +14,24 @@ import Wasp.Util (toUpperFirst)
 -- | SDK root directory in a generated Wasp project.
 data SdkRootDir
 
+-- | SDK root directory in data files templates directory.
+data SdkTemplatesRootDir
+
+-- | Directory of some SDK tsconfig project. See 'SdkProject'.
+-- In the case of 'RootProject' the directory is the same as 'SdkTemplatesRootDir'.
+data SdkTemplatesProjectDir
+
+-- | SDK tsconfig project.
+data SdkProject
+  = -- | The root SDK tsconfig project which references all other projects.
+    RootProject
+  | -- | SDK tsconfig project which does not depend on any user code.
+    CoreProject
+  | -- | SDK tsconfig project which depends on user code.
+    UserCoreProject
+  | -- | Copy of user's @src@ directory as a SDK tsconfig project.
+    ExtSrcProject
+
 -- | SDK root directory from any generated project directory (e.g. `out` or `build`).
 sdkRootDirInGeneratedProjectDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedProjectDir = [reldir|sdk/wasp/|]
@@ -31,18 +49,8 @@ sdkRootDirInProjectRootDir =
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|src|]
 
--- | SDK root directory in data files templates directory.
-data SdkTemplatesRootDir
-
 sdkTemplatesRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesRootDir)
 sdkTemplatesRootDirInTemplatesDir = [reldir|sdk/wasp|]
-
--- | Directory of some SDK tsconfig project. See 'SdkProject'.
--- In the case of 'SdkRootProject' the directory is the same as 'SdkTemplatesRootDir'.
-data SdkTemplatesProjectDir
-
--- | SDK tsconfig project.
-data SdkProject = SdkRootProject | SdkCoreProject | SdkUserCoreProject | SdkExtSrcProject
 
 sdkTemplatesProjectDirInSdkTemplatesRootDir ::
   SdkProject ->
@@ -50,10 +58,10 @@ sdkTemplatesProjectDirInSdkTemplatesRootDir ::
 sdkTemplatesProjectDirInSdkTemplatesRootDir sdkTmplProject =
   fromJust . parseRelDir $
     case sdkTmplProject of
-      SdkRootProject -> "./"
-      SdkCoreProject -> "core/"
-      SdkUserCoreProject -> "user-core/"
-      SdkExtSrcProject -> toFilePath extSrcDirInSdkRootDir
+      RootProject -> "./"
+      CoreProject -> "core/"
+      UserCoreProject -> "user-core/"
+      ExtSrcProject -> toFilePath extSrcDirInSdkRootDir
 
 makeSdkProjectTmplFdWithDestAndData ::
   Path' (Rel SdkTemplatesProjectDir) File' ->

@@ -42,7 +42,7 @@ genSharedEnvFiles =
       genFileCopy [relfile|env/validation.ts|]
     ]
   where
-    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
+    genFileCopy = return . makeSdkProjectTmplFd UserCoreProject
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec = sequence [genServerEnv spec]
@@ -54,10 +54,10 @@ genClientEnvFiles spec =
       genFileCopy [relfile|client/env.ts|]
     ]
   where
-    genFileCopy = return . makeSdkProjectTmplFd SdkUserCoreProject
+    genFileCopy = return . makeSdkProjectTmplFd UserCoreProject
 
 genServerEnv :: AppSpec -> Generator FileDraft
-genServerEnv spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+genServerEnv spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplPath tmplData
   where
     tmplPath = [relfile|server/env.ts|]
     tmplData =
@@ -81,7 +81,7 @@ genServerEnv spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmp
     app = snd $ getApp spec
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
-genClientEnvSchema spec = return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplPath tmplData
+genClientEnvSchema spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =

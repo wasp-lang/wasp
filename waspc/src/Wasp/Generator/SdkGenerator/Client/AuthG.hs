@@ -13,7 +13,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (SdkUserCoreProject),
+  ( SdkProject (UserCoreProject),
     SdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
@@ -41,14 +41,14 @@ genNewClientAuth spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = clientAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
 genAuthUi :: AS.Auth.Auth -> Generator FileDraft
 genAuthUi auth =
-  return $ makeSdkProjectTmplFdWithData SdkUserCoreProject tmplFile tmplData
+  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
     tmplFile = clientAuthDirInSdkTemplatesProjectDir </> [relfile|ui.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
@@ -100,4 +100,4 @@ clientAuthDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> 
 
 genClientAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
 genClientAuthFileCopy =
-  return . makeSdkProjectTmplFd SdkUserCoreProject . (clientAuthDirInSdkTemplatesProjectDir </>)
+  return . makeSdkProjectTmplFd UserCoreProject . (clientAuthDirInSdkTemplatesProjectDir </>)
