@@ -11,10 +11,10 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkProject (..),
     SdkTemplatesProjectDir,
+    clientTemplatesDirInSdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
   )
@@ -57,7 +57,7 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
 
 clientRouterDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-clientRouterDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|router|]
+clientRouterDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesProjectDir </> [reldir|router|]
 
 genClientRouterFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
 genClientRouterFileCopy sdkProject =

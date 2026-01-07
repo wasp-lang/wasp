@@ -19,8 +19,8 @@ import Wasp.Generator.SdkGenerator.Common
     SdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
+    serverTemplatesDirInSdkTemplatesProjectDir,
   )
-import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import Wasp.Util ((<++>))
 
 data ServerAuthTemplatesDir
@@ -88,7 +88,7 @@ genAuthUsername auth =
     else return []
 
 serverAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerAuthTemplatesDir)
-serverAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth|]
+serverAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|auth|]
 
 genServerAuthFileCopy :: SdkProject -> Path' (Rel ServerAuthTemplatesDir) File' -> Generator FileDraft
 genServerAuthFileCopy sdkProject =

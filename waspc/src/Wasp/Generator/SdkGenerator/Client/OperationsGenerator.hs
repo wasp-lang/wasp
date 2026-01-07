@@ -13,10 +13,10 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkProject (..),
     SdkTemplatesProjectDir,
+    clientTemplatesDirInSdkTemplatesProjectDir,
     getOperationTypeName,
     makeSdkImportPath,
     makeSdkProjectTmplFd,
@@ -138,7 +138,7 @@ getOperationTypeData operation = tmplData
               serverOperationsDirInSdkRootDir operation
 
 clientOpsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
+clientOpsDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesProjectDir </> [reldir|operations|]
 
 genClientOpsFileCopy :: SdkProject -> Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
 genClientOpsFileCopy sdkProject =

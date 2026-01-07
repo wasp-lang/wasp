@@ -16,8 +16,8 @@ import Wasp.Generator.SdkGenerator.Common
   ( SdkProject (..),
     SdkTemplatesProjectDir,
     makeSdkProjectTmplFdWithData,
+    serverTemplatesDirInSdkTemplatesProjectDir,
   )
-import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 
 genNewServerCrudApi :: AppSpec -> Generator [FileDraft]
 genNewServerCrudApi spec =
@@ -40,4 +40,4 @@ genCrudIndex spec cruds =
         idField = getIdFieldFromCrudEntity spec crud
 
 serverCurdDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverCurdDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|crud|]
+serverCurdDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|crud|]

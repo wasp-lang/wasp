@@ -21,9 +21,9 @@ import Wasp.Generator.SdkGenerator.Common
     SdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
+    serverTemplatesDirInSdkTemplatesProjectDir,
   )
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
-import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import Wasp.Util ((<++>))
 
 genNewEmailSenderApi :: AppSpec -> Generator [FileDraft]
@@ -112,4 +112,4 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.Dummy -> Providers.dummy
 
 serverEmailDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverEmailDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email|]
+serverEmailDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|email|]

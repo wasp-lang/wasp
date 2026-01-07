@@ -11,10 +11,10 @@ import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkProject (UserCoreProject),
     SdkTemplatesProjectDir,
+    clientTemplatesDirInSdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
   )
@@ -96,7 +96,7 @@ genAuthGitHub auth =
     else return []
 
 clientAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-clientAuthDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|auth|]
+clientAuthDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesProjectDir </> [reldir|auth|]
 
 genClientAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
 genClientAuthFileCopy =

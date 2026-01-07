@@ -10,8 +10,7 @@ where
 
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesProjectDir)
-import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesProjectDir, serverTemplatesDirInSdkTemplatesProjectDir)
 import qualified Wasp.SemanticVersion as SV
 
 data ServerProvidersTemplatesDir
@@ -69,4 +68,4 @@ dummy =
     }
 
 serverProvidersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerProvidersTemplatesDir)
-serverProvidersDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|email/core/providers|]
+serverProvidersDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|email/core/providers|]

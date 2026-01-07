@@ -36,8 +36,8 @@ import Wasp.Generator.SdkGenerator.Common
     SdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
+    serverTemplatesDirInSdkTemplatesProjectDir,
   )
-import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import Wasp.Util ((<++>))
 
 genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -108,7 +108,7 @@ depsRequiredByOAuth spec =
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
 serverOAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverOAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|auth/oauth|]
+serverOAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|auth/oauth|]
 
 genServerAuthFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
 genServerAuthFileCopy sdkProject =
