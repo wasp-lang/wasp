@@ -89,4 +89,5 @@ jobs:
       - uses: actions/upload-artifact@v5
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
+          include-hidden-files: true
           path: ./output/
