@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Server.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir, Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -22,8 +22,6 @@ import Wasp.Generator.SdkGenerator.Common
     serverTemplatesDirInSdkTemplatesProjectDir,
   )
 import Wasp.Util ((<++>))
-
-data ServerAuthTemplatesDir
 
 genNewServerApi :: AppSpec -> Generator [FileDraft]
 genNewServerApi spec =
@@ -87,9 +85,9 @@ genAuthUsername auth =
     then sequence [genServerAuthFileCopy UserCoreProject [relfile|username.ts|]]
     else return []
 
-serverAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) (Dir ServerAuthTemplatesDir)
+serverAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
 serverAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|auth|]
 
-genServerAuthFileCopy :: SdkProject -> Path' (Rel ServerAuthTemplatesDir) File' -> Generator FileDraft
+genServerAuthFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
 genServerAuthFileCopy sdkProject =
   return . makeSdkProjectTmplFd sdkProject . (serverAuthDirInSdkTemplatesProjectDir </>)
