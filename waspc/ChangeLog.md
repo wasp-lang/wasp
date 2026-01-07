@@ -13,6 +13,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 
+### 🐞 Bug fixes
+
+- Fixed an issue where if Wasp was installed from npm, `wasp new` would not work correctly. ([#3585](https://github.com/wasp-lang/wasp/pull/3585))
+
 ### 🔧 Small improvements
 
 - We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
