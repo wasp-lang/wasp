@@ -59,7 +59,7 @@ makeSdkProjectTmplFdWithDestAndData ::
   FileDraft
 makeSdkProjectTmplFdWithDestAndData destFile sdkTmplProject tmplFile tmplData =
   createTemplateFileDraft
-    (castDir sdkRootDirInProjectRootDir </> sdkTemplatesProjectDirInSdkTemplatesDir sdkTmplProject </> destFile)
+    (sdkRootDirInProjectRootDir </> castRel (sdkTemplatesProjectDirInSdkTemplatesDir sdkTmplProject) </> destFile)
     (sdkTemplatesDirInTemplatesDir </> sdkTemplatesProjectDirInSdkTemplatesDir sdkTmplProject </> tmplFile)
     tmplData
 
