@@ -2,7 +2,7 @@ import type { TaskVisibility } from "@prisma/client";
 import { screen } from "@testing-library/react";
 import { expect, test } from "vitest";
 import { type AuthUser } from "wasp/auth";
-import { getDate, getTasks } from "wasp/client/operations";
+import { getDate, getNumTasks, getTasks } from "wasp/client/operations";
 import { mockServer, renderInContext } from "wasp/client/test";
 
 import { getMe } from "wasp/client/auth";
@@ -47,6 +47,7 @@ const mockTasks = [
 
 test("handles mock data", async () => {
   mockQuery(getTasks, mockTasks);
+  mockQuery(getNumTasks, mockTasks.length);
 
   renderInContext(<Todo />);
 
@@ -69,6 +70,7 @@ test("handles multiple mock data sources", async () => {
   mockQuery(getMe, mockUser);
   mockQuery(getDate, new Date());
   mockQuery(getTasks, mockTasks);
+  mockQuery(getNumTasks, mockTasks.length);
 
   renderInContext(
     <Routes>

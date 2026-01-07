@@ -138,8 +138,9 @@ jobs:
         working-directory: waspc
         env:
           LC_ALL: C.UTF-8 # In some Docker containers the LOCALE is not UTF-8 by default
+          BUILD_STATIC: ${{ matrix.env.static && '1' || '' }}
         run: |
-          ./run build:all${{ matrix.env.static && ':static' || '' }}
+          ./run build
           mkdir -p artifacts
           ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
 

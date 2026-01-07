@@ -6,16 +6,19 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-20-to-0-21) for step-by-step documentation on how to upgrade.
 
-- Tailwind CSS support has been upgraded to v4, and v3 support has been dropped. Please refer to [our migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-20-to-0-21) for how to configure the new version, and the [Tailwind v4 migration guide](https://tailwindcss.com/docs/upgrade-guide) for details on breaking changes to classes. ((#3571)[https://github.com/wasp-lang/wasp/pull/3571])
+- Wasp now has **Tailwind CSS 4** support, and v3 support has been dropped. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
+- Wasp now uses **Vitest 4** for testing. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 
 ### 🎉 New Features
 
-- Wasp now supports Tailwind CSS v4. ((#3571)[https://github.com/wasp-lang/wasp/pull/3571])
+- Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 
 ### 🔧 Small improvements
 
-- We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ((#3571)[https://github.com/wasp-lang/wasp/pull/3571])
+- We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 - We updated the `basic` starter template to the latest best practices for React 19 + TypeScript apps. This applies to new projects created with `wasp new -t basic`, and older projects are unaffected. ([#3572](https://github.com/wasp-lang/wasp/pull/3572))
+- We updated the testing environment to JSDOM 27 for more up-to-date mocking. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
+- We updated our API mocking to MSW 2 for better performance and reliability. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 
 ## 0.20.1
 

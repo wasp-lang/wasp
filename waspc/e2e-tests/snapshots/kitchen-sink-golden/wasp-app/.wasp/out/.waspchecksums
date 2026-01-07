@@ -564,7 +564,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+        "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
     ],
     [
         [
@@ -648,7 +648,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "0d56093dd1463def0a92b8a479b469c36c77feb6b70c9251b5d8ec8dac611b3e"
+        "9451f88b4f7a7fea472a12c5b0d96eff295dd84617d163adfb2f1208259de115"
     ],
     [
         [
@@ -1292,7 +1292,7 @@
             "file",
             "../out/sdk/wasp/src/features/operations/components/Todo.test.tsx"
         ],
-        "5fe00b0abb7220ba97761d0c5a427551c660b08522efab2a0a7dc7fef390f614"
+        "26e8e78ccfb1f63d9ce99db5b2b3c58fe7618fb697576cc433b2166d0fcac52f"
     ],
     [
         [
