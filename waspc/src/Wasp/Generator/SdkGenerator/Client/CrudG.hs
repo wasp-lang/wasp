@@ -13,10 +13,10 @@ import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
 import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.Common (clientTemplatesDirInSdkTemplatesDir)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkProject (UserCoreProject),
     SdkTemplatesProjectDir,
+    clientTemplatesDirInSdkTemplatesProjectDir,
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
     makeSdkProjectTmplFdWithDestAndData,
@@ -61,7 +61,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         idField = getIdFieldFromCrudEntity spec crud
 
 clientCrudDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-clientCrudDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|crud|]
+clientCrudDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesProjectDir </> [reldir|crud|]
 
 genClientCrudFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
 genClientCrudFileCopy sdkProject =

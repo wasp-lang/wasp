@@ -323,7 +323,6 @@ library
     Wasp.Generator.SdkGenerator.Auth.LocalAuthG
     Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
     Wasp.Generator.SdkGenerator.AuthG
-    Wasp.Generator.SdkGenerator.Client.Common
     Wasp.Generator.SdkGenerator.Client.AuthG
     Wasp.Generator.SdkGenerator.Client.CrudG
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
@@ -333,7 +332,6 @@ library
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.JsImport
-    Wasp.Generator.SdkGenerator.Server.Common
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.CrudG

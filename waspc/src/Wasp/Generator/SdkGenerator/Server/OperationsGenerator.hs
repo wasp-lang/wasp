@@ -27,9 +27,9 @@ import Wasp.Generator.SdkGenerator.Common
     SdkTemplatesProjectDir,
     getOperationTypeName,
     makeSdkProjectTmplFdWithData,
+    serverTemplatesDirInSdkTemplatesProjectDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
-import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import Wasp.Util (toUpperFirst)
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -152,4 +152,4 @@ getOperationTmplData isAuthEnabledGlobally operation =
     ]
 
 serverOpsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverOpsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
+serverOpsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|operations|]

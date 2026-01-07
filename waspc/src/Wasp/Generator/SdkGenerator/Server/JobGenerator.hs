@@ -30,8 +30,8 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkProjectTmplFd,
     makeSdkProjectTmplFdWithData,
     makeSdkProjectTmplFdWithDestAndData,
+    serverTemplatesDirInSdkTemplatesProjectDir,
   )
-import Wasp.Generator.SdkGenerator.Server.Common (serverTemplatesDirInSdkTemplatesDir)
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
@@ -139,7 +139,7 @@ depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
 serverJobsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverJobsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|jobs|]
+serverJobsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|jobs|]
 
 genServerJobFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
 genServerJobFileCopy sdkProject =
