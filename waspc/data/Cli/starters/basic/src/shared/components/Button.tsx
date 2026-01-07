@@ -1,10 +1,11 @@
+import { ComponentProps } from "react";
 import { ClassNameValue, twJoin } from "tailwind-merge";
 import { Link } from "wasp/client/router";
 
 type ButtonSize = "md" | "sm" | "xs";
 type ButtonVariant = "primary" | "danger" | "ghost";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ComponentProps<"button"> {
   size?: ButtonSize;
   variant?: ButtonVariant;
 }
@@ -32,7 +33,7 @@ export function Button({
   );
 }
 
-type ButtonLinkProps = React.ComponentProps<typeof Link> & {
+type ButtonLinkProps = ComponentProps<typeof Link> & {
   size?: ButtonSize;
   variant?: ButtonVariant;
 };

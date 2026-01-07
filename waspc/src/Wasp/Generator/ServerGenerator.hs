@@ -96,7 +96,7 @@ genServer spec = do
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
 -- development.
-genDotEnv spec | AS.isBuild spec = return []
+genDotEnv spec | AS.isProduction spec = return []
 genDotEnv spec =
   return
     [ createTextFileDraft
@@ -205,7 +205,7 @@ genNpmrc spec
   --
   -- We do expect users to manually go into the generated directories when bundling the built ouput.
   -- So we do add the `.npmrc` there to help them avoid using an incompatible Node.js version.
-  | AS.isBuild spec =
+  | AS.isProduction spec =
       return
         [ C.mkTmplFdWithDstAndData
             (C.asTmplFile [relfile|npmrc|])
@@ -291,7 +291,7 @@ genRoutesIndex spec =
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
-          "isDevelopment" .= (not $ AS.isBuild spec :: Bool),
+          "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (fst $ getApp spec :: String)
         ]
 
@@ -300,7 +300,7 @@ operationsRouteInRootRouter = "operations"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec
-  | AS.isBuild spec = return []
+  | AS.isProduction spec = return []
   | otherwise =
       sequence
         [ genFileCopy [relfile|views/wrong-port.ts|]

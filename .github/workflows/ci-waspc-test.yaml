@@ -68,23 +68,23 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: packages/ts-inspect - Run tests
+      - name: data/packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
+        working-directory: waspc/data/packages/ts-inspect
         run: |
-          cd packages/ts-inspect
           npm ci
           npm test
 
-      - name: Compile packages and libs and move them into the Cabal data dir (Linux/macOS)
+      - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
-          ./tools/install_packages_to_data_dir.sh
+          ./run build:packages
           ./tools/install_libs_to_data_dir.sh
 
-      - name: Compile packages and libs and move them into the Cabal data dir (Windows)
+      - name: Compile TS packages and libs
         if: runner.os == 'Windows'
         run: |
-          ./tools/install_packages_to_data_dir.ps1
+          ./run.ps1 build:packages
           ./tools/install_libs_to_data_dir.ps1
         shell: pwsh
 

@@ -1,11 +1,14 @@
 {
   "name": "__waspAppName__",
   "type": "module",
-  "workspaces": [".wasp/build/*", ".wasp/out/*"],
+  "workspaces": [
+    ".wasp/build/*",
+    ".wasp/out/*"
+  ],
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-hook-form": "^7.57.0",
+    "react-hook-form": "^7.69.0",
     "react-router-dom": "^6.26.2",
     "tailwind-merge": "~2.6.0",
     "wasp": "file:.wasp/out/sdk/wasp"

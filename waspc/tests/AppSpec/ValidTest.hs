@@ -35,6 +35,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.ExternalConfig.TsConfig as T
 import qualified Wasp.Generator.NpmWorkspaces as NW
+import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -336,9 +337,9 @@ spec_AppSpecValid = do
                       }
                 }
 
-        let makeSpec emailSender isBuild =
+        let makeSpec emailSender isProduction =
               basicAppSpec
-                { AS.isBuild = isBuild,
+                { AS.buildType = if isProduction then BuildType.Production else BuildType.Development,
                   AS.decls =
                     [ AS.Decl.makeDecl "TestApp" $
                         basicApp
@@ -510,7 +511,7 @@ spec_AppSpecValid = do
                 Npm.PackageJson.devDependencies = M.empty,
                 Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs
               },
-          AS.isBuild = False,
+          AS.buildType = BuildType.Development,
           AS.migrationsDir = Nothing,
           AS.devEnvVarsClient = [],
           AS.devEnvVarsServer = [],

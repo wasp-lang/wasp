@@ -183,7 +183,7 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
 
 validateDummyEmailSenderIsNotUsedInProduction :: AppSpec -> [ValidationError]
 validateDummyEmailSenderIsNotUsedInProduction spec =
-  if AS.isBuild spec && isDummyEmailSenderUsed
+  if AS.isProduction spec && isDummyEmailSenderUsed
     then [GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
     else []
   where

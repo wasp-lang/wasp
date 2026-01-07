@@ -17,6 +17,7 @@ data Call
   | Deps
   | Dockerfile
   | Info
+  | News
   | Studio
   | PrintBashCompletionInstruction
   | BashCompletionListCommands

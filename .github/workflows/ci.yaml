@@ -5,9 +5,22 @@ on:
     branches:
       - main
       - release
+
   pull_request:
+
   workflow_call:
+    inputs:
+      &inputs # This is a YAML "anchor", lets us reuse this same block below
+      override-npm-package-version:
+        description: >
+          If set, overrides the version of npm packages to publish.
+          Useful for publishing an RC version.
+          Leading 'v' will be stripped if present.
+        required: false
+        type: string
+
   workflow_dispatch:
+    inputs: *inputs # This is a YAML "alias", reuses the block defined above
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -38,13 +51,21 @@ jobs:
     uses: ./.github/workflows/ci-waspc-build.yaml
     secrets: inherit
 
-  npm-package-test:
+  npm-package-build:
     needs: waspc-build
+    uses: ./.github/workflows/ci-npm-package-build.yaml
+    secrets: inherit
+    with:
+      build-outputs-json: ${{ toJson(needs.waspc-build.outputs) }}
+      override-npm-package-version: ${{ inputs.override-npm-package-version }}
+
+  npm-package-test:
+    needs: npm-package-build
     uses: ./.github/workflows/ci-npm-package-test.yaml
     secrets: inherit
 
   npm-package-publish:
-    needs: waspc-build
+    needs: npm-package-build
     uses: ./.github/workflows/ci-npm-package-publish.yaml
 
   waspc-test:
