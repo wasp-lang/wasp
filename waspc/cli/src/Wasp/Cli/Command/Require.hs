@@ -112,7 +112,7 @@ data GeneratedCodeIsDevelopment = GeneratedCodeIsDevelopment deriving (Typeable)
 
 instance Requirable GeneratedCodeIsDevelopment where
   checkRequirement =
-    checkGeneratedCode BuildType.Development >>= \case
+    compareBuildTypeToGeneratedCode BuildType.Development >>= \case
       True -> return GeneratedCodeIsDevelopment
       False ->
         throwError $
@@ -124,7 +124,7 @@ data GeneratedCodeIsProduction = GeneratedCodeIsProduction deriving (Typeable)
 
 instance Requirable GeneratedCodeIsProduction where
   checkRequirement =
-    checkGeneratedCode BuildType.Production >>= \case
+    compareBuildTypeToGeneratedCode BuildType.Production >>= \case
       True -> return GeneratedCodeIsProduction
       False ->
         throwError $
@@ -132,8 +132,8 @@ instance Requirable GeneratedCodeIsProduction where
             "Built app does not exist"
             "You can build the app with the `wasp build` command."
 
-checkGeneratedCode :: BuildType.BuildType -> Command Bool
-checkGeneratedCode expectedBuildType = do
+compareBuildTypeToGeneratedCode :: BuildType.BuildType -> Command Bool
+compareBuildTypeToGeneratedCode expectedBuildType = do
   InWaspProject waspProjectDir <- require
 
   let generatedCodeDir =

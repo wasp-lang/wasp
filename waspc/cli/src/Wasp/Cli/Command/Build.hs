@@ -12,7 +12,7 @@ import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens
 import Data.List (isSuffixOf)
-import StrongPath (Abs, Dir, Path', castRel, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
@@ -51,16 +51,18 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let buildDir =
-        waspProjectDir
-          </> dotWaspDirInWaspProjectDir
-          </> generatedCodeDirInDotWaspDir
+  let relBuildDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+      buildDir = waspProjectDir </> relBuildDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
-    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out directory..."
+    cliSendMessageC $
+      Msg.Start $
+        "Clearing the content of the " ++ fromRelDir relBuildDir ++ " directory..."
     liftIO $ removeDirectory buildDir
-    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/out directory."
+    cliSendMessageC $
+      Msg.Success $
+        "Successfully cleared the contents of the " ++ fromRelDir relBuildDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
