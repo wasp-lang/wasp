@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+        "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "a56536fe6cebbe04868579359f80cc2b24501aa70de7a31a65571763ed825753"
+        "ee9a8003fd61d989f6383ceb5c4036530cf593c93588a5b828fa882b3074909f"
     ],
     [
         [
@@ -389,7 +389,7 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "7ed6a5aae2db6666937b6b8ce6f941d5ab477f25734e39f310cefde82a634838"
+        "aa6fa5e3fce2b4bed80fc74f1c7018d80dee0f03054374d1dd02076553b50d9a"
     ],
     [
         [
