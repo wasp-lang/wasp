@@ -63,10 +63,17 @@ const config: Config = {
       },
       items: [
         {
-          type: "docsVersion",
+          type: "docSidebar",
           position: "left",
+          sidebarId: "docs",
           label: "Docs",
           className: "navbar-item-docs navbar-item-outside",
+        },
+        {
+          type: "docSidebar",
+          position: "left",
+          sidebarId: "guides",
+          label: "Guides",
         },
         {
           type: "docsVersionDropdown",
@@ -96,7 +103,7 @@ const config: Config = {
       ],
     },
     prism: {
-      additionalLanguages: ["shell-session", "haskell", "markdown"],
+      additionalLanguages: ["shell-session", "haskell", "markdown", "diff"],
       theme: lightCodeTheme,
     },
     footer: {
