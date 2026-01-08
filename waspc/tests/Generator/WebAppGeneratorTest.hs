@@ -100,7 +100,7 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let mockLibsSourceDir = [absdir|/|]
+      let mockLibsSourceDir = systemSPRoot
       let config = makeGeneratorConfig mockLibsSourceDir
       let fileDrafts =
             fromRight

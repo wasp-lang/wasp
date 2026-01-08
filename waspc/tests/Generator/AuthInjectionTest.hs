@@ -1,6 +1,7 @@
 module Generator.AuthInjectionTest where
 
 import Data.Maybe (maybeToList)
+import Fixtures (systemSPRoot)
 import NeatInterpolation (trimming)
 import StrongPath (absdir)
 import Test.Hspec
@@ -70,7 +71,7 @@ spec_GeneratorAuthInjectionTest = do
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]
-        let mockLibsSourceDir = [absdir|/|]
+        let mockLibsSourceDir = systemSPRoot
         let config = makeGeneratorConfig mockLibsSourceDir
         let (_generatorWarnings, generatorResult) = runGenerator config $ injectAuth allEntities userEntity
          in generatorResult

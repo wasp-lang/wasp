@@ -9,7 +9,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List.NonEmpty (NonEmpty)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Text (Text)
 import StrongPath (File, File', Path', Rel, absdir, relfile)
 import qualified StrongPath as SP
@@ -63,7 +63,7 @@ compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Te
 compileAndRenderDockerfile spec = do
   -- We make a generator config with no libs source dir because it's not needed
   -- for Dockerfile generation.
-  let mockLibsSourceDir = [absdir|/|]
+  let mockLibsSourceDir = fromJust $ SP.parseAbsDir "/"
   let config = makeGeneratorConfig mockLibsSourceDir
 
   let (_, generatorResult) = runGenerator config $ genDockerfile spec
