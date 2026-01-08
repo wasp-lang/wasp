@@ -14,8 +14,6 @@ $WASP_PACKAGES_COMPILE = "Get-ChildItem `"$PROJECT_ROOT\data\packages\*\package.
 $BUILD_HS_CMD = "cabal build all"
 $BUILD_ALL_CMD = "$WASP_PACKAGES_COMPILE -and $BUILD_HS_CMD"
 $RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- $Args"
-$GET_WASPC_VERSION_CMD = "Write-Output 'putStrLn `$ Data.Version.showVersion Paths_waspc.version' | cabal repl waspc -v0"
-
 switch ($Command) {
     "build" {
         Invoke-Expression $BUILD_ALL_CMD
@@ -30,7 +28,8 @@ switch ($Command) {
         Invoke-Expression $RUN_CMD
     }
     "get-waspc-version" {
-        Invoke-Expression $GET_WASPC_VERSION_CMD
+        # Direct pipe - Invoke-Expression breaks pipeline to native commands
+        'putStrLn $ Data.Version.showVersion Paths_waspc.version' | cabal repl waspc -v0
     }
     Default {
         Write-Host "USAGE"
