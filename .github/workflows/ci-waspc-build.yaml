@@ -16,12 +16,35 @@ on:
         default: "22"
         type: string
         required: false
+    outputs:
+      waspc_version:
+        value: ${{ jobs.build.outputs.waspc_version }}
+        description: "The Wasp version built in this workflow."
+      output_linux-x86_64:
+        value: ${{ jobs.build.outputs.output_linux-x86_64 }}
+        description: "The build output metadata for linux-x86_64."
+      output_linux-x86_64-static:
+        value: ${{ jobs.build.outputs.output_linux-x86_64-static }}
+        description: "The build output metadata for linux-x86_64-static."
+      output_macos-x86_64:
+        value: ${{ jobs.build.outputs.output_macos-x86_64 }}
+        description: "The build output metadata for macos-x86_64."
+      output_macos-aarch64:
+        value: ${{ jobs.build.outputs.output_macos-aarch64 }}
+        description: "The build output metadata for macos-aarch64."
 
 env:
   WASP_TELEMETRY_DISABLE: 1
 
 jobs:
   build:
+    outputs:
+      waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
+      output_linux-x86_64: ${{ steps.set-outputs.outputs.output_linux-x86_64 }}
+      output_linux-x86_64-static: ${{ steps.set-outputs.outputs.output_linux-x86_64-static }}
+      output_macos-x86_64: ${{ steps.set-outputs.outputs.output_macos-x86_64 }}
+      output_macos-aarch64: ${{ steps.set-outputs.outputs.output_macos-aarch64 }}
+
     strategy:
       fail-fast: false
 
@@ -92,6 +115,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Compute artifact names
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-artifact-names
+        with:
+          build-name: ${{ matrix.env.name }}
+
       - name: Install dependencies
         if: ${{ matrix.env.install-deps }}
         run: ${{ matrix.env.install-deps }}
@@ -109,55 +138,82 @@ jobs:
         working-directory: waspc
         env:
           LC_ALL: C.UTF-8 # In some Docker containers the LOCALE is not UTF-8 by default
+          BUILD_STATIC: ${{ matrix.env.static && '1' || '' }}
         run: |
-          ./run build:all${{ matrix.env.static && ':static' || '' }}
+          ./run build
           mkdir -p artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp-${{ matrix.env.name }}.tar.gz"
+          ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
 
       - uses: actions/upload-artifact@v4
         with:
-          path: ./waspc/artifacts/*
-          name:
-            "wasp-cli-${{ matrix.env.name }}"
-            # This name must be in sync with the artifact name used in:
-            # /.github/actions/fetch-nightly-cli/action.yaml
+          path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
+          name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           if-no-files-found: error
+
+      - name: Set job outputs
+        id: set-outputs
+        env:
+          OUTPUT_DATA: ${{ toJson(steps.compute-artifact-names.outputs) }}
+        run: |
+          {
+            echo 'output_${{ matrix.env.name }}<<EOF'
+            echo "$OUTPUT_DATA"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+          echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
 
   build-universal:
     name: Build Wasp (universal)
     needs: build
     runs-on: macos-15
+
+    env:
+      X86_64_TARBALL_NAME: ${{ fromJson(needs.build.outputs.output_macos-x86_64).tarball-name }}
+      X86_64_ARTIFACT_NAME: ${{ fromJson(needs.build.outputs.output_macos-x86_64).artifact-name }}
+      AARCH64_TARBALL_NAME: ${{ fromJson(needs.build.outputs.output_macos-aarch64).tarball-name }}
+      AARCH64_ARTIFACT_NAME: ${{ fromJson(needs.build.outputs.output_macos-aarch64).artifact-name }}
+
     steps:
-      - name: Download macOS binaries
+      - uses: actions/checkout@v6
+
+      - name: Compute artifact names
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-artifact-names
+        with:
+          build-name: macos-universal
+
+      - name: Download macOS Intel binaries
         uses: actions/download-artifact@v5
         with:
-          pattern: wasp-cli-macos-*
+          name: "${{ env.X86_64_ARTIFACT_NAME }}"
+
+      - name: Download macOS ARM binaries
+        uses: actions/download-artifact@v5
+        with:
+          name: "${{ env.AARCH64_ARTIFACT_NAME }}"
 
       - name: Unpack, create universal binary and pack
         run: |
-          set -ex # Fail on error and print each command
+          set -eux # Fail on error and print each command
 
-          input_arch=(
-            macos-x86_64
-            macos-aarch64
-          )
+          mkdir x86_64 aarch64 universal
 
-          # Extract each architecture
-          for arch in "${input_arch[@]}"; do
-            mkdir "arch-$arch"
-            tar -xzf "wasp-cli-${arch}/wasp-${arch}.tar.gz" -C "arch-$arch"
-          done
+          # Unpack both architectures
+          tar -xzf "$X86_64_TARBALL_NAME" -C x86_64
+          tar -xzf "$AARCH64_TARBALL_NAME" -C aarch64
 
-          mkdir universal
           # Create the universal binary
-          lipo -create arch-*/wasp-bin -output universal/wasp-bin
-          # Copy the data folder too
-          cp -R "arch-${input_arch[0]}/data" universal/
+          lipo \
+            -create "x86_64/wasp-bin" "aarch64/wasp-bin" \
+            -output "universal/wasp-bin"
+
+          # Copy the data folder too (we take the first one, should be identical in both)
+          cp -R "x86_64/data/" "universal/"
 
           # Pack back up
-          tar -czf wasp-macos-universal.tar.gz -C universal .
+          tar -czf ${{ steps.compute-artifact-names.outputs.tarball-name }} -C universal .
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wasp-cli-macos-universal
-          path: ./wasp-macos-universal.tar.gz
+          name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
+          path: ./${{ steps.compute-artifact-names.outputs.tarball-name }}

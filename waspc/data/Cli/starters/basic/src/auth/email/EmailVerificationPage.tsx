@@ -8,7 +8,7 @@ export function EmailVerificationPage() {
       <VerifyEmailForm />
       <br />
       <span className="text-sm font-medium text-neutral-900">
-        {"If everything is okay, "}
+        If everything is okay,{" "}
         <Link to="/login" className="font-semibold underline">
           go to login
         </Link>

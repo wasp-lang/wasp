@@ -4,7 +4,7 @@ module Wasp.Util.Terminal
     applyStyles,
     getAnsiCodeFor,
     ansiEscapeCode,
-    ansiResetCode,
+    ansiResetAllCode,
     styleText,
   )
 where
@@ -13,7 +13,8 @@ import Data.List (foldl')
 
 -- | Applies the Wasp CLI standardized code styling to a string.
 styleCode :: String -> String
-styleCode = applyStyles [Bold]
+styleCode "" = ""
+styleCode str = ansiEscapeCode ++ getAnsiCodeFor Bold ++ str ++ ansiEscapeCode ++ ansiResetBoldDimCode
 
 -- | Applies the Wasp CLI standardized text styling to a string. Currently, this
 -- is a no-op, but it exists for future-proofing. And to make consecutive calls
@@ -30,6 +31,7 @@ data Style
   | Magenta
   | Cyan
   | White
+  | Grey
   | BlackBg
   | RedBg
   | GreenBg
@@ -48,7 +50,7 @@ data Style
 applyStyles :: [Style] -> String -> String
 applyStyles [] str = str
 applyStyles _ "" = ""
-applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetCode
+applyStyles styles str = foldl' applyStyle str styles ++ ansiEscapeCode ++ ansiResetAllCode
   where
     applyStyle s style = ansiEscapeCode ++ getAnsiCodeFor style ++ s
 
@@ -61,6 +63,7 @@ getAnsiCodeFor Blue = "[34m"
 getAnsiCodeFor Magenta = "[35m"
 getAnsiCodeFor Cyan = "[36m"
 getAnsiCodeFor White = "[37m"
+getAnsiCodeFor Grey = "[90m"
 getAnsiCodeFor BlackBg = "[40m"
 getAnsiCodeFor RedBg = "[41m"
 getAnsiCodeFor GreenBg = "[42m"
@@ -76,5 +79,8 @@ getAnsiCodeFor Blink = "[5m" -- Blink does not work in all terminal emulators (e
 ansiEscapeCode :: String
 ansiEscapeCode = "\ESC"
 
-ansiResetCode :: String
-ansiResetCode = "[0m"
+ansiResetAllCode :: String
+ansiResetAllCode = "[0m"
+
+ansiResetBoldDimCode :: String
+ansiResetBoldDimCode = "[22m"

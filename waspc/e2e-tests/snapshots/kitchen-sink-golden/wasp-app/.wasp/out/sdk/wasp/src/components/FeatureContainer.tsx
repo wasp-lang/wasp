@@ -61,14 +61,14 @@ function MobileFeatureListMenu() {
 
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black bg-opacity-50 lg:hidden"
+          className="bg-opacity-50 fixed inset-0 z-30 bg-black lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="fixed bottom-6 right-6 z-50 rounded-xl border border-gray-200 bg-white p-3 shadow-lg lg:hidden"
+        className="fixed right-6 bottom-6 z-50 rounded-xl border border-gray-200 bg-white p-3 shadow-lg lg:hidden"
       >
         <div className="flex items-center gap-2 text-gray-700">
           <svg
@@ -159,9 +159,9 @@ function FeatureCard({ title, isPublic, ...routeProps }: Feature) {
       )}
     >
       <div className="flex items-center gap-2">
-        <h3 className="text-sm font-medium leading-tight">{title}</h3>
+        <h3 className="text-sm leading-tight font-medium">{title}</h3>
         {isPublic && (
-          <span className="inline-flex items-center rounded bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700">
+          <span className="inline-flex items-center rounded-sm bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700">
             Public
           </span>
         )}

@@ -150,7 +150,7 @@ const TaskView = ({ task }: { task: TaskWithUser }) => {
           id={String(task.id)}
           checked={task.isDone}
           onChange={handleTaskIsDoneChange}
-          className="text-primary-600 focus:ring-primary-500 h-4 w-4 cursor-pointer rounded border-gray-300 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:opacity-50"
+          className="text-primary-600 focus:ring-primary-500 h-4 w-4 cursor-pointer rounded-sm border-gray-300 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:opacity-50"
         />
       </div>
       <div>
