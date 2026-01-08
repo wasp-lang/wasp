@@ -60,7 +60,7 @@ genClientEnvFiles spec =
 genServerEnv :: AppSpec -> Generator FileDraft
 genServerEnv spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
   where
-    tmplFile = serverTemplatesDirInSdkTemplatesProjectDir </> [relfile|server/env.ts|]
+    tmplFile = serverTemplatesDirInSdkTemplatesProjectDir </> [relfile|env.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,

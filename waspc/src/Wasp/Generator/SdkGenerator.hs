@@ -300,7 +300,7 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
           ("@node-rs/argon2", "^1.8.3")
         ]
 
--- TODO(filip): Figure out where this belongs. 
+-- TODO(filip): Figure out where this belongs.
 -- Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job

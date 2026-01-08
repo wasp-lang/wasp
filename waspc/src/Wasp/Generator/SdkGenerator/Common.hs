@@ -84,10 +84,10 @@ sdkTemplatesProjectDirInSdkTemplatesDir ::
 sdkTemplatesProjectDirInSdkTemplatesDir sdkTmplProject =
   fromJust . parseRelDir $
     case sdkTmplProject of
-      RootProject -> "/"
-      CoreProject -> "core/"
-      UserCoreProject -> "user-core/"
-      ExtSrcProject -> toFilePath extSrcDirInSdkRootDir
+      RootProject -> "."
+      CoreProject -> "core"
+      UserCoreProject -> "user-core"
+      ExtSrcProject -> fromRelDir extSrcDirInSdkRootDir
 
 -- | External @src@ directory refers to the user's @src@ directory.
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
