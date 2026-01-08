@@ -11,7 +11,7 @@ This guide shows you how to configure CORS (Cross-Origin Resource Sharing) to su
 
 ## Prerequisites
 
-Make sure you have a Wasp project set up. If you haven't, follow the [Getting Started](../../getting-started.md) guide first.
+Make sure you have a Wasp project set up. If you haven't, follow the [Getting Started](../../introduction/quick-start.md) guide first.
 
 ## When You Need This
 

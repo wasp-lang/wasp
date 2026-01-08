@@ -11,7 +11,7 @@ This guide shows you how to use Socket.IO namespaces with Wasp's WebSocket suppo
 
 ## Prerequisites
 
-Make sure you have a Wasp project set up with WebSocket support. If you haven't, follow the [Getting Started](../../getting-started.md) guide first.
+Make sure you have a Wasp project set up with WebSocket support. If you haven't, follow the [Getting Started](../../introduction/quick-start.md) guide first.
 
 ## Understanding Namespaces
 

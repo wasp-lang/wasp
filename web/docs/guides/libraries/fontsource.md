@@ -11,7 +11,7 @@ This guide shows you how to use [Fontsource](https://fontsource.org/) with Wasp 
 
 ## Prerequisites
 
-Make sure you have a Wasp project set up. If you haven't, follow the [Getting Started](../../getting-started.md) guide first.
+Make sure you have a Wasp project set up. If you haven't, follow the [Getting Started](../../introduction/quick-start.md) guide first.
 
 ## Setting up Fontsource
 
