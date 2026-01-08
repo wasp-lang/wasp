@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.19.2
+version:        0.21.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -255,7 +255,6 @@ library
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
-    Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
     Wasp.AppSpec.Core.Decl.JSON.TH
@@ -274,7 +273,6 @@ library
     Wasp.AppSpec.Valid
     Wasp.AppSpec.Util
     Wasp.CompileOptions
-    Wasp.ConfigFile
     Wasp.Data
     Wasp.Db.Postgres
     Wasp.Error
@@ -292,8 +290,6 @@ library
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
     Wasp.Generator.DepVersions
-    Wasp.Generator.TailwindConfigFile
-    Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
@@ -361,8 +357,11 @@ library
     Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.PackageJson.Dependencies
+    Wasp.Generator.Valid.PackageJson.Workspaces
     Wasp.Generator.Valid.TsConfig
     Wasp.Generator.Valid.Validator
+    Wasp.Generator.WaspInfo
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
@@ -388,6 +387,7 @@ library
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
+    Wasp.Project.BuildType
     Wasp.Project.Common
     Wasp.Project.Db
     Wasp.Project.Db.Dev.Postgres
@@ -561,6 +561,7 @@ library cli-lib
     , unliftio
     , unordered-containers
     , bytestring
+    , containers
     , tar ^>=0.6.3
     , zlib ^>=0.7.1
     , temporary ^>=1.3
@@ -605,6 +606,12 @@ library cli-lib
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
+    Wasp.Cli.Command.News
+    Wasp.Cli.Command.News.Core
+    Wasp.Cli.Command.News.Display
+    Wasp.Cli.Command.News.Fetching
+    Wasp.Cli.Command.News.LocalNewsState
+    Wasp.Cli.Command.News.Listing
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
@@ -773,16 +780,20 @@ test-suite wasp-cli-tests
     , waspc
     , cli-lib
     , QuickCheck
+    , generic-arbitrary
     , tasty
     , hspec
     , tasty-hspec
     , tasty-quickcheck
+    , containers
+    , time
   other-modules:
     DbMigrateTest
     TerminalTest
     Paths_waspc
-    Wasp.Cli.Command.Telemetry.ProjectTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Command.News.ListingTest
+    Wasp.Cli.Command.News.LocalNewsStateTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe

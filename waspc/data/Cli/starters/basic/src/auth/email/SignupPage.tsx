@@ -23,7 +23,7 @@ export function SignupPage() {
       />
       <br />
       <span className="text-sm font-medium text-neutral-900">
-        {"Already have an account? "}
+        Already have an account?{" "}
         <Link to="/login" className="font-semibold underline">
           Go to login
         </Link>

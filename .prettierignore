@@ -1,7 +1,6 @@
 .wasp/
 dist/
 dist-newstyle/
-waspc/data/packages/
 waspc/data/*/templates/
 waspc/data/Cli/starters/
 waspc/e2e-tests/snapshots/
@@ -11,4 +10,4 @@ web/build/
 web/**/*.md
 web/**/*.mdx
 web/static/img/
-waspc/packages/studio/public/assets/
+waspc/data/packages/studio/public/assets/

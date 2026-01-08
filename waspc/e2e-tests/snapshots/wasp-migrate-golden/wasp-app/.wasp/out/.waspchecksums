@@ -165,7 +165,7 @@
             "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "e54039d7bfd4d7dbacd57433678cfb22a51f2a8570d091c3205a00f06e3b3d11"
+        "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "aaeb8ebf04690e896dae346334ca26efc965251cb0aa6dcac209b05069af7198"
+        "ee9a8003fd61d989f6383ceb5c4036530cf593c93588a5b828fa882b3074909f"
     ],
     [
         [
@@ -389,14 +389,14 @@
             "file",
             "../out/sdk/wasp/src/vite-env.d.ts"
         ],
-        "7ed6a5aae2db6666937b6b8ce6f941d5ab477f25734e39f310cefde82a634838"
+        "aa6fa5e3fce2b4bed80fc74f1c7018d80dee0f03054374d1dd02076553b50d9a"
     ],
     [
         [
             "file",
             "../out/sdk/wasp/tsconfig.json"
         ],
-        "88a24007e020ae73aa75725d89907789ce6331c2ae71d9e2a6b9ce706ebcb376"
+        "df6edb4c166ff8aad37ebebd48be6c3b06e0279357932ea36ea29f2ed28656d7"
     ],
     [
         [
@@ -606,7 +606,7 @@
             "file",
             "web-app/package.json"
         ],
-        "81e196ff68faea1ad0202d41c73d99da66caa3c2d5cdac610cc3afa7bcdf4002"
+        "b629fd6f73427a18bd1a3ea6bf7d5b4bba253baf976b34209eb7257a68ffe201"
     ],
     [
         [

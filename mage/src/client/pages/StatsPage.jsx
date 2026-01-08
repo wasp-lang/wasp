@@ -1,4 +1,3 @@
-import ParentSize from "@visx/responsive/lib/components/ParentSize";
 import { useMemo, useState } from "react";
 import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
 import { Link } from "react-router-dom";
@@ -126,16 +125,7 @@ export function Stats() {
               </div>
             </div>
             <div style={{ height: 300, width: "100%" }} className="mb-4">
-              <ParentSize>
-                {({ width, height }) => (
-                  <BarChart
-                    chartType={chartType.value}
-                    data={barChartData}
-                    width={width}
-                    height={height}
-                  />
-                )}
-              </ParentSize>
+              <BarChart data={barChartData} />
             </div>
 
             <div className="flex items-center justify-between py-2">
@@ -148,7 +138,7 @@ export function Stats() {
                     onChange={(event) =>
                       setFilterOutExampleApps(event.target.checked)
                     }
-                    className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-sky-600 focus:ring-sky-500"
+                    className="h-4 w-4 rounded-sm border-gray-300 bg-gray-100 text-sky-600 focus:ring-sky-500"
                   />
                   <label
                     htmlFor="filter"
@@ -177,7 +167,7 @@ export function Stats() {
 
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
               <table className="w-full text-left text-sm text-slate-500">
-                <thead className="bg-gray-50 text-xs uppercase text-slate-700">
+                <thead className="bg-gray-50 text-xs text-slate-700 uppercase">
                   <tr>
                     <th scope="col" className="px-6 py-3">
                       App Name
@@ -202,14 +192,14 @@ export function Stats() {
                     <tr className="border-b bg-white" key={project.id}>
                       <th
                         scope="row"
-                        className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900"
+                        className="flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap text-gray-900"
                       >
                         <Color
                           value={getTailwindClassNameForProjectBrandColor(
                             project.primaryColor,
                           )}
                         />{" "}
-                        <span className="max-w-[250px] overflow-hidden overflow-ellipsis">
+                        <span className="max-w-[250px] overflow-hidden text-ellipsis">
                           {project.name}
                         </span>{" "}
                         <span className="flex gap-1">
