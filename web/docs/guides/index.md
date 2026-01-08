@@ -1,7 +1,6 @@
 ---
 sidebar_position: 1
 title: About these guides
-comments: true
 ---
 
 # Guides
