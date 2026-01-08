@@ -3,17 +3,14 @@ name: "Build - Wasp CLI binaries"
 # We never trigger this workflow directly.
 # We can call it manually (workflow_dispatch) or from other workflows (workflow_call).
 on:
-  workflow_dispatch:
-    inputs:
-      node-version:
-        description: "Node.js version to use"
-        default: "22"
-        required: false
   workflow_call:
     inputs:
       node-version:
-        description: "Node.js version to use"
-        default: "22"
+        # NOTE: This should be equal to Wasp's lowest supported Node version.
+        # Don't change this version without updating it in all required
+        # places (full list in /waspc/.nvmrc).
+        description: "Node.js version to use for building"
+        default: "22.12.0"
         type: string
         required: false
     outputs:
