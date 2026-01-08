@@ -76,7 +76,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version-file: waspc/.nvmrc
           cache: npm
 
       - name: Install dependencies for script

@@ -51,8 +51,9 @@ jobs:
       id-token: write
 
     steps:
-      - # We don't set a specific node version here because we want to use the
+      - # NOTE: We don't set a specific node version here because we want to use the
         # latest, to get token-less npm publishing.
+        # Read more: https://docs.npmjs.com/trusted-publishers/
         uses: actions/setup-node@v6
 
       - uses: actions/download-artifact@v6

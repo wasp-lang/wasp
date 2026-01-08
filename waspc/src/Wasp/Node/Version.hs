@@ -17,10 +17,9 @@ import Wasp.Util (indent)
 
 -- | Wasp supports any node version equal or greater to this version.
 -- | We usually keep this one equal to the latest LTS.
--- NOTE: If you change this value, make sure to also update it in other places:
---   - /web/docs/introduction/getting-started.md -> "Requirements" section.
---   - Github repository variable OLDEST_WASP_SUPPORTED_NODE_VERSION
---   (https://github.com/wasp-lang/wasp/settings/variables/actions)
+-- NOTE: Don't change the lowest supported Node version without updating it in:
+--   - The docs: /web/docs/introduction/getting-started.md -> The "Requirements" section.
+--   - /waspc/.nvmrc.
 oldestWaspSupportedNodeVersion :: SV.Version
 oldestWaspSupportedNodeVersion = SV.Version 22 12 0
 

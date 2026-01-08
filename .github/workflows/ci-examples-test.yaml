@@ -31,7 +31,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ vars.OLDEST_WASP_SUPPORTED_NODE_VERSION }}
+          node-version-file: waspc/.nvmrc
 
       - name: Install Wasp CLI
         working-directory: waspc

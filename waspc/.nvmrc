@@ -1,1 +1,8 @@
-v22
+# IMPORTANT: This should be set to the lowest Node version Wasp claims to
+# support. The CI reads this file when running tests.
+#
+# Don't change this version without updating Wasp's lowest official supported
+# version in:
+#   - The compiler (Wasp.Node.Version).
+#   - Thhe docs: /web/docs/introduction/getting-started.md -> The "Requirements" section.
+v22.12.0
