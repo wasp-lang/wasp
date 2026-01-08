@@ -70,11 +70,11 @@ sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInProjectRootDir =
   [reldir|../|]
     </> generatedCodeDirInDotWaspDir
-    </> sdkRootDirInGeneratedProjectDir
+    </> sdkRootDirInGeneratedCodeDir
 
 -- | SDK root directory from any generated project directory (e.g. `out` or `build`).
-sdkRootDirInGeneratedProjectDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInGeneratedProjectDir = [reldir|sdk/wasp/|]
+sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
+sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp/|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
