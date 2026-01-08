@@ -54,7 +54,7 @@ const config: Config = {
       },
     },
     navbar: {
-      title: ".wasp (beta)",
+      title: "Wasp (beta)",
       logo: {
         alt: "Wasp logo",
         src: "img/wasp-logo-eqpar-circle.png",
@@ -239,21 +239,28 @@ const config: Config = {
 };
 
 function getScripts() {
-  const scripts: DocusaurusConfig["scripts"] = [
-    "/scripts/posthog.js",
+  const sharedScripts: DocusaurusConfig["scripts"] = [
     "/js/fix-multiple-trailing-slashes.js",
   ];
 
-  if (isProduction) {
+  const devOnlyScripts: DocusaurusConfig["scripts"] = [];
+
+  const prodOnlyScripts: DocusaurusConfig["scripts"] = [
+    { src: "/scripts/posthog.js", defer: true },
     // Using Cloudflare Workers to proxy the analytics script
-    scripts.push({
+    {
       src: "/waspara/wasp/script.js",
       defer: true,
       "data-domain": "wasp.sh",
       "data-api": "/waspara/wasp/event",
-    });
+    },
+  ];
+
+  if (isProduction) {
+    return [...sharedScripts, ...prodOnlyScripts];
+  } else {
+    return [...sharedScripts, ...devOnlyScripts];
   }
-  return scripts;
 }
 
 export default config;

@@ -12,7 +12,7 @@ export function CatchAllPage() {
         </h1>
         <p className="text-gray-500" data-testid="not-found-message">
           We couldn't find anything at the{" "}
-          <code className="rounded bg-gray-200 px-2 font-mono text-gray-700">
+          <code className="rounded-sm bg-gray-200 px-2 font-mono text-gray-700">
             {location.pathname}
           </code>{" "}
           location.
