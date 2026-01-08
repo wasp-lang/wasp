@@ -9,9 +9,9 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List.NonEmpty (NonEmpty)
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (File, File', Path', Rel, absdir, relfile)
+import StrongPath (File, File', Path', Rel, relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -29,6 +29,7 @@ import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, makeGeneratorConfig, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
+import Wasp.Generator.WaspLibs.Common (getAbsLibsSourceDirPath)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
 genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
@@ -61,10 +62,10 @@ genDockerignore _ =
 -- | Helper to return what the Dockerfile content will be based on the AppSpec.
 compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Text)
 compileAndRenderDockerfile spec = do
-  -- We make a generator config with no libs source dir because it's not needed
-  -- for Dockerfile generation.
-  let mockLibsSourceDir = fromJust $ SP.parseAbsDir "/"
-  let config = makeGeneratorConfig mockLibsSourceDir
+  -- NOTE: Generating the Dockerfile doesn't generate the libs, but the Generator
+  -- requires the libs source dir, so we pass it in.
+  libsSourceDir <- getAbsLibsSourceDirPath
+  let config = makeGeneratorConfig libsSourceDir
 
   let (_, generatorResult) = runGenerator config $ genDockerfile spec
   case generatorResult of

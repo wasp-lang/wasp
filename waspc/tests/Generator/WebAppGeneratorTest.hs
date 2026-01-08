@@ -4,7 +4,7 @@ import Data.Either (fromRight)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Fixtures
-import StrongPath (absdir, relfile)
+import StrongPath (relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Hspec

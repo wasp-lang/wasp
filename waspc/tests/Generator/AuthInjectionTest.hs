@@ -3,7 +3,6 @@ module Generator.AuthInjectionTest where
 import Data.Maybe (maybeToList)
 import Fixtures (systemSPRoot)
 import NeatInterpolation (trimming)
-import StrongPath (absdir)
 import Test.Hspec
 import Util.Prisma (getPrismaModelBody)
 import qualified Wasp.AppSpec.Entity as AS.Entity
