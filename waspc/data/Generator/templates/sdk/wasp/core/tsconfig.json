@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.sdk.json",
   "compilerOptions": {
-    // TODO: Interpolate through Haskell?
     "outDir": "../dist/core"
   },
   "include": ["."]

@@ -1,6 +1,5 @@
 {
   "references": [
-    // TODO: interpolate through Haskell?
     { "path": "./core" },
     { "path": "./user-core" }
   ],

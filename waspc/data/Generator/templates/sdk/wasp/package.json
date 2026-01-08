@@ -16,7 +16,6 @@
     {=!  Some of the statements in the comments might become incorrect. =}
     {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    {=! TODO: interpolate through Haskell? =}
     "./core/storage": "./dist/user-core/core/storage.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./core/serialization": "./dist/user-core/core/serialization/index.js",
