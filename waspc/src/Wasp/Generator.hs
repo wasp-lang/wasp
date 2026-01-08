@@ -7,13 +7,7 @@ module Wasp.Generator
 where
 
 import Data.List.NonEmpty (toList)
-import qualified Data.Text
-import qualified Data.Text.IO
-import Data.Time.Clock (getCurrentTime)
-import qualified Data.Version
-import qualified Paths_waspc
-import StrongPath (Abs, Dir, Path', relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (ProjectRootDir)
@@ -76,12 +70,3 @@ genApp spec =
     <++> genDockerFiles spec
     <++> genTailwindConfigFiles spec
     <++> genWaspLibs spec
-
--- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
-writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()
-writeDotWaspInfo dstDir = do
-  currentTime <- getCurrentTime
-  let version = Data.Version.showVersion Paths_waspc.version
-  let content = "Generated on " ++ show currentTime ++ " by waspc version " ++ show version ++ " ."
-  let dstPath = dstDir </> [relfile|.waspinfo|]
-  Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)
