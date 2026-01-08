@@ -72,7 +72,6 @@ sdkRootDirInProjectRootDir =
     </> generatedCodeDirInDotWaspDir
     </> sdkRootDirInGeneratedCodeDir
 
--- | SDK root directory from any generated project directory (e.g. `out` or `build`).
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp/|]
 
