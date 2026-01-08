@@ -3,7 +3,7 @@ module Wasp.Generator.WaspLibs.WaspLib
     makeWaspLib,
     makeLocalNpmDepFromWaspLib,
     getTarballPathInLibsRootDir,
-    getTarballAbsPathInLibsSourceDir,
+    getTarballPathInLibsSourceDir,
   )
 where
 
@@ -12,7 +12,7 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.ExternalConfig.Npm.Tarball (TarballFilename, tarballFilenameAsRelFile)
 import qualified Wasp.ExternalConfig.Npm.Tarball as Npm.Tarball
 import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir)
-import qualified Wasp.Version
+import Wasp.Version (waspVersion)
 
 {-
   `WaspLib` represents an internal Wasp npm package that are located in the
@@ -32,7 +32,7 @@ makeWaspLib waspLibPackageName =
       tarballFilename = Npm.Tarball.makeTarballFilename waspLibPackageName waspVersionStr
     }
   where
-    waspVersionStr = show Wasp.Version.waspVersion
+    waspVersionStr = show waspVersion
 
 makeLocalNpmDepFromWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
 makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
@@ -44,8 +44,8 @@ makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageN
 getTarballPathInLibsRootDir :: WaspLib -> Path' (Rel LibsRootDir) File'
 getTarballPathInLibsRootDir = tarballFilenameAsRelFile . tarballFilename
 
-getTarballAbsPathInLibsSourceDir :: Path' Abs (Dir LibsSourceDir) -> WaspLib -> Path' Abs File'
-getTarballAbsPathInLibsSourceDir libsSourceDir =
+getTarballPathInLibsSourceDir :: Path' Abs (Dir LibsSourceDir) -> WaspLib -> Path' Abs File'
+getTarballPathInLibsSourceDir libsSourceDir =
   (libsSourceDir </>)
     . tarballFilenameAsRelFile
     . tarballFilename

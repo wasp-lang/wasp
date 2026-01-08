@@ -71,7 +71,7 @@ import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.TailwindConfigFile as TCF
-import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -247,7 +247,7 @@ npmDepsForSdk spec =
           ]
     }
   where
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) WaspLibs.AvailableLibs.waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

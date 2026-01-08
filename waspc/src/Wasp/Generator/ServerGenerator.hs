@@ -64,7 +64,7 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliase
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
-import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
@@ -194,7 +194,7 @@ npmDepsFromWasp spec =
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromServerDir) WaspLibs.AvailableLibs.waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec

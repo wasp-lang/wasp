@@ -13,7 +13,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
-import qualified Wasp.Generator.WaspLibs.AvailableLibs as WaspLibs.AvailableLibs
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator.Common
   ( WebAppTemplatesDir,
@@ -54,22 +54,22 @@ relPathFromWebAppRootDirWaspProjectDir =
         SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
 genViteConfig :: AppSpec -> Generator FileDraft
-genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile . getTmplData $ WaspLibs.AvailableLibs.waspLibs
+genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile . getTmplData $ waspLibs
   where
-    getTmplData waspLibs =
+    getTmplData waspLibs' =
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
           "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirWaspProjectDir,
           "defaultClientPort" .= C.defaultClientPort,
-          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList (getDepsExcludedFromOptimization waspLibs),
+          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList (getDepsExcludedFromOptimization waspLibs'),
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    getDepsExcludedFromOptimization waspLibs =
+    getDepsExcludedFromOptimization waspLibs' =
       -- Why do we exclude Wasp SDK from optimization?
       -- - Wasp SDK is a dep that's regenerated over time and we don't want Vite to optimize it
       --   and cache it (which would break hot module reloading).
@@ -79,10 +79,10 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile . getTmplDat
       sdkPackageName
         :
         -- Wasp libs are excluded from optimization because they are internal npm packages that
-        -- have a dummy `0.0.0` version which means once they are cached by Vite, they aren't
-        -- updated even though the lib changes.
+        -- have a static version during Wasp development which means once they are cached by Vite,
+        -- they aren't updated even though the lib changes.
         -- Read more about libs versioning in `waspc/libs/README.md`.
-        map WaspLib.packageName waspLibs
+        map WaspLib.packageName waspLibs'
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir

@@ -2,10 +2,9 @@ module Generator.WebAppGeneratorTest where
 
 import Data.Either (fromRight)
 import qualified Data.Map as M
-import Data.Maybe (fromJust)
 import qualified Data.Set as S
 import Fixtures
-import StrongPath (relfile)
+import StrongPath (absdir, relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Hspec
@@ -101,7 +100,7 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let mockLibsSourceDir = fromJust $ SP.parseAbsDir "/"
+      let mockLibsSourceDir = [absdir|/|]
       let config = makeGeneratorConfig mockLibsSourceDir
       let fileDrafts =
             fromRight
