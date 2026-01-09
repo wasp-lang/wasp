@@ -67,7 +67,7 @@ Give Wasp a spin in the browser with GitHub Codespaces by following the intructi
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
 <!--
   NOTE: Don't change Wasp's lowest supported Node version without updating it in
-  all required places. Check /waspc/.nvmrc for the full list.
+  all required places. Check /.nvmrc for the full list.
 -->
 A version of Node.js must be >= 22.12.
 

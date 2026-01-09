@@ -11,13 +11,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v6
         with:
-          node-version-file: waspc/.nvmrc
-
-        # Tokenless npm publishing requires npm v11.5.1+ so we install it
-        # explicitly.
-        # Read more: https://docs.npmjs.com/trusted-publishers/
-      - name: Install latest npm
-        run: npm i -g npm@^11.5.1
+          node-version-file: .nvmrc
 
       - uses: actions/download-artifact@v6
         with:

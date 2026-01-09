@@ -8,7 +8,7 @@ on:
       node-version:
         # NOTE: This should be equal to Wasp's lowest supported Node version.
         # Don't change this version without updating it in all required
-        # places (full list in /waspc/.nvmrc).
+        # places (full list in /.nvmrc).
         description: "Node.js version to use for building"
         default: "22.12.0"
         type: string
