@@ -73,7 +73,10 @@ async function generateFiles() {
   if (!waspVersionsJson || waspVersionsJson.length === 0) {
     throw new Error("No versions found in versions.json");
   }
-
+  // Our llms.txt URL is the entry point for the LLM.
+  // It contains a section with links to llms-{version}.txt files
+  // which are versioned documentation maps that link
+  // to the individual raw markdown files on GitHub.
   const latestWaspVersion = waspVersionsJson[0];
   const blogPostsSection = await buildBlogPostsSection();
   const docsMapsByVersionSection =
@@ -102,11 +105,25 @@ async function generateFiles() {
     );
     console.log(`  Generated: llms-${version}.txt`);
 
+    // We also generate a full concatenated documentation file, llms-full.txt, 
+    // for the latest version only with a section containing links 
+    // to each llms-full-{version}.txt file.
+    const fullDocsBody = buildFullDocsBody(categorizedDocs);
+    const llmsFullVersionedContent =
+      buildFullDocsHeader(version) + fullDocsBody;
+    await fs.writeFile(
+      path.join(STATIC_DIR, `llms-full-${version}.txt`),
+      llmsFullVersionedContent.trim(),
+      "utf8",
+    );
+    console.log(`  Generated: llms-full-${version}.txt`);
+
     if (isLatest) {
-      const llmsFullTxtContent = buildLlmsFullTxtContent(categorizedDocs);
+      const llmsFullWithIndex =
+        buildFullDocsHeaderWithIndex(version, waspVersionsJson) + fullDocsBody;
       await fs.writeFile(
         path.join(STATIC_DIR, "llms-full.txt"),
-        llmsFullTxtContent.trim(),
+        llmsFullWithIndex.trim(),
         "utf8",
       );
       console.log(`  Generated: llms-full.txt`);
@@ -126,12 +143,24 @@ function buildDocsMapsByVersionSection(versions: string[]): string {
   return section.trim();
 }
 
+function buildFullDocsByVersionSection(versions: string[]): string {
+  const latestVersion = versions[0];
+  let section = `## Full Documentation by Version\n`;
+  for (const version of versions) {
+    if (version === latestVersion) {
+      continue;
+    }
+    section += `- [${version}](${WASP_BASE_URL}llms-full-${version}.txt)\n`;
+  }
+  return section.trim();
+}
+
 function buildLlmsTxtContent(
   docsMapsByVersionSection: string,
   blogPostsSection: string,
 ): string {
-  const fullDocsSection = `## Full Documentation
-- [Complete docs for latest version](${WASP_BASE_URL}llms-full.txt)`;
+  const fullDocsSection = `## Full Concatenated Documentation Files
+Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}llms-full-{version}.txt`;
 
   return [
     LLMS_TXT_INTRO,
@@ -196,19 +225,33 @@ function buildVersionedLlmsTxtContent(
   return `# Wasp ${version} Documentation\n\n${documentationMap}`;
 }
 
-function buildLlmsFullTxtContent(docs: CategorizedDocs): string {
-  let content = "";
+function buildFullDocsHeader(version: string): string {
+  return `# Wasp ${version} Full Documentation\n\n`;
+}
 
+function buildFullDocsHeaderWithIndex(
+  version: string,
+  versions: string[],
+): string {
+  const header = buildFullDocsHeader(version);
+  const versionSection = buildFullDocsByVersionSection(versions);
+  return (
+    header +
+    "> This is the full documentation for the latest version of Wasp.\n> For other versions, see the links below.\n\n" +
+    versionSection +
+    "\n\n---\n\n"
+  );
+}
+
+function buildFullDocsBody(docs: CategorizedDocs): string {
+  let content = "";
   for (const category of docs.categories) {
     content += `# ${category.label}\n\n`;
-
     for (const doc of category.docs) {
       content += `## ${doc.title}\n\n${doc.processedBody}\n\n`;
     }
-
     content += `------\n\n`;
   }
-
   return content;
 }
 
