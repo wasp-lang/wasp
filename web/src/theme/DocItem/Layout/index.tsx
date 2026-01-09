@@ -1,4 +1,5 @@
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
+import { useColorMode } from "@docusaurus/theme-common";
 import type { WrapperProps } from "@docusaurus/types";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
@@ -11,6 +12,7 @@ type Props = WrapperProps<typeof LayoutType>;
 
 export default function LayoutWrapper(props: Props): ReactNode {
   const doc = useDoc();
+  const { isDarkTheme } = useColorMode();
 
   const unversionedId = "docs/" + doc.metadata.id;
   const absolutePathToUnversionedId = useBaseUrl(unversionedId, {
@@ -40,7 +42,7 @@ export default function LayoutWrapper(props: Props): ReactNode {
             strict="1"
             reactionsEnabled="0"
             inputPosition="top"
-            theme="preferred_color_scheme"
+            theme={isDarkTheme ? "dark" : "light"}
             lang="en"
             loading="lazy"
           />
