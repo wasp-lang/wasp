@@ -1,3 +1,4 @@
+v22.12.0
 # IMPORTANT: This should be set to the lowest Node version Wasp claims to
 # support. The CI reads this file when running tests.
 #
@@ -6,4 +7,3 @@
 #   - The compiler (Wasp.Node.Version).
 #   - The docs: /web/docs/introduction/getting-started.md -> The "Requirements" section.
 #   - CI actions that don't read this file (search for the version string and setup-node).
-v22.12.0
