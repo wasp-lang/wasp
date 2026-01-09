@@ -77,7 +77,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           cache: npm
-          node-version: waspc/.nvmrc
+          node-version-file: waspc/.nvmrc
 
       - name: Install dependencies for script
         working-directory: ./scripts/make-npm-packages
