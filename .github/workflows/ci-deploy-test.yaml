@@ -145,7 +145,7 @@ jobs:
         # NOTE: We pinned the Railway version because we don't want the changes in the
         # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
         # of Wasp, we're just incidentally using the same tool Wasp uses.
-        run: npm install -g @railway/cli@4.11.1
+        run: npm install -g @railway/cli@4.23.0
 
       - name: Clean up test project
-        run: echo "railway delete --project \"$APP_PREFIX\" --yes || true"
+        run: echo "railway delete --yes --project \"$APP_PREFIX\" || true"
