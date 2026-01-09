@@ -246,7 +246,7 @@ function getScripts() {
   const devOnlyScripts: DocusaurusConfig["scripts"] = [];
 
   const prodOnlyScripts: DocusaurusConfig["scripts"] = [
-    { src: "/scripts/posthog.js", defer: true },
+    // Plausible doesn't use cookies, so it can be loaded without consent.
     // Using Cloudflare Workers to proxy the analytics script
     {
       src: "/waspara/wasp/script.js",
