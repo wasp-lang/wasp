@@ -21,7 +21,6 @@ jobs:
         with:
           node-version-file: waspc/.nvmrc
 
-
       - name: Install `wasp-cli`
         working-directory: waspc
         run: ./run install
