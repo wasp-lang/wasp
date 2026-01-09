@@ -76,8 +76,12 @@ async function generateFiles() {
 
   const latestWaspVersion = waspVersionsJson[0];
   const blogPostsSection = await buildBlogPostsSection();
-  const docsMapsByVersionSection = buildDocsMapsByVersionSection(waspVersionsJson);
-  const llmsTxtContent = buildLlmsTxtContent(docsMapsByVersionSection, blogPostsSection);
+  const docsMapsByVersionSection =
+    buildDocsMapsByVersionSection(waspVersionsJson);
+  const llmsTxtContent = buildLlmsTxtContent(
+    docsMapsByVersionSection,
+    blogPostsSection,
+  );
   await fs.writeFile(path.join(STATIC_DIR, "llms.txt"), llmsTxtContent, "utf8");
   console.log("Generated: llms.txt");
 
@@ -87,13 +91,24 @@ async function generateFiles() {
     const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
     const sidebarItems = await loadVersionedSidebar(version);
     const categorizedDocs = await loadCategorizedDocs(sidebarItems, docsDir);
-    const versionedLlmsTxtContent = buildVersionedLlmsTxtContent(version, categorizedDocs);
-    await fs.writeFile(path.join(STATIC_DIR, `llms-${version}.txt`), versionedLlmsTxtContent, "utf8");
+    const versionedLlmsTxtContent = buildVersionedLlmsTxtContent(
+      version,
+      categorizedDocs,
+    );
+    await fs.writeFile(
+      path.join(STATIC_DIR, `llms-${version}.txt`),
+      versionedLlmsTxtContent,
+      "utf8",
+    );
     console.log(`  Generated: llms-${version}.txt`);
 
     if (isLatest) {
       const llmsFullTxtContent = buildLlmsFullTxtContent(categorizedDocs);
-      await fs.writeFile(path.join(STATIC_DIR, "llms-full.txt"), llmsFullTxtContent.trim(), "utf8");
+      await fs.writeFile(
+        path.join(STATIC_DIR, "llms-full.txt"),
+        llmsFullTxtContent.trim(),
+        "utf8",
+      );
       console.log(`  Generated: llms-full.txt`);
     }
   }
@@ -138,7 +153,11 @@ async function loadCategorizedDocs(
 
   const sidebarCategories = extractSidebarCategories(sidebarItems);
   const docIdToPathMap = buildDocIdToPathMap(docsDir);
-  const docInfoMap = await populateDocInfoMap(orderedDocIds, docIdToPathMap, docsDir);
+  const docInfoMap = await populateDocInfoMap(
+    orderedDocIds,
+    docIdToPathMap,
+    docsDir,
+  );
 
   const categories = sidebarCategories.map((category) => ({
     label: category.label,
