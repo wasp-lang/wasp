@@ -105,8 +105,8 @@ async function generateFiles() {
     );
     console.log(`  Generated: llms-${version}.txt`);
 
-    // We also generate a full concatenated documentation file, llms-full.txt, 
-    // for the latest version only with a section containing links 
+    // We also generate a full concatenated documentation file, llms-full.txt,
+    // for the latest version only with a section containing links
     // to each llms-full-{version}.txt file.
     const fullDocsBody = buildFullDocsBody(categorizedDocs);
     const llmsFullVersionedContent =
