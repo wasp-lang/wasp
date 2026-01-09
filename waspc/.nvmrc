@@ -4,5 +4,5 @@
 # also change it in:
 #   - The compiler (Wasp.Node.Version).
 #   - The docs: /web/docs/introduction/getting-started.md -> The "Requirements" section.
-#   - CI actions that don't read this file (search for the version string and setup-node).
+#   - CI files that don't read this file (search for the version string and setup-node).
 v22.12.0
