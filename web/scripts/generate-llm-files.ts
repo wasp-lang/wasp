@@ -458,7 +458,10 @@ function cleanDocContent(content: string): string {
   if (!content) return "";
 
   const componentsToReplace = new Set<string>();
-  // NOTE: Not sure if this is needed, as LLMs can probably parse the components's meaning from the context.
+  // NOTE: Not sure if this is needed, as LLMs can probably parse the component's meaning from context.
+  // Regex to capture imports from '@site/src/components/Tag'
+  // e.g. import MyTag from '...' -> MyTag
+  // e.g. import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
   const importRegex =
     /^\s*import\s+(.+?)\s+from\s+['"]@site\/src\/components\/Tag['"]\s*;?\s*$/gm;
 
@@ -491,15 +494,21 @@ function cleanDocContent(content: string): string {
 
   let cleaned = content;
 
+  // Replace <CompName ... /> with "CompName!" (e.g. <Internal /> -> Internal!)
   componentsToReplace.forEach((compName) => {
     const tagRegex = new RegExp(`<(?:${compName})(\\s+[^>]*)?\\s*/>`, "g");
     cleaned = cleaned.replace(tagRegex, `${compName}!`);
   });
 
+  // Remove all import statements
   cleaned = cleaned.replace(/^import\s+.*(?:from\s+['"].*['"])?;?\s*$/gm, "");
+  // Remove JSX comments like {/* TODO: ... */}
   cleaned = cleaned.replace(/^\{\/\*.*\*\/\}\s*$/gm, "");
+  // Remove HTML comments like <!-- TODO: ... -->
   cleaned = cleaned.replace(/^<!--.*-->\s*$/gm, "");
+  // Collapse 3+ newlines to 2
   cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+  // Increase heading levels (# -> ##, ## -> ###, etc.)
   cleaned = cleaned.replace(/^(#{1,6})\s/gm, "#$1 ");
 
   return cleaned.trim();
