@@ -4,6 +4,21 @@ import CookieConsent, { Cookies } from "react-cookie-consent";
 
 const consentCookieName = "wasp-cookies-consent";
 
+const scriptsToLoadAfterConsent: Script[] = [
+  {
+    name: "PostHog",
+    load: () => loadScript("/scripts/posthog.js"),
+  },
+  {
+    name: "REO.dev",
+    async load() {
+      const REO_CLIENT_ID = "96f303a127451b4";
+      await loadScript(`https://static.reo.dev/${REO_CLIENT_ID}/reo.js`);
+      window.Reo.init({ clientID: REO_CLIENT_ID });
+    },
+  },
+];
+
 export default function CookieConsentBanner() {
   const handleAccept = () => {
     loadScripts();
@@ -40,20 +55,24 @@ export default function CookieConsentBanner() {
 
 type Script = {
   name: string;
-  load: () => void;
+  load: () => Promise<void>;
 };
 
-const scriptsToLoadAfterConsent: Script[] = [
-  {
-    name: "PostHog",
-    load() {
-      const script = document.createElement("script");
-      script.src = "/scripts/posthog.js";
-      script.defer = true;
-      document.head.appendChild(script);
-    },
-  },
-];
+declare global {
+  interface Window {
+    Reo?: any;
+  }
+}
+
+async function loadScript(src: string): Promise<void> {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.defer = true;
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
+}
 
 function loadScripts() {
   for (const script of scriptsToLoadAfterConsent) {
