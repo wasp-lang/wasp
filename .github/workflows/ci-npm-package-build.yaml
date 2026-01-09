@@ -74,14 +74,10 @@ jobs:
 
           cat ./input/data.json # For debugging purposes
 
-        # NOTE: We don't set a specific Node version here because:
-        #   - It affects only the packaging script itself, not end-user
-        #   compatibility.
-        #   - We want to use latest Node features in the script (e.g., native
-        #   TS execution).
       - uses: actions/setup-node@v6
         with:
           cache: npm
+          node-version: waspc/.nvmrc
 
       - name: Install dependencies for script
         working-directory: ./scripts/make-npm-packages

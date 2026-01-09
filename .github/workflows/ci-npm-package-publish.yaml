@@ -9,10 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # NOTE: We don't set a specific node version here because we want to use the
-      # latest, to get token-less npm publishing.
-      # Read more: https://docs.npmjs.com/trusted-publishers/
       - uses: actions/setup-node@v6
+        with:
+          node-version-file: waspc/.nvmrc
+
+        # Tokenless npm publishing requires npm v11.5.1+ so we install it
+        # explicitly.
+        # Read more: https://docs.npmjs.com/trusted-publishers/
+      - name: Install latest npm
+        run: npm i -g npm@^11.5.1
 
       - uses: actions/download-artifact@v6
         with:
