@@ -148,4 +148,4 @@ jobs:
         run: npm install -g @railway/cli@4.23.0
 
       - name: Clean up test project
-        run: echo "railway delete --yes --project \"$APP_PREFIX\" || true"
+        run: railway delete --yes --project "$APP_PREFIX" || true
