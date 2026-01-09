@@ -7,7 +7,7 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import versionsJson from "../versions.json";
+import waspVersionsJson from "../versions.json";
 
 const SITE_ROOT = process.cwd();
 const STATIC_DIR = path.join(SITE_ROOT, "static/");
@@ -20,11 +20,15 @@ const WASP_BASE_URL = "https://wasp.sh/";
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 
 const LLMS_TXT_INTRO = `# Wasp
-Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.`;
 
-const LLMS_TXT_MISC = `## Miscellaneous
+> Wasp is a full-stack web framework with batteries included for React, Node.js, and Prisma.
+> It handles auth, database, routing, deployment, and more out of the box,
+> letting you build production-ready apps faster with less boilerplate.`;
+
+const LLMS_TXT_RESOURCES = `## Other Resources
 - [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
-- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
+- [Open SaaS - Free, Open-Source SaaS Boilerplate built on Wasp](https://opensaas.sh)
+- [Wasp GitHub](https://github.com/wasp-lang/wasp)
 `;
 
 generateFiles().catch((err) => {
@@ -34,40 +38,38 @@ generateFiles().catch((err) => {
 
 /**
  * Main function to generate the LLM-friendly doc files.
- * Loops through all versioned docs and generates llms.txt files for each.
- * The latest version also gets llms-full.txt generated.
+ * Generates llms.txt as the entry point, llms-{version}.txt doc maps for each version,
+ * and llms-full.txt for the latest version only.
  */
 async function generateFiles() {
   console.log("Starting LLM file generation...");
 
-  if (!versionsJson || versionsJson.length === 0) {
+  if (!waspVersionsJson || waspVersionsJson.length === 0) {
     throw new Error("No versions found in versions.json");
   }
 
-  const blogSectionContent = await processBlogFiles();
-  const latestVersion = versionsJson[0];
-  const versionedDocsMap = buildVersionedDocsMap(versionsJson);
+  // Generate llms.txt entry point file
+  const latestWaspVersion = waspVersionsJson[0];
+  const blogPostsSection = await processBlogFiles();
+  const docsMapsByVersionSection = buildDocsMapsByVersionSection(waspVersionsJson);
+  const llmsTxtContent = buildLlmsTxtContent(docsMapsByVersionSection, blogPostsSection);
+  await fs.writeFile(path.join(STATIC_DIR, "llms.txt"), llmsTxtContent, "utf8");
+  console.log("Generated: llms.txt");
 
-  for (const version of versionsJson) {
-    const isLatest = version === latestVersion;
+  // Generate all versioned docs map files (llms-*.txt)
+  for (const version of waspVersionsJson) {
     console.log(`Processing version ${version}...`);
-
+    const isLatest = version === latestWaspVersion;
     const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
     const sidebarItems = await loadVersionedSidebar(version);
-
     const processedDocs = await gatherDocumentation(sidebarItems, docsDir);
-    const documentationMap = buildDocumentationMap(processedDocs);
-    const llmsFullTxtContent = isLatest ? buildFullDocumentation(processedDocs) : "";
+    const versionedDocsMapContent = buildVersionedDocsMapContent(version, processedDocs);
+    await fs.writeFile(path.join(STATIC_DIR, `llms-${version}.txt`), versionedDocsMapContent, "utf8");
+    console.log(`  Generated: llms-${version}.txt`);
 
-    const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
-    await writeLlmsTxtFile(
-      filename,
-      documentationMap,
-      versionedDocsMap,
-      blogSectionContent,
-    );
-
+    // Generate llms-full.txt only for latest version
     if (isLatest) {
+      const llmsFullTxtContent = buildFullDocumentation(processedDocs);
       await writeLlmsFullTxtFile(llmsFullTxtContent);
     }
   }
@@ -76,32 +78,17 @@ async function generateFiles() {
 }
 
 /**
- * Builds the full versioned docs map section for all llms.txt files.
- * Lists all available versions with their llms.txt URLs.
+ * Builds the full versioned docs map section for the main llms.txt file.
+ * Lists all available versions with their llms-{version}.txt URLs.
  */
-function buildVersionedDocsMap(versions: string[]): string {
-  let section = `## Documentation Maps by Version
-`;
+function buildDocsMapsByVersionSection(versions: string[]): string {
+  const latestVersion = versions[0];
+  let section = `## Documentation Maps by Version\n`;
   for (const version of versions) {
-    section += `- [${version}](${WASP_BASE_URL}${version === versions[0] ? "llms.txt" : `llms-${version}.txt`})\n`;
+    const label = version === latestVersion ? `${version} (latest)` : version;
+    section += `- [${label}](${WASP_BASE_URL}llms-${version}.txt)\n`;
   }
   return section.trim();
-}
-
-async function writeLlmsTxtFile(
-  filename: string,
-  documentationMap: string,
-  versionedDocsMap: string,
-  blogSectionContent: string,
-): Promise<void> {
-  const content = buildLlmsTxtContent(
-    documentationMap,
-    versionedDocsMap,
-    blogSectionContent,
-  );
-  const outputPath = path.join(STATIC_DIR, filename);
-  await fs.writeFile(outputPath, content, "utf8");
-  console.log(`  Generated: ${filename}`);
 }
 
 async function writeLlmsFullTxtFile(content: string): Promise<void> {
@@ -111,19 +98,22 @@ async function writeLlmsFullTxtFile(content: string): Promise<void> {
 }
 
 /**
- * Assembles the overview content for llms.txt from its component sections.
+ * Builds the entry point content for the main llms.txt file.
+ * This is a lightweight overview with links to versioned docs.
  */
 function buildLlmsTxtContent(
-  documentationMap: string,
-  versionedDocsMap: string,
-  blogSectionContent: string,
+  docsMapsByVersionSection: string,
+  blogPostsSection: string,
 ): string {
+  const fullDocsSection = `## Full Documentation
+- [Complete docs for latest version](${WASP_BASE_URL}llms-full.txt)`;
+
   return [
     LLMS_TXT_INTRO,
-    versionedDocsMap,
-    documentationMap,
-    blogSectionContent,
-    LLMS_TXT_MISC,
+    docsMapsByVersionSection,
+    fullDocsSection,
+    blogPostsSection,
+    LLMS_TXT_RESOURCES,
   ].join("\n\n");
 }
 
@@ -165,9 +155,13 @@ async function gatherDocumentation(
 }
 
 /**
- * Builds the documentation map (table of contents) for llms.txt files.
+ * Builds the complete content for a version-specific docs map file (llms-*.txt).
+ * Contains the version header and documentation map (table of contents).
  */
-function buildDocumentationMap(docs: ProcessedDocumentation): string {
+function buildVersionedDocsMapContent(
+  version: string,
+  docs: ProcessedDocumentation,
+): string {
   const lines: string[] = [];
 
   for (const category of docs.categories) {
@@ -177,7 +171,8 @@ function buildDocumentationMap(docs: ProcessedDocumentation): string {
     }
   }
 
-  return `## Documentation Map\n${lines.join("\n")}`;
+  const documentationMap = `## Documentation Map\n${lines.join("\n")}`;
+  return `# Wasp ${version} Documentation\n\n${documentationMap}`;
 }
 
 /**
