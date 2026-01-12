@@ -48,7 +48,7 @@ We use third-party services to help us operate our website, conduct our business
 
 We use the following third-party services:
 
-- **Google Analytics**
+- **PostHog**
 - **Reo.dev**
 
 These third-party service providers have their own privacy policies addressing how they use your information. We encourage you to review their privacy policies.
