@@ -11,12 +11,11 @@ import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (UserCoreProject),
-    SdkTemplatesProjectDir,
-    clientTemplatesDirInSdkTemplatesProjectDir,
-    makeSdkProjectTmplFd,
-    makeSdkProjectTmplFdWithData,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( UserCoreTemplatesDir,
+    clientTemplatesDirInUserCoreTemplatesDir,
+    mkTmplFd,
+    mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
 
@@ -41,63 +40,63 @@ genNewClientAuth spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = clientAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+    tmplFile = clientAuthDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
 genAuthUi :: AS.Auth.Auth -> Generator FileDraft
 genAuthUi auth =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = clientAuthDirInSdkTemplatesProjectDir </> [relfile|ui.ts|]
+    tmplFile = clientAuthDirInUserCoreTemplatesDir </> [relfile|ui.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genClientAuthFileCopy UserCoreProject [relfile|email.ts|]]
+    then sequence [genClientAuthFileCopy [relfile|email.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genClientAuthFileCopy UserCoreProject [relfile|username.ts|]]
+    then sequence [genClientAuthFileCopy [relfile|username.ts|]]
     else return []
 
 genAuthSlack :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthSlack auth =
   if AS.Auth.isSlackAuthEnabled auth
-    then sequence [genClientAuthFileCopy UserCoreProject [relfile|slack.ts|]]
+    then sequence [genClientAuthFileCopy [relfile|slack.ts|]]
     else return []
 
 genAuthDiscord :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthDiscord auth =
   if AS.Auth.isDiscordAuthEnabled auth
-    then sequence [genClientAuthFileCopy UserCoreProject [relfile|discord.ts|]]
+    then sequence [genClientAuthFileCopy [relfile|discord.ts|]]
     else return []
 
 genAuthGoogle :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGoogle auth =
   if AS.Auth.isGoogleAuthEnabled auth
-    then sequence [genClientAuthFileCopy UserCoreProject [relfile|google.ts|]]
+    then sequence [genClientAuthFileCopy [relfile|google.ts|]]
     else return []
 
 genAuthKeycloak :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthKeycloak auth =
   if AS.Auth.isKeycloakAuthEnabled auth
-    then sequence [genClientAuthFileCopy UserCoreProject [relfile|keycloak.ts|]]
+    then sequence [genClientAuthFileCopy [relfile|keycloak.ts|]]
     else return []
 
 genAuthGitHub :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGitHub auth =
   if AS.Auth.isGitHubAuthEnabled auth
-    then sequence [genClientAuthFileCopy UserCoreProject [relfile|github.ts|]]
+    then sequence [genClientAuthFileCopy [relfile|github.ts|]]
     else return []
 
-clientAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-clientAuthDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesProjectDir </> [reldir|auth|]
+clientAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+clientAuthDirInUserCoreTemplatesDir = clientTemplatesDirInUserCoreTemplatesDir </> [reldir|auth|]
 
-genClientAuthFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
-genClientAuthFileCopy sdkProject =
-  return . makeSdkProjectTmplFd sdkProject . (clientAuthDirInSdkTemplatesProjectDir </>)
+genClientAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
+genClientAuthFileCopy =
+  return . mkTmplFd . (clientAuthDirInUserCoreTemplatesDir </>)

@@ -22,12 +22,13 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (..),
-    SdkRootDir,
-    SdkTemplatesProjectDir,
+  ( SdkRootDir,
     getOperationTypeName,
-    makeSdkProjectTmplFdWithData,
-    serverTemplatesDirInSdkTemplatesProjectDir,
+  )
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( UserCoreTemplatesDir,
+    mkTmplFdWithData,
+    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
@@ -44,9 +45,9 @@ genOperations spec =
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+genIndexTs spec = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "actions" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec),
@@ -55,15 +56,15 @@ genIndexTs spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genWrappers :: AppSpec -> Generator FileDraft
-genWrappers spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+genWrappers spec = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|wrappers.ts|]
+    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|wrappers.ts|]
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+genQueriesIndex spec = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|queries/index.ts|]
+    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
@@ -72,9 +73,9 @@ genQueriesIndex spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmp
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+genActionsIndex spec = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|actions/index.ts|]
+    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
@@ -85,14 +86,14 @@ genActionsIndex spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmp
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec = genOperationTypesFile tmplFile operations isAuthEnabledGlobally
   where
-    tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|queries/types.ts|]
+    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|queries/types.ts|]
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionTypesFile :: AppSpec -> Generator FileDraft
 genActionTypesFile spec = genOperationTypesFile tmplFile operations isAuthEnabledGlobally
   where
-    tmplFile = serverOpsDirInSdkTemplatesProjectDir </> [relfile|actions/types.ts|]
+    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|actions/types.ts|]
     operations = map (uncurry AS.Operation.ActionOp) $ AS.getActions spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
@@ -110,12 +111,12 @@ getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData 
     operation = AS.Operation.ActionOp actionName action
 
 genOperationTypesFile ::
-  Path' (Rel SdkTemplatesProjectDir) File' ->
+  Path' (Rel UserCoreTemplatesDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
 genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
     tmplData =
       object
@@ -135,7 +136,7 @@ genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
 
 serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) Dir'
 serverOperationsDirInSdkRootDir =
-  castRel . (serverOpsDirInSdkTemplatesProjectDir </>) . \case
+  castRel . (serverOpsDirInUserCoreTemplatesDir </>) . \case
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
@@ -150,5 +151,5 @@ getOperationTmplData isAuthEnabledGlobally operation =
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
 
-serverOpsDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverOpsDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|operations|]
+serverOpsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+serverOpsDirInUserCoreTemplatesDir = serverTemplatesDirInUserCoreTemplatesDir </> [reldir|operations|]

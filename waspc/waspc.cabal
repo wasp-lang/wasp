@@ -325,10 +325,12 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Common
+    Wasp.Generator.SdkGenerator.Core.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
     Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.JsImport
+    Wasp.Generator.SdkGenerator.Root.Common
     Wasp.Generator.SdkGenerator.Server.AuthG
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.CrudG
@@ -336,6 +338,7 @@ library
     Wasp.Generator.SdkGenerator.Server.JobGenerator
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
+    Wasp.Generator.SdkGenerator.UserCore.Common
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport

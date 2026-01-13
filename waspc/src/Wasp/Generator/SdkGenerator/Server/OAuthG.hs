@@ -31,12 +31,11 @@ import Wasp.Generator.AuthProviders.OAuth
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (..),
-    SdkTemplatesProjectDir,
-    makeSdkProjectTmplFd,
-    makeSdkProjectTmplFdWithData,
-    serverTemplatesDirInSdkTemplatesProjectDir,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( UserCoreTemplatesDir,
+    mkTmplFd,
+    mkTmplFdWithData,
+    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Util ((<++>))
 
@@ -46,8 +45,8 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genServerAuthFileCopy UserCoreProject [relfile|oneTimeCode.ts|],
-          genServerAuthFileCopy UserCoreProject [relfile|provider.ts|]
+          genServerAuthFileCopy [relfile|oneTimeCode.ts|],
+          genServerAuthFileCopy [relfile|provider.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
@@ -58,9 +57,9 @@ genOAuth auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+    tmplFile = serverOAuthDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "enabledProviders" .= getEnabledAuthProvidersJson auth
@@ -68,9 +67,9 @@ genIndexTs auth =
 
 genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [relfile|redirect.ts|]
+    tmplFile = serverOAuthDirInUserCoreTemplatesDir </> [relfile|redirect.ts|]
     tmplData =
       object
         [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
@@ -91,9 +90,9 @@ genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
 genOAuthConfig provider =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesProjectDir </> [reldir|providers|] </> providerTsFile
+    tmplFile = serverOAuthDirInUserCoreTemplatesDir </> [reldir|providers|] </> providerTsFile
     providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
     tmplData =
       object
@@ -107,9 +106,9 @@ depsRequiredByOAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
-serverOAuthDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-serverOAuthDirInSdkTemplatesProjectDir = serverTemplatesDirInSdkTemplatesProjectDir </> [reldir|auth/oauth|]
+serverOAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+serverOAuthDirInUserCoreTemplatesDir = serverTemplatesDirInUserCoreTemplatesDir </> [reldir|auth/oauth|]
 
-genServerAuthFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
-genServerAuthFileCopy sdkProject =
-  return . makeSdkProjectTmplFd sdkProject . (serverOAuthDirInSdkTemplatesProjectDir </>)
+genServerAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
+genServerAuthFileCopy =
+  return . mkTmplFd . (serverOAuthDirInUserCoreTemplatesDir </>)
