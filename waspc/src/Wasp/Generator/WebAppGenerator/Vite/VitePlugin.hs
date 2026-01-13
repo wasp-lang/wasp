@@ -34,7 +34,7 @@ genVitePlugins spec =
     ]
 
 vitePluginsGlob :: String
-vitePluginsGlob = SP.fromRelDir vitePluginsDirInWebAppDir <> "*"
+vitePluginsGlob = SP.fromRelDir vitePluginsDirInWebAppDir <> "**/*"
 
 vitePluginsDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppVitePluginsDir)
 vitePluginsDirInWebAppDir = [reldir|vite|]
