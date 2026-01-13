@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Server.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir, Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -18,7 +18,6 @@ import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Util ((<++>))
 
@@ -85,7 +84,7 @@ genAuthUsername auth =
     else return []
 
 serverAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-serverAuthDirInUserCoreTemplatesDir = serverTemplatesDirInUserCoreTemplatesDir </> [reldir|auth|]
+serverAuthDirInUserCoreTemplatesDir = [reldir|server/auth|]
 
 genServerAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
 genServerAuthFileCopy =

@@ -22,7 +22,6 @@ import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
@@ -47,7 +46,7 @@ genServerUtils :: AS.Auth.Auth -> Generator FileDraft
 genServerUtils auth =
   return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverTemplatesDirInUserCoreTemplatesDir </> [relfile|auth/email/utils.ts|]
+    tmplFile = [relfile|server/auth/email/utils.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),

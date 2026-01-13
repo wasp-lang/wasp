@@ -28,7 +28,6 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFdWithData,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
@@ -152,4 +151,4 @@ getOperationTmplData isAuthEnabledGlobally operation =
     ]
 
 serverOpsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-serverOpsDirInUserCoreTemplatesDir = serverTemplatesDirInUserCoreTemplatesDir </> [reldir|operations|]
+serverOpsDirInUserCoreTemplatesDir = [reldir|server/operations|]

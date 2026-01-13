@@ -20,7 +20,6 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
-    clientTemplatesDirInUserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -139,7 +138,7 @@ getOperationTypeData operation = tmplData
               serverOperationsDirInSdkRootDir operation
 
 clientOpsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInUserCoreTemplatesDir = clientTemplatesDirInUserCoreTemplatesDir </> [reldir|operations|]
+clientOpsDirInUserCoreTemplatesDir = [reldir|client/operations|]
 
 genClientOpsFileCopy :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
 genClientOpsFileCopy =

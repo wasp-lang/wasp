@@ -1,12 +1,8 @@
 module Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
-    ClientTemplatesDir,
-    ServerTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDestAndData,
-    clientTemplatesDirInUserCoreTemplatesDir,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 where
 
@@ -51,13 +47,3 @@ mkTmplFdWithDestAndData destFile tmplFile tmplData =
     (sdkRootDirInProjectRootDir </> userCoreOutputDirInSdkRootDir </> castRel destFile)
     (sdkTemplatesDirInTemplatesDir </> userCoreTemplatesDirInSdkTemplatesDir </> castRel tmplFile)
     tmplData
-
-data ClientTemplatesDir
-
-data ServerTemplatesDir
-
-clientTemplatesDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) (Dir ClientTemplatesDir)
-clientTemplatesDirInUserCoreTemplatesDir = [reldir|client|]
-
-serverTemplatesDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) (Dir ServerTemplatesDir)
-serverTemplatesDirInUserCoreTemplatesDir = [reldir|server|]

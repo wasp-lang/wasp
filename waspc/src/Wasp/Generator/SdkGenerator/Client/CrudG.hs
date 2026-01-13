@@ -15,7 +15,6 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
-    clientTemplatesDirInUserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDestAndData,
@@ -60,7 +59,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         idField = getIdFieldFromCrudEntity spec crud
 
 clientCrudDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-clientCrudDirInUserCoreTemplatesDir = clientTemplatesDirInUserCoreTemplatesDir </> [reldir|crud|]
+clientCrudDirInUserCoreTemplatesDir = [reldir|client/crud|]
 
 genClientCrudFileCopy :: Path' Rel' File' -> Generator FileDraft
 genClientCrudFileCopy =
