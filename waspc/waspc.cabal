@@ -324,6 +324,7 @@ library
     Wasp.Generator.SdkGenerator.Client.CrudG
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
+    Wasp.Generator.SdkGenerator.Client.VitePluginG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
@@ -371,7 +372,6 @@ library
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebAppGenerator.Vite
-    Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport

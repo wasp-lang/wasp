@@ -14,7 +14,6 @@ import Wasp.Generator.WebAppGenerator.Common
   ( WebAppTemplatesDir,
   )
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.Vite.VitePlugin (genVitePlugins, vitePluginsGlob)
 import Wasp.JsImport
   ( JsImport,
     JsImportName (JsImportModule),
@@ -26,7 +25,6 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
   )
-import Wasp.Util ((<++>))
 
 genVite :: AppSpec -> Generator [FileDraft]
 genVite spec =
@@ -34,7 +32,6 @@ genVite spec =
     [ genViteConfig spec,
       genViteTsconfigJson
     ]
-    <++> genVitePlugins spec
 
 viteConfigTmplFile :: Path' (Rel WebAppTemplatesDir) File'
 viteConfigTmplFile = C.asTmplFile [relfile|vite.config.ts|]
@@ -67,5 +64,4 @@ genViteTsconfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.vite.json|] 
   where
     tmplData = object ["includePaths" .= includePaths]
 
-    includePaths =
-      SP.fromRelFile viteConfigTmplFile : [vitePluginsGlob]
+    includePaths = [SP.fromRelFile viteConfigTmplFile]

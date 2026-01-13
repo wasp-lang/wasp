@@ -55,6 +55,7 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
+import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
@@ -140,6 +141,7 @@ genSdk spec =
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
     <++> genClientApp spec
+    <++> genVitePlugins spec
   where
     genFileCopy = return . C.mkTmplFd
 

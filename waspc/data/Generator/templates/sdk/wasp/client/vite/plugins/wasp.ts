@@ -3,8 +3,9 @@ import path from "node:path"
 import { type Plugin, mergeConfig } from "vite";
 import { defaultExclude } from "vitest/config"
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
-import { validateEnv } from "./plugins/validateEnv";
-import { detectServerImports } from "./plugins/detectServerImports";
+import { validateEnv } from "./validateEnv.js";
+import { detectServerImports } from "./detectServerImports.js";
+import { resolveProjectPath } from "../../../dev/index.js";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
@@ -44,7 +45,7 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
                 // TODO: Check if we can remove when updating Prisma (#2504)
                 find: /^\.prisma\/(.+)$/,
                 replacement: path.join(
-                  "{= projectDir =}",
+                  resolveProjectPath("./"),
                   "node_modules/.prisma/$1"
                 ),
               },
