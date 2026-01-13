@@ -5,20 +5,16 @@ import Data.Maybe (fromJust)
 import qualified FilePath.Extra as FP.Extra
 import StrongPath (Dir, File', Path, Path', Posix, Rel, relfile, (</>))
 import qualified StrongPath as SP
-import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common
   ( WebAppTemplatesDir,
-    webAppRootDirInProjectRootDir,
-    webAppSrcDirInWebAppRootDir,
   )
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.Vite.VitePlugin (genVitePlugins, vitePlugins)
+import Wasp.Generator.WebAppGenerator.Vite.VitePlugin (genVitePlugins, vitePluginsGlob)
 import Wasp.JsImport
   ( JsImport,
     JsImportName (JsImportModule),
@@ -38,7 +34,7 @@ genVite spec =
     [ genViteConfig spec,
       genViteTsconfigJson
     ]
-    <++> genVitePlugins
+    <++> genVitePlugins spec
 
 viteConfigTmplFile :: Path' (Rel WebAppTemplatesDir) File'
 viteConfigTmplFile = C.asTmplFile [relfile|vite.config.ts|]
@@ -55,24 +51,8 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
   where
     tmplData =
       object
-        [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
-          "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
-          "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirWaspProjectDir,
-          "defaultClientPort" .= C.defaultClientPort,
-          "vitest"
-            .= object
-              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
-                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
-              ]
+        [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec)
         ]
-    vitestSetupFiles =
-      [ SP.fromRelFile $
-          dotWaspDirInWaspProjectDir
-            </> generatedCodeDirInDotWaspDir
-            </> webAppRootDirInProjectRootDir
-            </> webAppSrcDirInWebAppRootDir
-            </> [relfile|test/vitest/setup.ts|]
-      ]
 
 -- | Creates an import of user defined Vite config file relative to the web-app root directory e.g. import customViteConfig from '../../../vite.config'
 makeCustomViteConfigJsImport :: Path' (Rel WaspProjectDir) File' -> JsImport
@@ -88,6 +68,4 @@ genViteTsconfigJson = return $ C.mkTmplFdWithData [relfile|tsconfig.vite.json|] 
     tmplData = object ["includePaths" .= includePaths]
 
     includePaths =
-      SP.fromRelFile viteConfigTmplFile : vitePluginPaths
-
-    vitePluginPaths = map (SP.fromRelFile . snd) vitePlugins
+      SP.fromRelFile viteConfigTmplFile : [vitePluginsGlob]

@@ -1,57 +1,77 @@
 module Wasp.Generator.WebAppGenerator.Vite.VitePlugin
   ( genVitePlugins,
-    vitePlugins,
+    vitePluginsGlob,
   )
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
+import Data.Maybe (fromJust)
+import qualified FilePath.Extra as FP.Extra
+import StrongPath (Dir, Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp.Generator.Common (WebAppRootDir)
+import qualified System.FilePath.Posix as FP.Posix
+import Wasp.AppSpec (AppSpec)
+import Wasp.Generator.Common (WebAppRootDir, makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.WebAppGenerator.Common (WebAppTemplatesDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
-
-data VitePluginName = DetectServerImports | ValidateEnv
-  deriving (Enum, Bounded)
-
-type TmplFilePath = Path' (Rel WebAppTemplatesDir) File'
-
--- We define it like this because we need a list of plugin
--- paths which we will use in the tsconfig.vite.json "include" section
-type VitePlugin = (VitePluginName, TmplFilePath)
-
-genVitePlugins :: Generator [FileDraft]
-genVitePlugins = mapM genVitePlugin vitePlugins
-
-vitePlugins :: [VitePlugin]
-vitePlugins =
-  map
-    (\name -> (name, getTmplFilePathForVitePlugin name))
-    vitePluginNames
-  where
-    vitePluginNames = [minBound .. maxBound]
+import Wasp.Project.Common
+  ( WaspProjectDir,
+    dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+    srcDirInWaspProjectDir,
+    waspProjectDirFromAppComponentDir,
+  )
 
 data WebAppVitePluginsDir
+
+genVitePlugins :: AppSpec -> Generator [FileDraft]
+genVitePlugins spec =
+  sequence
+    [ genWaspPlugin spec,
+      genDetectServerImportsPlugin,
+      genValidateEnvPlugin
+    ]
+
+vitePluginsGlob :: String
+vitePluginsGlob = SP.fromRelDir vitePluginsDirInWebAppDir <> "*"
 
 vitePluginsDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppVitePluginsDir)
 vitePluginsDirInWebAppDir = [reldir|vite|]
 
-getTmplFilePathForVitePlugin :: VitePluginName -> TmplFilePath
-getTmplFilePathForVitePlugin pluginName = C.asTmplFile $ vitePluginsDirInWebAppDir </> pluginFilePathInPluginsDir pluginName
+genWaspPlugin :: AppSpec -> Generator FileDraft
+genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    pluginFilePathInPluginsDir DetectServerImports = [relfile|detectServerImports.ts|]
-    pluginFilePathInPluginsDir ValidateEnv = [relfile|validateEnv.ts|]
+    tmplPath = C.asTmplFile $ vitePluginsDirInWebAppDir </> [relfile|wasp.ts|]
+    tmplData =
+      object
+        [ "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
+          "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirToWaspProjectDir,
+          "defaultClientPort" .= C.defaultClientPort,
+          "vitest"
+            .= object
+              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
+                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
+              ]
+        ]
+    vitestSetupFiles =
+      [ SP.fromRelFile $
+          dotWaspDirInWaspProjectDir
+            </> generatedCodeDirInDotWaspDir
+            </> C.webAppRootDirInProjectRootDir
+            </> C.webAppSrcDirInWebAppRootDir
+            </> [relfile|test/vitest/setup.ts|]
+      ]
+    relPathFromWebAppRootDirToWaspProjectDir =
+      fromJust $
+        SP.parseRelDirP $
+          FP.Extra.reversePosixPath $
+            SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
-genVitePlugin :: VitePlugin -> Generator FileDraft
-genVitePlugin (DetectServerImports, tmplFile) = genDetectServerImportsPlugin tmplFile
-genVitePlugin (ValidateEnv, tmplFile) = genValidateEnvPlugin tmplFile
-
-genDetectServerImportsPlugin :: Path' (Rel WebAppTemplatesDir) File' -> Generator FileDraft
-genDetectServerImportsPlugin tmplFile = return $ C.mkTmplFdWithData tmplFile tmplData
+genDetectServerImportsPlugin :: Generator FileDraft
+genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
+    tmplPath = C.asTmplFile $ vitePluginsDirInWebAppDir </> [relfile|plugins/detectServerImports.ts|]
     tmplData =
       object
         [ "waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir,
@@ -60,5 +80,7 @@ genDetectServerImportsPlugin tmplFile = return $ C.mkTmplFdWithData tmplFile tmp
 
     waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
 
-genValidateEnvPlugin :: Path' (Rel WebAppTemplatesDir) File' -> Generator FileDraft
-genValidateEnvPlugin tmplFile = return $ C.mkTmplFd tmplFile
+genValidateEnvPlugin :: Generator FileDraft
+genValidateEnvPlugin = return $ C.mkTmplFd tmplPath
+  where
+    tmplPath = C.asTmplFile $ vitePluginsDirInWebAppDir </> [relfile|plugins/validateEnv.ts|]
