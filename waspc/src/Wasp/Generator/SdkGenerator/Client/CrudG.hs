@@ -13,13 +13,12 @@ import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
 import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (UserCoreProject),
-    SdkTemplatesProjectDir,
-    clientTemplatesDirInSdkTemplatesProjectDir,
-    makeSdkProjectTmplFd,
-    makeSdkProjectTmplFdWithData,
-    makeSdkProjectTmplFdWithDestAndData,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( UserCoreTemplatesDir,
+    clientTemplatesDirInUserCoreTemplatesDir,
+    mkTmplFd,
+    mkTmplFdWithData,
+    mkTmplFdWithDestAndData,
   )
 import Wasp.Util ((<++>))
 
@@ -29,7 +28,7 @@ genNewClientCrudApi spec =
     then
       sequence
         [ genCrudIndex spec cruds,
-          genClientCrudFileCopy UserCoreProject [relfile|operationsHelpers.ts|]
+          genClientCrudFileCopy [relfile|operationsHelpers.ts|]
         ]
         <++> genCrudOperations spec cruds
     else return []
@@ -39,9 +38,9 @@ genNewClientCrudApi spec =
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = clientCrudDirInSdkTemplatesProjectDir </> [relfile|index.ts|]
+    tmplFile = clientCrudDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
     getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
     getCrudOperationJsonFromCrud (name, crud) = getCrudOperationJson name crud idField
@@ -53,16 +52,16 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      makeSdkProjectTmplFdWithDestAndData UserCoreProject destFile tmplFile (Just tmplData)
+      mkTmplFdWithDestAndData destFile tmplFile (Just tmplData)
       where
         destFile = [reldir|client/crud|] </> fromJust (parseRelFile (name ++ ".ts"))
-        tmplFile = clientCrudDirInSdkTemplatesProjectDir </> [relfile|_crud.ts|]
+        tmplFile = clientCrudDirInUserCoreTemplatesDir </> [relfile|_crud.ts|]
         tmplData = getCrudOperationJson name crud idField
         idField = getIdFieldFromCrudEntity spec crud
 
-clientCrudDirInSdkTemplatesProjectDir :: Path' (Rel SdkTemplatesProjectDir) Dir'
-clientCrudDirInSdkTemplatesProjectDir = clientTemplatesDirInSdkTemplatesProjectDir </> [reldir|crud|]
+clientCrudDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+clientCrudDirInUserCoreTemplatesDir = clientTemplatesDirInUserCoreTemplatesDir </> [reldir|crud|]
 
-genClientCrudFileCopy :: SdkProject -> Path' Rel' File' -> Generator FileDraft
-genClientCrudFileCopy sdkProject =
-  return . makeSdkProjectTmplFd sdkProject . (clientCrudDirInSdkTemplatesProjectDir </>)
+genClientCrudFileCopy :: Path' Rel' File' -> Generator FileDraft
+genClientCrudFileCopy =
+  return . mkTmplFd . (clientCrudDirInUserCoreTemplatesDir </>)

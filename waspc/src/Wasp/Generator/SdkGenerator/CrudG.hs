@@ -15,9 +15,8 @@ import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity, isAuthEnabled)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (..),
-    makeSdkProjectTmplFdWithDestAndData,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( mkTmplFdWithDestAndData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
@@ -35,7 +34,7 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      makeSdkProjectTmplFdWithDestAndData UserCoreProject destFile tmplFile (Just tmplData)
+      mkTmplFdWithDestAndData destFile tmplFile (Just tmplData)
       where
         destFile = [reldir|server/crud|] </> getCrudFilePath name "ts"
         tmplFile = [relfile|server/crud/_operationTypes.ts|]

@@ -53,12 +53,12 @@ import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (..),
-    extSrcDirInSdkRootDir,
-    makeSdkProjectTmplFd,
-    makeSdkProjectTmplFdWithData,
+  ( extSrcDirInSdkRootDir,
     sdkRootDirInProjectRootDir,
   )
+import qualified Wasp.Generator.SdkGenerator.Core.Common as Core
+import qualified Wasp.Generator.SdkGenerator.Root.Common as Root
+import qualified Wasp.Generator.SdkGenerator.UserCore.Common as UserCore
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -97,19 +97,19 @@ buildSdk projectRootDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ return $ makeSdkProjectTmplFd CoreProject [relfile|tsconfig.json|],
-      return $ makeSdkProjectTmplFd CoreProject [relfile|server/HttpError.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|tsconfig.json|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|vite-env.d.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|prisma-runtime-library.d.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|api/index.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|api/events.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|core/storage.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|server/index.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|client/test/vitest/helpers.tsx|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|client/test/index.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|client/hooks.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|client/index.ts|],
+    [ return $ Core.mkTmplFd [relfile|tsconfig.json|],
+      return $ Core.mkTmplFd [relfile|server/HttpError.ts|],
+      return $ UserCore.mkTmplFd [relfile|tsconfig.json|],
+      return $ UserCore.mkTmplFd [relfile|vite-env.d.ts|],
+      return $ UserCore.mkTmplFd [relfile|prisma-runtime-library.d.ts|],
+      return $ UserCore.mkTmplFd [relfile|api/index.ts|],
+      return $ UserCore.mkTmplFd [relfile|api/events.ts|],
+      return $ UserCore.mkTmplFd [relfile|core/storage.ts|],
+      return $ UserCore.mkTmplFd [relfile|server/index.ts|],
+      return $ UserCore.mkTmplFd [relfile|client/test/vitest/helpers.tsx|],
+      return $ UserCore.mkTmplFd [relfile|client/test/index.ts|],
+      return $ UserCore.mkTmplFd [relfile|client/hooks.ts|],
+      return $ UserCore.mkTmplFd [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genServerUtils spec,
@@ -142,15 +142,15 @@ genSdk spec =
 genRootFiles :: AppSpec -> Generator [FileDraft]
 genRootFiles spec =
   sequence
-    [ return $ makeSdkProjectTmplFd RootProject [relfile|tsconfig.json|],
-      return $ makeSdkProjectTmplFd RootProject [relfile|tsconfig.sdk.json|],
-      return $ makeSdkProjectTmplFd RootProject [relfile|copy-assets.js|],
+    [ return $ Root.mkTmplFd [relfile|tsconfig.json|],
+      return $ Root.mkTmplFd [relfile|tsconfig.sdk.json|],
+      return $ Root.mkTmplFd [relfile|copy-assets.js|],
       genPackageJson spec
     ]
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
-  return $ makeSdkProjectTmplFdWithData RootProject [relfile|package.json|] tmplData
+  return $ Root.mkTmplFdWithData [relfile|package.json|] (Just tmplData)
   where
     tmplData =
       object
@@ -168,8 +168,7 @@ genEntitiesAndServerTypesDirs spec =
     ]
   where
     entitiesIndexFileDraft =
-      makeSdkProjectTmplFdWithData
-        UserCoreProject
+      UserCore.mkTmplFdWithData
         [relfile|entities/index.ts|]
         ( object
             [ "entities" .= allEntities,
@@ -179,13 +178,11 @@ genEntitiesAndServerTypesDirs spec =
             ]
         )
     taggedEntitiesFileDraft =
-      makeSdkProjectTmplFdWithData
-        UserCoreProject
+      UserCore.mkTmplFdWithData
         [relfile|server/_types/taggedEntities.ts|]
         (object ["entities" .= allEntities])
     typesIndexFileDraft =
-      makeSdkProjectTmplFdWithData
-        UserCoreProject
+      UserCore.mkTmplFdWithData
         [relfile|server/_types/index.ts|]
         ( object
             [ "entities" .= allEntities,
@@ -250,7 +247,7 @@ depsRequiredForTesting =
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+  return $ UserCore.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = [relfile|client/config.ts|]
     tmplData =
@@ -261,8 +258,8 @@ genClientConfigFile =
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [ makeSdkProjectTmplFd UserCoreProject [relfile|core/serialization/custom-register.ts|],
-      makeSdkProjectTmplFdWithData UserCoreProject [relfile|core/serialization/index.ts|] tmplData
+    [ UserCore.mkTmplFd [relfile|core/serialization/custom-register.ts|],
+      UserCore.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
     ]
       ++ maybeToList prismaSerializationFile
   where
@@ -272,13 +269,13 @@ genCoreSerializationDir spec =
         ]
 
     prismaSerializationFile
-      | entitiesExist = Just $ makeSdkProjectTmplFd UserCoreProject [relfile|core/serialization/prisma.ts|]
+      | entitiesExist = Just $ UserCore.mkTmplFd [relfile|core/serialization/prisma.ts|]
       | otherwise = Nothing
 
     entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+genServerConfigFile spec = return $ UserCore.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = [relfile|server/config.ts|]
     tmplData =
@@ -339,28 +336,28 @@ genExternalFile file
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ makeSdkProjectTmplFd UserCoreProject [relfile|universal/url.ts|],
-      makeSdkProjectTmplFd UserCoreProject [relfile|universal/types.ts|],
-      makeSdkProjectTmplFd UserCoreProject [relfile|universal/validators.ts|],
-      makeSdkProjectTmplFd UserCoreProject [relfile|universal/predicates.ts|],
-      makeSdkProjectTmplFd UserCoreProject [relfile|universal/ansiColors.ts|]
+    [ UserCore.mkTmplFd [relfile|universal/url.ts|],
+      UserCore.mkTmplFd [relfile|universal/types.ts|],
+      UserCore.mkTmplFd [relfile|universal/validators.ts|],
+      UserCore.mkTmplFd [relfile|universal/predicates.ts|],
+      UserCore.mkTmplFd [relfile|universal/ansiColors.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject [relfile|server/utils.ts|] tmplData
+  return $ UserCore.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
 genServerExportedTypesDir :: Generator [FileDraft]
 genServerExportedTypesDir =
-  return [makeSdkProjectTmplFd UserCoreProject [relfile|server/types/index.ts|]]
+  return [UserCore.mkTmplFd [relfile|server/types/index.ts|]]
 
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ return $ makeSdkProjectTmplFd UserCoreProject [relfile|server/middleware/index.ts|],
-      return $ makeSdkProjectTmplFd UserCoreProject [relfile|server/middleware/globalMiddleware.ts|]
+    [ return $ UserCore.mkTmplFd [relfile|server/middleware/index.ts|],
+      return $ UserCore.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
 genServerDbClient :: AppSpec -> Generator FileDraft
@@ -373,8 +370,7 @@ genServerDbClient spec = do
           ]
 
   return $
-    makeSdkProjectTmplFdWithData
-      UserCoreProject
+    UserCore.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
   where
@@ -382,7 +378,7 @@ genServerDbClient spec = do
 
 genDevIndex :: Generator FileDraft
 genDevIndex =
-  return $ makeSdkProjectTmplFdWithData UserCoreProject [relfile|dev/index.ts|] tmplData
+  return $ UserCore.mkTmplFdWithData [relfile|dev/index.ts|] tmplData
   where
     tmplData = object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir]
     waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)

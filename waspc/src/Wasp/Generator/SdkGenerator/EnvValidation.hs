@@ -17,12 +17,11 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkProject (..),
-    clientTemplatesDirInSdkTemplatesProjectDir,
-    makeSdkProjectTmplFd,
-    makeSdkProjectTmplFdWithData,
-    serverTemplatesDirInSdkTemplatesProjectDir,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( clientTemplatesDirInUserCoreTemplatesDir,
+    mkTmplFd,
+    mkTmplFdWithData,
+    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
@@ -40,8 +39,8 @@ genEnvValidation spec =
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
   return
-    [ makeSdkProjectTmplFd UserCoreProject [relfile|env/index.ts|],
-      makeSdkProjectTmplFd UserCoreProject [relfile|env/validation.ts|]
+    [ mkTmplFd [relfile|env/index.ts|],
+      mkTmplFd [relfile|env/validation.ts|]
     ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
@@ -58,9 +57,9 @@ genClientEnvFiles spec =
     ]
 
 genServerEnv :: AppSpec -> Generator FileDraft
-genServerEnv spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFile tmplData
+genServerEnv spec = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverTemplatesDirInSdkTemplatesProjectDir </> [relfile|env.ts|]
+    tmplFile = serverTemplatesDirInUserCoreTemplatesDir </> [relfile|env.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
@@ -83,14 +82,14 @@ genServerEnv spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplFi
 
 genClientEnv :: Generator FileDraft
 genClientEnv =
-  return $ makeSdkProjectTmplFd UserCoreProject tmplFile
+  return $ mkTmplFd tmplFile
   where
-    tmplFile = clientTemplatesDirInSdkTemplatesProjectDir </> [relfile|env.ts|]
+    tmplFile = clientTemplatesDirInUserCoreTemplatesDir </> [relfile|env.ts|]
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
-genClientEnvSchema spec = return $ makeSdkProjectTmplFdWithData UserCoreProject tmplPath tmplData
+genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = clientTemplatesDirInSdkTemplatesProjectDir </> [relfile|env/schema.ts|]
+    tmplPath = clientTemplatesDirInUserCoreTemplatesDir </> [relfile|env/schema.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
