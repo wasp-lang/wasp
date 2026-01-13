@@ -718,27 +718,34 @@
             "file",
             "web-app/tsconfig.vite.json"
         ],
-        "d73bf64453727c005983dea11c1b38ab9db2f6b4e7b5c266f731835d4bf8eb37"
+        "307b41777cad893c8a879de0eb74ef19dd50263c4bc5ae6aed161e5a0e84b42e"
     ],
     [
         [
             "file",
             "web-app/vite.config.ts"
         ],
-        "0771ae124347aaa7f22ccdf35bd3e3b4ff8faa41f27efc67f8e171c86ed9bce5"
+        "606e33a52e89474659827c243d68d8b94ce4c4c96705475026976594ba7333f0"
     ],
     [
         [
             "file",
-            "web-app/vite/detectServerImports.ts"
+            "web-app/vite/plugins/detectServerImports.ts"
         ],
         "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
     ],
     [
         [
             "file",
-            "web-app/vite/validateEnv.ts"
+            "web-app/vite/plugins/validateEnv.ts"
         ],
         "956bb762df6ac7a2bb493dfa335c5fbd9c53be082e709eaa8a0873a75f143784"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite/wasp.ts"
+        ],
+        "ef44ec1a0c2f269bad2c08c81c66f392ac4faa51cdebcbc80a5bb7ef97555bf9"
     ]
 ]

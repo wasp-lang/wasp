@@ -9,7 +9,6 @@
   },
   "include": [
     "vite.config.ts",
-    "vite/detectServerImports.ts",
-    "vite/validateEnv.ts",
+    "vite/**/*",
   ]
 }

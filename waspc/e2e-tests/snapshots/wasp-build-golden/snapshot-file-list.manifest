@@ -333,8 +333,9 @@ wasp-app/.wasp/build/web-app/tsconfig.app.json
 wasp-app/.wasp/build/web-app/tsconfig.json
 wasp-app/.wasp/build/web-app/tsconfig.vite.json
 wasp-app/.wasp/build/web-app/vite.config.ts
-wasp-app/.wasp/build/web-app/vite/detectServerImports.ts
-wasp-app/.wasp/build/web-app/vite/validateEnv.ts
+wasp-app/.wasp/build/web-app/vite/plugins/detectServerImports.ts
+wasp-app/.wasp/build/web-app/vite/plugins/validateEnv.ts
+wasp-app/.wasp/build/web-app/vite/wasp.ts
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
