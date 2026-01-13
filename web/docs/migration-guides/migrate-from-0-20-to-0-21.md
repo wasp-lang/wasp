@@ -85,7 +85,7 @@ wasp ts-setup # if you're using the TS Spec
 wasp compile
 ```
 
-### 23 Upgrade Tailwind CSS to v4
+### 3. Upgrade Tailwind CSS to v4
 
 **If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
 
