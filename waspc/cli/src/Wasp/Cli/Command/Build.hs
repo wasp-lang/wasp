@@ -78,7 +78,8 @@ build = do
     Right () -> return ()
 
   cliSendMessageC $
-    Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/out directory."
+    Msg.Success $
+      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir relBuildDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
