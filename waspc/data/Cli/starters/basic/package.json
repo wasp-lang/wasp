@@ -1,7 +1,8 @@
 {
   "name": "__waspAppName__",
   "type": "module",
-  "workspaces": [".wasp/out/*"
+  "workspaces": [
+    ".wasp/out/*"
   ],
   "dependencies": {
     "react": "^19.2.1",
