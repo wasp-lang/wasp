@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (isJust)
-import StrongPath (relfile, (</>))
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -18,10 +18,8 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( clientTemplatesDirInUserCoreTemplatesDir,
-    mkTmplFd,
+  ( mkTmplFd,
     mkTmplFdWithData,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
@@ -59,7 +57,7 @@ genClientEnvFiles spec =
 genServerEnv :: AppSpec -> Generator FileDraft
 genServerEnv spec = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverTemplatesDirInUserCoreTemplatesDir </> [relfile|env.ts|]
+    tmplFile = [relfile|server/env.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
@@ -84,12 +82,12 @@ genClientEnv :: Generator FileDraft
 genClientEnv =
   return $ mkTmplFd tmplFile
   where
-    tmplFile = clientTemplatesDirInUserCoreTemplatesDir </> [relfile|env.ts|]
+    tmplFile = [relfile|client/env.ts|]
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
 genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = clientTemplatesDirInUserCoreTemplatesDir </> [relfile|env/schema.ts|]
+    tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,

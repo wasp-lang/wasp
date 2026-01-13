@@ -31,7 +31,6 @@ import Wasp.Generator.SdkGenerator.UserCore.Common
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDestAndData,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
@@ -140,7 +139,7 @@ depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
 serverJobsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-serverJobsDirInUserCoreTemplatesDir = serverTemplatesDirInUserCoreTemplatesDir </> [reldir|jobs|]
+serverJobsDirInUserCoreTemplatesDir = [reldir|server/jobs|]
 
 genServerJobFileCopy :: Path' Rel' File' -> Generator FileDraft
 genServerJobFileCopy =

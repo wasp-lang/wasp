@@ -15,7 +15,6 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFdWithData,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 
 genNewServerCrudApi :: AppSpec -> Generator [FileDraft]
@@ -39,4 +38,4 @@ genCrudIndex spec cruds =
         idField = getIdFieldFromCrudEntity spec crud
 
 serverCurdDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-serverCurdDirInUserCoreTemplatesDir = serverTemplatesDirInUserCoreTemplatesDir </> [reldir|crud|]
+serverCurdDirInUserCoreTemplatesDir = [reldir|server/crud|]

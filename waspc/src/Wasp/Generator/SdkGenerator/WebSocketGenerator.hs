@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Char (toLower)
-import StrongPath (relfile, (</>))
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -17,10 +17,8 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( clientTemplatesDirInUserCoreTemplatesDir,
-    mkTmplFd,
+  ( mkTmplFd,
     mkTmplFdWithData,
-    serverTemplatesDirInUserCoreTemplatesDir,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
@@ -39,7 +37,7 @@ genServerIndex :: AppSpec -> Generator FileDraft
 genServerIndex spec =
   return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverTemplatesDirInUserCoreTemplatesDir </> [relfile|webSocket/index.ts|]
+    tmplFile = [relfile|server/webSocket/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -53,13 +51,13 @@ genClientIndex :: Generator FileDraft
 genClientIndex =
   return $ mkTmplFd tempFile
   where
-    tempFile = clientTemplatesDirInUserCoreTemplatesDir </> [relfile|webSocket/index.ts|]
+    tempFile = [relfile|client/webSocket/index.ts|]
 
 genClientWebSocketProvider :: AppSpec -> Generator FileDraft
 genClientWebSocketProvider spec =
   return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = clientTemplatesDirInUserCoreTemplatesDir </> [relfile|webSocket/WebSocketProvider.tsx|]
+    tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
