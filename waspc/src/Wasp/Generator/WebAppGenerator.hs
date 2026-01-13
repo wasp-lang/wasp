@@ -43,12 +43,10 @@ import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (webAppPackageName)
-import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.WebAppGenerator.Vite (genVite)
-import qualified Wasp.Generator.WebSocket as AS.WS
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common
   ( SrcTsConfigFile,
@@ -217,18 +215,10 @@ genIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ genFileCopy [relfile|logo.png|],
-      genFileCopy [relfile|utils.js|],
-      genFileCopy [relfile|vite-env.d.ts|],
+    [ genFileCopy [relfile|vite-env.d.ts|],
       genFileCopy [relfile|test/vitest/setup.ts|],
-      genFileCopy [relfile|components/Message.tsx|],
-      genFileCopy [relfile|components/Loader.tsx|],
-      genFileCopy [relfile|components/Loader.module.css|],
-      genFileCopy [relfile|components/FullPageWrapper.tsx|],
-      genFileCopy [relfile|components/DefaultRootErrorBoundary.tsx|],
       getIndexTs spec
     ]
-    <++> genAuth spec
     <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
@@ -242,11 +232,12 @@ getIndexTs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
-              "areWebSocketsUsed" .= AS.WS.areWebSocketsUsed spec
+              "rootComponent" .= extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]

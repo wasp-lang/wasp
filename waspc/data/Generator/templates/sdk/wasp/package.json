@@ -121,6 +121,8 @@
       "./env/validation": "./dist/env/validation.js",
       {=! Private: [client, sdk] =}
       "./client/env/schema": "./dist/client/env/schema.js",
+      {=! Private: [client] =}
+      "./client/app": "./dist/client/app/index.jsx",
 
       {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
       {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}

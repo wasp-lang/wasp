@@ -6,36 +6,27 @@ module Wasp.Generator.WebAppGenerator.RouterGenerator
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import qualified Data.Aeson as Aeson
 import Data.List (find)
 import Data.Maybe (fromMaybe)
 import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
-import qualified StrongPath as SP
 import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToJsImport)
 import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
     _pagesToImport :: ![PageTemplateData],
-    _isAuthEnabled :: Bool,
-    _isExternalAuthEnabled :: Bool,
-    _rootComponent :: Aeson.Value,
-    _baseDir :: String
+    _isAuthEnabled :: Bool
   }
 
 instance ToJSON RouterTemplateData where
@@ -43,11 +34,7 @@ instance ToJSON RouterTemplateData where
     object
       [ "routes" .= _routes routerTD,
         "pagesToImport" .= _pagesToImport routerTD,
-        "isAuthEnabled" .= _isAuthEnabled routerTD,
-        "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
-        "rootComponent" .= _rootComponent routerTD,
-        "baseDir" .= _baseDir routerTD,
-        "oAuthCallbackPath" .= clientOAuthCallbackPath
+        "isAuthEnabled" .= _isAuthEnabled routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -96,16 +83,11 @@ createRouterTemplateData spec =
   RouterTemplateData
     { _routes = routes,
       _pagesToImport = pages,
-      _isAuthEnabled = isAuthEnabled spec,
-      _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
-      _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent,
-      _baseDir = SP.fromAbsDirP $ C.getBaseDir spec
+      _isAuthEnabled = isAuthEnabled spec
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
     pages = map createPageTemplateData $ AS.getPages spec
-    maybeAuth = AS.App.auth $ snd $ getApp spec
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(name, _) =

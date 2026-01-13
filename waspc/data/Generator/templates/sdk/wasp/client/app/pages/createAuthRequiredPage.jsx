@@ -2,13 +2,13 @@
 import React from 'react'
 
 import { Navigate } from 'react-router-dom'
-import { useAuth } from 'wasp/client/auth'
+import { useAuth } from '../../auth'
 
-import { Loader } from '../../components/Loader'
-import { MessageError } from '../../components/Message'
-import { FullPageWrapper } from '../../components/FullPageWrapper'
+import { Loader } from '../components/Loader'
+import { MessageError } from '../components/Message'
+import { FullPageWrapper } from '../components/FullPageWrapper'
 
-const createAuthRequiredPage = (Page) => {
+export const createAuthRequiredPage = (Page) => {
   return (props) => {
     const { data: user, status, error } = useAuth()
 
@@ -36,5 +36,3 @@ const createAuthRequiredPage = (Page) => {
     }
   }
 }
-
-export default createAuthRequiredPage

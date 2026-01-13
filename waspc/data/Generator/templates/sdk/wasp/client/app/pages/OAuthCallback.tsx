@@ -2,12 +2,12 @@
 import { useState } from "react";
 import { type AxiosResponse } from "axios";
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from 'wasp/client/auth'
-import { api } from 'wasp/client/api'
-import { initSession } from 'wasp/auth/helpers/user'
-import { useEffectOnce } from 'wasp/client/hooks'
-import { MessageLoading, MessageError } from "../../components/Message";
-import { FullPageWrapper } from "../../components/FullPageWrapper";
+import { useAuth } from "../../auth";
+import { api } from "../../../api";
+import { initSession } from "../../../auth/helpers/user";
+import { useEffectOnce } from "../../hooks";
+import { MessageLoading, MessageError } from "../components/Message";
+import { FullPageWrapper } from "../components/FullPageWrapper";
 
 const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 
@@ -89,5 +89,5 @@ async function exchangeOAuthCodeForToken(data: {
 function isResponseWithSessionId(
   response: AxiosResponse<unknown>
 ): response is AxiosResponse<{ sessionId: string }> {
-  return response.data && typeof (response.data as any).sessionId === 'string'
+  return typeof response.data === 'object' && typeof (response.data as any).sessionId === 'string'
 }

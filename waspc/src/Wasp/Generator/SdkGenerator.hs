@@ -50,6 +50,7 @@ import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
+import Wasp.Generator.SdkGenerator.Client.AppG (genClientApp)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
@@ -138,6 +139,7 @@ genSdk spec =
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
+    <++> genClientApp spec
   where
     genFileCopy = return . C.mkTmplFd
 
