@@ -53,7 +53,6 @@ genUserCoreTsconfigProject spec =
       return $ mkTmplFd [relfile|prisma-runtime-library.d.ts|],
       return $ mkTmplFd [relfile|api/index.ts|],
       return $ mkTmplFd [relfile|api/events.ts|],
-      return $ mkTmplFd [relfile|core/storage.ts|],
       return $ mkTmplFd [relfile|server/index.ts|],
       return $ mkTmplFd [relfile|client/test/vitest/helpers.tsx|],
       return $ mkTmplFd [relfile|client/test/index.ts|],
@@ -68,7 +67,6 @@ genUserCoreTsconfigProject spec =
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
-    <++> genUniversalDir
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec
@@ -137,16 +135,6 @@ genDevIndex =
   where
     tmplData = object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir]
     waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
-
-genUniversalDir :: Generator [FileDraft]
-genUniversalDir =
-  return
-    [ mkTmplFd [relfile|universal/url.ts|],
-      mkTmplFd [relfile|universal/types.ts|],
-      mkTmplFd [relfile|universal/validators.ts|],
-      mkTmplFd [relfile|universal/predicates.ts|],
-      mkTmplFd [relfile|universal/ansiColors.ts|]
-    ]
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =

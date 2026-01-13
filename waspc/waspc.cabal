@@ -318,6 +318,8 @@ library
     Wasp.Generator.SdkGenerator.JsImport
     Wasp.Generator.SdkGenerator.Core
     Wasp.Generator.SdkGenerator.Core.Common
+    Wasp.Generator.SdkGenerator.Core.UniversalG
+    Wasp.Generator.SdkGenerator.Core.CoreG
     Wasp.Generator.SdkGenerator.Root
     Wasp.Generator.SdkGenerator.Root.Common
     Wasp.Generator.SdkGenerator.UserCore

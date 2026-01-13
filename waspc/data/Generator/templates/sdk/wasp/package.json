@@ -52,13 +52,13 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./operations/*": "./dist/user-core/operations/*",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/url": "./dist/user-core/universal/url.js",
+    "./universal/url": "./dist/core/universal/url.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/types": "./dist/user-core/universal/types.js",
+    "./universal/types": "./dist/core/universal/types.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/validators": "./dist/user-core/universal/validators.js",
+    "./universal/validators": "./dist/core/universal/validators.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/ansiColors": "./dist/user-core/universal/ansiColors.js",
+    "./universal/ansiColors": "./dist/core/universal/ansiColors.js",
     {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
     "./server/utils": "./dist/user-core/server/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}

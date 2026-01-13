@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { stripTrailingSlash } from '../universal/url.js'
+import { stripTrailingSlash } from '../../core/universal/url.js'
 import { env } from './env.js'
 
 const apiUrl = stripTrailingSlash(env["{= serverUrlEnvVarName =}"])
