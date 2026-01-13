@@ -13,6 +13,8 @@ import Wasp.Generator.SdkGenerator.Common
     sdkTemplatesDirInTemplatesDir,
   )
 
+-- | Directory of the SDK root tsconfig project.
+-- References all other SDK tsconfig projects.
 data RootTemplatesDir
 
 mkTmplFd ::
