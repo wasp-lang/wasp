@@ -18,12 +18,12 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     relDirToRelFileP,
   )
+import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)

@@ -16,11 +16,11 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( mkTmplFd,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
