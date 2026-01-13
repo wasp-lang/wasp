@@ -57,11 +57,10 @@ import Wasp.Generator.SdkGenerator.Common
     sdkRootDirInProjectRootDir,
   )
 import qualified Wasp.Generator.SdkGenerator.Core.Common as Core
-import qualified Wasp.Generator.SdkGenerator.Root.Common as Root
-import qualified Wasp.Generator.SdkGenerator.UserCore.Common as UserCore
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.Generator.SdkGenerator.Root.Common as Root
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -69,6 +68,7 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator (depsRequiredByJobs, genN
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
+import qualified Wasp.Generator.SdkGenerator.UserCore.Common as UserCore
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG

@@ -15,10 +15,10 @@ import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity, isAuthEnabled)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( mkTmplFdWithDestAndData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
 genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =

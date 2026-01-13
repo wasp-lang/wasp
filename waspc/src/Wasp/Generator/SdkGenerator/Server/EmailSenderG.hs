@@ -16,12 +16,12 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
-import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
 
 genNewEmailSenderApi :: AppSpec -> Generator [FileDraft]

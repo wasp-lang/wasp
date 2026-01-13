@@ -25,11 +25,11 @@ import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     getOperationTypeName,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
 
 genOperations :: AppSpec -> Generator [FileDraft]
