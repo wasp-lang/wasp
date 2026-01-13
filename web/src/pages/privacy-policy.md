@@ -8,7 +8,7 @@ hide_table_of_contents: true
 
 **Wasp Inc.**
 
-*Last updated: 2026-01-09*
+*Last updated: 2026-01-13*
 
 Wasp Inc. ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website (https://wasp.sh).
 
@@ -29,18 +29,15 @@ Wasp Inc. collects the following types of personal data:
 
 You directly provide Wasp Inc. with most of the data we collect. We collect data and process data when you:
 
-- Cookies and similar tracking technologies when you visit our website
-
+- Use or view our website via your browser's cookies.
 
 ## How Will We Use Your Data?
 
 Wasp Inc. collects your data so that we can:
 
 - Analyze website traffic
-- improve our website
-- understand how visitors use our site
-
-
+- Improve our website
+- Understand how visitors use our site
 
 ## Third-Party Services
 
@@ -64,7 +61,7 @@ Wasp Inc. securely stores your data using industry-standard security measures.
 We implement the following security measures to protect your data:
 
 - SSL/TLS encryption
-- secure cloud infrastructure
+- Secure cloud infrastructure
 
 ### Data Retention
 
@@ -113,7 +110,6 @@ Wasp Inc. uses cookies in a range of ways to improve your experience on our webs
 - **Functional cookies:** Keeping you signed in and remembering your preferences
 - **Analytics cookies:** Understanding how you use our website to improve our services
 
-
 ### Managing Cookies
 
 You can set your browser not to accept cookies, and the website [allaboutcookies.org](https://allaboutcookies.org) tells you how to remove cookies from your browser. However, in a few cases, some of our website features may not function as a result.
@@ -124,7 +120,7 @@ Our website may contain links to other websites. Our privacy policy applies only
 
 ## Changes to Our Privacy Policy
 
-Wasp Inc. keeps its privacy policy under regular review and places any updates on this web page. This privacy policy was last updated on 2026-01-09.
+Wasp Inc. keeps its privacy policy under regular review and places any updates on this web page. This privacy policy was last updated on 2026-01-13.
 
 ## How to Contact Us
 
@@ -133,8 +129,6 @@ If you have any questions about Wasp Inc.'s privacy policy, the data we hold on 
 - **Email:** info@wasp-lang.dev
 
 - **Address:** 2261 Market Street, San Francisco, CA 94114
-
-
 
 ## How to Contact the Appropriate Authority
 
