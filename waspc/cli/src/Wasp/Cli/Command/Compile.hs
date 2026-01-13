@@ -55,7 +55,8 @@ compileWithOptions options = do
           </> generatedCodeDirInDotWaspDir
 
   isCleanBuildNeeded <-
-    liftIO $ WaspInfo.checkIfCleanBuildNeeded outDir $ buildType options
+    liftIO $
+      buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
 
   doesOutDirExist <- liftIO $ doesDirectoryExist outDir
 

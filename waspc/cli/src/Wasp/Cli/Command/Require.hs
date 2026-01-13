@@ -112,7 +112,7 @@ data GeneratedCodeIsDevelopment = GeneratedCodeIsDevelopment deriving (Typeable)
 
 instance Requirable GeneratedCodeIsDevelopment where
   checkRequirement =
-    compareBuildTypeToGeneratedCode BuildType.Development >>= \case
+    isBuildTypeCompatibleWithGeneratedCode BuildType.Development >>= \case
       True -> return GeneratedCodeIsDevelopment
       False ->
         throwError $
@@ -124,7 +124,7 @@ data GeneratedCodeIsProduction = GeneratedCodeIsProduction deriving (Typeable)
 
 instance Requirable GeneratedCodeIsProduction where
   checkRequirement =
-    compareBuildTypeToGeneratedCode BuildType.Production >>= \case
+    isBuildTypeCompatibleWithGeneratedCode BuildType.Production >>= \case
       True -> return GeneratedCodeIsProduction
       False ->
         throwError $
@@ -132,8 +132,8 @@ instance Requirable GeneratedCodeIsProduction where
             "Built app does not exist"
             "You can build the app with the `wasp build` command."
 
-compareBuildTypeToGeneratedCode :: BuildType.BuildType -> Command Bool
-compareBuildTypeToGeneratedCode expectedBuildType = do
+isBuildTypeCompatibleWithGeneratedCode :: BuildType.BuildType -> Command Bool
+isBuildTypeCompatibleWithGeneratedCode expectedBuildType = do
   InWaspProject waspProjectDir <- require
 
   let generatedCodeDir =
@@ -141,10 +141,5 @@ compareBuildTypeToGeneratedCode expectedBuildType = do
           SP.</> Project.Common.dotWaspDirInWaspProjectDir
           SP.</> Project.Common.generatedCodeDirInDotWaspDir
 
-  cleanBuildNeeded <-
-    liftIO $
-      WaspInfo.checkIfCleanBuildNeeded
-        generatedCodeDir
-        expectedBuildType
-
-  return $ not cleanBuildNeeded
+  liftIO $
+    expectedBuildType `WaspInfo.isCompatibleWithExistingBuildAt` generatedCodeDir
