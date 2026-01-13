@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
+module Wasp.Generator.SdkGenerator.UserCore.Server.OperationsGenerator
   ( serverOperationsDirInSdkRootDir,
     genOperations,
   )

@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.AuthG
+module Wasp.Generator.SdkGenerator.UserCore.AuthG
   ( genAuth,
     authDirInUserCoreTemplatesDir,
   )
@@ -15,17 +15,17 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.AuthFormsG (genAuthForms)
-import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
-import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
-import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
+import Wasp.Generator.SdkGenerator.UserCore.Auth.AuthFormsG (genAuthForms)
+import Wasp.Generator.SdkGenerator.UserCore.Auth.EmailAuthG (genEmailAuth)
+import Wasp.Generator.SdkGenerator.UserCore.Auth.LocalAuthG (genLocalAuth)
+import Wasp.Generator.SdkGenerator.UserCore.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.UserCore.Server.OAuthG (genOAuth)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util

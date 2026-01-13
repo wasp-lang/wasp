@@ -24,7 +24,7 @@ import qualified Wasp.AppSpec.Job as J
 import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Server.JobGenerator
+import Wasp.Generator.SdkGenerator.UserCore.Server.JobGenerator
   ( getImportJsonForJobDefinition,
     getJobExecutorImportPath,
   )

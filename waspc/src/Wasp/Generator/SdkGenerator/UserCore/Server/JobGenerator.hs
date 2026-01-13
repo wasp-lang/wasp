@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Server.JobGenerator
+module Wasp.Generator.SdkGenerator.UserCore.Server.JobGenerator
   ( genNewJobsApi,
     genJobExecutors,
     depsRequiredByJobs,

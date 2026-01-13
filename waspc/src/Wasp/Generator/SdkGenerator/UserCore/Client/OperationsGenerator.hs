@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Client.OperationsGenerator (genOperations) where
+module Wasp.Generator.SdkGenerator.UserCore.Client.OperationsGenerator (genOperations) where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
@@ -18,12 +18,12 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     relDirToRelFileP,
   )
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.UserCore.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)

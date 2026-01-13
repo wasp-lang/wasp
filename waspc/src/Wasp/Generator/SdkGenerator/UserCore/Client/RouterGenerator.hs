@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Client.RouterGenerator
+module Wasp.Generator.SdkGenerator.UserCore.Client.RouterGenerator
   ( genNewClientRouterApi,
   )
 where

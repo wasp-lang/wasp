@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
+module Wasp.Generator.SdkGenerator.UserCore.Auth.OAuthAuthG
   ( genOAuthAuth,
   )
 where

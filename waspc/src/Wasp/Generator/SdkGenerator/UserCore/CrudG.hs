@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.CrudG
+module Wasp.Generator.SdkGenerator.UserCore.CrudG
   ( genCrud,
   )
 where
