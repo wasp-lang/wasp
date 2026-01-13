@@ -10,11 +10,11 @@ import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
 {=/ areWebSocketsUsed =}
 
 export type WaspAppInput = {
-  AppComponent?: React.ComponentType;
+  RootComponent?: React.ComponentType;
   routesMapping: Record<string, React.ComponentType>;
 }
 
-export function WaspApp({ AppComponent, routesMapping }: Required<WaspAppInput>) {
+export function WaspApp({ RootComponent, routesMapping }: Required<WaspAppInput>) {
   const [queryClient, setQueryClient] = React.useState<any>(null)
 
   React.useEffect(() => {
@@ -26,7 +26,7 @@ export function WaspApp({ AppComponent, routesMapping }: Required<WaspAppInput>)
   }
 
   const router = getRouter({
-    AppComponent,
+    RootComponent,
     routesMapping,
   })
 

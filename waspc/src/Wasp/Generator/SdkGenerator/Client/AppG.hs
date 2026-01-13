@@ -30,11 +30,9 @@ genClientApp spec =
     <++> genRouter spec
     <++> genAuthPages spec
 
--- | Generates the main app index file that exports getWaspApp
 genAppIndex :: Generator FileDraft
 genAppIndex = return $ genFileCopy [relfile|client/app/index.tsx|]
 
--- | Generates the WaspApp component with QueryClientProvider and optional WebSocket
 genWaspAppComponent :: AppSpec -> Generator FileDraft
 genWaspAppComponent spec =
   return $
@@ -42,7 +40,6 @@ genWaspAppComponent spec =
       [relfile|client/app/components/WaspApp.tsx|]
       (object ["areWebSocketsUsed" .= WS.areWebSocketsUsed spec])
 
--- | Generates static UI components used by the app
 genAppComponents :: Generator [FileDraft]
 genAppComponents =
   return $
@@ -55,7 +52,6 @@ genAppComponents =
         [relfile|client/app/components/Message.tsx|]
       ]
 
--- | Generates the router with OAuth callback route if external auth is enabled
 genRouter :: AppSpec -> Generator [FileDraft]
 genRouter spec =
   sequence
@@ -73,7 +69,6 @@ genRouter spec =
     maybeAuth = AS.App.auth $ snd $ getApp spec
     isExternalAuthEnabled = maybe False AS.Auth.isExternalAuthEnabled maybeAuth
 
--- | Generates auth-related pages (only if auth is enabled)
 genAuthPages :: AppSpec -> Generator [FileDraft]
 genAuthPages spec =
   case maybeAuth of
@@ -85,7 +80,6 @@ genAuthPages spec =
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
--- | Generates the HOC for auth-protected pages
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
 genCreateAuthRequiredPage auth =
   return $
@@ -93,7 +87,6 @@ genCreateAuthRequiredPage auth =
       [relfile|client/app/pages/createAuthRequiredPage.jsx|]
       (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
 
--- | Generates the OAuth callback page
 genOAuthCallbackPage :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCallbackPage auth =
   return $

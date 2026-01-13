@@ -12,10 +12,10 @@ import { routes } from '../../router/index'
 
 export function getRouter({
   routesMapping,
-  AppComponent,
+  RootComponent,
 }: {
   routesMapping: Record<string, React.ComponentType>,
-  AppComponent: React.ComponentType,
+  RootComponent: React.ComponentType,
 }) {
   const waspDefinedRoutes = [
     {=# isExternalAuthEnabled =}
@@ -34,7 +34,7 @@ export function getRouter({
 
   const browserRouter = createBrowserRouter([{
     path: '/',
-    element: <AppComponent />,
+    element: <RootComponent />,
     ErrorBoundary: DefaultRootErrorBoundary,
     children: [
       ...waspDefinedRoutes,

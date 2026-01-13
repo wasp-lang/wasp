@@ -12,14 +12,13 @@ import { routesMapping } from "./router";
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
 
-// TODO: see if this needs to be passed into the `getWaspApp` because of the `await`
 {=# setupFn.isDefined =}
 await {= setupFn.importIdentifier =}()
 {=/ setupFn.isDefined =}
 
 const app = getWaspApp({
   {=# rootComponent.isDefined =}
-  AppComponent: {= rootComponent.importIdentifier =},
+  RootComponent: {= rootComponent.importIdentifier =},
   {=/ rootComponent.isDefined =}
   routesMapping,
 });

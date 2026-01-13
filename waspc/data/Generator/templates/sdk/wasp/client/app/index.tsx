@@ -2,13 +2,13 @@ import { Outlet } from 'react-router-dom'
 import { initializeQueryClient } from '../operations'
 import { WaspApp, type WaspAppInput } from './components/WaspApp'
 
-const DefaultAppComponent = () => <Outlet />
+const DefaultRootComponent = () => <Outlet />
 
 let isAppInitialized = false
 
 // PRIVATE API (web-app)
 export function getWaspApp({
-  AppComponent = DefaultAppComponent,
+  RootComponent = DefaultRootComponent,
   routesMapping,
 }: WaspAppInput): React.ReactNode {
   if (!isAppInitialized) {
@@ -16,7 +16,7 @@ export function getWaspApp({
     isAppInitialized = true
   }
 
-  return <WaspApp AppComponent={AppComponent} routesMapping={routesMapping} />
+  return <WaspApp RootComponent={RootComponent} routesMapping={routesMapping} />
 }
 
 // PRIVATE API (web-app)
