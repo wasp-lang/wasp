@@ -13,6 +13,8 @@ import Wasp.Generator.SdkGenerator.Common
     sdkTemplatesDirInTemplatesDir,
   )
 
+-- | Directory of the SDK core tsconfig project.
+-- It contains all logic not dependent on the user's project.
 data CoreTemplatesDir
 
 coreTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir CoreTemplatesDir)

@@ -155,6 +155,4 @@ authFormsDirInUserCoreTemplatesDir = [reldir|auth/forms|]
 
 genAuthFormsFileCopy :: Path' Rel' File' -> Generator FileDraft
 genAuthFormsFileCopy =
-  return
-    . mkTmplFd
-    . (authFormsDirInUserCoreTemplatesDir </>)
+  return . mkTmplFd . (authFormsDirInUserCoreTemplatesDir </>)

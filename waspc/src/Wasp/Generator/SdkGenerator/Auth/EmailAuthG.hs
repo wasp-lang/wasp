@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.EmailAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (emailAuthProvider)
@@ -18,12 +18,12 @@ import Wasp.Generator.AuthProviders.Email
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( UserCoreTemplatesDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -31,16 +31,11 @@ genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
   | AS.Auth.isEmailAuthEnabled auth =
       sequence
-        [ genIndex,
+        [ genEmailAuthDirFileCopy [relfile|index.ts|],
           genServerUtils auth
         ]
         <++> genActions auth
   | otherwise = return []
-
-genIndex :: Generator FileDraft
-genIndex = return $ mkTmplFd tmplFile
-  where
-    tmplFile = emailAuthDirInUserCoreTemplatesDir </> [relfile|index.ts|]
 
 genServerUtils :: AS.Auth.Auth -> Generator FileDraft
 genServerUtils auth =
@@ -106,3 +101,7 @@ genVerifyEmailAction =
 
 emailAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
 emailAuthDirInUserCoreTemplatesDir = [reldir|auth/email|]
+
+genEmailAuthDirFileCopy :: Path' Rel' File' -> Generator FileDraft
+genEmailAuthDirFileCopy =
+  return . mkTmplFd . (emailAuthDirInUserCoreTemplatesDir </>)
