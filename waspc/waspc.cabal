@@ -41,7 +41,6 @@ data-files:
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
-  Generator/templates/**/*.png
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
