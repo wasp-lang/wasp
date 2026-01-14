@@ -73,7 +73,7 @@ showWaspInfo waspInfo =
   intercalate
     ", "
     [ unwords [show $ buildType waspInfo, "build"],
-      unwords ["generated on", show $ generatedAt waspInfo],
+      unwords ["generated at", show $ generatedAt waspInfo],
       unwords ["by Wasp", waspVersion waspInfo]
     ]
     ++ "."
