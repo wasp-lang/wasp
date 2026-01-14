@@ -59,6 +59,6 @@ makeWorkspaceNotIncludedValidator forbiddenWorkspace =
   where
     forbiddenWorkspaceError =
       V.failure $
-        "Wasp requires "
+        "Wasp doesn't allow workspace "
           ++ show forbiddenWorkspace
-          ++ " not to be included."
+          ++ " to be included."
