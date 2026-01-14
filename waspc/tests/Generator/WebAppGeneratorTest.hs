@@ -108,15 +108,9 @@ spec_WebAppGenerator = do
               concat
                 [ [ "README.md",
                     "package.json",
-                    ".gitignore",
-                    "index.html"
+                    ".gitignore"
                   ],
-                  ["public" </> "manifest.json"],
-                  map
-                    (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
-                    [ "index.tsx",
-                      "router.tsx"
-                    ]
+                  ["public" </> "manifest.json"]
                 ]
 
       mapM_
