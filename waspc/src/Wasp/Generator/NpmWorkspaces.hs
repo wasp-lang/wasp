@@ -10,11 +10,9 @@ import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
-import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
-    buildDirInDotWaspDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
   )
@@ -26,9 +24,8 @@ import Wasp.Project.Common
 requiredWorkspaceGlobs :: Set String
 requiredWorkspaceGlobs =
   fromList
-    [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
-      makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
-      -- TODO: Add SDK as a workspace (#3233)
+    [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+    -- TODO: Add SDK as a workspace (#3233)
     ]
   where
     makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> String
@@ -44,15 +41,11 @@ requiredWorkspaceGlobs =
           ++ show inputDir
           ++ ")"
 
-serverPackageName :: AS.AppSpec -> String
+serverPackageName :: String
 serverPackageName = workspacePackageName "server"
 
-webAppPackageName :: AS.AppSpec -> String
+webAppPackageName :: String
 webAppPackageName = workspacePackageName "webapp"
 
-workspacePackageName :: String -> AS.AppSpec -> String
-workspacePackageName baseName spec = "@wasp.sh/generated-" ++ baseName ++ "-" ++ modeName
-  where
-    modeName
-      | AS.isProduction spec = "build"
-      | otherwise = "dev"
+workspacePackageName :: String -> String
+workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName

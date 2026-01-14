@@ -1,7 +1,7 @@
-To build the web app, position yourself in `.wasp/build/web-app` directory:
+To build the web app, position yourself in `.wasp/out/web-app` directory:
 
 ```
-cd .wasp/build/web-app
+cd .wasp/out/web-app
 ```
 
 Run

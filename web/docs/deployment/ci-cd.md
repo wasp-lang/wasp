@@ -111,11 +111,11 @@ Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade739649
 
 3. Next, we **build the Wasp app** with `wasp build`.
 
-   This gives our server and the client app in the `.wasp/build` folder.
+   This gives our server and the client app in the `.wasp/out` folder.
 
 4. Then, we **package the server app** into a Docker image and **push it to the GHCR**.
 
-   We use the `Dockerfile` in the `.wasp/build` directory to build and push the server Docker image using the `docker/build-push-action` action.
+   We use the `Dockerfile` in the `.wasp/out` directory to build and push the server Docker image using the `docker/build-push-action` action.
 
 5. Next, we create a `Dockerfile` for our client and then **package the client app** into a Docker image and **push it to the GHCR**.
 

@@ -15,15 +15,25 @@ type WorkspaceName = String
 requiredWorkspaces :: [WorkspaceName]
 requiredWorkspaces = S.toList NW.requiredWorkspaceGlobs
 
+forbiddenWorkspaces :: [WorkspaceName]
+forbiddenWorkspaces = [".wasp/build/*"]
+
 workspacesValidator :: V.Validator P.PackageJson
 workspacesValidator =
   V.inField ("workspaces", P.workspaces) $
     maybe noWorkspacesDefinedError $
-      V.all [requiredWorkspaceValidator]
+      V.all
+        [ requiredWorkspaceValidator,
+          forbiddenWorkspaceValidator
+        ]
   where
     requiredWorkspaceValidator :: V.Validator [WorkspaceName]
     requiredWorkspaceValidator =
       V.all $ makeWorkspaceIncludedValidator <$> requiredWorkspaces
+
+    forbiddenWorkspaceValidator :: V.Validator [WorkspaceName]
+    forbiddenWorkspaceValidator =
+      V.all $ makeWorkspaceNotIncludedValidator <$> forbiddenWorkspaces
 
     noWorkspacesDefinedError =
       V.failure $
@@ -41,3 +51,14 @@ makeWorkspaceIncludedValidator expectedWorkspace =
         "Wasp requires workspace"
           ++ show expectedWorkspace
           ++ " to be included."
+
+makeWorkspaceNotIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
+makeWorkspaceNotIncludedValidator forbiddenWorkspace =
+  bool V.success forbiddenWorkspaceError
+    . elem forbiddenWorkspace
+  where
+    forbiddenWorkspaceError =
+      V.failure $
+        "Wasp requires "
+          ++ show forbiddenWorkspace
+          ++ " not to be included."
