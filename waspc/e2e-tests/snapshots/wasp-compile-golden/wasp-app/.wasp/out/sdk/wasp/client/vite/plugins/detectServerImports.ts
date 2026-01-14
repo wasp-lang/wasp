@@ -1,6 +1,5 @@
 import { type Plugin } from 'vite'
 import path from 'path'
-import { resolveProjectPath } from 'wasp/dev'
 
 export function detectServerImports(): Plugin {
   return {
@@ -43,10 +42,7 @@ function parsePathToUserCode(
     : null
 }
 
-// We can't pass the "waspProjectDir" path from Haskell because we need the absolute path:
-// e.g. /Users/{username}/dev/wasp/waspc/examples/todoApp
-// which contains machine specific info like the username which is different in the CI and locally.
-// This breaks our e2e tests in the CI because the path is different.
+
 function getWaspProjectDirAbsPathWhileInWebAppDir(): string {
-  return path.resolve(resolveProjectPath('./'))
+  return path.resolve('.')
 }

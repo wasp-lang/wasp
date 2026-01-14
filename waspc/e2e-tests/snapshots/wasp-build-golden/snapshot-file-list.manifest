@@ -38,6 +38,7 @@ wasp-app/.wasp/build/sdk/wasp/client/router/index.ts
 wasp-app/.wasp/build/sdk/wasp/client/router/linkHelpers.ts
 wasp-app/.wasp/build/sdk/wasp/client/router/types.ts
 wasp-app/.wasp/build/sdk/wasp/client/test/index.ts
+wasp-app/.wasp/build/sdk/wasp/client/test/setup.ts
 wasp-app/.wasp/build/sdk/wasp/client/test/vitest/helpers.tsx
 wasp-app/.wasp/build/sdk/wasp/client/vite/index.ts
 wasp-app/.wasp/build/sdk/wasp/client/vite/plugins/detectServerImports.ts
@@ -51,7 +52,6 @@ wasp-app/.wasp/build/sdk/wasp/client/vite/plugins/wasp.ts
 wasp-app/.wasp/build/sdk/wasp/core/serialization/custom-register.ts
 wasp-app/.wasp/build/sdk/wasp/core/serialization/index.ts
 wasp-app/.wasp/build/sdk/wasp/core/storage.ts
-wasp-app/.wasp/build/sdk/wasp/dev/index.ts
 wasp-app/.wasp/build/sdk/wasp/dist/api/events.d.ts
 wasp-app/.wasp/build/sdk/wasp/dist/api/events.d.ts.map
 wasp-app/.wasp/build/sdk/wasp/dist/api/events.js
@@ -173,6 +173,10 @@ wasp-app/.wasp/build/sdk/wasp/dist/client/test/index.d.ts
 wasp-app/.wasp/build/sdk/wasp/dist/client/test/index.d.ts.map
 wasp-app/.wasp/build/sdk/wasp/dist/client/test/index.js
 wasp-app/.wasp/build/sdk/wasp/dist/client/test/index.js.map
+wasp-app/.wasp/build/sdk/wasp/dist/client/test/setup.d.ts
+wasp-app/.wasp/build/sdk/wasp/dist/client/test/setup.d.ts.map
+wasp-app/.wasp/build/sdk/wasp/dist/client/test/setup.js
+wasp-app/.wasp/build/sdk/wasp/dist/client/test/setup.js.map
 wasp-app/.wasp/build/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 wasp-app/.wasp/build/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 wasp-app/.wasp/build/sdk/wasp/dist/client/test/vitest/helpers.jsx
@@ -225,10 +229,6 @@ wasp-app/.wasp/build/sdk/wasp/dist/core/storage.d.ts
 wasp-app/.wasp/build/sdk/wasp/dist/core/storage.d.ts.map
 wasp-app/.wasp/build/sdk/wasp/dist/core/storage.js
 wasp-app/.wasp/build/sdk/wasp/dist/core/storage.js.map
-wasp-app/.wasp/build/sdk/wasp/dist/dev/index.d.ts
-wasp-app/.wasp/build/sdk/wasp/dist/dev/index.d.ts.map
-wasp-app/.wasp/build/sdk/wasp/dist/dev/index.js
-wasp-app/.wasp/build/sdk/wasp/dist/dev/index.js.map
 wasp-app/.wasp/build/sdk/wasp/dist/entities/index.d.ts
 wasp-app/.wasp/build/sdk/wasp/dist/entities/index.d.ts.map
 wasp-app/.wasp/build/sdk/wasp/dist/entities/index.js
@@ -391,20 +391,6 @@ wasp-app/.wasp/build/src/MainPage.tsx
 wasp-app/.wasp/build/src/assets/logo.svg
 wasp-app/.wasp/build/src/vite-env.d.ts
 wasp-app/.wasp/build/tsconfig.json
-wasp-app/.wasp/build/web-app/.gitignore
-wasp-app/.wasp/build/web-app/.npmrc
-wasp-app/.wasp/build/web-app/README.md
-wasp-app/.wasp/build/web-app/netlify.toml
-wasp-app/.wasp/build/web-app/package.json
-wasp-app/.wasp/build/web-app/public/.gitkeep
-wasp-app/.wasp/build/web-app/public/favicon.ico
-wasp-app/.wasp/build/web-app/public/manifest.json
-wasp-app/.wasp/build/web-app/src/test/vitest/setup.ts
-wasp-app/.wasp/build/web-app/src/vite-env.d.ts
-wasp-app/.wasp/build/web-app/tsconfig.app.json
-wasp-app/.wasp/build/web-app/tsconfig.json
-wasp-app/.wasp/build/web-app/tsconfig.vite.json
-wasp-app/.wasp/build/web-app/vite.config.ts
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx
@@ -436,6 +422,7 @@ wasp-app/.wasp/out/sdk/wasp/client/router/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/router/linkHelpers.ts
 wasp-app/.wasp/out/sdk/wasp/client/router/types.ts
 wasp-app/.wasp/out/sdk/wasp/client/test/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/test/setup.ts
 wasp-app/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/detectServerImports.ts
@@ -449,7 +436,6 @@ wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/wasp.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/custom-register.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/index.ts
 wasp-app/.wasp/out/sdk/wasp/core/storage.ts
-wasp-app/.wasp/out/sdk/wasp/dev/index.ts
 wasp-app/.wasp/out/sdk/wasp/dist/api/events.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/api/events.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/api/events.js
@@ -571,6 +557,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/test/setup.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/test/vitest/helpers.jsx
@@ -623,10 +613,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/core/storage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.js
 wasp-app/.wasp/out/sdk/wasp/dist/core/storage.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/dev/index.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/dev/index.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/dev/index.js
-wasp-app/.wasp/out/sdk/wasp/dist/dev/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/entities/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/entities/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/entities/index.js

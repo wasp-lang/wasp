@@ -4,9 +4,9 @@ export function getIndexTsxContent(): string {
   import { getWaspApp } from "wasp/client/app";
   import { routesMapping } from './routes.virtual.tsx'
 
-  import { App as App_ext } from '../../../src/App'
+  import { App as App_ext } from './src/App'
 
-  import { setup as setup_ext } from '../../../src/clientSetup'
+  import { setup as setup_ext } from './src/clientSetup'
 
   await setup_ext()
 

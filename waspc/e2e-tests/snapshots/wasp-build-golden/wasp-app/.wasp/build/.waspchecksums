@@ -219,6 +219,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/test/setup.ts"
+        ],
+        "610e936776aaa39e861f0b2a83b0c0290d74ca8123d9d5409e5f2183384fdb52"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/test/vitest/helpers.tsx"
         ],
         "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
@@ -235,7 +242,7 @@
             "file",
             "../out/sdk/wasp/client/vite/plugins/detectServerImports.ts"
         ],
-        "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
+        "e0fd0f9df7afcb5b3d3e3c5eff9cf7134d79b049d1931957b191e45bc10bc892"
     ],
     [
         [
@@ -270,7 +277,7 @@
             "file",
             "../out/sdk/wasp/client/vite/plugins/virtual-files/routes.virtual.ts"
         ],
-        "5dd594c792719642c4adb5fdb52073c7f2808c7b89279e939026fba657e4194e"
+        "554c81a6bb9f05bf05fbc49f41e20c11ddba6936728c47e12e2a98b52c1ce058"
     ],
     [
         [
@@ -284,7 +291,7 @@
             "file",
             "../out/sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "bdd7151e418dab5b2d659d3dc7aba2eaf96c7905a93676eef1fdbe256913b2ad"
+        "4792668f0b8bf60a469b7508487eab8952d1a9a3ae1656e114fba0bab1e978ed"
     ],
     [
         [
@@ -306,13 +313,6 @@
             "../out/sdk/wasp/core/storage.ts"
         ],
         "e9e2a4a02d48bea1597fcdc00592e3d975eea7fa6e0545cf087da9429c5f4979"
-    ],
-    [
-        [
-            "file",
-            "../out/sdk/wasp/dev/index.ts"
-        ],
-        "12e6486b62e0aab2ea665775da66ee5d9783680bfe914f53a05a61efd60a5219"
     ],
     [
         [
@@ -340,7 +340,7 @@
             "file",
             "../out/sdk/wasp/package.json"
         ],
-        "702da894980ec3be824b4d0e2e49f57ba9c85c3046dc47d73b2ed9120a3a3119"
+        "11d1d8c50006bae8a079c59163a2bd07756367e75174692c30a0688ef1e94f23"
     ],
     [
         [
@@ -670,103 +670,5 @@
             "server/tsconfig.json"
         ],
         "949371883586daa391e4c740deab221a2c96fa2be1f159e82eb5a129d4a5134a"
-    ],
-    [
-        [
-            "file",
-            "web-app/.gitignore"
-        ],
-        "d373417ea2a8844e3b7a1515aab123e90fbeb4b7225144d55d243d9f6f04f73a"
-    ],
-    [
-        [
-            "file",
-            "web-app/.npmrc"
-        ],
-        "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
-    ],
-    [
-        [
-            "file",
-            "web-app/README.md"
-        ],
-        "6af47b8c26fa9d30e9b774e6c38d3456a3b469c3101bffb186e2a1fb325a93f4"
-    ],
-    [
-        [
-            "file",
-            "web-app/netlify.toml"
-        ],
-        "56ab3a5a45f041facffdebef3f0eeddcbddbeb67a9fc62dc8a2924e92d73a715"
-    ],
-    [
-        [
-            "file",
-            "web-app/package.json"
-        ],
-        "538eaf3ed60520ae51df7e9b0f864ad0689abae8ca520bb5546d4967b41afbf2"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/.gitkeep"
-        ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/favicon.ico"
-        ],
-        "1481f03584b46b63182c1f8d26e61a95ce4d8fae032b2b4f3fe5e00ab7e96c23"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/manifest.json"
-        ],
-        "990d5ffddc527d0ed5e70cf0d3d0c5b6ac29d2517fcaf8fb3993fe19b1f76841"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/test/vitest/setup.ts"
-        ],
-        "610e936776aaa39e861f0b2a83b0c0290d74ca8123d9d5409e5f2183384fdb52"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/vite-env.d.ts"
-        ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
-    ],
-    [
-        [
-            "file",
-            "web-app/tsconfig.app.json"
-        ],
-        "1c4711b7c2c3a02a3575190ba02bd3f16323bf53c4cde15b3951e144ae520c79"
-    ],
-    [
-        [
-            "file",
-            "web-app/tsconfig.json"
-        ],
-        "ca4390746683cd8fd3a73bdd761bab3cd22fc32b8c8edb1c3972de37f6eedf68"
-    ],
-    [
-        [
-            "file",
-            "web-app/tsconfig.vite.json"
-        ],
-        "9c42e36623fffac1df98d66fb62592bcae7bb897d79de1c9a331d6a7597b390c"
-    ],
-    [
-        [
-            "file",
-            "web-app/vite.config.ts"
-        ],
-        "9fdfc9ef3db696fb0e5c673165bc953aa7040cd45ac87ad87472ca1488142580"
     ]
 ]
