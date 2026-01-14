@@ -76,3 +76,4 @@ showWaspInfo waspInfo =
       unwords ["generated on", show $ generatedAt waspInfo],
       unwords ["by Wasp", waspVersion waspInfo]
     ]
+    ++ "."
