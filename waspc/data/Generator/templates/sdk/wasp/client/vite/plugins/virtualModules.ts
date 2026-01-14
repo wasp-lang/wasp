@@ -19,7 +19,6 @@ export function waspVirtualModules(): Plugin {
       // Using absolute paths gives proper context for resolving relative imports.
       indexTsxPath = path.resolve(projectRoot, "{= indexVirtualFileName =}");
       routesPath = path.resolve(projectRoot, "{= routesVirtualFileName =}");
-      console.log(projectRoot, indexTsxPath, routesPath);
     },
     resolveId(id) {
       // Intercept requests for /index.virtual.tsx and resolve to virtual module
