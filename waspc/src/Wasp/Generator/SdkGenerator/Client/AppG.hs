@@ -9,7 +9,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -23,15 +23,19 @@ import Wasp.Util ((<++>))
 genClientApp :: AppSpec -> Generator [FileDraft]
 genClientApp spec =
   sequence
-    [ genAppIndex,
+    [ genAppIndex spec,
       genWaspAppComponent spec
     ]
     <++> genAppComponents
     <++> genRouter spec
     <++> genAuthPages spec
 
-genAppIndex :: Generator FileDraft
-genAppIndex = return $ genFileCopy [relfile|client/app/index.tsx|]
+genAppIndex :: AppSpec -> Generator FileDraft
+genAppIndex spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|client/app/index.tsx|]
+      (object ["isAuthEnabled" .= isAuthEnabled spec])
 
 genWaspAppComponent :: AppSpec -> Generator FileDraft
 genWaspAppComponent spec =

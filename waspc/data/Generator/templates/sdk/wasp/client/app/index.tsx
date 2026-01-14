@@ -1,3 +1,4 @@
+{{={= =}=}}
 import { Outlet } from 'react-router-dom'
 import { initializeQueryClient } from '../operations'
 import { WaspApp, type WaspAppInput } from './components/WaspApp'
@@ -19,5 +20,7 @@ export function getWaspApp({
   return <WaspApp RootComponent={RootComponent} routesMapping={routesMapping} />
 }
 
+{=# isAuthEnabled =}
 // PRIVATE API (web-app)
 export { createAuthRequiredPage } from './pages/createAuthRequiredPage'
+{=/ isAuthEnabled =}
