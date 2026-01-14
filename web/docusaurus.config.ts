@@ -1,6 +1,7 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
+import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
@@ -238,29 +239,56 @@ const config: Config = {
   ],
 };
 
+type DocusaurusScript = DocusaurusConfig["scripts"][number];
+type ScriptWithConsent = Exclude<DocusaurusScript, string> & {
+  requiresConsent: boolean;
+};
+
 function getScripts() {
-  const sharedScripts: DocusaurusConfig["scripts"] = [
-    "/js/fix-multiple-trailing-slashes.js",
+  const sharedScripts: ScriptWithConsent[] = [
+    {
+      src: "/js/fix-multiple-trailing-slashes.js",
+      requiresConsent: false,
+    },
   ];
 
-  const devOnlyScripts: DocusaurusConfig["scripts"] = [];
+  const devOnlyScripts: ScriptWithConsent[] = [];
 
-  const prodOnlyScripts: DocusaurusConfig["scripts"] = [
-    // Plausible doesn't use cookies, so it can be loaded without consent.
-    // Using Cloudflare Workers to proxy the analytics script
+  const prodOnlyScripts: ScriptWithConsent[] = [
     {
+      // We are using Cloudflare Workers to proxy the Plausible script.
       src: "/waspara/wasp/script.js",
       defer: true,
       "data-domain": "wasp.sh",
       "data-api": "/waspara/wasp/event",
+      // Plausible doesn't use cookies, so it can be loaded right away.
+      requiresConsent: false,
+    },
+    {
+      src: "/scripts/posthog.js",
+      defer: true,
+      requiresConsent: true,
     },
   ];
 
-  if (isProduction) {
-    return [...sharedScripts, ...prodOnlyScripts];
-  } else {
-    return [...sharedScripts, ...devOnlyScripts];
-  }
+  const scripts = [
+    ...sharedScripts,
+    ...(isProduction ? prodOnlyScripts : devOnlyScripts),
+  ];
+
+  return mapToDocusaurusScripts(scripts);
+}
+
+function mapToDocusaurusScripts(
+  scripts: ScriptWithConsent[],
+): DocusaurusScript[] {
+  return scripts.map(({ requiresConsent, ...rest }) => ({
+    ...rest,
+    // Scripts requiring consent shouldn't be loaded until the cookies are accepted,
+    // so we use a custom type on the script _not to load it_ automatically.
+    // Later, if cookies are accepted, the script will be loaded.
+    type: requiresConsent ? SCRIPT_WITH_CONSENT_TYPE : undefined,
+  }));
 }
 
 export default config;

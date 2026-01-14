@@ -1,8 +1,9 @@
-import "@site/src/css/cookie-consent.css";
 import { useEffect } from "react";
 import CookieConsent, { Cookies } from "react-cookie-consent";
+import { SCRIPT_WITH_CONSENT_TYPE } from "../lib/cookie-consent";
+import classes from "./CookieConsentBanner.module.css";
 
-const consentCookieName = "wasp-cookies-consent";
+const CONSENT_COOKIE_NAME = "wasp-cookies-consent";
 
 export default function CookieConsentBanner() {
   const handleAccept = () => {
@@ -10,7 +11,7 @@ export default function CookieConsentBanner() {
   };
 
   useEffect(() => {
-    if (Cookies.get(consentCookieName) === "true") {
+    if (Cookies.get(CONSENT_COOKIE_NAME) === "true") {
       loadScripts();
     }
   }, []);
@@ -23,12 +24,12 @@ export default function CookieConsentBanner() {
       enableDeclineButton
       onAccept={handleAccept}
       disableStyles={true}
-      containerClasses="cookie-consent-container"
-      contentClasses="cookie-consent-content"
-      buttonWrapperClasses="cookie-consent-button-wrapper"
-      buttonClasses="cookie-consent-button-accept"
-      declineButtonClasses="cookie-consent-button-decline"
-      cookieName={consentCookieName}
+      containerClasses={classes.container}
+      contentClasses={classes.content}
+      buttonWrapperClasses={classes.buttonWrapper}
+      buttonClasses={classes.buttonAccept}
+      declineButtonClasses={classes.buttonDecline}
+      cookieName={CONSENT_COOKIE_NAME}
     >
       We use cookies primarily for analytics to enhance your experience. By
       accepting, you agree to our use of these cookies. You can manage your
@@ -38,25 +39,18 @@ export default function CookieConsentBanner() {
   );
 }
 
-type Script = {
-  name: string;
-  load: () => void;
-};
-
-const scriptsToLoadAfterConsent: Script[] = [
-  {
-    name: "PostHog",
-    load() {
-      const script = document.createElement("script");
-      script.src = "/scripts/posthog.js";
-      script.defer = true;
-      document.head.appendChild(script);
-    },
-  },
-];
-
 function loadScripts() {
-  for (const script of scriptsToLoadAfterConsent) {
-    script.load();
-  }
+  document
+    .querySelectorAll(`script[type="${SCRIPT_WITH_CONSENT_TYPE}"]`)
+    .forEach((oldScript) => {
+      const newScript = document.createElement("script");
+      Array.from(oldScript.attributes).forEach((attr) => {
+        if (attr.name === "type") {
+          newScript.setAttribute("type", "text/javascript");
+        } else {
+          newScript.setAttribute(attr.name, attr.value);
+        }
+      });
+      oldScript.parentNode?.replaceChild(newScript, oldScript);
+    });
 }
