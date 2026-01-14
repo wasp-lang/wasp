@@ -35,10 +35,10 @@ export default function DocComments(): ReactNode {
 
       <Giscus
         // Repo and discussion category where to store comments.
-        repo="wasp-lang/wasp.sh-comments"
-        repoId="R_kgDOQ2GLxw"
+        repo="wasp-lang/wasp"
+        repoId="MDEwOlJlcG9zaXRvcnkyMzcyMjI2MTk="
         category="Comments"
-        categoryId="DIC_kwDOQ2GLx84C0uT8"
+        categoryId="DIC_kwDODiO6284C08jO"
         // Mapping each page to a specific discussion:
         // We use "specific" + strict mapping, so Giscus will look for a discussion
         // with the exact term we provide. (Or create it if it doesn't exist yet.)
