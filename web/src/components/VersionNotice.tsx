@@ -13,28 +13,28 @@ import { useMemo } from "react";
  */
 export type Version = string | number | Date;
 
-export interface CheckedVersions {
+export interface LastCheckedWithVersions {
   [name: string]: Version;
 }
 
-export default function VersionNotice({
-  checkedVersions,
+export default function LastCheckedWithVersionsNotice({
+  lastCheckedWithVersions,
 }: {
-  checkedVersions: CheckedVersions;
+  lastCheckedWithVersions: LastCheckedWithVersions;
 }) {
-  const checkedWithString = useMemo(
+  const lastCheckedWithString = useMemo(
     () =>
       listFormatter.format(
-        Object.entries(checkedVersions).map(([key, value]) =>
+        Object.entries(lastCheckedWithVersions).map(([key, value]) =>
           formatVersion(key, value),
         ),
       ),
-    [checkedVersions],
+    [lastCheckedWithVersions],
   );
 
   return (
     <Admonition type="note">
-      <p className="font-bold">Last checked with {checkedWithString}.</p>
+      <p className="font-bold">Last checked with {lastCheckedWithString}.</p>
       This guide depends on external libraries or services, so it may become
       outdated over time. We do our best to keep it up to date, but make sure to
       check their documentation for any changes.

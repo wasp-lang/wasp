@@ -1,7 +1,7 @@
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import type { WrapperProps } from "@docusaurus/types";
-import VersionNotice, {
-  CheckedVersions,
+import LastCheckedWithVersionsNotice, {
+  LastCheckedWithVersions,
 } from "@site/src/components/VersionNotice";
 import Content from "@theme-original/DocItem/Content";
 import type ContentType from "@theme/DocItem/Content";
@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
 type Props = WrapperProps<typeof ContentType>;
 
 interface FrontMatter {
-  checked_versions?: CheckedVersions;
+  last_checked_with_versions?: LastCheckedWithVersions;
 }
 
 export default function ContentWrapper(props: Props): ReactNode {
@@ -18,9 +18,11 @@ export default function ContentWrapper(props: Props): ReactNode {
 
   return (
     <>
-      {frontMatter.checked_versions && (
+      {frontMatter.last_checked_with_versions && (
         <div className="mt-4">
-          <VersionNotice checkedVersions={frontMatter.checked_versions} />
+          <LastCheckedWithVersionsNotice
+            lastCheckedWithVersions={frontMatter.last_checked_with_versions}
+          />
         </div>
       )}
 
