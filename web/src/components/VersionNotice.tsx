@@ -1,11 +1,17 @@
 import { dateFormatter, listFormatter } from "@site/src/lib/formatters";
 import Admonition from "@theme/Admonition";
 import { useMemo } from "react";
-import styles from "./styles.module.css";
 
-// If a string looks like a number or date, YAML will parse it.
-// Dates are useful for unversioned dependencies, like Shadcn.
-type Version = string | number | Date;
+/**
+ * A version can be a simple string (e.g., "v2.3.4"), a number (e.g., 14),
+ * or a Date (e.g., 2023-01-15) indicating when the dependency was last checked.
+ *
+ * The YAML parser in Docusaurus automatically tries to parse any number-like or
+ * date-like strings into numbers or Date objects, so we need to account for that.
+ *
+ * Dates are especially useful for unversioned dependencies, like Shadcn.
+ */
+export type Version = string | number | Date;
 
 export interface CheckedVersions {
   [name: string]: Version;
@@ -28,9 +34,7 @@ export default function VersionNotice({
 
   return (
     <Admonition type="note">
-      <p className={styles.lastCheckedLine}>
-        Last checked with {checkedWithString}.
-      </p>
+      <p className="font-bold">Last checked with {checkedWithString}.</p>
       This guide depends on external libraries or services, so it may become
       outdated over time. We do our best to keep it up to date, but make sure to
       check their documentation for any changes.

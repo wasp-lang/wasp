@@ -6,7 +6,6 @@ import VersionNotice, {
 import Content from "@theme-original/DocItem/Content";
 import type ContentType from "@theme/DocItem/Content";
 import type { ReactNode } from "react";
-import styles from "./styles.module.css";
 
 type Props = WrapperProps<typeof ContentType>;
 
@@ -20,7 +19,7 @@ export default function ContentWrapper(props: Props): ReactNode {
   return (
     <>
       {frontMatter.checked_versions && (
-        <div className={styles.noticeWrapper}>
+        <div className="mt-4">
           <VersionNotice checkedVersions={frontMatter.checked_versions} />
         </div>
       )}
