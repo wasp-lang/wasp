@@ -40,10 +40,14 @@ import Wasp.Generator.DepVersions
     expressTypesVersion,
     expressVersionStr,
     prismaVersion,
+    reactDomTypesVersion,
+    reactDomVersion,
     reactQueryVersion,
     reactRouterVersion,
+    reactTypesVersion,
     reactVersion,
     superjsonVersion,
+    typescriptVersion,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
@@ -208,6 +212,9 @@ npmDepsForSdk spec =
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
+            ("react-dom", show reactDomVersion),
+            -- TODO: not sure if we go with peer or dev for React Query?
+            ("@tanstack/react-query", reactQueryVersion),
             ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
@@ -230,13 +237,17 @@ npmDepsForSdk spec =
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
+            ("typescript", show typescriptVersion),
+            ("@vitejs/plugin-react", "^4.7.0"),
             ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion)
+            ("@types/express-serve-static-core", show expressTypesVersion),
+            ("@types/react", show reactTypesVersion),
+            ("@types/react-dom", show reactDomTypesVersion),
+            -- NOTE: Make sure to bump the version of the tsconfig
+            -- when updating Vite or React versions
+            ("@tsconfig/vite-react", "^7.0.0")
           ],
-      N.peerDependencies =
-        Npm.Dependency.fromList
-          [ ("@tanstack/react-query", reactQueryVersion)
-          ]
+      N.peerDependencies = Npm.Dependency.fromList []
     }
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
