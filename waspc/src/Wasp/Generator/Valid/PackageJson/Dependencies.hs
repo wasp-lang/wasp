@@ -30,8 +30,7 @@ type DependencySpecification = (P.PackageName, P.PackageVersion)
 
 requiredRuntimeDeps :: [DependencySpecification]
 requiredRuntimeDeps =
-  [ ("wasp", "file:.wasp/out/sdk/wasp"),
-    -- Installing the wrong version of "react-router-dom" can make users believe that they
+  [ -- Installing the wrong version of "react-router-dom" can make users believe that they
     -- can use features that are not available in the version that Wasp supports.
     ("react-router-dom", show reactRouterVersion),
     ("react", show reactVersion),
@@ -52,12 +51,20 @@ optionalDeps =
     ("@types/express", show expressTypesVersion)
   ]
 
+forbiddenDeps :: [P.PackageName]
+forbiddenDeps =
+  [ -- The `wasp` package is used in the `workspaces` field of the user's package.json.
+    -- It shouldn't be listed as a dependency so it's not overwritten.
+    "wasp"
+  ]
+
 dependenciesValidator :: V.Validator P.PackageJson
 dependenciesValidator =
   V.all
     [ runtimeDepsValidator,
       developmentDepsValidator,
-      optionalDepsValidator
+      optionalDepsValidator,
+      forbiddenDepsValidator
     ]
   where
     runtimeDepsValidator :: V.Validator P.PackageJson
@@ -74,6 +81,14 @@ dependenciesValidator =
         [ makeOptionalDepValidator depType dep
           | depType <- [Runtime, Development],
             dep <- optionalDeps
+        ]
+
+    forbiddenDepsValidator :: V.Validator P.PackageJson
+    forbiddenDepsValidator =
+      V.all $
+        [ makeForbiddenDepValidator depType pkgName
+          | depType <- [Runtime, Development],
+            pkgName <- forbiddenDeps
         ]
 
 -- | Validates that a required dependency is present in the correct dependency
@@ -138,6 +153,22 @@ makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
           ++ " to be version "
           ++ show expectedPkgVersion
           ++ " if present."
+
+makeForbiddenDepValidator :: DependencyType -> P.PackageName -> V.Validator P.PackageJson
+makeForbiddenDepValidator depType pkgName =
+  inDependency depType pkgName forbiddenValidator
+  where
+    forbiddenValidator :: V.Validator (Maybe P.PackageVersion)
+    forbiddenValidator Nothing = V.success
+    forbiddenValidator _ = forbiddenError
+
+    forbiddenError =
+      V.failure $
+        "Wasp doesn't allow a package named "
+          ++ show pkgName
+          ++ " to be present in "
+          ++ show (fst $ fieldForDepType depType)
+          ++ "."
 
 -- | Runs the validator on a specific dependency of the given PackageJson
 -- record, setting the appropriate path for errors.
