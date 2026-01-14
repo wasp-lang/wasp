@@ -5,11 +5,13 @@ module Wasp.Generator.WaspInfo
     isCompatibleWithExistingBuildAt,
     WaspInfo (..),
     safeRead,
+    showWaspInfo,
   )
 where
 
 import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.Aeson.Types (FromJSON)
+import Data.List (intercalate)
 import Data.Time (UTCTime, getCurrentTime)
 import Data.Version (showVersion)
 import GHC.Generics (Generic)
@@ -65,3 +67,12 @@ safeRead projectRootDir = do
   doesFileExist waspInfoFile >>= \case
     False -> return Nothing
     True -> decodeFileStrict $ toFilePath waspInfoFile
+
+showWaspInfo :: WaspInfo -> String
+showWaspInfo waspInfo =
+  intercalate
+    ", "
+    [ unwords [show $ buildType waspInfo, "build"],
+      unwords ["generated on", show $ generatedAt waspInfo],
+      unwords ["by Wasp", waspVersion waspInfo]
+    ]

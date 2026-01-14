@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.Common
-  ( readWaspCompileInfo,
-    throwIfExeIsNotAvailable,
+  ( throwIfExeIsNotAvailable,
     deleteDirectoryIfExistsVerbosely,
   )
 where
@@ -16,23 +15,7 @@ import System.Directory
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
-import Wasp.Project (WaspProjectDir)
-import qualified Wasp.Project.Common as Project.Common
-import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
-
-readWaspCompileInfo :: Path' Abs (Dir WaspProjectDir) -> IO String
-readWaspCompileInfo waspDir =
-  ifM
-    (IOUtil.doesFileExist dotWaspInfoFile)
-    (IOUtil.readFile dotWaspInfoFile)
-    (return "No compile information found")
-  where
-    dotWaspInfoFile =
-      waspDir
-        </> Project.Common.dotWaspDirInWaspProjectDir
-        </> Project.Common.generatedCodeDirInDotWaspDir
-        </> Project.Common.dotWaspInfoFileInGeneratedCodeDir
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do
