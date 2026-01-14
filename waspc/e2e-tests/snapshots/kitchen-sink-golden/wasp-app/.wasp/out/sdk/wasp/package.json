@@ -4,6 +4,7 @@
     "@node-rs/argon2": "^1.8.3",
     "@prisma/client": "5.19.1",
     "@socket.io/component-emitter": "^4.0.0",
+    "@tanstack/react-query": "~4.42.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
@@ -19,6 +20,7 @@
     "pg-boss": "^8.4.2",
     "prisma": "5.19.1",
     "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-hook-form": "^7.45.4",
     "react-router-dom": "^6.26.2",
     "socket.io": "^4.6.1",
@@ -28,8 +30,13 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@tsconfig/vite-react": "^7.0.0",
     "@types/express": "^5.0.0",
-    "@types/express-serve-static-core": "^5.0.0"
+    "@types/express-serve-static-core": "^5.0.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "5.8.2"
   },
   "exports": {
     "./api/events": "./dist/api/events.js",
@@ -100,9 +107,7 @@
   ],
   "license": "ISC",
   "name": "wasp",
-  "peerDependencies": {
-    "@tanstack/react-query": "~4.42.0"
-  },
+  "peerDependencies": {},
   "private": true,
   "scripts": {
     "build": "tsc && node ./scripts/copy-assets.js",
