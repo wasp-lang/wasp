@@ -8,7 +8,7 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (reldirP, (</>))
+import StrongPath ((</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (dropExtensionFromImportPath)
@@ -49,9 +49,7 @@ extImportToSdkSrcRelativeImport extImport@(EI.ExtImport extImportName extImportP
     }
   where
     relativePath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
-    -- User project's `src` dir relative from where Vite is executed.
-    -- NOW: Relative from `web-app` dir: ../../../
-    projectSrcDir = [reldirP|../../../|] </> fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
+    projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
     importName = GJI.extImportNameToJsImportName extImportName
 
 getAliasedExtImportIdentifier :: EI.ExtImport -> String

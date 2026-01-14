@@ -16,8 +16,8 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.WebSocket as WS
+import qualified Wasp.Project.WebApp.Common as WebApp
 import Wasp.Util ((<++>))
 
 genClientApp :: AppSpec -> Generator [FileDraft]

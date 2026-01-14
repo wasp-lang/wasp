@@ -1,6 +1,7 @@
 module Wasp.Cli.Command.BuildStart.Config
   ( BuildStartConfig,
     buildDir,
+    projectDir,
     clientEnvVars,
     clientPort,
     clientUrl,
@@ -31,9 +32,9 @@ import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Project.WebApp.Common (defaultClientPort, getDefaultDevClientUrl)
+import qualified Wasp.Project.WebApp.Common as WebApp
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
@@ -43,11 +44,12 @@ data BuildStartConfig = BuildStartConfig
     clientUrl :: String,
     serverEnvVars :: [EnvVar],
     clientEnvVars :: [EnvVar],
-    buildDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir)
+    buildDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir),
+    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
-makeBuildStartConfig appSpec args projectDir = do
+makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <-
     liftIO $
       combineEnvVarsWithEnvFiles (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
@@ -70,6 +72,7 @@ makeBuildStartConfig appSpec args projectDir = do
     BuildStartConfig
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
+        projectDir = projectDir',
         serverUrl = serverUrl',
         clientPort = clientPort',
         clientUrl = clientUrl',
@@ -77,10 +80,10 @@ makeBuildStartConfig appSpec args projectDir = do
         clientEnvVars = clientEnvVars'
       }
   where
-    appUniqueId' = makeAppUniqueId projectDir appName
+    appUniqueId' = makeAppUniqueId projectDir' appName
     (appName, _) = ASV.getApp appSpec
 
-    buildDir' = projectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
+    buildDir' = projectDir' </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
 
     -- NOTE(carlos): For now, creating these URLs and ports below uses the default
     -- values we've hardcoded in the generator. In the future, we might want to make

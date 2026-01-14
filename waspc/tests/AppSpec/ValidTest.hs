@@ -503,7 +503,6 @@ spec_AppSpecValid = do
           AS.prismaSchema = getPrismaSchemaWithConfig "",
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],
-          AS.externalPublicFiles = [],
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
@@ -517,7 +516,6 @@ spec_AppSpecValid = do
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
           AS.devDatabaseUrl = Nothing,
-          AS.customViteConfigPath = Nothing,
           AS.srcTsConfigPath = [relfile|tsconfig.json|],
           AS.srcTsConfig =
             T.TsConfig

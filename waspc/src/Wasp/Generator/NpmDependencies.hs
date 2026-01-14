@@ -31,8 +31,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
 data NpmDepsForFramework = NpmDepsForFramework
-  { npmDepsForServer :: NpmDepsForPackage,
-    npmDepsForWebApp :: NpmDepsForPackage
+  { npmDepsForServer :: NpmDepsForPackage
   }
   deriving (Show, Eq, Generic)
 
@@ -80,19 +79,17 @@ ensureNoConflictWithUserDeps waspDeps userDeps
   where
     conflicts = getNpmDepsConflicts waspDeps userDeps
 
-buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
-buildWaspFrameworkNpmDeps spec fromServer fromWebApp
+buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> Either String NpmDepsForFramework
+buildWaspFrameworkNpmDeps spec fromServer
   | hasConflicts = Left "Could not construct npm dependencies due to a previously reported conflict."
   | otherwise =
       Right $
         NpmDepsForFramework
-          { npmDepsForServer = waspDepsToPackageDeps fromServer,
-            npmDepsForWebApp = waspDepsToPackageDeps fromWebApp
+          { npmDepsForServer = waspDepsToPackageDeps fromServer
           }
   where
-    hasConflicts = not $ null serverDepConflicts && null webAppDepConflicts
+    hasConflicts = not $ null serverDepConflicts
     serverDepConflicts = getNpmDepsConflicts fromServer userDeps
-    webAppDepConflicts = getNpmDepsConflicts fromWebApp userDeps
     userDeps = getUserNpmDepsForPackage spec
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser

@@ -12,12 +12,11 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG (genHtmlPlugin)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG (getVirtualModulesPlugin)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
     srcDirInWaspProjectDir,
   )
+import qualified Wasp.Project.WebApp.Common as WebApp
 import Wasp.Util ((<++>))
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
@@ -46,18 +45,11 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "defaultClientPort" .= WebApp.defaultClientPort,
           "vitest"
             .= object
-              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
+              [ -- Loading the setup fn from the SDK
+                "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    vitestSetupFiles =
-      [ SP.fromRelFile $
-          dotWaspDirInWaspProjectDir
-            </> generatedCodeDirInDotWaspDir
-            </> WebApp.webAppRootDirInProjectRootDir
-            </> WebApp.webAppSrcDirInWebAppRootDir
-            </> [relfile|test/vitest/setup.ts|]
-      ]
 
 genDetectServerImportsPlugin :: Generator FileDraft
 genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData

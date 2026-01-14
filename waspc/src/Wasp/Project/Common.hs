@@ -20,7 +20,6 @@ module Wasp.Project.Common
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
-    extPublicDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
     getSrcTsConfigInWaspProjectDir,
     srcTsConfigInWaspLangProject,
@@ -33,7 +32,7 @@ where
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
 
@@ -119,9 +118,6 @@ prismaSchemaFileInWaspProjectDir = [relfile|schema.prisma|]
 
 srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 srcDirInWaspProjectDir = [reldir|src|]
-
-extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
-extPublicDirInWaspProjectDir = [reldir|public|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->

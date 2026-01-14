@@ -1,6 +1,5 @@
-{{={= =}=}}
 {
-  "name": "{= appName =}",
+  "name": "KitchenSink",
   "icons": [
     {
       "src": "favicon.ico",
