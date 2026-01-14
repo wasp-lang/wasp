@@ -20,32 +20,31 @@ import Wasp.Generator.SdkGenerator.Common
 -- It contains all logic dependent on the user's project.
 data UserCoreTemplatesDir
 
-userCoreTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir UserCoreTemplatesDir)
-userCoreTemplatesDirInSdkTemplatesDir = [reldir|user-core|]
-
-userCoreOutputDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir UserCoreTemplatesDir)
-userCoreOutputDirInSdkRootDir = [reldir|user-core|]
-
 mkTmplFd ::
   Path' (Rel UserCoreTemplatesDir) File' ->
   FileDraft
 mkTmplFd tmplFile =
-  mkTmplFdWithDestAndData (castRel tmplFile) tmplFile Nothing
+  mkTmplFdWithDestAndData tmplFile tmplFile Nothing
 
 mkTmplFdWithData ::
   Path' (Rel UserCoreTemplatesDir) File' ->
   Aeson.Value ->
   FileDraft
 mkTmplFdWithData tmplFile tmplData =
-  mkTmplFdWithDestAndData (castRel tmplFile) tmplFile (Just tmplData)
+  mkTmplFdWithDestAndData tmplFile tmplFile (Just tmplData)
 
 mkTmplFdWithDestAndData ::
   Path' (Rel UserCoreTemplatesDir) File' ->
   Path' (Rel UserCoreTemplatesDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDestAndData destFile tmplFile tmplData =
+mkTmplFdWithDestAndData destFile tmplFile =
   createTemplateFileDraft
-    (sdkRootDirInProjectRootDir </> userCoreOutputDirInSdkRootDir </> castRel destFile)
-    (sdkTemplatesDirInTemplatesDir </> userCoreTemplatesDirInSdkTemplatesDir </> castRel tmplFile)
-    tmplData
+    (sdkRootDirInProjectRootDir </> userCoreOutputDirInSdkRootDir </> destFile)
+    (sdkTemplatesDirInTemplatesDir </> userCoreTemplatesDirInSdkTemplatesDir </> tmplFile)
+
+userCoreTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir UserCoreTemplatesDir)
+userCoreTemplatesDirInSdkTemplatesDir = [reldir|user-core|]
+
+userCoreOutputDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir UserCoreTemplatesDir)
+userCoreOutputDirInSdkRootDir = castRel userCoreTemplatesDirInSdkTemplatesDir
