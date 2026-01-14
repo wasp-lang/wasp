@@ -4,6 +4,8 @@ import { defaultExclude } from "vitest/config"
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
 import { validateEnv } from "./validateEnv.js";
 import { detectServerImports } from "./detectServerImports.js";
+import { waspVirtualModules } from "./virtualModules.js";
+import { waspHtml } from "./html.js";
 import { resolveProjectPath } from "../../../dev/index.js";
 
 export interface WaspPluginOptions {
@@ -12,6 +14,8 @@ export interface WaspPluginOptions {
 
 export function wasp(options?: WaspPluginOptions): Plugin[] {
   return [
+    waspHtml(),
+    waspVirtualModules(),
     validateEnv(),
     ...react(options?.reactOptions),
     detectServerImports(),

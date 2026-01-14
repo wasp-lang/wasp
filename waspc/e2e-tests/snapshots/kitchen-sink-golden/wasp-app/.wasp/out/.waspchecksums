@@ -653,6 +653,13 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/vite/plugins/html.ts"
+        ],
+        "88f468fb09426c4b95b08cf4c25b1d2e3844a7c126a2c75a9d6fb32994491ee9"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
         "956bb762df6ac7a2bb493dfa335c5fbd9c53be082e709eaa8a0873a75f143784"
@@ -660,9 +667,37 @@
     [
         [
             "file",
+            "../out/sdk/wasp/client/vite/plugins/virtual-files/index.virtual.ts"
+        ],
+        "452a8f5686b299a51a2fed16f47a73c705deb1923b3622d8288c1c5e429a6cb7"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/vite/plugins/virtual-files/indexHtml.virtual.ts"
+        ],
+        "7c84ce6b13b6e77fbafe50a10f3262236eab27aff70411d7074c97ef380e1d24"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/vite/plugins/virtual-files/routes.virtual.ts"
+        ],
+        "e443b5782ca6d37ae2142811f2d1f69ea370ccd72a6e5cdf8bc4e82f54e25717"
+    ],
+    [
+        [
+            "file",
+            "../out/sdk/wasp/client/vite/plugins/virtualModules.ts"
+        ],
+        "e608cf6759782f56bb8ee0900729ccdfca569ae21250ab58af2e243c4c3db539"
+    ],
+    [
+        [
+            "file",
             "../out/sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "b0f5e1542f56b39792a61739cddf2c84578a7a1008e1c4d7842f9aedf450aa17"
+        "bdd7151e418dab5b2d659d3dc7aba2eaf96c7905a93676eef1fdbe256913b2ad"
     ],
     [
         [
@@ -2375,13 +2410,6 @@
     [
         [
             "file",
-            "web-app/index.html"
-        ],
-        "c0cd220d4360169157912c8d54a2ef94ef17bb208155539d0bdb7d580095c087"
-    ],
-    [
-        [
-            "file",
             "web-app/netlify.toml"
         ],
         "56ab3a5a45f041facffdebef3f0eeddcbddbeb67a9fc62dc8a2924e92d73a715"
@@ -2413,20 +2441,6 @@
             "web-app/public/manifest.json"
         ],
         "363c9a329056993724a2344ff927743c4e7d1dcd2814c9f0aea3039180eee841"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/index.tsx"
-        ],
-        "d0b1ead4bcaab45a8fc6646db1685de85069b7bfaca5f05ec67e71328e93490a"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/router.tsx"
-        ],
-        "316d7b91f3e524ab67afd4943b47768aa72238f212745ce1f97c2393c20bbc3f"
     ],
     [
         [
