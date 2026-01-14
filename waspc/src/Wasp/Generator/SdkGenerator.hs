@@ -37,9 +37,9 @@ import Wasp.Generator.SdkGenerator.Common
   ( extSrcDirInSdkRootDir,
     sdkRootDirInProjectRootDir,
   )
-import Wasp.Generator.SdkGenerator.Core (genCore)
-import Wasp.Generator.SdkGenerator.Root (genRoot)
-import Wasp.Generator.SdkGenerator.UserCore (genUserCore)
+import Wasp.Generator.SdkGenerator.Core (genCoreTsconfigProject)
+import Wasp.Generator.SdkGenerator.Root (genRootTsconfigProject)
+import Wasp.Generator.SdkGenerator.UserCore (genUserCoreTsconfigProject)
 import Wasp.Generator.SdkGenerator.UserCore.EnvValidation (depsRequiredByEnvValidation)
 import Wasp.Generator.SdkGenerator.UserCore.Server.EmailSenderG (depsRequiredByEmail)
 import Wasp.Generator.SdkGenerator.UserCore.Server.JobGenerator (depsRequiredByJobs)
@@ -67,9 +67,9 @@ buildSdk projectRootDir = do
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
-  genRoot spec (npmDepsForSdk spec)
-    <++> genCore spec
-    <++> genUserCore spec
+  genRootTsconfigProject spec (npmDepsForSdk spec)
+    <++> genCoreTsconfigProject spec
+    <++> genUserCoreTsconfigProject spec
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
 
 -- TODO(filip): Figure out where this belongs.

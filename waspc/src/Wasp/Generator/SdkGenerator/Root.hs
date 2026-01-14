@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Root
-  ( genRoot,
+  ( genRootTsconfigProject,
   )
 where
 
@@ -15,8 +15,8 @@ import Wasp.Generator.SdkGenerator.Root.Common
     mkTmplFdWithData,
   )
 
-genRoot :: AppSpec -> N.NpmDepsForPackage -> Generator [FileDraft]
-genRoot _spec npmDeps =
+genRootTsconfigProject :: AppSpec -> N.NpmDepsForPackage -> Generator [FileDraft]
+genRootTsconfigProject _spec npmDeps =
   sequence
     [ return $ mkTmplFd [relfile|tsconfig.json|],
       return $ mkTmplFd [relfile|tsconfig.sdk.json|],

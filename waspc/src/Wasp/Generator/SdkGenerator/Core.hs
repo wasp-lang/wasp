@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Core
-  ( genCore,
+  ( genCoreTsconfigProject,
   )
 where
 
@@ -9,8 +9,8 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Core.Common (mkTmplFd)
 
-genCore :: AppSpec -> Generator [FileDraft]
-genCore _spec =
+genCoreTsconfigProject :: AppSpec -> Generator [FileDraft]
+genCoreTsconfigProject _spec =
   return
     [ mkTmplFd [relfile|tsconfig.json|],
       mkTmplFd [relfile|server/HttpError.ts|]

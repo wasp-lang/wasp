@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.UserCore
-  ( genUserCore,
+  ( genUserCoreTsconfigProject,
   )
 where
 
@@ -45,8 +45,8 @@ import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
 
-genUserCore :: AppSpec -> Generator [FileDraft]
-genUserCore spec =
+genUserCoreTsconfigProject :: AppSpec -> Generator [FileDraft]
+genUserCoreTsconfigProject spec =
   sequence
     [ return $ mkTmplFd [relfile|tsconfig.json|],
       return $ mkTmplFd [relfile|vite-env.d.ts|],
