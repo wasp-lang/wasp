@@ -9,8 +9,7 @@
     "react-router-dom": "^6.26.2",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "wait-port": "^1.1.0",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "wait-port": "^1.1.0"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
@@ -36,6 +35,7 @@
   },
   "type": "module",
   "workspaces": [
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ]
 }
