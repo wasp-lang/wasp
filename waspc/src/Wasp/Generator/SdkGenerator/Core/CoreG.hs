@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Core.SerilizationG
+module Wasp.Generator.SdkGenerator.Core.CoreG
   ( genCoreDir,
   )
 where

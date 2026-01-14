@@ -13,7 +13,7 @@ import Wasp.Generator.SdkGenerator.Core.UniversalG (genUniversal)
 import Wasp.Util ((<++>))
 
 genCoreTsconfigProject :: AppSpec -> Generator [FileDraft]
-genCoreTsconfigProject _spec =
+genCoreTsconfigProject spec =
   return
     [ mkTmplFd [relfile|tsconfig.json|],
       mkTmplFd [relfile|server/HttpError.ts|]
