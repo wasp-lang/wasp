@@ -52,7 +52,11 @@ optionalDeps =
   ]
 
 forbiddenDeps :: [P.PackageName]
-forbiddenDeps = ["wasp"]
+forbiddenDeps =
+  [ -- The `wasp` package is used in the `workspaces` field of the user's package.json.
+    -- It shouldn't be listed as a dependency so it's not overwritten.
+    "wasp"
+  ]
 
 dependenciesValidator :: V.Validator P.PackageJson
 dependenciesValidator =
