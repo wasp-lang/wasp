@@ -1,8 +1,4 @@
-import React from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { App } from '../../../../src/App'
-
-import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
+import { createAuthRequiredPage } from "wasp/client/app"
 
 import { HomePage } from '../../../../src/pages/HomePage'
 import { CatchAllPage } from '../../../../src/pages/CatchAllPage'
@@ -24,13 +20,7 @@ import { DetailPage as CrudDetail } from '../../../../src/features/crud/pages/De
 import { StreamingTestPage as StreamingPage } from '../../../../src/features/streaming/pages/StreamingTestPage'
 import { ChatPage } from '../../../../src/features/chat/pages/ChatPage'
 
-import { OAuthCallbackPage } from "./auth/pages/OAuthCallback"
-
-import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
-
-import { routes } from 'wasp/client/router'
-
-export const routeNameToRouteComponent = {
+export const routesMapping = {
   HomeRoute: HomePage,
   CatchAllRoute: CatchAllPage,
   SignupRoute: SignupPage,
@@ -51,30 +41,3 @@ export const routeNameToRouteComponent = {
   StreamingRoute: StreamingPage,
   ChatRoute: createAuthRequiredPage(ChatPage),
 } as const;
-
-const waspDefinedRoutes = [
-  {
-    path: "/oauth/callback",
-    Component: OAuthCallbackPage,
-  },
-]
-const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
-  return {
-    path: route.to,
-    Component: routeNameToRouteComponent[routeKey],
-  }
-})
-
-const browserRouter = createBrowserRouter([{
-  path: '/',
-  element: <App />,
-  ErrorBoundary: DefaultRootErrorBoundary,
-  children: [
-    ...waspDefinedRoutes,
-    ...userDefinedRoutes,
-  ],
-}], {
-  basename: '/',
-})
-
-export const router = <RouterProvider router={browserRouter} />

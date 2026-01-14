@@ -9,6 +9,5 @@
   },
   "include": [
     "vite.config.ts",
-    "vite/**/*",
   ]
 }
