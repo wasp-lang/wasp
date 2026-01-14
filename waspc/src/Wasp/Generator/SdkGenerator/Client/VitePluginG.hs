@@ -2,14 +2,15 @@ module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust)
-import StrongPath (Dir, Path', Rel, reldir, relfile, (</>))
+import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG (genHtmlPlugin)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG (getVirtualModulesPlugin)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
@@ -17,8 +18,7 @@ import Wasp.Project.Common
     generatedCodeDirInDotWaspDir,
     srcDirInWaspProjectDir,
   )
-
-data VitePluginsDir
+import Wasp.Util ((<++>))
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
@@ -28,19 +28,18 @@ genVitePlugins spec =
       genDetectServerImportsPlugin,
       genValidateEnvPlugin
     ]
-
-vitePluginsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir VitePluginsDir)
-vitePluginsDirInSdkTemplatesDir = [reldir|client/vite|]
+    <++> getVirtualModulesPlugin spec
+    <++> genHtmlPlugin spec
 
 genViteIndex :: Generator FileDraft
 genViteIndex = return $ C.mkTmplFd tmplPath
   where
-    tmplPath = vitePluginsDirInSdkTemplatesDir </> [relfile|index.ts|]
+    tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|index.ts|]
 
 genWaspPlugin :: AppSpec -> Generator FileDraft
 genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = vitePluginsDirInSdkTemplatesDir </> [relfile|plugins/wasp.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
     tmplData =
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
@@ -63,7 +62,7 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
 genDetectServerImportsPlugin :: Generator FileDraft
 genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = vitePluginsDirInSdkTemplatesDir </> [relfile|plugins/detectServerImports.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|detectServerImports.ts|]
     tmplData =
       object
         [ "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir
@@ -72,4 +71,4 @@ genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
 genValidateEnvPlugin :: Generator FileDraft
 genValidateEnvPlugin = return $ C.mkTmplFd tmplPath
   where
-    tmplPath = vitePluginsDirInSdkTemplatesDir </> [relfile|plugins/validateEnv.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
