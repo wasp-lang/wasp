@@ -30,7 +30,6 @@ data-files:
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma
-  Generator/templates/**/*.toml
   Generator/templates/**/*.css
   Generator/templates/**/*.ts
   Generator/templates/**/*.json
