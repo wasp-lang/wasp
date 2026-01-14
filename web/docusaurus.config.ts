@@ -286,7 +286,8 @@ function mapToDocusaurusScripts(
     ...rest,
     // Scripts requiring consent shouldn't be loaded until the cookies are accepted,
     // so we use a custom type on the script _not to load it_ automatically.
-    // Later, if cookies are accepted, the script will be loaded.
+    // Later, if cookies are accepted, the script will be loaded by the
+    // `src/components/CookieConsentBanner.tsx` component.
     type: requiresConsent ? SCRIPT_WITH_CONSENT_TYPE : undefined,
   }));
 }

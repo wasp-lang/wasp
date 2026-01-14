@@ -6,10 +6,6 @@ import classes from "./CookieConsentBanner.module.css";
 const CONSENT_COOKIE_NAME = "wasp-cookies-consent";
 
 export default function CookieConsentBanner() {
-  const handleAccept = () => {
-    loadScripts();
-  };
-
   useEffect(() => {
     if (Cookies.get(CONSENT_COOKIE_NAME) === "true") {
       loadScripts();
@@ -22,7 +18,7 @@ export default function CookieConsentBanner() {
       buttonText="Accept all"
       declineButtonText="Reject all"
       enableDeclineButton
-      onAccept={handleAccept}
+      onAccept={loadScripts}
       disableStyles={true}
       containerClasses={classes.container}
       contentClasses={classes.content}
