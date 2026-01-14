@@ -114,8 +114,7 @@ spec_WebAppGenerator = do
                   ["public" </> "manifest.json"],
                   map
                     (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
-                    [ "logo.png",
-                      "index.tsx",
+                    [ "index.tsx",
                       "router.tsx"
                     ]
                 ]
