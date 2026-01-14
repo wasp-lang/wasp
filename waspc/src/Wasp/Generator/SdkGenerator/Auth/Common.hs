@@ -1,4 +1,4 @@
-module Wasp.Generator.WebAppGenerator.Auth.Common where
+module Wasp.Generator.SdkGenerator.Auth.Common where
 
 import Data.Maybe (fromMaybe)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
