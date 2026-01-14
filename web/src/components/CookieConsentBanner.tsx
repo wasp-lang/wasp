@@ -38,15 +38,11 @@ export default function CookieConsentBanner() {
 function loadScripts() {
   document
     .querySelectorAll(`script[type="${SCRIPT_WITH_CONSENT_TYPE}"]`)
-    .forEach((oldScript) => {
-      const newScript = document.createElement("script");
-      Array.from(oldScript.attributes).forEach((attr) => {
-        if (attr.name === "type") {
-          newScript.setAttribute("type", "text/javascript");
-        } else {
-          newScript.setAttribute(attr.name, attr.value);
-        }
-      });
-      oldScript.parentNode?.replaceChild(newScript, oldScript);
+    .forEach((el) => {
+      // We need to reattach the element so that the browser picks up the new `type`.
+      const parent = el.parentNode;
+      parent.removeChild(el);
+      el.setAttribute("type", "text/javascript");
+      parent.appendChild(el);
     });
 }
