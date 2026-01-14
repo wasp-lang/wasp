@@ -150,7 +150,7 @@ genRootFiles spec =
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
-  return $ Root.mkTmplFdWithData [relfile|package.json|] (Just tmplData)
+  return $ Root.mkTmplFdWithData [relfile|package.json|] tmplData
   where
     tmplData =
       object
