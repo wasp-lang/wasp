@@ -1,21 +1,51 @@
 module Wasp.Cli.Command.Common
   ( throwIfExeIsNotAvailable,
     deleteDirectoryIfExistsVerbosely,
+    readWaspCompileInfo,
   )
 where
 
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Text as T
+import NeatInterpolation (trimming)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import StrongPath.Operations
-import System.Directory
-  ( findExecutable,
-  )
+import System.Directory (findExecutable)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import qualified Wasp.Generator.WaspInfo as WI
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common
+  ( WaspProjectDir,
+    dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+  )
 import qualified Wasp.Util.IO as IOUtil
+
+readWaspCompileInfo :: Path' Abs (Dir WaspProjectDir) -> Command String
+readWaspCompileInfo waspDir =
+  either showError showWaspInfo
+    <$> liftIO (WI.safeRead generatedCodeDir)
+  where
+    showError WI.NotFound = "Not compiled yet"
+    showError WI.IncompatibleFormat = "Incompatible compilation"
+
+    showWaspInfo waspInfo =
+      T.unpack
+        [trimming|
+          ${buildType} build, generated at ${generatedAt}, by Wasp ${waspVersion}.
+        |]
+      where
+        buildType = T.pack $ show $ WI.buildType waspInfo
+        generatedAt = T.pack $ show $ WI.generatedAt waspInfo
+        waspVersion = T.pack $ WI.waspVersion waspInfo
+
+    generatedCodeDir =
+      waspDir
+        </> dotWaspDirInWaspProjectDir
+        </> generatedCodeDirInDotWaspDir
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do

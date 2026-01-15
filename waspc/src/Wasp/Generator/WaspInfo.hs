@@ -5,13 +5,13 @@ module Wasp.Generator.WaspInfo
     isCompatibleWithExistingBuildAt,
     WaspInfo (..),
     safeRead,
-    showWaspInfo,
+    ReadResult,
+    ReadError (..),
   )
 where
 
 import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.Aeson.Types (FromJSON)
-import Data.List (intercalate)
 import Data.Time (UTCTime, getCurrentTime)
 import Data.Version (showVersion)
 import GHC.Generics (Generic)
@@ -53,27 +53,23 @@ persist projectRootDir currentBuildType = do
 
 isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir ProjectRootDir) -> IO Bool
 currentBuildType `isCompatibleWithExistingBuildAt` outDir =
-  maybe False isCompatible <$> safeRead outDir
+  either (const False) isCompatible <$> safeRead outDir
   where
     isCompatible (WaspInfo {waspVersion = storedVersion, buildType = storedBuildType}) =
       (storedVersion == currentVersion) && (storedBuildType == currentBuildType)
 
     currentVersion = showVersion Paths_waspc.version
 
-safeRead :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe WaspInfo)
-safeRead projectRootDir = do
-  let waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
+type ReadResult = Either ReadError WaspInfo
 
+data ReadError = NotFound | IncompatibleFormat
+
+safeRead :: Path' Abs (Dir ProjectRootDir) -> IO ReadResult
+safeRead projectRootDir =
   doesFileExist waspInfoFile >>= \case
-    False -> return Nothing
-    True -> decodeFileStrict $ toFilePath waspInfoFile
-
-showWaspInfo :: WaspInfo -> String
-showWaspInfo waspInfo =
-  intercalate
-    ", "
-    [ unwords [show $ buildType waspInfo, "build"],
-      unwords ["generated at", show $ generatedAt waspInfo],
-      unwords ["by Wasp", waspVersion waspInfo]
-    ]
-    ++ "."
+    False -> return $ Left NotFound
+    True ->
+      maybe (Left IncompatibleFormat) Right
+        <$> decodeFileStrict (toFilePath waspInfoFile)
+  where
+    waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
