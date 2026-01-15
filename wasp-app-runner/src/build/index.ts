@@ -1,6 +1,7 @@
 import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
 import { startLocalSmtpServer } from "../smtp.js";
+import type { VersionSettings } from "../versions.js";
 import { type AppName, waspBuild } from "../waspCli.js";
 import { buildClientApp, startClientApp } from "./client.js";
 import { buildServerAppContainer, runServerAppContainer } from "./server.js";
@@ -9,12 +10,14 @@ export async function startAppInBuildMode({
   waspCliCmd,
   pathToApp,
   appName,
+  versionSettings,
   dbType,
   dbImage,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
+  versionSettings: VersionSettings;
   dbType: DbType;
   dbImage: DockerImageName;
 }) {
@@ -42,15 +45,17 @@ export async function startAppInBuildMode({
   */
 
   const [, { containerName, imageName }] = await Promise.all([
-    buildClientApp({ pathToApp }),
+    buildClientApp({ pathToApp, versionSettings }),
     buildServerAppContainer({
       appName,
       pathToApp,
+      versionSettings,
     }),
   ]);
 
   const { processPromise: startClientProcessPromise } = await startClientApp({
     pathToApp,
+    versionSettings,
   });
 
   const { processPromise: startServerProcessPromise } =

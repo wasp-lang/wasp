@@ -141,7 +141,11 @@ jobs:
     # want to always clean them up.
     if: always()
     steps:
-      - uses: actions/checkout@v5
+      - name: Install Railway CLI
+        # NOTE: We pinned the Railway version because we don't want the changes in the
+        # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
+        # of Wasp, we're just incidentally using the same tool Wasp uses.
+        run: npm install -g @railway/cli@4.23.0
 
       - name: Clean up test project
-        run: node ./scripts/deploy-test/cleanup-railway-project.mjs "$APP_PREFIX"
+        run: railway delete --yes --project "$APP_PREFIX" || true
