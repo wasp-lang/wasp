@@ -12,7 +12,7 @@ import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens
 import Data.List (isSuffixOf)
-import StrongPath (Abs, Dir, Path', castRel, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
@@ -22,14 +22,13 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir, sdkRootDirInProjectRootDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
-    buildDirInDotWaspDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     getSrcTsConfigInWaspProjectDir,
@@ -43,7 +42,7 @@ import Wasp.Util.Json (updateJsonFile)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
--- to the disk, to the .wasp/build dir.
+-- to the disk, to the .wasp/out dir.
 -- At the end, prints a report on how building went (by printing warnings, errors,
 -- success/failure message, further steps, ...).
 -- Finally, throws if there was a compile/build error.
@@ -52,25 +51,18 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let buildDir =
-        waspProjectDir
-          </> dotWaspDirInWaspProjectDir
-          </> buildDirInDotWaspDir
+  let relBuildDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+      buildDir = waspProjectDir </> relBuildDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
-    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/build directory..."
+    cliSendMessageC $
+      Msg.Start $
+        "Clearing the content of the " ++ fromRelDir relBuildDir ++ " directory..."
     liftIO $ removeDirectory buildDir
-    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/build directory."
-
-  -- We are using the same SDK location for both build and start. Read this issue
-  -- for the full story: https://github.com/wasp-lang/wasp/issues/1769
-  let sdkDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInProjectRootDir
-  doesSdkDirExist <- liftIO $ doesDirectoryExist sdkDir
-  when doesSdkDirExist $ do
-    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out/sdk directory..."
-    liftIO $ removeDirectory sdkDir
-    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/out/sdk directory."
+    cliSendMessageC $
+      Msg.Success $
+        "Successfully cleared the contents of the " ++ fromRelDir relBuildDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
@@ -86,14 +78,15 @@ build = do
     Right () -> return ()
 
   cliSendMessageC $
-    Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
+    Msg.Success $
+      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir relBuildDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
       let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
-      -- we're copying all files and folders necessary for Docker build into the .wasp/build directory.
+      -- we're copying all files and folders necessary for Docker build into the .wasp/out directory.
       -- We chose this approach for 0.12.0 (instead of building from the project root) because:
       --   - The Docker build context remains small (~1.5 MB vs ~900 MB).
       --   - We don't risk copying possible secrets from the project root into Docker's build context.
