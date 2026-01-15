@@ -1,8 +1,5 @@
 {
   "type": "module",
-  "scripts": {
-    "postinstall": "node postinstall.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git"
@@ -22,5 +19,8 @@
   },
   "bin": {
     "wasp": "bin.js"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js"
   }
 }
