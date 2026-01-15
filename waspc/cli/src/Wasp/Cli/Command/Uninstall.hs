@@ -3,9 +3,10 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (when)
+import Control.Monad (filterM, when)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath (fromAbsDir, fromAbsFile, (</>))
+import StrongPath (Abs, Dir', File', Path', (</>))
+import qualified StrongPath as SP
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -18,7 +19,13 @@ import Wasp.Cli.FileSystem
     waspInstallationDirInHomeDir,
   )
 import qualified Wasp.Message as Msg
-import Wasp.Util.IO (deleteDirectoryIfExists, deleteFileIfExists)
+import Wasp.Util (indent)
+import Wasp.Util.IO
+  ( deleteDirectoryIfExists,
+    deleteFileIfExists,
+    doesDirectoryExist,
+    doesFileExist,
+  )
 
 -- | Removes Wasp from the system.
 uninstall :: Command ()
@@ -34,27 +41,41 @@ uninstall = do
 
 removeWaspFiles :: IO ()
 removeWaspFiles = do
-  homeDir <- getHomeDir
-  userCacheDir <- getUserCacheDir
-
-  let waspInstallationDir = homeDir </> waspInstallationDirInHomeDir
-      waspExecutableFile = homeDir </> waspExecutableInHomeDir
-      waspCacheDir = getWaspCacheDir userCacheDir
+  waspDirectories <- filterM doesDirectoryExist =<< getWaspDirectories
+  waspFiles <- filterM doesFileExist =<< getWaspFiles
 
   putStr $
-    unlines
-      [ "We will remove the following directories:",
-        "  " ++ fromAbsDir waspInstallationDir,
-        "  " ++ fromAbsDir waspCacheDir,
-        "",
-        "We will also remove the following files:",
-        "  " ++ fromAbsFile waspExecutableFile,
-        "",
-        "Are you sure you want to continue? [y/N]"
-      ]
+    unlines $
+      ["We will remove the following directories:"]
+        ++ (indent 2 . SP.fromAbsDir <$> waspDirectories)
+        ++ [ "",
+             "We will also remove the following files:"
+           ]
+        ++ (indent 2 . SP.fromAbsFile <$> waspFiles)
+        ++ [ "",
+             "Are you sure you want to continue? [y/N]"
+           ]
 
   answer <- getLine
   when (answer /= "y") $ die "Aborted."
-  deleteDirectoryIfExists waspInstallationDir
-  deleteFileIfExists waspExecutableFile
-  deleteDirectoryIfExists waspCacheDir
+
+  mapM_ deleteDirectoryIfExists waspDirectories
+  mapM_ deleteFileIfExists waspFiles
+
+getWaspDirectories :: IO [Path' Abs Dir']
+getWaspDirectories = do
+  homeDir <- getHomeDir
+  userCacheDir <- getUserCacheDir
+
+  return
+    [ homeDir </> waspInstallationDirInHomeDir,
+      SP.castDir $ getWaspCacheDir userCacheDir
+    ]
+
+getWaspFiles :: IO [Path' Abs File']
+getWaspFiles = do
+  homeDir <- getHomeDir
+
+  return
+    [ homeDir </> waspExecutableInHomeDir
+    ]
