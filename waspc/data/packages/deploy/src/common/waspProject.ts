@@ -45,8 +45,7 @@ export function getServerBuildArtefactsDir(
 export function getClientBuildArtefactsDir(
   waspProjectDir: WaspProjectDir,
 ): string {
-  const clientBuildDir = getClientBuildDir(waspProjectDir);
-  return path.join(clientBuildDir, "build");
+  return path.join(getWaspBuildDir(waspProjectDir), "web-app", "build");
 }
 
 function getWaspBuildDir(waspProjectDir: WaspProjectDir): string {
@@ -59,5 +58,6 @@ export function getServerBuildDir(waspProjectDir: WaspProjectDir): string {
 }
 
 export function getClientBuildDir(waspProjectDir: WaspProjectDir): string {
-  return path.join(getWaspBuildDir(waspProjectDir), "web-app");
+  // The client is build from the project root dir.
+  return path.join(waspProjectDir, ".");
 }
