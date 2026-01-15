@@ -102,7 +102,7 @@
     {=! Public: { type WebSocketDefinition, type WaspSocketData } =}
     {=! Private: [server, sdk] =}
     "./server/webSocket": "./dist/user-core/server/webSocket/index.js",
-    "./entities": "./dist/user-core/entities/index.js",
+    "./entities": "./dist/core/entities/index.js",
     "./auth": "./dist/user-core/auth/index.js",
     "./auth/providers": "./dist/user-core/auth/providers/index.js",
     "./client/auth": "./dist/user-core/client/auth/index.js",

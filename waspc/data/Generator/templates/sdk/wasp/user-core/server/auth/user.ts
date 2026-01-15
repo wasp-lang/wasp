@@ -3,7 +3,7 @@ import {
   type {= userEntityName =},
   type {= authEntityName =},
   type {= authIdentityEntityName =},
-} from '../../entities/index.js'
+} from 'wasp/entities'
 import {
   type PossibleProviderData,
   getProviderData,

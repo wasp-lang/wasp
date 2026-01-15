@@ -15,7 +15,6 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (WebAppRootDir, makeJsonWithEntityData)
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
-import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -135,21 +134,10 @@ genDevIndex =
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
   return
-    [ entitiesIndexFileDraft,
-      taggedEntitiesFileDraft,
+    [ taggedEntitiesFileDraft,
       typesIndexFileDraft
     ]
   where
-    entitiesIndexFileDraft =
-      mkTmplFdWithData
-        [relfile|entities/index.ts|]
-        ( object
-            [ "entities" .= allEntities,
-              "isAuthEnabled" .= isJust maybeUserEntityName,
-              "authEntityName" .= DbAuth.authEntityName,
-              "authIdentityEntityName" .= DbAuth.authIdentityEntityName
-            ]
-        )
     taggedEntitiesFileDraft =
       mkTmplFdWithData
         [relfile|server/_types/taggedEntities.ts|]
