@@ -1,5 +1,5 @@
-module Wasp.Generator.SdkGenerator.Core.ApiG
-  ( genApi,
+module Wasp.Generator.SdkGenerator.Core.EnvG
+  ( genEnv,
   )
 where
 
@@ -8,8 +8,9 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Core.Common (mkTmplFd)
 
-genApi :: Generator [FileDraft]
-genApi =
+genEnv :: Generator [FileDraft]
+genEnv =
   return
-    [ mkTmplFd [relfile|api/events.ts|]
+    [ mkTmplFd [relfile|env/index.ts|],
+      mkTmplFd [relfile|env/validation.ts|]
     ]

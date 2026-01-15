@@ -6,4 +6,3 @@ export function defineEnvValidationSchema<Schema extends z.ZodObject<any>>(
 ): Schema {
   return schema
 }
-

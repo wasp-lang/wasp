@@ -30,16 +30,8 @@ import Wasp.Util ((<++>))
 
 genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
-  genSharedEnvFiles
-    <++> genServerEnvFiles spec
+  genServerEnvFiles spec
     <++> genClientEnvFiles spec
-
-genSharedEnvFiles :: Generator [FileDraft]
-genSharedEnvFiles =
-  return
-    [ mkTmplFd [relfile|env/index.ts|],
-      mkTmplFd [relfile|env/validation.ts|]
-    ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec =
