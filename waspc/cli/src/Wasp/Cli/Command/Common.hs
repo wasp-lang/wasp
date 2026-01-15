@@ -17,20 +17,17 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Generator.WaspInfo as WI
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common
-  ( WaspProjectDir,
-    dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
-  )
+import Wasp.Project (WaspProjectDir)
+import qualified Wasp.Project.Common as Project.Common
 import qualified Wasp.Util.IO as IOUtil
 
-readWaspCompileInfo :: Path' Abs (Dir WaspProjectDir) -> Command String
+readWaspCompileInfo :: Path' Abs (Dir WaspProjectDir) -> IO String
 readWaspCompileInfo waspDir =
   either showError showWaspInfo
-    <$> liftIO (WI.safeRead generatedCodeDir)
+    <$> WI.safeRead generatedCodeDir
   where
-    showError WI.NotFound = "Not compiled yet"
-    showError WI.IncompatibleFormat = "Incompatible compilation"
+    showError WI.NotFound = "No compile information found"
+    showError WI.IncompatibleFormat = "Incompatible compile information"
 
     showWaspInfo waspInfo =
       T.unpack
@@ -44,8 +41,8 @@ readWaspCompileInfo waspDir =
 
     generatedCodeDir =
       waspDir
-        </> dotWaspDirInWaspProjectDir
-        </> generatedCodeDirInDotWaspDir
+        </> Project.Common.dotWaspDirInWaspProjectDir
+        </> Project.Common.generatedCodeDirInDotWaspDir
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do
