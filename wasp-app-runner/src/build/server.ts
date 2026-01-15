@@ -11,16 +11,17 @@ import { waitUntilAppReady } from "../http.js";
 import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
+import type { VersionSettings } from "../versions.js";
 import type { AppName } from "../waspCli.js";
-
-const serverAppDir = ".wasp/build";
 
 export async function buildServerAppContainer({
   appName,
   pathToApp,
+  versionSettings: { serverAppDir },
 }: {
   appName: AppName;
   pathToApp: PathToApp;
+  versionSettings: VersionSettings;
 }): Promise<{
   imageName: ServerBuildImageName;
   containerName: ServerBuildContainerName;
