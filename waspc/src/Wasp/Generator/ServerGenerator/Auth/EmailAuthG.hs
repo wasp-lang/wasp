@@ -71,7 +71,7 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
     maybeName = AS.EmailSender.name fromField
     email = AS.EmailSender.email fromField
 
-    isDevelopment = not $ AS.isBuild spec
+    isDevelopment = AS.isDevelopment spec
 
     emailVerificationClientRoute = getRoutePathFromRef spec $ AS.Auth.EmailVerification.clientRoute emailVerification
     passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset

@@ -1,0 +1,93 @@
+name: "Build - Wasp npm packages"
+
+on:
+  workflow_call:
+    inputs:
+      build-outputs-json:
+        description: "The returned outputs from the build workflow, as a JSON string"
+        required: true
+        type: string
+
+      override-npm-package-version:
+        description: >
+          If set, overrides the version of npm packages to publish.
+          Useful for publishing an RC version.
+          Leading 'v' will be stripped if present.
+        required: false
+        type: string
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+jobs:
+  make-npm-packages:
+    runs-on: ubuntu-latest
+
+    name: Make npm packages
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Compute artifact names for download
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-download-artifact-names
+        with:
+          build-name: all
+
+      - uses: actions/download-artifact@v6
+        with:
+          path: "./download/"
+          pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
+
+      - name: Copy artifacts to input folder
+        run: |
+          mkdir -p ./input/
+          cp ./download/${{ steps.compute-download-artifact-names.outputs.artifact-name }}/* ./input/
+
+      - name: Create build metadata file
+        env:
+          INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
+          OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version || 'null' }}
+          JQ_PROGRAM:
+            # The schema for this file is at `scripts/make-npm-packages/src/schema/input-data.ts`.
+            # We'll wrangle the data from the build jobs into that schema here.
+            |
+            {
+              version: ($overrideVersion // $inputData.waspc_version) | ltrimstr("v"),
+              tarballs:
+                $inputData
+                | with_entries(select(.key | startswith("output_")))
+                | map(
+                    fromjson
+                    | {
+                        fileName: .["tarball-name"],
+                        target: (.["npm-target"] | fromjson)
+                      }
+                  )
+            }
+        run: |
+          jq \
+            --null-input \
+            --argjson inputData "$INPUT_DATA_JSON" \
+            --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
+            "$JQ_PROGRAM" \
+            > ./input/data.json
+
+          cat ./input/data.json # For debugging purposes
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies for script
+        working-directory: ./scripts/make-npm-packages
+        run: npm ci
+
+      - name: Run packager script
+        run: node ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
+          include-hidden-files: true
+          path: ./output/

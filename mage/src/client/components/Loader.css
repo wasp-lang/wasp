@@ -1,3 +1,5 @@
+@reference "../Main.css";
+
 :root {
   --loader-size: 24px;
 }

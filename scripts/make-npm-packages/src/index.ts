@@ -27,9 +27,10 @@ if (args.values.help) {
     "sub-package-name": makeSubPackageName,
   } = ArgsSchema.parse(args.values);
 
-  const dataFilePath = fs.readJsonSync(path.join(inputDir, "data.json"));
+  const dataFilePath = path.join(inputDir, "data.json");
   console.log(`Reading input data from: ${dataFilePath}`);
-  const data = BuildDataSchema(inputDir).parse(dataFilePath);
+  const dataFile = fs.readJsonSync(dataFilePath);
+  const data = BuildDataSchema(inputDir).parse(dataFile);
 
   console.group("Creating subpackages in:", outputDir);
   const createdSubPackages = data.tarballs.map((tarballData) => {

@@ -2,8 +2,8 @@
   "name": "waspello",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ],
   "scripts": {
     "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
@@ -17,15 +17,15 @@
     "react-feather": "^2.0.10",
     "react-router-dom": "^6.26.2",
     "react-tiny-popover": "^8.1.6",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
+    "@tailwindcss/vite": "^4.1.18",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@wasp.sh/wasp-app-runner": "^0.0.8",
+    "@wasp.sh/wasp-app-runner": "^0.0.11",
     "prisma": "5.19.1",
-    "tailwindcss": "^3.2.7",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
     "wasp-config": "file:../../waspc/data/packages/wasp-config"

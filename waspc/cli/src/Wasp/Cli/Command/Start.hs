@@ -11,8 +11,8 @@ import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.News (fetchAndReportMandatoryNews)
-import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), FromOutDir (FromOutDir), InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
+import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -23,7 +23,17 @@ import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWas
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  liftIO fetchAndReportMandatoryNews
+  -- We check for the news only in `wasp start`, and only periodically,
+  -- to avoid being too aggressive. Specifically:
+  --   - We don't run it in other `wasp` commands because we don't want to
+  --     accidentally trigger news in CI (and `wasp start` is rarely used in
+  --     normal CI, except for maybe e2e testing).
+  --   - It would be annoying if news came out at you while you were doing
+  --     something like `wasp db migrate-dev`.
+  -- Therefore, it's best to keep the periodic news check contained and
+  -- expected. This way we know exactly which workflows it could possibly
+  -- interrupt (LLMs, CIs, people...).
+  liftIO fetchAndListMustSeeNewsIfDue
   InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
@@ -31,7 +41,7 @@ start = do
 
   warnings <- compile
 
-  DbConnectionEstablished FromOutDir <- require
+  DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."

@@ -18,14 +18,12 @@ module Wasp.Util.IO
     isDirectoryEmpty,
     writeFileFromText,
     readFileBytes,
-    readFileBytesStrict,
     writeFileBytes,
   )
 where
 
 import Control.Monad (filterM)
 import Control.Monad.Extra (whenM)
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as B
 import Data.List (sort)
 import Data.Text (Text)
@@ -116,9 +114,6 @@ readFileStrict = T.IO.readFile . SP.toFilePath
 
 readFileBytes :: Path' Abs (File f) -> IO B.ByteString
 readFileBytes = B.readFile . SP.fromAbsFile
-
-readFileBytesStrict :: Path' Abs (File f) -> IO BS.ByteString
-readFileBytesStrict = BS.readFile . SP.fromAbsFile
 
 writeFile :: Path' Abs (File f) -> String -> IO ()
 writeFile = P.writeFile . SP.fromAbsFile
