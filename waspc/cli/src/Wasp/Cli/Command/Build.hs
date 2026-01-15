@@ -89,14 +89,6 @@ build = do
           (waspProjectDir </> srcDirInWaspProjectDir)
           (buildDir </> castRel srcDirInWaspProjectDir)
 
-      -- Even though the build code references `.wasp/out/sdk` in user's `package.json`,
-      -- we need `.wasp/build/sdk` to exists because `.wasp/build/Dockerfile`
-      -- copies `.wasp/build/sdk` to `.wasp/out/sdk`.
-      liftIO $
-        copyDirectory
-          (buildDir </> sdkRootDirInProjectRootDir)
-          (buildDir </> sdkRootDirInProjectRootDir)
-
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
       let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigPath
