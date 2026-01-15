@@ -1,5 +1,4 @@
 {{={= =}=}}
-import path from "node:path"
 import { type Plugin, mergeConfig } from "vite";
 import { defaultExclude } from "vitest/config"
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
@@ -34,7 +33,11 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
           },
           envPrefix: "REACT_APP_",
           build: {
-            outDir: "build",
+            // TODO: decide if we want to keep the old build dir or introduce
+            // a new one at root and use just `build`. This would affect the deployment,
+            // but people would need to migrate to `npx vite build` anyways since there
+            // is no longer a `build` script in `web-app` they can call.
+            outDir: ".wasp/out/web-app/build",
           },
           resolve: {
             // These packages rely on a single instance per page. Not deduping them
@@ -43,14 +46,20 @@ export function wasp(options?: WaspPluginOptions): Plugin[] {
             dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router-dom"],
             alias: [
               {
+                // NOTE: saw this error, so I adjusted the code:
+                // [commonjs--resolver] Could not load node_modules/.prisma/client/index-browser:
+                // ENOENT: no such file or directory, open 'node_modules/.prisma/client/index-browser'
+                //
                 // Vite doesn't look for `.prisma/client` imports in the `node_modules`
                 // folder. We point it to the correct place here.
                 // TODO: Check if we can remove when updating Prisma (#2504)
-                find: /^\.prisma\/(.+)$/,
-                replacement: path.join(
-                  ".",
-                  "node_modules/.prisma/$1"
-                ),
+                find: /^\.prisma\/client\/(.+)$/,
+                replacement: "node_modules/.prisma/client/$1.js",
+              },
+              {
+                // Handle bare .prisma/client import
+                find: /^\.prisma\/client$/,
+                replacement: "node_modules/.prisma/client",
               },
             ],
           },

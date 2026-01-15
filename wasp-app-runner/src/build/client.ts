@@ -31,8 +31,8 @@ export async function buildClientApp({
 
   const { exitCode } = await spawnWithLog({
     name: "client-build-app",
-    cmd: "npm",
-    args: ["run", "build"],
+    cmd: "npx",
+    args: ["vite", "build"],
     cwd: path.join(pathToApp, clientAppDir),
     extraEnv: clientBuildEnv,
   });
@@ -60,11 +60,10 @@ export async function startClientApp({
 
   const clientAppProcess = spawnWithLog({
     name: "client-start-app",
-    cmd: "npm",
+    cmd: "npx",
     args: [
-      "run",
+      "vite",
       "preview",
-      "--",
       "--port",
       "3000",
       "--strictPort", // This will make it fail if the port is already in use.

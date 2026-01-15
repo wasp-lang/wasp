@@ -9,7 +9,13 @@ export interface VersionSettings {
 export const getSettingsForVersion = (
   version: WaspVersion,
 ): VersionSettings => {
-  if (semver.lt(version, "0.21.0")) {
+  // TODO: use `semver.lt(version, "0.22.0")` after we bump
+  if (true) {
+    return {
+      clientAppDir: ".",
+      serverAppDir: ".wasp/build",
+    };
+  } else if (semver.lt(version, "0.21.0")) {
     return {
       clientAppDir: ".wasp/build/web-app",
       serverAppDir: ".wasp/build",

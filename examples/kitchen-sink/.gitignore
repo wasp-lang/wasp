@@ -20,6 +20,3 @@ test-results/
 # These are config files for dotenv-vault, so we don't want to ignore them.
 !.env.project
 !.env.vault
-
-# TODO: decide if we want to build the client in ./.wasp/out/web-app/build or ./build
-build/
