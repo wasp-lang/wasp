@@ -54,7 +54,6 @@ genAuth spec =
         <++> sequence
           [ return $ mkTmplFd [relfile|core/auth.ts|],
             genAuthFileCopy [relfile|validation.ts|],
-            genAuthFileCopy [relfile|password.ts|],
             genAuthFileCopy [relfile|jwt.ts|],
             genSessionTs auth,
             genLuciaTs auth,

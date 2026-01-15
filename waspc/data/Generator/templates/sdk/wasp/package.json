@@ -33,7 +33,7 @@
     {=!  Used by users, documented. =}
     "./auth/utils": "./dist/user-core/auth/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./auth/password": "./dist/user-core/auth/password.js",
+    "./auth/password": "./dist/core/auth/password.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/jwt": "./dist/user-core/auth/jwt.js",
     {=!  Used by user, documented. =}

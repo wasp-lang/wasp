@@ -37,12 +37,9 @@ genOperations spec =
     [ -- Not migrated to TS yet
       genClientOpsFileCopy [relfile|internal/resources.js|],
       genClientOpsFileCopy [relfile|internal/index.ts|],
-      -- Not migrated to TS yet
-      genClientOpsFileCopy [relfile|internal/updateHandlersMap.js|],
       genClientOpsFileCopy [relfile|rpc.ts|],
       genClientOpsFileCopy [relfile|hooks.ts|],
-      genClientOpsFileCopy [relfile|index.ts|],
-      genClientOpsFileCopy [relfile|queryClient.ts|]
+      genClientOpsFileCopy [relfile|index.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec

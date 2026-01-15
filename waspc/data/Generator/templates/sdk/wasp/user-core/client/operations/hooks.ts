@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { Action, Query } from "./rpc";
 import { makeQueryCacheKey } from "./queries/core";
-export { configureQueryClient } from "./queryClient";
+export { configureQueryClient } from "../../../core/client/operations/queryClient.js";
 
 // PUBLIC API
 export function useQuery<Input, Output>(

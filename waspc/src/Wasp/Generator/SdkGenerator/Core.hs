@@ -22,7 +22,8 @@ genCoreTsconfigProject spec =
     [ mkTmplFd [relfile|tsconfig.json|],
       mkTmplFd [relfile|server/HttpError.ts|],
       mkTmplFd [relfile|vite-env.d.ts|],
-      mkTmplFd [relfile|prisma-runtime-library.d.ts|]
+      mkTmplFd [relfile|prisma-runtime-library.d.ts|],
+      mkTmplFd [relfile|auth/password.ts|]
     ]
     <++> genClient spec
     <++> genEntities spec

@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { hashPassword } from './password.js'
+import { hashPassword } from '../../core/auth/password.js'
 import { prisma, HttpError } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
