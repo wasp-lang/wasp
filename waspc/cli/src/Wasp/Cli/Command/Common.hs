@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Common
-  ( throwIfExeIsNotAvailable,
+  ( readWaspCompileInfo,
+    throwIfExeIsNotAvailable,
     deleteDirectoryIfExistsVerbosely,
-    readWaspCompileInfo,
   )
 where
 
