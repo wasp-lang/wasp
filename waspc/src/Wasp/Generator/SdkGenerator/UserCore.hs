@@ -4,14 +4,13 @@ module Wasp.Generator.SdkGenerator.UserCore
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (isJust, maybeToList)
+import Data.Maybe (isJust)
 import StrongPath (Dir, Path', Rel, fromRelDir, relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common (WebAppRootDir, makeJsonWithEntityData)
@@ -51,8 +50,6 @@ genUserCoreTsconfigProject spec =
     [ return $ mkTmplFd [relfile|tsconfig.json|],
       return $ mkTmplFd [relfile|vite-env.d.ts|],
       return $ mkTmplFd [relfile|prisma-runtime-library.d.ts|],
-      return $ mkTmplFd [relfile|api/index.ts|],
-      return $ mkTmplFd [relfile|api/events.ts|],
       return $ mkTmplFd [relfile|server/index.ts|],
       return $ mkTmplFd [relfile|client/test/vitest/helpers.tsx|],
       return $ mkTmplFd [relfile|client/test/index.ts|],
@@ -68,7 +65,6 @@ genUserCoreTsconfigProject spec =
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
     <++> genEntitiesAndServerTypesDirs spec
-    <++> genCoreSerializationDir spec
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
@@ -168,25 +164,6 @@ genEntitiesAndServerTypesDirs spec =
         )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
-
-genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
-genCoreSerializationDir spec =
-  return $
-    [ mkTmplFd [relfile|core/serialization/custom-register.ts|],
-      mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
-    ]
-      ++ maybeToList prismaSerializationFile
-  where
-    tmplData =
-      object
-        [ "entitiesExist" .= entitiesExist
-        ]
-
-    prismaSerializationFile
-      | entitiesExist = Just $ mkTmplFd [relfile|core/serialization/prisma.ts|]
-      | otherwise = Nothing
-
-    entitiesExist = hasEntities spec
 
 genServerExportedTypesDir :: Generator [FileDraft]
 genServerExportedTypesDir =

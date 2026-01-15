@@ -16,7 +16,7 @@
     {=!  Some of the statements in the comments might become incorrect. =}
     {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./core/storage": "./dist/user-core/core/storage.js",
+    "./core/storage": "./dist/core/core/storage.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./core/serialization": "./dist/user-core/core/serialization/index.js",
     "./core/auth": "./dist/user-core/core/auth.js",
@@ -93,7 +93,7 @@
     "./server/api": "./dist/user-core/server/api/index.js",
     {=! Public: { api }  =}
     {=! Private: [sdk] =}
-    "./client/api": "./dist/user-core/api/index.js",
+    "./client/api": "./dist/core/api/index.js",
     {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
     {=! Private: [] =}
     "./client/webSocket": "./dist/user-core/client/webSocket/index.js",
