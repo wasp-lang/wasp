@@ -50,14 +50,14 @@ On your server:
    - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
 3. Build your app with **`wasp build`**.
 4. Build and run the **server app**.
-   - Wasp gives you a `Dockerfile` in the `.wasp/build` directory that you can use to build and run the server app.
+   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server app.
    - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
    - When you run the server app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
 5. Start the **database** on the server or use a managed database service.
    - We usually run the database in Docker on the same server, but you can run the database directly on the server.
    - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
 6. Build the **client app** into static files.
-   - Wasp outputs the client app in the `.wasp/build/web-app` directory.
+   - Wasp outputs the client app in the `.wasp/out/web-app` directory.
    <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
    - You should [build the client app](./paas.md#3-deploying-the-web-client-) into static files.
 7. Install and set up a **reverse proxy** to serve your client and server apps.
