@@ -166,6 +166,7 @@ library
     , megaparsec            ^>= 9.5.0
     , validation-selective  ^>= 0.2.0
     , selective             ^>= 0.7.0
+    , http-types            ^>= 0.12.4
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -628,7 +629,6 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.GithubRepo
     Wasp.Cli.Util.EnvVarArgument
-    Wasp.Cli.Util.Http
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.Parser
 

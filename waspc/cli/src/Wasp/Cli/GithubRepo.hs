@@ -3,7 +3,7 @@ module Wasp.Cli.GithubRepo where
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', Rel)
 import Wasp.Cli.Archive (fetchArchiveAndCopySubdirToDisk)
-import Wasp.Cli.Util.Http (checkUrlExists)
+import Wasp.Util.Network.HTTP (checkUrlExists)
 
 data GithubRepoRef = GithubRepoRef
   { _repoOwner :: GithubRepoOwner,
