@@ -22,10 +22,19 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInProjectRootDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Project.BuildType as BuildType
-import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, getSrcTsConfigInWaspProjectDir, packageJsonInWaspProjectDir, packageLockJsonInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Project.Common
+  ( CompileError,
+    CompileWarning,
+    WaspProjectDir,
+    dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+    getSrcTsConfigInWaspProjectDir,
+    packageJsonInWaspProjectDir,
+    packageLockJsonInWaspProjectDir,
+    srcDirInWaspProjectDir,
+  )
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
