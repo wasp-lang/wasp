@@ -45,11 +45,11 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
     throwOutdatedTagError =
       throwProjectCreationError $
         unlines
-          [ "Template " ++ templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
+          [ "Template " ++ show templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
             "You can try again with an older Wasp version, or choose a different template.",
             "",
             "If you want to use an older Wasp version:",
-            "Visit " ++ releasesUrl ++ " to see available releases,",
+            "Visit " ++ releasesUrl ++ " to see available template releases,",
             "and install the Wasp version that matches the latest release tag available by running:",
             "",
             "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
