@@ -11,6 +11,7 @@ import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
+import Wasp.Cli.Common (CliPackagingMode (..), getPackagingMode)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -18,6 +19,7 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Util (indent)
 import Wasp.Util.IO
@@ -30,14 +32,31 @@ import Wasp.Util.IO
 -- | Removes Wasp from the system.
 uninstall :: Command ()
 uninstall = do
-  cliSendMessageC $ Msg.Start "Uninstalling Wasp ..."
+  liftIO getPackagingMode >>= \case
+    Installer -> installerUninstall
+    NpmPackage -> npmUninstall
+
+installerUninstall :: Command ()
+installerUninstall = do
+  cliSendMessageC $ Msg.Start "Uninstalling Wasp..."
   liftIO removeWaspFiles
   cliSendMessageC $ Msg.Success "Uninstalled Wasp."
-  cliSendMessageC $
-    Msg.Info $
-      "If you have used Wasp to run dev database for you, you might want to make sure you also"
-        <> " deleted all the docker volumes it might have created."
-        <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
+  cliSendMessageC dockerVolumeMsg
+
+npmUninstall :: Command ()
+npmUninstall = do
+  cliSendMessageC $ Msg.Start "Removing Wasp data..."
+  liftIO removeWaspFiles
+  cliSendMessageC $ Msg.Success "Removed Wasp data."
+  cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run 'npm uninstall -g @wasp/cli'."
+  cliSendMessageC dockerVolumeMsg
+
+dockerVolumeMsg :: Message
+dockerVolumeMsg =
+  Msg.Info $
+    "If you have used Wasp to run dev database for you, you might want to make sure you also"
+      <> " deleted all the docker volumes it might have created."
+      <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
 
 removeWaspFiles :: IO ()
 removeWaspFiles = do
