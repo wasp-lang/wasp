@@ -1,12 +1,11 @@
 {
   "name": "__waspAppName__",
   "type": "module",
-  "workspaces": [".wasp/build/*", ".wasp/out/*"],
+  "workspaces": [".wasp/out/*", ".wasp/out/sdk/wasp"],
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-router-dom": "^6.26.2",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.7",
