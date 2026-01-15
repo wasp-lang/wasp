@@ -46,9 +46,15 @@ app MyApp {
 }
 ```
 
-### 2. Remove the `.wasp/build/*` workspace from your project
+### 2. Update your `package.json`
 
-We don't use the `.wasp/build/*` directories anymore, so you should remove them from the list of workspaces in your `package.json` file. Keep the `.wasp/out/*` workspace as it is still needed:
+We've rearranged our workspace architecture a bit, so you'll need to update the `dependencies` and `workspaces` fields in your `package.json` file.
+
+- In your `workspaces` array:
+  - Remove `.wasp/build/*`.
+  - Add `.wasp/out/sdk/wasp`.
+- In your `dependencies` object:
+  - Remove the `wasp` dependency.
 
 <Tabs>
 <TabItem value="before" label="Before">
@@ -59,7 +65,13 @@ We don't use the `.wasp/build/*` directories anymore, so you should remove them 
     // highlight-next-line
     ".wasp/build/*",
     ".wasp/out/*"
-  ]
+  ],
+  dependencies: {
+    // ... other dependencies ...
+    // highlight-next-line
+    "wasp": "file:.wasp/out/sdk/wasp"
+  }
+  // ... other fields ...
 }
 ```
 
@@ -69,15 +81,21 @@ We don't use the `.wasp/build/*` directories anymore, so you should remove them 
 ```json title="package.json"
 {
   "workspaces": [
-    ".wasp/out/*"
-  ]
+    ".wasp/out/*",
+    // highlight-next-line
+    ".wasp/out/sdk/wasp"
+  ],
+  dependencies: {
+    // ... other dependencies ...
+  }
+  // ... other fields ...
 }
 ```
 
 </TabItem>
 </Tabs>
 
-Now, we will clean up the old `.wasp/build` directory (to avoid any potential conflicts), and let `npm` pick up the new workspace configuration. You can do this by running the following command in your terminal:
+Now, we will clean up the old `.wasp` directory (to avoid any potential conflicts), and let `npm` pick up the new workspace configuration. You can do this by running the following command in your terminal:
 
 ```sh
 wasp clean

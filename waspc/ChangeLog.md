@@ -9,6 +9,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now has **Tailwind CSS 4** support, and v3 support has been dropped. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 - Wasp now uses **Vitest 4** for testing. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - Removed the `.wasp/build` directory. Wasp now only uses `.wasp/out` for generated code, both in development and production mode. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
+- The Wasp SDK is now used as a workspace instead of a dependency. This avoids dependency resolution issues and further improves reliability of Wasp projects. ([#3544](https://github.com/wasp-lang/wasp/pull/3544))
 
 ### 🎉 New Features
 
