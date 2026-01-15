@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../../core/universal/types'
+import { IfAny, _Awaited, _ReturnType, _Parameters } from 'wasp/universal/types'
 
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'

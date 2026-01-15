@@ -9,7 +9,7 @@ import {
   getProviderData,
 } from '../../auth/utils.js'
 import { type ProviderName } from '../_types/index.js'
-import { Expand } from '../../../core/universal/types.js'
+import { Expand } from 'wasp/universal/types'
 
 // PUBLIC API
 export type AuthUser = AuthUserData & {

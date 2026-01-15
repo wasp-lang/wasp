@@ -59,6 +59,8 @@
     "./universal/validators": "./dist/core/universal/validators.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./universal/ansiColors": "./dist/core/universal/ansiColors.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./universal/predicates": "./dist/core/universal/predicates.js",
     {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
     "./server/utils": "./dist/user-core/server/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
