@@ -93,7 +93,7 @@
     "./server/api": "./dist/user-core/server/api/index.js",
     {=! Public: { api }  =}
     {=! Private: [sdk] =}
-    "./client/api": "./dist/user-core/client/api/index.js",
+    "./client/api": "./dist/user-core/api/index.js",
     {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
     {=! Private: [] =}
     "./client/webSocket": "./dist/user-core/client/webSocket/index.js",
