@@ -18,7 +18,7 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./core/storage": "./dist/core/core/storage.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./core/serialization": "./dist/user-core/core/serialization/index.js",
+    "./core/serialization": "./dist/core/core/serialization/index.js",
     "./core/auth": "./dist/user-core/core/auth.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/helpers/user": "./dist/user-core/auth/helpers/user.js",
@@ -41,7 +41,7 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/pages/createAuthRequiredPage": "./dist/user-core/auth/pages/createAuthRequiredPage.jsx",
     {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
-    "./api/events": "./dist/user-core/api/events.js",
+    "./api/events": "./dist/core/api/events.js",
     {=!  Used by users, documented. =}
     "./operations": "./dist/user-core/operations/index.js",
     {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
