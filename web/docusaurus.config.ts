@@ -269,6 +269,11 @@ function getScripts() {
       defer: true,
       requiresConsent: true,
     },
+    {
+      src: "/scripts/reo.js",
+      defer: true,
+      requiresConsent: true,
+    },
   ];
 
   const scripts = [
