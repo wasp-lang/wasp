@@ -1,6 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Generator.WaspInfo (persist, checkIfCleanBuildNeeded) where
+module Wasp.Generator.WaspInfo
+  ( persist,
+    isCompatibleWithExistingBuildAt,
+    WaspInfo (..),
+    safeRead,
+  )
+where
 
 import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.Aeson.Types (FromJSON)
@@ -43,9 +49,14 @@ persist projectRootDir currentBuildType = do
     waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
     currentVersion = showVersion Paths_waspc.version
 
-checkIfCleanBuildNeeded :: Path' Abs (Dir ProjectRootDir) -> BuildType -> IO Bool
-checkIfCleanBuildNeeded outDir currentBuildType =
-  maybe True (needsCleanBuild currentBuildType) <$> safeRead outDir
+isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir ProjectRootDir) -> IO Bool
+currentBuildType `isCompatibleWithExistingBuildAt` outDir =
+  maybe False isCompatible <$> safeRead outDir
+  where
+    isCompatible (WaspInfo {waspVersion = storedVersion, buildType = storedBuildType}) =
+      (storedVersion == currentVersion) && (storedBuildType == currentBuildType)
+
+    currentVersion = showVersion Paths_waspc.version
 
 safeRead :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe WaspInfo)
 safeRead projectRootDir = do
@@ -54,11 +65,3 @@ safeRead projectRootDir = do
   doesFileExist waspInfoFile >>= \case
     False -> return Nothing
     True -> decodeFileStrict $ toFilePath waspInfoFile
-
-needsCleanBuild :: BuildType -> WaspInfo -> Bool
-needsCleanBuild currentBuildType storedInfo =
-  (storedVersion /= currentVersion) || (storedBuildType /= currentBuildType)
-  where
-    storedVersion = waspVersion storedInfo
-    currentVersion = showVersion Paths_waspc.version
-    storedBuildType = buildType storedInfo
