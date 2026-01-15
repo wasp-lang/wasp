@@ -8,13 +8,14 @@ import { waitUntilAppReady } from "../http.js";
 import { createLogger } from "../logging.js";
 import { spawnWithLog } from "../process.js";
 import { EnvVars } from "../types.js";
-
-const clientAppDir = ".wasp/build/web-app";
+import type { VersionSettings } from "../versions.js";
 
 export async function buildClientApp({
   pathToApp,
+  versionSettings: { clientAppDir },
 }: {
   pathToApp: PathToApp;
+  versionSettings: VersionSettings;
 }): Promise<void> {
   const logger = createLogger("client-build-app");
 
@@ -50,8 +51,10 @@ export async function buildClientApp({
  */
 export async function startClientApp({
   pathToApp,
+  versionSettings: { clientAppDir },
 }: {
   pathToApp: PathToApp;
+  versionSettings: VersionSettings;
 }): Promise<{ processPromise: Promise<{ exitCode: number | null }> }> {
   const logger = createLogger("client-start-app");
 

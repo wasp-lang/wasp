@@ -111,7 +111,7 @@ genPackageJson spec waspDependencies = do
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= webAppPackageName spec,
+            [ "packageName" .= webAppPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
