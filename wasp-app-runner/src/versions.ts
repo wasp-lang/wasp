@@ -13,7 +13,7 @@ export const getSettingsForVersion = (
   if (true) {
     return {
       clientAppDir: ".",
-      serverAppDir: ".wasp/build",
+      serverAppDir: ".wasp/out",
     };
   } else if (semver.lt(version, "0.21.0")) {
     return {
