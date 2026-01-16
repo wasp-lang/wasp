@@ -32,7 +32,6 @@ genNewServerApi spec =
           genHooks auth
         ]
         <++> genAuthEmail auth
-        <++> genAuthUsername auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -75,12 +74,6 @@ genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
     then sequence [genServerAuthFileCopy [relfile|email/index.ts|]]
-    else return []
-
-genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthUsername auth =
-  if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genServerAuthFileCopy [relfile|username.ts|]]
     else return []
 
 serverAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'

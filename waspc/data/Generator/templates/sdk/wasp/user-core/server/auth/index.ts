@@ -45,5 +45,5 @@ export * from './email/index.js'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-export * from './username.js'
+export * from '../../../core/server/auth/username.js'
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}

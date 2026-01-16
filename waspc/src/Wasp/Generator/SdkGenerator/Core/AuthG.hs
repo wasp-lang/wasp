@@ -1,6 +1,5 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
-{-# HLINT ignore "Redundant bracket" #-}
 module Wasp.Generator.SdkGenerator.Core.AuthG
   ( genAuth,
   )
@@ -22,20 +21,19 @@ genAuth spec =
   case maybeAuth of
     Nothing -> return []
     Just auth ->
-      ( return
-          [ mkTmplFd [relfile|auth/password.ts|],
-            mkTmplFd [relfile|auth/validation.ts|],
-            mkTmplFd [relfile|auth/forms/internal/util.ts|],
-            mkTmplFd [relfile|auth/forms/internal/auth-styles.css|],
-            mkTmplFd [relfile|auth/forms/internal/Form.tsx|],
-            mkTmplFd [relfile|auth/forms/internal/Form.module.css|],
-            mkTmplFd [relfile|auth/forms/internal/Message.tsx|],
-            mkTmplFd [relfile|auth/forms/internal/Message.module.css|]
-          ]
-      )
+      return
+        [ mkTmplFd [relfile|auth/password.ts|],
+          mkTmplFd [relfile|auth/validation.ts|],
+          mkTmplFd [relfile|auth/forms/internal/util.ts|],
+          mkTmplFd [relfile|auth/forms/internal/auth-styles.css|],
+          mkTmplFd [relfile|auth/forms/internal/Form.tsx|],
+          mkTmplFd [relfile|auth/forms/internal/Form.module.css|],
+          mkTmplFd [relfile|auth/forms/internal/Message.tsx|],
+          mkTmplFd [relfile|auth/forms/internal/Message.module.css|]
+        ]
         <++> genSocialComponents auth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeAuth = (snd $ getApp spec).auth
 
 genSocialComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genSocialComponents auth =

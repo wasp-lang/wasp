@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Wasp.Generator.SdkGenerator.Core.EntitiesG
   ( genEntities,
   )
@@ -10,7 +12,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.Valid as AS.Valid
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -34,4 +36,4 @@ genEntitiesIndex spec =
       )
   where
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
-    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> (snd $ getApp spec).auth
