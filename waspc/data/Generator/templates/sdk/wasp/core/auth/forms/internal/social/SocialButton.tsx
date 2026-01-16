@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from "react";
-import "../../../../../core/auth/forms/internal/auth-styles.css";
-import { clsx } from "../../../../../core/auth/forms/internal/util.js";
+import "../auth-styles.css";
+import { clsx } from "../util.js";
 import styles from "./SocialButton.module.css";
 
 // PRIVATE API

@@ -70,7 +70,6 @@ genInternalAuthComponents auth =
     <++> genLoginSignupForm auth
     <++> genEmailComponents
     <++> genUsernameAndPasswordComponents
-    <++> genSocialComponents
   where
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
@@ -88,24 +87,6 @@ genInternalAuthComponents auth =
           [ genAuthFormsFileCopy [relfile|internal/usernameAndPassword/useUsernameAndPassword.ts|]
           ]
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
-
-    genSocialComponents =
-      genConditionally isExternalAuthEnabled $
-        genSocialButtonComponent
-          <++> genSocialIconsComponent
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
-
-    genSocialButtonComponent =
-      sequence
-        [ genAuthFormsFileCopy [relfile|internal/social/SocialButton.tsx|],
-          genAuthFormsFileCopy [relfile|internal/social/SocialButton.module.css|]
-        ]
-
-    genSocialIconsComponent =
-      sequence
-        [ genAuthFormsFileCopy [relfile|internal/social/SocialIcons.tsx|],
-          genAuthFormsFileCopy [relfile|internal/social/SocialIcons.module.css|]
-        ]
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =

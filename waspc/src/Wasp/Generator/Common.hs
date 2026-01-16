@@ -10,7 +10,7 @@ module Wasp.Generator.Common
     GeneratedSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
-    genOptionally,
+    genConditionally,
   )
 where
 
@@ -78,6 +78,6 @@ dropExtensionFromImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.f
   where
     dropExtension = fst . splitExtension
 
-genOptionally :: Bool -> a -> Generator [a]
-genOptionally True gen = return [gen]
-genOptionally False _ = return []
+genConditionally :: Bool -> [a] -> Generator [a]
+genConditionally True gen = return gen
+genConditionally False _ = return []

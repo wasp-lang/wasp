@@ -23,8 +23,8 @@ import type {
   FormState,
 } from '../../types'
 {=# isSocialAuthEnabled =}
-import * as SocialIcons from '../social/SocialIcons'
-import { SocialButton } from '../social/SocialButton'
+import * as SocialIcons from '../../../../../core/auth/forms/internal/social/SocialIcons'
+import { SocialButton } from '../../../../../core/auth/forms/internal/social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router-dom'

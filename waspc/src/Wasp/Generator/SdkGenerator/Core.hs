@@ -29,7 +29,7 @@ genCoreTsconfigProject spec =
       mkTmplFd [relfile|prisma-runtime-library.d.ts|]
     ]
     <++> genClient spec
-    <++> genAuth
+    <++> genAuth spec
     <++> genEntities spec
     <++> genUniversal
     <++> genApi
