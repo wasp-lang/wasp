@@ -6,6 +6,7 @@ import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   getClientBuildDir,
+  getClientDeploymentDir,
   getServerBuildDir,
 } from "../../../../common/waspProject.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
@@ -207,10 +208,11 @@ async function setupClient({
   waspSays(`Setting up client app with name ${clientServiceName}`);
 
   const clientBuildDir = getClientBuildDir(options.waspProjectDir);
+  const clientDeploymentDir = getClientDeploymentDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(options.railwayExe, clientBuildDir);
 
   // Having a Staticfile tells Railway to use a static file server.
-  await $({ cwd: clientBuildDir })`touch Staticfile`;
+  await $({ cwd: clientDeploymentDir })`touch Staticfile`;
 
   await railwayCli(
     [

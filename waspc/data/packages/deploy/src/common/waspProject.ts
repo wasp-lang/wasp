@@ -45,7 +45,7 @@ export function getServerBuildArtefactsDir(
 export function getClientBuildArtefactsDir(
   waspProjectDir: WaspProjectDir,
 ): string {
-  return path.join(getWaspBuildDir(waspProjectDir), "web-app", "build");
+  return path.join(getClientDeploymentDir(waspProjectDir), "build");
 }
 
 function getWaspBuildDir(waspProjectDir: WaspProjectDir): string {
@@ -55,6 +55,11 @@ function getWaspBuildDir(waspProjectDir: WaspProjectDir): string {
 export function getServerBuildDir(waspProjectDir: WaspProjectDir): string {
   // The server is built from the Wasp out directory.
   return path.join(getWaspBuildDir(waspProjectDir), ".");
+}
+
+export function getClientDeploymentDir(waspProjectDir: WaspProjectDir): string {
+  // The client is deployed from the `.out/web-app` dir.
+  return path.join(getWaspBuildDir(waspProjectDir), "web-app");
 }
 
 export function getClientBuildDir(waspProjectDir: WaspProjectDir): string {
