@@ -75,8 +75,9 @@ function spaFallbackMiddleware(): Connect.NextHandleFunction {
           req.headers.accept.includes("*/*"))
       ) {
         const url = req.url || "/";
+        const { pathname } = new URL(url, "http://localhost");
         // If it's a route (no extension, not a special Vite path), rewrite to /index.html
-        if (!url.includes(".") && !url.startsWith("/@")) {
+        if (!pathname.includes(".") && !pathname.startsWith("/@")) {
           req.url = `/${indexHtmlFileName}`;
         }
       }
